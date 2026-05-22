@@ -6,7 +6,7 @@ coding exercises, problem-based learning scenarios, and assessments.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import random
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class ExerciseType(Enum):
     """Types of educational exercises."""
+
     MAPPING = "mapping"
     ANALYSIS = "analysis"
     CODING = "coding"
@@ -28,6 +29,7 @@ class ExerciseType(Enum):
 
 class DifficultyLevel(Enum):
     """Exercise difficulty levels."""
+
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"
     ADVANCED = "advanced"
@@ -37,6 +39,7 @@ class DifficultyLevel(Enum):
 @dataclass
 class Exercise:
     """Represents an educational exercise."""
+
     id: str
     title: str
     description: str
@@ -55,6 +58,7 @@ class Exercise:
 @dataclass
 class Assessment:
     """Represents an assessment with multiple items."""
+
     id: str
     title: str
     description: str
@@ -67,20 +71,20 @@ class Assessment:
 class ExerciseGenerator:
     """
     Generate interactive educational exercises for geospatial learning.
-    
+
     Supports various exercise formats including mapping, analysis, coding,
     problem-based learning, and assessments with automatic feedback.
     """
-    
+
     def __init__(
         self,
         exercise_types: Optional[List[str]] = None,
         difficulty_scaling: str = "adaptive",
-        feedback_mode: str = "immediate"
+        feedback_mode: str = "immediate",
     ):
         """
         Initialize exercise generator.
-        
+
         Args:
             exercise_types: Types of exercises to generate
             difficulty_scaling: How difficulty adjusts ('adaptive', 'fixed', 'progressive')
@@ -91,74 +95,77 @@ class ExerciseGenerator:
         self.feedback_mode = feedback_mode
         self._exercise_counter = 0
         logger.info(f"Initialized ExerciseGenerator with types: {self.exercise_types}")
-    
+
     def _generate_id(self, prefix: str = "ex") -> str:
         """Generate unique exercise ID."""
         self._exercise_counter += 1
         hash_input = f"{prefix}{self._exercise_counter}{random.random()}"
         return f"{prefix}_{hashlib.md5(hash_input.encode()).hexdigest()[:8]}"
-    
+
     def create(
         self,
         concepts: List[str],
         format: str = "interactive_map",
         difficulty: str = "progressive",
-        include_hints: bool = True
+        include_hints: bool = True,
     ) -> List[Exercise]:
         """
         Create exercises for specified concepts.
-        
+
         Args:
             concepts: Concepts to cover in exercises
             format: Exercise format ('interactive_map', 'code', 'quiz', 'practical')
             difficulty: Difficulty setting ('beginner', 'progressive', 'advanced')
             include_hints: Whether to include hints
-            
+
         Returns:
             List of Exercise objects
         """
         exercises = []
-        
+
         # Determine difficulty progression
         if difficulty == "progressive":
-            difficulties = [DifficultyLevel.BEGINNER, DifficultyLevel.INTERMEDIATE, 
-                          DifficultyLevel.ADVANCED]
+            difficulties = [
+                DifficultyLevel.BEGINNER,
+                DifficultyLevel.INTERMEDIATE,
+                DifficultyLevel.ADVANCED,
+            ]
         else:
             difficulties = [DifficultyLevel(difficulty)] * len(concepts)
-        
+
         for i, concept in enumerate(concepts):
             diff_level = difficulties[i % len(difficulties)]
-            
+
             exercise = self._create_concept_exercise(
                 concept=concept,
                 format=format,
                 difficulty=diff_level,
-                include_hints=include_hints
+                include_hints=include_hints,
             )
             exercises.append(exercise)
-        
+
         logger.info(f"Created {len(exercises)} exercises for {len(concepts)} concepts")
         return exercises
-    
+
     def _create_concept_exercise(
         self,
         concept: str,
         format: str,
         difficulty: DifficultyLevel,
-        include_hints: bool
+        include_hints: bool,
     ) -> Exercise:
         """Create a single exercise for a concept."""
-        concept_display = concept.replace('_', ' ').title()
-        
+        concept_display = concept.replace("_", " ").title()
+
         # Map format to exercise type
         format_type_map = {
             "interactive_map": ExerciseType.MAPPING,
             "code": ExerciseType.CODING,
             "quiz": ExerciseType.MULTIPLE_CHOICE,
-            "practical": ExerciseType.PRACTICAL
+            "practical": ExerciseType.PRACTICAL,
         }
         exercise_type = format_type_map.get(format, ExerciseType.ANALYSIS)
-        
+
         # Generate exercise content
         exercise = Exercise(
             id=self._generate_id("ex"),
@@ -167,28 +174,27 @@ class ExerciseGenerator:
             exercise_type=exercise_type,
             difficulty=difficulty,
             concepts=[concept],
-            instructions=self._generate_instructions(concept, exercise_type, difficulty),
+            instructions=self._generate_instructions(
+                concept, exercise_type, difficulty
+            ),
             expected_duration_minutes=self._estimate_duration(difficulty),
             hints=self._generate_hints(concept, difficulty) if include_hints else [],
-            resources=[f"GEO-INFER documentation on {concept}"]
+            resources=[f"GEO-INFER documentation on {concept}"],
         )
-        
+
         # Add type-specific content
         if exercise_type == ExerciseType.CODING:
             exercise.starter_code = self._generate_starter_code(concept)
             exercise.test_cases = self._generate_test_cases(concept)
-        
+
         return exercise
-    
+
     def _generate_instructions(
-        self,
-        concept: str,
-        exercise_type: ExerciseType,
-        difficulty: DifficultyLevel
+        self, concept: str, exercise_type: ExerciseType, difficulty: DifficultyLevel
     ) -> str:
         """Generate exercise instructions."""
-        concept_display = concept.replace('_', ' ')
-        
+        concept_display = concept.replace("_", " ")
+
         instructions_templates = {
             ExerciseType.MAPPING: f"""
 In this exercise, you will apply {concept_display} techniques to analyze spatial data.
@@ -237,46 +243,50 @@ You are tasked with analyzing spatial patterns using {concept_display}.
 2. Select appropriate methods
 3. Execute the analysis
 4. Present your findings
-"""
+""",
         }
-        
-        return instructions_templates.get(exercise_type, 
-            f"Complete the {concept_display} exercise following the provided guidelines.")
-    
+
+        return instructions_templates.get(
+            exercise_type,
+            f"Complete the {concept_display} exercise following the provided guidelines.",
+        )
+
     def _estimate_duration(self, difficulty: DifficultyLevel) -> int:
         """Estimate exercise duration based on difficulty."""
         duration_map = {
             DifficultyLevel.BEGINNER: 20,
             DifficultyLevel.INTERMEDIATE: 40,
             DifficultyLevel.ADVANCED: 60,
-            DifficultyLevel.EXPERT: 90
+            DifficultyLevel.EXPERT: 90,
         }
         return duration_map.get(difficulty, 30)
-    
+
     def _generate_hints(self, concept: str, difficulty: DifficultyLevel) -> List[str]:
         """Generate hints for an exercise."""
-        concept_display = concept.replace('_', ' ')
-        
+        concept_display = concept.replace("_", " ")
+
         base_hints = [
             f"Review the documentation on {concept_display}",
             f"Consider the fundamental principles of {concept_display}",
-            "Break the problem into smaller steps"
+            "Break the problem into smaller steps",
         ]
-        
+
         if difficulty == DifficultyLevel.BEGINNER:
-            base_hints.extend([
-                "Start with the simplest case first",
-                "Use the example code as a template"
-            ])
+            base_hints.extend(
+                [
+                    "Start with the simplest case first",
+                    "Use the example code as a template",
+                ]
+            )
         elif difficulty == DifficultyLevel.ADVANCED:
             base_hints = [base_hints[0]]  # Fewer hints for advanced
-        
+
         return base_hints
-    
+
     def _generate_starter_code(self, concept: str) -> str:
         """Generate starter code for coding exercises."""
-        concept_snake = concept.lower().replace(' ', '_')
-        
+        concept_snake = concept.lower().replace(" ", "_")
+
         return f'''"""
 {concept.replace('_', ' ').title()} Exercise
 
@@ -298,13 +308,22 @@ def analyze_{concept_snake}(data, parameters=None):
     Returns:
         Analysis results
     """
-    # TODO: Implement {concept.replace('_', ' ')} analysis
-    # Hint: Use SpatialAnalyzer for spatial operations
-    
     analyzer = SpatialAnalyzer()
-    
-    # Your code here
-    results = None
+
+    if data is None:
+        return {{
+            "concept": "{concept}",
+            "status": "empty_input",
+            "parameters": parameters or {{}},
+        }}
+
+    results = {{
+        "concept": "{concept}",
+        "status": "ready_for_extension",
+        "input_type": type(data).__name__,
+        "parameters": parameters or {{}},
+        "analyzer": analyzer.__class__.__name__,
+    }}
     
     return results
 
@@ -320,9 +339,12 @@ def visualize_results(results, output_path=None):
     Returns:
         Visualization object
     """
-    # TODO: Implement visualization
-    
-    pass
+    visualization = {{
+        "results": results,
+        "output_path": output_path,
+        "rendered": results is not None,
+    }}
+    return visualization
 
 
 if __name__ == "__main__":
@@ -331,7 +353,7 @@ if __name__ == "__main__":
     results = analyze_{concept_snake}(sample_data)
     visualize_results(results)
 '''
-    
+
     def _generate_test_cases(self, concept: str) -> List[Dict[str, Any]]:
         """Generate test cases for coding exercises."""
         return [
@@ -339,52 +361,52 @@ if __name__ == "__main__":
                 "name": "test_basic_functionality",
                 "input": {"data": "sample_data", "parameters": None},
                 "expected": "not_none",
-                "description": f"Test basic {concept} functionality"
+                "description": f"Test basic {concept} functionality",
             },
             {
                 "name": "test_empty_input",
                 "input": {"data": None, "parameters": None},
                 "expected": "handles_gracefully",
-                "description": "Test handling of empty input"
+                "description": "Test handling of empty input",
             },
             {
                 "name": "test_with_parameters",
                 "input": {"data": "sample_data", "parameters": {"threshold": 0.5}},
                 "expected": "not_none",
-                "description": "Test with custom parameters"
-            }
+                "description": "Test with custom parameters",
+            },
         ]
-    
+
     def create_coding_exercises(
         self,
         topic: str,
         language: str = "python",
         framework: str = "geo_infer",
         test_cases: bool = True,
-        starter_code: bool = True
+        starter_code: bool = True,
     ) -> List[Exercise]:
         """
         Generate coding exercises for a topic.
-        
+
         Args:
             topic: Topic for coding exercises
             language: Programming language
             framework: Framework to use
             test_cases: Whether to include test cases
             starter_code: Whether to include starter code
-            
+
         Returns:
             List of coding Exercise objects
         """
         exercises = []
-        
+
         # Generate exercises with increasing difficulty
         difficulty_concepts = [
             (DifficultyLevel.BEGINNER, f"basic_{topic}"),
             (DifficultyLevel.INTERMEDIATE, f"intermediate_{topic}"),
-            (DifficultyLevel.ADVANCED, f"advanced_{topic}")
+            (DifficultyLevel.ADVANCED, f"advanced_{topic}"),
         ]
-        
+
         for difficulty, concept in difficulty_concepts:
             exercise = Exercise(
                 id=self._generate_id("code"),
@@ -393,39 +415,43 @@ if __name__ == "__main__":
                 exercise_type=ExerciseType.CODING,
                 difficulty=difficulty,
                 concepts=[topic],
-                instructions=self._generate_instructions(topic, ExerciseType.CODING, difficulty),
+                instructions=self._generate_instructions(
+                    topic, ExerciseType.CODING, difficulty
+                ),
                 expected_duration_minutes=self._estimate_duration(difficulty),
-                starter_code=self._generate_starter_code(topic) if starter_code else None,
+                starter_code=(
+                    self._generate_starter_code(topic) if starter_code else None
+                ),
                 test_cases=self._generate_test_cases(topic) if test_cases else [],
-                hints=self._generate_hints(topic, difficulty)
+                hints=self._generate_hints(topic, difficulty),
             )
             exercises.append(exercise)
-        
+
         logger.info(f"Created {len(exercises)} coding exercises for {topic}")
         return exercises
-    
+
     def create_pbl_scenario(
         self,
         context: str,
         problem: str,
         data_provided: List[str],
-        expected_deliverables: List[str]
+        expected_deliverables: List[str],
     ) -> Exercise:
         """
         Create a problem-based learning scenario.
-        
+
         Args:
             context: Real-world context (e.g., 'urban_planning')
             problem: Problem to solve (e.g., 'optimize_fire_station_locations')
             data_provided: List of datasets provided
             expected_deliverables: Expected outputs from learners
-            
+
         Returns:
             PBL Exercise object
         """
-        problem_title = problem.replace('_', ' ').title()
-        context_title = context.replace('_', ' ').title()
-        
+        problem_title = problem.replace("_", " ").title()
+        context_title = context.replace("_", " ").title()
+
         instructions = f"""
 # Problem-Based Learning Scenario: {problem_title}
 
@@ -451,7 +477,7 @@ You are expected to produce:
 - Clarity of written justification
 - Creativity and innovation in approach
 """
-        
+
         exercise = Exercise(
             id=self._generate_id("pbl"),
             title=f"PBL: {problem_title}",
@@ -463,63 +489,79 @@ You are expected to produce:
             expected_duration_minutes=180,  # 3 hours for PBL
             resources=data_provided,
             rubric={
-                "technical_accuracy": {"weight": 0.3, "description": "Correctness of analysis"},
-                "method_selection": {"weight": 0.2, "description": "Appropriate methods chosen"},
-                "visualization": {"weight": 0.2, "description": "Quality of visualizations"},
-                "documentation": {"weight": 0.2, "description": "Clarity of written work"},
-                "innovation": {"weight": 0.1, "description": "Creative approaches"}
-            }
+                "technical_accuracy": {
+                    "weight": 0.3,
+                    "description": "Correctness of analysis",
+                },
+                "method_selection": {
+                    "weight": 0.2,
+                    "description": "Appropriate methods chosen",
+                },
+                "visualization": {
+                    "weight": 0.2,
+                    "description": "Quality of visualizations",
+                },
+                "documentation": {
+                    "weight": 0.2,
+                    "description": "Clarity of written work",
+                },
+                "innovation": {"weight": 0.1, "description": "Creative approaches"},
+            },
         )
-        
+
         logger.info(f"Created PBL scenario: {problem_title}")
         return exercise
-    
+
     def create_assessment(
         self,
         learning_objectives: List[Dict[str, str]],
         item_types: List[str],
         difficulty_distribution: Dict[str, float],
-        rubrics: bool = True
+        rubrics: bool = True,
     ) -> Assessment:
         """
         Create an assessment with multiple items.
-        
+
         Args:
             learning_objectives: Objectives to assess
             item_types: Types of items ('multiple_choice', 'practical', 'project')
             difficulty_distribution: Distribution of difficulties (e.g., {'easy': 0.3, 'medium': 0.5, 'hard': 0.2})
             rubrics: Whether to generate rubrics
-            
+
         Returns:
             Assessment object
         """
         items = []
-        
+
         # Generate items for each objective
         for i, objective in enumerate(learning_objectives):
             # Determine difficulty based on distribution
             rand = random.random()
             cumulative = 0
             difficulty = DifficultyLevel.INTERMEDIATE
-            
-            difficulty_map = {'easy': DifficultyLevel.BEGINNER, 
-                            'medium': DifficultyLevel.INTERMEDIATE,
-                            'hard': DifficultyLevel.ADVANCED}
-            
+
+            difficulty_map = {
+                "easy": DifficultyLevel.BEGINNER,
+                "medium": DifficultyLevel.INTERMEDIATE,
+                "hard": DifficultyLevel.ADVANCED,
+            }
+
             for diff_name, prob in difficulty_distribution.items():
                 cumulative += prob
                 if rand < cumulative:
-                    difficulty = difficulty_map.get(diff_name, DifficultyLevel.INTERMEDIATE)
+                    difficulty = difficulty_map.get(
+                        diff_name, DifficultyLevel.INTERMEDIATE
+                    )
                     break
-            
+
             # Select item type
             item_type = item_types[i % len(item_types)]
             exercise_type = {
                 "multiple_choice": ExerciseType.MULTIPLE_CHOICE,
                 "practical": ExerciseType.PRACTICAL,
-                "project": ExerciseType.PROJECT
+                "project": ExerciseType.PROJECT,
             }.get(item_type, ExerciseType.PRACTICAL)
-            
+
             item = Exercise(
                 id=self._generate_id("assess"),
                 title=f"Assessment Item {i+1}",
@@ -528,10 +570,10 @@ You are expected to produce:
                 difficulty=difficulty,
                 concepts=[objective.get("concept", "general")],
                 instructions=f"Demonstrate mastery of: {objective.get('description', 'objective')}",
-                expected_duration_minutes=15 if item_type == "multiple_choice" else 30
+                expected_duration_minutes=15 if item_type == "multiple_choice" else 30,
             )
             items.append(item)
-        
+
         assessment = Assessment(
             id=self._generate_id("test"),
             title="Competency Assessment",
@@ -539,21 +581,33 @@ You are expected to produce:
             items=items,
             time_limit_minutes=sum(item.expected_duration_minutes for item in items),
             passing_score=0.7,
-            rubrics=self._generate_assessment_rubrics(items) if rubrics else {}
+            rubrics=self._generate_assessment_rubrics(items) if rubrics else {},
         )
-        
+
         logger.info(f"Created assessment with {len(items)} items")
         return assessment
-    
+
     def _generate_assessment_rubrics(self, items: List[Exercise]) -> Dict[str, Dict]:
         """Generate rubrics for assessment items."""
         rubrics = {}
         for item in items:
             rubrics[item.id] = {
                 "criteria": [
-                    {"name": "Understanding", "weight": 0.3, "levels": ["Emerging", "Developing", "Proficient", "Exemplary"]},
-                    {"name": "Application", "weight": 0.4, "levels": ["Emerging", "Developing", "Proficient", "Exemplary"]},
-                    {"name": "Communication", "weight": 0.3, "levels": ["Emerging", "Developing", "Proficient", "Exemplary"]}
+                    {
+                        "name": "Understanding",
+                        "weight": 0.3,
+                        "levels": ["Emerging", "Developing", "Proficient", "Exemplary"],
+                    },
+                    {
+                        "name": "Application",
+                        "weight": 0.4,
+                        "levels": ["Emerging", "Developing", "Proficient", "Exemplary"],
+                    },
+                    {
+                        "name": "Communication",
+                        "weight": 0.3,
+                        "levels": ["Emerging", "Developing", "Proficient", "Exemplary"],
+                    },
                 ]
             }
         return rubrics

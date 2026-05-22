@@ -1,14 +1,42 @@
-# integrations
- ## Overview
- This directory contains integrations components. It includes 4 Python modules. ## Components
- ### normativ
-e
-.py Normative integration for governance rule translation and compliance. **Classes**: `NormativeGovernanceIntegration` ### organizationa
-l
-.py Organizational integration for governance-organization alignment. **Classes**: `OrganizationalGovernanceIntegration` ### securit
-y
-.py Security integration for governance data and operations. **Classes**: `SecurityGovernanceIntegration` ### spatia
-l
-.py Spatial integration for governance boundaries and jurisdiction mapping. **Classes**: `SpatialGovernanceIntegration` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-METAGOV/src/geo_infer_metagov/integrations
+
+Integrations workspace within `GEO-INFER-METAGOV`.
+
+## Contents
+
+- `__init__.py`
+- `normative.py`
+- `organizational.py`
+- `security.py`
+- `spatial.py`
+
+## Public Interface
+
+- `normative.py:NormativeGovernanceIntegration` (class)
+- `organizational.py:OrganizationalGovernanceIntegration` (class)
+- `security.py:SecurityGovernanceIntegration` (class)
+- `spatial.py:SpatialGovernanceIntegration` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-METAGOV`
+- Package: `geo_infer_metagov`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-METAGOV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
+
+## Dependencies
+
+- `numpy>=1.20`
+- `pyyaml>=6.0`
+- `typing_extensions>=4.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

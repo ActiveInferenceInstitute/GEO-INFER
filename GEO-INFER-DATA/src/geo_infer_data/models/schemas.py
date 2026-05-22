@@ -6,11 +6,11 @@ quality reports, and ETL processes using Pydantic for runtime validation.
 """
 
 from typing import Dict, List, Optional, Union, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from pydantic import computed_field
 
 try:
@@ -19,6 +19,11 @@ except ImportError:
     # Fallback for older Pydantic versions
     from pydantic import validator as field_validator
     from pydantic import root_validator as model_validator
+
+
+def utc_now() -> datetime:
+    """Return a timezone-aware UTC timestamp."""
+    return datetime.now(timezone.utc)
 
 
 class DataType(str, Enum):
@@ -89,8 +94,7 @@ class CoordinateReferenceSystem(BaseModel):
         default=None, description="Well-known text representation"
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class SpatialExtent(BaseModel):
@@ -98,8 +102,8 @@ class SpatialExtent(BaseModel):
 
     bbox: List[float] = Field(
         ...,
-        min_items=4,
-        max_items=6,
+        min_length=4,
+        max_length=6,
         description="Bounding box coordinates [min_lon, min_lat, max_lon, max_lat] or with elevation",
     )
     crs: Union[str, Dict[str, Any], CoordinateReferenceSystem] = Field(
@@ -151,8 +155,7 @@ class SpatialExtent(BaseModel):
                 "CRS must be a string, dictionary, or CoordinateReferenceSystem instance"
             )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class TemporalExtent(BaseModel):
@@ -171,8 +174,7 @@ class TemporalExtent(BaseModel):
             raise ValueError("Start time must be before or equal to end time")
         return self
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class DataLineage(BaseModel):
@@ -181,7 +183,7 @@ class DataLineage(BaseModel):
     source: str = Field(..., description="Original data source")
     process: str = Field(..., description="Processing steps applied")
     created_by: str = Field(..., description="Entity that created this version")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     parent_datasets: List[str] = Field(
         default_factory=list, description="Parent dataset IDs"
     )
@@ -189,8 +191,7 @@ class DataLineage(BaseModel):
         default_factory=list, description="Applied transformations"
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class QualityCheck(BaseModel):
@@ -207,8 +208,7 @@ class QualityCheck(BaseModel):
         default_factory=dict, description="Additional metadata about the check"
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class DatasetMetadata(BaseModel):
@@ -236,8 +236,7 @@ class DatasetMetadata(BaseModel):
     checksum: Optional[str] = Field(default=None, description="Data checksum")
     file_size: Optional[int] = Field(default=None, description="File size in bytes")
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class DatasetSummary(BaseModel):
@@ -251,22 +250,21 @@ class DatasetSummary(BaseModel):
     size: Optional[int] = Field(default=None, description="Size in bytes")
     bbox: List[float] = Field(
         default_factory=list,
-        min_items=4,
-        max_items=4,
+        min_length=4,
+        max_length=4,
         description="Spatial bounding box",
     )
     temporal_extent: Optional[TemporalExtent] = Field(
         default=None, description="Temporal extent"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
     tags: List[str] = Field(default_factory=list, description="Dataset tags")
     quality_score: Optional[float] = Field(
         default=None, ge=0.0, le=1.0, description="Overall quality score"
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class Dataset(BaseModel):
@@ -292,11 +290,10 @@ class Dataset(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Dataset tags")
     version: str = Field(default="1.0.0", description="Dataset version")
     is_active: bool = Field(default=True, description="Whether dataset is active")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class DataQualityReport(BaseModel):
@@ -312,7 +309,7 @@ class DataQualityReport(BaseModel):
     recommendations: List[str] = Field(
         default_factory=list, description="Improvement recommendations"
     )
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=utc_now)
     assessment_method: Union[str, List[str]] = Field(
         default="comprehensive", description="Assessment methodology used"
     )
@@ -346,8 +343,7 @@ class DataQualityReport(BaseModel):
         """Allow dictionary-style membership checks for legacy callers."""
         return hasattr(self, item)
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class DataSource(BaseModel):
@@ -361,10 +357,11 @@ class DataSource(BaseModel):
         default=None, description="Authentication credentials"
     )
     format: Optional[DataFormat] = Field(default=None, description="Data format")
-    schema: Optional[Dict[str, Any]] = Field(default=None, description="Data schema")
+    data_schema: Optional[Dict[str, Any]] = Field(
+        default=None, alias="schema", description="Data schema"
+    )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True, populate_by_name=True)
 
 
 class DataDestination(BaseModel):
@@ -379,8 +376,7 @@ class DataDestination(BaseModel):
     format: Optional[DataFormat] = Field(default=None, description="Output format")
     compression: Optional[str] = Field(default=None, description="Compression method")
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class Transformation(BaseModel):
@@ -393,8 +389,7 @@ class Transformation(BaseModel):
     order: int = Field(default=0, description="Execution order")
     enabled: bool = Field(default=True, description="Whether transformation is enabled")
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class ETLPipeline(BaseModel):
@@ -416,8 +411,8 @@ class ETLPipeline(BaseModel):
         default=None, description="Scheduling configuration"
     )
     status: str = Field(default="inactive", description="Pipeline status")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
     @field_validator("transformations")
     @classmethod
@@ -425,8 +420,7 @@ class ETLPipeline(BaseModel):
         """Sort transformations by execution order."""
         return sorted(v, key=lambda x: x.order)
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class ExecutionStatus(BaseModel):
@@ -445,13 +439,12 @@ class ExecutionStatus(BaseModel):
     completed_at: Optional[datetime] = Field(
         default=None, description="Completion time"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     logs: List[Dict[str, Any]] = Field(
         default_factory=list, description="Execution logs"
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class Pagination(BaseModel):
@@ -471,7 +464,7 @@ class HealthStatus(BaseModel):
 
     status: str = Field(..., description="Health status")
     message: Optional[str] = Field(default=None, description="Health message")
-    checked_at: datetime = Field(default_factory=datetime.utcnow)
+    checked_at: datetime = Field(default_factory=utc_now)
     components: Dict[str, Any] = Field(
         default_factory=dict, description="Component health details"
     )

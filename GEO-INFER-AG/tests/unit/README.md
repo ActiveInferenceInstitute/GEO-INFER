@@ -1,5 +1,39 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-AG/tests/unit` Unit tests for the GEO-INFER-AG module. ## Implementation
- ### `core/test_field_boundary.py` **Classes**: TestFieldBoundaryManager **Functions**: test_initialization, test_add_field, test_remove_field, test_update_field, test_get_field ### `core/test_agricultural_analysis.py` **Classes**: TestAgriculturalAnalysis, TestAgriculturalResults **Functions**: test_initialization, test_validation, test_prepare_data, test_run_analysis, test_initialization ### `core/test_seasonal_analysis.py` **Classes**: TestSeasonalAnalysis **Functions**: test_initialization, test_detect_growing_season_threshold, test_detect_growing_season_derivative, test_identify_phenological_stages, test_analyze_temporal_trends ### `core/test_sustainability.py` **Classes**: TestSustainabilityAssessment **Functions**: test_initialization, test_assess_carbon_sequestration, test_assess_water_usage, test_assess_soil_health, test_assess_biodiversity ### `models/test_crop_yield.py` **Classes**: TestCropYieldModel **Functions**: test_initialization, test_fit_machine_learning, test_predict_machine_learning, test_predict_statistical, test_predict_process_based ## Contents
- - **core/**: Subdirectory - **models/**: Subdirectory --- 
+# GEO-INFER-AG/tests/unit
+
+Unit workspace within `GEO-INFER-AG`.
+
+## Contents
+
+- `core/`
+- `models/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AG`
+- Package: `geo_infer_ag`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AG`
+- Tests: `uv run python -m pytest GEO-INFER-AG/tests/unit`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `scikit-learn>=1.0.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-AG/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

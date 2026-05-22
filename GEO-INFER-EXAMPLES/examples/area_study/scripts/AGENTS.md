@@ -1,102 +1,40 @@
-# Agent
-: scripts
+# Agent Instructions: GEO-INFER-EXAMPLES/examples/area_study/scripts
 
 ## Scope
- This directory contains scripts components for the module. It provides 4 classes and 17 functions.
 
-## Classes
- and Functions
-
-### StreamlitAreaStudyDashboard
-
-**Methods**:
-- `load_data()`: Load area study data.
-- `create_dashboard()`: Create the Streamlit dashboard.
-- `show_dedicated_map_page(data)`: Display dedicated interactive map page with features.
-- `apply_filters(map_data, tech_min_score, social_min_score, env_min_score)`: Apply filters to map data based on user selections.
-- `show_overview_page(data)`: Display overview dashboard.
-- `show_technical_page(data)`: Display technical analysis page.
-- `show_social_page(data)`: Display social analysis page.
-- `show_environmental_page(data)`: Display environmental analysis page.
-- `show_cross_domain_page(data)`: Display cross-domain insights page.
-- `show_engagement_page(data)`: Display community engagement page.
-- `show_recommendations_page(data)`: Display recommendations page.
-- `create_map_data(data)`: Create sample map data for demonstration.
-- `display_interactive_map(map_data, base_map, show_technical, show_social, show_environmental, show_hotspots, show_boundaries)`: Display interactive map with multiple overlays and toggles.
-
-### AreaStudyDashboard
-
-**Methods**:
-- `load_data()`: Load area study data from output directory.
-- `create_sample_data()`: Create sample data for demonstration.
-- `create_dashboard()`: Create the main dashboard layout.
-
-### ComprehensiveAreaStudy
-
-**Methods**:
-- `run_area_study()`: Execute the area study analysis.
-
-### AreaStudyConsoleViewer
-
-**Methods**:
-- `load_data()`: Load area study data from output directory.
-- `create_sample_data()`: Create sample data for demonstration.
-- `display_results()`: Display area study results in console.
-
-### setup_logging
- `setup_logging()`
-
-### main
- `main()` Main function for Streamlit app.
-
-### setup_logging
- `setup_logging()`
-
-### open_browser
- `open_browser(url, delay)` Open browser after a delay to ensure Streamlit is ready.
-
-### check_server_connection
- `check_server_connection(port, timeout)` Check if Streamlit server is responding.
-
-### run_streamlit_app
- `run_streamlit_app(port)` Run Streamlit app with server management.
-
-### check_dependencies
- `check_dependencies()` Check if all required dependencies are available.
-
-### main
- `main()` Main function to launch the dashboard.
-
-### cleanup
- `cleanup()`
-
-### setup_logging
- `setup_logging()`
-
-### main
- `main()` Main function to run the area study.
-
-### setup_logging
- `setup_logging()`
-
-### main
- `main()` Main function to display results.
-
-### check_dependencies
- `check_dependencies()` Check if required dependencies are installed.
-
-### launch_dashboard
- `launch_dashboard()` Launch the dashboard using direct streamlit command.
-
-### main
- `main()` Main function.
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Scripts workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
-- **17 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-EXAMPLES/examples/area_study/scripts`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `dashboard_app.py`
+- `launch_dashboard.py`
+- `run_example.py`
+- `show_results.py`
+- `simple_launch.py`
+- `quick_launch.sh`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

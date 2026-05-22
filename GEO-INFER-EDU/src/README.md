@@ -1,5 +1,34 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-EDU/src` Source code implementation. ## Implementation
- ### `geo_infer_edu/core/professional.py` **Classes**: CertificationLevel, ProfessionalProfile, ContinuingEducationActivity, CertificationPathway, ProfessionalDevelopment **Functions**: register_professional, track_continuing_education, create_certification_pathway, analyze_career_skills, develop_portfolio ### `geo_infer_edu/core/curriculum.py` **Classes**: EducationLevel, PedagogicalApproach, LearningObjective, CurriculumModule, Curriculum **Functions**: design, generate_modules, align_with_standards, create_learning_pathway, export_curriculum ### `geo_infer_edu/core/personalization.py` **Classes**: LearnerProfile, LearningResource, LearningPathway, PersonalizedLearning **Functions**: register_learner, create_pathway, recommend_resources, deliver_adaptive_content, schedule_review ### `geo_infer_edu/core/progress.py` **Classes**: CompetencyLevel, LearnerActivity, CompetencyRecord, LearnerProgress, ProgressTracker **Functions**: track_progress, generate_competency_report, identify_gaps, generate_analytics, identify_at_risk ### `geo_infer_edu/core/exercises.py` **Classes**: ExerciseType, DifficultyLevel, Exercise, Assessment, ExerciseGenerator **Functions**: create, create_coding_exercises, create_pbl_scenario, create_assessment ## Contents
- - **geo_infer_edu/**: Subdirectory - **geo_infer_edu.egg-info/**: Subdirectory --- 
+# GEO-INFER-EDU/src
+
+Src workspace within `GEO-INFER-EDU`.
+
+## Contents
+
+- `geo_infer_edu.egg-info/`
+- `geo_infer_edu/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EDU`
+- Package: `geo_infer_edu`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EDU`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,117 +1,53 @@
-# GEO-INFER-TEST: Agent Capabilities
+# Agent Instructions: GEO-INFER-TEST
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-TEST`
+- Python package: `geo_infer_test`
+- Directory role: Unified testing framework for quality assurance across all GEO-INFER modules with automated testing, performance benchmarks, and integration validation.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-TEST** module provides testing infrastructure for the GEO-INFER ecosystem, focused on validators and a programmatic pytest runner.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_test` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Programmatic test running
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_test import TestRunner
-from geo_infer_test.core.test_runner import TestConfiguration
+## Local Contents
 
-runner = TestRunner(
-    TestConfiguration(
-        modules_to_test=["SPACE", "ACT"],
-        test_types=["unit", "integration"],
-        parallel_execution=False,
-        coverage_enabled=False,
-        performance_benchmarks=False,
-        log_integration_enabled=False,
-    )
-)
-report = runner.run_all_tests()
-print(report["execution_summary"])
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `rewrite_readme_agents.py`
+- `run_unified_tests.py`
+- `setup.py`
+- `validate_act_geospatial_contract.py`
+- `validate_act_script_orchestration.py`
+- `validate_active_inference_contract.py`
+- `validate_h3_active_inference_contract.py`
+- `validate_repo_contracts.py`
+- `validate_skills.py`
+- `.cursorrules`
+- `SKILL.md`
+- `TESTING.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-### 2. Validators
+## Validation
 
-```python
-from geo_infer_test import DataQualityValidator, SpatialValidator
-
-dq = DataQualityValidator()
-sv = SpatialValidator()
-
-print(dq.validate({"name": "dataset", "records": []}))
-print(sv.validate({"name": "spatial_dataset", "records": []}))
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
-### 3. System-level test entrypoint
+## Integration Notes
 
-```python
-from geo_infer_test import run_full_system_test
-
-print(run_full_system_test())
-```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Test Runner** | ✅ Ready | Programmatic runner built around pytest |
-| **Validators** | ✅ Ready | Data quality, spatial, performance, IoT, Bayesian validators |
-| **System Test** | ✅ Ready | End-to-end system test entrypoint |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **Coverage workflow** | 🔮 Medium | Standardize coverage thresholds and reporting |
-| **Regression workflow** | 🔮 Medium | Baseline comparisons for critical modules |
-
-## Integration with CI/CD
-
-```mermaid
-graph LR
-    subgraph Testing
-        UNIT[Unit Tests]
-        INTEG[Integration Tests]
-        PERF[Performance Tests]
-    end
-    
-    subgraph CI_Pipeline
-        BUILD[Build]
-        TEST[Test]
-        DEPLOY[Deploy]
-    end
-    
-    subgraph Agents
-        AGENT[Agent Under Test]
-    end
-    
-    AGENT --> UNIT
-    AGENT --> INTEG
-    AGENT --> PERF
-    
-    UNIT --> TEST
-    INTEG --> TEST
-    PERF --> TEST
-    
-    BUILD --> TEST
-    TEST --> DEPLOY```
-
-## Use Cases
-
-### 1. Cross-module integration tests
-
-This repository also includes cross-module integration tests under `GEO-INFER-TEST/tests/integration/`.
-
----
-
-This AGENTS.md documents how GEO-INFER-TEST provides testing infrastructure for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,74 +1,38 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-AG/tests/unit/core
 
 ## Scope
- This directory contains core components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### TestAgriculturalAnalysis
- Test suite for AgriculturalAnalysis class.
-
-**Methods**:
-- `test_initialization()`: Test initialization of AgriculturalAnalysis.
-- `test_validation(sample_field_data)`: Test input validation.
-- `test_prepare_data(sample_field_data, sample_weather_data, sample_soil_data)`: Test data preparation for model input.
-- `test_run_analysis(sample_field_data, sample_weather_data, mocker)`: Test running the agricultural analysis.
-
-### TestAgriculturalResults
- Test suite for AgriculturalResults class.
-
-**Methods**:
-- `test_initialization(sample_field_data)`: Test initialization of AgriculturalResults.
-- `test_merge_results(sample_field_data)`: Test merging results with field data.
-- `test_get_metric(sample_field_data)`: Test getting metrics from results.
-- `test_summary(sample_field_data)`: Test generating summary statistics.
-
-### TestFieldBoundaryManager
- Test suite for FieldBoundaryManager class.
-
-**Methods**:
-- `test_initialization()`: Test initialization of FieldBoundaryManager.
-- `test_add_field()`: Test adding a field.
-- `test_remove_field()`: Test removing a field.
-- `test_update_field()`: Test updating a field.
-- `test_get_field()`: Test retrieving a field.
-- `test_get_fields_by_crop()`: Test retrieving fields by crop type.
-- `test_get_neighboring_fields()`: Test retrieving neighboring fields.
-- `test_extract_fields_from_raster()`: Test extracting fields from raster data.
-- `test_export_to_file()`: Test exporting fields to file.
-- `test_calculate_areas()`: Test area calculation.
-
-### TestSeasonalAnalysis
- Test suite for SeasonalAnalysis class.
-
-**Methods**:
-- `test_initialization()`: Test initialization of SeasonalAnalysis.
-- `test_detect_growing_season_threshold(sample_time_series_data)`: Test growing season detection using threshold method.
-- `test_detect_growing_season_derivative(sample_time_series_data)`: Test growing season detection using derivative method.
-- `test_identify_phenological_stages(sample_time_series_data)`: Test identification of phenological stages.
-- `test_analyze_temporal_trends(sample_time_series_data)`: Test analysis of temporal trends.
-- `test_analyze_spatial_temporal_patterns(mocker)`: Test analysis of spatial-temporal patterns.
-- `test_plot_growing_season(sample_time_series_data)`: Test plotting of growing season.
-
-### TestSustainabilityAssessment
- Test suite for SustainabilityAssessment class.
-
-**Methods**:
-- `test_initialization(sample_field_data)`: Test initialization of SustainabilityAssessment.
-- `test_assess_carbon_sequestration(sample_field_data)`: Test carbon sequestration assessment.
-- `test_assess_water_usage(sample_field_data)`: Test water usage assessment.
-- `test_assess_soil_health(sample_field_data, sample_soil_data)`: Test soil health assessment.
-- `test_assess_biodiversity(sample_field_data)`: Test biodiversity assessment.
-- `test_calculate_sustainability_index(sample_field_data, sample_soil_data)`: Test calculation of sustainability index.
-- `test_plot_sustainability_metrics(sample_field_data, sample_soil_data)`: Test plotting of sustainability metrics.
+- Owning module: `GEO-INFER-AG`
+- Python package: `geo_infer_ag`
+- Directory role: Core workspace within `GEO-INFER-AG`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ag` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-AG/tests/unit/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_agricultural_analysis.py`
+- `test_field_boundary.py`
+- `test_seasonal_analysis.py`
+- `test_sustainability.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-AG/tests/unit/core
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

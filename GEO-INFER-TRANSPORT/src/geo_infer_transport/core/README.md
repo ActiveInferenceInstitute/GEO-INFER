@@ -1,16 +1,57 @@
-# core
- ## Overview
- This directory contains core components. It includes 5 Python modules. ## Components
- ### accessibilit
-y
-.py Accessibility analysis module. **Classes**: `Isochrone`, `ServiceArea`, `AccessibilityAnalyzer` ### networ
-k
-.py Transport network module. **Classes**: `RoadClass`, `TransportMode`, `NetworkNode`, `NetworkEdge`, `TransportNetwork` ### routin
-g
-.py Routing engine module. **Classes**: `RoutingAlgorithm`, `OptimizationCriteria`, `Route`, `RoutingEngine` ### traffi
-c
-.py Traffic analysis module. **Classes**: `TrafficCondition`, `TrafficCount`, `FlowResult`, `TrafficAnalyzer` ### transi
-t
-.py Transit optimization module. **Classes**: `TransitMode`, `TransitStop`, `TransitRoute`, `TransitOptimizer` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-TRANSPORT/src/geo_infer_transport/core
+
+Core workspace within `GEO-INFER-TRANSPORT`.
+
+## Contents
+
+- `__init__.py`
+- `accessibility.py`
+- `network.py`
+- `routing.py`
+- `traffic.py`
+- `transit.py`
+
+## Public Interface
+
+- `accessibility.py:Isochrone` (class)
+- `accessibility.py:ServiceArea` (class)
+- `accessibility.py:AccessibilityAnalyzer` (class)
+- `network.py:RoadClass` (class)
+- `network.py:TransportMode` (class)
+- `network.py:NetworkNode` (class)
+- `network.py:NetworkEdge` (class)
+- `network.py:TransportNetwork` (class)
+- `routing.py:RoutingAlgorithm` (class)
+- `routing.py:OptimizationCriteria` (class)
+- `routing.py:Route` (class)
+- `routing.py:RoutingEngine` (class)
+- `traffic.py:TrafficCondition` (class)
+- `traffic.py:TrafficCount` (class)
+- `traffic.py:FlowResult` (class)
+- `traffic.py:TrafficAnalyzer` (class)
+- `transit.py:TransitMode` (class)
+- `transit.py:TransitStop` (class)
+- `transit.py:TransitRoute` (class)
+- `transit.py:TransitOptimizer` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-TRANSPORT`
+- Package: `geo_infer_transport`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TRANSPORT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

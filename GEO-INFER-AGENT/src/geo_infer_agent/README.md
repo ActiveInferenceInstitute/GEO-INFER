@@ -1,4 +1,55 @@
-# geo_infer_agent
- ## Overview
- GEO-INFER-AGENT - Autonomous agent framework for geospatial applications This module provides functionality for: - Creating autonomous agents - Orchestrating multi-agent systems - Implementing active inference for decision-making - Supporting various agent architectures - Handling geospatial perception and action ## Contents
- - **agents/**: Submodule - **api/**: Submodule - **cli.py**: Python definitions - **core/**: Submodule - **models/**: Submodule 
+# GEO-INFER-AGENT/src/geo_infer_agent
+
+Geo Infer Agent workspace within `GEO-INFER-AGENT`.
+
+## Contents
+
+- `agents/`
+- `api/`
+- `core/`
+- `models/`
+- `__init__.py`
+- `cli.py`
+
+## Public Interface
+
+- `cli.py:setup_logging` (function)
+- `cli.py:load_config` (function)
+- `cli.py:load_agent_class` (function)
+- `cli.py:run_agent` (function)
+- `cli.py:list_agents_command` (function)
+- `cli.py:create_config_command` (function)
+- `cli.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AGENT`
+- Package: `geo_infer_agent`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AGENT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
+
+## Dependencies
+
+- `numpy>=1.23.5`
+- `torch>=2.0.0`
+- `pyyaml>=6.0`
+- `tqdm>=4.65.0`
+- `requests>=2.28.2`
+- `colorlog>=6.7.0`
+- `pytest>=7.3.1`
+- `pytest-cov>=4.1.0`
+- `mypy>=1.3.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `matplotlib>=3.7.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

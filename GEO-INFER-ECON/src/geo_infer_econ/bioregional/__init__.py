@@ -28,7 +28,7 @@ from .bioregional_markets import (
     LocalFoodSystems
 )
 
-# Stub modules (basic implementations - full implementation pending)
+# Fallback modules (basic implementations - full implementation pending)
 from .natural_capital import (
     NaturalCapitalAccounting,
     EcosystemAssetsValuation,

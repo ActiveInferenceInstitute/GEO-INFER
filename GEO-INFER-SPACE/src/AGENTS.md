@@ -1,74 +1,38 @@
-# Agent
-: src
+# Agent Instructions: GEO-INFER-SPACE/src
 
 ## Scope
-Agent handles source code implementation for GEO-INFER-SPACE module providing spatial methods with H3 v4 indexing and backend-agnostic interfaces.
 
-## Implementation
- Status
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Src workspace within `GEO-INFER-SPACE`.
 
-### Currently
- Implemented
+## Capabilities
 
-- ✅ **geo_infer_space Package**: Main Python package with spatial indexing, analytics, and operations
-- ✅ **H3 v4 Migration**: Fully migrated to H3 v4 API
-- ✅ **Backend-Agnostic Interfaces**: Unified interfaces supporting multiple backends
-- ✅ **Package Metadata**: Generated package metadata (geo_infer_space.egg-info)
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
 
-## Package
- Structure
+## Working Rules
 
-### geo_infer_space
-/
-Main Python package containing:
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-- **core/**: Core spatial operations (indexing, geometric operations, analytics, unified backend)
-- **analytics/**: Spatial analytics and AI-enhanced analysis
-- **api/**: REST API interfaces
-- **models/**: Data models and configuration schemas
-- **utils/**: Utility functions
-- **nested/**: Nested spatial operations and messaging
+## Local Contents
 
-### Key
- Components
+- `examples/`
+- `geo_infer_space.egg-info/`
+- `geo_infer_space/`
+- `h3_v3_to_v4_upgrade.py`
 
-- **SpatialIndexingInterface**: H3 v4 spatial indexing with backend-agnostic API
-- **SpatialAnalyticsInterface**: AI-enhanced spatial analytics using SRAI
-- **GeometricOperationsInterface**: Geometric operations and transformations
-- **UnifiedH3Backend**: H3 v4 backend implementation
+## Validation
 
-## Quick
- Start
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
 
-```python
-from geo_infer_space import SpatialIndexingInterface, SpatialAnalyticsInterface
-from geo_infer_space.core.dispatcher import configure_backends
+## Integration Notes
 
-# Configure
- backends
-configure_backends({
-    'default_backends': {
-        'indexing': 'h3',
-        'analytics': 'srai'
-    }})
-
-# Use
- spatial indexing
-indexer = SpatialIndexingInterface()
-cell = indexer.latlng_to_cell(37.7749, -122.4194, 9)
-
-# Use
- spatial analytics
-analytics = SpatialAnalyticsInterface()
-hotspots = analytics.analyze_hotspots(spatial_data)```
-
-## Integration
-
-- **Location**: `GEO-INFER-SPACE/src`
-- **Purpose**: Source code implementation directory
-- **Package**: `geo_infer_space` - Main Python package for spatial operations
-- **H3 Version**: v4.0+ (fully migrated)
-
----
-
-This AGENTS.md documents the source code directory for GEO-INFER-SPACE.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

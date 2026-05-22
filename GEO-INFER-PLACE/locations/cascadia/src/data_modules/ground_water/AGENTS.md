@@ -1,31 +1,37 @@
-# Agent
-: ground_water
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src/data_modules/ground_water
 
 ## Scope
- This directory contains ground_water components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CascadianGroundWaterDataSources
- Manages the acquisition and processing of groundwater data from USGS NWIS.
-
-**Methods**:
-- `fetch_groundwater_data(hexagons: List[str]) -> gpd.GeoDataFrame`: Fetches groundwater well data from the USGS NWIS for a list of H3 hexagons,
-
-### GeoInferGroundWater
- Analyzes groundwater availability by fetching real well data from the USGS
-
-**Methods**:
-- `acquire_raw_data() -> Path`: Acquire and cache raw groundwater wells in target area.
-- `run_final_analysis(h3_data: Dict[str, Any]) -> Dict[str, Any]`: Pass-through for groundwater presence when features already summarized upstream.
-- `run_analysis(target_hexagons: List[str]) -> Dict[str, Dict[str, Any]]`: Performs groundwater analysis by querying the USGS NWIS for wells within
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Ground Water workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `cascadia/src/data_modules/ground_water`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_sources.py`
+- `geo_infer_ground_water.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,5 +1,39 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-WATER/src` Source code implementation. ## Implementation
- ### `geo_infer_water/core/flood_drought.py` **Classes**: FloodDroughtAnalyzer **Functions**: assess_flood_risk, assess_drought_risk ### `geo_infer_water/core/hydrology.py` **Classes**: HydrologicalModeler **Functions**: rainfall_runoff_model, estimate_groundwater_recharge, calculate_water_balance ### `geo_infer_water/core/water_infrastructure.py` **Classes**: WaterInfrastructurePlanner **Functions**: optimize_water_allocation, assess_infrastructure_needs ### `geo_infer_water/core/water_quality.py` **Classes**: WaterBodyType, PollutantType, WaterSample, WaterQualityAssessor **Functions**: assess_water_quality, calculate_wqi, identify_pollution_sources, track_pollution_plume, analyze_trends ### `geo_infer_water/core/watershed.py` **Classes**: WatershedAnalyzer **Functions**: delineate_watershed, calculate_flow_accumulation, identify_stream_network ## Contents
- - **geo_infer_water/**: Subdirectory - **geo_infer_water.egg-info/**: Subdirectory --- 
+# GEO-INFER-WATER/src
+
+Src workspace within `GEO-INFER-WATER`.
+
+## Contents
+
+- `geo_infer_water.egg-info/`
+- `geo_infer_water/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-WATER`
+- Package: `geo_infer_water`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-WATER`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `pyyaml>=6.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

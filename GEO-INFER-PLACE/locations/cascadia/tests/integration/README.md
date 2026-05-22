@@ -1,18 +1,64 @@
-# integration
- ## Overview
- This directory contains integration components. It includes 6 Python modules. ## Components
- ### comprehensive_tes
-t
-.py Test Suite for Cascadia Agricultural Land Analysis Framework **Classes**: `ComprehensiveTestSuite` **Functions**: `main` ### focused_framework_tes
-t
-.py Focused Framework Test for Cascadia Agricultural Land Analysis **Functions**: `test_main_script_functionality`, `test_backend_with_mocked_dependencies`, `test_module_functionality`, `test_h3_utilities`, `run_focused_tests` ### run_comprehensive_validatio
-n
-.py Validation Runner for Cascadia Framework **Functions**: `test_main_script_syntax`, `test_configuration_files`, `test_module_structure`, `test_h3_integration`, `test_backend_initialization`, `test_module_imports`, `test_main_script_functionality`, `run_comprehensive_validation` ### test_enhanced_h3_fusio
-n
-.py Test for H3 Geospatial Data Fusion **Classes**: `EnhancedH3FusionTestSuite` **Functions**: `main`, `mock_data_source` ### test_module
-s
-.py Test script for Cascadia modules **Functions**: `test_h3_integration`, `test_module_initialization`, `test_module_workflow`, `main` ### test_real_data_processin
-g
-.py Real Data Processing Test for Cascadia Framework **Functions**: `test_real_data_processing`, `test_spatial_analysis`, `test_export_functionality`, `run_real_data_tests` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-PLACE/locations/cascadia/tests/integration
+
+Integration workspace within `GEO-INFER-PLACE`.
+
+## Contents
+
+- `comprehensive_test.py`
+- `focused_framework_test.py`
+- `run_comprehensive_validation.py`
+- `test_bioregion_pipeline.py`
+- `test_enhanced_h3_fusion.py`
+- `test_modules.py`
+- `test_real_data_processing.py`
+
+## Public Interface
+
+- `comprehensive_test.py:ComprehensiveTestSuite` (class)
+- `comprehensive_test.py:main` (function)
+- `focused_framework_test.py:test_main_script_functionality` (function)
+- `focused_framework_test.py:test_backend_with_mocked_dependencies` (function)
+- `focused_framework_test.py:test_module_functionality` (function)
+- `focused_framework_test.py:test_h3_utilities` (function)
+- `focused_framework_test.py:run_focused_tests` (function)
+- `run_comprehensive_validation.py:test_main_script_syntax` (function)
+- `run_comprehensive_validation.py:test_configuration_files` (function)
+- `run_comprehensive_validation.py:test_module_structure` (function)
+- `run_comprehensive_validation.py:test_h3_integration` (function)
+- `run_comprehensive_validation.py:test_backend_initialization` (function)
+- `run_comprehensive_validation.py:test_module_imports` (function)
+- `run_comprehensive_validation.py:test_main_script_functionality` (function)
+- `run_comprehensive_validation.py:run_comprehensive_validation` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python -m pytest GEO-INFER-PLACE/locations/cascadia/tests/integration`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-PLACE/locations/cascadia/tests/integration
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

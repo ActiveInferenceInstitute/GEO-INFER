@@ -1,4 +1,53 @@
-# examples
- ## Overview
- Structural component for examples. ## Contents
- - **radiation_surveillance.py**: Python definitions - **smart_sensor_network.py**: Python definitions - **soil_sensor_network.py**: Python definitions 
+# GEO-INFER-IOT/examples
+
+Examples workspace within `GEO-INFER-IOT`.
+
+## Contents
+
+- `radiation_surveillance.py`
+- `smart_sensor_network.py`
+- `soil_sensor_network.py`
+
+## Public Interface
+
+- `radiation_surveillance.py:RadiationSurveillanceSystem` (class)
+- `radiation_surveillance.py:main` (function)
+- `smart_sensor_network.py:main` (function)
+- `soil_sensor_network.py:SoilSensorNetwork` (class)
+- `soil_sensor_network.py:load_config` (function)
+- `soil_sensor_network.py:get_default_config` (function)
+- `soil_sensor_network.py:simulate_sensor_data` (function)
+- `soil_sensor_network.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-IOT`
+- Package: `geo_infer_iot`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-IOT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
+
+## Dependencies
+
+- `aiocoap>=0.4.3`
+- `asyncio-mqtt>=0.11.0`
+- `confluent-kafka>=1.8.0`
+- `fastapi>=0.68.0`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `influxdb-client>=1.24.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0`
+- `paho-mqtt>=1.6.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

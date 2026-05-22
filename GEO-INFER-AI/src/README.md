@@ -1,5 +1,38 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-AI/src` Source code implementation. ## Implementation
- ### `geo_infer_ai/core/model_evaluation.py` **Classes**: GeospatialModelEvaluator **Functions**: evaluate_classification, evaluate_regression, evaluate_spatial_accuracy, cross_validate_spatial ### `geo_infer_ai/core/explainability.py` **Classes**: ModelExplainer **Functions**: calculate_feature_importance, explain_prediction, generate_spatial_explanation ### `geo_infer_ai/core/training.py` **Classes**: TrainingConfig, ModelTrainer **Functions**: train_classifier, train_regressor, evaluate_model, load_model ### `geo_infer_ai/pipelines/mlflow_integration.py` **Classes**: MLflowPipeline **Functions**: start_run, end_run, log_params, log_metrics, log_model ### `geo_infer_ai/models/predictive/spatial_predictor.py` **Classes**: SpatialPredictor **Functions**: fit, predict, get_feature_importance, get_feature_names ## Contents
- - **geo_infer_ai/**: Subdirectory - **geo_infer_ai.egg-info/**: Subdirectory --- 
+# GEO-INFER-AI/src
+
+Src workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `geo_infer_ai.egg-info/`
+- `geo_infer_ai/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

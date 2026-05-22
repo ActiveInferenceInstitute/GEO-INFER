@@ -60,15 +60,13 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Testing",
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Software Development :: Quality Assurance",
     ],
     keywords="testing, geospatial, geo-infer, quality assurance, test automation",
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     entry_points={
         "console_scripts": [
             "geo-test=geo_infer_test.cli:main",

@@ -1,80 +1,39 @@
-# Agent
-: tests
+# Agent Instructions: GEO-INFER-DATA/tests
 
 ## Scope
-This agent handles test suites for GEO-INFER-DATA including unit tests, integration tests, performance tests, and test fixtures.
 
-## Implementation
- Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Tests workspace within `GEO-INFER-DATA`.
 
-### Currently
- Implemented
+## Capabilities
 
-- ✅ **Unit Tests**: Component-level testing for ingestion, storage, validation, API, and error handling
-- ✅ **Integration Tests**: End-to-end testing for complete workflows
-- ✅ **Performance Tests**: Benchmarking and performance validation
-- ✅ **Test Fixtures**: Reusable test data and fixtures
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Test
- Structure
+## Working Rules
 
-### unit
-/
-Unit tests for individual components:
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-- **test_ingestion.py**: Tests for `MultiSourceDataIngestion`, `SatelliteDataConnector`, `SensorDataConnector`, `CrowdsourcedDataConnector`
-- **test_storage.py**: Tests for `AdaptiveDataStorage`, `PostgreSQLBackend`, `MinIOBackend`, `LocalFileBackend`
-- **test_validation.py**: Tests for `GeospatialValidator`, `DataQualityManager`, `ValidationConfig`
-- **test_api.py**: Tests for `DataAPI`, `DatasetAPI`, `DataService`
-- **test_error_handling.py**: Tests for error handling across all components
+## Local Contents
 
-### integration
-/
-End-to-end integration tests:
+- `fixtures/`
+- `integration/`
+- `performance/`
+- `unit/`
+- `conftest.py`
 
-- **test_end_to_end.py**: Complete workflow testing from ingestion through storage and validation
-
-### performance
-/
-Performance benchmarks:
-
-- **test_benchmarks.py**: Performance benchmarks for data operations
-
-### fixtures
-/
-Reusable test data and fixtures for consistent testing.
-
-## Running
- Tests
+## Validation
 
 ```bash
-# Run
- all tests
-pytest tests/
+uv run python -m pytest GEO-INFER-DATA/tests
+```
 
-# Run
- unit tests only
-pytest tests/unit/
+## Integration Notes
 
-# Run
- integration tests
-pytest tests/integration/
-
-# Run
- performance tests
-pytest tests/performance/
-
-# Run
- specific test file
-pytest tests/unit/test_ingestion.py```
-
-## Integration
-
-- **Location**: `GEO-INFER-DATA/tests`
-- **Purpose**: Quality assurance and validation
-- **Test Framework**: pytest
-- **Coverage**: Unit, integration, and performance testing
-
----
-
-This AGENTS.md documents test suites for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

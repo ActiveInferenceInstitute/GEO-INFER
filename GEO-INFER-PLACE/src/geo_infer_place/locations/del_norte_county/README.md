@@ -1,59 +1,54 @@
-# Del Norte County — Source Modules
+# GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county
 
-## Overview
+Del Norte County workspace within `GEO-INFER-PLACE`.
 
-Production analysis modules for Del Norte County, California. Contains 5 Python modules
-and 1 dashboard sub-package covering forest health, coastal resilience, fire risk,
-seismic hazard, and comprehensive visualization.
+## Contents
 
-## Components
+- `dashboard/`
+- `__init__.py`
+- `coastal_resilience_analyzer.py`
+- `comprehensive_dashboard.py`
+- `fire_risk_assessor.py`
+- `forest_health_monitor.py`
+- `seismic_hazard_analyzer.py`
 
-### [forest_health_monitor.py](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/forest_health_monitor.py)
+## Public Interface
 
-Forest health monitoring and analysis for old-growth redwood, Douglas fir, and mixed
-conifer ecosystems. 15 methods covering NDVI/EVI analysis, tree mortality detection,
-climate vulnerability assessment, and CAL FIRE integration.
+- `coastal_resilience_analyzer.py:CoastalResilienceAnalyzer` (class)
+- `comprehensive_dashboard.py:DelNorteComprehensiveDashboard` (class)
+- `fire_risk_assessor.py:FireRiskAssessor` (class)
+- `forest_health_monitor.py:ForestHealthMonitor` (class)
+- `seismic_hazard_analyzer.py:SeismicHazardAnalyzer` (class)
 
-**Class**: `ForestHealthMonitor`
+## Module Metadata
 
-### [coastal_resilience_analyzer.py](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/coastal_resilience_analyzer.py)
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
 
-Coastal resilience analysis for 45 miles of Pacific coastline. Sea level rise
-vulnerability, coastal erosion tracking, storm surge modeling, tsunami risk, and
-habitat connectivity assessment via NOAA tide gauge data.
+## Dependencies
 
-**Class**: `CoastalResilienceAnalyzer`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
 
-### [fire_risk_assessor.py](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/fire_risk_assessor.py)
+## Validation
 
-Wildfire risk assessment integrating fire weather, fuel moisture, historical fire
-patterns, and wildland-urban interface analysis using CAL FIRE data.
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
 
-**Class**: `FireRiskAssessor`
+## Documentation Notes
 
-### [seismic_hazard_analyzer.py](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/seismic_hazard_analyzer.py)
-
-Cascadia Subduction Zone seismic and tsunami hazard analysis using real USGS
-earthquake data feeds. Includes H3-indexed hazard scoring, liquefaction risk,
-and full-rupture CSZ scenario assessment.
-
-**Class**: `SeismicHazardAnalyzer`
-
-### [comprehensive_dashboard.py](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/comprehensive_dashboard.py)
-
-Multi-domain interactive dashboard integrating all analysis domains with cross-domain
-interaction analysis and H3 spatial fusion.
-
-**Class**: `DelNorteComprehensiveDashboard`
-
-### [dashboard/](file:///Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/dashboard/)
-
-Lightweight dashboard package with climate, zoning, and agro-economic analyzers.
-
-**Class**: `AdvancedDashboard` (via `dashboard.core`)
-
-## Integration
-
-- Imports: `geo_infer_place.utils.integration.DelNorteDataIntegrator`
-- Spatial: H3 hexagonal indexing at resolution 8
-- APIs: CAL FIRE, NOAA Tides & Weather, USGS Earthquake Hazards
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

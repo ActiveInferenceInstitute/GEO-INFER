@@ -1,51 +1,44 @@
-# doc
-s
+# GEO-INFER-DATA/docs
 
-## Overvie
-w
+Docs workspace within `GEO-INFER-DATA`.
 
-Technical documentation for GEO-INFER-DATA including API schemas, guides, and reference documentation.
+## Contents
 
-**Path**: `GEO-INFER-DATA/docs`
+- `api_schema.yaml`
 
-## Content
-s
+## Public Interface
 
-### AP
-I
- Documentation
-- **api_schema.yaml**: OpenAPI schema for REST API endpoints
+- No public Python symbols are defined directly in this directory.
 
-### Guid
-e
-s
-- Data ingestion guides
-- ETL pipeline configuration guides
-- Storage optimization guides
-- Data quality management guides
+## Module Metadata
 
-### Referen
-c
-e
-- Complete API reference
-- Class and function documentation
-- Integration patterns
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
-## API
- Schema
+## Dependencies
 
-The `api_schema.yaml` file defines the complete REST API interface including:
-- Endpoint definitions
-- Request/response schemas
-- Authentication requirements
-- Error response formats
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
 
-## Integratio
-n
+## Validation
 
-This documentation supports:
-- API consumers integrating with GEO-INFER-DATA
-- Developers extending the data management system
-- System administrators configuring data pipelines
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
 
---- 
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

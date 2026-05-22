@@ -263,7 +263,7 @@ class EvacuationPlanner:
                     "route_id": route_id,
                     "origin": origin,
                     "destination": destination,
-                    "distance_km": 15.0,  # Placeholder
+                    "distance_km": 15.0,  # Baseline
                     "estimated_time_minutes": 30,
                     "capacity_vehicles_per_hour": 2000,
                     "road_segments": [

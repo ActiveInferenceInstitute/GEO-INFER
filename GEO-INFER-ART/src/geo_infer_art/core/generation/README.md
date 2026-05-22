@@ -1,14 +1,57 @@
-# generation
- ## Overview
- This directory contains generation components. It includes 4 Python modules. ## Components
- ### custom_algorithm
-s
-.py Custom algorithm framework for creating user-defined procedural art algorithms. **Classes**: `CustomAlgorithmFramework` **Functions**: `example_spiral_algorithm`, `example_cellular_growth_algorithm`, `example_fractal_landscape_algorithm` ### generative_ma
-p
-.py GenerativeMap module for creating generative art from geospatial data. **Classes**: `GenerativeMap` **Functions**: `animate` ### performance_optimize
-r
-.py Performance optimization utilities for geospatial art generation. **Classes**: `PerformanceOptimizer` **Functions**: `cache_result`, `parallel_map`, `time_execution`, `decorator`, `wrapper`, `wrapper`, `wrapper`, `test_function` ### procedural_ar
-t
-.py ProceduralArt module for creating procedural and algorithmic art from geospatial data. **Classes**: `ProceduralArt` **Functions**: `draw_branch`, `dragon_curve`, `hilbert_curve`, `koch_curve`, `remove_square` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-ART/src/geo_infer_art/core/generation
+
+Generation workspace within `GEO-INFER-ART`.
+
+## Contents
+
+- `__init__.py`
+- `custom_algorithms.py`
+- `generative_map.py`
+- `performance_optimizer.py`
+- `procedural_art.py`
+
+## Public Interface
+
+- `custom_algorithms.py:CustomAlgorithmFramework` (class)
+- `custom_algorithms.py:example_spiral_algorithm` (function)
+- `custom_algorithms.py:example_cellular_growth_algorithm` (function)
+- `custom_algorithms.py:example_fractal_landscape_algorithm` (function)
+- `generative_map.py:GenerativeMap` (class)
+- `performance_optimizer.py:PerformanceOptimizer` (class)
+- `performance_optimizer.py:cache_result` (function)
+- `performance_optimizer.py:parallel_map` (function)
+- `performance_optimizer.py:time_execution` (function)
+- `procedural_art.py:ProceduralArt` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ART`
+- Package: `geo_infer_art`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ART`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
+
+## Dependencies
+
+- `bokeh>=2.4.0`
+- `cartopy>=0.20.0`
+- `colour>=0.1.5`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `imageio>=2.9.0`
+- `imageio-ffmpeg>=0.4.0`
+- `kaleido>=0.2.0`
+- `matplotlib>=3.4.0`
+- `numpy>=1.21.0`
+- `opencv-python>=4.5.0`
+- `pillow>=8.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

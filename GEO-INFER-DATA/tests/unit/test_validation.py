@@ -75,7 +75,7 @@ class TestGeospatialValidator:
         """Create valid DataFrame for testing."""
         return pd.DataFrame(
             {
-                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="H"),
+                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
                 "temperature": np.random.normal(20, 5, 1000),
                 "humidity": np.random.normal(60, 10, 1000),
                 "latitude": np.random.normal(37.7, 0.1, 1000),

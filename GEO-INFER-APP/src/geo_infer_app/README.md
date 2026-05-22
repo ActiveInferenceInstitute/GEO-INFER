@@ -1,5 +1,38 @@
-# geo_infer_app
- ## Overview
- **Path**: `GEO-INFER-APP/src/geo_infer_app` Component for geo_infer_app. ## Implementation
- ### `models/agent_visualization.py` **Classes**: VisualizationType, VisualizationConfig, AgentVisualization **Functions**: get_default_config, state_to_map_feature, state_to_dashboard_data ### `models/agent_factory.py` **Classes**: AgentFactory **Functions**: register_interface, create_interface, get_available_agent_types ### `models/agent_configuration.py` **Classes**: ConfigFieldType, ConfigField, AgentConfigSchema, AgentConfiguration **Functions**: register_schema, get_schema, validate_config, get_default_config ### `models/agent_interface.py` **Classes**: AgentType, AgentState, AgentInterface **Functions**: get_agent_state, list_agents, send_command, register_event_handler, create_agent ### `models/interfaces/bdi_interface.py` **Classes**: BDIAgentInterface, BDIAgent, BeliefBase, DesireSet, IntentionStructure **Functions**: get_agent_state, list_agents, send_command, register_event_handler, create_agent ## Contents
- - **api/**: Subdirectory - **components/**: Subdirectory - **models/**: Subdirectory --- 
+# GEO-INFER-APP/src/geo_infer_app
+
+Geo Infer App workspace within `GEO-INFER-APP`.
+
+## Contents
+
+- `api/`
+- `components/`
+- `models/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-APP`
+- Package: `geo_infer_app`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-APP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

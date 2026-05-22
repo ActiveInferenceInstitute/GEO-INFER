@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-GIT/src` Source code implementation. ## Implementation
- ### `geo_infer_git/core/repo_manager.py` **Classes**: RepoManager **Functions**: clone_repositories, sync_repositories, check_repo_status, create_branch, checkout_branch ### `geo_infer_git/core/advanced_git.py` **Classes**: SubmoduleInfo, MergeConflict, CherryPickOperation, RebaseOperation, SubmoduleManager **Functions**: create_advanced_git_operations, initialize_submodules, update_submodules, sync_submodules, get_submodule_status ### `geo_infer_git/core/github_api.py` **Classes**: GitHubRepository, RateLimit, GitHubAPI **Functions**: from_api_response, reset_datetime, get_rate_limit, get_user_repositories, get_organization_repositories ## Contents
- - **geo_infer_git/**: Subdirectory - **geo_infer_git.egg-info/**: Subdirectory --- 
+# GEO-INFER-GIT/src
+
+Src workspace within `GEO-INFER-GIT`.
+
+## Contents
+
+- `geo_infer_git.egg-info/`
+- `geo_infer_git/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-GIT`
+- Package: `geo_infer_git`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-GIT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
+
+## Dependencies
+
+- `requests>=2.28.1`
+- `pyyaml>=6.0`
+- `psutil>=5.9.0`
+- `jsonschema>=4.17.0`
+- `GitPython>=3.1.0`
+- `fastapi>=0.104.0`
+- `uvicorn[standard]>=0.24.0`
+- `pydantic>=2.5.0`
+- `pytest>=7.3.1`
+- `black>=23.3.0`
+- `flake8>=6.0.0`
+- `mypy>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

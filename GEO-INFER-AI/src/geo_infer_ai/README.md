@@ -1,4 +1,42 @@
-# geo_infer_ai
- ## Overview
- GEO-INFER-AI: Artificial Intelligence and Machine Learning for Geospatial Workflows This module provides AI and machine learning capabilities for geospatial data processing, pattern recognition, and predictive modeling. Key Features: - Computer vision for satellite and aerial imagery - Predictive ML models for geospatial forecasting - MLOps integration with MLflow - Geospatial data preprocessing and feature engineering - Model repository and pre-trained models - Explainable AI (XAI) techniques ## Contents
- - **core/**: Submodule - **models/**: Submodule - **pipelines/**: Submodule - **preprocessing/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-AI/src/geo_infer_ai
+
+Geo Infer Ai workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `core/`
+- `models/`
+- `pipelines/`
+- `preprocessing/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -16,6 +16,6 @@ setup(
         "pyyaml>=6.0",
         "scikit-learn>=1.0.0",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
 )
 

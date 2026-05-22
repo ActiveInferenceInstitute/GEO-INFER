@@ -2,7 +2,7 @@
 name = "cascadia"
 version = "0.2.0"
 description = "Cascadian Agricultural Land Analysis Framework"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.21.0",
     "pandas>=1.3.0",

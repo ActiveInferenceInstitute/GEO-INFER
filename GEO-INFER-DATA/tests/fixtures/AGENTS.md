@@ -1,45 +1,35 @@
-# Agent: fixtures
+# Agent Instructions: GEO-INFER-DATA/tests/fixtures
 
 ## Scope
-This agent handles test fixtures and reusable test data for GEO-INFER-DATA testing.
 
-## Implementation Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Fixtures workspace within `GEO-INFER-DATA`.
 
-### Currently Implemented
+## Capabilities
 
-- ✅ **Test Data**: Sample geospatial datasets for testing
-- ✅ **Mock Data**: Mock data generators for various formats
-- ✅ **Test Utilities**: Helper functions for test setup and teardown
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Fixture Types
+## Working Rules
 
-### Geospatial Data Fixtures
-- Sample GeoJSON files
-- Sample Shapefiles
-- Sample raster data
-- Sample H3-indexed data
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-### Mock Data Generators
-- Mock satellite data
-- Mock sensor data
-- Mock crowdsourced data
+## Local Contents
 
-## Usage
+- No direct tracked child entries.
 
-```python
-from tests.fixtures import sample_geodataframe, mock_satellite_data
+## Validation
 
-# Use fixtures in tests
-def test_ingestion(sample_geodataframe):
-    result = ingestion.ingest(sample_geodataframe)
-    assert result is not None```
+```bash
+uv run python -m pytest GEO-INFER-DATA/tests/fixtures
+```
 
-## Integration
+## Integration Notes
 
-- **Location**: `GEO-INFER-DATA/tests/fixtures`
-- **Purpose**: Reusable test data and fixtures
-- **Used By**: Unit and integration tests
-
----
-
-This AGENTS.md documents test fixtures for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

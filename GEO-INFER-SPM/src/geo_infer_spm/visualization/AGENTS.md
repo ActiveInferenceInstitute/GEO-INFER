@@ -1,41 +1,38 @@
-# Agent
-: visualization
+# Agent Instructions: GEO-INFER-SPM/src/geo_infer_spm/visualization
 
 ## Scope
- This directory contains visualization components for the module. It provides 0 classes and 18 functions.
 
-## Classes
- and Functions
-
-### plot_model_diagnostics
- `plot_model_diagnostics(spm_result: SPMResult, figsize: Tuple[int, int]) -> Dict[str, Any]` Create model diagnostic plots.
-
-### plot_contrast_results
- `plot_contrast_results(contrast_result: ContrastResult, figsize: Tuple[int, int]) -> Dict[str, Any]` Create plots for contrast analysis results.
-
-### create_interactive_map
- `create_interactive_map(spm_result: SPMResult, contrast_idx: int, map_type: str, **kwargs) -> Optional[Any]` Create interactive geographical map of SPM results.
-
-### create_dashboard
- `create_dashboard(spm_result: SPMResult, include_diagnostics: bool) -> Optional[Any]` Create interactive dashboard of SPM results.
-
-### create_time_series_explorer
- `create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]` Create interactive time series explorer for temporal SPM data.
-
-### create_statistical_map
- `create_statistical_map(spm_result: SPMResult, contrast_idx: int, threshold: Optional[float], colormap: str, title: Optional[str]) -> Dict[str, Any]` Create statistical parametric map visualization.
-
-### plot_spm_results
- `plot_spm_results(spm_result: SPMResult, plot_type: str, **kwargs) -> Dict[str, Any]` Create SPM results visualization.
-
-### create_interactive_map
- `create_interactive_map(spm_result: SPMResult, contrast_idx: int, **kwargs) -> Optional[Any]` Create interactive statistical map using plotly.
+- Owning module: `GEO-INFER-SPM`
+- Python package: `geo_infer_spm`
+- Directory role: Visualization workspace within `GEO-INFER-SPM`.
 
 ## Capabilities
 
-- **18 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_spm` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SPM/src/geo_infer_spm/visualization`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `diagnostics.py`
+- `interactive.py`
+- `maps.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

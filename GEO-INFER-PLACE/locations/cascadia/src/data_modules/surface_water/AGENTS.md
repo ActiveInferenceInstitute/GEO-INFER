@@ -1,31 +1,37 @@
-# Agent
-: surface_water
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src/data_modules/surface_water
 
 ## Scope
- This directory contains surface_water components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CascadianSurfaceWaterDataSources
- Handles fetching of surface water data from the USGS NHD ArcGIS service.
-
-**Methods**:
-- `fetch_surface_water_features(bbox: Tuple[float, float, float, float]) -> dict`: Fetches all relevant surface water features (flowlines and waterbodies)
-
-### GeoInferSurfaceWater
- Analyzes surface water features by quantifying the area of water bodies
-
-**Methods**:
-- `acquire_raw_data() -> Path`: Acquire and cache raw NHD flowlines/waterbodies for target area.
-- `run_analysis(target_hexagons: List[str]) -> Dict[str, Dict[str, Any]]`: Calculates the area of water bodies and length of flowlines for each hexagon.
-- `run_final_analysis(h3_data: Dict[str, Any]) -> Dict[str, Any]`: Summarize H3-indexed water features into per-hex metrics if provided as features.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Surface Water workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `cascadia/src/data_modules/surface_water`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_sources.py`
+- `geo_infer_surface_water.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

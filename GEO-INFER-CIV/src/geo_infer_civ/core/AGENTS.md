@@ -1,16 +1,38 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-CIV/src/geo_infer_civ/core
 
 ## Scope
- This directory contains core components for the module.
 
-## Classes
- and Functions No public classes or functions found in this directory.
+- Owning module: `GEO-INFER-CIV`
+- Python package: `geo_infer_civ`
+- Directory role: Core workspace within `GEO-INFER-CIV`.
 
 ## Capabilities
- - Core module functionality
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_civ` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-CIV/src/geo_infer_civ/core`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `civic_engagement.py`
+- `participation.py`
+- `policy_analysis.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

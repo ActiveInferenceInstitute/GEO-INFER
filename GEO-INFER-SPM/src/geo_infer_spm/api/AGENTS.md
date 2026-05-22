@@ -1,28 +1,36 @@
-# Agent
-: api 
+# Agent Instructions: GEO-INFER-SPM/src/geo_infer_spm/api
 
 ## Scope
- This directory contains api components for the module. It provides 1 classes and 0 functions. 
 
-## Classes
- and Functions 
-
-### SPMAPI
- REST API interface for SPM analysis.
-
-**Methods**:
-- `upload_data(data: Dict[str, Any], format: str) -> Dict[str, Any]`: Upload geospatial data for analysis.
-- `fit_model(dataset_id: str, design_spec: Dict[str, Any], method: str) -> Dict[str, Any]`: Fit GLM to uploaded dataset.
-- `run_contrast(result_id: str, contrast_spec: Dict[str, Any], correction: str) -> Dict[str, Any]`: Run statistical contrast on fitted model.
-- `get_results(result_id: str, format: str) -> Dict[str, Any]`: Retrieve analysis results.
-- `list_datasets() -> Dict[str, Any]`: List all uploaded datasets.
-- `list_results() -> Dict[str, Any]`: List all analysis results. 
+- Owning module: `GEO-INFER-SPM`
+- Python package: `geo_infer_spm`
+- Directory role: Api workspace within `GEO-INFER-SPM`.
 
 ## Capabilities
- 
-- **1 classes** for core functionality 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPM/src/geo_infer_spm/api` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_spm` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `endpoints.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

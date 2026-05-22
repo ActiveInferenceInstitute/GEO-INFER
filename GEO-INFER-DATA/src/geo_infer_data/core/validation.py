@@ -8,7 +8,7 @@ quality assessment.
 
 import logging
 from typing import Dict, List, Optional, Union, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from enum import Enum
 
@@ -865,8 +865,8 @@ class DataQualityManager:
         validate_dataset(): Validate a specific dataset with comprehensive assessment
         get_improvement_recommendations(): Generate improvement recommendations
         get_quality_trends(): Analyze quality trends over time
-        _load_mock_dataset(): Load dataset for validation (for testing)
-        _load_mock_metadata(): Load metadata for validation (for testing)
+        _load_validation_dataset(): Load deterministic dataset for validation.
+        _load_validation_metadata(): Load deterministic metadata for validation.
 
     Args:
         validation_rules: Validation rules to apply. Can be a string specifying
@@ -1042,12 +1042,14 @@ class DataQualityManager:
         logger.info(f"Validating dataset: {dataset_id}")
 
         # This would typically load the dataset from storage
-        # For now, using mock data
-        mock_data = self._load_mock_dataset(dataset_id)
-        mock_metadata = self._load_mock_metadata(dataset_id)
+        # For now, using synthetic fixture data
+        validation_data = self._load_validation_dataset(dataset_id)
+        validation_metadata = self._load_validation_metadata(dataset_id)
 
         # Perform validation
-        quality_report = await self.validator.validate_data(mock_data, mock_metadata)
+        quality_report = await self.validator.validate_data(
+            validation_data, validation_metadata
+        )
         quality_report.dataset_id = dataset_id
 
         # Store in history
@@ -1056,9 +1058,9 @@ class DataQualityManager:
         logger.info(f"Dataset validation completed: {quality_report.overall_score:.2f}")
         return quality_report
 
-    def _load_mock_dataset(self, dataset_id: str) -> Any:
-        """Load mock dataset for validation."""
-        # Mock implementation - would load actual dataset
+    def _load_validation_dataset(self, dataset_id: str) -> Any:
+        """Load synthetic fixture dataset for validation."""
+        # Deterministic local implementation - would load actual dataset
         if "empty" in dataset_id:
             return pd.DataFrame()
         if "corrupted" in dataset_id:
@@ -1094,19 +1096,19 @@ class DataQualityManager:
             }
         )
 
-    def _load_mock_metadata(self, dataset_id: str) -> DatasetMetadata:
-        """Load mock metadata for validation."""
-        # Mock implementation - would load actual metadata
+    def _load_validation_metadata(self, dataset_id: str) -> DatasetMetadata:
+        """Load synthetic metadata for validation."""
+        # Deterministic local implementation - would load actual metadata
         return DatasetMetadata(
             title=f"Dataset {dataset_id}",
-            description="Mock dataset for validation",
+            description="Synthetic fixture dataset for validation",
             spatial=SpatialExtent(bbox=[-122.5, 37.6, -122.3, 37.8], crs="EPSG:4326"),
             temporal=TemporalExtent(
                 start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
             ),
             lineage=DataLineage(
-                source="mock_source",
-                process="mock_process",
+                source="validation_fixture",
+                process="validation_fixture_generation",
                 created_by="validation_system",
             ),
         )
@@ -1130,9 +1132,15 @@ class DataQualityManager:
 
     def get_quality_trends(self, days: int = 30) -> Dict[str, Any]:
         """Get quality trends over time."""
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+
+        def as_utc(value: datetime) -> datetime:
+            if value.tzinfo is None:
+                return value.replace(tzinfo=timezone.utc)
+            return value.astimezone(timezone.utc)
+
         recent_reports = [
-            r for r in self.quality_history if r.generated_at >= cutoff_date
+            r for r in self.quality_history if as_utc(r.generated_at) >= cutoff_date
         ]
 
         if not recent_reports:

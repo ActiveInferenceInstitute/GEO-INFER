@@ -1,102 +1,46 @@
-# GEO-INFER-TIME: Agent Capabilities
+# Agent Instructions: GEO-INFER-TIME
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-TIME`
+- Python package: `geo_infer_time`
+- Directory role: Temporal analysis, time series processing, forecasting, and spatio-temporal data fusion for dynamic geospatial applications.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-TIME** module provides temporal analysis capabilities for agents, enabling time series analysis, forecasting, and spatiotemporal modeling.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_time` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Time Series Analysis
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_time import TimeSeriesAnalyzer
+## Local Contents
 
-# Analyze time series data
-analyzer = TimeSeriesAnalyzer()
+- `docs/`
+- `examples/`
+- `src/`
+- `test_output/`
+- `tests/`
+- `demo_all_methods.py`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
+- `uv.lock`
 
-analysis = analyzer.analyze(
-    data=sensor_readings,
-    frequency="hourly",
-    decompose=True)
+## Validation
 
-print(f"Trend: {analysis.trend}")
-print(f"Seasonality: {analysis.seasonal_period}")
-print(f"Anomalies: {analysis.anomalies}")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
+```
 
-### 2. Forecasting
+## Integration Notes
 
-```python
-from geo_infer_time import Forecaster
-
-# Forecast future values
-forecaster = Forecaster()
-
-forecast = forecaster.predict(
-    data=historical_data,
-    horizon=30,
-    method="prophet",
-    confidence=0.95)
-
-print(f"Forecast: {forecast.values}")
-print(f"Uncertainty: {forecast.confidence_interval}")```
-
-### 3. Temporal Pattern Mining
-
-```python
-from geo_infer_time import PatternMiner
-
-# Find temporal patterns
-miner = PatternMiner()
-
-patterns = miner.find(
-    data=activity_data,
-    pattern_types=["periodic", "sequential", "burst"])
-
-print(f"Daily patterns: {patterns.daily}")
-print(f"Weekly patterns: {patterns.weekly}")```
-
-### 4. Event Detection
-
-```python
-from geo_infer_time import EventDetector
-
-# Detect events in time series
-detector = EventDetector()
-
-events = detector.detect(
-    data=monitoring_data,
-    methods=["change_point", "anomaly", "threshold"])
-
-print(f"Events detected: {len(events)}")
-print(f"Significant events: {events.significant}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Time Series** | ✅ Ready | Analysis, decomposition |
-| **Forecasting** | ✅ Ready | ML-based prediction |
-| **Patterns** | ✅ Ready | Pattern discovery |
-| **Events** | ✅ Ready | Change detection |
-
-### Aspirational Features
-
-- 🔮 **ForecastAgent**: Autonomous prediction
-- 🔮 **TrendAgent**: Trend monitoring
-
----
-
-This AGENTS.md documents how GEO-INFER-TIME provides temporal capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

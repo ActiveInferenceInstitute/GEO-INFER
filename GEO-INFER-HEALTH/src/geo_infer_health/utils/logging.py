@@ -5,10 +5,8 @@ Provides centralized logging configuration and utilities.
 """
 
 import sys
-import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime
 
 from loguru import logger
 
@@ -21,7 +19,7 @@ def setup_logging(
     file_path: Optional[str] = None,
     max_bytes: int = 10485760,  # 10MB
     backup_count: int = 5,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> None:
     """
     Setup logging configuration for the application.
@@ -41,28 +39,29 @@ def setup_logging(
     try:
         config = get_global_config()
         config_logging = config.logging
-        config_file = config_logging.get('file', {})
+        config_file = config_logging.get("file", {})
     except Exception:
         config_logging = {}
         config_file = {}
 
     # Determine logging level
     if not level:
-        level = config_logging.get('level', 'INFO')
+        level = config_logging.get("level", "INFO")
 
     # Determine log format
     if not format:
-        format = config_logging.get('format',
+        format = config_logging.get(
+            "format",
             "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
             "<level>{level: <8}</level> | "
             "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-            "<level>{message}</level>"
+            "<level>{message}</level>",
         )
 
-    # Determine file path
-    if not file_path:
-        if config_file.get('enabled', True):
-            file_path = config_file.get('path', 'logs/health.log')
+    # Determine file path. Imports should never create root-level log files;
+    # file logging is opt-in through explicit configuration or the CLI.
+    if not file_path and config_file.get("enabled", False):
+        file_path = config_file.get("path", "logs/health.log")
 
     # Create logs directory if needed
     if file_path:
@@ -70,8 +69,8 @@ def setup_logging(
         log_dir.mkdir(parents=True, exist_ok=True)
 
         # Configure file logging
-        max_bytes = config_file.get('max_bytes', max_bytes)
-        backup_count = config_file.get('backup_count', backup_count)
+        max_bytes = config_file.get("max_bytes", max_bytes)
+        backup_count = config_file.get("backup_count", backup_count)
 
         logger.add(
             file_path,
@@ -79,7 +78,7 @@ def setup_logging(
             level=level,
             rotation=max_bytes,
             retention=backup_count,
-            encoding='utf-8'
+            encoding="utf-8",
         )
 
     # Configure console logging
@@ -94,12 +93,7 @@ def setup_logging(
     else:
         console_format = format
 
-    logger.add(
-        sys.stdout,
-        format=console_format,
-        level=level,
-        colorize=True
-    )
+    logger.add(sys.stdout, format=console_format, level=level, colorize=True)
 
     # Log setup completion
     logger.info(f"Logging configured with level: {level}")
@@ -137,12 +131,14 @@ class PerformanceLogger:
 
     def __enter__(self):
         import time
+
         self.start_time = time.time()
         logger.debug(f"Starting operation: {self.operation_name}")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         import time
+
         if self.start_time is None:
             return
 
@@ -163,7 +159,9 @@ class PerformanceLogger:
             )
 
 
-def log_function_call(func_name: str = None, log_args: bool = False, log_result: bool = False):
+def log_function_call(
+    func_name: str = None, log_args: bool = False, log_result: bool = False
+):
     """
     Decorator to log function calls.
 
@@ -172,6 +170,7 @@ def log_function_call(func_name: str = None, log_args: bool = False, log_result:
         log_args: Whether to log function arguments
         log_result: Whether to log function return value
     """
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             name = func_name or f"{func.__module__}.{func.__name__}"
@@ -196,10 +195,13 @@ def log_function_call(func_name: str = None, log_args: bool = False, log_result:
                 raise
 
         return wrapper
+
     return decorator
 
 
-def log_performance(operation_name: str, duration: float, metadata: Optional[Dict[str, Any]] = None):
+def log_performance(
+    operation_name: str, duration: float, metadata: Optional[Dict[str, Any]] = None
+):
     """
     Log performance metrics.
 
@@ -212,9 +214,7 @@ def log_performance(operation_name: str, duration: float, metadata: Optional[Dic
     if metadata:
         metadata_str = f" | {metadata}"
 
-    logger.info(
-        f"Performance: {operation_name} took {duration:.3f}s{metadata_str}"
-    )
+    logger.info(f"Performance: {operation_name} took {duration:.3f}s{metadata_str}")
 
 
 def create_log_context(context_info: Dict[str, Any]):
@@ -233,7 +233,7 @@ def create_log_context(context_info: Dict[str, Any]):
 def setup_structured_logging(
     service_name: str = "geo-infer-health",
     version: str = "1.0.0",
-    environment: str = "development"
+    environment: str = "development",
 ):
     """
     Setup structured logging for production use.
@@ -245,15 +245,15 @@ def setup_structured_logging(
     """
     # Configure JSON format for structured logging
     json_format = (
-        "{{\"timestamp\": \"{time:YYYY-MM-DDTHH:mm:ssZ}\", "
-        "\"level\": \"{level}\", "
-        "\"service\": \"" + service_name + "\", "
-        "\"version\": \"" + version + "\", "
-        "\"environment\": \"" + environment + "\", "
-        "\"logger\": \"{name}\", "
-        "\"function\": \"{function}\", "
-        "\"line\": {line}, "
-        "\"message\": \"{message}\""
+        '{{"timestamp": "{time:YYYY-MM-DDTHH:mm:ssZ}", '
+        '"level": "{level}", '
+        '"service": "' + service_name + '", '
+        '"version": "' + version + '", '
+        '"environment": "' + environment + '", '
+        '"logger": "{name}", '
+        '"function": "{function}", '
+        '"line": {line}, '
+        '"message": "{message}"'
         "{extra_fields}"
         "}}"
     )
@@ -266,7 +266,7 @@ def setup_structured_logging(
         sys.stdout,
         format=json_format,
         level="INFO",
-        serialize=False  # We'll handle JSON manually
+        serialize=False,  # We'll handle JSON manually
     )
 
     # Add file handler with rotation
@@ -280,15 +280,10 @@ def setup_structured_logging(
         rotation="1 day",
         retention="30 days",
         encoding="utf-8",
-        serialize=False
+        serialize=False,
     )
 
-    logger.info("Structured logging configured", extra={
-        "service": service_name,
-        "version": version,
-        "environment": environment
-    })
-
-
-# Initialize default logging on import
-setup_logging()
+    logger.info(
+        "Structured logging configured",
+        extra={"service": service_name, "version": version, "environment": environment},
+    )

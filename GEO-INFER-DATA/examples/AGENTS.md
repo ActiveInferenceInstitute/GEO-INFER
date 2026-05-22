@@ -1,103 +1,39 @@
-# Agent
-: examples
+# Agent Instructions: GEO-INFER-DATA/examples
 
 ## Scope
-This agent handles example scripts demonstrating GEO-INFER-DATA capabilities including API usage, data ingestion, ETL pipelines, storage operations, and data validation.
 
-## Implementation
- Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Examples workspace within `GEO-INFER-DATA`.
 
-### Currently
- Implemented
+## Capabilities
 
-- ✅ **api_example.py**: REST API usage examples
-- ✅ **basic_ingestion_example.py**: Multi-source data ingestion examples
-- ✅ **etl_pipeline_example.py**: ETL pipeline workflow examples
-- ✅ **storage_example.py**: Adaptive storage usage examples
-- ✅ **validation_example.py**: Data validation and quality assurance examples
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Example
- Scripts
+## Working Rules
 
-### 1
-. API Example
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-# api_example.py
-from geo_infer_data.api import DataAPI
+## Local Contents
 
-api = DataAPI(config_path='config/local.yaml')
-api.start()
-# Demonstrates
- API endpoints for data access```
+- `api_example.py`
+- `basic_ingestion_example.py`
+- `etl_pipeline_example.py`
+- `storage_example.py`
+- `validation_example.py`
 
-### 2
-. Basic Ingestion Example
+## Validation
 
-```python
-# basic_ingestion_example.py
-from geo_infer_data.core.ingestion import MultiSourceDataIngestion
-
-ingestion = MultiSourceDataIngestion(
-    data_sources=['satellite', 'sensors'],
-    validation_enabled=True)
-# Demonstrates
- multi-source data ingestion```
-
-### 3
-. ETL Pipeline Example
-
-```python
-# etl_pipeline_example.py
-from geo_infer_data.core.pipeline import IntelligentETLPipeline
-
-pipeline = IntelligentETLPipeline(
-    workflow_config='etl_config.yaml',
-    dependency_resolution='automatic')
-# Demonstrates
- ETL workflow execution```
-
-### 4
-. Storage Example
-
-```python
-# storage_example.py
-from geo_infer_data.core.storage import AdaptiveDataStorage
-
-storage = AdaptiveDataStorage(
-    storage_backends=['postgresql', 'minio'],
-    optimization_strategy='access_pattern_based')
-# Demonstrates
- adaptive storage operations```
-
-### 5
-. Validation Example
-
-```python
-# validation_example.py
-from geo_infer_data.core.validation import DataQualityManager
-
-quality_manager = DataQualityManager(
-    validation_rules='comprehensive')
-# Demonstrates
- data quality validation```
-
-## Usage
-
-Run examples individually:
 ```bash
-python examples/api_example.py
-python examples/basic_ingestion_example.py
-python examples/etl_pipeline_example.py
-python examples/storage_example.py
-python examples/validation_example.py```
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
 
-## Integration
+## Integration Notes
 
-- **Location**: `GEO-INFER-DATA/examples`
-- **Purpose**: Demonstration scripts for data management operations
-- **Used By**: Developers learning GEO-INFER-DATA capabilities
-
----
-
-This AGENTS.md documents example scripts for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

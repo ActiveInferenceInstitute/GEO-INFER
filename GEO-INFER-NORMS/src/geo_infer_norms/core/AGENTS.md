@@ -1,143 +1,40 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-NORMS/src/geo_infer_norms/core
 
 ## Scope
- This directory contains core components for the module. It provides 10 classes and 0 functions.
 
-## Classes
- and Functions
-
-### ComplianceTracker
- A class for tracking compliance with regulations across entities and jurisdictions.
-
-**Methods**:
-- `add_compliance_status(status: ComplianceStatus) -> None`: Add a compliance status to the tracker.
-- `add_compliance_metric(metric: ComplianceMetric) -> None`: Add a compliance metric to the tracker.
-- `get_entity_compliance(entity_id: str, as_of_date: Optional[datetime.datetime]) -> Dict[str, Any]`: Get compliance status for all regulations for a specific entity.
-- `get_regulation_compliance(regulation_id: str, as_of_date: Optional[datetime.datetime]) -> Dict[str, Any]`: Get compliance status for all entities for a specific regulation.
-- `evaluate_compliance(entity: LegalEntity, regulation: Regulation, evaluation_data: Dict[str, Any]) -> ComplianceStatus`: Evaluate compliance of an entity with a regulation based on data.
-- `export_compliance_to_geodataframe(entities: List[LegalEntity], regulation_id: Optional[str], as_of_date: Optional[datetime.datetime]) -> gpd.GeoDataFrame`: Export compliance status to a GeoDataFrame for spatial analysis.
-- `visualize_compliance(compliance_gdf: gpd.GeoDataFrame, column: str, figsize: Tuple[int, int], cmap: str, save_path: Optional[str]) -> plt.Figure`: Create a visualization of compliance data.
-
-### ComplianceReport
- A class for generating compliance reports.
-
-**Methods**:
-- `generate_summary_report(as_of_date: Optional[datetime.datetime]) -> Dict[str, Any]`: Generate a summary compliance report.
-- `generate_entity_report(entity_id: str, as_of_date: Optional[datetime.datetime]) -> Dict[str, Any]`: Generate a compliance report for a specific entity.
-- `generate_regulation_report(regulation_id: str, as_of_date: Optional[datetime.datetime]) -> Dict[str, Any]`: Generate a compliance report for a specific regulation.
-- `export_report_to_html(save_path: str) -> str`: Export a summary report to HTML format.
-
-### LegalFramework
- A class representing a legal framework for geospatial analysis.
-
-**Methods**:
-- `add_jurisdiction(jurisdiction: Jurisdiction) -> None`: Add a jurisdiction to the legal framework.
-- `add_regulation(regulation: Regulation) -> None`: Add a regulation to the legal framework.
-- `get_regulations_by_jurisdiction(jurisdiction_id: str) -> List[Regulation]`: Get all regulations applicable to a specific jurisdiction.
-- `get_jurisdictions_by_point(point: Point) -> List[Jurisdiction]`: Get all jurisdictions that contain a specific geographic point.
-- `get_regulations_by_point(point: Point) -> List[Regulation]`: Get all regulations applicable to a specific geographic point.
-- `export_to_geodataframe() -> gpd.GeoDataFrame`: Export the legal framework's jurisdictions to a GeoDataFrame.
-
-### JurisdictionHandler
- Utility class for handling jurisdictional operations and hierarchies.
-
-**Methods**:
-- `add_jurisdiction(jurisdiction: Jurisdiction) -> None`: Add a jurisdiction to the handler.
-- `get_jurisdiction_by_id(jurisdiction_id: str) -> Optional[Jurisdiction]`: Get a jurisdiction by its ID.
-- `get_jurisdiction_hierarchy(jurisdiction_id: str) -> List[Jurisdiction]`: Get the hierarchical chain of jurisdictions from the given one up to the root.
-- `find_jurisdictions_by_name(name: str, partial_match: bool) -> List[Jurisdiction]`: Find jurisdictions by name.
-- `find_jurisdictions_at_level(level: str) -> List[Jurisdiction]`: Find all jurisdictions at a specific level (e.g., 'federal', 'state', 'county', 'city').
-- `get_overlapping_jurisdictions(geometry: Union[Point, Polygon, MultiPolygon]) -> List[Jurisdiction]`: Find all jurisdictions that overlap with a given geometry.
-- `create_jurisdiction_graph() -> Dict[str, List[str]]`: Create a graph representation of the jurisdictional hierarchy.
-- `export_to_geodataframe() -> gpd.GeoDataFrame`: Export the handler's jurisdictions to a GeoDataFrame.
-
-### NormativeInference
- A class for probabilistic inference about norms and compliance.
-
-**Methods**:
-- `add_norm(name: str, condition: Callable[[Dict[str, Any]], bool], probability: float, description: str, spatial_constraint: Optional[Polygon], temporal_constraint: Optional[Tuple[datetime.datetime, datetime.datetime]], attributes: Optional[Dict[str, Any]]) -> str`: Add a norm to the inference engine.
-- `add_norm_relationship(norm1_id: str, norm2_id: str, relationship_type: str, strength: float) -> None`: Add a relationship between norms.
-- `add_observation(entity_id: str, behavior: str, value: Any, timestamp: Optional[datetime.datetime], location: Optional[Point], certainty: float) -> None`: Add an observation about an entity's behavior.
-- `set_prior_belief(norm_id: str, entity_id: Optional[str], compliance_probability: float) -> None`: Set prior belief about norm compliance.
-- `get_latest_observation(entity_id: str, behavior: str) -> Optional[Dict[str, Any]]`: Get the most recent observation for an entity's behavior.
-- `get_entity_observations(entity_id: str) -> Dict[str, Any]`: Get all latest observations for an entity.
-- `check_norm_compliance(norm_id: str, entity_id: str) -> Tuple[bool, float]`: Check if an entity complies with a norm.
-- `infer_compliance(entity_id: str, norm_id: Optional[str]) -> Union[float, Dict[str, float]]`: Infer the probability of norm compliance for an entity.
-- `infer_network_compliance(entity_id: str, norm_id: str) -> float`: Infer compliance using the network of norm relationships.
-- `identify_norm_violations(entity_id: str, threshold: float) -> List[Dict[str, Any]]`: Identify potential norm violations for an entity.
-- `suggest_compliance_improvements(entity_id: str, improvement_threshold: float) -> List[Dict[str, Any]]`: Suggest improvements to increase compliance.
-
-### SocialNormDiffusion
- A class for modeling the diffusion of social norms across populations.
-
-**Methods**:
-- `add_entity(entity_id: str, attributes: Dict[str, Any], location: Optional[Point], adoption_threshold: float) -> None`: Add an entity to the diffusion model.
-- `add_norm(norm_id: str, name: str, initial_adopters: List[str], spatial_factor: float, network_factor: float, content_factor: float, attributes: Dict[str, Any]) -> None`: Add a norm to the diffusion model.
-- `add_social_connection(entity1_id: str, entity2_id: str, strength: float) -> None`: Add a social connection between entities.
-- `calculate_adoption_probability(norm_id: str, entity_id: str) -> float`: Calculate the probability of an entity adopting a norm.
-- `simulate_step() -> Dict[str, Any]`: Simulate one step of norm diffusion.
-- `simulate(steps: int) -> List[Dict[str, Any]]`: Simulate multiple steps of norm diffusion.
-- `get_adoption_summary() -> Dict[str, Dict[str, float]]`: Get a summary of norm adoption.
-- `get_adoption_history() -> Dict[str, List[float]]`: Get the history of adoption rates over time.
-
-### PolicyImpactAnalyzer
- Analyzes the potential or actual impacts of a policy across various dimensions.
-
-**Methods**:
-- `analyze_economic_impact() -> pd.DataFrame`: Analyzes the economic consequences of the policy.
-- `analyze_social_equity_impact() -> pd.DataFrame`: Assesses the policy's impact on social equity and justice.
-- `analyze_environmental_impact() -> gpd.GeoDataFrame`: Evaluates the environmental consequences of the policy.
-- `generate_impact_report() -> Dict[str, Any]`: Compiles a report of all analyzed impacts.
-- `visualize_spatial_impact() -> Any`: Creates a map visualizing the spatial distribution of policy impacts.
-
-### RegulatoryImpactAssessment
- Performs an assessment of the impacts specifically related to regulations.
-
-**Methods**:
-- `estimate_compliance_costs() -> pd.DataFrame`: Estimates the costs incurred by affected entities to comply.
-- `assess_administrative_burden() -> Dict[str, Any]`: Evaluates the administrative effort required by the regulation.
-- `analyze_market_effects() -> pd.DataFrame`: Analyzes the regulation's impact on market dynamics.
-- `evaluate_goal_achievement() -> Dict[str, Any]`: Assesses the extent to which the regulation achieves its stated goals.
-- `generate_assessment_summary() -> str`: Generates a textual summary of the regulatory impact assessment.
-
-### ZoningAnalyzer
- A class for analyzing zoning regulations and their spatial implications.
-
-**Methods**:
-- `add_zoning_district(district: ZoningDistrict) -> None`: Add a zoning district to the analyzer.
-- `add_zoning_code(code: ZoningCode) -> None`: Add a zoning code to the analyzer.
-- `get_district_by_id(district_id: str) -> Optional[ZoningDistrict]`: Get a zoning district by its ID.
-- `get_code_by_id(code_id: str) -> Optional[ZoningCode]`: Get a zoning code by its ID.
-- `get_zoning_at_point(point: Point) -> List[ZoningDistrict]`: Get all zoning districts that contain a specific point.
-- `calculate_compatibility(code1: str, code2: str) -> float`: Calculate the compatibility score between two zoning codes.
-- `analyze_zoning_boundaries() -> Dict[str, Any]`: Analyze zoning district boundaries for potential conflicts.
-- `evaluate_zoning_change(district_id: str, new_code: str) -> Dict[str, Any]`: Evaluate the impact of changing a district's zoning code.
-- `visualize_zoning(figsize: Tuple[int, int], highlight_district: Optional[str], highlight_color: str, save_path: Optional[str]) -> plt.Figure`: Create a visualization of zoning districts.
-- `export_districts_to_geodataframe() -> gpd.GeoDataFrame`: Export zoning districts to a GeoDataFrame.
-
-### LandUseClassifier
- A class for classifying and analyzing land use patterns.
-
-**Methods**:
-- `add_land_use_type(land_use_type: LandUseType) -> None`: Add a land use type to the classifier.
-- `get_land_use_type_by_id(type_id: str) -> Optional[LandUseType]`: Get a land use type by its ID.
-- `calculate_compatibility(type1_category: str, type2_category: str) -> float`: Calculate the compatibility score between two land use categories.
-- `analyze_land_use_pattern(land_use_gdf: gpd.GeoDataFrame, category_column: str) -> Dict[str, Any]`: Analyze the pattern of land use in a given area.
-- `classify_land_use(features_gdf: gpd.GeoDataFrame, feature_columns: List[str]) -> gpd.GeoDataFrame`: Classify land use based on feature characteristics.
-- `visualize_land_use(land_use_gdf: gpd.GeoDataFrame, category_column: str, figsize: Tuple[int, int], cmap: Optional[Union[str, ListedColormap]], save_path: Optional[str]) -> plt.Figure`: Create a visualization of land use patterns.
-- `get_zoning_statistics() -> Dict[str, Any]`: Calculate statistics about the zoning districts.
-- `find_zoning_conflicts(threshold: float) -> List[Dict[str, Any]]`: Identify zoning districts with potential conflicts based on compatibility.
-- `optimize_zoning_layout(target_compatibility: float) -> Dict[str, Any]`: Suggest zoning layout optimizations to improve compatibility.
-- `generate_zoning_report(output_path: Optional[str]) -> str`: Generate a zoning analysis report.
-- `calculate_development_potential(district_id: str) -> Dict[str, Any]`: Calculate development potential for a specific zoning district.
-- `compare_zoning_scenarios(scenarios: List[Dict[str, Any]]) -> Dict[str, Any]`: Compare different zoning scenarios.
+- Owning module: `GEO-INFER-NORMS`
+- Python package: `geo_infer_norms`
+- Directory role: Core workspace within `GEO-INFER-NORMS`.
 
 ## Capabilities
 
-- **10 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_norms` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-NORMS/src/geo_infer_norms/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `compliance_tracking.py`
+- `legal_frameworks.py`
+- `normative_inference.py`
+- `policy_impact.py`
+- `zoning_analysis.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

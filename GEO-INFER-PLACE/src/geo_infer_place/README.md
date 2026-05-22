@@ -1,4 +1,50 @@
-# geo_infer_place
- ## Overview
- GEO-INFER-PLACE: Place-Based Geospatial Analysis Framework This module provides place-based analysis capabilities for specific geographic locations, integrating multiple GEO-INFER modules to create deep, location-specific insights. Key Features: - Location-specific data integration and analysis - Multi-domain analysis (forest health, coastal resilience, fire risk, community development) - Real-time data access from government and research APIs - Interactive visualization and dashboard generation - Community engagement and stakeholder integration Core Components: - Place Analyzer: Main orchestration engine - Location Modules: Specific implementations for different places - Data Integrators: Real-time data access and processing - Visualization Engine: Interactive dashboard and map generation - Community Interface: Stakeholder engagement tools Supported Locations: - Del Norte County, California (forest health, coastal resilience, fire risk) - Cascadia Bioregion (agricultural land analysis) - Additional locations can be added following the same framework Example Usage: >>> from geo_infer_place import CascadianAgriculturalH3Backend >>> backend = CascadianAgriculturalH3Backend(h3_resolution=8, target_counties=["CA:Del Norte"]) >>> backend.generate_interactive_map() ## Contents
- - **core/**: Submodule - **locations/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-PLACE/src/geo_infer_place
+
+Geo Infer Place workspace within `GEO-INFER-PLACE`.
+
+## Contents
+
+- `config/`
+- `core/`
+- `locations/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- `__init__.py:get_supported_locations` (function)
+- `__init__.py:create_analyzer` (function)
+- `__init__.py:create_place_interface` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

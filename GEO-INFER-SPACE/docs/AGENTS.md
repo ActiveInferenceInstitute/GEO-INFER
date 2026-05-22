@@ -1,13 +1,44 @@
-# Agent
-: docs
+# Agent Instructions: GEO-INFER-SPACE/docs
 
 ## Scope
- This agent is responsible for handling operations within the `docs` scope.
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Docs workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **references** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-SPACE/docs`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `references/`
+- `CLI_TOOLS.md`
+- `H3_DATASET_INTEGRATION_GUIDE.md`
+- `H3_DEMO_README.md`
+- `H3_INTEGRATION_SCHEMA.md`
+- `H3_MODULE_CONFIGURATION_GUIDE.md`
+- `H3_V4_MIGRATION_GUIDE.md`
+- `TESTING.md`
+- `api_schema.yaml`
+- `h3_advanced_methods.md`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

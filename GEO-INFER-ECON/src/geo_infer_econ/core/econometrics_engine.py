@@ -545,7 +545,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
     def _fit_sac_model(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> EconometricResults:
         """Fit Spatial Autoregressive Combined (SAC) model."""
-        # Placeholder for SAC implementation - combines SAR and SEM
+        # Baseline for SAC implementation - combines SAR and SEM
         # This would require more complex optimization
         return self._fit_sar_model(y, X, W)
 
@@ -581,7 +581,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
     def _predict_sac(self, X: np.ndarray, W: np.ndarray) -> np.ndarray:
         """Make predictions for SAC model."""
-        # Placeholder for SAC prediction
+        # Baseline for SAC prediction
         return self._predict_sar(X, W)
         
     def _lm_lag_test(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> float:

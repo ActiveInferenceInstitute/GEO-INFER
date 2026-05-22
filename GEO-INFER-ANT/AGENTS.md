@@ -1,100 +1,46 @@
-# GEO-INFER-ANT: Agent Capabilities
+# Agent Instructions: GEO-INFER-ANT
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-ANT`
+- Python package: `geo_infer_ant`
+- Directory role: Comprehensive swarm intelligence and complex adaptive systems modeling using Active Inference principles for emergent collective behavior in geospatial contexts.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-ANT** (Ant Colony) module provides swarm intelligence capabilities for agents, including ant colony optimization, collective behavior, and distributed problem solving.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ant` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Ant Colony Optimization
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_ant import AntColonyOptimizer
+## Local Contents
 
-# Solve routing with ACO
-aco = AntColonyOptimizer()
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `run_tests.py`
+- `setup.py`
+- `.cursorrules`
+- `IMPLEMENTATION_STATUS.md`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-solution = aco.solve(
-    problem_type="tsp",
-    nodes=delivery_locations,
-    n_ants=50,
-    iterations=100)
+## Validation
 
-print(f"Best route distance: {solution.distance}")
-print(f"Route: {solution.path}")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
 
-### 2. Swarm Coordination
+## Integration Notes
 
-```python
-from geo_infer_ant import SwarmCoordinator
-
-# Coordinate agent swarm
-swarm = SwarmCoordinator()
-
-swarm.deploy(
-    agents=drone_agents,
-    area=search_region,
-    behavior="coverage")
-
-# Get swarm status
-status = swarm.get_status()
-print(f"Coverage: {status.coverage}%")```
-
-### 3. Pheromone Mapping
-
-```python
-from geo_infer_ant import PheromoneMapper
-
-# Create pheromone-based maps
-mapper = PheromoneMapper()
-
-pheromone_map = mapper.create(
-    paths=agent_paths,
-    decay_rate=0.1,
-    reinforcement=path_quality)
-
-print(f"Hot paths: {pheromone_map.strongest}")```
-
-### 4. Collective Decision
-
-```python
-from geo_infer_ant import CollectiveDecision
-
-# Swarm-based decision making
-decision = CollectiveDecision()
-
-result = decision.vote(
-    agents=swarm_agents,
-    alternatives=site_options,
-    method="quorum_sensing")
-
-print(f"Selected: {result.choice}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **ACO** | ✅ Ready | Optimization |
-| **Swarm** | ✅ Ready | Coordination |
-| **Pheromone** | ✅ Ready | Path reinforcement |
-| **Collective** | ✅ Ready | Group decisions |
-
-### Aspirational Features
-
-- 🔮 **SwarmMasterAgent**: Autonomous swarm control
-- 🔮 **EmergentBehaviorAgent**: Complex patterns
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

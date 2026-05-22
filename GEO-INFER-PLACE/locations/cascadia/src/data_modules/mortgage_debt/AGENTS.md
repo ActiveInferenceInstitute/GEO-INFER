@@ -1,31 +1,37 @@
-# Agent
-: mortgage_debt
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src/data_modules/mortgage_debt
 
 ## Scope
- This directory contains mortgage_debt components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CascadianMortgageDataSources
- Handles fetching and processing of HMDA mortgage data.
-
-**Methods**:
-- `fetch_all_mortgage_data(year: int) -> pd.DataFrame`: Loads all available HMDA mortgage data for target counties.
-
-### GeoInferMortgageDebt
- Processes and analyzes mortgage data aggregated at the census tract level.
-
-**Methods**:
-- `acquire_raw_data(year: int) -> Path`: Acquire and cache raw mortgage data merged to census tract geometries.
-- `run_analysis(target_hexagons: List[str], year: int) -> Dict[str, Dict[str, Any]]`: Spatially joins HMDA mortgage data with H3 hexagons and calculates debt metrics.
-- `run_final_analysis(h3_data: Dict[str, Any]) -> Dict[str, Any]`: Summarize H3 mortgage features into per-hex metrics if needed.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Mortgage Debt workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `cascadia/src/data_modules/mortgage_debt`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_sources.py`
+- `geo_infer_mortgage_debt.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

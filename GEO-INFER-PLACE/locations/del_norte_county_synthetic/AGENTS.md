@@ -1,31 +1,38 @@
-# Agent: del_norte_county_synthetic
+# Agent Instructions: GEO-INFER-PLACE/locations/del_norte_county_synthetic
 
 ## Scope
 
-Synthetic data variant of the Del Norte County analysis framework. Provides configuration
-and dashboard infrastructure for testing and demonstration without live API dependencies.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Del Norte County Synthetic workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **Dashboard Generation**: Interactive HTML dashboards from synthetic datasets
-- **Configuration Management**: Analysis configs mirroring production del_norte_county
-- **Demonstration Mode**: Realistic synthetic data for forest health, coastal, and fire risk
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Relationship to del_norte_county
+## Working Rules
 
-This location mirrors the production `del_norte_county` implementation but uses synthetic
-data generators instead of live CAL FIRE and NOAA API calls. Useful for:
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-- CI/CD pipelines with no external API access
-- Development and testing of new analysis features
-- Demonstrations and training materials
+## Local Contents
 
-## Status
+- `config/`
+- `del_norte_dashboard/`
+- `requirements.txt`
+- `requirements_advanced.txt`
 
-📄 Configuration and dashboards — references production code from `del_norte_county`.
+## Validation
 
-## Integration
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
 
-- **Location**: `GEO-INFER-PLACE/locations/del_norte_county_synthetic`
-- **Type**: Location Node (synthetic variant)
-- **Parent Implementation**: `del_norte_county`
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

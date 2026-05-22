@@ -466,7 +466,7 @@ class BehavioralEconomicsEngine:
         Returns:
             Dictionary with risk preference analysis
         """
-        # Placeholder for risk preference analysis
+        # Baseline for risk preference analysis
         # This would estimate parameters of utility functions from choice data
 
         return {

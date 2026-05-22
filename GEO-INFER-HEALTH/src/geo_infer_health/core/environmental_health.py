@@ -87,10 +87,10 @@ class EnvironmentalHealthAnalyzer:
                 avg_exposure_results[key_for(loc)] = avg_value
         return avg_exposure_results
 
-    # Placeholder for more complex exposure modeling
+    # Baseline for more complex exposure modeling
     # def estimate_cumulative_exposure(self, person_trajectory: List[Tuple[Location, datetime]], parameter: str):
     #     pass
 
-    # Placeholder for linking environmental data to health outcomes
+    # Baseline for linking environmental data to health outcomes
     # def correlate_env_health(self, disease_reports: List[DiseaseReport], env_parameter: str, lag_time_days: int):
     #     pass

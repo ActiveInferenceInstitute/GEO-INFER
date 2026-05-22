@@ -1,8 +1,37 @@
-# visualization
- ## Overview
- This directory contains visualization components. It includes 1 Python modules. ## Components
- ### adapter
-s
-.py Human-Centered Visualization Adapters for GEO-INFER-COG **Classes**: `VisualizationElement`, `ColorScheme`, `HumanCenteredVisualizer` **Functions**: `extract_coords`, `extract_coords` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-COG/src/geo_infer_cog/visualization
+
+Visualization workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `__init__.py`
+- `adapters.py`
+
+## Public Interface
+
+- `adapters.py:VisualizationElement` (class)
+- `adapters.py:ColorScheme` (class)
+- `adapters.py:HumanCenteredVisualizer` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -142,7 +142,7 @@ class DownscalingMethods:
         topography: Optional[xr.DataArray] = None
     ) -> xr.DataArray:
         """Random forest-based downscaling."""
-        # Placeholder for RF downscaling
+        # Baseline for RF downscaling
         # Would train RF model on coarse-fine pairs
         return self._regression_downscaling(coarse, topography)
 

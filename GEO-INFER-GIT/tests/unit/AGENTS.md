@@ -1,13 +1,41 @@
-# Agent
-: unit
+# Agent Instructions: GEO-INFER-GIT/tests/unit
 
 ## Scope
- This agent is responsible for handling operations within the `unit` scope.
+
+- Owning module: `GEO-INFER-GIT`
+- Python package: `geo_infer_git`
+- Directory role: Unit workspace within `GEO-INFER-GIT`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_config_loader** processes - Management of **test_github_api** processes - Management of **test_repo_cloner** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_git` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-GIT/tests/unit`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_config_loader.py`
+- `test_error_handler.py`
+- `test_github_api.py`
+- `test_repo_analyzer.py`
+- `test_repo_cloner.py`
+- `test_repo_manager.py`
+- `test_validation.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-GIT/tests/unit
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

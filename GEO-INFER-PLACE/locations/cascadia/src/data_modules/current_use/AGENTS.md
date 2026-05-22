@@ -1,42 +1,37 @@
-# Agent
-: current_use
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src/data_modules/current_use
 
 ## Scope
- This directory contains current_use components for the module. It provides 3 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CropClassification
-
-### CascadianCurrentUseDataSources
- Multi-source agricultural land use classification for Cascadian bioregion
-
-**Methods**:
-- `fetch_nass_cdl_data_for_hexagons(year: int, hexagons: List[str]) -> Dict[str, List[Tuple[int, float]]]`: Fetches and processes NASS CDL data for a list of hexagons, chunking requests.
-- `fetch_land_iq_data(county: str) -> gpd.GeoDataFrame`: Fetches Land IQ land use data for a specific county in California.
-- `get_usda_county_stats(county_fips: str, year: int) -> Optional[Dict]`: Fetches USDA NASS county-level statistics for validation.
-- `fetch_oregon_efu_reports(year: int) -> pd.DataFrame`: Fetch Oregon EFU land use reports from local file
-- `get_crop_classification(crop_code: int) -> Optional[CropClassification]`: Get crop classification information
-- `classify_crop_category(crop_code: int) -> str`: Classify crop into a general category
-- `estimate_water_requirements(crop_code: int) -> str`: Estimate water requirements for a crop
-- `estimate_economic_value(crop_code: int) -> float`: Estimate economic value for a crop
-- `get_seasonal_pattern(crop_code: int) -> str`: Get seasonal pattern for a crop
-- `validate_data_availability(year: int, source: str) -> bool`: Validate data availability for a given year and source.
-- `get_available_years(source: str) -> List[int]`: Get available years for a data source.
-- `get_target_counties(state: str) -> List[str]`: Get target counties for analysis.
-
-### GeoInferCurrentUse
-
-**Methods**:
-- `acquire_raw_data() -> Path`: Acquire raw current use data for Del Norte county.
-- `run_final_analysis(h3_data: Dict[str, Any]) -> Dict[str, Any]`: Generate H3-indexed current agricultural use classification using real OSC H3 v4 methods.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Current Use workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **3 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `cascadia/src/data_modules/current_use`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_sources.py`
+- `geo_infer_current_use.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

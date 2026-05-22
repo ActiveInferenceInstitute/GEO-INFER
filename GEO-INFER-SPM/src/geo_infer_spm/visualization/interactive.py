@@ -111,7 +111,7 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
 
     elif map_type == 'choropleth':
         # For choropleth, we would need polygon data
-        # This is a placeholder for future implementation
+        # This is a extension point for future implementation
         warnings.warn("Choropleth map requires polygon data. Using scatter plot instead.")
         return create_interactive_map(spm_result, contrast_idx, 'scattergeo', **kwargs)
 

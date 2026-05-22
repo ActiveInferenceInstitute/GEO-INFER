@@ -1,108 +1,43 @@
-# GEO-INFER-ENERGY: Agent Capabilities
+# Agent Instructions: GEO-INFER-ENERGY
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-ENERGY`
+- Python package: `geo_infer_energy`
+- Directory role: Energy systems analysis, renewable energy optimization, and grid management.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-ENERGY** module provides energy systems capabilities for agents, enabling renewable resource assessment, grid analysis, and energy planning.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_energy` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Renewable Assessment
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_energy import RenewableAssessor
+## Local Contents
 
-# Assess renewable potential
-assessor = RenewableAssessor()
+- `.test-results/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-solar = assessor.assess_solar(
-    area=study_region,
-    metrics=["ghi", "capacity_factor", "lcoe"])
+## Validation
 
-wind = assessor.assess_wind(
-    area=study_region,
-    hub_height=100)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY
+```
 
-print(f"Solar potential: {solar.capacity_mw} MW")
-print(f"Wind potential: {wind.capacity_mw} MW")```
+## Integration Notes
 
-### 2. Grid Analysis
-
-```python
-from geo_infer_energy import GridAnalyzer
-
-# Analyze power grid
-grid = GridAnalyzer()
-
-analysis = grid.analyze_capacity(
-    network=transmission_lines,
-    new_generation=proposed_projects,
-    load_forecast=demand_data)
-
-print(f"Constraints: {analysis.bottlenecks}")
-print(f"Upgrade needs: ${analysis.upgrade_cost}M")```
-
-### 3. Site Selection
-
-```python
-from geo_infer_energy import SiteSuitability
-
-# Find optimal energy sites
-suitability = SiteSuitability()
-
-sites = suitability.find_sites(
-    energy_type="solar_pv",
-    region=county,
-    constraints={"slope": 5, "land_use": ["barren", "agricultural"]})
-
-print(f"Suitable sites: {len(sites)}")
-print(f"Total capacity: {sites.total_mw} MW")```
-
-### 4. Energy Transition
-
-```python
-from geo_infer_energy import TransitionPlanner
-
-# Plan energy transition
-planner = TransitionPlanner()
-
-plan = planner.create(
-    target={"renewable": 100, "year": 2045},
-    technologies=["solar", "wind", "storage"],
-    constraints={"budget": 10_000_000_000})
-
-print(f"Investment needed: ${plan.total_cost}B")```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Renewable** | ✅ Ready | Resource assessment |
-| **Grid** | ✅ Ready | Network analysis |
-| **Siting** | ✅ Ready | Location optimization |
-| **Transition** | ✅ Ready | Decarbonization |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **GridOperatorAgent** | 🔮 High | Autonomous dispatch |
-| **DemandResponseAgent** | 🔮 Medium | Load management |
-
----
-
-This AGENTS.md documents how GEO-INFER-ENERGY provides energy capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

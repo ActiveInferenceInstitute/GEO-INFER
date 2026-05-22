@@ -12,10 +12,9 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: GIS",
-        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     install_requires=[
         "cryptography>=36.0.0",
         "pyjwt>=2.3.0",
@@ -24,7 +23,7 @@ setup(
         "pandas>=1.3.0",
         "numpy>=1.20.0",
         "pyyaml>=6.0",
-        "h3>=3.7.0",
+        "h3>=4.0.0",
         "pyproj>=3.0.0",
     ],
     extras_require={

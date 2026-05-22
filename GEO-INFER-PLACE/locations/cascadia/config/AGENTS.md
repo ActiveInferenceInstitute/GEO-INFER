@@ -1,31 +1,47 @@
-# Agent
-: config
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/config
 
 ## Scope
- This directory contains config components for the module. It provides 1 classes and 1 functions.
 
-## Classes
- and Functions
-
-### CountyBoundaryLoader
- Loads and manages county boundary data for the Cascadia analysis
-
-**Methods**:
-- `get_county_info(county_key: str) -> Optional[Dict[str, Any]]`: Get county information from configuration
-- `load_county_geometry(county_key: str) -> Optional[Union[Polygon, Dict[str, Any]]]`: Load county geometry from GeoJSON file
-- `download_county_boundary(county_key: str) -> bool`: Download county boundary from official sources
-- `get_all_county_geometries(target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]`: Get geometries for all target counties
-- `validate_geometry(geometry: Union[Dict[str, Any], Polygon]) -> bool`: Validate that a geometry is suitable for H3 geo_to_cells
-
-### create_county_boundary_loader
- `create_county_boundary_loader() -> CountyBoundaryLoader` Factory function to create a county boundary loader
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Config workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **1 classes** for core functionality
-- **1 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PLACE/locations/cascadia/config`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `county_boundary_loader.py`
+- `analysis_config.yaml`
+- `ca_del_norte_boundary.geojson`
+- `ca_humboldt_boundary.geojson`
+- `ca_lassen_boundary.geojson`
+- `cascadia_climate_zones.yaml`
+- `cascadia_config.yaml`
+- `cascadia_ecoregions.yaml`
+- `cascadia_indigenous_territories.yaml`
+- `cascadia_salmon_esus.yaml`
+- `county_boundaries.yaml`
+- `data_cleanup_config.json`
+- `data_urls.json`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

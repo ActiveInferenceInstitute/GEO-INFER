@@ -1,13 +1,42 @@
-# Agent
-: integration 
+# Agent Instructions: GEO-INFER-TEST/tests/integration
 
 ## Scope
- This agent is responsible for handling operations within the `integration` scope. 
+
+- Owning module: `GEO-INFER-TEST`
+- Python package: `geo_infer_test`
+- Directory role: Integration workspace within `GEO-INFER-TEST`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_act_agent_ant_coordination** processes - Management of **test_ai_space_domain_integration** processes - Management of **test_cross_module** processes - Management of **test_cross_module_workflows** processes - Management of **test_sec_api_app_security** processes - Management of **test_space_time_data_integration** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-TEST/tests/integration` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_test` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_act_agent_ant_coordination.py`
+- `test_ai_space_domain_integration.py`
+- `test_cross_module.py`
+- `test_cross_module_workflows.py`
+- `test_ecosystem_health.py`
+- `test_module_imports.py`
+- `test_sec_api_app_security.py`
+- `test_space_time_data_integration.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-TEST/tests/integration
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

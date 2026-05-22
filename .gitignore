@@ -6,6 +6,8 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+/.geo-infer-test-results/
+/logs/
 
 # Build artifacts
 *.egg-info/

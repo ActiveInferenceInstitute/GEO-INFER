@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-PLACE/src` Source code implementation. ## Implementation
- ### `geo_infer_place/core/unified_backend.py` **Classes**: CascadianAgriculturalH3Backend **Functions**: run_comprehensive_analysis, calculate_agricultural_redevelopment_potential, get_comprehensive_summary, export_unified_data, generate_interactive_dashboard ### `geo_infer_place/core/visualization_engine.py` **Classes**: InteractiveVisualizationEngine **Functions**: create_comprehensive_dashboard ### `geo_infer_place/core/api_clients.py` **Classes**: CALFIREClient, NOAAClient, USGSClient, USGSEarthquakeClient, CDECClient **Functions**: fetch_incidents, fetch_perimeters, fetch_weather_observations, fetch_tide_data, fetch_water_data ### `geo_infer_place/core/base_module.py` **Classes**: BaseAnalysisModule **Functions**: acquire_raw_data, process_to_h3, run_final_analysis, run_analysis ### `geo_infer_place/utils/integration.py` **Classes**: DelNorteDataIntegrator **Functions**: get_fire_perimeters, get_active_incidents, get_timber_operations, get_tree_mortality_data, get_weather_data ## Contents
- - **geo_infer_place/**: Subdirectory - **geo_infer_place.egg-info/**: Subdirectory --- 
+# GEO-INFER-PLACE/src
+
+Src workspace within `GEO-INFER-PLACE`.
+
+## Contents
+
+- `geo_infer_place.egg-info/`
+- `geo_infer_place/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

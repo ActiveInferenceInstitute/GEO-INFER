@@ -1,30 +1,38 @@
-# Agent: cascadia/src
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src
 
 ## Scope
 
-Core source code for the Cascadia agricultural analysis pipeline.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Src workspace within `GEO-INFER-PLACE`.
 
-## Modules
+## Capabilities
 
-### `core/`
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-- `enhanced_data_manager.py` — Cached data management with intelligent TTL
-- `enhanced_h3_fusion.py` — H3 v4 geospatial data fusion engine
-- `enhanced_logging.py` — Structured logging configuration
-- `real_data_acquisition.py` — Multi-source API data fetching
-- `data_processor.py` — Data transformation and export
-- `visualization/comprehensive_visualization.py` — Dashboard generation
+## Working Rules
 
-### `config/`
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-- Analysis configuration and schema definitions
+## Local Contents
 
-### `data_modules/`
+- `config/`
+- `core/`
+- `data_modules/`
+- `__init__.py`
 
-- Location-specific data module definitions
+## Validation
 
-## Integration
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
 
-- **Location**: `GEO-INFER-PLACE/locations/cascadia/src`
-- **Type**: Source Code Directory
-- **Entry Point**: `cascadia_main.py` (parent directory)
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

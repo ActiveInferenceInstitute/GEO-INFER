@@ -1,14 +1,51 @@
-# reporting
- ## Overview
- This directory contains reporting components. It includes 4 Python modules. ## Components
- ### crm_report
-s
-.py CRM Reporting functions. **Functions**: `generate_customer_segmentation_report`, `generate_lead_conversion_report`, `get_quarterly_metrics` ### generic_report_generato
-r
-.py Generic report generation utilities. **Functions**: `create_quarterly_overview` ### hr_report
-s
-.py HR Reporting functions. **Functions**: `generate_headcount_report`, `generate_diversity_report`, `get_quarterly_metrics` ### talent_report
-s
-.py Talent Acquisition Reporting functions. **Functions**: `generate_candidate_pipeline_report`, `calculate_time_to_hire`, `get_quarterly_metrics` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-PEP/src/geo_infer_pep/reporting
+
+Reporting workspace within `GEO-INFER-PEP`.
+
+## Contents
+
+- `__init__.py`
+- `crm_reports.py`
+- `generic_report_generator.py`
+- `hr_reports.py`
+- `talent_reports.py`
+
+## Public Interface
+
+- `crm_reports.py:generate_customer_segmentation_report` (function)
+- `crm_reports.py:generate_lead_conversion_report` (function)
+- `crm_reports.py:get_quarterly_metrics` (function)
+- `generic_report_generator.py:create_quarterly_overview` (function)
+- `hr_reports.py:generate_headcount_report` (function)
+- `hr_reports.py:generate_diversity_report` (function)
+- `hr_reports.py:get_quarterly_metrics` (function)
+- `talent_reports.py:generate_candidate_pipeline_report` (function)
+- `talent_reports.py:calculate_time_to_hire` (function)
+- `talent_reports.py:get_quarterly_metrics` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-PEP`
+- Package: `geo_infer_pep`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PEP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP`
+
+## Dependencies
+
+- `fastapi>=0.100.0`
+- `uvicorn[standard]>=0.23.2`
+- `pydantic>=2.0`
+- `pandas>=2.0`
+- `matplotlib>=3.7.0`
+- `seaborn>=0.13.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

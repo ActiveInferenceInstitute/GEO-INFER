@@ -1,5 +1,39 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-AI/tests` Tests for GEO-INFER-AI module. ## Implementation
- ### `unit/test_feature_engineering.py` **Classes**: TestGeospatialFeatureEngineer **Functions**: sample_data, test_create_spatial_features, test_create_spatial_features_with_angles, test_create_temporal_features, test_fit_transform_with_spatial ### `unit/test_training.py` **Classes**: TestTrainingConfig, TestModelTrainer **Functions**: test_default_config, test_config_validation, trainer, classification_data, regression_data ### `unit/test_spatial_predictor.py` **Classes**: TestSpatialPredictor **Functions**: regression_data, test_init_linear, test_init_random_forest, test_init_invalid_type, test_fit_predict_numpy ### `unit/test_image_classifier.py` **Classes**: TestImageClassifier **Functions**: image_data_2d, image_data_3d, image_data_4d, test_init_random_forest, test_init_neural_network ## Contents
- - **conftest.py**: Python module - **integration/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-AI/tests
+
+Tests workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python -m pytest GEO-INFER-AI/tests`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-AI/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

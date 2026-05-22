@@ -1,61 +1,65 @@
-# connectors
+# GEO-INFER-DATA/src/geo_infer_data/connectors
 
-## Overview
+Connectors workspace within `GEO-INFER-DATA`.
 
-Data source connectors for GEO-INFER-DATA including cloud storage, databases, APIs, files, and streaming services.
+## Contents
 
-This directory contains connectors for diverse geospatial data sources enabling multi-source data ingestion.
+- `__init__.py`
+- `api.py`
+- `cloud.py`
+- `database.py`
+- `file.py`
+- `stream.py`
 
-## Components
+## Public Interface
 
-### api.py
-API connectors for geospatial web services.
+- `api.py:APIConnector` (class)
+- `api.py:GraphQLConnector` (class)
+- `api.py:STACConnector` (class)
+- `cloud.py:CloudConnector` (class)
+- `cloud.py:S3Connector` (class)
+- `cloud.py:GCSConnector` (class)
+- `cloud.py:AzureConnector` (class)
+- `database.py:DatabaseConnector` (class)
+- `database.py:PostgreSQLConnector` (class)
+- `database.py:MySQLConnector` (class)
+- `database.py:MongoDBConnector` (class)
+- `file.py:FileConnector` (class)
+- `file.py:StreamingFileConnector` (class)
+- `stream.py:StreamConnector` (class)
+- `stream.py:MQTTConnector` (class)
+- `stream.py:KafkaConnector` (class)
+- `stream.py:WebSocketConnector` (class)
 
-**Classes**: `APIConnector`, `GraphQLConnector`, `STACConnector`
+## Module Metadata
 
-### cloud.py
-Cloud storage connectors.
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
-**Classes**: `CloudConnector`, `S3Connector`, `GCSConnector`, `AzureConnector`
+## Dependencies
 
-### database.py
-Database connectors for geospatial data.
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
 
-**Classes**: `DatabaseConnector`, `PostgreSQLConnector`, `MySQLConnector`, `MongoDBConnector`
+## Validation
 
-### file.py
-File system connectors for geospatial data formats.
-
-**Classes**: `FileConnector`, `StreamingFileConnector`
-
-### stream.py
-Streaming data connectors.
-
-**Classes**: `StreamConnector`, `MQTTConnector`, `KafkaConnector`, `WebSocketConnector`
-
-## Usage
-
-```python
-from geo_infer_data.connectors import STACConnector, PostgreSQLConnector, S3Connector
-
-# STAC connector
-stac = STACConnector(url='https://stac.example.com')
-results = await stac.search(bbox=[-122.5, 37.7, -122.3, 37.9])
-
-# Database connector
-pg = PostgreSQLConnector(host='localhost', database='geospatial_db')
-data = await pg.fetch_data(query='SELECT * FROM features WHERE ...')
-
-# Cloud connector
-s3 = S3Connector(bucket_name='geospatial-data', region='us-west-2')
-data = await s3.fetch_data('path/to/data.geojson')
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
-## Integration
+## Documentation Notes
 
-- **Location**: `GEO-INFER-DATA/src/geo_infer_data/connectors`
-- **Used By**: Core ingestion module for multi-source data access
-- **Dependencies**: Various client libraries (boto3, psycopg2, pymongo, etc.)
-- **Provides**: Connectors for diverse geospatial data sources
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

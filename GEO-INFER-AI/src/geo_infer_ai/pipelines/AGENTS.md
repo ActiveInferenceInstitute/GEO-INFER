@@ -1,29 +1,36 @@
-# Agent
-: pipelines 
+# Agent Instructions: GEO-INFER-AI/src/geo_infer_ai/pipelines
 
 ## Scope
- This directory contains pipelines components for the module. It provides 1 classes and 0 functions. 
 
-## Classes
- and Functions 
-
-### MLflowPipeline
- MLflow pipeline for experiment tracking and model management.
-
-**Methods**:
-- `start_run(run_name: Optional[str], tags: Optional[Dict[str, str]]) -> None`: Start a MLflow run.
-- `end_run() -> None`: End the current MLflow run.
-- `log_params(params: Dict[str, Any]) -> None`: Log parameters to MLflow.
-- `log_metrics(metrics: Dict[str, float], step: Optional[int]) -> None`: Log metrics to MLflow.
-- `log_model(model: Any, artifact_path: str, registered_model_name: Optional[str]) -> None`: Log a model to MLflow.
-- `log_artifacts(local_dir: Union[str, Path], artifact_path: Optional[str]) -> None`: Log artifacts (files) to MLflow.
-- `load_model(model_uri: str) -> Any`: Load a model from MLflow. 
+- Owning module: `GEO-INFER-AI`
+- Python package: `geo_infer_ai`
+- Directory role: Pipelines workspace within `GEO-INFER-AI`.
 
 ## Capabilities
- 
-- **1 classes** for core functionality 
 
-## Integration
- 
-- **Location**: `GEO-INFER-AI/src/geo_infer_ai/pipelines` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ai` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `mlflow_integration.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,8 +1,40 @@
-# api
- ## Overview
- This directory contains api components. It includes 1 Python modules. ## Components
- ### rest_ap
-i
-.py REST API implementations for GEO-INFER-METAGOV module. **Classes**: `APIVersion`, `APIResponse`, `APIError`, `GovernanceAPI`, `StakeholderAPI` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-METAGOV/src/geo_infer_metagov/api
+
+Api workspace within `GEO-INFER-METAGOV`.
+
+## Contents
+
+- `__init__.py`
+- `rest_api.py`
+
+## Public Interface
+
+- `rest_api.py:APIVersion` (class)
+- `rest_api.py:APIResponse` (class)
+- `rest_api.py:APIError` (class)
+- `rest_api.py:GovernanceAPI` (class)
+- `rest_api.py:StakeholderAPI` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-METAGOV`
+- Package: `geo_infer_metagov`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-METAGOV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
+
+## Dependencies
+
+- `numpy>=1.20`
+- `pyyaml>=6.0`
+- `typing_extensions>=4.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

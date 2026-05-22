@@ -1,6 +1,33 @@
-# GEO
--INFER-REQ Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-REQ module. ## Available
- Examples ### Basi
-c
- Requirements Example (`basic_requirements_example.py`) Demonstrates fundamental requirements engineering capabilities: - Requirements management - Geospatial user stories - Requirements traceability - Requirements validation **What you'll learn:** - How to manage requirements - Creating geospatial user stories - Requirements traceability matrix - Integration with other modules **Prerequisites:** - Python 3.9+ - GEO-INFER-REQ module installed **Usage:** ```bash cd GEO-INFER-REQ python examples/basic_requirements_example.py ``` ## Integration
- Examples GEO-INFER-REQ integrates seamlessly with other GEO-INFER modules: - **NORMS + REQ**: Regulatory requirements - **SEC + REQ**: Security requirements - **SPACE + REQ**: Spatial requirements - **APP + REQ**: Application requirements - **ORG + REQ**: Organizational requirements See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-REQ/examples
+
+Examples workspace within `GEO-INFER-REQ`.
+
+## Contents
+
+- `basic_requirements_example.py`
+
+## Public Interface
+
+- `basic_requirements_example.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-REQ`
+- Package: `geo_infer_req`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-REQ`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module REQ`
+
+## Dependencies
+
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module REQ
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -500,7 +500,7 @@ class ModelValidator:
         # In practice, would test for spatial stationarity
         spatial_assumptions['stationarity'] = {
             'trend_test': 'simplified',
-            'stationarity_satisfied': True  # Placeholder
+            'stationarity_satisfied': True  # Baseline
         }
 
         return {

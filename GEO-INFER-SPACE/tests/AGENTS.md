@@ -1,13 +1,43 @@
-# Agent
-: tests 
+# Agent Instructions: GEO-INFER-SPACE/tests
 
 ## Scope
- This agent is responsible for handling operations within the `tests` scope. 
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Tests workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **conftest** processes - Management of **h3_v4_framework_upgrade** processes - Management of **integration** processes - Management of **reports** processes - Management of **run_h3_tests** processes - Management of **run_tests_in_order** processes - Management of **test_output** processes - Management of **tools** processes - Management of **unit** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPACE/tests` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `integration/`
+- `reports/`
+- `test_output/`
+- `tools/`
+- `unit/`
+- `conftest.py`
+- `h3_v4_framework_upgrade.py`
+- `run_h3_tests.py`
+- `run_tests_in_order.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SPACE/tests
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,5 +1,37 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-LOG/tests` Tests for GEO-INFER-LOG module. ## Implementation
- ### `unit/test_core.py` **Classes**: TestLogModule **Functions**: test_module_import, test_module_version, test_module_structure, test_routing_import ### `integration/test_integration.py` **Classes**: TestLogIntegration **Functions**: test_module_integration ### `test_routing.py` **Classes**: TestVehicle, TestRoutingParameters, TestFleetManager, TestTravelTimeEstimator, TestMultiObjectiveOptimizer **Functions**: test_vehicle_creation, test_vehicle_types, test_default_parameters, test_custom_parameters, fleet_manager ## Contents
- - **conftest.py**: Python module - **integration/**: Subdirectory - **test_routing.py**: Python module - **unit/**: Subdirectory --- 
+# GEO-INFER-LOG/tests
+
+Tests workspace within `GEO-INFER-LOG`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+- `test_routing.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-LOG`
+- Package: `geo_infer_log`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-LOG`
+- Tests: `uv run python -m pytest GEO-INFER-LOG/tests`
+
+## Dependencies
+
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-LOG/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

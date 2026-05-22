@@ -1,5 +1,51 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-INTRA/src` Source code implementation. ## Implementation
- ### `markdown_to_pdf.py` **Classes**: MarkdownToPDFConverter **Functions**: main, setup_logging, check_node_js, check_npm, check_md_to_pdf ### `geo_infer_intra/utils/config.py` **Functions**: load_config, get_schema_path, validate_config, get_config_value, merge_configs ## Contents
- - **README_markdown_to_pdf.md**: File file - **example-config.json**: File file - **geo_infer_intra/**: Subdirectory - **geo_infer_intra.egg-info/**: Subdirectory - **markdown_to_pdf.py**: Python module - **md2pdf.sh**: File file - **package.json**: File file --- 
+# GEO-INFER-INTRA/src
+
+Src workspace within `GEO-INFER-INTRA`.
+
+## Contents
+
+- `geo_infer_intra.egg-info/`
+- `geo_infer_intra/`
+- `markdown_to_pdf.py`
+- `README_markdown_to_pdf.md`
+- `example-config.json`
+- `md2pdf.sh`
+- `package.json`
+
+## Public Interface
+
+- `markdown_to_pdf.py:MarkdownToPDFConverter` (class)
+- `markdown_to_pdf.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-INTRA`
+- Package: `geo_infer_intra`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-INTRA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA`
+
+## Dependencies
+
+- `fastapi>=0.95.0`
+- `pydantic>=2.0.0`
+- `sqlalchemy>=2.0.0`
+- `elasticsearch>=8.0.0`
+- `rdflib>=6.0.0`
+- `mkdocs>=1.4.0`
+- `celery>=5.2.0`
+- `pyyaml>=6.0`
+- `jsonschema>=4.0.0`
+- `typer>=0.7.0`
+- `rich>=12.0.0`
+- `uvicorn>=0.20.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

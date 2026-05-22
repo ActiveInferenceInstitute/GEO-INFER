@@ -1,35 +1,36 @@
-# Agent
-: scenarios
+# Agent Instructions: GEO-INFER-SIM/src/geo_infer_sim/scenarios
 
 ## Scope
- This directory contains scenarios components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### Scenario
- Represents a simulation scenario.
-
-### ScenarioManager
- Manager for simulation scenarios.
-
-**Methods**:
-- `create_scenario(name: str, description: str, parameters: Optional[Dict[str, Any]], initial_conditions: Optional[Dict[str, Any]], interventions: Optional[List[Dict[str, Any]]], scenario_id: Optional[str], metadata: Optional[Dict[str, Any]]) -> Scenario`: Create a simulation scenario.
-- `get_scenario(scenario_id: str) -> Optional[Scenario]`: Get a scenario by ID.
-- `list_scenarios() -> List[Scenario]`: List all scenarios.
-- `update_scenario(scenario_id: str, name: Optional[str], description: Optional[str], parameters: Optional[Dict[str, Any]], initial_conditions: Optional[Dict[str, Any]], interventions: Optional[List[Dict[str, Any]]]) -> bool`: Update an existing scenario.
-- `delete_scenario(scenario_id: str) -> bool`: Delete a scenario.
-- `save_scenario_result(scenario_id: str, result: Dict[str, Any]) -> None`: Save results for a scenario.
-- `get_scenario_result(scenario_id: str) -> Optional[Dict[str, Any]]`: Get results for a scenario.
-- `compare_scenarios(scenario_ids: List[str], metrics: Optional[List[str]]) -> Dict[str, Any]`: Compare multiple scenarios.
-- `run_scenarios(scenario_ids: List[str], simulation_func: Any, parallel: bool) -> Dict[str, Dict[str, Any]]`: Run multiple scenarios using a simulation function.
-- `analyze_results(scenario_ids: Optional[List[str]]) -> Dict[str, Any]`: Analyze results across scenarios.
+- Owning module: `GEO-INFER-SIM`
+- Python package: `geo_infer_sim`
+- Directory role: Scenarios workspace within `GEO-INFER-SIM`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_sim` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SIM/src/geo_infer_sim/scenarios`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `scenario_manager.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

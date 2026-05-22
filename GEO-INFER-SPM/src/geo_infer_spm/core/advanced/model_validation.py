@@ -573,7 +573,7 @@ def validate_spm_model(model_result: SPMResult, validation_data: Optional[SPMDat
         if validation_data is None:
             raise ValueError("validation_data required for cross-validation")
 
-        # Placeholder - would need model refitting function
+        # Baseline - would need model refitting function
         return {"method": "cross_validate", "status": "not_implemented"}
     else:
         raise ValueError(f"Unknown validation method: {method}")

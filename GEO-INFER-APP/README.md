@@ -1,221 +1,43 @@
----
-title: "GEO-INFER-APP: Application Development Framework"
-description: "Web interfaces, dashboards, and interactive mapping applications"
-purpose: "Provide application development tools for geospatial user interfaces"
-module_type: "User Interface"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "DATA", "API"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-API"]
-tags: ["webapp", "dashboard", "maps", "ui", "visualization"]
-difficulty: "Intermediate"
-estimated_time: "45"
----
+# GEO-INFER-APP
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Human-computer interaction layer providing accessible geospatial applications, dashboards, and UI components.
 
----
+## Contents
 
-# GEO-INFER-APP: Application Development Framework
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-APP** provides application development capabilities for building:
+- No public Python symbols are defined directly in this directory.
 
-- **Dashboards**: Real-time monitoring and analytics dashboards
-- **Web Maps**: Interactive mapping applications
-- **Reports**: Automated report generation
-- **Mobile Apps**: Field data collection applications
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-APP`
+- Package: `geo_infer_app`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-APP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`
 
-### Dashboard Builder
+## Dependencies
 
-```python
-from geo_infer_app import DashboardBuilder
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+- `pydantic>=1.8.0`
 
-# Create operational dashboard
-dashboard = DashboardBuilder(title="City Operations")
-
-# Add map widget
-dashboard.add_widget(
-    type="map",
-    title="Live Operations",
-    data_source=operations_feed,
-    layers=["incidents", "units", "zones"]
-)
-
-# Add metrics widget
-dashboard.add_widget(
-    type="metrics",
-    title="Key Performance",
-    metrics=[
-        {"name": "Active Incidents", "source": "incidents.count"},
-        {"name": "Response Time", "source": "metrics.avg_response"}
-    ]
-)
-
-# Add chart widget
-dashboard.add_widget(
-    type="chart",
-    chart_type="time_series",
-    data_source=historical_data
-)
-
-# Deploy dashboard
-dashboard.deploy(port=3000)
-```
-
-### Interactive Maps
-
-```python
-from geo_infer_app import MapApplication
-
-# Create map application
-app = MapApplication()
-
-# Configure map
-app.set_basemap("mapbox-streets")
-app.set_center(lat=37.77, lon=-122.41, zoom=12)
-
-# Add data layers
-app.add_layer(
-    name="parcels",
-    source=parcels_data,
-    style={"fill": "#3388ff", "opacity": 0.5}
-)
-
-app.add_layer(
-    name="points_of_interest",
-    source=poi_data,
-    style={"type": "circle", "radius": 8}
-)
-
-# Add interactivity
-@app.on("click", layer="parcels")
-def handle_parcel_click(event):
-    parcel = event.feature
-    app.show_popup(f"Parcel: {parcel.id}")
-
-# Launch application
-app.run()
-```
-
-### Report Generator
-
-```python
-from geo_infer_app import ReportGenerator
-
-# Generate automated reports
-generator = ReportGenerator()
-
-report = generator.create(
-    template="quarterly_analysis",
-    data={
-        "metrics": analysis_results,
-        "maps": [study_area_map, results_map],
-        "charts": [trend_chart, comparison_chart]
-    },
-    format="pdf"
-)
-
-report.save("Q1_2026_Report.pdf")
-```
-
-### Mobile Field App
-
-```python
-from geo_infer_app import MobileApp
-
-# Create mobile field app
-mobile = MobileApp(name="Field Inspector")
-
-# Configure offline capabilities
-mobile.enable_offline(
-    base_map_area=work_area,
-    sync_interval="on_connection"
-)
-
-# Add data collection form
-mobile.add_form(
-    name="inspection",
-    fields=[
-        {"name": "condition", "type": "select", "options": ["good", "fair", "poor"]},
-        {"name": "photo", "type": "camera"},
-        {"name": "location", "type": "gps", "auto_capture": True}
-    ]
-)
-
-# Deploy
-mobile.deploy()
-```
-
-## Widget Types
-
-| Widget | Description |
-|--------|-------------|
-| **Map** | Interactive web map |
-| **Chart** | Line, bar, pie, scatter |
-| **Metrics** | KPI display |
-| **Table** | Data grids |
-| **Form** | Data input |
-| **Media** | Images, video |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-API** | Backend services |
-| **GEO-INFER-DATA** | Data sources |
-| **GEO-INFER-ART** | Visualization styles |
-| **GEO-INFER-IOT** | Real-time feeds |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-APP"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
 ```
 
-## Use Cases
+## Documentation Notes
 
-### Operations Center Dashboard
-
-```python
-from geo_infer_app import OperationsDashboard
-
-ops = OperationsDashboard(name="EOC")
-ops.add_map(live_incidents)
-ops.add_alerts(alert_feed)
-ops.add_resources(resource_status)
-ops.launch()
-```
-
-## Related Documentation
-
-- [GEO-INFER-API](../GEO-INFER-API/README.md): APIs
-- [GEO-INFER-ART](../GEO-INFER-ART/README.md): Visualization
-- [AGENTS.md](./AGENTS.md): App agent capabilities
-
----
-
-**Status**: Beta - Core functionality stable
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

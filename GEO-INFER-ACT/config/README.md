@@ -1,26 +1,45 @@
-# GEO-INFER-ACT Config
+# GEO-INFER-ACT/config
 
-This folder contains checked-in configuration examples for the ACT module.
+Config workspace within `GEO-INFER-ACT`.
 
-## Files
+## Contents
 
-- `example.yaml`: broader module configuration for computation, integration,
-  and logging.
-- `active_inference_run.yaml`: versioned scenario-run contract consumed by
-  `geo-infer-act-run`, legacy example wrappers, and tests.
+- `active_inference_run.yaml`
+- `example.yaml`
 
-Run a configured scenario from the repository root:
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
+
+## Dependencies
+
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
+
+## Validation
 
 ```bash
-uv run --package geo-infer-act --extra dev geo-infer-act-run \
-  --config GEO-INFER-ACT/config/active_inference_run.yaml \
-  --output-dir /tmp/geo-infer-act-run
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
-The comprehensive audit uses the same package and dependency surface while
-writing retained evidence to the ACT output folder:
+## Documentation Notes
 
-```bash
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
-```
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

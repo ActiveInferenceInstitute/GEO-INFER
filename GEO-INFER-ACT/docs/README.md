@@ -1,62 +1,51 @@
-# GEO-INFER-ACT Documentation
+# GEO-INFER-ACT/docs
 
-These documents describe the canonical Active Inference implementation in
-`GEO-INFER-ACT/src/geo_infer_act`.
+Docs workspace within `GEO-INFER-ACT`.
 
-## Start Here
+## Contents
 
-- [Active Inference Overview](./active_inference_overview.md): concepts and code map.
-- [Free Energy Principle](./free_energy_principle.md): VFE/EFE equations and implementation locations.
-- [Mathematical Framework](./mathematical_framework.md): deeper mathematical notes.
-- [Method, Output, and Visualization Inventory](./method_inventory.md): public ACT method surface, runner outputs, and visualization artifact contract.
-- [Geospatial Applications](./geospatial_applications.md): runnable geospatial examples using current ACT classes.
-- [World Systems Modeling](./world_systems_modeling.md): systems-level framing.
-- [References](./references.md): background citations.
+- `active_inference_overview.md`
+- `api_schema.yaml`
+- `free_energy_principle.md`
+- `geospatial_applications.md`
+- `mathematical_framework.md`
+- `method_inventory.md`
+- `references.md`
+- `world_systems_modeling.md`
 
-## Verification
+## Public Interface
 
-From the repository root:
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
+
+## Dependencies
+
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
+
+## Validation
 
 ```bash
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
-uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
-uv run python GEO-INFER-TEST/validate_active_inference_contract.py
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
-`verify_comprehensive.py` audits every ACT markdown file, every ACT README, all
-local markdown links, and every Mermaid block. When `mmdc` is installed, the
-Mermaid blocks are rendered to SVG under
-`../examples/output/comprehensive_act_audit/method_audit/docs_and_mermaid/mermaid/`
-and each render result is recorded in `docs_mermaid_audit.json`.
+## Documentation Notes
 
-## Runner Contracts
-
-Scenario scripts in `GEO-INFER-ACT/examples/`, `debug_models.py`, and
-`verify_pipeline.py` are compatibility wrappers. The canonical runner API is:
-
-```python
-from geo_infer_act.runners import RunConfig, run_scenario
-
-result = run_scenario(
-    RunConfig(
-        scenario="h3",
-        output_dir="/tmp/geo-infer-act-h3",
-        seed=42,
-        timesteps=8,
-        visualizations=True,
-    )
-)
-print(result.manifest_path)
-```
-
-The external file contracts are versioned JSON Schema files in
-`src/geo_infer_act/schemas/`. When visualizations are enabled, every generated
-figure is also a traceable artifact: the manifest records artifact type, MIME
-type, digest, sidecar paths, plotted metrics, data sources, description, and alt
-text; the figure itself embeds ACT metadata; and adjacent sidecars store
-`*.metadata.json` plus the exact plotted data as CSV or JSON.
-
-The canonical logged audit output for documentation and diagram verification is
-`../examples/output/comprehensive_act_audit/`.
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

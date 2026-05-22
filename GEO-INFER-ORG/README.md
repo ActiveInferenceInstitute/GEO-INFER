@@ -1,139 +1,41 @@
----
-title: "GEO-INFER-ORG: Organizational Modeling"
-description: "Organizational structures, team coordination, and resource allocation"
-purpose: "Model organizational hierarchies and coordinate distributed teams"
-module_type: "Domain Application"
-status: "Alpha"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "DATA"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-OPS"]
-tags: ["organization", "teams", "coordination", "resources", "hierarchy"]
-difficulty: "Intermediate"
-estimated_time: "35"
----
+# GEO-INFER-ORG
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Organizational structures, governance frameworks, and community processes for geospatial initiatives.
 
----
+## Contents
 
-# GEO-INFER-ORG: Organizational Modeling
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-ORG** provides organizational capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Org Modeling**: Hierarchical structure modeling
-- **Team Coordination**: Distributed team management
-- **Network Analysis**: Communication patterns
-- **Resource Allocation**: Staff and resource optimization
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-ORG`
+- Package: `geo_infer_org`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ORG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG`
 
-### Organizational Modeling
+## Dependencies
 
-```python
-from geo_infer_org import OrganizationModel
+- `pandas>=1.3.0`
 
-# Model organization
-org = OrganizationModel()
-
-org.create_structure(
-    type="hierarchical",
-    units=[
-        {"name": "HQ", "location": hq_coords},
-        {"name": "Region_West", "location": west_coords}
-    ]
-)
-```
-
-### Team Coordination
-
-```python
-from geo_infer_org import TeamCoordinator
-
-# Coordinate teams
-coordinator = TeamCoordinator()
-
-assignment = coordinator.assign(
-    teams=field_teams,
-    areas=service_zones
-)
-
-print(f"Coverage: {assignment.coverage}%")
-```
-
-### Network Analysis
-
-```python
-from geo_infer_org import OrgNetworkAnalyzer
-
-# Analyze org network
-analyzer = OrgNetworkAnalyzer()
-
-analysis = analyzer.analyze(
-    network=org_graph,
-    metrics=["centrality", "clustering"]
-)
-
-print(f"Key connectors: {analysis.central_nodes}")
-```
-
-### Resource Allocation
-
-```python
-from geo_infer_org import ResourceAllocator
-
-# Allocate resources
-allocator = ResourceAllocator()
-
-allocation = allocator.optimize(
-    resources=staff,
-    demands=regional_needs
-)
-```
-
-## Model Types
-
-| Type | Description |
-|------|-------------|
-| **Hierarchical** | Traditional org chart |
-| **Matrix** | Cross-functional |
-| **Network** | Flat, connected |
-| **Hybrid** | Combined models |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-OPS** | Deployment teams |
-| **GEO-INFER-EMERGENCY** | Incident command |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-ORG"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG
 ```
 
----
+## Documentation Notes
 
-**Status**: Alpha
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

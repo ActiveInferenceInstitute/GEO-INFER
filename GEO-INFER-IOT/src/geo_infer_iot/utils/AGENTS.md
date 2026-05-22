@@ -1,51 +1,37 @@
-# Agent
-: utils
+# Agent Instructions: GEO-INFER-IOT/src/geo_infer_iot/utils
 
 ## Scope
- This directory contains utils components for the module. It provides 4 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CalibrationResult
- Result of a calibration operation.
-
-### SensorCalibration
- Sensor calibration and drift detection utilities.
-
-**Methods**:
-- `calibrate_sensor(sensor_id: str, reference_data: List[Dict], calibration_method: str) -> CalibrationResult`: Calibrate a sensor using reference measurements.
-- `detect_drift(sensor_id: str, recent_measurements: List[Dict], reference_baseline: Dict) -> Dict`: Detect sensor drift using recent measurements and baseline.
-- `generate_calibration_schedule(sensor_inventory: List[Dict]) -> List[Dict]`: Generate calibration schedule for sensor inventory.
-- `validate_calibration_data(calibration_data: List[Dict]) -> Dict`: Validate calibration data quality and completeness.
-- `get_calibration_report(sensor_id: str, time_window_days: int) -> Dict`: Generate calibration report for sensor(s).
-
-### SpatialInterpolation
- Spatial interpolation utilities for IoT sensor data.
-
-**Methods**:
-- `interpolate_to_grid(measurements: List[Dict], target_grid: List[Tuple[float, float]], method: str) -> Dict`: Interpolate sensor measurements to a target grid.
-- `interpolate_h3_cells(measurements: List[Dict], target_h3_indices: List[str]) -> Dict`: Interpolate measurements to specific H3 cells.
-- `create_interpolation_grid(bounds: Dict[str, float], resolution_km: float) -> List[Tuple[float, float]]`: Create a regular grid for interpolation within bounds.
-- `cross_validate_interpolation(measurements: List[Dict], test_fraction: float) -> Dict`: Cross-validate interpolation quality using hold-out testing.
-- `get_interpolation_quality(sensor_coords: np.ndarray, method: str) -> Dict`: Assess interpolation quality based on sensor distribution.
-
-### IoTVisualization
- Visualization utilities for IoT sensor networks and spatial data.
-
-**Methods**:
-- `create_sensor_map(sensors: List[Dict], measurements: Optional[List[Dict]], output_file: str) -> Dict`: Create an interactive map showing sensor locations and measurements.
-- `create_spatial_interpolation_map(interpolation_data: Dict, sensors: Optional[List[Dict]], output_file: str) -> Dict`: Create a map showing spatial interpolation results.
-- `create_time_series_plot(sensor_data: Dict[str, List], output_file: str) -> Dict`: Create time series plots for sensor data.
-- `create_network_status_dashboard(network_data: Dict, output_file: str) -> Dict`: Create a network status dashboard.
-- `create_heatmap_overlay(measurements: List[Dict], bounds: Dict[str, float], output_file: str) -> Dict`: Create a heatmap overlay for sensor measurements.
-- `get_visualization_status() -> Dict`: Get status of visualization capabilities.
+- Owning module: `GEO-INFER-IOT`
+- Python package: `geo_infer_iot`
+- Directory role: Utils workspace within `GEO-INFER-IOT`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_iot` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-IOT/src/geo_infer_iot/utils`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `calibration.py`
+- `interpolation.py`
+- `visualization.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

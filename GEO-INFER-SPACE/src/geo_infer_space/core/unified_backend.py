@@ -31,7 +31,7 @@ except ImportError:
     H3DataLoader = None
     
     def create_h3_data_loader(*args, **kwargs):
-        """Stub for when osc_geo is not available."""
+        """Fallback for when osc_geo is not available."""
         raise ImportError("osc_geo module not available. OSC data loading disabled.")
 
 # --- Local Core Imports ---

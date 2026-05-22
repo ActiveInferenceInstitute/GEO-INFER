@@ -1,148 +1,54 @@
----
-title: "GEO-INFER-EXAMPLES: Examples and Tutorials"
-description: "Example implementations, tutorials, and reference applications"
-purpose: "Provide learning resources and reference implementations for GEO-INFER"
-module_type: "Documentation"
-status: "Stable"
-last_updated: "2026-02-25"
-dependencies: ["All modules"]
-compatibility: ["All GEO-INFER modules"]
-tags: ["examples", "tutorials", "learning", "reference", "demos"]
-difficulty: "Beginner"
-estimated_time: "Variable"
----
+# GEO-INFER-EXAMPLES
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications.
 
----
+## Contents
 
-# GEO-INFER-EXAMPLES: Examples and Tutorials
+- `assessment_results/`
+- `config/`
+- `docs/`
+- `examples/`
+- `logs/`
+- `scripts/`
+- `src/`
+- `tests/`
+- `run_orchestrator.py`
+- `setup.py`
+- `.cursorrules`
+- `.gitignore`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-EXAMPLES** provides comprehensive learning resources:
+- `setup.py:read_readme` (function)
+- `setup.py:read_version` (function)
 
-- **Tutorials**: Step-by-step learning paths
-- **Examples**: Working code examples by domain
-- **Demos**: Interactive demonstration applications
-- **Use Cases**: Real-world implementation patterns
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-EXAMPLES`
+- Package: `geo_infer_examples`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
 
-### Tutorial Runner
+## Dependencies
 
-```python
-from geo_infer_examples import TutorialRunner
+- `jupyterlab>=3.4.0`
+- `matplotlib>=3.5.0`
+- `pandas>=1.4.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+- `rich>=12.0.0`
+- `typer>=0.7.0`
 
-# Run interactive tutorial
-runner = TutorialRunner()
-
-tutorial = runner.start(
-    topic="active_inference_basics",
-    level="beginner",
-    interactive=True
-)
-
-# Get progress
-print(f"Progress: {tutorial.progress}%")
-```
-
-### Example Catalog
-
-```python
-from geo_infer_examples import ExampleCatalog
-
-# Browse examples
-catalog = ExampleCatalog()
-
-# Search by domain
-examples = catalog.search(
-    domain="urban_planning",
-    difficulty="intermediate"
-)
-
-# Run example
-example = catalog.get("traffic_simulation")
-result = example.run()
-```
-
-### Demo Applications
-
-```python
-from geo_infer_examples.demos import EnvironmentalMonitorDemo
-
-# Run demo application
-demo = EnvironmentalMonitorDemo(
-    region="bay_area",
-    sensors=["air_quality", "temperature"]
-)
-
-demo.run(visualize=True)
-```
-
-## Example Categories
-
-| Category | Examples |
-|----------|----------|
-| **Getting Started** | Hello World, Basic Agent, First Map |
-| **Active Inference** | Perception, Action, Learning loops |
-| **Domain Applications** | Urban, Agriculture, Environment |
-| **Multi-Agent** | Swarms, Coordination, Communication |
-| **Integration** | APIs, Databases, Cloud deployment |
-
-## Tutorial Tracks
-
-| Track | Duration | Level |
-|-------|----------|-------|
-| **Quickstart** | 2 hours | Beginner |
-| **Agent Development** | 8 hours | Intermediate |
-| **Domain Expert** | 16 hours | Advanced |
-| **System Architect** | 24 hours | Expert |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-EXAMPLES"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
 ```
 
-## Running Examples
+## Documentation Notes
 
-```bash
-# List examples
-python -m geo_infer_examples list
-
-# Run specific example
-python -m geo_infer_examples run urban_agent
-
-# Start tutorial
-python -m geo_infer_examples tutorial --topic basics
-```
-
-## Related Documentation
-
-- [GEO-INFER-EDU](../GEO-INFER-EDU/README.md): Educational tools
-- [AGENTS.md](./AGENTS.md): Examples capabilities
-
----
-
-**Status**: Stable - Continuously updated
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

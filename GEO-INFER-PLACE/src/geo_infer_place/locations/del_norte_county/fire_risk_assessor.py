@@ -472,7 +472,7 @@ class FireRiskAssessor:
         fuel_analysis = analysis_results.get('fuel_analysis', {})
         current_conditions = fuel_analysis.get('current_conditions', {})
         
-        # Placeholder spatial data
+        # Baseline spatial data
         bounds = self.config.get('location', {}).get('bounds', {})
         west, south, east, north = (bounds.get('west', -124.4), bounds.get('south', 41.5),
                                    bounds.get('east', -123.5), bounds.get('north', 42.0))

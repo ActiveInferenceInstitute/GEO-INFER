@@ -1,13 +1,36 @@
-# Agent
-: geo_infer_transport
+# Agent Instructions: GEO-INFER-TRANSPORT/src/geo_infer_transport
 
 ## Scope
- This agent is responsible for handling operations within the `geo_infer_transport` scope.
+
+- Owning module: `GEO-INFER-TRANSPORT`
+- Python package: `geo_infer_transport`
+- Directory role: Geo Infer Transport workspace within `GEO-INFER-TRANSPORT`.
 
 ## Capabilities
- Core capabilities include: - Management of **core** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_transport` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-TRANSPORT/src/geo_infer_transport`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `core/`
+- `__init__.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

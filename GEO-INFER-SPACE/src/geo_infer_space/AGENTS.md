@@ -1,13 +1,47 @@
-# Agent
-: geo_infer_space 
+# Agent Instructions: GEO-INFER-SPACE/src/geo_infer_space
 
 ## Scope
- This agent is responsible for handling operations within the `geo_infer_space` scope. 
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Geo Infer Space workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **analytics** processes - Management of **api** processes - Management of **backends** processes - Management of **core** processes - Management of **io** processes - Management of **models** processes - Management of **nested** processes - Management of **place_analyzer** processes - Management of **spatial_utils** processes - Management of **utils** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPACE/src/geo_infer_space` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `analytics/`
+- `api/`
+- `backends/`
+- `core/`
+- `gis/`
+- `io/`
+- `models/`
+- `nested/`
+- `tools/`
+- `utils/`
+- `__init__.py`
+- `place_analyzer.py`
+- `spatial_utils.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

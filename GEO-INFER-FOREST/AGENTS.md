@@ -1,98 +1,42 @@
-# GEO-INFER-FOREST: Agent Capabilities
+# Agent Instructions: GEO-INFER-FOREST
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-FOREST`
+- Python package: `geo_infer_forest`
+- Directory role: Forest management, carbon sequestration, wildfire risk, and forest ecosystem analysis.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-FOREST** module provides forest monitoring capabilities for agents, enabling forest inventory, change detection, and ecosystem analysis.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_forest` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Forest Inventory
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_forest import ForestInventory
+## Local Contents
 
-# Conduct forest inventory
-inventory = ForestInventory()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-results = inventory.analyze(
-    area=forest_boundary,
-    data_sources={"lidar": lidar_data, "imagery": satellite})
+## Validation
 
-print(f"Biomass: {results.biomass_tonnes_ha} t/ha")
-print(f"Canopy height: {results.mean_height} m")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST
+```
 
-### 2. Change Detection
+## Integration Notes
 
-```python
-from geo_infer_forest import ChangeDetector
-
-# Detect forest changes
-detector = ChangeDetector()
-
-changes = detector.detect(
-    area=study_area,
-    start_date="2020-01-01",
-    end_date="2025-12-31")
-
-print(f"Forest loss: {changes.loss_hectares} ha")
-print(f"Forest gain: {changes.gain_hectares} ha")```
-
-### 3. Fire Risk
-
-```python
-from geo_infer_forest import FireRisk
-
-# Assess fire risk
-risk = FireRisk()
-
-assessment = risk.assess(
-    area=wildland_area,
-    weather=current_weather,
-    fuel_data=fuel_model)
-
-print(f"Fire danger: {assessment.danger_rating}")```
-
-### 4. Carbon Accounting
-
-```python
-from geo_infer_forest import CarbonAccounting
-
-# Estimate carbon stocks
-carbon = CarbonAccounting()
-
-stocks = carbon.estimate(
-    forest_area=forest_boundary,
-    pools=["above_ground", "below_ground", "soil"])
-
-print(f"Total carbon: {stocks.total_tonnes} tC")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Inventory** | ✅ Ready | Biomass, structure |
-| **Change Detection** | ✅ Ready | Deforestation monitoring |
-| **Fire Risk** | ✅ Ready | Fire danger assessment |
-| **Carbon** | ✅ Ready | Carbon accounting |
-
-### Aspirational Features
-
-- 🔮 **ForestMonitorAgent**: Continuous monitoring
-- 🔮 **FirePredictionAgent**: Fire spread prediction
-
----
-
-This AGENTS.md documents how GEO-INFER-FOREST provides forest capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

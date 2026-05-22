@@ -1,4 +1,44 @@
-# geo_infer_sim
- ## Overview
- GEO-INFER-SIM: Simulation Environments for Geospatial Analysis This module provides simulation capabilities for testing geospatial hypotheses, evaluating policies, and analyzing complex system behaviors using agent-based modeling, system dynamics, and other paradigms. ## Contents
- - **analysis/**: Submodule - **core/**: Submodule - **io/**: Submodule - **models/**: Submodule - **module_simulations.py**: Python definitions - **paradigms/**: Submodule - **scenarios/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-SIM/src/geo_infer_sim
+
+Geo Infer Sim workspace within `GEO-INFER-SIM`.
+
+## Contents
+
+- `analysis/`
+- `core/`
+- `io/`
+- `models/`
+- `paradigms/`
+- `scenarios/`
+- `utils/`
+- `__init__.py`
+- `module_simulations.py`
+
+## Public Interface
+
+- `module_simulations.py:ModuleSimulationConfig` (class)
+- `module_simulations.py:ModuleSimulations` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SIM`
+- Package: `geo_infer_sim`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SIM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

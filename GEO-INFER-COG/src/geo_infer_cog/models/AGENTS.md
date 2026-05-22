@@ -1,76 +1,37 @@
-# Agent
-: models
+# Agent Instructions: GEO-INFER-COG/src/geo_infer_cog/models
 
 ## Scope
- This directory contains models components for the module. It provides 6 classes and 0 functions.
 
-## Classes
- and Functions
-
-### SpatialNode
- Represents a node in a spatial knowledge graph.
-
-**Methods**:
-- `calculate_cognitive_weight(user_profile: Optional[UserCognitiveProfile]) -> float`: Calculate cognitive weight for this node.
-
-### SpatialEdge
- Represents an edge (relationship) in a spatial knowledge graph.
-
-**Methods**:
-- `get_effective_strength(user_profile: Optional[UserCognitiveProfile]) -> float`: Get effective relationship strength considering user factors.
-
-### CognitiveMap
- Cognitive map representation for mental spatial models.
-
-**Methods**:
-- `add_landmark(landmark_id: str, geometry: Dict[str, Any], properties: Dict[str, Any], saliency: float) -> None`: Add a landmark to the cognitive map.
-- `add_route(route_id: str, start_landmark: str, end_landmark: str, segments: List[Dict[str, Any]], properties: Dict[str, Any]) -> None`: Add a route between landmarks.
-- `add_region(region_id: str, boundary: List[Tuple[float, float]], properties: Dict[str, Any], landmark_composition: List[str]) -> None`: Add a region to the cognitive map.
-- `get_navigation_path(start_landmark: str, end_landmark: str, user_profile: Optional[UserCognitiveProfile]) -> List[str]`: Generate navigation path between landmarks.
-- `calculate_cognitive_load(user_profile: Optional[UserCognitiveProfile]) -> float`: Calculate cognitive load for using this map.
-- `get_map_statistics() -> Dict[str, Any]`: Get statistics about the cognitive map.
-- `export_to_geojson() -> Dict[str, Any]`: Export cognitive map as GeoJSON for visualization.
-
-### SpatialKnowledgeGraph
- Graph-based representation of spatial knowledge and relationships.
-
-**Methods**:
-- `add_spatial_entity(entity_id: str, entity_type: str, geometry: Optional[Dict[str, Any]], properties: Dict[str, Any]) -> None`: Add a spatial entity to the knowledge graph.
-- `add_spatial_relationship(source_entity: str, target_entity: str, relation_type: str, properties: Dict[str, Any]) -> None`: Add a spatial relationship between entities.
-- `query_spatial_relationships(entity_id: str, relation_types: Optional[List[str]], max_depth: int) -> List[Dict[str, Any]]`: Query spatial relationships for an entity.
-- `find_spatial_patterns(pattern_type: str) -> List[Dict[str, Any]]`: Find spatial patterns in the knowledge graph.
-- `get_graph_statistics() -> Dict[str, Any]`: Get statistics about the knowledge graph.
-- `export_to_jsonld() -> Dict[str, Any]`: Export knowledge graph as JSON-LD for semantic web compatibility.
-- `import_from_geojson(geojson_data: Dict[str, Any]) -> None`: Import spatial entities from GeoJSON format.
-
-### UserCognitiveProfile
- user cognitive profile for spatial cognition.
-
-**Methods**:
-- `update_from_interaction(interaction_data: Dict[str, Any], outcome: Dict[str, Any]) -> None`: Update profile based on user interaction and outcome.
-- `calculate_task_suitability(task_requirements: Dict[str, Any]) -> float`: Calculate how suitable this user is for a given spatial task.
-- `get_personalized_recommendations(context: Dict[str, Any]) -> Dict[str, Any]`: Generate personalized recommendations for spatial interface use.
-- `adapt_to_performance_trends() -> Dict[str, Any]`: Adapt profile based on performance trends and patterns.
-- `get_profile_summary() -> Dict[str, Any]`: Get profile summary.
-- `export_profile() -> Dict[str, Any]`: Export profile as dictionary for serialization.
-- `import_profile(cls, profile_data: Dict[str, Any]) -> 'UserCognitiveProfile'`: Import profile from dictionary data.
-
-### ProfileManager
- Manager for user cognitive profiles with learning and adaptation capabilities.
-
-**Methods**:
-- `create_profile(user_id: str, initial_assessment: Optional[Dict[str, Any]]) -> UserCognitiveProfile`: Create a user cognitive profile.
-- `get_profile(user_id: str) -> Optional[UserCognitiveProfile]`: Retrieve user profile by ID.
-- `update_profile_from_interaction(user_id: str, interaction_data: Dict[str, Any], outcome: Dict[str, Any]) -> None`: Update user profile based on interaction and outcome.
-- `get_user_recommendations(user_id: str, context: Dict[str, Any]) -> Dict[str, Any]`: Get personalized recommendations for a user.
-- `export_all_profiles() -> Dict[str, Any]`: Export all profiles for backup or analysis.
-- `import_profiles(profiles_data: Dict[str, Any]) -> int`: Import profiles from exported data.
+- Owning module: `GEO-INFER-COG`
+- Python package: `geo_infer_cog`
+- Directory role: Models workspace within `GEO-INFER-COG`.
 
 ## Capabilities
 
-- **6 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_cog` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-COG/src/geo_infer_cog/models`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `cognitive_models.py`
+- `user_profiles.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

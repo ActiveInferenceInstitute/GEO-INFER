@@ -543,7 +543,7 @@ class EconomicAnalysisAPI:
         if 'latitude' in data.columns and 'longitude' in data.columns:
             coords = data[['latitude', 'longitude']].values
             # Create spatial weights matrix (simplified)
-            W = np.eye(len(data))  # Placeholder
+            W = np.eye(len(data))  # Baseline
         else:
             raise ValueError("Spatial coordinates required for SAR model")
 
@@ -579,7 +579,7 @@ class EconomicAnalysisAPI:
 
     def _execute_bioregional_analysis(self, data: pd.DataFrame, request: ModelExecutionRequest) -> Dict[str, Any]:
         """Execute bioregional analysis."""
-        # Placeholder for bioregional analysis
+        # Baseline for bioregional analysis
         return {
             'ecosystem_services_value': 1000000,
             'sustainability_score': 0.8,

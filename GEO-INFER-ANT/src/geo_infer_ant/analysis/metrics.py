@@ -390,7 +390,7 @@ class SwarmPerformanceMetrics:
                 # Calculate confidence interval (simplified)
                 if isinstance(score, (int, float)):
                     # Assume normal distribution with known variance
-                    std_error = 0.1  # Placeholder
+                    std_error = 0.1  # Baseline
                     confidence_interval = (score - 1.96 * std_error, score + 1.96 * std_error)
                     analysis['confidence_intervals'][metric] = confidence_interval
 

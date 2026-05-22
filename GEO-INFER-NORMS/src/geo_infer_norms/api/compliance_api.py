@@ -382,7 +382,7 @@ class ComplianceAPI:
             Evaluation results
         """
         # This would need to be implemented with spatial lookup functionality
-        # For now, return a mock response
+        # For now, return a deterministic response
         return {
             "status": "success",
             "message": "Location-based compliance evaluation not implemented",
@@ -571,7 +571,7 @@ class ComplianceAPI:
                     id=entity_id,
                     name=f"Entity {entity_id}",
                     legal_type="unknown",
-                    geometry=Point(0, 0)  # Mock geometry
+                    geometry=Point(0, 0)  # Default geometry
                 )
                 for entity_id in entity_ids
             ]

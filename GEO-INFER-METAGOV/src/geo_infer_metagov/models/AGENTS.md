@@ -1,81 +1,36 @@
-# Agent
-: models
+# Agent Instructions: GEO-INFER-METAGOV/src/geo_infer_metagov/models
 
 ## Scope
- This directory contains models components for the module. It provides 14 classes and 0 functions.
 
-## Classes
- and Functions
-
-### GovernanceStatus
- Governance status enumeration.
-
-### DecisionType
- Decision types in governance.
-
-### ParticipationLevel
- Levels of stakeholder participation.
-
-### GoverningEntity
- Represents a governing entity or body.
-
-### StakeholderProfile
- stakeholder profile.
-
-**Methods**:
-- `calculate_engagement_level() -> float`: Calculate engagement level based on participation history.
-
-### DecisionDomain
- Represents a decision domain in governance.
-
-### GovernanceRule
- Represents a governance rule or policy.
-
-### CoordinationMechanism
- Represents a coordination mechanism between entities.
-
-**Methods**:
-- `get_success_rate() -> float`: Calculate conflict resolution success rate.
-
-### PerformanceIndicator
- Represents a governance performance indicator.
-
-**Methods**:
-- `calculate_performance_gap() -> float`: Calculate gap between target and current value.
-
-### GovernanceStructure
- governance structure model.
-
-**Methods**:
-- `get_entity_by_id(entity_id: str) -> Optional[GoverningEntity]`: Get governing entity by ID.
-- `get_stakeholder_by_id(stakeholder_id: str) -> Optional[StakeholderProfile]`: Get stakeholder profile by ID.
-- `calculate_average_performance() -> float`: Calculate average performance across all indicators.
-- `get_entity_count_by_level() -> Dict[str, int]`: Get count of entities at each governance level.
-- `get_stakeholder_categories() -> Set[str]`: Get all stakeholder categories represented.
-
-### ConflictRecord
- Record of a governance conflict.
-
-**Methods**:
-- `is_resolved() -> bool`: Check if conflict is resolved.
-
-### AdaptiveManagementCycle
- Represents an adaptive management cycle.
-
-**Methods**:
-- `get_duration() -> Optional[float]`: Get cycle duration in days.
-
-### TransparencyRecord
- Records governance transparency and disclosure.
-
-### AccountabilityReport
- Report on governance accountability.
+- Owning module: `GEO-INFER-METAGOV`
+- Python package: `geo_infer_metagov`
+- Directory role: Models workspace within `GEO-INFER-METAGOV`.
 
 ## Capabilities
 
-- **14 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_metagov` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-METAGOV/src/geo_infer_metagov/models`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `governance_models.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

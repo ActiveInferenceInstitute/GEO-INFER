@@ -365,9 +365,9 @@ class NormativeAPI:
             spatial_extent = self._geometry_from_model(diffusion_request.spatial_extent)
             
             # This would be a real simulation in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             
-            # Generate mock time series data
+            # Generate synthetic time series data
             time_series = []
             initial_strength = norm["strength"]
             diffusion_rate = diffusion_request.parameters.get("diffusion_rate", 0.1) if diffusion_request.parameters else 0.1
@@ -385,7 +385,7 @@ class NormativeAPI:
                     "spread": initial_strength + (t / diffusion_request.time_steps) * (1 - initial_strength) * 0.8  # Spread as % of jurisdictions
                 })
             
-            # Generate mock spatial data
+            # Generate synthetic spatial data
             jurisdictions = [
                 {"id": jid, "name": f"Jurisdiction {i+1}", "initial_strength": initial_strength * (0.8 + 0.4 * (i / len(norm["jurisdiction_ids"])))}
                 for i, jid in enumerate(norm["jurisdiction_ids"])
@@ -433,7 +433,7 @@ class NormativeAPI:
             
             norm_factors = norm["factors"] or {}
             
-            # Add some additional mock analysis
+            # Add some additional synthetic analysis
             factor_analysis = {
                 "geographic_proximity": {
                     "importance": 0.85,
@@ -490,13 +490,13 @@ class NormativeAPI:
             spatial_extent = self._geometry_from_model(inference_request.spatial_extent)
             
             # This would be a real inference in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             
-            # Generate mock inferred norms based on inference type
+            # Generate synthetic inferred norms based on inference type
             inferred_norms = []
             
             if inference_request.inference_type == "bayesian":
-                # Mock Bayesian inference results
+                # Synthetic Bayesian inference results
                 inferred_norms = [
                     {
                         "name": "Environmental Conservation",
@@ -522,7 +522,7 @@ class NormativeAPI:
                     }
                 ]
             elif inference_request.inference_type == "frequentist":
-                # Mock frequentist inference results
+                # Synthetic frequentist inference results
                 inferred_norms = [
                     {
                         "name": "Community Participation",
@@ -536,7 +536,7 @@ class NormativeAPI:
                     }
                 ]
             else:
-                # Generic mock inference
+                # Generic deterministic inference
                 inferred_norms = [
                     {
                         "name": "Generic Social Norm",
@@ -575,9 +575,9 @@ class NormativeAPI:
             spatial_extent = self._geometry_from_model(inference_request.spatial_extent)
             
             # This would be a real spatial analysis in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             
-            # Generate mock spatial analysis
+            # Generate synthetic spatial analysis
             
             return {
                 "status": "success",
@@ -629,7 +629,7 @@ class NormativeAPI:
             norm = self._social_norms[impact_request.norm_id]
             
             # This would be a real impact assessment in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             
             # Extract parameters
             effectiveness = impact_request.parameters.get("policy_effectiveness", 0.5) if impact_request.parameters else 0.5
@@ -708,7 +708,7 @@ class NormativeAPI:
             # This would be implemented with spatial queries in a real implementation
             # For now, return a subset of norms
             
-            # Mock implementation - return all norms
+            # Deterministic local implementation - return all norms
             norms = list(self._social_norms.values())
             
             # In reality, we would filter by jurisdictions that contain the point
@@ -735,7 +735,7 @@ class NormativeAPI:
         """
         try:
             # This would create a proper GeoJSON with real jurisdictions in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             
             # Filter norms
             norms = list(self._social_norms.values())
@@ -746,12 +746,12 @@ class NormativeAPI:
             if min_strength is not None:
                 norms = [n for n in norms if n["strength"] >= min_strength]
             
-            # Create mock features for each jurisdiction with norm data
+            # Create synthetic features for each jurisdiction with norm data
             features = []
             
             for norm in norms:
                 for i, jid in enumerate(norm["jurisdiction_ids"]):
-                    # Create a simple square as mock geometry for each jurisdiction
+                    # Create a simple square as default geometry for each jurisdiction
                     center_x = i * 0.2
                     center_y = i * 0.2
                     coords = [

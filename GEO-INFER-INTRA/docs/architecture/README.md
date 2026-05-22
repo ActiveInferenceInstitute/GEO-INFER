@@ -1,4 +1,51 @@
-# architecture
- ## Overview
- **Path**: `GEO-INFER-INTRA/docs/architecture` Architecture documentation. ## Contents
- - **component_diagram.md**: File file - **cross_module_interaction.md**: File file - **data_flow.md**: File file - **index.md**: File file - **module_catalog.md**: File file - **module_structure.md**: File file - **overview.md**: File file - **system_integration.md**: File file --- 
+# GEO-INFER-INTRA/docs/architecture
+
+Architecture workspace within `GEO-INFER-INTRA`.
+
+## Contents
+
+- `component_diagram.md`
+- `cross_module_interaction.md`
+- `data_flow.md`
+- `index.md`
+- `module_catalog.md`
+- `module_structure.md`
+- `overview.md`
+- `system_integration.md`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-INTRA`
+- Package: `geo_infer_intra`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-INTRA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA`
+
+## Dependencies
+
+- `fastapi>=0.95.0`
+- `pydantic>=2.0.0`
+- `sqlalchemy>=2.0.0`
+- `elasticsearch>=8.0.0`
+- `rdflib>=6.0.0`
+- `mkdocs>=1.4.0`
+- `celery>=5.2.0`
+- `pyyaml>=6.0`
+- `jsonschema>=4.0.0`
+- `typer>=0.7.0`
+- `rich>=12.0.0`
+- `uvicorn>=0.20.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

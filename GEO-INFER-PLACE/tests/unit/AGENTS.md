@@ -1,13 +1,47 @@
-# Agent
-: unit
+# Agent Instructions: GEO-INFER-PLACE/tests/unit
 
 ## Scope
- This agent is responsible for handling operations within the `unit` scope.
+
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Unit workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_place_analyzer** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-PLACE/tests/unit`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_api_clients.py`
+- `test_caching.py`
+- `test_comprehensive_dashboard.py`
+- `test_dashboard_advanced.py`
+- `test_data_sources.py`
+- `test_del_norte_analyzers.py`
+- `test_h3_operations.py`
+- `test_integration_wrappers.py`
+- `test_module_bridge.py`
+- `test_place_analyzer.py`
+- `test_place_interface.py`
+- `test_unified_backend.py`
+- `test_visualization_engine.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-PLACE/tests/unit
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

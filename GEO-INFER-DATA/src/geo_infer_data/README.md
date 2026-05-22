@@ -1,4 +1,51 @@
-# geo_infer_data
- ## Overview
- GEO-INFER-DATA: Geospatial Data Management, ETL, and Storage Optimization This package provides data management capabilities for the GEO-INFER framework, including multi-source data ingestion, ETL pipelines, adaptive storage systems, and data quality assurance. The module serves as the foundational data backbone, ensuring reliable access to high-quality, analysis-ready geospatial data across all GEO-INFER components. Classes: MultiSourceDataIngestion: Handles ingestion from diverse geospatial data sources IntelligentETLPipeline: Manages complex ETL workflows with automatic optimization AdaptiveDataStorage: Provides dynamic storage optimization based on access patterns DataQualityManager: data validation and quality assurance Functions: initialize_data_system: Initialize the data management system validate_data_integrity: Validate data integrity across all datasets optimize_storage_performance: Optimize storage for performance and cost Examples: >>> from geo_infer_data import MultiSourceDataIngestion, AdaptiveDataStorage >>> >>> # Initialize data systems >>> ingestion = MultiSourceDataIngestion( ... data_sources=['satellite', 'sensors', 'crowdsourced'], ... validation_enabled=True ... ) >>> storage = AdaptiveDataStorage( ... storage_backends=['postgresql', 'parquet'], ... optimization_strategy='access_pattern_based' ... ) >>> >>> # Process environmental monitoring data >>> data = ingestion.ingest_multi_source(satellite_data, sensor_data) >>> storage.store_geospatial_data(data, metadata, access_patterns) ## Contents
- - **api/**: Submodule - **connectors/**: Submodule - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-DATA/src/geo_infer_data
+
+Geo Infer Data workspace within `GEO-INFER-DATA`.
+
+## Contents
+
+- `api/`
+- `connectors/`
+- `core/`
+- `models/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- `__init__.py:initialize_data_system` (function)
+- `__init__.py:validate_data_integrity` (function)
+- `__init__.py:optimize_storage_performance` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

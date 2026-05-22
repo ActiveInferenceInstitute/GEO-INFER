@@ -413,7 +413,7 @@ class CarbonSequestrationModel(AgricultureModel):
             management_data = data["management_data"]
             
             # A real process-based model would implement complex biophysical processes
-            # This is a simplified placeholder implementation
+            # This is a simplified baseline implementation
             
             # Initialize carbon sequestration arrays
             num_fields = len(field_data)

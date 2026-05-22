@@ -1,4 +1,47 @@
-# geo_infer_spm
- ## Overview
- GEO-INFER-SPM: Statistical Parametric Mapping for Geospatial Analysis This module implements Statistical Parametric Mapping (SPM) methodology adapted for geospatial analysis, providing rigorous statistical inference for spatially and temporally continuous data fields while preserving spatiotemporal relationships. The implementation is grounded in Active Inference principles, using Bayesian inference for uncertainty quantification and free energy minimization for optimal model selection. Core Components: - General Linear Model (GLM) for geospatial data analysis - Random Field Theory (RFT) for multiple comparison correction - Spatial autocorrelation modeling and cluster-based inference - Bayesian extensions with hierarchical models - visualization and statistical mapping tools Example: >>> import geo_infer_spm as gispm >>> # Load geospatial data >>> data = gispm.load_data("temperature_data.tif") >>> # Create design matrix >>> design = gispm.design_matrix(factors=[("season", ["winter", "spring"])]) >>> # Fit GLM and compute SPM >>> model = gispm.fit_glm(data, design) >>> contrast = gispm.contrast(model, "spring > winter") >>> spm_map = gispm.compute_spm(model, contrast, correction="RFT") ## Contents
- - **api/**: Submodule - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule - **visualization/**: Submodule 
+# GEO-INFER-SPM/src/geo_infer_spm
+
+Geo Infer Spm workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `api/`
+- `core/`
+- `models/`
+- `utils/`
+- `visualization/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

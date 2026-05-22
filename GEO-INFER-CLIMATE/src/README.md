@@ -1,5 +1,41 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-CLIMATE/src` Source code implementation. ## Implementation
- ### `geo_infer_climate/core/extreme_events.py` **Classes**: ExtremeEventType, Severity, ExtremeEvent, ExtremeEventAnalyzer **Functions**: detect_heatwaves, detect_droughts, detect_cold_spells, detect_floods, calculate_return_period ### `geo_infer_climate/core/climate_data.py` **Classes**: ClimateDataProcessor **Functions**: load_dataset, validate_dataset, preprocess_dataset, extract_temporal_subset, extract_spatial_subset ### `geo_infer_climate/core/downscaling.py` **Classes**: DownscalingMethods **Functions**: bias_correction, statistical_downscaling ### `geo_infer_climate/core/climate_indices.py` **Classes**: ClimateIndicesCalculator **Functions**: calculate_spi, calculate_heat_index, calculate_extreme_indices, calculate_pdsi ### `geo_infer_climate/core/projections.py` **Classes**: ClimateProjections **Functions**: project_future_climate ## Contents
- - **geo_infer_climate/**: Subdirectory - **geo_infer_climate.egg-info/**: Subdirectory --- 
+# GEO-INFER-CLIMATE/src
+
+Src workspace within `GEO-INFER-CLIMATE`.
+
+## Contents
+
+- `geo_infer_climate.egg-info/`
+- `geo_infer_climate/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-CLIMATE`
+- Package: `geo_infer_climate`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-CLIMATE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `netcdf4>=1.5.8`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

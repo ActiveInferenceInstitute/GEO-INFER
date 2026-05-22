@@ -1,4 +1,41 @@
-# geo_infer_cog
- ## Overview
- GEO-INFER-COG: Cognitive Geospatial Processing This module provides human-centered geospatial tools that model perception, reasoning, and spatial cognition for intuitive interfaces. The module implements cognitive models of spatial thinking to enhance geospatial decision-making and interface design across the GEO-INFER framework. Main Components: - Cognitive Processing Engine: Core spatial cognition modeling - Spatial Perception Models: Human-like spatial understanding - Spatial Reasoning Systems: Computational spatial reasoning - Spatial Language Processing: Geographic language understanding - Visualization Adapters: Cognitively optimized visualizations - Decision Support Systems: Human-centered spatial decision making Integration Points: - GEO-INFER-SPACE: spatial operations with cognitive models - GEO-INFER-APP: interface design with cognitive principles - GEO-INFER-AGENT: Cognitive models for agent decision-making - GEO-INFER-AI: Human-like spatial intelligence frameworks ## Contents
- - **api/**: Submodule - **core/**: Submodule - **decision/**: Submodule - **models/**: Submodule - **spatial_language/**: Submodule - **utils/**: Submodule - **visualization/**: Submodule 
+# GEO-INFER-COG/src/geo_infer_cog
+
+Geo Infer Cog workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `api/`
+- `core/`
+- `decision/`
+- `models/`
+- `spatial_language/`
+- `utils/`
+- `visualization/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

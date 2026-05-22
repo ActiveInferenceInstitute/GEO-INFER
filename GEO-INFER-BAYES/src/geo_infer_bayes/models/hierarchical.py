@@ -6,7 +6,7 @@ multi-level spatial data structures.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
 
 
@@ -34,16 +34,16 @@ class HierarchicalBayesianModel(BayesianModel):
         """Set up the hierarchical model structure and parameters."""
         # Define parameter distributions for inference
         self.parameters = {
-            'mu_alpha': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 10.0}},
-            'sigma_alpha': {'prior': 'half_normal', 'hyperparams': {'sigma': 1.0}},
-            'noise': {'prior': 'half_normal', 'hyperparams': {'sigma': 1.0}},
+            "mu_alpha": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 10.0}},
+            "sigma_alpha": {"prior": "half_normal", "hyperparams": {"sigma": 1.0}},
+            "noise": {"prior": "half_normal", "hyperparams": {"sigma": 1.0}},
         }
 
         # Add level-specific parameters
         for level in range(self.n_levels):
-            self.parameters[f'alpha_{level}'] = {
-                'prior': 'normal',
-                'hyperparams': {'mu': 'mu_alpha', 'sigma': 'sigma_alpha'}
+            self.parameters[f"alpha_{level}"] = {
+                "prior": "normal",
+                "hyperparams": {"mu": "mu_alpha", "sigma": "sigma_alpha"},
             }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
@@ -63,23 +63,22 @@ class HierarchicalBayesianModel(BayesianModel):
             Log-likelihood value
         """
         # Extract data components
-        observations = data['observations']
-        groups = data['groups']
+        observations = data["observations"]
+        groups = data["groups"]
 
-        # Set parameters from theta
-        mu_alpha = theta['mu_alpha']
-        sigma_alpha = theta['sigma_alpha']
-        noise = theta['noise']
+        noise = theta["noise"]
 
         # Extract level parameters
-        alphas = [theta[f'alpha_{level}'] for level in range(self.n_levels)]
+        alphas = [theta[f"alpha_{level}"] for level in range(self.n_levels)]
 
         # Compute predictions
         predictions = np.array([alphas[group] for group in groups])
 
         # Compute log-likelihood assuming Gaussian noise
         residuals = observations - predictions
-        log_likelihood = -0.5 * np.sum(residuals**2 / noise**2 + np.log(2 * np.pi * noise**2))
+        log_likelihood = -0.5 * np.sum(
+            residuals**2 / noise**2 + np.log(2 * np.pi * noise**2)
+        )
 
         return log_likelihood
 
@@ -100,27 +99,31 @@ class HierarchicalBayesianModel(BayesianModel):
         log_prior = 0.0
 
         # Prior for mu_alpha
-        mu_alpha = theta['mu_alpha']
-        mu = self.parameters['mu_alpha']['hyperparams']['mu']
-        sigma = self.parameters['mu_alpha']['hyperparams']['sigma']
-        log_prior += -0.5 * ((mu_alpha - mu) / sigma) ** 2 - np.log(sigma * np.sqrt(2 * np.pi))
+        mu_alpha = theta["mu_alpha"]
+        mu = self.parameters["mu_alpha"]["hyperparams"]["mu"]
+        sigma = self.parameters["mu_alpha"]["hyperparams"]["sigma"]
+        log_prior += -0.5 * ((mu_alpha - mu) / sigma) ** 2 - np.log(
+            sigma * np.sqrt(2 * np.pi)
+        )
 
         # Prior for sigma_alpha
-        sigma_alpha = theta['sigma_alpha']
-        sigma = self.parameters['sigma_alpha']['hyperparams']['sigma']
+        sigma_alpha = theta["sigma_alpha"]
+        sigma = self.parameters["sigma_alpha"]["hyperparams"]["sigma"]
         log_prior += -np.log(sigma_alpha) - sigma**2 / (2 * sigma_alpha**2)
 
         # Prior for noise
-        noise = theta['noise']
-        sigma = self.parameters['noise']['hyperparams']['sigma']
+        noise = theta["noise"]
+        sigma = self.parameters["noise"]["hyperparams"]["sigma"]
         log_prior += -np.log(noise) - sigma**2 / (2 * noise**2)
 
         # Priors for level alphas
         for level in range(self.n_levels):
-            alpha = theta[f'alpha_{level}']
-            mu = theta['mu_alpha']  # mu_alpha is used as mean for level alphas
-            sigma = theta['sigma_alpha']
-            log_prior += -0.5 * ((alpha - mu) / sigma) ** 2 - np.log(sigma * np.sqrt(2 * np.pi))
+            alpha = theta[f"alpha_{level}"]
+            mu = theta["mu_alpha"]  # mu_alpha is used as mean for level alphas
+            sigma = theta["sigma_alpha"]
+            log_prior += -0.5 * ((alpha - mu) / sigma) ** 2 - np.log(
+                sigma * np.sqrt(2 * np.pi)
+            )
 
         return log_prior
 
@@ -129,7 +132,7 @@ class HierarchicalBayesianModel(BayesianModel):
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """
         Make predictions at new locations.
@@ -157,17 +160,14 @@ class HierarchicalBayesianModel(BayesianModel):
             all_preds = []
 
             for i in range(min(samples, len(posterior.samples))):
-                param_sample = {
-                    'mu_alpha': posterior.samples['mu_alpha'][i],
-                    'sigma_alpha': posterior.samples['sigma_alpha'][i],
-                    'noise': posterior.samples['noise'][i]
-                }
-
                 # Extract level parameters
-                alphas = [posterior.samples[f'alpha_{level}'][i] for level in range(self.n_levels)]
+                alphas = [
+                    posterior.samples[f"alpha_{level}"][i]
+                    for level in range(self.n_levels)
+                ]
 
                 # Make predictions for new data
-                if hasattr(X_new, '__len__') and len(X_new) > 0:
+                if hasattr(X_new, "__len__") and len(X_new) > 0:
                     if isinstance(X_new[0], (list, tuple, np.ndarray)):
                         # X_new contains group indices
                         predictions = np.array([alphas[group] for group in X_new])
@@ -189,14 +189,12 @@ class HierarchicalBayesianModel(BayesianModel):
             else:
                 return mean_pred
         else:
-            # Use current parameters - this would need fitted parameters
-            raise NotImplementedError("Direct prediction without posterior not implemented")
+            raise RuntimeError(
+                "Direct prediction requires a posterior. Pass a posterior or run fit() first."
+            )
 
     def posterior_predictive(
-        self,
-        posterior: Any,
-        X: Optional[np.ndarray] = None,
-        samples: int = 100
+        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
@@ -217,7 +215,7 @@ class HierarchicalBayesianModel(BayesianModel):
         """
         if X is None:
             # Use observed data structure
-            X = getattr(self, 'observed_groups', [])
+            X = getattr(self, "observed_groups", [])
 
         # Get predictions
         predictions, std = self.predict(X, posterior, samples=samples, return_std=True)
@@ -226,7 +224,7 @@ class HierarchicalBayesianModel(BayesianModel):
         all_samples = []
         for i in range(min(samples, len(posterior.samples))):
             # Sample noise for this posterior sample
-            noise_sample = posterior.samples['noise'][i]
+            noise_sample = posterior.samples["noise"][i]
             sample = np.random.normal(predictions, np.sqrt(noise_sample))
             all_samples.append(sample)
 

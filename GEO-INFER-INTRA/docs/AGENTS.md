@@ -1,13 +1,72 @@
-# Agent
-: docs 
+# Agent Instructions: GEO-INFER-INTRA/docs
 
 ## Scope
- This agent is responsible for handling operations within the `docs` scope. 
+
+- Owning module: `GEO-INFER-INTRA`
+- Python package: `geo_infer_intra`
+- Directory role: Docs workspace within `GEO-INFER-INTRA`.
 
 ## Capabilities
- Core capabilities include: - Management of **advanced** processes - Management of **alphaearth** processes - Management of **api** processes - Management of **architecture** processes - Management of **deployment** processes - Management of **developer_guide** processes - Management of **examples** processes - Management of **geospatial** processes - Management of **getting_started** processes - Management of **guides** processes - Management of **integration** processes - Management of **knowledge_base** processes - Management of **materiality** processes - Management of **modules** processes - Management of **ontology** processes - Management of **realms** processes - Management of **security** processes - Management of **support** processes - Management of **tnfd** processes - Management of **tutorials** processes - Management of **user_guide** processes - Management of **workflows** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-INTRA/docs` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_intra` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `advanced/`
+- `alphaearth/`
+- `api/`
+- `architecture/`
+- `deployment/`
+- `developer_guide/`
+- `examples/`
+- `geospatial/`
+- `getting_started/`
+- `guides/`
+- `integration/`
+- `knowledge_base/`
+- `materiality/`
+- `modules/`
+- `ontology/`
+- `realms/`
+- `security/`
+- `support/`
+- `tnfd/`
+- `tutorials/`
+- `user_guide/`
+- `workflows/`
+- `DOCUMENTATION_IMPROVEMENTS.md`
+- `DOCUMENTATION_IMPROVEMENTS_SUMMARY.md`
+- `DOCUMENTATION_STANDARDS.md`
+- `active_inference_guide.md`
+- `api_schema.yaml`
+- `bayesian_inference_guide.md`
+- `data_dictionary.md`
+- `documentation_guide.md`
+- `examples_gallery.md`
+- `geospatial_standards.md`
+- `index.md`
+- `installation.md`
+- `module_readme_template.md`
+- `overview.md`
+- `temporal_analysis_guide.md`
+- `terminology.md`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

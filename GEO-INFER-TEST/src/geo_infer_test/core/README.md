@@ -1,18 +1,70 @@
-# core
- ## Overview
- This directory contains core components. It includes 6 Python modules. ## Components
- ### log_integratio
-n
-.py Module containing . ### module_healt
-h
-.py Module containing . ### performance_monito
-r
-.py Module containing . ### test_discovere
-r
-.py Test discovery module for GEO-INFER-TEST. **Classes**: `TestDiscoverer` ### test_orchestrato
-r
-.py Module containing . ### test_runne
-r
-.py Main test runner for the GEO-INFER-TEST framework. **Classes**: `TestConfiguration`, `TestResult`, `GeoInferTestRunner` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-TEST/src/geo_infer_test/core
+
+Core workspace within `GEO-INFER-TEST`.
+
+## Contents
+
+- `__init__.py`
+- `log_integration.py`
+- `module_health.py`
+- `performance_monitor.py`
+- `test_discoverer.py`
+- `test_orchestrator.py`
+- `test_runner.py`
+- `validators.py`
+
+## Public Interface
+
+- `log_integration.py:TestLogEntry` (class)
+- `log_integration.py:ModuleTestSummary` (class)
+- `log_integration.py:LogIntegration` (class)
+- `log_integration.py:LoggingTestReporter` (class)
+- `log_integration.py:LogAnalyzer` (class)
+- `module_health.py:HealthMetrics` (class)
+- `module_health.py:ModuleHealthChecker` (class)
+- `module_health.py:SystemValidator` (class)
+- `module_health.py:DependencyChecker` (class)
+- `performance_monitor.py:PerformanceMonitor` (class)
+- `performance_monitor.py:BenchmarkRunner` (class)
+- `performance_monitor.py:LoadTester` (class)
+- `performance_monitor.py:MetricsCollector` (class)
+- `performance_monitor.py:PerformanceAnalyzer` (class)
+- `validators.py:BaseValidator` (class)
+- `validators.py:DataQualityValidator` (class)
+- `validators.py:SpatialValidator` (class)
+- `validators.py:IoTValidator` (class)
+- `validators.py:BayesianValidator` (class)
+- `validators.py:PerformanceValidator` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-TEST`
+- Package: `geo_infer_test`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TEST`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST`
+
+## Dependencies
+
+- `coverage[toml]>=7.0.0`
+- `factory-boy>=3.2.0`
+- `faker>=18.0.0`
+- `geopandas>=0.10.0`
+- `hypothesis>=6.0.0`
+- `jinja2>=3.1.0`
+- `jsonschema>=4.0.0`
+- `locust>=2.0.0`
+- `matplotlib>=3.5.0`
+- `memory-profiler>=0.60.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

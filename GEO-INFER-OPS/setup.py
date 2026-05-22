@@ -11,7 +11,7 @@ setup(
     author="GEO-INFER Team",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     install_requires=[
         "fastapi>=0.68.0",
         "pydantic>=1.8.0",

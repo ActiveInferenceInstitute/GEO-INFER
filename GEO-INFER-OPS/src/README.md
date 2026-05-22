@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-OPS/src` Source code implementation. ## Implementation
- ### `geo_infer_ops/core/logging.py` **Functions**: configure_stdlib_logging, setup_logging, get_logger ### `geo_infer_ops/core/config.py` **Classes**: LoggingConfig, MonitoringConfig, TestingConfig, DockerConfig, KubernetesConfig **Functions**: load_config, get_config, update_config, validate_log_level, validate_log_format ### `geo_infer_ops/core/deployment.py` **Classes**: DeploymentManager **Functions**: build_docker_image, push_docker_image, deploy_kubernetes, get_deployment_status, scale_deployment ### `geo_infer_ops/core/monitoring.py` **Functions**: reset_metrics, record_request, record_error, record_metric, get_metric_value ### `geo_infer_ops/core/security.py` **Classes**: SecurityManager **Functions**: generate_tls_certificate, generate_csr, generate_jwt_token, verify_jwt_token, encrypt_data ## Contents
- - **geo_infer_ops/**: Subdirectory - **geo_infer_ops.egg-info/**: Subdirectory --- 
+# GEO-INFER-OPS/src
+
+Src workspace within `GEO-INFER-OPS`.
+
+## Contents
+
+- `geo_infer_ops.egg-info/`
+- `geo_infer_ops/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-OPS`
+- Package: `geo_infer_ops`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-OPS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS`
+
+## Dependencies
+
+- `pyyaml>=6.0`
+- `fastapi>=0.100.0`
+- `uvicorn>=0.21.0`
+- `prometheus-client>=0.16.0`
+- `structlog>=23.1.0`
+- `pytest>=7.3.1`
+- `docker>=6.0.1`
+- `kubernetes>=26.1.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `flake8>=6.0.0`
+- `pytest-cov>=4.1.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,5 +1,44 @@
-# scripts
- ## Overview
- **Path**: `GEO-INFER-SPACE/scripts` Utility scripts. ## Implementation
- ### `verification/test_h3_basic.py` **Functions**: test_h3_imports, test_h3_basic_operations, test_h3_structure, test_h3_documentation, test_h3_file_structure ### `verification/test_multiple_dispatch_comprehensive.py` **Functions**: test_multiple_dispatch_indexing, test_multiple_dispatch_analytics, test_backend_capabilities, test_convenience_functions, test_backend_dispatcher_configuration ### `verification/test_refactored_structure.py` **Functions**: test_core_imports, test_backend_dispatcher, test_spatial_indexing_interface, test_backend_implementations, test_backward_compatibility ### `verification/verify_installation.py` **Functions**: test_core_imports, test_h3_functionality, test_vector_operations, test_data_models, test_api_schemas ### `verification/test_core_functionality.py` **Functions**: test_module_structure, test_basic_imports, test_h3_utils_structure, test_analytics_structure, test_api_structure ## Contents
- - **verification/**: Subdirectory --- 
+# GEO-INFER-SPACE/scripts
+
+Scripts workspace within `GEO-INFER-SPACE`.
+
+## Contents
+
+- `verification/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPACE`
+- Package: `geo_infer_space`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `fiona>=1.8.0`
+- `geojson-pydantic>=0.4.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `pydantic>=1.8.0`
+- `pyproj>=3.3.0`
+- `python-multipart>=0.0.5`
+- `pyyaml>=6.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

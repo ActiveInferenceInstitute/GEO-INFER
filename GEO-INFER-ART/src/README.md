@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-ART/src` Source code implementation. ## Implementation
- ### `geo_infer_art/core/visualization/geo_art.py` **Classes**: GeoArt, RealtimeVisualization, GeoArt3D **Functions**: load_geojson, load_raster, apply_style, save, show ### `geo_infer_art/core/visualization/map_styling.py` **Classes**: MapStyle **Functions**: create_themed_style, apply_to_axes, get_colormap, get_color_list, get_line_width ### `geo_infer_art/core/place/place_art.py` **Classes**: PlaceArt **Functions**: from_coordinates, from_place_name, add_metadata_overlay, save, show ### `geo_infer_art/core/place/cultural_map.py` **Classes**: CulturalMap **Functions**: from_region, from_coordinates, add_narrative, apply_cultural_style, save ### `geo_infer_art/core/aesthetics/color_palette.py` **Classes**: ColorPalette **Functions**: get_palette, from_color_theory, from_image, show, invert ## Contents
- - **geo_infer_art/**: Subdirectory - **geo_infer_art.egg-info/**: Subdirectory --- 
+# GEO-INFER-ART/src
+
+Src workspace within `GEO-INFER-ART`.
+
+## Contents
+
+- `geo_infer_art.egg-info/`
+- `geo_infer_art/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ART`
+- Package: `geo_infer_art`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ART`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
+
+## Dependencies
+
+- `bokeh>=2.4.0`
+- `cartopy>=0.20.0`
+- `colour>=0.1.5`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `imageio>=2.9.0`
+- `imageio-ffmpeg>=0.4.0`
+- `kaleido>=0.2.0`
+- `matplotlib>=3.4.0`
+- `numpy>=1.21.0`
+- `opencv-python>=4.5.0`
+- `pillow>=8.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,13 +1,39 @@
-# Agent
-: tests
+# Agent Instructions: GEO-INFER-PEP/tests
 
 ## Scope
- This agent is responsible for handling operations within the `tests` scope.
+
+- Owning module: `GEO-INFER-PEP`
+- Python package: `geo_infer_pep`
+- Directory role: Tests workspace within `GEO-INFER-PEP`.
 
 ## Capabilities
- Core capabilities include: - Management of **core** processes - Management of **integration** processes - Management of **models** processes - Management of **unit** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_pep` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-PEP/tests`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `core/`
+- `integration/`
+- `models/`
+- `unit/`
+- `conftest.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-PEP/tests
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

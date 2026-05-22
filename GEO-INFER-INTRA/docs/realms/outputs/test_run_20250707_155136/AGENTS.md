@@ -1,16 +1,36 @@
-# Agent
-: test_run_20250707_155136
+# Agent Instructions: GEO-INFER-INTRA/docs/realms/outputs/test_run_20250707_155136
 
 ## Scope
- This directory contains test_run_20250707_155136 components for the module.
 
-## Classes
- and Functions No public classes or functions found in this directory.
+- Owning module: `GEO-INFER-INTRA`
+- Python package: `geo_infer_intra`
+- Directory role: Test Run 20250707 155136 workspace within `GEO-INFER-INTRA`.
 
 ## Capabilities
- - Core module functionality
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_intra` and the owning module's public contracts.
 
-- **Location**: `docs/realms/outputs/test_run_20250707_155136`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_execution.log`
+- `test_results.json`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

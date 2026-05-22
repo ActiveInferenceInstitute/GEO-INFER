@@ -1,97 +1,50 @@
-# GEO-INFER-OPS: Agent Capabilities
+# Agent Instructions: GEO-INFER-OPS
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-OPS`
+- Python package: `geo_infer_ops`
+- Directory role: System orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-OPS** module provides operational capabilities for running GEO-INFER components, including orchestration, deployment management, configuration, logging/monitoring setup, and health checks.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ops` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Agent Deployment
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_ops import DeploymentManager
+## Local Contents
 
-# Deploy agents to production
-deployer = DeploymentManager()
+- `config/`
+- `deployment/`
+- `docs/`
+- `examples/`
+- `logs/`
+- `monitoring/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `Dockerfile`
+- `SKILL.md`
+- `docker-compose.yml`
+- `pyproject.toml`
+- `requirements.txt`
+- `test.log`
 
-result = deployer.deploy(
-    config={"agent_spec": agent_spec},
-    environment="kubernetes",
-)
+## Validation
 
-print(result)```
-
-### 2. Health Monitoring
-
-```python
-import asyncio
-
-from geo_infer_ops import HealthChecker
-
-# Monitor agent health
-monitor = HealthChecker()
-
-health = asyncio.run(monitor.run_all_checks())
-print(health)```
-
-### 3. Orchestration
-
-```python
-from geo_infer_ops import Orchestrator, Task
-
-orchestrator = Orchestrator()
-orchestrator.submit(Task(name="example_task", payload={"step": "noop"}))
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
 ```
 
-## Implementation Status
+## Integration Notes
 
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Deployment** | ✅ Ready | Deployment manager facade |
-| **Health Monitoring** | ✅ Ready | Health checks and status reporting |
-| **Orchestration** | ✅ Ready | Task orchestration primitives |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **SREAgent** | 🔮 High | Autonomous incident response |
-| **CostOptimizer** | 🔮 Medium | Resource cost optimization |
-| **ChaosAgent** | 🔮 Medium | Chaos engineering tests |
-
-## Use Cases
-
-### Production Agent Management
-
-```python
-from geo_infer_ops import ProductionManager
-
-manager = ProductionManager(cluster="prod-west")
-
-# Rolling update
-manager.rolling_update(
-    agent_type="spatial_agent",
-    new_version="2.1.0",
-    strategy="blue_green")
-
-# Get deployment status
-status = manager.get_status()```
-
----
-
-This AGENTS.md documents how GEO-INFER-OPS provides operational capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

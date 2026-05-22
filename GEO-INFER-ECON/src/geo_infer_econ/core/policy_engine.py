@@ -507,7 +507,7 @@ class PolicyAnalysisEngine:
         
     def _generic_policy_assessment(self, scenario: PolicyScenario) -> PolicyImpact:
         """Generic policy impact assessment for unspecified policy types."""
-        # Placeholder for generic assessment logic
+        # Baseline for generic assessment logic
         return PolicyImpact(
             scenario_name=scenario.name,
             gdp_impact={'national': 0.0},

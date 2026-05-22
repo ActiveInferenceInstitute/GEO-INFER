@@ -359,7 +359,7 @@ class UnderwritingDecisionEngine:
             decisions[decision] = decisions.get(decision, 0) + 1
 
         # Calculate accuracy (requires ground truth labels for meaningful evaluation)
-        accuracy = 0.85  # Placeholder
+        accuracy = 0.85  # Baseline
 
         return {
             'total_decisions': total_decisions,

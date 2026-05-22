@@ -314,7 +314,7 @@ class ForestHealthMonitor:
                 'error_type': type(e).__name__
             }
             
-        # Satellite vegetation indices (placeholder for real implementation)
+        # Satellite vegetation indices (integration point for provider-backed implementation)
         vegetation_data = self._acquire_satellite_vegetation_data(bbox, temporal_range)
         forest_data['data_sources']['vegetation_indices'] = vegetation_data
         

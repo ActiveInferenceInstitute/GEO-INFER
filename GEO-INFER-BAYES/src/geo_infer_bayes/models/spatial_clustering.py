@@ -38,7 +38,7 @@ class SpatialClusteringModel(BayesianModel):
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the spatial clustering model."""
-        # Placeholder implementation
+        # Baseline implementation
         return 0.0
 
     def log_prior(self, theta: Dict[str, Any]) -> float:

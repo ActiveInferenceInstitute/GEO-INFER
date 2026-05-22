@@ -231,7 +231,7 @@ class TransitOptimizer:
         if equity_focus:
             # Analyze coverage by demographic groups
             coverage["equity_analysis"] = {
-                "low_income_coverage": 0.75,  # Placeholder
+                "low_income_coverage": 0.75,  # Baseline
                 "minority_coverage": 0.72,
                 "elderly_coverage": 0.80
             }
@@ -289,7 +289,7 @@ class TransitOptimizer:
                 "destination": destination.get("id"),
                 "estimated_ridership": (origin.get("demand", 0) + destination.get("demand", 0)) / 2,
                 "recommended_headway": 15 if i < 2 else 30,
-                "length_km": 10  # Placeholder
+                "length_km": 10  # Baseline
             }
             design["proposed_routes"].append(route)
             

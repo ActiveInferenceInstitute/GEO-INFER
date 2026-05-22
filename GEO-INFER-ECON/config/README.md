@@ -1,4 +1,43 @@
-# config
- ## Overview
- **Path**: `GEO-INFER-ECON/config` Configuration files. ## Contents
- - **example.yaml**: File file --- 
+# GEO-INFER-ECON/config
+
+Config workspace within `GEO-INFER-ECON`.
+
+## Contents
+
+- `example.yaml`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

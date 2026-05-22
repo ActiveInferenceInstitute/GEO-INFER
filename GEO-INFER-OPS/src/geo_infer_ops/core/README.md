@@ -1,22 +1,72 @@
-# core
- ## Overview
- This directory contains core components. It includes 8 Python modules. ## Components
- ### cach
-e
-.py Caching management for GEO-INFER-OPS. **Classes**: `CacheSerializer`, `CacheManager` ### confi
-g
-.py Configuration management module. **Classes**: `LoggingConfig`, `MonitoringConfig`, `TestingConfig`, `DockerConfig`, `KubernetesConfig`, `DeploymentConfig`, `TLSConfig`, `AuthConfig`, `SecurityConfig`, `Config` **Functions**: `load_config`, `get_config`, `update_config` ### deploymen
-t
-.py Deployment management for GEO-INFER-OPS. **Classes**: `DeploymentManager` ### loggin
-g
-.py Logging configuration module. **Functions**: `configure_stdlib_logging`, `setup_logging`, `get_logger` ### monitorin
-g
-.py Monitoring configuration module. **Functions**: `reset_metrics`, `record_request`, `record_error`, `record_metric`, `get_metric_value`, `is_port_in_use`, `start_metrics_server`, `instrument_app`, `setup_monitoring` ### orchestrato
-r
-.py Orchestration engine for GEO-INFER-OPS. **Classes**: `TaskStatus`, `Task`, `Orchestrator` ### securit
-y
-.py Security management for GEO-INFER-OPS. **Classes**: `SecurityManager` ### testin
-g
-.py Testing configuration module. **Functions**: `mock_config`, `create_test_data_dir`, `create_test_client`, `setup_testing`, `assert_response_status`, `assert_response_json`, `assert_metric_value`, `create_test_app`, `create_test_request`, `create_test_response`, `create_test_metric` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-OPS/src/geo_infer_ops/core
+
+Core workspace within `GEO-INFER-OPS`.
+
+## Contents
+
+- `backup/`
+- `__init__.py`
+- `cache.py`
+- `config.py`
+- `deployment.py`
+- `logging.py`
+- `monitoring.py`
+- `orchestrator.py`
+- `security.py`
+- `testing.py`
+
+## Public Interface
+
+- `cache.py:CacheSerializer` (class)
+- `cache.py:CacheManager` (class)
+- `config.py:LoggingConfig` (class)
+- `config.py:MonitoringConfig` (class)
+- `config.py:TestingConfig` (class)
+- `config.py:DockerConfig` (class)
+- `config.py:KubernetesConfig` (class)
+- `config.py:DeploymentConfig` (class)
+- `config.py:TLSConfig` (class)
+- `config.py:AuthConfig` (class)
+- `config.py:SecurityConfig` (class)
+- `config.py:Config` (class)
+- `config.py:load_config` (function)
+- `config.py:get_config` (function)
+- `config.py:update_config` (function)
+- `deployment.py:DeploymentManager` (class)
+- `logging.py:configure_stdlib_logging` (function)
+- `logging.py:setup_logging` (function)
+- `logging.py:get_logger` (function)
+- `monitoring.py:reset_metrics` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-OPS`
+- Package: `geo_infer_ops`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-OPS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS`
+
+## Dependencies
+
+- `pyyaml>=6.0`
+- `fastapi>=0.100.0`
+- `uvicorn>=0.21.0`
+- `prometheus-client>=0.16.0`
+- `structlog>=23.1.0`
+- `pytest>=7.3.1`
+- `docker>=6.0.1`
+- `kubernetes>=26.1.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `flake8>=6.0.0`
+- `pytest-cov>=4.1.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

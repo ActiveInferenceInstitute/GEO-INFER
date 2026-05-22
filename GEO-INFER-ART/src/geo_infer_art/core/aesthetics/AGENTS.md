@@ -1,55 +1,37 @@
-# Agent
-: aesthetics
+# Agent Instructions: GEO-INFER-ART/src/geo_infer_art/core/aesthetics
 
 ## Scope
- This directory contains aesthetics components for the module. It provides 2 classes and 2 functions.
 
-## Classes
- and Functions
-
-### ColorPalette
- A class for creating and managing color palettes for artistic geospatial visualizations.
-
-**Methods**:
-- `get_palette(cls, name: str) -> 'ColorPalette'`: Get a predefined color palette by name.
-- `from_color_theory(cls, base_color: str, scheme: str, n_colors: int) -> 'ColorPalette'`: Create a palette based on color theory relationships.
-- `from_image(cls, image_path: str, n_colors: int) -> 'ColorPalette'`: Extract a color palette from an image.
-- `show(figsize: Tuple[int, int]) -> None`: Display the color palette.
-- `invert() -> 'ColorPalette'`: Create a palette with inverted colors.
-- `blend_with(other_palette: 'ColorPalette', ratio: float) -> 'ColorPalette'`: Blend this palette with another palette.
-- `create_gradient(n_colors: int) -> 'ColorPalette'`: Create a smooth gradient palette from the existing colors.
-- `to_css() -> str`: Export the color palette as CSS variables.
-- `analyze_harmony() -> Dict`: Analyze the color harmony of the palette.
-- `adjust_brightness(factor: float) -> 'ColorPalette'`: Adjust the brightness of all colors in the palette.
-- `adjust_saturation(factor: float) -> 'ColorPalette'`: Adjust the saturation of all colors in the palette.
-- `get_contrast_ratio(other_color: str) -> float`: Calculate contrast ratio between this palette's colors and another color.
-
-### StyleTransfer
- A class for applying artistic style transfer to geospatial visualizations.
-
-**Methods**:
-- `get_predefined_style_path(cls, style_name: str) -> str`: Get the file path for a predefined style.
-- `load_style_image(style_image: Union[str, np.ndarray, Image.Image]) -> None`: Load the style image to use for transfer.
-- `load_content_image(content_image: Union[str, np.ndarray, Image.Image]) -> None`: Load the content image to apply the style to.
-- `apply(geo_data: Union[gpd.GeoDataFrame, np.ndarray], style: str, content_image: Optional[Union[str, np.ndarray, Image.Image]], style_image: Optional[Union[str, np.ndarray, Image.Image]], style_weight: float, content_weight: float, iterations: int, color_palette: Optional[str]) -> Image.Image`: Apply artistic style transfer to geospatial data.
-- `save(image: Image.Image, output_path: str) -> str`: Save a stylized image to a file.
-- `blend_styles(cls, geo_data: Union[gpd.GeoDataFrame, np.ndarray], styles: List[str], weights: Optional[List[float]], iterations: int, **kwargs) -> Image.Image`: Apply multiple styles to geospatial data with different weights.
-- `create_style_variation(cls, geo_data: Union[gpd.GeoDataFrame, np.ndarray], base_style: str, variation_params: Dict, **kwargs) -> Image.Image`: Create a variation of a base style with custom parameters.
-- `preprocess_for_style(style_category: str) -> None`: Preprocess images based on style category for better results.
-- `get_style_info(style_name: str) -> Dict`: Get information about a style.
-
-### luminance
- `luminance(color)`
-
-### style_content_loss
- `style_content_loss()`
+- Owning module: `GEO-INFER-ART`
+- Python package: `geo_infer_art`
+- Directory role: Aesthetics workspace within `GEO-INFER-ART`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
-- **2 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_art` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_art/core/aesthetics`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `color_palette.py`
+- `style_transfer.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

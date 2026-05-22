@@ -1,4 +1,62 @@
-# tests
- ## Overview
- Structural component for tests. ## Contents
- - **conftest.py**: Python definitions - **integration/**: Submodule - **test_disease_surveillance.py**: Python definitions - **unit/**: Submodule 
+# GEO-INFER-HEALTH/tests
+
+Tests workspace within `GEO-INFER-HEALTH`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+- `test_disease_surveillance_integration.py`
+
+## Public Interface
+
+- `conftest.py:sample_locations` (function)
+- `conftest.py:sample_health_facilities` (function)
+- `conftest.py:sample_disease_reports` (function)
+- `conftest.py:sample_population_data` (function)
+- `conftest.py:sample_environmental_data` (function)
+- `conftest.py:disease_analyzer` (function)
+- `conftest.py:healthcare_analyzer` (function)
+- `conftest.py:environmental_analyzer` (function)
+- `conftest.py:temp_config_file` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:test_data_dir` (function)
+- `conftest.py:setup_test_environment` (function)
+- `conftest.py:mock_api_client` (function)
+- `conftest.py:pytest_configure` (function)
+- `conftest.py:assert_geospatial_objects_equal` (function)
+- `conftest.py:create_test_grid` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-HEALTH`
+- Package: `geo_infer_health`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-HEALTH`
+- Tests: `uv run python -m pytest GEO-INFER-HEALTH/tests`
+
+## Dependencies
+
+- `fastapi>=0.104.0`
+- `uvicorn>=0.24.0`
+- `pydantic>=2.5.0`
+- `pydantic-settings>=2.1.0`
+- `geopandas>=0.14.0`
+- `shapely>=2.0.0`
+- `pyproj>=3.6.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `numpy>=1.24.0`
+- `scipy>=1.11.0`
+- `pandas>=2.1.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-HEALTH/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

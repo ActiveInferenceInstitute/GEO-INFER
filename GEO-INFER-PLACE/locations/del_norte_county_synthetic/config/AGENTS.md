@@ -1,25 +1,35 @@
-# Agent: config
+# Agent Instructions: GEO-INFER-PLACE/locations/del_norte_county_synthetic/config
 
 ## Scope
 
-Configuration directory for the Del Norte County synthetic analysis variant.
-Contains YAML analysis parameters mirroring the production `del_norte_county` setup.
-
-## Files
-
-- `analysis_config.yaml` — Full analysis configuration covering forest health, coastal
-  resilience, fire risk, and community development parameters.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Config workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- Location bounds and coordinate reference systems
-- Vegetation index thresholds (NDVI, EVI, moisture stress)
-- Sea-level-rise scenarios and erosion parameters
-- Fire weather and fuel moisture thresholds
-- Community resilience and demographic indicators
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PLACE/locations/del_norte_county_synthetic/config`
-- **Type**: Configuration Directory
-- **Parent**: `del_norte_county_synthetic`
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `analysis_config.yaml`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

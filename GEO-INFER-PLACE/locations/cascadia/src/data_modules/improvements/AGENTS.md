@@ -1,30 +1,37 @@
-# Agent
-: improvements
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia/src/data_modules/improvements
 
 ## Scope
- This directory contains improvements components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### CascadianImprovementsDataSources
- Manages acquisition and processing of building footprints and estimated property values.
-
-**Methods**:
-- `fetch_all_improvements_data(target_hexagons: list) -> gpd.GeoDataFrame`: Fetches building footprints and Zillow data, merges them, and returns
-
-### GeoInferImprovements
- Processes and analyzes improvements data within an H3 grid.
-
-**Methods**:
-- `acquire_raw_data() -> Path`: Acquire raw improvements data for Del Norte county.
-- `run_final_analysis(h3_data: Dict[str, Any]) -> Dict[str, Any]`: Perform improvements analysis on H3-indexed data.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Improvements workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `cascadia/src/data_modules/improvements`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_sources.py`
+- `geo_infer_improvements.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

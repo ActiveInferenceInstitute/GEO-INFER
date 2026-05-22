@@ -1,16 +1,56 @@
-# core
- ## Overview
- This directory contains core components. It includes 5 Python modules. ## Components
- ### coastal_analysi
-s
-.py Coastal zone analysis module. **Classes**: `CoastalAnalyzer` ### marine_ecosystem
-s
-.py Marine ecosystem modeling module. **Classes**: `MarineHabitatType`, `SpeciesData`, `MarineEcosystemModeler` ### marine_spatial_plannin
-g
-.py Marine spatial planning module. **Classes**: `MarineSpatialPlanner` ### oceanographic_dat
-a
-.py Oceanographic data processing module. **Classes**: `OceanographicDataProcessor` ### sea_leve
-l
-.py Sea-level rise analysis module. **Classes**: `SeaLevelAnalyzer` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MARINE/src/geo_infer_marine/core
+
+Core workspace within `GEO-INFER-MARINE`.
+
+## Contents
+
+- `__init__.py`
+- `coastal_analysis.py`
+- `coral_reef.py`
+- `marine_ecosystems.py`
+- `marine_spatial_planning.py`
+- `ocean_currents.py`
+- `oceanographic_data.py`
+- `sea_level.py`
+- `water_quality.py`
+
+## Public Interface
+
+- `coastal_analysis.py:CoastalAnalyzer` (class)
+- `coral_reef.py:CoralReefAssessor` (class)
+- `marine_ecosystems.py:MarineHabitatType` (class)
+- `marine_ecosystems.py:SpeciesData` (class)
+- `marine_ecosystems.py:MarineEcosystemModeler` (class)
+- `marine_spatial_planning.py:MarineSpatialPlanner` (class)
+- `ocean_currents.py:OceanCurrentModeler` (class)
+- `oceanographic_data.py:OceanographicDataProcessor` (class)
+- `sea_level.py:SeaLevelAnalyzer` (class)
+- `water_quality.py:MarineWaterQuality` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MARINE`
+- Package: `geo_infer_marine`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MARINE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `netcdf4>=1.5.8`
+- `pyyaml>=6.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,26 +1,36 @@
-# Agent
-: predictive 
+# Agent Instructions: GEO-INFER-AI/src/geo_infer_ai/models/predictive
 
 ## Scope
- This directory contains predictive components for the module. It provides 1 classes and 0 functions. 
 
-## Classes
- and Functions 
-
-### SpatialPredictor
- Spatial predictor for geospatial regression and forecasting tasks.
-
-**Methods**:
-- `fit(X: Union[np.ndarray, pd.DataFrame], y: np.ndarray, sample_weight: Optional[np.ndarray], coordinates: Optional[np.ndarray]) -> 'SpatialPredictor'`: Train the spatial predictor.
-- `predict(X: Union[np.ndarray, pd.DataFrame], coordinates: Optional[np.ndarray]) -> np.ndarray`: Make predictions.
-- `get_feature_importance() -> Optional[np.ndarray]`: Get feature importance scores (for tree-based models).
-- `get_feature_names() -> Optional[List[str]]`: Get feature names. 
+- Owning module: `GEO-INFER-AI`
+- Python package: `geo_infer_ai`
+- Directory role: Predictive workspace within `GEO-INFER-AI`.
 
 ## Capabilities
- 
-- **1 classes** for core functionality 
 
-## Integration
- 
-- **Location**: `src/geo_infer_ai/models/predictive` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ai` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `spatial_predictor.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

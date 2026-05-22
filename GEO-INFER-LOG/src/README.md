@@ -1,5 +1,35 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-LOG/src` Source code implementation. ## Implementation
- ### `geo_infer_log/core/delivery.py` **Classes**: LastMileRouter, DeliveryScheduler, ServiceAreaAnalyzer **Functions**: load_network, define_service_area, optimize_deliveries, create_schedule, get_daily_schedule ### `geo_infer_log/core/transport.py` **Classes**: MultiModalPlanner, TransportationNetworkAnalyzer, TrafficSimulator, EmissionsCalculator **Functions**: load_network, add_transfer_point, plan_route, compare_routes, load_network ### `geo_infer_log/core/supply_chain.py` **Classes**: SupplyChainModel, ResilienceAnalyzer, NetworkOptimizer, FacilityLocator, InventoryManager **Functions**: load_network, optimize_flow, visualize_network, identify_critical_nodes, simulate_disruption ### `geo_infer_log/core/routing.py` **Classes**: VehicleType, Vehicle, RoutingParameters, RouteOptimizer, FleetManager **Functions**: load_network, add_vehicle, optimize_route, add_vehicle, assign_delivery ### `geo_infer_log/utils/geo.py` **Functions**: haversine_distance, get_bbox, coords_to_geojson, points_to_gdf, route_to_linestring ## Contents
- - **geo_infer_log/**: Subdirectory - **geo_infer_log.egg-info/**: Subdirectory --- 
+# GEO-INFER-LOG/src
+
+Src workspace within `GEO-INFER-LOG`.
+
+## Contents
+
+- `geo_infer_log.egg-info/`
+- `geo_infer_log/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-LOG`
+- Package: `geo_infer_log`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-LOG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG`
+
+## Dependencies
+
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

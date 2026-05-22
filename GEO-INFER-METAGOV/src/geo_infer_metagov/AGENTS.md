@@ -1,13 +1,40 @@
-# Agent
-: geo_infer_metagov
+# Agent Instructions: GEO-INFER-METAGOV/src/geo_infer_metagov
 
 ## Scope
- This agent is responsible for handling operations within the `geo_infer_metagov` scope.
+
+- Owning module: `GEO-INFER-METAGOV`
+- Python package: `geo_infer_metagov`
+- Directory role: Geo Infer Metagov workspace within `GEO-INFER-METAGOV`.
 
 ## Capabilities
- Core capabilities include: - Management of **api** processes - Management of **core** processes - Management of **integrations** processes - Management of **models** processes - Management of **utils** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_metagov` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-METAGOV/src/geo_infer_metagov`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `api/`
+- `core/`
+- `integrations/`
+- `models/`
+- `utils/`
+- `__init__.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

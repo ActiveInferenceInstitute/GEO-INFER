@@ -1,57 +1,51 @@
-# core
+# GEO-INFER-HEALTH/src/geo_infer_health/core
 
-## Overview
+Core workspace within `GEO-INFER-HEALTH`.
 
-Core health intelligence components for GEO-INFER-HEALTH implementing disease surveillance, hotspot analysis, environmental health assessment, and healthcare accessibility analysis.
+## Contents
 
-This directory contains core components for health intelligence including disease surveillance, healthcare accessibility, and environmental health analysis.
+- `__init__.py`
+- `disease_surveillance.py`
+- `enhanced_disease_surveillance.py`
+- `environmental_health.py`
+- `healthcare_accessibility.py`
 
-## Components
+## Public Interface
 
-### disease_surveillance.py
-Disease hotspot identification and analysis.
+- `disease_surveillance.py:DiseaseHotspotAnalyzer` (class)
+- `enhanced_disease_surveillance.py:ActiveInferenceDiseaseAnalyzer` (class)
+- `environmental_health.py:EnvironmentalHealthAnalyzer` (class)
+- `healthcare_accessibility.py:HealthcareAccessibilityAnalyzer` (class)
 
-**Classes**: `DiseaseHotspotAnalyzer`
+## Module Metadata
 
-### enhanced_disease_surveillance.py
-Disease surveillance with Active Inference principles.
+- Module: `GEO-INFER-HEALTH`
+- Package: `geo_infer_health`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-HEALTH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH`
 
-**Classes**: `ActiveInferenceDiseaseAnalyzer`
+## Dependencies
 
-### environmental_health.py
-Environmental health data analysis.
+- `fastapi>=0.104.0`
+- `uvicorn>=0.24.0`
+- `pydantic>=2.5.0`
+- `pydantic-settings>=2.1.0`
+- `geopandas>=0.14.0`
+- `shapely>=2.0.0`
+- `pyproj>=3.6.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `numpy>=1.24.0`
+- `scipy>=1.11.0`
+- `pandas>=2.1.0`
 
-**Classes**: `EnvironmentalHealthAnalyzer`
+## Validation
 
-### healthcare_accessibility.py
-Healthcare facility accessibility analysis.
-
-**Classes**: `HealthcareAccessibilityAnalyzer`
-
-## Usage
-
-```python
-from geo_infer_health.core import (
-    DiseaseHotspotAnalyzer,
-    ActiveInferenceDiseaseAnalyzer,
-    HealthcareAccessibilityAnalyzer,
-    EnvironmentalHealthAnalyzer
-)
-
-# Disease surveillance
-analyzer = DiseaseHotspotAnalyzer(reports=disease_reports)
-hotspots = analyzer.identify_simple_hotspots(threshold_case_count=5, scan_radius_km=10.0)
-
-# Healthcare accessibility
-accessibility = HealthcareAccessibilityAnalyzer(facilities=health_facilities)
-nearest = accessibility.get_nearest_facility(location, facility_type='hospital')
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
 ```
 
-## Integration
+## Documentation Notes
 
-- **Location**: `GEO-INFER-HEALTH/src/geo_infer_health/core`
-- **Dependencies**: `geo_infer_health.models`, `geo_infer_health.utils`, `geo_infer_act`
-- **Used By**: API layer, application modules
-- **Provides**: Core health intelligence capabilities
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

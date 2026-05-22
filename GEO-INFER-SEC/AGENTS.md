@@ -1,191 +1,43 @@
-# GEO-INFER-SEC: Agent Capabilities
+# Agent Instructions: GEO-INFER-SEC
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-SEC`
+- Python package: `geo_infer_sec`
+- Directory role: Comprehensive security and privacy framework for geospatial information systems with encryption, access control, and compliance.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-SEC** module provides security capabilities for agents, including authentication, authorization, encryption, and audit logging for geospatial operations.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_sec` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Authentication
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_sec import Authenticator
+## Local Contents
 
-# Authenticate agents and users
-auth = Authenticator()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-# Authenticate agent
-token = auth.authenticate(
-    agent_id="analysis_agent_001",
-    credentials=agent_credentials,
-    method="jwt")
+## Validation
 
-# Validate token
-validation = auth.validate(token)
-print(f"Valid: {validation.is_valid}")
-print(f"Permissions: {validation.permissions}")```
-
-### 2. Authorization
-
-```python
-from geo_infer_sec import Authorizer
-
-# Control access to resources
-authz = Authorizer()
-
-# Check permissions
-allowed = authz.check(
-    subject="agent_001",
-    action="read",
-    resource="sensitive_layer",
-    context={"location": query_location})
-
-print(f"Access allowed: {allowed}")
-
-# Spatial access control
-spatial_access = authz.check_spatial(
-    subject="agent_001",
-    area=restricted_zone,
-    operation="query")
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC
 ```
 
-### 3. Data Encryption
+## Integration Notes
 
-```python
-from geo_infer_sec import DataEncryptor
-
-# Encrypt sensitive geospatial data
-encryptor = DataEncryptor()
-
-# Encrypt layer
-encrypted = encryptor.encrypt(
-    data=sensitive_addresses,
-    method="aes_256_gcm",
-    key_id="prod_key_2026")
-
-# Decrypt with authorization
-decrypted = encryptor.decrypt(
-    data=encrypted,
-    authorization=auth_token)
-```
-
-### 4. Audit Logging
-
-```python
-from geo_infer_sec import AuditLogger
-
-# Log security-relevant events
-audit = AuditLogger()
-
-# Log access
-audit.log(
-    event_type="data_access",
-    subject="agent_001",
-    action="query",
-    resource="parcels_layer",
-    outcome="success",
-    details={"rows_returned": 150})
-
-# Query audit logs
-logs = audit.query(
-    time_range=("2026-02-24", "2026-02-25"),
-    subject="agent_001")
-```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Authentication** | ✅ Ready | Multi-method auth |
-| **Authorization** | ✅ Ready | RBAC + spatial ABAC |
-| **Encryption** | ✅ Ready | Data at rest/transit |
-| **Audit Logging** | ✅ Ready | Comprehensive logging |
-| **Secret Management** | ✅ Ready | Secure credential storage |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **ThreatDetectionAgent** | 🔮 High | Anomaly detection |
-| **IncidentResponseAgent** | 🔮 High | Automated response |
-| **ComplianceAuditor** | 🔮 Medium | Regulatory compliance |
-
-## Security Patterns
-
-### Zero Trust Architecture
-
-```python
-from geo_infer_sec import ZeroTrust
-
-# Implement zero trust
-zt = ZeroTrust()
-
-# Every request verified
-access = zt.verify_access(
-    request=incoming_request,
-    verify_identity=True,
-    verify_device=True,
-    verify_context=True,
-    continuous=True)
-```
-
-### Location-Based Access
-
-```python
-from geo_infer_sec import LocationAccessControl
-
-# Control access by location
-lac = LocationAccessControl()
-
-# Define access zones
-lac.define_zone(
-    name="restricted_area",
-    geometry=restricted_polygon,
-    access_level="classified",
-    allowed_roles=["admin", "security"])
-
-# Check location access
-access = lac.check(
-    user="analyst_001",
-    query_location=point)
-```
-
-## Use Cases
-
-### Secure Agent Operations
-
-```python
-from geo_infer_sec import SecureAgent
-
-class MySecureAgent(SecureAgent):
-    def __init__(self):
-        super().__init__(
-            security_level="high",
-            audit_all_actions=True
-        )
-    
-    @require_permission("sensitive_data.read")
-    def analyze_sensitive_data(self, data):
-       
-
-# Automatically audited
-        return self.process(data)```
-
----
-
-This AGENTS.md documents how GEO-INFER-SEC provides security capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

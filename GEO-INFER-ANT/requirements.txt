@@ -1,7 +1,7 @@
 # GEO-INFER-ANT Requirements
 asyncio-mqtt>=0.11.0
 geopandas>=0.10.0
-h3>=3.7.0
+h3>=4.0.0
 jsonschema>=4.0.0
 matplotlib>=3.5.0
 networkx>=2.8
@@ -11,26 +11,3 @@ scikit-learn>=1.1.0
 scipy>=1.7.0
 
 # Added from comprehensive review
-aco>=0.0.0
-agent_base>=0.0.0
-algorithms>=0.0.0
-analysis>=0.0.0
-applications>=0.0.0
-asyncio>=0.0.0
-concurrent>=0.0.0
-config>=0.0.0
-core>=0.0.0
-digital_stigmergy>=0.0.0
-disaster>=0.0.0
-environmental>=0.0.0
-hashlib>=0.0.0
-math>=0.0.0
-metrics>=0.0.0
-patterns>=0.0.0
-population>=0.0.0
-pso>=0.0.0
-statistics>=0.0.0
-stigmergy>=0.0.0
-urban>=0.0.0
-utils>=0.0.0
-uuid>=0.0.0

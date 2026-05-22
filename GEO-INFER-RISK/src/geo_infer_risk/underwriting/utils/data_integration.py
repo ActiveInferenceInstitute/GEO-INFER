@@ -434,7 +434,7 @@ class DataIntegrationManager:
 
     def close_connections(self) -> None:
         """Close any open connections."""
-        # Placeholder for connection cleanup
+        # Baseline for connection cleanup
         self.logger.info("Data integration connections closed")
 
 

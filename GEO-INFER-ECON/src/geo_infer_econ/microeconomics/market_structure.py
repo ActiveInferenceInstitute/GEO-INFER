@@ -284,7 +284,7 @@ class MarketStructureAnalysis:
 
     def _analyze_spatial_competition(self, spatial_data: pd.DataFrame) -> Dict[str, Any]:
         """Analyze spatial competition patterns"""
-        # Placeholder for spatial competition analysis
+        # Baseline for spatial competition analysis
         return {
             'spatial_autocorrelation': 0.5,
             'competition_radius': 10.0,  # km

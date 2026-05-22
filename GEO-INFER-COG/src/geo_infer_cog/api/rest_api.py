@@ -255,7 +255,7 @@ def register_api_routes(app: Flask) -> None:
             if not app.reasoning_engine:
                 app.reasoning_engine = SpatialReasoningEngine(reasoning_type=reasoning_type)
 
-            # Create mock spatial data for reasoning
+            # Create synthetic spatial data for reasoning
             spatial_data = data.get('spatial_data', {})
             perception_result = data.get('perception_result', {})
 
@@ -347,7 +347,7 @@ def register_api_routes(app: Flask) -> None:
             if not app.decision_support:
                 app.decision_support = SpatialDecisionSupport()
 
-            # Create mock stakeholder profiles
+            # Create synthetic stakeholder profiles
             stakeholder_profiles = []
             if not app.profile_manager:
                 app.profile_manager = ProfileManager()

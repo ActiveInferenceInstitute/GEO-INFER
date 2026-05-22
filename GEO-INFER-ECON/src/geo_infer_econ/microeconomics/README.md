@@ -1,16 +1,67 @@
-# microeconomics
- ## Overview
- This directory contains microeconomics components. It includes 5 Python modules. ## Components
- ### behavioral_economic
-s
-.py Behavioral Economics Module **Classes**: `BehavioralParameters`, `ProspectTheory`, `BoundedRationality`, `SocialPreferences`, `TimePreferences`, `MentalAccounting`, `NudgeAnalysis`, `BehavioralEconomicsEngine` ### consumer_theor
-y
-.py Consumer Theory Module **Classes**: `ConsumerProfile`, `UtilityFunctions`, `DemandFunctions`, `ConsumerChoiceModels`, `WelfareAnalysis`, `ConsumerSurplus` **Functions**: `example_consumer_analysis`, `objective`, `budget_constraint`, `objective`, `objective`, `integrand` ### game_theor
-y
-.py Game Theory Module **Classes**: `Game`, `ExtensiveFormGame`, `NashEquilibrium`, `AuctionTheory`, `EvolutionaryGames`, `SpatialGames`, `BargainingTheory`, `GameTheoryModels` **Functions**: `equations` ### market_structur
-e
-.py Market Structure Analysis Module **Classes**: `MarketDefinition`, `CompetitionAnalysis`, `SpatialMarketAnalysis`, `MarketStructureAnalysis` ### producer_theor
-y
-.py Producer Theory Module **Classes**: `FirmProfile`, `ProductionFunctions`, `CostMinimization`, `TechnicalEfficiency`, `ProducerTheoryModels`, `MarketStructureAnalysis`, `GameTheoryModels`, `BehavioralEconomicsEngine` **Functions**: `cost_function`, `production_constraint`, `reaction_function` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-ECON/src/geo_infer_econ/microeconomics
+
+Microeconomics workspace within `GEO-INFER-ECON`.
+
+## Contents
+
+- `__init__.py`
+- `behavioral_economics.py`
+- `consumer_theory.py`
+- `game_theory.py`
+- `market_structure.py`
+- `producer_theory.py`
+
+## Public Interface
+
+- `behavioral_economics.py:BehavioralParameters` (class)
+- `behavioral_economics.py:ProspectTheory` (class)
+- `behavioral_economics.py:BoundedRationality` (class)
+- `behavioral_economics.py:SocialPreferences` (class)
+- `behavioral_economics.py:TimePreferences` (class)
+- `behavioral_economics.py:MentalAccounting` (class)
+- `behavioral_economics.py:NudgeAnalysis` (class)
+- `behavioral_economics.py:BehavioralEconomicsEngine` (class)
+- `consumer_theory.py:ConsumerProfile` (class)
+- `consumer_theory.py:UtilityFunctions` (class)
+- `consumer_theory.py:DemandFunctions` (class)
+- `consumer_theory.py:ConsumerChoiceModels` (class)
+- `consumer_theory.py:WelfareAnalysis` (class)
+- `consumer_theory.py:ConsumerSurplus` (class)
+- `consumer_theory.py:example_consumer_analysis` (function)
+- `game_theory.py:Game` (class)
+- `game_theory.py:ExtensiveFormGame` (class)
+- `game_theory.py:NashEquilibrium` (class)
+- `game_theory.py:AuctionTheory` (class)
+- `game_theory.py:EvolutionaryGames` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

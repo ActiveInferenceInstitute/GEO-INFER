@@ -1,42 +1,42 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-TEST/src/geo_infer_test/core
 
 ## Scope
- This directory contains core components for the module. It provides 4 classes and 0 functions.
 
-## Classes
- and Functions
-
-### TestDiscoverer
- test discovery system for the GEO-INFER ecosystem.
-
-**Methods**:
-- `discover_all_tests(modules: List[str]) -> Dict[str, Dict[str, List[str]]]`: Discover all tests for the specified modules.
-- `analyze_test_file(file_path: Path) -> Dict`: Analyze a test file to extract metadata.
-- `get_test_statistics() -> Dict`: Get statistics about discovered tests.
-- `find_cross_module_tests() -> List[Tuple[str, str, str]]`: Find tests that appear to test cross-module functionality.
-- `validate_test_structure() -> Dict[str, List[str]]`: Validate the structure of discovered tests.
-
-### TestConfiguration
- Configuration for test execution.
-
-### TestResult
- Result of a test execution.
-
-### GeoInferTestRunner
- Main test runner for the GEO-INFER ecosystem.
-
-**Methods**:
-- `discover_tests() -> Dict[str, List[str]]`: Discover all available tests across specified modules.
-- `run_all_tests() -> Dict[str, Any]`: Execute all discovered tests with logging and reporting.
-- `run_module_tests(module: str) -> Dict[str, Any]`: Run tests for a specific module only.
-- `run_cross_module_tests() -> Dict[str, Any]`: Run tests that verify cross-module integration.
+- Owning module: `GEO-INFER-TEST`
+- Python package: `geo_infer_test`
+- Directory role: Core workspace within `GEO-INFER-TEST`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_test` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-TEST/src/geo_infer_test/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `log_integration.py`
+- `module_health.py`
+- `performance_monitor.py`
+- `test_discoverer.py`
+- `test_orchestrator.py`
+- `test_runner.py`
+- `validators.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

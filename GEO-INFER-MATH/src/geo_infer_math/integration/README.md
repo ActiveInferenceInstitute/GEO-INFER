@@ -1,6 +1,41 @@
-# integration
- ## Overview
- This directory contains integration components. ## Components
- No components documented. ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/integration
+
+Integration workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `act/`
+- `ai/`
+- `bayes/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

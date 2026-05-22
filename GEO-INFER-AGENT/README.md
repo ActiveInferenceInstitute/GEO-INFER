@@ -1,153 +1,54 @@
----
-title: "GEO-INFER-AGENT: Agent Orchestration Framework"
-description: "Multi-agent coordination, lifecycle management, and agent communication"
-purpose: "Provide infrastructure for deploying and managing multiple geospatial agents"
-module_type: "Core Framework"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["ACT", "COMMS"]
-compatibility: ["GEO-INFER-ACT", "GEO-INFER-COMMS", "GEO-INFER-OPS"]
-tags: ["agents", "orchestration", "multi-agent", "coordination", "lifecycle"]
-difficulty: "Advanced"
-estimated_time: "50"
----
+# GEO-INFER-AGENT
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Intelligent autonomous agents for geospatial decision-making, perception, and action with Active Inference, BDI, and reinforcement learning architectures.
 
----
+## Contents
 
-# GEO-INFER-AGENT: Agent Orchestration Framework
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `tools/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-AGENT** provides agent orchestration:
+- No public Python symbols are defined directly in this directory.
 
-- **Agent Lifecycle**: Create, deploy, manage agents
-- **Multi-Agent Coordination**: Agent collaboration
-- **Communication**: Inter-agent messaging
-- **Delegation**: Task distribution
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-AGENT`
+- Package: `geo_infer_agent`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AGENT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
 
-### Agent Lifecycle
+## Dependencies
 
-```python
-from geo_infer_agent import AgentManager
+- `numpy>=1.23.5`
+- `torch>=2.0.0`
+- `pyyaml>=6.0`
+- `tqdm>=4.65.0`
+- `requests>=2.28.2`
+- `colorlog>=6.7.0`
+- `pytest>=7.3.1`
+- `pytest-cov>=4.1.0`
+- `mypy>=1.3.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `matplotlib>=3.7.1`
 
-# Manage agent lifecycle
-manager = AgentManager()
-
-# Create agent
-agent = manager.create(
-    type="spatial_analyst",
-    config=agent_config
-)
-
-# Deploy agent
-manager.deploy(agent)
-
-# Monitor agent
-status = manager.get_status(agent.id)
-```
-
-### Multi-Agent Coordination
-
-```python
-from geo_infer_agent import MultiAgentCoordinator
-
-# Coordinate multiple agents
-coordinator = MultiAgentCoordinator()
-
-# Create agent team
-team = coordinator.create_team(
-    agents=[analyst, monitor, reporter],
-    coordination="hierarchical"
-)
-
-# Assign task
-result = team.execute(task=analysis_task)
-```
-
-### Agent Communication
-
-```python
-from geo_infer_agent import AgentMessaging
-
-# Inter-agent communication
-messaging = AgentMessaging()
-
-# Send message
-messaging.send(
-    from_agent=sensor_agent,
-    to_agent=analysis_agent,
-    message=observation
-)
-
-# Broadcast
-messaging.broadcast(
-    from_agent=coordinator,
-    message=instructions
-)
-```
-
-### Task Delegation
-
-```python
-from geo_infer_agent import TaskDelegator
-
-# Delegate tasks
-delegator = TaskDelegator()
-
-assignments = delegator.distribute(
-    task=large_analysis,
-    agents=available_agents,
-    strategy="load_balanced"
-)
-```
-
-## Agent Types
-
-| Type | Role |
-|------|------|
-| **Analyst** | Data analysis |
-| **Monitor** | Observation |
-| **Coordinator** | Orchestration |
-| **Specialist** | Domain expert |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-ACT** | Agent behavior |
-| **GEO-INFER-OPS** | Deployment |
-| **GEO-INFER-COMMS** | Messaging |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-AGENT"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
 ```
 
----
+## Documentation Notes
 
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

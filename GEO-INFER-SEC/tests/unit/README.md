@@ -1,5 +1,50 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-SEC/tests/unit` Unit testing. ## Implementation
- ### `test_authentication.py` **Classes**: TestAuthenticationManager **Functions**: auth_manager, test_hash_password, test_verify_password, test_register_user, test_register_user_duplicate ### `test_audit.py` **Classes**: TestAuditLogger **Functions**: audit_logger, test_log_event, test_log_authentication, test_log_authorization, test_log_data_access ## Contents
- - **test_audit.py**: Python module - **test_authentication.py**: Python module --- 
+# GEO-INFER-SEC/tests/unit
+
+Unit workspace within `GEO-INFER-SEC`.
+
+## Contents
+
+- `test_access_control.py`
+- `test_audit.py`
+- `test_audit_logging.py`
+- `test_authentication.py`
+- `test_authorization.py`
+- `test_encryption.py`
+- `test_input_validation.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-SEC`
+- Package: `geo_infer_sec`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SEC`
+- Tests: `uv run python -m pytest GEO-INFER-SEC/tests/unit`
+
+## Dependencies
+
+- `cryptography>=36.0.0`
+- `pyjwt>=2.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `pandas>=1.3.0`
+- `numpy>=1.20.0`
+- `pyyaml>=6.0`
+- `h3>=4.0.0`
+- `pyproj>=3.0.0`
+- `flask>=2.0.0`
+- `sqlalchemy>=1.4.0`
+- `bcrypt>=3.2.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SEC/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

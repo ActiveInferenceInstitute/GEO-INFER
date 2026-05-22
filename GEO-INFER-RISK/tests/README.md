@@ -1,5 +1,37 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-RISK/tests` Tests for GEO-INFER-RISK module. ## Implementation
- ### `unit/test_core.py` **Classes**: TestRiskModule **Functions**: test_module_import, test_module_version, test_module_structure, test_risk_analysis_creation ### `integration/test_integration.py` **Classes**: TestRiskIntegration **Functions**: test_module_integration ## Contents
- - **conftest.py**: Python module - **integration/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-RISK/tests
+
+Tests workspace within `GEO-INFER-RISK`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-RISK`
+- Package: `geo_infer_risk`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-RISK`
+- Tests: `uv run python -m pytest GEO-INFER-RISK/tests`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-RISK/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,75 +1,37 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-SPACE/src/geo_infer_space/api
 
 ## Scope
- This directory contains api components for the module. It provides 11 classes and 2 functions.
 
-## Classes
- and Functions
-
-### SpatialAnalysisRequest
- Base request model for spatial analysis operations.
-
-### SpatialAnalysisResponse
- Base response model for spatial analysis results.
-
-### BufferAnalysisRequest
- Request model for buffer analysis operations.
-
-### ProximityAnalysisRequest
- Request model for proximity analysis operations.
-
-### InterpolationRequest
- Request model for spatial interpolation operations.
-
-**Methods**:
-- `validate_method(cls, v)`:
-
-### ClusteringRequest
- Request model for spatial clustering operations.
-
-**Methods**:
-- `validate_method(cls, v)`:
-
-### HotspotRequest
- Request model for hotspot detection operations.
-
-**Methods**:
-- `validate_method(cls, v)`:
-
-### NetworkAnalysisRequest
- Request model for network analysis operations.
-
-**Methods**:
-- `validate_analysis_type(cls, v)`:
-
-### TerrainAnalysisRequest
- Request model for terrain analysis operations.
-
-**Methods**:
-- `validate_analyses(cls, v)`:
-
-### H3AnalysisRequest
- Request model for H3 hexagonal grid operations.
-
-**Methods**:
-- `validate_operation(cls, v)`:
-
-### ErrorResponse
- Error response model.
-
-### geojson_to_gdf
- `geojson_to_gdf(geojson_data: Dict[str, Any], crs: str) -> gpd.GeoDataFrame` Convert GeoJSON data to GeoDataFrame.
-
-### gdf_to_geojson
- `gdf_to_geojson(gdf: gpd.GeoDataFrame) -> Dict[str, Any]` Convert GeoDataFrame to GeoJSON.
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Api workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
 
-- **11 classes** for core functionality
-- **2 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SPACE/src/geo_infer_space/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `rest_api.py`
+- `schemas.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

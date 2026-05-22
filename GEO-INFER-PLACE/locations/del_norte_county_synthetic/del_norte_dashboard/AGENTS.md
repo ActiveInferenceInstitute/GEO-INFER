@@ -1,25 +1,37 @@
-# Agent: del_norte_dashboard
+# Agent Instructions: GEO-INFER-PLACE/locations/del_norte_county_synthetic/del_norte_dashboard
 
 ## Scope
 
-Pre-generated dashboard artifacts from the Del Norte County synthetic analysis.
-Contains interactive HTML dashboards and a policy report JSON for demonstration
-and CI verification.
-
-## Files
-
-- `del_norte_intelligence_dashboard_*.html` — Full-featured interactive dashboard
-  with multi-layer Folium map, analysis panels, and data overlays.
-- `del_norte_simple_dashboard_*.html` — Lightweight summary dashboard.
-- `policy_report_*.json` — Structured policy analysis output with recommendations.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Del Norte Dashboard workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- Static demonstration of dashboard outputs without running live analysis
-- Baseline for visual regression testing
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PLACE/locations/del_norte_county_synthetic/del_norte_dashboard`
-- **Type**: Output Directory
-- **Parent**: `del_norte_county_synthetic`
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `del_norte_intelligence_dashboard_20250709_094835.html`
+- `del_norte_simple_dashboard_20250709_094834.html`
+- `policy_report_20250709_094836.json`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

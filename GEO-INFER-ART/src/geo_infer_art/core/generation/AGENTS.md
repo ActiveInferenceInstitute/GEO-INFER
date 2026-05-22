@@ -1,116 +1,39 @@
-# Agent
-: generation
+# Agent Instructions: GEO-INFER-ART/src/geo_infer_art/core/generation
 
 ## Scope
- This directory contains generation components for the module. It provides 4 classes and 17 functions.
 
-## Classes
- and Functions
-
-### CustomAlgorithmFramework
- Framework for creating and managing custom procedural art algorithms.
-
-**Methods**:
-- `register_algorithm(name: str, algorithm_function: Callable, description: str, parameters: Optional[Dict], example_usage: str) -> None`: Register a custom algorithm.
-- `unregister_algorithm(name: str) -> None`: Unregister a custom algorithm.
-- `get_algorithm_info(name: str) -> Dict`: Get information about a registered algorithm.
-- `list_algorithms() -> List[str]`: List all registered algorithm names.
-- `execute_algorithm(name: str, data: Any, width: int, height: int, **params) -> Any`: Execute a registered custom algorithm.
-- `save_algorithms_to_file(filepath: str) -> None`: Save registered algorithms to a JSON file for persistence.
-- `load_algorithms_from_file(filepath: str) -> None`: Load algorithms from a JSON file.
-
-### GenerativeMap
- A class for creating generative art from geospatial data.
-
-**Methods**:
-- `from_elevation(cls, region: Union[str, np.ndarray, Tuple[float, float, float, float]], resolution: int, abstraction_level: float, style: str) -> 'GenerativeMap'`: Create generative art from elevation data.
-- `save(output_path: str) -> str`: Save the generated art to a file.
-- `show() -> None`: Display the generated art.
-- `create_animation(output_path: str, parameter_sweep: str, values: List[float], duration: float, fps: int) -> str`: Create an animated generative map by varying a parameter.
-- `apply_texture(texture_type: str, **kwargs) -> 'GenerativeMap'`: Apply a texture overlay to the generated map.
-- `blend_with(other_map: 'GenerativeMap', alpha: float) -> 'GenerativeMap'`: Blend this map with another GenerativeMap.
-- `add_effects(effects: List[str], **kwargs) -> 'GenerativeMap'`: Apply visual effects to the generated map.
-- `export_multi_format(base_path: str, formats: List[str]) -> List[str]`: Export the map in multiple formats.
-
-### PerformanceOptimizer
- Performance optimization utilities for geospatial art generation.
-
-**Methods**:
-- `get_cache_key(func_name: str, args: tuple, kwargs: dict) -> str`: Generate a cache key for function call.
-- `cached_execution(func: Callable, args: tuple, kwargs: dict, cache_key: Optional[str]) -> Any`: Execute a function with caching.
-- `parallel_execution(func: Callable, parameter_sets: List[Dict], max_workers: Optional[int], progress_callback: Optional[Callable]) -> List[Any]`: Execute a function in parallel with different parameter sets.
-- `benchmark_function(func: Callable, args: tuple, kwargs: dict, iterations: int) -> Dict[str, float]`: Benchmark a function's performance.
-- `optimize_resolution(target_time: float, min_resolution: int, max_resolution: int, test_function: Optional[Callable], test_args: tuple, test_kwargs: dict) -> int`: Find optimal resolution for target execution time.
-- `memory_efficient_processing(data: np.ndarray, chunk_size: int, process_function: Callable) -> np.ndarray`: Process large arrays in chunks to manage memory usage.
-- `create_performance_report() -> Dict[str, Any]`: Create a performance report.
-
-### ProceduralArt
- A class for creating procedural and algorithmic art from geospatial data.
-
-**Methods**:
-- `from_geo_coordinates(cls, lat: float, lon: float, algorithm: str, additional_params: Optional[Dict]) -> 'ProceduralArt'`: Create procedural art seeded by geographic coordinates.
-- `from_geo_features(cls, feature_type: str, feature_count: int, algorithm: str, additional_params: Optional[Dict]) -> 'ProceduralArt'`: Create procedural art based on geographic feature statistics.
-- `generate() -> None`: Generate the procedural art based on the selected algorithm and parameters.
-- `save(output_path: str) -> str`: Save the generated art to a file.
-- `show() -> None`: Display the generated art.
-
-### example_spiral_algorithm
- `example_spiral_algorithm(data, params, width, height)` Example custom algorithm that creates spiral patterns.
-
-### example_cellular_growth_algorithm
- `example_cellular_growth_algorithm(data, params, width, height)` Example algorithm simulating cellular growth patterns.
-
-### example_fractal_landscape_algorithm
- `example_fractal_landscape_algorithm(data, params, width, height)` Example algorithm creating fractal landscape patterns.
-
-### animate
- `animate(frame_num)`
-
-### cache_result
- `cache_result(cache_optimizer: PerformanceOptimizer)` Decorator for caching function results.
-
-### parallel_map
- `parallel_map(func: Callable, items: List[Any], max_workers: Optional[int]) -> List[Any]` Apply a function to a list of items in parallel.
-
-### time_execution
- `time_execution(func: Callable)` Decorator for timing function execution.
-
-### decorator
- `decorator(func)`
-
-### wrapper
- `wrapper(params)`
-
-### wrapper
- `wrapper(*args, **kwargs)`
-
-### wrapper
- `wrapper(*args, **kwargs)`
-
-### test_function
- `test_function(resolution)`
-
-### draw_branch
- `draw_branch(x, y, length, angle, branch_depth, ax)`
-
-### dragon_curve
- `dragon_curve(x, y, length, angle, depth)`
-
-### hilbert_curve
- `hilbert_curve(order, x, y, lg, i1, i2)`
-
-### koch_curve
- `koch_curve(x1, y1, x2, y2, depth)`
-
-### remove_square
- `remove_square(x, y, size)`
+- Owning module: `GEO-INFER-ART`
+- Python package: `geo_infer_art`
+- Directory role: Generation workspace within `GEO-INFER-ART`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
-- **17 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_art` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_art/core/generation`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `custom_algorithms.py`
+- `generative_map.py`
+- `performance_optimizer.py`
+- `procedural_art.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

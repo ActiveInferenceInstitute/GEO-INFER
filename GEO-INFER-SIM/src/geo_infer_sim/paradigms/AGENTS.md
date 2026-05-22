@@ -1,66 +1,38 @@
-# Agent
-: paradigms
+# Agent Instructions: GEO-INFER-SIM/src/geo_infer_sim/paradigms
 
 ## Scope
- This directory contains paradigms components for the module. It provides 6 classes and 1 functions.
 
-## Classes
- and Functions
-
-### Agent
- Base agent class for agent-based models.
-
-**Methods**:
-- `step(time: float, environment: Dict[str, Any]) -> None`: Execute one step of agent behavior.
-- `interact(other_agent: 'Agent', time: float) -> None`: Interact with another agent.
-
-### AgentBasedModel
- Agent-Based Model for geospatial simulations.
-
-**Methods**:
-- `add_agent(agent: Agent) -> None`: Add an agent to the model.
-- `remove_agent(agent_id: str) -> bool`: Remove an agent from the model.
-- `get_agent(agent_id: str) -> Optional[Agent]`: Get an agent by ID.
-- `find_neighbors(agent: Agent, radius: float, max_neighbors: Optional[int]) -> List[Agent]`: Find neighboring agents within a radius.
-- `step(time_step: float) -> None`: Execute one simulation step for all agents.
-- `get_state() -> Dict[str, Any]`: Get current model state.
-
-### CellularAutomata
- Cellular Automata model for geospatial simulations.
-
-**Methods**:
-- `get_neighbors(row: int, col: int, neighborhood: str) -> List[Tuple[int, int]]`: Get neighbor cell coordinates.
-- `apply_rule(rule_func: Callable[[int, List[int]], int], neighborhood: str) -> None`: Apply a transition rule to all cells.
-- `step(rule_func: Optional[Callable[[int, List[int]], int]], neighborhood: str) -> None`: Execute one simulation step.
-- `get_state() -> Dict[str, Any]`: Get current model state.
-- `reset(initial_states: Optional[np.ndarray]) -> None`: Reset the model to initial state.
-
-### Stock
- Represents a stock (accumulation) in system dynamics.
-
-### Flow
- Represents a flow (rate of change) in system dynamics.
-
-### SystemDynamicsModel
- System Dynamics model for geospatial simulations.
-
-**Methods**:
-- `add_stock(name: str, initial_value: float, min_value: Optional[float], max_value: Optional[float]) -> None`: Add a stock to the model.
-- `add_flow(name: str, source_stock: Optional[str], target_stock: Optional[str], rate_function: Optional[Callable[[Dict[str, float]], float]], constant_rate: Optional[float]) -> None`: Add a flow to the model.
-- `calculate_flow_rate(flow: Flow, stock_values: Dict[str, float]) -> float`: Calculate flow rate for a flow.
-- `step(time_step: float) -> None`: Execute one simulation step.
-- `get_state() -> Dict[str, Any]`: Get current model state.
-- `reset() -> None`: Reset the model to initial state.
-
-### game_of_life_rule
- `game_of_life_rule(current: int, neighbors: List[int]) -> int`
+- Owning module: `GEO-INFER-SIM`
+- Python package: `geo_infer_sim`
+- Directory role: Paradigms workspace within `GEO-INFER-SIM`.
 
 ## Capabilities
 
-- **6 classes** for core functionality
-- **1 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_sim` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SIM/src/geo_infer_sim/paradigms`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `abm.py`
+- `cellular_automata.py`
+- `system_dynamics.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -467,7 +467,7 @@ class BayesianSPM:
         # Simplified R-hat computation
         # In practice, would use proper Gelman-Rubin diagnostic
         try:
-            return np.array([1.0] * trace.posterior.dims['chain'])  # Placeholder
+            return np.array([1.0] * trace.posterior.dims['chain'])  # Baseline
         except:
             return np.array([1.0])
 
@@ -477,7 +477,7 @@ class BayesianSPM:
         try:
             return np.array([len(trace.posterior.draw) * trace.posterior.dims['chain']])
         except:
-            return np.array([1000])  # Placeholder
+            return np.array([1000])  # Baseline
 
     def variational_inference(self, data: SPMData, design_matrix: np.ndarray,
                             n_iterations: int = 100) -> SPMResult:

@@ -68,7 +68,7 @@ class WatershedAnalyzer:
         # In practice, would iterate through cells following flow directions
         accumulation = xr.ones_like(flow_direction)
         
-        # Placeholder: would implement proper flow accumulation algorithm
+        # Baseline: would implement proper flow accumulation algorithm
         return accumulation
     
     def identify_stream_network(

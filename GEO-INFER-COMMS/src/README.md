@@ -1,5 +1,35 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-COMMS/src` Source code implementation. ## Implementation
- ### `geo_infer_comms/core/events.py` **Classes**: EventManager, EventMetrics, EventProcessor, DataUpdateProcessor, SystemAlertProcessor **Functions**: start, stop, publish_event, subscribe_to_events, unsubscribe_from_events ### `geo_infer_comms/core/spatial_routing.py` **Classes**: AdvancedSpatialRouter, SpatialRoutingMetrics, GeospatialLoadBalancer, SpatialClusteringRouter, SpatialCluster **Functions**: route_message, update_network_topology, update_node_loads, record_routing_result, get_routing_analytics ### `geo_infer_comms/core/collaboration.py` **Classes**: CollaborationManager, CollaborationMetrics, RealTimeCollaborationEngine, GeospatialCollaborationCoordinator, CollaborationNotificationManager **Functions**: create_session, join_session, leave_session, end_session, get_session ### `geo_infer_comms/core/notifications.py` **Classes**: NotificationManager, NotificationMetrics, AlertSystem, AlertRule, AlertResponse **Functions**: start, stop, create_notification, send_notification, schedule_notification ### `geo_infer_comms/core/channels.py` **Classes**: ChannelManager, ChannelMetrics, ChannelPermissionManager, ChannelMessageFilter, ChannelAnalytics **Functions**: create_channel, get_channel, get_channels, update_channel, delete_channel ## Contents
- - **geo_infer_comms/**: Subdirectory - **geo_infer_comms.egg-info/**: Subdirectory --- 
+# GEO-INFER-COMMS/src
+
+Src workspace within `GEO-INFER-COMMS`.
+
+## Contents
+
+- `geo_infer_comms.egg-info/`
+- `geo_infer_comms/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-COMMS`
+- Package: `geo_infer_comms`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COMMS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

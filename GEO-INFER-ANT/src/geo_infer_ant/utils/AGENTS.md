@@ -1,54 +1,36 @@
-# Agent
-: utils
+# Agent Instructions: GEO-INFER-ANT/src/geo_infer_ant/utils
 
 ## Scope
- This directory contains utils components for the module. It provides 7 classes and 9 functions.
 
-## Classes
- and Functions
-
-### SwarmConfig
- Swarm configuration dataclass.
-
-### AlgorithmConfig
- Algorithm configuration dataclass.
-
-### StigmergyConfig
- Stigmergy configuration dataclass.
-
-### SpatialConfig
- Spatial configuration dataclass.
-
-### PerformanceConfig
- Performance configuration dataclass.
-
-### LoggingConfig
- Logging configuration dataclass.
-
-### AntModuleConfig
- ANT module configuration.
-
-### load_config
- `load_config(config_path: Optional[Union[str, Path]], config_dict: Optional[Dict[str, Any]], validate_schema: bool) -> AntModuleConfig` Load configuration from file or dictionary.
-
-### validate_config
- `validate_config(config: Union[Dict[str, Any], AntModuleConfig]) -> bool` Validate configuration against schema.
-
-### save_config
- `save_config(config: AntModuleConfig, config_path: Union[str, Path], format: str) -> None` Save configuration to file.
-
-### get_default_config
- `get_default_config() -> AntModuleConfig` Get default configuration.
-
-### update_config
- `update_config(config: AntModuleConfig, updates: Dict[str, Any]) -> AntModuleConfig` Update configuration with values.
+- Owning module: `GEO-INFER-ANT`
+- Python package: `geo_infer_ant`
+- Directory role: Utils workspace within `GEO-INFER-ANT`.
 
 ## Capabilities
 
-- **7 classes** for core functionality
-- **9 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ant` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-ANT/src/geo_infer_ant/utils`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `config.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

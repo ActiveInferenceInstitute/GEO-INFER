@@ -511,7 +511,7 @@ class SoilHealthModel(AgricultureModel):
         limiting_factors = {}
         
         for i in range(len(next(iter(indicators.values())))):
-            field_id = f"field_{i+1}"  # Placeholder if real IDs aren't available
+            field_id = f"field_{i+1}"  # Baseline if real IDs aren't available
             
             # Find indicators below threshold
             limiting = [

@@ -1,13 +1,42 @@
-# Agent
-: tools 
+# Agent Instructions: GEO-INFER-SPACE/tests/tools
 
 ## Scope
- This agent is responsible for handling operations within the `tools` scope. 
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Tools workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **conftest** processes - Management of **test_fix_double_h3** processes - Management of **test_fix_h3_calls** processes - Management of **test_fix_h3_v4_api** processes - Management of **test_fix_imports** processes - Management of **test_fix_relative_imports** processes - Management of **test_run_h3_tests_simple** processes - Management of **test_verify_h3_v4_compliance** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPACE/tests/tools` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `conftest.py`
+- `test_fix_double_h3.py`
+- `test_fix_h3_calls.py`
+- `test_fix_h3_v4_api.py`
+- `test_fix_imports.py`
+- `test_fix_relative_imports.py`
+- `test_run_h3_tests_simple.py`
+- `test_verify_h3_v4_compliance.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SPACE/tests/tools
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

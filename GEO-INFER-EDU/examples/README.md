@@ -1,5 +1,35 @@
-# examples
- ## Overview
- **Path**: `GEO-INFER-EDU/examples` Usage examples and demonstrations. ## Implementation
- ### `curriculum_design.py` **Functions**: main ### `interactive_learning.py` **Functions**: main ## Contents
- - **curriculum_design.py**: Python module - **interactive_learning.py**: Python module --- 
+# GEO-INFER-EDU/examples
+
+Examples workspace within `GEO-INFER-EDU`.
+
+## Contents
+
+- `curriculum_design.py`
+- `interactive_learning.py`
+
+## Public Interface
+
+- `curriculum_design.py:main` (function)
+- `interactive_learning.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-EDU`
+- Package: `geo_infer_edu`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EDU`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

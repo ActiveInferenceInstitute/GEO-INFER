@@ -1,37 +1,35 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-EXAMPLES/src/geo_infer_examples/core
 
 ## Scope
- This directory contains core components for the module. It provides 4 classes and 0 functions.
 
-## Classes
- and Functions
-
-### ExecutionStrategy
- Available execution strategies for workflow orchestration.
-
-### ModuleStatus
- Module availability and health status.
-
-### WorkflowExecution
- Represents a single workflow execution instance.
-
-### ModuleOrchestrator
- orchestrator for managing cross-module integrations and workflows.
-
-**Methods**:
-- `register_workflow(workflow: WorkflowDefinition) -> bool`: Register a workflow definition.
-- `get_workflow_status(execution_id: str) -> Optional[WorkflowExecution]`: Get the status of a workflow execution.
-- `get_module_health() -> Dict[str, ModuleStatus]`: Get current health status of all modules.
-- `list_workflows() -> List[str]`: List all registered workflow IDs.
-- `get_workflow_definition(workflow_id: str) -> Optional[WorkflowDefinition]`: Get workflow definition by ID.
-- `shutdown()`: Gracefully shutdown the orchestrator.
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Core workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-EXAMPLES/src/geo_infer_examples/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `module_orchestrator.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

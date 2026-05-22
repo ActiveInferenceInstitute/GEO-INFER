@@ -1,13 +1,67 @@
-# core
- ## Overview
- Core data management functionality for GEO-INFER-DATA including multi-source ingestion, ETL pipelines, adaptive storage, and data quality management. ## Components
- ### ingestio
-n
-.py Multi-source data ingestion system supporting satellite imagery, sensor networks, crowdsourced data, and external APIs. **Key Classes**: - `MultiSourceDataIngestion`: Main ingestion orchestrator - `DataSourceConnector`: Base connector interface - `SatelliteDataConnector`: Satellite imagery ingestion - `SensorDataConnector`: IoT sensor data ingestion - `CrowdsourcedDataConnector`: Community data ingestion **Usage**: ```python from geo_infer_data.core.ingestion import MultiSourceDataIngestion ingestion = MultiSourceDataIngestion( data_sources=['satellite', 'sensors', 'crowdsourced'], format_detection='automatic', validation_enabled=True ) data = await ingestion.ingest_multi_source( satellite_data=landsat_imagery, sensor_data=weather_stations ) ``` ### pipelin
-e
-.py ETL pipeline management with automatic dependency resolution, error recovery, and performance optimization. **Key Classes**: - `IntelligentETLPipeline`: Main ETL orchestrator - `TransformationEngine`: Data transformation engine - `PipelineMetrics`: Performance tracking - `ErrorRecoveryStrategy`: Error handling strategies **Usage**: ```python from geo_infer_data.core.pipeline import IntelligentETLPipeline pipeline = IntelligentETLPipeline( workflow_config='etl_config.yaml', dependency_resolution='automatic', error_recovery='intelligent_retry' ) result = await pipeline.execute_workflow( source_data=raw_datasets, target_storage=processed_storage, transformation_rules=transformations ) ``` ### storag
-e
-.py Adaptive data storage system with multi-backend support and automatic optimization based on access patterns. **Key Classes**: - `AdaptiveDataStorage`: Main storage orchestrator - `StorageBackendManager`: Backend management - `PostgreSQLBackend`: PostgreSQL/PostGIS storage - `MinIOBackend`: Object storage backend - `RedisBackend`: Caching backend **Usage**: ```python from geo_infer_data.core.storage import AdaptiveDataStorage storage = AdaptiveDataStorage( storage_backends=['postgresql', 'minio', 'redis'], optimization_strategy='access_pattern_based' ) data_id = await storage.store_geospatial_data( data=processed_datasets, metadata=dataset_metadata, access_patterns=expected_queries ) ``` ### validatio
-n
-.py Data validation and quality assurance with checks for geometry, coordinates, attributes, and metadata. **Key Classes**: - `DataQualityManager`: Quality management orchestrator - `GeospatialValidator`: Geospatial validation utilities - `ValidationConfig`: Validation configuration - `ValidationLevel`: Validation strictness levels **Usage**: ```python from geo_infer_data.core.validation import DataQualityManager quality_manager = DataQualityManager( validation_rules='comprehensive', quality_threshold=0.85 ) report = await quality_manager.validate_dataset('dataset_123') ``` ## Integration
- - **Used By**: API layer, application modules, domain-specific modules - **Dependencies**: `geo_infer_data.models`, `geo_infer_data.utils` - **Provides**: Core data management services for the GEO-INFER framework 
+# GEO-INFER-DATA/src/geo_infer_data/core
+
+Core workspace within `GEO-INFER-DATA`.
+
+## Contents
+
+- `__init__.py`
+- `ingestion.py`
+- `pipeline.py`
+- `storage.py`
+- `validation.py`
+
+## Public Interface
+
+- `ingestion.py:IngestionConfig` (class)
+- `ingestion.py:DataSourceConnector` (class)
+- `ingestion.py:SatelliteDataConnector` (class)
+- `ingestion.py:SensorDataConnector` (class)
+- `ingestion.py:CrowdsourcedDataConnector` (class)
+- `ingestion.py:GenericDataSourceConnector` (class)
+- `ingestion.py:MultiSourceDataIngestion` (class)
+- `pipeline.py:PipelineStatus` (class)
+- `pipeline.py:ErrorRecoveryStrategy` (class)
+- `pipeline.py:PipelineMetrics` (class)
+- `pipeline.py:TransformationEngine` (class)
+- `pipeline.py:IntelligentETLPipeline` (class)
+- `storage.py:OptimizationStrategy` (class)
+- `storage.py:IndexingStrategy` (class)
+- `storage.py:StorageConfig` (class)
+- `storage.py:AccessPattern` (class)
+- `storage.py:StorageBackendManager` (class)
+- `storage.py:PostgreSQLBackend` (class)
+- `storage.py:MinIOBackend` (class)
+- `storage.py:RedisBackend` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

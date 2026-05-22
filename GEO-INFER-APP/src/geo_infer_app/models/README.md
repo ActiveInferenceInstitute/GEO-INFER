@@ -1,14 +1,50 @@
-# models
- ## Overview
- This directory contains models components. It includes 4 Python modules. ## Components
- ### agent_configuratio
-n
-.py Agent Configuration Module **Classes**: `ConfigFieldType`, `ConfigField`, `AgentConfigSchema`, `AgentConfiguration` ### agent_factor
-y
-.py Agent Factory Module **Classes**: `AgentFactory` ### agent_interfac
-e
-.py Agent Interface Module **Classes**: `AgentType`, `AgentState`, `AgentInterface` ### agent_visualizatio
-n
-.py Agent Visualization Module **Classes**: `VisualizationType`, `VisualizationConfig`, `AgentVisualization` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-APP/src/geo_infer_app/models
+
+Models workspace within `GEO-INFER-APP`.
+
+## Contents
+
+- `interfaces/`
+- `__init__.py`
+- `agent_configuration.py`
+- `agent_factory.py`
+- `agent_interface.py`
+- `agent_visualization.py`
+
+## Public Interface
+
+- `agent_configuration.py:ConfigFieldType` (class)
+- `agent_configuration.py:ConfigField` (class)
+- `agent_configuration.py:AgentConfigSchema` (class)
+- `agent_configuration.py:AgentConfiguration` (class)
+- `agent_factory.py:AgentFactory` (class)
+- `agent_interface.py:AgentType` (class)
+- `agent_interface.py:AgentState` (class)
+- `agent_interface.py:AgentInterface` (class)
+- `agent_visualization.py:VisualizationType` (class)
+- `agent_visualization.py:VisualizationConfig` (class)
+- `agent_visualization.py:AgentVisualization` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-APP`
+- Package: `geo_infer_app`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-APP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,13 +1,41 @@
-# Agent
-: geo_infer_math
+# Agent Instructions: GEO-INFER-MATH/src/geo_infer_math
 
 ## Scope
- This agent is responsible for handling operations within the `geo_infer_math` scope.
+
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Geo Infer Math workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
- Core capabilities include: - Management of **api** processes - Management of **config** processes - Management of **core** processes - Management of **integration** processes - Management of **models** processes - Management of **utils** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-MATH/src/geo_infer_math`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `api/`
+- `core/`
+- `integration/`
+- `models/`
+- `utils/`
+- `__init__.py`
+- `config.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

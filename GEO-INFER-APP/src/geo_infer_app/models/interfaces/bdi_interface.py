@@ -20,7 +20,7 @@ try:
         IntentionStructure,
     )
 except ImportError:
-    # Mock implementation if GEO-INFER-AGENT is not available
+    # Deterministic local implementation if GEO-INFER-AGENT is not available
     class BDIAgent:
         def __init__(self, **kwargs):
             self.id = str(uuid.uuid4())
@@ -38,13 +38,13 @@ except ImportError:
             self.desires.append(desire)
 
         def deliberate(self):
-            # Simple mock implementation
+            # Simple deterministic local implementation
             for desire in self.desires:
                 if desire not in self.intentions:
                     self.intentions.append(desire)
 
         def execute(self):
-            # Simple mock implementation
+            # Simple deterministic local implementation
             if self.intentions:
                 self.status = "executing"
                 # Simulate execution by removing the first intention

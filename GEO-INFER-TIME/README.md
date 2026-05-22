@@ -1,145 +1,50 @@
----
-title: "GEO-INFER-TIME: Temporal Analysis"
-description: "Time series analysis, forecasting, and spatiotemporal modeling"
-purpose: "Provide temporal analysis capabilities for geospatial data"
-module_type: "Core Analysis"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "DATA"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-ACT"]
-tags: ["time-series", "forecasting", "temporal", "trends", "seasonality"]
-difficulty: "Intermediate"
-estimated_time: "45"
----
+# GEO-INFER-TIME
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Temporal analysis, time series processing, forecasting, and spatio-temporal data fusion for dynamic geospatial applications.
 
----
+## Contents
 
-# GEO-INFER-TIME: Temporal Analysis
+- `docs/`
+- `examples/`
+- `src/`
+- `test_output/`
+- `tests/`
+- `demo_all_methods.py`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
+- `uv.lock`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-TIME** provides temporal analysis capabilities:
+- `demo_all_methods.py:success` (function)
+- `demo_all_methods.py:info` (function)
+- `demo_all_methods.py:section` (function)
 
-- **Time Series**: Decomposition, trend analysis
-- **Forecasting**: Statistical and ML-based prediction
-- **Pattern Mining**: Temporal pattern discovery
-- **Event Detection**: Change points, anomalies
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-TIME`
+- Package: `geo_infer_time`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TIME`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME`
 
-### Time Series Analysis
+## Dependencies
 
-```python
-from geo_infer_time import TimeSeriesAnalyzer
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scikit-learn>=1.6.1`
+- `scipy>=1.7.0`
+- `statsmodels>=0.13.0`
 
-# Analyze time series
-analyzer = TimeSeriesAnalyzer()
-
-result = analyzer.analyze(
-    data=sensor_readings,
-    frequency="hourly",
-    decompose=True
-)
-
-print(f"Trend: {result.trend}")
-print(f"Seasonality: {result.seasonal}")
-print(f"Anomalies: {result.anomalies}")
-```
-
-### Forecasting
-
-```python
-from geo_infer_time import Forecaster
-
-# Forecast future values
-forecaster = Forecaster()
-
-forecast = forecaster.predict(
-    data=historical_data,
-    horizon=30,
-    method="prophet",
-    confidence=0.95
-)
-
-print(f"Forecast: {forecast.values[:5]}")
-```
-
-### Pattern Mining
-
-```python
-from geo_infer_time import PatternMiner
-
-# Find temporal patterns
-miner = PatternMiner()
-
-patterns = miner.find(
-    data=activity_data,
-    pattern_types=["periodic", "sequential"]
-)
-
-print(f"Daily patterns: {patterns.daily}")
-```
-
-### Event Detection
-
-```python
-from geo_infer_time import EventDetector
-
-# Detect events
-detector = EventDetector()
-
-events = detector.detect(
-    data=monitoring_data,
-    methods=["change_point", "anomaly"]
-)
-
-print(f"Events: {len(events)}")
-```
-
-## Methods
-
-| Method | Application |
-|--------|-------------|
-| **ARIMA** | Traditional forecasting |
-| **Prophet** | Business time series |
-| **LSTM** | Deep learning |
-| **STL** | Decomposition |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-SPACE** | Spatiotemporal |
-| **GEO-INFER-IOT** | Real-time data |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-TIME"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
 ```
 
----
+## Documentation Notes
 
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

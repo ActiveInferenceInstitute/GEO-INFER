@@ -1,154 +1,43 @@
----
-title: "GEO-INFER-CIV: Civic Engagement and Participation"
-description: "Civic engagement, participatory planning, and democratic decision-making"
-purpose: "Enable community participation and collaborative governance in geospatial contexts"
-module_type: "Domain Application"
-status: "Alpha"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "APP", "COMMS"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-APP", "GEO-INFER-COMMS"]
-tags: ["civic", "participation", "democracy", "community", "engagement"]
-difficulty: "Intermediate"
-estimated_time: "45"
----
+# GEO-INFER-CIV
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Empowering communities with participatory mapping, citizen science, and collaborative geospatial decision-making tools.
 
----
+## Contents
 
-# GEO-INFER-CIV: Civic Engagement and Participation
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-CIV** provides civic engagement capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Community Participation**: Collect and analyze community input
-- **Participatory Mapping**: Community-driven map contributions
-- **Consensus Building**: Multi-stakeholder decision support
-- **Transparency**: Public accountability reporting
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-CIV`
+- Package: `geo_infer_civ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-CIV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV`
 
-### Participation Platform
+## Dependencies
 
-```python
-from geo_infer_civ import ParticipationPlatform
+- `geopandas>=0.10.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
 
-# Collect community input
-platform = ParticipationPlatform()
-
-feedback = platform.collect(
-    topic="downtown_redesign",
-    methods=["survey", "map_comments", "forum"],
-    duration_days=30
-)
-
-print(f"Responses: {feedback.count}")
-print(f"Key themes: {feedback.themes}")
-```
-
-### Participatory Mapping
-
-```python
-from geo_infer_civ import ParticipatoryMapper
-
-# Enable community mapping
-mapper = ParticipatoryMapper()
-
-session = mapper.create_session(
-    topic="neighborhood_improvements",
-    contribution_types=["point", "comment", "polygon"]
-)
-
-# Aggregate contributions
-aggregated = mapper.aggregate(session)
-print(f"Hotspots: {aggregated.hotspots}")
-```
-
-### Consensus Building
-
-```python
-from geo_infer_civ import ConsensusBuilder
-
-# Build consensus among stakeholders
-builder = ConsensusBuilder()
-
-result = builder.facilitate(
-    stakeholders=community_groups,
-    alternatives=planning_options,
-    method="multi_criteria"
-)
-
-print(f"Consensus level: {result.consensus}%")
-print(f"Preferred option: {result.choice}")
-```
-
-### Transparency Reporting
-
-```python
-from geo_infer_civ import TransparencyReporter
-
-# Generate transparency report
-reporter = TransparencyReporter()
-
-report = reporter.generate(
-    project="park_renovation",
-    period=("2025-01", "2025-12")
-)
-
-print(f"Budget used: {report.budget_percent}%")
-print(f"Community input addressed: {report.input_addressed}")
-```
-
-## Engagement Methods
-
-| Method | Use Case |
-|--------|----------|
-| **Surveys** | Structured feedback |
-| **Map Comments** | Location-specific input |
-| **Forums** | Open discussion |
-| **Voting** | Decision making |
-| **Workshops** | In-depth engagement |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-APP** | Web interfaces |
-| **GEO-INFER-COMMS** | Notifications |
-| **GEO-INFER-METAGOV** | Governance |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-CIV"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV
 ```
 
-## Related Documentation
+## Documentation Notes
 
-- [GEO-INFER-METAGOV](../GEO-INFER-METAGOV/README.md): Governance
-- [AGENTS.md](./AGENTS.md): Civic capabilities
-
----
-
-**Status**: Alpha
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

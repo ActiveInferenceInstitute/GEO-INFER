@@ -1,36 +1,49 @@
-# geo_infer_act.api
+# GEO-INFER-ACT/src/geo_infer_act/api
 
-This package provides lightweight API-facing wrappers around the canonical ACT
-core. The local facade is used by tests and examples; the REST client and
-endpoint map are intentionally thin helpers.
+Api workspace within `GEO-INFER-ACT`.
 
-## Modules
+## Contents
 
-| Module | Public surface | Purpose |
-| --- | --- | --- |
-| `interface.py` | `ActiveInferenceInterface` | Create ACT models, update beliefs, select policies, run steps, set preferences, and return model summaries through a stable local facade. |
-| `client.py` | `Client` | Minimal HTTP client for external services exposing `/models` style endpoints. |
-| `endpoints.py` | `create_endpoints()` | Shared endpoint-name map for model, belief, and policy routes. |
+- `__init__.py`
+- `client.py`
+- `endpoints.py`
+- `interface.py`
 
-## Local Usage
+## Public Interface
 
-```python
-import numpy as np
-from geo_infer_act.api.interface import ActiveInferenceInterface
+- `client.py:Client` (class)
+- `endpoints.py:create_endpoints` (function)
+- `interface.py:ActiveInferenceInterface` (class)
 
-api = ActiveInferenceInterface()
-api.create_model("audit", "categorical", {"state_dim": 3, "obs_dim": 3})
-beliefs = api.update_beliefs("audit", {"observations": np.array([1.0, 0.0, 0.0])})
-policy = api.select_policy("audit")
-```
+## Module Metadata
 
-## Verification
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
+
+## Dependencies
+
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
+
+## Validation
 
 ```bash
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_api.py -q
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
-The comprehensive audit records API-facade evidence in
-`examples/output/comprehensive_act_audit/method_audit/api_interface/`.
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

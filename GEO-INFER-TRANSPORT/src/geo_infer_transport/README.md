@@ -1,4 +1,34 @@
-# geo_infer_transport
- ## Overview
- GEO-INFER-TRANSPORT: Transportation Analysis Module This module provides transportation planning and traffic analysis capabilities for geospatial systems, including network analysis, routing optimization, flow modeling, and accessibility analysis. Key Features: - Network topology construction and analysis - Multi-modal routing with optimization - Traffic flow modeling and simulation - Accessibility and service area analysis - Transit network optimization ## Contents
- - **core/**: Submodule 
+# GEO-INFER-TRANSPORT/src/geo_infer_transport
+
+Geo Infer Transport workspace within `GEO-INFER-TRANSPORT`.
+
+## Contents
+
+- `core/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-TRANSPORT`
+- Package: `geo_infer_transport`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TRANSPORT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

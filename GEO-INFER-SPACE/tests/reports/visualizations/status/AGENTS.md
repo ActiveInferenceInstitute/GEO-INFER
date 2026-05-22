@@ -1,13 +1,43 @@
-# Agent
-: status
+# Agent Instructions: GEO-INFER-SPACE/tests/reports/visualizations/status
 
 ## Scope
- This agent is responsible for handling operations within the `status` scope.
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Status workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Directory management
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-SPACE/tests/reports/visualizations/status`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `environment_status_20250714_074630.png`
+- `environment_status_20250714_074745.png`
+- `environment_status_20250714_081511.png`
+- `git_timeline_20250714_074630.png`
+- `git_timeline_20250714_074745.png`
+- `git_timeline_20250714_081511.png`
+- `repository_health_20250714_074630.png`
+- `repository_health_20250714_074745.png`
+- `repository_health_20250714_081511.png`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SPACE/tests/reports/visualizations/status
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

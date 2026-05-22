@@ -1,61 +1,56 @@
-# core
+# GEO-INFER-FOREST/src/geo_infer_forest/core
 
-## Overview
+Core workspace within `GEO-INFER-FOREST`.
 
-Core forest intelligence components for GEO-INFER-FOREST implementing forest health monitoring, wildfire risk assessment, carbon sequestration modeling, and forest inventory management.
+## Contents
 
-This directory contains core components for forest intelligence including health monitoring, wildfire risk, carbon modeling, and inventory management.
+- `__init__.py`
+- `canopy_analysis.py`
+- `carbon_sequestration.py`
+- `deforestation.py`
+- `fire_risk.py`
+- `forest_health.py`
+- `forest_inventory.py`
+- `wildfire_risk.py`
 
-## Components
+## Public Interface
 
-### carbon_sequestration.py
-Carbon sequestration modeling in forests.
+- `canopy_analysis.py:CanopyAnalyzer` (class)
+- `carbon_sequestration.py:CarbonSequestrationModeler` (class)
+- `deforestation.py:DeforestationDetector` (class)
+- `fire_risk.py:FireRiskAssessor` (class)
+- `forest_health.py:ForestHealthMonitor` (class)
+- `forest_inventory.py:ForestInventory` (class)
+- `wildfire_risk.py:FireDangerRating` (class)
+- `wildfire_risk.py:FuelType` (class)
+- `wildfire_risk.py:FireWeatherObservation` (class)
+- `wildfire_risk.py:FireIncident` (class)
+- `wildfire_risk.py:WildfireRiskAnalyzer` (class)
 
-**Classes**: `CarbonSequestrationModeler`
+## Module Metadata
 
-### forest_health.py
-Forest health monitoring using NDVI and climate data.
+- Module: `GEO-INFER-FOREST`
+- Package: `geo_infer_forest`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-FOREST`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST`
 
-**Classes**: `ForestHealthMonitor`
+## Dependencies
 
-### forest_inventory.py
-Forest inventory and biomass estimation.
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
 
-**Classes**: `ForestInventory`
+## Validation
 
-### wildfire_risk.py
-Wildfire risk assessment and fire behavior modeling.
-
-**Classes**: `FireDangerRating`, `FuelType`, `FireWeatherObservation`, `FireIncident`, `WildfireRiskAnalyzer`
-
-## Usage
-
-```python
-from geo_infer_forest.core import (
-    ForestHealthMonitor,
-    WildfireRiskAnalyzer,
-    CarbonSequestrationModeler,
-    ForestInventory
-)
-
-# Forest health monitoring
-monitor = ForestHealthMonitor()
-health = monitor.assess_forest_health(ndvi=ndvi_data, temperature=temp_data)
-
-# Wildfire risk assessment
-analyzer = WildfireRiskAnalyzer()
-risk = analyzer.assess_wildfire_risk(temperature=temp, precipitation=precip, fuel_load=fuel)
-
-# Carbon modeling
-modeler = CarbonSequestrationModeler()
-carbon_stock = modeler.calculate_carbon_stock(biomass=biomass_data)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST
 ```
 
-## Integration
+## Documentation Notes
 
-- **Location**: `GEO-INFER-FOREST/src/geo_infer_forest/core`
-- **Dependencies**: `xarray`, `geopandas`, `geo_infer_forest.models`
-- **Used By**: API layer, application modules
-- **Provides**: Core forest intelligence capabilities
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

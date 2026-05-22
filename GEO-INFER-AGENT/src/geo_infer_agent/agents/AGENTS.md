@@ -1,20 +1,36 @@
-# Agent
-: agents
+# Agent Instructions: GEO-INFER-AGENT/src/geo_infer_agent/agents
 
 ## Scope
- This directory contains agents components for the module. It provides 1 classes and 0 functions.
 
-## Classes
- and Functions
-
-### DataCollectorAgent
- Data Collector Agent implementation.
+- Owning module: `GEO-INFER-AGENT`
+- Python package: `geo_infer_agent`
+- Directory role: Agents workspace within `GEO-INFER-AGENT`.
 
 ## Capabilities
 
-- **1 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_agent` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-AGENT/src/geo_infer_agent/agents`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `data_collector.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

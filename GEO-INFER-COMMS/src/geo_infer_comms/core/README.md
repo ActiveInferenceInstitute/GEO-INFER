@@ -1,20 +1,60 @@
-# core
- ## Overview
- This directory contains core components. It includes 7 Python modules. ## Components
- ### channel
-s
-.py Channel management system for GEO-INFER-COMMS. **Classes**: `ChannelManager`, `ChannelMetrics`, `ChannelPermissionManager`, `ChannelMessageFilter`, `ChannelAnalytics` ### collaboratio
-n
-.py Collaboration system for GEO-INFER-COMMS. **Classes**: `CollaborationManager`, `CollaborationMetrics`, `RealTimeCollaborationEngine`, `GeospatialCollaborationCoordinator`, `CollaborationNotificationManager`, `CollaborationAnalytics` ### event
-s
-.py Event-driven communication system for GEO-INFER-COMMS. **Classes**: `EventManager`, `EventMetrics`, `EventProcessor`, `DataUpdateProcessor`, `SystemAlertProcessor`, `UserActionProcessor`, `SensorTriggerProcessor`, `GeospatialChangeProcessor`, `EventFilter`, `EventScheduler`, `ScheduledEvent`, `RecurringEvent`, `EventWebhookManager`, `WebhookConfig`, `WebhookDelivery` ### messagin
-g
-.py Core messaging system for GEO-INFER-COMMS. **Classes**: `MessageBroker`, `MessageMetrics`, `MessageRouter`, `RoutingRule`, `MessageFormatter` ### notification
-s
-.py Notification and alert system for GEO-INFER-COMMS. **Classes**: `NotificationManager`, `NotificationMetrics`, `AlertSystem`, `AlertRule`, `AlertResponse`, `NotificationFormatter`, `EmergencyAlertSystem`, `EmergencyAlert` ### spatial_routin
-g
-.py geospatial routing algorithms for GEO-INFER-COMMS. **Classes**: `AdvancedSpatialRouter`, `SpatialRoutingMetrics`, `GeospatialLoadBalancer`, `SpatialClusteringRouter`, `SpatialCluster`, `AdaptiveRoutingEngine`, `GeospatialMessageQueue`, `SpatialRoutingOptimizer` ### streamin
-g
-.py Real-time data streaming system for GEO-INFER-COMMS. **Classes**: `DataStream`, `StreamManager`, `StreamMetrics`, `GeospatialDataStream`, `StreamingProtocolManager`, `StreamingProtocol`, `WebSocketStreamingProtocol`, `MQTTStreamingProtocol`, `ServerSentEventsProtocol`, `StreamingAnalytics`, `StreamingOrchestrator` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-COMMS/src/geo_infer_comms/core
+
+Core workspace within `GEO-INFER-COMMS`.
+
+## Contents
+
+- `__init__.py`
+- `channels.py`
+- `collaboration.py`
+- `events.py`
+- `messaging.py`
+- `notifications.py`
+- `spatial_routing.py`
+- `streaming.py`
+
+## Public Interface
+
+- `channels.py:ChannelManager` (class)
+- `channels.py:ChannelMetrics` (class)
+- `channels.py:ChannelPermissionManager` (class)
+- `channels.py:ChannelMessageFilter` (class)
+- `channels.py:ChannelAnalytics` (class)
+- `collaboration.py:CollaborationManager` (class)
+- `collaboration.py:CollaborationMetrics` (class)
+- `collaboration.py:RealTimeCollaborationEngine` (class)
+- `collaboration.py:GeospatialCollaborationCoordinator` (class)
+- `collaboration.py:CollaborationNotificationManager` (class)
+- `collaboration.py:CollaborationAnalytics` (class)
+- `events.py:EventManager` (class)
+- `events.py:EventMetrics` (class)
+- `events.py:EventProcessor` (class)
+- `events.py:DataUpdateProcessor` (class)
+- `events.py:SystemAlertProcessor` (class)
+- `events.py:UserActionProcessor` (class)
+- `events.py:SensorTriggerProcessor` (class)
+- `events.py:GeospatialChangeProcessor` (class)
+- `events.py:EventFilter` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COMMS`
+- Package: `geo_infer_comms`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COMMS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

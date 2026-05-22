@@ -1,40 +1,37 @@
-# Agent
-: scripts
+# Agent Instructions: GEO-INFER-EXAMPLES/examples/climate_integration/spatial_microbiome_soil_climate/scripts
 
 ## Scope
- This directory contains scripts components for the module. It provides 2 classes and 3 functions.
 
-## Classes
- and Functions
-
-### ClimateAnalysisSystem
-
-**Methods**:
-- `run_climate_analysis()`: Execute the climate analysis system.
-
-### SpatialMicrobiomeIntegrator
- Main integration class for spatial microbiome-climate-soil analysis.
-
-**Methods**:
-- `load_biological_datasets(region_bbox: Tuple[float, float, float, float], max_samples: int) -> Dict[str, Any]`: Load all biological datasets for the specified region.
-- `create_interactive_h3_visualization(biological_data: Dict[str, Any], map_center: Tuple[float, float], output_format: str) -> str`: Create interactive H3 visualization with clustering and biological overlays
-- `run_complete_analysis(region_bbox: Tuple[float, float, float, float], max_samples: int, output_format: str) -> Dict[str, str]`: Run the spatial microbiome-climate-soil analysis.
-
-### setup_logging
- `setup_logging()`
-
-### main
- `main()` Main function to run the climate analysis system.
-
-### main
- `main()` Main entry point for the spatial integration script.
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Scripts workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
-- **3 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `examples/climate_integration/spatial_microbiome_soil_climate/scripts`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `output/`
+- `run_example.py`
+- `run_spatial_integration.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

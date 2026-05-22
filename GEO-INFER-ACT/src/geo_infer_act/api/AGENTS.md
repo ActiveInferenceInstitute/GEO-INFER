@@ -1,38 +1,38 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-ACT/src/geo_infer_act/api
 
 ## Scope
- This directory contains api components for the module. It provides 2 classes and 1 functions.
 
-## Classes
- and Functions
-
-### Client
- REST API client for GEO-INFER-ACT.
-
-**Methods**:
-- `create_model(model_config: Dict[str, Any]) -> Dict[str, Any]`: Create a model via API.
-- `get_model(model_id: str) -> Dict[str, Any]`: Get model details via API.
-
-### ActiveInferenceInterface
- High-level interface for active inference models.
-
-**Methods**:
-- `create_model(model_id: str, model_type: str, parameters: Dict[str, Any]) -> None`: Create a active inference model.
-- `update_beliefs(model_id: str, observations: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]`: Update model beliefs based on observations.
-- `select_policy(model_id: str) -> Dict[str, Any]`: Select optimal policy based on current beliefs.
-- `set_preferences(model_id: str, preferences: Dict[str, Any]) -> None`: Set prior preferences for the model.
-- `get_free_energy(model_id: str) -> float`: Calculate free energy for the current model state.
-
-### create_endpoints
- `create_endpoints()` Create API endpoint definitions.
+- Owning module: `GEO-INFER-ACT`
+- Python package: `geo_infer_act`
+- Directory role: Api workspace within `GEO-INFER-ACT`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
-- **1 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_act` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-ACT/src/geo_infer_act/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `client.py`
+- `endpoints.py`
+- `interface.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

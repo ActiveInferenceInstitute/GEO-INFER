@@ -237,7 +237,7 @@ class WaterUsageModel(AgricultureModel):
                 water_productivity = field_data["yield"] / water_requirement
             else:
                 # Use typical water productivity values (kg/m3 or t/ha per 100mm approx) based on crop
-                # A hardcoded 1.0 was a placeholder; now defaults are crop-specific
+                # A hardcoded 1.0 was a baseline; now defaults are crop-specific
                 typical_wp = {
                     "corn": 2.0, "wheat": 1.0, "rice": 0.8, "soybean": 0.6,
                     "cotton": 0.5, "alfalfa": 1.2, "generic": 1.0

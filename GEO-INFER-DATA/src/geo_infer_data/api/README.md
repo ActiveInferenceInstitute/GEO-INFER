@@ -1,47 +1,48 @@
-# api
+# GEO-INFER-DATA/src/geo_infer_data/api
 
-## Overview
+Api workspace within `GEO-INFER-DATA`.
 
-REST API and service interfaces for GEO-INFER-DATA providing programmatic access to data management operations.
+## Contents
 
-This directory contains REST API and service implementations for accessing and managing geospatial data.
+- `__init__.py`
+- `rest_api.py`
+- `service.py`
 
-## Components
+## Public Interface
 
-### rest_api.py
+- `rest_api.py:DataAPI` (class)
+- `rest_api.py:DatasetAPI` (class)
+- `service.py:DataService` (class)
 
-REST API implementation for GEO-INFER-DATA using FastAPI.
+## Module Metadata
 
-**Key Classes**:
-- `DataAPI`: REST API server for data access and management
-- `DatasetAPI`: Dataset-specific API endpoints
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
-### service.py
+## Dependencies
 
-Core data service for GEO-INFER-DATA.
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
 
-**Key Classes**:
-- `DataService`: Core data service for dataset management and operations
+## Validation
 
-## Usage
-
-```python
-from geo_infer_data.api import DataAPI, DataService
-
-# Start API server
-api = DataAPI(config_path='config/local.yaml', port=8001)
-api.start()
-
-# Use data service
-service = DataService()
-datasets = await service.list_datasets()
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
-## Integration
+## Documentation Notes
 
-- **Location**: `GEO-INFER-DATA/src/geo_infer_data/api`
-- **Dependencies**: `fastapi`, `uvicorn`, `geo_infer_data.core`, `geo_infer_data.models`
-- **Used By**: External applications, web interfaces, other GEO-INFER modules
-- **Provides**: REST API interface for data management operations
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

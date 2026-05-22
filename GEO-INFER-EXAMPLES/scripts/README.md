@@ -1,5 +1,46 @@
-# scripts
- ## Overview
- **Path**: `GEO-INFER-EXAMPLES/scripts` Utility scripts. ## Implementation
- ### `comprehensive_assessment.py` **Classes**: ExampleAssessment, IntegrationAssessor **Functions**: main, assess_example, run_comprehensive_assessment ### `run_all_examples.py` **Classes**: ExampleResult, AssessmentReport, IntegrationExampleRunner **Functions**: main, discover_examples, run_example, run_all_examples ## Contents
- - **comprehensive_assessment.py**: Python module - **run_all_examples.py**: Python module --- 
+# GEO-INFER-EXAMPLES/scripts
+
+Scripts workspace within `GEO-INFER-EXAMPLES`.
+
+## Contents
+
+- `comprehensive_assessment.py`
+- `run_all_examples.py`
+
+## Public Interface
+
+- `comprehensive_assessment.py:ExampleAssessment` (class)
+- `comprehensive_assessment.py:IntegrationAssessor` (class)
+- `comprehensive_assessment.py:main` (function)
+- `run_all_examples.py:ExampleResult` (class)
+- `run_all_examples.py:AssessmentReport` (class)
+- `run_all_examples.py:IntegrationExampleRunner` (class)
+- `run_all_examples.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-EXAMPLES`
+- Package: `geo_infer_examples`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
+
+## Dependencies
+
+- `jupyterlab>=3.4.0`
+- `matplotlib>=3.5.0`
+- `pandas>=1.4.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+- `rich>=12.0.0`
+- `typer>=0.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

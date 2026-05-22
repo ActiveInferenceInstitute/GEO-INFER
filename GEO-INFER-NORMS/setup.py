@@ -13,7 +13,7 @@ setup(
     url="https://github.com/activeinferenceinstitute/geo-infer/geo-infer-norms",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     install_requires=[
         "numpy>=1.20.0",
         "pandas>=1.3.0",
@@ -41,9 +41,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Scientific/Engineering :: Information Analysis",
     ],

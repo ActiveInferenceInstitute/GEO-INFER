@@ -1,86 +1,38 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-PEP/src/geo_infer_pep/core
 
 ## Scope
- This directory contains core components for the module. It provides 7 classes and 0 functions.
 
-## Classes
- and Functions
-
-### WorkflowStatus
- Status of workflow execution.
-
-### WorkflowStep
- Represents a single step in a workflow.
-
-**Methods**:
-- `execute(context: Dict[str, Any]) -> bool`: Execute the workflow step.
-
-### PEPOrchestrator
- Orchestrates complex PEP workflows and processes.
-
-**Methods**:
-- `create_employee_onboarding_workflow(candidate_id: str) -> str`: Create a employee onboarding workflow.
-- `create_bulk_hire_workflow(candidate_ids: List[str]) -> str`: Create a bulk hiring workflow for multiple candidates.
-- `execute_workflow(workflow_id: str) -> Dict[str, Any]`: Execute a workflow by ID.
-- `get_workflow_status(workflow_id: str) -> Dict[str, Any]`: Get the status of a workflow.
-
-### PEPDataManager
- Central data manager for PEP operations.
-
-**Methods**:
-- `add_employees(employees: List[Employee]) -> int`: Add employees to the data store.
-- `add_customers(customers: List[Customer]) -> int`: Add customers to the data store.
-- `add_candidates(candidates: List[Candidate]) -> int`: Add candidates to the data store.
-- `add_requisitions(requisitions: List[JobRequisition]) -> int`: Add job requisitions to the data store.
-- `get_employees(filters: Optional[Dict[str, Any]]) -> List[Employee]`: Get employees with optional filtering.
-- `get_customers(filters: Optional[Dict[str, Any]]) -> List[Customer]`: Get customers with optional filtering.
-- `get_candidates(filters: Optional[Dict[str, Any]]) -> List[Candidate]`: Get candidates with optional filtering.
-- `get_requisitions(filters: Optional[Dict[str, Any]]) -> List[JobRequisition]`: Get job requisitions with optional filtering.
-- `get_data_summary() -> Dict[str, Any]`: Get a summary of all data in the store.
-- `clear_all_data() -> bool`: Clear all data from the store.
-
-### PEPEngine
- Main PEP Engine
-
-**Methods**:
-- `initialize() -> bool`: Initialize the PEP engine.
-- `import_hr_data(file_path: str) -> Dict[str, Any]`: Import HR data from CSV file.
-- `import_crm_data(file_path: str) -> Dict[str, Any]`: Import CRM data from CSV file.
-- `import_talent_data(candidates_file: str, requisitions_file: str) -> Dict[str, Any]`: Import talent data from CSV files.
-- `process_onboarding_workflow(employee_data: Dict[str, Any]) -> Dict[str, Any]`: Process employee onboarding workflow.
-- `generate_hr_dashboard() -> Dict[str, Any]`: Generate HR dashboard.
-- `generate_crm_dashboard() -> Dict[str, Any]`: Generate CRM dashboard.
-- `generate_talent_dashboard() -> Dict[str, Any]`: Generate talent dashboard.
-- `generate_all_dashboards() -> Dict[str, Any]`: Generate all dashboards and return combined results.
-- `get_system_status() -> Dict[str, Any]`: Get system status.
-- `run_health_check() -> Dict[str, Any]`: Run health check.
-- `shutdown() -> bool`: Shutdown the PEP engine gracefully.
-
-### ValidationResult
- Result of a validation operation.
-
-**Methods**:
-- `add_error(error: str)`: Add an error to the result.
-- `add_warning(warning: str)`: Add a warning to the result.
-- `to_dict() -> Dict[str, Any]`: Convert result to dictionary.
-
-### PEPValidator
- validator for PEP data and workflows.
-
-**Methods**:
-- `validate_employee(employee: Employee, strict: bool) -> ValidationResult`: validation of Employee data.
-- `validate_customer(customer: Customer, strict: bool) -> ValidationResult`: validation of Customer data.
-- `validate_candidate(candidate: Candidate, strict: bool) -> ValidationResult`: validation of Candidate data.
-- `validate_job_requisition(requisition: JobRequisition, strict: bool) -> ValidationResult`: validation of JobRequisition data.
-- `validate_onboarding_workflow(candidate_id: str, employees: List[Employee], candidates: List[Candidate]) -> ValidationResult`: Validate onboarding workflow prerequisites and data integrity.
-- `validate_data_integrity(employees: List[Employee], customers: List[Customer], candidates: List[Candidate]) -> Dict[str, ValidationResult]`: Perform data integrity validation across all data types.
+- Owning module: `GEO-INFER-PEP`
+- Python package: `geo_infer_pep`
+- Directory role: Core workspace within `GEO-INFER-PEP`.
 
 ## Capabilities
 
-- **7 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_pep` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PEP/src/geo_infer_pep/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `orchestrator.py`
+- `pep_engine.py`
+- `validator.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

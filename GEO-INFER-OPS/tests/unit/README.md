@@ -1,5 +1,45 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-OPS/tests/unit` Unit testing. ## Implementation
- ### `test_health_checks.py` **Classes**: TestHealthChecker **Functions**: health_checker, test_get_health_status, healthy_service, custom_check, healthy_check ### `test_orchestrator.py` **Classes**: TestOrchestrator **Functions**: orchestrator, test_add_task, test_task_dependencies, test_get_task_status, test_get_workflow_status ## Contents
- - **test_health_checks.py**: Python module - **test_orchestrator.py**: Python module --- 
+# GEO-INFER-OPS/tests/unit
+
+Unit workspace within `GEO-INFER-OPS`.
+
+## Contents
+
+- `test_health_checks.py`
+- `test_orchestrator.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-OPS`
+- Package: `geo_infer_ops`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-OPS`
+- Tests: `uv run python -m pytest GEO-INFER-OPS/tests/unit`
+
+## Dependencies
+
+- `pyyaml>=6.0`
+- `fastapi>=0.100.0`
+- `uvicorn>=0.21.0`
+- `prometheus-client>=0.16.0`
+- `structlog>=23.1.0`
+- `pytest>=7.3.1`
+- `docker>=6.0.1`
+- `kubernetes>=26.1.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `flake8>=6.0.0`
+- `pytest-cov>=4.1.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-OPS/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

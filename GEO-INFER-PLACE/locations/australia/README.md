@@ -1,323 +1,44 @@
-# Australia
+# GEO-INFER-PLACE/locations/australia
 
-Continental Analysis — Place-Based Study
+Australia workspace within `GEO-INFER-PLACE`.
 
-## Location Overview
+## Contents
 
-**Australia** is the world's sixth-largest country and the only country that is also a continent.
-With its vast landmass spanning diverse climate zones from tropical north to temperate south,
-Australia presents unique opportunities for continental-scale geospatial analysis and
-environmental monitoring.
+- `requirements.txt`
 
-### Geographic Context
+## Public Interface
 
-- **Coordinates**: 25°S, 133°E (approximate center)
-- **Area**: 7,692,024 km² (2,969,907 sq mi)
-- **Population**: ~25.7 million (2021)
-- **Capital**: Canberra
-- **Major Cities**: Sydney, Melbourne, Brisbane, Perth, Adelaide, Darwin
+- No public Python symbols are defined directly in this directory.
 
-### Key Geographic Features
+## Module Metadata
 
-- **Great Dividing Range**: Eastern mountain range extending 3,500 km
-- **Outback**: Vast arid and semi-arid interior regions
-- **Great Barrier Reef**: World's largest coral reef system (Queensland coast)
-- **Murray-Darling Basin**: Australia's largest river system
-- **Uluru**: Iconic monolith in central Australia
-- **Coastal Areas**: Over 35,000 km of diverse coastline
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
 
-## Research Focus Areas
+## Dependencies
 
-### 🌡️ Continental Climate Monitoring
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
 
-**Primary Objectives**: Climate assessment, change detection, extreme event analysis
+## Validation
 
-**Key Challenges**:
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
 
-- Monitoring vast and remote areas
-- Extreme weather events (droughts, floods, cyclones, heatwaves)
-- Climate change impacts across diverse ecosystems
-- Urban heat island effects in major cities
+## Documentation Notes
 
-**Data Sources**:
-
-- Australian Bureau of Meteorology weather stations
-- Satellite-based climate monitoring (MODIS, Landsat, Sentinel)
-- Automatic Weather Stations (AWS) network
-- Rainfall radar networks
-
-**Analytical Approaches**:
-
-- Continental-scale temperature and precipitation trend analysis
-- Extreme event frequency and intensity assessment
-- Climate zone shift detection
-- Seasonal pattern evolution analysis
-
-### 🦘 Biodiversity Conservation
-
-**Primary Objectives**: Species monitoring, habitat assessment, conservation planning
-
-**Key Challenges**:
-
-- Habitat fragmentation and loss
-- Invasive species management
-- Climate change impacts on endemic species
-- Balancing development with conservation
-
-**Data Sources**:
-
-- Atlas of Living Australia species databases
-- Satellite imagery for habitat mapping
-- Citizen science observations (iNaturalist, eBird)
-- Government biodiversity surveys
-
-**Analytical Approaches**:
-
-- Species distribution modeling
-- Habitat connectivity analysis
-- Biodiversity hotspot identification
-- Conservation priority mapping
-
-### 🌵 Drought Management and Water Resources
-
-**Primary Objectives**: Drought monitoring, water security assessment, agricultural impact analysis
-
-**Key Challenges**:
-
-- Variable rainfall patterns
-- Water allocation between urban, agricultural, and environmental needs
-- Groundwater depletion in key regions
-- Drought preparedness and response
-
-**Data Sources**:
-
-- Bureau of Meteorology rainfall and drought indices
-- Murray-Darling Basin Authority water data
-- GRACE satellite groundwater monitoring
-- Agricultural production statistics
-
-**Analytical Approaches**:
-
-- Drought severity and duration analysis
-- Water balance modeling
-- Agricultural vulnerability assessment
-- Water demand forecasting
-
-### 🏙️ Urban Heat Islands and City Planning
-
-**Primary Objectives**: Urban climate analysis, heat mitigation strategies, sustainable city development
-
-**Key Challenges**:
-
-- Increasing urbanization and population growth
-- Extreme heat events in cities
-- Infrastructure planning for climate resilience
-- Green space planning and management
-
-**Data Sources**:
-
-- Landsat thermal imagery
-- Urban weather station networks
-- City planning and land use data
-- Population and infrastructure databases
-
-### 🌾 Agricultural Adaptation and Food Security
-
-**Primary Objectives**: Agricultural resilience, crop suitability analysis, food system sustainability
-
-**Key Challenges**:
-
-- Climate change impacts on crop yields
-- Shifting agricultural zones
-- Water availability for irrigation
-- Market access and supply chain resilience
-
-### 🔥 Wildfire Management and Risk Assessment
-
-**Primary Objectives**: Fire risk modeling, impact assessment, prevention strategies
-
-**Key Challenges**:
-
-- Increasing fire frequency and intensity
-- Wildland-urban interface protection
-- Ecosystem fire management
-- Emergency response planning
-
-## State and Territory Focus Areas
-
-### New South Wales
-
-- Sydney urban heat analysis
-- Blue Mountains fire management
-- Murray River water allocation
-- Coastal erosion assessment
-
-### Victoria
-
-- Melbourne urban growth impacts
-- Alpine region climate change
-- Murray-Darling agricultural adaptation
-- Bushfire risk in interface areas
-
-### Queensland
-
-- Great Barrier Reef health monitoring
-- Tropical cyclone impact assessment
-- Agricultural zone shifts
-- Urban coastal vulnerability
-
-### Western Australia
-
-- Perth water security analysis
-- Wheatbelt agricultural sustainability
-- Mining region environmental impacts
-- Southwest forest conservation
-
-### South Australia
-
-- Adelaide Hills fire risk
-- Barossa Valley viticulture adaptation
-- Murray River salinity management
-- Arid zone ecology monitoring
-
-### Tasmania
-
-- Wilderness area conservation
-- Apple Isle agricultural transitions
-- Coastal climate impacts
-- Hydroelectric system optimization
-
-### Northern Territory
-
-- Kakadu ecosystem monitoring
-- Darwin tropical urban planning
-- Indigenous land management
-- Monsoon pattern analysis
-
-### Australian Capital Territory
-
-- Canberra urban sustainability
-- Bushfire recovery planning
-- Government precinct resilience
-- Regional connectivity analysis
-
-## Data Management and Infrastructure
-
-### National Data Sources
-
-#### Government Agencies
-
-- **Bureau of Meteorology**: Climate, weather, water data
-- **Geoscience Australia**: Geological, topographic, satellite data
-- **Australian Bureau of Statistics**: Population, economic, social data
-- **CSIRO**: Research data and environmental monitoring
-
-#### State and Territory Data
-
-- **Department of Planning**: Land use and development data
-- **Environmental Protection Agencies**: Pollution and conservation data
-- **Agriculture Departments**: Farming and land management data
-- **Emergency Services**: Hazard and response data
-
-#### Research and Academic
-
-- **Universities**: Research datasets and collaborative projects
-- **CRC Programs**: Cooperative Research Centre data
-- **International Collaborations**: Global datasets and partnerships
-
-### Technical Infrastructure
-
-#### High-Performance Computing
-
-- **National Computational Infrastructure (NCI)**: Supercomputing resources
-- **Pawsey Supercomputing Centre**: Western Australia computing facility
-- **University Computing Clusters**: Distributed processing capabilities
-- **Cloud Computing**: AWS, Azure, Google Cloud integrations
-
-#### Monitoring Networks
-
-- **Integrated Marine Observing System**: Ocean and coastal monitoring
-- **OzFlux Network**: Ecosystem carbon and water flux monitoring
-- **Terrestrial Ecosystem Research Network**: Long-term ecological monitoring
-- **Australian Phenology Network**: Seasonal observation network
-
-## Current Research Projects
-
-### Active Continental Studies
-
-#### 1. Australian Climate Extremes Monitoring
-
-**Duration**: 2022–2025
-**Objective**: Develop extreme weather monitoring and prediction system
-**Partners**: Bureau of Meteorology, CSIRO, universities
-**Focus**: Heatwaves, droughts, floods, cyclones, bushfires
-
-#### 2. National Biodiversity Assessment
-
-**Duration**: 2023–2027
-**Objective**: Continental-scale biodiversity status and trend assessment
-**Partners**: NESP Threatened Species Recovery Hub, state agencies
-**Focus**: Threatened species, ecosystem health, conservation effectiveness
-
-#### 3. Murray-Darling Basin Integrated Assessment
-
-**Duration**: 2021–2024
-**Objective**: Water, agriculture, and ecosystem assessment
-**Partners**: Murray-Darling Basin Authority, state governments
-**Focus**: Water allocation, agricultural sustainability, ecosystem health
-
-#### 4. Urban Heat and Health Adaptation
-
-**Duration**: 2023–2026
-**Objective**: City-scale heat impact assessment and adaptation planning
-**Partners**: State health departments, city councils, universities
-**Focus**: Public health, infrastructure, urban planning
-
-## Analytical Frameworks
-
-### Multi-Scale Analysis
-
-- **Continental**: Broad patterns and trends across Australia
-- **Bioregional**: Analysis within ecological regions
-- **State/Territory**: Jurisdiction-specific assessments
-- **Local**: High-resolution analysis for specific areas
-
-### Temporal Analysis
-
-- **Historical Analysis**: Long-term trends using historical data
-- **Current Monitoring**: Real-time and near-real-time analysis
-- **Seasonal Patterns**: Understanding annual cycles and variability
-- **Future Projections**: Climate and impact scenario modeling
-
-### Cross-Domain Integration
-
-- **Climate-Ecosystem**: Understanding climate impacts on biodiversity
-- **Urban-Rural**: Analyzing urban-rural interactions and dependencies
-- **Water-Agriculture**: Integrated water and agricultural system analysis
-- **Social-Environmental**: Understanding human-environment interactions
-
-## International Collaborations
-
-### Research Partnerships
-
-- **International Long Term Ecological Research (ILTER)**: Global ecological monitoring
-- **Future Earth**: International sustainability research
-- **Group on Earth Observations (GEO)**: Global observation coordination
-- **Belmont Forum**: International funding coordination
-
-### Data Sharing Initiatives
-
-- **Global Biodiversity Information Facility (GBIF)**: Species data sharing
-- **Global Climate Observing System (GCOS)**: Climate data coordination
-- **Committee on Earth Observation Satellites (CEOS)**: Satellite data sharing
-- **Open Geospatial Consortium (OGC)**: Spatial data standards
-
----
-
-**Contact Information**:
-
-- **Project Lead**: <australia@geo-infer.org>
-- **Technical Coordination**: <tech.australia@geo-infer.org>
-- **Community Engagement**: <community.australia@geo-infer.org>
-
-**Last Updated**: 2024
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

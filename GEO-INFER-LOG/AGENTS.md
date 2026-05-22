@@ -1,139 +1,43 @@
-# GEO-INFER-LOG: Agent Capabilities
+# Agent Instructions: GEO-INFER-LOG
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-LOG`
+- Python package: `geo_infer_log`
+- Directory role: Geospatial intelligence for logistics optimization, supply chain management, route optimization, and transportation planning.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-LOG** module provides logistics and supply chain capabilities for agents, enabling route optimization, fleet management, and warehouse operations in geospatial contexts.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_log` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Route Optimization
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_log import RouteOptimizer
+## Local Contents
 
-# Optimize delivery routes
-optimizer = RouteOptimizer()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-routes = optimizer.optimize(
-    depot=warehouse_location,
-    deliveries=delivery_points,
-    vehicles=fleet_info,
-    constraints={
-        "time_windows": True,
-        "capacity": True,
-        "driver_breaks": True
-    })
+## Validation
 
-print(f"Total routes: {len(routes)}")
-print(f"Total distance: {routes.total_distance_km} km")
-print(f"Estimated time: {routes.total_time_hours} hours")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG
+```
 
-### 2. Fleet Management
+## Integration Notes
 
-```python
-from geo_infer_log import FleetManager
-
-# Manage vehicle fleet
-fleet = FleetManager()
-
-# Track vehicles in real-time
-tracking = fleet.track_all(
-    update_interval=30, 
-
-# seconds
-    include_metrics=["speed", "fuel", "eta"])
-
-for vehicle in tracking:
-    print(f"Vehicle {vehicle.id}: {vehicle.location}")
-    print(f"  ETA to next stop: {vehicle.eta}")```
-
-### 3. Warehouse Optimization
-
-```python
-from geo_infer_log import WarehouseOptimizer
-
-# Optimize warehouse operations
-warehouse = WarehouseOptimizer(facility=warehouse_layout)
-
-# Optimize picking routes
-picking = warehouse.optimize_picking(
-    orders=pending_orders,
-    strategy="wave_picking",
-    workers=available_workers)
-
-print(f"Picking efficiency: {picking.efficiency_score}")
-print(f"Routes generated: {len(picking.routes)}")```
-
-### 4. Demand Forecasting
-
-```python
-from geo_infer_log import DemandForecaster
-
-# Forecast logistics demand
-forecaster = DemandForecaster()
-
-forecast = forecaster.predict(
-    historical_data=shipment_history,
-    horizon_days=30,
-    granularity="zone",
-    factors=["seasonality", "promotions", "weather"])
-
-print(f"Predicted volume: {forecast.total_volume}")
-print(f"Peak days: {forecast.peak_periods}")```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Route Optimization** | ✅ Ready | VRP, TSP solvers |
-| **Fleet Management** | ✅ Ready | Real-time tracking |
-| **Warehouse Ops** | ✅ Ready | Picking optimization |
-| **Demand Forecast** | ✅ Ready | ML-based prediction |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **DispatchAgent** | 🔮 High | Autonomous dispatching |
-| **InventoryAgent** | 🔮 High | Stock optimization |
-| **LastMileAgent** | 🔮 Medium | Last-mile delivery |
-
-## Use Cases
-
-### Last-Mile Delivery
-
-```python
-from geo_infer_log import LastMileOptimizer
-
-optimizer = LastMileOptimizer(city="san_francisco")
-
-# Plan last-mile deliveries
-plan = optimizer.plan(
-    packages=today_packages,
-    fleet=delivery_vehicles,
-    preferences={
-        "minimize": "emissions",
-        "allow_lockers": True
-    })
-
-print(f"Routes planned: {len(plan.routes)}")
-print(f"CO2 saved: {plan.emissions_saved_kg} kg")```
-
----
-
-This AGENTS.md documents how GEO-INFER-LOG provides logistics capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

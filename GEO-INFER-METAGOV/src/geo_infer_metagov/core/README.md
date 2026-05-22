@@ -1,26 +1,64 @@
-# core
- ## Overview
- This directory contains core components. It includes 10 Python modules. ## Components
- ### accountabilit
-y
-.py Accountability and transparency frameworks for governance. **Classes**: `AccountabilityMechanisms`, `TransparencySystem`, `AccountabilityFramework` ### adaptatio
-n
-.py Adaptive governance systems with learning and evolution. **Classes**: `AdaptiveManagementCycle`, `AdaptiveGovernanceSystem` ### advanced_analysi
-s
-.py governance analysis and optimization methods. **Classes**: `ConflictType`, `ConflictAnalysis`, `AdvancedGovernanceAnalyzer` ### conflict_resolutio
-n
-.py Conflict resolution system for governance conflicts. **Classes**: `ConflictResolutionMethod`, `ConflictResolution`, `ConflictResolver` ### institutiona
-l
-.py Institutional design and analysis using IAD framework and Ostrom's principles. **Classes**: `InstitutionalFramework`, `Institution`, `InstitutionalAnalysis`, `InstitutionalDesigner` ### multi_leve
-l
-.py Multi-level governance framework implementation. **Classes**: `GovernanceLevel`, `CoordinationMechanism`, `GovernanceEntity`, `GovernanceStructure`, `MultiLevelGovernanceFramework` ### performanc
-e
-.py Performance evaluation system for governance structures. **Classes**: `PerformanceDimension`, `PerformanceMetrics`, `PerformanceEvaluator` ### polycentri
-c
-.py Polycentric governance systems with multiple overlapping authorities. **Classes**: `PolycentricDesign`, `PolycentricGovernanceSystem` ### scenario
-s
-.py Scenario planning for governance systems. **Classes**: `Scenario`, `ScenarioAnalysis`, `ScenarioPlanner` ### stakeholde
-r
-.py Stakeholder governance coordination for multi-stakeholder systems. **Classes**: `Stakeholder`, `GovernancePlatform`, `StakeholderGovernanceCoordinator` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-METAGOV/src/geo_infer_metagov/core
+
+Core workspace within `GEO-INFER-METAGOV`.
+
+## Contents
+
+- `__init__.py`
+- `accountability.py`
+- `adaptation.py`
+- `advanced_analysis.py`
+- `conflict_resolution.py`
+- `institutional.py`
+- `multi_level.py`
+- `performance.py`
+- `polycentric.py`
+- `scenarios.py`
+- `stakeholder.py`
+
+## Public Interface
+
+- `accountability.py:AccountabilityMechanisms` (class)
+- `accountability.py:TransparencySystem` (class)
+- `accountability.py:AccountabilityFramework` (class)
+- `adaptation.py:AdaptiveManagementCycle` (class)
+- `adaptation.py:AdaptiveGovernanceSystem` (class)
+- `advanced_analysis.py:ConflictType` (class)
+- `advanced_analysis.py:ConflictAnalysis` (class)
+- `advanced_analysis.py:AdvancedGovernanceAnalyzer` (class)
+- `conflict_resolution.py:ConflictResolutionMethod` (class)
+- `conflict_resolution.py:ConflictResolution` (class)
+- `conflict_resolution.py:ConflictResolver` (class)
+- `institutional.py:InstitutionalFramework` (class)
+- `institutional.py:Institution` (class)
+- `institutional.py:InstitutionalAnalysis` (class)
+- `institutional.py:InstitutionalDesigner` (class)
+- `multi_level.py:GovernanceLevel` (class)
+- `multi_level.py:CoordinationMechanism` (class)
+- `multi_level.py:GovernanceEntity` (class)
+- `multi_level.py:GovernanceStructure` (class)
+- `multi_level.py:MultiLevelGovernanceFramework` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-METAGOV`
+- Package: `geo_infer_metagov`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-METAGOV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
+
+## Dependencies
+
+- `numpy>=1.20`
+- `pyyaml>=6.0`
+- `typing_extensions>=4.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

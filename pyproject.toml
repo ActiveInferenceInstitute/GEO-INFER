@@ -18,8 +18,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: GIS",
@@ -314,8 +312,10 @@ markers = [
     "unit: marks tests as unit tests",
     "performance: marks tests as performance tests",
     "system: marks tests as system/e2e tests",
+    "core: marks tests for core module behavior",
     "geospatial: marks tests involving spatial operations",
     "api: marks tests related to API functionality",
+    "reporting: marks tests for reporting and visualization outputs",
     "fast: marks tests intended to run quickly",
 ]
 

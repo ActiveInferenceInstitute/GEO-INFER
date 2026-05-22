@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-SEC/src` Source code implementation. ## Implementation
- ### `geo_infer_sec/core/integrated_security.py` **Classes**: SecurityDomain, ThreatCorrelationType, IncidentSeverity, IntegratedThreat, SecurityIncident **Functions**: start_integrated_monitoring, stop_integrated_monitoring, get_security_dashboard, get_integrated_threats, get_security_incidents ### `geo_infer_sec/core/encryption.py` **Classes**: GeospatialEncryption, AsymmetricEncryption **Functions**: from_password, get_key, encrypt_text, decrypt_text, encrypt_json ### `geo_infer_sec/core/audit.py` **Classes**: AuditEventType, AuditEventSeverity, AuditEvent, AuditLogger **Functions**: to_dict, to_json, log_event, log_authentication, log_authorization ### `geo_infer_sec/core/cognitive_security.py` **Classes**: BehaviorType, ThreatHuntingType, LearningMode, BehaviorProfile, CognitiveThreat **Functions**: analyze_user_behavior, detect_anomalies, predict_threats, conduct_threat_hunt, start_cognitive_monitoring ### `geo_infer_sec/core/anonymization.py` **Classes**: GeospatialAnonymizer **Functions**: location_perturbation, spatial_k_anonymity, geographic_masking ## Contents
- - **geo_infer_sec/**: Subdirectory - **geo_infer_sec.egg-info/**: Subdirectory --- 
+# GEO-INFER-SEC/src
+
+Src workspace within `GEO-INFER-SEC`.
+
+## Contents
+
+- `geo_infer_sec.egg-info/`
+- `geo_infer_sec/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-SEC`
+- Package: `geo_infer_sec`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SEC`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC`
+
+## Dependencies
+
+- `cryptography>=36.0.0`
+- `pyjwt>=2.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `pandas>=1.3.0`
+- `numpy>=1.20.0`
+- `pyyaml>=6.0`
+- `h3>=4.0.0`
+- `pyproj>=3.0.0`
+- `flask>=2.0.0`
+- `sqlalchemy>=1.4.0`
+- `bcrypt>=3.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

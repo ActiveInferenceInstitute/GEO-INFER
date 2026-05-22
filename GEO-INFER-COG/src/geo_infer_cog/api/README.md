@@ -1,8 +1,38 @@
-# api
- ## Overview
- This directory contains api components. It includes 1 Python modules. ## Components
- ### rest_ap
-i
-.py REST API for GEO-INFER-COG **Functions**: `create_cog_api_app`, `register_api_routes`, `register_error_handlers`, `run_api_server`, `health_check`, `analyze_text`, `extract_entities`, `analyze_sentiment`, `perform_inference`, `extract_knowledge`, `analyze_decision`, `create_visualization`, `process_cognitive`, `get_user_profile`, `create_user_profile`, `get_system_status`, `get_system_metrics`, `bad_request`, `not_found`, `method_not_allowed`, `payload_too_large`, `internal_server_error`, `handle_exception` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-COG/src/geo_infer_cog/api
+
+Api workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `__init__.py`
+- `rest_api.py`
+
+## Public Interface
+
+- `rest_api.py:create_cog_api_app` (function)
+- `rest_api.py:register_api_routes` (function)
+- `rest_api.py:register_error_handlers` (function)
+- `rest_api.py:run_api_server` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

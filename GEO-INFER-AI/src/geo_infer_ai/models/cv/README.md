@@ -1,8 +1,38 @@
-# cv
- ## Overview
- This directory contains cv components. It includes 1 Python modules. ## Components
- ### image_classifie
-r
-.py Computer vision models for geospatial image classification. **Classes**: `ImageClassifier` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-AI/src/geo_infer_ai/models/cv
+
+Cv workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `__init__.py`
+- `image_classifier.py`
+
+## Public Interface
+
+- `image_classifier.py:ImageClassifier` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

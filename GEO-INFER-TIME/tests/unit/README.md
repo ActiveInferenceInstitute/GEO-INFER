@@ -1,5 +1,37 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-TIME/tests/unit` Unit tests for GEO-INFER-TIME. ## Implementation
- ### `test_core.py` **Classes**: TestTimeModule **Functions**: test_module_import, test_module_version, test_temporal_analyzer_initialization, test_timeseries_creation, test_temporal_analysis_trend_detection ## Contents
- - **test_core.py**: Python module --- 
+# GEO-INFER-TIME/tests/unit
+
+Unit workspace within `GEO-INFER-TIME`.
+
+## Contents
+
+- `test_core.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-TIME`
+- Package: `geo_infer_time`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TIME`
+- Tests: `uv run python -m pytest GEO-INFER-TIME/tests/unit`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scikit-learn>=1.6.1`
+- `scipy>=1.7.0`
+- `statsmodels>=0.13.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-TIME/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

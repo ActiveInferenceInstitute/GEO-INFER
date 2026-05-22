@@ -1,16 +1,57 @@
-# core
- ## Overview
- This directory contains core components. It includes 5 Python modules. ## Components
- ### curriculu
-m
-.py Curriculum design and generation module. **Classes**: `EducationLevel`, `PedagogicalApproach`, `LearningObjective`, `CurriculumModule`, `Curriculum`, `CurriculumDesigner` ### exercise
-s
-.py Interactive exercise generation module. **Classes**: `ExerciseType`, `DifficultyLevel`, `Exercise`, `Assessment`, `ExerciseGenerator` ### personalizatio
-n
-.py Personalized learning module. **Classes**: `LearnerProfile`, `LearningResource`, `LearningPathway`, `PersonalizedLearning` ### professiona
-l
-.py Professional development module. **Classes**: `CertificationLevel`, `ProfessionalProfile`, `ContinuingEducationActivity`, `CertificationPathway`, `ProfessionalDevelopment` ### progres
-s
-.py Learning progress tracking and analytics module. **Classes**: `CompetencyLevel`, `LearnerActivity`, `CompetencyRecord`, `LearnerProgress`, `ProgressTracker` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-EDU/src/geo_infer_edu/core
+
+Core workspace within `GEO-INFER-EDU`.
+
+## Contents
+
+- `__init__.py`
+- `curriculum.py`
+- `exercises.py`
+- `personalization.py`
+- `professional.py`
+- `progress.py`
+
+## Public Interface
+
+- `curriculum.py:EducationLevel` (class)
+- `curriculum.py:PedagogicalApproach` (class)
+- `curriculum.py:LearningObjective` (class)
+- `curriculum.py:CurriculumModule` (class)
+- `curriculum.py:Curriculum` (class)
+- `curriculum.py:CurriculumDesigner` (class)
+- `exercises.py:ExerciseType` (class)
+- `exercises.py:DifficultyLevel` (class)
+- `exercises.py:Exercise` (class)
+- `exercises.py:Assessment` (class)
+- `exercises.py:ExerciseGenerator` (class)
+- `personalization.py:LearnerProfile` (class)
+- `personalization.py:LearningResource` (class)
+- `personalization.py:LearningPathway` (class)
+- `personalization.py:PersonalizedLearning` (class)
+- `professional.py:CertificationLevel` (class)
+- `professional.py:ProfessionalProfile` (class)
+- `professional.py:ContinuingEducationActivity` (class)
+- `professional.py:CertificationPathway` (class)
+- `professional.py:ProfessionalDevelopment` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-EDU`
+- Package: `geo_infer_edu`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EDU`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

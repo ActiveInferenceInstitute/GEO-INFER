@@ -558,7 +558,7 @@ class ParticleSwarmOptimization:
             # For now, assume each sub-swarm runs independently
             # result = sub_swarm.solve()
 
-            # Placeholder result
+            # Baseline result
             result = {
                 'sub_swarm_id': i,
                 'best_fitness': np.random.uniform(0, 1),

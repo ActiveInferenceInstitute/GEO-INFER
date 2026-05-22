@@ -1,16 +1,62 @@
-# theorem_proving
- ## Overview
- This directory contains theorem_proving components. It includes 5 Python modules. ## Components
- ### integratio
-n
-.py Integration with Symbolic Math Module **Classes**: `SymbolicProofIntegrator` **Functions**: `integrate_with_symbolic_math`, `generate_proof_from_symbolic`, `_symbolic_to_theorem`, `_operation_to_theorem`, `verify_symbolic_operation` ### proof_strategie
-s
-.py Automated Proof Strategies **Classes**: `ProofStrategy`, `GeometricProofStrategy`, `StatisticalProofStrategy`, `DirectProofStrategy`, `ContradictionProofStrategy`, `InductionProofStrategy`, `ProofStrategySelector` ### proof_verificatio
-n
-.py Proof Verification **Classes**: `ProofVerifier` **Functions**: `verify_proof` ### prove
-r
-.py Theorem Prover Interface **Classes**: `ProofStatus`, `ProofResult`, `TheoremProver` **Functions**: `create_prover` ### spatial_theorem
-s
-.py Spatial Mathematics Theorems Library **Classes**: `TheoremType`, `SpatialTheorem`, `GeometricTheorem`, `StatisticalTheorem`, `TopologicalTheorem`, `TheoremDatabase` **Functions**: `get_theorem_database` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/core/theorem_proving
+
+Theorem Proving workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `__init__.py`
+- `integration.py`
+- `proof_strategies.py`
+- `proof_verification.py`
+- `prover.py`
+- `spatial_theorems.py`
+
+## Public Interface
+
+- `integration.py:integrate_with_symbolic_math` (function)
+- `integration.py:generate_proof_from_symbolic` (function)
+- `integration.py:verify_symbolic_operation` (function)
+- `integration.py:SymbolicProofIntegrator` (class)
+- `proof_strategies.py:ProofStrategy` (class)
+- `proof_strategies.py:GeometricProofStrategy` (class)
+- `proof_strategies.py:StatisticalProofStrategy` (class)
+- `proof_strategies.py:DirectProofStrategy` (class)
+- `proof_strategies.py:ContradictionProofStrategy` (class)
+- `proof_strategies.py:InductionProofStrategy` (class)
+- `proof_strategies.py:ProofStrategySelector` (class)
+- `proof_verification.py:verify_proof` (function)
+- `proof_verification.py:ProofVerifier` (class)
+- `prover.py:ProofStatus` (class)
+- `prover.py:ProofResult` (class)
+- `prover.py:TheoremProver` (class)
+- `prover.py:create_prover` (function)
+- `spatial_theorems.py:TheoremType` (class)
+- `spatial_theorems.py:SpatialTheorem` (class)
+- `spatial_theorems.py:GeometricTheorem` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

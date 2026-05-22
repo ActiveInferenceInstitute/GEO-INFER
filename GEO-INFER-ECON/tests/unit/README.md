@@ -1,5 +1,53 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-ECON/tests/unit` Unit testing. ## Implementation
- ### `test_enhanced_capabilities.py` **Classes**: TestDataLoading, TestSpatialEconometrics, TestEconomicIndicators, TestModelValidation, TestVisualization **Functions**: run_comprehensive_test_suite, setUp, test_data_source_registration, test_data_validation, test_data_preprocessing ## Contents
- - **test_enhanced_capabilities.py**: Python module --- 
+# GEO-INFER-ECON/tests/unit
+
+Unit workspace within `GEO-INFER-ECON`.
+
+## Contents
+
+- `test_behavioral_economics.py`
+- `test_bioregional_economics.py`
+- `test_consumer_theory.py`
+- `test_enhanced_capabilities.py`
+- `test_game_theory.py`
+- `test_growth_models.py`
+- `test_indicators.py`
+- `test_market_structure.py`
+- `test_modeling_engine.py`
+- `test_policy_engine.py`
+- `test_producer_theory.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python -m pytest GEO-INFER-ECON/tests/unit`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-ECON/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

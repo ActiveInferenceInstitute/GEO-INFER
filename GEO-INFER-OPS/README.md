@@ -1,136 +1,59 @@
----
-title: "GEO-INFER-OPS: Operations and DevOps"
-description: "Deployment, monitoring, scaling, and production management for agent systems"
-purpose: "Provide DevOps infrastructure for deploying and managing agents in production"
-module_type: "Infrastructure"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["SEC"]
-compatibility: ["All GEO-INFER modules"]
-tags: ["devops", "deployment", "monitoring", "kubernetes", "observability"]
-difficulty: "Advanced"
-estimated_time: "50"
----
+# GEO-INFER-OPS
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+System orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem.
 
----
+## Contents
 
-# GEO-INFER-OPS: Operations and DevOps
+- `config/`
+- `deployment/`
+- `docs/`
+- `examples/`
+- `logs/`
+- `monitoring/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `Dockerfile`
+- `SKILL.md`
+- `docker-compose.yml`
+- `pyproject.toml`
+- `requirements.txt`
+- `test.log`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-OPS** provides production operations capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Deployment**: Container orchestration and agent deployment
-- **Monitoring**: Health checks and performance metrics
-- **Scaling**: Auto-scaling based on load and policies
-- **Observability**: Logging, tracing, and alerting
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-OPS`
+- Package: `geo_infer_ops`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-OPS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS`
 
-### Agent Deployment
+## Dependencies
 
-```python
-from geo_infer_ops import DeploymentManager
+- `pyyaml>=6.0`
+- `fastapi>=0.100.0`
+- `uvicorn>=0.21.0`
+- `prometheus-client>=0.16.0`
+- `structlog>=23.1.0`
+- `pytest>=7.3.1`
+- `docker>=6.0.1`
+- `kubernetes>=26.1.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `flake8>=6.0.0`
+- `pytest-cov>=4.1.0`
 
-# Deploy agents to production
-deployer = DeploymentManager()
-
-deployment = deployer.deploy(
-    config={"agent_spec": agent_spec},
-    environment="kubernetes",
-)
-
-print(deployment)
-```
-
-### Health Monitoring
-
-```python
-from geo_infer_ops import HealthChecker
-
-# Monitor agent health
-monitor = HealthChecker()
-
-health = monitor.run_all_checks()
-
-print(health)
-```
-
-### Orchestration
-
-```python
-from geo_infer_ops import Orchestrator, Task
-
-orchestrator = Orchestrator()
-task = Task(name="example_task", payload={"step": "noop"})
-orchestrator.submit(task)
-```
-
-## Deployment Targets
-
-| Target | Description |
-|--------|-------------|
-| **Kubernetes** | Container orchestration |
-| **Docker Compose** | Local development |
-| **AWS ECS/Fargate** | Serverless containers |
-| **GCP Cloud Run** | Managed containers |
-
-## Monitoring Metrics
-
-| Metric | Description |
-|--------|-------------|
-| **Latency** | Response time |
-| **Throughput** | Requests/second |
-| **Error Rate** | Failed requests |
-| **CPU/Memory** | Resource usage |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-SEC** | Security policies |
-| **GEO-INFER-API** | API endpoints |
-| **GEO-INFER-TEST** | CI/CD integration |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-OPS"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
 ```
 
-## Use Cases
+## Documentation Notes
 
-### Production Deployment
-
-```python
-from geo_infer_ops import Orchestrator, Task
-
-orchestrator = Orchestrator()
-orchestrator.submit(Task(name="deploy", payload={"target": "prod"}))
-```
-
----
-
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

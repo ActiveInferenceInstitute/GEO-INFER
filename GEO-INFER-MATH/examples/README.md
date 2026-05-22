@@ -1,13 +1,53 @@
-# GEO
--INFER-MATH Examples This directory contains working examples demonstrating mathematical foundations and statistical methods. ## Available
- Examples ### Spatia
-l
- Statistics (`spatial_statistics_example.py`) Spatial statistical analysis examples. ### Geospatia
-l
- Analysis (`advanced_geospatial_analysis.py`) mathematical methods for geospatial analysis. ### Realisti
-c
- Geospatial Analysis (`realistic_geospatial_analysis.py`) Real-world geospatial analysis scenarios. ### Performanc
-e
- Benchmark (`performance_benchmark.py`) Performance benchmarking for mathematical operations. ## Running
- Examples ```bash cd GEO-INFER-MATH python examples/spatial_statistics_example.py python examples/advanced_geospatial_analysis.py python examples/realistic_geospatial_analysis.py python examples/performance_benchmark.py ``` ## Integration
- Examples GEO-INFER-MATH provides mathematical foundations for: - **All analytical modules**: Statistical and mathematical operations - **BAYES**: Bayesian inference mathematics - **SPM**: Statistical mapping methods - **ACT**: Active Inference mathematics See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-MATH/examples
+
+Examples workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `advanced_geospatial_analysis.py`
+- `convenience_api_examples.py`
+- `information_theory_examples.py`
+- `performance_benchmark.py`
+- `realistic_geospatial_analysis.py`
+- `spatial_statistics_example.py`
+
+## Public Interface
+
+- `convenience_api_examples.py:example_act_convenience` (function)
+- `convenience_api_examples.py:example_bayes_convenience` (function)
+- `convenience_api_examples.py:example_ai_convenience` (function)
+- `information_theory_examples.py:example_spatial_entropy` (function)
+- `information_theory_examples.py:example_mutual_information` (function)
+- `realistic_geospatial_analysis.py:RealisticGeospatialAnalyzer` (class)
+- `realistic_geospatial_analysis.py:main` (function)
+- `spatial_statistics_example.py:generate_clustered_data` (function)
+- `spatial_statistics_example.py:create_weight_matrix` (function)
+- `spatial_statistics_example.py:main` (function)
+- `spatial_statistics_example.py:plot_results` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

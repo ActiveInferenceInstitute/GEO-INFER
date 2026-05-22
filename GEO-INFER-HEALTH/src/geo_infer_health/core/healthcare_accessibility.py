@@ -141,7 +141,7 @@ class HealthcareAccessibilityAnalyzer:
             "population": population,
         }
 
-    # Placeholder for more advanced accessibility analyses
+    # Baseline for more advanced accessibility analyses
     # def calculate_travel_time_to_nearest_facility(self, loc: Location, mode: str = 'driving'):
     #     # This would typically require an external routing API (e.g., OSRM, Google Maps, Mapbox)
     #     # or a local road network graph (e.g., OSMnx + NetworkX).

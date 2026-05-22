@@ -1,52 +1,52 @@
-# GEO-INFER-ACT Tests
+# GEO-INFER-ACT/tests
 
-This directory validates the importable `geo_infer_act` package.
+Tests workspace within `GEO-INFER-ACT`.
 
-## Test Map
+## Contents
 
-| Path | Coverage |
-| --- | --- |
-| `unit/test_core.py` | `ActiveInferenceModel`, `GenerativeModel`, belief updates, DCM, MDP, VI. |
-| `unit/test_free_energy.py` | `FreeEnergyCalculator` VFE/EFE terms and typed breakdowns. |
-| `unit/test_policy_selection.py` | `PolicySelector`, deterministic and seeded stochastic policy selection. |
-| `unit/test_api.py` | `ActiveInferenceInterface` model creation, belief updates, policy reports. |
-| `unit/test_spatial_agent.py` | `SpatialActiveInferenceAgent` perception, action, diagnostics. |
-| `unit/test_h3_active_inference.py` | H3 example reproducibility and exported metrics. |
-| `unit/test_geospatial_runner_outputs.py` | H3/spatial runner files, sidecars, and visualization contracts. |
-| `unit/test_runner_contracts.py` | Run config, manifest, and scenario output schemas. |
-| `unit/test_models.py` | Base categorical/Gaussian and domain-model behavior. |
-| `unit/test_utils.py` | Math, config, integration, analysis, and visualization helpers. |
-| `integration/` | Cross-module ACT integrations. |
+- `integration/`
+- `unit/`
+- `conftest.py`
+- `test_act_models_real.py`
 
-## Focused Verification
+## Public Interface
 
-From the repository root:
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:free_energy_agent` (function)
+- `conftest.py:generative_model_config` (function)
+- `conftest.py:observation_sequence` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python -m pytest GEO-INFER-ACT/tests`
+
+## Dependencies
+
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
+
+## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/validate_active_inference_contract.py
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_core.py -q
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_free_energy.py -q
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_policy_selection.py -q
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_api.py -q
+uv run python -m pytest GEO-INFER-ACT/tests
 ```
 
-## Full ACT Suite
+## Documentation Notes
 
-```bash
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
-```
-
-## Contract Expectations
-
-- Public ACT methods in the checked core surfaces have docstrings.
-- ACT source has no `pass` or `NotImplementedError` method bodies.
-- Categorical VFE exposes `complexity - accuracy`.
-- EFE policy selection uses policy-conditioned predictive beliefs when supplied.
-- Gaussian belief updates return real `mean` and `precision` values.
-- H3/spatial methods return real spatial consistency diagnostics.
-- Scenario runs write manifests, data, logs, visualizations, and figure
-  provenance sidecars to the requested output directory.
-- ACT markdown local links and Mermaid diagrams are validated by the
-  comprehensive audit.
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,34 +1,36 @@
-# Agent
-: spatial_language
+# Agent Instructions: GEO-INFER-COG/src/geo_infer_cog/spatial_language
 
 ## Scope
- This directory contains spatial_language components for the module. It provides 3 classes and 0 functions.
 
-## Classes
- and Functions
-
-### SpatialEntity
- Represents a spatial entity extracted from text.
-
-**Methods**:
-- `to_geojson() -> Dict[str, Any]`: Convert to GeoJSON format.
-
-### SpatialRelation
- Represents a spatial relationship extracted from text.
-
-### SpatialLanguageProcessor
- Natural language processing for spatial and geographic content.
-
-**Methods**:
-- `extract_spatial_entities(text: str) -> List[SpatialEntity]`: Extract spatial entities from text using pattern matching.
-- `extract_spatial_relations(text: str, entities: List[SpatialEntity]) -> List[SpatialRelation]`: Extract spatial relationships from text.
-- `process_place_description(description: str) -> Dict[str, Any]`: Process and interpret a place description.
+- Owning module: `GEO-INFER-COG`
+- Python package: `geo_infer_cog`
+- Directory role: Spatial Language workspace within `GEO-INFER-COG`.
 
 ## Capabilities
 
-- **3 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_cog` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-COG/src/geo_infer_cog/spatial_language`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `processor.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

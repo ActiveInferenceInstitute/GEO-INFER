@@ -29,9 +29,3 @@ psutil>=5.9.0
 pydantic>=2.5.0
 uvicorn>=0.24.0 
 # Added from comprehensive review
-argparse>=0.0.0
-asyncio>=0.0.0
-random>=0.0.0
-re>=0.0.0
-threading>=0.0.0
-uuid>=0.0.0

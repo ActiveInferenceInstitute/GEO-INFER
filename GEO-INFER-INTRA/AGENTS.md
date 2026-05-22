@@ -1,204 +1,49 @@
-# GEO-INFER-INTRA: Agent Capabilities
+# Agent Instructions: GEO-INFER-INTRA
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-INTRA`
+- Python package: `geo_infer_intra`
+- Directory role: Comprehensive project documentation, workflow management, and ontology systems for the GEO-INFER ecosystem.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-INTRA** module provides internal infrastructure that supports agent operations across the entire GEO-INFER framework, including configuration management, testing utilities, and repository assessment.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_intra` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### Configuration Access
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-Agents can access centralized configuration:
+## Local Contents
 
-```python
-from geo_infer_intra.config import Config, load_config
+- `assessment_results/`
+- `config/`
+- `docs/`
+- `examples/`
+- `scripts/`
+- `src/`
+- `templates/`
+- `tests/`
+- `assess_repository.py`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements-dev.txt`
+- `requirements.txt`
 
-class ConfigAwareAgent:
-    def __init__(self):
-        self.config = load_config("config/agent_settings.yaml")
-        self.log_level = self.config.get("logging.level", "INFO")
-        self.model_params = self.config.get("agent.model_params")
-    
-    def reload_config(self):
-        """Hot-reload configuration without restart."""
-        self.config = load_config("config/agent_settings.yaml")```
+## Validation
 
-### Testing Infrastructure
-
-Agents can use shared testing utilities:
-
-```python
-from geo_infer_intra.testing import GeospatialTestCase
-from geo_infer_agent import BaseAgent
-
-class TestMyAgent(GeospatialTestCase):
-    def setUp(self):
-        self.agent = BaseAgent(agent_id="test_agent")
-        self.test_region = self.create_test_polygon(
-            bounds=[-122.5, 37.7, -122.3, 37.9]
-        )
-    
-    def test_agent_spatial_perception(self):
-        """Test agent perceives spatial environment correctly."""
-        observation = self.agent.perceive(self.test_region)
-        self.assertIsNotNone(observation)```
-
-### Repository Assessment
-
-Agents can assess repository health:
-
-```python
-from geo_infer_intra import RepositoryAssessor
-
-class RepositoryMonitorAgent:
-    def __init__(self):
-        self.assessor = RepositoryAssessor()
-    
-    def check_code_quality(self):
-        """Monitor code quality metrics."""
-        report = self.assessor.assess()
-        return {
-            "quality_score": report.code_quality_score,
-            "doc_coverage": report.doc_coverage,
-            "test_coverage": report.test_coverage,
-            "issues": report.issues
-        }```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Configuration Management** | ✅ Ready | YAML config loading and merging |
-| **Testing Utilities** | ✅ Ready | Geospatial and temporal test helpers |
-| **Repository Assessment** | ✅ Ready | Code quality and coverage analysis |
-| **Template Management** | ✅ Ready | Project and module templates |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **ConfigurationAgent** | 🔮 Medium | Dynamic config optimization |
-| **TestGeneratorAgent** | 🔮 Medium | Automatic test generation |
-| **DocumentationAgent** | 🔮 High | Auto-documentation from code |
-
-## Framework v0.2.0 Capabilities
-
-| Capability | Status | Module |
-|-----------|--------|--------|
-| **44 Modules** | ✅ Complete | All |
-| **Zero-Mock Policy** | ✅ Enforced | All |
-| **H3 v4 Migration** | ✅ Complete | SPACE, PLACE |
-| **Statistical Parametric Mapping** | 🔄 Alpha | GEO-INFER-SPM |
-| **Cross-Module Examples** | ✅ Beta | GEO-INFER-EXAMPLES |
-
-### GEO-INFER-SPM Integration
-
-```python
-from geo_infer_spm import SpatialParametricMapper
-
-class SPMAgent:
-    def __init__(self):
-        self.mapper = SpatialParametricMapper()
-
-    def analyze_spatial_pattern(self, data):
-        """Apply statistical parametric mapping to spatial data."""
-        return self.mapper.fit_glm(data)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
 ```
 
-### GEO-INFER-EXAMPLES Integration
+## Integration Notes
 
-```python
-from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
-
-class IntegrationAgent:
-    def __init__(self):
-        self.orchestrator = ModuleOrchestrator()
-
-    def run_cross_module_workflow(self, workflow_name):
-        """Coordinate cross-module analysis workflows."""
-        return self.orchestrator.execute(workflow_name)
-```
-
-## Integration with Agent Framework
-
-```mermaid
-graph TD
-    subgraph GEO_INFER_INTRA
-        CONFIG[Configuration Manager]
-        TEST[Testing Infrastructure]
-        ASSESS[Repository Assessor]
-    end
-    
-    subgraph Agent_Modules
-        AGENT[GEO-INFER-AGENT]
-        ACT[GEO-INFER-ACT]
-        ANT[GEO-INFER-ANT]
-        SPM[GEO-INFER-SPM]
-        EXAMPLES[GEO-INFER-EXAMPLES]
-    end
-
-    CONFIG --> AGENT
-    CONFIG --> ACT
-    CONFIG --> ANT
-    CONFIG --> SPM
-    TEST --> AGENT
-    TEST --> ACT
-    TEST --> ANT
-    TEST --> EXAMPLES
-    ASSESS --> AGENT```
-
-## Use Cases
-
-### 1. Agent Development Workflow
-
-```python
-from geo_infer_intra.config import load_config
-from geo_infer_intra.testing import AgentTestCase
-
-# Load development configuration
-dev_config = load_config("config/development.yaml")
-
-# Create agent with config
-agent = MyAgent(config=dev_config)
-
-# Run tests
-class TestMyAgent(AgentTestCase):
-    def test_agent_behavior(self):
-        result = agent.act()
-        self.assertValidAction(result)```
-
-### 2. Continuous Integration
-
-```python
-from geo_infer_intra import RepositoryAssessor
-
-def ci_quality_check():
-    """Run quality checks in CI pipeline."""
-    assessor = RepositoryAssessor()
-    report = assessor.assess()
-    
-    if report.code_quality_score < 80:
-        raise QualityError("Code quality below threshold")
-    if report.test_coverage < 70:
-        raise CoverageError("Test coverage below threshold")
-    
-    return report```
-
----
-
-This AGENTS.md documents how GEO-INFER-INTRA provides infrastructure support for all agent operations in the framework.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

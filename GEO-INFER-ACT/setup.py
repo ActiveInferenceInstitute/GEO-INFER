@@ -37,5 +37,5 @@ setup(
             "flake8>=3.9.0",
         ],
     },
-    python_requires=">=3.8",
+    python_requires=">=3.11",
 )

@@ -1,13 +1,60 @@
-# Agent
-: module_orchestrators 
+# Agent Instructions: GEO-INFER-EXAMPLES/examples/module_orchestrators
 
 ## Scope
- This agent is responsible for handling operations within the `module_orchestrators` scope. 
+
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Module Orchestrators workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
- Core capabilities include: - Management of **ACT** processes - Management of **AG** processes - Management of **AGENT** processes - Management of **AI** processes - Management of **ANT** processes - Management of **API** processes - Management of **APP** processes - Management of **ART** processes - Management of **BAYES** processes - Management of **BIO** processes - Management of **CIV** processes - Management of **COG** processes - Management of **COMMS** processes - Management of **DATA** processes - Management of **ECON** processes - Management of **GIT** processes - Management of **HEALTH** processes - Management of **INTRA** processes - Management of **IOT** processes - Management of **LOG** processes - Management of **MATH** processes - Management of **NORMS** processes - Management of **OPS** processes - Management of **ORG** processes - Management of **PEP** processes - Management of **PLACE** processes - Management of **REQ** processes - Management of **RISK** processes - Management of **SEC** processes - Management of **SIM** processes - Management of **SPACE** processes - Management of **SPM** processes - Management of **TEST** processes - Management of **TIME** processes - Management of **generate_orchestrators** processes - Management of **update_to_thin_orchestrators** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-EXAMPLES/examples/module_orchestrators` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `ACT/`
+- `AG/`
+- `AGENT/`
+- `AI/`
+- `ANT/`
+- `API/`
+- `APP/`
+- `ART/`
+- `BAYES/`
+- `BIO/`
+- `CIV/`
+- `COG/`
+- `COMMS/`
+- `DATA/`
+- `ECON/`
+- `GIT/`
+- `HEALTH/`
+- `INTRA/`
+- `IOT/`
+- `LOG/`
+- `MATH/`
+- `NORMS/`
+- `OPS/`
+- `ORG/`
+- `generate_orchestrators.py`
+- `update_to_thin_orchestrators.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

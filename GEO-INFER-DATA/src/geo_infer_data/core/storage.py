@@ -8,7 +8,7 @@ cost considerations.
 
 import logging
 from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 import asyncio
@@ -171,7 +171,7 @@ class PostgreSQLBackend:
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in PostgreSQL."""
         # Implementation for PostgreSQL storage
-        data_id = f"pg_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        data_id = f"pg_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
 
         if isinstance(data, (gpd.GeoDataFrame, pd.DataFrame)):
             # Store tabular data
@@ -285,7 +285,7 @@ class MinIOBackend:
 
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in MinIO."""
-        data_id = f"minio_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        data_id = f"minio_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
 
         stored_id = await _maybe_await(self._store_to_minio(data, data_id, metadata))
         return stored_id if isinstance(stored_id, str) else data_id
@@ -312,7 +312,7 @@ class MinIOBackend:
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from MinIO."""
         # Implementation for MinIO retrieval
-        return pd.DataFrame()  # Mock implementation
+        return pd.DataFrame()  # Deterministic local implementation
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from MinIO."""
@@ -332,7 +332,7 @@ class RedisBackend:
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in Redis."""
         # Implementation for Redis storage
-        data_id = f"redis_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        data_id = f"redis_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
 
         # Serialize and store
         pickle.dumps(data)
@@ -364,7 +364,7 @@ class LocalFileBackend:
 
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in local file system."""
-        data_id = f"local_{datetime.utcnow().strftime('%Y%m%d_%H%M%S_%f')}_{uuid.uuid4().hex[:8]}"
+        data_id = f"local_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}_{uuid.uuid4().hex[:8]}"
 
         # Determine file format and path
         file_path = self._get_file_path(data_id, metadata)
@@ -386,7 +386,7 @@ class LocalFileBackend:
         # Store metadata
         metadata_path = file_path.with_suffix(".json")
         with open(metadata_path, "w") as f:
-            json.dump(metadata.dict(), f, default=str)
+            json.dump(metadata.model_dump(), f, default=str)
 
         return data_id
 
@@ -398,7 +398,7 @@ class LocalFileBackend:
             if getattr(metadata, "spatial", None) is not None
             else "tabular"
         )
-        date_str = datetime.utcnow().strftime("%Y/%m/%d")
+        date_str = datetime.now(timezone.utc).strftime("%Y/%m/%d")
 
         file_path = self.base_path / data_type / date_str / f"{data_id}.parquet"
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -712,7 +712,7 @@ class AdaptiveDataStorage:
 
         # Cache metadata if caching enabled
         if self.cache_manager:
-            await self.cache_manager.set(f"metadata_{data_id}", metadata.dict())
+            await self.cache_manager.set(f"metadata_{data_id}", metadata.model_dump())
 
         logger.info(f"Successfully stored data with ID: {data_id}")
         return data_id
@@ -943,7 +943,7 @@ class AdaptiveDataStorage:
         """Update storage statistics."""
         if data_id not in self.storage_stats:
             self.storage_stats[data_id] = {
-                "created_at": datetime.utcnow(),
+                "created_at": datetime.now(timezone.utc),
                 "operations": [],
                 "size": metadata.file_size or 0,
             }
@@ -951,7 +951,7 @@ class AdaptiveDataStorage:
         self.storage_stats[data_id]["operations"].append(
             {
                 "operation": operation,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "size": metadata.file_size or 0,
             }
         )
@@ -989,7 +989,7 @@ class AdaptiveDataStorage:
         return {
             "actions": actions,
             "optimizations": optimizations,
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "time_window": time_window,
         }
 

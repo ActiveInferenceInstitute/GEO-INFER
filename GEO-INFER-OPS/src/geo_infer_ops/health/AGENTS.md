@@ -1,34 +1,36 @@
-# Agent
-: health
+# Agent Instructions: GEO-INFER-OPS/src/geo_infer_ops/health
 
 ## Scope
- This directory contains health components for the module. It provides 3 classes and 0 functions.
 
-## Classes
- and Functions
-
-### HealthStatus
- Health status levels.
-
-### HealthCheck
- Represents a health check result.
-
-**Methods**:
-- `to_dict() -> Dict[str, Any]`: Convert health check to dictionary.
-
-### HealthChecker
- Health checker for GEO-INFER modules and services.
-
-**Methods**:
-- `register_check(name: str, check_func: Callable, async_check: bool) -> None`: Register a custom health check.
-- `get_health_status() -> Dict[str, Any]`: Get current health status (synchronous wrapper).
-- `get_health_history(limit: int, since: Optional[datetime]) -> List[Dict[str, Any]]`: Get health check history.
+- Owning module: `GEO-INFER-OPS`
+- Python package: `geo_infer_ops`
+- Directory role: Health workspace within `GEO-INFER-OPS`.
 
 ## Capabilities
 
-- **3 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ops` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-OPS/src/geo_infer_ops/health`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `checks.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

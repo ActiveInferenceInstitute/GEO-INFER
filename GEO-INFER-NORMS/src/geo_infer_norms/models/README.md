@@ -1,16 +1,53 @@
-# models
- ## Overview
- This directory contains models components. It includes 5 Python modules. ## Components
- ### compliance_statu
-s
-.py Compliance status models for representing regulatory compliance information. **Classes**: `ComplianceStatus`, `ComplianceMetric` ### legal_entit
-y
-.py Legal entity models for representing entities and jurisdictions in regulatory frameworks. **Classes**: `LegalEntity`, `Jurisdiction` ### polic
-y
-.py Policy models for representing policy frameworks and implementations. **Classes**: `Policy`, `PolicyImplementation` ### regulatio
-n
-.py Regulation models for representing legal regulations and frameworks. **Classes**: `Regulation`, `RegulatoryFramework` ### zonin
-g
-.py Zoning models for representing zoning regulations and land use classifications. **Classes**: `ZoningCode`, `ZoningDistrict`, `LandUseType` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-NORMS/src/geo_infer_norms/models
+
+Models workspace within `GEO-INFER-NORMS`.
+
+## Contents
+
+- `__init__.py`
+- `compliance_status.py`
+- `legal_entity.py`
+- `policy.py`
+- `regulation.py`
+- `zoning.py`
+
+## Public Interface
+
+- `compliance_status.py:ComplianceStatus` (class)
+- `compliance_status.py:ComplianceMetric` (class)
+- `legal_entity.py:LegalEntity` (class)
+- `legal_entity.py:Jurisdiction` (class)
+- `policy.py:Policy` (class)
+- `policy.py:PolicyImplementation` (class)
+- `regulation.py:Regulation` (class)
+- `regulation.py:RegulatoryFramework` (class)
+- `zoning.py:ZoningCode` (class)
+- `zoning.py:ZoningDistrict` (class)
+- `zoning.py:LandUseType` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-NORMS`
+- Package: `geo_infer_norms`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-NORMS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `shapely>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

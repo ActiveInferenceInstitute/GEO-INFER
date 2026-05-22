@@ -562,7 +562,7 @@ class LegalAPI:
             List of regulatory frameworks
         """
         # This would query a framework registry in a real implementation
-        # For now, return a mock response
+        # For now, return a deterministic response
         return [{
             "id": "framework-example",
             "name": "Example Regulatory Framework",

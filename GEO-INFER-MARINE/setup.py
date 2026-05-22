@@ -16,6 +16,6 @@ setup(
         "netcdf4>=1.5.8",
         "pyyaml>=6.0",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
 )
 

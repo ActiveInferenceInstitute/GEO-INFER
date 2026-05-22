@@ -1,20 +1,70 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 7 Python modules. ## Components
- ### advanced_cach
-e
-.py caching strategies for GEO-INFER-GIT. **Classes**: `CacheEntry`, `CacheStatistics`, `CachePolicy`, `LRUPolicy`, `LFUPolicy`, `TTLPolicy`, `AdaptivePolicy`, `MemoryCache`, `DiskCache`, `RedisCache`, `MultiLevelCache`, `IntelligentCache`, `CacheDecorator` **Functions**: `create_optimized_cache`, `wrapper` ### config_loade
-r
-.py Configuration loader utilities for GEO-INFER-GIT. **Classes**: `CloneConfig`, `TargetRepository`, `TargetUser`, `ConfigLoader` **Functions**: `load_clone_config`, `load_target_repos_config`, `load_target_users_config` ### error_handle
-r
-.py Error handling utilities for GEO-INFER-GIT. **Classes**: `ErrorSeverity`, `ErrorCategory`, `GeoInferGitError`, `NetworkError`, `AuthenticationError`, `PermissionError`, `GitOperationError`, `FilesystemError`, `ConfigurationError`, `APILimitError`, `ValidationError`, `RetryConfig`, `ErrorRecoveryManager` **Functions**: `classify_error`, `retry_on_error`, `handle_error`, `with_error_handling`, `decorator`, `decorator`, `wrapper`, `wrapper` ### logging_util
-s
-.py Logging utilities for GEO-INFER-GIT. **Classes**: `JSONFormatter`, `TextFormatter`, `GeoInferGitLogger`, `LogContext`, `PerformanceTimer` **Functions**: `setup_logging`, `get_logger`, `log_with_context`, `time_operation`, `decorator`, `record_factory`, `wrapper` ### observabilit
-y
-.py monitoring and observability for GEO-INFER-GIT. **Classes**: `Metric`, `TraceSpan`, `AlertRule`, `Alert`, `MetricsCollector`, `Tracer`, `HealthChecker`, `AlertManager`, `ObservabilityManager` **Functions**: `create_observability_manager`, `memory_check`, `cpu_check`, `disk_check` ### performanc
-e
-.py Performance optimization utilities for GEO-INFER-GIT. **Classes**: `PerformanceMetrics`, `PerformanceMonitor`, `MemoryManager`, `CacheManager`, `BatchProcessor`, `ResourceManager`, `PerformanceOptimizer` **Functions**: `performance_optimized`, `adaptive_batch_size`, `decorator`, `get_batch_size`, `wrapper` ### validatio
-n
-.py Validation utilities for GEO-INFER-GIT. **Classes**: `ConfigValidator`, `RepositoryValidator`, `InputValidator` **Functions**: `validate_config_file`, `validate_github_credentials` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-GIT/src/geo_infer_git/utils
+
+Utils workspace within `GEO-INFER-GIT`.
+
+## Contents
+
+- `__init__.py`
+- `advanced_cache.py`
+- `config_loader.py`
+- `error_handler.py`
+- `logging_utils.py`
+- `observability.py`
+- `performance.py`
+- `validation.py`
+
+## Public Interface
+
+- `advanced_cache.py:CacheEntry` (class)
+- `advanced_cache.py:CacheStatistics` (class)
+- `advanced_cache.py:CachePolicy` (class)
+- `advanced_cache.py:LRUPolicy` (class)
+- `advanced_cache.py:LFUPolicy` (class)
+- `advanced_cache.py:TTLPolicy` (class)
+- `advanced_cache.py:AdaptivePolicy` (class)
+- `advanced_cache.py:MemoryCache` (class)
+- `advanced_cache.py:DiskCache` (class)
+- `advanced_cache.py:RedisCache` (class)
+- `advanced_cache.py:MultiLevelCache` (class)
+- `advanced_cache.py:IntelligentCache` (class)
+- `advanced_cache.py:create_optimized_cache` (function)
+- `advanced_cache.py:CacheDecorator` (class)
+- `config_loader.py:CloneConfig` (class)
+- `config_loader.py:TargetRepository` (class)
+- `config_loader.py:TargetUser` (class)
+- `config_loader.py:ConfigLoader` (class)
+- `config_loader.py:load_clone_config` (function)
+- `config_loader.py:load_target_repos_config` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-GIT`
+- Package: `geo_infer_git`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-GIT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
+
+## Dependencies
+
+- `requests>=2.28.1`
+- `pyyaml>=6.0`
+- `psutil>=5.9.0`
+- `jsonschema>=4.17.0`
+- `GitPython>=3.1.0`
+- `fastapi>=0.104.0`
+- `uvicorn[standard]>=0.24.0`
+- `pydantic>=2.5.0`
+- `pytest>=7.3.1`
+- `black>=23.3.0`
+- `flake8>=6.0.0`
+- `mypy>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

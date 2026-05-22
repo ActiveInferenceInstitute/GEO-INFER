@@ -1,4 +1,46 @@
-# unit
- ## Overview
- Unit tests for GEO-INFER-AI. ## Contents
- - **test_feature_engineering.py**: Python definitions - **test_image_classifier.py**: Python definitions - **test_spatial_predictor.py**: Python definitions - **test_training.py**: Python definitions 
+# GEO-INFER-AI/tests/unit
+
+Unit workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `test_cross_validation.py`
+- `test_explainability.py`
+- `test_feature_engineering.py`
+- `test_idw_interpolation.py`
+- `test_image_classifier.py`
+- `test_kriging.py`
+- `test_model_evaluation.py`
+- `test_spatial_lag_features.py`
+- `test_spatial_predictor.py`
+- `test_training.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python -m pytest GEO-INFER-AI/tests/unit`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-AI/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

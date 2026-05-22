@@ -1,51 +1,39 @@
-# Agent
-: integrations
+# Agent Instructions: GEO-INFER-METAGOV/src/geo_infer_metagov/integrations
 
 ## Scope
- This directory contains integrations components for the module. It provides 4 classes and 0 functions.
 
-## Classes
- and Functions
-
-### NormativeGovernanceIntegration
- Integrate normative systems with governance rules.
-
-**Methods**:
-- `translate_governance_rules_to_norms(governance_rules: List[Dict[str, Any]], normative_framework: str) -> Dict[str, Any]`: Translate governance rules to normative rules.
-- `check_compliance_with_norms(governance_actions: List[Dict[str, Any]], normative_rules: List[Dict[str, Any]]) -> Dict[str, Any]`: Check governance actions for compliance with normative rules.
-- `detect_norm_violations(governance_structure: Dict[str, Any], normative_rules: List[Dict[str, Any]]) -> Dict[str, Any]`: Detect norm violations in governance structure.
-- `align_norms_with_governance(governance_rules: List[Dict[str, Any]], existing_norms: List[Dict[str, Any]]) -> Dict[str, Any]`: Align normative rules with governance rules.
-
-### OrganizationalGovernanceIntegration
- Integrate organizational structures with governance systems.
-
-**Methods**:
-- `map_governance_to_organizational_structure(governance_entities: List[Dict[str, Any]], organizational_structure: Dict[str, Any]) -> Dict[str, Any]`: Map governance entities to organizational roles and structure.
-- `assess_organizational_capacity(governance_entities: List[Dict[str, Any]], organizational_capacity_data: Dict[str, Any]) -> Dict[str, Any]`: Assess organizational capacity for governance functions.
-- `check_governance_organization_alignment(governance_structure: Dict[str, Any], organizational_structure: Dict[str, Any]) -> Dict[str, Any]`: Check alignment between governance structure and organizational structure.
-
-### SecurityGovernanceIntegration
- Integrate security controls for governance systems.
-
-**Methods**:
-- `secure_governance_data(governance_data: Dict[str, Any], sensitivity_level: str) -> Dict[str, Any]`: Apply security controls to governance data.
-- `create_audit_log_entry(action: str, actor: str, governance_entity: str, details: Dict[str, Any]) -> Dict[str, Any]`: Create audit log entry for governance action.
-- `configure_access_control(governance_structure: Dict[str, Any], access_policies: Dict[str, Any]) -> Dict[str, Any]`: Configure access control for governance operations.
-
-### SpatialGovernanceIntegration
- Integrate spatial indexing and analysis for governance boundaries.
-
-**Methods**:
-- `index_governance_boundary(boundary: Dict[str, Any], resolution: int) -> Dict[str, Any]`: Index governance boundary using spatial indexing.
-- `detect_jurisdictional_overlaps(boundaries: List[Dict[str, Any]], resolution: int) -> Dict[str, Any]`: Detect overlapping jurisdictions using spatial analysis.
-- `map_governance_entities_to_spatial_cells(entities: List[Dict[str, Any]], resolution: int) -> Dict[str, Any]`: Map governance entities to spatial cells for multi-scale governance.
-- `analyze_spatial_governance_coverage(governance_structure: Dict[str, Any], spatial_region: Dict[str, Any], resolution: int) -> Dict[str, Any]`: Analyze spatial coverage of governance structure.
+- Owning module: `GEO-INFER-METAGOV`
+- Python package: `geo_infer_metagov`
+- Directory role: Integrations workspace within `GEO-INFER-METAGOV`.
 
 ## Capabilities
 
-- **4 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_metagov` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-METAGOV/src/geo_infer_metagov/integrations`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `normative.py`
+- `organizational.py`
+- `security.py`
+- `spatial.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

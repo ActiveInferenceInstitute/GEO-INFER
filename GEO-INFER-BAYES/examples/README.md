@@ -1,5 +1,47 @@
-# examples
- ## Overview
- **Path**: `GEO-INFER-BAYES/examples` Usage examples and demonstrations. ## Implementation
- ### `spatial_gp_example.py` **Functions**: generate_synthetic_data, plot_spatial_data, main ### `spatial_bayesian_analysis.py` **Functions**: main ## Contents
- - **spatial_bayesian_analysis.py**: Python module - **spatial_gp_example.py**: Python module --- 
+# GEO-INFER-BAYES/examples
+
+Examples workspace within `GEO-INFER-BAYES`.
+
+## Contents
+
+- `spatial_bayesian_analysis.py`
+- `spatial_gp_example.py`
+
+## Public Interface
+
+- `spatial_bayesian_analysis.py:main` (function)
+- `spatial_gp_example.py:generate_synthetic_data` (function)
+- `spatial_gp_example.py:plot_spatial_data` (function)
+- `spatial_gp_example.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-BAYES`
+- Package: `geo_infer_bayes`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-BAYES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES`
+
+## Dependencies
+
+- `arviz`
+- `cmdstanpy`
+- `geopandas`
+- `matplotlib`
+- `numpy`
+- `pandas`
+- `pymc`
+- `rasterio`
+- `scipy`
+- `tensorflow-probability`
+- `xarray`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.
