@@ -1,47 +1,36 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-BIO/src/geo_infer_bio/api
 
 ## Scope
- This directory contains api components for the module. It provides 8 classes and 0 functions.
 
-## Classes
- and Functions
-
-### SpatialData
- Spatial data type.
-
-### SequenceData
- Sequence data type.
-
-### AnalysisResult
- Analysis result type.
-
-### VisualizationData
- Visualization data type.
-
-### Query
- Query type.
-
-**Methods**:
-- `analyze_sequence(sequence_data: SequenceData) -> AnalysisResult`: Analyze a single sequence.
-- `analyze_file(file_path: str, spatial_data_path: Optional[str]) -> List[AnalysisResult]`: Analyze sequences from a file.
-- `visualize_spatial(analysis_results: List[AnalysisResult]) -> VisualizationData`: Generate spatial visualizations of analysis results.
-- `health_check() -> str`: Health check query.
-
-### SpatialData
- Spatial data model.
-
-### SequenceData
- Sequence data model.
-
-### AnalysisResult
- Analysis result model.
+- Owning module: `GEO-INFER-BIO`
+- Python package: `geo_infer_bio`
+- Directory role: Api workspace within `GEO-INFER-BIO`.
 
 ## Capabilities
 
-- **8 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_bio` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-BIO/src/geo_infer_bio/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `graphql_api.py`
+- `rest_api.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

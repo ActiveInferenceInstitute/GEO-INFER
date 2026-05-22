@@ -1,35 +1,38 @@
-# Agent
-: visualizations
+# Agent Instructions: GEO-INFER-PEP/src/geo_infer_pep/visualizations
 
 ## Scope
- This directory contains visualizations components for the module. It provides 0 classes and 6 functions.
 
-## Classes
- and Functions
-
-### plot_customer_distribution_by_status
- `plot_customer_distribution_by_status(customers: List[Customer], output_dir: Path) -> Optional[str]` Generates a bar chart of customer distribution by status.
-
-### plot_customer_distribution_by_source
- `plot_customer_distribution_by_source(customers: List[Customer], output_dir: Path) -> Optional[str]` Generates a bar chart of customer distribution by source.
-
-### plot_headcount_by_department
- `plot_headcount_by_department(employees: List[Employee], output_dir: Path) -> Optional[str]` Generates a bar chart of active employee headcount by department.
-
-### plot_gender_distribution
- `plot_gender_distribution(employees: List[Employee], output_dir: Path) -> Optional[str]` Generates a pie chart for gender distribution of active employees.
-
-### plot_candidate_pipeline_by_status
- `plot_candidate_pipeline_by_status(candidates: List[Candidate], output_dir: Path) -> Optional[str]` Generates a bar chart of candidates by their current status in the pipeline.
-
-### plot_time_to_hire_distribution
- `plot_time_to_hire_distribution(hired_candidates_with_tth_days: List[int], output_dir: Path) -> Optional[str]` Generates a histogram for Time to Hire distribution.
+- Owning module: `GEO-INFER-PEP`
+- Python package: `geo_infer_pep`
+- Directory role: Visualizations workspace within `GEO-INFER-PEP`.
 
 ## Capabilities
 
-- **6 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_pep` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PEP/src/geo_infer_pep/visualizations`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `crm_visuals.py`
+- `hr_visuals.py`
+- `talent_visuals.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

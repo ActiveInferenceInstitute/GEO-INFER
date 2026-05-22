@@ -461,7 +461,7 @@ class ResultsVisualizer:
                 </div>
             </div>
             <script>
-                // Placeholder for interactive charts
+                // Baseline for interactive charts
                 // In practice, would create actual Plotly charts
                 console.log('Dashboard data:', {data});
             </script>

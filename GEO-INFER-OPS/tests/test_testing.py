@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from prometheus_client import Counter, Histogram
 
 from geo_infer_ops.core.testing import (
-    mock_config,
+    temporary_config,
     create_test_data_dir,
     setup_testing,
     create_test_client,
@@ -52,7 +52,7 @@ def mock_app():
 
 def test_mock_config(mock_config_dict):
     """Test configuration mocking."""
-    with mock_config(mock_config_dict) as config:
+    with temporary_config(mock_config_dict) as config:
         assert isinstance(config, Config)
         assert config.logging.level == "DEBUG"
         assert config.monitoring.enabled is True

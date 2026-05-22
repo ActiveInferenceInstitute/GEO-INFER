@@ -31,7 +31,7 @@ setup(
     url="https://github.com/activeinference/GEO-INFER",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=requirements,
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -39,8 +39,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering :: GIS",
     ],
     entry_points={

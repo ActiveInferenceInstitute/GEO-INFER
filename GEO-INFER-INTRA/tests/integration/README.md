@@ -1,5 +1,44 @@
-# integration
- ## Overview
- **Path**: `GEO-INFER-INTRA/tests/integration` Integration documentation. ## Implementation
- ### `test_module_integration.py` **Classes**: TestCrossModuleIntegration **Functions**: geo_infer_modules, test_config_dir, test_log_dir, create_test_config_file, space_config_file ## Contents
- - **test_module_integration.py**: Python module --- 
+# GEO-INFER-INTRA/tests/integration
+
+Integration workspace within `GEO-INFER-INTRA`.
+
+## Contents
+
+- `test_module_integration.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-INTRA`
+- Package: `geo_infer_intra`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-INTRA`
+- Tests: `uv run python -m pytest GEO-INFER-INTRA/tests/integration`
+
+## Dependencies
+
+- `fastapi>=0.95.0`
+- `pydantic>=2.0.0`
+- `sqlalchemy>=2.0.0`
+- `elasticsearch>=8.0.0`
+- `rdflib>=6.0.0`
+- `mkdocs>=1.4.0`
+- `celery>=5.2.0`
+- `pyyaml>=6.0`
+- `jsonschema>=4.0.0`
+- `typer>=0.7.0`
+- `rich>=12.0.0`
+- `uvicorn>=0.20.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-INTRA/tests/integration
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

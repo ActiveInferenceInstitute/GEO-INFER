@@ -1,49 +1,69 @@
-# GEO-INFER-SPACE Examples
+# GEO-INFER-SPACE/examples
 
-This directory contains working examples for H3 v4 spatial indexing and
-geospatial analysis. H3 examples use
-`SpatialIndexingInterface(backend="h3")`, the same contract consumed by
-GEO-INFER-ACT H3 Active Inference methods.
+Examples workspace within `GEO-INFER-SPACE`.
 
-For Active Inference runs, SPACE supplies the real H3 v4 cell contract and ACT
-owns the manifest, diagnostics, visualization metadata, and figure sidecar
-outputs. The canonical output contract is
-[`GEO-INFER-ACT/docs/geospatial_applications.md`](../../GEO-INFER-ACT/docs/geospatial_applications.md).
+## Contents
 
-## Available Examples
+- `h3_advanced_applications.py`
+- `h3_comprehensive_examples.py`
+- `h3_examples.py`
+- `h3_integration_examples.py`
+- `multiple_dispatch_demo.py`
+- `nested_orchestrator_examples.py`
+- `run_all.py`
 
-| Example | Purpose |
-| --- | --- |
-| `h3_comprehensive_examples.py` | H3 v4 cell operations, hierarchies, and spatial queries |
-| `h3_integration_examples.py` | H3 v4 usage with other GEO-INFER modules |
-| `h3_advanced_applications.py` | H3 v4 clustering, interpolation, and analysis |
-| `multiple_dispatch_demo.py` | Backend-agnostic spatial operations with dispatcher selection |
-| `nested_orchestrator_examples.py` | Complex spatial analysis workflows using nested orchestrators |
+## Public Interface
 
-## Running Examples
+- `h3_advanced_applications.py:example_demand_forecasting_ml` (function)
+- `h3_advanced_applications.py:example_disaster_response_system` (function)
+- `h3_advanced_applications.py:example_performance_optimization` (function)
+- `h3_advanced_applications.py:example_integrated_smart_city` (function)
+- `h3_advanced_applications.py:main` (function)
+- `h3_comprehensive_examples.py:example_1_basic_h3_operations` (function)
+- `h3_comprehensive_examples.py:example_2_city_coverage_analysis` (function)
+- `h3_comprehensive_examples.py:example_3_transportation_corridor` (function)
+- `h3_comprehensive_examples.py:example_4_retail_catchment_analysis` (function)
+- `h3_comprehensive_examples.py:example_5_environmental_monitoring` (function)
+- `h3_comprehensive_examples.py:example_6_disaster_response_planning` (function)
+- `h3_comprehensive_examples.py:example_7_visualization_showcase` (function)
+- `h3_comprehensive_examples.py:example_8_performance_benchmarks` (function)
+- `h3_comprehensive_examples.py:main` (function)
+- `h3_integration_examples.py:example_h3_vector_integration` (function)
+- `h3_integration_examples.py:example_h3_density_clustering` (function)
+- `h3_integration_examples.py:example_h3_temporal_analysis` (function)
+- `h3_integration_examples.py:example_h3_multi_resolution_analysis` (function)
+- `h3_integration_examples.py:example_h3_orchestration_workflow` (function)
+- `h3_integration_examples.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPACE`
+- Package: `geo_infer_space`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `fiona>=1.8.0`
+- `geojson-pydantic>=0.4.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `pydantic>=1.8.0`
+- `pyproj>=3.3.0`
+- `python-multipart>=0.0.5`
+- `pyyaml>=6.0`
+
+## Validation
 
 ```bash
-uv run --package geo-infer-space --extra dev python GEO-INFER-SPACE/examples/h3_comprehensive_examples.py
-uv run --package geo-infer-space --extra dev python GEO-INFER-SPACE/examples/h3_integration_examples.py
-uv run --package geo-infer-space --extra dev python GEO-INFER-SPACE/examples/h3_advanced_applications.py
-uv run --package geo-infer-space --extra dev python GEO-INFER-SPACE/examples/multiple_dispatch_demo.py
-uv run --package geo-infer-space --extra dev python GEO-INFER-SPACE/examples/nested_orchestrator_examples.py
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 ```
 
-## H3 Contract Validation
+## Documentation Notes
 
-```bash
-uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
-uv run --package geo-infer-space --extra dev python -m pytest GEO-INFER-SPACE/tests -q --tb=short
-```
-
-## Integration
-
-GEO-INFER-SPACE integrates with:
-
-- `TIME`: spatio-temporal analysis
-- `DATA`: spatial data management
-- `AI`: spatial feature engineering
-- Domain modules: shared spatial analysis for module-specific applications
-
-See `GEO-INFER-EXAMPLES` for cross-module integration examples.
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

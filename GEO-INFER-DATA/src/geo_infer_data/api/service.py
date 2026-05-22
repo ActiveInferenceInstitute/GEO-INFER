@@ -8,7 +8,7 @@ dataset management, data access, and integration with other modules.
 import logging
 import inspect
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 import geopandas as gpd
 import pandas as pd
@@ -93,10 +93,10 @@ class DataService:
         """
         logger.debug(f"Listing datasets with filters: {filters}")
 
-        # Mock implementation - would query actual dataset catalog
+        # Deterministic local implementation - would query actual dataset catalog
         datasets = []
 
-        for i in range(offset, min(offset + limit, 100)):  # Mock 100 datasets
+        for i in range(offset, min(offset + limit, 100)):  # Synthetic 100 datasets
             dataset = Dataset(
                 id=f"dataset_{i}",
                 title=f"Dataset {i}",
@@ -163,7 +163,7 @@ class DataService:
             return self.datasets[dataset_id]
 
         # Query storage service
-        # Mock implementation
+        # Deterministic local implementation
         dataset = Dataset(
             id=dataset_id,
             title=f"Dataset {dataset_id}",
@@ -211,7 +211,7 @@ class DataService:
         self.access_log.append(
             {
                 "dataset_id": dataset_id,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "spatial_bounds": spatial_bounds,
                 "temporal_range": temporal_range,
                 "format": format,
@@ -353,7 +353,7 @@ class DataService:
             elif hasattr(dataset.metadata, key):
                 setattr(dataset.metadata, key, value)
 
-        dataset.updated_at = datetime.utcnow()
+        dataset.updated_at = datetime.now(timezone.utc)
 
         return True
 

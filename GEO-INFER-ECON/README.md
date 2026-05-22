@@ -1,150 +1,52 @@
----
-title: "GEO-INFER-ECON: Spatial Economics"
-description: "Economic analysis, market assessment, and impact modeling in geospatial contexts"
-purpose: "Provide economic analytical capabilities for spatial planning and decision making"
-module_type: "Domain Application"
-status: "Alpha"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "DATA", "TIME"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-TIME"]
-tags: ["economics", "markets", "impact-analysis", "site-selection", "real-estate"]
-difficulty: "Intermediate"
-estimated_time: "45"
----
+# GEO-INFER-ECON
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Spatial economic modeling, market analysis, policy evaluation, and economic impact assessment with geospatial dimensions.
 
----
+## Contents
 
-# GEO-INFER-ECON: Spatial Economics
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-ECON** provides spatial economic analysis:
+- No public Python symbols are defined directly in this directory.
 
-- **Regional Economics**: GDP, employment, income analysis
-- **Market Analysis**: Real estate, retail, commercial
-- **Impact Assessment**: Economic and fiscal impact studies
-- **Site Selection**: Optimal location analysis
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
 
-### Regional Economic Analysis
+## Dependencies
 
-```python
-from geo_infer_econ import SpatialEconometricsEngine
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
 
-# Analyze regional economy
-engine = SpatialEconometricsEngine()
-
-analysis = engine.analyze(
-    region=metro_area,
-    indicators=["gdp", "employment", "wages"],
-    sectors=["tech", "healthcare", "manufacturing"]
-)
-
-print(f"GDP: ${analysis.gdp}B")
-print(f"Growth sectors: {analysis.growing_sectors}")
-```
-
-### Market Analysis
-
-```python
-from geo_infer_econ import MarketStructureAnalysis
-
-# Real estate market analysis
-market = MarketStructureAnalysis()
-
-assessment = market.assess(
-    area=neighborhood,
-    property_type="residential",
-    metrics=["price", "inventory", "days_on_market"]
-)
-
-print(f"Median price: ${assessment.median_price}")
-print(f"YoY change: {assessment.price_change}%")
-```
-
-### Economic Impact
-
-```python
-from geo_infer_econ import PolicyAnalysisEngine
-
-# Assess project impact
-impact = PolicyAnalysisEngine()
-
-study = impact.analyze(
-    project=new_development,
-    method="input_output"
-)
-
-print(f"Jobs created: {study.total_jobs}")
-print(f"Economic output: ${study.output}M")
-print(f"Tax revenue: ${study.tax_revenue}M")
-```
-
-### Site Selection
-
-```python
-from geo_infer_econ import EconomicModelingEngine
-
-# Find optimal business location
-modeler = EconomicModelingEngine()
-
-sites = modeler.find_optimal_locations(
-    business_type="retail",
-    criteria={
-        "population": {"min": 50000},
-        "income": {"min": 75000},
-        "competition": {"max": 3}
-    }
-)
-
-print(f"Top sites: {sites[:5]}")
-```
-
-## Analysis Types
-
-| Type | Application |
-|------|-------------|
-| **I/O Analysis** | Spending impacts |
-| **Fiscal Impact** | Tax revenue |
-| **CBA** | Project evaluation |
-| **Econometrics** | Forecasting |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-SPACE** | Location analysis |
-| **GEO-INFER-DATA** | Economic data |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-ECON"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
 ```
 
----
+## Documentation Notes
 
-**Status**: Alpha
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

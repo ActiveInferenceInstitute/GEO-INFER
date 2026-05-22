@@ -1,14 +1,48 @@
-# core
- ## Overview
- This directory contains core components. It includes 4 Python modules. ## Components
- ### cognitive_engin
-e
-.py Cognitive Processing Engine for GEO-INFER-COG **Classes**: `CognitiveState`, `CognitiveProcessingEngine` ### spatial_memor
-y
-.py Spatial Memory Model for GEO-INFER-COG **Classes**: `SpatialMemoryItem`, `MemoryConsolidation`, `SpatialMemoryModel` ### spatial_perceptio
-n
-.py Spatial Perception Models for GEO-INFER-COG **Classes**: `SpatialPercept`, `AttentionModel`, `SpatialPerceptionModel` ### spatial_reasonin
-g
-.py Spatial Reasoning Engine for GEO-INFER-COG **Classes**: `SpatialRelation`, `ReasoningStep`, `SpatialReasoningEngine` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-COG/src/geo_infer_cog/core
+
+Core workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `__init__.py`
+- `cognitive_engine.py`
+- `spatial_memory.py`
+- `spatial_perception.py`
+- `spatial_reasoning.py`
+
+## Public Interface
+
+- `cognitive_engine.py:CognitiveState` (class)
+- `cognitive_engine.py:CognitiveProcessingEngine` (class)
+- `spatial_memory.py:SpatialMemoryItem` (class)
+- `spatial_memory.py:MemoryConsolidation` (class)
+- `spatial_memory.py:SpatialMemoryModel` (class)
+- `spatial_perception.py:SpatialPercept` (class)
+- `spatial_perception.py:AttentionModel` (class)
+- `spatial_perception.py:SpatialPerceptionModel` (class)
+- `spatial_reasoning.py:SpatialRelation` (class)
+- `spatial_reasoning.py:ReasoningStep` (class)
+- `spatial_reasoning.py:SpatialReasoningEngine` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

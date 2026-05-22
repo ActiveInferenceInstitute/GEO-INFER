@@ -99,7 +99,7 @@ def create_bounding_box(
     )
 
 
-# Placeholder for more advanced geo-utils, e.g., using geopandas or shapely if available
+# Baseline for more advanced geo-utils, e.g., using geopandas or shapely if available
 # def project_to_utm(location: Location) -> Tuple[float, float, str]:
 #     pass
 

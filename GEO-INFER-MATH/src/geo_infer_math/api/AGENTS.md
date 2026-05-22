@@ -1,81 +1,37 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-MATH/src/geo_infer_math/api
 
 ## Scope
- This directory contains api components for the module. It provides 12 classes and 5 functions.
 
-## Classes
- and Functions
-
-### DescriptiveStatsRequest
- Request model for descriptive statistics.
-
-### DescriptiveStatsResponse
- Response model for descriptive statistics.
-
-### AutocorrelationRequest
- Request model for autocorrelation analysis.
-
-### AutocorrelationResponse
- Response model for autocorrelation analysis.
-
-### HotspotAnalysisRequest
- Request model for hot spot analysis.
-
-### HotspotAnalysisResponse
- Response model for hot spot analysis.
-
-### ClusteringRequest
- Request model for clustering analysis.
-
-### ClusteringResponse
- Response model for clustering analysis.
-
-### InterpolationRequest
- Request model for spatial interpolation.
-
-### InterpolationResponse
- Response model for spatial interpolation.
-
-### SpatialDataset
- Model for spatial dataset.
-
-### SpatialAnalysisAPI
- Provides high-level methods for spatial analysis by encapsulating
-
-**Methods**:
-- `autocorrelation_analysis(values: np.ndarray, coordinates: np.ndarray, method: str, **kwargs) -> Dict[str, Any]`: Perform spatial autocorrelation analysis using the specified method.
-- `point_pattern_analysis(points: np.ndarray, method: str, **kwargs) -> Dict[str, Any]`: Perform point pattern analysis using the specified method.
-- `spatial_interpolation(known_points: np.ndarray, known_values: np.ndarray, query_points: np.ndarray, method: str, **kwargs) -> np.ndarray`: Perform spatial interpolation to estimate values at unsampled locations.
-- `distance_matrix(points1: np.ndarray, points2: Optional[np.ndarray], method: str, **kwargs) -> np.ndarray`: Calculate a distance matrix between two sets of points.
-- `descriptive_statistics(values: np.ndarray, coordinates: Optional[np.ndarray]) -> Dict[str, Any]`: Calculate descriptive statistics for spatial data.
-- `calculate_descriptive_stats(request_data: Dict[str, Any]) -> Dict[str, Any]`: Calculate descriptive spatial statistics (API endpoint).
-- `calculate_autocorrelation(request_data: Dict[str, Any]) -> Dict[str, Any]`: Calculate spatial autocorrelation (API endpoint).
-- `analyze_hotspots(request_data: Dict[str, Any]) -> Dict[str, Any]`: Analyze hot spots (API endpoint).
-- `perform_clustering(request_data: Dict[str, Any]) -> Dict[str, Any]`: Perform spatial clustering (API endpoint).
-- `create_flask_app() -> Flask`: Create Flask application with API endpoints.
-
-### health_check
- `health_check()` Health check endpoint.
-
-### descriptive_stats_endpoint
- `descriptive_stats_endpoint()` Descriptive spatial statistics endpoint.
-
-### autocorrelation_endpoint
- `autocorrelation_endpoint()` Spatial autocorrelation analysis endpoint.
-
-### hotspots_endpoint
- `hotspots_endpoint()` Hot spot analysis endpoint.
-
-### clustering_endpoint
- `clustering_endpoint()` Spatial clustering analysis endpoint.
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Api workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
 
-- **12 classes** for core functionality
-- **5 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-MATH/src/geo_infer_math/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `convenience/`
+- `__init__.py`
+- `spatial_analysis.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

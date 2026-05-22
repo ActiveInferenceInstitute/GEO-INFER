@@ -1,133 +1,46 @@
-# Agent
-: models
+# Agent Instructions: GEO-INFER-BAYES/src/geo_infer_bayes/models
 
 ## Scope
- This directory contains models components for the module. It provides 12 classes and 1 functions.
 
-## Classes
- and Functions
-
-### BayesianModel
- Abstract base class for all Bayesian models.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the model parameters.
-- `log_posterior(theta: Dict[str, Any], data: Any) -> float`: Compute the log-posterior for the model.
-- `prepare_data(data: Union[np.ndarray, xr.Dataset, Dict[str, Any]]) -> Any`: Prepare data for inference.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-- `plot_prediction(posterior: Any, grid: Optional[np.ndarray], uncertainty: bool, **kwargs) -> Tuple[plt.Figure, plt.Axes]`: Plot model predictions from the posterior.
-
-### BayesianNetwork
- Bayesian network model for geospatial causal inference.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the Bayesian network model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the Bayesian network model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### BayesianTimeSeriesModel
- Bayesian time series model for geospatial data.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the time series model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the time series model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### DirichletProcessMixture
- Dirichlet Process mixture model for spatial clustering.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the DP mixture model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the DP mixture model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### DynamicSpatialModel
- Dynamic spatial model for time-varying spatial processes.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the dynamic spatial model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the dynamic spatial model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### HierarchicalBayesianModel
- Hierarchical Bayesian model for multi-level spatial data.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the hierarchical model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the hierarchical model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### MultilevelModel
- Multi-level Bayesian model for complex hierarchical structures.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the multi-level model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the multi-level model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### SpatialCausalModel
- Spatial causal model for geospatial causal inference.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the spatial causal model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the spatial causal model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### SpatialClusteringModel
- Spatial clustering model for geospatial data.
-
-**Methods**:
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the spatial clustering model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the spatial clustering model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### SpatialGP
- Gaussian Process model for spatial data.
-
-**Methods**:
-- `fit(X: np.ndarray, y: np.ndarray) -> 'SpatialGP'`: Fit the GP to training data.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-- `log_likelihood(theta: Dict[str, Any], data: Dict[str, np.ndarray]) -> float`: Compute the marginal log-likelihood of the GP.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the GP parameters.
-
-### SpatioTemporalConfig
- Configuration for spatio-temporal Gaussian Process models.
-
-### SpatioTemporalGP
- Spatio-temporal Gaussian Process model for geospatial applications.
-
-**Methods**:
-- `fit(spatial_coords: np.ndarray, temporal_coords: np.ndarray, observations: np.ndarray, **kwargs) -> 'SpatioTemporalGP'`: Fit the spatio-temporal Gaussian Process model to data.
-- `predict(spatial_coords: np.ndarray, temporal_coords: np.ndarray, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions using the fitted spatio-temporal model.
-- `sample(spatial_coords: np.ndarray, temporal_coords: np.ndarray, n_samples: int) -> np.ndarray`: Generate samples from the spatio-temporal model.
-- `get_model_parameters() -> Dict[str, Any]`: Get the fitted model parameters.
-- `log_likelihood(spatial_coords: np.ndarray, temporal_coords: np.ndarray, observations: np.ndarray) -> float`: Calculate the log-likelihood of the data under the model.
-- `cross_validate(spatial_coords: np.ndarray, temporal_coords: np.ndarray, observations: np.ndarray, n_folds: int) -> Dict[str, float]`: Perform cross-validation on the model.
-- `log_likelihood(theta: Dict[str, Any], data: Any) -> float`: Compute the log-likelihood for the spatio-temporal model.
-- `log_prior(theta: Dict[str, Any]) -> float`: Compute the log-prior for the spatio-temporal model parameters.
-- `predict(X_new: np.ndarray, posterior: Any, samples: int, return_std: bool) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]`: Make predictions at locations.
-- `posterior_predictive(posterior: Any, X: Optional[np.ndarray], samples: int) -> np.ndarray`: Generate posterior predictive samples.
-
-### create_spatiotemporal_gp
- `create_spatiotemporal_gp(config: Optional[SpatioTemporalConfig]) -> SpatioTemporalGP` Create a spatio-temporal Gaussian Process model.
+- Owning module: `GEO-INFER-BAYES`
+- Python package: `geo_infer_bayes`
+- Directory role: Models workspace within `GEO-INFER-BAYES`.
 
 ## Capabilities
 
-- **12 classes** for core functionality
-- **1 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_bayes` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-BAYES/src/geo_infer_bayes/models`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `base.py`
+- `bayesian_network.py`
+- `bayesian_timeseries.py`
+- `dirichlet_process.py`
+- `dynamic_spatial.py`
+- `hierarchical.py`
+- `multilevel.py`
+- `spatial_causal.py`
+- `spatial_clustering.py`
+- `spatial_gp.py`
+- `spatiotemporal_gp.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

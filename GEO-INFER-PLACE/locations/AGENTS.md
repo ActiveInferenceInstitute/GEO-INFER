@@ -1,31 +1,41 @@
-# Agent: locations
+# Agent Instructions: GEO-INFER-PLACE/locations
 
 ## Scope
 
-This agent manages the `locations` directory, which contains place-based geospatial
-analysis configurations and implementations for specific geographic regions.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Locations workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **Location Registry**: Maintains the index of all supported geographic locations
-- **Configuration Management**: Location-specific analysis configs, data schemas, and requirements
-- **Code Implementations**: Production-ready analysis pipelines (Cascadia, Del Norte County)
-- **Documentation Standards**: README formatting, requirements accuracy, and data source cataloguing
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Supported Locations
+## Working Rules
 
-| Location | Type | Agent Sub-Scope |
-|----------|------|-----------------|
-| `australia/` | Documentation | Continental climate, biodiversity, drought |
-| `cascadia/` | Production Code | Agricultural H3 analysis, data fusion |
-| `del_norte_county/` | Production Code | Forest health, coastal, fire risk |
-| `del_norte_county_synthetic/` | Configuration | Synthetic data variant |
-| `houston/` | Documentation | Open civic data, urban analytics |
-| `siberia/` | Documentation | Permafrost, Arctic climate, carbon |
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Integration
+## Local Contents
 
-- **Location**: `GEO-INFER-PLACE/locations`
-- **Type**: Directory Node
-- **Parent**: `GEO-INFER-PLACE`
-- **Dependencies**: `geo_infer_place.core`, `geo_infer_place.utils`
+- `australia/`
+- `cascadia/`
+- `del_norte/`
+- `del_norte_county/`
+- `del_norte_county_synthetic/`
+- `houston/`
+- `siberia/`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,91 +1,57 @@
-# models
+# GEO-INFER-ACT/src/geo_infer_act/models
 
-## Overview
+Models workspace within `GEO-INFER-ACT`.
 
-This directory contains domain-specific Active Inference models implementing specialized generative models for ecological, climate, urban planning, resource management, and multi-agent coordination applications. It includes 6 Python modules providing ready-to-use Active Inference models for various problem domains.
+## Contents
 
-## Components
+- `__init__.py`
+- `base.py`
+- `climate.py`
+- `ecological.py`
+- `multi_agent.py`
+- `resource.py`
+- `urban.py`
 
-### base.py
+## Public Interface
 
-Base models for active inference framework.
+- `base.py:ActiveInferenceModel` (class)
+- `base.py:CategoricalModel` (class)
+- `base.py:GaussianModel` (class)
+- `climate.py:ClimateModel` (class)
+- `ecological.py:EcologicalModel` (class)
+- `multi_agent.py:MultiAgentModel` (class)
+- `resource.py:ResourceModel` (class)
+- `urban.py:UrbanModel` (class)
 
-**Classes**: `ActiveInferenceModel`, `CategoricalModel`, `GaussianModel`
+## Module Metadata
 
-`CategoricalModel.compute_free_energy()` computes finite KL free energy against
-uniform preferences, including exact beliefs with zero-probability states.
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
 
-### climate.py
+## Dependencies
 
-Climate Model for Active Inference.
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
 
-**Classes**: `ClimateModel`
-
-### ecological.py
-
-Ecological niche modeling using Active Inference. Simulates organism adaptation to ecological niches by inferring hidden environmental states (resources, predation risk) from observations and selecting adaptive policies.
-
-**Classes**: `EcologicalModel`
-
-**Key Features**:
-- Resource level and predation risk state inference
-- Food and threat signal observation processing
-- Adaptive policy selection (Wait, Forage, Hide)
-
-### multi_agent.py
-
-Multi-agent model for active inference.
-
-**Classes**: `MultiAgentModel`
-
-### resource.py
-
-Resource management model for active inference.
-
-**Classes**: `ResourceModel`
-
-### urban.py
-
-Urban planning model using active inference.
-
-**Classes**: `UrbanModel`
-
-
-
-## Usage
-
-```python
-from geo_infer_act.models import EcologicalModel, ClimateModel, UrbanModel
-
-# Ecological niche modeling
-eco_model = EcologicalModel()
-observation = [1, 0]  # Food signal, threat signal
-action = eco_model.step(observation)
-
-# Climate adaptation
-climate_model = ClimateModel()
-climate_action = climate_model.step(climate_observations)
-
-# Urban planning
-urban_model = UrbanModel()
-urban_result = urban_model.run_simulation(n_steps=100)
-```
-
-## Integration
-
-This directory provides domain-specific Active Inference models used by:
-- API interfaces in `geo_infer_act.api`
-- Example demonstrations in `geo_infer_act.examples`
-- Domain modules (GEO-INFER-AG, GEO-INFER-FOREST, GEO-INFER-CLIMATE) for specialized applications
-- Multi-agent systems in `geo_infer_agent` for coordinated inference
-
-## Verification
+## Validation
 
 ```bash
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_models.py -q
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
-The comprehensive audit records domain-model evidence in
-`examples/output/comprehensive_act_audit/method_audit/domain_models/`.
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

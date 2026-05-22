@@ -1,13 +1,54 @@
-# Agent
-: unit 
+# Agent Instructions: GEO-INFER-SPACE/tests/unit
 
 ## Scope
- This agent is responsible for handling operations within the `unit` scope. 
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Unit workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_analytics_comprehensive** processes - Management of **test_backends_comprehensive** processes - Management of **test_base_module** processes - Management of **test_core** processes - Management of **test_data_integrator** processes - Management of **test_dispatch_comprehensive** processes - Management of **test_h3_enhanced** processes - Management of **test_nested_comprehensive** processes - Management of **test_place_analyzer** processes - Management of **test_spatial_processor** processes - Management of **test_spatial_statistics** processes - Management of **test_spatiotemporal** processes - Management of **test_temporal_analytics** processes - Management of **test_unified_backend** processes - Management of **test_unified_comprehensive** processes - Management of **test_visualization_engine** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPACE/tests/unit` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_analytics_comprehensive.py`
+- `test_backends_comprehensive.py`
+- `test_base_module.py`
+- `test_core.py`
+- `test_data_integrator.py`
+- `test_dispatch_comprehensive.py`
+- `test_gis_submodule.py`
+- `test_h3_enhanced.py`
+- `test_io_modules.py`
+- `test_nested_comprehensive.py`
+- `test_place_analyzer.py`
+- `test_spatial_methods.py`
+- `test_spatial_processor.py`
+- `test_spatial_statistics.py`
+- `test_spatial_utils.py`
+- `test_spatiotemporal.py`
+- `test_temporal_analytics.py`
+- `test_unified_backend.py`
+- `test_unified_comprehensive.py`
+- `test_visualization_engine.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SPACE/tests/unit
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,4 +1,55 @@
-# geo_infer_iot
- ## Overview
- GEO-INFER-IOT Internet of Things sensors and spatial web integration for the GEO-INFER framework. This module provides capabilities for ingesting, processing, and analyzing IoT sensor data in spatial context, enabling real-time environmental monitoring and Bayesian spatial inference at global scale. Key components: - IoT data ingestion from multiple protocols (MQTT, CoAP, LoRaWAN, HTTP) - Real-time spatial data fusion with H3 indexing - Bayesian spatial inference for converting point measurements to continuous surfaces - Quality control and sensor network management - Integration with environmental monitoring systems ## Contents
- - **api/**: Submodule - **config/**: Submodule - **core/**: Submodule - **models/**: Submodule - **performance/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-IOT/src/geo_infer_iot
+
+Geo Infer Iot workspace within `GEO-INFER-IOT`.
+
+## Contents
+
+- `api/`
+- `config/`
+- `core/`
+- `models/`
+- `performance/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- `__init__.py:IoTSystem` (class)
+- `__init__.py:BayesianSpatialInference` (class)
+- `__init__.py:GlobalMonitoringSystem` (class)
+- `__init__.py:MultiModalFusion` (class)
+- `__init__.py:AdaptiveSampling` (class)
+- `__init__.py:PredictiveMaintenance` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-IOT`
+- Package: `geo_infer_iot`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-IOT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
+
+## Dependencies
+
+- `aiocoap>=0.4.3`
+- `asyncio-mqtt>=0.11.0`
+- `confluent-kafka>=1.8.0`
+- `fastapi>=0.68.0`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `influxdb-client>=1.24.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0`
+- `paho-mqtt>=1.6.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

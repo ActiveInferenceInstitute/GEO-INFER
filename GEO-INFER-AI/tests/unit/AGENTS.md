@@ -1,13 +1,44 @@
-# Agent
-: unit
+# Agent Instructions: GEO-INFER-AI/tests/unit
 
 ## Scope
- This agent is responsible for handling operations within the `unit` scope.
+
+- Owning module: `GEO-INFER-AI`
+- Python package: `geo_infer_ai`
+- Directory role: Unit workspace within `GEO-INFER-AI`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_feature_engineering** processes - Management of **test_image_classifier** processes - Management of **test_spatial_predictor** processes - Management of **test_training** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ai` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-AI/tests/unit`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_cross_validation.py`
+- `test_explainability.py`
+- `test_feature_engineering.py`
+- `test_idw_interpolation.py`
+- `test_image_classifier.py`
+- `test_kriging.py`
+- `test_model_evaluation.py`
+- `test_spatial_lag_features.py`
+- `test_spatial_predictor.py`
+- `test_training.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-AI/tests/unit
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

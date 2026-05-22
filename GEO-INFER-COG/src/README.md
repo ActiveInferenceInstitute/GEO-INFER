@@ -1,5 +1,35 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-COG/src` Source code implementation. ## Implementation
- ### `geo_infer_cog/visualization/adapters.py` **Classes**: VisualizationElement, ColorScheme, HumanCenteredVisualizer **Functions**: get_visual_complexity, get_perceptually_uniform_colors, get_cognitive_load_colors, create_optimized_map, communicate_uncertainty ### `geo_infer_cog/core/cognitive_engine.py` **Classes**: CognitiveState, CognitiveProcessingEngine **Functions**: update_attention, add_to_working_memory, retrieve_from_memory, get_memory_utilization, process_spatial_input ### `geo_infer_cog/core/spatial_perception.py` **Classes**: SpatialPercept, AttentionModel, SpatialPerceptionModel **Functions**: calculate_attention_priority, allocate_attention, process_spatial_input, update_model, get_status ### `geo_infer_cog/core/spatial_reasoning.py` **Classes**: SpatialRelation, ReasoningStep, SpatialReasoningEngine **Functions**: is_consistent_with, reason_about_space, update_model, get_status ### `geo_infer_cog/core/spatial_memory.py` **Classes**: SpatialMemoryItem, MemoryConsolidation, SpatialMemoryModel **Functions**: calculate_retrieval_probability, update_access, decay_memory, check_for_consolidation, store_spatial_memory ## Contents
- - **geo_infer_cog/**: Subdirectory - **geo_infer_cog.egg-info/**: Subdirectory --- 
+# GEO-INFER-COG/src
+
+Src workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `geo_infer_cog.egg-info/`
+- `geo_infer_cog/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

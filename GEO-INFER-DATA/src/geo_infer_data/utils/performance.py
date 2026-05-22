@@ -6,15 +6,11 @@ for data processing operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
-from datetime import datetime, timedelta
+from typing import Dict, List, Any
+from datetime import datetime, timezone
 import time
 import psutil
 import threading
-
-import geopandas as gpd
-import pandas as pd
-import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -41,15 +37,17 @@ class PerformanceMonitor:
         >>> print(f"Average processing time: {metrics['avg_execution_time']:.2f}s")
     """
 
-    def __init__(self, enable_memory_monitoring: bool = True, enable_cpu_monitoring: bool = True):
+    def __init__(
+        self, enable_memory_monitoring: bool = True, enable_cpu_monitoring: bool = True
+    ):
         self.enable_memory_monitoring = enable_memory_monitoring
         self.enable_cpu_monitoring = enable_cpu_monitoring
 
         self.metrics = {
-            'operations': {},
-            'start_time': datetime.utcnow(),
-            'memory_usage': {},
-            'cpu_usage': {}
+            "operations": {},
+            "start_time": datetime.now(timezone.utc),
+            "memory_usage": {},
+            "cpu_usage": {},
         }
 
         self.active_operations = {}
@@ -62,7 +60,7 @@ class PerformanceMonitor:
 
         logger.info("Initialized PerformanceMonitor")
 
-    def track_operation(self, operation_name: str) -> 'OperationTracker':
+    def track_operation(self, operation_name: str) -> "OperationTracker":
         """
         Track performance of an operation.
 
@@ -83,13 +81,13 @@ class PerformanceMonitor:
             metric_name: Metric name
             value: Metric value
         """
-        if operation_name not in self.metrics['operations']:
-            self.metrics['operations'][operation_name] = {}
+        if operation_name not in self.metrics["operations"]:
+            self.metrics["operations"][operation_name] = {}
 
-        if metric_name not in self.metrics['operations'][operation_name]:
-            self.metrics['operations'][operation_name][metric_name] = []
+        if metric_name not in self.metrics["operations"][operation_name]:
+            self.metrics["operations"][operation_name][metric_name] = []
 
-        self.metrics['operations'][operation_name][metric_name].append(value)
+        self.metrics["operations"][operation_name][metric_name].append(value)
 
         logger.debug(f"Recorded metric {operation_name}.{metric_name}: {value}")
 
@@ -97,39 +95,48 @@ class PerformanceMonitor:
         """Get comprehensive performance metrics."""
         # Calculate summary statistics
         summary = {
-            'monitoring_duration': datetime.utcnow() - self.metrics['start_time'],
-            'total_operations': len(self.metrics['operations']),
-            'operations': {}
+            "monitoring_duration": datetime.now(timezone.utc)
+            - self.metrics["start_time"],
+            "total_operations": len(self.metrics["operations"]),
+            "operations": {},
         }
 
-        for operation_name, operation_metrics in self.metrics['operations'].items():
+        for operation_name, operation_metrics in self.metrics["operations"].items():
             operation_summary = {}
 
             for metric_name, values in operation_metrics.items():
                 if values:
                     operation_summary[metric_name] = {
-                        'count': len(values),
-                        'total': sum(values),
-                        'average': sum(values) / len(values),
-                        'min': min(values),
-                        'max': max(values)
+                        "count": len(values),
+                        "total": sum(values),
+                        "average": sum(values) / len(values),
+                        "min": min(values),
+                        "max": max(values),
                     }
 
-            summary['operations'][operation_name] = operation_summary
+            summary["operations"][operation_name] = operation_summary
 
         # Add memory and CPU metrics
         if self.memory_history:
-            summary['memory'] = {
-                'current_mb': self.memory_history[-1] if self.memory_history else 0,
-                'max_mb': max(self.memory_history) if self.memory_history else 0,
-                'average_mb': sum(self.memory_history) / len(self.memory_history) if self.memory_history else 0
+            summary["memory"] = {
+                "current_mb": self.memory_history[-1] if self.memory_history else 0,
+                "max_mb": max(self.memory_history) if self.memory_history else 0,
+                "average_mb": (
+                    sum(self.memory_history) / len(self.memory_history)
+                    if self.memory_history
+                    else 0
+                ),
             }
 
         if self.cpu_history:
-            summary['cpu'] = {
-                'current_percent': self.cpu_history[-1] if self.cpu_history else 0,
-                'max_percent': max(self.cpu_history) if self.cpu_history else 0,
-                'average_percent': sum(self.cpu_history) / len(self.cpu_history) if self.cpu_history else 0
+            summary["cpu"] = {
+                "current_percent": self.cpu_history[-1] if self.cpu_history else 0,
+                "max_percent": max(self.cpu_history) if self.cpu_history else 0,
+                "average_percent": (
+                    sum(self.cpu_history) / len(self.cpu_history)
+                    if self.cpu_history
+                    else 0
+                ),
             }
 
         return summary
@@ -144,62 +151,77 @@ class PerformanceMonitor:
         bottlenecks = []
         metrics = self.get_metrics()
 
-        for operation_name, operation_metrics in metrics['operations'].items():
+        for operation_name, operation_metrics in metrics["operations"].items():
             # Check execution time
-            if 'execution_time' in operation_metrics:
-                exec_time = operation_metrics['execution_time']
-                if exec_time['average'] > 60:  # More than 1 minute
-                    bottlenecks.append({
-                        'type': 'slow_operation',
-                        'operation': operation_name,
-                        'average_time': exec_time['average'],
-                        'severity': 'high'
-                    })
-                elif exec_time['average'] > 10:  # More than 10 seconds
-                    bottlenecks.append({
-                        'type': 'slow_operation',
-                        'operation': operation_name,
-                        'average_time': exec_time['average'],
-                        'severity': 'medium'
-                    })
+            if "execution_time" in operation_metrics:
+                exec_time = operation_metrics["execution_time"]
+                if exec_time["average"] > 60:  # More than 1 minute
+                    bottlenecks.append(
+                        {
+                            "type": "slow_operation",
+                            "operation": operation_name,
+                            "average_time": exec_time["average"],
+                            "severity": "high",
+                        }
+                    )
+                elif exec_time["average"] > 10:  # More than 10 seconds
+                    bottlenecks.append(
+                        {
+                            "type": "slow_operation",
+                            "operation": operation_name,
+                            "average_time": exec_time["average"],
+                            "severity": "medium",
+                        }
+                    )
 
             # Check memory usage
-            if 'memory_peak' in operation_metrics:
-                memory_mb = operation_metrics['memory_peak']['average']
+            if "memory_peak" in operation_metrics:
+                memory_mb = operation_metrics["memory_peak"]["average"]
                 if memory_mb > 1000:  # More than 1GB
-                    bottlenecks.append({
-                        'type': 'high_memory',
-                        'operation': operation_name,
-                        'memory_mb': memory_mb,
-                        'severity': 'high'
-                    })
+                    bottlenecks.append(
+                        {
+                            "type": "high_memory",
+                            "operation": operation_name,
+                            "memory_mb": memory_mb,
+                            "severity": "high",
+                        }
+                    )
                 elif memory_mb > 500:  # More than 500MB
-                    bottlenecks.append({
-                        'type': 'high_memory',
-                        'operation': operation_name,
-                        'memory_mb': memory_mb,
-                        'severity': 'medium'
-                    })
+                    bottlenecks.append(
+                        {
+                            "type": "high_memory",
+                            "operation": operation_name,
+                            "memory_mb": memory_mb,
+                            "severity": "medium",
+                        }
+                    )
 
         # Check system resources
-        if metrics.get('memory', {}).get('max_mb', 0) > 0.9 * psutil.virtual_memory().total / (1024**2):
-            bottlenecks.append({
-                'type': 'system_memory',
-                'current_mb': metrics['memory']['current_mb'],
-                'severity': 'critical'
-            })
+        if metrics.get("memory", {}).get(
+            "max_mb", 0
+        ) > 0.9 * psutil.virtual_memory().total / (1024**2):
+            bottlenecks.append(
+                {
+                    "type": "system_memory",
+                    "current_mb": metrics["memory"]["current_mb"],
+                    "severity": "critical",
+                }
+            )
 
-        if metrics.get('cpu', {}).get('max_percent', 0) > 90:
-            bottlenecks.append({
-                'type': 'system_cpu',
-                'current_percent': metrics['cpu']['current_percent'],
-                'severity': 'high'
-            })
+        if metrics.get("cpu", {}).get("max_percent", 0) > 90:
+            bottlenecks.append(
+                {
+                    "type": "system_cpu",
+                    "current_percent": metrics["cpu"]["current_percent"],
+                    "severity": "high",
+                }
+            )
 
         return bottlenecks
 
     def _start_background_monitoring(self):
         """Start background system monitoring."""
+
         def monitor_system():
             while True:
                 try:
@@ -207,7 +229,9 @@ class PerformanceMonitor:
                     if self.enable_memory_monitoring:
                         memory_mb = psutil.Process().memory_info().rss / (1024 * 1024)
                         self.memory_history.append(memory_mb)
-                        self.metrics['memory_usage'][datetime.utcnow()] = memory_mb
+                        self.metrics["memory_usage"][
+                            datetime.now(timezone.utc)
+                        ] = memory_mb
 
                         # Keep only last 1000 measurements
                         if len(self.memory_history) > 1000:
@@ -217,7 +241,9 @@ class PerformanceMonitor:
                     if self.enable_cpu_monitoring:
                         cpu_percent = psutil.cpu_percent(interval=1)
                         self.cpu_history.append(cpu_percent)
-                        self.metrics['cpu_usage'][datetime.utcnow()] = cpu_percent
+                        self.metrics["cpu_usage"][
+                            datetime.now(timezone.utc)
+                        ] = cpu_percent
 
                         # Keep only last 1000 measurements
                         if len(self.cpu_history) > 1000:
@@ -236,10 +262,10 @@ class PerformanceMonitor:
     def reset_metrics(self):
         """Reset all performance metrics."""
         self.metrics = {
-            'operations': {},
-            'start_time': datetime.utcnow(),
-            'memory_usage': {},
-            'cpu_usage': {}
+            "operations": {},
+            "start_time": datetime.now(timezone.utc),
+            "memory_usage": {},
+            "cpu_usage": {},
         }
         self.memory_history.clear()
         self.cpu_history.clear()
@@ -268,8 +294,8 @@ class OperationTracker:
                 self.start_memory = 0
 
         self.monitor.active_operations[self.operation_name] = {
-            'start_time': self.start_time,
-            'start_memory': self.start_memory
+            "start_time": self.start_time,
+            "start_memory": self.start_memory,
         }
 
         return self
@@ -280,7 +306,9 @@ class OperationTracker:
         execution_time = end_time - self.start_time
 
         # Record execution time
-        self.monitor.record_metric(self.operation_name, 'execution_time', execution_time)
+        self.monitor.record_metric(
+            self.operation_name, "execution_time", execution_time
+        )
 
         # Record memory usage
         if self.monitor.enable_memory_monitoring and self.start_memory is not None:
@@ -289,8 +317,12 @@ class OperationTracker:
                 memory_used = end_memory - self.start_memory
                 memory_peak = psutil.Process().memory_info().rss / (1024 * 1024)
 
-                self.monitor.record_metric(self.operation_name, 'memory_used', memory_used)
-                self.monitor.record_metric(self.operation_name, 'memory_peak', memory_peak)
+                self.monitor.record_metric(
+                    self.operation_name, "memory_used", memory_used
+                )
+                self.monitor.record_metric(
+                    self.operation_name, "memory_peak", memory_peak
+                )
 
             except Exception as e:
                 logger.error(f"Memory monitoring error: {e}")
@@ -300,7 +332,9 @@ class OperationTracker:
             del self.monitor.active_operations[self.operation_name]
 
         # Log operation completion
-        logger.debug(f"Operation {self.operation_name} completed in {execution_time:.2f}s")
+        logger.debug(
+            f"Operation {self.operation_name} completed in {execution_time:.2f}s"
+        )
 
 
 class DataProcessingProfiler:
@@ -327,44 +361,47 @@ class DataProcessingProfiler:
     """
 
     def __init__(self):
-        self.profile_data = {
-            'steps': {},
-            'start_time': None,
-            'end_time': None
-        }
+        self.profile_data = {"steps": {}, "start_time": None, "end_time": None}
         self.current_step = None
 
-    def profile_step(self, step_name: str) -> 'StepProfiler':
+    def profile_step(self, step_name: str) -> "StepProfiler":
         """Profile a processing step."""
         return StepProfiler(self, step_name)
 
     def start_profiling(self):
         """Start profiling session."""
-        self.profile_data['start_time'] = datetime.utcnow()
+        self.profile_data["start_time"] = datetime.now(timezone.utc)
         logger.info("Started data processing profiling")
 
     def end_profiling(self):
         """End profiling session."""
-        self.profile_data['end_time'] = datetime.utcnow()
+        self.profile_data["end_time"] = datetime.now(timezone.utc)
 
-        if self.profile_data['start_time']:
-            total_time = (self.profile_data['end_time'] - self.profile_data['start_time']).total_seconds()
-            self.profile_data['total_time'] = total_time
+        if self.profile_data["start_time"]:
+            total_time = (
+                self.profile_data["end_time"] - self.profile_data["start_time"]
+            ).total_seconds()
+            self.profile_data["total_time"] = total_time
 
-        logger.info(f"Ended data processing profiling (total: {self.profile_data.get('total_time', 0):.2f}s)")
+        logger.info(
+            f"Ended data processing profiling (total: {self.profile_data.get('total_time', 0):.2f}s)"
+        )
+
     def get_profile(self) -> Dict[str, Any]:
         """Get profiling results."""
-        if not self.profile_data['start_time']:
-            return {'error': 'Profiling not started'}
+        if not self.profile_data["start_time"]:
+            return {"error": "Profiling not started"}
 
-        if not self.profile_data['end_time']:
+        if not self.profile_data["end_time"]:
             self.end_profiling()
 
         # Calculate step percentages
-        total_time = self.profile_data['total_time']
+        total_time = self.profile_data["total_time"]
 
-        for step_name, step_data in self.profile_data['steps'].items():
-            step_data['percentage'] = (step_data['duration'] / total_time) * 100 if total_time > 0 else 0
+        for step_name, step_data in self.profile_data["steps"].items():
+            step_data["percentage"] = (
+                (step_data["duration"] / total_time) * 100 if total_time > 0 else 0
+            )
 
         return self.profile_data
 
@@ -390,26 +427,28 @@ class StepProfiler:
         duration = end_time - self.start_time
 
         # Record step metrics
-        if self.step_name not in self.profiler.profile_data['steps']:
-            self.profiler.profile_data['steps'][self.step_name] = {
-                'duration': 0,
-                'calls': 0,
-                'memory_start': 0,
-                'memory_end': 0,
-                'memory_used': 0
+        if self.step_name not in self.profiler.profile_data["steps"]:
+            self.profiler.profile_data["steps"][self.step_name] = {
+                "duration": 0,
+                "calls": 0,
+                "memory_start": 0,
+                "memory_end": 0,
+                "memory_used": 0,
             }
 
-        step_data = self.profiler.profile_data['steps'][self.step_name]
-        step_data['duration'] += duration
-        step_data['calls'] += 1
+        step_data = self.profiler.profile_data["steps"][self.step_name]
+        step_data["duration"] += duration
+        step_data["calls"] += 1
 
         # Record memory usage
         try:
             current_memory = psutil.Process().memory_info().rss / (1024 * 1024)
-            if step_data['calls'] == 1:
-                step_data['memory_start'] = current_memory
-            step_data['memory_end'] = current_memory
-            step_data['memory_used'] = step_data['memory_end'] - step_data['memory_start']
+            if step_data["calls"] == 1:
+                step_data["memory_start"] = current_memory
+            step_data["memory_end"] = current_memory
+            step_data["memory_used"] = (
+                step_data["memory_end"] - step_data["memory_start"]
+            )
         except Exception as e:
             logger.error(f"Memory profiling error: {e}")
 

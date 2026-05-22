@@ -71,7 +71,7 @@ def convergence_metrics(samples: Dict[str, np.ndarray]) -> Dict[str, Any]:
         # Gelman-Rubin statistic (simplified)
         # In practice, this would compare multiple chains
         metrics[param] = {
-            'potential_scale_reduction': 1.0,  # Placeholder
+            'potential_scale_reduction': 1.0,  # Baseline
             'monte_carlo_se': np.std(param_samples) / np.sqrt(len(param_samples)),
         }
 

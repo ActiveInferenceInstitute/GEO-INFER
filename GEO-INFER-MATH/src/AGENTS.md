@@ -1,28 +1,36 @@
-# Agent
-: src 
+# Agent Instructions: GEO-INFER-MATH/src
 
 ## Scope
- Agent responsible for source code implementation at path `GEO-INFER-MATH/src`. 
+
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Src workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
- 
 
-### Implemented
- Components **Core Modules**:
-- `geo_infer_math/`: Main package with mathematical foundations
-- `core/`: Core mathematical functions (geometry, spatial statistics, optimization, numerical methods)
-- `api/`: API interfaces and convenience functions
-- `integration/`: Integration with ACT, AI, and BAYES modules
-- `models/`: Mathematical models (clustering, regression)
-- `utils/`: Utility functions (caching, validation, parallel processing) 
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-### Directory
- Structure 
-- **geo_infer_math/**: Main package directory 
-- **geo_infer_math.egg-info/**: Package metadata 
+## Working Rules
 
-## Integration
- 
-- **Location**: `GEO-INFER-MATH/src` 
-- **Type**: Source code implementation 
-- **Provides**: Mathematical foundations for all GEO-INFER modules
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `geo_infer_math.egg-info/`
+- `geo_infer_math/`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

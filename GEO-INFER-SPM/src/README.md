@@ -1,5 +1,43 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-SPM/src` Source code implementation. ## Implementation
- ### `geo_infer_spm/visualization/maps.py` **Functions**: create_statistical_map, plot_spm_results, create_interactive_map ### `geo_infer_spm/visualization/diagnostics.py` **Functions**: plot_model_diagnostics, plot_contrast_results ### `geo_infer_spm/visualization/interactive.py` **Functions**: create_interactive_map, create_dashboard, create_time_series_explorer ### `geo_infer_spm/core/advanced/nonparametric.py` **Classes**: NonparametricSPM **Functions**: fit_nonparametric, fit, predict, get_smooth_components ### `geo_infer_spm/core/advanced/mixed_effects.py` **Classes**: MixedEffectsSPM **Functions**: fit_mixed_effects, fit, predict, get_random_effects, anova ## Contents
- - **geo_infer_spm/**: Subdirectory - **geo_infer_spm.egg-info/**: Subdirectory --- 
+# GEO-INFER-SPM/src
+
+Src workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `geo_infer_spm.egg-info/`
+- `geo_infer_spm/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

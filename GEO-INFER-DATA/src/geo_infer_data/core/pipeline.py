@@ -8,8 +8,8 @@ monitoring capabilities.
 
 import logging
 import asyncio
-from typing import Dict, List, Optional, Union, Any, Callable
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Union, Any
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 import json
@@ -20,8 +20,12 @@ import numpy as np
 import pandas as pd
 
 from ..models.schemas import (
-    ETLPipeline, ExecutionStatus, DataSource, DataDestination,
-    Transformation, ExecutionState, Dataset
+    ETLPipeline,
+    ExecutionStatus,
+    DataSource,
+    DataDestination,
+    Transformation,
+    ExecutionState,
 )
 from ..utils.validation import GeospatialValidator
 from ..utils.performance import PerformanceMonitor
@@ -32,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 class PipelineStatus(str, Enum):
     """Pipeline execution status."""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
@@ -42,6 +47,7 @@ class PipelineStatus(str, Enum):
 
 class ErrorRecoveryStrategy(str, Enum):
     """Error recovery strategies."""
+
     FAIL_FAST = "fail_fast"
     RETRY = "retry"
     SKIP = "skip"
@@ -52,6 +58,7 @@ class ErrorRecoveryStrategy(str, Enum):
 @dataclass
 class PipelineMetrics:
     """Pipeline execution metrics."""
+
     execution_id: str
     start_time: datetime
     end_time: Optional[datetime] = None
@@ -69,23 +76,20 @@ class TransformationEngine:
 
     def __init__(self):
         self.transformations = {
-            'filter': self._filter_data,
-            'transform': self._transform_data,
-            'aggregate': self._aggregate_data,
-            'validate': self._validate_data,
-            'clean': self._clean_data,
-            'spatial_join': self._spatial_join,
-            'temporal_aggregate': self._temporal_aggregate,
-            'geocode': self._geocode_data,
-            'reproject': self._reproject_data,
-            'clip': self._clip_data
+            "filter": self._filter_data,
+            "transform": self._transform_data,
+            "aggregate": self._aggregate_data,
+            "validate": self._validate_data,
+            "clean": self._clean_data,
+            "spatial_join": self._spatial_join,
+            "temporal_aggregate": self._temporal_aggregate,
+            "geocode": self._geocode_data,
+            "reproject": self._reproject_data,
+            "clip": self._clip_data,
         }
 
     async def execute_transformation(
-        self,
-        transformation: Transformation,
-        data: Any,
-        context: Dict[str, Any]
+        self, transformation: Transformation, data: Any, context: Dict[str, Any]
     ) -> Any:
         """Execute a single transformation."""
         transform_type = transformation.type
@@ -104,52 +108,66 @@ class TransformationEngine:
             logger.error(f"Transformation {transform_type} failed: {e}")
             raise
 
-    async def _filter_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _filter_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Apply filtering transformation."""
-        filter_conditions = parameters.get('conditions', {})
+        filter_conditions = parameters.get("conditions", {})
 
         if isinstance(data, pd.DataFrame):
             # Filter pandas DataFrame
             filtered_data = data.copy()
             for column, condition in filter_conditions.items():
-                if 'min' in condition:
-                    filtered_data = filtered_data[filtered_data[column] >= condition['min']]
-                if 'max' in condition:
-                    filtered_data = filtered_data[filtered_data[column] <= condition['max']]
-                if 'values' in condition:
-                    filtered_data = filtered_data[filtered_data[column].isin(condition['values'])]
+                if "min" in condition:
+                    filtered_data = filtered_data[
+                        filtered_data[column] >= condition["min"]
+                    ]
+                if "max" in condition:
+                    filtered_data = filtered_data[
+                        filtered_data[column] <= condition["max"]
+                    ]
+                if "values" in condition:
+                    filtered_data = filtered_data[
+                        filtered_data[column].isin(condition["values"])
+                    ]
             return filtered_data
         else:
             # Handle other data types
             return data
 
-    async def _transform_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _transform_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Apply data transformation."""
-        transformations = parameters.get('transformations', {})
+        transformations = parameters.get("transformations", {})
 
         if isinstance(data, pd.DataFrame):
             transformed_data = data.copy()
             for column, transform in transformations.items():
-                transform_type = transform.get('type')
+                transform_type = transform.get("type")
 
-                if transform_type == 'scale':
-                    factor = transform.get('factor', 1.0)
+                if transform_type == "scale":
+                    factor = transform.get("factor", 1.0)
                     transformed_data[column] = transformed_data[column] * factor
-                elif transform_type == 'normalize':
+                elif transform_type == "normalize":
                     min_val = transformed_data[column].min()
                     max_val = transformed_data[column].max()
-                    transformed_data[column] = (transformed_data[column] - min_val) / (max_val - min_val)
-                elif transform_type == 'log':
+                    transformed_data[column] = (transformed_data[column] - min_val) / (
+                        max_val - min_val
+                    )
+                elif transform_type == "log":
                     transformed_data[column] = np.log(transformed_data[column] + 1)
 
             return transformed_data
         else:
             return data
 
-    async def _aggregate_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _aggregate_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Apply data aggregation."""
-        group_by = parameters.get('group_by', [])
-        aggregations = parameters.get('aggregations', {})
+        group_by = parameters.get("group_by", [])
+        aggregations = parameters.get("aggregations", {})
 
         if isinstance(data, pd.DataFrame):
             aggregated_data = data.groupby(group_by).agg(aggregations).reset_index()
@@ -157,42 +175,56 @@ class TransformationEngine:
         else:
             return data
 
-    async def _validate_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _validate_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Validate data."""
         validator = GeospatialValidator()
         validation_result = await validator.validate_data(data)
 
-        if validation_result.status == 'fail':
+        if validation_result.status == "fail":
             raise ValueError(f"Data validation failed: {validation_result.issues}")
 
         return data
 
-    async def _clean_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _clean_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Clean data."""
         # Implementation for data cleaning
         return data
 
-    async def _spatial_join(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _spatial_join(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Perform spatial join."""
         # Implementation for spatial join
         return data
 
-    async def _temporal_aggregate(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _temporal_aggregate(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Perform temporal aggregation."""
         # Implementation for temporal aggregation
         return data
 
-    async def _geocode_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _geocode_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Geocode data."""
         # Implementation for geocoding
         return data
 
-    async def _reproject_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _reproject_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Reproject spatial data."""
         # Implementation for reprojection
         return data
 
-    async def _clip_data(self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]) -> Any:
+    async def _clip_data(
+        self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
+    ) -> Any:
         """Clip data to spatial bounds."""
         # Implementation for clipping
         return data
@@ -312,7 +344,7 @@ class IntelligentETLPipeline:
         dependency_resolution: str = "automatic",
         error_recovery: str = "intelligent_retry",
         monitoring_enabled: bool = True,
-        parallel_execution: bool = True
+        parallel_execution: bool = True,
     ):
         self.workflow_config = workflow_config
         self.dependency_resolution = dependency_resolution
@@ -328,15 +360,17 @@ class IntelligentETLPipeline:
 
         self._load_configuration()
 
-        logger.info(f"Initialized IntelligentETLPipeline with {error_recovery} error recovery")
+        logger.info(
+            f"Initialized IntelligentETLPipeline with {error_recovery} error recovery"
+        )
 
     def _load_configuration(self):
         """Load pipeline configuration from file or dictionary."""
         if isinstance(self.workflow_config, str):
             config_path = Path(self.workflow_config)
             if config_path.exists():
-                with open(config_path, 'r') as f:
-                    if config_path.suffix in ['.yaml', '.yml']:
+                with open(config_path, "r") as f:
+                    if config_path.suffix in [".yaml", ".yml"]:
                         config = yaml.safe_load(f)
                     else:
                         config = json.load(f)
@@ -349,7 +383,7 @@ class IntelligentETLPipeline:
         self,
         source_data: Any,
         target_storage: Any,
-        transformation_rules: Optional[Dict[str, Any]] = None
+        transformation_rules: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Execute the complete ETL workflow with monitoring and error recovery.
@@ -441,12 +475,12 @@ class IntelligentETLPipeline:
         logger.info("Starting ETL workflow execution")
 
         # Create execution status
-        execution_id = f"exec_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        execution_id = f"exec_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
         self.current_execution = ExecutionStatus(
             id=execution_id,
             pipeline_id=self.pipeline.id if self.pipeline else "unknown",
             status=ExecutionState.RUNNING,
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc),
         )
 
         try:
@@ -455,8 +489,7 @@ class IntelligentETLPipeline:
 
             # Transform phase
             transformed_data = await self._transform_data(
-                extracted_data,
-                transformation_rules
+                extracted_data, transformation_rules
             )
 
             # Load phase
@@ -464,23 +497,30 @@ class IntelligentETLPipeline:
 
             # Update execution status
             self.current_execution.status = ExecutionState.COMPLETED
-            self.current_execution.completed_at = datetime.utcnow()
+            self.current_execution.completed_at = datetime.now(timezone.utc)
             self.current_execution.progress = 100.0
 
             # Record execution
             self.execution_history.append(self.current_execution)
 
             execution_result = {
-                'execution_id': execution_id,
-                'status': 'completed',
-                'extracted_records': len(extracted_data) if hasattr(extracted_data, '__len__') else 1,
-                'transformed_records': len(transformed_data) if hasattr(transformed_data, '__len__') else 1,
-                'load_result': load_result,
-                'execution_time': self.current_execution.completed_at - self.current_execution.started_at,
-                'performance_metrics': self._get_performance_metrics()
+                "execution_id": execution_id,
+                "status": "completed",
+                "extracted_records": (
+                    len(extracted_data) if hasattr(extracted_data, "__len__") else 1
+                ),
+                "transformed_records": (
+                    len(transformed_data) if hasattr(transformed_data, "__len__") else 1
+                ),
+                "load_result": load_result,
+                "execution_time": self.current_execution.completed_at
+                - self.current_execution.started_at,
+                "performance_metrics": self._get_performance_metrics(),
             }
 
-            logger.info(f"ETL workflow completed successfully in {execution_result['execution_time']}")
+            logger.info(
+                f"ETL workflow completed successfully in {execution_result['execution_time']}"
+            )
             return execution_result
 
         except Exception as e:
@@ -488,7 +528,7 @@ class IntelligentETLPipeline:
 
             # Update execution status
             self.current_execution.status = ExecutionState.FAILED
-            self.current_execution.completed_at = datetime.utcnow()
+            self.current_execution.completed_at = datetime.now(timezone.utc)
             self.current_execution.message = str(e)
 
             # Apply error recovery
@@ -503,36 +543,52 @@ class IntelligentETLPipeline:
         if self.pipeline and self.pipeline.source:
             # Use configured source
             source_config = self.pipeline.source
-            extracted_data = await self._extract_from_configured_source(source_config, source_data)
+            extracted_data = await self._extract_from_configured_source(
+                source_config, source_data
+            )
         else:
             # Use provided data directly
             extracted_data = source_data
 
-        logger.debug(f"Extracted {len(extracted_data) if hasattr(extracted_data, '__len__') else 1} records")
+        logger.debug(
+            f"Extracted {len(extracted_data) if hasattr(extracted_data, '__len__') else 1} records"
+        )
         return extracted_data
 
-    async def _extract_from_configured_source(self, source_config: DataSource, source_data: Any) -> Any:
+    async def _extract_from_configured_source(
+        self, source_config: DataSource, source_data: Any
+    ) -> Any:
         """Extract data from configured source."""
         source_type = source_config.type
 
-        if source_type == 'file':
+        if source_type == "file":
             # Extract from files
-            return await self._extract_from_files(source_config.configuration, source_data)
-        elif source_type == 'database':
+            return await self._extract_from_files(
+                source_config.configuration, source_data
+            )
+        elif source_type == "database":
             # Extract from databases
-            return await self._extract_from_database(source_config.configuration, source_data)
-        elif source_type == 'api':
+            return await self._extract_from_database(
+                source_config.configuration, source_data
+            )
+        elif source_type == "api":
             # Extract from APIs
-            return await self._extract_from_api(source_config.configuration, source_data)
+            return await self._extract_from_api(
+                source_config.configuration, source_data
+            )
         else:
             return source_data
 
-    async def _extract_from_files(self, config: Dict[str, Any], source_data: Any) -> Any:
+    async def _extract_from_files(
+        self, config: Dict[str, Any], source_data: Any
+    ) -> Any:
         """Extract data from file sources."""
         # Implementation for file extraction
         return source_data
 
-    async def _extract_from_database(self, config: Dict[str, Any], source_data: Any) -> Any:
+    async def _extract_from_database(
+        self, config: Dict[str, Any], source_data: Any
+    ) -> Any:
         """Extract data from database sources."""
         # Implementation for database extraction
         return source_data
@@ -543,9 +599,7 @@ class IntelligentETLPipeline:
         return source_data
 
     async def _transform_data(
-        self,
-        extracted_data: Any,
-        transformation_rules: Optional[Dict[str, Any]] = None
+        self, extracted_data: Any, transformation_rules: Optional[Dict[str, Any]] = None
     ) -> Any:
         """Transform extracted data."""
         logger.debug("Starting data transformation")
@@ -556,9 +610,11 @@ class IntelligentETLPipeline:
 
         transformed_data = extracted_data
         execution_context = {
-            'pipeline_id': self.pipeline.id,
-            'execution_id': self.current_execution.id if self.current_execution else None,
-            'start_time': datetime.utcnow()
+            "pipeline_id": self.pipeline.id,
+            "execution_id": (
+                self.current_execution.id if self.current_execution else None
+            ),
+            "start_time": datetime.now(timezone.utc),
         }
 
         # Execute transformations in order
@@ -568,10 +624,10 @@ class IntelligentETLPipeline:
 
             try:
                 logger.debug(f"Executing transformation: {transformation.type}")
-                transformed_data = await self.transformation_engine.execute_transformation(
-                    transformation,
-                    transformed_data,
-                    execution_context
+                transformed_data = (
+                    await self.transformation_engine.execute_transformation(
+                        transformation, transformed_data, execution_context
+                    )
                 )
 
                 # Update progress
@@ -589,20 +645,30 @@ class IntelligentETLPipeline:
                     continue
                 else:
                     # Retry or intelligent recovery
-                    await self._handle_transformation_error(e, transformation, transformed_data)
+                    await self._handle_transformation_error(
+                        e, transformation, transformed_data
+                    )
 
         logger.debug("Data transformation completed")
         return transformed_data
 
-    def _calculate_transformation_progress(self, transformation: Transformation) -> float:
+    def _calculate_transformation_progress(
+        self, transformation: Transformation
+    ) -> float:
         """Calculate transformation progress."""
         if not self.pipeline:
             return 0.0
 
-        total_transformations = len([t for t in self.pipeline.transformations if t.enabled])
+        total_transformations = len(
+            [t for t in self.pipeline.transformations if t.enabled]
+        )
         current_index = next(
-            (i for i, t in enumerate(self.pipeline.transformations) if t.order == transformation.order),
-            0
+            (
+                i
+                for i, t in enumerate(self.pipeline.transformations)
+                if t.order == transformation.order
+            ),
+            0,
         )
 
         if total_transformations == 0:
@@ -619,9 +685,7 @@ class IntelligentETLPipeline:
             # Use configured destination
             destination_config = self.pipeline.destination
             load_result = await self._load_to_configured_destination(
-                destination_config,
-                transformed_data,
-                target_storage
+                destination_config, transformed_data, target_storage
             )
         else:
             # Use provided storage directly
@@ -634,22 +698,27 @@ class IntelligentETLPipeline:
         self,
         destination_config: DataDestination,
         transformed_data: Any,
-        target_storage: Any
+        target_storage: Any,
     ) -> Any:
         """Load data to configured destination."""
         # Implementation for configured destination loading
-        return {'records_loaded': len(transformed_data) if hasattr(transformed_data, '__len__') else 1}
+        return {
+            "records_loaded": (
+                len(transformed_data) if hasattr(transformed_data, "__len__") else 1
+            )
+        }
 
     async def _load_to_storage(self, transformed_data: Any, target_storage: Any) -> Any:
         """Load data directly to storage."""
         # Implementation for direct storage loading
-        return {'records_loaded': len(transformed_data) if hasattr(transformed_data, '__len__') else 1}
+        return {
+            "records_loaded": (
+                len(transformed_data) if hasattr(transformed_data, "__len__") else 1
+            )
+        }
 
     async def _handle_error(
-        self,
-        error: Exception,
-        source_data: Any,
-        target_storage: Any
+        self, error: Exception, source_data: Any, target_storage: Any
     ):
         """Handle pipeline execution errors."""
         logger.error(f"Handling pipeline error: {error}")
@@ -667,29 +736,25 @@ class IntelligentETLPipeline:
         self.execution_history.append(self.current_execution)
 
     async def _handle_transformation_error(
-        self,
-        error: Exception,
-        transformation: Transformation,
-        data: Any
+        self, error: Exception, transformation: Transformation, data: Any
     ):
         """Handle transformation-specific errors."""
-        logger.error(f"Handling transformation error for {transformation.type}: {error}")
+        logger.error(
+            f"Handling transformation error for {transformation.type}: {error}"
+        )
 
         # Log error details
         if self.current_execution:
             log_entry = {
-                'timestamp': datetime.utcnow(),
-                'level': 'error',
-                'transformation': transformation.type,
-                'message': str(error)
+                "timestamp": datetime.now(timezone.utc),
+                "level": "error",
+                "transformation": transformation.type,
+                "message": str(error),
             }
             self.current_execution.logs.append(log_entry)
 
     async def _intelligent_error_recovery(
-        self,
-        error: Exception,
-        source_data: Any,
-        target_storage: Any
+        self, error: Exception, source_data: Any, target_storage: Any
     ):
         """Intelligent error recovery with adaptive strategies."""
         # Implementation for intelligent error recovery
@@ -698,13 +763,13 @@ class IntelligentETLPipeline:
         # Analyze error type and apply appropriate recovery strategy
         error_type = type(error).__name__
 
-        if 'ConnectionError' in error_type:
+        if "ConnectionError" in error_type:
             # Network-related error - retry with exponential backoff
             await asyncio.sleep(10)
-        elif 'ValidationError' in error_type:
+        elif "ValidationError" in error_type:
             # Data validation error - attempt data repair
             logger.warning("Attempting data repair for validation error")
-        elif 'MemoryError' in error_type:
+        elif "MemoryError" in error_type:
             # Memory error - reduce batch size and retry
             logger.warning("Memory error detected, reducing batch size")
 
@@ -720,7 +785,7 @@ class IntelligentETLPipeline:
     def get_performance_metrics(self) -> Dict[str, Any]:
         """Get pipeline performance metrics."""
         if not self.performance_monitor:
-            return {'monitoring_disabled': True}
+            return {"monitoring_disabled": True}
 
         return self.performance_monitor.get_metrics()
 
@@ -731,24 +796,25 @@ class IntelligentETLPipeline:
 
         execution_time = (
             self.current_execution.completed_at - self.current_execution.started_at
-            if self.current_execution.completed_at else timedelta()
+            if self.current_execution.completed_at
+            else timedelta()
         )
 
         return {
-            'execution_time_seconds': execution_time.total_seconds(),
-            'status': self.current_execution.status,
-            'progress': self.current_execution.progress,
-            'logs_count': len(self.current_execution.logs)
+            "execution_time_seconds": execution_time.total_seconds(),
+            "status": self.current_execution.status,
+            "progress": self.current_execution.progress,
+            "logs_count": len(self.current_execution.logs),
         }
 
     def identify_bottlenecks(self, metrics: Dict[str, Any]) -> List[str]:
         """Identify performance bottlenecks."""
         bottlenecks = []
 
-        if metrics.get('execution_time_seconds', 0) > 3600:  # 1 hour
+        if metrics.get("execution_time_seconds", 0) > 3600:  # 1 hour
             bottlenecks.append("Long execution time detected")
 
-        if metrics.get('memory_usage', {}).get('peak', 0) > 0.9:  # 90% memory usage
+        if metrics.get("memory_usage", {}).get("peak", 0) > 0.9:  # 90% memory usage
             bottlenecks.append("High memory usage detected")
 
         # Add more bottleneck detection logic

@@ -1,6 +1,38 @@
-# GEO
--INFER-RISK Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-RISK module. ## Available
- Examples ### Basi
-c
- Risk Assessment (`basic_risk_assessment.py`) Demonstrates fundamental risk assessment capabilities: - Risk engine initialization - Hazard modeling - Vulnerability assessment - Exposure analysis - Risk calculation **What you'll learn:** - How to initialize the risk engine - Exposure data management - Hazard and vulnerability modeling - Multi-module integration for risk analysis **Prerequisites:** - Python 3.9+ - GEO-INFER-RISK module installed - Required dependencies: `geopandas`, `shapely`, `pandas`, `numpy` **Usage:** ```bash cd GEO-INFER-RISK python examples/basic_risk_assessment.py ``` ## Integration
- Examples GEO-INFER-RISK integrates seamlessly with other GEO-INFER modules: - **SPACE + RISK**: Spatial risk mapping - **TIME + RISK**: Temporal risk dynamics - **AI + RISK**: Machine learning risk models - **BAYES + RISK**: Bayesian risk inference - **MATH + RISK**: Statistical risk methods - **HEALTH + RISK**: Health risk assessment - **ECON + RISK**: Economic risk analysis See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-RISK/examples
+
+Examples workspace within `GEO-INFER-RISK`.
+
+## Contents
+
+- `basic_risk_assessment.py`
+- `comprehensive_risk_assessment.py`
+
+## Public Interface
+
+- `basic_risk_assessment.py:create_sample_exposure_data` (function)
+- `basic_risk_assessment.py:main` (function)
+- `comprehensive_risk_assessment.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-RISK`
+- Package: `geo_infer_risk`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-RISK`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

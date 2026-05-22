@@ -1,98 +1,47 @@
-# GEO-INFER-DATA: Agent Capabilities
+# Agent Instructions: GEO-INFER-DATA
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Foundational data backbone providing ETL pipelines, storage optimization, and data quality assurance for geospatial datasets.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-DATA** module provides data management capabilities for agents, enabling data ingestion, transformation, storage, and retrieval of geospatial datasets.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Data Ingestion
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_data import DataIngester
+## Local Contents
 
-# Ingest geospatial data
-ingester = DataIngester()
+- `config/`
+- `docs/`
+- `etl/`
+- `examples/`
+- `src/`
+- `storage/`
+- `tests/`
+- `validation/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-dataset = ingester.ingest(
-    source="s3://bucket/parcels.parquet",
-    format="geoparquet",
-    validation=True)
+## Validation
 
-print(f"Records: {dataset.count}")
-print(f"CRS: {dataset.crs}")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
 
-### 2. Data Transformation
+## Integration Notes
 
-```python
-from geo_infer_data import DataTransformer
-
-# Transform spatial data
-transformer = DataTransformer()
-
-transformed = transformer.transform(
-    data=input_data,
-    operations=["reproject", "simplify", "buffer"],
-    target_crs="EPSG:4326")
-
-print(f"Output features: {transformed.count}")```
-
-### 3. Data Catalog
-
-```python
-from geo_infer_data import DataCatalog
-
-# Access data catalog
-catalog = DataCatalog()
-
-# Search for datasets
-datasets = catalog.search(
-    keywords=["parcels", "zoning"],
-    bbox=city_boundary,
-    temporal="2025")
-
-print(f"Found: {len(datasets)} datasets")```
-
-### 4. Data Quality
-
-```python
-from geo_infer_data import DataQualityChecker
-
-# Check data quality
-checker = DataQualityChecker()
-
-report = checker.check(
-    data=spatial_dataset,
-    rules=["valid_geometry", "no_gaps", "topology"])
-
-print(f"Quality score: {report.score}%")
-print(f"Issues: {report.issues}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Ingestion** | ✅ Ready | Multi-format import |
-| **Transform** | ✅ Ready | ETL operations |
-| **Catalog** | ✅ Ready | Metadata management |
-| **Quality** | ✅ Ready | Validation |
-
-### Aspirational Features
-
-- 🔮 **DataCuratorAgent**: Autonomous data management
-- 🔮 **DataDiscoveryAgent**: Intelligent search
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

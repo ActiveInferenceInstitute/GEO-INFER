@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-BIO/src` Source code implementation. ## Implementation
- ### `geo_infer_bio/core/sequence_analysis.py` **Classes**: SequenceAnalyzer **Functions**: load_sequence, align_sequences, calculate_gc_content, find_motifs, calculate_sequence_similarity ### `geo_infer_bio/utils/visualization.py` **Classes**: BioVisualizer **Functions**: plot_spatial_distribution, plot_gc_distribution, plot_motif_density, plot_coding_potential, plot_sequence_alignment ### `geo_infer_bio/utils/validation.py` **Classes**: DataValidator **Functions**: validate_sequence, validate_spatial_coordinates, validate_spatial_dataframe, validate_sequence_record, validate_alignment ### `geo_infer_bio/soil.py` **Classes**: SoilDataIntegrator, SoilDataset **Functions**: load_soilgrids_data, load_custom_soil_data, get_properties, get_depths, get_property_data ### `geo_infer_bio/api/graphql_api.py` **Classes**: SpatialData, SequenceData, AnalysisResult, VisualizationData, Query **Functions**: analyze_sequence, analyze_file, visualize_spatial, health_check ## Contents
- - **geo_infer_bio/**: Subdirectory - **geo_infer_bio.egg-info/**: Subdirectory --- 
+# GEO-INFER-BIO/src
+
+Src workspace within `GEO-INFER-BIO`.
+
+## Contents
+
+- `geo_infer_bio.egg-info/`
+- `geo_infer_bio/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-BIO`
+- Package: `geo_infer_bio`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-BIO`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO`
+
+## Dependencies
+
+- `numpy>=1.21.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `biopython>=1.79`
+- `networkx>=2.6.0`
+- `scikit-learn>=0.24.0`
+- `matplotlib>=3.4.0`
+- `seaborn>=0.11.0`
+- `geopandas>=0.9.0`
+- `shapely>=1.8.0`
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,5 +1,46 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-NORMS/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_zoning_analysis.py` **Classes**: TestZoningAnalyzer, TestLandUseClassifier **Functions**: setup_method, test_get_district_by_id, test_get_code_by_id, test_get_zoning_at_point, test_calculate_compatibility ### `unit/test_normative_inference.py` **Classes**: TestNormativeInference, TestSocialNormDiffusion **Functions**: setup_method, test_add_norm, test_add_observation, test_get_latest_observation, test_check_norm_compliance ### `unit/test_legal_frameworks.py` **Classes**: TestJurisdictionHandler, TestLegalFramework **Functions**: setup_method, test_get_jurisdiction_by_id, test_get_jurisdiction_hierarchy, test_find_jurisdictions_by_name, test_find_jurisdictions_at_level ## Contents
- - **integration/**: Subdirectory - **test-outputs/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-NORMS/tests
+
+Tests workspace within `GEO-INFER-NORMS`.
+
+## Contents
+
+- `integration/`
+- `test-outputs/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:normative_rules` (function)
+- `conftest.py:compliance_data` (function)
+- `conftest.py:norms_config` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-NORMS`
+- Package: `geo_infer_norms`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-NORMS`
+- Tests: `uv run python -m pytest GEO-INFER-NORMS/tests`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `shapely>=1.8.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-NORMS/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

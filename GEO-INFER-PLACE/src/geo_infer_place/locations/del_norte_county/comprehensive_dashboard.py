@@ -770,7 +770,7 @@ class DelNorteComprehensiveDashboard:
         
         m.get_root().html.add_child(folium.Element(header_html))
         
-    # Placeholder methods for cross-domain analysis
+    # Baseline methods for cross-domain analysis
     def _analyze_fire_forest_interaction(self) -> Dict[str, Any]:
         """Analyze fire-forest interaction patterns."""
         return {

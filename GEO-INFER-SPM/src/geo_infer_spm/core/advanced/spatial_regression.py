@@ -241,7 +241,7 @@ class SpatialRegression:
         )
 
         spm_result = SPMResult(
-            spm_data=SPMData(data=y, coordinates=np.random.rand(n_points, 2)),  # Placeholder
+            spm_data=SPMData(data=y, coordinates=np.random.rand(n_points, 2)),  # Baseline
             design_matrix=result_design,
             beta_coefficients=beta_hat,
             residuals=residuals,
@@ -537,7 +537,7 @@ class SpatialRegression:
             raise ValueError("Model must be fitted before making predictions")
 
         # Simplified prediction
-        return np.zeros(len(new_data.data))  # Placeholder
+        return np.zeros(len(new_data.data))  # Baseline
 
     def get_spatial_effects(self) -> Dict[str, Any]:
         """

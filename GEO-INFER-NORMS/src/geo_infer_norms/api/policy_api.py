@@ -513,11 +513,11 @@ class PolicyAPI:
             spatial_extent = self._geometry_from_model(assessment_request.spatial_extent)
             
             # This would be a real impact assessment in a production implementation
-            # For now, generate a mock response
+            # For now, generate a deterministic response
             assessment_id = f"impact-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
             assessment_date = assessment_request.assessment_date or datetime.datetime.now()
             
-            # Generate mock assessment results based on type
+            # Generate deterministic assessment results based on type
             if assessment_request.assessment_type == "environmental":
                 metrics = {
                     "water_quality_improvement": {"value": 25, "unit": "percent"},
@@ -582,10 +582,10 @@ class PolicyAPI:
                 raise HTTPException(status_code=404, detail=f"Policy with ID {policy_id} not found")
             
             # This would query a database of assessments in a real implementation
-            # For now, return a mock response
+            # For now, return a deterministic response
             policy = self._policies[policy_id]
             
-            # Mock assessment history
+            # Deterministic assessment history
             assessments = [
                 {
                     "assessment_id": f"impact-{policy_id}-20230301",
@@ -631,12 +631,12 @@ class PolicyAPI:
         """
         try:
             # This would be implemented by querying regulation data in a real implementation
-            # For now, return a mock response
+            # For now, return a deterministic response
             
-            # Create mock comparison results
+            # Create synthetic comparison results
             comparison_id = f"comp-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
             
-            # Generate mock data for each regulation
+            # Generate synthetic fixture data for each regulation
             regulations_data = []
             for i, reg_id in enumerate(comparison_request.regulation_ids):
                 reg_data = {

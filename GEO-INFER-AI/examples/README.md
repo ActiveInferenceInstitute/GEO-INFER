@@ -1,9 +1,39 @@
-# GEO
--INFER-AI Examples This directory contains working examples demonstrating machine learning and AI capabilities for geospatial data. ## Available
- Examples ### Basi
-c
- Classification (`basic_classification.py`) Image classification example using the ImageClassifier for geospatial image classification tasks. ### Spatia
-l
- Prediction (`spatial_prediction.py`) Spatial prediction example using SpatialPredictor for geospatial forecasting. ## Running
- Examples ```bash cd GEO-INFER-AI python examples/basic_classification.py python examples/spatial_prediction.py ``` ## Integration
- Examples GEO-INFER-AI integrates with: - **SPACE**: Spatial feature engineering and analysis - **TIME**: Temporal prediction and forecasting - **AG, HEALTH, ECON**: Domain-specific AI applications - **DATA**: Data preprocessing and feature engineering See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-AI/examples
+
+Examples workspace within `GEO-INFER-AI`.
+
+## Contents
+
+- `basic_classification.py`
+- `spatial_prediction.py`
+
+## Public Interface
+
+- `basic_classification.py:main` (function)
+- `spatial_prediction.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AI`
+- Package: `geo_infer_ai`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AI`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `torch>=1.9.0`
+- `tensorflow>=2.6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

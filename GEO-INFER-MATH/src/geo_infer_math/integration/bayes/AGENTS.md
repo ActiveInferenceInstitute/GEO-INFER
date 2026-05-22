@@ -1,47 +1,40 @@
-# Agent
-: bayes
+# Agent Instructions: GEO-INFER-MATH/src/geo_infer_math/integration/bayes
 
 ## Scope
- This directory contains bayes components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### BayesianOptimization
- Bayesian optimization tools.
-
-**Methods**:
-- `optimize(objective, prior, **kwargs)`:
-
-### MCMCHelpers
- MCMC algorithm helpers.
-
-**Methods**:
-- `mcmc_sample(log_posterior, initial_state, **kwargs)`:
-
-### ModelSelection
- Bayesian model selection.
-
-**Methods**:
-- `select_model(models, data, **kwargs)`:
-
-### PosteriorHelpers
- Posterior distribution helpers.
-
-**Methods**:
-- `calculate_posterior(prior, likelihood, data, **kwargs)`:
-
-### PriorBuilders
- Prior distribution construction tools.
-
-**Methods**:
-- `build_prior(distribution_type, **kwargs)`:
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Bayes workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_math/integration/bayes`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `bayesian_optimization.py`
+- `mcmc_helpers.py`
+- `model_selection.py`
+- `posterior_helpers.py`
+- `prior_builders.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

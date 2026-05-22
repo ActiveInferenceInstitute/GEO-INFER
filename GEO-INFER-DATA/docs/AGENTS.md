@@ -1,42 +1,35 @@
-# Agent: docs
+# Agent Instructions: GEO-INFER-DATA/docs
 
 ## Scope
 
-This agent handles technical documentation for GEO-INFER-DATA including API schemas, guides, and reference documentation.
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Docs workspace within `GEO-INFER-DATA`.
 
-## Implementation Status
+## Capabilities
 
-### Currently Implemented
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-- ✅ **API Documentation**: REST API schema and endpoint documentation
-- ✅ **Usage Guides**: Data management and integration guides
-- ✅ **Reference Documentation**: Complete API reference
+## Working Rules
 
-## Documentation Structure
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-### API Schema
+## Local Contents
 
-- `api_schema.yaml`: OpenAPI schema for REST API endpoints
+- `api_schema.yaml`
 
-### Guides
+## Validation
 
-- Data ingestion guides
-- ETL pipeline configuration guides
-- Storage optimization guides
-- Data quality management guides
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
 
-### Reference
+## Integration Notes
 
-- Complete API reference
-- Class and function documentation
-- Integration patterns
-
-## Integration
-
-- **Location**: `GEO-INFER-DATA/docs`
-- **Purpose**: Technical documentation and API reference
-- **Used By**: Developers, integrators, API consumers
-
----
-
-This AGENTS.md documents technical documentation for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

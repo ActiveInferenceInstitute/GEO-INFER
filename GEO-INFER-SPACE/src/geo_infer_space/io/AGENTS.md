@@ -1,45 +1,39 @@
-# Agent
-: io
+# Agent Instructions: GEO-INFER-SPACE/src/geo_infer_space/io
 
 ## Scope
- This directory contains io components for the module. It provides 2 classes and 5 functions.
 
-## Classes
- and Functions
-
-### VectorReader
- Reader class for vector geospatial data.
-
-**Methods**:
-- `read(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame`: Read vector data from file.
-
-### VectorWriter
- Writer class for vector geospatial data.
-
-**Methods**:
-- `write(gdf: gpd.GeoDataFrame, file_path: Union[str, Path], **kwargs) -> None`: Write GeoDataFrame to file.
-
-### read_vector_file
- `read_vector_file(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame` Read vector data from file using appropriate reader.
-
-### write_vector_file
- `write_vector_file(gdf: gpd.GeoDataFrame, file_path: Union[str, Path], **kwargs) -> None` Write GeoDataFrame to file using appropriate writer.
-
-### supported_vector_formats
- `supported_vector_formats() -> Dict[str, str]` Get dictionary of supported vector formats.
-
-### detect_vector_format
- `detect_vector_format(file_path: Union[str, Path]) -> Optional[str]` Detect vector format from file extension.
-
-### validate_vector_file
- `validate_vector_file(file_path: Union[str, Path]) -> Dict[str, Any]` Validate vector file and return metadata.
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Io workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
-- **5 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SPACE/src/geo_infer_space/io`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `format_handlers.py`
+- `point_cloud_io.py`
+- `raster_io.py`
+- `vector_io.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

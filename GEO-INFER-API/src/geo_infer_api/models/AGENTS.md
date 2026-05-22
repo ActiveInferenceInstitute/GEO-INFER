@@ -1,71 +1,36 @@
-# Agent
-: models
+# Agent Instructions: GEO-INFER-API/src/geo_infer_api/models
 
 ## Scope
- This directory contains models components for the module. It provides 15 classes and 0 functions.
 
-## Classes
- and Functions
-
-### GeoJSONType
- Valid GeoJSON types.
-
-### GeometryBase
- Base model for all GeoJSON geometry objects.
-
-### Point
- GeoJSON Point geometry.
-
-**Methods**:
-- `validate_coordinates(cls, v)`: Validate point coordinates.
-
-### LineString
- GeoJSON LineString geometry.
-
-**Methods**:
-- `validate_coordinates(cls, v)`: Validate LineString has at least 2 points.
-
-### Polygon
- GeoJSON Polygon geometry.
-
-**Methods**:
-- `validate_coordinates(cls, v)`: Validate Polygon rings.
-
-### MultiPoint
- GeoJSON MultiPoint geometry.
-
-### MultiLineString
- GeoJSON MultiLineString geometry.
-
-### MultiPolygon
- GeoJSON MultiPolygon geometry.
-
-### Feature
- GeoJSON Feature object.
-
-### FeatureCollection
- GeoJSON FeatureCollection object.
-
-### PolygonFeature
- A GeoJSON Feature with a Polygon geometry.
-
-**Methods**:
-- `ensure_polygon_geometry(cls, values)`: Ensure the geometry is a Polygon.
-
-### PolygonFeatureCollection
- A GeoJSON FeatureCollection containing only Polygon features.
-
-### Config
-
-### Config
-
-### Config
+- Owning module: `GEO-INFER-API`
+- Python package: `geo_infer_api`
+- Directory role: Models workspace within `GEO-INFER-API`.
 
 ## Capabilities
 
-- **15 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_api` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-API/src/geo_infer_api/models`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `geojson.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

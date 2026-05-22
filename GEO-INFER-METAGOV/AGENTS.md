@@ -1,190 +1,45 @@
-# GEO-INFER-METAGOV: Agent Capabilities
+# Agent Instructions: GEO-INFER-METAGOV
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-METAGOV`
+- Python package: `geo_infer_metagov`
+- Directory role: Advanced meta-governance frameworks, organizational governance methods, and multilevel governance coordination for geospatial systems.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-METAGOV** module provides governance and policy modeling capabilities for agents, enabling them to simulate, analyze, and participate in decision-making processes for geospatial governance.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_metagov` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Policy Modeling
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_metagov import PolicyModeler
+## Local Contents
 
-# Model land use policy impacts
-modeler = PolicyModeler()
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `IMPLEMENTATION_SUMMARY.md`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-policy = modeler.create_policy(
-    name="green_belt_protection",
-    type="land_use_restriction",
-    affected_areas=protected_regions,
-    constraints={
-        "building_density": 0,
-        "land_conversion": False
-    })
+## Validation
 
-# Simulate policy impact
-impact = modeler.simulate_impact(policy, time_horizon="10_years")
-print(f"Preserved area: {impact.preserved_hectares} ha")
-print(f"Economic impact: ${impact.economic_cost}M")```
-
-### 2. Stakeholder Coordination
-
-```python
-from geo_infer_metagov import StakeholderCoordinator
-
-# Coordinate multi-stakeholder decisions
-coordinator = StakeholderCoordinator()
-
-# Register stakeholders
-coordinator.register_stakeholder("city_council", role="decision_maker")
-coordinator.register_stakeholder("residents", role="affected_party")
-coordinator.register_stakeholder("developers", role="proposal_submitter")
-
-# Facilitate voting
-result = coordinator.conduct_vote(
-    proposal="rezoning_downtown",
-    voting_method="weighted_score")
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
 ```
 
-### 3. Governance Analytics
+## Integration Notes
 
-```python
-from geo_infer_metagov import GovernanceAnalyzer
-
-# Analyze governance patterns
-analyzer = GovernanceAnalyzer()
-
-# Analyze decision patterns
-patterns = analyzer.analyze_decisions(
-    jurisdiction="san_francisco",
-    decision_type="zoning",
-    time_range=("2020-01-01", "2025-12-31"))
-
-print(f"Approval rate: {patterns.approval_rate}%")
-print(f"Avg decision time: {patterns.avg_days} days")
-print(f"Common concerns: {patterns.top_concerns}")```
-
-### 4. Rule Engine
-
-```python
-from geo_infer_metagov import RuleEngine
-
-# Define and enforce governance rules
-engine = RuleEngine()
-
-# Add zoning rules
-engine.add_rule(
-    name="residential_height_limit",
-    condition="zone_type == 'residential'",
-    constraint="building_height <= 35 feet")
-
-# Validate proposal against rules
-proposal = {"zone_type": "residential", "building_height": 40}
-validation = engine.validate(proposal)
-
-if not validation.is_valid:
-    print(f"Violations: {validation.violations}")```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Policy Modeling** | ✅ Ready | Create and simulate policies |
-| **Stakeholder Coordination** | ✅ Ready | Multi-party coordination |
-| **Governance Analytics** | ✅ Ready | Decision pattern analysis |
-| **Rule Engine** | ✅ Ready | Rule validation |
-| **Voting Systems** | ✅ Ready | Multiple voting methods |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **GovernanceAgent** | 🔮 High | Autonomous policy optimization |
-| **NegotiationAgent** | 🔮 High | Multi-party negotiation |
-| **ComplianceAgent** | 🔮 Medium | Automated compliance checking |
-
-## Integration with Decision Making
-
-```mermaid
-graph TD
-    subgraph Governance
-        POLICY[Policy Modeler]
-        STAKE[Stakeholder Coordinator]
-        RULES[Rule Engine]
-        ANALYTICS[Governance Analytics]
-    end
-    
-    subgraph Agents
-        GOV_AGENT[Governance Agent]
-        COMP_AGENT[Compliance Agent]
-    end
-    
-    subgraph Outcomes
-        DECISION[Decisions]
-        COMPLIANCE[Compliance Reports]
-    end
-    
-    POLICY --> GOV_AGENT
-    STAKE --> GOV_AGENT
-    RULES --> COMP_AGENT
-    ANALYTICS --> GOV_AGENT
-    
-    GOV_AGENT --> DECISION
-    COMP_AGENT --> COMPLIANCE```
-
-## Use Cases
-
-### 1. Urban Planning Governance
-
-```python
-from geo_infer_metagov import UrbanGovernanceFramework
-
-framework = UrbanGovernanceFramework(city="metropolis")
-
-# Evaluate development proposal
-proposal = {
-    "type": "mixed_use",
-    "location": downtown_parcel,
-    "height": 150,
-    "units": 200}
-
-evaluation = framework.evaluate_proposal(proposal)
-print(f"Compliance: {evaluation.compliance_score}%")
-print(f"Community impact: {evaluation.community_impact}")
-print(f"Recommendation: {evaluation.recommendation}")```
-
-### 2. Environmental Governance
-
-```python
-from geo_infer_metagov import EnvironmentalGovernance
-
-env_gov = EnvironmentalGovernance()
-
-# Create environmental regulation
-regulation = env_gov.create_regulation(
-    name="watershed_protection",
-    affected_area=watershed_boundary,
-    restrictions=["no_development", "buffer_zones"])
-
-# Monitor compliance
-violations = env_gov.monitor_compliance(regulation)```
-
----
-
-This AGENTS.md documents how GEO-INFER-METAGOV provides governance and policy capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

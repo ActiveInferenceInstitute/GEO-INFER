@@ -1,5 +1,53 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-IOT/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_ingestion.py` **Classes**: TestSensorMeasurement, TestIoTDataIngestion, TestRadiationMonitoringSystem, TestSpatialInferenceConfig **Functions**: test_measurement_creation_with_coordinates, test_measurement_creation_without_coordinates, test_measurement_validation, setUp, test_ingestion_initialization ### `integration/test_iot_integration.py` **Classes**: TestIoTModuleIntegration, TestCrossModuleIntegration **Functions**: setUp, test_registry_ingestion_integration, test_spatial_fusion_integration, test_quality_control_integration, test_end_to_end_workflow ## Contents
- - **integration/**: Subdirectory - **pytest.ini**: File file - **requirements-test.txt**: File file - **run_tests.sh**: File file - **unit/**: Subdirectory --- 
+# GEO-INFER-IOT/tests
+
+Tests workspace within `GEO-INFER-IOT`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+- `requirements-test.txt`
+- `run_tests.sh`
+
+## Public Interface
+
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:sensor_readings` (function)
+- `conftest.py:iot_config` (function)
+- `conftest.py:sensor_network_gdf` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-IOT`
+- Package: `geo_infer_iot`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-IOT`
+- Tests: `uv run python -m pytest GEO-INFER-IOT/tests`
+
+## Dependencies
+
+- `aiocoap>=0.4.3`
+- `asyncio-mqtt>=0.11.0`
+- `confluent-kafka>=1.8.0`
+- `fastapi>=0.68.0`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `influxdb-client>=1.24.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0`
+- `paho-mqtt>=1.6.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-IOT/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

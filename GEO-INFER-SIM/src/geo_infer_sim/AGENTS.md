@@ -1,13 +1,43 @@
-# Agent
-: geo_infer_sim 
+# Agent Instructions: GEO-INFER-SIM/src/geo_infer_sim
 
 ## Scope
- This agent is responsible for handling operations within the `geo_infer_sim` scope. 
+
+- Owning module: `GEO-INFER-SIM`
+- Python package: `geo_infer_sim`
+- Directory role: Geo Infer Sim workspace within `GEO-INFER-SIM`.
 
 ## Capabilities
- Core capabilities include: - Management of **analysis** processes - Management of **core** processes - Management of **io** processes - Management of **models** processes - Management of **module_simulations** processes - Management of **paradigms** processes - Management of **scenarios** processes - Management of **utils** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SIM/src/geo_infer_sim` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_sim` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `analysis/`
+- `core/`
+- `io/`
+- `models/`
+- `paradigms/`
+- `scenarios/`
+- `utils/`
+- `__init__.py`
+- `module_simulations.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

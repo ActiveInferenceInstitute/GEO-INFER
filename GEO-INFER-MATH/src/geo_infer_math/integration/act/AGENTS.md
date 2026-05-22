@@ -1,47 +1,40 @@
-# Agent
-: act
+# Agent Instructions: GEO-INFER-MATH/src/geo_infer_math/integration/act
 
 ## Scope
- This directory contains act components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### BeliefUpdating
- Belief updating for Active Inference.
-
-**Methods**:
-- `update(current_beliefs, new_observations, **kwargs)`:
-
-### FreeEnergyCalculator
- Free energy calculations for Active Inference.
-
-**Methods**:
-- `calculate(observations, beliefs, **kwargs)`:
-
-### GenerativeModels
- Generative model construction tools.
-
-**Methods**:
-- `create_generative_model(model_type, parameters, **kwargs)`:
-
-### PolicyOptimization
- Policy optimization for Active Inference.
-
-**Methods**:
-- `optimize_policy(policy_function, initial_policy, **kwargs)`:
-
-### VariationalInferenceHelpers
- Variational inference helpers.
-
-**Methods**:
-- `perform_vi(observations, prior, **kwargs)`:
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Act workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_math/integration/act`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `belief_updating.py`
+- `free_energy.py`
+- `generative_models.py`
+- `policy_optimization.py`
+- `variational_inference.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

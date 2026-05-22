@@ -1,22 +1,58 @@
-# core
- ## Overview
- This directory contains core components. It includes 8 Python modules. ## Components
- ### ab
-c
-.py Approximate Bayesian Computation implementation for Bayesian inference. **Classes**: `ApproximateBayesianComputation` ### hm
-c
-.py Hamiltonian Monte Carlo implementation for Bayesian inference. **Classes**: `HMC` ### inferenc
-e
-.py Main inference engine for Bayesian analysis of geospatial data. **Classes**: `BayesianInference` ### mcm
-c
-.py Markov Chain Monte Carlo implementation for Bayesian inference. **Classes**: `MCMC` ### model_compariso
-n
-.py Model comparison and selection tools for Bayesian inference. **Classes**: `ModelComparison` ### posterio
-r
-.py Tools for analyzing posterior distributions from Bayesian inference. **Classes**: `PosteriorAnalysis` ### sm
-c
-.py Sequential Monte Carlo implementation for Bayesian inference. **Classes**: `SequentialMonteCarlo` ### variationa
-l
-.py Variational Inference implementation for Bayesian inference. **Classes**: `VariationalInference` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-BAYES/src/geo_infer_bayes/core
+
+Core workspace within `GEO-INFER-BAYES`.
+
+## Contents
+
+- `__init__.py`
+- `abc.py`
+- `hmc.py`
+- `inference.py`
+- `mcmc.py`
+- `model_comparison.py`
+- `posterior.py`
+- `smc.py`
+- `variational.py`
+
+## Public Interface
+
+- `abc.py:ApproximateBayesianComputation` (class)
+- `hmc.py:HMC` (class)
+- `inference.py:BayesianInference` (class)
+- `mcmc.py:MCMC` (class)
+- `model_comparison.py:ModelComparison` (class)
+- `posterior.py:PosteriorAnalysis` (class)
+- `smc.py:SequentialMonteCarlo` (class)
+- `variational.py:VariationalInference` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-BAYES`
+- Package: `geo_infer_bayes`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-BAYES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES`
+
+## Dependencies
+
+- `arviz`
+- `cmdstanpy`
+- `geopandas`
+- `matplotlib`
+- `numpy`
+- `pandas`
+- `pymc`
+- `rasterio`
+- `scipy`
+- `tensorflow-probability`
+- `xarray`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,41 +1,36 @@
-# Agent
-: interfaces
+# Agent Instructions: GEO-INFER-APP/src/geo_infer_app/models/interfaces
 
 ## Scope
- This directory contains interfaces components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### BDIAgentInterface
- Implementation of AgentInterface for BDI agents.
-
-**Methods**:
-- `get_agent_state(agent_id: str) -> AgentState`: Retrieve the current state of the specified agent.
-- `list_agents(filter_params: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]`: List all available BDI agents, with optional filtering.
-- `send_command(agent_id: str, command: str, params: Dict[str, Any]) -> Dict[str, Any]`: Send a command to a BDI agent.
-- `register_event_handler(event_type: str, callback: Callable[[Dict[str, Any]], None]) -> None`: Register a callback function to handle agent events.
-- `create_agent(agent_type: AgentType, config: Dict[str, Any]) -> str`: Create a BDI agent instance.
-
-### BDIAgent
-
-**Methods**:
-- `update_beliefs(beliefs)`:
-- `add_desire(desire)`:
-- `deliberate()`:
-- `execute()`:
-
-### BeliefBase
-
-### DesireSet
-
-### IntentionStructure
+- Owning module: `GEO-INFER-APP`
+- Python package: `geo_infer_app`
+- Directory role: Interfaces workspace within `GEO-INFER-APP`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_app` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_app/models/interfaces`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `bdi_interface.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

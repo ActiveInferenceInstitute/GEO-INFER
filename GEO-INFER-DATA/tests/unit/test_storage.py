@@ -89,7 +89,7 @@ class TestAdaptiveDataStorage:
         """Create mock DataFrame."""
         return pd.DataFrame(
             {
-                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="H"),
+                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
                 "value": np.random.normal(100, 15, 1000),
             }
         )

@@ -7,18 +7,3 @@ pandas>=1.3.0
 shapely>=1.8.0
 
 # Added from comprehensive review
-compliance_status>=0.0.0
-compliance_tracking>=0.0.0
-core>=0.0.0
-fastapi>=0.0.0
-legal_entity>=0.0.0
-legal_frameworks>=0.0.0
-models>=0.0.0
-normative_inference>=0.0.0
-policy>=0.0.0
-policy_impact>=0.0.0
-pydantic>=0.0.0
-regulation>=0.0.0
-uuid>=0.0.0
-zoning>=0.0.0
-zoning_analysis>=0.0.0

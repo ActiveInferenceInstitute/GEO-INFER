@@ -1,14 +1,59 @@
-# core
- ## Overview
- This directory contains core components. It includes 4 Python modules. ## Components
- ### agent_bas
-e
-.py Swarm Agent Base Classes for GEO-INFER-ANT **Classes**: `SensoryInput`, `ActionDecision`, `SwarmAgent` ### digital_stigmerg
-y
-.py Digital Stigmergy Systems for GEO-INFER-ANT **Classes**: `DigitalTrace`, `InformationQuery`, `DigitalStigmergy` ### populatio
-n
-.py Agent Population Dynamics for GEO-INFER-ANT **Classes**: `PopulationConfig`, `EnvironmentalState`, `SimulationResults`, `AgentPopulation` **Functions**: `update_single_agent` ### stigmerg
-y
-.py Pheromone-Based Stigmergic Communication for GEO-INFER-ANT **Classes**: `PheromoneType`, `PheromoneDeposit`, `PheromoneField`, `PheromoneSystem` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-ANT/src/geo_infer_ant/core
+
+Core workspace within `GEO-INFER-ANT`.
+
+## Contents
+
+- `__init__.py`
+- `agent_base.py`
+- `digital_stigmergy.py`
+- `population.py`
+- `stigmergy.py`
+
+## Public Interface
+
+- `agent_base.py:SensoryInput` (class)
+- `agent_base.py:ActionDecision` (class)
+- `agent_base.py:SwarmAgent` (class)
+- `digital_stigmergy.py:DigitalTrace` (class)
+- `digital_stigmergy.py:InformationQuery` (class)
+- `digital_stigmergy.py:DigitalStigmergy` (class)
+- `population.py:PopulationConfig` (class)
+- `population.py:EnvironmentalState` (class)
+- `population.py:SimulationResults` (class)
+- `population.py:AgentPopulation` (class)
+- `stigmergy.py:PheromoneType` (class)
+- `stigmergy.py:PheromoneDeposit` (class)
+- `stigmergy.py:PheromoneField` (class)
+- `stigmergy.py:PheromoneSystem` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ANT`
+- Package: `geo_infer_ant`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ANT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT`
+
+## Dependencies
+
+- `asyncio-mqtt>=0.11.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `jsonschema>=4.0.0`
+- `matplotlib>=3.5.0`
+- `networkx>=2.8`
+- `numpy>=1.21.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.1.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

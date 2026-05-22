@@ -7,17 +7,16 @@ geospatial databases.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, Tuple
-from datetime import datetime
-import asyncio
+from typing import Dict, List, Optional, Union, Any
+from datetime import datetime, timezone
 
 import geopandas as gpd
 import pandas as pd
-from sqlalchemy import create_engine, text, MetaData, Table
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from ..models.schemas import DatasetMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +60,7 @@ class DatabaseConnector:
         connection_string: str,
         pool_size: int = 10,
         max_overflow: int = 20,
-        enable_geospatial: bool = True
+        enable_geospatial: bool = True,
     ):
         self.connection_type = connection_type
         self.connection_string = connection_string
@@ -86,22 +85,22 @@ class DatabaseConnector:
                 self.connection_string,
                 pool_size=self.pool_size,
                 max_overflow=self.max_overflow,
-                echo=False  # Set to True for SQL debugging
+                echo=False,  # Set to True for SQL debugging
             )
 
             # Create session factory
             self.SessionLocal = sessionmaker(bind=self.engine)
 
             # Create async engine for async operations
-            if self.connection_type in ['postgresql', 'mysql']:
-                async_url = self.connection_string.replace('postgresql://', 'postgresql+asyncpg://')
-                async_url = async_url.replace('mysql://', 'mysql+asyncmy://')
+            if self.connection_type in ["postgresql", "mysql"]:
+                async_url = self.connection_string.replace(
+                    "postgresql://", "postgresql+asyncpg://"
+                )
+                async_url = async_url.replace("mysql://", "mysql+asyncmy://")
 
                 self.async_engine = create_async_engine(async_url)
                 self.AsyncSessionLocal = sessionmaker(
-                    bind=self.async_engine,
-                    class_=AsyncSession,
-                    expire_on_commit=False
+                    bind=self.async_engine, class_=AsyncSession, expire_on_commit=False
                 )
 
             logger.info(f"Database connection established for {self.connection_type}")
@@ -135,7 +134,7 @@ class DatabaseConnector:
         columns: Optional[List[str]] = None,
         spatial_filter: Optional[Dict[str, Any]] = None,
         temporal_filter: Optional[Dict[str, Any]] = None,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> gpd.GeoDataFrame:
         """
         Query geospatial data with spatial and temporal filters.
@@ -160,27 +159,31 @@ class DatabaseConnector:
 
         # Add spatial filter
         if spatial_filter and self.enable_geospatial:
-            if 'bbox' in spatial_filter:
-                bbox = spatial_filter['bbox']
+            if "bbox" in spatial_filter:
+                bbox = spatial_filter["bbox"]
                 if len(bbox) >= 4:
                     min_lon, min_lat, max_lon, max_lat = bbox[:4]
-                    conditions.append("ST_Intersects(geom, ST_MakeEnvelope(:min_lon, :min_lat, :max_lon, :max_lat, 4326))")
-                    params.update({
-                        'min_lon': min_lon,
-                        'min_lat': min_lat,
-                        'max_lon': max_lon,
-                        'max_lat': max_lat
-                    })
+                    conditions.append(
+                        "ST_Intersects(geom, ST_MakeEnvelope(:min_lon, :min_lat, :max_lon, :max_lat, 4326))"
+                    )
+                    params.update(
+                        {
+                            "min_lon": min_lon,
+                            "min_lat": min_lat,
+                            "max_lon": max_lon,
+                            "max_lat": max_lat,
+                        }
+                    )
 
         # Add temporal filter
         if temporal_filter:
-            time_column = temporal_filter.get('column', 'timestamp')
-            if 'start' in temporal_filter:
+            time_column = temporal_filter.get("column", "timestamp")
+            if "start" in temporal_filter:
                 conditions.append(f"{time_column} >= :start_time")
-                params['start_time'] = temporal_filter['start']
-            if 'end' in temporal_filter:
+                params["start_time"] = temporal_filter["start"]
+            if "end" in temporal_filter:
                 conditions.append(f"{time_column} <= :end_time")
-                params['end_time'] = temporal_filter['end']
+                params["end_time"] = temporal_filter["end"]
 
         # Add conditions to query
         if conditions:
@@ -195,17 +198,27 @@ class DatabaseConnector:
             if self.async_engine:
                 async with self.AsyncSessionLocal() as session:
                     result = await session.execute(text(query), params)
-                    df = pd.DataFrame(result.fetchall(), columns=result.keys() if hasattr(result, 'keys') else None)
+                    df = pd.DataFrame(
+                        result.fetchall(),
+                        columns=result.keys() if hasattr(result, "keys") else None,
+                    )
             else:
                 with self.SessionLocal() as session:
                     result = session.execute(text(query), params)
-                    df = pd.DataFrame(result.fetchall(), columns=result.keys() if hasattr(result, 'keys') else None)
+                    df = pd.DataFrame(
+                        result.fetchall(),
+                        columns=result.keys() if hasattr(result, "keys") else None,
+                    )
 
             # Convert to GeoDataFrame if geometry column exists
-            if 'geom' in df.columns:
-                df['geom'] = df['geom'].apply(lambda x: x.wkt if hasattr(x, 'wkt') else str(x))
-                gdf = gpd.GeoDataFrame(df, geometry=gpd.GeoSeries.from_wkt(df['geom']), crs="EPSG:4326")
-                gdf.drop('geom', axis=1, inplace=True)
+            if "geom" in df.columns:
+                df["geom"] = df["geom"].apply(
+                    lambda x: x.wkt if hasattr(x, "wkt") else str(x)
+                )
+                gdf = gpd.GeoDataFrame(
+                    df, geometry=gpd.GeoSeries.from_wkt(df["geom"]), crs="EPSG:4326"
+                )
+                gdf.drop("geom", axis=1, inplace=True)
                 return gdf
             else:
                 return gpd.GeoDataFrame(df)
@@ -219,7 +232,7 @@ class DatabaseConnector:
         data: Union[pd.DataFrame, gpd.GeoDataFrame],
         metadata: DatasetMetadata,
         table_name: Optional[str] = None,
-        if_exists: str = 'replace'
+        if_exists: str = "replace",
     ) -> bool:
         """
         Insert geospatial data into database.
@@ -236,22 +249,26 @@ class DatabaseConnector:
         logger.info(f"Inserting geospatial data: {metadata.title}")
 
         if table_name is None:
-            table_name = metadata.title.lower().replace(' ', '_').replace('-', '_')
+            table_name = metadata.title.lower().replace(" ", "_").replace("-", "_")
 
         try:
             # Convert to GeoDataFrame if needed
-            if isinstance(data, pd.DataFrame) and 'geometry' not in data.columns:
+            if isinstance(data, pd.DataFrame) and "geometry" not in data.columns:
                 # Try to create geometry from lat/lon columns
-                if 'latitude' in data.columns and 'longitude' in data.columns:
+                if "latitude" in data.columns and "longitude" in data.columns:
                     gdf = gpd.GeoDataFrame(
                         data,
                         geometry=gpd.points_from_xy(data.longitude, data.latitude),
-                        crs="EPSG:4326"
+                        crs="EPSG:4326",
                     )
                 else:
                     gdf = gpd.GeoDataFrame(data)
             else:
-                gdf = data if isinstance(data, gpd.GeoDataFrame) else gpd.GeoDataFrame(data)
+                gdf = (
+                    data
+                    if isinstance(data, gpd.GeoDataFrame)
+                    else gpd.GeoDataFrame(data)
+                )
 
             # Create table schema based on data
             await self._create_table_schema(gdf, table_name, metadata)
@@ -260,15 +277,19 @@ class DatabaseConnector:
             if self.async_engine:
                 async with self.AsyncSessionLocal() as session:
                     # Convert to PostGIS format
-                    if hasattr(gdf, 'to_postgis'):
-                        gdf.to_postgis(table_name, self.async_engine, if_exists=if_exists)
+                    if hasattr(gdf, "to_postgis"):
+                        gdf.to_postgis(
+                            table_name, self.async_engine, if_exists=if_exists
+                        )
                     else:
                         # Manual insertion
                         await self._insert_data_manually(session, gdf, table_name)
                     await session.commit()
             else:
-                if hasattr(gdf, 'to_sql'):
-                    gdf.to_sql(table_name, self.engine, if_exists=if_exists, index=False)
+                if hasattr(gdf, "to_sql"):
+                    gdf.to_sql(
+                        table_name, self.engine, if_exists=if_exists, index=False
+                    )
                 else:
                     with self.SessionLocal() as session:
                         await self._insert_data_manually(session, gdf, table_name)
@@ -285,10 +306,7 @@ class DatabaseConnector:
             raise
 
     async def _create_table_schema(
-        self,
-        gdf: gpd.GeoDataFrame,
-        table_name: str,
-        metadata: DatasetMetadata
+        self, gdf: gpd.GeoDataFrame, table_name: str, metadata: DatasetMetadata
     ):
         """Create database table schema from GeoDataFrame structure.
 
@@ -315,8 +333,7 @@ class DatabaseConnector:
             columns_sql.append(f'"{safe_col}" {sql_type}')
 
         create_stmt = (
-            f"CREATE TABLE IF NOT EXISTS {table_name} "
-            f"({', '.join(columns_sql)})"
+            f"CREATE TABLE IF NOT EXISTS {table_name} " f"({', '.join(columns_sql)})"
         )
 
         try:
@@ -328,12 +345,18 @@ class DatabaseConnector:
                 with self.SessionLocal() as session_obj:
                     session_obj.execute(text(create_stmt))
                     session_obj.commit()
-            logger.info("Created table schema for %s with %d columns", table_name, len(columns_sql))
+            logger.info(
+                "Created table schema for %s with %d columns",
+                table_name,
+                len(columns_sql),
+            )
         except Exception as e:
             logger.error("Failed to create table schema for %s: %s", table_name, e)
             raise
 
-    async def _insert_data_manually(self, session, gdf: gpd.GeoDataFrame, table_name: str):
+    async def _insert_data_manually(
+        self, session, gdf: gpd.GeoDataFrame, table_name: str
+    ):
         """Manually insert data row by row.
 
         Used when to_sql or to_postgis is not available.  Builds
@@ -345,8 +368,10 @@ class DatabaseConnector:
 
         columns = [c.replace(" ", "_").replace("-", "_") for c in gdf.columns]
         col_list = ", ".join(f'"{c}"' for c in columns)
-        placeholders = ", ".join(f":{c}" for c in columns)
-        insert_stmt = text(f"INSERT INTO {table_name} ({col_list}) VALUES ({placeholders})")
+        baselines = ", ".join(f":{c}" for c in columns)
+        insert_stmt = text(
+            f"INSERT INTO {table_name} ({col_list}) VALUES ({baselines})"
+        )
 
         rows_inserted = 0
         for _, row in gdf.iterrows():
@@ -401,55 +426,67 @@ class DatabaseConnector:
             if self.async_engine:
                 async with self.AsyncSessionLocal() as session:
                     # Get column information
-                    result = await session.execute(text(f"""
+                    result = await session.execute(
+                        text(
+                            """
                         SELECT column_name, data_type, is_nullable, column_default
                         FROM information_schema.columns
                         WHERE table_name = :table_name
                         ORDER BY ordinal_position
-                    """), {'table_name': table_name})
+                    """
+                        ),
+                        {"table_name": table_name},
+                    )
 
                     columns = result.fetchall()
                     schema = {
-                        'table_name': table_name,
-                        'columns': [
+                        "table_name": table_name,
+                        "columns": [
                             {
-                                'name': col[0],
-                                'type': col[1],
-                                'nullable': col[2] == 'YES',
-                                'default': col[3]
-                            } for col in columns
-                        ]
+                                "name": col[0],
+                                "type": col[1],
+                                "nullable": col[2] == "YES",
+                                "default": col[3],
+                            }
+                            for col in columns
+                        ],
                     }
 
             else:
                 with self.SessionLocal() as session:
-                    result = session.execute(text(f"""
+                    result = session.execute(
+                        text(
+                            """
                         SELECT column_name, data_type, is_nullable, column_default
                         FROM information_schema.columns
                         WHERE table_name = :table_name
                         ORDER BY ordinal_position
-                    """), {'table_name': table_name})
+                    """
+                        ),
+                        {"table_name": table_name},
+                    )
 
                     columns = result.fetchall()
                     schema = {
-                        'table_name': table_name,
-                        'columns': [
+                        "table_name": table_name,
+                        "columns": [
                             {
-                                'name': col[0],
-                                'type': col[1],
-                                'nullable': col[2] == 'YES',
-                                'default': col[3]
-                            } for col in columns
-                        ]
+                                "name": col[0],
+                                "type": col[1],
+                                "nullable": col[2] == "YES",
+                                "default": col[3],
+                            }
+                            for col in columns
+                        ],
                     }
 
             return schema
 
         except Exception as e:
             logger.error(f"Failed to get table schema: {e}")
-            return {'table_name': table_name, 'columns': [], 'error': str(e)}
+            return {"table_name": table_name, "columns": [], "error": str(e)}
 
-    async def list_tables(self, schema: str = 'public') -> List[str]:
+    async def list_tables(self, schema: str = "public") -> List[str]:
         """
         List available tables in database.
 
@@ -462,25 +499,35 @@ class DatabaseConnector:
         try:
             if self.async_engine:
                 async with self.AsyncSessionLocal() as session:
-                    result = await session.execute(text("""
+                    result = await session.execute(
+                        text(
+                            """
                         SELECT table_name
                         FROM information_schema.tables
                         WHERE table_schema = :schema
                         AND table_type = 'BASE TABLE'
                         ORDER BY table_name
-                    """), {'schema': schema})
+                    """
+                        ),
+                        {"schema": schema},
+                    )
 
                     tables = [row[0] for row in result.fetchall()]
 
             else:
                 with self.SessionLocal() as session:
-                    result = session.execute(text("""
+                    result = session.execute(
+                        text(
+                            """
                         SELECT table_name
                         FROM information_schema.tables
                         WHERE table_schema = :schema
                         AND table_type = 'BASE TABLE'
                         ORDER BY table_name
-                    """), {'schema': schema})
+                    """
+                        ),
+                        {"schema": schema},
+                    )
 
                     tables = [row[0] for row in result.fetchall()]
 
@@ -508,14 +555,16 @@ class PostgreSQLConnector(DatabaseConnector):
     """
 
     def __init__(self, connection_string: str, **kwargs):
-        super().__init__('postgresql', connection_string, **kwargs)
+        super().__init__("postgresql", connection_string, **kwargs)
 
     async def create_postgis_extension(self):
         """Create PostGIS extension if not exists."""
         try:
             async with self.AsyncSessionLocal() as session:
                 await session.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
-                await session.execute(text("CREATE EXTENSION IF NOT EXISTS postgis_topology"))
+                await session.execute(
+                    text("CREATE EXTENSION IF NOT EXISTS postgis_topology")
+                )
                 await session.commit()
             logger.info("PostGIS extensions created")
         except Exception as e:
@@ -530,7 +579,7 @@ class MySQLConnector(DatabaseConnector):
     """
 
     def __init__(self, connection_string: str, **kwargs):
-        super().__init__('mysql', connection_string, **kwargs)
+        super().__init__("mysql", connection_string, **kwargs)
 
 
 class MongoDBConnector:
@@ -555,6 +604,7 @@ class MongoDBConnector:
         """Initialize MongoDB connection."""
         try:
             from pymongo import MongoClient
+
             self.client = MongoClient(self.connection_string)
             self.database = self.client[self.database_name]
             logger.info("MongoDB connection established")
@@ -562,7 +612,9 @@ class MongoDBConnector:
             logger.error(f"Failed to initialize MongoDB connection: {e}")
             raise
 
-    async def insert_geospatial_document(self, collection_name: str, document: Dict[str, Any]) -> str:
+    async def insert_geospatial_document(
+        self, collection_name: str, document: Dict[str, Any]
+    ) -> str:
         """
         Insert geospatial document into MongoDB collection.
 
@@ -577,8 +629,8 @@ class MongoDBConnector:
             collection = self.database[collection_name]
 
             # Add timestamp if not present
-            if 'created_at' not in document:
-                document['created_at'] = datetime.utcnow()
+            if "created_at" not in document:
+                document["created_at"] = datetime.now(timezone.utc)
 
             result = collection.insert_one(document)
             return str(result.inserted_id)
@@ -592,7 +644,7 @@ class MongoDBConnector:
         collection_name: str,
         spatial_filter: Optional[Dict[str, Any]] = None,
         query_filter: Optional[Dict[str, Any]] = None,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
         Query geospatial collection with spatial filters.
@@ -616,20 +668,18 @@ class MongoDBConnector:
                 mongo_query.update(query_filter)
 
             if spatial_filter:
-                if 'near' in spatial_filter:
-                    near = spatial_filter['near']
-                    mongo_query['location'] = {
-                        '$near': {
-                            '$geometry': near['geometry'],
-                            '$maxDistance': near.get('max_distance', 1000)
+                if "near" in spatial_filter:
+                    near = spatial_filter["near"]
+                    mongo_query["location"] = {
+                        "$near": {
+                            "$geometry": near["geometry"],
+                            "$maxDistance": near.get("max_distance", 1000),
                         }
                     }
-                elif 'within' in spatial_filter:
-                    within = spatial_filter['within']
-                    mongo_query['location'] = {
-                        '$geoWithin': {
-                            '$geometry': within['geometry']
-                        }
+                elif "within" in spatial_filter:
+                    within = spatial_filter["within"]
+                    mongo_query["location"] = {
+                        "$geoWithin": {"$geometry": within["geometry"]}
                     }
 
             # Execute query
@@ -644,7 +694,9 @@ class MongoDBConnector:
             logger.error(f"Failed to query geospatial collection: {e}")
             raise
 
-    async def create_geospatial_index(self, collection_name: str, field_name: str = 'location'):
+    async def create_geospatial_index(
+        self, collection_name: str, field_name: str = "location"
+    ):
         """
         Create geospatial index on collection.
 
@@ -654,7 +706,7 @@ class MongoDBConnector:
         """
         try:
             collection = self.database[collection_name]
-            collection.create_index([(field_name, '2dsphere')])
+            collection.create_index([(field_name, "2dsphere")])
             logger.info(f"Created 2dsphere index on {collection_name}.{field_name}")
         except Exception as e:
             logger.error(f"Failed to create geospatial index: {e}")

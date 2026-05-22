@@ -1,41 +1,36 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-SIM/src/geo_infer_sim/core
 
 ## Scope
- This directory contains core components for the module. It provides 3 classes and 0 functions.
 
-## Classes
- and Functions
-
-### SimulationState
- Simulation execution states.
-
-### SimulationConfig
- Configuration for simulation execution.
-
-### SimulationEngine
- Core simulation engine for geospatial simulations.
-
-**Methods**:
-- `initialize(initial_state: Dict[str, Any]) -> None`: Initialize the simulation with initial state.
-- `step(step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]) -> None`: Execute a single simulation step.
-- `run(step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]) -> Dict[str, Any]`: Run the simulation.
-- `pause() -> None`: Pause the simulation.
-- `resume() -> None`: Resume a paused simulation.
-- `cancel() -> None`: Cancel the simulation.
-- `get_state() -> Dict[str, Any]`: Get current simulation state.
-- `record_metric(name: str, value: float) -> None`: Record a metric value.
-- `record_event(event_type: str, time: float, data: Optional[Dict[str, Any]]) -> None`: Record a simulation event.
-- `save_checkpoint(filepath: str) -> None`: Save simulation checkpoint to file.
-- `load_checkpoint(filepath: str) -> None`: Load simulation checkpoint from file.
-- `export_results(format: str) -> Any`: Export simulation results in various formats.
-- `get_metric_statistics(metric_name: str) -> Dict[str, float]`: Get statistics for a recorded metric.
+- Owning module: `GEO-INFER-SIM`
+- Python package: `geo_infer_sim`
+- Directory role: Core workspace within `GEO-INFER-SIM`.
 
 ## Capabilities
 
-- **3 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_sim` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SIM/src/geo_infer_sim/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `simulation_engine.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

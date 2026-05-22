@@ -1,129 +1,43 @@
-# GEO-INFER-API: Agent Capabilities
+# Agent Instructions: GEO-INFER-API
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-API`
+- Python package: `geo_infer_api`
+- Directory role: Comprehensive API development and integration services enabling interoperability across the GEO-INFER ecosystem and external systems.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-API** module provides API infrastructure for agents, enabling RESTful services, GraphQL endpoints, and real-time streaming APIs for geospatial operations.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_api` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. REST API Server
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_api import APIServer
+## Local Contents
 
-# Create REST API for agents
-server = APIServer()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-# Register agent endpoints
-@server.route("/analyze", methods=["POST"])
-async def analyze_endpoint(request):
-    agent = get_analysis_agent()
-    result = await agent.analyze(request.data)
-    return {"result": result}
+## Validation
 
-# Start server
-server.run(host="0.0.0.0", port=8080)```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
+```
 
-### 2. GraphQL Interface
+## Integration Notes
 
-```python
-from geo_infer_api import GraphQLServer
-
-# Create GraphQL API
-gql = GraphQLServer()
-
-# Define schema with spatial types
-gql.add_type("""
-    type SpatialQuery {
-        within(geometry: GeoJSON!): [Feature]
-        nearby(point: Point!, radius: Float!): [Feature]
-        intersects(geometry: GeoJSON!): [Feature]
-    }
-""")
-
-# Start GraphQL server
-gql.run(port=4000)```
-
-### 3. Streaming API
-
-```python
-from geo_infer_api import StreamingAPI
-
-# Create real-time streaming API
-stream = StreamingAPI()
-
-# Stream agent observations
-@stream.websocket("/observations")
-async def stream_observations(ws):
-    agent = get_monitoring_agent()
-    async for observation in agent.observe():
-        await ws.send(observation.to_json())```
-
-### 4. API Gateway
-
-```python
-from geo_infer_api import APIGateway
-
-# Create gateway for multiple agents
-gateway = APIGateway()
-
-# Route to different agents
-gateway.add_route("/spatial/*", service="spatial_agent")
-gateway.add_route("/analysis/*", service="analysis_agent")
-gateway.add_route("/data/*", service="data_agent")
-
-# Add rate limiting and auth
-gateway.add_middleware("rate_limit", requests_per_minute=100)
-gateway.add_middleware("auth", provider="jwt")```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **REST API** | ✅ Ready | RESTful endpoints |
-| **GraphQL** | ✅ Ready | Query language API |
-| **Streaming** | ✅ Ready | WebSocket, SSE |
-| **Gateway** | ✅ Ready | Routing, rate limiting |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **APIAgent** | 🔮 High | Self-documenting APIs |
-| **LoadBalancer** | 🔮 Medium | Intelligent routing |
-
-## Use Cases
-
-### Geospatial Service API
-
-```python
-from geo_infer_api import GeoServiceAPI
-
-api = GeoServiceAPI()
-
-# Expose spatial operations
-api.expose_operations([
-    "buffer", "intersect", "union", 
-    "spatial_join", "geocode"])
-
-# Auto-generate OpenAPI docs
-api.generate_docs()```
-
----
-
-This AGENTS.md documents how GEO-INFER-API provides API capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

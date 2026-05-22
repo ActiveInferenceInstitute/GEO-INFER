@@ -1,49 +1,40 @@
-# Agent
-: ai
+# Agent Instructions: GEO-INFER-MATH/src/geo_infer_math/integration/ai
 
 ## Scope
- This directory contains ai components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### AIGradientHelpers
- Gradient computation helpers for spatial ML.
-
-**Methods**:
-- `compute_spatial_gradient(function: Callable, parameters: np.ndarray, spatial_context: Optional[np.ndarray], method: str) -> np.ndarray`: Compute gradient with spatial context.
-- `compute_hessian(function: Callable, parameters: np.ndarray, epsilon: float) -> np.ndarray`: Compute Hessian matrix.
-- `compute_gradient_with_regularization(function: Callable, parameters: np.ndarray, regularization: float, reg_type: str) -> np.ndarray`: Compute gradient with regularization.
-
-### SpatialLossFunctions
- Spatial loss functions for neural networks.
-
-**Methods**:
-- `calculate_loss(predictions, targets, coordinates, **kwargs)`:
-
-### OptimizationBridges
- Bridge between MATH optimization and AI training.
-
-**Methods**:
-- `bridge_optimize(objective, initial_guess, **kwargs)`:
-
-### SpatialAttention
- Mathematical foundations for spatial attention.
-
-**Methods**:
-- `compute_attention_weights(queries, keys, values, **kwargs)`:
-
-### TensorOperations
- Tensor operations for AI models.
-
-**Methods**:
-- `spatial_tensor_operation(tensor, operation, **kwargs)`:
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Ai workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_math/integration/ai`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `gradient_helpers.py`
+- `loss_functions.py`
+- `optimization_bridges.py`
+- `spatial_attention.py`
+- `tensor_operations.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

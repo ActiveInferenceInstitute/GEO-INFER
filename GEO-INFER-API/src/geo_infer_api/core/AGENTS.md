@@ -1,119 +1,38 @@
-# Agent: core
+# Agent Instructions: GEO-INFER-API/src/geo_infer_api/core
 
 ## Scope
 
-This directory contains core API framework components for the module. It provides 12 classes and 1 function implementing error handling, middleware, configuration management, and API settings.
-
-## Classes and Functions
-
-### Settings
-
-Application settings with environment variable support.
-
-**Methods**:
-- `assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]`: Parse CORS origins from string or list.
-
-### Config
-
-Configuration class for API settings.
-
-### APIError
-
-Base exception for API errors.
-
-**Methods**:
-- `to_dict() -> Dict[str, Any]`: Convert exception to dictionary for JSON response.
-
-### ValidationError
-
-Exception raised for validation errors.
-
-### NotFoundError
-
-Exception raised when a resource is not found.
-
-### ConflictError
-
-Exception raised when there's a conflict (e.g., duplicate resource).
-
-### GeometryError
-
-Exception raised for geometry-related errors.
-
-### ProcessingError
-
-Exception raised for processing-related errors.
-
-### BadRequestError
-
-Exception raised for bad request errors.
-
-### ErrorHandlerMiddleware
-
-Middleware for handling API errors consistently.
-
-### RequestLoggingMiddleware
-
-Middleware for logging API requests.
-
-### CORSHeadersMiddleware
-
-Middleware for adding CORS headers to responses.
-
-### get_settings
-
-`get_settings() -> Settings`
-
-Get cached settings to avoid reloading from env every time.
+- Owning module: `GEO-INFER-API`
+- Python package: `geo_infer_api`
+- Directory role: Core workspace within `GEO-INFER-API`.
 
 ## Capabilities
 
-- **Error Handling**: Exception classes for API errors (ValidationError, NotFoundError, ConflictError, etc.)
-- **Middleware**: Request logging, CORS headers, and error handling middleware
-- **Configuration**: Settings management with environment variable support
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_api` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Error Handling
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_api.core import APIError, ValidationError, NotFoundError
+## Local Contents
 
-# Raise API errors
-raise ValidationError(detail="Invalid input data", error_code="VALIDATION_001")
-raise NotFoundError(detail="Resource not found", error_code="NOT_FOUND_001")```
+- `__init__.py`
+- `config.py`
+- `exceptions.py`
+- `middleware.py`
 
-### 2. Middleware
+## Validation
 
-```python
-from geo_infer_api.core import ErrorHandlerMiddleware, RequestLoggingMiddleware, CORSHeadersMiddleware
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
+```
 
-# Add middleware to FastAPI app
-app.add_middleware(ErrorHandlerMiddleware)
-app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(CORSHeadersMiddleware)```
+## Integration Notes
 
-### 3. Configuration
-
-```python
-from geo_infer_api.core import get_settings
-
-# Get application settings
-settings = get_settings()
-print(f"API prefix: {settings.api_prefix}")
-print(f"CORS origins: {settings.cors_origins}")```
-
-## Integration
-
-- **Location**: `GEO-INFER-API/src/geo_infer_api/core`
-- **Type**: Core Module Component
-- **Dependencies**: `fastapi`, `pydantic`, `pydantic-settings`
-- **Used By**: 
- 
-- `geo_infer_api.endpoints` for API endpoint implementations
-  - All GEO-INFER modules for API interfaces
-- **Provides**: Core API framework components for error handling, middleware, and configuration
-
----
-
-This AGENTS.md documents core API framework components for GEO-INFER-API.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,5 +1,39 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-NORMS/src` Source code implementation. ## Implementation
- ### `geo_infer_norms/core/zoning_analysis.py` **Classes**: ZoningAnalyzer, LandUseClassifier **Functions**: add_zoning_district, add_zoning_code, get_district_by_id, get_code_by_id, get_zoning_at_point ### `geo_infer_norms/core/policy_impact.py` **Classes**: PolicyImpactAnalyzer, RegulatoryImpactAssessment **Functions**: analyze_economic_impact, analyze_social_equity_impact, analyze_environmental_impact, generate_impact_report, visualize_spatial_impact ### `geo_infer_norms/core/compliance_tracking.py` **Classes**: ComplianceTracker, ComplianceReport **Functions**: add_compliance_status, add_compliance_metric, get_entity_compliance, get_regulation_compliance, evaluate_compliance ### `geo_infer_norms/core/legal_frameworks.py` **Classes**: LegalFramework, JurisdictionHandler **Functions**: add_jurisdiction, add_regulation, get_regulations_by_jurisdiction, get_jurisdictions_by_point, get_regulations_by_point ### `geo_infer_norms/core/normative_inference.py` **Classes**: NormativeInference, SocialNormDiffusion **Functions**: add_norm, add_norm_relationship, add_observation, set_prior_belief, get_latest_observation ## Contents
- - **geo_infer_norms/**: Subdirectory - **geo_infer_norms.egg-info/**: Subdirectory --- 
+# GEO-INFER-NORMS/src
+
+Src workspace within `GEO-INFER-NORMS`.
+
+## Contents
+
+- `geo_infer_norms.egg-info/`
+- `geo_infer_norms/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-NORMS`
+- Package: `geo_infer_norms`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-NORMS`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `shapely>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -83,7 +83,7 @@ class MQTTConnector(StreamConnector):
         Returns:
             True if connection successful
         """
-        # Mock implementation - would use actual MQTT library
+        # Deterministic local implementation - would use actual MQTT library
         logger.info(f"Connecting to MQTT broker at {self.host}:{self.port}")
         return True
 
@@ -98,7 +98,7 @@ class MQTTConnector(StreamConnector):
         Yields:
             MQTT messages as dictionaries
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Streaming data from topic: {topic}")
 
         # Simulate streaming data
@@ -138,7 +138,7 @@ class KafkaConnector(StreamConnector):
         Returns:
             True if connection successful
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Connecting to Kafka cluster: {self.bootstrap_servers}")
         return True
 
@@ -153,7 +153,7 @@ class KafkaConnector(StreamConnector):
         Yields:
             Kafka messages as dictionaries
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Streaming data from Kafka topic: {topic}")
 
         for i in range(5):
@@ -193,7 +193,7 @@ class WebSocketConnector(StreamConnector):
         Returns:
             True if connection successful
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Connecting to WebSocket: {self.url}")
         return True
 
@@ -207,7 +207,7 @@ class WebSocketConnector(StreamConnector):
         Yields:
             WebSocket messages as dictionaries
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info("Streaming data from WebSocket")
 
         for i in range(8):

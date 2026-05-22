@@ -1,94 +1,41 @@
-# GEO-INFER-WATER: Agent Capabilities
+# Agent Instructions: GEO-INFER-WATER
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-WATER`
+- Python package: `geo_infer_water`
+- Directory role: Water resources management, hydrology, and water quality monitoring.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-WATER** module provides water resources capabilities for agents, enabling hydrological analysis, water quality monitoring, and watershed management.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_water` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Watershed Analysis
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_water import WatershedAnalyzer
+## Local Contents
 
-# Delineate watershed
-analyzer = WatershedAnalyzer()
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-watershed = analyzer.delineate(
-    dem=elevation_data,
-    pour_point=(lat, lon))
+## Validation
 
-print(f"Area: {watershed.area_km2} km²")
-print(f"Stream length: {watershed.stream_km} km")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER
+```
 
-### 2. Flood Modeling
+## Integration Notes
 
-```python
-from geo_infer_water import FloodModeler
-
-# Model flood scenarios
-modeler = FloodModeler()
-
-flood = modeler.simulate(
-    dem=terrain,
-    scenario="100_year")
-
-print(f"Inundation area: {flood.area_km2} km²")
-print(f"Max depth: {flood.max_depth} m")```
-
-### 3. Water Quality
-
-```python
-from geo_infer_water import WaterQualityMonitor
-
-# Monitor water quality
-monitor = WaterQualityMonitor()
-
-quality = monitor.assess(
-    water_body=lake,
-    parameters=["ph", "do", "turbidity"])
-
-print(f"WQI: {quality.index}")```
-
-### 4. Groundwater
-
-```python
-from geo_infer_water import GroundwaterAnalyzer
-
-# Analyze groundwater
-gw = GroundwaterAnalyzer()
-
-analysis = gw.analyze(
-    aquifer=aquifer_boundary,
-    wells=monitoring_wells)
-
-print(f"Depth to water: {analysis.depth} m")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Watershed** | ✅ Ready | Delineation, flow |
-| **Flood** | ✅ Ready | Inundation modeling |
-| **Quality** | ✅ Ready | WQ monitoring |
-| **Groundwater** | ✅ Ready | Aquifer analysis |
-
-### Aspirational Features
-
-- 🔮 **WaterManagerAgent**: Resource optimization
-- 🔮 **FloodWarningAgent**: Real-time alerts
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

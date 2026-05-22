@@ -1,20 +1,70 @@
-# analytics
- ## Overview
- This directory contains analytics components. It includes 7 Python modules. ## Components
- ### geostatistic
-s
-.py Geostatistics module for spatial analysis. **Functions**: `spatial_interpolation`, `clustering_analysis`, `hotspot_detection`, `spatial_autocorrelation`, `variogram_analysis`, `_getis_ord_gi_star`, `_local_morans_i`, `_kernel_density_hotspots`, `_idw_interpolation`, `_kriging_interpolation` ### networ
-k
-.py Network analysis module for spatial analysis. **Functions**: `shortest_path`, `service_area`, `network_connectivity`, `routing_analysis`, `accessibility_analysis`, `_create_graph_from_gdf`, `_find_nearest_node` ### point_clou
-d
-.py Point cloud processing module for spatial analysis. **Classes**: `PointCloud` **Functions**: `load_point_cloud`, `point_cloud_filtering`, `feature_extraction`, `classification`, `surface_generation`, `_load_las_file`, `_load_text_file`, `_statistical_outlier_filter`, `_radius_outlier_filter`, `_voxel_grid_filter`, `_ground_filter`, `_filter_point_cloud`, `_calculate_point_features`, `_ground_vegetation_classification`, `_building_detection`, `_clustering_classification`, `_delaunay_triangulation`, `_grid_interpolation`, `_contour_generation` ### raste
-r
-.py Raster operations module for spatial analysis. **Functions**: `terrain_analysis`, `map_algebra`, `focal_statistics`, `zonal_statistics`, `raster_overlay`, `image_processing`, `_write_raster` ### spatiotempora
-l
-.py Spatio-Temporal Analysis Module for GEO-INFER-SPACE. **Classes**: `SpatioTemporalAnalyzer` **Functions**: `are_neighbors`, `get_neighbors` ### tempora
-l
-.py Temporal Analytics Module for GEO-INFER-SPACE. **Classes**: `TemporalAnalyzer` ### vecto
-r
-.py Vector operations module for spatial analysis. **Functions**: `buffer_and_intersect`, `overlay_analysis`, `proximity_analysis`, `spatial_join_analysis`, `geometric_calculations`, `topology_operations` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SPACE/src/geo_infer_space/analytics
+
+Analytics workspace within `GEO-INFER-SPACE`.
+
+## Contents
+
+- `__init__.py`
+- `geostatistics.py`
+- `network.py`
+- `point_cloud.py`
+- `raster.py`
+- `spatiotemporal.py`
+- `temporal.py`
+- `vector.py`
+
+## Public Interface
+
+- `geostatistics.py:spatial_interpolation` (function)
+- `geostatistics.py:clustering_analysis` (function)
+- `geostatistics.py:hotspot_detection` (function)
+- `geostatistics.py:spatial_autocorrelation` (function)
+- `geostatistics.py:variogram_analysis` (function)
+- `network.py:shortest_path` (function)
+- `network.py:service_area` (function)
+- `network.py:network_connectivity` (function)
+- `network.py:routing_analysis` (function)
+- `network.py:accessibility_analysis` (function)
+- `point_cloud.py:PointCloud` (class)
+- `point_cloud.py:load_point_cloud` (function)
+- `point_cloud.py:point_cloud_filtering` (function)
+- `point_cloud.py:feature_extraction` (function)
+- `point_cloud.py:classification` (function)
+- `point_cloud.py:surface_generation` (function)
+- `raster.py:terrain_analysis` (function)
+- `raster.py:map_algebra` (function)
+- `raster.py:focal_statistics` (function)
+- `raster.py:zonal_statistics` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPACE`
+- Package: `geo_infer_space`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `fiona>=1.8.0`
+- `geojson-pydantic>=0.4.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `pydantic>=1.8.0`
+- `pyproj>=3.3.0`
+- `python-multipart>=0.0.5`
+- `pyyaml>=6.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

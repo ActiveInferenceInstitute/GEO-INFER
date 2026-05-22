@@ -1,10 +1,64 @@
-# models
- ## Overview
- This directory contains models components. It includes 2 Python modules. ## Components
- ### risk_assessmen
-t
-.py Risk assessment models for geospatial security. **Classes**: `RiskSeverity`, `RiskLikelihood`, `RiskCategory`, `GeospatialSecurityRisk`, `RiskAssessment` **Functions**: `create_common_geospatial_risks` ### security_model
-s
-.py Security Data Models for GEO-INFER-SEC **Classes**: `ThreatLevel`, `SecurityEventCategory`, `SecurityEvent`, `SecurityAlert`, `ThreatIntelligence`, `SecurityAsset`, `SecurityPolicy`, `SecurityCompliance`, `SecurityMetrics`, `RiskAssessment`, `SecurityIncidentWorkflow`, `SecurityConfiguration`, `SecurityModelUtils` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SEC/src/geo_infer_sec/models
+
+Models workspace within `GEO-INFER-SEC`.
+
+## Contents
+
+- `__init__.py`
+- `risk_assessment.py`
+- `security_models.py`
+
+## Public Interface
+
+- `risk_assessment.py:RiskSeverity` (class)
+- `risk_assessment.py:RiskLikelihood` (class)
+- `risk_assessment.py:RiskCategory` (class)
+- `risk_assessment.py:GeospatialSecurityRisk` (class)
+- `risk_assessment.py:RiskAssessment` (class)
+- `risk_assessment.py:create_common_geospatial_risks` (function)
+- `security_models.py:ThreatLevel` (class)
+- `security_models.py:SecurityEventCategory` (class)
+- `security_models.py:SecurityEvent` (class)
+- `security_models.py:SecurityAlert` (class)
+- `security_models.py:ThreatIntelligence` (class)
+- `security_models.py:SecurityAsset` (class)
+- `security_models.py:SecurityPolicy` (class)
+- `security_models.py:SecurityCompliance` (class)
+- `security_models.py:SecurityMetrics` (class)
+- `security_models.py:RiskAssessment` (class)
+- `security_models.py:SecurityIncidentWorkflow` (class)
+- `security_models.py:SecurityConfiguration` (class)
+- `security_models.py:SecurityModelUtils` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SEC`
+- Package: `geo_infer_sec`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SEC`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC`
+
+## Dependencies
+
+- `cryptography>=36.0.0`
+- `pyjwt>=2.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `pandas>=1.3.0`
+- `numpy>=1.20.0`
+- `pyyaml>=6.0`
+- `h3>=4.0.0`
+- `pyproj>=3.0.0`
+- `flask>=2.0.0`
+- `sqlalchemy>=1.4.0`
+- `bcrypt>=3.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

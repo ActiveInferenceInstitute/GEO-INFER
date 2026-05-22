@@ -1,8 +1,36 @@
-# api
- ## Overview
- This directory contains api components. It includes 1 Python modules. ## Components
- ### agent_ap
-i
-.py GEO-INFER-APP Agent API **Classes**: `AgentAPIClient`, `AgentManager` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-APP/src/geo_infer_app/api
+
+Api workspace within `GEO-INFER-APP`.
+
+## Contents
+
+- `agent_api.py`
+
+## Public Interface
+
+- `agent_api.py:AgentAPIClient` (class)
+- `agent_api.py:AgentManager` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-APP`
+- Package: `geo_infer_app`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-APP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

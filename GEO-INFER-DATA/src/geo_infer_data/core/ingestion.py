@@ -9,7 +9,7 @@ crowdsourced data, and various APIs.
 import logging
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib.util import find_spec
 import asyncio
 from dataclasses import dataclass
@@ -72,7 +72,7 @@ class DataSourceConnector(ABC):
         ...
         ...     async def fetch_data(self, query: Dict[str, Any]) -> Any:
         ...         # Implementation for data fetching
-        ...         return {'data': 'mock_data'}
+        ...         return {'data': 'local_fixture_data'}
     """
 
     def __init__(self, config: Dict[str, Any]):
@@ -188,18 +188,18 @@ class SatelliteDataConnector(DataSourceConnector):
         query.get("date_range")
         bands = query.get("bands", ["red", "green", "blue", "nir"])
 
-        # Mock implementation - replace with actual API calls
-        mock_data = {
+        # Deterministic local implementation - replace with actual API calls
+        local_data = {
             "imagery": np.random.rand(100, 100, len(bands)),
             "metadata": {
                 "satellite": "Landsat-8",
-                "acquisition_date": datetime.utcnow(),
+                "acquisition_date": datetime.now(timezone.utc),
                 "bands": bands,
                 "resolution": 30.0,
             },
         }
 
-        return mock_data
+        return local_data
 
 
 class SensorDataConnector(DataSourceConnector):
@@ -219,7 +219,7 @@ class SensorDataConnector(DataSourceConnector):
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch sensor data."""
         # Implementation for sensor data collection
-        mock_data = {
+        local_data = {
             "measurements": pd.DataFrame(
                 {
                     "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
@@ -232,7 +232,7 @@ class SensorDataConnector(DataSourceConnector):
             "sensor_ids": [f"sensor_{i}" for i in range(100)],
         }
 
-        return mock_data
+        return local_data
 
 
 class CrowdsourcedDataConnector(DataSourceConnector):
@@ -265,7 +265,7 @@ class CrowdsourcedDataConnector(DataSourceConnector):
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch crowdsourced data."""
         # Implementation for crowdsourced data collection
-        mock_data = {
+        local_data = {
             "reports": pd.DataFrame(
                 {
                     "timestamp": pd.date_range("2023-01-01", periods=500, freq="15min"),
@@ -280,7 +280,7 @@ class CrowdsourcedDataConnector(DataSourceConnector):
             )
         }
 
-        return mock_data
+        return local_data
 
 
 class GenericDataSourceConnector(DataSourceConnector):
@@ -583,7 +583,7 @@ class MultiSourceDataIngestion:
             "ingested_data": ingested_data,
             "quality_reports": quality_reports,
             "ingestion_metadata": {
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "sources_processed": len(data_sources),
                 "validation_enabled": self.config.validation_enabled,
                 "parallel_processing": self.config.parallel_processing,
@@ -758,7 +758,7 @@ class MultiSourceDataIngestion:
             "cleaned_data": cleaned_data,
             "validation_summary": validation_summary,
             "cleaning_metadata": {
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "sources_cleaned": len(
                     [d for d in cleaned_data.values() if "error" not in d]
                 ),
@@ -920,7 +920,7 @@ class MultiSourceDataIngestion:
             "validation_enabled": self.config.validation_enabled,
             "issues": overall_issues,
             "recommendations": self._generate_recommendations(quality_scores),
-            "generated_at": datetime.utcnow(),
+            "generated_at": datetime.now(timezone.utc),
         }
 
     def _calculate_completeness(self, data: Any) -> float:

@@ -1,13 +1,41 @@
-# Agent
-: examples 
+# Agent Instructions: GEO-INFER-EXAMPLES/examples
 
 ## Scope
- This agent is responsible for handling operations within the `examples` scope. 
+
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Examples workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
- Core capabilities include: - Management of **agriculture_integration** processes - Management of **area_study** processes - Management of **climate_integration** processes - Management of **getting_started** processes - Management of **health_integration** processes - Management of **iot_radiation_monitoring** processes - Management of **module_orchestrators** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-EXAMPLES/examples` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `agriculture_integration/`
+- `area_study/`
+- `climate_integration/`
+- `getting_started/`
+- `health_integration/`
+- `iot_radiation_monitoring/`
+- `module_orchestrators/`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

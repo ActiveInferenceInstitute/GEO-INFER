@@ -1,5 +1,44 @@
-# unit
- ## Overview
- **Path**: `GEO-INFER-ENERGY/tests/unit` Unit tests for GEO-INFER-ENERGY module. ## Implementation
- ### `test_renewable_resources.py` **Classes**: TestRenewableResourceAssessor **Functions**: test_initialization, test_solar_potential_assessment, test_wind_potential_assessment ## Contents
- - **test_renewable_resources.py**: Python module --- 
+# GEO-INFER-ENERGY/tests/unit
+
+Unit workspace within `GEO-INFER-ENERGY`.
+
+## Contents
+
+- `test_carbon_footprint.py`
+- `test_energy_demand.py`
+- `test_energy_grid.py`
+- `test_renewable_resources.py`
+- `test_solar_analysis.py`
+- `test_wind_analysis.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ENERGY`
+- Package: `geo_infer_energy`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ENERGY`
+- Tests: `uv run python -m pytest GEO-INFER-ENERGY/tests/unit`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-ENERGY/tests/unit
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,104 +1,42 @@
-# Agent
-: core
+# Agent Instructions: GEO-INFER-SPM/src/geo_infer_spm/core
 
 ## Scope
- This directory contains core components for the module. It provides 6 classes and 12 functions.
 
-## Classes
- and Functions
-
-### BayesianSPM
- Bayesian Statistical Parametric Mapping implementation.
-
-**Methods**:
-- `fit_bayesian_glm(data: SPMData, design_matrix: np.ndarray, priors: Optional[Dict[str, Any]], n_samples: int, n_tune: int) -> SPMResult`: Fit Bayesian GLM using MCMC sampling.
-- `posterior_probability_map(statistical_map: np.ndarray, threshold: float) -> np.ndarray`: Compute posterior probability map.
-- `bayesian_model_comparison(models: List[SPMResult], method: str) -> Dict[str, Any]`: Compare Bayesian models using Bayes factors or information criteria.
-- `spatial_hierarchical_model(data: SPMData, design_matrix: np.ndarray, spatial_structure: Dict[str, Any]) -> SPMResult`: Fit spatial hierarchical Bayesian model.
-- `variational_inference(data: SPMData, design_matrix: np.ndarray, n_iterations: int) -> SPMResult`: Perform variational inference for scalable Bayesian computation.
-
-### Contrast
- Contrast specification for SPM hypothesis testing.
-
-**Methods**:
-- `from_string(cls, contrast_str: str, design_names: List[str], contrast_type: str) -> 'Contrast'`: Create contrast from string specification.
-
-### GeneralLinearModel
- General Linear Model for geospatial SPM analysis.
-
-**Methods**:
-- `fit(data: SPMData, method: str, spatial_regularization: Optional[Dict[str, Any]]) -> SPMResult`: Fit the GLM to geospatial data.
-- `predict(new_data: Optional[SPMData], new_design: Optional[np.ndarray]) -> np.ndarray`: Make predictions using the fitted GLM.
-- `get_coefficient_test(coefficient_idx: int) -> Dict[str, Any]`: Test significance of a specific coefficient.
-
-### RandomFieldTheory
- Random Field Theory for multiple comparison correction in SPM.
-
-**Methods**:
-- `estimate_smoothness(residuals: np.ndarray, mask: Optional[np.ndarray]) -> np.ndarray`: Estimate field smoothness using residuals.
-- `compute_search_volume(voxel_sizes: Optional[np.ndarray]) -> float`: Compute search volume in resels (resolution elements).
-- `expected_clusters(threshold: float, stat_type: str) -> float`: Compute expected number of clusters above threshold.
-- `cluster_threshold(alpha: float, stat_type: str) -> float`: Compute cluster-forming threshold for given alpha level.
-- `peak_threshold(alpha: float, stat_type: str) -> float`: Compute peak-level threshold for given alpha level.
-- `correct_p_values(statistical_map: np.ndarray, stat_type: str, method: str) -> np.ndarray`: Apply RFT-based multiple comparison correction.
-
-### SpatialAnalyzer
- Spatial analysis tools for SPM data.
-
-**Methods**:
-- `estimate_variogram(residuals: np.ndarray, n_bins: int, max_distance: Optional[float]) -> Dict[str, Any]`: Estimate empirical variogram from residuals.
-- `create_spatial_weights(model_type: str, **kwargs) -> np.ndarray`: Create spatial weights matrix based on fitted variogram.
-- `detect_clusters(statistical_map: np.ndarray, threshold: float, min_cluster_size: int) -> Dict[str, Any]`: Detect significant clusters in statistical parametric map.
-- `geographically_weighted_regression(data: SPMData, bandwidth: float) -> SPMResult`: Perform geographically weighted regression (GWR).
-- `spatial_basis_functions(n_basis: int, basis_type: str) -> np.ndarray`: Generate spatial basis functions for modeling spatial variation.
-
-### TemporalAnalyzer
- Temporal analysis tools for SPM data.
-
-**Methods**:
-- `detect_trends(data: np.ndarray, method: str, alpha: float) -> Dict[str, Any]`: Detect temporal trends in SPM data.
-- `seasonal_decomposition(data: np.ndarray, period: Optional[int], model: str) -> Dict[str, Any]`: Decompose time series into trend, seasonal, and residual components.
-- `fit_arima_model(data: np.ndarray, order: Tuple[int, int, int], seasonal_order: Optional[Tuple[int, int, int, int]]) -> Dict[str, Any]`: Fit ARIMA model to time series data.
-- `sliding_window_analysis(data: np.ndarray, window_size: int, step_size: int, analysis_func: Optional[callable]) -> Dict[str, Any]`: Perform sliding window analysis for dynamic temporal patterns.
-- `change_point_detection(data: np.ndarray, method: str, penalty: float) -> Dict[str, Any]`: Detect change points in time series data.
-- `temporal_basis_functions(n_basis: int, basis_type: str) -> np.ndarray`: Generate temporal basis functions for modeling temporal variation.
-
-### negative_log_posterior
- `negative_log_posterior(beta)` Negative log posterior for optimization.
-
-### contrast
- `contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Contrast], contrast_type: str) -> ContrastResult` Define and compute a contrast for SPM analysis.
-
-### generate_common_contrasts
- `generate_common_contrasts(design_matrix: 'DesignMatrix', design_type: str) -> List[Contrast]` Generate common contrasts for standard experimental designs.
-
-### fit_glm
- `fit_glm(data: SPMData, design_matrix: DesignMatrix, method: str, **kwargs) -> SPMResult` Convenience function to fit a GLM to geospatial data.
-
-### compute_spm
- `compute_spm(model_result: SPMResult, contrast: ContrastResult, correction: str, alpha: float) -> ContrastResult` Compute Statistical Parametric Map with multiple comparison correction.
-
-### expected_clusters_func
- `expected_clusters_func(u)`
-
-### spherical_model
- `spherical_model(h, nugget, sill, range_)` Spherical variogram model.
-
-### exponential_model
- `exponential_model(h, nugget, sill, range_)` Exponential variogram model.
-
-### gaussian_model
- `gaussian_model(h, nugget, sill, range_)` Gaussian variogram model.
-
-### objective
- `objective(params)`
+- Owning module: `GEO-INFER-SPM`
+- Python package: `geo_infer_spm`
+- Directory role: Core workspace within `GEO-INFER-SPM`.
 
 ## Capabilities
 
-- **6 classes** for core functionality
-- **12 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_spm` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-SPM/src/geo_infer_spm/core`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `advanced/`
+- `__init__.py`
+- `bayesian.py`
+- `contrasts.py`
+- `glm.py`
+- `rft.py`
+- `spatial_analysis.py`
+- `temporal_analysis.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

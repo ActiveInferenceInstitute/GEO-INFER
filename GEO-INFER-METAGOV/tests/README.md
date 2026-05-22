@@ -1,5 +1,37 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-METAGOV/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_adaptation.py` **Classes**: TestAdaptiveGovernanceSystem **Functions**: system, test_system_initialization, test_establish_adaptive_cycle, test_monitor_performance, test_adapt_governance ### `unit/test_multi_level.py` **Classes**: TestMultiLevelGovernanceFramework, TestGovernanceEntity, TestGovernanceStructure **Functions**: framework, spatial_scope, stakeholders, decision_domains, test_framework_initialization ### `unit/test_accountability.py` **Classes**: TestAccountabilityFramework **Functions**: framework, test_framework_initialization, test_establish_accountability, test_audit_trail_structure, test_compliance_framework ### `unit/test_polycentric.py` **Classes**: TestPolycentricGovernanceSystem **Functions**: system, test_system_initialization, test_design_polycentric_structure, test_analyze_authority_relationships, test_redundancy_assessment ### `unit/test_institutional.py` **Classes**: TestInstitutionalDesigner, TestInstitution, TestInstitutionalFramework **Functions**: designer, institutions, stakeholders, test_designer_initialization, test_analyze_institutions ## Contents
- - **integration/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-METAGOV/tests
+
+Tests workspace within `GEO-INFER-METAGOV`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-METAGOV`
+- Package: `geo_infer_metagov`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-METAGOV`
+- Tests: `uv run python -m pytest GEO-INFER-METAGOV/tests`
+
+## Dependencies
+
+- `numpy>=1.20`
+- `pyyaml>=6.0`
+- `typing_extensions>=4.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-METAGOV/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

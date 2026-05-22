@@ -1,16 +1,35 @@
-# Agent
-: .test-results
+# Agent Instructions: GEO-INFER-ENERGY/.test-results
 
 ## Scope
- Agent responsible for operations within .test-results at path `GEO-INFER-ENERGY/.test-results`.
+
+- Owning module: `GEO-INFER-ENERGY`
+- Python package: `geo_infer_energy`
+- Directory role: .Test Results workspace within `GEO-INFER-ENERGY`.
 
 ## Capabilities
 
-### Directory
- Structure
-- **coverage/**: Subdirectory
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_energy` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-ENERGY/.test-results`
-- **Type**: operations within .test-results ---
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- No direct tracked child entries.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

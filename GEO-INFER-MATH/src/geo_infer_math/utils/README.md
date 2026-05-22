@@ -1,20 +1,64 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 7 Python modules. ## Components
- ### cachin
-g
-.py Caching Utilities for Expensive Computations **Classes**: `ComputationCache` **Functions**: `cache_result`, `_create_cache_key`, `decorator`, `serialize_arg`, `wrapper` ### constant
-s
-.py Constants Module **Functions**: `get_constant`, `list_constants` ### conversio
-n
-.py Conversion Utilities Module **Functions**: `degrees_to_radians`, `radians_to_degrees`, `celsius_to_fahrenheit`, `fahrenheit_to_celsius`, `kelvin_to_celsius`, `celsius_to_kelvin`, `meters_to_feet`, `feet_to_meters`, `meters_to_miles`, `miles_to_meters`, `meters_to_kilometers`, `kilometers_to_meters`, `square_meters_to_square_feet`, `square_feet_to_square_meters`, `square_meters_to_acres`, `acres_to_square_meters`, `square_meters_to_hectares`, `hectares_to_square_meters`, `cartesian_to_polar`, `polar_to_cartesian`, `spherical_to_cartesian`, `cartesian_to_spherical`, `normalize_array`, `standardize_array`, `convert_data_types`, `format_coordinate_string`, `parse_coordinate_string`, `decimal_to_dms`, `decimal_to_dm` ### decorator
-s
-.py Decorators Module **Functions**: `memoize`, `memoize_with_expiry`, `validate_input`, `log_execution`, `time_execution`, `requires_positive_values`, `requires_finite_values`, `handle_exceptions`, `deprecated`, `requires_numpy_arrays`, `cache_results`, `validate_output`, `retry_on_failure`, `memoized_func`, `decorator`, `decorator`, `decorator`, `timed_func`, `decorator`, `decorator`, `decorator`, `decorator`, `decorator`, `decorator`, `decorator`, `decorator`, `memoized_func`, `clear_cache`, `cache_info`, `validated_func`, `logged_func`, `validated_func`, `validated_func`, `exception_handled_func`, `deprecated_func`, `array_func`, `cached_func`, `clear_cache`, `get_cache_size`, `validated_output_func`, `retry_func` ### exception
-s
-.py Custom Exceptions for GEO-INFER-MATH **Classes**: `MathError`, `NumericalError`, `ConvergenceError`, `SingularMatrixError`, `TheoremProvingError`, `ProofVerificationError`, `InformationTheoryError`, `InvalidDistributionError`, `SpatialError`, `CoordinateError`, `GeometryError` ### paralle
-l
-.py Parallel Processing Module **Functions**: `parallel_compute`, `_calculate_optimal_chunk_size`, `_create_memory_aware_chunks`, `parallel_map`, `parallel_matrix_operation`, `parallel_matrix_multiply`, `parallel_distance_matrix`, `parallel_spatial_interpolation`, `parallel_statistical_analysis`, `get_optimal_worker_count`, `parallel_file_processing`, `memory_efficient_parallel`, `multiply_chunk`, `distance_chunk`, `interpolate_chunk`, `analyze_chunk`, `process_batch` ### validatio
-n
-.py Validation Utilities **Functions**: `validate_probabilities`, `validate_coordinates`, `validate_numerical`, `validate_shape`, `validate_range`, `wrapper`, `wrapper`, `wrapper`, `decorator`, `decorator`, `wrapper`, `wrapper` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/utils
+
+Utils workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `__init__.py`
+- `caching.py`
+- `constants.py`
+- `conversion.py`
+- `decorators.py`
+- `exceptions.py`
+- `parallel.py`
+- `validation.py`
+
+## Public Interface
+
+- `caching.py:cache_result` (function)
+- `caching.py:ComputationCache` (class)
+- `constants.py:get_constant` (function)
+- `constants.py:list_constants` (function)
+- `conversion.py:degrees_to_radians` (function)
+- `conversion.py:radians_to_degrees` (function)
+- `conversion.py:celsius_to_fahrenheit` (function)
+- `conversion.py:fahrenheit_to_celsius` (function)
+- `conversion.py:kelvin_to_celsius` (function)
+- `conversion.py:celsius_to_kelvin` (function)
+- `conversion.py:meters_to_feet` (function)
+- `conversion.py:feet_to_meters` (function)
+- `conversion.py:meters_to_miles` (function)
+- `conversion.py:miles_to_meters` (function)
+- `conversion.py:meters_to_kilometers` (function)
+- `conversion.py:kilometers_to_meters` (function)
+- `conversion.py:square_meters_to_square_feet` (function)
+- `conversion.py:square_feet_to_square_meters` (function)
+- `conversion.py:square_meters_to_acres` (function)
+- `conversion.py:acres_to_square_meters` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

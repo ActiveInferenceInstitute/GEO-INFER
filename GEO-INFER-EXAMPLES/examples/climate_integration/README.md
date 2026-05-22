@@ -1,5 +1,39 @@
-# climate_integration
- ## Overview
- **Path**: `GEO-INFER-EXAMPLES/examples/climate_integration` Climate integration examples. ## Implementation
- ### `spatial_microbiome_soil_climate/scripts/run_spatial_integration.py` **Classes**: SpatialMicrobiomeIntegrator **Functions**: main, load_biological_datasets, create_interactive_h3_visualization, run_complete_analysis ### `spatial_microbiome_soil_climate/scripts/run_example.py` **Classes**: ClimateAnalysisSystem **Functions**: setup_logging, main, run_climate_analysis ## Contents
- - **spatial_microbiome_soil_climate/**: Subdirectory --- 
+# GEO-INFER-EXAMPLES/examples/climate_integration
+
+Climate Integration workspace within `GEO-INFER-EXAMPLES`.
+
+## Contents
+
+- `spatial_microbiome_soil_climate/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EXAMPLES`
+- Package: `geo_infer_examples`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
+
+## Dependencies
+
+- `jupyterlab>=3.4.0`
+- `matplotlib>=3.5.0`
+- `pandas>=1.4.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+- `rich>=12.0.0`
+- `typer>=0.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

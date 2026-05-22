@@ -1,8 +1,45 @@
-# src
- ## Overview
- Source code implementation for GEO-INFER-DATA module. **Path**: `GEO-INFER-DATA/src` ## Package
- Structure ### `geo_infer_data/` Main Python package containing: - **api/**: REST API and data access interfaces - **connectors/**: Data source connectors (cloud, database, stream, API, file) - **core/**: Core data management (ingestion, pipeline, storage, validation) - **models/**: Data models and schemas - **utils/**: Utility functions (caching, compression, indexing, performance, validation) ### Connector
-s
- #### `connectors/cloud.py` Cloud storage connectors: `S3Connector`, `GCSConnector`, `AzureConnector` #### `connectors/database.py` Database connectors: `PostgreSQLConnector`, `MySQLConnector`, `MongoDBConnector` #### `connectors/stream.py` Streaming connectors: `MQTTConnector`, `KafkaConnector`, `WebSocketConnector` #### `connectors/api.py` API connectors: `STACConnector`, `GraphQLConnector`, `APIConnector` #### `connectors/file.py` File system connectors: `FileConnector`, `StreamingFileConnector` ## Quick
- Start ```python from geo_infer_data.core import MultiSourceDataIngestion, AdaptiveDataStorage from geo_infer_data.connectors import STACConnector, PostgreSQLConnector # Initialize connectors stac = STACConnector(url="https://stac.example.com") db = PostgreSQLConnector(connection_string="postgresql://...") # Initialize core components ingestion = MultiSourceDataIngestion(data_sources=['satellite', 'sensors']) storage = AdaptiveDataStorage(storage_backends=['postgresql', 'minio']) # Process data data = await ingestion.ingest_multi_source(satellite_data=imagery) storage_id = await storage.store_geospatial_data(data, metadata) ``` ## Contents
- - **geo_infer_data/**: Main package directory - **geo_infer_data.egg-info/**: Package metadata (generated) --- 
+# GEO-INFER-DATA/src
+
+Src workspace within `GEO-INFER-DATA`.
+
+## Contents
+
+- `geo_infer_data.egg-info/`
+- `geo_infer_data/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

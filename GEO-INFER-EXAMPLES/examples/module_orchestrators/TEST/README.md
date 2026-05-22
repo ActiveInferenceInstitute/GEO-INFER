@@ -1,6 +1,40 @@
-# TEST
- ## Overview
- This directory contains TEST components. ## Components
- No components documented. ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-EXAMPLES/examples/module_orchestrators/TEST
+
+Test workspace within `GEO-INFER-EXAMPLES`.
+
+## Contents
+
+- `config/`
+- `scripts/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EXAMPLES`
+- Package: `geo_infer_examples`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
+
+## Dependencies
+
+- `jupyterlab>=3.4.0`
+- `matplotlib>=3.5.0`
+- `pandas>=1.4.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+- `rich>=12.0.0`
+- `typer>=0.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

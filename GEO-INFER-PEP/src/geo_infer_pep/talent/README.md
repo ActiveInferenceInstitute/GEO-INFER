@@ -1,10 +1,45 @@
-# talent
- ## Overview
- This directory contains talent components. It includes 2 Python modules. ## Components
- ### importe
-r
-.py Talent Data Importers (e.g., from ATS). **Classes**: `BaseTalentImporter`, `CSVTalentImporter` ### transforme
-r
-.py Talent Data Transformers. **Functions**: `clean_candidate_data`, `enrich_candidate_data`, `convert_candidates_to_dataframe`, `convert_requisitions_to_dataframe` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-PEP/src/geo_infer_pep/talent
+
+Talent workspace within `GEO-INFER-PEP`.
+
+## Contents
+
+- `__init__.py`
+- `importer.py`
+- `transformer.py`
+
+## Public Interface
+
+- `importer.py:BaseTalentImporter` (class)
+- `importer.py:CSVTalentImporter` (class)
+- `transformer.py:clean_candidate_data` (function)
+- `transformer.py:enrich_candidate_data` (function)
+- `transformer.py:convert_candidates_to_dataframe` (function)
+- `transformer.py:convert_requisitions_to_dataframe` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-PEP`
+- Package: `geo_infer_pep`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PEP`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP`
+
+## Dependencies
+
+- `fastapi>=0.100.0`
+- `uvicorn[standard]>=0.23.2`
+- `pydantic>=2.0`
+- `pandas>=2.0`
+- `matplotlib>=3.7.0`
+- `seaborn>=0.13.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

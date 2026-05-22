@@ -17,8 +17,8 @@ logger = get_logger(__name__)
 
 
 @contextlib.contextmanager
-def mock_config(config_dict: Dict[str, Any]) -> Generator[Config, None, None]:
-    """Mock configuration for testing.
+def temporary_config(config_dict: Dict[str, Any]) -> Generator[Config, None, None]:
+    """Test configuration fixture.
 
     Args:
         config_dict: Configuration dictionary
@@ -237,7 +237,7 @@ def create_test_metric(
 
 # Export functions
 __all__ = [
-    "mock_config",
+    "temporary_config",
     "create_test_data_dir",
     "create_test_client",
     "setup_testing",

@@ -1,66 +1,41 @@
-# Agent: del_norte_county (src)
+# Agent Instructions: GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county
 
 ## Scope
 
-Production source code for Del Norte County geospatial analysis. Contains 5 analyzer
-classes and 1 dashboard sub-package providing environmental monitoring, coastal
-resilience, wildfire risk, seismic hazard, and interactive visualization.
-
-## Classes
-
-### ForestHealthMonitor
-
-Forest health monitoring for Del Norte County's redwood, Douglas fir, and mixed conifer ecosystems.
-
-**Key Methods**:
-
-- `run_analysis(temporal_range)` — Full forest health assessment pipeline
-- `get_monitoring_status()` — Current monitoring system status
-
-### CoastalResilienceAnalyzer
-
-Coastal resilience analysis for 45 miles of Pacific coastline.
-
-**Key Methods**:
-
-- `run_analysis(temporal_range)` — Coastal resilience assessment pipeline
-- `get_monitoring_status()` — Current monitoring system status
-
-### FireRiskAssessor
-
-Wildfire risk assessment integrating fire weather, fuel moisture, and WUI analysis.
-
-**Key Methods**:
-
-- `run_analysis(temporal_range)` — Fire risk assessment pipeline
-- `get_monitoring_status()` — Current monitoring system status
-
-### SeismicHazardAnalyzer
-
-Cascadia Subduction Zone seismic and tsunami hazard analysis using USGS data feeds.
-
-**Key Methods**:
-
-- `run_analysis()` — Seismic hazard assessment pipeline (earthquake data, hazard grid, tsunami risk, CSZ scenario)
-
-### DelNorteComprehensiveDashboard
-
-Multi-domain interactive dashboard integrating all analysis domains.
-
-**Key Methods**:
-
-- `run_comprehensive_analysis()` — Run all analyzers
-- `generate_comprehensive_dashboard()` — Generate interactive HTML dashboard
-- `export_analysis_results()` — Export to JSON
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Del Norte County workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **5 analyzer classes** with full analysis pipelines
-- **1 dashboard sub-package** (`dashboard/`) with `AdvancedDashboard`
-- **H3 spatial indexing** at resolution 8
-- **API integration**: CAL FIRE, NOAA, USGS via `DelNorteDataIntegrator`
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `src/geo_infer_place/locations/del_norte_county`
-- **Type**: Directory Node (production source)
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `dashboard/`
+- `__init__.py`
+- `coastal_resilience_analyzer.py`
+- `comprehensive_dashboard.py`
+- `fire_risk_assessor.py`
+- `forest_health_monitor.py`
+- `seismic_hazard_analyzer.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

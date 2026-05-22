@@ -1,22 +1,70 @@
-# bioregional
- ## Overview
- This directory contains bioregional components. It includes 8 Python modules. ## Components
- ### bioregional_governanc
-e
-.py Bioregional Governance Models Module **Classes**: `BioregionalGovernanceModels`, `CommunityResourceManagement`, `AdaptiveManagementSystems`, `StakeholderEngagement`, `CooperativeEconomics` ### bioregional_market
-s
-.py Bioregional Market Design Module **Classes**: `BioregionalAsset`, `MarketParticipant`, `EcosystemServiceCredit`, `BioregionalMarketDesign`, `EcosystemServicesMarkets`, `BiodiversityMarkets`, `LocalFoodSystems` **Functions**: `example_bioregional_market` ### circular_econom
-y
-.py Circular Economy Models Module **Classes**: `CircularEconomyModels`, `MaterialFlowAnalysis`, `IndustrialEcologyModels`, `WasteToResourceSystems`, `RegenerativeDesign` ### ecological_economic
-s
-.py Ecological Economics for Bioregional Analysis **Classes**: `EcologicalEconomicsConfig`, `BiophysicalEquilibriumModels` ### ecosystem_service
-s
-.py Ecosystem Services Valuation Module **Classes**: `EcosystemServicesValuation`, `ProvisioningServices`, `RegulatingServices`, `CulturalServices`, `SupportingServices`, `ServiceFlowModeling` ### natural_capita
-l
-.py Natural Capital Accounting Module **Classes**: `NaturalCapitalAccounting`, `EcosystemAssetsValuation`, `BiodiversityCredits`, `CarbonAccounting`, `WaterResourceAccounting` ### spatial_ecolog
-y
-.py Spatial Ecology Module **Classes**: `LandscapeEconomics`, `HabitatConnectivity`, `EcosystemNetworkAnalysis`, `ConservationPrioritization`, `RestorationEconomics` ### sustainability_metric
-s
-.py Sustainability Metrics Module **Classes**: `SustainabilityIndicators`, `ResilienceMetrics`, `RegenerativeMetrics`, `WellbeingIndicators`, `PlanetaryBoundaries` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-ECON/src/geo_infer_econ/bioregional
+
+Bioregional workspace within `GEO-INFER-ECON`.
+
+## Contents
+
+- `__init__.py`
+- `bioregional_governance.py`
+- `bioregional_markets.py`
+- `circular_economy.py`
+- `ecological_economics.py`
+- `ecosystem_services.py`
+- `natural_capital.py`
+- `spatial_ecology.py`
+- `sustainability_metrics.py`
+
+## Public Interface
+
+- `bioregional_governance.py:BioregionalGovernanceModels` (class)
+- `bioregional_governance.py:CommunityResourceManagement` (class)
+- `bioregional_governance.py:AdaptiveManagementSystems` (class)
+- `bioregional_governance.py:StakeholderEngagement` (class)
+- `bioregional_governance.py:CooperativeEconomics` (class)
+- `bioregional_markets.py:BioregionalAsset` (class)
+- `bioregional_markets.py:MarketParticipant` (class)
+- `bioregional_markets.py:EcosystemServiceCredit` (class)
+- `bioregional_markets.py:BioregionalMarketDesign` (class)
+- `bioregional_markets.py:EcosystemServicesMarkets` (class)
+- `bioregional_markets.py:BiodiversityMarkets` (class)
+- `bioregional_markets.py:LocalFoodSystems` (class)
+- `bioregional_markets.py:CarbonMarkets` (class)
+- `bioregional_markets.py:WaterMarkets` (class)
+- `bioregional_markets.py:example_bioregional_market` (function)
+- `circular_economy.py:CircularEconomyModels` (class)
+- `circular_economy.py:MaterialFlowAnalysis` (class)
+- `circular_economy.py:IndustrialEcologyModels` (class)
+- `circular_economy.py:WasteToResourceSystems` (class)
+- `circular_economy.py:RegenerativeDesign` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

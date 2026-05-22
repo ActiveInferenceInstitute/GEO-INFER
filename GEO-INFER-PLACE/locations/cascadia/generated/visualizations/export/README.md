@@ -1,4 +1,45 @@
-# export
- ## Overview
- **Path**: `GEO-INFER-PLACE/locations/cascadia/generated/visualizations/export` Export functionality. ## Contents
- - **data_sources_summary_20260125_134421.json**: File file - **h3_data_20260125_134421.geojson**: File file - **legend/**: Subdirectory - **redevelopment_scores_20260125_134421.csv**: File file --- 
+# GEO-INFER-PLACE/locations/cascadia/generated/visualizations/export
+
+Export workspace within `GEO-INFER-PLACE`.
+
+## Contents
+
+- `legend/`
+- `data_sources_summary_20260125_134421.json`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-PLACE`
+- Package: `geo_infer_place`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PLACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `h3>=4.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyyaml>=6.0`
+- `folium>=0.14.0`
+- `plotly>=5.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `branca>=0.6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

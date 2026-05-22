@@ -1,22 +1,40 @@
-# Agent
-: examples 
+# Agent Instructions: GEO-INFER-MATH/examples
 
 ## Scope
- Agent responsible for usage examples and demonstrations at path `GEO-INFER-MATH/examples`. 
+
+- Owning module: `GEO-INFER-MATH`
+- Python package: `geo_infer_math`
+- Directory role: Examples workspace within `GEO-INFER-MATH`.
 
 ## Capabilities
- 
 
-### Example
- Scripts 
-- **advanced_geospatial_analysis/**: analysis examples 
-- **convenience_api_examples/**: API usage examples 
-- **information_theory_examples/**: Information theory demonstrations 
-- **performance_benchmark/**: Performance benchmarking examples 
-- **realistic_geospatial_analysis/**: Real-world analysis examples 
-- **spatial_statistics_example/**: Spatial statistics demonstrations 
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_math` and the owning module's public contracts.
 
-## Integration
- 
-- **Location**: `GEO-INFER-MATH/examples` 
-- **Type**: Usage examples and demonstrations
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `advanced_geospatial_analysis.py`
+- `convenience_api_examples.py`
+- `information_theory_examples.py`
+- `performance_benchmark.py`
+- `realistic_geospatial_analysis.py`
+- `spatial_statistics_example.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

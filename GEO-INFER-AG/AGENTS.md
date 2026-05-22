@@ -1,96 +1,46 @@
-# GEO-INFER-AG: Agent Capabilities
+# Agent Instructions: GEO-INFER-AG
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-AG`
+- Python package: `geo_infer_ag`
+- Directory role: Advanced agricultural analysis and precision farming applications using geospatial intelligence and active inference principles.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-AG** (Agriculture) module provides precision agriculture capabilities for agents, including crop monitoring, soil analysis, and farm management.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ag` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Crop Monitoring
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_ag import CropMonitor
+## Local Contents
 
-# Monitor crop health
-monitor = CropMonitor()
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements-test.txt`
+- `requirements.txt`
+- `run_tests.sh`
 
-health = monitor.assess(
-    field=field_boundary,
-    imagery=satellite_data,
-    indices=["ndvi", "ndre", "evi"])
+## Validation
 
-print(f"Crop health: {health.status}")
-print(f"Problem areas: {health.stress_zones}")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AG
+```
 
-### 2. Yield Prediction
+## Integration Notes
 
-```python
-from geo_infer_ag import YieldForecaster
-
-# Predict crop yield
-forecaster = YieldForecaster()
-
-prediction = forecaster.predict(
-    field=field_boundary,
-    crop="corn",
-    weather=forecast_data)
-
-print(f"Expected yield: {prediction.tonnes_ha} t/ha")```
-
-### 3. Soil Analysis
-
-```python
-from geo_infer_ag import SoilAnalyzer
-
-# Analyze soil properties
-soil = SoilAnalyzer()
-
-analysis = soil.analyze(
-    samples=soil_samples,
-    properties=["ph", "nitrogen", "organic_matter"])
-
-print(f"Soil health: {analysis.health_index}")```
-
-### 4. Precision Irrigation
-
-```python
-from geo_infer_ag import IrrigationPlanner
-
-# Plan precision irrigation
-planner = IrrigationPlanner()
-
-schedule = planner.create(
-    field=field_boundary,
-    crop="wheat",
-    soil_moisture=sensor_data)
-
-print(f"Water needed: {schedule.volume_m3}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Crop Monitoring** | ✅ Ready | RS-based health |
-| **Yield** | ✅ Ready | ML prediction |
-| **Soil** | ✅ Ready | Soil mapping |
-| **Irrigation** | ✅ Ready | Variable rate |
-
-### Aspirational Features
-
-- 🔮 **FarmManagerAgent**: Autonomous farm ops
-- 🔮 **PestDetectionAgent**: Early warning
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

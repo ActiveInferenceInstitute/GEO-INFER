@@ -1,76 +1,54 @@
-# test
-s
+# GEO-INFER-DATA/tests
 
-## Overvie
-w
+Tests workspace within `GEO-INFER-DATA`.
 
-Test suite for GEO-INFER-DATA. This module contains tests for all GEO-INFER-DATA functionality including unit tests, integration tests, and performance tests.
+## Contents
 
-## Test
- Structure
+- `fixtures/`
+- `integration/`
+- `performance/`
+- `unit/`
+- `conftest.py`
 
-- **unit/**: Unit tests for individual components
-- **integration/**: Integration tests for component interactions
-- **performance/**: Performance tests and benchmarks
-- **fixtures/**: Test data and fixtures
+## Public Interface
 
-## Running
- Tests
+- `conftest.py:ensure_event_loop` (function)
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:sample_csv_path` (function)
+- `conftest.py:sample_geojson_path` (function)
+- `conftest.py:data_source_config` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python -m pytest GEO-INFER-DATA/tests`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
 
 ```bash
-# Run
- all tests
-python -m pytest tests/
-
-# Run
- unit tests only
-python -m pytest tests/unit/
-
-# Run
- integration tests
-python -m pytest tests/integration/
-
-# Run
- performance tests
-python -m pytest tests/performance/
-
-# Run
- with coverage
-python -m pytest tests/ --cov=src/geo_infer_data
-
-# Run
- specific test file
-python -m pytest tests/unit/test_ingestion.py
+uv run python -m pytest GEO-INFER-DATA/tests
 ```
 
-## Test
- Coverage
+## Documentation Notes
 
-### Uni
-t
- Tests
-- **test_ingestion.py**: Multi-source ingestion, connectors
-- **test_storage.py**: Adaptive storage, backends
-- **test_validation.py**: Data validation, quality management
-- **test_api.py**: REST API, data service
-- **test_error_handling.py**: Error handling across components
-
-### Integratio
-n
- Tests
-- **test_end_to_end.py**: Complete workflows from ingestion to storage
-
-### Performanc
-e
- Tests
-- **test_benchmarks.py**: Performance benchmarks for data operations
-
-## Content
-s
-
-- **fixtures/**: Test data and fixtures
-- **integration/**: Integration test suite
-- **performance/**: Performance benchmarks
-- **unit/**: Unit test suite
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

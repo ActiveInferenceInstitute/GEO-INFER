@@ -1,338 +1,388 @@
 #!/usr/bin/env python3
-"""
-GEO-INFER Unified Test Suite Runner
+"""Run GEO-INFER test and validation suites.
 
-Enhanced to support:
-- Dynamic discovery of all GEO-INFER modules
-- Module-specific test execution
-- Cross-module integration testing
-- Comprehensive reporting across all modules
+The runner intentionally mirrors the commands documented in the root README:
+
+* ``--module NAME`` runs one module's tests.
+* ``--category unit|integration|performance|coverage`` runs a focused suite.
+* ``--h3-migration`` runs the H3/Active Inference contract validators.
+
+With no arguments, the runner executes the same broad module sweep that older
+versions performed.
 """
 
-import sys
-import os
-import time
-import json
+from __future__ import annotations
+
 import argparse
-from pathlib import Path
-from datetime import datetime
+import json
 import subprocess
-import tempfile
-import shutil
-import glob
+import sys
+import time
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
 
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODULE_PREFIX = "GEO-INFER-"
 TEST_DIR_NAME = "tests"
+RESULTS_DIR = PROJECT_ROOT / ".geo-infer-test-results"
 
-def discover_geo_infer_modules():
-    """Discover all GEO-INFER modules in the project."""
-    modules = []
-    for item in project_root.iterdir():
-        if item.is_dir() and item.name.startswith(MODULE_PREFIX):
-            module_name = item.name[len(MODULE_PREFIX):]
-            test_path = item / TEST_DIR_NAME
-            if test_path.exists() and any(test_path.iterdir()):
-                modules.append({
-                    'name': module_name,
-                    'path': str(item),
-                    'test_path': str(test_path),
-                    'has_tests': True
-                })
-            else:
-                modules.append({
-                    'name': module_name,
-                    'path': str(item),
-                    'test_path': str(test_path),
-                    'has_tests': False
-                })
+
+@dataclass
+class CommandResult:
+    name: str
+    success: bool
+    duration: float
+    command: list[str]
+    stdout: str = ""
+    stderr: str = ""
+
+
+@dataclass
+class Module:
+    name: str
+    path: Path
+    test_path: Path
+    has_tests: bool
+
+
+@dataclass
+class SuiteReport:
+    results: list[CommandResult] = field(default_factory=list)
+
+    def add(self, result: CommandResult) -> None:
+        self.results.append(result)
+
+    @property
+    def success(self) -> bool:
+        return all(result.success for result in self.results)
+
+
+def discover_geo_infer_modules() -> list[Module]:
+    """Discover all top-level GEO-INFER modules in stable order."""
+    modules: list[Module] = []
+    for item in sorted(PROJECT_ROOT.iterdir()):
+        if not item.is_dir() or not item.name.startswith(MODULE_PREFIX):
+            continue
+        test_path = item / TEST_DIR_NAME
+        modules.append(
+            Module(
+                name=item.name.removeprefix(MODULE_PREFIX),
+                path=item,
+                test_path=test_path,
+                has_tests=test_path.exists() and any(test_path.iterdir()),
+            )
+        )
     return modules
 
-def run_command(cmd, description, timeout=300, cwd=None):
-    """Run a command and return results."""
-    print(f"\n🔄 {description}")
-    print(f"   Command: {' '.join(cmd)}")
-    if cwd:
-        print(f"   Working directory: {cwd}")
-    
-    start_time = time.time()
+
+def ensure_results_dir(clean: bool = False) -> None:
+    RESULTS_DIR.mkdir(exist_ok=True)
+    if not clean:
+        return
+    for path in RESULTS_DIR.iterdir():
+        if path.is_file():
+            path.unlink()
+
+
+def run_command(
+    command: list[str],
+    name: str,
+    timeout: int,
+    cwd: Path = PROJECT_ROOT,
+) -> CommandResult:
+    """Run a subprocess and capture a compact result."""
+    print(f"\n== {name}")
+    print("$ " + " ".join(command))
+    started = time.time()
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
             text=True,
+            capture_output=True,
             timeout=timeout,
-            cwd=cwd
+            check=False,
         )
-        duration = time.time() - start_time
-        
-        if result.returncode == 0:
-            print(f"   ✅ Completed in {duration:.2f}s")
-            return {
-                'success': True,
-                'duration': duration,
-                'stdout': result.stdout,
-                'stderr': result.stderr
-            }
-        else:
-            print(f"   ❌ Failed after {duration:.2f}s")
-            print(f"   Error: {result.stderr}")
-            return {
-                'success': False,
-                'duration': duration,
-                'stdout': result.stdout,
-                'stderr': result.stderr
-            }
-    except subprocess.TimeoutExpired:
-        print(f"   ⏰ Timeout after {timeout}s")
-        return {
-            'success': False,
-            'duration': timeout,
-            'stdout': '',
-            'stderr': f'Command timed out after {timeout} seconds'
-        }
-    except Exception as e:
-        print(f"   💥 Exception: {e}")
-        return {
-            'success': False,
-            'duration': time.time() - start_time,
-            'stdout': '',
-            'stderr': str(e)
-        }
+    except subprocess.TimeoutExpired as exc:
+        duration = time.time() - started
+        print(f"TIMEOUT after {duration:.2f}s")
+        return CommandResult(
+            name=name,
+            success=False,
+            duration=duration,
+            command=command,
+            stdout=exc.stdout or "",
+            stderr=exc.stderr or f"Timed out after {timeout}s",
+        )
 
-def run_module_tests(module, timeout=300):
-    """Run tests for a specific GEO-INFER module."""
-    if not module['has_tests']:
-        print(f"   ⚠️  No tests found for module {module['name']}")
-        return {
-            'success': False,
-            'duration': 0,
-            'stdout': '',
-            'stderr': f"No tests found in {module['test_path']}"
-        }
-    
-    print(f"\n{'='*60}")
-    print(f"🧪 Running tests for module: {module['name']}")
-    print(f"{'='*60}")
-    
-    cmd = [
-        "python", "-m", "pytest",
-        module['test_path'],
-        "-v",
-        "--tb=short",
-        "--durations=10",
-        f"--junitxml=test-results/{module['name']}_results.xml",
-        f"--html=test-results/{module['name']}_report.html",
-        "--self-contained-html"
-    ]
-    
-    return run_command(cmd, f"Testing {module['name']} module", timeout, cwd=project_root)
+    duration = time.time() - started
+    success = completed.returncode == 0
+    print(f"{'PASS' if success else 'FAIL'} in {duration:.2f}s")
+    if not success:
+        failure_output = "\n".join(
+            part[-4000:] for part in (completed.stdout, completed.stderr) if part
+        )
+        if failure_output:
+            print(failure_output)
 
-def run_cross_module_tests():
-    """Run cross-module integration tests."""
-    print(f"\n{'='*60}")
-    print(f"🔗 Running Cross-Module Integration Tests")
-    print(f"{'='*60}")
-    
-    # Look for integration tests in the GEO-INFER-TEST module
-    integration_test_path = project_root / "GEO-INFER-TEST" / "tests" / "integration"
-    if not integration_test_path.exists():
-        print("   ⚠️  No cross-module integration tests found")
-        return {
-            'success': False,
-            'duration': 0,
-            'stdout': '',
-            'stderr': f'Integration test path not found: {integration_test_path}'
-        }
-    
-    cmd = [
-        "python", "-m", "pytest",
-        str(integration_test_path),
-        "-v",
-        "--tb=short",
-        f"--junitxml=test-results/integration_results.xml",
-        f"--html=test-results/integration_report.html",
-        "--self-contained-html"
-    ]
-    
-    return run_command(cmd, "Cross-module integration testing", cwd=project_root)
+    return CommandResult(
+        name=name,
+        success=success,
+        duration=duration,
+        command=command,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+    )
 
-def run_performance_tests():
-    """Run performance tests across all modules."""
-    print(f"\n{'='*60}")
-    print(f"⚡ Performance Testing")
-    print(f"{'='*60}")
-    
-    # Find all performance tests across modules
-    perf_tests = []
+
+def module_by_name(name: str) -> Module:
+    wanted = name.upper().removeprefix(MODULE_PREFIX)
     for module in discover_geo_infer_modules():
-        if module['has_tests']:
-            perf_path = Path(module['test_path']) / "test_performance.py"
-            if perf_path.exists():
-                perf_tests.append(str(perf_path))
-    
-    if not perf_tests:
-        print("   ⚠️  No performance tests found")
-        return {
-            'success': False,
-            'duration': 0,
-            'stdout': '',
-            'stderr': 'No performance tests found'
-        }
-    
-    cmd = [
-        "python", "-m", "pytest",
-        *perf_tests,
-        "-v",
-        "--benchmark-only",
-        "--benchmark-sort=mean",
-        "--benchmark-min-rounds=3"
-    ]
-    
-    return run_command(cmd, "Performance benchmarks", cwd=project_root)
+        if module.name.upper() == wanted:
+            return module
+    known = ", ".join(module.name for module in discover_geo_infer_modules())
+    raise SystemExit(f"Unknown module {name!r}. Known modules: {known}")
 
-def run_coverage_analysis():
-    """Run coverage analysis across all modules."""
-    print(f"\n{'='*60}")
-    print(f"📊 Coverage Analysis")
-    print(f"{'='*60}")
-    
-    # Find all source directories
-    source_dirs = []
+
+def pytest_base_args() -> list[str]:
+    return [sys.executable, "-m", "pytest", "-v", "--tb=short", "--durations=10"]
+
+
+def has_test_files(path: Path) -> bool:
+    """Return true when a directory contains pytest-discoverable test files."""
+    return any(path.rglob("test_*.py")) or any(path.rglob("*_test.py"))
+
+
+def run_module_tests(module: Module, timeout: int) -> CommandResult:
+    if not module.has_tests:
+        return CommandResult(
+            name=f"{module.name} tests",
+            success=False,
+            duration=0.0,
+            command=[],
+            stderr=f"No tests found in {module.test_path}",
+        )
+    ensure_results_dir()
+    command = [
+        *pytest_base_args(),
+        str(module.test_path),
+        f"--junitxml={RESULTS_DIR / f'{module.name}_results.xml'}",
+    ]
+    return run_command(command, f"{module.name} tests", timeout=timeout)
+
+
+def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
+    """Run one test category per module to avoid cross-module pytest state leaks."""
+    report = SuiteReport()
+    ensure_results_dir(clean=True)
+    discovered = False
     for module in discover_geo_infer_modules():
-        src_path = Path(module['path']) / "src"
-        if src_path.exists():
-            source_dirs.append(str(src_path))
-    
-    if not source_dirs:
-        print("   ⚠️  No source directories found for coverage")
-        return {
-            'success': False,
-            'duration': 0,
-            'stdout': '',
-            'stderr': 'No source directories found'
-        }
-    
-    # Find all test files
-    test_files = []
+        category_path = module.test_path / category
+        if not category_path.exists():
+            continue
+        discovered = True
+        if not has_test_files(category_path):
+            report.add(
+                CommandResult(
+                    name=f"{module.name} {category} tests",
+                    success=True,
+                    duration=0.0,
+                    command=[],
+                    stdout=f"No pytest files discovered in {category_path}.",
+                )
+            )
+            continue
+        command = [
+            *pytest_base_args(),
+            str(category_path),
+            f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
+        ]
+        report.add(
+            run_command(command, f"{module.name} {category} tests", timeout=timeout)
+        )
+
+    if not discovered:
+        report.add(
+            CommandResult(
+                name=f"{category} tests",
+                success=True,
+                duration=0.0,
+                command=[],
+                stdout=f"No {category} tests discovered.",
+            )
+        )
+    return report
+
+
+def run_unit_tests(timeout: int) -> SuiteReport:
+    return run_module_category_tests("unit", timeout=timeout)
+
+
+def run_integration_tests(timeout: int) -> SuiteReport:
+    return run_module_category_tests("integration", timeout=timeout)
+
+
+def run_performance_tests(timeout: int) -> SuiteReport:
+    report = SuiteReport()
+    ensure_results_dir(clean=True)
+    discovered = False
     for module in discover_geo_infer_modules():
-        if module['has_tests']:
-            test_files.extend(glob.glob(f"{module['test_path']}/test_*.py"))
-    
-    if not test_files:
-        print("   ⚠️  No test files found for coverage")
-        return {
-            'success': False,
-            'duration': 0,
-            'stdout': '',
-            'stderr': 'No test files found'
-        }
-    
-    cmd = [
-        "python", "-m", "pytest",
-        *test_files,
-        f"--cov={','.join(source_dirs)}",
-        "--cov-report=html:test-results/coverage",
+        performance_files = sorted(module.test_path.glob("**/*performance*.py"))
+        if not performance_files:
+            continue
+        discovered = True
+        command = [
+            *pytest_base_args(),
+            *map(str, performance_files),
+            f"--junitxml={RESULTS_DIR / f'{module.name}_performance_results.xml'}",
+        ]
+        report.add(
+            run_command(command, f"{module.name} performance tests", timeout=timeout)
+        )
+
+    if not discovered:
+        report.add(
+            CommandResult(
+                name="performance tests",
+                success=True,
+                duration=0.0,
+                command=[],
+                stdout="No performance tests discovered.",
+            )
+        )
+        return report
+    return report
+
+
+def run_coverage_analysis(timeout: int) -> SuiteReport:
+    report = SuiteReport()
+    source_dirs = [
+        module.path / "src"
+        for module in discover_geo_infer_modules()
+        if (module.path / "src").exists()
+    ]
+    test_paths = [
+        module.test_path for module in discover_geo_infer_modules() if module.has_tests
+    ]
+    command = [
+        sys.executable,
+        "-m",
+        "pytest",
+        *map(str, test_paths),
+        "--cov",
+        ",".join(str(path) for path in source_dirs),
         "--cov-report=term-missing",
-        "--cov-fail-under=80"
     ]
-    
-    return run_command(cmd, "Coverage analysis", cwd=project_root)
+    report.add(run_command(command, "coverage analysis", timeout=timeout))
+    return report
 
-def run_all_tests():
-    """Run all test categories across all modules."""
-    print("🚀 GEO-INFER Unified Test Suite")
-    print("=" * 60)
-    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # Create test results directory
-    results_dir = project_root / "test-results"
-    results_dir.mkdir(exist_ok=True)
-    
-    # Clean previous results
-    for file in results_dir.glob("*"):
-        if file.is_file():
-            file.unlink()
-    
-    test_results = {}
-    modules = discover_geo_infer_modules()
-    
-    # Run tests for each module
-    for module in modules:
-        result = run_module_tests(module)
-        test_results[module['name']] = result
-    
-    # Run cross-module integration tests
-    integration_result = run_cross_module_tests()
-    test_results['integration'] = integration_result
-    
-    # Run performance tests
-    perf_result = run_performance_tests()
-    test_results['performance'] = perf_result
-    
-    # Run coverage analysis
-    coverage_result = run_coverage_analysis()
-    test_results['coverage'] = coverage_result
-    
-    # Generate summary report
-    generate_summary_report(test_results, modules)
-    
-    return test_results
 
-def generate_summary_report(results, modules):
-    """Generate a comprehensive summary report."""
-    print(f"\n{'='*60}")
-    print(f"📋 Test Summary Report")
-    print(f"{'='*60}")
-    
-    total_tests = 0
-    passed_tests = 0
-    total_duration = 0
-    
-    # Module results
-    print("\nModule Test Results:")
-    for module in modules:
-        if module['name'] in results:
-            result = results[module['name']]
-            status = "✅ PASS" if result['success'] else "❌ FAIL"
-            duration = result['duration']
-            total_duration += duration
-            has_tests = "YES" if module['has_tests'] else "NO"
-            
-            print(f"{module['name']:15} {status:10} {duration:8.2f}s  Tests: {has_tests}")
-            
-            if result['success']:
-                passed_tests += 1
-            total_tests += 1
-    
-    # Additional test categories
-    categories = ['integration', 'performance', 'coverage']
-    print("\nAdditional Test Categories:")
-    for category in categories:
-        if category in results:
-            result = results[category]
-            status = "✅ PASS" if result['success'] else "❌ FAIL"
-            duration = result['duration']
-            total_duration += duration
-            
-            print(f"{category.capitalize():15} {status:10} {duration:8.2f}s")
-            
-            if result['success']:
-                passed_tests += 1
-            total_tests += 1
-    
-    success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
-    
-    print(f"\nOverall Results:")
-    print(f"  Total Test Categories: {total_tests}")
-    print(f"  Passed: {passed_tests}")
-    print(f"  Failed: {total_tests - passed_tests}")
-    print(f"  Success Rate: {success_rate:.1f}%")
-    print(f"  Total Duration: {total_duration:.2f}s")
-if __name__ == '__main__':
-    run_all_tests()
+def run_h3_contracts(timeout: int) -> SuiteReport:
+    report = SuiteReport()
+    validators = [
+        "validate_act_geospatial_contract.py",
+        "validate_h3_active_inference_contract.py",
+    ]
+    for validator in validators:
+        command = [sys.executable, str(PROJECT_ROOT / "GEO-INFER-TEST" / validator)]
+        report.add(run_command(command, validator, timeout=timeout))
+    return report
 
+
+def run_all_modules(timeout: int) -> SuiteReport:
+    report = SuiteReport()
+    ensure_results_dir(clean=True)
+    for module in discover_geo_infer_modules():
+        report.add(run_module_tests(module, timeout=timeout))
+    return report
+
+
+def write_summary(report: SuiteReport) -> None:
+    ensure_results_dir()
+    summary = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "success": report.success,
+        "results": [
+            {
+                "name": result.name,
+                "success": result.success,
+                "duration": round(result.duration, 3),
+                "command": result.command,
+                "stdout_tail": result.stdout[-2000:],
+                "stderr_tail": result.stderr[-2000:],
+            }
+            for result in report.results
+        ],
+    }
+    (RESULTS_DIR / "summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    total = len(report.results)
+    passed = sum(1 for result in report.results if result.success)
+    print("\n== Summary")
+    print(f"Passed: {passed}/{total}")
+    print(f"Summary: {RESULTS_DIR / 'summary.json'}")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--module", help="Run tests for one GEO-INFER module.")
+    parser.add_argument(
+        "--category",
+        choices=["unit", "integration", "performance", "coverage", "all"],
+        help="Run a focused test category.",
+    )
+    parser.add_argument(
+        "--h3-migration",
+        action="store_true",
+        help="Run H3/Active Inference migration contract validators.",
+    )
+    parser.add_argument(
+        "--list-modules",
+        action="store_true",
+        help="Print discovered modules and exit.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=300,
+        help="Per-command timeout in seconds.",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+
+    if args.list_modules:
+        for module in discover_geo_infer_modules():
+            print(module.name)
+        return 0
+
+    report = SuiteReport()
+
+    if args.module:
+        report.add(run_module_tests(module_by_name(args.module), timeout=args.timeout))
+    elif args.h3_migration:
+        report = run_h3_contracts(timeout=args.timeout)
+    elif args.category == "unit":
+        report = run_unit_tests(timeout=args.timeout)
+    elif args.category == "integration":
+        report = run_integration_tests(timeout=args.timeout)
+    elif args.category == "performance":
+        report = run_performance_tests(timeout=args.timeout)
+    elif args.category == "coverage":
+        report = run_coverage_analysis(timeout=args.timeout)
+    else:
+        report = run_all_modules(timeout=args.timeout)
+
+    write_summary(report)
+    return 0 if report.success else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,51 +1,64 @@
-# models
+# GEO-INFER-DATA/src/geo_infer_data/models
 
-## Overview
+Models workspace within `GEO-INFER-DATA`.
 
-Pydantic data models for GEO-INFER-DATA validation and serialization.
+## Contents
 
-This directory contains data models and schemas using Pydantic for type safety, validation, and serialization across the data management system.
+- `__init__.py`
+- `schemas.py`
 
-## Components
+## Public Interface
 
-### schemas.py
+- `schemas.py:DataType` (class)
+- `schemas.py:DataFormat` (class)
+- `schemas.py:QualityStatus` (class)
+- `schemas.py:ExecutionState` (class)
+- `schemas.py:StorageBackend` (class)
+- `schemas.py:CoordinateReferenceSystem` (class)
+- `schemas.py:SpatialExtent` (class)
+- `schemas.py:TemporalExtent` (class)
+- `schemas.py:DataLineage` (class)
+- `schemas.py:QualityCheck` (class)
+- `schemas.py:DatasetMetadata` (class)
+- `schemas.py:DatasetSummary` (class)
+- `schemas.py:Dataset` (class)
+- `schemas.py:DataQualityReport` (class)
+- `schemas.py:DataSource` (class)
+- `schemas.py:DataDestination` (class)
+- `schemas.py:Transformation` (class)
+- `schemas.py:ETLPipeline` (class)
+- `schemas.py:ExecutionStatus` (class)
+- `schemas.py:Pagination` (class)
 
-Pydantic data models for GEO-INFER-DATA validation and serialization.
+## Module Metadata
 
-**Key Classes**:
-- `Dataset`, `DatasetMetadata`, `DatasetSummary`: Dataset models
-- `DataQualityReport`, `QualityCheck`, `QualityStatus`: Quality models
-- `SpatialExtent`, `TemporalExtent`, `CoordinateReferenceSystem`: Spatial/temporal models
-- `ETLPipeline`, `DataSource`, `DataDestination`, `Transformation`, `ExecutionStatus`: ETL models
-- `DataType`, `DataFormat`, `StorageBackend`, `ExecutionState`: Enum types
-- `DataLineage`: Data provenance tracking
-- `Pagination`, `HealthStatus`: API models
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
-## Usage
+## Dependencies
 
-```python
-from geo_infer_data.models import Dataset, DatasetMetadata, SpatialExtent
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
 
-# Create dataset metadata
-metadata = DatasetMetadata(
-    title="Temperature Monitoring Data",
-    spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9], crs="EPSG:4326")
-)
+## Validation
 
-# Create dataset
-dataset = Dataset(
-    id="temp_monitoring_2023",
-    title="Temperature Monitoring 2023",
-    type=DataType.TIME_SERIES,
-    metadata=metadata
-)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
-## Integration
+## Documentation Notes
 
-- **Location**: `GEO-INFER-DATA/src/geo_infer_data/models`
-- **Used By**: Core ingestion, pipeline, storage, validation, and API modules
-- **Dependencies**: `pydantic` for validation
-- **Provides**: Type-safe data models for the entire data management system
-
---- 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

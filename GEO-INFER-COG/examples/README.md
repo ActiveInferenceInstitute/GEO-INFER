@@ -1,4 +1,36 @@
-# examples
- ## Overview
- Examples for GEO-INFER-COG This module contains working examples and demonstrations of the cognitive geospatial processing capabilities, including tutorials, use cases, and integration patterns. Available Examples: - cognitive_processing_demo.py: cognitive processing pipeline - spatial_language_examples.py: Natural language spatial processing - user_profiling_examples.py: Cognitive profile management - cognitive_map_examples.py: Mental map creation and usage - integration_examples.py: Cross-module integration patterns Usage: Run examples with: python -m geo_infer_cog.examples.example_name Each example demonstrates real functionality with working code and can serve as starting points for custom implementations. ## Contents
- - **cognitive_processing_demo.py**: Python definitions - **cognitive_wayfinding.py**: Python definitions 
+# GEO-INFER-COG/examples
+
+Examples workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `__init__.py`
+- `cognitive_processing_demo.py`
+- `cognitive_wayfinding.py`
+
+## Public Interface
+
+- `cognitive_wayfinding.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

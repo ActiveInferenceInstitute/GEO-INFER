@@ -1,38 +1,36 @@
-# Agent
-: utils
+# Agent Instructions: GEO-INFER-INTRA/src/geo_infer_intra/utils
 
 ## Scope
- This directory contains utils components for the module. It provides 0 classes and 7 functions.
 
-## Classes
- and Functions
-
-### load_config
- `load_config(config_path: Union[str, Path]) -> Dict[str, Any]` Load configuration from a file.
-
-### get_schema_path
- `get_schema_path() -> Path` Get the path to the JSON schema file for configuration validation.
-
-### validate_config
- `validate_config(config: Dict[str, Any]) -> Tuple[bool, Optional[str]]` Validate a configuration against the JSON schema.
-
-### get_config_value
- `get_config_value(config: Dict[str, Any], key_path: str, default: Any) -> Any` Get a value from a nested configuration dictionary using dot notation.
-
-### merge_configs
- `merge_configs(base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]` Merge two configuration dictionaries, with override_config taking precedence.
-
-### get_default_config_path
- `get_default_config_path() -> Path` Get the default path for the configuration file.
-
-### load_default_config
- `load_default_config() -> Dict[str, Any]` Load the default configuration.
+- Owning module: `GEO-INFER-INTRA`
+- Python package: `geo_infer_intra`
+- Directory role: Utils workspace within `GEO-INFER-INTRA`.
 
 ## Capabilities
 
-- **7 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_intra` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-INTRA/src/geo_infer_intra/utils`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `config.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

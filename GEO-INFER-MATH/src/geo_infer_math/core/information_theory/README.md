@@ -1,16 +1,63 @@
-# information_theory
- ## Overview
- This directory contains information_theory components. It includes 5 Python modules. ## Components
- ### channel_capacit
-y
-.py Channel Capacity for Spatial Communication **Classes**: `ChannelCapacityCalculator` **Functions**: `channel_capacity`, `spatial_channel_capacity`, `awgn_channel_capacity`, `mimo_channel_capacity`, `waterfilling_power_allocation` ### entrop
-y
-.py Entropy Measures for Spatial Data **Classes**: `EntropyCalculator` **Functions**: `shannon_entropy`, `renyi_entropy`, `tsallis_entropy`, `spatial_entropy`, `conditional_entropy`, `joint_entropy` ### kl_divergenc
-e
-.py KL Divergence and Related Measures for Spatial Data **Classes**: `KLDivergenceCalculator` **Functions**: `kl_divergence`, `js_divergence`, `spatial_kl_divergence`, `symmetric_kl_divergence`, `renyi_divergence` ### mutual_informatio
-n
-.py Mutual Information for Spatial Data **Classes**: `MutualInformationCalculator` **Functions**: `mutual_information`, `conditional_mutual_information`, `spatial_mutual_information`, `normalized_mutual_information` ### spatial_codin
-g
-.py Spatial Coding and Compression **Classes**: `SpatialCodingCalculator` **Functions**: `spatial_encoding_efficiency`, `compression_ratio`, `coding_gain`, `spatial_compression`, `entropy_coding` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/core/information_theory
+
+Information Theory workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `__init__.py`
+- `channel_capacity.py`
+- `entropy.py`
+- `information_geometry.py`
+- `kl_divergence.py`
+- `mutual_information.py`
+- `spatial_coding.py`
+
+## Public Interface
+
+- `channel_capacity.py:channel_capacity` (function)
+- `channel_capacity.py:spatial_channel_capacity` (function)
+- `channel_capacity.py:awgn_channel_capacity` (function)
+- `channel_capacity.py:mimo_channel_capacity` (function)
+- `channel_capacity.py:waterfilling_power_allocation` (function)
+- `channel_capacity.py:ChannelCapacityCalculator` (class)
+- `entropy.py:shannon_entropy` (function)
+- `entropy.py:renyi_entropy` (function)
+- `entropy.py:tsallis_entropy` (function)
+- `entropy.py:spatial_entropy` (function)
+- `entropy.py:conditional_entropy` (function)
+- `entropy.py:joint_entropy` (function)
+- `entropy.py:EntropyCalculator` (class)
+- `information_geometry.py:fisher_information_matrix` (function)
+- `information_geometry.py:information_metric` (function)
+- `information_geometry.py:geodesic_distance` (function)
+- `information_geometry.py:information_distance` (function)
+- `information_geometry.py:spatial_fisher_information` (function)
+- `information_geometry.py:InformationGeometryCalculator` (class)
+- `kl_divergence.py:kl_divergence` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

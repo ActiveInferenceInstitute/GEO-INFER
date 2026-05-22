@@ -1,16 +1,70 @@
-# core
- ## Overview
- This directory contains core components. It includes 5 Python modules. ## Components
- ### advanced_gi
-t
-.py Git operations for GEO-INFER-GIT. **Classes**: `SubmoduleInfo`, `MergeConflict`, `CherryPickOperation`, `RebaseOperation`, `SubmoduleManager`, `CherryPickManager`, `RebaseManager`, `AdvancedGitOperations` **Functions**: `create_advanced_git_operations` ### github_ap
-i
-.py GitHub API client for GEO-INFER-GIT. **Classes**: `GitHubRepository`, `RateLimit`, `GitHubAPI` ### multi_platform_ap
-i
-.py Multi-platform Git API client for GEO-INFER-GIT. **Classes**: `GitLabRepository`, `BitbucketRepository`, `LocalRepository`, `PlatformAPI`, `GitLabAPI`, `BitbucketAPI`, `LocalGitAPI`, `MultiPlatformAPI` **Functions**: `create_platform_api` ### repo_clone
-r
-.py Repository cloning functionality for GEO-INFER-GIT. **Classes**: `CloneProgress`, `RepoCloner` ### repo_manage
-r
-.py Repository Manager for GEO-INFER-GIT **Classes**: `RepoManager` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-GIT/src/geo_infer_git/core
+
+Core workspace within `GEO-INFER-GIT`.
+
+## Contents
+
+- `__init__.py`
+- `advanced_git.py`
+- `distributed_coordinator.py`
+- `github_api.py`
+- `multi_platform_api.py`
+- `repo_analyzer.py`
+- `repo_cloner.py`
+- `repo_manager.py`
+
+## Public Interface
+
+- `advanced_git.py:SubmoduleInfo` (class)
+- `advanced_git.py:MergeConflict` (class)
+- `advanced_git.py:CherryPickOperation` (class)
+- `advanced_git.py:RebaseOperation` (class)
+- `advanced_git.py:SubmoduleManager` (class)
+- `advanced_git.py:CherryPickManager` (class)
+- `advanced_git.py:RebaseManager` (class)
+- `advanced_git.py:AdvancedGitOperations` (class)
+- `advanced_git.py:create_advanced_git_operations` (function)
+- `github_api.py:GitHubRepository` (class)
+- `github_api.py:RateLimit` (class)
+- `github_api.py:GitHubAPI` (class)
+- `multi_platform_api.py:GitLabRepository` (class)
+- `multi_platform_api.py:BitbucketRepository` (class)
+- `multi_platform_api.py:LocalRepository` (class)
+- `multi_platform_api.py:PlatformAPI` (class)
+- `multi_platform_api.py:GitLabAPI` (class)
+- `multi_platform_api.py:BitbucketAPI` (class)
+- `multi_platform_api.py:LocalGitAPI` (class)
+- `multi_platform_api.py:MultiPlatformAPI` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-GIT`
+- Package: `geo_infer_git`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-GIT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
+
+## Dependencies
+
+- `requests>=2.28.1`
+- `pyyaml>=6.0`
+- `psutil>=5.9.0`
+- `jsonschema>=4.17.0`
+- `GitPython>=3.1.0`
+- `fastapi>=0.104.0`
+- `uvicorn[standard]>=0.24.0`
+- `pydantic>=2.5.0`
+- `pytest>=7.3.1`
+- `black>=23.3.0`
+- `flake8>=6.0.0`
+- `mypy>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

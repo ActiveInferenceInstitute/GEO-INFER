@@ -1,16 +1,35 @@
-# Agent
-: output
+# Agent Instructions: GEO-INFER-ACT/examples/output
 
 ## Scope
-This agent is responsible for handling operations within the `output` scope.
+
+- Owning module: `GEO-INFER-ACT`
+- Python package: `geo_infer_act`
+- Directory role: Output workspace within `GEO-INFER-ACT`.
 
 ## Capabilities
-Core capabilities include:
-- Management of **ecological_model** processes
-- Management of **modern_demo** processes
-- Management of **simple** processes
-- Management of **urban** processes
 
-## Integration
-- **Location**: `GEO-INFER-ACT/examples/output`
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_act` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `comprehensive_act_audit/`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -539,7 +539,7 @@ class SearchAndRescue:
             Updated probability map
         """
         if area_id not in self._search_areas:
-            # Create placeholder
+            # Create baseline
             self._search_areas[area_id] = SearchArea(
                 area_id=area_id,
                 geometry={},

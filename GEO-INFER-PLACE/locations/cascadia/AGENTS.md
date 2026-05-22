@@ -1,33 +1,52 @@
-# Agent: cascadia
+# Agent Instructions: GEO-INFER-PLACE/locations/cascadia
 
 ## Scope
 
-Agricultural land analysis across the Cascadian bioregion (Northern California + Oregon)
-using H3-indexed geospatial data fusion, real-time data acquisition, and comprehensive
-visualization.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Cascadia workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **Agricultural Analysis**: Crop suitability, land use classification, soil health assessment
-- **H3 Geospatial Fusion**: Enhanced H3 v4 spatial indexing at configurable resolution
-- **Real Data Acquisition**: Multi-source data fetching with intelligent caching
-- **Visualization**: Comprehensive dashboards, spatial correlation maps, and reporting
-- **Multi-County Support**: Configurable county selection across CA and OR
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Key Modules
+## Working Rules
 
-- `cascadia_main.py` — Main orchestration script (68KB)
-- `src/core/enhanced_data_manager.py` — Cached data management
-- `src/core/enhanced_h3_fusion.py` — H3 geospatial fusion
-- `src/core/real_data_acquisition.py` — API data acquisition
-- `src/core/visualization/` — Dashboard generation
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Status
+## Local Contents
 
-✅ Production — fully implemented with tests and benchmarks.
+- `config/`
+- `data/`
+- `docs/`
+- `generated/`
+- `output/`
+- `src/`
+- `tests/`
+- `cascadia_main.py`
+- `cascadia_server.py`
+- `cleanup_data.py`
+- `.cursorrules`
+- `.gitignore`
+- `.python-version`
+- `DATA_STRUCTURE.md`
+- `pyproject.toml`
+- `requirements.txt`
+- `run_analysis.sh`
+- `uv.lock`
 
-## Integration
+## Validation
 
-- **Location**: `GEO-INFER-PLACE/locations/cascadia`
-- **Type**: Location Node (standalone with own `src/`, `tests/`, `config/`)
-- **Dependencies**: `geo_infer_place.core`, `geo_infer_space` (optional)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

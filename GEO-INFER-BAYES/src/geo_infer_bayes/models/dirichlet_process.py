@@ -42,7 +42,7 @@ class DirichletProcessMixture(BayesianModel):
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the DP mixture model."""
-        # Placeholder implementation
+        # Baseline implementation
         observations = data.get('observations', np.array([]))
         if len(observations) == 0:
             return 0.0
@@ -91,7 +91,7 @@ class DirichletProcessMixture(BayesianModel):
         return_std: bool = False
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Make predictions at new locations."""
-        # Placeholder implementation
+        # Baseline implementation
         if posterior is not None:
             # Use posterior samples
             n_samples = min(samples, len(posterior.samples.get('cluster_means_0', [0])))

@@ -256,7 +256,7 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
         if loc.latitude == 0.0 and loc.longitude == 0.0:
             issues.append("Coordinates (0, 0) may indicate missing data")
 
-        # Check for unrealistic precision (more than 6 decimal places suggests fake data)
+        # Check for unrealistic precision (more than 6 decimal places suggests synthetic data)
         lat_str = str(loc.latitude)
         lon_str = str(loc.longitude)
 

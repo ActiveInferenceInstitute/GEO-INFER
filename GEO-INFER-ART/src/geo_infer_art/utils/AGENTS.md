@@ -1,47 +1,36 @@
-# Agent
-: utils
+# Agent Instructions: GEO-INFER-ART/src/geo_infer_art/utils
 
 ## Scope
- This directory contains utils components for the module. It provides 0 classes and 10 functions.
 
-## Classes
- and Functions
-
-### validate_file_path
- `validate_file_path(file_path: str, extensions: List[str]) -> None` Validate that a file path exists and has the correct extension.
-
-### validate_geospatial_data
- `validate_geospatial_data(data: Union[gpd.GeoDataFrame, np.ndarray]) -> None` Validate that the data is a valid GeoDataFrame or numpy array.
-
-### validate_coordinates
- `validate_coordinates(lat: float, lon: float) -> None` Validate geographic coordinates.
-
-### validate_bbox
- `validate_bbox(bbox: tuple) -> None` Validate a bounding box.
-
-### validate_color
- `validate_color(color: str) -> None` Validate a color string.
-
-### validate_style_name
- `validate_style_name(style_name: str, valid_styles: List[str]) -> None` Validate a style name against a list of valid styles.
-
-### validate_numeric_range
- `validate_numeric_range(value: float, min_val: float, max_val: float, name: str) -> None` Validate that a numeric value is within a specified range.
-
-### validate_image_array
- `validate_image_array(image_array: np.ndarray) -> None` Validate a numpy array representing an image.
-
-### validate_resolution
- `validate_resolution(resolution: Tuple[int, int]) -> None` Validate image resolution.
-
-### validate_file_format
- `validate_file_format(file_path: str, valid_formats: List[str]) -> None` Validate file format against a list of valid formats.
+- Owning module: `GEO-INFER-ART`
+- Python package: `geo_infer_art`
+- Directory role: Utils workspace within `GEO-INFER-ART`.
 
 ## Capabilities
 
-- **10 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_art` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-ART/src/geo_infer_art/utils`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `validators.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

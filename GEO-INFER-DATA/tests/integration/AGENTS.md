@@ -1,41 +1,36 @@
-# Agent: integration
+# Agent Instructions: GEO-INFER-DATA/tests/integration
 
 ## Scope
-This agent handles integration tests for GEO-INFER-DATA testing complete workflows from ingestion through storage and validation.
 
-## Implementation Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Integration workspace within `GEO-INFER-DATA`.
 
-### Currently Implemented
+## Capabilities
 
-- ✅ **test_end_to_end.py**: End-to-end integration tests for complete data management workflows
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Test Coverage
+## Working Rules
 
-### End-to-End Workflows
-- Complete ingestion → storage → validation workflows
-- Multi-source data integration
-- ETL pipeline execution
-- API integration testing
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Running Tests
+## Local Contents
+
+- `test_end_to_end.py`
+- `test_pipeline_integration.py`
+
+## Validation
 
 ```bash
-# Run integration tests
-pytest tests/integration/
+uv run python -m pytest GEO-INFER-DATA/tests/integration
+```
 
-# Run specific test
-pytest tests/integration/test_end_to_end.py
+## Integration Notes
 
-# Run with verbose output
-pytest tests/integration/ -v```
-
-## Integration
-
-- **Location**: `GEO-INFER-DATA/tests/integration`
-- **Purpose**: End-to-end workflow testing
-- **Test Framework**: pytest
-- **Coverage**: Complete system workflows
-
----
-
-This AGENTS.md documents integration tests for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

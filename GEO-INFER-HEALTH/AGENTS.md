@@ -1,104 +1,46 @@
-# GEO
+# Agent Instructions: GEO-INFER-HEALTH
 
--INFER-HEALTH: Health Intelligence Agents 
+## Scope
 
-<div align="center"> <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3> <a href="../AGENTS.md">🤖 Agent Architecture</a> • <a href="../README.md#-module-overview">📦 Module Index</a> • <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> </div>
+- Owning module: `GEO-INFER-HEALTH`
+- Python package: `geo_infer_health`
+- Directory role: Epidemiology, healthcare accessibility analysis, disease surveillance, and spatial health risk assessment.
 
- ---
+## Capabilities
 
-## Overview
- The GEO-INFER-HEALTH module provides agents for public health surveillance, disease outbreak detection, healthcare resource optimization, and environmental health monitoring. These agents leverage spatial epidemiology and Active Inference for adaptive health system management.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_health` and the owning module's public contracts.
 
-## Implementation
- Status **⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
+## Working Rules
 
-### Currently
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
- Implemented - ✅ **DiseaseHotspotAnalyzer**: Disease hotspot identification and analysis
+## Local Contents
 
-- ✅ **HealthcareAccessibilityAnalyzer**: Healthcare accessibility analysis
-- ✅ **EnvironmentalHealthAssessor**: Environmental health factor analysis - ✅ **HealthDataIntegrator**: Multi-source health data fusion
+- `config/`
+- `docs/`
+- `examples/`
+- `logs/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `MANIFEST.in`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-### Aspirational
-/Planned Features - 🔮 **OutbreakDetectionAgent**: Early warning for disease outbreaks - 🔮 **ResourceAllocationAgent**: Dynamic healthcare resource optimization - 🔮 **ContactTracingAgent**: Spatial contact network analysis
+## Validation
 
-## Agent
- Architecture
-
-### Disease
- Surveillance System
- **Location**: `src/geo_infer_health/core/disease_surveillance.py`
-
- ```python
- from geo_infer_health.core.disease_surveillance import DiseaseHotspotAnalyzer
- 
-
-# Initialize disease hotspot analyzer
- analyzer = DiseaseHotspotAnalyzer(reports=disease_reports)
- 
-
-# Identify disease hotspots
- hotspots = analyzer.identify_simple_hotspots(
-     threshold_case_count=5,
-     scan_radius_km=1.0
- )
- ```
-
-### Healthcare
-
- Access Analysis
- **Location**: `src/geo_infer_health/core/healthcare_accessibility.py`
-
- ```python
- from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
- 
-
-# Analyze healthcare accessibility
- analyzer = HealthcareAccessibilityAnalyzer(facilities=health_facilities)
- 
-
-# Find nearest facilities
- nearest = analyzer.get_nearest_facility(
-     loc=target_location,
-     facility_type='hospital'
- )
- ```
-
-## Proposed
-
- Agents 🔮
-
-### 1
-. Outbreak Detection Agent 🔮 **Purpose**: Early detection and warning for disease outbreaks. ```python
-# 🔮 Planned - Conceptual Example from geo_infer_health.agents import OutbreakDetectionAgent agent = OutbreakDetectionAgent( name="outbreak_sentinel", surveillance_region=monitoring_area, detection_methods=['aberration_detection', 'cluster_analysis', 'syndromic'] )
-
-# Configure detection thresholds agent.set_thresholds({ 'case_rate_increase': 2.0,
-
-# 2x baseline 'spatial_clustering': 0.05,
-
-# p-value 'temporal_acceleration': 0.3
-
-# growth rate })
-
-# Start surveillance agent.start() alerts = agent.get_alerts()
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
 ```
 
-### 2
-. Resource Allocation Agent 🔮 **Purpose**: Optimal allocation of healthcare resources during crises. ```python
-# 🔮 Planned - Conceptual Example from geo_infer_health.agents import ResourceAllocationAgent agent = ResourceAllocationAgent( name="resource_optimizer", resource_types=['hospital_beds', 'ventilators', 'personnel', 'vaccines'], optimization_criteria=['minimize_mortality', 'equitable_access'] )
+## Integration Notes
 
-# Generate allocation plan allocation = agent.optimize_allocation( demand_forecast=predicted_demand, resource_inventory=available_resources, constraints=['transport_capacity', 'storage_requirements'] )
-```
-
-## Integration with Other Modules
-- **GEO-INFER-SPACE**: Spatial analysis for disease mapping and clustering
-- **GEO-INFER-TIME**: Temporal modeling for outbreak forecasting
-- **GEO-INFER-RISK**: Health risk assessment and vulnerability mapping
-- **GEO-INFER-ACT**: Active Inference for adaptive surveillance strategies
-
-## Implementation
- Status | Agent Type | Status | Description | |------------|--------|-------------| | **DiseaseHotspotAnalyzer** | ✅ Implemented | Hotspot identification |
- | **HealthcareAccessibilityAnalyzer** | ✅ Implemented | Accessibility analysis |
- | **EnvironmentalHealthAssessor** | ✅ Implemented | Environmental factors | | **OutbreakDetectionAgent** | 🔮 Planned | Early warning systems | | **ResourceAllocationAgent** | 🔮 Planned | Resource optimization | | **ContactTracingAgent** | 🔮 Planned | Contact networks | --- This AGENTS.md documents the health intelligence agent implementations for public health surveillance and healthcare resource management.
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,57 +1,55 @@
-# core
+# GEO-INFER-API/src/geo_infer_api/core
 
-## Overview
+Core workspace within `GEO-INFER-API`.
 
-This directory contains core API framework components. It includes 3 Python modules implementing error handling, middleware, and configuration management.
+## Contents
 
-## Components
+- `__init__.py`
+- `config.py`
+- `exceptions.py`
+- `middleware.py`
 
-### config.py
+## Public Interface
 
-Configuration settings for the GEO-INFER-API.
+- `config.py:Settings` (class)
+- `config.py:get_settings` (function)
+- `exceptions.py:APIError` (class)
+- `exceptions.py:ValidationError` (class)
+- `exceptions.py:NotFoundError` (class)
+- `exceptions.py:ConflictError` (class)
+- `exceptions.py:GeometryError` (class)
+- `exceptions.py:ProcessingError` (class)
+- `exceptions.py:BadRequestError` (class)
+- `middleware.py:ErrorHandlerMiddleware` (class)
+- `middleware.py:RequestLoggingMiddleware` (class)
 
-**Classes**: `Settings`, `Config`
+## Module Metadata
 
-**Functions**: `get_settings`
+- Module: `GEO-INFER-API`
+- Package: `geo_infer_api`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-API`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module API`
 
-### exceptions.py
+## Dependencies
 
-Custom exceptions for the GEO-INFER-API.
+- `fastapi>=0.95.0,<0.96.0`
+- `uvicorn>=0.21.0,<0.22.0`
+- `pydantic>=1.10.7,<2.0.0`
+- `pydantic-settings>=2.0.0,<3.0.0`
+- `python-dotenv>=1.0.0,<2.0.0`
+- `python-multipart>=0.0.6,<0.1.0`
+- `httpx>=0.24.0,<0.25.0`
+- `pytest>=7.3.1,<7.4.0`
+- `pytest-cov>=4.1.0,<4.2.0`
+- `requests>=2.28.2,<2.29.0`
 
-**Classes**: `APIError`, `ValidationError`, `NotFoundError`, `ConflictError`, `GeometryError`, `ProcessingError`, `BadRequestError`
+## Validation
 
-### middleware.py
-
-Middleware for the GEO-INFER-API.
-
-**Classes**: `ErrorHandlerMiddleware`, `RequestLoggingMiddleware`, `CORSHeadersMiddleware`
-
-## Usage
-
-```python
-from geo_infer_api.core.settings import get_settings
-from geo_infer_api.core.exceptions import ValidationError, NotFoundError
-from geo_infer_api.core.middleware import ErrorHandlerMiddleware, CORSHeadersMiddleware
-
-# Get settings
-settings = get_settings()
-
-# Use exceptions
-try:
-    # API logic
-    pass
-except ValidationError as e:
-    error_dict = e.to_dict()
-
-# Add middleware to FastAPI app
-from fastapi import FastAPI
-app = FastAPI()
-app.add_middleware(ErrorHandlerMiddleware)
-app.add_middleware(CORSHeadersMiddleware)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
 ```
 
-## Integration
+## Documentation Notes
 
-This directory provides core API functionality used by:
-- `geo_infer_api.endpoints` for API endpoint implementations
-- All GEO-INFER modules for API interfaces 
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

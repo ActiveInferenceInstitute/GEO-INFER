@@ -1,94 +1,45 @@
-# GEO-INFER-BIO: Agent Capabilities
+# Agent Instructions: GEO-INFER-BIO
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-BIO`
+- Python package: `geo_infer_bio`
+- Directory role: Bioinformatics and biological data analysis with geospatial context for spatial omics, landscape genetics, phylogeography, and microbial ecology.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-BIO** module provides biodiversity and ecological capabilities for agents, including species distribution modeling, habitat analysis, and conservation planning.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_bio` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Species Distribution
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_bio import SpeciesModeler
+## Local Contents
 
-# Model species distribution
-modeler = SpeciesModeler()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `Dockerfile`
+- `SKILL.md`
+- `docker-compose.yml`
+- `pyproject.toml`
+- `requirements.txt`
 
-distribution = modeler.predict(
-    species="ursus_americanus",
-    occurrences=sighting_data,
-    predictors=environmental_layers)
+## Validation
 
-print(f"Suitable habitat: {distribution.area_km2} km²")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
+```
 
-### 2. Habitat Analysis
+## Integration Notes
 
-```python
-from geo_infer_bio import HabitatAnalyzer
-
-# Analyze habitat quality
-analyzer = HabitatAnalyzer()
-
-quality = analyzer.assess(
-    area=study_region,
-    metrics=["connectivity", "fragmentation", "core_area"])
-
-print(f"Habitat quality: {quality.score}")```
-
-### 3. Conservation Planning
-
-```python
-from geo_infer_bio import ConservationPlanner
-
-# Plan conservation areas
-planner = ConservationPlanner()
-
-plan = planner.prioritize(
-    targets=species_targets,
-    cost_layer=land_costs,
-    budget=10_000_000)
-
-print(f"Priority areas: {plan.selected_areas}")```
-
-### 4. Biodiversity Metrics
-
-```python
-from geo_infer_bio import BiodiversityCalculator
-
-# Calculate biodiversity metrics
-calc = BiodiversityCalculator()
-
-metrics = calc.compute(
-    species_data=survey_data,
-    indices=["shannon", "simpson", "species_richness"])
-
-print(f"Shannon index: {metrics.shannon}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **SDM** | ✅ Ready | MaxEnt, RF models |
-| **Habitat** | ✅ Ready | Connectivity, quality |
-| **Conservation** | ✅ Ready | Marxan, prioritization |
-| **Metrics** | ✅ Ready | Diversity indices |
-
-### Aspirational Features
-
-- 🔮 **BiodiversityAgent**: Monitoring automation
-- 🔮 **ConservationAgent**: Adaptive management
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

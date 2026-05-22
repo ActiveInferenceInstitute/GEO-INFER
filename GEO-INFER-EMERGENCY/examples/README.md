@@ -1,5 +1,35 @@
-# examples
- ## Overview
- **Path**: `GEO-INFER-EMERGENCY/examples` Usage examples and demonstrations. ## Implementation
- ### `multi_hazard_assessment.py` **Functions**: main ### `emergency_response_simulation.py` **Functions**: main ## Contents
- - **emergency_response_simulation.py**: Python module - **multi_hazard_assessment.py**: Python module --- 
+# GEO-INFER-EMERGENCY/examples
+
+Examples workspace within `GEO-INFER-EMERGENCY`.
+
+## Contents
+
+- `emergency_response_simulation.py`
+- `multi_hazard_assessment.py`
+
+## Public Interface
+
+- `emergency_response_simulation.py:main` (function)
+- `multi_hazard_assessment.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-EMERGENCY`
+- Package: `geo_infer_emergency`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EMERGENCY`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

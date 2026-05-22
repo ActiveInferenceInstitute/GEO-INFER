@@ -1,10 +1,53 @@
-# models
- ## Overview
- This directory contains models components. It includes 2 Python modules. ## Components
- ### clusterin
-g
-.py Clustering Models Module **Classes**: `ClusteringResults`, `SpatialKMeans`, `SpatiallyConstrainedKMeans`, `SpatialDBSCAN`, `SKATERClustering`, `HierarchicalClustering` **Functions**: `spatial_clustering_analysis`, `find`, `union` ### regressio
-n
-.py Regression Models Module **Classes**: `RegressionResults`, `OrdinaryLeastSquares`, `SpatialLagModel`, `GeographicallyWeightedRegression`, `SpatialErrorModel`, `SpatialDurbinModel` **Functions**: `spatial_regression_analysis`, `log_likelihood`, `cv_score`, `log_likelihood`, `log_likelihood` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/models
+
+Models workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `__init__.py`
+- `clustering.py`
+- `regression.py`
+
+## Public Interface
+
+- `clustering.py:ClusteringResults` (class)
+- `clustering.py:SpatialKMeans` (class)
+- `clustering.py:SpatiallyConstrainedKMeans` (class)
+- `clustering.py:SpatialDBSCAN` (class)
+- `clustering.py:SKATERClustering` (class)
+- `clustering.py:HierarchicalClustering` (class)
+- `clustering.py:spatial_clustering_analysis` (function)
+- `regression.py:RegressionResults` (class)
+- `regression.py:OrdinaryLeastSquares` (class)
+- `regression.py:SpatialLagModel` (class)
+- `regression.py:GeographicallyWeightedRegression` (class)
+- `regression.py:SpatialErrorModel` (class)
+- `regression.py:SpatialDurbinModel` (class)
+- `regression.py:spatial_regression_analysis` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

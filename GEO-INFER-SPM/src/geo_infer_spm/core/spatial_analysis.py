@@ -368,7 +368,7 @@ class SpatialAnalyzer:
         # This is a simplified GWR implementation
         # Full implementation would include proper diagnostics and inference
 
-        # Create mock SPMResult (simplified)
+        # Create synthetic SPMResult (simplified)
         from ..models.data_models import DesignMatrix
 
         design = DesignMatrix(matrix=X, names=names)

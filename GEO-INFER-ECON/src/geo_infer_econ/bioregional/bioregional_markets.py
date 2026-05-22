@@ -994,7 +994,7 @@ def example_bioregional_market():
     """
     print("=== Bioregional Market Design Example ===")
     
-    # Create bioregion boundary (placeholder)
+    # Create bioregion boundary (baseline)
     bioregion = gpd.GeoDataFrame()
     
     # Initialize market design

@@ -1,144 +1,52 @@
----
-title: "GEO-INFER-ART: Cartographic Design and Visualization"
-description: "Beautiful maps, data visualization, and generative art from geospatial data"
-purpose: "Create stunning visualizations, cartographic designs, and artistic maps"
-module_type: "Visualization"
-status: "Alpha"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "DATA"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-APP"]
-tags: ["cartography", "visualization", "design", "art", "maps"]
-difficulty: "Intermediate"
-estimated_time: "40"
----
+# GEO-INFER-ART
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Transform geospatial data into compelling artistic expressions through aesthetic visualizations and generative art systems.
 
----
+## Contents
 
-# GEO-INFER-ART: Cartographic Design and Visualization
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-ART** provides artistic visualization capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Cartographic Design**: Professional map styling
-- **3D Visualization**: Terrain and building renders
-- **Generative Art**: Algorithmic art from geo data
-- **Infographics**: Map-based data stories
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-ART`
+- Package: `geo_infer_art`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ART`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
 
-### Cartographic Design
+## Dependencies
 
-```python
-from geo_infer_art import CartographicDesigner
+- `bokeh>=2.4.0`
+- `cartopy>=0.20.0`
+- `colour>=0.1.5`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `imageio>=2.9.0`
+- `imageio-ffmpeg>=0.4.0`
+- `kaleido>=0.2.0`
+- `matplotlib>=3.4.0`
+- `numpy>=1.21.0`
+- `opencv-python>=4.5.0`
+- `pillow>=8.3.0`
 
-# Create beautiful maps
-designer = CartographicDesigner()
-
-map_art = designer.create(
-    data=city_data,
-    style="watercolor",
-    colors="earth_tones"
-)
-
-map_art.export("art_map.png", dpi=300)
-```
-
-### 3D Visualization
-
-```python
-from geo_infer_art import GeoVisualizer
-
-# 3D terrain rendering
-viz = GeoVisualizer()
-
-terrain = viz.render_3d(
-    dem=elevation_data,
-    texture=satellite,
-    exaggeration=2.0
-)
-```
-
-### Generative Art
-
-```python
-from geo_infer_art import GenerativeArtist
-
-# Generate art from geo data
-artist = GenerativeArtist()
-
-artwork = artist.generate(
-    source=street_network,
-    style="abstract_flow",
-    randomness=0.3
-)
-
-artwork.save("city_art.svg")
-```
-
-### Animations
-
-```python
-from geo_infer_art import Animator
-
-# Create map animations
-animator = Animator()
-
-animation = animator.create(
-    data=temporal_data,
-    type="timelapse",
-    fps=30
-)
-
-animation.export("timelapse.mp4")
-```
-
-## Art Styles
-
-| Style | Description |
-|-------|-------------|
-| **Watercolor** | Soft, artistic |
-| **Minimalist** | Clean lines |
-| **3D Isometric** | 3D projection |
-| **Abstract** | Generative |
-| **Vintage** | Retro maps |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-APP** | Dashboard viz |
-| **GEO-INFER-DATA** | Data sources |
-| **GEO-INFER-SPACE** | Geometry |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-ART"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
 
----
+## Documentation Notes
 
-**Status**: Alpha
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

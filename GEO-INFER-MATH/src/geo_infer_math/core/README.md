@@ -1,28 +1,70 @@
-# core
- ## Overview
- This directory contains core components. It includes 11 Python modules. ## Components
- ### geometr
-y
-.py Geometry Module **Classes**: `Point`, `LineString`, `Polygon` **Functions**: `haversine_distance`, `vincenty_distance`, `bearing`, `destination_point`, `point_in_polygon`, `buffer_point`, `line_intersection`, `polygon_area_spherical`, `great_circle_distance`, `is_on_segment` ### gpu_acceleratio
-n
-.py GPU Acceleration Module **Classes**: `GPUAccelerator` **Functions**: `is_gpu_available`, `get_gpu_info`, `benchmark_gpu_performance`, `gpu_matrix_multiply`, `gpu_distance_matrix`, `gpu_spatial_interpolation` ### graph_theor
-y
-.py Graph Theory Module **Classes**: `GraphNode`, `GraphEdge`, `SpatialGraph`, `NetworkFlow` **Functions**: `find`, `union` ### integratio
-n
-.py Module Integration Utilities **Classes**: `ModuleIntegrator` **Functions**: `create_integrated_workflow`, `environmental_monitoring_workflow`, `verify_with_theorem_proving`, `information_theory_analysis`, `urban_planning_workflow`, `verify_with_theorem_proving`, `information_theory_analysis`, `public_health_workflow`, `environmental_analysis`, `urban_analysis`, `health_analysis` ### interpolatio
-n
-.py Spatial Interpolation Methods **Classes**: `InterpolationConfig`, `SpatialInterpolator`, `IDWInterpolator`, `KrigingInterpolator`, `RBFInterpolator`, `LinearInterpolator`, `CubicInterpolator`, `InterpolationManager` **Functions**: `create_interpolation_manager`, `interpolate_spatial_data`, `create_interpolation_grid` ### linalg_tenso
-r
-.py Linear Algebra and Tensor Operations Module **Classes**: `TensorData`, `MatrixOperations`, `TensorOperations`, `SpatialLinearAlgebra` ### numerical_method
-s
-.py Numerical Methods Module **Classes**: `InterpolationResult`, `OptimizationResult`, `ODEsolution`, `SpatialInterpolator`, `SpatialOptimizer`, `ODESolver`, `PDEsolver` **Functions**: `numerical_integration`, `find_root`, `minimize_scalar_function` ### optimizatio
-n
-.py Mathematical Optimization Methods **Classes**: `OptimizationConfig`, `Optimizer`, `GradientDescentOptimizer`, `GeneticAlgorithmOptimizer`, `ScipyOptimizer`, `MultiObjectiveOptimizer`, `OptimizationManager` **Functions**: `create_optimization_manager`, `optimize_function`, `compare_optimization_methods` ### spatial_statistic
-s
-.py Spatial Statistics Module **Classes**: `SpatialDescriptiveStats`, `MoranI` **Functions**: `getis_ord_g`, `ripley_k`, `semivariogram`, `spatial_descriptive_statistics`, `spatial_entropy`, `local_indicators_spatial_association` ### symbolic_mat
-h
-.py Symbolic Mathematics Module **Classes**: `SymbolicMath` **Functions**: `create_symbolic_math_engine`, `define_spatial_model`, `compute_spatial_gradients` ### transform
-s
-.py Coordinate Systems and Transformations Module **Classes**: `CRSDefinition`, `CoordinateTransformer` **Functions**: `geographic_to_projected`, `projected_to_geographic`, `utm_zone_from_lon_lat`, `utm_central_meridian`, `datum_transformation`, `affine_transformation`, `rotation_matrix_2d`, `rotation_matrix_3d`, `scale_matrix_2d`, `scale_matrix_3d`, `shear_matrix_2d`, `sinh`, `cosh`, `tanh`, `atanh`, `exp`, `log` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-MATH/src/geo_infer_math/core
+
+Core workspace within `GEO-INFER-MATH`.
+
+## Contents
+
+- `information_theory/`
+- `theorem_proving/`
+- `__init__.py`
+- `geometry.py`
+- `gpu_acceleration.py`
+- `graph_theory.py`
+- `integration.py`
+- `interpolation.py`
+- `linalg_tensor.py`
+- `numerical_methods.py`
+- `optimization.py`
+- `spatial_statistics.py`
+- `symbolic_math.py`
+- `transforms.py`
+
+## Public Interface
+
+- `geometry.py:Point` (class)
+- `geometry.py:LineString` (class)
+- `geometry.py:Polygon` (class)
+- `geometry.py:haversine_distance` (function)
+- `geometry.py:vincenty_distance` (function)
+- `geometry.py:bearing` (function)
+- `geometry.py:destination_point` (function)
+- `geometry.py:point_in_polygon` (function)
+- `geometry.py:buffer_point` (function)
+- `geometry.py:line_intersection` (function)
+- `geometry.py:polygon_area_spherical` (function)
+- `geometry.py:great_circle_distance` (function)
+- `gpu_acceleration.py:GPUAccelerator` (class)
+- `gpu_acceleration.py:is_gpu_available` (function)
+- `gpu_acceleration.py:get_gpu_info` (function)
+- `gpu_acceleration.py:benchmark_gpu_performance` (function)
+- `gpu_acceleration.py:gpu_matrix_multiply` (function)
+- `gpu_acceleration.py:gpu_distance_matrix` (function)
+- `gpu_acceleration.py:gpu_spatial_interpolation` (function)
+- `graph_theory.py:GraphNode` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-MATH`
+- Package: `geo_infer_math`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-MATH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `psutil>=5.8.0`
+- `scikit-learn>=1.0.0`
+- `sympy>=1.9.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

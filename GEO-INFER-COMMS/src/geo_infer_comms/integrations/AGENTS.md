@@ -1,42 +1,36 @@
-# Agent
-: integrations
+# Agent Instructions: GEO-INFER-COMMS/src/geo_infer_comms/integrations
 
 ## Scope
- This directory contains integrations components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### EmailProvider
- Base class for email provider integrations.
-
-**Methods**:
-- `format_email_with_geospatial_context(subject: str, body: str, geospatial_context: Optional[GeospatialMetadata]) -> Dict[str, str]`: Format email content with geospatial context information.
-- `validate_email_address(email: str) -> bool`: Validate email address format.
-- `create_mime_message(to_email: str, subject: str, body: str, html_body: Optional[str]) -> MimeMultipart`: Create MIME message for email.
-- `get_provider_stats() -> Dict[str, Any]`: Get provider-specific statistics.
-
-### SendGridProvider
- SendGrid email provider integration.
-
-### SESProvider
- Amazon SES email provider integration.
-
-### MailgunProvider
- Mailgun email provider integration.
-
-### EmailProviderFactory
- Factory for creating email provider instances.
-
-**Methods**:
-- `create_provider(provider_type: str, config: Dict[str, Any]) -> EmailProvider`: Create an email provider instance.
-- `get_available_providers() -> List[str]`: Get list of available email provider types.
+- Owning module: `GEO-INFER-COMMS`
+- Python package: `geo_infer_comms`
+- Directory role: Integrations workspace within `GEO-INFER-COMMS`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_comms` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-COMMS/src/geo_infer_comms/integrations`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `email_providers.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

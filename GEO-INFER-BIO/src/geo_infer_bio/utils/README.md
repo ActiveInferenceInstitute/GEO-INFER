@@ -1,10 +1,46 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 2 Python modules. ## Components
- ### validatio
-n
-.py Data validation utilities for GEO-INFER-BIO. **Classes**: `DataValidator` ### visualizatio
-n
-.py Visualization utilities for GEO-INFER-BIO. **Classes**: `BioVisualizer` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-BIO/src/geo_infer_bio/utils
+
+Utils workspace within `GEO-INFER-BIO`.
+
+## Contents
+
+- `validation.py`
+- `visualization.py`
+
+## Public Interface
+
+- `validation.py:DataValidator` (class)
+- `visualization.py:BioVisualizer` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-BIO`
+- Package: `geo_infer_bio`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-BIO`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO`
+
+## Dependencies
+
+- `numpy>=1.21.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `biopython>=1.79`
+- `networkx>=2.6.0`
+- `scikit-learn>=0.24.0`
+- `matplotlib>=3.4.0`
+- `seaborn>=0.11.0`
+- `geopandas>=0.9.0`
+- `shapely>=1.8.0`
+- `fastapi>=0.68.0`
+- `uvicorn>=0.15.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

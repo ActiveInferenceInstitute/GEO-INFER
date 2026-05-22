@@ -1,92 +1,43 @@
-# GEO-INFER-MARINE: Agent Capabilities
+# Agent Instructions: GEO-INFER-MARINE
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-MARINE`
+- Python package: `geo_infer_marine`
+- Directory role: Marine and oceanographic analysis, coastal management, and marine ecosystem monitoring.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-MARINE** module provides marine analysis capabilities for agents, including ocean monitoring, coastal analysis, and fisheries management.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_marine` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Ocean Monitoring
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_marine import OceanMonitor
+## Local Contents
 
-# Monitor ocean conditions
-monitor = OceanMonitor()
+- `.test-results/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-conditions = monitor.get(
-    area=study_area,
-    parameters=["sst", "chlorophyll", "currents"])
+## Validation
 
-print(f"SST: {conditions.sst}°C")
-print(f"Chlorophyll: {conditions.chl} mg/m³")```
-
-### 2. Coastal Analysis
-
-```python
-from geo_infer_marine import CoastalAnalyzer
-
-# Analyze coastal dynamics
-coastal = CoastalAnalyzer()
-
-erosion = coastal.analyze(
-    shoreline=coastline,
-    period=("2000", "2025"))
-
-print(f"Erosion rate: {erosion.rate} m/year")```
-
-### 3. Marine Spatial Planning
-
-```python
-from geo_infer_marine import MarinePlanner
-
-# Create marine spatial plan
-planner = MarinePlanner()
-
-plan = planner.create(
-    area=eez,
-    uses=["fishing", "shipping", "conservation"])
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE
 ```
 
-### 4. Fisheries Analysis
+## Integration Notes
 
-```python
-from geo_infer_marine import FisheriesAnalyzer
-
-# Analyze fisheries
-fisheries = FisheriesAnalyzer()
-
-stock = fisheries.assess(
-    species="cod",
-    area=fishing_grounds)
-
-print(f"Stock status: {stock.status}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Ocean** | ✅ Ready | SST, currents |
-| **Coastal** | ✅ Ready | Erosion, inundation |
-| **MSP** | ✅ Ready | Zone planning |
-| **Fisheries** | ✅ Ready | Stock assessment |
-
-### Aspirational Features
-
-- 🔮 **OceanSentinelAgent**: Real-time monitoring
-- 🔮 **FisheriesAgent**: Sustainable quotas
-
----
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

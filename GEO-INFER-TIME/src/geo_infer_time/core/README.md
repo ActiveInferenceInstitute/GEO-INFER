@@ -1,22 +1,54 @@
-# core
- ## Overview
- This directory contains core components. It includes 8 Python modules. ## Components
- ### advanced_forecastin
-g
-.py forecasting methods for time series. **Classes**: `AdvancedForecastingEngine` ### analysi
-s
-.py Temporal analysis for GEO-INFER-TIME. **Classes**: `AnomalyType`, `Anomaly`, `TemporalAnalyzer` **Functions**: `test_granger`, `count_matches`, `find_change_point` ### event_detectio
-n
-.py Event detection for GEO-INFER-TIME. **Classes**: `EventDetector` ### forecastin
-g
-.py Forecasting models for GEO-INFER-TIME. **Classes**: `ForecastingEngine` ### interpolatio
-n
-.py Temporal interpolation for GEO-INFER-TIME. **Classes**: `TemporalInterpolator` ### statistic
-s
-.py Temporal Statistics Module for GEO-INFER-TIME. **Classes**: `TemporalStatistics` ### stream_processin
-g
-.py Real-time stream processing for GEO-INFER-TIME. **Classes**: `StreamProcessor` ### visualizatio
-n
-.py Temporal Visualization Module for GEO-INFER-TIME. **Classes**: `TemporalVisualization` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-TIME/src/geo_infer_time/core
+
+Core workspace within `GEO-INFER-TIME`.
+
+## Contents
+
+- `__init__.py`
+- `advanced_forecasting.py`
+- `analysis.py`
+- `event_detection.py`
+- `forecasting.py`
+- `interpolation.py`
+- `statistics.py`
+- `stream_processing.py`
+- `visualization.py`
+
+## Public Interface
+
+- `advanced_forecasting.py:AdvancedForecastingEngine` (class)
+- `analysis.py:AnomalyType` (class)
+- `analysis.py:Anomaly` (class)
+- `analysis.py:TemporalAnalyzer` (class)
+- `event_detection.py:EventDetector` (class)
+- `forecasting.py:ForecastingEngine` (class)
+- `interpolation.py:TemporalInterpolator` (class)
+- `statistics.py:TemporalStatistics` (class)
+- `stream_processing.py:StreamProcessor` (class)
+- `visualization.py:TemporalVisualization` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-TIME`
+- Package: `geo_infer_time`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TIME`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scikit-learn>=1.6.1`
+- `scipy>=1.7.0`
+- `statsmodels>=0.13.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

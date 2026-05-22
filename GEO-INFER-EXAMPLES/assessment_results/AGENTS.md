@@ -1,13 +1,38 @@
-# Agent
-: assessment_results
+# Agent Instructions: GEO-INFER-EXAMPLES/assessment_results
 
 ## Scope
- This agent is responsible for handling operations within the `assessment_results` scope.
+
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Assessment Results workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
- Core capabilities include: - Directory management
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-EXAMPLES/assessment_results`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `assessment_summary_20250620_154749.md`
+- `comprehensive_assessment_20250620_154749.json`
+- `latest_assessment_summary.md`
+- `latest_comprehensive_assessment.json`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

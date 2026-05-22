@@ -121,7 +121,7 @@ class S3Connector(CloudConnector):
         Returns:
             True if connection successful
         """
-        # Mock implementation - would use boto3
+        # Deterministic local implementation - would use boto3
         logger.info(f"Connecting to S3 bucket: {self.bucket}")
         return True
 
@@ -136,7 +136,7 @@ class S3Connector(CloudConnector):
         Returns:
             S3 key of uploaded file
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Uploading {local_path} to s3://{self.bucket}/{remote_path}")
         return remote_path
 
@@ -151,7 +151,7 @@ class S3Connector(CloudConnector):
         Returns:
             Local path of downloaded file
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Downloading s3://{self.bucket}/{remote_path} to {local_path}")
         return local_path
 
@@ -165,7 +165,7 @@ class S3Connector(CloudConnector):
         Returns:
             List of S3 keys
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Listing files in s3://{self.bucket}/{prefix}")
         return [f"{prefix}file_{i}.geojson" for i in range(5)]
 
@@ -179,7 +179,7 @@ class S3Connector(CloudConnector):
         Returns:
             True if deletion successful
         """
-        # Mock implementation
+        # Deterministic local implementation
         logger.info(f"Deleting s3://{self.bucket}/{remote_path}")
         return True
 

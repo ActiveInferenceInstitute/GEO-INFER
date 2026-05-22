@@ -1,5 +1,36 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-COG/tests` Tests for GEO-INFER-COG module. ## Implementation
- ### `unit/test_core.py` **Classes**: TestCogModule **Functions**: test_module_import, test_module_version, test_cognitive_state_creation, test_cognitive_state_update_attention, test_cognitive_engine_initialization ### `integration/test_integration.py` **Classes**: TestCogIntegration **Functions**: test_module_integration ## Contents
- - **conftest.py**: Python module - **integration/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-COG/tests
+
+Tests workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python -m pytest GEO-INFER-COG/tests`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-COG/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

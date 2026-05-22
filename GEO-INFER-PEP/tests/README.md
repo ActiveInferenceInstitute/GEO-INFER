@@ -1,5 +1,42 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-PEP/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_crm.py` **Functions**: sample_customer_data_list, dummy_csv_file, test_customer_model, test_csv_crm_importer, test_clean_customer_data ### `unit/test_methods.py` **Functions**: test_process_employee_onboarding_workflow_success, test_process_employee_onboarding_workflow_candidate_not_found, test_generate_quarterly_people_report_success, test_generate_quarterly_report_no_data ### `unit/test_talent.py` **Functions**: sample_job_requisition_list, sample_candidate_data_list, dummy_talent_csv_files, test_candidate_model, test_job_requisition_model ### `unit/test_hr.py` **Functions**: sample_employee_data_list, dummy_hr_csv_file, test_employee_model, test_csv_hr_importer, test_clean_employee_data ## Contents
- - **core/**: Subdirectory - **integration/**: Subdirectory - **models/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-PEP/tests
+
+Tests workspace within `GEO-INFER-PEP`.
+
+## Contents
+
+- `core/`
+- `integration/`
+- `models/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-PEP`
+- Package: `geo_infer_pep`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-PEP`
+- Tests: `uv run python -m pytest GEO-INFER-PEP/tests`
+
+## Dependencies
+
+- `fastapi>=0.100.0`
+- `uvicorn[standard]>=0.23.2`
+- `pydantic>=2.0`
+- `pandas>=2.0`
+- `matplotlib>=3.7.0`
+- `seaborn>=0.13.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-PEP/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,47 +1,39 @@
-# Agent
-: reporting
+# Agent Instructions: GEO-INFER-PEP/src/geo_infer_pep/reporting
 
 ## Scope
- This directory contains reporting components for the module. It provides 0 classes and 10 functions.
 
-## Classes
- and Functions
-
-### generate_customer_segmentation_report
- `generate_customer_segmentation_report(customers: List[Customer]) -> Dict[str, Any]` Generates a report on customer segmentation.
-
-### generate_lead_conversion_report
- `generate_lead_conversion_report(customers: List[Customer]) -> Dict[str, Any]` Generates a report on lead conversion rates.
-
-### get_quarterly_metrics
- `get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]` Simulates fetching CRM quarterly metrics.
-
-### create_quarterly_overview
- `create_quarterly_overview(hr_metrics: Dict, crm_metrics: Dict, talent_metrics: Dict) -> str` Simulates the creation of a quarterly overview report.
-
-### generate_headcount_report
- `generate_headcount_report(employees: List[Employee], group_by: List[str]) -> Dict[str, Any]` Generates a headcount report, optionally grouped by specified fields (e.g., department, location).
-
-### generate_diversity_report
- `generate_diversity_report(employees: List[Employee], diversity_fields: List[str]) -> Dict[str, Any]` Generates a diversity report based on specified fields (e.g., gender, nationality).
-
-### get_quarterly_metrics
- `get_quarterly_metrics(quarter: str, year: int, employees: List[Employee]) -> Dict[str, Any]` Calculates real HR quarterly metrics from employee data.
-
-### generate_candidate_pipeline_report
- `generate_candidate_pipeline_report(candidates: List[Candidate], requisitions: Optional[List[JobRequisition]]) -> Dict[str, Any]` Generates a report on the current candidate pipeline status.
-
-### calculate_time_to_hire
- `calculate_time_to_hire(hired_candidates: List[Candidate]) -> Dict[str, Any]` Calculates average, min, max time to hire for candidates who reached 'HIRED' status.
-
-### get_quarterly_metrics
- `get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]` Simulates fetching Talent quarterly metrics.
+- Owning module: `GEO-INFER-PEP`
+- Python package: `geo_infer_pep`
+- Directory role: Reporting workspace within `GEO-INFER-PEP`.
 
 ## Capabilities
 
-- **10 functions** for utility operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_pep` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-PEP/src/geo_infer_pep/reporting`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `crm_reports.py`
+- `generic_report_generator.py`
+- `hr_reports.py`
+- `talent_reports.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

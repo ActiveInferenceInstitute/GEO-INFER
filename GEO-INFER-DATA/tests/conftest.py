@@ -20,10 +20,17 @@ from typing import List, Dict, Any, Tuple
 def ensure_event_loop():
     """Provide a default event loop for legacy sync wrappers under Python 3.12."""
     try:
-        asyncio.get_event_loop()
+        asyncio.get_running_loop()
     except RuntimeError:
-        asyncio.set_event_loop(asyncio.new_event_loop())
-    yield
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            yield
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
+    else:
+        yield
 
 
 @pytest.fixture(scope="session")

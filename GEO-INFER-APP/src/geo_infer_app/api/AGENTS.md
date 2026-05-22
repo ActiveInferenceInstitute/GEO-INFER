@@ -1,31 +1,35 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-APP/src/geo_infer_app/api
 
 ## Scope
- This directory contains api components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### AgentAPIClient
- Client for interacting with GEO-INFER-AGENT.
-
-**Methods**:
-- `register_status_callback(agent_id: str, callback: Callable[[str, str], None]) -> None`: Register a callback for agent status changes.
-- `unregister_status_callback(agent_id: str, callback: Callable[[str, str], None]) -> bool`: Unregister a status callback.
-
-### AgentManager
- High-level manager for agents in the application.
-
-**Methods**:
-- `register_status_callback(agent_id: str, callback: Callable[[str, str], None]) -> None`: Register a callback for agent status changes.
-- `unregister_status_callback(agent_id: str, callback: Callable[[str, str], None]) -> bool`: Unregister a status callback.
+- Owning module: `GEO-INFER-APP`
+- Python package: `geo_infer_app`
+- Directory role: Api workspace within `GEO-INFER-APP`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_app` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-APP/src/geo_infer_app/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `agent_api.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

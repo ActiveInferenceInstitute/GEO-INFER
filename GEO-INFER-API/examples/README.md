@@ -1,5 +1,54 @@
-# examples
- ## Overview
- **Path**: `GEO-INFER-API/examples` Usage examples and demonstrations. ## Implementation
- ### `python_client.py` **Functions**: list_collections, get_polygon_collection, list_polygon_features, get_polygon_feature, create_polygon_feature ## Contents
- - **curl_examples.sh**: File file - **javascript_client.js**: File file - **python_client.py**: Python module --- 
+# GEO-INFER-API/examples
+
+Examples workspace within `GEO-INFER-API`.
+
+## Contents
+
+- `python_client.py`
+- `curl_examples.sh`
+- `javascript_client.js`
+
+## Public Interface
+
+- `python_client.py:list_collections` (function)
+- `python_client.py:get_polygon_collection` (function)
+- `python_client.py:list_polygon_features` (function)
+- `python_client.py:get_polygon_feature` (function)
+- `python_client.py:create_polygon_feature` (function)
+- `python_client.py:update_polygon_feature` (function)
+- `python_client.py:delete_polygon_feature` (function)
+- `python_client.py:calculate_polygon_area` (function)
+- `python_client.py:simplify_polygon` (function)
+- `python_client.py:check_point_in_polygon` (function)
+- `python_client.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-API`
+- Package: `geo_infer_api`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-API`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module API`
+
+## Dependencies
+
+- `fastapi>=0.95.0,<0.96.0`
+- `uvicorn>=0.21.0,<0.22.0`
+- `pydantic>=1.10.7,<2.0.0`
+- `pydantic-settings>=2.0.0,<3.0.0`
+- `python-dotenv>=1.0.0,<2.0.0`
+- `python-multipart>=0.0.6,<0.1.0`
+- `httpx>=0.24.0,<0.25.0`
+- `pytest>=7.3.1,<7.4.0`
+- `pytest-cov>=4.1.0,<4.2.0`
+- `requests>=2.28.2,<2.29.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

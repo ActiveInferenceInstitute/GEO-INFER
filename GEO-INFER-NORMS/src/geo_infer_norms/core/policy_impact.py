@@ -832,7 +832,7 @@ class RegulatoryImpactAssessment:
             A string containing the assessment summary.
         """
         print("Generating assessment summary...")
-        # Placeholder implementation
+        # Baseline implementation
         costs_df = self.estimate_compliance_costs()
         admin = self.assess_administrative_burden()
         goals = self.evaluate_goal_achievement()

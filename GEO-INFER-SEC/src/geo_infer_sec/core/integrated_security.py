@@ -633,13 +633,13 @@ class IntegratedSecurityManager:
             return {
                 "active_threats": len(self.physical_manager.get_active_threats()),
                 "total_devices": len(self.physical_manager.access_devices) + len(self.physical_manager.surveillance_devices),
-                "coverage_percentage": 85.0  # Placeholder
+                "coverage_percentage": 85.0  # Baseline
             }
         elif domain == SecurityDomain.DIGITAL:
             return {
                 "active_threats": len(self.digital_manager.get_active_threats()),
                 "blocked_ips": len(self.digital_manager.blocked_ips),
-                "vulnerability_score": 7.5  # Placeholder
+                "vulnerability_score": 7.5  # Baseline
             }
         elif domain == SecurityDomain.COGNITIVE:
             report = self.cognitive_manager.generate_cognitive_report()

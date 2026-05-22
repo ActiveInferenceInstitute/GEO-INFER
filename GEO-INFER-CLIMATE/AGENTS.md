@@ -1,128 +1,42 @@
-# GEO-INFER-CLIMATE: Agent Capabilities
+# Agent Instructions: GEO-INFER-CLIMATE
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-CLIMATE`
+- Python package: `geo_infer_climate`
+- Directory role: Climate modeling, weather analysis, and climate change impact assessment for geospatial systems.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-CLIMATE** module provides climate analysis capabilities for agents, enabling weather data integration, climate modeling, and climate change impact assessment.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_climate` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Weather Data Access
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_climate import WeatherService
+## Local Contents
 
-# Access weather data
-weather = WeatherService()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-# Get current conditions
-current = weather.get_current(
-    location=(37.77, -122.41),
-    parameters=["temperature", "precipitation", "wind"])
+## Validation
 
-# Get forecast
-forecast = weather.get_forecast(
-    location=(37.77, -122.41),
-    hours_ahead=72)
-
-print(f"Current temp: {current.temperature}°C")
-print(f"Rain probability: {forecast[0].precipitation_prob}%")```
-
-### 2. Climate Projections
-
-```python
-from geo_infer_climate import ClimateProjector
-
-# Access climate projections
-projector = ClimateProjector()
-
-projection = projector.get_projection(
-    region=study_area,
-    scenario="ssp245", 
-
-# SSP2-4.5
-    time_period=("2040", "2060"),
-    variables=["temperature", "precipitation"])
-
-print(f"Projected warming: {projection.temp_change}°C")
-print(f"Precip change: {projection.precip_change}%")```
-
-### 3. Climate Risk Analysis
-
-```python
-from geo_infer_climate import ClimateRiskAnalyzer
-
-# Analyze climate risks
-analyzer = ClimateRiskAnalyzer()
-
-risk = analyzer.assess(
-    assets=infrastructure_locations,
-    hazards=["sea_level_rise", "extreme_heat", "flooding"],
-    time_horizon=2050)
-
-print(f"High risk assets: {risk.high_risk_count}")
-print(f"Adaptation needs: {risk.recommendations}")```
-
-### 4. Historical Analysis
-
-```python
-from geo_infer_climate import HistoricalAnalyzer
-
-# Analyze historical climate
-historical = HistoricalAnalyzer()
-
-trends = historical.analyze(
-    region=city_boundary,
-    period=("1990", "2025"),
-    metrics=["mean_temp", "extreme_heat_days", "precipitation"])
-
-print(f"Warming trend: {trends.temp_trend}°C/decade")```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Weather Data** | ✅ Ready | Real-time weather |
-| **Projections** | ✅ Ready | CMIP6 scenarios |
-| **Risk Analysis** | ✅ Ready | Climate risk |
-| **Historical** | ✅ Ready | Trend analysis |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **ClimateAdvisorAgent** | 🔮 High | Adaptation guidance |
-| **ExtremeWeatherAgent** | 🔮 High | Event prediction |
-
-## Use Cases
-
-### Climate Adaptation Planning
-
-```python
-from geo_infer_climate import AdaptationPlanner
-
-planner = AdaptationPlanner(city="metropolis")
-
-plan = planner.develop_plan(
-    risks=["urban_heat", "flooding"],
-    strategies=["green_infrastructure", "resilient_design"],
-    budget=50_000_000)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE
 ```
 
----
+## Integration Notes
 
-This AGENTS.md documents how GEO-INFER-CLIMATE provides climate capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

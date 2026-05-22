@@ -1,32 +1,36 @@
-# Agent
-: models 
+# Agent Instructions: GEO-INFER-TIME/src/geo_infer_time/models
 
 ## Scope
- This directory contains models components for the module. It provides 1 classes and 0 functions. 
 
-## Classes
- and Functions 
-
-### TimeSeries
- TimeSeries data model for temporal geospatial data.
-
-**Methods**:
-- `timestamps() -> pd.DatetimeIndex`: Get timestamps.
-- `start_time() -> datetime`: Get start time.
-- `end_time() -> datetime`: Get end time.
-- `duration() -> timedelta`: Get time series duration.
-- `frequency() -> Optional[str]`: Get inferred frequency.
-- `resample(frequency: str, method: str) -> 'TimeSeries'`: Resample the time series to a different frequency.
-- `interpolate(method: str) -> 'TimeSeries'`: Interpolate missing values.
-- `get_statistics() -> Dict[str, Any]`: Get statistical summary of the time series.
-- `to_dataframe() -> pd.DataFrame`: Convert to pandas DataFrame.
-- `slice(start: datetime, end: datetime) -> 'TimeSeries'`: Slice the time series to a time range. 
+- Owning module: `GEO-INFER-TIME`
+- Python package: `geo_infer_time`
+- Directory role: Models workspace within `GEO-INFER-TIME`.
 
 ## Capabilities
- 
-- **1 classes** for core functionality 
 
-## Integration
- 
-- **Location**: `GEO-INFER-TIME/src/geo_infer_time/models` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_time` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `timeseries.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

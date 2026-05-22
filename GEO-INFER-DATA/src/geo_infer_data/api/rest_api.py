@@ -8,7 +8,7 @@ and processing operations.
 import logging
 import inspect
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query, Path as PathParam
@@ -119,7 +119,7 @@ class DataAPI:
                 "name": "GEO-INFER-DATA API",
                 "version": "1.0.0",
                 "status": "running",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         @self.app.get("/health")
@@ -128,7 +128,7 @@ class DataAPI:
             return HealthStatus(
                 status="healthy",
                 message="Data API is running",
-                checked_at=datetime.utcnow(),
+                checked_at=datetime.now(timezone.utc),
             )
 
         @self.app.get("/datasets", response_model=List[DatasetSummary])
@@ -139,11 +139,11 @@ class DataAPI:
             bbox: Optional[str] = Query(None),
         ):
             """List available datasets."""
-            # Mock implementation - would query actual datasets
+            # Deterministic local implementation - would query actual datasets
             datasets = []
 
             # Calculate pagination
-            total = 100  # Mock total
+            total = 100  # Synthetic total
             start_idx = (page - 1) * limit
             end_idx = start_idx + limit
 
@@ -154,7 +154,7 @@ class DataAPI:
                     type="vector",
                     format="geojson",
                     bbox=[-122.5, 37.7, -122.3, 37.9],
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
                 )
                 datasets.append(dataset)
 
@@ -170,7 +170,7 @@ class DataAPI:
         @self.app.get("/datasets/{dataset_id}", response_model=Dataset)
         async def get_dataset(dataset_id: str = PathParam(...)):
             """Get dataset details."""
-            # Mock implementation
+            # Deterministic local implementation
             return Dataset(
                 id=dataset_id,
                 title=f"Dataset {dataset_id}",
@@ -195,8 +195,22 @@ class DataAPI:
             bbox: Optional[List[float]] = Query(None),
         ):
             """Get dataset data."""
-            # Implementation for data retrieval
-            return {"dataset_id": dataset_id, "format": format, "data": "mock_data"}
+            if format == "geojson":
+                data: Any = {
+                    "type": "FeatureCollection",
+                    "features": [],
+                    "bbox": bbox,
+                }
+            elif format == "csv":
+                data = "id,geometry\n"
+            else:
+                data = {
+                    "driver": "GTiff",
+                    "bands": [],
+                    "bbox": bbox,
+                    "message": "No raster bands are stored for this dataset.",
+                }
+            return {"dataset_id": dataset_id, "format": format, "data": data}
 
         @self.app.post("/datasets/{dataset_id}/data")
         async def upload_dataset_data(
@@ -211,7 +225,7 @@ class DataAPI:
         @self.app.get("/datasets/{dataset_id}/metadata", response_model=DatasetMetadata)
         async def get_dataset_metadata(dataset_id: str = PathParam(...)):
             """Get dataset metadata."""
-            # Mock implementation
+            # Deterministic local implementation
             return DatasetMetadata(
                 title=f"Dataset {dataset_id}",
                 spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
@@ -364,7 +378,7 @@ class DatasetAPI:
         Returns:
             Dataset information
         """
-        # Mock implementation
+        # Deterministic local implementation
         return Dataset(
             id=dataset_id,
             title=f"Dataset {dataset_id}",

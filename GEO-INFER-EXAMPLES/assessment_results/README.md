@@ -1,4 +1,42 @@
-# assessment_results
- ## Overview
- **Path**: `GEO-INFER-EXAMPLES/assessment_results` Component for assessment_results. ## Contents
- - **assessment_summary_20250620_154749.md**: File file - **comprehensive_assessment_20250620_154749.json**: File file - **latest_assessment_summary.md**: File file - **latest_comprehensive_assessment.json**: File file --- 
+# GEO-INFER-EXAMPLES/assessment_results
+
+Assessment Results workspace within `GEO-INFER-EXAMPLES`.
+
+## Contents
+
+- `assessment_summary_20250620_154749.md`
+- `comprehensive_assessment_20250620_154749.json`
+- `latest_assessment_summary.md`
+- `latest_comprehensive_assessment.json`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EXAMPLES`
+- Package: `geo_infer_examples`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
+
+## Dependencies
+
+- `jupyterlab>=3.4.0`
+- `matplotlib>=3.5.0`
+- `pandas>=1.4.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+- `rich>=12.0.0`
+- `typer>=0.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

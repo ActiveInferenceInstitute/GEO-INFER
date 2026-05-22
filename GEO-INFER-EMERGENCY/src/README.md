@@ -1,5 +1,34 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-EMERGENCY/src` Source code implementation. ## Implementation
- ### `geo_infer_emergency/core/coordinator.py` **Classes**: IncidentType, IncidentScale, Incident, Agency, IncidentCommand **Functions**: register_agency, coordinate, establish_command, request_mutual_aid, generate_sitrep ### `geo_infer_emergency/core/sar.py` **Classes**: SearchPattern, SubjectType, SearchSubject, SearchTeam, SearchArea **Functions**: register_subject, register_team, plan_mission, calculate_pod, generate_pattern ### `geo_infer_emergency/core/evacuation.py` **Classes**: EvacuationLevel, EvacuationZone, Shelter, EvacuationRoute, EvacuationPlanner **Functions**: register_shelter, plan, optimize_routes, plan_shelters, plan_special_populations ### `geo_infer_emergency/core/resources.py` **Classes**: ResourceStatus, ResourceType, Resource, ResourceRequest, ResourceDeployer **Functions**: register_resource, optimize_allocation, dynamic_redeploy, manage_staging, track_resources ### `geo_infer_emergency/core/awareness.py` **Classes**: ThreatLevel, DataSource, SensoryInput, LayerConfig, SituationalAwareness **Functions**: integrate_sensors, build_cop, assess_threat, fuse_data, generate_dashboard ## Contents
- - **geo_infer_emergency/**: Subdirectory - **geo_infer_emergency.egg-info/**: Subdirectory --- 
+# GEO-INFER-EMERGENCY/src
+
+Src workspace within `GEO-INFER-EMERGENCY`.
+
+## Contents
+
+- `geo_infer_emergency.egg-info/`
+- `geo_infer_emergency/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EMERGENCY`
+- Package: `geo_infer_emergency`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EMERGENCY`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

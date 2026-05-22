@@ -1,16 +1,35 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-ANT/src/geo_infer_ant/api
 
 ## Scope
- This directory contains api components for the module.
 
-## Classes
- and Functions No public classes or functions found in this directory.
+- Owning module: `GEO-INFER-ANT`
+- Python package: `geo_infer_ant`
+- Directory role: Api workspace within `GEO-INFER-ANT`.
 
 ## Capabilities
- - Core module functionality
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ant` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-ANT/src/geo_infer_ant/api`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

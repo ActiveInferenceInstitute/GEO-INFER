@@ -1,46 +1,36 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-METAGOV/src/geo_infer_metagov/api
 
 ## Scope
- This directory contains api components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### APIVersion
- API version enumeration.
-
-### APIResponse
- Standard API response format.
-
-### APIError
- Standard API error format.
-
-### GovernanceAPI
- REST API for governance framework operations.
-
-**Methods**:
-- `create_governance_structure(spatial_scope: Dict[str, Any], stakeholder_groups: List[Dict[str, Any]], decision_domains: List[str], governance_levels: List[str], coordination_mechanisms: List[str]) -> APIResponse`: Create a governance structure via API.
-- `get_governance_structure(governance_id: str) -> APIResponse`: Retrieve governance structure by ID.
-- `list_governance_structures(filter_by: Optional[Dict[str, Any]], limit: int, offset: int) -> APIResponse`: List governance structures with optional filtering.
-- `update_governance_structure(governance_id: str, updates: Dict[str, Any]) -> APIResponse`: Update governance structure.
-- `delete_governance_structure(governance_id: str) -> APIResponse`: Delete governance structure.
-- `analyze_governance_structure(governance_id: str, analysis_type: str) -> APIResponse`: Perform analysis on governance structure.
-- `get_health_status() -> APIResponse`: Get API health status.
-
-### StakeholderAPI
- REST API for stakeholder management operations.
-
-**Methods**:
-- `create_stakeholder(name: str, category: str, interests: List[str], decision_power: float) -> APIResponse`: Create stakeholder record.
-- `get_stakeholder(stakeholder_id: str) -> APIResponse`: Retrieve stakeholder by ID.
-- `list_stakeholders(category: Optional[str]) -> APIResponse`: List stakeholders with optional filtering by category.
+- Owning module: `GEO-INFER-METAGOV`
+- Python package: `geo_infer_metagov`
+- Directory role: Api workspace within `GEO-INFER-METAGOV`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_metagov` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-METAGOV/src/geo_infer_metagov/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `rest_api.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

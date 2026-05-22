@@ -1,140 +1,43 @@
-# GEO-INFER-APP: Agent Capabilities
+# Agent Instructions: GEO-INFER-APP
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-APP`
+- Python package: `geo_infer_app`
+- Directory role: Human-computer interaction layer providing accessible geospatial applications, dashboards, and UI components.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-APP** module provides application development capabilities for agents, enabling web interfaces, dashboards, and interactive mapping applications.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_app` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Dashboard Builder
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_app import DashboardBuilder
+## Local Contents
 
-# Create agent-powered dashboard
-dashboard = DashboardBuilder()
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-# Add map widget
-dashboard.add_widget(
-    type="map",
-    data_source=agent.get_spatial_data,
-    layers=["parcels", "zones", "points"],
-    interactive=True)
+## Validation
 
-# Add chart widget
-dashboard.add_widget(
-    type="chart",
-    chart_type="time_series",
-    data_source=agent.get_metrics)
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
+```
 
-# Deploy dashboard
-dashboard.deploy(port=3000)```
+## Integration Notes
 
-### 2. Interactive Maps
-
-```python
-from geo_infer_app import MapApplication
-
-# Create interactive map application
-app = MapApplication()
-
-# Configure map
-app.set_basemap("satellite")
-app.set_center(lat=37.77, lon=-122.41, zoom=12)
-
-# Add agent-driven layers
-app.add_layer(
-    name="real_time_sensors",
-    source=sensor_agent.stream,
-    style={"type": "heatmap"})
-
-# Add interactivity
-@app.on_click
-def handle_click(event):
-    info = agent.query_location(event.latlng)
-    app.show_popup(info)```
-
-### 3. Report Generator
-
-```python
-from geo_infer_app import ReportGenerator
-
-# Generate reports from agent analysis
-generator = ReportGenerator()
-
-report = generator.create(
-    template="spatial_analysis",
-    data=agent.get_analysis_results(),
-    include_maps=True,
-    format="pdf")
-
-print(f"Report generated: {report.path}")```
-
-### 4. Mobile App Support
-
-```python
-from geo_infer_app import MobileApp
-
-# Create mobile-friendly interface
-mobile = MobileApp()
-
-# Configure for field data collection
-mobile.enable_features([
-    "offline_maps",
-    "gps_tracking",
-    "photo_capture",
-    "form_builder"])
-
-# Sync with agent
-mobile.set_sync_agent(field_agent)```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Dashboards** | ✅ Ready | Interactive dashboards |
-| **Maps** | ✅ Ready | Web mapping |
-| **Reports** | ✅ Ready | PDF, HTML reports |
-| **Mobile** | ✅ Ready | Field apps |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **UIAgent** | 🔮 High | Adaptive interfaces |
-| **VoiceAgent** | 🔮 Medium | Voice commands |
-
-## Use Cases
-
-### Operations Dashboard
-
-```python
-from geo_infer_app import OperationsDashboard
-
-ops = OperationsDashboard(title="City Operations")
-
-# Real-time monitoring
-ops.add_map(agent.get_live_data)
-ops.add_alerts(agent.get_alerts)
-ops.add_metrics(agent.get_kpis)
-
-ops.launch()```
-
----
-
-This AGENTS.md documents how GEO-INFER-APP provides application capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

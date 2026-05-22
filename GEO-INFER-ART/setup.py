@@ -16,8 +16,6 @@ setup(
     package_dir={"": "src"},
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: Creative Commons License",
         "Operating System :: OS Independent",
         "Development Status :: 3 - Alpha",
@@ -25,7 +23,7 @@ setup(
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Artistic Software",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=[
         "numpy>=1.21.0",
         "matplotlib>=3.4.0",

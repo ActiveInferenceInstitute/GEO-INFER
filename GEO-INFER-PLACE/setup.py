@@ -163,7 +163,7 @@ setup(
     include_package_data=True,
     
     # Python version requirement
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     
     # Dependencies
     install_requires=CORE_REQUIREMENTS,
@@ -177,8 +177,6 @@ setup(
         "License :: OSI Approved :: Creative Commons License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Scientific/Engineering :: Atmospheric Science",

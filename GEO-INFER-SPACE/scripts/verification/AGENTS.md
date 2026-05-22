@@ -1,13 +1,39 @@
-# Agent
-: verification 
+# Agent Instructions: GEO-INFER-SPACE/scripts/verification
 
 ## Scope
- This agent is responsible for handling operations within the `verification` scope. 
+
+- Owning module: `GEO-INFER-SPACE`
+- Python package: `geo_infer_space`
+- Directory role: Verification workspace within `GEO-INFER-SPACE`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_core_functionality** processes - Management of **test_h3_basic** processes - Management of **test_multiple_dispatch_comprehensive** processes - Management of **test_refactored_structure** processes - Management of **verify_installation** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-SPACE/scripts/verification` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_space` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_core_functionality.py`
+- `test_h3_basic.py`
+- `test_multiple_dispatch_comprehensive.py`
+- `test_refactored_structure.py`
+- `verify_installation.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

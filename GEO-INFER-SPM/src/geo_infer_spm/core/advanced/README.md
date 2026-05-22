@@ -1,13 +1,53 @@
-# ## Overview
- This directory contains components. It includes 4 Python modules. ## Components
- ### mixed_effect
-s
-.py Mixed Effects Models for Statistical Parametric Mapping **Classes**: `MixedEffectsSPM` **Functions**: `fit_mixed_effects`, `negative_reml_loglik`, `negative_ml_loglik` ### model_validatio
-n
-.py Model Validation and Cross-Validation for SPM **Classes**: `ModelValidator` **Functions**: `validate_spm_model` ### nonparametri
-c
-.py Nonparametric Methods for Statistical Parametric Mapping **Classes**: `NonparametricSPM` **Functions**: `fit_nonparametric` ### spatial_regressio
-n
-.py Spatial Regression Models for SPM **Classes**: `SpatialRegression` **Functions**: `fit_spatial_model`, `sar_loglik`, `sem_loglik` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SPM/src/geo_infer_spm/core/advanced
+
+Advanced workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `__init__.py`
+- `mixed_effects.py`
+- `model_validation.py`
+- `nonparametric.py`
+- `spatial_regression.py`
+
+## Public Interface
+
+- `mixed_effects.py:MixedEffectsSPM` (class)
+- `mixed_effects.py:fit_mixed_effects` (function)
+- `model_validation.py:ModelValidator` (class)
+- `model_validation.py:validate_spm_model` (function)
+- `nonparametric.py:NonparametricSPM` (class)
+- `nonparametric.py:fit_nonparametric` (function)
+- `spatial_regression.py:SpatialRegression` (class)
+- `spatial_regression.py:fit_spatial_model` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

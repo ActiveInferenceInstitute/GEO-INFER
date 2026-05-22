@@ -1,40 +1,36 @@
-# Agent
-: utils
+# Agent Instructions: GEO-INFER-BIO/src/geo_infer_bio/utils
 
 ## Scope
- This directory contains utils components for the module. It provides 2 classes and 0 functions.
 
-## Classes
- and Functions
-
-### DataValidator
- A class for validating biological data.
-
-**Methods**:
-- `validate_sequence(sequence: Union[str, Seq], sequence_type: str) -> bool`: Validate a biological sequence.
-- `validate_spatial_coordinates(latitude: float, longitude: float) -> bool`: Validate spatial coordinates.
-- `validate_spatial_dataframe(df: pd.DataFrame, required_columns: Optional[List[str]]) -> bool`: Validate spatial data DataFrame.
-- `validate_sequence_record(record: SeqRecord, check_spatial: bool) -> Dict[str, bool]`: Validate a sequence record.
-- `validate_alignment(alignment: MultipleSeqAlignment) -> Dict[str, bool]`: Validate a multiple sequence alignment.
-- `validate_gc_content(gc_content: float, sequence_length: int) -> bool`: Validate GC content calculation.
-- `validate_motif(motif: str, sequence_type: str) -> bool`: Validate a DNA/RNA motif.
-- `validate_coding_region(start: int, end: int, sequence_length: int, min_length: int) -> bool`: Validate a coding region.
-
-### BioVisualizer
- A class for visualizing biological data with spatial context.
-
-**Methods**:
-- `plot_spatial_distribution(data: pd.DataFrame, output_path: Optional[str], title: str) -> None`: Plot spatial distribution of biological features.
-- `plot_gc_distribution(data: pd.DataFrame, output_path: Optional[str]) -> None`: Plot GC content distribution.
-- `plot_motif_density(data: pd.DataFrame, output_path: Optional[str]) -> None`: Plot motif density distribution.
-- `plot_coding_potential(data: pd.DataFrame, output_path: Optional[str]) -> None`: Plot coding potential distribution.
-- `plot_sequence_alignment(alignment, output_path: Optional[str]) -> None`: Plot sequence alignment.
+- Owning module: `GEO-INFER-BIO`
+- Python package: `geo_infer_bio`
+- Directory role: Utils workspace within `GEO-INFER-BIO`.
 
 ## Capabilities
 
-- **2 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_bio` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-BIO/src/geo_infer_bio/utils`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `validation.py`
+- `visualization.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

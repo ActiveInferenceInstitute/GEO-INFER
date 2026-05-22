@@ -1,137 +1,43 @@
----
-title: "GEO-INFER-SIM: Simulation Framework"
-description: "Agent-based modeling, discrete event simulation, and scenario analysis"
-purpose: "Provide simulation capabilities for spatial systems and agent behavior"
-module_type: "Core Analysis"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "TIME", "ACT"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT"]
-tags: ["simulation", "abm", "modeling", "scenarios", "monte-carlo"]
-difficulty: "Advanced"
-estimated_time: "50"
----
+# GEO-INFER-SIM
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Advanced simulation environments for geospatial hypothesis testing, policy evaluation, and scenario analysis using agent-based modeling and system dynamics.
 
----
+## Contents
 
-# GEO-INFER-SIM: Simulation Framework
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-SIM** provides simulation capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Agent-Based Models**: Spatial ABM simulations
-- **Discrete Event**: Event-driven simulations
-- **Scenario Analysis**: What-if comparisons
-- **Monte Carlo**: Probabilistic analysis
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-SIM`
+- Package: `geo_infer_sim`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SIM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM`
 
-### Agent-Based Modeling
+## Dependencies
 
-```python
-from geo_infer_sim import ABMSimulator
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
 
-# Create ABM simulation
-simulator = ABMSimulator()
-
-model = simulator.create(
-    environment=city_grid,
-    agents=pedestrian_agents,
-    rules=movement_rules
-)
-
-results = model.run(steps=1000)
-print(f"Emergent patterns: {results.patterns}")
-```
-
-### Discrete Event Simulation
-
-```python
-from geo_infer_sim import DiscreteEventSim
-
-# Event-driven simulation
-des = DiscreteEventSim()
-
-sim = des.create(
-    model=logistics_model,
-    events=["arrival", "processing"]
-)
-
-results = sim.run(duration_hours=24)
-print(f"Throughput: {results.throughput}")
-```
-
-### Scenario Analysis
-
-```python
-from geo_infer_sim import ScenarioAnalyzer
-
-# Compare scenarios
-analyzer = ScenarioAnalyzer()
-
-comparison = analyzer.compare(
-    base=current_state,
-    alternatives=[scenario_a, scenario_b],
-    metrics=["cost", "coverage"]
-)
-
-print(f"Best scenario: {comparison.best}")
-```
-
-### Monte Carlo
-
-```python
-from geo_infer_sim import MonteCarloSim
-
-# Probabilistic analysis
-mc = MonteCarloSim()
-
-analysis = mc.run(
-    model=risk_model,
-    iterations=10000
-)
-
-print(f"95% CI: {analysis.ci_95}")
-```
-
-## Simulation Types
-
-| Type | Application |
-|------|-------------|
-| **ABM** | Social behavior |
-| **DES** | Logistics, queues |
-| **SD** | System dynamics |
-| **MC** | Risk analysis |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-SIM"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
 ```
 
----
+## Documentation Notes
 
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,6 +1,38 @@
-# GEO
--INFER-TIME Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-TIME module. ## Available
- Examples ### Basi
-c
- Temporal Analysis (`basic_temporal_analysis.py`) Demonstrates fundamental temporal analysis capabilities: - Creating time series data - Temporal trend detection - Seasonality analysis - Time series forecasting (linear and exponential smoothing) - Event and anomaly detection **What you'll learn:** - How to create and manage time series objects - Trend detection methods (linear, polynomial, moving average) - Seasonality detection and analysis - Forecasting techniques - Event detection in temporal data **Prerequisites:** - Python 3.9+ - GEO-INFER-TIME module installed - Required dependencies: `pandas`, `numpy`, `statsmodels` **Usage:** ```bash cd GEO-INFER-TIME python examples/basic_temporal_analysis.py ``` ## Integration
- Examples GEO-INFER-TIME integrates seamlessly with other GEO-INFER modules: - **SPACE + TIME**: Spatio-temporal analysis and interpolation - **DATA + TIME**: Temporal data management and synchronization - **AI + TIME**: Time series prediction and forecasting - **SIM + TIME**: Temporal simulation and modeling See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-TIME/examples
+
+Examples workspace within `GEO-INFER-TIME`.
+
+## Contents
+
+- `basic_temporal_analysis.py`
+
+## Public Interface
+
+- `basic_temporal_analysis.py:generate_sample_timeseries` (function)
+- `basic_temporal_analysis.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-TIME`
+- Package: `geo_infer_time`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TIME`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scikit-learn>=1.6.1`
+- `scipy>=1.7.0`
+- `statsmodels>=0.13.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

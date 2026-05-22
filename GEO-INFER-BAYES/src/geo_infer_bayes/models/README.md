@@ -1,28 +1,66 @@
-# models
- ## Overview
- This directory contains models components. It includes 11 Python modules. ## Components
- ### bas
-e
-.py Base class for Bayesian models in the GEO-INFER-BAYES framework. **Classes**: `BayesianModel` ### bayesian_networ
-k
-.py Bayesian network models for geospatial applications. **Classes**: `BayesianNetwork` ### bayesian_timeserie
-s
-.py Bayesian time series models for geospatial applications. **Classes**: `BayesianTimeSeriesModel` ### dirichlet_proces
-s
-.py Dirichlet Process mixture models for geospatial applications. **Classes**: `DirichletProcessMixture` ### dynamic_spatia
-l
-.py Dynamic spatial models for geospatial applications. **Classes**: `DynamicSpatialModel` ### hierarchica
-l
-.py Hierarchical Bayesian models for geospatial applications. **Classes**: `HierarchicalBayesianModel` ### multileve
-l
-.py Multi-level Bayesian models for geospatial applications. **Classes**: `MultilevelModel` ### spatial_causa
-l
-.py Spatial causal models for geospatial applications. **Classes**: `SpatialCausalModel` ### spatial_clusterin
-g
-.py Spatial clustering models for geospatial applications. **Classes**: `SpatialClusteringModel` ### spatial_g
-p
-.py Gaussian Process model for spatial data. **Classes**: `SpatialGP` ### spatiotemporal_g
-p
-.py Spatio-temporal Gaussian Process models for geospatial applications. **Classes**: `SpatioTemporalConfig`, `SpatioTemporalGP` **Functions**: `create_spatiotemporal_gp` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-BAYES/src/geo_infer_bayes/models
+
+Models workspace within `GEO-INFER-BAYES`.
+
+## Contents
+
+- `__init__.py`
+- `base.py`
+- `bayesian_network.py`
+- `bayesian_timeseries.py`
+- `dirichlet_process.py`
+- `dynamic_spatial.py`
+- `hierarchical.py`
+- `multilevel.py`
+- `spatial_causal.py`
+- `spatial_clustering.py`
+- `spatial_gp.py`
+- `spatiotemporal_gp.py`
+
+## Public Interface
+
+- `base.py:BayesianModel` (class)
+- `bayesian_network.py:BayesianNetwork` (class)
+- `bayesian_timeseries.py:BayesianTimeSeriesModel` (class)
+- `dirichlet_process.py:DirichletProcessMixture` (class)
+- `dynamic_spatial.py:DynamicSpatialModel` (class)
+- `hierarchical.py:HierarchicalBayesianModel` (class)
+- `multilevel.py:MultilevelModel` (class)
+- `spatial_causal.py:SpatialCausalModel` (class)
+- `spatial_clustering.py:SpatialClusteringModel` (class)
+- `spatial_gp.py:SpatialGP` (class)
+- `spatiotemporal_gp.py:SpatioTemporalConfig` (class)
+- `spatiotemporal_gp.py:SpatioTemporalGP` (class)
+- `spatiotemporal_gp.py:create_spatiotemporal_gp` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-BAYES`
+- Package: `geo_infer_bayes`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-BAYES`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES`
+
+## Dependencies
+
+- `arviz`
+- `cmdstanpy`
+- `geopandas`
+- `matplotlib`
+- `numpy`
+- `pandas`
+- `pymc`
+- `rasterio`
+- `scipy`
+- `tensorflow-probability`
+- `xarray`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

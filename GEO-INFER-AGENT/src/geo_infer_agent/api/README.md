@@ -1,14 +1,67 @@
-# api
- ## Overview
- This directory contains api components. It includes 4 Python modules. ## Components
- ### agent_endpoint
-s
-.py REST API endpoints for the GEO-INFER-AGENT system. **Classes**: `AgentCreate`, `AgentAction`, `AgentMessage`, `AgentResponse` **Functions**: `start_api_server` ### interfac
-e
-.py Unified interface for external systems to interact with agents. **Classes**: `AgentInterface` ### messagin
-g
-.py Agent-to-agent messaging interface for GEO-INFER-AGENT. **Classes**: `Message`, `MessagingService` ### telemetr
-y
-.py Telemetry module for GEO-INFER-AGENT. **Classes**: `MetricType`, `Metric`, `CounterMetric`, `GaugeMetric`, `HistogramMetric`, `TimerMetric`, `TelemetryService` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-AGENT/src/geo_infer_agent/api
+
+Api workspace within `GEO-INFER-AGENT`.
+
+## Contents
+
+- `__init__.py`
+- `agent_endpoints.py`
+- `interface.py`
+- `messaging.py`
+- `telemetry.py`
+
+## Public Interface
+
+- `agent_endpoints.py:AgentCreate` (class)
+- `agent_endpoints.py:AgentAction` (class)
+- `agent_endpoints.py:AgentMessage` (class)
+- `agent_endpoints.py:AgentResponse` (class)
+- `agent_endpoints.py:list_agents` (function)
+- `agent_endpoints.py:create_agent` (function)
+- `agent_endpoints.py:get_agent` (function)
+- `agent_endpoints.py:delete_agent` (function)
+- `agent_endpoints.py:start_agent` (function)
+- `agent_endpoints.py:stop_agent` (function)
+- `agent_endpoints.py:agent_action` (function)
+- `agent_endpoints.py:get_agent_state` (function)
+- `agent_endpoints.py:send_message` (function)
+- `agent_endpoints.py:start_api_server` (function)
+- `interface.py:AgentInterface` (class)
+- `messaging.py:Message` (class)
+- `messaging.py:MessagingService` (class)
+- `telemetry.py:MetricType` (class)
+- `telemetry.py:Metric` (class)
+- `telemetry.py:CounterMetric` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AGENT`
+- Package: `geo_infer_agent`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AGENT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
+
+## Dependencies
+
+- `numpy>=1.23.5`
+- `torch>=2.0.0`
+- `pyyaml>=6.0`
+- `tqdm>=4.65.0`
+- `requests>=2.28.2`
+- `colorlog>=6.7.0`
+- `pytest>=7.3.1`
+- `pytest-cov>=4.1.0`
+- `mypy>=1.3.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `matplotlib>=3.7.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

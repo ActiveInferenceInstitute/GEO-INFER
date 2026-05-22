@@ -36,76 +36,76 @@ try:
     from geo_infer_iot.utils.visualization import IoTVisualization
     _ALL_MODULES_AVAILABLE = True
 except ImportError:
-    # Create placeholder classes for missing modules
+    # Create baseline classes for missing modules
     _ALL_MODULES_AVAILABLE = False
 
     class SpatialDataFusion:
-        """Placeholder for spatial data fusion functionality."""
+        """Baseline for spatial data fusion functionality."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class QualityController:
-        """Placeholder for quality control functionality."""
+        """Baseline for quality control functionality."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class SensorAPI:
-        """Placeholder for sensor API functionality."""
+        """Baseline for sensor API functionality."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class StreamingAPI:
-        """Placeholder for streaming API functionality."""
+        """Baseline for streaming API functionality."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class BayesianInferenceAPI:
-        """Placeholder for Bayesian inference API functionality."""
+        """Baseline for Bayesian inference API functionality."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class Sensor:
-        """Placeholder for sensor data model."""
+        """Baseline for sensor data model."""
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
     class SensorNetwork:
-        """Placeholder for sensor network data model."""
+        """Baseline for sensor network data model."""
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
     class Measurement:
-        """Placeholder for measurement data model."""
+        """Baseline for measurement data model."""
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
     class MeasurementBatch:
-        """Placeholder for measurement batch data model."""
+        """Baseline for measurement batch data model."""
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
     class NetworkTopology:
-        """Placeholder for network topology data model."""
+        """Baseline for network topology data model."""
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
     class SensorCalibration:
-        """Placeholder for sensor calibration utilities."""
+        """Baseline for sensor calibration utilities."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class SpatialInterpolation:
-        """Placeholder for spatial interpolation utilities."""
+        """Baseline for spatial interpolation utilities."""
         def __init__(self, config=None):
             self.config = config or {}
 
     class IoTVisualization:
-        """Placeholder for IoT visualization utilities."""
+        """Baseline for IoT visualization utilities."""
         def __init__(self, config=None):
             self.config = config or {}
 

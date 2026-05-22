@@ -1,74 +1,50 @@
-# Agent: unit
+# Agent Instructions: GEO-INFER-DATA/tests/unit
 
 ## Scope
-This agent handles unit tests for individual GEO-INFER-DATA components including ingestion, storage, validation, API, and error handling.
 
-## Implementation Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Unit workspace within `GEO-INFER-DATA`.
 
-### Currently Implemented
+## Capabilities
 
-- ✅ **test_ingestion.py**: Tests for `MultiSourceDataIngestion`, `SatelliteDataConnector`, `SensorDataConnector`, `CrowdsourcedDataConnector`
-- ✅ **test_storage.py**: Tests for `AdaptiveDataStorage`, `PostgreSQLBackend`, `MinIOBackend`, `LocalFileBackend`
-- ✅ **test_validation.py**: Tests for `GeospatialValidator`, `DataQualityManager`, `ValidationConfig`
-- ✅ **test_api.py**: Tests for `DataAPI`, `DatasetAPI`, `DataService`
-- ✅ **test_error_handling.py**: Tests for error handling across all components
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Test Classes
+## Working Rules
 
-### TestMultiSourceDataIngestion
-Tests for multi-source data ingestion functionality.
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-**Test Methods**:
-- `test_ingest_multi_source()`
-- `test_validate_and_clean()`
-- `test_format_detection()`
+## Local Contents
 
-### TestAdaptiveDataStorage
-Tests for adaptive data storage operations.
+- `test_api.py`
+- `test_caching.py`
+- `test_cloud_connectors.py`
+- `test_compression.py`
+- `test_error_handling.py`
+- `test_file_connector.py`
+- `test_format_detection.py`
+- `test_geospatial_validation.py`
+- `test_indexing.py`
+- `test_ingestion.py`
+- `test_performance.py`
+- `test_pipeline.py`
+- `test_schemas.py`
+- `test_storage.py`
+- `test_stream_connectors.py`
+- `test_validation.py`
 
-**Test Methods**:
-- `test_store_geospatial_data()`
-- `test_adaptive_query()`
-- `test_storage_optimization()`
-
-### TestGeospatialValidator
-Tests for geospatial data validation.
-
-**Test Methods**:
-- `test_validate_geometries()`
-- `test_validate_coordinates()`
-- `test_validate_attributes()`
-
-### TestDataAPI
-Tests for REST API functionality.
-
-**Test Methods**:
-- `test_api_start_stop()`
-- `test_list_datasets()`
-- `test_create_dataset()`
-
-### TestIngestionErrorHandling
-Tests for error handling in ingestion operations.
-
-## Running Tests
+## Validation
 
 ```bash
-# Run all unit tests
-pytest tests/unit/
+uv run python -m pytest GEO-INFER-DATA/tests/unit
+```
 
-# Run specific test file
-pytest tests/unit/test_ingestion.py
+## Integration Notes
 
-# Run with coverage
-pytest tests/unit/ --cov=src/geo_infer_data```
-
-## Integration
-
-- **Location**: `GEO-INFER-DATA/tests/unit`
-- **Purpose**: Component-level unit testing
-- **Test Framework**: pytest
-- **Coverage**: Individual component functionality
-
----
-
-This AGENTS.md documents unit tests for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

@@ -1,6 +1,35 @@
-# GEO
--INFER-CIV Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-CIV module. ## Available
- Examples ### Basi
-c
- Civic Engagement (`basic_civic_engagement.py`) Demonstrates fundamental civic engagement capabilities: - Participatory mapping - Citizen science - Community collaboration - Public engagement **What you'll learn:** - Civic engagement framework overview - Integration capabilities - Common use cases - Best practices **Prerequisites:** - Python 3.9+ - GEO-INFER-CIV module installed **Usage:** ```bash cd GEO-INFER-CIV python examples/basic_civic_engagement.py ``` ## Integration
- Examples GEO-INFER-CIV integrates seamlessly with other GEO-INFER modules: - **APP + CIV**: Application interfaces - **SPACE + CIV**: Spatial data visualization - **NORMS + CIV**: Regulatory frameworks - **ORG + CIV**: Organizational structures - **COMMS + CIV**: Communication systems See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-CIV/examples
+
+Examples workspace within `GEO-INFER-CIV`.
+
+## Contents
+
+- `basic_civic_engagement.py`
+
+## Public Interface
+
+- `basic_civic_engagement.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-CIV`
+- Package: `geo_infer_civ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-CIV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV`
+
+## Dependencies
+
+- `geopandas>=0.10.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

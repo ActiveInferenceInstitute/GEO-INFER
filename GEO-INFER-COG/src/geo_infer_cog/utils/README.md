@@ -1,10 +1,55 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 2 Python modules. ## Components
- ### helper
-s
-.py Helper utilities for GEO-INFER-COG **Functions**: `load_cognitive_profile`, `save_cognitive_profile`, `load_cognitive_model`, `save_cognitive_model`, `create_default_cognitive_config`, `setup_cognitive_logging`, `calculate_cognitive_load`, `format_spatial_data_for_display`, `_simplify_geometry`, `_extract_key_properties`, `_calculate_display_priority`, `create_performance_report`, `export_cognitive_insights`, `_format_insights_as_markdown`, `validate_file_path`, `create_directory_structure`, `cleanup_temp_files`, `count_coordinates` ### validatio
-n
-.py Validation utilities for GEO-INFER-COG **Functions**: `validate_spatial_data`, `validate_geometry`, `validate_point_coordinates`, `validate_linestring_coordinates`, `validate_polygon_coordinates`, `validate_multipoint_coordinates`, `validate_multilinestring_coordinates`, `validate_multipolygon_coordinates`, `check_topological_validity`, `do_edges_intersect`, `check_data_completeness`, `validate_cognitive_model`, `validate_perception_model`, `validate_reasoning_model`, `validate_memory_model`, `check_model_consistency`, `validate_user_profile`, `validate_configuration`, `validate_core_config`, `generate_default_config`, `ccw`, `flatten_coords` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-COG/src/geo_infer_cog/utils
+
+Utils workspace within `GEO-INFER-COG`.
+
+## Contents
+
+- `__init__.py`
+- `helpers.py`
+- `validation.py`
+
+## Public Interface
+
+- `helpers.py:load_cognitive_profile` (function)
+- `helpers.py:save_cognitive_profile` (function)
+- `helpers.py:load_cognitive_model` (function)
+- `helpers.py:save_cognitive_model` (function)
+- `helpers.py:create_default_cognitive_config` (function)
+- `helpers.py:setup_cognitive_logging` (function)
+- `helpers.py:calculate_cognitive_load` (function)
+- `helpers.py:format_spatial_data_for_display` (function)
+- `helpers.py:create_performance_report` (function)
+- `helpers.py:export_cognitive_insights` (function)
+- `helpers.py:validate_file_path` (function)
+- `helpers.py:create_directory_structure` (function)
+- `helpers.py:cleanup_temp_files` (function)
+- `validation.py:validate_spatial_data` (function)
+- `validation.py:validate_geometry` (function)
+- `validation.py:validate_point_coordinates` (function)
+- `validation.py:validate_linestring_coordinates` (function)
+- `validation.py:validate_polygon_coordinates` (function)
+- `validation.py:validate_multipoint_coordinates` (function)
+- `validation.py:validate_multilinestring_coordinates` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-COG`
+- Package: `geo_infer_cog`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-COG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

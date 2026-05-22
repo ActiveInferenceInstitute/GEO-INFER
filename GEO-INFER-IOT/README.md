@@ -1,138 +1,54 @@
----
-title: "GEO-INFER-IOT: Internet of Things Integration"
-description: "Sensor networks, real-time data streaming, and edge computing"
-purpose: "Enable IoT device integration and real-time geospatial data streams"
-module_type: "Data Infrastructure"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "TIME", "DATA"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA"]
-tags: ["iot", "sensors", "streaming", "real-time", "edge"]
-difficulty: "Intermediate"
-estimated_time: "45"
----
+# GEO-INFER-IOT
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+IoT sensor networks, real-time geospatial data streams, and sensor data fusion for environmental monitoring.
 
----
+## Contents
 
-# GEO-INFER-IOT: Internet of Things Integration
+- `config/`
+- `deployment/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-IOT** provides IoT capabilities:
+- No public Python symbols are defined directly in this directory.
 
-- **Sensor Networks**: Device registration and management
-- **Data Streaming**: Real-time data subscriptions
-- **Edge Processing**: Local analytics on edge devices
-- **Device Coordination**: Multi-device campaigns
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-IOT`
+- Package: `geo_infer_iot`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-IOT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
 
-### Sensor Network
+## Dependencies
 
-```python
-from geo_infer_iot import SensorNetwork
+- `aiocoap>=0.4.3`
+- `asyncio-mqtt>=0.11.0`
+- `confluent-kafka>=1.8.0`
+- `fastapi>=0.68.0`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `influxdb-client>=1.24.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0`
+- `paho-mqtt>=1.6.0`
+- `pandas>=1.3.0`
 
-# Manage sensors
-network = SensorNetwork()
-
-network.register(
-    sensor_id="temp_001",
-    type="temperature",
-    location=(37.77, -122.41)
-)
-
-status = network.get_status()
-print(f"Active: {status.active_count}")
-```
-
-### Data Streaming
-
-```python
-from geo_infer_iot import DataStreamer
-
-# Stream sensor data
-streamer = DataStreamer()
-
-async for reading in streamer.subscribe(
-    sensors=["temp_*"],
-    area=city_boundary
-):
-    print(f"Value: {reading.value}")
-```
-
-### Edge Processing
-
-```python
-from geo_infer_iot import EdgeProcessor
-
-# Deploy edge analytics
-processor = EdgeProcessor()
-
-processor.deploy(
-    model="anomaly_detection",
-    devices=edge_gateways
-)
-```
-
-### Device Coordination
-
-```python
-from geo_infer_iot import DeviceCoordinator
-
-# Coordinate sensing campaign
-coordinator = DeviceCoordinator()
-
-campaign = coordinator.run(
-    devices=sensor_array,
-    objective="coverage"
-)
-```
-
-## Device Types
-
-| Type | Examples |
-|------|----------|
-| **Environmental** | Weather, air quality |
-| **Traffic** | Counters, cameras |
-| **Infrastructure** | Structural, water |
-| **Mobile** | GPS, phones |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-DATA** | Data ingestion |
-| **GEO-INFER-TIME** | Time series |
-| **GEO-INFER-COMMS** | Alerts |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-IOT"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
 
----
+## Documentation Notes
 
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

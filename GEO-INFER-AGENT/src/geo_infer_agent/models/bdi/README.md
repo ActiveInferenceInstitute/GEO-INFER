@@ -1,14 +1,64 @@
-# bdi
- ## Overview
- This directory contains bdi components. It includes 4 Python modules. ## Components
- ### belie
-f
-.py Belief module for BDI agents. **Classes**: `Belief`, `BeliefBase` ### desir
-e
-.py Desire module for BDI agents. **Classes**: `DesireState`, `Desire`, `DesireSet` ### intentio
-n
-.py Intention module for BDI agents. **Classes**: `IntentionStatus`, `Intention`, `IntentionStructure` ### pla
-n
-.py Plan module for BDI agents. **Classes**: `PlanStatus`, `Plan`, `PlanLibrary` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-AGENT/src/geo_infer_agent/models/bdi
+
+Bdi workspace within `GEO-INFER-AGENT`.
+
+## Contents
+
+- `__init__.py`
+- `agent.py`
+- `belief.py`
+- `desire.py`
+- `intention.py`
+- `plan.py`
+
+## Public Interface
+
+- `agent.py:Belief` (class)
+- `agent.py:Desire` (class)
+- `agent.py:Plan` (class)
+- `agent.py:BDIState` (class)
+- `agent.py:BDIAgent` (class)
+- `belief.py:Belief` (class)
+- `belief.py:BeliefBase` (class)
+- `desire.py:DesireState` (class)
+- `desire.py:Desire` (class)
+- `desire.py:DesireSet` (class)
+- `intention.py:IntentionStatus` (class)
+- `intention.py:Intention` (class)
+- `intention.py:IntentionStructure` (class)
+- `plan.py:PlanStatus` (class)
+- `plan.py:Plan` (class)
+- `plan.py:PlanLibrary` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AGENT`
+- Package: `geo_infer_agent`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AGENT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
+
+## Dependencies
+
+- `numpy>=1.23.5`
+- `torch>=2.0.0`
+- `pyyaml>=6.0`
+- `tqdm>=4.65.0`
+- `requests>=2.28.2`
+- `colorlog>=6.7.0`
+- `pytest>=7.3.1`
+- `pytest-cov>=4.1.0`
+- `mypy>=1.3.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `matplotlib>=3.7.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

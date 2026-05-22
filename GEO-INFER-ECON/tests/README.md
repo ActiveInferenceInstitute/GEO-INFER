@@ -1,5 +1,50 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-ECON/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_enhanced_capabilities.py` **Classes**: TestDataLoading, TestSpatialEconometrics, TestEconomicIndicators, TestModelValidation, TestVisualization **Functions**: run_comprehensive_test_suite, setUp, test_data_source_registration, test_data_validation, test_data_preprocessing ### `integration/test_integrations.py` **Classes**: TestSpaceIntegration, TestTimeIntegration, TestDataIntegration, TestIntegratedWorkflow **Functions**: setUp, test_initialization, test_latlng_to_cell, test_cell_to_latlng, test_calculate_distance ## Contents
- - **integration/**: Subdirectory - **unit/**: Subdirectory --- 
+# GEO-INFER-ECON/tests
+
+Tests workspace within `GEO-INFER-ECON`.
+
+## Contents
+
+- `integration/`
+- `unit/`
+- `conftest.py`
+
+## Public Interface
+
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:economic_indicators` (function)
+- `conftest.py:market_data_series` (function)
+- `conftest.py:spatial_econ_gdf` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ECON`
+- Package: `geo_infer_econ`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ECON`
+- Tests: `uv run python -m pytest GEO-INFER-ECON/tests`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `geopandas>=0.12.0`
+- `shapely>=2.0.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `seaborn>=0.12.0`
+- `networkx>=2.8.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-ECON/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

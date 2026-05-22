@@ -1,4 +1,45 @@
-# integration
- ## Overview
- Integration tests for GEO-INFER-DATA. This module contains integration tests that verify how different components of the GEO-INFER-DATA module work together in realistic scenarios. Test Categories: end_to_end: workflows from data ingestion to storage cross_component: Tests of component interactions data_flow: Tests of data flow between components performance_integration: Performance tests across components Examples: >>> # Run integration tests >>> python -m pytest tests/integration/ -v >>> >>> # Run specific integration test >>> python -m pytest tests/integration/test_end_to_end.py::test_complete_workflow ## Contents
- - **test_end_to_end.py**: Python definitions 
+# GEO-INFER-DATA/tests/integration
+
+Integration workspace within `GEO-INFER-DATA`.
+
+## Contents
+
+- `test_end_to_end.py`
+- `test_pipeline_integration.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python -m pytest GEO-INFER-DATA/tests/integration`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-DATA/tests/integration
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

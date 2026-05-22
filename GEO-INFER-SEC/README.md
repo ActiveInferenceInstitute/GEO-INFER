@@ -1,147 +1,52 @@
----
-title: "GEO-INFER-SEC: Security and Access Control"
-description: "Authentication, authorization, encryption, and audit logging"
-purpose: "Provide comprehensive security for geospatial operations and agent systems"
-module_type: "Core Infrastructure"
-status: "Beta"
-last_updated: "2026-02-25"
-dependencies: ["ACT", "OPS"]
-compatibility: ["All GEO-INFER modules"]
-tags: ["security", "authentication", "authorization", "encryption", "audit"]
-difficulty: "Advanced"
-estimated_time: "45"
----
+# GEO-INFER-SEC
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Comprehensive security and privacy framework for geospatial information systems with encryption, access control, and compliance.
 
----
+## Contents
 
-# GEO-INFER-SEC: Security and Access Control
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-SEC** provides comprehensive security:
+- No public Python symbols are defined directly in this directory.
 
-- **Authentication**: Multi-method identity verification
-- **Authorization**: Role-based and spatial access control
-- **Encryption**: Data protection at rest and in transit
-- **Audit Logging**: Comprehensive activity tracking
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-SEC`
+- Package: `geo_infer_sec`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SEC`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC`
 
-### Authentication
+## Dependencies
 
-```python
-from geo_infer_sec import Authenticator
+- `cryptography>=36.0.0`
+- `pyjwt>=2.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `pandas>=1.3.0`
+- `numpy>=1.20.0`
+- `pyyaml>=6.0`
+- `h3>=4.0.0`
+- `pyproj>=3.0.0`
+- `flask>=2.0.0`
+- `sqlalchemy>=1.4.0`
+- `bcrypt>=3.2.0`
 
-# Authenticate agents
-auth = Authenticator()
-
-token = auth.authenticate(
-    identity="agent_001",
-    method="jwt"
-)
-
-validation = auth.validate(token)
-print(f"Valid: {validation.is_valid}")
-```
-
-### Authorization
-
-```python
-from geo_infer_sec import Authorizer
-
-# Check permissions
-authz = Authorizer()
-
-allowed = authz.check(
-    subject="agent_001",
-    action="read",
-    resource="sensitive_data"
-)
-
-# Spatial access control
-spatial_allowed = authz.check_spatial(
-    subject="agent_001",
-    area=restricted_zone
-)
-```
-
-### Encryption
-
-```python
-from geo_infer_sec import DataEncryptor
-
-# Encrypt data
-encryptor = DataEncryptor()
-
-encrypted = encryptor.encrypt(
-    data=sensitive_data,
-    method="aes_256_gcm"
-)
-```
-
-### Audit Logging
-
-```python
-from geo_infer_sec import AuditLogger
-
-# Log security events
-audit = AuditLogger()
-
-audit.log(
-    event="data_access",
-    subject="agent_001",
-    resource="parcels"
-)
-
-logs = audit.query(last_hours=24)
-```
-
-## Security Features
-
-| Feature | Description |
-|---------|-------------|
-| **MFA** | Multi-factor auth |
-| **RBAC** | Role-based access |
-| **ABAC** | Attribute-based access |
-| **Spatial ACL** | Location-based access |
-| **Encryption** | AES-256, RSA |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-API** | API security |
-| **GEO-INFER-OPS** | Deployment security |
-| **GEO-INFER-NORMS** | Policy enforcement |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-SEC"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC
 ```
 
----
+## Documentation Notes
 
-**Status**: Beta
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

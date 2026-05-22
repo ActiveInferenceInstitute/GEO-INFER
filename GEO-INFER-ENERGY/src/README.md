@@ -1,5 +1,40 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-ENERGY/src` Source code implementation. ## Implementation
- ### `geo_infer_energy/core/energy_grid.py` **Classes**: EnergyGridOptimizer **Functions**: optimize_grid_network, assess_grid_reliability ### `geo_infer_energy/core/energy_demand.py` **Classes**: EnergyDemandForecaster **Functions**: forecast_demand, identify_peak_demand ### `geo_infer_energy/core/carbon_footprint.py` **Classes**: CarbonFootprintAnalyzer **Functions**: calculate_emissions, calculate_carbon_intensity, assess_renewable_impact ### `geo_infer_energy/core/energy_infrastructure.py` **Classes**: EnergyInfrastructurePlanner **Functions**: optimize_facility_siting, assess_infrastructure_capacity ### `geo_infer_energy/core/renewable_resources.py` **Classes**: RenewableType, SuitabilityClass, RenewableSite, RenewableResourceAssessor **Functions**: assess_solar_potential, assess_wind_potential, assess_hydro_potential, assess_site_suitability, calculate_capacity_factor ## Contents
- - **geo_infer_energy/**: Subdirectory - **geo_infer_energy.egg-info/**: Subdirectory --- 
+# GEO-INFER-ENERGY/src
+
+Src workspace within `GEO-INFER-ENERGY`.
+
+## Contents
+
+- `geo_infer_energy.egg-info/`
+- `geo_infer_energy/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-ENERGY`
+- Package: `geo_infer_energy`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ENERGY`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -6,18 +6,11 @@ including in-memory caching, file-based caching, and distributed caching.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, Tuple
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime, timedelta, timezone
 import hashlib
 import pickle
-import json
 from pathlib import Path
-
-import geopandas as gpd
-import pandas as pd
-import numpy as np
-
-from ..models.schemas import SpatialExtent, TemporalExtent
 
 
 logger = logging.getLogger(__name__)
@@ -34,26 +27,28 @@ class CacheEntry:
         created_at: Optional[datetime] = None,
         access_count: int = 0,
         last_accessed: Optional[datetime] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         self.key = key
         self.data = data
         self.ttl = ttl  # Time to live in seconds
-        self.created_at = created_at or datetime.utcnow()
+        self.created_at = created_at or datetime.now(timezone.utc)
         self.access_count = access_count
-        self.last_accessed = last_accessed or datetime.utcnow()
+        self.last_accessed = last_accessed or datetime.now(timezone.utc)
         self.metadata = metadata or {}
 
     def is_expired(self) -> bool:
         """Check if cache entry is expired."""
         if self.ttl is None:
             return False
-        return datetime.utcnow() - self.created_at > timedelta(seconds=self.ttl)
+        return datetime.now(timezone.utc) - self.created_at > timedelta(
+            seconds=self.ttl
+        )
 
     def update_access(self):
         """Update access statistics."""
         self.access_count += 1
-        self.last_accessed = datetime.utcnow()
+        self.last_accessed = datetime.now(timezone.utc)
 
 
 class CacheManager:
@@ -88,33 +83,30 @@ class CacheManager:
         max_size: int = 1000,
         default_ttl: Optional[int] = 3600,
         enable_persistence: bool = False,
-        persistence_path: Optional[Path] = None
+        persistence_path: Optional[Path] = None,
     ):
         self.max_size = max_size
         self.default_ttl = default_ttl
         self.enable_persistence = enable_persistence
-        self.persistence_path = persistence_path or Path('/tmp/geo_infer_cache')
+        self.persistence_path = persistence_path or Path("/tmp/geo_infer_cache")
 
         self.cache: Dict[str, CacheEntry] = {}
-        self.access_stats = {
-            'hits': 0,
-            'misses': 0,
-            'sets': 0,
-            'deletes': 0
-        }
+        self.access_stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0}
 
         if self.enable_persistence:
             self.persistence_path.mkdir(parents=True, exist_ok=True)
             self._load_persistent_cache()
 
-        logger.info(f"Initialized CacheManager with max_size={max_size}, persistence={enable_persistence}")
+        logger.info(
+            f"Initialized CacheManager with max_size={max_size}, persistence={enable_persistence}"
+        )
 
     async def set(
         self,
         key: str,
         data: Any,
         ttl: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Set cache entry.
@@ -138,14 +130,11 @@ class CacheManager:
 
         # Create cache entry
         entry = CacheEntry(
-            key=key,
-            data=data,
-            ttl=ttl or self.default_ttl,
-            metadata=metadata or {}
+            key=key, data=data, ttl=ttl or self.default_ttl, metadata=metadata or {}
         )
 
         self.cache[key] = entry
-        self.access_stats['sets'] += 1
+        self.access_stats["sets"] += 1
 
         # Persist if enabled
         if self.enable_persistence:
@@ -170,17 +159,17 @@ class CacheManager:
             # Check if expired
             if entry.is_expired():
                 await self.delete(key)
-                self.access_stats['misses'] += 1
+                self.access_stats["misses"] += 1
                 return None
 
             # Update access statistics
             entry.update_access()
-            self.access_stats['hits'] += 1
+            self.access_stats["hits"] += 1
 
             logger.debug(f"Cache hit for key: {key}")
             return entry.data
         else:
-            self.access_stats['misses'] += 1
+            self.access_stats["misses"] += 1
             logger.debug(f"Cache miss for key: {key}")
             return None
 
@@ -196,7 +185,7 @@ class CacheManager:
         """
         if key in self.cache:
             del self.cache[key]
-            self.access_stats['deletes'] += 1
+            self.access_stats["deletes"] += 1
 
             # Remove from persistence
             if self.enable_persistence:
@@ -212,12 +201,7 @@ class CacheManager:
     async def clear(self):
         """Clear all cache entries."""
         self.cache.clear()
-        self.access_stats = {
-            'hits': 0,
-            'misses': 0,
-            'sets': 0,
-            'deletes': 0
-        }
+        self.access_stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0}
 
         if self.enable_persistence:
             for cache_file in self.persistence_path.glob("*.pkl"):
@@ -242,10 +226,7 @@ class CacheManager:
     def _evict_lru(self):
         """Evict least recently used entries."""
         # Sort by last accessed time
-        sorted_entries = sorted(
-            self.cache.items(),
-            key=lambda x: x[1].last_accessed
-        )
+        sorted_entries = sorted(self.cache.items(), key=lambda x: x[1].last_accessed)
 
         # Remove oldest 10% or at least 1 entry
         entries_to_remove = max(1, len(self.cache) // 10)
@@ -265,16 +246,16 @@ class CacheManager:
 
         # Serialize entry
         entry_data = {
-            'key': entry.key,
-            'data': entry.data,
-            'ttl': entry.ttl,
-            'created_at': entry.created_at,
-            'access_count': entry.access_count,
-            'last_accessed': entry.last_accessed,
-            'metadata': entry.metadata
+            "key": entry.key,
+            "data": entry.data,
+            "ttl": entry.ttl,
+            "created_at": entry.created_at,
+            "access_count": entry.access_count,
+            "last_accessed": entry.last_accessed,
+            "metadata": entry.metadata,
         }
 
-        with open(cache_file, 'wb') as f:
+        with open(cache_file, "wb") as f:
             pickle.dump(entry_data, f)
 
     def _load_persistent_cache(self):
@@ -284,17 +265,17 @@ class CacheManager:
 
         for cache_file in self.persistence_path.glob("*.pkl"):
             try:
-                with open(cache_file, 'rb') as f:
+                with open(cache_file, "rb") as f:
                     entry_data = pickle.load(f)
 
                 entry = CacheEntry(
-                    key=entry_data['key'],
-                    data=entry_data['data'],
-                    ttl=entry_data['ttl'],
-                    created_at=entry_data['created_at'],
-                    access_count=entry_data['access_count'],
-                    last_accessed=entry_data['last_accessed'],
-                    metadata=entry_data.get('metadata', {})
+                    key=entry_data["key"],
+                    data=entry_data["data"],
+                    ttl=entry_data["ttl"],
+                    created_at=entry_data["created_at"],
+                    access_count=entry_data["access_count"],
+                    last_accessed=entry_data["last_accessed"],
+                    metadata=entry_data.get("metadata", {}),
                 )
 
                 # Check if entry is still valid
@@ -310,11 +291,11 @@ class CacheManager:
 
     def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
-        total_requests = self.access_stats['hits'] + self.access_stats['misses']
+        total_requests = self.access_stats["hits"] + self.access_stats["misses"]
 
         hit_rate = 0.0
         if total_requests > 0:
-            hit_rate = self.access_stats['hits'] / total_requests
+            hit_rate = self.access_stats["hits"] / total_requests
 
         # Calculate memory usage estimate
         memory_usage = 0
@@ -325,22 +306,22 @@ class CacheManager:
                 memory_usage += 1000  # Estimate 1KB per entry
 
         return {
-            'max_size': self.max_size,
-            'current_size': len(self.cache),
-            'hit_rate': hit_rate,
-            'total_hits': self.access_stats['hits'],
-            'total_misses': self.access_stats['misses'],
-            'total_sets': self.access_stats['sets'],
-            'total_deletes': self.access_stats['deletes'],
-            'estimated_memory_usage_mb': memory_usage / (1024 * 1024),
-            'persistence_enabled': self.enable_persistence
+            "max_size": self.max_size,
+            "current_size": len(self.cache),
+            "hit_rate": hit_rate,
+            "total_hits": self.access_stats["hits"],
+            "total_misses": self.access_stats["misses"],
+            "total_sets": self.access_stats["sets"],
+            "total_deletes": self.access_stats["deletes"],
+            "estimated_memory_usage_mb": memory_usage / (1024 * 1024),
+            "persistence_enabled": self.enable_persistence,
         }
 
     def generate_cache_key(
         self,
         spatial_bounds: Optional[List[float]] = None,
         temporal_range: Optional[Tuple[datetime, datetime]] = None,
-        query_params: Optional[Dict[str, Any]] = None
+        query_params: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Generate cache key from query parameters.
@@ -359,18 +340,18 @@ class CacheManager:
             key_components.append(f"spatial_{'_'.join(map(str, spatial_bounds))}")
 
         if temporal_range:
-            start_str = temporal_range[0].isoformat() if temporal_range[0] else 'none'
-            end_str = temporal_range[1].isoformat() if temporal_range[1] else 'none'
+            start_str = temporal_range[0].isoformat() if temporal_range[0] else "none"
+            end_str = temporal_range[1].isoformat() if temporal_range[1] else "none"
             key_components.append(f"temporal_{start_str}_{end_str}")
 
         if query_params:
             # Sort parameters for consistent key generation
             sorted_params = sorted(query_params.items())
-            param_str = '_'.join(f"{k}_{v}" for k, v in sorted_params)
+            param_str = "_".join(f"{k}_{v}" for k, v in sorted_params)
             key_components.append(f"params_{param_str}")
 
         # Generate hash for long keys
-        key_string = '_'.join(key_components)
+        key_string = "_".join(key_components)
         if len(key_string) > 100:
             key_hash = hashlib.md5(key_string.encode()).hexdigest()
             return f"hash_{key_hash}"

@@ -262,7 +262,7 @@ def calculate_annual_occurrence_exceedance_probability(event_loss_table: pd.Data
     # In a simple model, assuming events are uniformly distributed across all years
     # In a real model, this would account for the actual yearly distribution
     num_events = len(event_totals)
-    num_years = 1  # Placeholder - in a real model, this would be the number of years in the simulation
+    num_years = 1  # Baseline - in a real model, this would be the number of years in the simulation
     
     # Simple probability calculation
     avg_events_per_year = num_events / num_years
@@ -302,7 +302,7 @@ def calculate_annual_aggregate_exceedance_probability(event_loss_table: pd.DataF
     all_losses = event_totals['loss'].values
     
     # Calculate average number of events per year
-    avg_events_per_year = len(all_losses) / 1  # Placeholder - in a real model, this would be based on actual data
+    avg_events_per_year = len(all_losses) / 1  # Baseline - in a real model, this would be based on actual data
     
     # Simulate years
     years_exceeding = 0

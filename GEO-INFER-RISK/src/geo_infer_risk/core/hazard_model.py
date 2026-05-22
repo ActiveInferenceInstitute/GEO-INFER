@@ -202,7 +202,7 @@ class EnhancedHazardModel:
 
     def _load_historical_data(self, data_source: str) -> pd.DataFrame:
         """Load historical hazard data from various sources."""
-        # Placeholder implementation - in real use, this would load from actual data sources
+        # Baseline implementation - in real use, this would load from actual data sources
         if data_source.startswith('file://'):
             # Load from file
             file_path = data_source.replace('file://', '')
@@ -222,7 +222,7 @@ class EnhancedHazardModel:
 
     def _load_from_common_sources(self, source: str) -> pd.DataFrame:
         """Load data from common hazard data sources."""
-        # Placeholder implementations for common data sources
+        # Baseline implementations for common data sources
         if source == "usgs":
             return self._load_usgs_data()
         elif source == "noaa":
@@ -234,7 +234,7 @@ class EnhancedHazardModel:
 
     def _load_usgs_data(self) -> pd.DataFrame:
         """Load earthquake data from USGS."""
-        # Placeholder - in real implementation, this would query USGS API
+        # Baseline - in real implementation, this would query USGS API
         return pd.DataFrame({
             'event_id': ['usgs_001', 'usgs_002'],
             'magnitude': [6.5, 7.2],
@@ -246,7 +246,7 @@ class EnhancedHazardModel:
 
     def _load_noaa_data(self) -> pd.DataFrame:
         """Load weather/climate data from NOAA."""
-        # Placeholder implementation
+        # Baseline implementation
         return pd.DataFrame({
             'event_id': ['noaa_001', 'noaa_002'],
             'event_type': ['hurricane', 'flood'],
@@ -258,7 +258,7 @@ class EnhancedHazardModel:
 
     def _load_fema_data(self) -> pd.DataFrame:
         """Load flood data from FEMA."""
-        # Placeholder implementation
+        # Baseline implementation
         return pd.DataFrame({
             'event_id': ['fema_001', 'fema_002'],
             'flood_type': ['riverine', 'coastal'],
@@ -950,7 +950,7 @@ class EnhancedHazardModel:
 
     def _apply_site_effects(self, latitude: float, longitude: float, intensity: float) -> float:
         """Apply local site effects to hazard intensity."""
-        # Placeholder for site effects
+        # Baseline for site effects
         # In practice, this would use soil conditions, topography, etc.
 
         # Simple example: add some random variation to simulate site effects

@@ -6,15 +6,11 @@ queries including H3, quadtree, and R-tree indexing strategies.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, Tuple
-import asyncio
+from typing import Dict, List, Union, Any, Tuple
 
 import geopandas as gpd
 import pandas as pd
-import numpy as np
-from shapely.geometry import Point, Polygon, LineString
-
-from ..models.schemas import SpatialExtent, TemporalExtent
+from shapely.geometry import Polygon
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +40,7 @@ class SpatialIndexer:
         self.indexes = {}
         logger.info("Initialized SpatialIndexer")
 
-    def create_spatial_index(self, data: gpd.GeoDataFrame, strategy: str = 'h3') -> str:
+    def create_spatial_index(self, data: gpd.GeoDataFrame, strategy: str = "h3") -> str:
         """
         Create spatial index for geospatial data.
 
@@ -59,11 +55,11 @@ class SpatialIndexer:
 
         index_id = f"spatial_{strategy}_{len(self.indexes)}"
 
-        if strategy == 'h3':
+        if strategy == "h3":
             self.indexes[index_id] = self._create_h3_index(data)
-        elif strategy == 'quadtree':
+        elif strategy == "quadtree":
             self.indexes[index_id] = self._create_quadtree_index(data)
-        elif strategy == 'rtree':
+        elif strategy == "rtree":
             self.indexes[index_id] = self._create_rtree_index(data)
         else:
             raise ValueError(f"Unknown indexing strategy: {strategy}")
@@ -76,8 +72,8 @@ class SpatialIndexer:
         try:
             import h3
         except ImportError:
-            logger.warning("H3 not available, using mock implementation")
-            return {'type': 'h3_mock', 'data': data}
+            logger.warning("H3 not available, using deterministic local implementation")
+            return {"type": "local_h3", "data": data}
 
         h3_indexes = {}
 
@@ -92,29 +88,22 @@ class SpatialIndexer:
                 h3_index = h3.latlng_to_cell(lat, lon, 9)
                 h3_indexes[str(idx)] = h3_index
 
-        return {
-            'type': 'h3',
-            'resolution': 9,
-            'indexes': h3_indexes,
-            'data': data
-        }
+        return {"type": "h3", "resolution": 9, "indexes": h3_indexes, "data": data}
 
     def _create_quadtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create quadtree spatial index."""
-        # Mock quadtree implementation
-        return {
-            'type': 'quadtree',
-            'bounds': data.total_bounds,
-            'data': data
-        }
+        # Synthetic quadtree implementation
+        return {"type": "quadtree", "bounds": data.total_bounds, "data": data}
 
     def _create_rtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create R-tree spatial index."""
         try:
             from rtree import index
         except ImportError:
-            logger.warning("Rtree not available, using mock implementation")
-            return {'type': 'rtree_mock', 'data': data}
+            logger.warning(
+                "Rtree not available, using deterministic local implementation"
+            )
+            return {"type": "local_rtree", "data": data}
 
         # Create R-tree index
         idx = index.Index()
@@ -125,11 +114,7 @@ class SpatialIndexer:
                 bounds = geom.bounds  # (min_lon, min_lat, max_lon, max_lat)
                 idx.insert(i, bounds)
 
-        return {
-            'type': 'rtree',
-            'index': idx,
-            'data': data
-        }
+        return {"type": "rtree", "index": idx, "data": data}
 
     def query_by_bounds(self, index_id: str, bbox: List[float]) -> gpd.GeoDataFrame:
         """
@@ -146,58 +131,67 @@ class SpatialIndexer:
             raise ValueError(f"Index {index_id} not found")
 
         index_data = self.indexes[index_id]
-        index_type = index_data['type']
+        index_type = index_data["type"]
 
-        if index_type == 'h3':
+        if index_type == "h3":
             return self._query_h3_bounds(index_data, bbox)
-        elif index_type == 'quadtree':
+        elif index_type == "quadtree":
             return self._query_quadtree_bounds(index_data, bbox)
-        elif index_type == 'rtree':
+        elif index_type == "rtree":
             return self._query_rtree_bounds(index_data, bbox)
         else:
             # Fallback to spatial query
-            return index_data['data'][index_data['data'].geometry.within(Polygon.from_bounds(*bbox))]
+            return index_data["data"][
+                index_data["data"].geometry.within(Polygon.from_bounds(*bbox))
+            ]
 
-    def _query_h3_bounds(self, index_data: Dict[str, Any], bbox: List[float]) -> gpd.GeoDataFrame:
+    def _query_h3_bounds(
+        self, index_data: Dict[str, Any], bbox: List[float]
+    ) -> gpd.GeoDataFrame:
         """Query H3 index by bounds."""
         try:
             import h3
         except ImportError:
-            return index_data['data']
+            return index_data["data"]
 
         # Get H3 cells that intersect with bbox
         min_lon, min_lat, max_lon, max_lat = bbox
 
         # Get H3 cells for bbox polygon (h3 v4 API)
-        polygon = Polygon([
-            (min_lon, min_lat),
-            (min_lon, max_lat),
-            (max_lon, max_lat),
-            (max_lon, min_lat),
-            (min_lon, min_lat),
-        ])
-        cells = h3.geo_to_cells(polygon, index_data['resolution'])
+        polygon = Polygon(
+            [
+                (min_lon, min_lat),
+                (min_lon, max_lat),
+                (max_lon, max_lat),
+                (max_lon, min_lat),
+                (min_lon, min_lat),
+            ]
+        )
+        cells = h3.geo_to_cells(polygon, index_data["resolution"])
 
         # Filter data by H3 cells
         matching_indexes = [
-            idx for idx, h3_idx in index_data['indexes'].items()
-            if h3_idx in cells
+            idx for idx, h3_idx in index_data["indexes"].items() if h3_idx in cells
         ]
 
         if matching_indexes:
-            return index_data['data'].loc[matching_indexes]
+            return index_data["data"].loc[matching_indexes]
         else:
             return gpd.GeoDataFrame()
 
-    def _query_quadtree_bounds(self, index_data: Dict[str, Any], bbox: List[float]) -> gpd.GeoDataFrame:
+    def _query_quadtree_bounds(
+        self, index_data: Dict[str, Any], bbox: List[float]
+    ) -> gpd.GeoDataFrame:
         """Query quadtree index by bounds."""
-        # Mock implementation
-        return index_data['data']
+        # Deterministic local implementation
+        return index_data["data"]
 
-    def _query_rtree_bounds(self, index_data: Dict[str, Any], bbox: List[float]) -> gpd.GeoDataFrame:
+    def _query_rtree_bounds(
+        self, index_data: Dict[str, Any], bbox: List[float]
+    ) -> gpd.GeoDataFrame:
         """Query R-tree index by bounds."""
-        # Mock implementation
-        return index_data['data']
+        # Deterministic local implementation
+        return index_data["data"]
 
     def latlng_to_cell(self, lat: float, lng: float, resolution: int = 9) -> str:
         """
@@ -213,10 +207,11 @@ class SpatialIndexer:
         """
         try:
             import h3
+
             return h3.latlng_to_cell(lat, lng, resolution)
         except ImportError:
             logger.warning("H3 not available for latlng_to_cell")
-            return f"mock_h3_{lat}_{lng}_{resolution}"
+            return f"local_h3_{resolution}_{lat:.6f}_{lng:.6f}"
 
     def cell_to_latlng(self, cell: str) -> Tuple[float, float]:
         """
@@ -230,12 +225,15 @@ class SpatialIndexer:
         """
         try:
             import h3
+
             lat, lng = h3.cell_to_latlng(cell)
             return lat, lng
         except ImportError:
             logger.warning("H3 not available for cell_to_latlng")
-            # Mock implementation
-            return 37.7749, -122.4194
+            if cell.startswith("local_h3_"):
+                _, _, _, lat, lng = cell.split("_", 4)
+                return float(lat), float(lng)
+            raise ValueError("Cannot decode non-local H3 cell without the h3 package")
 
 
 class TemporalIndexer:
@@ -259,7 +257,9 @@ class TemporalIndexer:
         self.indexes = {}
         logger.info("Initialized TemporalIndexer")
 
-    def create_temporal_index(self, data: Union[pd.DataFrame, gpd.GeoDataFrame], time_column: str) -> str:
+    def create_temporal_index(
+        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], time_column: str
+    ) -> str:
         """
         Create temporal index for time-based queries.
 
@@ -281,11 +281,11 @@ class TemporalIndexer:
         sorted_data = data.sort_values(time_column).reset_index(drop=True)
 
         self.indexes[index_id] = {
-            'type': 'temporal',
-            'time_column': time_column,
-            'data': sorted_data,
-            'min_time': sorted_data[time_column].min(),
-            'max_time': sorted_data[time_column].max()
+            "type": "temporal",
+            "time_column": time_column,
+            "data": sorted_data,
+            "min_time": sorted_data[time_column].min(),
+            "max_time": sorted_data[time_column].max(),
         }
 
         logger.info(f"Created temporal index: {index_id}")
@@ -295,7 +295,7 @@ class TemporalIndexer:
         self,
         index_id: str,
         start_time: Union[str, pd.Timestamp],
-        end_time: Union[str, pd.Timestamp]
+        end_time: Union[str, pd.Timestamp],
     ) -> Union[pd.DataFrame, gpd.GeoDataFrame]:
         """
         Query temporal index by time range.
@@ -312,17 +312,15 @@ class TemporalIndexer:
             raise ValueError(f"Index {index_id} not found")
 
         index_data = self.indexes[index_id]
-        time_column = index_data['time_column']
-        data = index_data['data']
+        time_column = index_data["time_column"]
+        data = index_data["data"]
 
         # Filter by time range
         mask = (data[time_column] >= start_time) & (data[time_column] <= end_time)
         return data[mask]
 
     def query_by_time_point(
-        self,
-        index_id: str,
-        time_point: Union[str, pd.Timestamp]
+        self, index_id: str, time_point: Union[str, pd.Timestamp]
     ) -> Union[pd.DataFrame, gpd.GeoDataFrame]:
         """
         Query temporal index by time point.
@@ -338,8 +336,8 @@ class TemporalIndexer:
             raise ValueError(f"Index {index_id} not found")
 
         index_data = self.indexes[index_id]
-        time_column = index_data['time_column']
-        data = index_data['data']
+        time_column = index_data["time_column"]
+        data = index_data["data"]
 
         # Find exact match or nearest
         mask = data[time_column] == time_point

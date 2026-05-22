@@ -1,15 +1,57 @@
-# GEO
--INFER-ART Examples This directory contains example scripts demonstrating the usage of the GEO-INFER-ART module. ## Running
- Examples ### Ru
-n
- All Examples To run all examples in sequence: ```bash cd GEO-INFER-ART python -m examples.run_all_examples ``` ### Ru
-n
- Individual Examples To run a specific example: ```bash cd GEO-INFER-ART python -m examples.artistic_map_generation ``` Or with a specific example number: ```bash cd GEO-INFER-ART python -m examples.artistic_map_generation 1 # Run only example 1 ``` ## Available
- Examples ### Artisti
-c
- Map Generation (`artistic_map_generation.py`) Demonstrates the core functionality of GEO-INFER-ART for creating artistic visualizations of geospatial data. Examples included: 1. Basic GeoArt: Creating simple geospatial visualizations with different styles 2. Color Palettes: Creating and visualizing color palettes 3. Style Transfer: Applying artistic style transfer to maps 4. Generative Maps: Creating generative art from elevation data 5. Procedural Art: Creating procedural art from geographic coordinates 6. Place Art: Creating art based on specific locations 7. Cultural Maps: Creating maps with cultural and historical context ### Outpu
-t
- All examples save their output to the `output/` directory, which is created automatically if it doesn't exist. ## Creating
- Examples When adding examples to the GEO-INFER-ART module, please follow these guidelines: 1. Use a descriptive filename that indicates the focus of the example 2. Include docstrings and comments to explain the purpose and functionality 3. Structure the example as a series of functions, each demonstrating a specific feature 4. Include error handling and fallbacks for missing data 5. Create a `run_all()` function that runs all examples in the script 6. Save outputs to the `output/` directory 7. Use the same command-line argument structure as existing examples ### Exampl
-e
- Template ```python #!/usr/bin/env python """ Example script demonstrating [feature] in GEO-INFER-ART. """ import os from geo_infer_art import [relevant_components] def ensure_directory(directory): """Create directory if it doesn't exist.""" if not os.path.exists(directory): os.makedirs(directory) def example_1_description(): """Brief description of what this example demonstrates.""" # Example code pass def example_2_description(): """Brief description of what this example demonstrates.""" # Example code pass def run_all(): """Run all examples in this script.""" example_1_description() example_2_description() # ... if __name__ == "__main__": print("GEO-INFER-ART Example: [Title]") print("==============================") # Create output directory ensure_directory("output") # Run examples import sys if len(sys.argv) > 1: example_num = sys.argv[1] # Run specific example based on command-line argument else: run_all() 
+# GEO-INFER-ART/examples
+
+Examples workspace within `GEO-INFER-ART`.
+
+## Contents
+
+- `artistic_map_generation.py`
+- `run_all_examples.py`
+
+## Public Interface
+
+- `artistic_map_generation.py:ensure_directory` (function)
+- `artistic_map_generation.py:create_sample_geo_data` (function)
+- `artistic_map_generation.py:example_1_basic_geo_art` (function)
+- `artistic_map_generation.py:example_2_color_palettes` (function)
+- `artistic_map_generation.py:example_3_style_transfer` (function)
+- `artistic_map_generation.py:example_4_generative_maps` (function)
+- `artistic_map_generation.py:example_5_procedural_art` (function)
+- `artistic_map_generation.py:example_6_place_art` (function)
+- `artistic_map_generation.py:example_7_cultural_maps` (function)
+- `artistic_map_generation.py:run_all` (function)
+- `run_all_examples.py:find_example_scripts` (function)
+- `run_all_examples.py:run_example` (function)
+- `run_all_examples.py:run_all_examples` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ART`
+- Package: `geo_infer_art`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ART`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
+
+## Dependencies
+
+- `bokeh>=2.4.0`
+- `cartopy>=0.20.0`
+- `colour>=0.1.5`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `imageio>=2.9.0`
+- `imageio-ffmpeg>=0.4.0`
+- `kaleido>=0.2.0`
+- `matplotlib>=3.4.0`
+- `numpy>=1.21.0`
+- `opencv-python>=4.5.0`
+- `pillow>=8.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

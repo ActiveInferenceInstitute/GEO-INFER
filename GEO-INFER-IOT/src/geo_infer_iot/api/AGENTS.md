@@ -1,38 +1,37 @@
-# Agent
-: api
+# Agent Instructions: GEO-INFER-IOT/src/geo_infer_iot/api
 
 ## Scope
- This directory contains api components for the module. It provides 3 classes and 0 functions.
 
-## Classes
- and Functions
-
-### BayesianInferenceAPI
- API for Bayesian spatial inference operations.
-
-**Methods**:
-- `get_app() -> FastAPI`: Get the FastAPI application instance.
-
-### SensorAPI
- REST API for sensor management and data access.
-
-**Methods**:
-- `get_app() -> FastAPI`: Get the FastAPI application instance.
-- `run(host: str, port: int, **kwargs)`: Run the API server.
-
-### StreamingAPI
- WebSocket and streaming API for real-time sensor data.
-
-**Methods**:
-- `broadcast_measurement(measurement: Dict)`: Broadcast a measurement to subscribed clients.
-- `broadcast_spatial_inference(inference_result: Dict)`: Broadcast spatial inference results to subscribed clients.
-- `get_app() -> FastAPI`: Get the FastAPI application instance.
+- Owning module: `GEO-INFER-IOT`
+- Python package: `geo_infer_iot`
+- Directory role: Api workspace within `GEO-INFER-IOT`.
 
 ## Capabilities
 
-- **3 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_iot` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-IOT/src/geo_infer_iot/api`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `inference_api.py`
+- `sensor_api.py`
+- `streaming_api.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

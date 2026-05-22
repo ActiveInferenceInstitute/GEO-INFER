@@ -1,12 +1,52 @@
-# core
- ## Overview
- This directory contains core components. It includes 3 Python modules. ## Components
- ### active_inferenc
-e
-.py Active Inference for GEO-INFER-AGENT **Classes**: `ActiveInferenceConfig`, `GenerativeModel`, `ActiveInferenceAgent` **Functions**: `simple_env` ### agent_bas
-e
-.py Base Agent for GEO-INFER-AGENT **Classes**: `AgentState`, `BaseAgent`, `ExampleAgent` ### agent_registr
-y
-.py Agent Registry for GEO-INFER-AGENT. **Classes**: `AgentRegistry` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-AGENT/src/geo_infer_agent/core
+
+Core workspace within `GEO-INFER-AGENT`.
+
+## Contents
+
+- `active_inference.py`
+- `agent_base.py`
+- `agent_registry.py`
+
+## Public Interface
+
+- `active_inference.py:ActiveInferenceConfig` (class)
+- `active_inference.py:GenerativeModel` (class)
+- `active_inference.py:ActiveInferenceAgent` (class)
+- `agent_base.py:AgentState` (class)
+- `agent_base.py:BaseAgent` (class)
+- `agent_base.py:ExampleAgent` (class)
+- `agent_registry.py:AgentRegistry` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-AGENT`
+- Package: `geo_infer_agent`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AGENT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
+
+## Dependencies
+
+- `numpy>=1.23.5`
+- `torch>=2.0.0`
+- `pyyaml>=6.0`
+- `tqdm>=4.65.0`
+- `requests>=2.28.2`
+- `colorlog>=6.7.0`
+- `pytest>=7.3.1`
+- `pytest-cov>=4.1.0`
+- `mypy>=1.3.0`
+- `black>=23.3.0`
+- `isort>=5.12.0`
+- `matplotlib>=3.7.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

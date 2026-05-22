@@ -1,18 +1,59 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 6 Python modules. ## Components
- ### cachin
-g
-.py Caching utilities for GEO-INFER-DATA. **Classes**: `CacheEntry`, `CacheManager` ### compressio
-n
-.py Data compression utilities for GEO-INFER-DATA. **Classes**: `DataCompressor` ### format_detectio
-n
-.py Format detection utilities for GEO-INFER-DATA. **Classes**: `FormatDetector` ### indexin
-g
-.py Spatial and temporal indexing utilities for GEO-INFER-DATA. **Classes**: `SpatialIndexer`, `TemporalIndexer` ### performanc
-e
-.py Performance monitoring utilities for GEO-INFER-DATA. **Classes**: `PerformanceMonitor`, `OperationTracker`, `DataProcessingProfiler`, `StepProfiler` **Functions**: `monitor_system` ### validatio
-n
-.py Data validation utilities for GEO-INFER-DATA. **Classes**: `GeospatialValidator` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-DATA/src/geo_infer_data/utils
+
+Utils workspace within `GEO-INFER-DATA`.
+
+## Contents
+
+- `caching.py`
+- `compression.py`
+- `format_detection.py`
+- `indexing.py`
+- `performance.py`
+- `validation.py`
+
+## Public Interface
+
+- `caching.py:CacheEntry` (class)
+- `caching.py:CacheManager` (class)
+- `compression.py:DataCompressor` (class)
+- `format_detection.py:FormatDetector` (class)
+- `indexing.py:SpatialIndexer` (class)
+- `indexing.py:TemporalIndexer` (class)
+- `performance.py:PerformanceMonitor` (class)
+- `performance.py:OperationTracker` (class)
+- `performance.py:DataProcessingProfiler` (class)
+- `performance.py:StepProfiler` (class)
+- `validation.py:GeospatialValidator` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-DATA`
+- Package: `geo_infer_data`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-DATA`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
+
+## Dependencies
+
+- `geopandas>=0.13.0`
+- `pandas>=2.0.0`
+- `numpy>=1.24.0`
+- `shapely>=2.0.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `pyproj>=3.5.0`
+- `scipy>=1.10.0`
+- `scikit-learn>=1.3.0`
+- `pyyaml>=6.0.0`
+- `openpyxl>=3.1.0`
+- `xlrd>=2.0.1`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

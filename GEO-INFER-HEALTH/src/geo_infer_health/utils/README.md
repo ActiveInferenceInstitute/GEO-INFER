@@ -1,14 +1,67 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 4 Python modules. ## Components
- ### advanced_geospatia
-l
-.py geospatial utilities for GEO-INFER-HEALTH. **Functions**: `project_to_utm`, `buffer_point`, `spatial_clustering`, `calculate_spatial_statistics`, `validate_geographic_bounds`, `interpolate_points`, `find_centroid`, `calculate_voronoi_regions`, `calculate_spatial_autocorrelation`, `_normal_cdf`, `calculate_hotspot_statistics`, `region_query`, `expand_cluster` ### confi
-g
-.py Configuration utilities for GEO-INFER-HEALTH module. **Classes**: `HealthConfig` **Functions**: `load_yaml_config`, `load_json_config`, `validate_config`, `merge_configs`, `resolve_environment_variables`, `get_default_config_path`, `load_config`, `save_config`, `get_config_value`, `create_default_config`, `get_global_config`, `reload_global_config`, `resolve_value`, `replace_var` ### geospatial_util
-s
-.py Module containing 2 functions. **Functions**: `haversine_distance`, `create_bounding_box` ### loggin
-g
-.py Logging utilities for GEO-INFER-HEALTH module. **Classes**: `PerformanceLogger` **Functions**: `setup_logging`, `get_logger`, `log_function_call`, `log_performance`, `create_log_context`, `setup_structured_logging`, `decorator`, `wrapper` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-HEALTH/src/geo_infer_health/utils
+
+Utils workspace within `GEO-INFER-HEALTH`.
+
+## Contents
+
+- `__init__.py`
+- `advanced_geospatial.py`
+- `config.py`
+- `geospatial_utils.py`
+- `logging.py`
+
+## Public Interface
+
+- `advanced_geospatial.py:project_to_utm` (function)
+- `advanced_geospatial.py:buffer_point` (function)
+- `advanced_geospatial.py:spatial_clustering` (function)
+- `advanced_geospatial.py:calculate_spatial_statistics` (function)
+- `advanced_geospatial.py:validate_geographic_bounds` (function)
+- `advanced_geospatial.py:interpolate_points` (function)
+- `advanced_geospatial.py:find_centroid` (function)
+- `advanced_geospatial.py:calculate_voronoi_regions` (function)
+- `advanced_geospatial.py:calculate_spatial_autocorrelation` (function)
+- `advanced_geospatial.py:calculate_hotspot_statistics` (function)
+- `config.py:HealthConfig` (class)
+- `config.py:load_yaml_config` (function)
+- `config.py:load_json_config` (function)
+- `config.py:validate_config` (function)
+- `config.py:merge_configs` (function)
+- `config.py:resolve_environment_variables` (function)
+- `config.py:get_default_config_path` (function)
+- `config.py:load_config` (function)
+- `config.py:save_config` (function)
+- `config.py:get_config_value` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-HEALTH`
+- Package: `geo_infer_health`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-HEALTH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH`
+
+## Dependencies
+
+- `fastapi>=0.104.0`
+- `uvicorn>=0.24.0`
+- `pydantic>=2.5.0`
+- `pydantic-settings>=2.1.0`
+- `geopandas>=0.14.0`
+- `shapely>=2.0.0`
+- `pyproj>=3.6.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `numpy>=1.24.0`
+- `scipy>=1.11.0`
+- `pandas>=2.1.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

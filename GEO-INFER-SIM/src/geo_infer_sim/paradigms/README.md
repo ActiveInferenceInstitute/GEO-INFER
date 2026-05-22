@@ -1,12 +1,43 @@
-# paradigms
- ## Overview
- This directory contains paradigms components. It includes 3 Python modules. ## Components
- ### ab
-m
-.py Agent-Based Modeling (ABM) framework for GEO-INFER-SIM. **Classes**: `Agent`, `AgentBasedModel` ### cellular_automat
-a
-.py Cellular Automata for GEO-INFER-SIM. **Classes**: `CellularAutomata` **Functions**: `game_of_life_rule` ### system_dynamic
-s
-.py System Dynamics modeling for GEO-INFER-SIM. **Classes**: `Stock`, `Flow`, `SystemDynamicsModel` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SIM/src/geo_infer_sim/paradigms
+
+Paradigms workspace within `GEO-INFER-SIM`.
+
+## Contents
+
+- `__init__.py`
+- `abm.py`
+- `cellular_automata.py`
+- `system_dynamics.py`
+
+## Public Interface
+
+- `abm.py:Agent` (class)
+- `abm.py:AgentBasedModel` (class)
+- `cellular_automata.py:CellularAutomata` (class)
+- `system_dynamics.py:Stock` (class)
+- `system_dynamics.py:Flow` (class)
+- `system_dynamics.py:SystemDynamicsModel` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SIM`
+- Package: `geo_infer_sim`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SIM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

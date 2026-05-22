@@ -1,14 +1,65 @@
-# utils
- ## Overview
- This directory contains utils components. It includes 4 Python modules. ## Components
- ### data_i
-o
-.py Data input/output utilities for GEO-INFER-SPM **Functions**: `load_data`, `load_geotiff`, `load_netcdf`, `load_geojson`, `load_geopackage`, `load_csv_with_coords`, `load_hdf5`, `load_json_data`, `save_spm`, `_save_spm_json`, `_save_spm_hdf5`, `_save_spm_csv` ### helper
-s
-.py Helper functions for GEO-INFER-SPM **Functions**: `create_design_matrix`, `_parse_formula`, `_create_dummy_variables`, `generate_coordinates`, `generate_synthetic_data`, `create_spatial_basis_functions`, `compute_power_analysis` ### preprocessin
-g
-.py Data preprocessing utilities for GEO-INFER-SPM **Functions**: `preprocess_data`, `handle_missing_data`, `_spatial_interpolate_missing`, `normalize_data`, `remove_outliers`, `_detect_outliers_1d`, `spatial_filter`, `temporal_filter`, `_moving_average_filter`, `_exponential_filter` ### validatio
-n
-.py Data validation utilities for GEO-INFER-SPM **Functions**: `validate_spm_data`, `validate_design_matrix`, `_validate_factors`, `validate_contrast`, `validate_spatial_autocorrelation`, `_compute_morans_i`, `_compute_gearys_c`, `_compute_variogram`, `_assess_spatial_dependence` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SPM/src/geo_infer_spm/utils
+
+Utils workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `__init__.py`
+- `data_io.py`
+- `helpers.py`
+- `preprocessing.py`
+- `validation.py`
+
+## Public Interface
+
+- `data_io.py:load_data` (function)
+- `data_io.py:load_geotiff` (function)
+- `data_io.py:load_netcdf` (function)
+- `data_io.py:load_geojson` (function)
+- `data_io.py:load_geopackage` (function)
+- `data_io.py:load_csv_with_coords` (function)
+- `data_io.py:load_hdf5` (function)
+- `data_io.py:load_json_data` (function)
+- `data_io.py:save_spm` (function)
+- `helpers.py:create_design_matrix` (function)
+- `helpers.py:generate_coordinates` (function)
+- `helpers.py:generate_synthetic_data` (function)
+- `helpers.py:create_spatial_basis_functions` (function)
+- `helpers.py:compute_power_analysis` (function)
+- `preprocessing.py:preprocess_data` (function)
+- `preprocessing.py:handle_missing_data` (function)
+- `preprocessing.py:normalize_data` (function)
+- `preprocessing.py:remove_outliers` (function)
+- `preprocessing.py:spatial_filter` (function)
+- `preprocessing.py:temporal_filter` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

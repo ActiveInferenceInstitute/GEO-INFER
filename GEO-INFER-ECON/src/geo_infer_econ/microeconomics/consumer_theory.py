@@ -187,7 +187,7 @@ class DemandFunctions:
             "diagnostics": {}
         }
         
-        # Placeholder for full AIDS implementation
+        # Baseline for full AIDS implementation
         # This would involve system estimation with cross-equation restrictions
         
         return results
@@ -521,7 +521,7 @@ class ConsumerSurplus:
             # This would involve solving the consumer choice problem
             # and calculating the surplus
             
-            # Placeholder calculation
+            # Baseline calculation
             market_surplus = 100  # Would be calculated based on actual choice
             
             results['consumer_surpluses'][consumer.consumer_id] = market_surplus

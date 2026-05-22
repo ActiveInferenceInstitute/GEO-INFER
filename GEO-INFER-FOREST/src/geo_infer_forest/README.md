@@ -1,5 +1,42 @@
-# geo_infer_forest
- ## Overview
- **Path**: `GEO-INFER-FOREST/src/geo_infer_forest` GEO-INFER-FOREST: Forest Management and Analysis Module ## Implementation
- ### `core/forest_inventory.py` **Classes**: ForestInventory **Functions**: estimate_biomass, calculate_forest_area ### `core/carbon_sequestration.py` **Classes**: CarbonSequestrationModeler **Functions**: calculate_carbon_stock, estimate_sequestration_rate, calculate_carbon_credits ### `core/wildfire_risk.py` **Classes**: FireDangerRating, FuelType, FireWeatherObservation, FireIncident, WildfireRiskAnalyzer **Functions**: assess_wildfire_risk, calculate_fire_weather_index, predict_fire_spread, model_fire_perimeter, plan_suppression_resources ### `core/forest_health.py` **Classes**: ForestHealthMonitor **Functions**: assess_forest_health, detect_deforestation ## Contents
- - **api/**: Subdirectory - **core/**: Subdirectory - **utils/**: Subdirectory --- 
+# GEO-INFER-FOREST/src/geo_infer_forest
+
+Geo Infer Forest workspace within `GEO-INFER-FOREST`.
+
+## Contents
+
+- `api/`
+- `core/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-FOREST`
+- Package: `geo_infer_forest`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-FOREST`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `matplotlib>=3.4.0`
+- `xarray>=0.19.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

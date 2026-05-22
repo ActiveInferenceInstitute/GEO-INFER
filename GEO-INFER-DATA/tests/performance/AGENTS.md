@@ -1,41 +1,35 @@
-# Agent: performance
+# Agent Instructions: GEO-INFER-DATA/tests/performance
 
 ## Scope
-This agent handles performance tests and benchmarks for GEO-INFER-DATA operations.
 
-## Implementation Status
+- Owning module: `GEO-INFER-DATA`
+- Python package: `geo_infer_data`
+- Directory role: Performance workspace within `GEO-INFER-DATA`.
 
-### Currently Implemented
+## Capabilities
 
-- ✅ **test_benchmarks.py**: Performance benchmarks for data operations
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_data` and the owning module's public contracts.
 
-## Performance Tests
+## Working Rules
 
-### Benchmark Coverage
-- Data ingestion performance
-- Storage operation performance
-- Query performance
-- Validation performance
-- ETL pipeline performance
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Running Tests
+## Local Contents
+
+- `test_benchmarks.py`
+
+## Validation
 
 ```bash
-# Run performance tests
-pytest tests/performance/
+uv run python -m pytest GEO-INFER-DATA/tests/performance
+```
 
-# Run with profiling
-pytest tests/performance/ --profile
+## Integration Notes
 
-# Run specific benchmark
-pytest tests/performance/test_benchmarks.py::test_ingestion_benchmark```
-
-## Integration
-
-- **Location**: `GEO-INFER-DATA/tests/performance`
-- **Purpose**: Performance benchmarking and validation
-- **Test Framework**: pytest with profiling support
-
----
-
-This AGENTS.md documents performance tests for GEO-INFER-DATA.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

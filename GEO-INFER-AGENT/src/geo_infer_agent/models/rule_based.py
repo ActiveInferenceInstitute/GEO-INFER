@@ -167,7 +167,7 @@ class Rule:
         # Handle condition serialization
         if callable(self.condition):
             # For function conditions, we can't serialize the function
-            # Instead, store a placeholder
+            # Instead, store a baseline
             condition_repr = {"_type": "function", "description": self.description}
         elif isinstance(self.condition, str):
             condition_repr = {"_type": "pattern", "pattern": self.condition}

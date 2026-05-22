@@ -1,6 +1,38 @@
-# GEO
--INFER-LOG Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-LOG module. ## Available
- Examples ### Basi
-c
- Routing Example (`basic_routing_example.py`) Demonstrates fundamental logistics and routing capabilities: - Route optimization - Vehicle fleet management - Delivery planning - Logistics network analysis **What you'll learn:** - How to set up vehicle fleets - Route optimization parameters - Delivery destination planning - Logistics analysis capabilities **Prerequisites:** - Python 3.9+ - GEO-INFER-LOG module installed - Required dependencies: `shapely`, `numpy` **Usage:** ```bash cd GEO-INFER-LOG python examples/basic_routing_example.py ``` ## Integration
- Examples GEO-INFER-LOG integrates seamlessly with other GEO-INFER modules: - **SPACE + LOG**: Geospatial routing and network analysis - **TIME + LOG**: Temporal constraints and scheduling - **AI + LOG**: Predictive logistics optimization - **ECON + LOG**: Cost and economic optimization See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-LOG/examples
+
+Examples workspace within `GEO-INFER-LOG`.
+
+## Contents
+
+- `basic_routing_example.py`
+- `last_mile_delivery.py`
+
+## Public Interface
+
+- `basic_routing_example.py:create_sample_vehicles` (function)
+- `basic_routing_example.py:create_sample_destinations` (function)
+- `basic_routing_example.py:main` (function)
+- `last_mile_delivery.py:main` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-LOG`
+- Package: `geo_infer_log`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-LOG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG`
+
+## Dependencies
+
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

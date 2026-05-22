@@ -1,18 +1,58 @@
-# core
- ## Overview
- This directory contains core components. It includes 6 Python modules. ## Components
- ### bayesia
-n
-.py Bayesian extensions for Statistical Parametric Mapping **Classes**: `BayesianSPM` **Functions**: `negative_log_posterior` ### contrast
-s
-.py Contrast analysis for Statistical Parametric Mapping **Classes**: `Contrast` **Functions**: `contrast`, `_compute_t_contrast`, `_compute_f_contrast`, `generate_common_contrasts` ### gl
-m
-.py General Linear Model implementation for Statistical Parametric Mapping **Classes**: `GeneralLinearModel` **Functions**: `fit_glm` ### rf
-t
-.py Random Field Theory implementation for Statistical Parametric Mapping **Classes**: `RandomFieldTheory` **Functions**: `compute_spm`, `expected_clusters_func` ### spatial_analysi
-s
-.py Spatial analysis tools for Statistical Parametric Mapping **Classes**: `SpatialAnalyzer` **Functions**: `spherical_model`, `exponential_model`, `gaussian_model`, `objective` ### temporal_analysi
-s
-.py Temporal analysis tools for Statistical Parametric Mapping **Classes**: `TemporalAnalyzer` ## Usage
- See individual component documentation for usage examples. ## Integration
- This directory integrates with other module components and may be used by higher-level modules. 
+# GEO-INFER-SPM/src/geo_infer_spm/core
+
+Core workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `advanced/`
+- `__init__.py`
+- `bayesian.py`
+- `contrasts.py`
+- `glm.py`
+- `rft.py`
+- `spatial_analysis.py`
+- `temporal_analysis.py`
+
+## Public Interface
+
+- `bayesian.py:BayesianSPM` (class)
+- `contrasts.py:Contrast` (class)
+- `contrasts.py:contrast` (function)
+- `contrasts.py:generate_common_contrasts` (function)
+- `glm.py:GeneralLinearModel` (class)
+- `glm.py:fit_glm` (function)
+- `rft.py:RandomFieldTheory` (class)
+- `rft.py:compute_spm` (function)
+- `spatial_analysis.py:SpatialAnalyzer` (class)
+- `temporal_analysis.py:TemporalAnalyzer` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

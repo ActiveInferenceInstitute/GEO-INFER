@@ -42,8 +42,6 @@ setup(
         "License :: OSI Approved :: Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0)",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -55,7 +53,7 @@ setup(
         "spatial-analysis", "data-quality", "active-inference",
         "environmental-monitoring", "urban-planning", "climate-data"
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=requirements,
     extras_require={
         "dev": [
@@ -73,7 +71,7 @@ setup(
             "geoalchemy2>=0.13.0",
         ],
         "h3": [
-            "h3>=3.7.0",
+            "h3>=4.0.0",
         ],
         "spatial": [
             "rtree>=1.0.0",
@@ -96,7 +94,7 @@ setup(
         ],
         "all": [
             "psycopg2-binary>=2.9.0",
-            "h3>=3.7.0",
+            "h3>=4.0.0",
             "rtree>=1.0.0",
             "timescale-db>=0.1.0",
             "redis>=4.5.0",

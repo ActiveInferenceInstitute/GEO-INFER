@@ -12,23 +12,23 @@ This module provides sophisticated caching functionality including:
 - Adaptive cache sizing and eviction policies
 """
 
-import os
 import json
 import time
 import hashlib
 import threading
-import logging
-from typing import Dict, Any, Optional, Callable, Union, List, Tuple
+import queue
+from typing import Dict, Any, Optional, Callable, Union, List
 from dataclasses import dataclass, field
 from pathlib import Path
 from datetime import datetime, timedelta
 import pickle
 import sqlite3
-import weakref
+from abc import ABC, abstractmethod
 
 from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
+
 
 @dataclass
 class CacheEntry:
@@ -59,6 +59,7 @@ class CacheEntry:
         """Get age of the cache entry in seconds."""
         return (datetime.utcnow() - self.created_at).total_seconds()
 
+
 @dataclass
 class CacheStatistics:
     """Statistics for cache performance monitoring."""
@@ -84,7 +85,8 @@ class CacheStatistics:
         self.evictions = 0
         self.last_reset = datetime.utcnow()
 
-class CachePolicy:
+
+class CachePolicy(ABC):
     """Base class for cache eviction policies."""
 
     def __init__(self, max_size: int, max_age_seconds: Optional[int] = None):
@@ -98,6 +100,7 @@ class CachePolicy:
         self.max_size = max_size
         self.max_age_seconds = max_age_seconds
 
+    @abstractmethod
     def should_evict(self, entries: Dict[str, CacheEntry]) -> List[str]:
         """
         Determine which entries should be evicted.
@@ -108,7 +111,8 @@ class CachePolicy:
         Returns:
             List of keys to evict
         """
-        raise NotImplementedError
+        """Return cache keys that should be evicted."""
+
 
 class LRUPolicy(CachePolicy):
     """Least Recently Used eviction policy."""
@@ -124,6 +128,7 @@ class LRUPolicy(CachePolicy):
 
         return [key for key, _ in sorted_entries[:evict_count]]
 
+
 class LFUPolicy(CachePolicy):
     """Least Frequently Used eviction policy."""
 
@@ -138,6 +143,7 @@ class LFUPolicy(CachePolicy):
 
         return [key for key, _ in sorted_entries[:evict_count]]
 
+
 class TTLPolicy(CachePolicy):
     """Time To Live eviction policy."""
 
@@ -151,11 +157,18 @@ class TTLPolicy(CachePolicy):
 
         return expired_keys
 
+
 class AdaptivePolicy(CachePolicy):
     """Adaptive eviction policy that combines multiple strategies."""
 
-    def __init__(self, max_size: int, max_age_seconds: Optional[int] = None,
-                 lru_weight: float = 0.4, lfu_weight: float = 0.3, size_weight: float = 0.3):
+    def __init__(
+        self,
+        max_size: int,
+        max_age_seconds: Optional[int] = None,
+        lru_weight: float = 0.4,
+        lfu_weight: float = 0.3,
+        size_weight: float = 0.3,
+    ):
         """
         Initialize adaptive policy.
 
@@ -188,12 +201,16 @@ class AdaptivePolicy(CachePolicy):
             lfu_score = min(1.0, entry.access_count / 10.0)
 
             # Size score (smaller is better)
-            size_score = 1.0 / (1.0 + entry.size_bytes / (1024 * 1024))  # Normalize to MB
+            size_score = 1.0 / (
+                1.0 + entry.size_bytes / (1024 * 1024)
+            )  # Normalize to MB
 
             # Combined score
-            total_score = (lru_score * self.lru_weight +
-                          lfu_score * self.lfu_weight +
-                          size_score * self.size_weight)
+            total_score = (
+                lru_score * self.lru_weight
+                + lfu_score * self.lfu_weight
+                + size_score * self.size_weight
+            )
 
             scores[key] = total_score
 
@@ -202,6 +219,7 @@ class AdaptivePolicy(CachePolicy):
         evict_count = len(entries) - self.max_size
 
         return [key for key, _ in sorted_entries[:evict_count]]
+
 
 class MemoryCache:
     """
@@ -215,8 +233,12 @@ class MemoryCache:
     - Statistics collection
     """
 
-    def __init__(self, max_size: int = 1000, policy: CachePolicy = None,
-                 enable_stats: bool = True):
+    def __init__(
+        self,
+        max_size: int = 1000,
+        policy: CachePolicy = None,
+        enable_stats: bool = True,
+    ):
         """
         Initialize memory cache.
 
@@ -274,8 +296,14 @@ class MemoryCache:
 
             return entry.value
 
-    def put(self, key: str, value: Any, ttl_seconds: Optional[int] = None,
-            tags: List[str] = None, metadata: Dict[str, Any] = None) -> None:
+    def put(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: Optional[int] = None,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> None:
         """
         Put value in cache.
 
@@ -293,7 +321,7 @@ class MemoryCache:
                 size_bytes = len(serialized)
             except Exception:
                 # If not serializable, estimate size
-                size_bytes = len(str(value).encode('utf-8'))
+                size_bytes = len(str(value).encode("utf-8"))
 
             # Create entry
             entry = CacheEntry(
@@ -301,7 +329,7 @@ class MemoryCache:
                 value=value,
                 size_bytes=size_bytes,
                 tags=tags or [],
-                metadata=metadata or {}
+                metadata=metadata or {},
             )
 
             # Set expiration
@@ -374,6 +402,7 @@ class MemoryCache:
 
         return self.stats
 
+
 class DiskCache:
     """
     Persistent disk-based cache for large data.
@@ -385,8 +414,12 @@ class DiskCache:
     - SQLite-based backend for reliability
     """
 
-    def __init__(self, cache_dir: Union[str, Path], max_size_gb: float = 1.0,
-                 compression: bool = True):
+    def __init__(
+        self,
+        cache_dir: Union[str, Path],
+        max_size_gb: float = 1.0,
+        compression: bool = True,
+    ):
         """
         Initialize disk cache.
 
@@ -403,7 +436,7 @@ class DiskCache:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize database
-        self.db_path = self.cache_dir / 'cache.db'
+        self.db_path = self.cache_dir / "cache.db"
         self._init_database()
 
         # Statistics
@@ -412,7 +445,8 @@ class DiskCache:
     def _init_database(self) -> None:
         """Initialize SQLite database for cache metadata."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute('''
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS cache_entries (
                     key TEXT PRIMARY KEY,
                     data_path TEXT NOT NULL,
@@ -424,10 +458,15 @@ class DiskCache:
                     tags TEXT,  -- JSON array
                     metadata TEXT  -- JSON object
                 )
-            ''')
+            """
+            )
 
-            conn.execute('CREATE INDEX IF NOT EXISTS idx_accessed_at ON cache_entries(accessed_at)')
-            conn.execute('CREATE INDEX IF NOT EXISTS idx_expires_at ON cache_entries(expires_at)')
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_accessed_at ON cache_entries(accessed_at)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_expires_at ON cache_entries(expires_at)"
+            )
 
     def get(self, key: str, default: Any = None) -> Any:
         """
@@ -442,10 +481,13 @@ class DiskCache:
         """
         try:
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute('''
+                cursor = conn.execute(
+                    """
                     SELECT data_path, expires_at, access_count, size_bytes
                     FROM cache_entries WHERE key = ?
-                ''', (key,))
+                """,
+                    (key,),
+                )
 
                 row = cursor.fetchone()
 
@@ -468,9 +510,10 @@ class DiskCache:
                     return default
 
                 # Load and deserialize data
-                with open(data_path, 'rb') as f:
+                with open(data_path, "rb") as f:
                     if self.compression:
                         import gzip
+
                         data = gzip.decompress(f.read())
                     else:
                         data = f.read()
@@ -485,11 +528,14 @@ class DiskCache:
 
                 # Update access statistics
                 current_time = time.time()
-                conn.execute('''
+                conn.execute(
+                    """
                     UPDATE cache_entries
                     SET accessed_at = ?, access_count = ?
                     WHERE key = ?
-                ''', (current_time, access_count + 1, key))
+                """,
+                    (current_time, access_count + 1, key),
+                )
 
                 self.stats.hits += 1
                 return value
@@ -499,8 +545,14 @@ class DiskCache:
             self.stats.misses += 1
             return default
 
-    def put(self, key: str, value: Any, ttl_seconds: Optional[int] = None,
-            tags: List[str] = None, metadata: Dict[str, Any] = None) -> None:
+    def put(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: Optional[int] = None,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> None:
         """
         Put value in disk cache.
 
@@ -516,10 +568,13 @@ class DiskCache:
             data = pickle.dumps(value)
             if self.compression:
                 import gzip
+
                 data = gzip.compress(data)
 
             size_bytes = len(data)
-            data_path = self.cache_dir / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+            data_path = (
+                self.cache_dir / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+            )
 
             # Check if we need to evict entries
             current_size = self._get_total_size()
@@ -531,7 +586,7 @@ class DiskCache:
                 self._evict_entry(key)
 
             # Write data to disk
-            with open(data_path, 'wb') as f:
+            with open(data_path, "wb") as f:
                 f.write(data)
 
             # Store metadata in database
@@ -539,14 +594,24 @@ class DiskCache:
             expires_at = current_time + ttl_seconds if ttl_seconds else None
 
             with sqlite3.connect(self.db_path) as conn:
-                conn.execute('''
+                conn.execute(
+                    """
                     INSERT OR REPLACE INTO cache_entries
                     (key, data_path, created_at, accessed_at, expires_at, access_count, size_bytes, tags, metadata)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    key, str(data_path), current_time, current_time, expires_at,
-                    0, size_bytes, json.dumps(tags or []), json.dumps(metadata or {})
-                ))
+                """,
+                    (
+                        key,
+                        str(data_path),
+                        current_time,
+                        current_time,
+                        expires_at,
+                        0,
+                        size_bytes,
+                        json.dumps(tags or []),
+                        json.dumps(metadata or {}),
+                    ),
+                )
 
         except Exception as e:
             logger.error(f"Error writing to disk cache: {e}")
@@ -555,7 +620,9 @@ class DiskCache:
         """Evict a single cache entry."""
         try:
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute('SELECT data_path FROM cache_entries WHERE key = ?', (key,))
+                cursor = conn.execute(
+                    "SELECT data_path FROM cache_entries WHERE key = ?", (key,)
+                )
                 row = cursor.fetchone()
 
                 if row:
@@ -563,7 +630,7 @@ class DiskCache:
                     if data_path.exists():
                         data_path.unlink()
 
-                    conn.execute('DELETE FROM cache_entries WHERE key = ?', (key,))
+                    conn.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                     self.stats.evictions += 1
 
         except Exception as e:
@@ -573,7 +640,7 @@ class DiskCache:
         """Get total size of cache in bytes."""
         try:
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute('SELECT SUM(size_bytes) FROM cache_entries')
+                cursor = conn.execute("SELECT SUM(size_bytes) FROM cache_entries")
                 return cursor.fetchone()[0] or 0
         except Exception:
             return 0
@@ -583,10 +650,12 @@ class DiskCache:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 # Get entries ordered by access time (oldest first)
-                cursor = conn.execute('''
+                cursor = conn.execute(
+                    """
                     SELECT key, size_bytes FROM cache_entries
                     ORDER BY accessed_at ASC
-                ''')
+                """
+                )
 
                 freed_bytes = 0
                 keys_to_evict = []
@@ -617,9 +686,12 @@ class DiskCache:
             current_time = time.time()
 
             with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute('''
+                cursor = conn.execute(
+                    """
                     SELECT key FROM cache_entries WHERE expires_at IS NOT NULL AND expires_at < ?
-                ''', (current_time,))
+                """,
+                    (current_time,),
+                )
 
                 expired_keys = [row[0] for row in cursor]
 
@@ -632,6 +704,7 @@ class DiskCache:
             logger.warning(f"Error cleaning up expired entries: {e}")
             return 0
 
+
 class RedisCache:
     """
     Redis-based distributed cache for multi-node scenarios.
@@ -643,8 +716,14 @@ class RedisCache:
     - Connection pooling and health monitoring
     """
 
-    def __init__(self, host: str = 'localhost', port: int = 6379, db: int = 0,
-                 password: str = None, max_connections: int = 20):
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 6379,
+        db: int = 0,
+        password: str = None,
+        max_connections: int = 20,
+    ):
         """
         Initialize Redis cache.
 
@@ -682,7 +761,7 @@ class RedisCache:
                 db=self.db,
                 password=self.password,
                 max_connections=self.max_connections,
-                decode_responses=True
+                decode_responses=True,
             )
 
             self.redis_client = redis.Redis(connection_pool=self.connection_pool)
@@ -691,7 +770,9 @@ class RedisCache:
             self.redis_client.ping()
 
         except ImportError:
-            logger.error("Redis package not installed. Install with: uv pip install redis")
+            logger.error(
+                "Redis package not installed. Install with: uv pip install redis"
+            )
             raise
         except Exception as e:
             logger.error(f"Failed to connect to Redis: {e}")
@@ -724,28 +805,34 @@ class RedisCache:
                 return default
 
             # Check expiration
-            if cache_data.get('expires_at') and time.time() > cache_data['expires_at']:
+            if cache_data.get("expires_at") and time.time() > cache_data["expires_at"]:
                 self.redis_client.delete(key)
                 self.stats.misses += 1
                 return default
 
             # Update access statistics
-            cache_data['access_count'] = cache_data.get('access_count', 0) + 1
-            cache_data['accessed_at'] = time.time()
+            cache_data["access_count"] = cache_data.get("access_count", 0) + 1
+            cache_data["accessed_at"] = time.time()
 
             # Store updated data
             self.redis_client.set(key, json.dumps(cache_data))
 
             self.stats.hits += 1
-            return cache_data.get('value')
+            return cache_data.get("value")
 
         except Exception as e:
             logger.warning(f"Error reading from Redis cache: {e}")
             self.stats.misses += 1
             return default
 
-    def put(self, key: str, value: Any, ttl_seconds: Optional[int] = None,
-            tags: List[str] = None, metadata: Dict[str, Any] = None) -> None:
+    def put(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: Optional[int] = None,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> None:
         """
         Put value in Redis cache.
 
@@ -758,17 +845,17 @@ class RedisCache:
         """
         try:
             cache_data = {
-                'key': key,
-                'value': value,
-                'created_at': time.time(),
-                'accessed_at': time.time(),
-                'access_count': 0,
-                'tags': tags or [],
-                'metadata': metadata or {}
+                "key": key,
+                "value": value,
+                "created_at": time.time(),
+                "accessed_at": time.time(),
+                "access_count": 0,
+                "tags": tags or [],
+                "metadata": metadata or {},
             }
 
             if ttl_seconds:
-                cache_data['expires_at'] = time.time() + ttl_seconds
+                cache_data["expires_at"] = time.time() + ttl_seconds
                 self.redis_client.setex(key, ttl_seconds, json.dumps(cache_data))
             else:
                 self.redis_client.set(key, json.dumps(cache_data))
@@ -810,16 +897,17 @@ class RedisCache:
     def get_stats(self) -> CacheStatistics:
         """Get cache statistics."""
         try:
-            info = self.redis_client.info('memory')
+            info = self.redis_client.info("memory")
 
             # Update our stats with Redis info
-            self.stats.total_size_bytes = info.get('used_memory', 0)
+            self.stats.total_size_bytes = info.get("used_memory", 0)
             self.stats.entry_count = self.redis_client.dbsize()
 
         except Exception:
             pass
 
         return self.stats
+
 
 class MultiLevelCache:
     """
@@ -833,8 +921,12 @@ class MultiLevelCache:
     - Cross-level consistency
     """
 
-    def __init__(self, memory_cache: MemoryCache = None,
-                 disk_cache: DiskCache = None, redis_cache: RedisCache = None):
+    def __init__(
+        self,
+        memory_cache: MemoryCache = None,
+        disk_cache: DiskCache = None,
+        redis_cache: RedisCache = None,
+    ):
         """
         Initialize multi-level cache.
 
@@ -883,8 +975,14 @@ class MultiLevelCache:
 
         return default
 
-    def put(self, key: str, value: Any, ttl_seconds: Optional[int] = None,
-            tags: List[str] = None, metadata: Dict[str, Any] = None) -> None:
+    def put(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: Optional[int] = None,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> None:
         """
         Put value in all cache levels.
 
@@ -906,7 +1004,7 @@ class MultiLevelCache:
         for level in self.write_levels:
             try:
                 # Memory cache has a different API
-                if hasattr(level, 'entries'):
+                if hasattr(level, "entries"):
                     if key in level.entries:
                         level.size_bytes -= level.entries[key].size_bytes
                         del level.entries[key]
@@ -917,6 +1015,7 @@ class MultiLevelCache:
         """Clear all cache levels."""
         for level in self.write_levels:
             level.clear()
+
 
 class IntelligentCache:
     """
@@ -963,8 +1062,14 @@ class IntelligentCache:
 
         return value if value is not None else default
 
-    def put(self, key: str, value: Any, adaptive_ttl: bool = True,
-            tags: List[str] = None, metadata: Dict[str, Any] = None) -> None:
+    def put(
+        self,
+        key: str,
+        value: Any,
+        adaptive_ttl: bool = True,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> None:
         """
         Put value with intelligent TTL calculation.
 
@@ -995,7 +1100,8 @@ class IntelligentCache:
         # Keep only recent accesses (last hour)
         cutoff_time = current_time - 3600
         self.access_patterns[key] = [
-            access_time for access_time in self.access_patterns[key]
+            access_time
+            for access_time in self.access_patterns[key]
             if access_time > cutoff_time
         ]
 
@@ -1012,7 +1118,7 @@ class IntelligentCache:
         # Calculate average time between accesses
         intervals = []
         for i in range(1, len(accesses)):
-            intervals.append(accesses[i] - accesses[i-1])
+            intervals.append(accesses[i] - accesses[i - 1])
 
         if not intervals:
             return None
@@ -1052,10 +1158,7 @@ class IntelligentCache:
         self.warmup_list.extend(keys)
 
         # Trigger warmup in background
-        warmup_thread = threading.Thread(
-            target=self._warmup_worker,
-            daemon=True
-        )
+        warmup_thread = threading.Thread(target=self._warmup_worker, daemon=True)
         warmup_thread.start()
 
     def _warmup_worker(self) -> None:
@@ -1085,15 +1188,18 @@ class IntelligentCache:
     def get_analytics(self) -> Dict[str, Any]:
         """Get cache analytics and optimization recommendations."""
         analytics = {
-            'cache_stats': self.cache.memory_cache.get_stats(),
-            'access_patterns': {
-                'total_keys': len(self.access_patterns),
-                'frequently_accessed': len([
-                    key for key, accesses in self.access_patterns.items()
-                    if len(accesses) > 5
-                ])
+            "cache_stats": self.cache.memory_cache.get_stats(),
+            "access_patterns": {
+                "total_keys": len(self.access_patterns),
+                "frequently_accessed": len(
+                    [
+                        key
+                        for key, accesses in self.access_patterns.items()
+                        if len(accesses) > 5
+                    ]
+                ),
             },
-            'recommendations': self._generate_optimization_recommendations()
+            "recommendations": self._generate_optimization_recommendations(),
         }
 
         return analytics
@@ -1105,25 +1211,32 @@ class IntelligentCache:
 
         # Hit rate recommendations
         if stats.hit_rate < 70:
-            recommendations.append("Consider increasing cache size or improving cache locality")
+            recommendations.append(
+                "Consider increasing cache size or improving cache locality"
+            )
 
         # Memory usage recommendations
         if stats.entry_count > self.cache.memory_cache.max_size * 0.9:
-            recommendations.append("Cache is near capacity, consider increasing max_size")
+            recommendations.append(
+                "Cache is near capacity, consider increasing max_size"
+            )
 
         # Access pattern recommendations
-        frequently_accessed = len([
-            key for key, accesses in self.access_patterns.items()
-            if len(accesses) > 5
-        ])
+        frequently_accessed = len(
+            [key for key, accesses in self.access_patterns.items() if len(accesses) > 5]
+        )
 
         if frequently_accessed > 10:
-            recommendations.append("Enable predictive prefetching for better performance")
+            recommendations.append(
+                "Enable predictive prefetching for better performance"
+            )
 
         return recommendations
 
-def create_optimized_cache(memory_size: int = 1000, disk_size_gb: float = 1.0,
-                          redis_host: str = None) -> MultiLevelCache:
+
+def create_optimized_cache(
+    memory_size: int = 1000, disk_size_gb: float = 1.0, redis_host: str = None
+) -> MultiLevelCache:
     """
     Create an optimized multi-level cache configuration.
 
@@ -1137,14 +1250,13 @@ def create_optimized_cache(memory_size: int = 1000, disk_size_gb: float = 1.0,
     """
     # Memory cache
     memory_cache = MemoryCache(
-        max_size=memory_size,
-        policy=AdaptivePolicy(max_size=memory_size)
+        max_size=memory_size, policy=AdaptivePolicy(max_size=memory_size)
     )
 
     # Disk cache
     disk_cache = None
     if disk_size_gb > 0:
-        cache_dir = Path.home() / '.geo_infer_git' / 'cache'
+        cache_dir = Path.home() / ".geo_infer_git" / "cache"
         disk_cache = DiskCache(cache_dir, disk_size_gb)
 
     # Redis cache
@@ -1157,6 +1269,7 @@ def create_optimized_cache(memory_size: int = 1000, disk_size_gb: float = 1.0,
 
     return MultiLevelCache(memory_cache, disk_cache, redis_cache)
 
+
 class CacheDecorator:
     """
     Decorator for automatic caching of function results.
@@ -1168,8 +1281,13 @@ class CacheDecorator:
     - Performance monitoring
     """
 
-    def __init__(self, cache: MultiLevelCache, ttl_seconds: Optional[int] = None,
-                 key_prefix: str = "", include_args: bool = True):
+    def __init__(
+        self,
+        cache: MultiLevelCache,
+        ttl_seconds: Optional[int] = None,
+        key_prefix: str = "",
+        include_args: bool = True,
+    ):
         """
         Initialize cache decorator.
 
@@ -1186,6 +1304,7 @@ class CacheDecorator:
 
     def __call__(self, func: Callable) -> Callable:
         """Apply caching decorator to function."""
+
         def wrapper(*args, **kwargs):
             # Generate cache key
             key_parts = [self.key_prefix, func.__name__]

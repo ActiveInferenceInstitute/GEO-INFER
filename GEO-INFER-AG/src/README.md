@@ -1,5 +1,39 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-AG/src` Source code implementation. ## Implementation
- ### `geo_infer_ag/core/sustainability.py` **Classes**: SustainabilityAssessment **Functions**: assess_carbon_sequestration, assess_water_usage, assess_soil_health, assess_biodiversity, calculate_sustainability_index ### `geo_infer_ag/core/agricultural_analysis.py` **Classes**: AgriculturalAnalysis, AgriculturalResults **Functions**: run, get_metric, plot_spatial_distribution, summary ### `geo_infer_ag/core/field_boundary.py` **Classes**: FieldBoundaryManager **Functions**: add_field, remove_field, update_field, get_field, get_fields_by_crop ### `geo_infer_ag/core/seasonal_analysis.py` **Classes**: SeasonalAnalysis **Functions**: detect_growing_season, identify_phenological_stages, analyze_temporal_trends, analyze_spatial_temporal_patterns, plot_growing_season ### `geo_infer_ag/models/crop_yield.py` **Classes**: CropYieldModel **Functions**: fit, predict, get_feature_importance, save, load ## Contents
- - **geo_infer_ag/**: Subdirectory - **geo_infer_ag.egg-info/**: Subdirectory --- 
+# GEO-INFER-AG/src
+
+Src workspace within `GEO-INFER-AG`.
+
+## Contents
+
+- `geo_infer_ag.egg-info/`
+- `geo_infer_ag/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-AG`
+- Package: `geo_infer_ag`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-AG`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AG`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `scikit-learn>=1.0.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AG
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,157 +1,45 @@
-# GEO-INFER-IOT: Agent Capabilities
+# Agent Instructions: GEO-INFER-IOT
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-IOT`
+- Python package: `geo_infer_iot`
+- Directory role: IoT sensor networks, real-time geospatial data streams, and sensor data fusion for environmental monitoring.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-IOT** module provides Internet of Things integration for agents, enabling sensor network management, real-time data streaming, and edge device coordination in geospatial contexts.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_iot` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Sensor Network Management
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_iot import SensorNetwork
+## Local Contents
 
-# Manage sensor network
-network = SensorNetwork()
+- `config/`
+- `deployment/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-# Register sensors
-network.register_sensors([
-    {"id": "temp_001", "type": "temperature", "location": (37.77, -122.41)},
-    {"id": "air_001", "type": "air_quality", "location": (37.78, -122.42)},])
+## Validation
 
-# Get network status
-status = network.get_status()
-print(f"Active sensors: {status.active_count}")
-print(f"Data rate: {status.total_data_rate} msg/sec")```
-
-### 2. Real-Time Data Streaming
-
-```python
-from geo_infer_iot import DataStreamer
-
-# Stream sensor data
-streamer = DataStreamer()
-
-# Subscribe to sensor data
-async for reading in streamer.subscribe(
-    sensors=["temp_*", "humidity_*"],
-    area=city_boundary,
-    update_rate="1s"):
-    print(f"Sensor: {reading.sensor_id}")
-    print(f"Value: {reading.value}")
-    print(f"Location: {reading.location}")```
-
-### 3. Edge Processing
-
-```python
-from geo_infer_iot import EdgeProcessor
-
-# Process data at edge
-processor = EdgeProcessor()
-
-# Deploy edge analytics
-processor.deploy(
-    model="anomaly_detection",
-    target_devices=edge_gateways,
-    trigger_rules={
-        "temperature": {"threshold": 100, "action": "alert"},
-        "vibration": {"threshold": 0.5, "action": "log"}
-    })
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
 
-### 4. Device Coordination
+## Integration Notes
 
-```python
-from geo_infer_iot import DeviceCoordinator
-
-# Coordinate IoT devices
-coordinator = DeviceCoordinator()
-
-# Create device mesh
-mesh = coordinator.create_mesh(
-    devices=sensor_array,
-    topology="mesh",
-    redundancy=True)
-
-# Coordinate sensing campaign
-campaign = coordinator.run_campaign(
-    objective="pollution_mapping",
-    duration_hours=24,
-    sampling_strategy="adaptive")
-```
-
-## Implementation Status
-
-### Currently Implemented
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Sensor Management** | ✅ Ready | Device registration and monitoring |
-| **Data Streaming** | ✅ Ready | Real-time data subscriptions |
-| **Edge Processing** | ✅ Ready | Local analytics |
-| **Device Coordination** | ✅ Ready | Multi-device campaigns |
-
-### Aspirational/Planned Features
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **SensorDeploymentAgent** | 🔮 High | Optimal sensor placement |
-| **MaintenanceAgent** | 🔮 Medium | Predictive device maintenance |
-| **DataQualityAgent** | 🔮 Medium | Automated quality control |
-
-## Integration with Agent Framework
-
-```mermaid
-graph TD
-    subgraph IoT_Layer
-        SENSORS[Sensor Network]
-        STREAM[Data Streamer]
-        EDGE[Edge Processor]
-        COORD[Device Coordinator]
-    end
-    
-    subgraph Agents
-        MONITOR[Monitoring Agent]
-        DEPLOY[Deployment Agent]
-        MAINT[Maintenance Agent]
-    end
-    
-    SENSORS --> MONITOR
-    STREAM --> MONITOR
-    EDGE --> DEPLOY
-    COORD --> MAINT```
-
-## Use Cases
-
-### Environmental Monitoring Network
-
-```python
-from geo_infer_iot import EnvironmentMonitorNetwork
-
-network = EnvironmentMonitorNetwork(area="bay_area")
-
-# Deploy monitoring network
-network.deploy(
-    sensor_types=["air_quality", "noise", "temperature"],
-    density="urban_high",
-    solar_powered=True)
-
-# Get real-time environmental status
-status = network.get_environmental_status()```
-
----
-
-This AGENTS.md documents how GEO-INFER-IOT provides IoT capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

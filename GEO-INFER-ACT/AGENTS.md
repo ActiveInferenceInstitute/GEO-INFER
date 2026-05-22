@@ -1,47 +1,48 @@
-# Agent Guidance: GEO-INFER-ACT
+# Agent Instructions: GEO-INFER-ACT
 
 ## Scope
 
-`GEO-INFER-ACT` is the canonical Active Inference implementation for
-GEO-INFER. Keep Active Inference math, typed diagnostics, and runnable examples
-grounded in `src/geo_infer_act`. Keep this file aligned with `SKILL.md`.
+- Owning module: `GEO-INFER-ACT`
+- Python package: `geo_infer_act`
+- Directory role: Advanced Active Inference framework implementing Free Energy Principle for geospatial decision-making, perception, and learning.
 
-## Canonical Imports
+## Capabilities
 
-```python
-from geo_infer_act import (
-    ActiveInferenceModel,
-    ActiveInferenceStepResult,
-    FreeEnergyBreakdown,
-    FreeEnergyCalculator,
-    GenerativeModel,
-    PolicyEvaluation,
-    PolicySelector,
-    SpatialActiveInferenceAgent,
-)
-```
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_act` and the owning module's public contracts.
 
-## Core Contracts
+## Working Rules
 
-- `ActiveInferenceModel` owns the perceive-act loop.
-- `GenerativeModel` owns categorical/Gaussian generative-model state and H3 helpers.
-- `FreeEnergyCalculator` owns VFE/EFE math.
-- `PolicySelector` owns expected-free-energy policy evaluation and selection.
-- `SpatialActiveInferenceAgent` owns H3/cell-indexed active inference.
-- Typed result objects are public API and must remain importable from `geo_infer_act`.
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Implementation Rules
+## Local Contents
 
-- Do not introduce fake policy selection, first-policy defaults, or inert method bodies.
-- Keep stochastic methods seedable when exposed to tests or examples.
-- Optional integrations may return clear `not_available` results, but core ACT methods must be locally runnable.
-- Update docs and tests when public method signatures or return shapes change.
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `debug_models.py`
+- `setup.py`
+- `verify_comprehensive.py`
+- `verify_pipeline.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
+- `uv.lock`
 
-## Verification
-
-Run these from the repository root after ACT changes:
+## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/validate_active_inference_contract.py
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

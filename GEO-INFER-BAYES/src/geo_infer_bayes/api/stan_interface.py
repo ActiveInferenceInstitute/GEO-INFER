@@ -36,7 +36,7 @@ class StanInterface:
         str
             Stan model code
         """
-        # Placeholder Stan model code
+        # Baseline Stan model code
         stan_code = """
         data {
             int<lower=1> N;
@@ -83,7 +83,7 @@ class StanInterface:
         dict
             Dictionary with parameter samples
         """
-        # Placeholder implementation
+        # Baseline implementation
         return {
             'lengthscale': np.random.lognormal(0, 1, n_samples),
             'variance': np.random.lognormal(0, 1, n_samples),

@@ -1,5 +1,53 @@
-# tests
- ## Overview
- **Path**: `GEO-INFER-SPM/tests` Testing and quality assurance. ## Implementation
- ### `unit/test_validation.py` **Classes**: TestSPMDataValidation, TestDesignMatrixValidation, TestContrastValidation, TestSpatialAutocorrelationValidation, TestValidationEdgeCases **Functions**: test_valid_spm_data, test_invalid_coordinate_shape, test_coordinate_data_mismatch, test_nan_data_detection, test_coordinate_bounds_validation ### `unit/test_spatial_analysis.py` **Classes**: TestSpatialAnalyzer, TestSpatialAnalysisEdgeCases, TestSpatialWeights, TestClusterAnalysis **Functions**: setup_method, test_initialization, test_variogram_estimation, test_spatial_weights_creation, test_cluster_detection ### `unit/test_data_io.py` **Classes**: TestDataLoading, TestDataSaving, TestSPMDataValidation **Functions**: setup_method, test_load_json_data, test_load_csv_with_coords, test_load_data_dispatch, test_invalid_file_format ### `unit/test_visualization.py` **Classes**: TestVisualizationImports, TestStatisticalMapVisualization, TestModelDiagnosticsVisualization, TestInteractiveVisualization, TestVisualizationDataStructures **Functions**: test_maps_import, test_diagnostics_import, test_interactive_import, setup_method, test_create_statistical_map_data_structure ### `unit/test_glm.py` **Classes**: TestGeneralLinearModel, TestGLMEdgeCases **Functions**: setup_method, test_glm_initialization, test_ols_fitting, test_robust_fitting, test_spatial_regularization ## Contents
- - **integration/**: Subdirectory - **performance/**: Subdirectory - **pytest.ini**: File file - **requirements-test.txt**: File file - **run_tests.sh**: File file - **unit/**: Subdirectory --- 
+# GEO-INFER-SPM/tests
+
+Tests workspace within `GEO-INFER-SPM`.
+
+## Contents
+
+- `integration/`
+- `performance/`
+- `unit/`
+- `conftest.py`
+- `requirements-test.txt`
+- `run_tests.sh`
+
+## Public Interface
+
+- `conftest.py:sample_coordinates` (function)
+- `conftest.py:sample_geodataframe` (function)
+- `conftest.py:tmp_output_dir` (function)
+- `conftest.py:spatial_model_params` (function)
+- `conftest.py:latent_variables` (function)
+- `conftest.py:spm_config` (function)
+- `conftest.py:synthetic_spm_data` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPM`
+- Package: `geo_infer_spm`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPM`
+- Tests: `uv run python -m pytest GEO-INFER-SPM/tests`
+
+## Dependencies
+
+- `numpy>=1.20.0`
+- `scipy>=1.7.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `xarray>=0.20.0`
+- `scikit-learn>=1.0.0`
+- `matplotlib>=3.5.0`
+- `plotly>=5.0.0`
+- `h5py>=3.6.0`
+- `rasterio>=1.2.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-SPM/tests
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,13 +1,65 @@
-# GEO
--INFER-HEALTH Examples This directory contains working examples demonstrating health and epidemiology analysis capabilities. ## Available
- Examples ### Diseas
-e
- Surveillance (`example_disease_surveillance.py`) Disease surveillance and monitoring example. ### Environmenta
-l
- Health (`example_environmental_health.py`) Environmental health assessment example. ### Healthcar
-e
- Accessibility (`example_healthcare_accessibility.py`) Healthcare accessibility analysis example. ### Healt
-h
- Analysis (`advanced_health_analysis.py`) health analysis with multiple data sources. ## Running
- Examples ```bash cd GEO-INFER-HEALTH python examples/example_disease_surveillance.py python examples/example_environmental_health.py python examples/example_healthcare_accessibility.py python examples/advanced_health_analysis.py ``` ## Integration
- Examples GEO-INFER-HEALTH integrates with: - **SPACE**: Spatial health analysis - **TIME**: Temporal health trends - **AI**: Health prediction models - **RISK**: Health risk assessment - **BIO**: Biological data analysis See `GEO-INFER-EXAMPLES` for cross-module integration examples. 
+# GEO-INFER-HEALTH/examples
+
+Examples workspace within `GEO-INFER-HEALTH`.
+
+## Contents
+
+- `advanced_health_analysis.py`
+- `example_disease_surveillance.py`
+- `example_environmental_health.py`
+- `example_healthcare_accessibility.py`
+- `.gitkeep`
+
+## Public Interface
+
+- `example_disease_surveillance.py:print_response` (function)
+- `example_disease_surveillance.py:submit_sample_disease_reports` (function)
+- `example_disease_surveillance.py:get_disease_reports` (function)
+- `example_disease_surveillance.py:add_sample_population_data` (function)
+- `example_disease_surveillance.py:identify_hotspots` (function)
+- `example_disease_surveillance.py:get_local_incidence` (function)
+- `example_environmental_health.py:print_response` (function)
+- `example_environmental_health.py:submit_sample_env_readings` (function)
+- `example_environmental_health.py:get_env_readings` (function)
+- `example_environmental_health.py:get_readings_near_loc_example` (function)
+- `example_environmental_health.py:get_average_exposure_example` (function)
+- `example_healthcare_accessibility.py:print_response` (function)
+- `example_healthcare_accessibility.py:add_sample_health_facilities` (function)
+- `example_healthcare_accessibility.py:get_health_facilities` (function)
+- `example_healthcare_accessibility.py:add_accessibility_population_sample` (function)
+- `example_healthcare_accessibility.py:find_facilities_nearby_example` (function)
+- `example_healthcare_accessibility.py:get_nearest_facility_example` (function)
+- `example_healthcare_accessibility.py:get_facility_ratio_example` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-HEALTH`
+- Package: `geo_infer_health`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-HEALTH`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH`
+
+## Dependencies
+
+- `fastapi>=0.104.0`
+- `uvicorn>=0.24.0`
+- `pydantic>=2.5.0`
+- `pydantic-settings>=2.1.0`
+- `geopandas>=0.14.0`
+- `shapely>=2.0.0`
+- `pyproj>=3.6.0`
+- `rasterio>=1.3.0`
+- `fiona>=1.9.0`
+- `numpy>=1.24.0`
+- `scipy>=1.11.0`
+- `pandas>=2.1.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

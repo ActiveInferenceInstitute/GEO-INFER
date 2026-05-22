@@ -1,5 +1,36 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-METAGOV/src` Source code implementation. ## Implementation
- ### `geo_infer_metagov/core/scenarios.py` **Classes**: Scenario, ScenarioAnalysis, ScenarioPlanner **Functions**: generate_scenarios, evaluate_scenario, analyze_scenarios, compare_scenarios ### `geo_infer_metagov/core/polycentric.py` **Classes**: PolycentricDesign, PolycentricGovernanceSystem **Functions**: design_polycentric_structure, analyze_authority_relationships ### `geo_infer_metagov/core/institutional.py` **Classes**: InstitutionalFramework, Institution, InstitutionalAnalysis, InstitutionalDesigner **Functions**: analyze_institutions, apply_ostrom_principles, check_institutional_compatibility ### `geo_infer_metagov/core/multi_level.py` **Classes**: GovernanceLevel, CoordinationMechanism, GovernanceEntity, GovernanceStructure, MultiLevelGovernanceFramework **Functions**: design_governance_structure, calculate_performance_metrics, coordinate_vertical_levels, apply_subsidiarity_principle ### `geo_infer_metagov/core/advanced_analysis.py` **Classes**: ConflictType, ConflictAnalysis, AdvancedGovernanceAnalyzer **Functions**: analyze_power_dynamics, identify_conflicts, suggest_governance_improvements, scenario_analysis ## Contents
- - **geo_infer_metagov/**: Subdirectory - **geo_infer_metagov.egg-info/**: Subdirectory --- 
+# GEO-INFER-METAGOV/src
+
+Src workspace within `GEO-INFER-METAGOV`.
+
+## Contents
+
+- `geo_infer_metagov.egg-info/`
+- `geo_infer_metagov/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-METAGOV`
+- Package: `geo_infer_metagov`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-METAGOV`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
+
+## Dependencies
+
+- `numpy>=1.20`
+- `pyyaml>=6.0`
+- `typing_extensions>=4.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

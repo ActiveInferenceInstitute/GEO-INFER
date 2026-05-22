@@ -1,4 +1,50 @@
-# geo_infer_ant
- ## Overview
- GEO-INFER-ANT: Complex Adaptive Systems and Swarm Intelligence This package provides implementations for swarm intelligence and complex adaptive systems modeling using Active Inference principles for emergent collective behavior in geospatial contexts. Main Components: - Core agent framework with Active Inference integration - Population dynamics and management systems - Stigmergic communication mechanisms - Swarm optimization algorithms (ACO, PSO, ABC) - Domain-specific applications (environmental, disaster response, urban) - Analysis tools for emergent behavior patterns - Performance metrics and evaluation frameworks Integration Points: - GEO-INFER-ACT: Active Inference for individual agent behaviors - GEO-INFER-SPACE: Spatial reasoning and H3 indexing for geospatial operations - GEO-INFER-AGENT: Agent lifecycle management and coordination - GEO-INFER-MATH: Optimization algorithms and mathematical foundations - GEO-INFER-TIME: Temporal dynamics and scheduling Example: >>> from geo_infer_ant.core.agent_base import SwarmAgent >>> from geo_infer_ant.core.population import AgentPopulation >>> >>> # Create individual agent with Active Inference >>> agent = SwarmAgent( ... agent_id="ant_001", ... position=np.array([37.7749, -122.4194]), ... sensory_range=100.0, ... active_inference_enabled=True ... ) >>> >>> # Create agent population >>> population = AgentPopulation( ... population_size=1000, ... agent_types=['worker', 'scout', 'soldier'], ... spatial_distribution='clustered' ... ) ## Contents
- - **algorithms/**: Submodule - **analysis/**: Submodule - **api/**: Submodule - **applications/**: Submodule - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule 
+# GEO-INFER-ANT/src/geo_infer_ant
+
+Geo Infer Ant workspace within `GEO-INFER-ANT`.
+
+## Contents
+
+- `algorithms/`
+- `analysis/`
+- `api/`
+- `applications/`
+- `core/`
+- `models/`
+- `utils/`
+- `__init__.py`
+
+## Public Interface
+
+- `__init__.py:setup_ant_module` (function)
+- `__init__.py:get_available_components` (function)
+
+## Module Metadata
+
+- Module: `GEO-INFER-ANT`
+- Package: `geo_infer_ant`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ANT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT`
+
+## Dependencies
+
+- `asyncio-mqtt>=0.11.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `jsonschema>=4.0.0`
+- `matplotlib>=3.5.0`
+- `networkx>=2.8`
+- `numpy>=1.21.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.1.0`
+- `scipy>=1.7.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

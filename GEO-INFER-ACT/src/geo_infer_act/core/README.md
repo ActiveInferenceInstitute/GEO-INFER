@@ -1,133 +1,70 @@
-# core
+# GEO-INFER-ACT/src/geo_infer_act/core
 
-## Overview
+Core workspace within `GEO-INFER-ACT`.
 
-This directory contains core Active Inference components implementing the mathematical foundations of the Free Energy Principle. It provides the canonical GEO-INFER methods for belief updating, policy selection, free-energy calculation, generative modeling, spatial active inference, and typed diagnostics.
+## Contents
 
-## Components
+- `__init__.py`
+- `active_inference.py`
+- `belief_updating.py`
+- `dynamic_causal_model.py`
+- `free_energy.py`
+- `generative_model.py`
+- `markov_decision_process.py`
+- `policy_selection.py`
+- `spatial_agent.py`
+- `types.py`
+- `variational_inference.py`
 
-### active_inference.py
+## Public Interface
 
-Main Active Inference model implementation. Provides the `ActiveInferenceModel` class that orchestrates perception (belief updating) and action (policy selection) through free energy minimization.
+- `active_inference.py:ActiveInferenceModel` (class)
+- `belief_updating.py:BayesianBeliefUpdate` (class)
+- `dynamic_causal_model.py:DynamicCausalModel` (class)
+- `free_energy.py:FreeEnergyCalculator` (class)
+- `generative_model.py:MarkovBlanket` (class)
+- `generative_model.py:HierarchicalLevel` (class)
+- `generative_model.py:GenerativeModel` (class)
+- `markov_decision_process.py:MarkovDecisionProcess` (class)
+- `policy_selection.py:PolicySelector` (class)
+- `spatial_agent.py:SpatialActiveInferenceAgent` (class)
+- `types.py:FreeEnergyBreakdown` (class)
+- `types.py:PolicyEvaluation` (class)
+- `types.py:ActiveInferenceStepResult` (class)
+- `types.py:H3SpatialConsistency` (class)
+- `types.py:H3BeliefUpdateResult` (class)
+- `types.py:H3GridInferenceResult` (class)
+- `variational_inference.py:VariationalInference` (class)
 
-**Classes**: `ActiveInferenceModel`
+## Module Metadata
 
-**Key Methods**:
-- `perceive(observation)`: Update beliefs based on sensory input
-- `act(available_actions)`: Select action via expected free energy minimization
-- `step(observation, available_actions, return_result=True)`: Complete perception-action cycle with optional `ActiveInferenceStepResult`
+- Module: `GEO-INFER-ACT`
+- Package: `geo_infer_act`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-ACT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
 
-### belief_updating.py
+## Dependencies
 
-Belief updating for Active Inference models.
+- `matplotlib>=3.4.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyro-ppl>=1.7.0`
+- `pyyaml>=6.0`
+- `scipy>=1.7.0`
+- `torch>=1.9.0`
+- `arviz>=0.11.0`
+- `bayeux-ml>=0.0.1`
+- `h3>=4.0.0`
+- `imageio>=2.9.0`
 
-**Classes**: `BayesianBeliefUpdate`
-
-### dynamic_causal_model.py
-
-Dynamic Causal Modeling for Active Inference.
-
-**Classes**: `DynamicCausalModel`
-
-### free_energy.py
-
-Variational free energy calculation for active inference models. Implements free energy computation for categorical and Gaussian models, providing the cost function minimized during perception and action.
-
-**Classes**: `FreeEnergyCalculator`
-
-**Key Methods**:
-- `compute_categorical_free_energy()`: Free energy for discrete state spaces
-- `compute_gaussian_free_energy()`: Free energy for continuous state spaces
-- `compute_expected_free_energy()`: Expected free energy for policy evaluation
-
-### generative_model.py
-
-Generative Model for Active Inference.
-
-**Classes**: `MarkovBlanket`, `HierarchicalLevel`, `GenerativeModel`
-
-### markov_decision_process.py
-
-Markov Decision Process modeling for Active Inference.
-
-**Classes**: `MarkovDecisionProcess`
-
-### policy_selection.py
-
-Policy selection for active inference models.
-
-**Classes**: `PolicySelector`
-
-**Key Methods**:
-- `compute_expected_free_energy()`: Evaluate one policy with policy-conditioned predictive beliefs
-- `evaluate_policy_set()`: Return `PolicyEvaluation` objects for every candidate
-- `select_policy()`: Select the lowest-EFE policy deterministically or sample from seeded probabilities
-
-### spatial_agent.py
-
-H3 and spatial active inference over cell-indexed observations.
-
-**Classes**: `SpatialActiveInferenceAgent`
-
-### types.py
-
-Stable typed result objects for diagnostics and downstream callers.
-
-**Classes**: `FreeEnergyBreakdown`, `PolicyEvaluation`,
-`ActiveInferenceStepResult`, `H3SpatialConsistency`, `H3BeliefUpdateResult`,
-`H3GridInferenceResult`
-
-### variational_inference.py
-
-Variational inference for active inference models.
-
-**Classes**: `VariationalInference`
-
-
-
-## Usage
-
-```python
-import numpy as np
-from geo_infer_act.core.active_inference import ActiveInferenceModel
-from geo_infer_act.core.generative_model import GenerativeModel
-from geo_infer_act.core.free_energy import FreeEnergyCalculator
-
-# Create generative model
-gen_model = GenerativeModel(
-    model_type='categorical',
-    parameters={'state_dim': 10, 'obs_dim': 5}
-)
-
-# Create active inference model
-model = ActiveInferenceModel(model_type='categorical')
-model.set_generative_model(gen_model)
-
-# Perception: update beliefs
-observation = np.array([0.2, 0.3, 0.4, 0.1, 0.0])
-updated_beliefs = model.perceive(observation)
-
-# Action: select policy
-action = model.act()
-```
-
-## Verification
+## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/validate_active_inference_contract.py
-uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
-  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
-The comprehensive audit writes core method payloads under
-`examples/output/comprehensive_act_audit/method_audit/active_inference_model/`,
-`generative_model/`, `free_energy_and_policy/`, `inference_math/`, and
-`spatial_agent/`.
+## Documentation Notes
 
-## Integration
-
-This directory provides core Active Inference functionality used by:
-- Domain-specific models in `geo_infer_act.models`
-- API interfaces in `geo_infer_act.api`
-- Agent implementations in `geo_infer_agent`
-- Integration with GEO-INFER-SPACE for spatial active inference
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

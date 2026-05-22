@@ -1,4 +1,63 @@
-# geo_infer_space
- ## Overview
- GEO-INFER-SPACE - geospatial methods for the GEO-INFER framework. This module provides spatial indexing, analytics, and integration with external geospatial tools and libraries through a unified, backend-agnostic API. ## Contents
- - **analytics/**: Submodule - **api/**: Submodule - **backends/**: Submodule - **core/**: Submodule - **io/**: Submodule - **models/**: Submodule - **nested/**: Submodule - **place_analyzer.py**: Python definitions - **spatial_utils.py**: Python definitions - **utils/**: Submodule 
+# GEO-INFER-SPACE/src/geo_infer_space
+
+Geo Infer Space workspace within `GEO-INFER-SPACE`.
+
+## Contents
+
+- `analytics/`
+- `api/`
+- `backends/`
+- `core/`
+- `gis/`
+- `io/`
+- `models/`
+- `nested/`
+- `tools/`
+- `utils/`
+- `__init__.py`
+- `place_analyzer.py`
+- `spatial_utils.py`
+
+## Public Interface
+
+- `__init__.py:cell_to_latlng_boundary` (function)
+- `__init__.py:geo_to_cells` (function)
+- `__init__.py:grid_disk` (function)
+- `__init__.py:grid_distance` (function)
+- `__init__.py:compact_cells` (function)
+- `__init__.py:uncompact_cells` (function)
+- `place_analyzer.py:PlaceAnalyzer` (class)
+- `spatial_utils.py:SpatialUtils` (class)
+
+## Module Metadata
+
+- Module: `GEO-INFER-SPACE`
+- Package: `geo_infer_space`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-SPACE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
+
+## Dependencies
+
+- `fastapi>=0.68.0`
+- `fiona>=1.8.0`
+- `geojson-pydantic>=0.4.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `networkx>=2.6.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `pydantic>=1.8.0`
+- `pyproj>=3.3.0`
+- `python-multipart>=0.0.5`
+- `pyyaml>=6.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -1,4 +1,34 @@
-# geo_infer_emergency
- ## Overview
- GEO-INFER-EMERGENCY: Emergency Management Module This module provides emergency management and disaster response capabilities for geospatial systems, including incident coordination, resource deployment, evacuation planning, and search and rescue operations. Key Features: - Multi-agency incident coordination (ICS) - Resource deployment optimization - Evacuation planning and routing - Situational awareness and common operating picture - Search and rescue mission planning ## Contents
- - **core/**: Submodule 
+# GEO-INFER-EMERGENCY/src/geo_infer_emergency
+
+Geo Infer Emergency workspace within `GEO-INFER-EMERGENCY`.
+
+## Contents
+
+- `core/`
+- `__init__.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-EMERGENCY`
+- Package: `geo_infer_emergency`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-EMERGENCY`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY`
+
+## Dependencies
+
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

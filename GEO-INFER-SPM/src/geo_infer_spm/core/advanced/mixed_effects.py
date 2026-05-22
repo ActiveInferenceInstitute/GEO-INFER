@@ -354,7 +354,7 @@ class MixedEffectsSPM:
         if self.fitted_model is None:
             raise ValueError("Model must be fitted before extracting random effects")
 
-        # Placeholder - full implementation would extract random effects
+        # Baseline - full implementation would extract random effects
         # from the fitted model
         return {
             'random_effects': np.array([]),

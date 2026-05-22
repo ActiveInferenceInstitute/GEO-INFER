@@ -1,13 +1,45 @@
-# Agent
-: scripts 
+# Agent Instructions: GEO-INFER-INTRA/scripts
 
 ## Scope
- This agent is responsible for handling operations within the `scripts` scope. 
+
+- Owning module: `GEO-INFER-INTRA`
+- Python package: `geo_infer_intra`
+- Directory role: Scripts workspace within `GEO-INFER-INTRA`.
 
 ## Capabilities
- Core capabilities include: - Management of **add_missing_deps** processes - Management of **analyze_module_dependencies** processes - Management of **audit_agents_docs** processes - Management of **cleanup_pyproject_deps** processes - Management of **fix_existing_pyproject** processes - Management of **fix_installation_issues** processes - Management of **maintenance** processes - Management of **migrate_to_uv** processes - Management of **validate_dependencies** processes - Management of **validate_uv_migration** processes - Management of **validate_uv_setup** processes 
 
-## Integration
- 
-- **Location**: `GEO-INFER-INTRA/scripts` 
-- **Type**: Directory Node
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_intra` and the owning module's public contracts.
+
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `maintenance/`
+- `add_missing_deps.py`
+- `analyze_module_dependencies.py`
+- `audit_agents_docs.py`
+- `cleanup_pyproject_deps.py`
+- `fix_existing_pyproject.py`
+- `fix_installation_issues.py`
+- `migrate_to_uv.py`
+- `validate_dependencies.py`
+- `validate_uv_migration.py`
+- `validate_uv_setup.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

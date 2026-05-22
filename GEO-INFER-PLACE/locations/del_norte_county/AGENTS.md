@@ -1,39 +1,41 @@
-# Agent: del_norte_county
+# Agent Instructions: GEO-INFER-PLACE/locations/del_norte_county
 
 ## Scope
 
-Production geospatial analysis framework for Del Norte County, California — providing
-real-time environmental monitoring, infrastructure assessment, coastal resilience,
-seismic hazard analysis, and interactive visualization.
+- Owning module: `GEO-INFER-PLACE`
+- Python package: `geo_infer_place`
+- Directory role: Del Norte County workspace within `GEO-INFER-PLACE`.
 
 ## Capabilities
 
-- **Forest Health Monitoring** (15 methods): NDVI/EVI analysis, tree mortality detection,
-  climate vulnerability assessment, CAL FIRE integration
-- **Coastal Resilience Analysis** (18 methods): Sea level rise scenarios, erosion rates,
-  storm surge vulnerability, tsunami risk, habitat connectivity, NOAA tide gauge data
-- **Fire Risk Assessment** (12 methods): Fuel load, weather, FWI calculation, WUI risk,
-  topography, accessibility scoring
-- **Seismic Hazard Analysis** (8 methods): USGS earthquake data, H3 hazard grid,
-  Cascadia Subduction Zone scenario, tsunami inundation, liquefaction risk
-- **Dashboard Generation**: Interactive HTML dashboards with cached data, map layers
-- **API Integration**: CAL FIRE wrapper (7 methods), NOAA wrapper (8 methods),
-  USGS Earthquake wrapper (4 methods)
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_place` and the owning module's public contracts.
 
-## Key Files
+## Working Rules
 
-- `run_analysis.py` — Main analysis orchestrator with auto-cleanup
-- `create_del_norte_dashboard.py` — Dashboard generator
-- `config/analysis_config.yaml` — Analysis parameters (304 lines)
-- `requirements.txt` / `requirements_advanced.txt` — Dependencies
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-## Status
+## Local Contents
 
-✅ Production — 50+ fully implemented methods, 19 API wrappers, all tests passing.
+- `config/`
+- `del_norte_dashboard/`
+- `create_del_norte_dashboard.py`
+- `run_analysis.py`
+- `requirements.txt`
+- `requirements_advanced.txt`
+- `run_analysis.sh`
 
-## Integration
+## Validation
 
-- **Location**: `GEO-INFER-PLACE/locations/del_norte_county`
-- **Type**: Location Node (production)
-- **Source Code**: `src/geo_infer_place/locations/del_norte_county/`
-- **Dependencies**: `geo_infer_place.utils.integration`, CAL FIRE API, NOAA API, USGS API
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

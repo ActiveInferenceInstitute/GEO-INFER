@@ -1,5 +1,45 @@
-# src
- ## Overview
- **Path**: `GEO-INFER-IOT/src` Source code implementation. ## Implementation
- ### `geo_infer_iot/core/spatial_fusion.py` **Classes**: SpatialDataFusion **Functions**: fuse_sensor_data, validate_spatial_consistency ### `geo_infer_iot/core/ingestion.py` **Classes**: SensorMeasurement, SpatialInferenceConfig, IoTDataIngestion, RadiationMonitoringSystem, GlobalMonitoringSystem **Functions**: setup_spatial_inference, get_spatial_distribution, get_measurement_statistics, generate_simulated_data, setup_spatial_inference ### `geo_infer_iot/core/registry.py` **Classes**: SensorMetadata, SensorNetwork, SensorRegistry **Functions**: register_network, register_sensor, get_sensors_in_h3_cell, get_sensors_by_type, get_sensors_in_area ### `geo_infer_iot/utils/interpolation.py` **Classes**: SpatialInterpolation **Functions**: interpolate_to_grid, interpolate_h3_cells, create_interpolation_grid, cross_validate_interpolation, get_interpolation_quality ## Contents
- - **geo_infer_iot/**: Subdirectory - **geo_infer_iot.egg-info/**: Subdirectory --- 
+# GEO-INFER-IOT/src
+
+Src workspace within `GEO-INFER-IOT`.
+
+## Contents
+
+- `geo_infer_iot.egg-info/`
+- `geo_infer_iot/`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-IOT`
+- Package: `geo_infer_iot`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-IOT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
+
+## Dependencies
+
+- `aiocoap>=0.4.3`
+- `asyncio-mqtt>=0.11.0`
+- `confluent-kafka>=1.8.0`
+- `fastapi>=0.68.0`
+- `folium>=0.12.0`
+- `geopandas>=0.10.0`
+- `h3>=4.0.0`
+- `influxdb-client>=1.24.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0`
+- `paho-mqtt>=1.6.0`
+- `pandas>=1.3.0`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

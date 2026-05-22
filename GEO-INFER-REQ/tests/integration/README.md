@@ -1,5 +1,33 @@
-# integration
- ## Overview
- **Path**: `GEO-INFER-REQ/tests/integration` Integration tests for GEO-INFER-REQ. ## Implementation
- ### `test_integration.py` **Classes**: TestReqIntegration **Functions**: test_module_integration ## Contents
- - **test_integration.py**: Python module --- 
+# GEO-INFER-REQ/tests/integration
+
+Integration workspace within `GEO-INFER-REQ`.
+
+## Contents
+
+- `test_integration.py`
+
+## Public Interface
+
+- No public Python symbols are defined directly in this directory.
+
+## Module Metadata
+
+- Module: `GEO-INFER-REQ`
+- Package: `geo_infer_req`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-REQ`
+- Tests: `uv run python -m pytest GEO-INFER-REQ/tests/integration`
+
+## Dependencies
+
+- `pydantic>=1.8.0`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-REQ/tests/integration
+```
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

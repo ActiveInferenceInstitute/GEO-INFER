@@ -1,102 +1,44 @@
-# GEO-INFER-RISK: Agent Capabilities
+# Agent Instructions: GEO-INFER-RISK
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
-</div>
+## Scope
 
----
+- Owning module: `GEO-INFER-RISK`
+- Python package: `geo_infer_risk`
+- Directory role: Advanced risk analysis and catastrophe modeling framework for geospatial applications including insurance, hazard assessment, and resilience planning.
 
-## Overview
+## Capabilities
 
-The **GEO-INFER-RISK** module provides risk assessment capabilities for agents, enabling hazard identification, vulnerability analysis, and risk modeling in geospatial contexts.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_risk` and the owning module's public contracts.
 
-## Agent Capabilities
+## Working Rules
 
-### 1. Hazard Assessment
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-```python
-from geo_infer_risk import HazardAssessor
+## Local Contents
 
-# Assess natural hazards
-assessor = HazardAssessor()
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-hazards = assessor.assess(
-    area=study_region,
-    hazard_types=["flood", "earthquake", "wildfire"],
-    return_periods=[10, 50, 100, 500])
+## Validation
 
-print(f"Flood zones: {hazards.flood.zone_areas}")
-print(f"Seismic hazard: {hazards.earthquake.pga}")```
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
+```
 
-### 2. Vulnerability Analysis
+## Integration Notes
 
-```python
-from geo_infer_risk import VulnerabilityAnalyzer
-
-# Analyze asset vulnerability
-vuln = VulnerabilityAnalyzer()
-
-analysis = vuln.analyze(
-    assets=building_footprints,
-    hazards=hazard_layers,
-    factors=["age", "construction", "occupancy"])
-
-print(f"High vulnerability: {analysis.high_risk_count}")
-print(f"Estimated loss: ${analysis.expected_loss}M")```
-
-### 3. Risk Modeling
-
-```python
-from geo_infer_risk import RiskModeler
-
-# Model risk scenarios
-modeler = RiskModeler()
-
-risk = modeler.model(
-    hazard=earthquake_scenario,
-    exposure=building_inventory,
-    vulnerability=fragility_curves)
-
-print(f"Expected casualties: {risk.casualties}")
-print(f"Economic loss: ${risk.economic_loss}B")```
-
-### 4. Mitigation Planning
-
-```python
-from geo_infer_risk import MitigationPlanner
-
-# Plan risk mitigation
-planner = MitigationPlanner()
-
-plan = planner.create(
-    risks=identified_risks,
-    strategies=["retrofit", "relocation", "insurance"],
-    budget=100_000_000)
-
-print(f"Risk reduction: {plan.risk_reduction}%")
-print(f"ROI: {plan.benefit_cost_ratio}")```
-
-## Implementation Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Hazard** | ✅ Ready | Multi-hazard assessment |
-| **Vulnerability** | ✅ Ready | Asset analysis |
-| **Risk Model** | ✅ Ready | Loss estimation |
-| **Mitigation** | ✅ Ready | Strategy planning |
-
-### Aspirational Features
-
-- 🔮 **RiskAdvisorAgent**: Autonomous risk guidance
-- 🔮 **EarlyWarningAgent**: Real-time alerts
-
----
-
-This AGENTS.md documents how GEO-INFER-RISK provides risk capabilities for agents.
-
-**Last Updated**: 2026-02-25
-
-**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

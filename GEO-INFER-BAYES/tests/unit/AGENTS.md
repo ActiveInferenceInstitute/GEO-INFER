@@ -1,13 +1,46 @@
-# Agent
-: unit
+# Agent Instructions: GEO-INFER-BAYES/tests/unit
 
 ## Scope
- This agent is responsible for handling operations within the `unit` scope.
+
+- Owning module: `GEO-INFER-BAYES`
+- Python package: `geo_infer_bayes`
+- Directory role: Unit workspace within `GEO-INFER-BAYES`.
 
 ## Capabilities
- Core capabilities include: - Management of **test_spatial_gp** processes
 
-## Integration
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_bayes` and the owning module's public contracts.
 
-- **Location**: `GEO-INFER-BAYES/tests/unit`
-- **Type**: Directory Node
+## Working Rules
+
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `test_base_model.py`
+- `test_data_processing.py`
+- `test_diagnostics.py`
+- `test_gaussian_process.py`
+- `test_inference.py`
+- `test_likelihoods.py`
+- `test_mcmc.py`
+- `test_model_comparison.py`
+- `test_posterior.py`
+- `test_priors.py`
+- `test_spatial_gp.py`
+- `test_variational.py`
+
+## Validation
+
+```bash
+uv run python -m pytest GEO-INFER-BAYES/tests/unit
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

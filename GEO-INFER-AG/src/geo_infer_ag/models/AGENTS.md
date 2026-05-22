@@ -1,68 +1,40 @@
-# Agent
-: models
+# Agent Instructions: GEO-INFER-AG/src/geo_infer_ag/models
 
 ## Scope
- This directory contains models components for the module. It provides 5 classes and 0 functions.
 
-## Classes
- and Functions
-
-### AgricultureModel
- Abstract base class for agricultural models.
-
-**Methods**:
-- `predict(data: Dict[str, Any]) -> Dict[str, Any]`: Generate predictions using the model.
-- `validate_inputs(data: Dict[str, Any]) -> bool`: Validate that all required inputs are present.
-- `info() -> Dict[str, Any]`: Get information about the model.
-- `save(path: str) -> None`: Save the model to disk.
-- `load(cls, path: str) -> 'AgricultureModel'`: Load a model from disk.
-
-### CarbonSequestrationModel
- Model for predicting carbon sequestration in agricultural soils and biomass.
-
-**Methods**:
-- `fit(training_data: Dict[str, Any], target_columns: Optional[Dict[str, str]], feature_columns: Optional[List[str]]) -> None`: Train the carbon sequestration model using historical data.
-- `predict(data: Dict[str, Any]) -> Dict[str, Any]`: Predict carbon sequestration potential using the model.
-- `calculate_carbon_value(result: Dict[str, Any], carbon_price: float) -> Dict[str, Union[float, np.ndarray]]`: Calculate monetary value of carbon sequestration.
-- `set_time_horizon(years: int) -> None`: Set the time horizon for carbon sequestration projections.
-- `save(path: str) -> None`: Save the model to disk.
-- `load(cls, path: str) -> 'CarbonSequestrationModel'`: Load a model from disk.
-
-### CropYieldModel
- Model for predicting crop yields based on environmental and management factors.
-
-**Methods**:
-- `fit(training_data: Dict[str, Any], target_column: str, feature_columns: Optional[List[str]]) -> None`: Train the yield prediction model using historical data.
-- `predict(data: Dict[str, Any]) -> Dict[str, Any]`: Predict crop yields using the model.
-- `get_feature_importance() -> Dict[str, float]`: Get feature importance for machine learning models.
-- `save(path: str) -> None`: Save the model to disk.
-- `load(cls, path: str) -> 'CropYieldModel'`: Load a model from disk.
-
-### SoilHealthModel
- Model for predicting and assessing soil health metrics.
-
-**Methods**:
-- `fit(training_data: Dict[str, Any], target_columns: Optional[Dict[str, str]], feature_columns: Optional[List[str]]) -> None`: Train the soil health prediction model using historical data.
-- `predict(data: Dict[str, Any]) -> Dict[str, Any]`: Predict soil health indicators using the model.
-- `get_limiting_factors(result: Dict[str, Any]) -> Dict[str, List[str]]`: Identify limiting soil health factors for each field.
-- `save(path: str) -> None`: Save the model to disk.
-- `load(cls, path: str) -> 'SoilHealthModel'`: Load a model from disk.
-
-### WaterUsageModel
- Model for predicting agricultural water usage and requirements.
-
-**Methods**:
-- `fit(training_data: Dict[str, Any], target_column: str, feature_columns: Optional[List[str]]) -> None`: Train the water usage prediction model using historical data.
-- `predict(data: Dict[str, Any]) -> Dict[str, Any]`: Predict water usage metrics using the model.
-- `calculate_water_footprint(result: Dict[str, Any], yield_data: Optional[pd.Series]) -> Dict[str, Union[float, np.ndarray, pd.Series]]`: Calculate water footprint metrics from water usage results.
-- `save(path: str) -> None`: Save the model to disk.
-- `load(cls, path: str) -> 'WaterUsageModel'`: Load a model from disk.
+- Owning module: `GEO-INFER-AG`
+- Python package: `geo_infer_ag`
+- Directory role: Models workspace within `GEO-INFER-AG`.
 
 ## Capabilities
 
-- **5 classes** for core functionality
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `geo_infer_ag` and the owning module's public contracts.
 
-## Integration
+## Working Rules
 
-- **Location**: `GEO-INFER-AG/src/geo_infer_ag/models`
-- **Type**: Directory Node
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
+
+## Local Contents
+
+- `__init__.py`
+- `base.py`
+- `carbon_sequestration.py`
+- `crop_yield.py`
+- `soil_health.py`
+- `water_usage.py`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AG
+```
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

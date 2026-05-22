@@ -1,142 +1,59 @@
----
-title: "GEO-INFER-GIT: Version Control and Collaboration"
-description: "Geospatial data versioning, change tracking, and collaboration"
-purpose: "Enable version control and collaborative workflows for geospatial data"
-module_type: "Infrastructure"
-status: "Alpha"
-last_updated: "2026-02-25"
-dependencies: ["DATA"]
-compatibility: ["GEO-INFER-DATA", "GEO-INFER-OPS"]
-tags: ["versioning", "git", "collaboration", "tracking", "history"]
-difficulty: "Intermediate"
-estimated_time: "35"
----
+# GEO-INFER-GIT
 
-<div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a> •
-  <a href="./SKILL.md">🧠 Claude Skill</a>
-</div>
+Version control and repository management tools specifically designed for geospatial data and code collaboration.
 
----
+## Contents
 
-# GEO-INFER-GIT: Version Control and Collaboration
+- `config/`
+- `docs/`
+- `examples/`
+- `src/`
+- `tests/`
+- `clone_repos.py`
+- `clone_script.py`
+- `setup.py`
+- `.cursorrules`
+- `SKILL.md`
+- `pyproject.toml`
+- `requirements.txt`
 
-## Overview
+## Public Interface
 
-**GEO-INFER-GIT** provides versioning for geospatial data:
+- `clone_script.py:load_yaml_config` (function)
+- `clone_script.py:get_github_repo_info` (function)
+- `clone_script.py:clone_repository` (function)
+- `clone_script.py:main` (function)
+- `clone_script.py:match_wildcard` (function)
 
-- **Data Versioning**: Track changes to spatial datasets
-- **Branching**: Create branches for experiments
-- **Merge/Conflict**: Resolve spatial conflicts
-- **Collaboration**: Multi-user workflows
+## Module Metadata
 
-## Features
+- Module: `GEO-INFER-GIT`
+- Package: `geo_infer_git`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-GIT`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
 
-### Data Versioning
+## Dependencies
 
-```python
-from geo_infer_git import GeoRepo
+- `requests>=2.28.1`
+- `pyyaml>=6.0`
+- `psutil>=5.9.0`
+- `jsonschema>=4.17.0`
+- `GitPython>=3.1.0`
+- `fastapi>=0.104.0`
+- `uvicorn[standard]>=0.24.0`
+- `pydantic>=2.5.0`
+- `pytest>=7.3.1`
+- `black>=23.3.0`
+- `flake8>=6.0.0`
+- `mypy>=1.3.0`
 
-# Version spatial data
-repo = GeoRepo("./my_project")
-
-repo.commit(
-    data=parcels_layer,
-    message="Updated parcel boundaries"
-)
-
-history = repo.log()
-```
-
-### Branching
-
-```python
-# Create feature branch
-repo.branch("new_development")
-repo.checkout("new_development")
-
-# Make changes
-repo.commit(data=updated_data, message="Added new parcels")
-
-# Merge back
-repo.checkout("main")
-repo.merge("new_development")
-```
-
-### Change Tracking
-
-```python
-from geo_infer_git import ChangeTracker
-
-# Track changes
-tracker = ChangeTracker(repo)
-
-diff = tracker.diff(
-    from_version="v1.0",
-    to_version="v2.0"
-)
-
-print(f"Added: {diff.added_features}")
-print(f"Modified: {diff.modified_features}")
-```
-
-### Collaboration
-
-```python
-from geo_infer_git import Collaborator
-
-# Multi-user workflows
-collab = Collaborator(repo)
-
-# Pull remote changes
-collab.pull()
-
-# Push local changes
-collab.push()
-
-# Resolve conflicts
-collab.resolve_conflicts(strategy="union")
-```
-
-## Features
-
-| Feature | Description |
-|---------|-------------|
-| **Snapshots** | Point-in-time versions |
-| **Branches** | Parallel development |
-| **Diffs** | Spatial change detection |
-| **Tags** | Named versions |
-
-## Integration Points
-
-| Module | Integration |
-|--------|-------------|
-| **GEO-INFER-DATA** | Data management |
-| **GEO-INFER-OPS** | Deployment |
-
-## Installation
+## Validation
 
 ```bash
-uv pip install -e "./GEO-INFER-GIT"
+uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
 ```
 
----
+## Documentation Notes
 
-**Status**: Alpha
-
-**Last Updated**: 2026-02-25
-
-## Documentation Hub
-
-Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
-
-| Resource | Description |
-|----------|-------------|
-| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
-| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
-| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
-| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
-| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.
