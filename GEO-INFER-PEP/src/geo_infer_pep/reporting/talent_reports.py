@@ -1,7 +1,6 @@
 """Talent Acquisition Reporting functions."""
 from typing import List, Dict, Any, Optional
-import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from ..models.talent_models import Candidate, JobRequisition, CandidateStatus, JobRequisitionStatus
 from ..talent.transformer import convert_candidates_to_dataframe, convert_requisitions_to_dataframe
@@ -84,7 +83,7 @@ def calculate_time_to_hire(hired_candidates: List[Candidate]) -> Dict[str, Any]:
 
 def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
     """Simulates fetching Talent quarterly metrics."""
-    print(f"Fetching Talent quarterly metrics for Q{quarter} {year} (simulated).")
+    print(f"Fetching Talent quarterly metrics for {quarter} {year} (simulated).")
     return {
         "quarter": quarter,
         "year": year,
@@ -97,4 +96,4 @@ def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
 # More talent reports:
 # - Offer acceptance rate
 # - Source effectiveness (which sources yield most hires)
-# - Interviewer load and feedback turnaround time 
+# - Interviewer load and feedback turnaround time

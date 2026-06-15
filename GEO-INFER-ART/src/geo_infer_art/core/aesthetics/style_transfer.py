@@ -3,7 +3,7 @@ Style transfer module for applying artistic styles to geospatial visualizations.
 """
 
 import os
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -190,7 +190,7 @@ class StyleTransfer:
                 "Expected string path, numpy array, or PIL Image."
             )
 
-    def _load_and_preprocess_image(self, image_path: str) -> tf.Tensor:
+    def _load_and_preprocess_image(self, image_path: str) -> Any:
         """
         Load an image from a file and preprocess it for the VGG model.
 
@@ -213,7 +213,7 @@ class StyleTransfer:
 
         return self._preprocess_image_array(img_array)
 
-    def _preprocess_image_array(self, img_array: np.ndarray) -> tf.Tensor:
+    def _preprocess_image_array(self, img_array: np.ndarray) -> Any:
         """
         Preprocess a numpy image array for the VGG model.
 

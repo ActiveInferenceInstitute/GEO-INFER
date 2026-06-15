@@ -12,7 +12,7 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import base
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 class PolicyImpactAnalyzer:
@@ -38,7 +38,7 @@ class PolicyImpactAnalyzer:
         """Initializes the PolicyImpactAnalyzer.
 
         Args:
-            policy: The policy to analyze. Structure TBD based on Policy model.
+            policy: The policy object or mapping to analyze.
             context_data: Dictionary containing datasets relevant for the analysis
                           (e.g., GeoDataFrames, DataFrames).
             spatial_extent: Optional geometry defining the analysis boundary.
@@ -74,8 +74,6 @@ class PolicyImpactAnalyzer:
         
         # Extract policy attributes that may affect economic analysis
         policy_type = getattr(self.policy, 'policy_type', 'unknown')
-        policy_scope = getattr(self.policy, 'scope', 'unknown')
-        
         # Initialize results DataFrame
         results = []
         
@@ -582,7 +580,7 @@ class PolicyImpactAnalyzer:
 
             fig, ax = plt.subplots(figsize=(10, 8))
             if "impact_score" in environmental_gdf.columns:
-                bars = ax.barh(
+                ax.barh(
                     environmental_gdf["impact_category"],
                     environmental_gdf["impact_score"],
                 )
@@ -621,7 +619,7 @@ class RegulatoryImpactAssessment:
         """Initializes the RegulatoryImpactAssessment.
 
         Args:
-            regulation: The regulation to assess. Structure TBD based on Regulation model.
+            regulation: The regulation object or mapping to assess.
             affected_entities: GeoDataFrame of entities potentially impacted.
             baseline_data: Dictionary of baseline datasets for comparison.
         """
@@ -721,7 +719,6 @@ class RegulatoryImpactAssessment:
 
         results = []
         num_entities = len(self.affected_entities) if not self.affected_entities.empty else 0
-        market_size = market_data.get("market_size", 1_000_000)
 
         # Competition impact
         num_competitors = market_data.get("num_competitors", 10)
@@ -837,7 +834,7 @@ class RegulatoryImpactAssessment:
         admin = self.assess_administrative_burden()
         goals = self.evaluate_goal_achievement()
 
-        summary = f"Regulatory Impact Assessment Summary\n"
+        summary = "Regulatory Impact Assessment Summary\n"
         summary += f"- Regulation: {self.regulation}\n"
         summary += f"- Affected entities: {len(self.affected_entities)}\n"
         summary += f"- Total compliance cost: ${admin.get('total_cost', 0):,.2f}\n"
@@ -848,4 +845,3 @@ class RegulatoryImpactAssessment:
             total_compliance = costs_df["estimated_cost"].sum()
             summary += f"- Total compliance costs: ${total_compliance:,.2f}\n"
         return summary
-

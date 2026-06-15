@@ -24,10 +24,26 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_MODULE_COUNT = 44
 SIGNPOST_FILES = ("README.md", "AGENTS.md", "SKILL.md")
+MIN_TEST_FILES_PER_MODULE = 4
+CANONICAL_UV_SYNC_COMMAND = "uv sync --all-packages --all-extras"
+CANONICAL_UV_DOC_FILES = (
+    "README.md",
+    "AGENTS.md",
+    "SKILL.md",
+    "GEO-INFER-TEST/README.md",
+    "GEO-INFER-TEST/AGENTS.md",
+)
 SOURCE_LANGUAGE_PATTERN = re.compile(
     r"\b(mock|stub|fake|placeholder)\b|NotImplementedError",
     re.IGNORECASE,
 )
+TASK_MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK|TBD)\b")
+TASK_MARKER_SCAN_GLOBS = (
+    "GEO-INFER-*/src/**/*.py",
+    "GEO-INFER-*/tests/**/*.py",
+)
+PYTHON_VERSION_PIN_PATTERN = re.compile(r"^3\.(11|12)(?:\.\d+)?$")
+LOGGING_BASIC_CONFIG_ATTR = "basicConfig"
 SOURCE_LANGUAGE_ALLOWLIST = (
     "placeholder=",
     "Subclasses must implement",
@@ -318,6 +334,168 @@ def validate_pyproject_packages(
             report.error(f"{module_dir.name}: project.dependencies must be a list")
 
 
+def validate_uv_environment(report: ContractReport) -> None:
+    """Validate the root uv workspace and Python version pin."""
+    root_pyproject = REPO_ROOT / "pyproject.toml"
+    if not root_pyproject.exists():
+        report.error("Root pyproject.toml is required for uv workspace resolution")
+        return
+
+    try:
+        root_config = tomllib.loads(root_pyproject.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        report.error(f"Root pyproject.toml is invalid: {exc}")
+        return
+
+    requires_python = root_config.get("project", {}).get("requires-python")
+    if requires_python != ">=3.11":
+        report.error(
+            "Root pyproject.toml must declare project.requires-python = '>=3.11'"
+        )
+
+    workspace_members = (
+        root_config.get("tool", {})
+        .get("uv", {})
+        .get("workspace", {})
+        .get("members")
+    )
+    if workspace_members != ["GEO-INFER-*"]:
+        report.error("Root [tool.uv.workspace].members must be ['GEO-INFER-*']")
+
+    if not (REPO_ROOT / "uv.lock").exists():
+        report.error("Root uv.lock is required; do not rely on module-local locks")
+
+    python_version_file = REPO_ROOT / ".python-version"
+    if not python_version_file.exists():
+        report.error("Root .python-version is required for reproducible uv runs")
+        return
+    python_version = python_version_file.read_text(encoding="utf-8").strip()
+    if not PYTHON_VERSION_PIN_PATTERN.match(python_version):
+        report.error(
+            f".python-version must pin Python 3.11 or 3.12, got {python_version!r}"
+        )
+
+
+def validate_uv_setup_documentation(report: ContractReport) -> None:
+    """Ensure signposts advertise the workspace-wide uv sync command."""
+    for relative_path in CANONICAL_UV_DOC_FILES:
+        doc_path = REPO_ROOT / relative_path
+        if not doc_path.exists():
+            report.error(f"{relative_path}: missing uv setup signpost")
+            continue
+        doc_text = doc_path.read_text(encoding="utf-8", errors="ignore")
+        if CANONICAL_UV_SYNC_COMMAND not in doc_text:
+            report.error(
+                f"{relative_path}: must document `{CANONICAL_UV_SYNC_COMMAND}`"
+            )
+
+
+def validate_test_inventory(module_dirs: list[Path], report: ContractReport) -> None:
+    """Ensure every module keeps a minimally useful local pytest surface."""
+    for module_dir in module_dirs:
+        tests_dir = module_dir / "tests"
+        if not tests_dir.exists():
+            report.error(f"{module_dir.name}: missing tests/")
+            continue
+        test_files = {
+            *tests_dir.rglob("test_*.py"),
+            *tests_dir.rglob("*_test.py"),
+        }
+        if len(test_files) < MIN_TEST_FILES_PER_MODULE:
+            report.error(
+                f"{module_dir.name}: expected at least "
+                f"{MIN_TEST_FILES_PER_MODULE} test files, found {len(test_files)}"
+            )
+
+
+def validate_module_task_markers(report: ContractReport) -> None:
+    """Keep actionable planning markers out of source and tests."""
+    hits: list[str] = []
+    scan_files = {
+        path
+        for pattern in TASK_MARKER_SCAN_GLOBS
+        for path in REPO_ROOT.glob(pattern)
+        if path.is_file()
+    }
+    for source_file in sorted(scan_files):
+        text = source_file.read_text(encoding="utf-8", errors="ignore")
+        for lineno, line in enumerate(text.splitlines(), start=1):
+            if TASK_MARKER_PATTERN.search(line):
+                hits.append(
+                    f"{source_file.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
+                )
+
+    if hits:
+        report.error(
+            "Module-local task markers found; track planned work in root TODO.md "
+            "or issues. First hits: "
+            + "; ".join(hits[:8])
+        )
+
+
+def validate_logging_configuration(report: ContractReport) -> None:
+    """Library imports should not configure process-wide logging."""
+    hits: list[str] = []
+    for source_file in sorted(REPO_ROOT.glob("GEO-INFER-*/src/**/*.py")):
+        text = source_file.read_text(encoding="utf-8", errors="ignore")
+        try:
+            tree = ast.parse(text, filename=str(source_file))
+        except SyntaxError:
+            continue
+
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                continue
+            if isinstance(node, ast.If) and is_main_guard(node.test):
+                continue
+            for child in ast.walk(node):
+                if is_logging_basic_config_call(child):
+                    line = text.splitlines()[child.lineno - 1].strip()
+                    hits.append(
+                        f"{source_file.relative_to(REPO_ROOT)}:{child.lineno}: {line}"
+                    )
+
+    if hits:
+        report.error(
+            "Importable library code must not call logging.basicConfig() at import "
+            "time. Configure handlers only in explicit setup functions or CLI "
+            "entrypoints. First hits: "
+            + "; ".join(hits[:8])
+        )
+
+
+def is_logging_basic_config_call(node: ast.AST) -> bool:
+    if not isinstance(node, ast.Call):
+        return False
+    func = node.func
+    return (
+        isinstance(func, ast.Attribute)
+        and func.attr == LOGGING_BASIC_CONFIG_ATTR
+        and isinstance(func.value, ast.Name)
+        and func.value.id == "logging"
+    )
+
+
+def is_main_guard(node: ast.AST) -> bool:
+    if not isinstance(node, ast.Compare) or len(node.ops) != 1 or len(node.comparators) != 1:
+        return False
+    if not isinstance(node.ops[0], ast.Eq):
+        return False
+    left = node.left
+    right = node.comparators[0]
+    return (
+        isinstance(left, ast.Name)
+        and left.id == "__name__"
+        and isinstance(right, ast.Constant)
+        and right.value == "__main__"
+    ) or (
+        isinstance(right, ast.Name)
+        and right.id == "__name__"
+        and isinstance(left, ast.Constant)
+        and left.value == "__main__"
+    )
+
+
 def validate_setup_syntax(module_dirs: list[Path], report: ContractReport) -> None:
     for setup_py in sorted(module_dir / "setup.py" for module_dir in module_dirs):
         if not setup_py.exists():
@@ -544,6 +722,9 @@ def main() -> int:
     validate_signposting(module_dirs, report)
     validate_package_casing(module_dirs, report)
     validate_pyproject_packages(module_dirs, report)
+    validate_uv_environment(report)
+    validate_uv_setup_documentation(report)
+    validate_test_inventory(module_dirs, report)
     validate_setup_syntax(module_dirs, report)
     validate_runtime_metadata(module_dirs, report)
     validate_h3_dependency_metadata(report)
@@ -551,6 +732,8 @@ def main() -> int:
     validate_markdown_local_links(report)
     validate_runner_documentation(report)
     validate_generated_artifacts(report)
+    validate_module_task_markers(report)
+    validate_logging_configuration(report)
     if not args.skip_import_smoke:
         validate_import_smoke(module_dirs, report)
     validate_source_language(report, strict=args.strict_source_language)

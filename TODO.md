@@ -1,6 +1,6 @@
 # GEO-INFER — TODO & Release Roadmap
 
-> **Last Updated**: 2026-05-18
+> **Last Updated**: 2026-06-15
 > **Current Version**: 0.2.0 (Beta)
 > **Repository**: [ActiveInferenceInstitute/GEO-INFER](https://github.com/ActiveInferenceInstitute/GEO-INFER)
 
@@ -14,6 +14,7 @@ Every version release MUST satisfy ALL of the following before tagging:
 |----------|-----------|-------------|----------|
 | **Quality** | All tests pass | `uv run python GEO-INFER-TEST/run_unified_tests.py` | 0 failures |
 | **Quality** | No source-language debt | `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language` | 0 results¹ |
+| **Quality** | Modular hygiene contract | `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke` | 0 errors |
 | **Quality** | No illegitimate `pass` stubs | Grep `^    pass$` excluding `__init__`, `except`, abstract | 0 results |
 | **Quality** | Type hints complete | `mypy --strict` on core modules | 0 errors |
 | **Quality** | Formatting & lint | `black --check`, `isort --check`, `ruff check` | Clean |
@@ -21,7 +22,7 @@ Every version release MUST satisfy ALL of the following before tagging:
 | **Docs** | Every module has SKILL.md (Claude Code) | `python GEO-INFER-TEST/validate_skills.py` | 0 errors ✅ |
 | **Docs** | No stale dates | Grep for old dates excluding CHANGELOG/TODO | 0 results ✅ |
 | **Docs** | CHANGELOG.md updated | Manual inspection | Entry present ✅ |
-| **Testing** | All 44 modules have ≥4 test files | `find GEO-INFER-*/tests -name "test_*.py" \| wc -l` | ≥176 ✅ (416) |
+| **Testing** | All 44 modules have ≥4 test files | `find GEO-INFER-*/tests -name "test_*.py" \| wc -l` | ≥176 ✅ (441) |
 | **Testing** | Coverage ≥80% per module | `pytest --cov --cov-fail-under=80` | All pass |
 | **Testing** | Property-based tests ≥10 modules | Grep `@given\|hypothesis` | ≥10 ✅ (35) |
 | **Arch** | PEP 8 package names | No unexpected package dir casing in `src/` | 0 ✅ (all 44 packages normalized to `geo_infer_<module>`) |
@@ -64,6 +65,25 @@ uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
 uv run --package geo-infer-bayes --extra dev python -m pytest GEO-INFER-BAYES/tests -q
 uv run --package geo-infer-math --extra dev python -m pytest GEO-INFER-MATH/tests -q
+```
+
+---
+
+## 2026-06-15 Modular Hygiene Pass
+
+Completed:
+
+- [x] Added executable repo contracts for root uv workspace state, `.python-version`, root `uv.lock`, per-module test inventory, source/test task-marker hygiene, and library logging configuration.
+- [x] Added focused unit tests for the new `validate_repo_contracts.py` hygiene checks.
+- [x] Removed module-local task markers from NORMS, PEP, and TEST code paths.
+- [x] Updated root README, AGENTS, CLAUDE, ISA, and SKILL signposts to route hygiene work through the shared validator and this TODO ledger.
+
+Verification:
+
+```bash
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run --extra quality python GEO-INFER-TEST/run_unified_tests.py --module TEST --timeout 120
 ```
 
 ---

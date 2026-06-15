@@ -8,14 +8,14 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 884 |
-| Python test files | 440 |
-| Tracked README.md files | 828 |
+| Python test files | 441 |
+| Tracked README.md files | 830 |
 | Tracked AGENTS.md files | 827 |
 
 ## Quick Start
 
 ```bash
-uv sync --all-extras
+uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
@@ -64,10 +64,18 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 29 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
-| `GEO-INFER-TEST` | `geo_infer_test` | 13 | 18 |
+| `GEO-INFER-TEST` | `geo_infer_test` | 13 | 19 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 6 |
 | `GEO-INFER-WATER` | `geo_infer_water` | 11 | 7 |
+
+## Modular Hygiene
+
+- Root `pyproject.toml`, `uv.lock`, and `.python-version` are the canonical uv environment surfaces.
+- Sync the full workspace with `uv sync --all-packages --all-extras` before repo-wide validation.
+- Each module owns importable behavior under `src/` and keeps at least four pytest files under `tests/`.
+- Planned work belongs in root `TODO.md` or a tracked issue, not source or test task markers.
+- Importable libraries use `logging.getLogger(__name__)`; process-wide logging configuration belongs in CLI entrypoints.
 
 ## Validation
 

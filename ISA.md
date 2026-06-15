@@ -56,6 +56,16 @@ Ideal state criteria:
 - Optional dependency failures degrade gracefully or are reported as warnings by contract checks.
 - Source-language debt involving mock/stub/fake/placeholder terms is tracked and driven down.
 
+## Modular Hygiene
+
+Ideal state criteria:
+
+- Root `pyproject.toml`, `uv.lock`, and `.python-version` define the shared uv environment.
+- Root `[tool.uv.workspace]` covers all `GEO-INFER-*` modules.
+- Each module keeps at least four pytest files under `tests/`.
+- Planned work is tracked in root `TODO.md` or issues, not source/test task markers.
+- Importable libraries never configure process-wide logging; CLI entrypoints may configure handlers.
+
 Verification:
 
 ```bash

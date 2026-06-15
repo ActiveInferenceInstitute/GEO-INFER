@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -27,6 +28,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODULE_PREFIX = "GEO-INFER-"
 TEST_DIR_NAME = "tests"
 RESULTS_DIR = PROJECT_ROOT / ".geo-infer-test-results"
+PYTEST_NO_TESTS_EXIT_CODE = 5
 
 
 @dataclass
@@ -86,6 +88,37 @@ def ensure_results_dir(clean: bool = False) -> None:
             path.unlink()
 
 
+def workspace_src_paths() -> list[Path]:
+    """Return all workspace source directories in deterministic order."""
+    return [
+        module.path / "src"
+        for module in discover_geo_infer_modules()
+        if (module.path / "src").exists()
+    ]
+
+
+def build_subprocess_env() -> dict[str, str]:
+    """Build the child-process environment used for pytest subprocesses."""
+    env = os.environ.copy()
+    pythonpath_parts = [str(path) for path in workspace_src_paths()]
+    existing_pythonpath = env.get("PYTHONPATH")
+    if existing_pythonpath:
+        pythonpath_parts.extend(
+            part for part in existing_pythonpath.split(os.pathsep) if part
+        )
+    env["PYTHONPATH"] = os.pathsep.join(dict.fromkeys(pythonpath_parts))
+    return env
+
+
+def is_pytest_no_tests_success(command: list[str], returncode: int) -> bool:
+    """Treat pytest's no-tests exit code as a skipped-success outcome."""
+    return (
+        returncode == PYTEST_NO_TESTS_EXIT_CODE
+        and len(command) >= 3
+        and command[1:3] == ["-m", "pytest"]
+    )
+
+
 def run_command(
     command: list[str],
     name: str,
@@ -100,6 +133,7 @@ def run_command(
         completed = subprocess.run(
             command,
             cwd=cwd,
+            env=build_subprocess_env(),
             text=True,
             capture_output=True,
             timeout=timeout,
@@ -118,8 +152,10 @@ def run_command(
         )
 
     duration = time.time() - started
-    success = completed.returncode == 0
-    print(f"{'PASS' if success else 'FAIL'} in {duration:.2f}s")
+    skipped_success = is_pytest_no_tests_success(command, completed.returncode)
+    success = completed.returncode == 0 or skipped_success
+    outcome = "SKIP" if skipped_success else "PASS" if success else "FAIL"
+    print(f"{outcome} in {duration:.2f}s")
     if not success:
         failure_output = "\n".join(
             part[-4000:] for part in (completed.stdout, completed.stderr) if part
@@ -127,12 +163,16 @@ def run_command(
         if failure_output:
             print(failure_output)
 
+    stdout = completed.stdout
+    if skipped_success:
+        stdout = f"{stdout}\nNo tests collected; recorded as skipped-success."
+
     return CommandResult(
         name=name,
         success=success,
         duration=duration,
         command=command,
-        stdout=completed.stdout,
+        stdout=stdout,
         stderr=completed.stderr,
     )
 

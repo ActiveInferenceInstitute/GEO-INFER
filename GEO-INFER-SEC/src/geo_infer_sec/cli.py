@@ -6,40 +6,39 @@ This module provides command-line access to security and privacy
 features for geospatial data.
 """
 
-import os
 import sys
 import json
 import argparse
 import logging
 import datetime
-from typing import Dict, List, Optional, Any, Union
+from typing import Union
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 
 from geo_infer_sec.core.anonymization import GeospatialAnonymizer
-from geo_infer_sec.core.access_control import GeospatialAccessManager, Role, SpatialPermission
 from geo_infer_sec.core.compliance import ComplianceFramework, ComplianceRegime, create_gdpr_validators
 from geo_infer_sec.core.encryption import GeospatialEncryption
 from geo_infer_sec.utils.security_utils import (
-    generate_secure_token, hash_password, check_pii_columns, audit_log,
-    redact_text, validate_spatial_bounds
+    generate_secure_token, check_pii_columns, validate_spatial_bounds
 )
 from geo_infer_sec.models.risk_assessment import (
-    RiskAssessment, GeospatialSecurityRisk, create_common_geospatial_risks
+    RiskAssessment, create_common_geospatial_risks
 )
 
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
 
 logger = logging.getLogger("geo_infer_sec")
+
+
+def configure_logging(verbose: bool = False) -> None:
+    """Configure CLI logging after argument parsing."""
+    level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )
+    logger.setLevel(level)
 
 
 def setup_parser() -> argparse.ArgumentParser:
@@ -720,10 +719,9 @@ def main() -> None:
     """Main entry point for the CLI."""
     parser = setup_parser()
     args = parser.parse_args()
-    
-    # Configure logging level
+
+    configure_logging(verbose=args.verbose)
     if args.verbose:
-        logger.setLevel(logging.DEBUG)
         logger.debug("Verbose output enabled")
     
     # Execute the selected command
@@ -746,4 +744,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main() 
+    main()

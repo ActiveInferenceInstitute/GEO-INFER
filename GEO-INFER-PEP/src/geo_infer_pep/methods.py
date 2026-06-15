@@ -10,18 +10,18 @@ from typing import Dict, Any, List, Optional
 # Import actual module implementations and data models
 from .models.hr_models import Employee, EmploymentStatus
 from .models.talent_models import Candidate, CandidateStatus
-from .models.crm_models import Customer, InteractionLog
+from .models.crm_models import Customer
 from .reporting import (
     get_hr_quarterly_metrics,
     get_crm_quarterly_metrics,
     get_talent_quarterly_metrics,
-    create_quarterly_overview
+    create_quarterly_overview,
 )
 
 # Import utility functions for data processing
-from .hr.transformer import clean_employee_data, enrich_employee_data, convert_employees_to_dataframe
-from .crm.transformer import clean_customer_data, enrich_customer_data, convert_customers_to_dataframe
-from .talent.transformer import clean_candidate_data, enrich_candidate_data, convert_candidates_to_dataframe
+from .hr.transformer import clean_employee_data, enrich_employee_data
+from .crm.transformer import clean_customer_data, enrich_customer_data
+from .talent.transformer import clean_candidate_data, enrich_candidate_data
 
 # Import importers for data processing
 from .hr.importer import CSVHRImporter
@@ -37,6 +37,15 @@ from .reporting.talent_reports import generate_candidate_pipeline_report, calcul
 _employees_db = []
 _candidates_db = []
 _customers_db = []
+
+
+def _normalize_quarter_label(quarter: str) -> str:
+    """Normalize quarter inputs like '1' and 'Q1' to a single label."""
+    normalized = str(quarter).strip().upper()
+    if normalized.startswith("Q"):
+        normalized = normalized[1:]
+    return f"Q{normalized}"
+
 
 def _get_employee_by_id(employee_id: str) -> Optional[Employee]:
     """Helper function to find employee by ID."""
@@ -84,6 +93,10 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
         # Create employee record using candidate data
         employee_id = f"emp_{candidate_id}_{candidate.first_name.lower()}_{candidate.last_name.lower()}"
 
+        job_title = employee_data.get("job_title") or "New Hire"
+        department = employee_data.get("department") or "General"
+        location = employee_data.get("location") or "Remote"
+
         # Create Employee object with candidate data
         employee = Employee(
             employee_id=employee_id,
@@ -93,9 +106,9 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
             phone_number=candidate.phone_number or "",
             hire_date=candidate.offer.accepted_at if candidate.offer and candidate.offer.accepted_at else None,
             employment_status=EmploymentStatus.ACTIVE,
-            job_title="New Hire",  # Would come from requisition data in full implementation
-            department="TBD",      # Would come from requisition data in full implementation
-            location="Remote"      # Default location
+            job_title=job_title,
+            department=department,
+            location=location,
         )
 
         # Add employee to database
@@ -133,29 +146,18 @@ def generate_quarterly_people_report(quarter: str, year: int) -> str:
     - Gathers Talent metrics (time-to-hire, offer acceptance rate).
     - Compiles into a single report.
     """
-    print(f"Generating quarterly people report for Q{quarter} {year}...")
+    quarter_label = _normalize_quarter_label(quarter)
+    print(f"Generating quarterly people report for {quarter_label} {year}...")
     
-    hr_metrics = get_hr_quarterly_metrics(quarter, year, _employees_db)
-    crm_metrics = get_crm_quarterly_metrics(quarter, year)
-    talent_metrics = get_talent_quarterly_metrics(quarter, year)
+    hr_metrics = get_hr_quarterly_metrics(quarter_label, year, _employees_db)
+    crm_metrics = get_crm_quarterly_metrics(quarter_label, year)
+    talent_metrics = get_talent_quarterly_metrics(quarter_label, year)
     
-    # Compile the quarterly overview report
-    report_data = {
-        "hr_metrics": hr_metrics,
-        "crm_metrics": crm_metrics,
-        "talent_metrics": talent_metrics,
-        "quarter": quarter,
-        "year": year,
-        "generated_at": "2024-12-19",
-        "total_records": {
-            "employees": len(_employees_db),
-            "customers": len(_customers_db),
-            "candidates": len(_candidates_db)
-        }
-    }
-
-    # In a real implementation, this would generate a PDF or detailed report
-    report_path = f"quarterly_report_Q{quarter}_{year}.json"
+    report_path = create_quarterly_overview(
+        hr_metrics=hr_metrics,
+        crm_metrics=crm_metrics,
+        talent_metrics=talent_metrics,
+    )
     
     print(f"Quarterly people report generated at {report_path}.")
     return report_path
@@ -418,4 +420,4 @@ def clear_all_data() -> bool:
     _candidates_db = []
     _customers_db = []
     print("All data cleared from database")
-    return True 
+    return True

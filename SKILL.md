@@ -158,6 +158,18 @@ uv run python -m pytest GEO-INFER-MATH/tests/ -v
 uv run python -m pytest GEO-INFER-MATH/tests/ --cov=GEO-INFER-MATH/src
 ```
 
+### Modular Hygiene
+
+```bash
+uv sync --all-packages --all-extras
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+```
+
+- Root `pyproject.toml`, `uv.lock`, and `.python-version` define the uv workspace.
+- Each module keeps importable behavior under `src/` and at least four pytest files under `tests/`.
+- Planned work belongs in root `TODO.md` or a tracked issue, not source or test task markers.
+- Importable modules use `logging.getLogger(__name__)`; CLI entrypoints configure process-wide logging.
+
 ## Examples
 
 ### Cross-Module Pipeline
@@ -217,4 +229,6 @@ print(f"Action: {action}, Free energy: {agent.free_energy:.4f}")
 - **H3 v4 only** — use `latlng_to_cell`, not legacy `geo_to_h3`
 - **Graceful degradation** — optional deps via `try/except ImportError`
 - **Logger, not print** — use structured logging in all modules
+- **Root task ledger** — use `TODO.md` or issues for planned work; keep source and tests free of task markers
+- **uv workspace hygiene** — keep root `pyproject.toml`, `.python-version`, and `uv.lock` as the shared environment contract
 - Check each module's `SKILL.md` for domain-specific rules and integrations
