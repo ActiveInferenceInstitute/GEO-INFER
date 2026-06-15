@@ -6,11 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
 
-### Current Stats (2026-05-18)
+### Current Stats (2026-06-15)
 
-- **44 modules** | **860 source files** (297,360 lines) | **434 test files** (~87,000+ lines) | **~3,000+ tests**
+- **44 modules** | **884 Python source files** | **441 Python test files**
 - All package directories follow PEP 8 lowercase naming: `geo_infer_<module>` (including `geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`). Mixed-case directory normalization is complete.
 - Repo contract checks live in `GEO-INFER-TEST/validate_repo_contracts.py`; source-language debt is reported by default and can be made fatal with `--strict-source-language`.
+- The same contract validator also enforces root uv workspace hygiene, per-module test inventory, source/test task-marker hygiene, and library logging configuration.
 - Every module has a minimum of 4 test files.
 
 ## Build & Development Commands
@@ -35,7 +36,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py
 # Run tests for a specific module
 uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 
-# Run by category (unit, integration, system, performance)
+# Run by category (unit, integration, performance, coverage, all)
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 
 # Run tests directly with pytest for a single module
@@ -145,6 +146,10 @@ These rules are from `.cursorrules/` and apply to all modules:
 5. **Module-specific `.cursorrules`**: Individual modules may have their own `.cursorrules` file that extends the root rules. Check `GEO-INFER-MODULE/.cursorrules` before working on a module.
 
 6. **Docs track code**: Every code change must keep `README.md` (user-facing) and `AGENTS.md` (agent/integration-facing) in sync with the implementation.
+
+7. **Modular hygiene is centralized**: Root `pyproject.toml`, `uv.lock`, and `.python-version` define the uv environment; planned work belongs in root `TODO.md` or an issue; module source and tests must not carry local task markers.
+
+8. **Library logging is passive**: Importable modules should create loggers with `logging.getLogger(__name__)`. Configure process-wide handlers only in CLI entrypoints.
 
 ## Key Files & Resources
 

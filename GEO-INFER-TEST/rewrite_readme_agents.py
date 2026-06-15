@@ -195,7 +195,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 ## Quick Start
 
 ```bash
-uv sync --all-extras
+uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
@@ -205,6 +205,14 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
 {module_rows}
+
+## Modular Hygiene
+
+- Root `pyproject.toml`, `uv.lock`, and `.python-version` are the canonical uv environment surfaces.
+- Sync the full workspace with `uv sync --all-packages --all-extras` before repo-wide validation.
+- Each module owns importable behavior under `src/` and keeps at least four pytest files under `tests/`.
+- Planned work belongs in root `TODO.md` or a tracked issue, not source or test task markers.
+- Importable libraries use `logging.getLogger(__name__)`; process-wide logging configuration belongs in CLI entrypoints.
 
 ## Validation
 
@@ -244,13 +252,22 @@ Use this file as the repository-level operating contract for automated agents wo
 ## Standard Commands
 
 ```bash
-uv sync --all-extras
+uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 ```
+
+## Modular Hygiene Contract
+
+- Use root `pyproject.toml`, `uv.lock`, and `.python-version` as the shared uv environment contract.
+- Sync the shared workspace with `uv sync --all-packages --all-extras`.
+- Keep module behavior in the owning `GEO-INFER-*` package under `src/`; keep scripts and examples as orchestration surfaces.
+- Keep every module's local test inventory above the minimum release gate of four pytest files.
+- Put planned work in root `TODO.md` or a tracked issue; do not leave task markers in module source or tests.
+- Use module loggers in libraries and configure handlers only from CLI entrypoints.
 
 ## Documentation Contract
 

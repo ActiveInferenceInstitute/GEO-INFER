@@ -1,6 +1,5 @@
 """HR Reporting functions."""
 from typing import List, Dict, Any
-import pandas as pd
 from ..models.hr_models import Employee, EmploymentStatus
 from ..hr.transformer import convert_employees_to_dataframe
 
@@ -72,7 +71,7 @@ def get_quarterly_metrics(quarter: str, year: int, employees: List[Employee] = N
     Returns:
         Dictionary containing calculated HR metrics
     """
-    print(f"Calculating HR quarterly metrics for Q{quarter} {year}")
+    print(f"Calculating HR quarterly metrics for {quarter} {year}")
 
     if not employees:
         return {
@@ -149,10 +148,10 @@ def get_quarterly_metrics(quarter: str, year: int, employees: List[Employee] = N
         "data_source": f"Calculated from {len(employees)} employee records"
     }
 
-    print(f"Successfully calculated HR metrics for Q{quarter} {year}")
+    print(f"Successfully calculated HR metrics for {quarter} {year}")
     return metrics
 
 # Add more HR-specific reporting functions here, e.g.:
 # - Attrition rate report
 # - Compensation summary report
-# - Performance review completion status 
+# - Performance review completion status

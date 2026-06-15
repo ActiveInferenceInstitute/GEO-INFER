@@ -1,6 +1,5 @@
 """CRM Reporting functions."""
 from typing import List, Dict, Any
-import pandas as pd
 from ..models.crm_models import Customer
 from ..crm.transformer import convert_customers_to_dataframe # Assuming this function exists
 
@@ -76,7 +75,7 @@ def generate_lead_conversion_report(customers: List[Customer]) -> Dict[str, Any]
 
 def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
     """Simulates fetching CRM quarterly metrics."""
-    print(f"Fetching CRM quarterly metrics for Q{quarter} {year} (simulated).")
+    print(f"Fetching CRM quarterly metrics for {quarter} {year} (simulated).")
     return {
         "quarter": quarter,
         "year": year,
@@ -109,4 +108,4 @@ def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
 
 #     conversion_report = generate_lead_conversion_report(enriched)
 #     print("\nConversion Report:")
-#     print(json.dumps(conversion_report, indent=2)) 
+#     print(json.dumps(conversion_report, indent=2))

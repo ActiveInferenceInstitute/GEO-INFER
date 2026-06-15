@@ -2,11 +2,10 @@
 Unit tests for PerformanceMonitor using standard and property-based testing.
 """
 
+import json
 import time
-import pytest
 import statistics
-import uuid
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, strategies as st
 from geo_infer_test.core.performance_monitor import (
     PerformanceMonitor,
     BenchmarkRunner,
@@ -89,6 +88,20 @@ class TestMetricsCollectorAnalyzer:
         assert len(report["regressions"]) == 1
         assert report["regressions"][0]["metric"] == "duration_s"
 
+    def test_metrics_persistence_round_trip(self, tmp_path):
+        """Verify MetricsCollector writes JSON snapshots with metric payloads."""
+        collector = MetricsCollector()
+        collector.add({"duration_s": 1.25, "mean_s": 1.25})
+
+        output_file = tmp_path / "metrics.json"
+        collector.save(output_file)
+
+        payload = json.loads(output_file.read_text())
+        assert len(payload) == 1
+        assert payload[0]["duration_s"] == 1.25
+        assert payload[0]["mean_s"] == 1.25
+        assert "timestamp" in payload[0]
+
 
 # ---------------------------------------------------------------------------
 # Property-Based Tests (Hypothesis)
@@ -110,6 +123,7 @@ class TestHypothesisPerformance:
         # We can't easily mock time.perf_counter inside BenchmarkRunner via Hypothesis
         # so we verify the logic we use:
         assert min(durations) <= mean <= max(durations)
+        assert min(durations) <= median <= max(durations)
         if len(durations) > 2 and stdev > 0:
             # Most values within 3 stdevs (Chebyshev's inequality rough check)
             pass
@@ -132,26 +146,3 @@ class TestHypothesisPerformance:
             assert report["second_half_mean"] > report["first_half_mean"] * 1.1
         elif report["trend"] == "improving":
             assert report["second_half_mean"] < report["first_half_mean"] * 0.9
-
-    # FIXME: This test encounters a 'fixture metrics not found' error with pytest/hypothesis interaction
-    # on this environment. Disabling to ensure suite stability.
-    # @given(st.dictionaries(st.text(min_size=1), st.floats(min_value=0, max_value=100)))
-    # def test_metrics_persistence_fuzz(self, metrics, tmp_path):
-    #     """Fuzz MetricsCollector with random metric dictionaries."""
-    #     try:
-    #         collector = MetricsCollector()
-    #         collector.add(metrics)
-    #         
-    #         output_file = tmp_path / f"metrics_{uuid.uuid4()}.json"
-    #         collector.save(output_file)
-    #         
-    #         assert output_file.exists()
-    #         content = json.loads(output_file.read_text())
-    #         assert len(content) == 1
-    #         entry = content[0]
-    #         for k, v in metrics.items():
-    #             assert k in entry
-    #             # JSON loads float, hypothesis generates float - should match
-    #             assert abs(entry[k] - v) < 1e-9
-    #     except Exception as e:
-    #         pytest.fail(f"Failed to persist metrics {metrics}: {e}")

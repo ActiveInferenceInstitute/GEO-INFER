@@ -22,31 +22,15 @@ Usage:
     python california_multilayer_demo.py
 """
 
-import os
-import sys
 import json
 import logging
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 import numpy as np
 import folium
-from folium.plugins import MarkerCluster
 from shapely.geometry import Polygon, LineString, Point
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger("california_multilayer_demo")
-
-# H3 Library Import
-try:
-    import h3
-except ImportError:
-    logger.error("Failed to import h3 library. Please install it: uv pip install h3")
-    sys.exit(1)
 
 # California bounding box (approximate)
 CA_BOUNDS = {
@@ -55,6 +39,14 @@ CA_BOUNDS = {
     "min_lon": -124.5,
     "max_lon": -114.0
 }
+
+
+def configure_logging() -> None:
+    """Configure logging for direct demo execution."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
 
 def generate_zoning_geojson() -> Dict[str, Any]:
@@ -335,4 +327,5 @@ def main():
     logger.info("Demo completed successfully using H3 utility functions!")
 
 if __name__ == "__main__":
-    main() 
+    configure_logging()
+    main()

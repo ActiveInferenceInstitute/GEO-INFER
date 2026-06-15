@@ -1,5 +1,3 @@
-import pytest
-
 from geo_infer_pep.methods import (
     process_employee_onboarding_workflow,
     generate_quarterly_people_report,
@@ -7,14 +5,6 @@ from geo_infer_pep.methods import (
 )
 # Import the candidate DB so we can populate it directly
 import geo_infer_pep.methods as methods_module
-
-# Import the actual reporting functions that methods.py now uses
-from geo_infer_pep.reporting import (
-    get_hr_quarterly_metrics,
-    get_crm_quarterly_metrics,
-    get_talent_quarterly_metrics,
-    create_quarterly_overview
-)
 
 
 def _make_candidate(candidate_id="cand123_workflow", status="offer_accepted"):
@@ -77,10 +67,11 @@ def test_generate_quarterly_people_report_success(capsys):
 
     report_path = generate_quarterly_people_report(quarter, year)
 
-    assert report_path.endswith(f"quarterly_report_Q{quarter}_{year}.json")
+    assert report_path.endswith(f"simulated_quarterly_report_{quarter}_{year}.txt")
 
     captured = capsys.readouterr()
-    assert f"Generating quarterly people report for Q{quarter} {year}..." in captured.out
+    assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
+    assert "QQ1" not in captured.out
     assert "Quarterly people report generated" in captured.out
 
 
@@ -92,7 +83,22 @@ def test_generate_quarterly_report_no_data(capsys):
 
     report_path = generate_quarterly_people_report(quarter, year)
 
-    assert report_path.endswith(f"quarterly_report_Q{quarter}_{year}.json")
+    assert report_path.endswith(f"simulated_quarterly_report_{quarter}_{year}.txt")
+
+    captured = capsys.readouterr()
+    assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
+
+
+def test_generate_quarterly_report_normalizes_numeric_quarter(capsys):
+    """Test report generation normalizes numeric quarter input."""
+    quarter = "3"
+    year = 2025
+    clear_all_data()
+
+    report_path = generate_quarterly_people_report(quarter, year)
+
+    assert report_path.endswith(f"simulated_quarterly_report_Q{quarter}_{year}.txt")
 
     captured = capsys.readouterr()
     assert f"Generating quarterly people report for Q{quarter} {year}..." in captured.out
+    assert "QQ3" not in captured.out

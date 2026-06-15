@@ -73,8 +73,18 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 ## Validation
 
 ```bash
+uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
+
+Repo-wide contract checks:
+
+```bash
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+```
+
+`validate_repo_contracts.py` enforces module inventory, signposts, package casing, root uv workspace files, minimum test inventory, source/test task-marker hygiene, local-link integrity, generated-artifact hygiene, H3 dependency metadata, and library logging configuration.
 
 ## Documentation Notes
 
