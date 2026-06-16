@@ -201,15 +201,15 @@ async def main():
 
     # Geometry validation
     geometry_check = validator.validate_geometries(valid_gdf)
-    logger.info(f"Geometry Validation: {geometry_check.score".2f"} ({geometry_check.status})")
+    logger.info(f"Geometry Validation: {geometry_check.score:.2f} ({geometry_check.status})")
 
     # Coordinate validation
     coord_check = validator.validate_coordinates(valid_gdf)
-    logger.info(f"Coordinate Validation: {coord_check.score".2f"} ({coord_check.status})")
+    logger.info(f"Coordinate Validation: {coord_check.score:.2f} ({coord_check.status})")
 
     # Temporal validation
     temporal_check = validator.validate_temporal_data(valid_gdf)
-    logger.info(f"Temporal Validation: {temporal_check.score".2f"} ({temporal_check.status})")
+    logger.info(f"Temporal Validation: {temporal_check.score:.2f} ({temporal_check.status})")
 
     # Generate improvement recommendations
     logger.info("Generating improvement recommendations")

@@ -440,7 +440,7 @@ async def demonstrate_environmental_monitoring():
     )
 
     logger.info(f"Agent deployment completed: {len(deployment_plan['agents'])} agents deployed")
-    logger.info(f"Expected coverage: {deployment_plan['coverage_achieved']".2%"}")
+    logger.info(f"Expected coverage: {deployment_plan['coverage_achieved']:.2%}")
 
     # Generate sample sensor data
     sample_data = generate_sample_data()
@@ -461,7 +461,7 @@ async def demonstrate_environmental_monitoring():
 
     # Get monitoring status
     status = monitoring_swarm.get_monitoring_status()
-    logger.info(f"System efficiency: {status['performance_metrics']['monitoring_efficiency']".2%"}")
+    logger.info(f"System efficiency: {status['performance_metrics']['monitoring_efficiency']:.2%}")
 
     return monitoring_swarm, assessment
 
@@ -499,7 +499,10 @@ async def demonstrate_pattern_analysis():
     )
 
     network_props = interaction_analysis.get('network_structure', {}).get('network_properties', {})
-    logger.info(f"Network density: {network_props.get('density', 0)".3f"}, Clustering: {network_props.get('clustering_coefficient', 0)".3f"}")
+    logger.info(
+        f"Network density: {network_props.get('density', 0):.3f}, "
+        f"Clustering: {network_props.get('clustering_coefficient', 0):.3f}"
+    )
 
     # Detect emergent phenomena
     emergence_analysis = analyzer.detect_emergence(
@@ -629,15 +632,15 @@ async def main():
     # Print final summary
     if results['demonstration_completed']:
         print("\n🎉 DEMONSTRATION COMPLETED SUCCESSFULLY! 🎉")
-        print(f"Total time: {results['total_execution_time']".2f"} seconds")
+        print(f"Total time: {results['total_execution_time']:.2f} seconds")
         print(f"Components tested: {results['components_tested']}")
 
         print("\n📊 RESULTS SUMMARY:")
         for component, data in results['results'].items():
             print(f"  {component}: ✓")
 
-        print("
-📁 Results saved to file for detailed analysis"        print("🚀 The GEO-INFER-ANT swarm intelligence framework is ready for use!")
+        print("📁 Results saved to file for detailed analysis")
+        print("🚀 The GEO-INFER-ANT swarm intelligence framework is ready for use!")
 
     else:
         print(f"\n❌ DEMONSTRATION FAILED: {results.get('error', 'Unknown error')}")

@@ -40,7 +40,7 @@ def run_command(command, description=""):
 
         execution_time = time.time() - start_time
 
-        print(f"Execution time: {execution_time".2f"} seconds")
+        print(f"Execution time: {execution_time:.2f} seconds")
         print(f"Return code: {result.returncode}")
 
         if result.stdout:
@@ -259,9 +259,9 @@ def print_final_summary(report):
     print(f"Total Tests: {session['total_tests']}")
     print(f"Successful: {session['successful_tests']}")
     print(f"Failed: {session['failed_tests']}")
-    print(f"Success Rate: {summary['success_rate']".1%"}")
-    print(f"Total Time: {session['total_execution_time']".2f"} seconds")
-    print(f"Average Time: {summary['avg_execution_time']".2f"} seconds")
+    print(f"Success Rate: {summary['success_rate']:.1%}")
+    print(f"Total Time: {session['total_execution_time']:.2f} seconds")
+    print(f"Average Time: {summary['avg_execution_time']:.2f} seconds")
 
     if summary['by_type']:
         print("\n📊 By Test Type:")

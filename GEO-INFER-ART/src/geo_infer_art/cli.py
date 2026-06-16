@@ -470,7 +470,7 @@ def process_performance(args):
         print("Cache Statistics:")
         print(f"  Entries: {len(optimizer.cache)}")
         print(f"  Max entries: {optimizer.max_cache_size}")
-        print(f"  Total size: {sum(optimizer.cache_sizes.values()) / (1024*1024)".2f"} MB")
+        print(f"  Total size: {sum(optimizer.cache_sizes.values()) / (1024*1024):.2f} MB")
 
     if args.benchmark:
         print("Running performance benchmark...")
@@ -838,9 +838,9 @@ def main():
     else:
         parser.print_help()
         return 1
-    
+
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

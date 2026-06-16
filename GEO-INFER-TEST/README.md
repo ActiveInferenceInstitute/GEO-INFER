@@ -74,6 +74,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 ```bash
 uv sync --all-packages --all-extras
+python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
@@ -85,6 +86,7 @@ uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 ```
 
 `validate_repo_contracts.py` enforces module inventory, signposts, package casing, root uv workspace files, minimum test inventory, source/test task-marker hygiene, local-link integrity, generated-artifact hygiene, H3 dependency metadata, and library logging configuration.
+It also byte-compiles module `src/` and `examples/` Python files so syntax regressions fail fast.
 
 ## Documentation Notes
 

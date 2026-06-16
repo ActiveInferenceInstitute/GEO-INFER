@@ -149,3 +149,23 @@ def test_logging_contract_rejects_library_basic_config(tmp_path, monkeypatch):
     errors = "\n".join(report.errors)
     assert "library.py" in errors
     assert "cli.py" not in errors
+
+
+def test_python_source_syntax_contract_rejects_invalid_module_source(
+    tmp_path, monkeypatch
+):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    src_dir = tmp_path / "GEO-INFER-SAMPLE" / "src" / "geo_infer_sample"
+    examples_dir = tmp_path / "GEO-INFER-SAMPLE" / "examples"
+    src_dir.mkdir(parents=True)
+    examples_dir.mkdir(parents=True)
+    (src_dir / "valid.py").write_text("VALUE = 1\n")
+    (examples_dir / "broken.py").write_text("def broken(:\n    pass\n")
+    report = contracts.ContractReport()
+
+    contracts.validate_python_source_syntax(report)
+
+    errors = "\n".join(report.errors)
+    assert "GEO-INFER-SAMPLE/examples/broken.py" in errors
+    assert "invalid syntax" in errors

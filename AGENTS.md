@@ -21,6 +21,7 @@ Use this file as the repository-level operating contract for automated agents wo
 
 ```bash
 uv sync --all-packages --all-extras
+python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit

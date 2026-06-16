@@ -196,6 +196,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 
 ```bash
 uv sync --all-packages --all-extras
+python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
@@ -217,6 +218,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ## Validation
 
 - Repository contracts: `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language`
+- Syntax gate: `python -m compileall GEO-INFER-*/src GEO-INFER-*/examples`
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
@@ -253,6 +255,7 @@ Use this file as the repository-level operating contract for automated agents wo
 
 ```bash
 uv sync --all-packages --all-extras
+python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit

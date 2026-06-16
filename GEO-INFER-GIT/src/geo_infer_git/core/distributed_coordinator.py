@@ -207,6 +207,7 @@ class DistributedCoordinator:
         """Service for discovering and registering nodes."""
         import socket as sock
 
+        discovery_socket = None
         try:
             discovery_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
             discovery_socket.setsockopt(sock.SOL_SOCKET, sock.SO_BROADCAST, 1)
@@ -221,6 +222,15 @@ class DistributedCoordinator:
 
                     if message.get('type') == 'node_discovery':
                         self._handle_node_discovery(message, addr)
+                except Exception as e:
+                    logger.warning(f"Error in discovery service: {e}")
+                    time.sleep(1)
+
+        except Exception as e:
+            logger.error(f"Failed to start discovery service: {e}")
+        finally:
+            if discovery_socket is not None:
+                discovery_socket.close()
 
     def _handle_node_discovery(self, message: Dict[str, Any], addr: Tuple[str, int]) -> None:
         """Handle node discovery message."""
@@ -251,15 +261,6 @@ class DistributedCoordinator:
                     self.nodes[node_id] = new_node
 
                 logger.info(f"Discovered new node {node_id}")
-
-                except Exception as e:
-                    logger.warning(f"Error in discovery service: {e}")
-                    time.sleep(1)
-
-        except Exception as e:
-            logger.error(f"Failed to start discovery service: {e}")
-        finally:
-            discovery_socket.close()
 
     def _coordination_service(self) -> None:
         """Service for handling coordination messages."""
