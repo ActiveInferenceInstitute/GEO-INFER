@@ -76,9 +76,11 @@ def benchmark_distance_calculations(coordinates: np.ndarray, n_workers: int = 4)
     parallel_time = time.time() - start_time
     results['parallel'] = parallel_time
 
-    logger.info(".3f")
-    logger.info(".3f")
-    logger.info(".3f")
+    logger.info(
+        f"Distance calculation timings (seconds): "
+        f"serial={serial_time:.3f}, vectorized={vectorized_time:.3f}, "
+        f"parallel={parallel_time:.3f}"
+    )
 
     # Verify results are approximately equal
     np.testing.assert_allclose(distances_serial, distances_vectorized, rtol=1e-5)
@@ -106,8 +108,10 @@ def benchmark_spatial_statistics(coordinates: np.ndarray, values: np.ndarray) ->
     moran_time = time.time() - start_time
     results['morans_i'] = moran_time
 
-    logger.info(".3f")
-    logger.info(".3f")
+    logger.info(
+        f"Spatial statistics timings (seconds): "
+        f"weights_matrix={weights_time:.3f}, morans_i={moran_time:.3f}"
+    )
 
     return results
 
@@ -143,8 +147,9 @@ def benchmark_interpolation(coordinates: np.ndarray, values: np.ndarray,
     rbf_time = time.time() - start_time
     results['rbf_interpolation'] = rbf_time
 
-    logger.info(".3f")
-    logger.info(".3f")
+    logger.info(
+        f"Interpolation timings (seconds): idw={idw_time:.3f}, rbf={rbf_time:.3f}"
+    )
 
     return results
 
@@ -180,9 +185,11 @@ def benchmark_parallel_processing(data_size: int, n_workers: int = 4) -> dict:
     speedup = serial_time / parallel_time
     results['parallel_speedup'] = speedup
 
-    logger.info(".3f")
-    logger.info(".3f")
-    logger.info(".2f")
+    logger.info(
+        f"Parallel processing timings (seconds): "
+        f"serial={serial_time:.3f}, parallel={parallel_time:.3f}, "
+        f"speedup={speedup:.2f}x"
+    )
 
     return results
 
@@ -226,38 +233,38 @@ def create_performance_report(all_results: dict) -> None:
     print("GEO-INFER-MATH PERFORMANCE BENCHMARK REPORT")
     print("="*80)
 
-    print("
-1. DISTANCE CALCULATIONS"    print("-" * 40)
+    print("\n1. DISTANCE CALCULATIONS")
+    print("-" * 40)
     dist_results = all_results['distance_calculations']
-    print(".3f")
-    print(".3f")
-    print(".3f")
+    print(f"  Serial pairwise: {dist_results['serial_pairwise']:.3f} seconds")
+    print(f"  Vectorized: {dist_results['vectorized']:.3f} seconds")
+    print(f"  Parallel: {dist_results['parallel']:.3f} seconds")
 
     if 'parallel' in dist_results:
         speedup = dist_results['serial_pairwise'] / dist_results['parallel']
-        print(".2f")
+        print(f"  Parallel speedup: {speedup:.2f}x")
 
-    print("
-2. SPATIAL STATISTICS"    print("-" * 40)
+    print("\n2. SPATIAL STATISTICS")
+    print("-" * 40)
     stats_results = all_results['spatial_statistics']
-    print(".3f")
-    print(".3f")
+    print(f"  Weights matrix creation: {stats_results['weights_matrix_creation']:.3f} seconds")
+    print(f"  Moran's I computation: {stats_results['morans_i']:.3f} seconds")
 
-    print("
-3. SPATIAL INTERPOLATION"    print("-" * 40)
+    print("\n3. SPATIAL INTERPOLATION")
+    print("-" * 40)
     interp_results = all_results['interpolation']
-    print(".3f")
-    print(".3f")
+    print(f"  IDW interpolation: {interp_results['idw_interpolation']:.3f} seconds")
+    print(f"  RBF interpolation: {interp_results['rbf_interpolation']:.3f} seconds")
 
-    print("
-4. PARALLEL PROCESSING"    print("-" * 40)
+    print("\n4. PARALLEL PROCESSING")
+    print("-" * 40)
     parallel_results = all_results['parallel_processing']
-    print(".3f")
-    print(".3f")
-    print(".2f")
+    print(f"  Serial processing: {parallel_results['serial_processing']:.3f} seconds")
+    print(f"  Parallel processing: {parallel_results['parallel_processing']:.3f} seconds")
+    print(f"  Parallel speedup: {parallel_results['parallel_speedup']:.2f}x")
 
-    print("
-5. MEMORY USAGE"    print("-" * 40)
+    print("\n5. MEMORY USAGE")
+    print("-" * 40)
     memory_results = all_results['memory_usage']
     for key, value in memory_results.items():
         if key.startswith('memory_'):
@@ -266,14 +273,14 @@ def create_performance_report(all_results: dict) -> None:
             time_taken = memory_results[f'time_{size}']
             print(f"  Size {size}: {memory:.1f} MB, {time_taken:.3f} seconds")
 
-    print("
-6. SYSTEM INFORMATION"    print("-" * 40)
+    print("\n6. SYSTEM INFORMATION")
+    print("-" * 40)
     import multiprocessing
     print(f"  CPU cores available: {multiprocessing.cpu_count()}")
     print(f"  NumPy version: {np.__version__}")
 
-    print("
-PERFORMANCE SUMMARY"    print("-" * 40)
+    print("\nPERFORMANCE SUMMARY")
+    print("-" * 40)
     print("✅ Vectorized operations provide significant speedup over serial methods")
     print("✅ Parallel processing scales well with data size")
     print("✅ Memory usage remains reasonable for large datasets")
@@ -294,26 +301,26 @@ def main():
     # Run benchmarks
     all_results = {}
 
-    logger.info("
-Running distance calculation benchmarks..."    all_results['distance_calculations'] = benchmark_distance_calculations(coordinates, n_workers)
+    logger.info("\nRunning distance calculation benchmarks...")
+    all_results['distance_calculations'] = benchmark_distance_calculations(coordinates, n_workers)
 
-    logger.info("
-Running spatial statistics benchmarks..."    all_results['spatial_statistics'] = benchmark_spatial_statistics(coordinates, values)
+    logger.info("\nRunning spatial statistics benchmarks...")
+    all_results['spatial_statistics'] = benchmark_spatial_statistics(coordinates, values)
 
-    logger.info("
-Running interpolation benchmarks..."    all_results['interpolation'] = benchmark_interpolation(coordinates, values)
+    logger.info("\nRunning interpolation benchmarks...")
+    all_results['interpolation'] = benchmark_interpolation(coordinates, values)
 
-    logger.info("
-Running parallel processing benchmarks..."    all_results['parallel_processing'] = benchmark_parallel_processing(1000, n_workers)
+    logger.info("\nRunning parallel processing benchmarks...")
+    all_results['parallel_processing'] = benchmark_parallel_processing(1000, n_workers)
 
-    logger.info("
-Running memory usage benchmarks..."    all_results['memory_usage'] = benchmark_memory_usage()
+    logger.info("\nRunning memory usage benchmarks...")
+    all_results['memory_usage'] = benchmark_memory_usage()
 
     # Create performance report
     create_performance_report(all_results)
 
-    logger.info("
-Benchmarking completed successfully!"    logger.info("Performance report generated above.")
+    logger.info("\nBenchmarking completed successfully!")
+    logger.info("Performance report generated above.")
 
 if __name__ == "__main__":
     main()

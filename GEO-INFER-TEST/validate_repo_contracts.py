@@ -506,6 +506,36 @@ def validate_setup_syntax(module_dirs: list[Path], report: ContractReport) -> No
             report.error(f"{setup_py.relative_to(REPO_ROOT)}: syntax error: {exc}")
 
 
+def validate_python_source_syntax(report: ContractReport) -> None:
+    """Fail fast on any syntax errors in module source and examples."""
+    source_files = [
+        *REPO_ROOT.glob("GEO-INFER-*/src/**/*.py"),
+        *REPO_ROOT.glob("GEO-INFER-*/examples/**/*.py"),
+    ]
+
+    for source_file in sorted(source_files):
+        if not source_file.is_file():
+            continue
+        try:
+            compile(
+                source_file.read_text(encoding="utf-8"),
+                filename=str(source_file),
+                mode="exec",
+            )
+        except SyntaxError as exc:
+            line = exc.text.strip() if exc.text else "n/a"
+            report.error(
+                f"{source_file.relative_to(REPO_ROOT)}:{exc.lineno}:{exc.offset}: "
+                f"{exc.msg} ({line})"
+            )
+            return
+        except UnicodeDecodeError as exc:
+            report.error(
+                f"{source_file.relative_to(REPO_ROOT)}: decoding error: {exc.reason}"
+            )
+            return
+
+
 def validate_runtime_metadata(module_dirs: list[Path], report: ContractReport) -> None:
     metadata_files = [
         REPO_ROOT / "pyproject.toml",
@@ -726,6 +756,7 @@ def main() -> int:
     validate_uv_setup_documentation(report)
     validate_test_inventory(module_dirs, report)
     validate_setup_syntax(module_dirs, report)
+    validate_python_source_syntax(report)
     validate_runtime_metadata(module_dirs, report)
     validate_h3_dependency_metadata(report)
     validate_requirements_files(report)

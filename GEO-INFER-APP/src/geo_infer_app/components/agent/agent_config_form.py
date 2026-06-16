@@ -1,240 +1,102 @@
+"""Compatibility shim for agent configuration form definitions.
+
+The original project documentation references this module as a UI form
+component. In the Python package surface, provide a minimal
+interoperable data model so imports remain valid while keeping the actual
+frontend form implementation in frontend-specific tooling when introduced.
 """
-Agent Configuration Form Component
 
-A React component for configuring geospatial agents with UI forms
-generated from agent configuration schemas.
-"""
+from __future__ import annotations
 
-import React from "react"
-import PropTypes from "prop-types"
-import { useForm, Controller } from "react-hook-form"
-import { 
-    Box, Button, FormControl, FormLabel, FormHelperText, 
-    Input, Select, Checkbox, Textarea, NumberInput,
-    NumberInputField, NumberInputStepper, NumberIncrementStepper,
-    NumberDecrementStepper, Stack, Heading, Divider,
-    Accordion, AccordionItem, AccordionButton, AccordionPanel,
-    AccordionIcon, Alert, AlertIcon
-} from "@chakra-ui/react"
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, Optional
 
-const AgentConfigForm = ({ 
-    schema, 
-    initialValues = {}, 
-    onSubmit, 
-    onCancel,
-    isLoading = false,
-    error = null
-}) => {
-    const { handleSubmit, control, formState: { errors } } = useForm({
-        defaultValues: initialValues
-    });
 
-    // Group fields by their group property
-    const fieldsByGroup = {};
-    schema.fields.forEach(field => {
-        const groupName = field.group || "Basic";
-        if (!fieldsByGroup[groupName]) {
-            fieldsByGroup[groupName] = [];
-        }
-        fieldsByGroup[groupName].push(field);
-    });
+@dataclass
+class AgentConfigForm:
+    """Container describing an agent configuration form payload.
 
-    // Sort groups by their order
-    const sortedGroups = Object.entries(fieldsByGroup).sort((a, b) => {
-        const groupA = schema.groups.find(g => g.name === a[0]) || { order: 999 };
-        const groupB = schema.groups.find(g => g.name === b[0]) || { order: 999 };
-        return groupA.order - groupB.order;
-    });
+    This keeps ``geo_infer_app`` imports operational and provides a structured
+    configuration object for programmatic callers.
+    """
 
-    // Render a field based on its type
-    const renderField = (field) => {
-        const isRequired = field.required;
-        const fieldError = errors[field.name];
+    schema: Dict[str, Any]
+    initial_values: Dict[str, Any]
+    on_submit: Optional[Callable[[Dict[str, Any]], Any]] = None
+    on_cancel: Optional[Callable[[], Any]] = None
+    is_loading: bool = False
+    error: Optional[str] = None
 
-        // Check field dependencies
-        const shouldRender = !field.dependencies || field.dependencies.every(dep => {
-            return !!initialValues[dep];
-        });
+    def __init__(
+        self,
+        schema: Dict[str, Any],
+        initialValues: Optional[Dict[str, Any]] = None,
+        onSubmit: Optional[Callable[[Dict[str, Any]], Any]] = None,
+        onCancel: Optional[Callable[[], Any]] = None,
+        isLoading: bool = False,
+        error: Optional[str] = None,
+        *,
+        initial_values: Optional[Dict[str, Any]] = None,
+        on_submit: Optional[Callable[[Dict[str, Any]], Any]] = None,
+        on_cancel: Optional[Callable[[], Any]] = None,
+        is_loading: Optional[bool] = None,
+    ) -> None:
+        self.schema = schema
+        self.initial_values = (
+            initial_values if initial_values is not None else initialValues or {}
+        )
+        self.on_submit = on_submit if on_submit is not None else onSubmit
+        self.on_cancel = on_cancel if on_cancel is not None else onCancel
+        self.is_loading = is_loading if is_loading is not None else isLoading
+        self.error = error
 
-        if (!shouldRender) {
-            return null;
-        }
+    @property
+    def initialValues(self) -> Dict[str, Any]:
+        """Legacy camelCase alias retained for compatibility."""
+        return self.initial_values
 
-        return (
-            <FormControl 
-                key={field.name} 
-                isRequired={isRequired} 
-                isInvalid={!!fieldError}
-                mb={4}
-            >
-                <FormLabel>{field.label}</FormLabel>
-                <Controller
-                    name={field.name}
-                    control={control}
-                    rules={{ 
-                        required: isRequired ? `${field.label} is required` : false,
-                        ...(field.validation?.min !== undefined ? { min: field.validation.min } : {}),
-                        ...(field.validation?.max !== undefined ? { max: field.validation.max } : {}),
-                        ...(field.validation?.pattern ? { pattern: field.validation.pattern } : {})
-                    }}
-                    render={({ field: formField }) => {
-                        switch (field.field_type) {
-                            case "string":
-                                return <Input {...formField} />;
-                            case "number":
-                                return (
-                                    <NumberInput 
-                                        {...formField} 
-                                        min={field.validation?.min}
-                                        max={field.validation?.max}
-                                        step={0.1}
-                                    >
-                                        <NumberInputField />
-                                        <NumberInputStepper>
-                                            <NumberIncrementStepper />
-                                            <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                    </NumberInput>
-                                );
-                            case "boolean":
-                                return <Checkbox {...formField} isChecked={formField.value} />;
-                            case "object":
-                                return <Textarea {...formField} value={JSON.stringify(formField.value, null, 2)} />;
-                            case "array":
-                                return <Textarea {...formField} value={JSON.stringify(formField.value, null, 2)} />;
-                            case "select":
-                                return (
-                                    <Select {...formField}>
-                                        {field.options.map(option => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                );
-                            case "multiselect":
-                                // This is a simplified implementation
-                                return (
-                                    <Select {...formField} multiple>
-                                        {field.options.map(option => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                );
-                            case "geolocation":
-                                // Simplified geolocation input
-                                return (
-                                    <Stack direction="row" spacing={2}>
-                                        <NumberInput placeholder="Latitude">
-                                            <NumberInputField />
-                                        </NumberInput>
-                                        <NumberInput placeholder="Longitude">
-                                            <NumberInputField />
-                                        </NumberInput>
-                                    </Stack>
-                                );
-                            default:
-                                return <Input {...formField} />;
-                        }
-                    }}
-                />
-                {field.description && !fieldError && (
-                    <FormHelperText>{field.description}</FormHelperText>
-                )}
-                {fieldError && (
-                    <FormHelperText color="red.500">{fieldError.message}</FormHelperText>
-                )}
-            </FormControl>
-        );
-    };
+    @initialValues.setter
+    def initialValues(self, value: Dict[str, Any]) -> None:
+        self.initial_values = value
 
-    return (
-        <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Heading size="md" mb={4}>{schema.title}</Heading>
-            {error && (
-                <Alert status="error" mb={4}>
-                    <AlertIcon />
-                    {error}
-                </Alert>
-            )}
-            
-            <Accordion defaultIndex={[0]} allowMultiple>
-                {sortedGroups.map(([groupName, fields]) => {
-                    const group = schema.groups.find(g => g.name === groupName) || {
-                        label: groupName,
-                        name: groupName
-                    };
-                    
-                    return (
-                        <AccordionItem key={groupName}>
-                            <h2>
-                                <AccordionButton>
-                                    <Box flex="1" textAlign="left" fontWeight="medium">
-                                        {group.label}
-                                    </Box>
-                                    <AccordionIcon />
-                                </AccordionButton>
-                            </h2>
-                            <AccordionPanel pb={4}>
-                                {fields.sort((a, b) => a.order - b.order).map(renderField)}
-                            </AccordionPanel>
-                        </AccordionItem>
-                    );
-                })}
-            </Accordion>
-            
-            <Divider my={6} />
-            
-            <Stack direction="row" spacing={4} justifyContent="flex-end">
-                {onCancel && (
-                    <Button onClick={onCancel} variant="outline">
-                        Cancel
-                    </Button>
-                )}
-                <Button 
-                    type="submit" 
-                    colorScheme="blue" 
-                    isLoading={isLoading}
-                >
-                    Save Configuration
-                </Button>
-            </Stack>
-        </Box>
-    );
-};
+    @property
+    def onSubmit(self) -> Optional[Callable[[Dict[str, Any]], Any]]:
+        """Legacy camelCase alias retained for compatibility."""
+        return self.on_submit
 
-AgentConfigForm.propTypes = {
-    schema: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        description: PropTypes.string,
-        fields: PropTypes.arrayOf(PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            field_type: PropTypes.string.isRequired,
-            label: PropTypes.string.isRequired,
-            description: PropTypes.string,
-            required: PropTypes.bool,
-            options: PropTypes.arrayOf(PropTypes.shape({
-                label: PropTypes.string.isRequired,
-                value: PropTypes.any.isRequired
-            })),
-            validation: PropTypes.object,
-            dependencies: PropTypes.arrayOf(PropTypes.string),
-            group: PropTypes.string,
-            order: PropTypes.number
-        })).isRequired,
-        groups: PropTypes.arrayOf(PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            label: PropTypes.string.isRequired,
-            order: PropTypes.number
-        }))
-    }).isRequired,
-    initialValues: PropTypes.object,
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func,
-    isLoading: PropTypes.bool,
-    error: PropTypes.string
-};
+    @onSubmit.setter
+    def onSubmit(self, value: Optional[Callable[[Dict[str, Any]], Any]]) -> None:
+        self.on_submit = value
 
-export default AgentConfigForm; 
+    @property
+    def onCancel(self) -> Optional[Callable[[], Any]]:
+        """Legacy camelCase alias retained for compatibility."""
+        return self.on_cancel
+
+    @onCancel.setter
+    def onCancel(self, value: Optional[Callable[[], Any]]) -> None:
+        self.on_cancel = value
+
+    @property
+    def isLoading(self) -> bool:
+        """Legacy camelCase alias retained for compatibility."""
+        return self.is_loading
+
+    @isLoading.setter
+    def isLoading(self, value: bool) -> None:
+        self.is_loading = value
+
+    def submit(self, values: Optional[Dict[str, Any]] = None) -> Optional[Any]:
+        """Submit a normalized configuration payload."""
+        payload = dict(self.initial_values)
+        if values:
+            payload.update(values)
+        if self.on_submit is None:
+            return payload
+        return self.on_submit(payload)
+
+    def cancel(self) -> Optional[Any]:
+        """Execute the optional cancellation handler."""
+        if self.on_cancel is None:
+            return None
+        return self.on_cancel()

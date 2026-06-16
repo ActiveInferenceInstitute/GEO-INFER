@@ -113,8 +113,7 @@ def spatial_statistics_analysis(coordinates, values):
     moran = MoranI(weights_matrix)
     moran_result = moran.compute(values)
 
-    logger.info(".4f"
-                ".4f")
+    logger.info(f"Computed global Moran's I metrics")
 
     # Local Indicators of Spatial Association (LISA)
     lisa_result = local_indicators_spatial_association(values, weights_matrix)
@@ -168,7 +167,7 @@ def regression_analysis(coordinates, values):
     gwr = GeographicallyWeightedRegression(bandwidth=0.05)  # 5km bandwidth
     gwr.fit(X, values, coordinates)
 
-    logger.info(".3f")
+    logger.info(f"GWR model training complete: {gwr.__class__.__name__}")
 
     return gwr
 
@@ -271,7 +270,7 @@ def create_comprehensive_visualization(coordinates, values, utm_coords,
 
     # Plot 6: Analysis summary
     axes[1, 2].axis('off')
-    summary_text = ".1f"".1f"".1f"f"""
+    summary_text = f"""
     Analysis Summary:
 
     • Dataset: {len(coordinates)} points
@@ -332,37 +331,41 @@ def main():
     print("ADVANCED GEOSPATIAL ANALYSIS RESULTS")
     print("="*60)
 
-    print(".4f"
-          ".4f")
+    if isinstance(moran_result, dict) and "moran_i" in moran_result:
+        print(f"Global Moran's I: {moran_result['moran_i']:.4f}")
+    else:
+        print(f"Global Moran's I: {moran_result}")
 
-    print("
-LISA Analysis:"    print(f"  High-High clusters: {np.sum(lisa_result['classifications'] == 1)}")
+    print("LISA Analysis:")
+    print(f"  High-High clusters: {np.sum(lisa_result['classifications'] == 1)}")
     print(f"  Low-Low clusters: {np.sum(lisa_result['classifications'] == 2)}")
     print(f"  Outliers: {np.sum(lisa_result['classifications'] > 2)}")
 
-    print("
-Hot Spot Analysis:"    print(".4f"
-          ".1f"
-          ".1f")
+    print("Hot Spot Analysis:")
+    if isinstance(g_result, dict):
+        print(f"  Z-score: {g_result.get('z', 0):.4f}")
+        print(f"  P-value: {g_result.get('p', 0):.1f}")
+    else:
+        print(f"  Result: {g_result}")
 
-    print("
-Clustering Results:"    for i in range(3):
+    print("Clustering Results:")
+    for i in range(3):
         count = np.sum(labels == i)
         print(f"  Cluster {i+1}: {count} points")
 
-    print("
-GWR Results:"    print(".3f")
+    print("GWR Results:")
+    print("  Completed model: GeographicallyWeightedRegression")
 
-    print("
-Parallel Processing:"    print(f"  Processed {len(parallel_results)} distance queries")
+    print("Parallel Processing:")
+    print(f"  Processed {len(parallel_results)} distance queries")
 
-    print("
-Coordinate Transformations:"    print(f"  Geographic → UTM: {len(coordinates)} points")
+    print("Coordinate Transformations:")
+    print(f"  Geographic → UTM: {len(coordinates)} points")
     print(f"  Geographic → Web Mercator: {len(coordinates)} points")
 
-    print("
-Interpolation:"    print(f"  IDW interpolation on {xx.shape[0]}x{xx.shape[1]} grid")
-    print(".1f")
+    print("Interpolation:")
+    print(f"  IDW interpolation on {xx.shape[0]}x{xx.shape[1]} grid")
+    print(f"  Interpolated range: {interpolated_grid.min():.1f} to {interpolated_grid.max():.1f}")
 
     print("\nAnalysis completed successfully!")
     print("Visualization saved as 'advanced_geospatial_analysis.png'")

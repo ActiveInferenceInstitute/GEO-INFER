@@ -9,7 +9,7 @@ Agent workspace within `GEO-INFER-APP`.
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `AgentConfigForm` is exported from this package as a Python compatibility object in `agent_config_form.py`.
 
 ## Module Metadata
 

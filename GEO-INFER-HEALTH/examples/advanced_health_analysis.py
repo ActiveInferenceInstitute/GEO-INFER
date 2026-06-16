@@ -36,6 +36,13 @@ setup_logging(level="INFO")
 logger = get_logger(__name__)
 
 
+def _coordinate_value(location, coordinate: str, default: float = 0.0) -> float:
+    """Read a coordinate from either model-like objects or dictionaries."""
+    if isinstance(location, dict):
+        return location.get(coordinate, default)
+    return getattr(location, coordinate, default)
+
+
 def create_sample_disease_data():
     """Create comprehensive sample disease surveillance data."""
     logger.info("Creating sample disease surveillance data...")
@@ -285,26 +292,40 @@ def demonstrate_active_inference_disease_analysis():
     logger.info("BELIEF STATES:")
     for state, value in results['belief_states'].items():
         precision = results['belief_precisions'][state]
-        logger.info(".3f"
+        logger.info(f"  {state}: {value:.3f} (precision: {precision:.3f})")
     logger.info("\nOBSERVATIONS:")
     for obs, value in results['observations'].items():
-        logger.info(".3f"
+        logger.info(f"  {obs}: {value:.3f}")
     logger.info("\nTRADITIONAL HOTSPOTS FOUND: {}".format(len(results['traditional_hotspots'])))
     for hotspot in results['traditional_hotspots'][:3]:  # Show first 3
-        logger.info(".2f"
+        location = hotspot.get("location", {})
+        latitude = _coordinate_value(location, "latitude")
+        longitude = _coordinate_value(location, "longitude")
+        logger.info(
+            f"  {hotspot.get('comment', 'Hotspot')} @ ({latitude:.2f}, {longitude:.2f}) "
+            f"- Cases: {hotspot.get('case_count', 0):.0f}"
+        )
     logger.info("\nENHANCED HOTSPOTS FOUND: {}".format(len(results['enhanced_hotspots'])))
     for hotspot in results['enhanced_hotspots'][:3]:  # Show first 3
-        logger.info(".2f"
+        location = hotspot.get("location", {})
+        latitude = _coordinate_value(location, "latitude")
+        longitude = _coordinate_value(location, "longitude")
+        logger.info(
+            f"  {hotspot.get('comment', 'Enhanced hotspot')} @ ({latitude:.2f}, {longitude:.2f}) "
+            f"- Cases: {hotspot.get('case_count', 0):.0f}, "
+            f"Radius: {hotspot.get('radius_km', 0.0):.2f} km, "
+            f"Confidence: {hotspot.get('confidence', 0.0):.2f}"
+        )
     logger.info("\nPREDICTIONS:")
     predictions = results['predictions']
-    logger.info(".3f"
-    logger.info(".3f"
+    logger.info(f"  Short-term risk: {predictions['short_term_risk']:.3f}")
+    logger.info(f"  Confidence: {predictions.get('confidence', 0):.3f}")
     logger.info("Trend: {}".format(predictions['trend']))
 
     logger.info("\nRISK ASSESSMENT:")
     risk = results['risk_assessment']
     logger.info("Risk Level: {}".format(risk['risk_level']))
-    logger.info(".3f"
+    logger.info("Risk Score: {:.3f}".format(risk['score']))
     logger.info("Risk Factors:")
     for factor, value in risk['factors'].items():
         logger.info("  {}: {:.3f}".format(factor, value))
@@ -345,7 +366,14 @@ def demonstrate_healthcare_accessibility_analysis():
     logger.info("Found {} facilities within 5km:".format(len(nearby_facilities)))
     for facility in nearby_facilities[:5]:  # Show first 5
         distance = analyzer._calculate_distance(test_location, facility.location)
-        logger.info(".2f"
+        logger.info(
+            "  {} ({:.2f} km): {} (capacity {})".format(
+                facility.name,
+                distance,
+                facility.facility_type,
+                facility.capacity,
+            )
+        )
     # Find nearest facility
     logger.info("\nFinding nearest facility...")
     nearest_result = analyzer.get_nearest_facility(loc=test_location)

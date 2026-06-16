@@ -258,14 +258,14 @@ def demonstrate_spatial_language_processing():
         try:
             interpretation = language_processor.process_place_description(description)
 
-            print(f"     ✓ Interpretation confidence: {interpretation['interpretation_confidence']".3f"}")
+            print(f"     ✓ Interpretation confidence: {interpretation['interpretation_confidence']:.3f}")
             print(f"     ✓ Entities found: {len(interpretation['entities'])}")
             print(f"     ✓ Relations found: {len(interpretation['relations'])}")
             print(f"     ✓ Spatial concepts: {len(interpretation['spatial_concepts'])}")
 
             # Show extracted entities
             for entity in interpretation['entities'][:2]:  # Show first 2 entities
-                print(f"       - {entity['text']} ({entity['entity_type']}, confidence: {entity['confidence']".2f"})")
+                print(f"       - {entity['text']} ({entity['entity_type']}, confidence: {entity['confidence']:.2f})")
 
             # Show geocoding results
             geocoded = [c for c in interpretation['geocoding_candidates'] if c['geocoding_success']]
@@ -378,8 +378,8 @@ def demonstrate_cognitive_map_creation():
     print(f"   ✓ Landmarks: {stats['components']['landmarks']}")
     print(f"   ✓ Routes: {stats['components']['routes']}")
     print(f"   ✓ Regions: {stats['components']['regions']}")
-    print(f"   ✓ Cognitive load: {stats['performance']['cognitive_load']".3f"}")
-    print(f"   ✓ Average saliency: {stats['cognitive_properties']['average_saliency']".3f"}")
+    print(f"   ✓ Cognitive load: {stats['performance']['cognitive_load']:.3f}")
+    print(f"   ✓ Average saliency: {stats['cognitive_properties']['average_saliency']:.3f}")
 
     return cognitive_map
 
@@ -478,9 +478,9 @@ def demonstrate_user_profiling():
     for user_id, profile in profiles.items():
         summary = profile.get_profile_summary()
         print(f"\n   {user_id} profile:")
-        print(f"     - Expertise: {summary['spatial_capabilities']['expertise_level']".2f"}")
+        print(f"     - Expertise: {summary['spatial_capabilities']['expertise_level']:.2f}")
         print(f"     - Cognitive style: {summary['cognitive_preferences']['cognitive_style']}")
-        print(f"     - Recent performance: {summary['performance_metrics']['recent_performance']".2f"}")
+        print(f"     - Recent performance: {summary['performance_metrics']['recent_performance']:.2f}")
 
 
 def create_visualization_demo():
