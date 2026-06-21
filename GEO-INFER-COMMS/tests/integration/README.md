@@ -29,6 +29,7 @@ Integration workspace within `GEO-INFER-COMMS`.
 uv run python -m pytest GEO-INFER-COMMS/tests/integration
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

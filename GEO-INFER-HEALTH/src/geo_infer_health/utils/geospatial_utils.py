@@ -91,7 +91,7 @@ def create_bounding_box(
     if min_lon > max_lon:
         # This simple bounding box does not explicitly handle antimeridian crossing for complex queries.
         # For sophisticated geospatial queries crossing the antimeridian, a GIS library is recommended.
-        pass
+        min_lon, max_lon = -180.0, 180.0
 
     return (
         Location(latitude=min_lat, longitude=min_lon, crs=center_loc.crs),

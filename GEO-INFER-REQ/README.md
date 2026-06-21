@@ -4,6 +4,7 @@ Requirements engineering using P3IF framework for geospatial systems, user stori
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -35,6 +36,7 @@ Requirements engineering using P3IF framework for geospatial systems, user stori
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module REQ
 ```
+
 
 ## Documentation Notes
 

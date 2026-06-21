@@ -138,7 +138,9 @@ class DesignMatrix:
 
     def __post_init__(self):
         """Initialize design matrix structure."""
-        pass
+        self.matrix = np.asarray(self.matrix)
+        if self.matrix.ndim == 2 and self.names is None:
+            self.names = [f"regressor_{i}" for i in range(self.matrix.shape[1])]
 
     @property
     def n_regressors(self) -> int:

@@ -34,6 +34,7 @@ Integration workspace within `GEO-INFER-NORMS`.
 uv run python -m pytest GEO-INFER-NORMS/tests/integration
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

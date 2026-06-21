@@ -7,6 +7,8 @@ available and uses direct H3 v4 calls for operations SPACE does not expose.
 
 from __future__ import annotations
 
+from pathlib import Path
+import sys
 from typing import Any, Dict, Iterable, List, Optional
 
 
@@ -175,6 +177,22 @@ class H3Adapter:
 def get_h3_adapter(prefer_space: bool = True) -> H3Adapter:
     """Create an H3 adapter for ACT spatial methods."""
     return H3Adapter(prefer_space=prefer_space)
+
+
+def get_nested_h3_grid_class() -> Any:
+    """Return SPACE's ``NestedH3Grid`` class in installed or repo-local runs."""
+    try:
+        from geo_infer_space.nested import NestedH3Grid  # noqa: PLC0415
+
+        return NestedH3Grid
+    except ImportError:
+        repo_root = Path(__file__).resolve().parents[4]
+        space_src = repo_root / "GEO-INFER-SPACE" / "src"
+        if space_src.exists() and str(space_src) not in sys.path:
+            sys.path.insert(0, str(space_src))
+        from geo_infer_space.nested import NestedH3Grid  # noqa: PLC0415
+
+        return NestedH3Grid
 
 
 def normalize_belief_vector(values: Any) -> Any:

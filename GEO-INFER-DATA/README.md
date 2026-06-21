@@ -4,6 +4,7 @@ Foundational data backbone providing ETL pipelines, storage optimization, and da
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `etl/`
@@ -50,6 +51,7 @@ Foundational data backbone providing ETL pipelines, storage optimization, and da
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
+
 
 ## Documentation Notes
 

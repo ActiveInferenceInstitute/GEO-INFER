@@ -47,7 +47,7 @@ comparison = model.compare(["model_a", "model_b"], method="loo")
 
 ## Guidelines
 
-- GP uses Cholesky decomposition (real, not stub)
+- GP uses actual Cholesky decomposition
 - TFP interface: real GP + Metropolis-Hastings sampling
 - PyMC interface: posterior predictive sampling for predictions
 - Variational: real ELBO computation with KL divergence

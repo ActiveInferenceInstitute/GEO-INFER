@@ -4,6 +4,7 @@ Comprehensive project documentation, workflow management, and ontology systems f
 
 ## Contents
 
+- `.pytest_cache/`
 - `assessment_results/`
 - `config/`
 - `docs/`
@@ -53,6 +54,7 @@ Comprehensive project documentation, workflow management, and ontology systems f
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
 ```
+
 
 ## Documentation Notes
 

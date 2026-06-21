@@ -4,6 +4,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 
 ## Contents
 
+- `.pytest_cache/`
 - `assessment_results/`
 - `config/`
 - `docs/`
@@ -48,6 +49,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
 ```
+
 
 ## Documentation Notes
 

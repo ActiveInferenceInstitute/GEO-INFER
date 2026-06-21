@@ -36,6 +36,7 @@ Examples workspace within `GEO-INFER-WATER`.
 uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

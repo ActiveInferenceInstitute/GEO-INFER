@@ -330,11 +330,8 @@ def raster_overlay(
                 else:
                     result += data * weights[i]
     
-    # Apply initial weight for weighted_sum
-    if method == 'weighted_sum' and len(raster_paths) > 1:
-        # Already handled in loop above
-        pass
-    elif method == 'weighted_sum' and len(raster_paths) == 1:
+    # Apply initial weight for a single weighted raster.
+    if method == 'weighted_sum' and len(raster_paths) == 1:
         result *= weights[0]
     
     # Write output

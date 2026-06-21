@@ -10,7 +10,11 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from geo_infer_act.runners import RunConfig, run_scenario
+from geo_infer_act.runners import (
+    RunConfig,
+    run_scenario,
+    run_spatial_active_inference_gallery,
+)
 
 
 GEOSPATIAL_REQUIRED_FILES = {
@@ -18,12 +22,27 @@ GEOSPATIAL_REQUIRED_FILES = {
     "data/step_metrics.csv",
     "data/h3_cells.csv",
     "data/h3_diagnostics.json",
+    "data/pymdp_h3_diagnostics.json",
+    "data/pymdp_policy_posteriors.csv",
+    "data/spatial_inference_trace.json",
+    "data/spatial_research_statistics.json",
+    "data/h3_lattice_animation.json",
+    "data/h3_cell_diagnostics.csv",
+    "data/h3_edge_diagnostics.csv",
     "data/h3_cells.geojson",
     "analysis/run_summary.json",
     "visualizations/h3_cell_metric_map.png",
     "visualizations/free_energy_evolution.png",
     "visualizations/belief_entropy_coherence.png",
     "visualizations/interactive_h3_map.html",
+    "visualizations/pymdp_policy_free_energy.html",
+    "visualizations/h3_belief_flux_map.html",
+    "visualizations/h3_policy_surface.html",
+    "visualizations/h3_policy_transitions.html",
+    "visualizations/h3_spatial_autocorrelation.html",
+    "visualizations/h3_entropy_free_energy_phase.html",
+    "visualizations/h3_active_inference_lattice.html",
+    "visualizations/spatial_inference_research_report.html",
 }
 
 
@@ -88,6 +107,78 @@ def _assert_numeric_sidecar(data_path: Path) -> None:
         assert payload
 
 
+def _assert_probability_vector(values, label: str) -> None:
+    vector = [float(value) for value in values]
+    assert vector, label
+    assert all(math.isfinite(value) for value in vector), label
+    assert math.isclose(sum(vector), 1.0, abs_tol=1e-6), label
+
+
+def _assert_h3_lattice_animation(result, *, expected_timesteps: int) -> None:
+    html_path = result.output_dir / "visualizations" / "h3_active_inference_lattice.html"
+    if html_path.exists():
+        html = html_path.read_text()
+        for marker in (
+            "h3-lattice-svg",
+            "h3-lattice-animation-data",
+            "playButton",
+            "timeSlider",
+            "metricSelect",
+            "layerObservation",
+            "layerAction",
+            "layerFlux",
+        ):
+            assert marker in html
+    payload = json.loads(
+        (result.output_dir / "data" / "h3_lattice_animation.json").read_text()
+    )
+    assert payload["schema_version"] == "geo-infer-act-h3-lattice-animation/v1"
+    assert payload["scenario"] == result.scenario
+    assert payload["backend_metadata"]["pymdp_version"] == "1.0.3"
+    assert payload["backend_metadata"]["h3_version"] == "4.5.0"
+    assert payload["frame_count"] == expected_timesteps
+    assert len(payload["frames"]) == expected_timesteps
+    assert payload["cells"]
+    for cell in payload["cells"]:
+        assert cell["cell"]
+        assert cell["geometry"]["type"] == "Polygon"
+        ring = cell["geometry"]["coordinates"][0]
+        assert len(ring) >= 6
+        assert ring[0] == ring[-1]
+        assert all(len(point) == 2 for point in ring)
+    for frame in payload["frames"]:
+        assert frame["cells"]
+        assert "level_summaries" in frame
+        leaf_states = [
+            state for state in frame["cells"] if not state["is_aggregate_parent"]
+        ]
+        assert leaf_states
+        for state in leaf_states:
+            _assert_probability_vector(state["belief"], f"belief {state['cell']}")
+            _assert_probability_vector(
+                state["action_posterior"], f"posterior {state['cell']}"
+            )
+            _assert_probability_vector(
+                state["observation"], f"observation {state['cell']}"
+            )
+            for key in (
+                "entropy",
+                "free_energy",
+                "policy_entropy",
+                "selected_action_probability",
+                "observation_strength",
+                "local_coherence",
+                "posterior_delta",
+                "belief_flux_divergence",
+            ):
+                assert math.isfinite(float(state[key])), (state["cell"], key)
+        for edge in frame["edges"]:
+            assert edge["flux_source"] in {edge["source"], edge["target"]}
+            assert edge["flux_target"] in {edge["source"], edge["target"]}
+            assert edge["flux_source"] != edge["flux_target"]
+            assert math.isfinite(float(edge["weight"]))
+
+
 @pytest.mark.parametrize("scenario", ["h3", "spatial"])
 def test_geospatial_scenarios_emit_complete_data_and_visualizations(
     scenario: str, tmp_path: Path
@@ -122,6 +213,8 @@ def test_geospatial_scenarios_emit_complete_data_and_visualizations(
         assert feature["geometry"]["type"] == "Polygon"
         assert feature["properties"]["h3_cell"]
         assert feature["properties"]["resolution"] == 8
+        assert feature["properties"]["pymdp_version"] == "1.0.3"
+        assert feature["properties"]["h3_version"] == "4.5.0"
 
     diagnostics = json.loads(
         (result.output_dir / "data" / "h3_diagnostics.json").read_text()
@@ -141,6 +234,76 @@ def test_geospatial_scenarios_emit_complete_data_and_visualizations(
         assert math.isfinite(float(row["expected_free_energy"]))
         assert math.isfinite(float(row["belief_entropy"]))
         assert math.isfinite(float(row["coherence"]))
+
+    trace = json.loads(
+        (result.output_dir / "data" / "spatial_inference_trace.json").read_text()
+    )
+    assert trace["schema_version"] == "geo-infer-act-spatial-inference-trace/v1"
+    assert trace["cell_diagnostics"]
+    assert trace["level_diagnostics"]
+    assert trace["research_statistics"]["schema_version"].endswith(
+        "spatial-research-statistics/v1"
+    )
+    _assert_h3_lattice_animation(result, expected_timesteps=3)
+    statistics = json.loads(
+        (result.output_dir / "data" / "spatial_research_statistics.json").read_text()
+    )
+    assert statistics["row_count"] >= manifest["metrics"]["cell_count"] * 3
+    for group in ("metric_summaries", "temporal_slopes", "policy", "spatial_graph"):
+        assert group in statistics
+    with (result.output_dir / "data" / "h3_cell_diagnostics.csv").open() as handle:
+        cell_trace_rows = list(csv.DictReader(handle))
+    with (result.output_dir / "data" / "h3_edge_diagnostics.csv").open() as handle:
+        edge_trace_rows = list(csv.DictReader(handle))
+    assert len(cell_trace_rows) >= manifest["metrics"]["cell_count"] * 3
+    assert edge_trace_rows
+    for row in cell_trace_rows:
+        assert row["cell"]
+        assert row["pymdp_version"] == "1.0.3"
+        assert row["h3_version"] == "4.5.0"
+        for key in (
+            "entropy",
+            "free_energy",
+            "policy_entropy",
+            "local_coherence",
+            "posterior_delta",
+            "belief_flux_divergence",
+            "selected_action_probability",
+        ):
+            assert math.isfinite(float(row[key]))
+
+    pymdp_diagnostics = json.loads(
+        (result.output_dir / "data" / "pymdp_h3_diagnostics.json").read_text()
+    )
+    with (result.output_dir / "data" / "pymdp_policy_posteriors.csv").open() as handle:
+        posterior_rows = list(csv.DictReader(handle))
+    assert pymdp_diagnostics
+    assert len(posterior_rows) == len(pymdp_diagnostics)
+    for row in pymdp_diagnostics:
+        posterior = [
+            float(value)
+            for key, value in row.items()
+            if key.startswith("policy_posterior_")
+        ]
+        neg_efe = [
+            float(value)
+            for key, value in row.items()
+            if key.startswith("negative_expected_free_energy_")
+        ]
+        assert row["pymdp_version"] == "1.0.3"
+        assert row["h3_version"] == "4.5.0"
+        assert posterior
+        assert len(posterior) == len(neg_efe)
+        assert math.isclose(sum(posterior), 1.0, abs_tol=1e-6)
+        assert all(math.isfinite(value) for value in posterior + neg_efe)
+
+    summary = json.loads(
+        (result.output_dir / "analysis" / "run_summary.json").read_text()
+    )
+    assert summary["pymdp_backend"] == "inferactively-pymdp"
+    assert summary["pymdp_version"] == "1.0.3"
+    assert summary["h3_version"] == "4.5.0"
+    assert "spatial_research_statistics_schema" in summary
 
 
 def test_geospatial_manifest_references_only_existing_files(tmp_path: Path) -> None:
@@ -188,6 +351,14 @@ def test_geospatial_visualizations_have_metadata_and_data_sidecars(
         "visualizations/free_energy_evolution.png",
         "visualizations/belief_entropy_coherence.png",
         "visualizations/interactive_h3_map.html",
+        "visualizations/pymdp_policy_free_energy.html",
+        "visualizations/h3_belief_flux_map.html",
+        "visualizations/h3_policy_surface.html",
+        "visualizations/h3_policy_transitions.html",
+        "visualizations/h3_spatial_autocorrelation.html",
+        "visualizations/h3_entropy_free_energy_phase.html",
+        "visualizations/h3_active_inference_lattice.html",
+        "visualizations/spatial_inference_research_report.html",
     } <= set(visualizations)
 
     for relative_path in visualizations:
@@ -196,3 +367,76 @@ def test_geospatial_visualizations_have_metadata_and_data_sidecars(
             relative_path
         ]
         _assert_numeric_sidecar(result.output_dir / entry["figure_data_path"])
+
+
+@pytest.mark.parametrize("scenario", ["h3", "spatial"])
+def test_research_profile_produces_non_degenerate_spatial_statistics(
+    scenario: str, tmp_path: Path
+) -> None:
+    result = run_scenario(
+        RunConfig(
+            scenario=scenario,
+            output_dir=tmp_path / scenario,
+            seed=61,
+            deterministic=True,
+            timesteps=3,
+            visualizations=True,
+            h3_resolution=8,
+            h3_ring_size=1,
+            parameters={"research_profile": True},
+        )
+    )
+
+    statistics = json.loads(
+        (result.output_dir / "data" / "spatial_research_statistics.json").read_text()
+    )
+    non_degenerate = statistics["non_degenerate"]
+    assert non_degenerate["entropy_std"] > 1e-3
+    assert non_degenerate["selected_action_probability_std"] > 1e-4
+    assert non_degenerate["local_coherence_std"] > 1e-4
+    assert non_degenerate["belief_flux_divergence_std"] > 1e-4
+    assert non_degenerate["unique_selected_action_count"] >= 2
+    assert statistics["policy"]["switch_count"] >= 1
+
+
+def test_spatial_active_inference_gallery_emits_four_manifested_runs(
+    tmp_path: Path,
+) -> None:
+    manifest = run_spatial_active_inference_gallery(
+        tmp_path / "gallery",
+        seed=73,
+        timesteps=2,
+        h3_resolution=8,
+        h3_ring_size=1,
+    )
+
+    gallery_dir = tmp_path / "gallery"
+    assert (gallery_dir / "index.html").exists()
+    assert (gallery_dir / "gallery_manifest.json").exists()
+    assert manifest["schema_version"] == "geo-infer-act-spatial-gallery/v1"
+    assert {run["name"] for run in manifest["runs"]} == {
+        "h3",
+        "h3_nested",
+        "spatial",
+        "spatial_nested",
+    }
+    for run in manifest["runs"]:
+        run_manifest = json.loads((gallery_dir / run["manifest"]).read_text())
+        assert run_manifest["validation"]["status"] == "passed"
+        assert run["status"] == "passed"
+        assert run["visualizations"]
+        assert run["metrics"]["pymdp_version"] == "1.0.3"
+        assert run["metrics"]["h3_version"] == "4.5.0"
+        assert run["metrics"]["spatial_policy_probability_std"] > 1e-4
+        assert any(
+            item["path"] == "visualizations/h3_active_inference_lattice.html"
+            for item in run["visualizations"]
+        )
+        _assert_h3_lattice_animation(
+            type(
+                "GalleryResult",
+                (),
+                {"output_dir": gallery_dir / run["name"], "scenario": run["scenario"]},
+            ),
+            expected_timesteps=2,
+        )

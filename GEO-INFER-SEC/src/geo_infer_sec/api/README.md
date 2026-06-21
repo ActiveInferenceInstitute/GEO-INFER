@@ -35,7 +35,7 @@ Api workspace within `GEO-INFER-SEC`.
 - `pandas>=1.3.0`
 - `numpy>=1.20.0`
 - `pyyaml>=6.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `pyproj>=3.0.0`
 - `flask>=2.0.0`
 - `sqlalchemy>=1.4.0`
@@ -46,6 +46,7 @@ Api workspace within `GEO-INFER-SEC`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC
 ```
+
 
 ## Documentation Notes
 

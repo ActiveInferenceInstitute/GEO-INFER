@@ -9,7 +9,7 @@ Agent workspace within `GEO-INFER-APP`.
 
 ## Public Interface
 
-- `AgentConfigForm` is exported from this package as a Python compatibility object in `agent_config_form.py`.
+- `agent_config_form.py:AgentConfigForm` (class)
 
 ## Module Metadata
 
@@ -30,6 +30,7 @@ Agent workspace within `GEO-INFER-APP`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
 ```
+
 
 ## Documentation Notes
 

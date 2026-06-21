@@ -4,6 +4,7 @@ Unit tests for the CulturalMap class in geo_infer_art.core.place.cultural_map.
 """
 
 import os
+import tempfile
 import unittest
 import numpy as np
 from PIL import Image
@@ -13,50 +14,45 @@ from geo_infer_art.core.place.cultural_map import CulturalMap
 
 class TestCulturalMap(unittest.TestCase):
     """Test suite for the CulturalMap class."""
-    
+
     def setUp(self):
         """Set up test fixtures."""
-        # Create a simple test directory for outputs
-        self.test_dir = "test_output"
-        if not os.path.exists(self.test_dir):
-            os.makedirs(self.test_dir)
-            
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.test_dir = self._tmpdir.name
+
         # Define test coordinates
         self.test_lat = 41.9028  # Rome, Italy
         self.test_lon = 12.4964
         self.test_radius = 100.0  # km
-            
+
     def tearDown(self):
         """Clean up after tests."""
-        # Remove test files
-        if os.path.exists(self.test_dir):
-            import shutil
-            shutil.rmtree(self.test_dir)
-    
+        self._tmpdir.cleanup()
+
     def test_init_with_data(self):
         """Test initialization with data and metadata."""
         import geopandas as gpd
         from shapely.geometry import Point
-        
+
         # Create a simple GeoDataFrame
         data = gpd.GeoDataFrame(
             {'name': ['Site A', 'Site B'], 'type': ['Historical', 'Cultural']},
             geometry=[Point(self.test_lon, self.test_lat), Point(self.test_lon + 0.1, self.test_lat + 0.1)],
             crs="EPSG:4326"
         )
-        
+
         metadata = {
             "region": "Mediterranean",
             "culture": "Roman",
             "period": "Ancient"
         }
-        
+
         cultural_map = CulturalMap(data=data, metadata=metadata)
-        
+
         self.assertEqual(cultural_map.data, data)
         self.assertEqual(cultural_map.metadata, metadata)
         self.assertIsNone(cultural_map.image)
-    
+
     def test_from_region(self):
         """Test creating CulturalMap from a region name."""
         import geopandas as gpd
@@ -88,7 +84,7 @@ class TestCulturalMap(unittest.TestCase):
 
         # Check that the image was created
         self.assertIsNotNone(cultural_map.image)
-    
+
     def test_from_coordinates(self):
         """Test creating CulturalMap from coordinates."""
         import geopandas as gpd
@@ -121,7 +117,7 @@ class TestCulturalMap(unittest.TestCase):
 
         # Check that the image was created
         self.assertIsNotNone(cultural_map.image)
-    
+
     def test_add_narrative(self):
         """Test adding a narrative to the cultural map."""
         import geopandas as gpd
@@ -152,7 +148,7 @@ class TestCulturalMap(unittest.TestCase):
 
         # Check that the image still exists
         self.assertIsNotNone(cultural_map.image)
-    
+
     def test_apply_cultural_style(self):
         """Test applying a cultural style to the map."""
         import geopandas as gpd
@@ -177,7 +173,7 @@ class TestCulturalMap(unittest.TestCase):
 
         # Check that the image still exists
         self.assertIsNotNone(cultural_map.image)
-    
+
     def test_save_and_show(self):
         """Test saving and showing the cultural map."""
         import geopandas as gpd
@@ -207,7 +203,7 @@ class TestCulturalMap(unittest.TestCase):
             cultural_map.show()
         except Exception as e:
             self.fail(f"show() method raised an error: {str(e)}")
-    
+
     def test_different_cultural_themes(self):
         """Test creating cultural maps with different themes."""
         import geopandas as gpd
@@ -235,7 +231,7 @@ class TestCulturalMap(unittest.TestCase):
 
             except Exception as e:
                 self.skipTest(f"Creation with theme {theme} failed: {str(e)}")
-    
+
     def test_different_styles(self):
         """Test creating cultural maps with different styles."""
         import geopandas as gpd
@@ -263,7 +259,7 @@ class TestCulturalMap(unittest.TestCase):
 
             except Exception as e:
                 self.skipTest(f"Creation with style {style} failed: {str(e)}")
-    
+
     def test_invalid_inputs(self):
         """Test handling of invalid inputs."""
         # Test invalid coordinates
@@ -273,7 +269,7 @@ class TestCulturalMap(unittest.TestCase):
                 lon=self.test_lon,
                 radius_km=self.test_radius
             )
-        
+
         # Test invalid radius
         with self.assertRaises(ValueError):
             CulturalMap.from_coordinates(
@@ -281,7 +277,7 @@ class TestCulturalMap(unittest.TestCase):
                 lon=self.test_lon,
                 radius_km=-10.0  # Invalid radius
             )
-        
+
         # Test invalid region name using real from_region call
         with self.assertRaises(ValueError):
             CulturalMap.from_region(
@@ -291,4 +287,4 @@ class TestCulturalMap(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

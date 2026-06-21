@@ -4,6 +4,7 @@ Empowering communities with participatory mapping, citizen science, and collabor
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -37,6 +38,7 @@ Empowering communities with participatory mapping, citizen science, and collabor
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV
 ```
+
 
 ## Documentation Notes
 

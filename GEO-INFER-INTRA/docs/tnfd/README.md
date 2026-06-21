@@ -40,6 +40,7 @@ Tnfd workspace within `GEO-INFER-INTRA`.
 uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

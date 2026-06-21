@@ -37,6 +37,32 @@ REQUIRED_SECTIONS = ["## Instructions", "## Examples", "## Guidelines"]
 REQUIRED_SUBSECTIONS = ["### Integrations"]
 FRONTMATTER_FIELDS = ["name", "description"]
 NAME_PATTERN = re.compile(r"^geo-infer(-[a-z0-9]+)?$")
+SKILL_CLAIM_DEBT_PATTERN = re.compile(
+    r"\b(mock|stub|fake|placeholder|planned|roadmap|coming soon|TODO|TBD)\b",
+    re.IGNORECASE,
+)
+SKILL_CLAIM_ALLOWLIST = (
+    "html form inputs use standard `placeholder` attributes",
+    "sql uses parameterized queries",
+    "students fill in the `pass` block",
+    "`exercises.py` contains a `pass` inside a template string",
+    "no mock/stub/placeholder code",
+    "no planned, fake, mock, stub, or placeholder behavior",
+    "planned work belongs in root",
+    "`todo.md` or issues",
+    "todo.md or issues",
+    "do not add inert placeholders",
+    "real, not stub",
+    "zero mock implementations",
+    "not placeholder",
+    "not placeholders",
+    "no placeholders",
+    "former placeholder",
+    "verified clean",
+    "not fake",
+    "not `ax.plot([0],[0])`",
+    "not inert placeholders",
+)
 
 
 def parse_frontmatter(content: str) -> dict[str, str]:
@@ -131,6 +157,8 @@ def validate_skill_file(
     if "```python" not in content:
         errors.append(f"{label} No Python code examples found")
 
+    errors.extend(validate_skill_claim_language(content, label))
+
     if verbose and not errors:
         logger.info(f"  ✅ {label} OK ({line_count} lines)")
 
@@ -163,9 +191,34 @@ def validate_root_skill(verbose: bool = False) -> list[str]:
         if section not in content:
             errors.append(f"{label} Missing section: {section}")
 
+    errors.extend(validate_skill_claim_language(content, label))
+
     if verbose and not errors:
         logger.info(f"  ✅ {label} OK ({len(lines)} lines)")
 
+    return errors
+
+
+def validate_skill_claim_language(content: str, label: str) -> list[str]:
+    """Reject stale or aspirational skill claims unless explicitly scoped."""
+    errors: list[str] = []
+    in_code_block = False
+    for lineno, line in enumerate(content.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+        if not SKILL_CLAIM_DEBT_PATTERN.search(line):
+            continue
+        normalized = line.lower()
+        if any(allowed in normalized for allowed in SKILL_CLAIM_ALLOWLIST):
+            continue
+        errors.append(
+            f"{label} Unscoped stale/planned skill claim at line {lineno}: "
+            f"{stripped}"
+        )
     return errors
 
 

@@ -4,6 +4,7 @@ Advanced agricultural analysis and precision farming applications using geospati
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -43,6 +44,7 @@ Advanced agricultural analysis and precision farming applications using geospati
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module AG
 ```
+
 
 ## Documentation Notes
 

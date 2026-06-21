@@ -13,7 +13,21 @@ Geo Infer Art workspace within `GEO-INFER-ART`.
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `cli.py:ensure_directory` (function)
+- `cli.py:process_geo_art` (function)
+- `cli.py:process_style_transfer` (function)
+- `cli.py:process_place_art` (function)
+- `cli.py:process_generative_map` (function)
+- `cli.py:process_procedural_art` (function)
+- `cli.py:process_cultural_map` (function)
+- `cli.py:process_map_style` (function)
+- `cli.py:process_animation` (function)
+- `cli.py:process_custom_algorithm` (function)
+- `cli.py:process_performance` (function)
+- `cli.py:process_3d_viz` (function)
+- `cli.py:process_realtime` (function)
+- `cli.py:process_web_map` (function)
+- `cli.py:main` (function)
 
 ## Module Metadata
 
@@ -43,6 +57,7 @@ Geo Infer Art workspace within `GEO-INFER-ART`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
+
 
 ## Documentation Notes
 

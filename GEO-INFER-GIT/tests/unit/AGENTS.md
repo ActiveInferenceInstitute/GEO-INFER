@@ -27,6 +27,7 @@
 - `test_repo_analyzer.py`
 - `test_repo_cloner.py`
 - `test_repo_manager.py`
+- `test_rest_api.py`
 - `test_validation.py`
 
 ## Validation
@@ -34,6 +35,7 @@
 ```bash
 uv run python -m pytest GEO-INFER-GIT/tests/unit
 ```
+
 
 ## Integration Notes
 

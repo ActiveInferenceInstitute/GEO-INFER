@@ -4,6 +4,7 @@ Comprehensive Bayesian inference framework with probabilistic modeling, uncertai
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -51,6 +52,7 @@ Comprehensive Bayesian inference framework with probabilistic modeling, uncertai
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
 ```
+
 
 ## Documentation Notes
 

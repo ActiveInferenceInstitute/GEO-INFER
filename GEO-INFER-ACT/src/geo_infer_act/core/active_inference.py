@@ -19,15 +19,18 @@ from geo_infer_act.core.types import (
     ActiveInferenceStepResult,
     H3GridInferenceResult,
     H3SpatialConsistency,
+    NestedH3GridInferenceResult,
     PolicyEvaluation,
+    SpatialInferenceTrace,
 )
 from geo_infer_act.utils.h3_adapter import (
     edge_count_from_graph,
     get_h3_adapter,
     normalize_belief_vector,
 )
-from geo_infer_act.utils.math import softmax, normalize_distribution
+from geo_infer_act.utils.math import normalize_distribution
 from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer
+from geo_infer_act.utils.pymdp_adapter import PymdpStepResult, run_model_step
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +84,7 @@ class ActiveInferenceModel:
         self.current_actions = None
         self.latest_policy_evaluation: Optional[PolicyEvaluation] = None
         self.latest_policy_selection: Optional[Dict[str, Any]] = None
+        self.latest_pymdp_result: Optional[PymdpStepResult] = None
         self.history: List[Dict[str, Any]] = []
 
         logger.info(f"Initialized ActiveInferenceModel with type: {model_type}")
@@ -132,78 +136,63 @@ class ActiveInferenceModel:
         if self.generative_model is None:
             raise ValueError("Generative model must be set before action selection")
 
-        # Use pymdp control when the optional backend is installed and the model
-        # exposes the full matrix contract expected by pymdp.
-        try:
-            from pymdp.control import construct_policies, sample_action
-
-            # Check if we have necessary matrices
-            A = getattr(self.generative_model, "observation_model", None)
-            B = getattr(self.generative_model, "transition_model", None)
-            C = getattr(self.generative_model, "preferences", None)
-
-            if A is not None and B is not None and C is not None:
-                # Prepare qs (beliefs)
-                qs = (
-                    self.current_beliefs.get("states")
-                    if isinstance(self.current_beliefs, dict)
-                    else self.current_beliefs
+        if (
+            self.model_type == "categorical"
+            and self.current_observations is not None
+            and self._supports_pymdp_adapter()
+        ):
+            try:
+                action_count = (
+                    len(available_actions)
+                    if available_actions is not None
+                    else int(self.parameters.get("num_controls", 3))
                 )
-                # Ensure qs is list of arrays (factors)
-                if isinstance(qs, np.ndarray) and qs.dtype != object:
-                    qs = [qs]
-                elif (
-                    isinstance(qs, list)
-                    and len(qs) > 0
-                    and not isinstance(qs[0], np.ndarray)
-                ):
-                    # If generic list, convert elements
-                    qs = [np.array(q) for q in qs]
-
-                # Get dimensions
-                num_controls = getattr(self.generative_model, "num_controls", None)
-                if num_controls is None:
-                    # Infer from B
-                    # B[f] shape is (Ns, Ns, Nu)
-                    num_controls = [b.shape[-1] for b in B]
-
-                # Construct policies
-                # Use policy_len=1 for simple step, or getattr(self, 'horizon', 1)
-                policies = construct_policies(num_controls)
-
-                # Calculate Expected Free Energy (G)
-                # We need different G function depending on pymdp version or structure
-                # Try inferactively-pymdp common path
-                try:
-                    from pymdp.control import calculate_G_policies
-
-                    G = calculate_G_policies(A, B, C, qs, policies=policies)
-
-                    # Compute posterior over policies
-                    # Q_pi = softmax(-G) basically, or usage of update_posterior_policies
-                    from pymdp.inference import update_posterior_policies
-
-                    q_pi, _ = update_posterior_policies(
-                        qs, A, B, C, policies, use_utility=True
-                    )
-                    # Note: update_posterior_policies might re-calc G internaly?
-                    # If G is available, some versions allow passing it.
-                    # But simpler:
-                    q_pi = softmax(-G)
-
-                    # Sample action
-                    action = sample_action(
-                        q_pi, policies, num_controls, sampling_mode="marginal"
-                    )
-
-                    self.current_actions = action
-                    return action
-                except ImportError:
-                    logger.debug(
-                        "pymdp control functions not available; using local EFE selector"
-                    )
-        except (ImportError, Exception) as exc:
-            logger.debug("pymdp unavailable for this action selection: %s", exc)
+                pymdp_result = run_model_step(
+                    self.generative_model,
+                    self.current_observations,
+                    action_count=action_count,
+                    random_seed=int(self.parameters.get("random_seed", 0))
+                    + len(self.history),
+                    prior=self.current_beliefs,
+                )
+                self.latest_pymdp_result = pymdp_result
+                selected_index = pymdp_result.selected_action_index
+                action = (
+                    available_actions[selected_index % len(available_actions)]
+                    if available_actions
+                    else selected_index
+                )
+                selected_probability = float(
+                    pymdp_result.policy_posterior[
+                        selected_index % len(pymdp_result.policy_posterior)
+                    ]
+                )
+                selected_neg_efe = float(
+                    pymdp_result.negative_expected_free_energy[
+                        selected_index % len(pymdp_result.negative_expected_free_energy)
+                    ]
+                )
+                self.latest_policy_evaluation = PolicyEvaluation(
+                    policy=action,
+                    expected_free_energy=-selected_neg_efe,
+                    probability=selected_probability,
+                    index=selected_index,
+                    metadata=pymdp_result.to_metadata(),
+                )
+                self.latest_policy_selection = {
+                    "backend": "inferactively-pymdp",
+                    "policy": action,
+                    "evaluation": self.latest_policy_evaluation,
+                    "pymdp": pymdp_result.to_metadata(),
+                }
+                self.current_actions = action
+                return action
+            except Exception as exc:
+                if not self.parameters.get("allow_local_pymdp_fallback", False):
+                    raise
+                logger.debug(
+                    "pymdp action selection failed; using local fallback: %s", exc
+                )
 
         # Local expected-free-energy implementation.
 
@@ -343,13 +332,21 @@ class ActiveInferenceModel:
         action = self.act(available_actions)
 
         # Store step in history
+        pymdp_metadata = (
+            self.latest_pymdp_result.to_metadata()
+            if self.latest_pymdp_result is not None
+            else None
+        )
+        step_free_energy = (
+            float(self.latest_pymdp_result.free_energy)
+            if self.latest_pymdp_result is not None
+            else (self.compute_free_energy() if beliefs is not None else np.inf)
+        )
         step_data = {
             "observation": observation_array.copy(),
             "beliefs": self._clone_beliefs(beliefs),
             "action": action,
-            "free_energy": (
-                self.compute_free_energy() if beliefs is not None else np.inf
-            ),
+            "free_energy": step_free_energy,
         }
         self.history.append(step_data)
 
@@ -402,6 +399,7 @@ class ActiveInferenceModel:
                 observation=observation_array.copy(),
                 metadata={
                     "policy_selection": self.latest_policy_selection,
+                    "pymdp": pymdp_metadata,
                 },
             )
 
@@ -455,6 +453,7 @@ class ActiveInferenceModel:
         self.current_actions = None
         self.latest_policy_evaluation = None
         self.latest_policy_selection = None
+        self.latest_pymdp_result = None
         self.history = []
 
     def get_history(self) -> List[Dict[str, Any]]:
@@ -534,6 +533,7 @@ class ActiveInferenceModel:
         original_actions = self.current_actions
         original_policy_evaluation = self.latest_policy_evaluation
         original_policy_selection = self.latest_policy_selection
+        original_pymdp_result = self.latest_pymdp_result
         history_len = len(self.history)
 
         try:
@@ -547,6 +547,7 @@ class ActiveInferenceModel:
                     "free_energy": step_result.free_energy,
                     "expected_free_energy": step_result.expected_free_energy,
                     "policy_evaluation": step_result.policy_evaluation,
+                    "pymdp": step_result.metadata.get("pymdp"),
                     "precision": (
                         self.current_beliefs.get("precision", 1.0)
                         if isinstance(self.current_beliefs, dict)
@@ -559,6 +560,7 @@ class ActiveInferenceModel:
             self.current_actions = original_actions
             self.latest_policy_evaluation = original_policy_evaluation
             self.latest_policy_selection = original_policy_selection
+            self.latest_pymdp_result = original_pymdp_result
             if len(self.history) > history_len:
                 self.history = self.history[:history_len]
 
@@ -586,10 +588,132 @@ class ActiveInferenceModel:
                         if observed_cells
                         else None
                     ),
+                    "pymdp_backend": "inferactively-pymdp",
                 },
             )
 
         return results
+
+    def trace_over_h3_grid(
+        self,
+        h3_grid: Dict[str, Any],
+        *,
+        timestep: int = 0,
+        previous_beliefs: Optional[Dict[str, Any]] = None,
+        grid_result: Optional[H3GridInferenceResult] = None,
+        scenario: str = "h3",
+    ) -> SpatialInferenceTrace:
+        """
+        Return research diagnostics for one H3 grid inference step.
+
+        The trace includes per-cell posterior, VFE, negative-EFE, policy
+        posterior, policy entropy, local coherence, posterior delta, belief
+        flux, edge diagnostics, and per-resolution summaries. When
+        ``grid_result`` is provided, it is reused to avoid re-running pymdp.
+        """
+        if self.generative_model is None:
+            raise ValueError("Set generative model first")
+        if grid_result is None:
+            grid_result = self.infer_over_h3_grid(h3_grid, return_result=True)
+        return self.generative_model.compute_h3_cell_diagnostics(
+            grid_result.cell_results,
+            timestep=timestep,
+            scenario=scenario,
+            previous_beliefs=previous_beliefs,
+            backend_metadata=grid_result.metadata,
+            metadata={
+                "aggregate_free_energy": grid_result.aggregate_free_energy,
+                "spatial_consistency": grid_result.spatial_consistency,
+            },
+        )
+
+    def infer_over_nested_h3_grid(
+        self,
+        h3_grid: Dict[str, Any],
+        return_result: bool = False,
+        top_down_weight: Optional[float] = None,
+    ):
+        """
+        Run one-step inference across an enabled nested H3 hierarchy.
+
+        The per-cell step scoring follows ``infer_over_h3_grid`` and preserves
+        active-model state. The nested belief update is computed through the
+        configured generative model and its belief state is restored before the
+        method returns.
+        """
+        if self.generative_model is None:
+            raise ValueError("Set generative model first")
+        if not getattr(self.generative_model, "nested_h3_mode", False):
+            raise ValueError("Enable nested H3 spatial mode on the generative model")
+
+        original_model_beliefs = copy.deepcopy(
+            getattr(self.generative_model, "beliefs", None)
+        )
+        grid_result = self.infer_over_h3_grid(h3_grid, return_result=True)
+        try:
+            nested_update = self.generative_model.update_nested_h3_beliefs(
+                h3_grid,
+                return_result=True,
+                top_down_weight=top_down_weight,
+            )
+        finally:
+            self.generative_model.beliefs = original_model_beliefs
+
+        result = NestedH3GridInferenceResult(
+            cell_results=grid_result.cell_results,
+            nested_belief_update=nested_update,
+            aggregate_free_energy=nested_update.aggregate_free_energy,
+            spatial_consistency=nested_update.spatial_consistency,
+            metadata={
+                **grid_result.metadata,
+                "nested_h3": True,
+                "resolutions": nested_update.metadata.get("resolutions", []),
+            },
+        )
+        if return_result:
+            return result
+        return result.to_dict()
+
+    def trace_over_nested_h3_grid(
+        self,
+        h3_grid: Dict[str, Any],
+        *,
+        timestep: int = 0,
+        previous_beliefs: Optional[Dict[str, Any]] = None,
+        grid_result: Optional[NestedH3GridInferenceResult] = None,
+        top_down_weight: Optional[float] = None,
+        scenario: str = "h3",
+    ) -> SpatialInferenceTrace:
+        """
+        Return research diagnostics for one nested H3 grid inference step.
+
+        Nested traces include leaf-cell pymdp diagnostics plus parent aggregate
+        cells, same-resolution edge diagnostics, and parent/child consistency.
+        """
+        if self.generative_model is None:
+            raise ValueError("Set generative model first")
+        if grid_result is None:
+            grid_result = self.infer_over_nested_h3_grid(
+                h3_grid,
+                return_result=True,
+                top_down_weight=top_down_weight,
+            )
+        nested_update = grid_result.nested_belief_update
+        hierarchy = getattr(self.generative_model, "nested_h3_hierarchy", None)
+        return self.generative_model.compute_h3_cell_diagnostics(
+            grid_result.cell_results,
+            timestep=timestep,
+            scenario=scenario,
+            previous_beliefs=previous_beliefs,
+            hierarchy=hierarchy,
+            parent_beliefs=nested_update.parent_beliefs,
+            backend_metadata=grid_result.metadata,
+            metadata={
+                "aggregate_free_energy": grid_result.aggregate_free_energy,
+                "spatial_consistency": grid_result.spatial_consistency,
+                "nested_h3": True,
+            },
+        )
 
     def _compute_h3_grid_consistency(
         self, cell_beliefs: Dict[str, Optional[np.ndarray]]
@@ -744,19 +868,26 @@ class ActiveInferenceModel:
             raise ValueError("Generative model must be set before perception")
 
         try:
-            if self.model_type == "categorical":
+            if self.model_type == "categorical" and self._supports_pymdp_adapter():
+                pymdp_result = run_model_step(
+                    self.generative_model,
+                    observation,
+                    random_seed=int(self.parameters.get("random_seed", 0))
+                    + len(self.history),
+                    prior=self.current_beliefs,
+                )
+                self.latest_pymdp_result = pymdp_result
+                self.generative_model.beliefs["states"] = pymdp_result.beliefs.copy()
+                return {"states": pymdp_result.beliefs.copy()}
+            elif self.model_type == "categorical":
                 updated = self.generative_model.update_beliefs(
                     {"observations": observation}
                 )
-
-                # Check for hierarchical structure
                 if isinstance(updated, dict) and any(
                     k.startswith("level_") for k in updated.keys()
                 ):
                     return updated
-
                 if isinstance(updated, dict) and "states" in updated:
-                    # Return consistent dict structure
                     vec = normalize_distribution(self._safe_flatten(updated["states"]))
                     return {"states": vec}
                 if isinstance(updated, np.ndarray):
@@ -778,9 +909,30 @@ class ActiveInferenceModel:
                         ).copy(),
                     }
         except Exception as exc:  # pragma: no cover - defensive path
+            unsupported_factorized = (
+                self.model_type == "categorical" and not self._supports_pymdp_adapter()
+            )
+            if not unsupported_factorized and not self.parameters.get(
+                "allow_local_pymdp_fallback", False
+            ):
+                raise
             logger.debug("Falling back to local belief update: %s", exc)
 
         return self._update_beliefs_direct(observation)
+
+    def _supports_pymdp_adapter(self) -> bool:
+        """Return true for the simple categorical matrix contract used by H3."""
+        model = self.generative_model
+        if model is None or getattr(model, "model_type", None) != "categorical":
+            return False
+        observation_model = getattr(model, "observation_model", None)
+        transition_model = getattr(model, "transition_model", None)
+        try:
+            obs_array = np.asarray(observation_model, dtype=float)
+            trans_array = np.asarray(transition_model, dtype=float)
+        except (TypeError, ValueError):
+            return False
+        return obs_array.ndim == 2 and trans_array.ndim in {2, 3}
 
     def _update_beliefs_direct(self, observation: np.ndarray):
         if self.current_beliefs is None:
@@ -795,29 +947,6 @@ class ActiveInferenceModel:
                 prior = self.current_beliefs.get("states")
             else:
                 prior = self.current_beliefs  # Assume it's the states array/list
-
-            # Check if using pymdp style (A is object array or list of arrays)
-            if (isinstance(A, np.ndarray) and A.dtype == object) or isinstance(A, list):
-                try:
-                    from pymdp.inference import update_posterior_states
-
-                    # Convert observation to int/list of ints if needed
-                    # Observation comes in as float array usually in this codebase
-                    # But proper pymdp expects integers for categorical observations
-                    obs_indices = (
-                        [int(o) for o in observation]
-                        if isinstance(observation, (list, np.ndarray))
-                        else [int(observation)]
-                    )
-
-                    # Update beliefs using pymdp
-                    qs = update_posterior_states(A, obs_indices, prior_beliefs=prior)
-
-                    # Update internal state clearly
-                    self.current_beliefs = {"states": qs}
-                    return {"states": qs}
-                except (ImportError, Exception) as e:
-                    logger.debug(f"Pymdp update failed: {e}")
 
             # Local Bayes update for simple categorical matrices.
             prior_vec = self._extract_belief_vector(

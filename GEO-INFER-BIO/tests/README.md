@@ -40,6 +40,7 @@ Tests workspace within `GEO-INFER-BIO`.
 uv run python -m pytest GEO-INFER-BIO/tests
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

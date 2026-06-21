@@ -13,15 +13,17 @@ from pathlib import Path
 readme_path = Path(__file__).parent / "README.md"
 long_description = ""
 if readme_path.exists():
-    with open(readme_path, 'r', encoding='utf-8') as f:
+    with open(readme_path, "r", encoding="utf-8") as f:
         long_description = f.read()
 
 # Read requirements
 requirements_path = Path(__file__).parent / "requirements.txt"
 requirements = []
 if requirements_path.exists():
-    with open(requirements_path, 'r') as f:
-        requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    with open(requirements_path, "r") as f:
+        requirements = [
+            line.strip() for line in f if line.strip() and not line.startswith("#")
+        ]
 
 # Package configuration
 setup(
@@ -49,9 +51,17 @@ setup(
         "Framework :: FastAPI",
     ],
     keywords=[
-        "geospatial", "data-management", "etl", "storage", "gis",
-        "spatial-analysis", "data-quality", "active-inference",
-        "environmental-monitoring", "urban-planning", "climate-data"
+        "geospatial",
+        "data-management",
+        "etl",
+        "storage",
+        "gis",
+        "spatial-analysis",
+        "data-quality",
+        "active-inference",
+        "environmental-monitoring",
+        "urban-planning",
+        "climate-data",
     ],
     python_requires=">=3.11",
     install_requires=requirements,
@@ -71,7 +81,7 @@ setup(
             "geoalchemy2>=0.13.0",
         ],
         "h3": [
-            "h3>=4.0.0",
+            "h3>=4.5.0,<5",
         ],
         "spatial": [
             "rtree>=1.0.0",
@@ -94,7 +104,7 @@ setup(
         ],
         "all": [
             "psycopg2-binary>=2.9.0",
-            "h3>=4.0.0",
+            "h3>=4.5.0,<5",
             "rtree>=1.0.0",
             "timescale-db>=0.1.0",
             "redis>=4.5.0",

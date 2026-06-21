@@ -30,6 +30,7 @@ Tests workspace within `GEO-INFER-REQ`.
 uv run python -m pytest GEO-INFER-REQ/tests
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

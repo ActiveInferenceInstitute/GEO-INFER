@@ -4,6 +4,7 @@ IoT sensor networks, real-time geospatial data streams, and sensor data fusion f
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`
@@ -36,7 +37,7 @@ IoT sensor networks, real-time geospatial data streams, and sensor data fusion f
 - `fastapi>=0.68.0`
 - `folium>=0.12.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `influxdb-client>=1.24.0`
 - `matplotlib>=3.5.0`
 - `numpy>=1.20.0`
@@ -48,6 +49,7 @@ IoT sensor networks, real-time geospatial data streams, and sensor data fusion f
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
+
 
 ## Documentation Notes
 

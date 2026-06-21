@@ -8,10 +8,14 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_log_integration.py`
 - `test_module_health.py`
 - `test_performance_monitor.py`
+- `test_run_unified_tests.py`
 - `test_spatial_functions.py`
 - `test_test_discoverer.py`
 - `test_test_orchestrator.py`
 - `test_test_runner.py`
+- `test_validate_h3_active_inference_contract.py`
+- `test_validate_repo_contracts.py`
+- `test_validate_skills.py`
 - `test_validators.py`
 - `test_validators_parametric.py`
 
@@ -45,8 +49,10 @@ Unit workspace within `GEO-INFER-TEST`.
 ## Validation
 
 ```bash
+uv sync --all-packages --all-extras
 uv run python -m pytest GEO-INFER-TEST/tests/unit
 ```
+
 
 ## Documentation Notes
 

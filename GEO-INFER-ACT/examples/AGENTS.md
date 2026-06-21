@@ -28,6 +28,7 @@
 - `modern_active_inference.py`
 - `run_all_examples.py`
 - `simple_model.py`
+- `spatial_active_inference_gallery.py`
 - `spatial_inference_demo.py`
 - `urban_planning.py`
 
@@ -36,6 +37,7 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
 
 ## Integration Notes
 

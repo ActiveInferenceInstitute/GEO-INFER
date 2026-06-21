@@ -33,6 +33,7 @@ Integration workspace within `GEO-INFER-MATH`.
 uv run python -m pytest GEO-INFER-MATH/tests/integration
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

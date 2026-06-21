@@ -36,8 +36,8 @@ class Agent:
             time: Current simulation time
             environment: Environment state
         """
-        # Base implementation - subclasses should override
-        pass
+        self.properties["last_step_time"] = time
+        self.properties["last_environment_keys"] = sorted(environment.keys())
 
     def interact(self, other_agent: "Agent", time: float) -> None:
         """
@@ -47,8 +47,10 @@ class Agent:
             other_agent: Other agent to interact with
             time: Current simulation time
         """
-        # Base implementation - subclasses should override
-        pass
+        if other_agent.agent_id not in self.neighbors:
+            self.neighbors.append(other_agent.agent_id)
+        self.properties["last_interaction_time"] = time
+        self.properties["interaction_count"] = self.properties.get("interaction_count", 0) + 1
 
 
 class AgentBasedModel:
@@ -204,6 +206,5 @@ class AgentBasedModel:
             },
             "environment": self.environment,
         }
-
 
 

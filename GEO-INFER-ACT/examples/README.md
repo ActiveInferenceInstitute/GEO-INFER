@@ -11,6 +11,7 @@ Examples workspace within `GEO-INFER-ACT`.
 - `modern_active_inference.py`
 - `run_all_examples.py`
 - `simple_model.py`
+- `spatial_active_inference_gallery.py`
 - `spatial_inference_demo.py`
 - `urban_planning.py`
 
@@ -21,6 +22,7 @@ Examples workspace within `GEO-INFER-ACT`.
 - `modern_active_inference.py:main` (function)
 - `run_all_examples.py:main` (function)
 - `simple_model.py:main` (function)
+- `spatial_active_inference_gallery.py:main` (function)
 - `spatial_inference_demo.py:main` (function)
 - `urban_planning.py:main` (function)
 
@@ -44,7 +46,7 @@ Examples workspace within `GEO-INFER-ACT`.
 - `torch>=1.9.0`
 - `arviz>=0.11.0`
 - `bayeux-ml>=0.0.1`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
 
 ## Validation
@@ -52,6 +54,7 @@ Examples workspace within `GEO-INFER-ACT`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
 
 ## Documentation Notes
 

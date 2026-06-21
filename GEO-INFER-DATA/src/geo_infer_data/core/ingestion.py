@@ -153,7 +153,9 @@ class DataSourceConnector(ABC):
         Raises:
             ConnectionError: If disconnection fails
         """
-        pass
+        logger.debug(
+            "%s has no persistent data-source connection to close", type(self).__name__
+        )
 
 
 class SatelliteDataConnector(DataSourceConnector):

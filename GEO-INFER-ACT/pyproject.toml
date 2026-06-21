@@ -34,8 +34,8 @@ dependencies = [
     "pyyaml>=6.0",
     "scipy>=1.7.0",
     "torch>=1.9.0",
-    "inferactively-pymdp>=0.0.5",
-    "h3>=4.0.0",
+    "inferactively-pymdp==1.0.3",
+    "h3>=4.5.0,<5",
     "shapely>=1.7.0",
     "scikit-learn>=1.0.0",
     "arviz>=0.11.0",
@@ -87,7 +87,7 @@ exclude = ["tests*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

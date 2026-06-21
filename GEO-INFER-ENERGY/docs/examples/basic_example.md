@@ -16,7 +16,7 @@ The workflow has four steps:
 ```bash
 uv pip install -e ./GEO-INFER-ENERGY
 # Optional: for H3 grid generation
-uv pip install h3>=4.0.0
+uv pip install h3>=4.5.0,<5
 ```
 
 ## Step 1: Generate H3 Candidate Grid

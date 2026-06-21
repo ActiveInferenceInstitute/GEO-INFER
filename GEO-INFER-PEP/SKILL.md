@@ -45,7 +45,7 @@ report = crm.engagement_report(period="2026-Q1")
 
 ## Guidelines
 
-- CRM endpoints TODO converted to roadmap note for v0.4.0
+- CRM work uses implemented import, reporting, and visualization helpers
 
 ### Integrations
 

@@ -29,6 +29,7 @@
 uv run python -m pytest GEO-INFER-SIM/tests/integration
 ```
 
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

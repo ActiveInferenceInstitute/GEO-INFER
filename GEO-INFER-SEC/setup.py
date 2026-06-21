@@ -23,7 +23,7 @@ setup(
         "pandas>=1.3.0",
         "numpy>=1.20.0",
         "pyyaml>=6.0",
-        "h3>=4.0.0",
+        "h3>=4.5.0,<5",
         "pyproj>=3.0.0",
     ],
     extras_require={
@@ -35,4 +35,4 @@ setup(
             "mypy>=0.910",
         ],
     },
-) 
+)

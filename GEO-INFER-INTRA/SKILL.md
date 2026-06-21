@@ -38,28 +38,31 @@ GEO-INFER-INTRA/docs/
 # Example: SPACE → MATH → BAYES pipeline
 from geo_infer_space.backends.h3 import H3Backend
 from geo_infer_math.core.spatial_statistics import MoranI
-from geo_infer_bayes.core.bayesian_inference import BayesianModel
+from geo_infer_bayes.models.spatial_gp import SpatialGP
 
 # 1. Index → 2. Analyze → 3. Model
 cells = H3Backend().tessellate(region, resolution=7)
-autocorrelation = MoranI(values, weights).compute()
-posterior = BayesianModel().fit(data)
+moran = MoranI(weights)
+autocorrelation = moran.compute(values)
+model = SpatialGP()
 ```
 
 ## Examples
 
 ```python
 # Multi-module data flow: DATA → SPACE → MATH → BAYES
-from geo_infer_data.formats.geojson import GeoJSONLoader
+from geo_infer_data.connectors.file import FileConnector
 from geo_infer_space.backends.h3 import H3Backend
 from geo_infer_math.core.spatial_statistics import MoranI
-from geo_infer_bayes.core.bayesian_inference import BayesianModel
+from geo_infer_bayes.models.spatial_gp import SpatialGP
 
 # 1. Load → 2. Index → 3. Analyze → 4. Model
-features = GeoJSONLoader().load("observations.geojson")
-cells = H3Backend().tessellate(features.bounds, resolution=7)
-autocorrelation = MoranI(values, weights).compute()
-posterior = BayesianModel().fit(data)
+connector = FileConnector(base_path="data")
+# In an async workflow: features = await connector.read_geospatial("observations.geojson")
+cells = H3Backend().tessellate(region, resolution=7)
+moran = MoranI(weights)
+autocorrelation = moran.compute(values)
+model = SpatialGP()
 ```
 
 ```python

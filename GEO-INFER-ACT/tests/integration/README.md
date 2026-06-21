@@ -33,7 +33,7 @@ Integration workspace within `GEO-INFER-ACT`.
 - `torch>=1.9.0`
 - `arviz>=0.11.0`
 - `bayeux-ml>=0.0.1`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
 
 ## Validation
@@ -41,6 +41,7 @@ Integration workspace within `GEO-INFER-ACT`.
 ```bash
 uv run python -m pytest GEO-INFER-ACT/tests/integration
 ```
+
 
 ## Documentation Notes
 

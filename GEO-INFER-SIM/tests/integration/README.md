@@ -30,6 +30,7 @@ Integration workspace within `GEO-INFER-SIM`.
 uv run python -m pytest GEO-INFER-SIM/tests/integration
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

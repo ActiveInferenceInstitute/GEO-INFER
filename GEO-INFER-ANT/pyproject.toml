@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
     "asyncio-mqtt>=0.11.0",
     "geopandas>=0.10.0",
-    "h3>=4.0.0",
+    "h3>=4.5.0,<5",
     "jsonschema>=4.0.0",
     "matplotlib>=3.5.0",
     "networkx>=2.8",
@@ -75,7 +75,7 @@ exclude = ["tests*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

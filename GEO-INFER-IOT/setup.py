@@ -12,34 +12,28 @@ setup(
         "numpy>=1.20.0",
         "pandas>=1.3.0",
         "geopandas>=0.10.0",
-        "h3>=4.0.0",
-        
+        "h3>=4.5.0,<5",
         # IoT communication protocols
         "paho-mqtt>=1.6.0",
         "confluent-kafka>=1.8.0",
         "aiocoap>=0.4.3",
         "pyserial>=3.5",
-        
         # Spatial and Bayesian dependencies
         "pyproj>=3.3.0",
         "scipy>=1.7.0",
         "scikit-learn>=1.0.0",
-        
         # Time series and streaming
         "influxdb-client>=1.24.0",
         "asyncio-mqtt>=0.11.0",
         "websockets>=10.0",
-        
         # API and web services
         "fastapi>=0.68.0",
         "uvicorn>=0.15.0",
         "pydantic>=1.8.0",
-        
         # Configuration and utilities
         "pyyaml>=6.0",
         "python-dotenv>=0.19.0",
         "rich>=12.0.0",
-        
         # Visualization
         "matplotlib>=3.5.0",
         "plotly>=5.0.0",
@@ -65,8 +59,8 @@ setup(
         ],
         "advanced": [
             "gpytorch>=1.6.0",  # Advanced Gaussian processes
-            "pymc>=4.0.0",      # Bayesian modeling
-            "arviz>=0.12.0",    # Bayesian analysis
+            "pymc>=4.0.0",  # Bayesian modeling
+            "arviz>=0.12.0",  # Bayesian analysis
         ],
     },
     python_requires=">=3.11",
@@ -80,4 +74,4 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: System :: Monitoring",
     ],
-) 
+)

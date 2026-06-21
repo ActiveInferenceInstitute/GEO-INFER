@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `output/`
@@ -42,6 +43,24 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 ```
+
+
+## Current Nested H3 Contracts
+
+- `NestedH3Grid` owns H3 parent/child closure, validation, same-resolution
+  neighbor maps, and child-to-parent aggregation.
+- Build hierarchies with ordered real `h3>=4.5.0,<5` resolutions and
+  deterministic cell ordering; do not pass synthetic cell IDs to nested H3
+  paths.
+- Validate orphan counts, parent/child membership, resolution matches, and
+  finite aggregate values before handing hierarchies to ACT.
+
+## Failure Triage
+
+- If hierarchy validation fails, inspect
+  `geo_infer_space.nested.core.nested_grid.NestedH3Grid` first.
+- If ACT nested contracts fail after SPACE edits, run the SPACE nested unit test
+  and then `uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py`.
 
 ## Integration Notes
 

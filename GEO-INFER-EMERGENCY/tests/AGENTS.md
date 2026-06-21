@@ -36,6 +36,7 @@
 uv run python -m pytest GEO-INFER-EMERGENCY/tests
 ```
 
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

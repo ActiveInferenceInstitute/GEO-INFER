@@ -61,7 +61,7 @@ print(f"Passed: {len(clean_data.valid)}, Rejected: {len(clean_data.outliers)}")
 
 - MQTT handlers use real paho-mqtt (not placeholders)
 - Spatial validation includes real geometry checks
-- Optional deps loaded via `try/except` with placeholder classes for graceful degradation
+- Optional deps load via `try/except` with lightweight fallback adapters for graceful degradation
 - Test: `uv run python -m pytest GEO-INFER-IOT/tests/ -v`
 
 ### Integrations

@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import ast
 import importlib
+import importlib.util
 import re
 import subprocess
 import sys
@@ -36,6 +37,14 @@ CANONICAL_UV_DOC_FILES = (
 SOURCE_LANGUAGE_PATTERN = re.compile(
     r"\b(mock|stub|fake|placeholder)\b|NotImplementedError",
     re.IGNORECASE,
+)
+ROOT_GENERATED_ARTIFACT_PATHS = (
+    "logs",
+    ".geo-infer-test-results",
+    "test_output",
+    "output",
+    "outputs",
+    "visualizations_output",
 )
 TASK_MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK|TBD)\b")
 TASK_MARKER_SCAN_GLOBS = (
@@ -241,7 +250,9 @@ LEGACY_PYTHON_METADATA_PATTERN = re.compile(
     r"|python_requires\s*=\s*[\"']>=3\.(8|9|10)[\"']"
     r"|requires-python\s*=\s*[\"']>=3\.(8|9|10)[\"']"
 )
-LEGACY_H3_PATTERN = re.compile(r"\bh3\s*>=\s*3\.", re.IGNORECASE)
+LEGACY_H3_PATTERN = re.compile(r"\bh3\s*>=\s*(?:3\.|4\.0\.0)", re.IGNORECASE)
+LEGACY_PYMDP_RUNTIME_IMPORTS = ("pymdp.control", "pymdp.inference")
+BLACK_TARGET_VERSION_MINIMUM = 11
 
 
 @dataclass
@@ -354,10 +365,7 @@ def validate_uv_environment(report: ContractReport) -> None:
         )
 
     workspace_members = (
-        root_config.get("tool", {})
-        .get("uv", {})
-        .get("workspace", {})
-        .get("members")
+        root_config.get("tool", {}).get("uv", {}).get("workspace", {}).get("members")
     )
     if workspace_members != ["GEO-INFER-*"]:
         report.error("Root [tool.uv.workspace].members must be ['GEO-INFER-*']")
@@ -428,8 +436,7 @@ def validate_module_task_markers(report: ContractReport) -> None:
     if hits:
         report.error(
             "Module-local task markers found; track planned work in root TODO.md "
-            "or issues. First hits: "
-            + "; ".join(hits[:8])
+            "or issues. First hits: " + "; ".join(hits[:8])
         )
 
 
@@ -459,8 +466,7 @@ def validate_logging_configuration(report: ContractReport) -> None:
         report.error(
             "Importable library code must not call logging.basicConfig() at import "
             "time. Configure handlers only in explicit setup functions or CLI "
-            "entrypoints. First hits: "
-            + "; ".join(hits[:8])
+            "entrypoints. First hits: " + "; ".join(hits[:8])
         )
 
 
@@ -477,7 +483,11 @@ def is_logging_basic_config_call(node: ast.AST) -> bool:
 
 
 def is_main_guard(node: ast.AST) -> bool:
-    if not isinstance(node, ast.Compare) or len(node.ops) != 1 or len(node.comparators) != 1:
+    if (
+        not isinstance(node, ast.Compare)
+        or len(node.ops) != 1
+        or len(node.comparators) != 1
+    ):
         return False
     if not isinstance(node.ops[0], ast.Eq):
         return False
@@ -536,6 +546,78 @@ def validate_python_source_syntax(report: ContractReport) -> None:
             return
 
 
+def parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
+    """Build a parent lookup map for an AST tree."""
+    parents: dict[ast.AST, ast.AST] = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parents[child] = node
+    return parents
+
+
+def ancestor_of_type(
+    node: ast.AST,
+    parents: dict[ast.AST, ast.AST],
+    node_types: tuple[type[ast.AST], ...],
+) -> ast.AST | None:
+    """Return the nearest ancestor matching one of the given AST node types."""
+    current = parents.get(node)
+    while current is not None:
+        if isinstance(current, node_types):
+            return current
+        current = parents.get(current)
+    return None
+
+
+def is_abstract_function(node: ast.AST) -> bool:
+    """Return true when a function is decorated with abstractmethod."""
+    if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        return False
+    for decorator in node.decorator_list:
+        if isinstance(decorator, ast.Name) and decorator.id == "abstractmethod":
+            return True
+        if isinstance(decorator, ast.Attribute) and decorator.attr == "abstractmethod":
+            return True
+    return False
+
+
+def is_pass_allowed(
+    node: ast.Pass,
+    parents: dict[ast.AST, ast.AST],
+) -> bool:
+    """Allow pass only for abstract methods and exception-handling blocks."""
+    if ancestor_of_type(node, parents, (ast.ExceptHandler,)) is not None:
+        return True
+    function = ancestor_of_type(node, parents, (ast.FunctionDef, ast.AsyncFunctionDef))
+    return bool(function and is_abstract_function(function))
+
+
+def validate_no_concrete_pass_bodies(report: ContractReport) -> None:
+    """Reject no-op pass bodies in concrete source code paths."""
+    hits: list[str] = []
+    for source_file in sorted(REPO_ROOT.glob("GEO-INFER-*/src/**/*.py")):
+        text = source_file.read_text(encoding="utf-8", errors="ignore")
+        try:
+            tree = ast.parse(text, filename=str(source_file))
+        except SyntaxError:
+            continue
+        parents = parent_map(tree)
+        lines = text.splitlines()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Pass):
+                continue
+            if is_pass_allowed(node, parents):
+                continue
+            line = lines[node.lineno - 1].strip()
+            hits.append(f"{source_file.relative_to(REPO_ROOT)}:{node.lineno}: {line}")
+
+    if hits:
+        report.error(
+            "Concrete pass bodies found in source; use real behavior, an explicit "
+            "return, or an abstract method. First hits: " + "; ".join(hits[:8])
+        )
+
+
 def validate_runtime_metadata(module_dirs: list[Path], report: ContractReport) -> None:
     metadata_files = [
         REPO_ROOT / "pyproject.toml",
@@ -553,6 +635,43 @@ def validate_runtime_metadata(module_dirs: list[Path], report: ContractReport) -
                 )
 
 
+def validate_python_tool_targets(report: ContractReport) -> None:
+    """Ensure Python tooling does not target interpreter versions below 3.11."""
+    for pyproject_file in sorted(
+        [REPO_ROOT / "pyproject.toml", *REPO_ROOT.glob("GEO-INFER-*/pyproject.toml")]
+    ):
+        if not pyproject_file.exists():
+            continue
+        try:
+            pyproject = tomllib.loads(pyproject_file.read_text(encoding="utf-8"))
+        except tomllib.TOMLDecodeError as exc:
+            report.error(
+                f"{pyproject_file.relative_to(REPO_ROOT)}: invalid TOML: {exc}"
+            )
+            continue
+
+        black_targets = (
+            pyproject.get("tool", {}).get("black", {}).get("target-version", [])
+        )
+        if isinstance(black_targets, str):
+            black_targets = [black_targets]
+        if not isinstance(black_targets, list):
+            report.error(
+                f"{pyproject_file.relative_to(REPO_ROOT)}: "
+                "tool.black.target-version must be a list"
+            )
+            continue
+        for target in black_targets:
+            if not isinstance(target, str):
+                continue
+            match = re.fullmatch(r"py3(\d+)", target)
+            if match and int(match.group(1)) < BLACK_TARGET_VERSION_MINIMUM:
+                report.error(
+                    f"{pyproject_file.relative_to(REPO_ROOT)}: "
+                    f"Black target-version {target!r} is below Python 3.11"
+                )
+
+
 def validate_h3_dependency_metadata(report: ContractReport) -> None:
     metadata_files = [
         *REPO_ROOT.glob("GEO-INFER-*/pyproject.toml"),
@@ -567,8 +686,27 @@ def validate_h3_dependency_metadata(report: ContractReport) -> None:
             if LEGACY_H3_PATTERN.search(line):
                 report.error(
                     f"{metadata_file.relative_to(REPO_ROOT)}:{lineno}: "
-                    "H3 dependency must use H3 v4 API support (h3>=4.0.0)"
+                    "H3 dependency must require real h3-py 4.5.x "
+                    "(h3>=4.5.0,<5)"
                 )
+
+
+def validate_pymdp_runtime_imports(report: ContractReport) -> None:
+    """Reject legacy pymdp runtime paths in production ACT source."""
+    act_src = REPO_ROOT / "GEO-INFER-ACT" / "src"
+    if not act_src.exists():
+        return
+
+    for source_file in sorted(act_src.glob("**/*.py")):
+        text = source_file.read_text(encoding="utf-8", errors="ignore")
+        for legacy_import in LEGACY_PYMDP_RUNTIME_IMPORTS:
+            if legacy_import not in text:
+                continue
+            report.error(
+                f"{source_file.relative_to(REPO_ROOT)}: "
+                f"legacy pymdp runtime import {legacy_import!r} is forbidden; "
+                "use geo_infer_act.utils.pymdp_adapter"
+            )
 
 
 def validate_import_smoke(module_dirs: list[Path], report: ContractReport) -> None:
@@ -706,16 +844,58 @@ def validate_runner_documentation(report: ContractReport) -> None:
             report.error(f"README documents {flag}, but run_unified_tests.py lacks it")
 
 
-def validate_generated_artifacts(report: ContractReport) -> None:
-    root_logs = REPO_ROOT / "logs"
-    if root_logs.exists():
+def load_doc_rewriter():
+    """Load the generated documentation renderer without mutating files."""
+    rewriter_path = REPO_ROOT / "GEO-INFER-TEST" / "rewrite_readme_agents.py"
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_rewrite_readme_agents", rewriter_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Unable to load {rewriter_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    module.REPO_ROOT = REPO_ROOT
+    return module
+
+
+def validate_generated_doc_freshness(
+    report: ContractReport,
+    rewriter=None,
+) -> None:
+    """Ensure tracked README.md and AGENTS.md files match generated facts."""
+    if rewriter is None:
+        try:
+            rewriter = load_doc_rewriter()
+        except Exception as exc:  # noqa: BLE001 - validator reports load failures
+            report.error(f"Unable to load documentation rewriter: {exc}")
+            return
+
+    stale: list[str] = []
+    for doc_path, expected in rewriter.expected_doc_files():
+        current = doc_path.read_text(encoding="utf-8")
+        if current != expected:
+            stale.append(str(doc_path.relative_to(REPO_ROOT)))
+
+    if stale:
         report.error(
-            "Root logs/ exists; imports and validators must not create log files"
+            "Generated README.md/AGENTS.md files are stale. Run "
+            "`uv run python GEO-INFER-TEST/rewrite_readme_agents.py`. "
+            "First mismatches: " + "; ".join(stale[:8])
         )
+
+
+def validate_generated_artifacts(report: ContractReport) -> None:
+    for relative_path in ROOT_GENERATED_ARTIFACT_PATHS:
+        generated_path = REPO_ROOT / relative_path
+        if relative_path == "logs" and generated_path.exists():
+            report.error(
+                "Root logs/ exists; imports and validators must not create log files"
+            )
 
     try:
         status = subprocess.run(
-            ["git", "status", "--short", "--", "logs", ".geo-infer-test-results"],
+            ["git", "status", "--short", "--", *ROOT_GENERATED_ARTIFACT_PATHS],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -757,11 +937,15 @@ def main() -> int:
     validate_test_inventory(module_dirs, report)
     validate_setup_syntax(module_dirs, report)
     validate_python_source_syntax(report)
+    validate_no_concrete_pass_bodies(report)
     validate_runtime_metadata(module_dirs, report)
+    validate_python_tool_targets(report)
     validate_h3_dependency_metadata(report)
+    validate_pymdp_runtime_imports(report)
     validate_requirements_files(report)
     validate_markdown_local_links(report)
     validate_runner_documentation(report)
+    validate_generated_doc_freshness(report)
     validate_generated_artifacts(report)
     validate_module_task_markers(report)
     validate_logging_configuration(report)

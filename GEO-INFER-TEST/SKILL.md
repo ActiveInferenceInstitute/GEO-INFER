@@ -83,7 +83,7 @@ uv run python -m pytest GEO-INFER-ACT/tests/ -m "integration" -v --tb=short
 
 ## Guidelines
 
-- Zero mock implementations in tests — use real objects
+- Use real objects in tests
 - Property-based tests (Hypothesis) in ≥10 modules
 - Results saved to `test-results/{MODULE}_results.xml`
 

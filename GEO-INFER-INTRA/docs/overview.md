@@ -387,7 +387,7 @@ print(f"Free energy: {fe:.4f}")
 These decisions apply across all 44 modules and are documented in the root
 `.cursorrules/` directory:
 
-- **H3 v4**: All modules use `h3>=4.0.0` with the v4 API (`latlng_to_cell`,
+- **H3 v4**: All modules use `h3>=4.5.0,<5` with the v4 API (`latlng_to_cell`,
   `cell_to_latlng`). The legacy v3 API (`geo_to_h3`, `h3_to_geo`) is not used.
 - **PEP 8 lowercase packages**: All 44 modules use `geo_infer_module` (lowercase)
   naming convention.

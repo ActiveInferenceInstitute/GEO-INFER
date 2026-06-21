@@ -221,7 +221,7 @@ H3 is the spatial indexing library used throughout GEO-INFER. Install the
 Python bindings for H3 v4:
 
 ```bash
-uv pip install "h3>=4.0.0"
+uv pip install "h3>=4.5.0,<5"
 ```
 
 Verify:
@@ -239,7 +239,7 @@ If you see `AttributeError: module 'h3' has no attribute 'latlng_to_cell'`,
 you have H3 v3 installed. Upgrade:
 
 ```bash
-uv pip install --upgrade "h3>=4.0.0"
+uv pip install --upgrade "h3>=4.5.0,<5"
 ```
 
 ### PROJ
@@ -360,7 +360,7 @@ def check_h3_v4() -> bool:
         print(f"  [OK] H3 v4 API functional (test cell: {cell})")
         return True
     except AttributeError:
-        print("  [FAIL] H3 v3 detected -- upgrade to h3>=4.0.0")
+        print("  [FAIL] H3 v3 detected -- upgrade to h3>=4.5.0,<5")
         return False
     except ImportError:
         print("  [FAIL] H3 not installed")
@@ -429,7 +429,7 @@ uv pip install GDAL==$(gdal-config --version)
 **Solution**:
 
 ```bash
-uv pip install --upgrade "h3>=4.0.0"
+uv pip install --upgrade "h3>=4.5.0,<5"
 ```
 
 Verify:

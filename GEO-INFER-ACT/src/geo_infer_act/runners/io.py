@@ -24,12 +24,39 @@ GEOSPATIAL_REQUIRED_FILES = {
     "data/h3_cells.csv",
     "data/h3_diagnostics.json",
     "data/h3_cells.geojson",
+    "data/pymdp_h3_diagnostics.json",
+    "data/pymdp_policy_posteriors.csv",
+    "data/spatial_inference_trace.json",
+    "data/spatial_research_statistics.json",
+    "data/h3_lattice_animation.json",
+    "data/h3_cell_diagnostics.csv",
+    "data/h3_edge_diagnostics.csv",
 }
 GEOSPATIAL_REQUIRED_VISUALIZATIONS = {
     "visualizations/h3_cell_metric_map.png",
     "visualizations/free_energy_evolution.png",
     "visualizations/belief_entropy_coherence.png",
     "visualizations/interactive_h3_map.html",
+    "visualizations/pymdp_policy_free_energy.html",
+    "visualizations/h3_belief_flux_map.html",
+    "visualizations/h3_policy_surface.html",
+    "visualizations/h3_policy_transitions.html",
+    "visualizations/h3_spatial_autocorrelation.html",
+    "visualizations/h3_entropy_free_energy_phase.html",
+    "visualizations/h3_active_inference_lattice.html",
+    "visualizations/spatial_inference_research_report.html",
+}
+NESTED_H3_REQUIRED_FILES = {
+    "data/h3_hierarchy.csv",
+    "data/nested_h3_diagnostics.json",
+    "data/nested_h3_cell_diagnostics.csv",
+    "data/nested_h3_parent_child_diagnostics.csv",
+    "data/nested_h3_level_diagnostics.csv",
+}
+NESTED_H3_REQUIRED_VISUALIZATIONS = {
+    "visualizations/nested_h3_level_map.html",
+    "visualizations/nested_h3_hierarchy_map.html",
+    "visualizations/nested_h3_parent_child_residuals.html",
 }
 
 
@@ -398,6 +425,10 @@ def validate_generated_outputs(
         required.update(GEOSPATIAL_REQUIRED_FILES)
         if config.visualizations:
             required.update(GEOSPATIAL_REQUIRED_VISUALIZATIONS)
+        if config.parameters.get("nested_h3"):
+            required.update(NESTED_H3_REQUIRED_FILES)
+            if config.visualizations:
+                required.update(NESTED_H3_REQUIRED_VISUALIZATIONS)
     missing = sorted(required - paths)
     if missing:
         errors.extend(f"missing required file: {path}" for path in missing)

@@ -61,7 +61,7 @@ holoviews>=1.14.0          # Interactive visualization
 
 # Dashboard dependencies
 folium>=0.14.0
-h3>=4.0.0
+h3>=4.5.0,<5
 PyYAML>=6.0
 
 # Reporting and documentation

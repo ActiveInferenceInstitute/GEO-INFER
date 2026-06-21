@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -41,6 +42,47 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
+
+## Current H3 Contracts
+
+- Production ACT H3 runtime paths must use
+  `geo_infer_act.utils.pymdp_adapter` and fail if `inferactively-pymdp` is not
+  exactly `1.0.3`.
+- Keep flat H3 method signatures and dictionary return shapes backward-compatible.
+- Keep trace diagnostics JSON-safe and backed by typed result classes:
+  `H3CellDiagnostics`, `H3EdgeDiagnostics`, `H3LevelDiagnostics`, and
+  `SpatialInferenceTrace`.
+- Use nested methods only for opt-in nested H3 behavior:
+  `enable_nested_h3_spatial`, `update_nested_h3_beliefs`,
+  `infer_over_nested_h3_grid`, `trace_over_nested_h3_grid`, `step_nested`,
+  `trace_nested_step`, and `simulate_nested_h3_lattice`.
+- Nested inference must reject invalid cells, observations outside the enabled
+  hierarchy, mixed unexpected resolutions, non-finite observations, and empty
+  belief vectors.
+- Runner nested mode must keep outputs under the configured output directory and
+  list generated hierarchy, diagnostics, and visualization files in the manifest.
+- Runner flat and nested H3 modes must emit pymdp posterior, negative-EFE,
+  free-energy, entropy, and backend-version diagnostics through manifest-linked
+  sidecars.
+- Runner flat and nested H3 modes must emit spatial trace JSON/CSV outputs plus
+  belief-flux, policy-surface, policy-transition, spatial-autocorrelation,
+  entropy/free-energy phase, and research-report HTML visualizations through
+  the manifest sidecar pipeline.
+- Research-profile and gallery runs must remain deterministic, real-H3, and
+  non-degenerate: policy probabilities, entropy, local coherence, and belief
+  flux should show finite variation above the validator thresholds.
+- Use `uv run` for ACT/H3 commands. A system Python installation with a legacy
+  `inferactively-pymdp` distribution is outside the supported contract.
+
+## Failure Triage
+
+- If nested belief tests fail, inspect `geo_infer_act.core.generative_model`
+  before changing agents or runners.
+- If artifact validation fails, inspect `geo_infer_act.runners.scenarios` and
+  `geo_infer_act.runners.io` together.
+- Re-run `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
+  after changing any H3 or nested spatial inference path.
 
 ## Integration Notes
 

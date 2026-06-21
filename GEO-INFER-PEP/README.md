@@ -4,6 +4,7 @@ Comprehensive people operations management including HR, CRM, talent acquisition
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -41,6 +42,7 @@ Comprehensive people operations management including HR, CRM, talent acquisition
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module PEP
 ```
+
 
 ## Documentation Notes
 

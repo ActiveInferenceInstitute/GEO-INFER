@@ -62,8 +62,10 @@ Core workspace within `GEO-INFER-TEST`.
 ## Validation
 
 ```bash
+uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
+
 
 ## Documentation Notes
 

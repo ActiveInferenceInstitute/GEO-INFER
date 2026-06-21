@@ -8,7 +8,15 @@ Examples workspace within `GEO-INFER-ANT`.
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `swarm_intelligence_demo.py:generate_sample_data` (function)
+- `swarm_intelligence_demo.py:demonstrate_swarm_agents` (function)
+- `swarm_intelligence_demo.py:demonstrate_population_dynamics` (function)
+- `swarm_intelligence_demo.py:demonstrate_stigmergic_communication` (function)
+- `swarm_intelligence_demo.py:demonstrate_optimization_algorithms` (function)
+- `swarm_intelligence_demo.py:demonstrate_environmental_monitoring` (function)
+- `swarm_intelligence_demo.py:demonstrate_pattern_analysis` (function)
+- `swarm_intelligence_demo.py:run_complete_demonstration` (function)
+- `swarm_intelligence_demo.py:main` (function)
 
 ## Module Metadata
 
@@ -22,7 +30,7 @@ Examples workspace within `GEO-INFER-ANT`.
 
 - `asyncio-mqtt>=0.11.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
 - `matplotlib>=3.5.0`
 - `networkx>=2.8`
@@ -36,6 +44,7 @@ Examples workspace within `GEO-INFER-ANT`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
 ```
+
 
 ## Documentation Notes
 

@@ -171,7 +171,7 @@ conda install -c conda-forge gdal rasterio fiona geopandas
 H3 v4 is required. The Python `h3` package includes pre-built wheels for most platforms.
 
 ```bash
-uv pip install "h3>=4.0.0"
+uv pip install "h3>=4.5.0,<5"
 
 # Verify
 python -c "import h3; print(h3.versions())"
@@ -198,7 +198,7 @@ try:
     h3.latlng_to_cell(37.7749, -122.4194, 7)
     print("H3 v4 installed correctly")
 except AttributeError:
-    print("ERROR: H3 v3 installed. Upgrade with: uv pip install 'h3>=4.0.0'")
+    print("ERROR: H3 v3 installed. Upgrade with: uv pip install 'h3>=4.5.0,<5'")
 ```
 
 ## Common pip/uv Error Messages

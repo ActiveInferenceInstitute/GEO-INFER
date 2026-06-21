@@ -9,6 +9,7 @@ Models workspace within `GEO-INFER-DATA`.
 
 ## Public Interface
 
+- `schemas.py:utc_now` (function)
 - `schemas.py:DataType` (class)
 - `schemas.py:DataFormat` (class)
 - `schemas.py:QualityStatus` (class)
@@ -28,7 +29,6 @@ Models workspace within `GEO-INFER-DATA`.
 - `schemas.py:Transformation` (class)
 - `schemas.py:ETLPipeline` (class)
 - `schemas.py:ExecutionStatus` (class)
-- `schemas.py:Pagination` (class)
 
 ## Module Metadata
 
@@ -58,6 +58,7 @@ Models workspace within `GEO-INFER-DATA`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
+
 
 ## Documentation Notes
 

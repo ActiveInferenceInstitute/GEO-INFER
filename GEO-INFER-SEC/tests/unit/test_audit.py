@@ -3,10 +3,12 @@ Unit tests for audit logging functionality.
 """
 
 import pytest
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 import tempfile
 
+from geo_infer_sec import SecurityFramework
 from geo_infer_sec.core.audit import (
     AuditLogger,
     AuditEvent,
@@ -132,5 +134,18 @@ class TestAuditLogger:
         assert report["compliance_metrics"]["failed_authentication_attempts"] >= 1
         assert report["compliance_metrics"]["denied_access_attempts"] >= 1
 
+
+def test_security_framework_audit_access_records_event(caplog) -> None:
+    """Test high-level framework audit access returns and stores an event."""
+    framework = SecurityFramework()
+
+    with caplog.at_level(logging.INFO, logger="geo_infer_sec"):
+        event = framework.audit_access("user-123", {"resource": "parcel-layer", "action": "read"})
+
+    assert event["user_id"] == "user-123"
+    assert event["data_access"]["resource"] == "parcel-layer"
+    assert event["status"] == "recorded"
+    assert event in framework.audit_log
+    assert "timestamp" in event
 
 

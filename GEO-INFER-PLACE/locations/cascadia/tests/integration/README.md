@@ -42,7 +42,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 
 - `geopandas>=0.10.0`
 - `shapely>=1.8.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `pyyaml>=6.0`
@@ -58,6 +58,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 ```bash
 uv run python -m pytest GEO-INFER-PLACE/locations/cascadia/tests/integration
 ```
+
 
 ## Documentation Notes
 

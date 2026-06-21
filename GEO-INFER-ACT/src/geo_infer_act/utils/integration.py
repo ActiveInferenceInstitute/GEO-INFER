@@ -254,28 +254,39 @@ class ModernToolsIntegration:
             )
 
         try:
-            from pymdp import Agent
-            from pymdp.utils import random_A_matrix, random_B_matrix
+            import jax.numpy as jnp
+            import jax.random as jr
+            from pymdp.agent import Agent
+            from pymdp.utils import random_A_array, random_B_array
 
             # Create observation model if not provided
             if A is None:
-                A = random_A_matrix(num_obs, num_states)
+                A = random_A_array(jr.PRNGKey(0), num_obs, num_states)
 
             # Create transition model if not provided
             if B is None:
-                B = random_B_matrix(num_states)
+                B = random_B_array(jr.PRNGKey(1), num_states, num_states)
 
             # Create agent
             agent = Agent(
-                A=A, B=B, control_fac_idx=[0]  # Which factors are controllable
+                A=A,
+                B=B,
+                C=[jnp.zeros(obs_dim) for obs_dim in num_obs],
+                D=[jnp.ones(state_dim) / state_dim for state_dim in num_states],
+                num_controls=list(num_states),
+                categorical_obs=True,
+                batch_size=1,
             )
 
             # Test inference with random observation
-            obs = [np.random.randint(0, num_obs[i]) for i in range(len(num_obs))]
-            qs = agent.infer_states(obs)
+            obs = [
+                jnp.eye(num_obs[i])[np.random.randint(0, num_obs[i])].reshape(1, -1)
+                for i in range(len(num_obs))
+            ]
+            qs = agent.infer_states(obs, empirical_prior=agent.D)
 
             # Test policy inference
-            q_pi, G = agent.infer_policies()
+            q_pi, G = agent.infer_policies(qs)
 
             return {
                 "status": "success",

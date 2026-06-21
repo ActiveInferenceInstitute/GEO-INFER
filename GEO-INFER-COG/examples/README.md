@@ -10,6 +10,14 @@ Examples workspace within `GEO-INFER-COG`.
 
 ## Public Interface
 
+- `cognitive_processing_demo.py:create_sample_spatial_data` (function)
+- `cognitive_processing_demo.py:create_sample_user_profile` (function)
+- `cognitive_processing_demo.py:demonstrate_cognitive_processing` (function)
+- `cognitive_processing_demo.py:demonstrate_spatial_language_processing` (function)
+- `cognitive_processing_demo.py:demonstrate_cognitive_map_creation` (function)
+- `cognitive_processing_demo.py:demonstrate_user_profiling` (function)
+- `cognitive_processing_demo.py:create_visualization_demo` (function)
+- `cognitive_processing_demo.py:main` (function)
 - `cognitive_wayfinding.py:main` (function)
 
 ## Module Metadata
@@ -30,6 +38,7 @@ Examples workspace within `GEO-INFER-COG`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
 ```
+
 
 ## Documentation Notes
 

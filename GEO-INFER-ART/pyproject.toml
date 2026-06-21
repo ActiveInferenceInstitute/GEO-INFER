@@ -49,7 +49,7 @@ dependencies = [
 
 [project.optional-dependencies]
 viz3d = [
-    "mayavi>=4.7.0",
+    "mayavi>=4.7.0; python_version < '3.12'",
 ]
 dev = [
     "pytest>=6.2.0",
@@ -87,7 +87,7 @@ exclude = ["tests*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

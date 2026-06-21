@@ -4,6 +4,7 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`
@@ -53,6 +54,7 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
 ```
+
 
 ## Documentation Notes
 

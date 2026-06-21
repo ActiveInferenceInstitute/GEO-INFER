@@ -4,6 +4,7 @@ Human-computer interaction layer providing accessible geospatial applications, d
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -37,6 +38,7 @@ Human-computer interaction layer providing accessible geospatial applications, d
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
 ```
+
 
 ## Documentation Notes
 

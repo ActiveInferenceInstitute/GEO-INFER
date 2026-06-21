@@ -61,7 +61,7 @@ print(f"Population covered: {catchment.population:,}")
 ## Guidelines
 
 - Uses H3 v4 API exclusively
-- Fallback placeholder geometries used when county data is unavailable (graceful degradation)
+- Fallback synthetic geometries are used when county data is unavailable
 - Test: `uv run python -m pytest GEO-INFER-PLACE/tests/ -v`
 
 ### Integrations

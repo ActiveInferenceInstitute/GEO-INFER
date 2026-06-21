@@ -23,6 +23,10 @@ Examples workspace within `GEO-INFER-DATA`.
 - `storage_example.py:create_sample_geodataframe` (function)
 - `storage_example.py:create_sample_dataframe` (function)
 - `storage_example.py:main` (function)
+- `validation_example.py:create_valid_geodataframe` (function)
+- `validation_example.py:create_invalid_geodataframe` (function)
+- `validation_example.py:create_incomplete_dataframe` (function)
+- `validation_example.py:main` (function)
 
 ## Module Metadata
 
@@ -52,6 +56,7 @@ Examples workspace within `GEO-INFER-DATA`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
+
 
 ## Documentation Notes
 

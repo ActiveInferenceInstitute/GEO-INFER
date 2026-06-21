@@ -4,6 +4,7 @@ Organizational structures, governance frameworks, and community processes for ge
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -35,6 +36,7 @@ Organizational structures, governance frameworks, and community processes for ge
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG
 ```
+
 
 ## Documentation Notes
 

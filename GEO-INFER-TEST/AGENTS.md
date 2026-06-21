@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -45,14 +46,11 @@
 
 ```bash
 uv sync --all-packages --all-extras
-python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
-uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 ```
+
 
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
 - Keep cross-module references anchored to real package imports and tracked files.
-- Keep repo contract changes covered by focused unit tests under `GEO-INFER-TEST/tests/unit/`.

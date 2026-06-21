@@ -7,9 +7,9 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | Metric | Value |
 | --- | ---: |
 | Modules | 44 |
-| Python source files | 884 |
-| Python test files | 441 |
-| Tracked README.md files | 830 |
+| Python source files | 887 |
+| Python test files | 450 |
+| Tracked README.md files | 828 |
 | Tracked AGENTS.md files | 827 |
 
 ## Quick Start
@@ -25,7 +25,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
-| `GEO-INFER-ACT` | `geo_infer_act` | 39 | 23 |
+| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 27 |
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 9 |
 | `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
@@ -46,7 +46,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 8 |
 | `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 4 | 4 |
 | `GEO-INFER-FOREST` | `geo_infer_forest` | 11 | 8 |
-| `GEO-INFER-GIT` | `geo_infer_git` | 20 | 7 |
+| `GEO-INFER-GIT` | `geo_infer_git` | 20 | 8 |
 | `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 9 |
 | `GEO-INFER-INTRA` | `geo_infer_intra` | 11 | 7 |
 | `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 7 |
@@ -63,9 +63,9 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-RISK` | `geo_infer_risk` | 29 | 10 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 29 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 30 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
-| `GEO-INFER-TEST` | `geo_infer_test` | 13 | 19 |
+| `GEO-INFER-TEST` | `geo_infer_test` | 13 | 22 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 6 |
 | `GEO-INFER-WATER` | `geo_infer_water` | 11 | 7 |

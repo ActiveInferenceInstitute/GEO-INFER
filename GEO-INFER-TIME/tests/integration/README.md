@@ -32,6 +32,7 @@ Integration workspace within `GEO-INFER-TIME`.
 uv run python -m pytest GEO-INFER-TIME/tests/integration
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -30,7 +30,7 @@ Nested workspace within `GEO-INFER-SPACE`.
 - `fiona>=1.8.0`
 - `geojson-pydantic>=0.4.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `networkx>=2.6.0`
 - `numpy>=1.20.0,<2.0`
 - `pandas>=1.3.0`
@@ -44,6 +44,7 @@ Nested workspace within `GEO-INFER-SPACE`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 ```
+
 
 ## Documentation Notes
 

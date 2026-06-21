@@ -37,6 +37,7 @@
 uv run python -m pytest GEO-INFER-SPACE/tests/reports/visualizations/status
 ```
 
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

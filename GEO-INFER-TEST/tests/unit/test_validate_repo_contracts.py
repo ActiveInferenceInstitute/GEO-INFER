@@ -43,9 +43,7 @@ def write_canonical_uv_docs(root: Path, contracts) -> None:
     for relative_path in contracts.CANONICAL_UV_DOC_FILES:
         doc_path = root / relative_path
         doc_path.parent.mkdir(parents=True, exist_ok=True)
-        doc_path.write_text(
-            f"Setup command: `{contracts.CANONICAL_UV_SYNC_COMMAND}`\n"
-        )
+        doc_path.write_text(f"Setup command: `{contracts.CANONICAL_UV_SYNC_COMMAND}`\n")
 
 
 def test_uv_environment_contract_accepts_root_workspace(tmp_path, monkeypatch):
@@ -169,3 +167,135 @@ def test_python_source_syntax_contract_rejects_invalid_module_source(
     errors = "\n".join(report.errors)
     assert "GEO-INFER-SAMPLE/examples/broken.py" in errors
     assert "invalid syntax" in errors
+
+
+def test_concrete_pass_contract_rejects_non_abstract_source_pass(tmp_path, monkeypatch):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    src_dir = tmp_path / "GEO-INFER-SAMPLE" / "src" / "geo_infer_sample"
+    src_dir.mkdir(parents=True)
+    (src_dir / "module.py").write_text("def real_behavior():\n    pass\n")
+    report = contracts.ContractReport()
+
+    contracts.validate_no_concrete_pass_bodies(report)
+
+    errors = "\n".join(report.errors)
+    assert "module.py:2" in errors
+    assert "Concrete pass bodies" in errors
+
+
+def test_concrete_pass_contract_allows_abstract_methods_and_except_handlers(
+    tmp_path, monkeypatch
+):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    src_dir = tmp_path / "GEO-INFER-SAMPLE" / "src" / "geo_infer_sample"
+    src_dir.mkdir(parents=True)
+    (src_dir / "module.py").write_text(
+        "from abc import abstractmethod\n\n"
+        "class Base:\n"
+        "    @abstractmethod\n"
+        "    def run(self):\n"
+        "        pass\n\n"
+        "def cleanup(value):\n"
+        "    try:\n"
+        "        return int(value)\n"
+        "    except ValueError:\n"
+        "        pass\n"
+        "    return None\n"
+    )
+    report = contracts.ContractReport()
+
+    contracts.validate_no_concrete_pass_bodies(report)
+
+    assert report.errors == []
+
+
+def test_python_tool_targets_reject_black_targets_below_python_311(
+    tmp_path, monkeypatch
+):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    (tmp_path / "pyproject.toml").write_text(
+        "[tool.black]\ntarget-version = ['py310', 'py311']\n"
+    )
+    report = contracts.ContractReport()
+
+    contracts.validate_python_tool_targets(report)
+
+    assert any("py310" in error for error in report.errors)
+
+
+def test_h3_dependency_metadata_rejects_old_h3_v4_floor(tmp_path, monkeypatch):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module_dir = tmp_path / "GEO-INFER-SAMPLE"
+    module_dir.mkdir()
+    (module_dir / "pyproject.toml").write_text(
+        "[project]\ndependencies = ['h3>=4.0.0']\n"
+    )
+    report = contracts.ContractReport()
+
+    contracts.validate_h3_dependency_metadata(report)
+
+    assert any("h3>=4.5.0,<5" in error for error in report.errors)
+
+
+def test_generated_doc_freshness_rejects_stale_rendered_docs(tmp_path, monkeypatch):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    readme = tmp_path / "README.md"
+    readme.write_text("stale\n")
+
+    class FakeRewriter:
+        @staticmethod
+        def expected_doc_files():
+            return [(readme, "fresh\n")]
+
+    report = contracts.ContractReport()
+
+    contracts.validate_generated_doc_freshness(report, rewriter=FakeRewriter)
+
+    assert any(
+        "README.md/AGENTS.md files are stale" in error for error in report.errors
+    )
+
+
+def test_generated_artifact_contract_checks_root_test_output(tmp_path, monkeypatch):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+
+    class FakeCompleted:
+        stdout = "?? test_output/\n"
+
+    def fake_run(*args, **kwargs):
+        return FakeCompleted()
+
+    monkeypatch.setattr(contracts.subprocess, "run", fake_run)
+    report = contracts.ContractReport()
+
+    contracts.validate_generated_artifacts(report)
+
+    assert any("test_output" in error for error in report.errors)
+
+
+def test_pymdp_runtime_import_contract_rejects_legacy_runtime_paths(
+    tmp_path, monkeypatch
+):
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    act_src = tmp_path / "GEO-INFER-ACT" / "src" / "geo_infer_act"
+    tests_dir = tmp_path / "GEO-INFER-ACT" / "tests"
+    act_src.mkdir(parents=True)
+    tests_dir.mkdir(parents=True)
+    (act_src / "runtime.py").write_text(
+        "from pymdp.control import construct_policies\n"
+    )
+    (tests_dir / "test_legacy_note.py").write_text("LEGACY = 'pymdp.control'\n")
+    report = contracts.ContractReport()
+
+    contracts.validate_pymdp_runtime_imports(report)
+
+    errors = "\n".join(report.errors)
+    assert "runtime.py" in errors
+    assert "test_legacy_note.py" not in errors

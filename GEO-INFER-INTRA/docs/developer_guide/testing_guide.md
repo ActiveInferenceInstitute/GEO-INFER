@@ -787,7 +787,7 @@ def test_full_geospatial_inference_pipeline(sample_coordinates):
 
 ## 7. H3 v4 Test Patterns
 
-GEO-INFER requires H3 v4 (`h3>=4.0.0`). The v4 API uses different function
+GEO-INFER requires H3 v4 (`h3>=4.5.0,<5`). The v4 API uses different function
 names than v3. Using the wrong API will cause `AttributeError` at runtime.
 
 ### API Reference: v3 vs v4
@@ -1418,7 +1418,7 @@ gdal-config --version
 ### AttributeError: module 'h3' has no attribute 'geo_to_h3'
 
 **Cause**: Using H3 v3 API function names with H3 v4 installed. GEO-INFER
-requires `h3>=4.0.0`.
+requires `h3>=4.5.0,<5`.
 
 **Fix**: Replace all v3 function calls with v4 equivalents:
 

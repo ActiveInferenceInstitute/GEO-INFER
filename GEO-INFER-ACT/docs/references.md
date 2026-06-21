@@ -65,7 +65,8 @@
 ### pymdp
 
 - [GitHub](https://github.com/infer-actively/pymdp)
-- Python package for Active Inference
+- GEO-INFER-ACT validates and uses `inferactively-pymdp==1.0.3` for categorical
+  H3 active-inference runtime paths.
 
 ### SPM
 

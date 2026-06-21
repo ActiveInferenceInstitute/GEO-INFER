@@ -22,6 +22,26 @@ class TestAgent:
         assert np.array_equal(agent.position, np.array([0.0, 0.0]))
         assert agent.properties["type"] == "mobile"
 
+    def test_base_agent_step_records_observable_state(self) -> None:
+        """Test base agent step records default state."""
+        agent = Agent(agent_id="agent1", position=np.array([0.0, 0.0]))
+        agent.step(2.5, {"temperature": 20, "humidity": 0.5})
+
+        assert agent.properties["last_step_time"] == 2.5
+        assert agent.properties["last_environment_keys"] == ["humidity", "temperature"]
+
+    def test_base_agent_interact_records_neighbor(self) -> None:
+        """Test base agent interaction records neighbor state."""
+        agent = Agent(agent_id="agent1", position=np.array([0.0, 0.0]))
+        other = Agent(agent_id="agent2", position=np.array([1.0, 0.0]))
+
+        agent.interact(other, 3.0)
+        agent.interact(other, 4.0)
+
+        assert agent.neighbors == ["agent2"]
+        assert agent.properties["last_interaction_time"] == 4.0
+        assert agent.properties["interaction_count"] == 2
+
 
 class TestAgentBasedModel:
     """Test AgentBasedModel class."""
@@ -62,6 +82,5 @@ class TestAgentBasedModel:
         abm.step(time_step=1.0)
 
         assert abm.time == 1.0
-
 
 

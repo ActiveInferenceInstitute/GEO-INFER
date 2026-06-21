@@ -4,6 +4,7 @@ Climate modeling, weather analysis, and climate change impact assessment for geo
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -41,6 +42,7 @@ Climate modeling, weather analysis, and climate change impact assessment for geo
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE
 ```
+
 
 ## Documentation Notes
 

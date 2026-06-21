@@ -4,6 +4,7 @@ Communications infrastructure for geospatial systems enabling data exchange, mes
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -37,6 +38,7 @@ Communications infrastructure for geospatial systems enabling data exchange, mes
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS
 ```
+
 
 ## Documentation Notes
 

@@ -34,7 +34,10 @@ Core workspace within `GEO-INFER-ACT`.
 - `types.py:H3SpatialConsistency` (class)
 - `types.py:H3BeliefUpdateResult` (class)
 - `types.py:H3GridInferenceResult` (class)
-- `variational_inference.py:VariationalInference` (class)
+- `types.py:H3CellDiagnostics` (class)
+- `types.py:H3EdgeDiagnostics` (class)
+- `types.py:H3LevelDiagnostics` (class)
+- `types.py:SpatialInferenceTrace` (class)
 
 ## Module Metadata
 
@@ -56,7 +59,7 @@ Core workspace within `GEO-INFER-ACT`.
 - `torch>=1.9.0`
 - `arviz>=0.11.0`
 - `bayeux-ml>=0.0.1`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
 
 ## Validation
@@ -64,6 +67,7 @@ Core workspace within `GEO-INFER-ACT`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
 
 ## Documentation Notes
 
