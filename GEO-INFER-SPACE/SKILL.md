@@ -17,7 +17,9 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **H3 v4 indexing**: Cell operations, hierarchical resolution, k-ring neighbors
+- **H3 v4.5 indexing**: Cell operations, hierarchical resolution, k-ring neighbors
+- **Nested H3 hierarchies**: Parent/child closure, same-resolution adjacency,
+  and deterministic aggregation for ordered H3 resolutions
 - **Backend dispatch**: Interface pattern for H3, SRAI, PostGIS backends
 - **Coordinate systems**: CRS transformations, EPSG management
 - **Spatial operations**: Buffers, intersections, unions, containment
@@ -29,9 +31,10 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 from geo_infer_space.backends.h3 import H3Backend
 from geo_infer_space.core.spatial_operations import SpatialEngine
 from geo_infer_space.core.coordinate_systems import CRSManager
+from geo_infer_space.nested import NestedH3Grid
 ```
 
-### H3 v4 API (Critical)
+### H3 v4.5 API (Critical)
 
 ```python
 import h3
@@ -67,6 +70,19 @@ print(f"Tessellation: {len(cells)} cells")
 ```
 
 ```python
+from geo_infer_space.nested import NestedH3Grid
+
+grid = NestedH3Grid("sf_nested")
+hierarchy = grid.build_h3_hierarchy_from_cells(
+    ["89283082803ffff"],
+    resolutions=[7, 8, 9],
+)
+
+assert hierarchy["validation"]["is_valid"]
+assert hierarchy["validation"]["orphan_count"] == 0
+```
+
+```python
 from geo_infer_space.core.coordinate_systems import CRSManager
 
 crs = CRSManager()
@@ -77,9 +93,15 @@ print(f"UTM Zone 10N: ({x:.0f}, {y:.0f})")
 ## Guidelines
 
 - Always use H3 v4 API — zero legacy calls allowed
+- Runtime and dependency metadata must use real `h3>=4.5.0,<5`.
 - Backend-agnostic: use the dispatcher pattern, not direct H3 calls
+- For nested H3, construct hierarchies through `NestedH3Grid`; validate
+  `parent_child_map`, `child_parent_map`, `same_level_neighbors`, and
+  `validation["orphan_count"] == 0` before handing cells to ACT.
 - EPSG:4326 (WGS84) is the default CRS
-- Test: `uv run python -m pytest GEO-INFER-SPACE/tests/ -v`
+- Test:
+  `uv run pytest GEO-INFER-SPACE/tests/unit/test_nested_h3_contract.py -q`
+  and `uv run python -m pytest GEO-INFER-SPACE/tests/ -v`
 
 ### Integrations
 

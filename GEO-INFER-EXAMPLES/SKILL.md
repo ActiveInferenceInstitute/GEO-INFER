@@ -24,32 +24,34 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ```text
 GEO-INFER-EXAMPLES/examples/
-├── module_orchestrator.py    # Cross-module coordination
-├── spatial_analysis/         # SPACE + MATH examples
-├── active_inference/         # ACT + BAYES examples
-└── domain/                   # Domain-specific examples
+├── module_orchestrators/     # Per-module orchestration demos
+├── getting_started/          # Beginner walkthroughs
+├── agriculture_integration/  # AG + SPACE + RISK workflows
+├── climate_integration/      # CLIMATE + SPACE workflows
+├── health_integration/       # HEALTH + SPACE workflows
+└── iot_radiation_monitoring/ # IOT + DATA + SPACE workflow
 ```
 
 ### Orchestrator Example
 
 ```python
-from geo_infer_examples.module_orchestrator import ModuleOrchestrator
+from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
 
-orchestrator = ModuleOrchestrator(modules=["SPACE", "MATH", "BAYES"])
-result = orchestrator.run(data, max_iterations=100)
-# Convergence uses numeric relative-change (not placeholder)
+orchestrator = ModuleOrchestrator(monitoring_enabled=False)
+workflow_ids = orchestrator.list_workflows()
+module_health = orchestrator.get_module_health()
 ```
 
 ## Examples
 
 ```python
-from geo_infer_examples.module_orchestrator import ModuleOrchestrator
+from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
 
-# Cross-module pipeline: SPACE → MATH → BAYES
-orchestrator = ModuleOrchestrator(modules=["SPACE", "MATH", "BAYES"])
-result = orchestrator.run(data, max_iterations=100)
-# Convergence uses numeric relative-change (not placeholder)
-print(f"Converged in {result.iterations} iterations")
+# Inspect configured cross-module workflows before execution
+orchestrator = ModuleOrchestrator(monitoring_enabled=False)
+for workflow_id in orchestrator.list_workflows():
+    workflow = orchestrator.get_workflow_definition(workflow_id)
+    print(workflow_id, workflow.execution_strategy)
 ```
 
 ```python
@@ -73,7 +75,8 @@ risk_map = risk.assess(hazard=drought_index, exposure=health_scores)
 ## Guidelines
 
 - `module_orchestrator.py` convergence check uses numeric relative-change
-- Missing end-to-end Active Inference tutorial (planned for v0.4.0)
+- Track new tutorial requests in the root task ledger before adding examples
+- Verified runnable examples live under `examples/*/scripts/`
 - Test: `uv run python -m pytest GEO-INFER-EXAMPLES/tests/ -v`
 
 ### Integrations

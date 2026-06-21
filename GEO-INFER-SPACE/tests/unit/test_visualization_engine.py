@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+import tempfile
 import pytest
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
 
@@ -7,7 +8,12 @@ from geo_infer_space.core.visualization_engine import InteractiveVisualizationEn
 class TestInteractiveVisualizationEngine(unittest.TestCase):
     def setUp(self):
         self.config = {'location': {'bounds': {'north': 42, 'south': 41, 'east': -123, 'west': -125}}}
-        self.engine = InteractiveVisualizationEngine(self.config, Path('test_output'))
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.output_dir = Path(self._tmpdir.name)
+        self.engine = InteractiveVisualizationEngine(self.config, self.output_dir)
+
+    def tearDown(self):
+        self._tmpdir.cleanup()
 
     def test_initialization(self):
         """Test engine initialization with config."""
@@ -18,4 +24,5 @@ class TestInteractiveVisualizationEngine(unittest.TestCase):
         """Test dashboard creation with small real data."""
         analysis_results = {'domain_results': {'forest_health': {}}}
         dashboard_path = self.engine.create_comprehensive_dashboard(analysis_results)
-        self.assertTrue(Path(dashboard_path).exists()) 
+        self.assertTrue(Path(dashboard_path).exists())
+        self.assertTrue(Path(dashboard_path).is_relative_to(self.output_dir))

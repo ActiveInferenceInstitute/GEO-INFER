@@ -31,7 +31,7 @@ Unit workspace within `GEO-INFER-IOT`.
 - `fastapi>=0.68.0`
 - `folium>=0.12.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `influxdb-client>=1.24.0`
 - `matplotlib>=3.5.0`
 - `numpy>=1.20.0`
@@ -43,6 +43,7 @@ Unit workspace within `GEO-INFER-IOT`.
 ```bash
 uv run python -m pytest GEO-INFER-IOT/tests/unit
 ```
+
 
 ## Documentation Notes
 

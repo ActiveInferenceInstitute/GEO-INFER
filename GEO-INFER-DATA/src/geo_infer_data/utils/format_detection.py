@@ -122,7 +122,7 @@ class FormatDetector:
                             raise ValueError("File extension suggests GeoJSON but structure is invalid")
                 elif detected_format == DataFormat.GEOTIFF:
                     with rasterio.open(file_path) as src:
-                        pass  # Just check if it can be opened
+                        _ = src.count  # Opening and reading metadata verifies access.
 
                 return detected_format
 

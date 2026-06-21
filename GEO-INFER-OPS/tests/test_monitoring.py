@@ -16,6 +16,7 @@ from geo_infer_ops.core.monitoring import (
     record_metric,
     get_metric_value,
     instrument_app,
+    start_metrics_server,
     REQUEST_COUNT,
     REQUEST_LATENCY,
     ERROR_COUNT,
@@ -177,6 +178,25 @@ def test_setup_monitoring():
     with patch("prometheus_client.start_http_server") as mock_start_server:
         setup_monitoring(port=9090)
         mock_start_server.assert_called_once_with(9090, registry=REGISTRY)
+
+
+def test_start_metrics_server_yields_port_and_cleans_up():
+    """Test metrics context manager exposes the selected port and closes handles."""
+    server = MagicMock()
+    thread = MagicMock()
+    thread.is_alive.return_value = True
+
+    with patch(
+        "geo_infer_ops.core.monitoring.prom.start_http_server",
+        return_value=(server, thread),
+    ) as mock_start_server:
+        with start_metrics_server(port=9093) as selected_port:
+            assert selected_port == 9093
+
+    mock_start_server.assert_called_once_with(9093, registry=REGISTRY)
+    server.shutdown.assert_called_once()
+    server.server_close.assert_called_once()
+    thread.join.assert_called_once_with(timeout=1)
 
 
 def test_reset_metrics():

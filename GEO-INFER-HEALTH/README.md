@@ -4,6 +4,7 @@ Epidemiology, healthcare accessibility analysis, disease surveillance, and spati
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -49,6 +50,7 @@ Epidemiology, healthcare accessibility analysis, disease surveillance, and spati
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
 ```
+
 
 ## Documentation Notes
 

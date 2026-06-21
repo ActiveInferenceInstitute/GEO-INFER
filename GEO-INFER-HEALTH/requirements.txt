@@ -67,7 +67,7 @@ flake8>=6.1.0
 mypy>=1.7.0
 
 # Optional: H3 integration (if available)
-# h3>=4.0.0
+# h3>=4.5.0,<5
 
 # Optional: GPU acceleration
 # cupy>=13.0.0

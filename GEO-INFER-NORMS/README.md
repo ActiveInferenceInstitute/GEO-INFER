@@ -4,6 +4,7 @@ Social-technical compliance modeling with deterministic and probabilistic analys
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -40,6 +41,7 @@ Social-technical compliance modeling with deterministic and probabilistic analys
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS
 ```
+
 
 ## Documentation Notes
 

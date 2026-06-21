@@ -4,6 +4,7 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -45,6 +46,7 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
 ```
+
 
 ## Documentation Notes
 

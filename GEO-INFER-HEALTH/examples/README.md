@@ -12,6 +12,15 @@ Examples workspace within `GEO-INFER-HEALTH`.
 
 ## Public Interface
 
+- `advanced_health_analysis.py:create_sample_disease_data` (function)
+- `advanced_health_analysis.py:create_sample_healthcare_data` (function)
+- `advanced_health_analysis.py:create_sample_environmental_data` (function)
+- `advanced_health_analysis.py:create_sample_population_data` (function)
+- `advanced_health_analysis.py:demonstrate_active_inference_disease_analysis` (function)
+- `advanced_health_analysis.py:demonstrate_healthcare_accessibility_analysis` (function)
+- `advanced_health_analysis.py:demonstrate_environmental_health_analysis` (function)
+- `advanced_health_analysis.py:demonstrate_advanced_geospatial_analysis` (function)
+- `advanced_health_analysis.py:main` (function)
 - `example_disease_surveillance.py:print_response` (function)
 - `example_disease_surveillance.py:submit_sample_disease_reports` (function)
 - `example_disease_surveillance.py:get_disease_reports` (function)
@@ -23,13 +32,6 @@ Examples workspace within `GEO-INFER-HEALTH`.
 - `example_environmental_health.py:get_env_readings` (function)
 - `example_environmental_health.py:get_readings_near_loc_example` (function)
 - `example_environmental_health.py:get_average_exposure_example` (function)
-- `example_healthcare_accessibility.py:print_response` (function)
-- `example_healthcare_accessibility.py:add_sample_health_facilities` (function)
-- `example_healthcare_accessibility.py:get_health_facilities` (function)
-- `example_healthcare_accessibility.py:add_accessibility_population_sample` (function)
-- `example_healthcare_accessibility.py:find_facilities_nearby_example` (function)
-- `example_healthcare_accessibility.py:get_nearest_facility_example` (function)
-- `example_healthcare_accessibility.py:get_facility_ratio_example` (function)
 
 ## Module Metadata
 
@@ -59,6 +61,7 @@ Examples workspace within `GEO-INFER-HEALTH`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH
 ```
+
 
 ## Documentation Notes
 

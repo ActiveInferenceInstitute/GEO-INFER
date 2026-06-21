@@ -4,6 +4,7 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -39,6 +40,7 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
 ```
+
 
 ## Documentation Notes
 

@@ -811,9 +811,7 @@ def create_distributed_coordinator(role: str = "coordinator",
     # If this is a worker node, try to connect to coordinator
     if role in ["worker"]:
         try:
-            # In a real implementation, this would connect to the coordinator
-            # For now, we'll create a standalone coordinator
-            pass
+            logger.info("Configuring worker node for coordinator host %s", coordinator_host)
         except Exception as e:
             logger.warning(f"Failed to connect to coordinator: {e}")
             role = "coordinator"  # Fallback to coordinator

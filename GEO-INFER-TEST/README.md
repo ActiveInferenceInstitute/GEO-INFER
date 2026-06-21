@@ -4,6 +4,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -37,15 +38,15 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:public_symbols` (function)
 - `rewrite_readme_agents.py:purpose_for` (function)
 - `rewrite_readme_agents.py:test_command` (function)
+- `rewrite_readme_agents.py:validation_commands` (function)
+- `rewrite_readme_agents.py:module_readme_notes` (function)
+- `rewrite_readme_agents.py:module_agent_notes` (function)
 - `rewrite_readme_agents.py:render_root_readme` (function)
 - `rewrite_readme_agents.py:render_root_agents` (function)
 - `rewrite_readme_agents.py:render_readme` (function)
 - `rewrite_readme_agents.py:render_agents` (function)
-- `rewrite_readme_agents.py:main` (function)
-- `run_unified_tests.py:CommandResult` (class)
-- `run_unified_tests.py:Module` (class)
-- `run_unified_tests.py:SuiteReport` (class)
-- `run_unified_tests.py:discover_geo_infer_modules` (function)
+- `rewrite_readme_agents.py:expected_doc_files` (function)
+- `rewrite_readme_agents.py:check_docs_current` (function)
 
 ## Module Metadata
 
@@ -74,19 +75,9 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 ```bash
 uv sync --all-packages --all-extras
-python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
-Repo-wide contract checks:
-
-```bash
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
-uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
-```
-
-`validate_repo_contracts.py` enforces module inventory, signposts, package casing, root uv workspace files, minimum test inventory, source/test task-marker hygiene, local-link integrity, generated-artifact hygiene, H3 dependency metadata, and library logging configuration.
-It also byte-compiles module `src/` and `examples/` Python files so syntax regressions fail fast.
 
 ## Documentation Notes
 

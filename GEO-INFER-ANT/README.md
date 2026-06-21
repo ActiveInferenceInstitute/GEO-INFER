@@ -4,6 +4,7 @@ Comprehensive swarm intelligence and complex adaptive systems modeling using Act
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -19,6 +20,16 @@ Comprehensive swarm intelligence and complex adaptive systems modeling using Act
 
 ## Public Interface
 
+- `run_tests.py:run_command` (function)
+- `run_tests.py:run_unit_tests` (function)
+- `run_tests.py:run_integration_tests` (function)
+- `run_tests.py:run_performance_tests` (function)
+- `run_tests.py:run_examples` (function)
+- `run_tests.py:run_coverage_analysis` (function)
+- `run_tests.py:run_quick_tests` (function)
+- `run_tests.py:generate_test_report` (function)
+- `run_tests.py:print_final_summary` (function)
+- `run_tests.py:main` (function)
 - `setup.py:get_version` (function)
 - `setup.py:get_long_description` (function)
 
@@ -34,7 +45,7 @@ Comprehensive swarm intelligence and complex adaptive systems modeling using Act
 
 - `asyncio-mqtt>=0.11.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
 - `matplotlib>=3.5.0`
 - `networkx>=2.8`
@@ -48,6 +59,7 @@ Comprehensive swarm intelligence and complex adaptive systems modeling using Act
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
 ```
+
 
 ## Documentation Notes
 

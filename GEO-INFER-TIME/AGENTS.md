@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -39,6 +40,7 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
 ```
+
 
 ## Integration Notes
 

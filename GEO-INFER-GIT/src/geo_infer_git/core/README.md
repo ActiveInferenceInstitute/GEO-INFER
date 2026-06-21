@@ -24,17 +24,17 @@ Core workspace within `GEO-INFER-GIT`.
 - `advanced_git.py:RebaseManager` (class)
 - `advanced_git.py:AdvancedGitOperations` (class)
 - `advanced_git.py:create_advanced_git_operations` (function)
+- `distributed_coordinator.py:NodeInfo` (class)
+- `distributed_coordinator.py:JobInfo` (class)
+- `distributed_coordinator.py:CoordinationMessage` (class)
+- `distributed_coordinator.py:DistributedCoordinator` (class)
+- `distributed_coordinator.py:create_distributed_coordinator` (function)
 - `github_api.py:GitHubRepository` (class)
 - `github_api.py:RateLimit` (class)
 - `github_api.py:GitHubAPI` (class)
 - `multi_platform_api.py:GitLabRepository` (class)
 - `multi_platform_api.py:BitbucketRepository` (class)
 - `multi_platform_api.py:LocalRepository` (class)
-- `multi_platform_api.py:PlatformAPI` (class)
-- `multi_platform_api.py:GitLabAPI` (class)
-- `multi_platform_api.py:BitbucketAPI` (class)
-- `multi_platform_api.py:LocalGitAPI` (class)
-- `multi_platform_api.py:MultiPlatformAPI` (class)
 
 ## Module Metadata
 
@@ -64,6 +64,7 @@ Core workspace within `GEO-INFER-GIT`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
 ```
+
 
 ## Documentation Notes
 

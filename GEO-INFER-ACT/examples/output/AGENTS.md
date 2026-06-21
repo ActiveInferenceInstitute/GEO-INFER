@@ -22,12 +22,14 @@
 ## Local Contents
 
 - `comprehensive_act_audit/`
+- `spatial_active_inference_gallery/`
 
 ## Validation
 
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
 
 ## Integration Notes
 

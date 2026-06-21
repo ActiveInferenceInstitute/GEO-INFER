@@ -13,9 +13,13 @@ package layout, not an aspirational API list.
 - `ActiveInferenceStepResult`
 - `FreeEnergyBreakdown`
 - `H3BeliefUpdateResult`
+- `H3CellDiagnostics`
+- `H3EdgeDiagnostics`
 - `H3GridInferenceResult`
+- `H3LevelDiagnostics`
 - `H3SpatialConsistency`
 - `PolicyEvaluation`
+- `SpatialInferenceTrace`
 - `FreeEnergyCalculator`
 - `GenerativeModel`
 - `BayesianBeliefUpdate`
@@ -33,8 +37,10 @@ package layout, not an aspirational API list.
 - `set_generative_model(model)`: attach the `GenerativeModel`, align model type,
   initialize current beliefs, and inherit model preferences when needed.
 - `perceive(observation)`: update posterior beliefs from one observation vector.
-- `act(available_actions=None)`: select an action by optional `pymdp` control or
-  local expected-free-energy policy selection.
+- `act(available_actions=None)`: for supported categorical models, select an
+  action through the `inferactively-pymdp==1.0.3` adapter and expose posterior,
+  negative-EFE, and VFE metadata; unsupported diagnostic fallback remains
+  explicit.
 - `update_observations(observations)`: replace the current observation store.
 - `update_preferences(preferences)`: replace the current prior preferences.
 - `update_with_outcome(decision, outcome)`: record a decision/outcome pair and
@@ -54,8 +60,14 @@ package layout, not an aspirational API list.
   energy, and model type.
 - `apply_to_h3(h3_obs, return_result=False)`: update an H3-enabled generative
   model from cell-indexed observations.
-- `infer_over_h3_grid(h3_grid, return_result=False)`: score H3 observations
-  cell-by-cell while preserving the agent's current state.
+- `infer_over_h3_grid(h3_grid, return_result=False)`: score real H3 4.5
+  observations cell-by-cell through pymdp while preserving the agent's current
+  state.
+- `trace_over_h3_grid(h3_grid, ...)`: return `SpatialInferenceTrace` with
+  per-cell posterior, VFE, negative-EFE, action posterior, policy entropy,
+  local coherence, belief flux, edge diagnostics, and level summaries.
+- `trace_over_nested_h3_grid(h3_grid, ...)`: return the same trace contract for
+  nested H3 plus parent aggregate cells and cross-level consistency residuals.
 - `set_preferences(preferences)`: compatibility setter for current preferences.
 
 ### `core.generative_model`
@@ -71,8 +83,8 @@ package layout, not an aspirational API list.
   recursively propagate observations into nested models.
 - `GenerativeModel.enable_spatial_navigation(grid_size)`: switch the model into
   grid-based spatial navigation mode.
-- `GenerativeModel.enable_h3_spatial(h3_resolution, boundary)`: build a real H3
-  cell set and neighbor graph for the supplied boundary.
+- `GenerativeModel.enable_h3_spatial(h3_resolution, boundary)`: build a real
+  `h3>=4.5.0,<5` cell set and neighbor graph for the supplied boundary.
 - `GenerativeModel.integrate_rxinfer(model_spec=None)`: attach an optional
   RxInfer-style integration object when available.
 - `GenerativeModel.integrate_bayeux(target_log_prob=None)`: attach an optional
@@ -85,8 +97,10 @@ package layout, not an aspirational API list.
 - `GenerativeModel.get_model_summary()`: summarize dimensions, mode flags,
   beliefs, and integration state.
 - `GenerativeModel.update_h3_beliefs(h3_obs, return_result=False)`: validate H3
-  observations, update per-cell beliefs, and optionally return
-  `H3BeliefUpdateResult`.
+  observations, update per-cell beliefs through pymdp 1.0.3, and optionally
+  return `H3BeliefUpdateResult`.
+- `GenerativeModel.compute_h3_cell_diagnostics(...)`: compute
+  `SpatialInferenceTrace` diagnostics from flat or nested H3 cell results.
 
 ### `core.free_energy.FreeEnergyCalculator`
 
@@ -121,6 +135,12 @@ package layout, not an aspirational API list.
   action diagnostics.
 - `step(observations, propagate_beliefs=True, return_result=False)`: run a full
   spatial perception-action cycle and optionally return `H3GridInferenceResult`.
+- `trace_step(observations, ...)`: build a `SpatialInferenceTrace` from a
+  spatial-agent step without re-running inference when supplied a grid result.
+- `step_nested(observations, return_result=False)`: run a nested H3
+  perception-action cycle and optionally return `NestedH3GridInferenceResult`.
+- `trace_nested_step(observations, ...)`: build nested parent/child trace
+  diagnostics from a spatial-agent nested step.
 - `set_preferences(preferences)`: set preferred observations per H3 cell.
 - `set_observation_model(cell_id, A)`: replace one cell observation model.
 - `set_transition_model(cell_id, B)`: replace one cell transition model.
@@ -289,8 +309,45 @@ Configured ACT scenarios are expected to write:
 - `data/h3_cells.csv`
 - `data/h3_cells.geojson`
 - `data/h3_diagnostics.json`
+- `data/spatial_inference_trace.json`
+- `data/spatial_research_statistics.json`
+- `data/h3_cell_diagnostics.csv`
+- `data/h3_edge_diagnostics.csv`
+- `data/pymdp_h3_diagnostics.json`
+- `data/pymdp_policy_posteriors.csv`
 - static H3 PNG visualizations
 - `visualizations/interactive_h3_map.html`
+- `visualizations/pymdp_policy_free_energy.html`
+- `visualizations/h3_belief_flux_map.html`
+- `visualizations/h3_policy_surface.html`
+- `visualizations/h3_policy_transitions.html`
+- `visualizations/h3_spatial_autocorrelation.html`
+- `visualizations/h3_entropy_free_energy_phase.html`
+- `visualizations/spatial_inference_research_report.html`
+
+Nested H3 mode also writes:
+
+- `data/h3_hierarchy.csv`
+- `data/nested_h3_diagnostics.json`
+- `data/nested_h3_cell_diagnostics.csv`
+- `data/nested_h3_parent_child_diagnostics.csv`
+- `data/nested_h3_level_diagnostics.csv`
+- `visualizations/nested_h3_level_map.html`
+- `visualizations/nested_h3_hierarchy_map.html`
+- `visualizations/nested_h3_parent_child_residuals.html`
+
+Research-profile H3 runs are opt-in through
+`RunConfig.parameters["research_profile"] = True` or
+`geo-infer-act-run --research-profile`. They keep public method names and the
+real H3/pymdp runtime, but use deterministic likelihood, preference, and
+action-conditioned transition matrices for non-collapsed trace diagnostics.
+
+The deterministic gallery command writes flat H3, nested H3, flat spatial-agent,
+and nested spatial-agent runs with linked visualization sidecars:
+
+```bash
+uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py
+```
 
 Each visualization should be manifest-referenced and include artifact type,
 MIME type, SHA-256 digest, sidecar paths, source data files, plotted metrics,

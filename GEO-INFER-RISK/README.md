@@ -4,6 +4,7 @@ Advanced risk analysis and catastrophe modeling framework for geospatial applica
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -38,6 +39,7 @@ Advanced risk analysis and catastrophe modeling framework for geospatial applica
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
 ```
+
 
 ## Documentation Notes
 

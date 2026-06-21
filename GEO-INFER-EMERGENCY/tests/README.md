@@ -40,6 +40,7 @@ Tests workspace within `GEO-INFER-EMERGENCY`.
 uv run python -m pytest GEO-INFER-EMERGENCY/tests
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

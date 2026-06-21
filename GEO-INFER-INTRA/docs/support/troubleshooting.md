@@ -37,7 +37,7 @@ python -c "import geo_infer_space; print(geo_infer_space.__file__)"
 |--------------|-------|-----|
 | `No module named 'geo_infer_space'` | Module not installed | `uv pip install -e ./GEO-INFER-SPACE` |
 | `No module named 'h3'` | Missing system dependency | `uv pip install h3` |
-| `ImportError: cannot import name 'latlng_to_cell'` | H3 v3 installed instead of v4 | `uv pip install "h3>=4.0.0"` |
+| `ImportError: cannot import name 'latlng_to_cell'` | H3 v3 installed instead of v4 | `uv pip install "h3>=4.5.0,<5"` |
 | `No module named 'tensorflow_probability'` | Optional dependency | Install TFP or use NumPy fallback |
 
 GEO-INFER modules use graceful degradation for optional dependencies. If you see a log message like `"TensorFlow Probability not installed; using NumPy/SciPy GP backend."`, the module is working correctly with the fallback.

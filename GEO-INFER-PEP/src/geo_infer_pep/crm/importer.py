@@ -43,7 +43,7 @@ class CSVCRMImporter(BaseCRMImporter):
         try:
             # In a real scenario, you might keep the file open or check its existence.
             with open(self.file_path, 'r', encoding='utf-8') as f:
-                pass # Just to check if file is accessible
+                f.read(0)
             self.connection = "connected"
             print(f"Successfully connected to CSV file: {self.file_path}")
         except FileNotFoundError:
@@ -57,7 +57,7 @@ class CSVCRMImporter(BaseCRMImporter):
         """Reads data from the CSV file."""
         if not self.connection:
             raise ConnectionError("Not connected to CSV file. Call connect() first.")
-        
+
         records: List[Dict[str, Any]] = []
         try:
             with open(self.file_path, mode='r', encoding='utf-8') as csvfile:
@@ -93,7 +93,7 @@ class CSVCRMImporter(BaseCRMImporter):
                     postal_code=record.get('address_postal_code'),
                     country=record.get('address_country')
                 )
-                
+
                 # Example: simple interaction log from a notes field (highly simplified)
                 interactions = []
                 if record.get('notes'):
@@ -130,7 +130,7 @@ class CSVCRMImporter(BaseCRMImporter):
 #     dummy_csv_path = 'dummy_crm_data.csv'
 #     with open(dummy_csv_path, 'w', newline='') as f:
 #         writer = csv.writer(f)
-#         writer.writerow(['id', 'first_name', 'last_name', 'email', 'phone', 'company_name', 'title', 
+#         writer.writerow(['id', 'first_name', 'last_name', 'email', 'phone', 'company_name', 'title',
 #                          'address_street', 'address_city', 'address_state', 'address_postal_code', 'address_country',
 #                          'created_at', 'updated_at', 'lead_source', 'status', 'tags', 'notes', 'notes_detail'])
 #         writer.writerow(['1', 'John', 'Doe', 'john.doe@example.com', '555-1234', 'Acme Corp', 'Developer',
@@ -150,4 +150,4 @@ class CSVCRMImporter(BaseCRMImporter):
 
 #     # Clean up dummy file
 #     import os
-#     os.remove(dummy_csv_path) 
+#     os.remove(dummy_csv_path)

@@ -4,6 +4,7 @@ Version control and repository management tools specifically designed for geospa
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -53,6 +54,7 @@ Version control and repository management tools specifically designed for geospa
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
 ```
+
 
 ## Documentation Notes
 

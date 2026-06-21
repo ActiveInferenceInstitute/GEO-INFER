@@ -4,6 +4,7 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -46,6 +47,7 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
 ```
+
 
 ## Documentation Notes
 

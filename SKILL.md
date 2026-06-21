@@ -229,6 +229,6 @@ print(f"Action: {action}, Free energy: {agent.free_energy:.4f}")
 - **H3 v4 only** — use `latlng_to_cell`, not legacy `geo_to_h3`
 - **Graceful degradation** — optional deps via `try/except ImportError`
 - **Logger, not print** — use structured logging in all modules
-- **Root task ledger** — use `TODO.md` or issues for planned work; keep source and tests free of task markers
+- **Root task ledger** — use `TODO.md` or issues for future work; keep source and tests free of task markers
 - **uv workspace hygiene** — keep root `pyproject.toml`, `.python-version`, and `uv.lock` as the shared environment contract
 - Check each module's `SKILL.md` for domain-specific rules and integrations

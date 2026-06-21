@@ -53,14 +53,14 @@ except ImportError:
             else:
                 self.status = "idle"
 
-    class BeliefBase:
-        pass
+    class BeliefBase(dict):
+        """Minimal belief container used when GEO-INFER-AGENT is unavailable."""
 
-    class DesireSet:
-        pass
+    class DesireSet(list):
+        """Minimal desire container used when GEO-INFER-AGENT is unavailable."""
 
-    class IntentionStructure:
-        pass
+    class IntentionStructure(list):
+        """Minimal intention container used when GEO-INFER-AGENT is unavailable."""
 
 
 from geo_infer_app.models.agent_interface import AgentInterface, AgentState, AgentType

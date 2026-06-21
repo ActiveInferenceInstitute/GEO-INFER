@@ -303,8 +303,12 @@ async def list_repositories(
                 if status_filter == "active" and not (path / '.git').exists():
                     include_repo = False
                 elif status_filter == "error":
-                    # Would need error tracking
-                    pass
+                    include_repo = not path.exists() or not (path / '.git').exists()
+                elif status_filter not in {"active", "error"}:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Unsupported status_filter: {status_filter}",
+                    )
 
             if include_repo:
                 filtered_repos[name] = {
@@ -318,6 +322,8 @@ async def list_repositories(
             "total": len(filtered_repos)
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing repositories: {str(e)}")
 

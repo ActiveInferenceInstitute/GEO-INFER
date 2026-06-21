@@ -94,7 +94,9 @@ class CloudConnector:
 
     async def disconnect(self):
         """Close cloud storage connection."""
-        pass
+        logger.debug(
+            "%s has no persistent cloud connection to close", type(self).__name__
+        )
 
 
 class S3Connector(CloudConnector):

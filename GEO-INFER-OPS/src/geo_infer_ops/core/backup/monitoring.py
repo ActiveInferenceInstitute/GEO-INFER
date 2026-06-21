@@ -3,7 +3,7 @@ import logging
 import socket
 import os
 from contextlib import contextmanager
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, Iterator
 
 import prometheus_client as prom
 from prometheus_client import Counter, Gauge, Histogram, REGISTRY
@@ -88,7 +88,7 @@ def record_metric(
         labels: Optional metric labels
     """
     labels = labels or {}
-    
+
     if metric_type == "counter":
         metric = Counter(name, f"Counter metric {name}", list(labels.keys()))
     elif metric_type == "gauge":
@@ -97,7 +97,7 @@ def record_metric(
         metric = Histogram(name, f"Histogram metric {name}", list(labels.keys()))
     else:
         raise ValueError(f"Invalid metric type: {metric_type}")
-    
+
     metric.labels(**labels).inc(value)
 
 def get_metric_value(
@@ -117,19 +117,19 @@ def get_metric_value(
         ValueError: If metric not found
     """
     labels = labels or {}
-    
+
     for collector in METRICS_REGISTRY._collector_to_names:
         if collector._name == name:
             return collector.labels(**labels)._value.get()
-    
+
     raise ValueError(f"Metric {name} not found")
 
 def is_port_in_use(port: int) -> bool:
     """Check if a port is in use.
-    
+
     Args:
         port: Port number
-        
+
     Returns:
         bool: True if port is in use
     """
@@ -141,22 +141,32 @@ def is_port_in_use(port: int) -> bool:
             return True
 
 @contextmanager
-def start_metrics_server(port: int = 9090) -> None:
+def start_metrics_server(port: int = 9090) -> Iterator[int]:
     """Start metrics server.
-    
+
     Args:
         port: Port to start server on
+
+    Yields:
+        The port selected for the metrics server.
     """
     # Find available port if specified port is in use
     while is_port_in_use(port):
         port += 1
-    
+
+    server = None
+    thread = None
     try:
-        prom.start_http_server(port, registry=METRICS_REGISTRY)
-        yield
+        handle = prom.start_http_server(port, registry=METRICS_REGISTRY)
+        if isinstance(handle, tuple):
+            server, thread = handle
+        yield port
     finally:
-        # Clean up
-        pass
+        if server is not None:
+            server.shutdown()
+            server.server_close()
+        if thread is not None and thread.is_alive():
+            thread.join(timeout=1)
 
 def instrument_app(app: Any) -> None:
     """Instrument a FastAPI application.
@@ -170,7 +180,7 @@ def instrument_app(app: Any) -> None:
         excluded_handlers=["/metrics"],
         env_var_name="ENABLE_METRICS"
     )
-    
+
     instrumentator.instrument(app)
     app.instrumentator = instrumentator
 
@@ -189,18 +199,18 @@ def setup_monitoring(
     config = get_config()
     if not config.monitoring.enabled:
         return
-    
+
     # Reset metrics
     reset_metrics()
-    
+
     # Instrument app if provided
     if app:
         instrument_app(app)
-    
+
     # Start metrics server if port specified
     if port:
         prom.start_http_server(port, registry=METRICS_REGISTRY)
-    
+
     logging.info("Monitoring setup complete")
 
 # Export functions and registry
@@ -215,4 +225,4 @@ __all__ = [
     "start_metrics_server",
     "instrument_app",
     "setup_monitoring"
-] 
+]

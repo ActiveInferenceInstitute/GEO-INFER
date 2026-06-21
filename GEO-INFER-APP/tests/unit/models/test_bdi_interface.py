@@ -2,19 +2,23 @@
 Unit tests for BDI agent interface.
 """
 
+import builtins
+import importlib.util
 import unittest
 import json
+from pathlib import Path
 
 from geo_infer_app.models.agent_interface import AgentType, AgentState
+from geo_infer_app.models.agent_factory import AgentFactory
 from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface
 
 class TestBDIAgentInterface(unittest.TestCase):
     """Test cases for the BDI agent interface."""
-    
+
     def setUp(self):
         """Set up the test environment."""
         self.interface = BDIAgentInterface()
-        
+
         # Create a test agent
         self.agent_config = {
             "name": "Test BDI Agent",
@@ -25,31 +29,31 @@ class TestBDIAgentInterface(unittest.TestCase):
             "desires": ["explore", "collect_data"],
             "initial_location": {"lat": 40.7128, "lng": -74.0060}
         }
-        
+
         self.agent_id = self.interface.create_agent(AgentType.BDI, self.agent_config)
-    
+
     def test_create_agent(self):
         """Test creating a BDI agent."""
         # Verify the agent was created
         self.assertIsNotNone(self.agent_id)
         self.assertTrue(len(self.agent_id) > 0)
-        
+
         # Create another agent
         another_agent_id = self.interface.create_agent(AgentType.BDI, {
             "name": "Another Agent"
         })
-        
+
         # Verify it's a different agent
         self.assertNotEqual(self.agent_id, another_agent_id)
-        
+
         # Verify error when creating a non-BDI agent
         with self.assertRaises(ValueError):
             self.interface.create_agent(AgentType.RL, {})
-    
+
     def test_get_agent_state(self):
         """Test retrieving agent state."""
         state = self.interface.get_agent_state(self.agent_id)
-        
+
         # Verify the state is correct
         self.assertIsInstance(state, AgentState)
         self.assertEqual(state.agent_id, self.agent_id)
@@ -61,33 +65,33 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertIsNotNone(state.last_updated)
         self.assertIsNotNone(state.metadata)
         self.assertIn("intentions", state.metadata)
-        
+
         # Verify error for invalid agent ID
         with self.assertRaises(ValueError):
             self.interface.get_agent_state("invalid-id")
-    
+
     def test_list_agents(self):
         """Test listing agents."""
         agents = self.interface.list_agents()
-        
+
         # Verify the agent list
         self.assertIsInstance(agents, list)
         self.assertTrue(len(agents) > 0)
-        
+
         # Find our test agent
         test_agent = next((a for a in agents if a["id"] == self.agent_id), None)
         self.assertIsNotNone(test_agent)
         self.assertEqual(test_agent["name"], self.agent_config["name"])
         self.assertEqual(test_agent["type"], "bdi")
         self.assertEqual(test_agent["location"], self.agent_config["initial_location"])
-        
+
         # Test filtering by status
         idle_agents = self.interface.list_agents({"status": "idle"})
         self.assertTrue(len(idle_agents) > 0)
-        
+
         active_agents = self.interface.list_agents({"status": "active"})
         self.assertEqual(len(active_agents), 0)
-        
+
         # Test filtering by location
         nearby_agents = self.interface.list_agents({
             "location": {
@@ -96,7 +100,7 @@ class TestBDIAgentInterface(unittest.TestCase):
             }
         })
         self.assertTrue(len(nearby_agents) > 0)
-        
+
         far_agents = self.interface.list_agents({
             "location": {
                 "center": {"lat": 0, "lng": 0},
@@ -104,7 +108,7 @@ class TestBDIAgentInterface(unittest.TestCase):
             }
         })
         self.assertEqual(len(far_agents), 0)
-    
+
     def test_send_command(self):
         """Test sending commands to an agent."""
         # Test adding a belief
@@ -112,53 +116,53 @@ class TestBDIAgentInterface(unittest.TestCase):
             "belief": {"temperature": 25}
         })
         self.assertTrue(response["success"])
-        
+
         # Verify the belief was added
         state = self.interface.get_agent_state(self.agent_id)
         self.assertIn("temperature", state.beliefs)
         self.assertEqual(state.beliefs["temperature"], 25)
-        
+
         # Test adding a desire
         response = self.interface.send_command(self.agent_id, "add_desire", {
             "desire": "go_home"
         })
         self.assertTrue(response["success"])
-        
+
         # Verify the desire was added
         state = self.interface.get_agent_state(self.agent_id)
         self.assertIn("go_home", state.goals)
-        
+
         # Test deliberation
         response = self.interface.send_command(self.agent_id, "deliberate", {})
         self.assertTrue(response["success"])
-        
+
         # Verify the intention was added
         state = self.interface.get_agent_state(self.agent_id)
         self.assertIn("go_home", state.metadata["intentions"])
-        
+
         # Test execution
         response = self.interface.send_command(self.agent_id, "execute", {})
         self.assertTrue(response["success"])
-        
+
         # Test moving
         new_location = {"lat": 41.0, "lng": -75.0}
         response = self.interface.send_command(self.agent_id, "move", {
             "location": new_location
         })
         self.assertTrue(response["success"])
-        
+
         # Verify the location was updated
         state = self.interface.get_agent_state(self.agent_id)
         self.assertEqual(state.location, new_location)
-        
+
         # Test invalid command
         with self.assertRaises(ValueError):
             self.interface.send_command(self.agent_id, "invalid_command", {})
-        
+
         # Test invalid agent ID
         with self.assertRaises(ValueError):
             self.interface.send_command("invalid-id", "add_belief", {})
-    
+
     def test_event_handlers(self):
         """Test event handlers with a real recorder."""
         # Real event recorder instead of mock
@@ -184,5 +188,47 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertEqual(call_args["agent_id"], self.agent_id)
         self.assertIsInstance(call_args["state"], AgentState)
 
+    def test_local_bdi_fallback_containers_are_stateful(self):
+        """Test local fallback BDI containers preserve state."""
+        module_path = (
+            Path(__file__).resolve().parents[3]
+            / "src"
+            / "geo_infer_app"
+            / "models"
+            / "interfaces"
+            / "bdi_interface.py"
+        )
+        spec = importlib.util.spec_from_file_location(
+            "_geo_infer_app_bdi_fallback_test",
+            module_path,
+        )
+        module = importlib.util.module_from_spec(spec)
+        original_import = builtins.__import__
+        original_registry = AgentFactory._registry.copy()
+
+        def blocking_import(name, *args, **kwargs):
+            if name.startswith("geo_infer_agent"):
+                raise ImportError("blocked for fallback test")
+            return original_import(name, *args, **kwargs)
+
+        try:
+            with unittest.mock.patch("builtins.__import__", side_effect=blocking_import):
+                spec.loader.exec_module(module)
+        finally:
+            AgentFactory._registry = original_registry
+
+        beliefs = module.BeliefBase({"temperature": 25})
+        desires = module.DesireSet(["explore"])
+        intentions = module.IntentionStructure(["sample"])
+
+        beliefs["humidity"] = 0.4
+        desires.append("report")
+        intentions.append("return")
+
+        self.assertEqual(beliefs["temperature"], 25)
+        self.assertEqual(beliefs["humidity"], 0.4)
+        self.assertEqual(desires, ["explore", "report"])
+        self.assertEqual(intentions, ["sample", "return"])
+
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

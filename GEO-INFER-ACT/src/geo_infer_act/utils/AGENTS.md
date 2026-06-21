@@ -28,7 +28,9 @@
 - `h3_adapter.py`
 - `integration.py`
 - `math.py`
+- `pymdp_adapter.py`
 - `spatial_diagnostics.py`
+- `spatial_research.py`
 - `visualization.py`
 
 ## Validation
@@ -36,6 +38,7 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
+
 
 ## Integration Notes
 

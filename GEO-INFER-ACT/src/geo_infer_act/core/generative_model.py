@@ -11,16 +11,25 @@ from dataclasses import dataclass, field
 import logging
 
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
-from geo_infer_act.core.types import H3BeliefUpdateResult, H3SpatialConsistency
+from geo_infer_act.core.types import (
+    H3BeliefUpdateResult,
+    H3SpatialConsistency,
+    NestedH3BeliefUpdateResult,
+    NestedH3LevelSummary,
+    SpatialInferenceTrace,
+)
 from geo_infer_act.utils.h3_adapter import (
     edge_count_from_graph,
     get_h3_adapter,
+    get_nested_h3_grid_class,
     normalize_belief_vector,
 )
 from geo_infer_act.utils.math import (
     entropy,
     normalize_distribution,
 )
+from geo_infer_act.utils.pymdp_adapter import run_model_step
+from geo_infer_act.utils.spatial_diagnostics import SpatialDiagnostics
 
 logger = logging.getLogger(__name__)
 
@@ -763,6 +772,65 @@ class GenerativeModel:
         else:
             raise RuntimeError(result["message"])
 
+    def enable_nested_h3_spatial(
+        self,
+        resolutions: List[int],
+        boundary: Optional[Dict[str, Any]] = None,
+        cells: Optional[List[str]] = None,
+        top_down_weight: float = 0.15,
+    ) -> Dict[str, Any]:
+        """
+        Enable nested H3 spatial modeling across ordered resolutions.
+
+        GEO-INFER-SPACE builds and validates the parent/child hierarchy. ACT
+        stores the returned H3 closure and uses the finest cells as its active
+        inference lattice while preserving parent summaries for nested belief
+        propagation.
+        """
+        if not boundary and not cells:
+            raise ValueError("Provide either a boundary or H3 cells")
+        if not 0.0 <= float(top_down_weight) <= 1.0:
+            raise ValueError("top_down_weight must be between 0.0 and 1.0")
+
+        NestedH3Grid = get_nested_h3_grid_class()
+        grid = NestedH3Grid(name="act_nested_h3")
+        if boundary is not None:
+            hierarchy = grid.build_h3_hierarchy_from_boundary(boundary, resolutions)
+        else:
+            hierarchy = grid.build_h3_hierarchy_from_cells(cells or [], resolutions)
+
+        validation = hierarchy.get("validation", {})
+        if not validation.get("is_valid", False):
+            raise ValueError(f"Invalid nested H3 hierarchy: {validation}")
+
+        adapter = get_h3_adapter()
+        leaf_cells = adapter.validate_cells(hierarchy["leaf_cells"])
+        if not leaf_cells:
+            raise ValueError("Nested H3 hierarchy did not produce leaf cells")
+
+        self.spatial_mode = True
+        self.nested_h3_mode = True
+        self.nested_h3_hierarchy = hierarchy
+        self.nested_h3_grid = grid
+        self.nested_h3_resolutions = [int(value) for value in hierarchy["resolutions"]]
+        self.nested_h3_top_down_weight = float(top_down_weight)
+        self.h3_cells = leaf_cells
+        self.spatial_config = {
+            "boundary_cells": leaf_cells,
+            "nested_h3": True,
+            "resolutions": list(self.nested_h3_resolutions),
+        }
+        self.state_dim = len(self.h3_cells) * self.parameters.get("state_dim", 1)
+        self.beliefs = self._initialize_beliefs()
+        finest = self.nested_h3_resolutions[-1]
+        self.spatial_graph = {
+            cell: set(neighbors)
+            for cell, neighbors in hierarchy["same_level_neighbors"]
+            .get(str(finest), {})
+            .items()
+        }
+        return hierarchy
+
     def _build_h3_neighbor_graph(self, cells: List[str]) -> Dict[str, set]:
         """Build a first-order neighbor graph for H3 cells known to this model."""
         adapter = get_h3_adapter()
@@ -1180,11 +1248,19 @@ class GenerativeModel:
             )
 
         beliefs = {}
-        for cell in observed_cells:
+        pymdp_metadata: Dict[str, Any] = {}
+        for index, cell in enumerate(observed_cells):
             obs = observations_by_cell[cell]
-            beliefs[cell] = normalize_belief_vector(
-                self.update_beliefs({"observations": obs})["states"]
+            obs_array = np.asarray(obs, dtype=float).reshape(-1)
+            if obs_array.size == 0 or not np.all(np.isfinite(obs_array)):
+                raise ValueError(f"Observation for {cell} must be finite and non-empty")
+            pymdp_result = run_model_step(
+                self,
+                obs_array,
+                random_seed=int(self.parameters.get("random_seed", 0)) + index,
             )
+            beliefs[cell] = normalize_belief_vector(pymdp_result.beliefs)
+            pymdp_metadata[cell] = pymdp_result.to_metadata()
 
         if not beliefs:
             consistency = H3SpatialConsistency(
@@ -1202,6 +1278,7 @@ class GenerativeModel:
             return result if return_result else result.to_dict()
 
         avg_beliefs = normalize_belief_vector(np.mean(list(beliefs.values()), axis=0))
+        self.beliefs["states"] = avg_beliefs.copy()
         spatial_consistency = self._compute_h3_spatial_consistency(beliefs)
         aggregate_free_energy = self._compute_h3_aggregate_free_energy(beliefs)
         result = H3BeliefUpdateResult(
@@ -1211,6 +1288,8 @@ class GenerativeModel:
             aggregate_free_energy=aggregate_free_energy,
             metadata={
                 "adapter_source": adapter.source,
+                "pymdp_backend": "inferactively-pymdp",
+                "pymdp_cell_metadata": pymdp_metadata,
                 "h3_resolution": (
                     adapter.get_resolution(observed_cells[0])
                     if observed_cells
@@ -1219,6 +1298,388 @@ class GenerativeModel:
             },
         )
         return result if return_result else result.to_dict()
+
+    def compute_h3_cell_diagnostics(
+        self,
+        cell_results: Dict[str, Any],
+        *,
+        timestep: int = 0,
+        scenario: str = "h3",
+        previous_beliefs: Optional[Dict[str, Any]] = None,
+        hierarchy: Optional[Dict[str, Any]] = None,
+        parent_beliefs: Optional[Dict[str, Any]] = None,
+        backend_metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> SpatialInferenceTrace:
+        """
+        Compute typed H3 cell, edge, and level diagnostics for inference results.
+
+        The method accepts the ``cell_results`` from flat or nested H3 grid
+        inference and returns a JSON-safe ``SpatialInferenceTrace`` with belief
+        entropy, policy entropy, local coherence, posterior delta, belief flux,
+        same-resolution edge diagnostics, and nested cross-level consistency.
+        """
+        selected_hierarchy = hierarchy
+        if selected_hierarchy is None and getattr(self, "nested_h3_mode", False):
+            selected_hierarchy = getattr(self, "nested_h3_hierarchy", None)
+        return SpatialDiagnostics.build_h3_trace(
+            scenario=scenario,
+            timestep=timestep,
+            cell_results=cell_results,
+            neighbor_map=(
+                self.spatial_graph
+                if isinstance(getattr(self, "spatial_graph", None), dict)
+                else None
+            ),
+            previous_beliefs=previous_beliefs,
+            hierarchy=selected_hierarchy,
+            parent_beliefs=parent_beliefs,
+            backend_metadata=backend_metadata,
+            metadata=metadata,
+        )
+
+    def update_nested_h3_beliefs(
+        self,
+        h3_observations: Dict[str, np.ndarray],
+        return_result: bool = False,
+        top_down_weight: Optional[float] = None,
+    ):
+        """
+        Update beliefs on a nested H3 hierarchy with bottom-up and top-down flow.
+
+        Observations must target finest-resolution cells in the enabled nested
+        hierarchy. Child beliefs are aggregated upward to every configured
+        parent level, then each observed child is blended with its immediate
+        parent prior using ``top_down_weight``.
+        """
+        if not getattr(self, "nested_h3_mode", False):
+            raise ValueError("Enable nested H3 spatial mode first")
+
+        hierarchy = getattr(self, "nested_h3_hierarchy", None)
+        if not hierarchy:
+            raise ValueError("Nested H3 hierarchy is not configured")
+
+        adapter = get_h3_adapter()
+        leaf_cells = set(adapter.validate_cells(hierarchy.get("leaf_cells", [])))
+        observations_by_cell = {str(cell): obs for cell, obs in h3_observations.items()}
+        observed_cells = adapter.validate_cells(observations_by_cell.keys())
+        unknown_cells = sorted(set(observed_cells) - leaf_cells)
+        if unknown_cells:
+            raise ValueError(
+                f"Observed H3 cells are outside this nested hierarchy: {unknown_cells[:5]}"
+            )
+        finest_resolution = int(hierarchy["resolutions"][-1])
+        wrong_resolution = [
+            cell
+            for cell in observed_cells
+            if adapter.get_resolution(cell) != finest_resolution
+        ]
+        if wrong_resolution:
+            raise ValueError(
+                f"Nested H3 observations must use finest resolution {finest_resolution}: {wrong_resolution[:5]}"
+            )
+
+        child_parent_map = {
+            str(child): str(parent)
+            for child, parent in hierarchy.get("child_parent_map", {}).items()
+        }
+        parent_child_map = {
+            str(parent): [str(child) for child in children]
+            for parent, children in hierarchy.get("parent_child_map", {}).items()
+        }
+        if observed_cells and not child_parent_map:
+            raise ValueError("Nested H3 hierarchy has no parent-child mappings")
+
+        fine_beliefs: Dict[str, np.ndarray] = {}
+        pymdp_metadata: Dict[str, Any] = {}
+        for index, cell in enumerate(observed_cells):
+            obs = np.asarray(observations_by_cell[cell], dtype=float).reshape(-1)
+            if obs.size == 0 or not np.all(np.isfinite(obs)):
+                raise ValueError(f"Observation for {cell} must be finite and non-empty")
+            pymdp_result = run_model_step(
+                self,
+                obs,
+                random_seed=int(self.parameters.get("random_seed", 0)) + index,
+            )
+            fine_beliefs[cell] = normalize_belief_vector(pymdp_result.beliefs)
+            pymdp_metadata[cell] = pymdp_result.to_metadata()
+
+        if not fine_beliefs:
+            consistency = H3SpatialConsistency(
+                global_coherence=0.0,
+                neighbor_correlations=0.0,
+                cell_count=0,
+                edge_count=0,
+                metadata={"cross_level_coherence": 0.0},
+            )
+            result = NestedH3BeliefUpdateResult(
+                fine_beliefs={},
+                parent_beliefs={},
+                level_summaries=[],
+                parent_child_map=parent_child_map,
+                child_parent_map=child_parent_map,
+                spatial_consistency=consistency,
+                aggregate_free_energy=0.0,
+                metadata={
+                    "resolutions": list(hierarchy.get("resolutions", [])),
+                    "top_down_weight": 0.0,
+                },
+            )
+            return result if return_result else result.to_dict()
+
+        parent_beliefs = self._aggregate_nested_h3_parent_beliefs(
+            fine_beliefs,
+            hierarchy,
+        )
+        weight = (
+            float(top_down_weight)
+            if top_down_weight is not None
+            else float(getattr(self, "nested_h3_top_down_weight", 0.15))
+        )
+        if not 0.0 <= weight <= 1.0:
+            raise ValueError("top_down_weight must be between 0.0 and 1.0")
+
+        if weight > 0.0:
+            blended: Dict[str, np.ndarray] = {}
+            for child, belief in fine_beliefs.items():
+                parent = child_parent_map.get(child)
+                parent_belief = parent_beliefs.get(parent) if parent else None
+                if parent_belief is None:
+                    blended[child] = belief
+                    continue
+                blended[child] = normalize_belief_vector(
+                    ((1.0 - weight) * belief) + (weight * parent_belief)
+                )
+            fine_beliefs = blended
+            parent_beliefs = self._aggregate_nested_h3_parent_beliefs(
+                fine_beliefs,
+                hierarchy,
+            )
+
+        level_beliefs = self._nested_h3_level_beliefs(
+            fine_beliefs,
+            parent_beliefs,
+            hierarchy,
+        )
+        level_summaries = self._nested_h3_level_summaries(level_beliefs, hierarchy)
+        spatial_consistency = self._compute_nested_h3_spatial_consistency(
+            level_beliefs,
+            hierarchy,
+        )
+        aggregate_free_energy = float(
+            np.mean(
+                [
+                    summary.mean_free_energy
+                    for summary in level_summaries
+                    if np.isfinite(summary.mean_free_energy)
+                ]
+                or [0.0]
+            )
+        )
+        self.beliefs["states"] = normalize_belief_vector(
+            np.mean(list(fine_beliefs.values()), axis=0)
+        )
+        result = NestedH3BeliefUpdateResult(
+            fine_beliefs=fine_beliefs,
+            parent_beliefs=parent_beliefs,
+            level_summaries=level_summaries,
+            parent_child_map=parent_child_map,
+            child_parent_map=child_parent_map,
+            spatial_consistency=spatial_consistency,
+            aggregate_free_energy=aggregate_free_energy,
+            metadata={
+                "adapter_source": adapter.source,
+                "pymdp_backend": "inferactively-pymdp",
+                "pymdp_cell_metadata": pymdp_metadata,
+                "resolutions": list(hierarchy.get("resolutions", [])),
+                "top_down_weight": weight,
+                "leaf_resolution": finest_resolution,
+                "observed_cell_count": len(observed_cells),
+            },
+        )
+        return result if return_result else result.to_dict()
+
+    def _aggregate_nested_h3_parent_beliefs(
+        self, fine_beliefs: Dict[str, np.ndarray], hierarchy: Dict[str, Any]
+    ) -> Dict[str, np.ndarray]:
+        """Aggregate finest child beliefs to all parent levels."""
+        if not fine_beliefs:
+            return {}
+        adapter = get_h3_adapter()
+        resolutions = [int(value) for value in hierarchy.get("resolutions", [])]
+        parent_beliefs: Dict[str, np.ndarray] = {}
+        for target_resolution in reversed(resolutions[:-1]):
+            grouped: Dict[str, List[np.ndarray]] = {}
+            for child, belief in fine_beliefs.items():
+                parent = adapter.cell_to_parent(child, target_resolution)
+                grouped.setdefault(parent, []).append(normalize_belief_vector(belief))
+            for parent, child_beliefs in grouped.items():
+                parent_beliefs[parent] = normalize_belief_vector(
+                    np.mean(child_beliefs, axis=0)
+                )
+        return dict(sorted(parent_beliefs.items()))
+
+    def _nested_h3_level_beliefs(
+        self,
+        fine_beliefs: Dict[str, np.ndarray],
+        parent_beliefs: Dict[str, np.ndarray],
+        hierarchy: Dict[str, Any],
+    ) -> Dict[int, Dict[str, np.ndarray]]:
+        """Group nested H3 beliefs by resolution."""
+        adapter = get_h3_adapter()
+        levels: Dict[int, Dict[str, np.ndarray]] = {}
+        for cell, belief in parent_beliefs.items():
+            levels.setdefault(adapter.get_resolution(cell), {})[cell] = belief
+        for cell, belief in fine_beliefs.items():
+            levels.setdefault(adapter.get_resolution(cell), {})[cell] = belief
+        return {
+            resolution: levels.get(resolution, {})
+            for resolution in hierarchy["resolutions"]
+        }
+
+    def _nested_h3_level_summaries(
+        self,
+        level_beliefs: Dict[int, Dict[str, np.ndarray]],
+        hierarchy: Dict[str, Any],
+    ) -> List[NestedH3LevelSummary]:
+        """Build per-resolution nested H3 diagnostics."""
+        summaries: List[NestedH3LevelSummary] = []
+        same_level_neighbors = hierarchy.get("same_level_neighbors", {})
+        for resolution in hierarchy.get("resolutions", []):
+            level = level_beliefs.get(int(resolution), {})
+            graph = {
+                cell: {
+                    neighbor
+                    for neighbor in same_level_neighbors.get(str(resolution), {}).get(
+                        cell, []
+                    )
+                    if neighbor in level
+                }
+                for cell in level
+            }
+            consistency = self._compute_h3_spatial_consistency_for_graph(level, graph)
+            if level:
+                entropies = [
+                    float(-np.sum(belief * np.log(belief + 1e-12)))
+                    for belief in level.values()
+                ]
+                mean_entropy = float(np.mean(entropies))
+                mean_free_energy = self._compute_h3_aggregate_free_energy(level)
+            else:
+                mean_entropy = 0.0
+                mean_free_energy = 0.0
+            summaries.append(
+                NestedH3LevelSummary(
+                    resolution=int(resolution),
+                    cell_count=len(level),
+                    edge_count=edge_count_from_graph(graph),
+                    mean_free_energy=float(mean_free_energy),
+                    mean_entropy=mean_entropy,
+                    coherence=float(consistency.global_coherence),
+                    metadata={
+                        "neighbor_correlations": consistency.neighbor_correlations
+                    },
+                )
+            )
+        return summaries
+
+    def _compute_h3_spatial_consistency_for_graph(
+        self, beliefs: Dict[str, np.ndarray], graph: Dict[str, Any]
+    ) -> H3SpatialConsistency:
+        """Compute H3 spatial consistency using an explicit graph."""
+        if not beliefs:
+            return H3SpatialConsistency(
+                global_coherence=0.0,
+                neighbor_correlations=0.0,
+                cell_count=0,
+                edge_count=0,
+            )
+        belief_matrix = np.vstack(
+            [normalize_belief_vector(value) for value in beliefs.values()]
+        )
+        global_coherence = float(
+            np.clip(1.0 - np.mean(np.std(belief_matrix, axis=0)), 0.0, 1.0)
+        )
+        correlations = []
+        for cell, neighbors in graph.items():
+            if cell not in beliefs:
+                continue
+            source = normalize_belief_vector(beliefs[cell])
+            for neighbor in neighbors:
+                if neighbor not in beliefs:
+                    continue
+                target = normalize_belief_vector(beliefs[neighbor])
+                if np.std(source) <= 1e-12 or np.std(target) <= 1e-12:
+                    correlations.append(1.0 if np.allclose(source, target) else 0.0)
+                else:
+                    correlations.append(float(np.corrcoef(source, target)[0, 1]))
+        neighbor_correlations = (
+            float(np.nanmean(correlations)) if correlations else global_coherence
+        )
+        return H3SpatialConsistency(
+            global_coherence=global_coherence,
+            neighbor_correlations=neighbor_correlations,
+            cell_count=len(beliefs),
+            edge_count=edge_count_from_graph(graph),
+        )
+
+    def _compute_nested_h3_spatial_consistency(
+        self,
+        level_beliefs: Dict[int, Dict[str, np.ndarray]],
+        hierarchy: Dict[str, Any],
+    ) -> H3SpatialConsistency:
+        """Compute combined lateral and cross-level nested H3 consistency."""
+        same_level_neighbors = hierarchy.get("same_level_neighbors", {})
+        level_consistencies = []
+        total_edges = 0
+        total_cells = 0
+        for resolution, beliefs in level_beliefs.items():
+            graph = {
+                cell: {
+                    neighbor
+                    for neighbor in same_level_neighbors.get(str(resolution), {}).get(
+                        cell, []
+                    )
+                    if neighbor in beliefs
+                }
+                for cell in beliefs
+            }
+            consistency = self._compute_h3_spatial_consistency_for_graph(beliefs, graph)
+            level_consistencies.append(consistency)
+            total_edges += consistency.edge_count
+            total_cells += consistency.cell_count
+
+        child_parent_map = hierarchy.get("child_parent_map", {})
+        cross_level_scores = []
+        all_beliefs: Dict[str, np.ndarray] = {}
+        for beliefs in level_beliefs.values():
+            all_beliefs.update(beliefs)
+        for child, parent in child_parent_map.items():
+            if child not in all_beliefs or parent not in all_beliefs:
+                continue
+            child_belief = normalize_belief_vector(all_beliefs[child])
+            parent_belief = normalize_belief_vector(all_beliefs[parent])
+            distance = float(np.linalg.norm(child_belief - parent_belief))
+            cross_level_scores.append(1.0 / (1.0 + distance))
+
+        global_coherence = float(
+            np.mean([item.global_coherence for item in level_consistencies])
+            if level_consistencies
+            else 0.0
+        )
+        neighbor_correlations = float(
+            np.mean([item.neighbor_correlations for item in level_consistencies])
+            if level_consistencies
+            else 0.0
+        )
+        cross_level = float(np.mean(cross_level_scores)) if cross_level_scores else 0.0
+        return H3SpatialConsistency(
+            global_coherence=global_coherence,
+            neighbor_correlations=neighbor_correlations,
+            cell_count=total_cells,
+            edge_count=total_edges,
+            metadata={"cross_level_coherence": cross_level},
+        )
 
     def _compute_h3_aggregate_free_energy(
         self, beliefs: Dict[str, np.ndarray]

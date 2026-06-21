@@ -4,6 +4,7 @@ Advanced simulation environments for geospatial hypothesis testing, policy evalu
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -37,6 +38,7 @@ Advanced simulation environments for geospatial hypothesis testing, policy evalu
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SIM
 ```
+
 
 ## Documentation Notes
 

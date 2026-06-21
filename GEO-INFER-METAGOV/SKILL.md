@@ -28,28 +28,31 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_metagov.core.polycentric import PolycentricGovernance
-from geo_infer_metagov.core.stakeholder import StakeholderAnalyzer
+from geo_infer_metagov.core.polycentric import PolycentricGovernanceSystem
+from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
 from geo_infer_metagov.core.conflict_resolution import ConflictResolver
-from geo_infer_metagov.core.adaptation import AdaptiveGovernance
-from geo_infer_metagov.core.accountability import AccountabilityTracker
+from geo_infer_metagov.core.adaptation import AdaptiveGovernanceSystem
+from geo_infer_metagov.core.accountability import AccountabilityFramework
 ```
 
 ## Examples
 
 ```python
-from geo_infer_metagov.core.stakeholder import StakeholderAnalyzer
+from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
 
-analyzer = StakeholderAnalyzer()
-analyzer.register("community_group", power=0.3, interest=0.9)
-analyzer.register("government", power=0.8, interest=0.6)
-matrix = analyzer.build_power_interest_matrix()
-priority_engagement = analyzer.recommend_strategies()
+coordinator = StakeholderGovernanceCoordinator()
+analysis = coordinator.analyze_stakeholders(
+    governance_domain="watershed",
+    spatial_extent={"region": "basin-7"},
+    stakeholder_categories=["government", "community", "ngo"],
+)
+power = analysis["power_dynamics"]
+conflicts = analysis["interest_conflicts"]
 ```
 
 ## Guidelines
 
-- DAO mechanisms in development (Alpha)
+- Keep alpha DAO implementation status in tracked issues, not operational `SKILL.md` claims
 
 ### Integrations
 

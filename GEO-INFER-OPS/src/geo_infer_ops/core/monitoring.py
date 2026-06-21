@@ -3,7 +3,7 @@
 import logging
 import socket
 from contextlib import contextmanager
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Iterator
 
 import prometheus_client as prom
 from prometheus_client import Counter, Gauge, Histogram, REGISTRY
@@ -179,22 +179,32 @@ def is_port_in_use(port: int) -> bool:
 
 
 @contextmanager
-def start_metrics_server(port: int = 9090) -> None:
+def start_metrics_server(port: int = 9090) -> Iterator[int]:
     """Start metrics server.
 
     Args:
         port: Port to start server on
+
+    Yields:
+        The port selected for the metrics server.
     """
     # Find available port if specified port is in use
     while is_port_in_use(port):
         port += 1
 
+    server = None
+    thread = None
     try:
-        prom.start_http_server(port, registry=METRICS_REGISTRY)
-        yield
+        handle = prom.start_http_server(port, registry=METRICS_REGISTRY)
+        if isinstance(handle, tuple):
+            server, thread = handle
+        yield port
     finally:
-        # Clean up
-        pass
+        if server is not None:
+            server.shutdown()
+            server.server_close()
+        if thread is not None and thread.is_alive():
+            thread.join(timeout=1)
 
 
 def instrument_app(app: Any, metrics_path: str = "/metrics") -> None:

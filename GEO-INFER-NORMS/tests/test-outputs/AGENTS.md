@@ -32,6 +32,7 @@
 uv run python -m pytest GEO-INFER-NORMS/tests/test-outputs
 ```
 
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

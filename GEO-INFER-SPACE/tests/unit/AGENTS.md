@@ -31,6 +31,7 @@
 - `test_h3_enhanced.py`
 - `test_io_modules.py`
 - `test_nested_comprehensive.py`
+- `test_nested_h3_contract.py`
 - `test_place_analyzer.py`
 - `test_spatial_methods.py`
 - `test_spatial_processor.py`
@@ -47,6 +48,7 @@
 ```bash
 uv run python -m pytest GEO-INFER-SPACE/tests/unit
 ```
+
 
 ## Integration Notes
 

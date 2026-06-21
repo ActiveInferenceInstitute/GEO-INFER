@@ -29,11 +29,36 @@ REQUIRED_GEOSPATIAL_FILES = {
     "data/h3_cells.csv",
     "data/h3_diagnostics.json",
     "data/h3_cells.geojson",
+    "data/pymdp_h3_diagnostics.json",
+    "data/pymdp_policy_posteriors.csv",
+    "data/spatial_inference_trace.json",
+    "data/spatial_research_statistics.json",
+    "data/h3_lattice_animation.json",
+    "data/h3_cell_diagnostics.csv",
+    "data/h3_edge_diagnostics.csv",
     "analysis/run_summary.json",
     "visualizations/h3_cell_metric_map.png",
     "visualizations/free_energy_evolution.png",
     "visualizations/belief_entropy_coherence.png",
     "visualizations/interactive_h3_map.html",
+    "visualizations/pymdp_policy_free_energy.html",
+    "visualizations/h3_belief_flux_map.html",
+    "visualizations/h3_policy_surface.html",
+    "visualizations/h3_policy_transitions.html",
+    "visualizations/h3_spatial_autocorrelation.html",
+    "visualizations/h3_entropy_free_energy_phase.html",
+    "visualizations/h3_active_inference_lattice.html",
+    "visualizations/spatial_inference_research_report.html",
+}
+REQUIRED_NESTED_H3_FILES = {
+    "data/h3_hierarchy.csv",
+    "data/nested_h3_diagnostics.json",
+    "data/nested_h3_cell_diagnostics.csv",
+    "data/nested_h3_parent_child_diagnostics.csv",
+    "data/nested_h3_level_diagnostics.csv",
+    "visualizations/nested_h3_level_map.html",
+    "visualizations/nested_h3_hierarchy_map.html",
+    "visualizations/nested_h3_parent_child_residuals.html",
 }
 REQUIRED_FIGURE_METADATA_FIELDS = {
     "schema_version",
@@ -135,14 +160,19 @@ def validate_packaging() -> None:
     pyproject_text = (ACT_ROOT / "pyproject.toml").read_text()
     if "h3>=3.7.0" in setup_text:
         fail("setup.py still advertises h3>=3.7.0")
-    if "h3>=4.0.0" not in pyproject_text:
-        fail("pyproject.toml does not require h3>=4.0.0")
+    if "h3>=4.5.0,<5" not in pyproject_text:
+        fail("pyproject.toml does not require h3>=4.5.0,<5")
+    if "inferactively-pymdp==1.0.3" not in pyproject_text:
+        fail("pyproject.toml does not pin inferactively-pymdp==1.0.3")
 
 
 def validate_geospatial_outputs() -> None:
     from geo_infer_act.runners import RunConfig, run_scenario
     from geo_infer_act.utils.h3_adapter import get_h3_adapter
+    from geo_infer_act.utils.pymdp_adapter import validate_pymdp_version
 
+    if validate_pymdp_version() != "1.0.3":
+        fail("inferactively-pymdp runtime is not exactly 1.0.3")
     adapter = get_h3_adapter()
     with tempfile.TemporaryDirectory() as tmp:
         for scenario in ("h3", "spatial"):
@@ -182,6 +212,11 @@ def validate_geospatial_outputs() -> None:
                     fail(f"{scenario} GeoJSON contains invalid H3 cell {cell}")
                 if feature["geometry"]["type"] != "Polygon":
                     fail(f"{scenario} GeoJSON feature is not a Polygon")
+                properties = feature["properties"]
+                if properties.get("pymdp_version") != "1.0.3":
+                    fail(f"{scenario} GeoJSON missing pymdp 1.0.3 metadata")
+                if properties.get("h3_version") != "4.5.0":
+                    fail(f"{scenario} GeoJSON missing h3 4.5.0 metadata")
 
             diagnostics = json.loads(
                 (result.output_dir / "data" / "h3_diagnostics.json").read_text()
@@ -193,6 +228,13 @@ def validate_geospatial_outputs() -> None:
                 for key in ("global_coherence", "neighbor_correlations"):
                     if not math.isfinite(float(consistency[key])):
                         fail(f"{scenario} {key} is not finite")
+            validate_pymdp_outputs(result.output_dir, scenario, expected_timesteps=3)
+            validate_spatial_trace_outputs(
+                result.output_dir,
+                scenario,
+                expected_timesteps=3,
+                nested=False,
+            )
 
             with (result.output_dir / "data" / "step_metrics.csv").open() as handle:
                 rows = list(csv.DictReader(handle))
@@ -206,6 +248,341 @@ def validate_geospatial_outputs() -> None:
             validate_visualization_metadata(
                 result.output_dir, scenario, generated_entries
             )
+            summary = json.loads(
+                (result.output_dir / "analysis" / "run_summary.json").read_text()
+            )
+            if summary.get("pymdp_version") != "1.0.3":
+                fail(f"{scenario} summary missing pymdp 1.0.3")
+            if summary.get("h3_version") != "4.5.0":
+                fail(f"{scenario} summary missing h3 4.5.0")
+
+        nested_result = run_scenario(
+            RunConfig(
+                scenario="h3",
+                output_dir=Path(tmp) / "h3_nested",
+                seed=29,
+                deterministic=True,
+                timesteps=1,
+                visualizations=True,
+                h3_resolution=9,
+                h3_ring_size=0,
+                parameters={"nested_h3": True},
+            )
+        )
+        nested_manifest = json.loads(nested_result.manifest_path.read_text())
+        if nested_manifest["validation"]["status"] != "passed":
+            fail(
+                f"nested H3 manifest validation failed: {nested_manifest['validation']}"
+            )
+        nested_generated = {item["path"] for item in nested_manifest["generated_files"]}
+        missing_nested = sorted(REQUIRED_NESTED_H3_FILES - nested_generated)
+        if missing_nested:
+            fail(f"nested H3 missing outputs: {missing_nested}")
+        nested_entries = {
+            item["path"]: item for item in nested_manifest["generated_files"]
+        }
+        validate_visualization_metadata(
+            nested_result.output_dir,
+            "h3",
+            nested_entries,
+        )
+        summary = json.loads(
+            (nested_result.output_dir / "analysis" / "run_summary.json").read_text()
+        )
+        if not summary.get("nested_h3"):
+            fail("nested H3 run summary did not record nested_h3=true")
+        if summary.get("nested_orphan_count") != 0:
+            fail(f"nested H3 produced orphan cells: {summary}")
+        for key in (
+            "nested_cross_level_coherence",
+            "nested_aggregate_free_energy",
+        ):
+            if not math.isfinite(float(summary[key])):
+                fail(f"nested H3 summary has non-finite {key}")
+        nested_diagnostics = json.loads(
+            (
+                nested_result.output_dir / "data" / "nested_h3_diagnostics.json"
+            ).read_text()
+        )
+        if not nested_diagnostics or not nested_diagnostics[0].get("level_summaries"):
+            fail("nested H3 diagnostics missing level summaries")
+        validate_pymdp_outputs(
+            nested_result.output_dir, "h3_nested", expected_timesteps=1
+        )
+        validate_spatial_trace_outputs(
+            nested_result.output_dir,
+            "h3_nested",
+            expected_timesteps=1,
+            nested=True,
+        )
+        if summary.get("pymdp_version") != "1.0.3":
+            fail("nested H3 summary missing pymdp 1.0.3")
+        if summary.get("h3_version") != "4.5.0":
+            fail("nested H3 summary missing h3 4.5.0")
+
+        validate_gallery_outputs(Path(tmp))
+
+
+def validate_pymdp_outputs(
+    output_dir: Path, scenario: str, expected_timesteps: int
+) -> None:
+    """Validate real pymdp H3 diagnostics and reject cosmetic placeholders."""
+    diagnostics_path = output_dir / "data" / "pymdp_h3_diagnostics.json"
+    posterior_path = output_dir / "data" / "pymdp_policy_posteriors.csv"
+    if not diagnostics_path.exists() or not posterior_path.exists():
+        fail(f"{scenario} missing pymdp diagnostic files")
+    diagnostics = json.loads(diagnostics_path.read_text())
+    if not diagnostics:
+        fail(f"{scenario} pymdp diagnostics are empty")
+    with posterior_path.open() as handle:
+        posterior_rows = list(csv.DictReader(handle))
+    if len(posterior_rows) != len(diagnostics):
+        fail(f"{scenario} pymdp CSV/JSON row count mismatch")
+    timesteps = {int(row["timestep"]) for row in diagnostics}
+    if len(timesteps) != expected_timesteps:
+        fail(f"{scenario} pymdp diagnostics have wrong timestep count")
+    for row in diagnostics:
+        if row.get("pymdp_version") != "1.0.3":
+            fail(f"{scenario} pymdp row has wrong version: {row}")
+        if row.get("h3_version") != "4.5.0":
+            fail(f"{scenario} pymdp row has wrong h3 version: {row}")
+        posterior = [
+            float(value)
+            for key, value in row.items()
+            if key.startswith("policy_posterior_")
+        ]
+        neg_efe = [
+            float(value)
+            for key, value in row.items()
+            if key.startswith("negative_expected_free_energy_")
+            and key != "selected_negative_expected_free_energy"
+        ]
+        if not posterior or len(posterior) != len(neg_efe):
+            fail(f"{scenario} pymdp row lacks policy/negative-EFE arrays")
+        if not math.isclose(sum(posterior), 1.0, abs_tol=1e-6):
+            fail(f"{scenario} pymdp posterior is not normalized")
+        if not all(math.isfinite(value) for value in posterior + neg_efe):
+            fail(f"{scenario} pymdp arrays contain non-finite values")
+        for key in (
+            "free_energy",
+            "belief_entropy",
+            "selected_action_probability",
+            "selected_negative_expected_free_energy",
+        ):
+            if not math.isfinite(float(row[key])):
+                fail(f"{scenario} pymdp {key} is not finite")
+
+
+def validate_spatial_trace_outputs(
+    output_dir: Path,
+    scenario: str,
+    expected_timesteps: int,
+    nested: bool,
+) -> None:
+    """Validate trace-first spatial diagnostics and reject cosmetic rows."""
+    trace_path = output_dir / "data" / "spatial_inference_trace.json"
+    cell_csv = output_dir / "data" / "h3_cell_diagnostics.csv"
+    edge_csv = output_dir / "data" / "h3_edge_diagnostics.csv"
+    for path in (trace_path, cell_csv, edge_csv):
+        if not path.exists() or path.stat().st_size <= 0:
+            fail(f"{scenario} missing spatial trace artifact: {path.name}")
+
+    trace = json.loads(trace_path.read_text())
+    if trace.get("schema_version") != "geo-infer-act-spatial-inference-trace/v1":
+        fail(f"{scenario} spatial trace schema is wrong")
+    if len(trace.get("timesteps", [])) != expected_timesteps:
+        fail(f"{scenario} spatial trace has wrong timestep count")
+    cell_rows = trace.get("cell_diagnostics", [])
+    level_rows = trace.get("level_diagnostics", [])
+    if not cell_rows or not level_rows:
+        fail(f"{scenario} spatial trace lacks cell or level diagnostics")
+    validate_research_statistics(
+        output_dir,
+        scenario,
+        trace.get("research_statistics", {}),
+        require_non_degenerate=False,
+    )
+    validate_lattice_animation_payload(
+        output_dir,
+        scenario,
+        expected_timesteps=expected_timesteps,
+        nested=nested,
+    )
+
+    leaf_rows = [
+        row for row in cell_rows if not bool(row.get("aggregate_parent_cell", False))
+    ]
+    if not leaf_rows:
+        fail(f"{scenario} spatial trace has no runtime leaf-cell rows")
+    for row in leaf_rows:
+        if row.get("pymdp_version") != "1.0.3":
+            fail(f"{scenario} trace row missing pymdp version: {row}")
+        if row.get("h3_version") != "4.5.0":
+            fail(f"{scenario} trace row missing h3 version: {row}")
+        belief = [float(value) for value in row.get("belief", [])]
+        posterior = [float(value) for value in row.get("action_posterior", [])]
+        neg_efe = [
+            float(value) for value in row.get("negative_expected_free_energy", [])
+        ]
+        if not belief or not posterior or len(posterior) != len(neg_efe):
+            fail(f"{scenario} trace row lacks belief/policy arrays: {row}")
+        if not math.isclose(sum(belief), 1.0, abs_tol=1e-6):
+            fail(f"{scenario} trace belief is not normalized")
+        if not math.isclose(sum(posterior), 1.0, abs_tol=1e-6):
+            fail(f"{scenario} trace posterior is not normalized")
+        for key in (
+            "entropy",
+            "free_energy",
+            "expected_free_energy",
+            "policy_entropy",
+            "local_coherence",
+            "posterior_delta",
+            "belief_flux_in",
+            "belief_flux_out",
+            "belief_flux_divergence",
+            "selected_action_probability",
+            "selected_negative_expected_free_energy",
+        ):
+            if not math.isfinite(float(row[key])):
+                fail(f"{scenario} trace {key} is not finite")
+
+    with cell_csv.open() as handle:
+        cell_csv_rows = list(csv.DictReader(handle))
+    if len(cell_csv_rows) != len(cell_rows):
+        fail(f"{scenario} trace JSON/CSV cell row count mismatch")
+    for row in cell_csv_rows:
+        for key in (
+            "entropy",
+            "free_energy",
+            "policy_entropy",
+            "local_coherence",
+            "posterior_delta",
+            "belief_flux_divergence",
+            "lat",
+            "lng",
+        ):
+            if not math.isfinite(float(row[key])):
+                fail(f"{scenario} trace CSV {key} is not finite")
+
+    if nested:
+        hierarchy = trace.get("hierarchy_metadata", {})
+        if not hierarchy.get("nested_h3"):
+            fail(f"{scenario} spatial trace did not mark nested_h3")
+        parent_rows = [
+            row for row in cell_rows if bool(row.get("aggregate_parent_cell", False))
+        ]
+        child_rows = [row for row in cell_rows if row.get("parent_cell")]
+        if not parent_rows or not child_rows:
+            fail(f"{scenario} nested trace missing parent or child rows")
+        parent_child_path = output_dir / "data" / "nested_h3_parent_child_diagnostics.csv"
+        level_path = output_dir / "data" / "nested_h3_level_diagnostics.csv"
+        for path in (parent_child_path, level_path):
+            if not path.exists() or path.stat().st_size <= 0:
+                fail(f"{scenario} missing nested trace CSV: {path.name}")
+        with parent_child_path.open() as handle:
+            parent_child_rows = list(csv.DictReader(handle))
+        if not parent_child_rows:
+            fail(f"{scenario} nested parent-child diagnostics are empty")
+        for row in parent_child_rows:
+            for key in ("cross_level_consistency", "cross_level_residual"):
+                value = float(row[key])
+                if not math.isfinite(value) or value < -1e-9:
+                    fail(f"{scenario} nested {key} is invalid")
+
+
+def validate_research_statistics(
+    output_dir: Path,
+    scenario: str,
+    trace_statistics: dict[str, Any],
+    *,
+    require_non_degenerate: bool,
+) -> None:
+    """Validate spatial research statistics and optional variation thresholds."""
+    path = output_dir / "data" / "spatial_research_statistics.json"
+    if not path.exists() or path.stat().st_size <= 0:
+        fail(f"{scenario} missing spatial research statistics")
+    statistics = json.loads(path.read_text())
+    if statistics != trace_statistics:
+        fail(f"{scenario} trace/statistics payload mismatch")
+    if statistics.get("schema_version") != (
+        "geo-infer-act-spatial-research-statistics/v1"
+    ):
+        fail(f"{scenario} research statistics schema is wrong")
+    for group in ("metric_summaries", "temporal_slopes", "policy", "spatial_graph"):
+        if group not in statistics:
+            fail(f"{scenario} missing research statistics group: {group}")
+    for summary in statistics["metric_summaries"].values():
+        for key in ("mean", "std", "min", "max"):
+            if not math.isfinite(float(summary[key])):
+                fail(f"{scenario} non-finite research statistic {key}")
+    for value in statistics["temporal_slopes"].values():
+        if not math.isfinite(float(value)):
+            fail(f"{scenario} non-finite temporal slope")
+    for value in statistics["spatial_graph"].values():
+        if not math.isfinite(float(value)):
+            fail(f"{scenario} non-finite spatial graph statistic")
+    non_degenerate = statistics.get("non_degenerate", {})
+    for key in (
+        "entropy_std",
+        "selected_action_probability_std",
+        "local_coherence_std",
+        "belief_flux_divergence_std",
+    ):
+        if not math.isfinite(float(non_degenerate.get(key, 0.0))):
+            fail(f"{scenario} non-finite non-degenerate statistic: {key}")
+    if require_non_degenerate:
+        if float(non_degenerate.get("entropy_std", 0.0)) <= 1e-3:
+            fail(f"{scenario} research profile entropy collapsed")
+        if float(non_degenerate.get("selected_action_probability_std", 0.0)) <= 1e-4:
+            fail(f"{scenario} research profile policy probabilities collapsed")
+        if float(non_degenerate.get("belief_flux_divergence_std", 0.0)) <= 1e-4:
+            fail(f"{scenario} research profile belief flux collapsed")
+        if int(non_degenerate.get("unique_selected_action_count", 0)) < 2:
+            fail(f"{scenario} research profile selected only one action")
+
+
+def validate_gallery_outputs(tmp_dir: Path) -> None:
+    """Validate the deterministic four-run visualization gallery contract."""
+    from geo_infer_act.runners import run_spatial_active_inference_gallery
+
+    output_dir = tmp_dir / "spatial_gallery"
+    manifest = run_spatial_active_inference_gallery(
+        output_dir,
+        seed=73,
+        timesteps=2,
+        h3_resolution=8,
+        h3_ring_size=1,
+    )
+    if manifest.get("schema_version") != "geo-infer-act-spatial-gallery/v1":
+        fail("gallery manifest schema is wrong")
+    if not (output_dir / "index.html").exists():
+        fail("gallery index.html was not generated")
+    names = {run["name"] for run in manifest.get("runs", [])}
+    if names != {"h3", "h3_nested", "spatial", "spatial_nested"}:
+        fail(f"gallery did not produce the expected runs: {names}")
+    for run in manifest["runs"]:
+        if run.get("status") != "passed":
+            fail(f"gallery run did not pass manifest validation: {run}")
+        run_dir = output_dir / run["name"]
+        run_manifest = json.loads((run_dir / "manifest.json").read_text())
+        generated = {item["path"] for item in run_manifest["generated_files"]}
+        missing = sorted(REQUIRED_GEOSPATIAL_FILES - generated)
+        if missing:
+            fail(f"gallery run {run['name']} missing outputs: {missing}")
+        if run["name"].endswith("nested"):
+            missing_nested = sorted(REQUIRED_NESTED_H3_FILES - generated)
+            if missing_nested:
+                fail(
+                    f"gallery nested run {run['name']} missing outputs: {missing_nested}"
+                )
+        validate_research_statistics(
+            run_dir,
+            run["name"],
+            json.loads(
+                (run_dir / "data" / "spatial_inference_trace.json").read_text()
+            ).get("research_statistics", {}),
+            require_non_degenerate=True,
+        )
 
 
 def validate_visualization_metadata(

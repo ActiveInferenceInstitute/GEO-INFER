@@ -4,6 +4,7 @@ Advanced machine learning and artificial intelligence capabilities specifically 
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -39,6 +40,7 @@ Advanced machine learning and artificial intelligence capabilities specifically 
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
 ```
+
 
 ## Documentation Notes
 

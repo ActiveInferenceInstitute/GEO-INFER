@@ -39,6 +39,7 @@ Performance workspace within `GEO-INFER-DATA`.
 uv run python -m pytest GEO-INFER-DATA/tests/performance
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

@@ -4,6 +4,7 @@ Comprehensive place-based analysis framework providing deep insights into specif
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `data/`
 - `docs/`
@@ -35,7 +36,7 @@ Comprehensive place-based analysis framework providing deep insights into specif
 
 - `geopandas>=0.10.0`
 - `shapely>=1.8.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `pyyaml>=6.0`
@@ -51,6 +52,7 @@ Comprehensive place-based analysis framework providing deep insights into specif
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
 ```
+
 
 ## Documentation Notes
 

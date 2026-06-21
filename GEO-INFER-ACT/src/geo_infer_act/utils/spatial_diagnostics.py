@@ -17,9 +17,21 @@ import numpy as np
 import logging
 import json
 import csv
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Mapping, Iterable
 from datetime import datetime
 from pathlib import Path
+
+from geo_infer_act.core.types import (
+    H3CellDiagnostics,
+    H3EdgeDiagnostics,
+    H3LevelDiagnostics,
+    SpatialInferenceTrace,
+)
+from geo_infer_act.utils.h3_adapter import (
+    edge_count_from_graph,
+    get_h3_adapter,
+    normalize_belief_vector,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +101,450 @@ class SpatialDiagnostics:
             'global': float(global_coherence),
             'n_cells': n_cells
         }
+
+    @staticmethod
+    def build_h3_trace(
+        *,
+        scenario: str,
+        timestep: int,
+        cell_results: Mapping[str, Any],
+        neighbor_map: Optional[Mapping[str, Iterable[str]]] = None,
+        previous_beliefs: Optional[Mapping[str, Any]] = None,
+        hierarchy: Optional[Mapping[str, Any]] = None,
+        parent_beliefs: Optional[Mapping[str, Any]] = None,
+        backend_metadata: Optional[Mapping[str, Any]] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> SpatialInferenceTrace:
+        """
+        Build typed H3 trace diagnostics from cell inference results.
+
+        The trace is deterministic and JSON-safe. It includes observed leaf-cell
+        diagnostics, optional parent-cell aggregate diagnostics for nested H3,
+        same-resolution edge diagnostics, and per-resolution summaries.
+        """
+        adapter = get_h3_adapter()
+        timestep = int(timestep)
+        previous_beliefs = previous_beliefs or {}
+        parent_beliefs = parent_beliefs or {}
+        hierarchy = hierarchy or {}
+        child_parent_map = {
+            str(child): str(parent)
+            for child, parent in hierarchy.get("child_parent_map", {}).items()
+        }
+
+        result_beliefs: Dict[str, np.ndarray] = {}
+        result_payloads: Dict[str, Any] = {}
+        for cell, result in sorted(cell_results.items()):
+            cell = str(cell)
+            result_beliefs[cell] = SpatialDiagnostics._belief_from_result(result)
+            result_payloads[cell] = result
+
+        aggregate_parent_beliefs = {
+            str(cell): _trace_belief_vector(value)
+            for cell, value in sorted(parent_beliefs.items())
+        }
+        all_beliefs: Dict[str, np.ndarray] = {
+            **aggregate_parent_beliefs,
+            **result_beliefs,
+        }
+
+        graph = SpatialDiagnostics._same_resolution_graph(
+            all_beliefs.keys(),
+            neighbor_map=neighbor_map,
+            hierarchy=hierarchy,
+        )
+        local_metrics = SpatialDiagnostics._local_belief_metrics(
+            all_beliefs,
+            graph,
+            previous_beliefs,
+        )
+        edge_diagnostics = SpatialDiagnostics._edge_diagnostics(
+            all_beliefs,
+            graph,
+            timestep,
+        )
+
+        cross_level_scores: Dict[str, float] = {}
+        for child, parent in child_parent_map.items():
+            if child not in all_beliefs or parent not in all_beliefs:
+                continue
+            distance = float(
+                np.linalg.norm(
+                    _trace_belief_vector(all_beliefs[child])
+                    - _trace_belief_vector(all_beliefs[parent])
+                )
+            )
+            cross_level_scores[child] = _finite_float(1.0 / (1.0 + distance))
+
+        cell_diagnostics: List[H3CellDiagnostics] = []
+        for cell in sorted(all_beliefs):
+            belief = _trace_belief_vector(all_beliefs[cell])
+            result = result_payloads.get(cell)
+            pymdp = SpatialDiagnostics._pymdp_metadata_from_result(result)
+            posterior = _normalize_optional_distribution(
+                pymdp.get("action_posterior", [])
+            )
+            neg_efe = [
+                _finite_float(value)
+                for value in pymdp.get("negative_expected_free_energy", [])
+            ]
+            selected = int(pymdp.get("selected_action_index", 0))
+            selected = selected % max(1, len(posterior) or len(neg_efe) or 1)
+            selected_probability = (
+                float(posterior[selected]) if posterior else 0.0
+            )
+            selected_negative_efe = (
+                float(neg_efe[selected]) if neg_efe else 0.0
+            )
+            expected_free_energy = SpatialDiagnostics._expected_fe_from_result(
+                result,
+                selected_negative_efe,
+            )
+            parent_cell = child_parent_map.get(cell)
+            cell_meta = {
+                "pymdp_version": pymdp.get("pymdp_version"),
+                "h3_version": pymdp.get("h3_version"),
+                "h3_c_version": pymdp.get("h3_c_version"),
+                "backend": pymdp.get("backend"),
+                "cross_level_consistency": cross_level_scores.get(cell),
+                "aggregate_parent_cell": cell in aggregate_parent_beliefs
+                and cell not in result_payloads,
+            }
+            try:
+                resolution = adapter.get_resolution(cell)
+            except Exception:
+                resolution = -1
+            metric = local_metrics[cell]
+            cell_diagnostics.append(
+                H3CellDiagnostics(
+                    cell=cell,
+                    timestep=timestep,
+                    resolution=int(resolution),
+                    belief=[float(value) for value in belief],
+                    entropy=_entropy(belief),
+                    free_energy=SpatialDiagnostics._free_energy_from_result(
+                        result,
+                        belief,
+                    ),
+                    expected_free_energy=expected_free_energy,
+                    selected_action=(
+                        getattr(result, "action", None) if result is not None else None
+                    ),
+                    selected_action_index=selected,
+                    selected_action_probability=selected_probability,
+                    action_posterior=posterior,
+                    negative_expected_free_energy=neg_efe,
+                    selected_negative_expected_free_energy=selected_negative_efe,
+                    policy_entropy=_entropy(posterior) if posterior else 0.0,
+                    neighbor_count=metric["neighbor_count"],
+                    local_coherence=metric["local_coherence"],
+                    posterior_delta=metric["posterior_delta"],
+                    belief_flux_in=metric["belief_flux_in"],
+                    belief_flux_out=metric["belief_flux_out"],
+                    belief_flux_divergence=metric["belief_flux_divergence"],
+                    parent_cell=parent_cell,
+                    metadata={
+                        key: value
+                        for key, value in cell_meta.items()
+                        if value is not None
+                    },
+                )
+            )
+
+        level_diagnostics = SpatialDiagnostics._level_diagnostics(
+            cell_diagnostics,
+            edge_diagnostics,
+            timestep,
+        )
+        trace_backend = {
+            **SpatialDiagnostics._first_pymdp_metadata(cell_results),
+            **dict(backend_metadata or {}),
+        }
+        hierarchy_metadata = {
+            "nested_h3": bool(hierarchy),
+            "resolutions": list(hierarchy.get("resolutions", [])),
+            "parent_count": len(hierarchy.get("parent_child_map", {})),
+            "child_count": len(hierarchy.get("child_parent_map", {})),
+            "orphan_count": hierarchy.get("validation", {}).get("orphan_count", 0),
+        }
+        return SpatialInferenceTrace(
+            scenario=str(scenario),
+            timesteps=[timestep],
+            cell_diagnostics=cell_diagnostics,
+            edge_diagnostics=edge_diagnostics,
+            level_diagnostics=level_diagnostics,
+            hierarchy_metadata=hierarchy_metadata,
+            backend_metadata=trace_backend,
+            metadata=dict(metadata or {}),
+        )
+
+    @staticmethod
+    def _belief_from_result(result: Any) -> np.ndarray:
+        """Extract a normalized belief vector from a typed or dict result."""
+        if result is None:
+            return np.ones(1, dtype=float)
+        if hasattr(result, "beliefs"):
+            return _trace_belief_vector(result.beliefs)
+        if isinstance(result, Mapping) and "beliefs" in result:
+            return _trace_belief_vector(result["beliefs"])
+        return _trace_belief_vector(result)
+
+    @staticmethod
+    def _pymdp_metadata_from_result(result: Any) -> Dict[str, Any]:
+        """Extract pymdp metadata from a cell result."""
+        if result is None:
+            return {}
+        metadata = getattr(result, "metadata", {}) or {}
+        if isinstance(metadata, Mapping):
+            pymdp = metadata.get("pymdp") or {}
+            return dict(pymdp) if isinstance(pymdp, Mapping) else {}
+        if isinstance(result, Mapping):
+            pymdp = result.get("pymdp") or {}
+            return dict(pymdp) if isinstance(pymdp, Mapping) else {}
+        return {}
+
+    @staticmethod
+    def _free_energy_from_result(result: Any, belief: np.ndarray) -> float:
+        """Return result free energy or a finite KL-to-uniform aggregate."""
+        if result is not None and hasattr(result, "free_energy"):
+            return _finite_float(getattr(result, "free_energy"))
+        uniform = np.ones_like(belief, dtype=float) / max(1, belief.size)
+        return _finite_float(np.sum(belief * np.log((belief + 1e-12) / uniform)))
+
+    @staticmethod
+    def _expected_fe_from_result(result: Any, selected_negative_efe: float) -> float:
+        """Return expected free energy from a result or selected negative EFE."""
+        if result is not None and getattr(result, "expected_free_energy", None) is not None:
+            return _finite_float(getattr(result, "expected_free_energy"))
+        return _finite_float(-selected_negative_efe)
+
+    @staticmethod
+    def _same_resolution_graph(
+        cells: Iterable[str],
+        *,
+        neighbor_map: Optional[Mapping[str, Iterable[str]]],
+        hierarchy: Mapping[str, Any],
+    ) -> Dict[str, set[str]]:
+        """Build or normalize a same-resolution H3 neighbor graph."""
+        adapter = get_h3_adapter()
+        cell_set = {str(cell) for cell in cells}
+        graph: Dict[str, set[str]] = {cell: set() for cell in cell_set}
+        if hierarchy.get("same_level_neighbors"):
+            for level_neighbors in hierarchy.get("same_level_neighbors", {}).values():
+                for cell, neighbors in level_neighbors.items():
+                    cell = str(cell)
+                    if cell not in cell_set:
+                        continue
+                    graph[cell].update(
+                        str(neighbor)
+                        for neighbor in neighbors
+                        if str(neighbor) in cell_set
+                    )
+        elif neighbor_map:
+            for cell, neighbors in neighbor_map.items():
+                cell = str(cell)
+                if cell not in cell_set:
+                    continue
+                graph[cell].update(
+                    str(neighbor)
+                    for neighbor in neighbors
+                    if str(neighbor) in cell_set
+                )
+        else:
+            for cell in sorted(cell_set):
+                try:
+                    graph[cell].update(
+                        neighbor
+                        for neighbor in adapter.grid_ring(cell, 1)
+                        if neighbor in cell_set
+                    )
+                except Exception:
+                    continue
+
+        filtered: Dict[str, set[str]] = {cell: set() for cell in cell_set}
+        for cell, neighbors in graph.items():
+            try:
+                resolution = adapter.get_resolution(cell)
+            except Exception:
+                resolution = None
+            for neighbor in neighbors:
+                if neighbor == cell or neighbor not in cell_set:
+                    continue
+                try:
+                    same_resolution = (
+                        resolution is None
+                        or adapter.get_resolution(neighbor) == resolution
+                    )
+                except Exception:
+                    same_resolution = True
+                if same_resolution:
+                    filtered[cell].add(neighbor)
+                    filtered.setdefault(neighbor, set()).add(cell)
+        return filtered
+
+    @staticmethod
+    def _local_belief_metrics(
+        beliefs: Mapping[str, np.ndarray],
+        graph: Mapping[str, Iterable[str]],
+        previous_beliefs: Mapping[str, Any],
+    ) -> Dict[str, Dict[str, float]]:
+        """Compute local coherence, posterior delta, and belief flux by cell."""
+        normalized = {
+            cell: _trace_belief_vector(belief) for cell, belief in beliefs.items()
+        }
+        previous = {
+            str(cell): _trace_belief_vector(value)
+            for cell, value in previous_beliefs.items()
+            if str(cell) in normalized
+        }
+        metrics: Dict[str, Dict[str, float]] = {}
+        entropies = {cell: _entropy(belief) for cell, belief in normalized.items()}
+        for cell, belief in normalized.items():
+            neighbors = [neighbor for neighbor in graph.get(cell, []) if neighbor in normalized]
+            distances = [
+                float(np.linalg.norm(belief - normalized[neighbor]))
+                for neighbor in neighbors
+            ]
+            coherence = (
+                _finite_float(1.0 / (1.0 + float(np.mean(distances))))
+                if distances
+                else 1.0
+            )
+            previous_belief = previous.get(cell)
+            posterior_delta = (
+                _finite_float(np.linalg.norm(belief - previous_belief, ord=1))
+                if previous_belief is not None and previous_belief.shape == belief.shape
+                else 0.0
+            )
+            flux_in = 0.0
+            flux_out = 0.0
+            entropy_value = entropies[cell]
+            for neighbor in neighbors:
+                distance = float(np.linalg.norm(belief - normalized[neighbor]))
+                entropy_gap = entropies[neighbor] - entropy_value
+                if entropy_gap > 0:
+                    flux_in += abs(entropy_gap) * distance
+                else:
+                    flux_out += abs(entropy_gap) * distance
+            metrics[cell] = {
+                "neighbor_count": int(len(neighbors)),
+                "local_coherence": coherence,
+                "posterior_delta": posterior_delta,
+                "belief_flux_in": _finite_float(flux_in),
+                "belief_flux_out": _finite_float(flux_out),
+                "belief_flux_divergence": _finite_float(flux_out - flux_in),
+            }
+        return metrics
+
+    @staticmethod
+    def _edge_diagnostics(
+        beliefs: Mapping[str, np.ndarray],
+        graph: Mapping[str, Iterable[str]],
+        timestep: int,
+    ) -> List[H3EdgeDiagnostics]:
+        """Return one undirected edge diagnostic per same-resolution edge."""
+        adapter = get_h3_adapter()
+        normalized = {
+            cell: _trace_belief_vector(belief) for cell, belief in beliefs.items()
+        }
+        rows: List[H3EdgeDiagnostics] = []
+        seen: set[tuple[str, str]] = set()
+        for source, neighbors in graph.items():
+            if source not in normalized:
+                continue
+            for target in neighbors:
+                if target not in normalized:
+                    continue
+                pair = tuple(sorted((str(source), str(target))))
+                if pair in seen:
+                    continue
+                seen.add(pair)
+                distance = _finite_float(
+                    np.linalg.norm(normalized[pair[0]] - normalized[pair[1]])
+                )
+                try:
+                    resolution = adapter.get_resolution(pair[0])
+                except Exception:
+                    resolution = -1
+                rows.append(
+                    H3EdgeDiagnostics(
+                        source=pair[0],
+                        target=pair[1],
+                        timestep=int(timestep),
+                        resolution=int(resolution),
+                        belief_distance=distance,
+                        coherence=_finite_float(1.0 / (1.0 + distance)),
+                        source_entropy=_entropy(normalized[pair[0]]),
+                        target_entropy=_entropy(normalized[pair[1]]),
+                    )
+                )
+        return rows
+
+    @staticmethod
+    def _level_diagnostics(
+        cells: List[H3CellDiagnostics],
+        edges: List[H3EdgeDiagnostics],
+        timestep: int,
+    ) -> List[H3LevelDiagnostics]:
+        """Aggregate per-resolution diagnostics from cell and edge rows."""
+        by_resolution: Dict[int, List[H3CellDiagnostics]] = {}
+        for cell in cells:
+            by_resolution.setdefault(int(cell.resolution), []).append(cell)
+        edge_counts = {
+            resolution: edge_count_from_graph(
+                {
+                    edge.source: [edge.target]
+                    for edge in edges
+                    if int(edge.resolution) == resolution
+                }
+            )
+            for resolution in by_resolution
+        }
+        rows: List[H3LevelDiagnostics] = []
+        for resolution, level_cells in sorted(by_resolution.items()):
+            cross_values = [
+                float(cell.metadata.get("cross_level_consistency"))
+                for cell in level_cells
+                if cell.metadata.get("cross_level_consistency") is not None
+            ]
+            rows.append(
+                H3LevelDiagnostics(
+                    resolution=resolution,
+                    timestep=int(timestep),
+                    cell_count=len(level_cells),
+                    edge_count=int(edge_counts.get(resolution, 0)),
+                    mean_entropy=_mean([cell.entropy for cell in level_cells]),
+                    mean_free_energy=_mean(
+                        [cell.free_energy for cell in level_cells]
+                    ),
+                    mean_expected_free_energy=_mean(
+                        [cell.expected_free_energy for cell in level_cells]
+                    ),
+                    mean_policy_entropy=_mean(
+                        [cell.policy_entropy for cell in level_cells]
+                    ),
+                    mean_local_coherence=_mean(
+                        [cell.local_coherence for cell in level_cells]
+                    ),
+                    mean_belief_flux=_mean(
+                        [
+                            abs(cell.belief_flux_divergence)
+                            for cell in level_cells
+                        ]
+                    ),
+                    cross_level_consistency=_mean(cross_values),
+                )
+            )
+        return rows
+
+    @staticmethod
+    def _first_pymdp_metadata(cell_results: Mapping[str, Any]) -> Dict[str, Any]:
+        """Return the first non-empty pymdp metadata payload."""
+        for result in cell_results.values():
+            pymdp = SpatialDiagnostics._pymdp_metadata_from_result(result)
+            if pymdp:
+                return pymdp
+        return {}
     
     def compute_morans_i(
         self,
@@ -363,3 +819,54 @@ def compute_information_flow(
         'mean_flow': float(np.mean(flow_values)) if flow_values else 0.0,
         'max_flow': float(np.max(flow_values)) if flow_values else 0.0
     }
+
+
+def _finite_float(value: Any, default: float = 0.0) -> float:
+    """Return a finite float or a deterministic fallback."""
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return float(default)
+    return result if np.isfinite(result) else float(default)
+
+
+def _normalize_optional_distribution(values: Any) -> List[float]:
+    """Normalize optional policy arrays and return an empty list when absent."""
+    if values is None:
+        return []
+    array = np.asarray(values, dtype=float).reshape(-1)
+    if array.size == 0 or not np.all(np.isfinite(array)):
+        return []
+    array = np.maximum(array, 0.0)
+    total = float(array.sum())
+    if total <= 1e-12:
+        array = np.ones_like(array) / array.size
+    else:
+        array = array / total
+    return [float(value) for value in array]
+
+
+def _trace_belief_vector(values: Any) -> np.ndarray:
+    """Normalize belief values from typed results, dicts, or arrays."""
+    if isinstance(values, Mapping) and "states" in values:
+        values = values["states"]
+    return normalize_belief_vector(values)
+
+
+def _entropy(values: Any) -> float:
+    """Return Shannon entropy for a normalized vector."""
+    array = np.asarray(values, dtype=float).reshape(-1)
+    if array.size == 0 or not np.all(np.isfinite(array)):
+        return 0.0
+    array = np.maximum(array, 0.0)
+    total = float(array.sum())
+    if total <= 1e-12:
+        return 0.0
+    array = array / total
+    return _finite_float(-np.sum(array * np.log(array + 1e-12)))
+
+
+def _mean(values: Iterable[Any]) -> float:
+    """Return a finite mean for numeric values."""
+    finite = [_finite_float(value) for value in values if np.isfinite(_finite_float(value))]
+    return float(np.mean(finite)) if finite else 0.0

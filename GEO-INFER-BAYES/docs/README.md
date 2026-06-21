@@ -38,6 +38,7 @@ Docs workspace within `GEO-INFER-BAYES`.
 uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

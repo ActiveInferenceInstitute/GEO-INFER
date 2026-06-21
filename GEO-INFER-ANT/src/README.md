@@ -23,7 +23,7 @@ Src workspace within `GEO-INFER-ANT`.
 
 - `asyncio-mqtt>=0.11.0`
 - `geopandas>=0.10.0`
-- `h3>=4.0.0`
+- `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
 - `matplotlib>=3.5.0`
 - `networkx>=2.8`
@@ -37,6 +37,7 @@ Src workspace within `GEO-INFER-ANT`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
 ```
+
 
 ## Documentation Notes
 

@@ -9,14 +9,16 @@ within the GEO-INFER framework.
 from setuptools import setup, find_packages
 import os
 
+
 # Read the README file for long description
 def read_readme():
     """Read README file for long description."""
-    readme_path = os.path.join(os.path.dirname(__file__), 'README.md')
+    readme_path = os.path.join(os.path.dirname(__file__), "README.md")
     if os.path.exists(readme_path):
-        with open(readme_path, 'r', encoding='utf-8') as f:
+        with open(readme_path, "r", encoding="utf-8") as f:
             return f.read()
     return "Deep place-based geospatial analysis framework"
+
 
 # Define version
 __version__ = "0.1.0"
@@ -31,31 +33,25 @@ CORE_REQUIREMENTS = [
     "rasterio>=1.2.0",
     "xarray>=0.19.0",
     "dask>=2021.9.0",
-    
     # Spatial analysis and indexing
-    "h3>=4.0.0",
+    "h3>=4.5.0,<5",
     "pyproj>=3.2.0",
     "rtree>=0.9.0",
-    
     # Time series and temporal analysis
     "cftime>=1.5.0",
     "netCDF4>=1.5.7",
-    
     # Data access and APIs
     "requests>=2.26.0",
     "urllib3>=1.26.0",
-    
     # Configuration and serialization
     "pyyaml>=5.4.0",
     "toml>=0.10.0",
     "jsonschema>=3.2.0",
-    
     # Visualization and plotting
     "matplotlib>=3.4.0",
     "seaborn>=0.11.0",
     "plotly>=5.3.0",
     "folium>=0.12.0",
-    
     # Utilities
     "click>=8.0.0",
     "tqdm>=4.62.0",
@@ -117,18 +113,18 @@ OPTIONAL_REQUIREMENTS = {
 LOCATION_REQUIREMENTS = {
     "del_norte_county": [
         "calfire-api>=0.1.0",  # Custom package for CalFire data
-        "usgs-water>=0.3.0",   # USGS water data access
-        "noaa-coops>=1.1.0",   # NOAA CO-OPS tide data
+        "usgs-water>=0.3.0",  # USGS water data access
+        "noaa-coops>=1.1.0",  # NOAA CO-OPS tide data
     ],
     "australia": [
-        "bom-data>=0.2.0",     # Bureau of Meteorology data access
-        "ala-python>=0.1.0",   # Atlas of Living Australia
-        "austopo>=0.1.0",      # Australian topographic data
+        "bom-data>=0.2.0",  # Bureau of Meteorology data access
+        "ala-python>=0.1.0",  # Atlas of Living Australia
+        "austopo>=0.1.0",  # Australian topographic data
     ],
     "siberia": [
         "roshydromet>=0.1.0",  # Russian meteorological data
         "arctic-data>=0.2.0",  # Arctic research data access
-        "permafrost>=0.1.0",   # Permafrost monitoring tools
+        "permafrost>=0.1.0",  # Permafrost monitoring tools
     ],
 }
 
@@ -156,19 +152,15 @@ setup(
         "Tracker": "https://github.com/activeinference/GEO-INFER/issues",
         "Community": "https://discord.activeinference.institute/",
     },
-    
     # Package configuration
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
-    
     # Python version requirement
     python_requires=">=3.11",
-    
     # Dependencies
     install_requires=CORE_REQUIREMENTS,
     extras_require=OPTIONAL_REQUIREMENTS,
-    
     # Package metadata
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -184,14 +176,21 @@ setup(
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    
     # Keywords for discovery
     keywords=[
-        "geospatial", "place-based", "active-inference", "climate", 
-        "ecosystems", "arctic", "permafrost", "biodiversity", 
-        "forest-management", "coastal-resilience", "gis", "remote-sensing"
+        "geospatial",
+        "place-based",
+        "active-inference",
+        "climate",
+        "ecosystems",
+        "arctic",
+        "permafrost",
+        "biodiversity",
+        "forest-management",
+        "coastal-resilience",
+        "gis",
+        "remote-sensing",
     ],
-    
     # Entry points for command-line tools
     entry_points={
         "console_scripts": [
@@ -204,7 +203,6 @@ setup(
             "place=geo_infer_place",
         ],
     },
-    
     # Data files to include
     package_data={
         "geo_infer_place": [
@@ -216,26 +214,24 @@ setup(
             "templates/*.jinja2",
         ],
     },
-    
     # Additional files to include in source distribution
     data_files=[
         ("config", ["config/module_config.yaml"]),
     ],
-    
     # Testing configuration
     test_suite="tests",
     tests_require=OPTIONAL_REQUIREMENTS["quality"],
-    
     # Zip safe configuration
     zip_safe=False,
 )
 
+
 # Post-installation message
 def print_post_install_message():
     """Print helpful information after installation."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🌍 GEO-INFER-PLACE Installation Complete!")
-    print("="*60)
+    print("=" * 60)
     print("\nAvailable study locations:")
     print("  🌲 Del Norte County, California, USA")
     print("  🦘 Australia (continental analysis)")
@@ -248,7 +244,8 @@ def print_post_install_message():
     print("  >>> from geo_infer_place import DelNorteCounty, Australia, Siberia")
     print("\nDocumentation: https://geo-infer-place.readthedocs.io/")
     print("Community: https://discord.activeinference.institute/")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
+
 
 if __name__ == "__main__":
-    print_post_install_message() 
+    print_post_install_message()

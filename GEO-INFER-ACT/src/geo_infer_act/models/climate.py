@@ -9,27 +9,25 @@ from typing import Dict, Any, Optional
 import numpy as np
 import logging
 
-# Use pymdp utilities when installed; otherwise use the local normalization helpers
-# required by this model.
-try:
-    from pymdp import utils
-except ImportError:
 
-    class utils:
-        """Local object-array and distribution helpers matching the pymdp API used here."""
+class _PymdpCompatUtils:
+    """Object-array and distribution helpers used by the climate model."""
 
-        @staticmethod
-        def obj_array(n: int) -> np.ndarray:
-            """Create an object array of size n."""
-            return np.empty(n, dtype=object)
+    @staticmethod
+    def obj_array(n: int) -> np.ndarray:
+        """Create an object array of size n."""
+        return np.empty(n, dtype=object)
 
-        @staticmethod
-        def norm_dist(dist: np.ndarray) -> np.ndarray:
-            """Normalize a distribution along columns."""
-            dist = dist.astype(float)
-            col_sums = dist.sum(axis=0, keepdims=True)
-            col_sums[col_sums == 0] = 1.0  # Avoid division by zero
-            return dist / col_sums
+    @staticmethod
+    def norm_dist(dist: np.ndarray) -> np.ndarray:
+        """Normalize a distribution along columns."""
+        dist = dist.astype(float)
+        col_sums = dist.sum(axis=0, keepdims=True)
+        col_sums[col_sums == 0] = 1.0
+        return dist / col_sums
+
+
+utils = _PymdpCompatUtils()
 
 
 from geo_infer_act.core.active_inference import ActiveInferenceModel

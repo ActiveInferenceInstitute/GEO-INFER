@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`
@@ -38,6 +39,7 @@
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
+
 
 ## Integration Notes
 

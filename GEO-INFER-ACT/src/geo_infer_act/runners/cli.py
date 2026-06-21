@@ -51,6 +51,16 @@ def build_parser(default_all: bool = False) -> argparse.ArgumentParser:
         help="Disable visualization artifacts.",
     )
     parser.add_argument(
+        "--research-profile",
+        action="store_true",
+        help="Use the deterministic non-degenerate H3 research profile.",
+    )
+    parser.add_argument(
+        "--nested-h3",
+        action="store_true",
+        help="Enable nested H3 hierarchy outputs for H3/spatial scenarios.",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Print the run manifest path as JSON.",
@@ -80,7 +90,12 @@ def config_from_args(args: argparse.Namespace) -> RunConfig:
         "deterministic": False if args.stochastic else None,
         "visualizations": False if args.no_visualizations else None,
     }
-    return load_run_config(args.config, overrides=overrides)
+    config = load_run_config(args.config, overrides=overrides)
+    if args.research_profile:
+        config.parameters["research_profile"] = True
+    if args.nested_h3:
+        config.parameters["nested_h3"] = True
+    return config
 
 
 def main(argv: Optional[Iterable[str]] = None) -> int:

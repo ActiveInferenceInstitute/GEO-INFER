@@ -57,7 +57,9 @@ class StreamConnector:
 
     async def disconnect(self):
         """Close streaming connection."""
-        pass
+        logger.debug(
+            "%s has no persistent streaming connection to close", type(self).__name__
+        )
 
 
 class MQTTConnector(StreamConnector):

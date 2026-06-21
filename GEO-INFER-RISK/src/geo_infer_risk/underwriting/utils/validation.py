@@ -325,7 +325,7 @@ class UnderwritingValidator:
             if isinstance(date_str, str):
                 datetime.fromisoformat(date_str.replace('Z', '+00:00'))
             elif isinstance(date_str, datetime):
-                pass  # Already a datetime object
+                date_str.isoformat()
             else:
                 errors.append(f"{field_name}: Invalid date format")
 

@@ -124,7 +124,7 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
 
 ### Key Technical Decisions
 
-- **H3 v4**: SPACE and PLACE modules are fully migrated to `h3>=4.0.0` (use `latlng_to_cell`, `cell_to_latlng`, not legacy API).
+- **H3 v4**: SPACE and PLACE modules are fully migrated to `h3>=4.5.0,<5` (use `latlng_to_cell`, `cell_to_latlng`, not legacy API).
 - **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends.
 - **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports, with module-level `HAS_<DEP>` flags consumed by call sites.
 - **Package directory casing**: All 44 modules use `geo_infer_<module>` (lowercase) naming.

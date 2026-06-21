@@ -25,24 +25,43 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_norms.core.compliance_tracking import compliance_tracking
+from geo_infer_norms.core.compliance_tracking import ComplianceTracker
 from geo_infer_norms.core.normative_inference import NormativeInference
-from geo_infer_norms.models.metrics import Metric, ComplianceResult
+from geo_infer_norms.models.compliance_status import ComplianceMetric
+from geo_infer_norms.models.legal_entity import LegalEntity
+from geo_infer_norms.models.regulation import Regulation
 ```
 
 ## Examples
 
 ```python
-from geo_infer_norms.core.compliance_tracking import compliance_tracking
-from geo_infer_norms.models.metrics import Metric
+import datetime
+from geo_infer_norms.core.compliance_tracking import ComplianceTracker
+from geo_infer_norms.models.compliance_status import ComplianceMetric
+from geo_infer_norms.models.legal_entity import LegalEntity
+from geo_infer_norms.models.regulation import Regulation
 
-metrics = [
-    Metric(name="air_quality", value=42, threshold=50, type="threshold"),
-    Metric(name="noise_level", value=65, range=(0, 70), type="range"),
-    Metric(name="green_space", value=True, type="boolean"),
-]
-result = compliance_tracking(metrics)
-print(f"Overall compliance: {result.score:.1%}")
+metric = ComplianceMetric.create(
+    name="air_quality",
+    description="PM2.5 threshold",
+    regulation_id="reg-air",
+    evaluation_type="threshold",
+    primary_field="pm25",
+    threshold_value=35,
+    comparison="less_than",
+)
+tracker = ComplianceTracker("environmental", compliance_metrics=[metric])
+entity = LegalEntity("facility-1", "Facility 1", "facility")
+regulation = Regulation(
+    "reg-air",
+    "Air Quality",
+    "PM2.5 limit",
+    "environmental",
+    "County",
+    datetime.date(2026, 1, 1),
+)
+status = tracker.evaluate_compliance(entity, regulation, {"pm25": 28})
+print(f"Overall compliance: {status.compliance_level:.1%}")
 ```
 
 ## Guidelines

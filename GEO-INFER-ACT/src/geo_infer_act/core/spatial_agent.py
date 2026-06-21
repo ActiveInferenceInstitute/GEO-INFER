@@ -28,12 +28,17 @@ from geo_infer_act.core.types import (
     ActiveInferenceStepResult,
     H3GridInferenceResult,
     H3SpatialConsistency,
+    NestedH3GridInferenceResult,
+    SpatialInferenceTrace,
 )
 from geo_infer_act.utils.h3_adapter import (
     edge_count_from_graph,
     get_h3_adapter,
+    get_nested_h3_grid_class,
     normalize_belief_vector,
 )
+from geo_infer_act.utils.pymdp_adapter import run_pymdp_step
+from geo_infer_act.utils.spatial_diagnostics import SpatialDiagnostics
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +131,7 @@ class SpatialActiveInferenceAgent:
         self.belief_history: List[np.ndarray] = []
         self.action_history: List[Dict] = []
         self.observation_history: List[Dict] = []
+        self.latest_pymdp_cell_metadata: Dict[str, Dict[str, Any]] = {}
 
         # Logging
         self.log_entries: List[Dict] = []
@@ -135,6 +141,50 @@ class SpatialActiveInferenceAgent:
                 f"SpatialActiveInferenceAgent initialized: "
                 f"{len(self.cells)} cells at resolution {h3_resolution}"
             )
+
+    def enable_nested_h3_spatial(
+        self,
+        resolutions: List[int],
+        boundary: Optional[Dict[str, Any]] = None,
+        cells: Optional[List[str]] = None,
+        top_down_weight: float = 0.15,
+    ) -> Dict[str, Any]:
+        """
+        Reconfigure the agent to operate on the leaf cells of a nested H3 grid.
+
+        The hierarchy is constructed by GEO-INFER-SPACE and stored for
+        ``step_nested`` diagnostics. The regular ``step`` method remains a flat
+        leaf-level H3 update.
+        """
+        if not boundary and not cells:
+            raise ValueError("Provide either a boundary or H3 cells")
+        if not 0.0 <= float(top_down_weight) <= 1.0:
+            raise ValueError("top_down_weight must be between 0.0 and 1.0")
+        NestedH3Grid = get_nested_h3_grid_class()
+        grid = NestedH3Grid(name="spatial_agent_nested_h3")
+        if boundary is not None:
+            hierarchy = grid.build_h3_hierarchy_from_boundary(boundary, resolutions)
+        else:
+            hierarchy = grid.build_h3_hierarchy_from_cells(cells or [], resolutions)
+        validation = hierarchy.get("validation", {})
+        if not validation.get("is_valid", False):
+            raise ValueError(f"Invalid nested H3 hierarchy: {validation}")
+
+        self.nested_h3_mode = True
+        self.nested_h3_grid = grid
+        self.nested_h3_hierarchy = hierarchy
+        self.nested_h3_resolutions = [int(value) for value in hierarchy["resolutions"]]
+        self.nested_h3_top_down_weight = float(top_down_weight)
+        self.h3_resolution = self.nested_h3_resolutions[-1]
+        self._initialize_from_cells(hierarchy["leaf_cells"])
+        n_cells = len(self.cells)
+        self.beliefs = np.ones((n_cells, self.state_dim)) / self.state_dim
+        self.precision = np.eye(n_cells) * self.precision_scale
+        self.observation_model = self._initialize_observation_model()
+        self.transition_model = self._initialize_transition_model()
+        self.preferences = np.zeros((n_cells, self.obs_dim))
+        self.preferences[:, 0] = 1.0
+        return hierarchy
 
     def _get_default_cells(self) -> List[str]:
         """Generate default H3 cells for testing."""
@@ -288,8 +338,9 @@ class SpatialActiveInferenceAgent:
         )
 
         pre_beliefs = self.beliefs.copy()
+        self.latest_pymdp_cell_metadata = {}
 
-        # Step 1: Bayesian update at observed cells
+        # Step 1: pymdp 1.0.3 update at observed cells
         for cell_id, obs in observations.items():
             idx = self.cell_to_idx[cell_id]
             obs = np.asarray(obs).flatten()[: self.obs_dim]
@@ -298,23 +349,17 @@ class SpatialActiveInferenceAgent:
             if len(obs) < self.obs_dim:
                 obs = np.concatenate([obs, np.zeros(self.obs_dim - len(obs))])
 
-            # Likelihood: P(o|s) using observation model
-            A = self.observation_model[idx]  # (obs_dim, state_dim)
-
-            # Compute likelihood for each state
-            likelihood = np.ones(self.state_dim)
-            for o_idx, o_val in enumerate(obs):
-                # Weighted combination based on observation value
-                likelihood *= (A[o_idx, :] ** o_val) * (
-                    (1 - A[o_idx, :]) ** (1 - o_val)
-                )
-
-            # Bayesian update: posterior ∝ likelihood × prior
-            prior = self.beliefs[idx]
-            posterior = likelihood * prior
-            posterior = posterior / (posterior.sum() + 1e-8)
-
-            self.beliefs[idx] = posterior
+            pymdp_result = run_pymdp_step(
+                observation=obs,
+                observation_model=self.observation_model[idx],
+                transition_model=self.transition_model[idx],
+                preferences=self.preferences[idx],
+                prior=self.beliefs[idx],
+                action_count=self.n_actions,
+                random_seed=(self.step_count * 1000) + idx,
+            )
+            self.beliefs[idx] = pymdp_result.beliefs
+            self.latest_pymdp_cell_metadata[cell_id] = pymdp_result.to_metadata()
 
         # Step 2: Precision-weighted belief propagation
         if propagate_beliefs:
@@ -432,6 +477,56 @@ class SpatialActiveInferenceAgent:
         """
         start_time = datetime.now()
 
+        if self.latest_pymdp_cell_metadata:
+            posterior_stack = np.asarray(
+                [
+                    meta["action_posterior"]
+                    for meta in self.latest_pymdp_cell_metadata.values()
+                ],
+                dtype=float,
+            )
+            neg_efe_stack = np.asarray(
+                [
+                    meta["negative_expected_free_energy"]
+                    for meta in self.latest_pymdp_cell_metadata.values()
+                ],
+                dtype=float,
+            )
+            pi = posterior_stack.mean(axis=0)
+            pi = pi / (pi.sum() + 1e-12)
+            neg_efe = neg_efe_stack.mean(axis=0)
+            selected_action = int(np.argmax(pi))
+            expected_free_energy = -float(neg_efe[selected_action])
+            confidence = float(pi[selected_action])
+            action_names = ["stay", "north", "south", "east", "west"]
+            result = {
+                "action": selected_action,
+                "action_name": action_names[selected_action],
+                "efe": expected_free_energy,
+                "efe_all": (-neg_efe).astype(float).tolist(),
+                "negative_expected_free_energy": neg_efe.astype(float).tolist(),
+                "policy_distribution": pi.astype(float).tolist(),
+                "confidence": confidence,
+                "step": self.step_count,
+                "backend": "inferactively-pymdp",
+                "pymdp_cell_count": len(self.latest_pymdp_cell_metadata),
+            }
+            self.action_history.append(result)
+            if self.enable_logging:
+                self.log_entries.append(
+                    {
+                        "step": self.step_count,
+                        "type": "action",
+                        "selected": action_names[selected_action],
+                        "confidence": confidence,
+                        "efe": result["efe"],
+                        "backend": "inferactively-pymdp",
+                        "duration_ms": (datetime.now() - start_time).total_seconds()
+                        * 1000,
+                    }
+                )
+            return result
+
         # Compute expected free energy for each action
         efe_per_action = np.zeros(self.n_actions)
         cell_efe = np.zeros((len(self.cells), self.n_actions))
@@ -544,7 +639,11 @@ class SpatialActiveInferenceAgent:
                 free_energy=float(self.free_energy_history[-1]),
                 expected_free_energy=action_result["efe"],
                 observation=observations.get(cell),
-                metadata={"h3_cell": cell, "step": self.step_count},
+                metadata={
+                    "h3_cell": cell,
+                    "step": self.step_count,
+                    "pymdp": self.latest_pymdp_cell_metadata.get(cell),
+                },
             )
             for cell, belief in updated_beliefs.items()
         }
@@ -556,6 +655,141 @@ class SpatialActiveInferenceAgent:
                 "h3_resolution": self.h3_resolution,
                 "selected_action": action_result,
                 "step": self.step_count,
+                "pymdp_backend": "inferactively-pymdp",
+            },
+        )
+
+    def trace_step(
+        self,
+        observations: Dict[str, np.ndarray],
+        *,
+        propagate_beliefs: bool = True,
+        grid_result: Optional[H3GridInferenceResult] = None,
+        timestep: Optional[int] = None,
+        previous_beliefs: Optional[Dict[str, Any]] = None,
+    ) -> SpatialInferenceTrace:
+        """
+        Return typed research diagnostics for one spatial H3 agent step.
+
+        When a ``grid_result`` is supplied, it is reused so trace construction
+        does not advance the agent a second time.
+        """
+        if grid_result is None:
+            grid_result = self.step(
+                observations,
+                propagate_beliefs=propagate_beliefs,
+                return_result=True,
+            )
+        return SpatialDiagnostics.build_h3_trace(
+            scenario="spatial",
+            timestep=self.step_count if timestep is None else timestep,
+            cell_results=grid_result.cell_results,
+            neighbor_map=self.neighbor_map,
+            previous_beliefs=previous_beliefs,
+            backend_metadata=grid_result.metadata,
+            metadata={
+                "aggregate_free_energy": grid_result.aggregate_free_energy,
+                "spatial_consistency": grid_result.spatial_consistency,
+            },
+        )
+
+    def step_nested(
+        self,
+        observations: Dict[str, np.ndarray],
+        propagate_beliefs: bool = True,
+        return_result: bool = False,
+        top_down_weight: Optional[float] = None,
+    ) -> Union[Dict[str, Any], NestedH3GridInferenceResult]:
+        """
+        Execute one nested H3 perception-action cycle on hierarchy leaf cells.
+
+        Returns the regular leaf-level step results plus nested parent
+        summaries, cross-level coherence, and aggregate free-energy diagnostics.
+        """
+        if not getattr(self, "nested_h3_mode", False):
+            raise ValueError("Enable nested H3 spatial mode first")
+        flat_result = self.step(
+            observations,
+            propagate_beliefs=propagate_beliefs,
+            return_result=True,
+        )
+        from geo_infer_act.core.generative_model import GenerativeModel  # noqa: PLC0415
+
+        gen = GenerativeModel(
+            "categorical",
+            {"state_dim": self.state_dim, "obs_dim": self.obs_dim},
+        )
+        gen.spatial_mode = True
+        gen.nested_h3_mode = True
+        gen.nested_h3_hierarchy = self.nested_h3_hierarchy
+        gen.nested_h3_resolutions = self.nested_h3_resolutions
+        gen.nested_h3_top_down_weight = float(
+            top_down_weight
+            if top_down_weight is not None
+            else self.nested_h3_top_down_weight
+        )
+        gen.h3_cells = list(self.cells)
+        finest = self.nested_h3_resolutions[-1]
+        gen.spatial_graph = {
+            cell: set(neighbors)
+            for cell, neighbors in self.nested_h3_hierarchy["same_level_neighbors"]
+            .get(str(finest), {})
+            .items()
+        }
+        nested_update = gen.update_nested_h3_beliefs(
+            observations,
+            return_result=True,
+            top_down_weight=top_down_weight,
+        )
+        result = NestedH3GridInferenceResult(
+            cell_results=flat_result.cell_results,
+            nested_belief_update=nested_update,
+            aggregate_free_energy=nested_update.aggregate_free_energy,
+            spatial_consistency=nested_update.spatial_consistency,
+            metadata={
+                **flat_result.metadata,
+                "nested_h3": True,
+                "resolutions": list(self.nested_h3_resolutions),
+            },
+        )
+        return result if return_result else result.to_dict()
+
+    def trace_nested_step(
+        self,
+        observations: Dict[str, np.ndarray],
+        *,
+        propagate_beliefs: bool = True,
+        grid_result: Optional[NestedH3GridInferenceResult] = None,
+        timestep: Optional[int] = None,
+        previous_beliefs: Optional[Dict[str, Any]] = None,
+        top_down_weight: Optional[float] = None,
+    ) -> SpatialInferenceTrace:
+        """
+        Return typed research diagnostics for one nested spatial H3 agent step.
+        """
+        if not getattr(self, "nested_h3_mode", False):
+            raise ValueError("Enable nested H3 spatial mode first")
+        if grid_result is None:
+            grid_result = self.step_nested(
+                observations,
+                propagate_beliefs=propagate_beliefs,
+                return_result=True,
+                top_down_weight=top_down_weight,
+            )
+        nested_update = grid_result.nested_belief_update
+        return SpatialDiagnostics.build_h3_trace(
+            scenario="spatial",
+            timestep=self.step_count if timestep is None else timestep,
+            cell_results=grid_result.cell_results,
+            neighbor_map=self.neighbor_map,
+            previous_beliefs=previous_beliefs,
+            hierarchy=self.nested_h3_hierarchy,
+            parent_beliefs=nested_update.parent_beliefs,
+            backend_metadata=grid_result.metadata,
+            metadata={
+                "aggregate_free_energy": grid_result.aggregate_free_energy,
+                "spatial_consistency": grid_result.spatial_consistency,
+                "nested_h3": True,
             },
         )
 

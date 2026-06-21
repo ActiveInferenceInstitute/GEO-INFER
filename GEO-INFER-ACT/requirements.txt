@@ -11,12 +11,12 @@ torch>=1.9.0
 # Added from comprehensive review
 arviz>=0.11.0
 bayeux-ml>=0.0.1
-h3>=4.0.0
+h3>=4.5.0,<5
 imageio>=2.9.0
 jax>=0.2.0
 plotly>=5.0.0
 pymc>=4.0.0
-inferactively-pymdp>=0.0.5
+inferactively-pymdp==1.0.3
 requests>=2.25.0
 scikit-learn>=0.1.0
 seaborn>=0.11.0

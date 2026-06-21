@@ -63,7 +63,9 @@ class CoralReefAssessor:
 
         window_days = window_weeks * 7
         if "time" in stress.dims:
-            dhw = stress.rolling(time=window_days, min_periods=1).sum() / 7.0
+            available_days = int(stress.sizes.get("time", window_days))
+            rolling_days = max(1, min(window_days, available_days))
+            dhw = stress.rolling(time=rolling_days, min_periods=1).sum() / 7.0
         else:
             dhw = stress / 7.0
 
@@ -129,7 +131,7 @@ class CoralReefAssessor:
         proportions = counts / total
         shannon = -float(np.sum(proportions * np.log(proportions + 1e-10)))
 
-        simpson = 1.0 - float(np.sum(proportions ** 2))
+        simpson = 1.0 - float(np.sum(proportions**2))
 
         margalef = (richness - 1) / np.log(total) if total > 1 else 0.0
 

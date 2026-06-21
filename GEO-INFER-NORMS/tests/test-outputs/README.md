@@ -36,6 +36,7 @@ Test Outputs workspace within `GEO-INFER-NORMS`.
 uv run python -m pytest GEO-INFER-NORMS/tests/test-outputs
 ```
 
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

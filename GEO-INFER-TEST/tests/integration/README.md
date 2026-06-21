@@ -43,8 +43,10 @@ Integration workspace within `GEO-INFER-TEST`.
 ## Validation
 
 ```bash
+uv sync --all-packages --all-extras
 uv run python -m pytest GEO-INFER-TEST/tests/integration
 ```
+
 
 ## Documentation Notes
 

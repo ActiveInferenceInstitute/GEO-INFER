@@ -13,17 +13,26 @@ Examples workspace within `GEO-INFER-MATH`.
 
 ## Public Interface
 
+- `advanced_geospatial_analysis.py:generate_synthetic_data` (function)
+- `advanced_geospatial_analysis.py:coordinate_transformation_analysis` (function)
+- `advanced_geospatial_analysis.py:spatial_statistics_analysis` (function)
+- `advanced_geospatial_analysis.py:interpolation_analysis` (function)
+- `advanced_geospatial_analysis.py:regression_analysis` (function)
+- `advanced_geospatial_analysis.py:clustering_analysis` (function)
+- `advanced_geospatial_analysis.py:parallel_processing_example` (function)
+- `advanced_geospatial_analysis.py:create_comprehensive_visualization` (function)
+- `advanced_geospatial_analysis.py:main` (function)
 - `convenience_api_examples.py:example_act_convenience` (function)
 - `convenience_api_examples.py:example_bayes_convenience` (function)
 - `convenience_api_examples.py:example_ai_convenience` (function)
 - `information_theory_examples.py:example_spatial_entropy` (function)
 - `information_theory_examples.py:example_mutual_information` (function)
-- `realistic_geospatial_analysis.py:RealisticGeospatialAnalyzer` (class)
-- `realistic_geospatial_analysis.py:main` (function)
-- `spatial_statistics_example.py:generate_clustered_data` (function)
-- `spatial_statistics_example.py:create_weight_matrix` (function)
-- `spatial_statistics_example.py:main` (function)
-- `spatial_statistics_example.py:plot_results` (function)
+- `performance_benchmark.py:generate_large_dataset` (function)
+- `performance_benchmark.py:benchmark_distance_calculations` (function)
+- `performance_benchmark.py:benchmark_spatial_statistics` (function)
+- `performance_benchmark.py:benchmark_interpolation` (function)
+- `performance_benchmark.py:benchmark_parallel_processing` (function)
+- `performance_benchmark.py:benchmark_memory_usage` (function)
 
 ## Module Metadata
 
@@ -47,6 +56,7 @@ Examples workspace within `GEO-INFER-MATH`.
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 ```
+
 
 ## Documentation Notes
 

@@ -170,6 +170,7 @@ class MessageRouter:
         # Network state
         self.node_loads: Dict[str, float] = defaultdict(float)
         self.edge_loads: Dict[Tuple[str, str], float] = defaultdict(float)
+        self.node_properties: Dict[str, Dict[str, Any]] = {}
         
         # Boundary information
         self.boundary_manager = None  # Will be set externally
@@ -192,8 +193,9 @@ class MessageRouter:
         self.nodes.add(node_id)
         
         if properties:
-            # Store node properties for routing decisions
-            pass  # Could extend to store node-specific routing properties
+            self.node_properties[node_id] = dict(properties)
+        else:
+            self.node_properties.setdefault(node_id, {})
         
         self.updated_at = datetime.now()
     
@@ -597,4 +599,3 @@ class MessageRouter:
         self.route_cache.clear()
         self.cache_hits = 0
         self.cache_misses = 0
-

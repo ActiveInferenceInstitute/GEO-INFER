@@ -7,7 +7,11 @@ import numpy as np
 import logging
 
 from geo_infer_act.models.base import ActiveInferenceModel, CategoricalModel
-from geo_infer_act.utils.h3_adapter import get_h3_adapter, normalize_belief_vector
+from geo_infer_act.utils.h3_adapter import (
+    get_h3_adapter,
+    get_nested_h3_grid_class,
+    normalize_belief_vector,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -195,6 +199,63 @@ class MultiAgentModel(ActiveInferenceModel):
             logger.error(f"Failed to enable H3 spatial mode: {e}")
             raise
 
+    def enable_nested_h3_spatial(
+        self,
+        resolutions: List[int],
+        boundary: Optional[Dict[str, Any]] = None,
+        cells: Optional[List[str]] = None,
+        top_down_weight: float = 0.15,
+    ) -> Dict[str, Any]:
+        """
+        Enable nested H3 multi-agent modeling over finest-resolution leaf cells.
+
+        Parent H3 cells summarize child-agent beliefs; agents remain attached to
+        leaf cells so existing flat H3 coordination behavior stays intact.
+        """
+        if not boundary and not cells:
+            raise ValueError("Provide either a boundary or H3 cells")
+        if not 0.0 <= float(top_down_weight) <= 1.0:
+            raise ValueError("top_down_weight must be between 0.0 and 1.0")
+        NestedH3Grid = get_nested_h3_grid_class()
+        grid = NestedH3Grid(name="multi_agent_nested_h3")
+        if boundary is not None:
+            hierarchy = grid.build_h3_hierarchy_from_boundary(boundary, resolutions)
+        else:
+            hierarchy = grid.build_h3_hierarchy_from_cells(cells or [], resolutions)
+        validation = hierarchy.get("validation", {})
+        if not validation.get("is_valid", False):
+            raise ValueError(f"Invalid nested H3 hierarchy: {validation}")
+
+        adapter = get_h3_adapter()
+        self.nested_h3_mode = True
+        self.nested_h3_grid = grid
+        self.nested_h3_hierarchy = hierarchy
+        self.nested_h3_resolutions = [int(value) for value in hierarchy["resolutions"]]
+        self.nested_h3_top_down_weight = float(top_down_weight)
+        self.spatial_mode = True
+        self.h3_resolution = self.nested_h3_resolutions[-1]
+        self.h3_cells = adapter.validate_cells(hierarchy["leaf_cells"])
+        self.n_locations = len(self.h3_cells)
+        self.agent_models = []
+        for i, cell in enumerate(self.h3_cells):
+            agent = CategoricalModel(state_dim=4, obs_dim=4)
+            agent.cell_id = cell
+            agent.spatial_index = i
+            agent.set_likelihood_matrix(self._create_environmental_observation_model())
+            agent.set_transition_matrix(self._create_environmental_transition_model())
+            try:
+                lat, lng = adapter.cell_to_latlng(cell)
+                spatial_bias = np.array([0.1, 0.2, 0.4, 0.3])
+                spatial_variation = 0.1 * np.sin(lat * 10) * np.cos(lng * 10)
+                agent.beliefs = normalize_belief_vector(
+                    spatial_bias + spatial_variation
+                )
+            except Exception:
+                agent.beliefs = np.ones(4) / 4
+            self.agent_models.append(agent)
+        self._create_spatial_coordination_graph()
+        return hierarchy
+
     def _create_spatial_coordination_graph(self):
         """Create coordination graph between spatially neighboring agents."""
         if not self.spatial_mode or not self.h3_cells:
@@ -293,6 +354,119 @@ class MultiAgentModel(ActiveInferenceModel):
             f"Completed H3 lattice simulation: {timesteps} timesteps, {len(self.h3_cells)} cells"
         )
         return history
+
+    def simulate_nested_h3_lattice(
+        self,
+        timesteps: int,
+        obs_gen: Callable[[str], np.ndarray],
+        top_down_weight: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """
+        Simulate H3 leaf agents and return nested parent summaries per timestep.
+        """
+        if not getattr(self, "nested_h3_mode", False):
+            raise ValueError("Enable nested H3 spatial mode first")
+        history = self.simulate_h3_lattice(timesteps, obs_gen)
+        nested_history = []
+        for timestep, step_data in enumerate(history):
+            leaf_beliefs = {
+                cell: np.asarray(payload["beliefs"], dtype=float)
+                for cell, payload in step_data.items()
+            }
+            parent_beliefs = self._aggregate_nested_agent_beliefs(
+                leaf_beliefs,
+                top_down_weight=top_down_weight,
+            )
+            nested_history.append(
+                {
+                    "timestep": timestep,
+                    "leaf_cell_count": len(leaf_beliefs),
+                    "parent_beliefs": {
+                        cell: belief.tolist() for cell, belief in parent_beliefs.items()
+                    },
+                    "level_summaries": self._nested_agent_level_summaries(
+                        leaf_beliefs,
+                        parent_beliefs,
+                    ),
+                }
+            )
+        return {
+            "history": history,
+            "nested_history": nested_history,
+            "resolutions": list(self.nested_h3_resolutions),
+            "leaf_cell_count": len(self.h3_cells),
+            "parent_count": len(self.nested_h3_hierarchy.get("parent_child_map", {})),
+        }
+
+    def _aggregate_nested_agent_beliefs(
+        self,
+        leaf_beliefs: Dict[str, np.ndarray],
+        top_down_weight: Optional[float] = None,
+    ) -> Dict[str, np.ndarray]:
+        """Aggregate leaf-agent beliefs to every configured parent resolution."""
+        adapter = get_h3_adapter()
+        parent_beliefs: Dict[str, np.ndarray] = {}
+        for target_resolution in reversed(self.nested_h3_resolutions[:-1]):
+            grouped: Dict[str, List[np.ndarray]] = {}
+            for child, belief in leaf_beliefs.items():
+                parent = adapter.cell_to_parent(child, target_resolution)
+                grouped.setdefault(parent, []).append(normalize_belief_vector(belief))
+            for parent, beliefs in grouped.items():
+                parent_beliefs[parent] = normalize_belief_vector(
+                    np.mean(beliefs, axis=0)
+                )
+
+        weight = (
+            float(top_down_weight)
+            if top_down_weight is not None
+            else float(self.nested_h3_top_down_weight)
+        )
+        if weight > 0.0:
+            child_parent_map = self.nested_h3_hierarchy.get("child_parent_map", {})
+            for i, cell in enumerate(self.h3_cells):
+                parent = child_parent_map.get(cell)
+                if parent in parent_beliefs and i < len(self.agent_models):
+                    current = normalize_belief_vector(self.agent_models[i].beliefs)
+                    self.agent_models[i].beliefs = normalize_belief_vector(
+                        ((1.0 - weight) * current) + (weight * parent_beliefs[parent])
+                    )
+        return dict(sorted(parent_beliefs.items()))
+
+    def _nested_agent_level_summaries(
+        self,
+        leaf_beliefs: Dict[str, np.ndarray],
+        parent_beliefs: Dict[str, np.ndarray],
+    ) -> List[Dict[str, Any]]:
+        """Return per-resolution nested multi-agent belief summaries."""
+        adapter = get_h3_adapter()
+        by_level: Dict[int, Dict[str, np.ndarray]] = {}
+        for cell, belief in parent_beliefs.items():
+            by_level.setdefault(adapter.get_resolution(cell), {})[cell] = belief
+        for cell, belief in leaf_beliefs.items():
+            by_level.setdefault(adapter.get_resolution(cell), {})[cell] = belief
+        summaries = []
+        for resolution in self.nested_h3_resolutions:
+            beliefs = by_level.get(resolution, {})
+            if beliefs:
+                entropy_values = [
+                    float(
+                        -np.sum(
+                            normalize_belief_vector(b)
+                            * np.log(normalize_belief_vector(b) + 1e-12)
+                        )
+                    )
+                    for b in beliefs.values()
+                ]
+            else:
+                entropy_values = [0.0]
+            summaries.append(
+                {
+                    "resolution": int(resolution),
+                    "cell_count": len(beliefs),
+                    "mean_entropy": float(np.mean(entropy_values)),
+                }
+            )
+        return summaries
 
     def _spatial_belief_coordination(self, step_data: Dict[str, Dict]):
         """Coordinate agents through environmental updates or spatial belief sharing."""

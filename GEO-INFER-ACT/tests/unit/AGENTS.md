@@ -34,9 +34,13 @@
 - `test_h3_active_inference.py`
 - `test_markov_decision_process.py`
 - `test_models.py`
+- `test_nested_h3_active_inference.py`
 - `test_policy_selection.py`
+- `test_pymdp_h3_backend.py`
 - `test_runner_contracts.py`
 - `test_spatial_agent.py`
+- `test_spatial_research_statistics.py`
+- `test_spatial_trace_diagnostics.py`
 - `test_utils.py`
 - `test_variational_inference.py`
 
@@ -45,6 +49,7 @@
 ```bash
 uv run python -m pytest GEO-INFER-ACT/tests/unit
 ```
+
 
 ## Integration Notes
 

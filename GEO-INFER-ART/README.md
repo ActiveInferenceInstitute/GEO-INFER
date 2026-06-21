@@ -4,6 +4,7 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -46,6 +47,7 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
+
 
 ## Documentation Notes
 

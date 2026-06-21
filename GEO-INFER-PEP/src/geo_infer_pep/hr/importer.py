@@ -43,7 +43,7 @@ class CSVHRImporter(BaseHRImporter):
         try:
             # Check accessibility
             with open(self.file_path, 'r', encoding='utf-8') as f:
-                pass 
+                f.read(0)
             self.connection = "connected"
             print(f"Successfully connected to HR CSV file: {self.file_path}")
         except FileNotFoundError:
@@ -56,7 +56,7 @@ class CSVHRImporter(BaseHRImporter):
     def fetch_employees(self, last_sync_date: Optional[datetime] = None) -> List[Dict[str, Any]]:
         if not self.connection:
             raise ConnectionError("Not connected to HR CSV file. Call connect() first.")
-        
+
         records: List[Dict[str, Any]] = []
         try:
             with open(self.file_path, mode='r', encoding='utf-8') as csvfile:
@@ -108,4 +108,4 @@ class CSVHRImporter(BaseHRImporter):
 # Future importers could include:
 # - BambooHRImporter
 # - WorkdayImporter
-# - OtherHRISImporter 
+# - OtherHRISImporter

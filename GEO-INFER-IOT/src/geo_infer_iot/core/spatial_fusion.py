@@ -39,7 +39,7 @@ class SpatialDataFusion:
 
         # Initialize spatial operations if available
         if HAS_GEO_SPACE:
-            pass # Spatial utils loaded
+            self.spatial_operations = {"h3_neighbors": get_h3_neighbors}
 
         # Default fusion parameters
         self.default_params = {

@@ -18,7 +18,6 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Core Capabilities
 
 - **Monitoring**: System health metrics, spatial operation performance
-- **Alerting**: Threshold-based and anomaly-based alerts
 - **Log aggregation**: Structured log collection and querying
 - **Deployment**: Configuration management for spatial services
 - **Observability**: Distributed tracing for cross-module operations
@@ -26,45 +25,39 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_ops.core.monitoring import MonitoringEngine
-from geo_infer_ops.core.alerting import AlertManager
+from geo_infer_ops.core.monitoring import record_request, record_error, start_metrics_server
 from geo_infer_ops.core.deployment import DeploymentManager
+from geo_infer_ops.core.logging import setup_logging, get_logger
 ```
 
 ## Examples
 
 ```python
-from geo_infer_ops.core.monitoring import MonitoringEngine
+from geo_infer_ops.core.monitoring import record_request, start_metrics_server
 
-monitor = MonitoringEngine()
-monitor.register_metric("h3_index_latency_ms", type="histogram")
-monitor.register_metric("active_queries", type="gauge")
-
-# Record spatial operation metrics
-with monitor.timer("h3_index_latency_ms"):
+with start_metrics_server(port=9090) as metrics_port:
     cells = backend.tessellate(region, resolution=7)
-
-monitor.gauge("active_queries", value=42)
-dashboard_url = monitor.export_prometheus(port=9090)
+    record_request("space", "/h3/tessellate", 200, 0.12)
+    print(f"Metrics listening on {metrics_port}")
 ```
 
 ```python
-from geo_infer_ops.core.alerting import AlertManager
+from geo_infer_ops.core.deployment import DeploymentManager
+from geo_infer_ops.core.logging import setup_logging, get_logger
 
-alerts = AlertManager()
-alerts.add_rule(
-    name="high_latency",
-    metric="h3_index_latency_ms",
-    condition="p99 > 500",
-    action="notify_slack"
-)
-alerts.start_watching()
+setup_logging(log_level="INFO", json_format=True)
+logger = get_logger(__name__)
+
+deployer = DeploymentManager(namespace="geo-prod")
+if deployer.build_docker_image(tag="geo-infer-api:local"):
+    logger.info("docker_build_ready")
 ```
 
 ## Guidelines
 
 - Uses structured logging (JSON format)
 - Prometheus-compatible metrics export
+- `start_metrics_server()` yields the selected port and closes server/thread handles on exit
 - Test: `uv run python -m pytest GEO-INFER-OPS/tests/ -v`
 
 ### Integrations

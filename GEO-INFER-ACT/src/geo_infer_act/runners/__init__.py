@@ -6,6 +6,7 @@ from geo_infer_act.runners.contracts import (
     ScenarioRunResult,
     SuiteRunResult,
 )
+from geo_infer_act.runners.gallery import run_spatial_active_inference_gallery
 from geo_infer_act.runners.scenarios import (
     load_run_config,
     run_all_scenarios,
@@ -18,6 +19,7 @@ __all__ = [
     "ScenarioRunResult",
     "SuiteRunResult",
     "load_run_config",
+    "run_spatial_active_inference_gallery",
     "run_all_scenarios",
     "run_scenario",
 ]

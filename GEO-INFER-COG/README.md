@@ -4,6 +4,7 @@ Human-centered geospatial tools that model perception, reasoning, and spatial co
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -36,6 +37,7 @@ Human-centered geospatial tools that model perception, reasoning, and spatial co
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
 ```
+
 
 ## Documentation Notes
 

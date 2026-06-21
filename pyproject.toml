@@ -36,7 +36,7 @@ dependencies = [
     # Geospatial libraries
     "geopandas>=0.10.0",
     "shapely>=1.8.0",
-    "h3>=4.0.0",
+    "h3>=4.5.0,<5",
     "pyproj>=3.3.0",
     "rasterio>=1.2.0",
     "xarray>=0.19.0",
@@ -122,9 +122,9 @@ climate = [
 # Performance optimization
 performance = [
     "numba>=0.54.0",
-    "cupy>=9.4.0",
+    "cupy>=9.4.0; sys_platform != 'darwin'",
     "dask[complete]>=2021.9.0",
-    "vaex>=4.13.0",
+    "vaex>=4.13.0; python_version < '3.12'",
 ]
 
 # Quality assurance and testing
@@ -194,9 +194,9 @@ all = [
     "xclim>=0.40.0",
     # performance
     "numba>=0.54.0",
-    "cupy>=9.4.0",
+    "cupy>=9.4.0; sys_platform != 'darwin'",
     "dask[complete]>=2021.9.0",
-    "vaex>=4.13.0",
+    "vaex>=4.13.0; python_version < '3.12'",
     # quality
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
@@ -241,7 +241,7 @@ include = ["geo_infer_*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

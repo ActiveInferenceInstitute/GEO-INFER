@@ -4,6 +4,7 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -44,6 +45,7 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
 ```
+
 
 ## Documentation Notes
 

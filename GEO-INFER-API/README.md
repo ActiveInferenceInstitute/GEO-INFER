@@ -4,6 +4,7 @@ Comprehensive API development and integration services enabling interoperability
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -44,6 +45,7 @@ Comprehensive API development and integration services enabling interoperability
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module API
 ```
+
 
 ## Documentation Notes
 

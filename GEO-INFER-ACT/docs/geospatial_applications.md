@@ -1,9 +1,10 @@
 # Geospatial Applications of Active Inference
 
 GEO-INFER-ACT treats H3 geospatial Active Inference as a first-class contract:
-real H3 v4 cells, normalized per-cell beliefs, finite free-energy and
-expected-free-energy diagnostics, GIS-ready outputs, and visualizations that
-are referenced from each run manifest.
+real `h3>=4.5.0,<5` cells, `inferactively-pymdp==1.0.3` categorical belief and
+policy inference, normalized per-cell beliefs, finite free-energy and
+negative-EFE diagnostics, GIS-ready outputs, and visualizations that are
+referenced from each run manifest.
 
 ## Geospatial Active Inference Architecture
 
@@ -11,10 +12,11 @@ are referenced from each run manifest.
 flowchart TB
     subgraph "Spatial Index"
         SPACE["GEO-INFER-SPACE H3 backend"]
-        H3["H3 v4 cell IDs and boundaries"]
+        H3["H3 4.5 cell IDs and boundaries"]
     end
     subgraph "ACT Core"
         GM["GenerativeModel H3 beliefs"]
+        PYMDP["pymdp 1.0.3 adapter"]
         AIM["ActiveInferenceModel grid inference"]
         SA["SpatialActiveInferenceAgent"]
         MA["MultiAgentModel H3 lattice"]
@@ -24,7 +26,8 @@ flowchart TB
         VIZ["PNG and HTML visualizations"]
         MANIFEST["manifest.json validation"]
     end
-    SPACE --> H3 --> GM
+    SPACE --> H3 --> GM --> PYMDP
+    PYMDP --> AIM
     H3 --> SA
     GM --> AIM --> DATA
     SA --> DATA
@@ -42,11 +45,11 @@ sequenceDiagram
     participant Model as GenerativeModel
     participant Agent as ActiveInferenceModel
     participant Analyzer as ActiveInferenceAnalyzer
-    Runner->>Adapter: create or validate H3 v4 cells
+    Runner->>Adapter: create or validate H3 4.5 cells
     Runner->>Model: update_h3_beliefs(observations)
     Model-->>Runner: H3BeliefUpdateResult
     Runner->>Agent: infer_over_h3_grid(observations)
-    Agent-->>Runner: H3GridInferenceResult
+    Agent-->>Runner: H3GridInferenceResult with pymdp metadata
     Runner->>Analyzer: record beliefs, actions, FE, EFE
     Analyzer-->>Runner: full_history.json and analysis files
 ```
@@ -259,7 +262,10 @@ flowchart TD
 | `GenerativeModel.update_h3_beliefs(..., return_result=True)` | Update per-cell beliefs | `H3BeliefUpdateResult` |
 | `ActiveInferenceModel.apply_to_h3(..., return_result=True)` | Apply the active model to H3 observations | `H3BeliefUpdateResult` |
 | `ActiveInferenceModel.infer_over_h3_grid(..., return_result=True)` | Score each H3 cell with one inference step | `H3GridInferenceResult` |
+| `ActiveInferenceModel.trace_over_h3_grid(...)` | Build flat H3 research diagnostics | `SpatialInferenceTrace` |
+| `ActiveInferenceModel.trace_over_nested_h3_grid(...)` | Build nested H3 research diagnostics with parent aggregates | `SpatialInferenceTrace` |
 | `SpatialActiveInferenceAgent.step(..., return_result=True)` | Run spatial perception and action | `H3GridInferenceResult` |
+| `SpatialActiveInferenceAgent.trace_step(...)` | Build trace diagnostics from a spatial-agent step | `SpatialInferenceTrace` |
 | `MultiAgentModel.simulate_h3_lattice(...)` | Run distributed H3-cell agents | Per-timestep cell diagnostics |
 | `geo_infer_act.runners.run_scenario(...)` | Run configured H3 or spatial workflows | `ScenarioRunResult` with `manifest.json` |
 
@@ -271,8 +277,11 @@ flowchart TD
 | `GenerativeModel.update_h3_beliefs` | Mapping of H3 cell to observation vector | Rejects invalid or out-of-model cells; normalizes posterior beliefs | `aggregate_free_energy`, global coherence, neighbor correlation |
 | `ActiveInferenceModel.apply_to_h3` | H3 observations plus spatial generative model | Delegates to the canonical generative-model H3 update contract | `H3BeliefUpdateResult` in typed mode |
 | `ActiveInferenceModel.infer_over_h3_grid` | H3 observation grid | Validates every H3 cell; restores original agent state after scoring | Per-cell `ActiveInferenceStepResult`, aggregate FE, selected policies |
+| `ActiveInferenceModel.trace_over_h3_grid` | H3 observation grid and optional previous beliefs | Reuses a supplied grid result or runs the typed grid scorer | Per-cell, per-edge, and per-level `SpatialInferenceTrace` diagnostics |
+| `ActiveInferenceModel.trace_over_nested_h3_grid` | Finest-resolution nested H3 observations | Requires an enabled nested hierarchy and parent aggregate beliefs | Parent/child residuals, cross-level consistency, and nested level diagnostics |
 | `SpatialActiveInferenceAgent.spatial_perception` | Observations on the agent H3 lattice | Rejects unknown cells; normalizes beliefs after local and neighbor updates | Spatial free energy and belief history |
 | `SpatialActiveInferenceAgent.step` | H3 lattice observations | Runs perception, EFE action selection, and typed consistency aggregation | `H3GridInferenceResult` in typed mode |
+| `SpatialActiveInferenceAgent.trace_step` | Spatial-agent observations and optional grid result | Reuses the typed step result to avoid a second pymdp update | `SpatialInferenceTrace` with policy, flux, and coherence diagnostics |
 | `MultiAgentModel.simulate_h3_lattice` | Timesteps and observation generator | Normalizes each cell observation and coordinates neighboring agents | Per-timestep beliefs, observations, FE, coordination history |
 | `EnvironmentalActiveInferenceEngine.compute_spatial_priors` | Environmental variable and state count | Converts spatial autocorrelation into normalized per-cell priors | H3 cell prior distributions for downstream ACT models |
 
@@ -309,6 +318,11 @@ The same contract applies to `scenario="spatial"`, which runs
 | `aggregate_free_energy` | Mean free-energy diagnostic over observed H3 cells | Finite float |
 | `expected_free_energy` | Policy score balancing pragmatic and epistemic terms | Finite float |
 | `belief_entropy` | Entropy of each normalized belief vector | Finite and nonnegative |
+| `policy_entropy` | Entropy of the pymdp action posterior | Finite and nonnegative |
+| `posterior_delta` | Absolute-sum change from the previous timestep's belief for the same cell | Finite and nonnegative |
+| `belief_flux_divergence` | Neighbor-weighted entropy-gradient proxy for belief flow | Finite float |
+| `local_coherence` | Similarity between a cell belief and same-resolution neighbors | Finite value between 0 and 1 for normal H3 paths |
+| `cross_level_consistency` | Agreement between child belief and parent aggregate belief | Finite and nonnegative in nested mode |
 | `global_coherence` | Cross-cell belief agreement summary | Bounded between 0 and 1 |
 | `neighbor_correlations` | Agreement across H3 graph edges | Finite correlation-like value |
 | `cell_count` | Count of valid real H3 cells in the run | Matches CSV and GeoJSON feature counts |
@@ -327,11 +341,32 @@ artifacts:
 | `data/h3_cells.csv` | Cell centroid, resolution, final FE, EFE, entropy, action |
 | `data/h3_cells.geojson` | Polygon FeatureCollection for GIS tools |
 | `data/h3_diagnostics.json` | Per-timestep spatial consistency and aggregate FE |
+| `data/pymdp_h3_diagnostics.json` | Per-cell pymdp version, posterior, negative EFE, VFE, entropy |
+| `data/pymdp_policy_posteriors.csv` | CSV form of pymdp policy posterior and negative-EFE rows |
+| `data/spatial_inference_trace.json` | JSON-safe per-cell, per-edge, per-level spatial trace |
+| `data/spatial_research_statistics.json` | Run-level summaries, temporal slopes, policy switches, graph statistics, and nested residual summaries |
+| `data/h3_cell_diagnostics.csv` | Flattened H3 cell trace diagnostics with lat/lng centroids |
+| `data/h3_edge_diagnostics.csv` | Same-resolution H3 edge belief-distance diagnostics |
+| `data/h3_hierarchy.csv` | Nested H3 parent-child closure rows |
+| `data/nested_h3_diagnostics.json` | Nested per-timestep summaries and consistency diagnostics |
+| `data/nested_h3_cell_diagnostics.csv` | Nested cell trace diagnostics including aggregate parent cells |
+| `data/nested_h3_parent_child_diagnostics.csv` | Nested parent/child consistency and residual rows |
+| `data/nested_h3_level_diagnostics.csv` | Per-resolution entropy, FE, policy entropy, flux, and coherence |
 | `analysis/run_summary.json` | Summary metrics for dashboards and reports |
 | `visualizations/h3_cell_metric_map.png` | Static H3 cell metric map |
 | `visualizations/free_energy_evolution.png` | FE and EFE evolution |
 | `visualizations/belief_entropy_coherence.png` | Entropy and coherence trend |
 | `visualizations/interactive_h3_map.html` | Interactive cell map |
+| `visualizations/pymdp_policy_free_energy.html` | pymdp VFE, negative-EFE, and action-confidence trend |
+| `visualizations/h3_belief_flux_map.html` | Interactive belief-flux and posterior-delta map |
+| `visualizations/h3_policy_surface.html` | Timestep-by-cell selected-action confidence surface |
+| `visualizations/h3_policy_transitions.html` | Stacked selected-action counts by timestep |
+| `visualizations/h3_spatial_autocorrelation.html` | H3 adjacency, edge-distance, and flux-balance diagnostics |
+| `visualizations/h3_entropy_free_energy_phase.html` | Cell-level entropy/free-energy phase-space view |
+| `visualizations/spatial_inference_research_report.html` | Research report linking statistics, trace data, and visualizations |
+| `visualizations/nested_h3_level_map.html` | Nested per-resolution summary table |
+| `visualizations/nested_h3_hierarchy_map.html` | Real-H3 parent/child boundary map with residuals |
+| `visualizations/nested_h3_parent_child_residuals.html` | Nested parent-child cross-level residual chart |
 | `visualizations/*.metadata.json` | Figure schema version, package version, scenario, run config, data sources, plotted metrics, alt text, digest, and dimensions |
 | `visualizations/*.data.csv` / `*.data.json` | Exact finite rows or payload used to render the figure |
 
@@ -340,6 +375,27 @@ Each `generated_files` entry includes `artifact_type`, `mime_type`, and
 plotted-data sidecar path, data source paths, plotted metric names, a
 description, and alt text. Static PNGs embed the same ACT metadata payload in
 the image metadata; HTML maps embed it as structured JSON in the document head.
+
+## Research Profile And Gallery
+
+Research-profile runs are opt-in through
+`RunConfig.parameters["research_profile"] = True` or the shared runner flag
+`--research-profile`. This profile keeps real H3 cells and
+`inferactively-pymdp==1.0.3`, but uses deterministic offline spatial fields plus
+action-conditioned transition and preference matrices so policy posterior,
+entropy, coherence, and belief-flux diagnostics do not collapse to uniform rows.
+
+Generate the four-run gallery with:
+
+```bash
+uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py
+```
+
+The gallery writes flat H3, nested H3, flat spatial-agent, and nested
+spatial-agent runs under
+`GEO-INFER-ACT/examples/output/spatial_active_inference_gallery/` by default.
+Use `uv run` for these commands; system Python may contain a legacy pymdp
+distribution and is not the supported ACT/H3 runtime.
 
 ## Verification
 
