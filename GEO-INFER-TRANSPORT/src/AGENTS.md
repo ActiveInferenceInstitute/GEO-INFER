@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_transport.egg-info/`
 - `geo_infer_transport/`
 
 ## Validation

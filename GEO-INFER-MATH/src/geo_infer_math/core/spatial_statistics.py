@@ -8,6 +8,46 @@ autocorrelation, and distributions in geospatial data.
 import numpy as np
 from typing import Union, List, Tuple, Dict, Optional, Any, Callable
 from dataclasses import dataclass
+from math import erfc, sqrt
+
+
+def _generate_weights(
+    coords: np.ndarray, include_self: bool = False
+) -> np.ndarray:
+    """
+    Generate a spatial weights matrix from coordinates.
+
+    Args:
+        coords: Array of coordinates (n x 2)
+        include_self: Whether to include self-weights on the diagonal
+
+    Returns:
+        Spatial weights matrix (n x n), row-standardized
+    """
+    n = coords.shape[0]
+
+    # Vectorized distance calculation for better performance
+    coords_i = coords[:, np.newaxis, :]  # Shape: (n, 1, 2)
+    coords_j = coords[np.newaxis, :, :]  # Shape: (1, n, 2)
+
+    # Calculate pairwise distances
+    distances = np.sqrt(np.sum((coords_i - coords_j) ** 2, axis=2))
+
+    # Create weights matrix (inverse distance)
+    epsilon = 1e-10
+    weights = 1.0 / (distances + epsilon)
+    np.fill_diagonal(weights, 0)  # No self-weights initially
+
+    # Row standardize for better numerical stability
+    row_sums = weights.sum(axis=1, keepdims=True)
+    row_sums = np.where(row_sums == 0, 1.0, row_sums)
+    weights = weights / row_sums
+
+    if include_self:
+        np.fill_diagonal(weights, 1.0)
+
+    return weights
+
 
 @dataclass
 class SpatialDescriptiveStats:
@@ -23,43 +63,49 @@ class SpatialDescriptiveStats:
     skewness: float
     kurtosis: float
 
+
 class MoranI:
     """
     Implementation of Moran's I statistic for spatial autocorrelation.
-    
+
     Moran's I measures the spatial autocorrelation (clustering or similarity)
     of values across geographic locations.
     """
-    
+
     def __init__(self, weights_matrix: np.ndarray = None):
         """
         Initialize MoranI calculator.
-        
+
         Args:
-            weights_matrix: Spatial weights matrix defining relationships between locations
+            weights_matrix: Spatial weights matrix defining relationships
+                            between locations
         """
         self.weights_matrix = weights_matrix
-    
-    def compute(self, values: np.ndarray, coords: np.ndarray = None) -> Dict[str, float]:
+
+    def compute(
+        self, values: np.ndarray, coords: np.ndarray = None
+    ) -> Dict[str, float]:
         """
         Compute Moran's I statistic.
 
         Args:
             values: Array of values at each location
-            coords: Optional array of coordinates if weights_matrix is not provided
+            coords: Optional array of coordinates if weights_matrix
+                    is not provided
 
         Returns:
             Dictionary containing Moran's I statistic and p-value
         """
         if self.weights_matrix is None and coords is not None:
-            # Generate weights matrix from coordinates (inverse distance)
-            self.weights_matrix = self._generate_weights(coords)
+            self.weights_matrix = _generate_weights(coords)
 
         # Input validation
         if len(values) != self.weights_matrix.shape[0]:
-            raise ValueError(f"Values array length ({len(values)}) must match weights matrix size ({self.weights_matrix.shape[0]})")
+            raise ValueError(
+                f"Values array length ({len(values)}) must match "
+                f"weights matrix size ({self.weights_matrix.shape[0]})"
+            )
 
-        # Require at least 2 points for Moran's I
         if len(values) <= 1:
             raise ValueError("Moran's I requires at least 2 data points")
 
@@ -70,142 +116,279 @@ class MoranI:
                 "expected_I": -1.0 / (len(values) - 1),
                 "var_I": 0.0,
                 "z_score": 0.0,
-                "p_value": 1.0
+                "p_value": 1.0,
             }
 
-        # Optimized computation using vectorized operations
         n = len(values)
         z = (values - np.mean(values)) / np.std(values)
 
-        # Use matrix operations for efficiency
         w_sum = np.sum(self.weights_matrix)
-
-        # Vectorized computation of numerator and denominator
-        # This is more efficient than the original nested loops
         z_outer = np.outer(z, z)
         numerator = np.sum(z_outer * self.weights_matrix)
-        denominator = np.sum(z**2)
+        denominator = np.sum(z ** 2)
 
-        # Moran's I formula
-        I = (n / w_sum) * (numerator / denominator)
-
-        # Calculate expected I and variance for p-value computation
+        I_val = (n / w_sum) * (numerator / denominator)
         expected_I = -1.0 / (n - 1)
 
-        # Optimized variance calculation
         w_sym = self.weights_matrix + self.weights_matrix.T
-        s1 = 0.5 * np.sum(w_sym**2)
-        s2 = np.sum((np.sum(self.weights_matrix, axis=0) + np.sum(self.weights_matrix, axis=1))**2)
-        var_I = (n**2 * s1 - n * s2 + 3 * w_sum**2) / ((n**2 - 1) * w_sum**2)
+        s1 = 0.5 * np.sum(w_sym ** 2)
+        s2 = np.sum(
+            (
+                np.sum(self.weights_matrix, axis=0)
+                + np.sum(self.weights_matrix, axis=1)
+            )
+            ** 2
+        )
+        var_I = (
+            (n ** 2 * s1 - n * s2 + 3 * w_sum ** 2)
+            / ((n ** 2 - 1) * w_sum ** 2)
+        )
 
-        # Calculate z-score and p-value
-        z_score = (I - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
-
-        # Two-tailed p-value from z-score using the error function
-        # p = 2 * (1 - Phi(|z|)) = erfc(|z| / sqrt(2))
-        from math import erfc, sqrt
-        p_value = erfc(abs(z_score) / sqrt(2))
+        z_score_val = (
+            (I_val - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
+        )
+        p_value = erfc(abs(z_score_val) / sqrt(2))
 
         return {
-            "I": I,
+            "I": I_val,
             "expected_I": expected_I,
             "var_I": var_I,
-            "z_score": z_score,
-            "p_value": p_value
+            "z_score": z_score_val,
+            "p_value": p_value,
         }
-    
-    def _generate_weights(self, coords: np.ndarray) -> np.ndarray:
+
+
+class GearysC:
+    """
+    Implementation of Geary's C statistic for spatial autocorrelation.
+
+    Geary's C is a measure of spatial autocorrelation that uses
+    differences between neighbouring values. Values range from 0 to 2:
+    - C < 1: positive spatial autocorrelation
+    - C = 1: no spatial autocorrelation (random)
+    - C > 1: negative spatial autocorrelation
+    """
+
+    def __init__(self, weights_matrix: np.ndarray = None):
         """
-        Generate a spatial weights matrix from coordinates.
+        Initialize GearysC calculator.
 
         Args:
-            coords: Array of coordinates (n x 2)
+            weights_matrix: Spatial weights matrix
+        """
+        self.weights_matrix = weights_matrix
+
+    def compute(
+        self, values: np.ndarray, coords: np.ndarray = None
+    ) -> Dict[str, float]:
+        """
+        Compute Geary's C statistic.
+
+        Args:
+            values: Array of values at each location
+            coords: Optional coordinates to generate weights
 
         Returns:
-            Spatial weights matrix (n x n)
+            Dictionary with C, expected_C, var_C, z_score, p_value
         """
-        n = coords.shape[0]
+        if self.weights_matrix is None:
+            if coords is not None:
+                self.weights_matrix = _generate_weights(coords)
+            else:
+                raise ValueError(
+                    "weights_matrix must be set or coords provided"
+                )
 
-        # Vectorized distance calculation for better performance
-        # This is much faster than nested loops for large datasets
-        coords_i = coords[:, np.newaxis, :]  # Shape: (n, 1, 2)
-        coords_j = coords[np.newaxis, :, :]  # Shape: (1, n, 2)
+        n = len(values)
+        if len(values) != self.weights_matrix.shape[0]:
+            raise ValueError(
+                f"Values length ({n}) must match weights "
+                f"({self.weights_matrix.shape[0]})"
+            )
+        if n < 2:
+            raise ValueError("Geary's C requires at least 2 data points")
 
-        # Calculate pairwise distances
-        distances = np.sqrt(np.sum((coords_i - coords_j)**2, axis=2))
+        if np.std(values) == 0:
+            return {"C": 1.0, "expected_C": 1.0, "var_C": 0.0,
+                    "z_score": 0.0, "p_value": 1.0}
 
-        # Create weights matrix (inverse distance)
-        # Avoid division by zero by using small epsilon
-        epsilon = 1e-10
-        weights = 1.0 / (distances + epsilon)
-        np.fill_diagonal(weights, 0)  # No self-weights
+        z = values - np.mean(values)
+        W = self.weights_matrix
+        w_sum = np.sum(W)
 
-        # Row standardize for better numerical stability
-        row_sums = weights.sum(axis=1, keepdims=True)
-        # Handle zero row sums (isolated points)
-        row_sums = np.where(row_sums == 0, 1.0, row_sums)
-        weights = weights / row_sums
+        # Geary's C numerator: sum of weighted squared differences
+        diff_sq = (z[:, np.newaxis] - z[np.newaxis, :]) ** 2
+        numerator = np.sum(W * diff_sq)
 
-        return weights
+        # Variance term
+        var_z = np.sum(z ** 2) / (n - 1)
+        C = (numerator / (2 * w_sum)) / var_z
+
+        expected_C = 1.0
+
+        # Variance approximation (simplified)
+        s1 = 0.5 * np.sum((W + W.T) ** 2)
+        var_C = ((2 * s1 + w_sum ** 2 - n * w_sum)
+                 / ((n - 1) * w_sum ** 2))
+
+        z_score_val = (C - expected_C) / np.sqrt(var_C) if var_C > 0 else 0.0
+        p_value = erfc(abs(z_score_val) / sqrt(2))
+
+        return {
+            "C": C,
+            "expected_C": expected_C,
+            "var_C": var_C,
+            "z_score": z_score_val,
+            "p_value": p_value,
+        }
+
+
+class GetisOrd:
+    """
+    Class-based interface for the Getis-Ord G* statistic (hot-spot analysis).
+
+    Getis-Ord G* identifies statistically significant hot spots (high-value
+    clusters) and cold spots (low-value clusters) in spatial data.
+    """
+
+    def __init__(self, weights_matrix: np.ndarray = None):
+        """
+        Initialize GetisOrd calculator.
+
+        Args:
+            weights_matrix: Spatial weights matrix (should include
+                            self-weights for G* calculation)
+        """
+        self.weights_matrix = weights_matrix
+
+    def compute(
+        self, values: np.ndarray, coords: np.ndarray = None
+    ) -> Dict[str, Any]:
+        """
+        Compute Getis-Ord G* statistics.
+
+        Args:
+            values: Array of attribute values at each location
+            coords: Optional array of coordinates (n×2). If provided and
+                    no weights_matrix was set at init, generates an inverse-distance
+                    weight matrix with self-weights (diagonal = 1 for G*).
+
+        Returns:
+            Dictionary containing:
+                'local_g'  – Local G* statistic for each location (numpy array)
+                'z_scores' – Z-scores for each location (numpy array)
+                'global_g' – Global Getis-Ord G statistic (float)
+        """
+        if self.weights_matrix is None:
+            if coords is not None:
+                self.weights_matrix = _generate_weights(coords, include_self=True)
+            else:
+                raise ValueError("weights_matrix must be set or coords provided")
+
+        n = len(values)
+        if n != self.weights_matrix.shape[0]:
+            raise ValueError(
+                f"Values array length ({n}) must match weights matrix size "
+                f"({self.weights_matrix.shape[0]})"
+            )
+
+        W = self.weights_matrix
+        sum_x = np.sum(values)
+        mean_x = np.mean(values)
+        sum_x_sq = np.sum(values ** 2)
+        s = np.sqrt((sum_x_sq / n) - mean_x ** 2)
+
+        g_star = np.zeros(n)
+        z_scores = np.zeros(n)
+
+        for i in range(n):
+            w_i = W[i]
+            sum_w = np.sum(w_i)
+            sum_wx = np.sum(w_i * values)
+
+            numerator = sum_wx - mean_x * sum_w
+            denom = s * np.sqrt(
+                (n * np.sum(w_i ** 2) - sum_w ** 2) / (n - 1)
+            ) if n > 1 else 0.0
+
+            if sum_x > 0:
+                g_star[i] = sum_wx / sum_x
+            if denom > 0:
+                z_scores[i] = numerator / denom
+
+        # Global Getis-Ord G
+        total_weights = np.sum(W)
+        if total_weights > 0 and sum_x > 0:
+            global_g_val = np.sum(W * np.outer(values, values)) / (total_weights * sum_x)
+        else:
+            global_g_val = 0.0
+
+        return {
+            "local_g": g_star,
+            "z_scores": z_scores,
+            "global_g": global_g_val,
+        }
+
 
 def getis_ord_g(values: np.ndarray, weights_matrix: np.ndarray) -> Dict[str, float]:
     """
     Calculate Getis-Ord G* statistic for hot spot analysis.
-    
+
     Args:
         values: Array of values at each location
         weights_matrix: Spatial weights matrix
-        
+
     Returns:
         Dictionary with G* statistics for each location and global G
     """
     n = len(values)
     sum_x = np.sum(values)
     mean_x = np.mean(values)
-    sum_x_sq = np.sum(values**2)
-    s = np.sqrt((sum_x_sq / n) - (mean_x**2))
-    
-    # Calculate G* for each location
+    sum_x_sq = np.sum(values ** 2)
+    s = np.sqrt((sum_x_sq / n) - (mean_x ** 2))
+
     g_star = np.zeros(n)
     z_scores = np.zeros(n)
-    
+
     for i in range(n):
         w_i = weights_matrix[i]
         sum_w = np.sum(w_i)
         sum_wx = np.sum(w_i * values)
-        
-        # Calculate G* statistic
+
         numerator = sum_wx - mean_x * sum_w
-        
-        # Calculate standard deviation
-        ss = s * np.sqrt((n * sum_w**2 - sum_w**2) / (n - 1))
-        
-        # Store G* and calculate z-score
+        ss = s * np.sqrt((n * sum_w ** 2 - sum_w ** 2) / (n - 1))
+
         if ss > 0:
             g_star[i] = sum_wx / sum_x
             z_scores[i] = numerator / ss
-    
-    # Calculate global G
+
     total_weights = np.sum(weights_matrix)
-    global_g = np.sum(weights_matrix * np.outer(values, values)) / (total_weights * sum_x)
-    
+    global_g = np.sum(weights_matrix * np.outer(values, values)) / (
+        total_weights * sum_x
+    )
+
     return {
         "local_g": g_star,
         "z_scores": z_scores,
-        "global_g": global_g
+        "global_g": global_g,
     }
 
-def ripley_k(points: np.ndarray, distances: List[float], 
-             area: float, boundary_correction: bool = True) -> Dict[str, np.ndarray]:
+
+def ripley_k(
+    points: np.ndarray,
+    distances: List[float],
+    area: float,
+    boundary_correction: bool = True,
+) -> Dict[str, np.ndarray]:
     """
     Calculate Ripley's K function for point pattern analysis.
-    
+
     Args:
         points: Array of point coordinates (n x 2)
         distances: List of distances at which to calculate K
         area: Total area of the study region
         boundary_correction: Whether to apply edge correction
-        
+
     Returns:
         Dictionary with K function values and L function transform
     """
@@ -215,129 +398,115 @@ def ripley_k(points: np.ndarray, distances: List[float],
         raise ValueError("area must be positive")
     n_points = points.shape[0]
     if n_points < 2:
-        # Gracefully return zeros for single point (not meaningful but avoids crash)
         return {
             "distances": np.array(distances),
             "k_function": np.zeros(len(distances)),
-            "l_function": np.zeros(len(distances)) - np.array(distances)
+            "l_function": np.zeros(len(distances)) - np.array(distances),
         }
 
     k_values = np.zeros(len(distances))
     l_values = np.zeros(len(distances))
 
-    # Calculate all pairwise distances
     dist_matrix = np.zeros((n_points, n_points))
     for i in range(n_points):
-        for j in range(i+1, n_points):
-            dist = np.sqrt(np.sum((points[i] - points[j])**2))
+        for j in range(i + 1, n_points):
+            dist = np.sqrt(np.sum((points[i] - points[j]) ** 2))
             dist_matrix[i, j] = dist
             dist_matrix[j, i] = dist
-    
-    # Calculate K function for each distance
+
     for i, r in enumerate(distances):
-        # Count points within distance r of each point
-        count = np.sum(dist_matrix <= r) - n_points  # Exclude self-counts
-        
-        # Ripley's K function formula
+        count = np.sum(dist_matrix <= r) - n_points
         k = (area * count) / (n_points * (n_points - 1))
         k_values[i] = k
-        
-        # L function (linearized K function)
         l_values[i] = np.sqrt(k / np.pi) - r
-    
+
     return {
         "distances": np.array(distances),
         "k_function": k_values,
-        "l_function": l_values
+        "l_function": l_values,
     }
 
-def semivariogram(coords: np.ndarray, values: np.ndarray, lag_distances: List[float], 
-                  tolerance: float = 0.5) -> Dict[str, np.ndarray]:
+
+def semivariogram(
+    coords: np.ndarray,
+    values: np.ndarray,
+    lag_distances: List[float],
+    tolerance: float = 0.5,
+) -> Dict[str, np.ndarray]:
     """
     Calculate empirical semivariogram.
-    
+
     Args:
         coords: Array of coordinates (n x 2)
         values: Array of values at each location
         lag_distances: List of lag distances at which to calculate semivariance
         tolerance: Tolerance for binning point pairs by distance
-        
+
     Returns:
         Dictionary with semivariogram values
     """
     n_points = coords.shape[0]
     n_lags = len(lag_distances)
-    
-    # Initialize outputs
+
     semivariance = np.zeros(n_lags)
     count = np.zeros(n_lags, dtype=int)
-    
-    # Calculate semivariogram for each lag distance
+
     for i in range(n_points):
-        for j in range(i+1, n_points):
-            # Calculate Euclidean distance
-            dist = np.sqrt(np.sum((coords[i] - coords[j])**2))
-            
-            # Find appropriate lag bin
+        for j in range(i + 1, n_points):
+            dist = np.sqrt(np.sum((coords[i] - coords[j]) ** 2))
             for k, lag in enumerate(lag_distances):
                 if abs(dist - lag) <= tolerance:
-                    # Calculate squared difference of values
-                    sq_diff = (values[i] - values[j])**2
+                    sq_diff = (values[i] - values[j]) ** 2
                     semivariance[k] += sq_diff
                     count[k] += 1
                     break
-    
-    # Calculate average semivariance for each lag
+
     valid_lags = count > 0
     semivariance[valid_lags] = semivariance[valid_lags] / (2 * count[valid_lags])
-    
+
     return {
         "lag_distances": np.array(lag_distances),
         "semivariance": semivariance,
-        "count": count
+        "count": count,
     }
 
-def spatial_descriptive_statistics(coords: np.ndarray, values: np.ndarray) -> SpatialDescriptiveStats:
+
+def spatial_descriptive_statistics(
+    coords: np.ndarray, values: np.ndarray
+) -> SpatialDescriptiveStats:
     """
     Calculate spatial descriptive statistics.
-    
+
     Args:
         coords: Array of coordinates (n x 2)
         values: Array of values at each location
-        
+
     Returns:
         SpatialDescriptiveStats object with calculated statistics
     """
-    # Basic statistics
     mean_val = np.mean(values)
     median_val = np.median(values)
     std_val = np.std(values)
     var_val = np.var(values)
     min_val = np.min(values)
     max_val = np.max(values)
-    
-    # Calculate weighted centroid
+
     total_weight = np.sum(values)
     if total_weight > 0:
         centroid_x = np.sum(coords[:, 0] * values) / total_weight
         centroid_y = np.sum(coords[:, 1] * values) / total_weight
     else:
-        # Unweighted centroid if values sum to zero
         centroid_x = np.mean(coords[:, 0])
         centroid_y = np.mean(coords[:, 1])
-    
-    # Spatial dispersion (average distance from centroid)
+
     centroid = np.array([centroid_x, centroid_y])
-    distances = np.sqrt(np.sum((coords - centroid)**2, axis=1))
+    distances = np.sqrt(np.sum((coords - centroid) ** 2, axis=1))
     dispersion = np.mean(distances)
-    
-    # Calculate skewness
+
     diff = values - mean_val
-    skewness = np.sum(diff**3) / (len(values) * std_val**3)
-    
-    # Calculate kurtosis
-    kurtosis = np.sum(diff**4) / (len(values) * std_val**4) - 3
-    
+    skewness = np.sum(diff ** 3) / (len(values) * std_val ** 3)
+    kurtosis = np.sum(diff ** 4) / (len(values) * std_val ** 4) - 3
+
     return SpatialDescriptiveStats(
         mean=mean_val,
         median=median_val,
@@ -348,118 +517,98 @@ def spatial_descriptive_statistics(coords: np.ndarray, values: np.ndarray) -> Sp
         centroid=(centroid_x, centroid_y),
         dispersion=dispersion,
         skewness=skewness,
-        kurtosis=kurtosis
+        kurtosis=kurtosis,
     )
+
 
 def spatial_entropy(values: np.ndarray, bins: int = 10) -> float:
     """
     Calculate spatial entropy of a distribution.
-    
+
     Args:
         values: Array of values
         bins: Number of bins for histogram
-        
+
     Returns:
         Entropy value
     """
-    # Create histogram of counts and convert to probabilities
     counts, _ = np.histogram(values, bins=bins)
     total = counts.sum()
     if total == 0:
         return 0.0
 
-    # Convert to probabilities
     probs = counts / total
-
-    # Filter out zeros
     probs = probs[probs > 0]
-
-    # Calculate Shannon entropy: -sum(p * log(p))
     entropy = -np.sum(probs * np.log(probs))
-
     return entropy
 
+
 def local_indicators_spatial_association(
-    values: np.ndarray, 
-    weights_matrix: np.ndarray
+    values: np.ndarray, weights_matrix: np.ndarray
 ) -> Dict[str, np.ndarray]:
     """
     Calculate Local Indicators of Spatial Association (LISA).
-    
+
     Args:
         values: Array of values at each location
         weights_matrix: Spatial weights matrix
-        
+
     Returns:
         Dictionary with LISA statistics for each location
     """
     n = len(values)
     z = (values - np.mean(values)) / np.std(values)
-    
-    # Calculate local Moran's I for each location
+
     lisa = np.zeros(n)
     expected_i = -1.0 / (n - 1)
     var_i = np.zeros(n)
     z_scores = np.zeros(n)
     p_values = np.zeros(n)
-    
+
     for i in range(n):
-        # Local Moran's I
         w_i = weights_matrix[i]
         sum_w = np.sum(w_i)
-        
+
         if sum_w > 0:
-            # Standardize weights
             w_std = w_i / sum_w
-            
-            # Calculate local Moran's I
             lisa[i] = z[i] * np.sum(w_std * z)
-            
-            # Calculate variance for significance testing
-            b2 = np.sum(z**4) / n
-            s1 = np.sum(w_std**2)
-            
-            # Simplified variance formula
+
+            b2 = np.sum(z ** 4) / n
+            s1 = np.sum(w_std ** 2)
             var_i[i] = s1 * (n - b2) / (n - 1)
-            
-            # Z-score and p-value
+
             z_scores[i] = (lisa[i] - expected_i) / np.sqrt(var_i[i])
             p_values[i] = 2 * (1 - np.abs(np.clip(z_scores[i], -8, 8) / 8))
-    
-    # Classify into High-High, Low-Low, High-Low, Low-High
+
     classifications = np.zeros(n, dtype=int)
     significant = p_values <= 0.05
-    
+
     for i in range(n):
         if not significant[i]:
             continue
-            
         if z[i] > 0:
-            if lisa[i] > 0:
-                classifications[i] = 1  # High-High
-            else:
-                classifications[i] = 3  # High-Low
+            classifications[i] = 1 if lisa[i] > 0 else 3
         else:
-            if lisa[i] > 0:
-                classifications[i] = 2  # Low-Low
-            else:
-                classifications[i] = 4  # Low-High
-    
+            classifications[i] = 2 if lisa[i] > 0 else 4
+
     return {
         "lisa": lisa,
         "z_scores": z_scores,
         "p_values": p_values,
         "classifications": classifications,
-        "significant": significant
+        "significant": significant,
     }
+
 
 __all__ = [
     "SpatialDescriptiveStats",
     "MoranI",
+    "GearysC",
+    "GetisOrd",
     "getis_ord_g",
     "ripley_k",
     "semivariogram",
     "spatial_descriptive_statistics",
     "spatial_entropy",
-    "local_indicators_spatial_association"
-] 
+    "local_indicators_spatial_association",
+]

@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_iot.egg-info/`
 - `geo_infer_iot/`
 
 ## Validation

@@ -1,16 +1,9 @@
-# Manuscript - GEO-INFER
+# manuscript
 
-This directory is a template-format manuscript scaffold for:
+Manuscript workspace within GEO-INFER.
 
-**GEO-INFER: Geospatial Inference Framework**
+## Contents
 
-A 44-module geospatial inference framework for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
-
-## File Inventory
-
-- `config.yaml`
-- `preamble.md`
-- `references.bib`
 - `00_abstract.md`
 - `01_introduction.md`
 - `02_system_context.md`
@@ -18,31 +11,25 @@ A 44-module geospatial inference framework for spatial analysis, active inferenc
 - `04_artifacts_and_evidence.md`
 - `05_reproducibility.md`
 - `06_limitations_and_next_steps.md`
-- `S01_source_surface.md`
 - `98_symbols_glossary.md`
 - `99_references.md`
-- `AGENTS.md`
-- `README.md`
+- `S01_source_surface.md`
 - `SYNTAX.md`
+- `config.yaml`
+- `preamble.md`
+- `references.bib`
 
-## Source Surfaces
+## Public Interface
 
-| Surface | Role |
-|---|---|
-| `GEO-INFER-*/` | Source directory to inspect before turning prose into claims. |
-| `GEO-INFER-TEST/` | Source directory to inspect before turning prose into claims. |
-| `README.md` | Source file or ledger to inspect before turning prose into claims. |
-| `ISA.md` | Source file or ledger to inspect before turning prose into claims. |
-| `TODO.md` | Source file or ledger to inspect before turning prose into claims. |
-| `pyproject.toml` | Source file or ledger to inspect before turning prose into claims. |
+- No public Python symbols are defined directly in this directory.
 
-## Verification
-
-From the sibling template checkout, after `link-projects` has synced the sidecar:
+## Validation
 
 ```bash
-uv run python -m infrastructure.orchestration link-projects
-uv run python -m infrastructure.validation.cli markdown projects/working/GEO-INFER/manuscript/
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --skip-import-smoke
 ```
 
-Render only after replacing scaffold prose with project-bound evidence and checking any project-local gates documented in the repository root.
+
+## Documentation Notes
+
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

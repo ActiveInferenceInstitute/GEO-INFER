@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_art.egg-info/`
 - `geo_infer_art/`
 
 ## Validation

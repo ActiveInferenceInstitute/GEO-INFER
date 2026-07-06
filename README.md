@@ -9,8 +9,8 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | Modules | 44 |
 | Python source files | 887 |
 | Python test files | 450 |
-| Tracked README.md files | 828 |
-| Tracked AGENTS.md files | 827 |
+| Tracked README.md files | 829 |
+| Tracked AGENTS.md files | 828 |
 
 ## Quick Start
 

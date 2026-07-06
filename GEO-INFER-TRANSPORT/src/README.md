@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-TRANSPORT`.
 
 ## Contents
 
-- `geo_infer_transport.egg-info/`
 - `geo_infer_transport/`
 
 ## Public Interface

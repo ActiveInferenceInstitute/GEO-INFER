@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_metagov.egg-info/`
 - `geo_infer_metagov/`
 
 ## Validation

@@ -22,7 +22,6 @@
 ## Local Contents
 
 - `comprehensive_act_audit/`
-- `spatial_active_inference_gallery/`
 
 ## Validation
 

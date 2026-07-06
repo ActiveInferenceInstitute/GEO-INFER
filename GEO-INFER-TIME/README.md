@@ -4,7 +4,6 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

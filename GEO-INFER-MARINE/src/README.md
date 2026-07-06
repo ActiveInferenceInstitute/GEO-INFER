@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-MARINE`.
 
 ## Contents
 
-- `geo_infer_marine.egg-info/`
 - `geo_infer_marine/`
 
 ## Public Interface

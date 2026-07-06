@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_water.egg-info/`
 - `geo_infer_water/`
 
 ## Validation

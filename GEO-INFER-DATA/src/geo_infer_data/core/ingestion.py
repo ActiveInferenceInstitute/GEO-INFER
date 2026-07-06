@@ -190,12 +190,18 @@ class SatelliteDataConnector(DataSourceConnector):
         query.get("date_range")
         bands = query.get("bands", ["red", "green", "blue", "nir"])
 
-        # Deterministic local implementation - replace with actual API calls
+        # Deterministic synthetic implementation
+        n_bands = len(bands)
+        # Build a deterministic gradient image: each band has a fixed offset
+        base = np.linspace(0.1, 0.9, 100 * 100).reshape(100, 100)
+        imagery = np.stack(
+            [np.clip(base + 0.05 * b, 0.0, 1.0) for b in range(n_bands)], axis=-1
+        )
         local_data = {
-            "imagery": np.random.rand(100, 100, len(bands)),
+            "imagery": imagery,
             "metadata": {
                 "satellite": "Landsat-8",
-                "acquisition_date": datetime.now(timezone.utc),
+                "acquisition_date": datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
                 "bands": bands,
                 "resolution": 30.0,
             },
@@ -220,15 +226,22 @@ class SensorDataConnector(DataSourceConnector):
 
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch sensor data."""
-        # Implementation for sensor data collection
+        # Deterministic synthetic sensor data using sinusoidal signals
+        n = 1000
+        # Build sinusoidal temperature/humidity signals to mimic realistic variation
+        t = np.arange(n)
+        temperature = 20.0 + 5.0 * np.sin(2 * np.pi * t / 24)  # 24-hour cycle
+        humidity = 60.0 + 10.0 * np.cos(2 * np.pi * t / 24)
+        lat_offsets = np.linspace(-0.05, 0.05, n)
+        lon_offsets = np.linspace(-0.05, 0.05, n)
         local_data = {
             "measurements": pd.DataFrame(
                 {
-                    "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
-                    "temperature": np.random.normal(20, 5, 1000),
-                    "humidity": np.random.normal(60, 10, 1000),
-                    "latitude": np.random.normal(37.7, 0.1, 1000),
-                    "longitude": np.random.normal(-122.4, 0.1, 1000),
+                    "timestamp": pd.date_range("2023-01-01", periods=n, freq="h"),
+                    "temperature": temperature,
+                    "humidity": humidity,
+                    "latitude": 37.7 + lat_offsets,
+                    "longitude": -122.4 + lon_offsets,
                 }
             ),
             "sensor_ids": [f"sensor_{i}" for i in range(100)],
@@ -266,18 +279,22 @@ class CrowdsourcedDataConnector(DataSourceConnector):
 
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch crowdsourced data."""
-        # Implementation for crowdsourced data collection
+        # Deterministic synthetic crowdsourced data
+        n = 500
+        categories = ["traffic", "weather", "environment"]
+        # Evenly cycle through categories for determinism
+        category_values = [categories[i % len(categories)] for i in range(n)]
+        lat_offsets = np.linspace(-0.1, 0.1, n)
+        lon_offsets = np.linspace(-0.1, 0.1, n)
         local_data = {
             "reports": pd.DataFrame(
                 {
-                    "timestamp": pd.date_range("2023-01-01", periods=500, freq="15min"),
-                    "latitude": np.random.normal(37.7, 0.2, 500),
-                    "longitude": np.random.normal(-122.4, 0.2, 500),
-                    "category": np.random.choice(
-                        ["traffic", "weather", "environment"], 500
-                    ),
-                    "description": ["Sample report"] * 500,
-                    "user_id": [f"user_{i}" for i in range(500)],
+                    "timestamp": pd.date_range("2023-01-01", periods=n, freq="15min"),
+                    "latitude": 37.7 + lat_offsets,
+                    "longitude": -122.4 + lon_offsets,
+                    "category": category_values,
+                    "description": ["Sample report"] * n,
+                    "user_id": [f"user_{i}" for i in range(n)],
                 }
             )
         }

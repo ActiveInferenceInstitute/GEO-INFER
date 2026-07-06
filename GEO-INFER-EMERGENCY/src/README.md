@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-EMERGENCY`.
 
 ## Contents
 
-- `geo_infer_emergency.egg-info/`
 - `geo_infer_emergency/`
 
 ## Public Interface
