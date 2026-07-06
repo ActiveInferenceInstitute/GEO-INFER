@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_pep.egg-info/`
 - `geo_infer_pep/`
 
 ## Validation

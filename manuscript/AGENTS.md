@@ -1,24 +1,49 @@
-# Manuscript Agent Notes - GEO-INFER
+# Agent Instructions: manuscript
 
-This directory follows the docxology/template manuscript contract:
+## Scope
 
-- `00_` through `09_` files are main sections.
-- `S01_` files are supplemental material.
-- `98_` and `99_` files are back matter.
-- Every manuscript section file starts with one H1 and a stable `{#sec:...}` label.
-- Citations must use Pandoc syntax and resolve in `references.bib`.
-- Generated numbers belong behind `{{TOKEN}}` variables, not hard-coded prose.
+- Owning module: `GEO-INFER`
+- Python package: `workspace`
+- Directory role: Manuscript workspace within GEO-INFER.
 
-## Editing Rules
+## Capabilities
 
-- Treat this scaffold as an outline until project-specific evidence is bound.
-- Do not fabricate results, benchmark numbers, citations, DOIs, or release claims.
-- Keep project-specific computation in source modules and scripts; keep manuscript files as prose and evidence maps.
-- Prefer explicit paths to source surfaces when describing evidence.
-- If adding figures, write them under `../output/figures/` and reference them with Pandoc-crossref labels.
+- Maintains the tracked files and subdirectories listed below for this workspace.
+- Validates behavior with the command in the Validation section.
+- Integrates through `workspace` and the owning module's public contracts.
 
-## Current Scope
+## Working Rules
 
-A 44-module geospatial inference framework for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
+- Keep changes scoped to this directory unless an import, test, or documented command requires a coordinated edit.
+- Prefer existing module patterns and public exports over new orchestration layers.
+- Do not add planned, fake, mock, stub, or placeholder behavior to user-facing docs.
+- If external services are involved, keep deterministic local validation available.
 
-Evidence boundary: This scaffold must not restate changing module counts or test totals unless regenerated from the repository validators.
+## Local Contents
+
+- `00_abstract.md`
+- `01_introduction.md`
+- `02_system_context.md`
+- `03_methods.md`
+- `04_artifacts_and_evidence.md`
+- `05_reproducibility.md`
+- `06_limitations_and_next_steps.md`
+- `98_symbols_glossary.md`
+- `99_references.md`
+- `S01_source_surface.md`
+- `SYNTAX.md`
+- `config.yaml`
+- `preamble.md`
+- `references.bib`
+
+## Validation
+
+```bash
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --skip-import-smoke
+```
+
+
+## Integration Notes
+
+- Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.
+- Keep cross-module references anchored to real package imports and tracked files.

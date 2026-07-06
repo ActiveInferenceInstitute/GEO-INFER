@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-IOT`.
 
 ## Contents
 
-- `geo_infer_iot.egg-info/`
 - `geo_infer_iot/`
 
 ## Public Interface

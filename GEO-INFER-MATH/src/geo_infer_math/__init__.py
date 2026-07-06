@@ -19,6 +19,8 @@ Key components:
 from geo_infer_math.core.spatial_statistics import (
     SpatialDescriptiveStats,
     MoranI,
+    GearysC,
+    GetisOrd,
     getis_ord_g,
     ripley_k,
     semivariogram,
@@ -68,65 +70,9 @@ from geo_infer_math.core.geometry import (
     polygon_area_spherical,
 )
 
-# Try to import newly implemented modules
+# Track available optional modules
 _available_core = []
 _available_models = []
-
-try:
-    from geo_infer_math.core.numerical_methods import (
-        InterpolationResult,
-        OptimizationResult,
-        ODEsolution,
-        SpatialInterpolator as NumericalSpatialInterpolator,
-        SpatialOptimizer as NumericalSpatialOptimizer,
-        ODESolver,
-        PDEsolver,
-        numerical_integration,
-        find_root,
-        minimize_scalar_function,
-    )
-    _available_core.append("numerical_methods")
-except ImportError:
-    pass
-
-try:
-    from geo_infer_math.core.linalg_tensor import (
-        TensorData,
-        MatrixOperations,
-        TensorOperations,
-        SpatialLinearAlgebra,
-    )
-    _available_core.append("linalg_tensor")
-except ImportError:
-    pass
-
-try:
-    from geo_infer_math.core.transforms import (
-        CRSDefinition,
-        CoordinateTransformer,
-        geographic_to_projected,
-        projected_to_geographic,
-        utm_zone_from_lon_lat,
-        utm_central_meridian,
-        datum_transformation,
-        affine_transformation,
-        rotation_matrix_2d,
-        rotation_matrix_3d,
-    )
-    _available_core.append("transforms")
-except ImportError:
-    pass
-
-try:
-    from geo_infer_math.core.graph_theory import (
-        GraphNode,
-        GraphEdge,
-        SpatialGraph,
-        NetworkFlow,
-    )
-    _available_core.append("graph_theory")
-except ImportError:
-    pass
 
 # Try to import model modules
 # Note: These modules may not have __all__ defined, so we import the modules themselves
@@ -211,6 +157,8 @@ __all__ = [
     # Spatial statistics
     "SpatialDescriptiveStats",
     "MoranI",
+    "GearysC",
+    "GetisOrd",
     "getis_ord_g",
     "ripley_k",
     "semivariogram",

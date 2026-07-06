@@ -26,23 +26,70 @@ Foundation module with zero internal dependencies. Provides mathematical primiti
 ### Key Imports
 
 ```python
-from geo_infer_math.core.spatial_statistics import MoranI, GearysC, GetisOrd
-from geo_infer_math.core.topology import VoronoiTessellation, DelaunayTriangulation
-from geo_infer_math.core.graph_theory import SpatialGraph, CentralityAnalyzer
-from geo_infer_math.core.kernel_density import KernelDensityEstimator
+# Spatial statistics
+from geo_infer_math.core.spatial_statistics import (
+    MoranI, SpatialDescriptiveStats,
+    getis_ord_g, ripley_k, semivariogram,
+    spatial_descriptive_statistics, spatial_entropy,
+    local_indicators_spatial_association,
+)
+# Interpolation
+from geo_infer_math.core.interpolation import (
+    InterpolationConfig, SpatialInterpolator,
+    IDWInterpolator, KrigingInterpolator, RBFInterpolator,
+    InterpolationManager, create_interpolation_manager,
+    interpolate_spatial_data, create_interpolation_grid,
+)
+# Optimization
+from geo_infer_math.core.optimization import (
+    OptimizationConfig, Optimizer,
+    GradientDescentOptimizer, GeneticAlgorithmOptimizer,
+    ScipyOptimizer, MultiObjectiveOptimizer,
+    OptimizationManager, create_optimization_manager,
+    optimize_function, compare_optimization_methods,
+)
+# Geometry / distance
+from geo_infer_math.core.geometry import (
+    Point, LineString, Polygon,
+    haversine_distance, vincenty_distance,
+    bearing, destination_point,
+    point_in_polygon, buffer_point,
+    line_intersection, polygon_area_spherical,
+)
 ```
 
 ## Examples
 
 ```python
-from geo_infer_math.core.spatial_statistics import MoranI
 import numpy as np
+from geo_infer_math.core.spatial_statistics import (
+    MoranI, getis_ord_g, ripley_k, semivariogram,
+    spatial_descriptive_statistics,
+)
 
+# Moran's I spatial autocorrelation
 values = np.random.randn(100)
 weights = np.random.rand(100, 100)
 moran = MoranI(values, weights)
 result = moran.compute()
 print(f"Moran's I: {result.statistic}, p-value: {result.p_value}")
+
+# Getis-Ord G* hot-spot statistic
+g_stat = getis_ord_g(values, weights)
+print(f"Getis-Ord G: {g_stat}")
+
+# Ripley's K function
+coords = np.random.rand(50, 2)
+k_values = ripley_k(coords, distances=np.linspace(0.01, 1.0, 20))
+print(f"Ripley K at first distance: {k_values[0]:.4f}")
+
+# Semivariogram
+semivar = semivariogram(values, coords)
+print(f"Semivariogram computed: {len(semivar)} lag bins")
+
+# Descriptive spatial statistics
+stats = spatial_descriptive_statistics(values, coords)
+print(stats)
 ```
 
 ## Guidelines

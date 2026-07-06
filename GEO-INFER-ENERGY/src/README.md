@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-ENERGY`.
 
 ## Contents
 
-- `geo_infer_energy.egg-info/`
 - `geo_infer_energy/`
 
 ## Public Interface

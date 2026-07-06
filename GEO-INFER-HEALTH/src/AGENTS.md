@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_health.egg-info/`
 - `geo_infer_health/`
 
 ## Validation

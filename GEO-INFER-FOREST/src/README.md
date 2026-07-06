@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-FOREST`.
 
 ## Contents
 
-- `geo_infer_forest.egg-info/`
 - `geo_infer_forest/`
 
 ## Public Interface

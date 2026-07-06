@@ -5,7 +5,6 @@ Output workspace within `GEO-INFER-ACT`.
 ## Contents
 
 - `comprehensive_act_audit/`
-- `spatial_active_inference_gallery/`
 
 ## Public Interface
 

@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_emergency.egg-info/`
 - `geo_infer_emergency/`
 
 ## Validation

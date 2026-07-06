@@ -74,11 +74,12 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
 
     Returns:
         Structured logger instance
+
+    Note:
+        This function does NOT configure logging automatically.
+        Call setup_logging() explicitly from your CLI entrypoint before
+        using this function in production.
     """
     logger = structlog.get_logger(name)
     bound_logger = logger.bind() if hasattr(logger, "bind") else logger
-    if not isinstance(bound_logger, structlog.stdlib.BoundLogger):
-        setup_logging()
-        logger = structlog.get_logger(name)
-        bound_logger = logger.bind() if hasattr(logger, "bind") else logger
     return bound_logger

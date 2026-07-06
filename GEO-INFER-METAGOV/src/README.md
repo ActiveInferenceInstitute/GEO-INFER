@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-METAGOV`.
 
 ## Contents
 
-- `geo_infer_metagov.egg-info/`
 - `geo_infer_metagov/`
 
 ## Public Interface

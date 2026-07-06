@@ -5,7 +5,6 @@ Src workspace within `GEO-INFER-SPACE`.
 ## Contents
 
 - `examples/`
-- `geo_infer_space.egg-info/`
 - `geo_infer_space/`
 - `h3_v3_to_v4_upgrade.py`
 

@@ -490,6 +490,55 @@ def validate_spatial_trace_outputs(
                     fail(f"{scenario} nested {key} is invalid")
 
 
+def validate_lattice_animation_payload(
+    output_dir: Path,
+    scenario: str,
+    *,
+    expected_timesteps: int,
+    nested: bool,
+) -> None:
+    """Validate the lattice animation JSON payload."""
+    path = output_dir / "data" / "h3_lattice_animation.json"
+    if not path.exists() or path.stat().st_size <= 0:
+        fail(f"{scenario} missing h3_lattice_animation.json")
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        fail(f"{scenario} lattice animation payload is not a dict")
+    for key in ("schema_version", "timesteps", "cells", "frames"):
+        if key not in payload:
+            fail(f"{scenario} lattice animation missing key: {key}")
+    if payload.get("schema_version") not in (
+        "geo-infer-act-h3-lattice-animation/v1",
+        "geo-infer-act-h3-lattice-animation/v2",
+    ):
+        fail(f"{scenario} lattice animation schema version unknown")
+    if not isinstance(payload["timesteps"], list) or len(payload["timesteps"]) < 1:
+        fail(f"{scenario} lattice animation has no timesteps")
+    if not isinstance(payload["cells"], list) or len(payload["cells"]) < 1:
+        fail(f"{scenario} lattice animation has no cells")
+    if not isinstance(payload["frames"], list) or len(payload["frames"]) < 1:
+        fail(f"{scenario} lattice animation has no frames")
+    if len(payload["frames"]) != len(payload["timesteps"]):
+        fail(f"{scenario} lattice animation frame/timestep count mismatch")
+    for frame in payload["frames"]:
+        if not isinstance(frame, dict):
+            fail(f"{scenario} lattice animation frame is not a dict")
+        for key in ("timestep", "cell_metrics"):
+            if key not in frame:
+                fail(f"{scenario} frame missing key: {key}")
+        metrics = frame.get("cell_metrics", {})
+        if not isinstance(metrics, dict) or len(metrics) < 1:
+            fail(f"{scenario} frame has no cell metrics")
+        for cell_id, cell_data in metrics.items():
+            if not isinstance(cell_data, dict):
+                fail(f"{scenario} cell metric is not a dict")
+            if "free_energy" not in cell_data and "entropy" not in cell_data:
+                fail(f"{scenario} cell metric missing free_energy or entropy")
+            for value in cell_data.values():
+                if isinstance(value, (int, float)) and not math.isfinite(value):
+                    fail(f"{scenario} non-finite cell metric value")
+
+
 def validate_research_statistics(
     output_dir: Path,
     scenario: str,
