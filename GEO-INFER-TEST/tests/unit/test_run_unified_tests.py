@@ -114,6 +114,8 @@ def test_non_pytest_no_tests_exit_remains_failure(tmp_path, monkeypatch):
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
 
-    result = runner.run_command(["python", "script.py"], "script", timeout=10, cwd=tmp_path)
+    result = runner.run_command(
+        ["python", "script.py"], "script", timeout=10, cwd=tmp_path
+    )
 
     assert result.success is False

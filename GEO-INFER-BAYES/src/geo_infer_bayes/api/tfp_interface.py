@@ -7,7 +7,7 @@ installed, so the module always provides usable posterior sampling.
 
 import logging
 import numpy as np
-from scipy import linalg, optimize
+from scipy import linalg
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -21,13 +21,14 @@ TFP_AVAILABLE = False
 logger.debug("Using NumPy/SciPy GP backend for deterministic compatibility.")
 
 
-def _squared_exponential_kernel(X1: np.ndarray, X2: np.ndarray,
-                                 lengthscale: float, variance: float) -> np.ndarray:
+def _squared_exponential_kernel(
+    X1: np.ndarray, X2: np.ndarray, lengthscale: float, variance: float
+) -> np.ndarray:
     """Compute the squared-exponential (RBF) kernel matrix."""
-    sqdist = np.sum(X1 ** 2, axis=1, keepdims=True) \
-             - 2 * X1 @ X2.T \
-             + np.sum(X2 ** 2, axis=1)
-    return variance * np.exp(-0.5 * sqdist / (lengthscale ** 2))
+    sqdist = (
+        np.sum(X1**2, axis=1, keepdims=True) - 2 * X1 @ X2.T + np.sum(X2**2, axis=1)
+    )
+    return variance * np.exp(-0.5 * sqdist / (lengthscale**2))
 
 
 class TFPInterface:
@@ -55,8 +56,7 @@ class TFPInterface:
     # ------------------------------------------------------------------
     # GP model construction
     # ------------------------------------------------------------------
-    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray,
-                                 **kwargs) -> str:
+    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs) -> str:
         """
         Create a Gaussian Process model for spatial data.
 
@@ -77,21 +77,28 @@ class TFPInterface:
         self._X = np.atleast_2d(X)
         self._y = np.asarray(y).ravel()
 
-        self._lengthscale = float(kwargs.get("lengthscale", self.model_config.get("lengthscale", 1.0)))
-        self._variance = float(kwargs.get("variance", self.model_config.get("variance", 1.0)))
+        self._lengthscale = float(
+            kwargs.get("lengthscale", self.model_config.get("lengthscale", 1.0))
+        )
+        self._variance = float(
+            kwargs.get("variance", self.model_config.get("variance", 1.0))
+        )
         self._noise = float(kwargs.get("noise", self.model_config.get("noise", 1e-2)))
 
         # Pre-compute Cholesky decomposition for the training kernel matrix
-        K = _squared_exponential_kernel(self._X, self._X,
-                                        self._lengthscale, self._variance)
+        K = _squared_exponential_kernel(
+            self._X, self._X, self._lengthscale, self._variance
+        )
         K += self._noise * np.eye(len(self._X))
         self._L = linalg.cholesky(K, lower=True)
         self._alpha = linalg.cho_solve((self._L, True), self._y)
 
         n, d = self._X.shape
-        log_ml = (-0.5 * self._y @ self._alpha
-                  - np.sum(np.log(np.diag(self._L)))
-                  - 0.5 * n * np.log(2 * np.pi))
+        log_ml = (
+            -0.5 * self._y @ self._alpha
+            - np.sum(np.log(np.diag(self._L)))
+            - 0.5 * n * np.log(2 * np.pi)
+        )
 
         summary = (
             f"GP model fitted  |  n={n}, d={d}\n"
@@ -106,8 +113,9 @@ class TFPInterface:
     # ------------------------------------------------------------------
     # Posterior sampling
     # ------------------------------------------------------------------
-    def sample(self, n_samples: int = 1000, n_warmup: int = 500,
-               **kwargs) -> Dict[str, np.ndarray]:
+    def sample(
+        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs
+    ) -> Dict[str, np.ndarray]:
         """
         Sample hyper-parameter posteriors.
 
@@ -135,11 +143,13 @@ class TFPInterface:
 
         # Metropolis-Hastings in log-space
         rng = np.random.default_rng(kwargs.get("seed", 42))
-        current = np.array([
-            np.log(self._lengthscale),
-            np.log(self._variance),
-            np.log(self._noise),
-        ])
+        current = np.array(
+            [
+                np.log(self._lengthscale),
+                np.log(self._variance),
+                np.log(self._noise),
+            ]
+        )
         proposal_std = kwargs.get("proposal_std", 0.15)
 
         traces = {k: [] for k in ("lengthscale", "variance", "noise")}
@@ -173,9 +183,11 @@ class TFPInterface:
             K += noise * np.eye(len(self._X))
             L = linalg.cholesky(K, lower=True)
             alpha = linalg.cho_solve((L, True), self._y)
-            lml = (-0.5 * self._y @ alpha
-                   - np.sum(np.log(np.diag(L)))
-                   - 0.5 * len(self._y) * np.log(2 * np.pi))
+            lml = (
+                -0.5 * self._y @ alpha
+                - np.sum(np.log(np.diag(L)))
+                - 0.5 * len(self._y) * np.log(2 * np.pi)
+            )
             return float(lml)
         except linalg.LinAlgError:
             return -1e12  # reject non-PD proposals

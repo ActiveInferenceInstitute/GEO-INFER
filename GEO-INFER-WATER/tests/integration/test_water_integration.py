@@ -10,6 +10,7 @@ import numpy as np
 
 try:
     import xarray as xr
+
     HAS_XARRAY = True
 except ImportError:
     HAS_XARRAY = False
@@ -55,7 +56,7 @@ def elevation_data():
     lon = np.linspace(-122.0, -121.0, 20)
     lat_grid, lon_grid = np.meshgrid(lat, lon, indexing="ij")
     # Create a simple bowl-shaped elevation (lower in center)
-    elevation = 500 + 200 * ((lat_grid - 38.5)**2 + (lon_grid + 121.5)**2)
+    elevation = 500 + 200 * ((lat_grid - 38.5) ** 2 + (lon_grid + 121.5) ** 2)
     return xr.DataArray(
         elevation,
         dims=["lat", "lon"],
@@ -142,7 +143,8 @@ class TestWaterQualityAssessment:
 
         assessor = WaterQualityAssessor()
         result = assessor.assess_water_quality(
-            ph_field, dissolved_oxygen=dissolved_oxygen_field,
+            ph_field,
+            dissolved_oxygen=dissolved_oxygen_field,
         )
 
         assert "ph_compliant" in result
@@ -161,17 +163,21 @@ class TestWaterQualityAssessment:
         np.random.seed(50)
         turbidity = xr.DataArray(
             np.random.uniform(0.1, 5.0, ph_field.shape),
-            dims=ph_field.dims, coords=ph_field.coords,
+            dims=ph_field.dims,
+            coords=ph_field.coords,
         )
         nitrate = xr.DataArray(
             np.random.uniform(0.5, 15.0, ph_field.shape),
-            dims=ph_field.dims, coords=ph_field.coords,
+            dims=ph_field.dims,
+            coords=ph_field.coords,
         )
 
         assessor = WaterQualityAssessor()
         result = assessor.assess_water_quality(
-            ph_field, dissolved_oxygen=dissolved_oxygen_field,
-            turbidity=turbidity, nitrate=nitrate,
+            ph_field,
+            dissolved_oxygen=dissolved_oxygen_field,
+            turbidity=turbidity,
+            nitrate=nitrate,
         )
 
         assert "ph_compliant" in result
@@ -192,10 +198,13 @@ class TestWaterQualityIndex:
 
         # Clean sample should get higher WQI than polluted sample
         clean_wqi = assessor.calculate_wqi(water_samples[3])  # ws_004 is cleanest
-        polluted_wqi = assessor.calculate_wqi(water_samples[4])  # ws_005 is most polluted
+        polluted_wqi = assessor.calculate_wqi(
+            water_samples[4]
+        )  # ws_005 is most polluted
 
-        assert clean_wqi["wqi"] > polluted_wqi["wqi"], \
-            "Clean sample should have higher WQI than polluted sample"
+        assert (
+            clean_wqi["wqi"] > polluted_wqi["wqi"]
+        ), "Clean sample should have higher WQI than polluted sample"
         assert clean_wqi["classification"] in ["Excellent", "Good", "Medium"]
         assert polluted_wqi["classification"] in ["Bad", "Very Bad", "Medium"]
 
@@ -248,11 +257,16 @@ class TestRiskAssessment:
 
     def test_drinking_water_risk(self, water_samples):
         """Test risk assessment for drinking water use."""
-        from geo_infer_water.core.water_quality import WaterQualityAssessor, WaterBodyType
+        from geo_infer_water.core.water_quality import (
+            WaterQualityAssessor,
+            WaterBodyType,
+        )
 
         assessor = WaterQualityAssessor()
         result = assessor.assess_risk(
-            water_samples, WaterBodyType.RIVER, usage_type="drinking",
+            water_samples,
+            WaterBodyType.RIVER,
+            usage_type="drinking",
         )
 
         assert result["usage_type"] == "drinking"
@@ -264,14 +278,21 @@ class TestRiskAssessment:
 
     def test_recreation_risk_is_lower(self, water_samples):
         """Test that recreation risk is lower than drinking water risk."""
-        from geo_infer_water.core.water_quality import WaterQualityAssessor, WaterBodyType
+        from geo_infer_water.core.water_quality import (
+            WaterQualityAssessor,
+            WaterBodyType,
+        )
 
         assessor = WaterQualityAssessor()
         drinking_risk = assessor.assess_risk(
-            water_samples, WaterBodyType.RIVER, usage_type="drinking",
+            water_samples,
+            WaterBodyType.RIVER,
+            usage_type="drinking",
         )
         recreation_risk = assessor.assess_risk(
-            water_samples, WaterBodyType.RIVER, usage_type="recreation",
+            water_samples,
+            WaterBodyType.RIVER,
+            usage_type="recreation",
         )
 
         # Recreation has looser standards, so fewer violations expected
@@ -300,16 +321,21 @@ class TestRegulatoryCompliance:
         from geo_infer_water.core.water_quality import WaterQualityAssessor
 
         assessor = WaterQualityAssessor()
-        epa_result = assessor.check_regulatory_compliance(water_samples, regulations="EPA")
-        who_result = assessor.check_regulatory_compliance(water_samples, regulations="WHO")
+        epa_result = assessor.check_regulatory_compliance(
+            water_samples, regulations="EPA"
+        )
+        who_result = assessor.check_regulatory_compliance(
+            water_samples, regulations="WHO"
+        )
 
         # WHO has higher nitrate limit (50 vs 10), so may have different results
         epa_nitrate = epa_result["results"].get("nitrate", {})
         who_nitrate = who_result["results"].get("nitrate", {})
 
         if epa_nitrate.get("violations", 0) > 0:
-            assert who_nitrate.get("violations", 0) <= epa_nitrate["violations"], \
-                "WHO has looser nitrate limits so should have fewer violations"
+            assert (
+                who_nitrate.get("violations", 0) <= epa_nitrate["violations"]
+            ), "WHO has looser nitrate limits so should have fewer violations"
 
 
 class TestPollutantLoadCalculation:
@@ -345,7 +371,8 @@ class TestWatershedAnalysis:
         analyzer = WatershedAnalyzer()
         # Choose outlet at the lowest point (center of the bowl)
         result = analyzer.delineate_watershed(
-            elevation_data, outlet_point=(38.5, -121.5),
+            elevation_data,
+            outlet_point=(38.5, -121.5),
         )
 
         assert "watershed_mask" in result
@@ -396,7 +423,10 @@ class TestPollutionSourceTracking:
 
     def test_pollution_plume_tracking(self):
         """Test pollution plume dispersion modeling."""
-        from geo_infer_water.core.water_quality import WaterQualityAssessor, PollutantType
+        from geo_infer_water.core.water_quality import (
+            WaterQualityAssessor,
+            PollutantType,
+        )
 
         assessor = WaterQualityAssessor()
 

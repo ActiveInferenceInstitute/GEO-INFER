@@ -6,7 +6,6 @@ import json
 import math
 
 import numpy as np
-import pytest
 import h3
 
 from geo_infer_act import (
@@ -29,7 +28,16 @@ def _observations(cells: list[str]) -> dict[str, np.ndarray]:
 def _assert_trace(trace: SpatialInferenceTrace, expected_cells: int) -> None:
     assert isinstance(trace, SpatialInferenceTrace)
     assert trace.cell_diagnostics
-    assert len([row for row in trace.cell_diagnostics if not row.metadata.get("aggregate_parent_cell")]) == expected_cells
+    assert (
+        len(
+            [
+                row
+                for row in trace.cell_diagnostics
+                if not row.metadata.get("aggregate_parent_cell")
+            ]
+        )
+        == expected_cells
+    )
     assert trace.level_diagnostics
     assert trace.backend_metadata["pymdp_backend"] == "inferactively-pymdp"
     for cell in trace.cell_diagnostics:
@@ -99,7 +107,9 @@ def test_nested_h3_trace_includes_parent_aggregates_and_residuals() -> None:
 
     _assert_trace(trace, expected_cells=len(cells))
     parent_rows = [
-        row for row in trace.cell_diagnostics if row.metadata.get("aggregate_parent_cell")
+        row
+        for row in trace.cell_diagnostics
+        if row.metadata.get("aggregate_parent_cell")
     ]
     child_rows = [row for row in trace.cell_diagnostics if row.parent_cell]
     assert parent_rows

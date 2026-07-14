@@ -27,7 +27,7 @@ from .core.validators import (
     IoTValidator,
     BayesianValidator,
     QualityController,
-    run_full_system_test
+    run_full_system_test,
 )
 
 # Import test runner
@@ -70,19 +70,4 @@ __all__ = [
     "assert_seed_replay",
     "assert_stochastic_matrix",
     "assert_visualization_manifest",
-]
-from geo_infer_test.testing import (
-    assert_finite,
-    assert_no_nan_statistics,
-    assert_probability,
-    assert_same_finite_values,
-    assert_stochastic_matrix,
-)
-
-__all__ = [
-    "assert_finite",
-    "assert_no_nan_statistics",
-    "assert_probability",
-    "assert_same_finite_values",
-    "assert_stochastic_matrix",
 ]

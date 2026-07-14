@@ -7,11 +7,8 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
-import numpy as np
-from PIL import Image
 
 from geo_infer_art.core.place.place_art import PlaceArt
-from geo_infer_art.utils.validators import validate_coordinates
 
 
 class TestPlaceArt(unittest.TestCase):
@@ -35,7 +32,7 @@ class TestPlaceArt(unittest.TestCase):
         location = {
             "name": "Test Location",
             "coordinates": (self.test_lat, self.test_lon),
-            "country": "Test Country"
+            "country": "Test Country",
         }
 
         place_art = PlaceArt(location=location)
@@ -44,14 +41,14 @@ class TestPlaceArt(unittest.TestCase):
         self.assertIsNone(place_art.data)
         self.assertIsNone(place_art.image)
 
-    @patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data')
+    @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data")
     def test_from_coordinates(self, mock_fetch):
         """Test creating PlaceArt from coordinates."""
         # Mock the data fetching
         mock_fetch.return_value = {
             "name": "New York",
             "coordinates": (self.test_lat, self.test_lon),
-            "country": "United States"
+            "country": "United States",
         }
 
         # Create from coordinates
@@ -60,31 +57,31 @@ class TestPlaceArt(unittest.TestCase):
             lon=self.test_lon,
             name="Custom Name",
             radius_km=2.0,
-            style="abstract"
+            style="abstract",
         )
 
         # Check that the location was set
         self.assertEqual(place_art.location["name"], "Custom Name")
-        self.assertEqual(place_art.location["coordinates"], (self.test_lat, self.test_lon))
+        self.assertEqual(
+            place_art.location["coordinates"], (self.test_lat, self.test_lon)
+        )
 
         # Check that the image was created
         self.assertIsNotNone(place_art.image)
 
-    @patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_place_data')
+    @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_place_data")
     def test_from_place_name(self, mock_fetch):
         """Test creating PlaceArt from a place name."""
         # Mock the data fetching
         mock_fetch.return_value = {
             "name": "Paris",
             "coordinates": (48.8566, 2.3522),
-            "country": "France"
+            "country": "France",
         }
 
         # Create from place name
         place_art = PlaceArt.from_place_name(
-            place_name="Paris",
-            style="topographic",
-            include_data=True
+            place_name="Paris", style="topographic", include_data=True
         )
 
         # Check that the location was set
@@ -94,27 +91,24 @@ class TestPlaceArt(unittest.TestCase):
         # Check that the image was created
         self.assertIsNotNone(place_art.image)
 
-    @patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data')
+    @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data")
     def test_add_metadata_overlay(self, mock_fetch):
         """Test adding metadata overlay to the image."""
         # Mock the data fetching
         mock_fetch.return_value = {
             "name": "Test Location",
             "coordinates": (self.test_lat, self.test_lon),
-            "country": "Test Country"
+            "country": "Test Country",
         }
 
         # Create place art
         place_art = PlaceArt.from_coordinates(
-            lat=self.test_lat,
-            lon=self.test_lon,
-            style="abstract"
+            lat=self.test_lat, lon=self.test_lon, style="abstract"
         )
 
         # Add metadata overlay
         place_art_with_overlay = place_art.add_metadata_overlay(
-            position="bottom",
-            opacity=0.8
+            position="bottom", opacity=0.8
         )
 
         # Check method chaining
@@ -123,21 +117,19 @@ class TestPlaceArt(unittest.TestCase):
         # Check that the image still exists
         self.assertIsNotNone(place_art.image)
 
-    @patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data')
+    @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data")
     def test_save_and_show(self, mock_fetch):
         """Test saving and showing the place art."""
         # Mock the data fetching
         mock_fetch.return_value = {
             "name": "Test Location",
             "coordinates": (self.test_lat, self.test_lon),
-            "country": "Test Country"
+            "country": "Test Country",
         }
 
         # Create place art
         place_art = PlaceArt.from_coordinates(
-            lat=self.test_lat,
-            lon=self.test_lon,
-            style="abstract"
+            lat=self.test_lat, lon=self.test_lon, style="abstract"
         )
 
         # Test save method
@@ -157,20 +149,20 @@ class TestPlaceArt(unittest.TestCase):
         styles = ["abstract", "topographic", "cultural", "mixed_media"]
 
         for style in styles:
-            with patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data') as mock_fetch:
+            with patch(
+                "geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data"
+            ) as mock_fetch:
                 # Mock the data fetching
                 mock_fetch.return_value = {
                     "name": f"Test Location - {style}",
                     "coordinates": (self.test_lat, self.test_lon),
-                    "country": "Test Country"
+                    "country": "Test Country",
                 }
 
                 try:
                     # Create place art with this style
                     place_art = PlaceArt.from_coordinates(
-                        lat=self.test_lat,
-                        lon=self.test_lon,
-                        style=style
+                        lat=self.test_lat, lon=self.test_lon, style=style
                     )
 
                     self.assertIsNotNone(place_art.image)
@@ -187,23 +179,20 @@ class TestPlaceArt(unittest.TestCase):
         """Test handling of invalid inputs."""
         # Test invalid coordinates
         with self.assertRaises(ValueError):
-            PlaceArt.from_coordinates(
-                lat=100.0,  # Invalid latitude
-                lon=self.test_lon
-            )
+            PlaceArt.from_coordinates(lat=100.0, lon=self.test_lon)  # Invalid latitude
 
         # Test invalid style
-        with patch('geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data') as mock_fetch:
+        with patch(
+            "geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data"
+        ) as mock_fetch:
             mock_fetch.return_value = {
                 "name": "Test Location",
-                "coordinates": (self.test_lat, self.test_lon)
+                "coordinates": (self.test_lat, self.test_lon),
             }
 
             with self.assertRaises(ValueError):
                 PlaceArt.from_coordinates(
-                    lat=self.test_lat,
-                    lon=self.test_lon,
-                    style="invalid_style"
+                    lat=self.test_lat, lon=self.test_lon, style="invalid_style"
                 )
 
 

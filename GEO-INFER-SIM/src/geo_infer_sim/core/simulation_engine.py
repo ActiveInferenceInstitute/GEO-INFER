@@ -7,8 +7,8 @@ multiple simulation paradigms including ABM, system dynamics, and CA.
 
 import logging
 from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 
 import numpy as np
@@ -102,23 +102,26 @@ class SimulationEngine:
 
         logger.info("Simulation initialized")
 
-    def step(self, step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]) -> None:
+    def step(
+        self, step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]
+    ) -> None:
         """
         Execute a single simulation step.
 
         Args:
             step_func: Function that takes (time, current_state) and returns new_state
         """
-        if self.state != SimulationState.RUNNING and self.state != SimulationState.INITIALIZED:
+        if (
+            self.state != SimulationState.RUNNING
+            and self.state != SimulationState.INITIALIZED
+        ):
             raise ValueError(f"Cannot step simulation in state: {self.state}")
 
         if self.state == SimulationState.INITIALIZED:
             self.state = SimulationState.RUNNING
 
         # Get current state
-        current_state = (
-            self.state_history[-1]["state"] if self.state_history else {}
-        )
+        current_state = self.state_history[-1]["state"] if self.state_history else {}
 
         # Execute step function
         try:
@@ -264,12 +267,12 @@ class SimulationEngine:
     def save_checkpoint(self, filepath: str) -> None:
         """
         Save simulation checkpoint to file.
-        
+
         Args:
             filepath: Path to save checkpoint
         """
         import json
-        
+
         checkpoint = {
             "current_time": self.current_time,
             "state": self.state.value,
@@ -280,42 +283,42 @@ class SimulationEngine:
                 "time_step": self.config.time_step,
                 "max_time": self.config.max_time,
                 "output_interval": self.config.output_interval,
-                "random_seed": self.config.random_seed
-            }
+                "random_seed": self.config.random_seed,
+            },
         }
-        
-        with open(filepath, 'w') as f:
+
+        with open(filepath, "w") as f:
             json.dump(checkpoint, f, indent=2, default=str)
-        
+
         logger.info(f"Checkpoint saved to {filepath}")
 
     def load_checkpoint(self, filepath: str) -> None:
         """
         Load simulation checkpoint from file.
-        
+
         Args:
             filepath: Path to checkpoint file
         """
         import json
-        
-        with open(filepath, 'r') as f:
+
+        with open(filepath, "r") as f:
             checkpoint = json.load(f)
-        
+
         self.current_time = checkpoint["current_time"]
         self.state = SimulationState(checkpoint["state"])
         self.state_history = checkpoint["state_history"]
         self.metrics = checkpoint["metrics"]
         self.events = checkpoint["events"]
-        
+
         logger.info(f"Checkpoint loaded from {filepath}")
 
     def export_results(self, format: str = "dataframe") -> Any:
         """
         Export simulation results in various formats.
-        
+
         Args:
             format: Export format ('dataframe', 'dict', 'json')
-            
+
         Returns:
             Exported results
         """
@@ -326,41 +329,46 @@ class SimulationEngine:
                 record = {"time": entry["time"]}
                 record.update(entry["state"])
                 records.append(record)
-            
+
             return pd.DataFrame(records)
-        
+
         elif format == "json":
             import json
-            return json.dumps({
-                "state_history": self.state_history,
-                "metrics": self.metrics,
-                "events": self.events
-            }, indent=2, default=str)
-        
+
+            return json.dumps(
+                {
+                    "state_history": self.state_history,
+                    "metrics": self.metrics,
+                    "events": self.events,
+                },
+                indent=2,
+                default=str,
+            )
+
         else:  # dict
             return {
                 "state_history": self.state_history,
                 "metrics": self.metrics,
                 "events": self.events,
                 "current_time": self.current_time,
-                "status": self.state.value
+                "status": self.state.value,
             }
 
     def get_metric_statistics(self, metric_name: str) -> Dict[str, float]:
         """
         Get statistics for a recorded metric.
-        
+
         Args:
             metric_name: Name of the metric
-            
+
         Returns:
             Statistical summary
         """
         if metric_name not in self.metrics or not self.metrics[metric_name]:
             return {"error": "Metric not found or empty"}
-        
+
         values = self.metrics[metric_name]
-        
+
         return {
             "count": len(values),
             "mean": float(np.mean(values)),
@@ -371,5 +379,9 @@ class SimulationEngine:
             "sum": float(sum(values)),
             "first": values[0],
             "last": values[-1],
-            "trend": "increasing" if values[-1] > values[0] else "decreasing" if values[-1] < values[0] else "stable"
+            "trend": (
+                "increasing"
+                if values[-1] > values[0]
+                else "decreasing" if values[-1] < values[0] else "stable"
+            ),
         }

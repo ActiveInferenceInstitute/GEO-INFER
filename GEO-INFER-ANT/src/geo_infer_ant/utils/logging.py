@@ -6,7 +6,9 @@ import logging
 from typing import Optional
 
 
-def setup_logging(level: str = "INFO", logger_name: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    level: str = "INFO", logger_name: Optional[str] = None
+) -> logging.Logger:
     """Configure and return an ANT logger without duplicating handlers."""
     logger = logging.getLogger(logger_name or "geo_infer_ant")
     numeric_level = getattr(logging, level.upper(), None)

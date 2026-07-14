@@ -6,7 +6,6 @@ functionality for storing and retrieving geospatial data.
 """
 
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, patch
 import pandas as pd
 import geopandas as gpd

@@ -6,8 +6,6 @@ Unit tests for the CulturalMap class in geo_infer_art.core.place.cultural_map.
 import os
 import tempfile
 import unittest
-import numpy as np
-from PIL import Image
 
 from geo_infer_art.core.place.cultural_map import CulturalMap
 
@@ -36,16 +34,15 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create a simple GeoDataFrame
         data = gpd.GeoDataFrame(
-            {'name': ['Site A', 'Site B'], 'type': ['Historical', 'Cultural']},
-            geometry=[Point(self.test_lon, self.test_lat), Point(self.test_lon + 0.1, self.test_lat + 0.1)],
-            crs="EPSG:4326"
+            {"name": ["Site A", "Site B"], "type": ["Historical", "Cultural"]},
+            geometry=[
+                Point(self.test_lon, self.test_lat),
+                Point(self.test_lon + 0.1, self.test_lat + 0.1),
+            ],
+            crs="EPSG:4326",
         )
 
-        metadata = {
-            "region": "Mediterranean",
-            "culture": "Roman",
-            "period": "Ancient"
-        }
+        metadata = {"region": "Mediterranean", "culture": "Roman", "period": "Ancient"}
 
         cultural_map = CulturalMap(data=data, metadata=metadata)
 
@@ -60,25 +57,29 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create test data directly
         data = gpd.GeoDataFrame(
-            {'name': ['Rome', 'Athens'], 'type': ['Capital', 'Capital']},
+            {"name": ["Rome", "Athens"], "type": ["Capital", "Capital"]},
             geometry=[Point(12.4964, 41.9028), Point(23.7275, 37.9838)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create from region name using direct data
-        cultural_map = CulturalMap(data=data, metadata={
-            "region_name": "mediterranean",
-            "cultures": ["Roman", "Greek"],
-            "period": "Ancient",
-            "cultural_theme": "historical",
-            "style": "artistic"
-        })
+        cultural_map = CulturalMap(
+            data=data,
+            metadata={
+                "region_name": "mediterranean",
+                "cultures": ["Roman", "Greek"],
+                "period": "Ancient",
+                "cultural_theme": "historical",
+                "style": "artistic",
+            },
+        )
 
         # Generate the map
         cultural_map._generate_map()
 
         # Check that the data and metadata were set
         import pandas as pd
+
         pd.testing.assert_frame_equal(cultural_map.data, data)
         self.assertEqual(cultural_map.metadata["region_name"], "mediterranean")
 
@@ -92,27 +93,33 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create test data directly
         data = gpd.GeoDataFrame(
-            {'name': ['Rome', 'Vatican'], 'type': ['Capital', 'Religious']},
+            {"name": ["Rome", "Vatican"], "type": ["Capital", "Religious"]},
             geometry=[Point(12.4964, 41.9028), Point(12.4534, 41.9022)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create from coordinates using direct data
-        cultural_map = CulturalMap(data=data, metadata={
-            "coordinates": (self.test_lat, self.test_lon),
-            "radius_km": self.test_radius,
-            "region": "Rome and surroundings",
-            "cultural_theme": "historical",
-            "style": "artistic"
-        })
+        cultural_map = CulturalMap(
+            data=data,
+            metadata={
+                "coordinates": (self.test_lat, self.test_lon),
+                "radius_km": self.test_radius,
+                "region": "Rome and surroundings",
+                "cultural_theme": "historical",
+                "style": "artistic",
+            },
+        )
 
         # Generate the map
         cultural_map._generate_map()
 
         # Check that the data and metadata were set
         import pandas as pd
+
         pd.testing.assert_frame_equal(cultural_map.data, data)
-        self.assertEqual(cultural_map.metadata["coordinates"], (self.test_lat, self.test_lon))
+        self.assertEqual(
+            cultural_map.metadata["coordinates"], (self.test_lat, self.test_lon)
+        )
         self.assertEqual(cultural_map.metadata["radius_km"], self.test_radius)
 
         # Check that the image was created
@@ -125,9 +132,9 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create a simple GeoDataFrame for testing
         data = gpd.GeoDataFrame(
-            {'name': ['Rome'], 'type': ['Capital']},
+            {"name": ["Rome"], "type": ["Capital"]},
             geometry=[Point(12.4964, 41.9028)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create cultural map with direct data
@@ -139,8 +146,7 @@ class TestCulturalMap(unittest.TestCase):
         # Add narrative
         narrative_text = "Rome was the capital of the Roman Empire."
         cultural_map_with_narrative = cultural_map.add_narrative(
-            narrative=narrative_text,
-            position="bottom"
+            narrative=narrative_text, position="bottom"
         )
 
         # Check method chaining
@@ -156,9 +162,9 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create a simple GeoDataFrame for testing
         data = gpd.GeoDataFrame(
-            {'name': ['Rome'], 'type': ['Capital']},
+            {"name": ["Rome"], "type": ["Capital"]},
             geometry=[Point(12.4964, 41.9028)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create cultural map with direct data
@@ -181,9 +187,9 @@ class TestCulturalMap(unittest.TestCase):
 
         # Create a simple GeoDataFrame for testing
         data = gpd.GeoDataFrame(
-            {'name': ['Rome'], 'type': ['Capital']},
+            {"name": ["Rome"], "type": ["Capital"]},
             geometry=[Point(12.4964, 41.9028)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create cultural map with direct data
@@ -199,7 +205,8 @@ class TestCulturalMap(unittest.TestCase):
         # Test show method - can only check that it doesn't raise an error
         try:
             import matplotlib
-            matplotlib.use('Agg')  # Non-interactive backend
+
+            matplotlib.use("Agg")  # Non-interactive backend
             cultural_map.show()
         except Exception as e:
             self.fail(f"show() method raised an error: {str(e)}")
@@ -211,15 +218,18 @@ class TestCulturalMap(unittest.TestCase):
 
         themes = ["historical", "linguistic"]
         data = gpd.GeoDataFrame(
-            {'name': ['Test Site'], 'type': ['Test site']},
+            {"name": ["Test Site"], "type": ["Test site"]},
             geometry=[Point(12.4964, 41.9028)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         for theme in themes:
             try:
                 # Create cultural map with this theme
-                cultural_map = CulturalMap(data=data, metadata={"region": "Mediterranean", "cultural_theme": theme})
+                cultural_map = CulturalMap(
+                    data=data,
+                    metadata={"region": "Mediterranean", "cultural_theme": theme},
+                )
                 cultural_map._generate_map()
 
                 self.assertIsNotNone(cultural_map.image)
@@ -239,15 +249,17 @@ class TestCulturalMap(unittest.TestCase):
 
         styles = ["artistic", "minimalist", "detailed", "abstract"]
         data = gpd.GeoDataFrame(
-            {'name': ['Test Site'], 'type': ['Historical site']},
+            {"name": ["Test Site"], "type": ["Historical site"]},
             geometry=[Point(12.4964, 41.9028)],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         for style in styles:
             try:
                 # Create cultural map with this style
-                cultural_map = CulturalMap(data=data, metadata={"region": "Mediterranean", "style": style})
+                cultural_map = CulturalMap(
+                    data=data, metadata={"region": "Mediterranean", "style": style}
+                )
                 cultural_map._generate_map()
 
                 self.assertIsNotNone(cultural_map.image)
@@ -267,22 +279,19 @@ class TestCulturalMap(unittest.TestCase):
             CulturalMap.from_coordinates(
                 lat=100.0,  # Invalid latitude
                 lon=self.test_lon,
-                radius_km=self.test_radius
+                radius_km=self.test_radius,
             )
 
         # Test invalid radius
         with self.assertRaises(ValueError):
             CulturalMap.from_coordinates(
-                lat=self.test_lat,
-                lon=self.test_lon,
-                radius_km=-10.0  # Invalid radius
+                lat=self.test_lat, lon=self.test_lon, radius_km=-10.0  # Invalid radius
             )
 
         # Test invalid region name using real from_region call
         with self.assertRaises(ValueError):
             CulturalMap.from_region(
-                region_name="nonexistent_region",
-                cultural_theme="historical"
+                region_name="nonexistent_region", cultural_theme="historical"
             )
 
 

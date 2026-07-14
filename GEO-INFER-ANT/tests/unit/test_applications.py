@@ -20,14 +20,13 @@ import numpy as np
 import asyncio
 from datetime import datetime
 import json
-import tempfile
 
 # Import modules to test
 try:
     from geo_infer_ant.applications.environmental import (
         EnvironmentalMonitoringSwarm,
-        MonitoringObjective,
-        SensorReading
+        MonitoringObjective,  # noqa: F401
+        SensorReading,
     )
     from geo_infer_ant.core.stigmergy import PheromoneSystem
     from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
@@ -42,50 +41,65 @@ class TestEnvironmentalMonitoringSwarm:
         """Test environmental monitoring swarm initialization."""
         swarm = EnvironmentalMonitoringSwarm(
             swarm_size=100,
-            monitoring_objectives=['air_quality', 'water_quality'],
-            spatial_coverage={'min_lat': 35, 'max_lat': 40, 'min_lng': -120, 'max_lng': -115},
+            monitoring_objectives=["air_quality", "water_quality"],
+            spatial_coverage={
+                "min_lat": 35,
+                "max_lat": 40,
+                "min_lng": -120,
+                "max_lng": -115,
+            },
             adaptive_sampling=True,
-            real_time_processing=True
+            real_time_processing=True,
         )
 
         assert swarm.swarm_size == 100
         assert len(swarm.monitoring_objectives) == 2
         assert swarm.adaptive_sampling is True
         assert swarm.real_time_processing is True
-        assert swarm.spatial_coverage['min_lat'] == 35
+        assert swarm.spatial_coverage["min_lat"] == 35
 
     def test_monitoring_agent_configuration(self):
         """Test monitoring agent configuration generation."""
         swarm = EnvironmentalMonitoringSwarm(
-            swarm_size=50,
-            monitoring_objectives=['air_quality', 'biodiversity']
+            swarm_size=50, monitoring_objectives=["air_quality", "biodiversity"]
         )
 
         agent_config = swarm._configure_monitoring_agent(
             "test_agent_001",
             np.array([37.7749, -122.4194]),
-            swarm.monitoring_objectives
+            swarm.monitoring_objectives,
         )
 
-        assert agent_config['agent_id'] == "test_agent_001"
-        assert np.allclose(agent_config['position'], [37.7749, -122.4194])
-        assert 'air_quality' in agent_config['monitoring_objectives']
-        assert 'biodiversity' in agent_config['monitoring_objectives']
-        assert 'sensory_capabilities' in agent_config
+        assert agent_config["agent_id"] == "test_agent_001"
+        assert np.allclose(agent_config["position"], [37.7749, -122.4194])
+        assert "air_quality" in agent_config["monitoring_objectives"]
+        assert "biodiversity" in agent_config["monitoring_objectives"]
+        assert "sensory_capabilities" in agent_config
 
     def test_sensory_capabilities_generation(self):
         """Test sensory capabilities based on monitoring objectives."""
         swarm = EnvironmentalMonitoringSwarm()
 
         # Test air quality capabilities
-        air_quality_caps = swarm._get_sensory_capabilities(['air_quality'])
-        expected_air_caps = ['pm25_sensor', 'no2_sensor', 'o3_sensor', 'temperature', 'humidity']
+        air_quality_caps = swarm._get_sensory_capabilities(["air_quality"])
+        expected_air_caps = [
+            "pm25_sensor",
+            "no2_sensor",
+            "o3_sensor",
+            "temperature",
+            "humidity",
+        ]
         for cap in expected_air_caps:
             assert cap in air_quality_caps
 
         # Test water quality capabilities
-        water_quality_caps = swarm._get_sensory_capabilities(['water_quality'])
-        expected_water_caps = ['ph_sensor', 'turbidity_sensor', 'conductivity_sensor', 'temperature']
+        water_quality_caps = swarm._get_sensory_capabilities(["water_quality"])
+        expected_water_caps = [
+            "ph_sensor",
+            "turbidity_sensor",
+            "conductivity_sensor",
+            "temperature",
+        ]
         for cap in expected_water_caps:
             assert cap in water_quality_caps
 
@@ -95,8 +109,8 @@ class TestEnvironmentalMonitoringSwarm:
 
         async def position_test():
             # Test with environmental priorities
-            priorities = {'air_quality': 0.8, 'biodiversity': 0.6}
-            constraints = {'max_range': 1000.0}
+            priorities = {"air_quality": 0.8, "biodiversity": 0.6}
+            constraints = {"max_range": 1000.0}
 
             positions = await swarm._optimize_initial_positions(priorities, constraints)
 
@@ -106,8 +120,16 @@ class TestEnvironmentalMonitoringSwarm:
 
             # Check bounds
             for pos in positions:
-                assert swarm.spatial_coverage['min_lat'] <= pos[0] <= swarm.spatial_coverage['max_lat']
-                assert swarm.spatial_coverage['min_lng'] <= pos[1] <= swarm.spatial_coverage['max_lng']
+                assert (
+                    swarm.spatial_coverage["min_lat"]
+                    <= pos[0]
+                    <= swarm.spatial_coverage["max_lat"]
+                )
+                assert (
+                    swarm.spatial_coverage["min_lng"]
+                    <= pos[1]
+                    <= swarm.spatial_coverage["max_lng"]
+                )
 
         asyncio.run(position_test())
 
@@ -117,19 +139,19 @@ class TestEnvironmentalMonitoringSwarm:
 
         async def deployment_test():
             deployment = await swarm.deploy_agents(
-                environmental_priorities={'air_quality': 0.7},
-                logistical_constraints={'max_range': 500.0}
+                environmental_priorities={"air_quality": 0.7},
+                logistical_constraints={"max_range": 500.0},
             )
 
-            assert len(deployment['agents']) == 10
-            assert deployment['coverage_achieved'] >= 0
-            assert 'agent_configurations' in deployment
+            assert len(deployment["agents"]) == 10
+            assert deployment["coverage_achieved"] >= 0
+            assert "agent_configurations" in deployment
 
             # Check agent configurations
-            for agent_info in deployment['agents']:
-                assert 'agent_id' in agent_info
-                assert 'position' in agent_info
-                assert 'config' in agent_info
+            for agent_info in deployment["agents"]:
+                assert "agent_id" in agent_info
+                assert "position" in agent_info
+                assert "config" in agent_info
 
         asyncio.run(deployment_test())
 
@@ -139,18 +161,18 @@ class TestEnvironmentalMonitoringSwarm:
 
         async def coordination_test():
             agent_positions = [np.random.uniform(-10, 10, 2) for _ in range(20)]
-            environmental_conditions = {'temperature': 22.0, 'humidity': 65.0}
+            environmental_conditions = {"temperature": 22.0, "humidity": 65.0}
 
             coordination = await swarm.coordinate_monitoring(
                 agent_positions=agent_positions,
                 environmental_conditions=environmental_conditions,
-                data_priorities={'air_quality': 0.8}
+                data_priorities={"air_quality": 0.8},
             )
 
-            assert 'monitoring_instructions' in coordination
-            assert 'sampling_strategy' in coordination
-            assert 'estimated_coverage' in coordination
-            assert coordination['estimated_coverage'] >= 0
+            assert "monitoring_instructions" in coordination
+            assert "sampling_strategy" in coordination
+            assert "estimated_coverage" in coordination
+            assert coordination["estimated_coverage"] >= 0
 
         asyncio.run(coordination_test())
 
@@ -164,26 +186,26 @@ class TestEnvironmentalMonitoringSwarm:
             for i in range(100):
                 reading = SensorReading(
                     agent_id=f"agent_{i % 10}",
-                    sensor_type='pm25_sensor',
+                    sensor_type="pm25_sensor",
                     value=np.random.normal(25, 10),
                     location=np.random.uniform(-10, 10, 2),
                     timestamp=datetime.now(),
-                    quality_score=np.random.uniform(0.7, 1.0)
+                    quality_score=np.random.uniform(0.7, 1.0),
                 )
                 sensor_readings.append(reading)
 
             # Process collective intelligence
             assessment = await swarm.process_collective_intelligence(
                 individual_measurements=sensor_readings,
-                spatial_interpolation='idw',
-                uncertainty_quantification='bayesian',
-                anomaly_detection='statistical'
+                spatial_interpolation="idw",
+                uncertainty_quantification="bayesian",
+                anomaly_detection="statistical",
             )
 
-            assert 'data_summary' in assessment
-            assert 'anomaly_detection' in assessment
-            assert 'recommendations' in assessment
-            assert assessment['data_summary']['total_measurements'] == 100
+            assert "data_summary" in assessment
+            assert "anomaly_detection" in assessment
+            assert "recommendations" in assessment
+            assert assessment["data_summary"]["total_measurements"] == 100
 
         asyncio.run(intelligence_test())
 
@@ -193,24 +215,36 @@ class TestEnvironmentalMonitoringSwarm:
 
         # Generate normal and anomalous data
         normal_readings = [
-            SensorReading(f"agent_{i}", 'pm25_sensor', np.random.normal(20, 5), np.array([0, 0]), datetime.now())
+            SensorReading(
+                f"agent_{i}",
+                "pm25_sensor",
+                np.random.normal(20, 5),
+                np.array([0, 0]),
+                datetime.now(),
+            )
             for i in range(20)
         ]
 
         anomalous_readings = [
-            SensorReading(f"agent_{i}", 'pm25_sensor', np.random.normal(100, 20), np.array([0, 0]), datetime.now())
+            SensorReading(
+                f"agent_{i}",
+                "pm25_sensor",
+                np.random.normal(100, 20),
+                np.array([0, 0]),
+                datetime.now(),
+            )
             for i in range(5)
         ]
 
         all_readings = normal_readings + anomalous_readings
 
         async def anomaly_test():
-            anomalies = await swarm._detect_anomalies(all_readings, 'statistical')
+            anomalies = await swarm._detect_anomalies(all_readings, "statistical")
 
             assert len(anomalies) >= 0  # Should find some anomalies
             if len(anomalies) > 0:
-                assert all('anomaly_id' in anomaly for anomaly in anomalies)
-                assert all('severity' in anomaly for anomaly in anomalies)
+                assert all("anomaly_id" in anomaly for anomaly in anomalies)
+                assert all("severity" in anomaly for anomaly in anomalies)
 
         asyncio.run(anomaly_test())
 
@@ -220,17 +254,23 @@ class TestEnvironmentalMonitoringSwarm:
 
         # Generate measurements with varying quality
         measurements = [
-            SensorReading(f"agent_{i}", 'temperature', 20 + i, np.array([0, 0]), datetime.now(),
-                         quality_score=np.random.uniform(0.5, 1.0))
+            SensorReading(
+                f"agent_{i}",
+                "temperature",
+                20 + i,
+                np.array([0, 0]),
+                datetime.now(),
+                quality_score=np.random.uniform(0.5, 1.0),
+            )
             for i in range(20)
         ]
 
-        uncertainty = swarm._quantify_uncertainty(measurements, 'bayesian')
+        uncertainty = swarm._quantify_uncertainty(measurements, "bayesian")
 
-        assert 'overall_uncertainty' in uncertainty
-        assert 'sensor_uncertainties' in uncertainty
-        assert 'spatial_uncertainty' in uncertainty
-        assert 0 <= uncertainty['overall_uncertainty'] <= 1
+        assert "overall_uncertainty" in uncertainty
+        assert "sensor_uncertainties" in uncertainty
+        assert "spatial_uncertainty" in uncertainty
+        assert 0 <= uncertainty["overall_uncertainty"] <= 1
 
     def test_monitoring_recommendations(self):
         """Test generation of monitoring recommendations."""
@@ -238,22 +278,24 @@ class TestEnvironmentalMonitoringSwarm:
 
         # Create sample assessment with issues
         assessment = {
-            'spatial_analysis': {'coverage': 0.6},  # Low coverage
-            'anomaly_detection': [
-                {'severity': 'high', 'sensor_type': 'pm25_sensor'},
-                {'severity': 'medium', 'sensor_type': 'temperature'}
+            "spatial_analysis": {"coverage": 0.6},  # Low coverage
+            "anomaly_detection": [
+                {"severity": "high", "sensor_type": "pm25_sensor"},
+                {"severity": "medium", "sensor_type": "temperature"},
             ],
-            'uncertainty_analysis': {'overall_uncertainty': 0.7}  # High uncertainty
+            "uncertainty_analysis": {"overall_uncertainty": 0.7},  # High uncertainty
         }
 
         recommendations = swarm._generate_monitoring_recommendations(assessment)
 
         assert len(recommendations) > 0
-        assert all('type' in rec for rec in recommendations)
-        assert all('priority' in rec for rec in recommendations)
+        assert all("type" in rec for rec in recommendations)
+        assert all("priority" in rec for rec in recommendations)
 
         # Should recommend coverage improvement for low coverage
-        coverage_recs = [r for r in recommendations if r['type'] == 'coverage_improvement']
+        coverage_recs = [
+            r for r in recommendations if r["type"] == "coverage_improvement"
+        ]
         assert len(coverage_recs) > 0
 
     def test_monitoring_status(self):
@@ -262,11 +304,11 @@ class TestEnvironmentalMonitoringSwarm:
 
         status = swarm.get_monitoring_status()
 
-        assert 'system_status' in status
-        assert 'monitoring_objectives' in status
-        assert 'performance_metrics' in status
-        assert 'component_status' in status
-        assert status['system_status'] == 'operational'
+        assert "system_status" in status
+        assert "monitoring_objectives" in status
+        assert "performance_metrics" in status
+        assert "component_status" in status
+        assert status["system_status"] == "operational"
 
     def test_sampling_frequency_calculation(self):
         """Test sampling frequency calculation based on priorities."""
@@ -274,17 +316,17 @@ class TestEnvironmentalMonitoringSwarm:
 
         # Test different priority levels
         frequencies = swarm._calculate_sampling_frequencies(
-            {'air_quality': 0.9, 'water_quality': 0.4, 'biodiversity': 0.7},
-            {'temperature': 25.0}
+            {"air_quality": 0.9, "water_quality": 0.4, "biodiversity": 0.7},
+            {"temperature": 25.0},
         )
 
-        assert 'air_quality' in frequencies
-        assert 'water_quality' in frequencies
-        assert 'biodiversity' in frequencies
+        assert "air_quality" in frequencies
+        assert "water_quality" in frequencies
+        assert "biodiversity" in frequencies
 
         # High priority should have high frequency
-        assert frequencies['air_quality'] == '1_minute'  # High priority
-        assert frequencies['water_quality'] == '1_hour'   # Low priority
+        assert frequencies["air_quality"] == "1_minute"  # High priority
+        assert frequencies["water_quality"] == "1_hour"  # Low priority
 
 
 class TestApplicationIntegration:
@@ -293,7 +335,9 @@ class TestApplicationIntegration:
     def test_monitoring_with_pheromone_system(self):
         """Test environmental monitoring integration with pheromone system."""
         try:
-            pheromone_system = PheromoneSystem(pheromone_types=['monitoring', 'anomaly'])
+            pheromone_system = PheromoneSystem(
+                pheromone_types=["monitoring", "anomaly"]
+            )
 
             swarm = EnvironmentalMonitoringSwarm(swarm_size=20)
 
@@ -302,24 +346,23 @@ class TestApplicationIntegration:
                 deployment = await swarm.deploy_agents()
 
                 # Simulate pheromone-guided coordination
-                agent_positions = [agent['position'] for agent in deployment['agents']]
+                agent_positions = [agent["position"] for agent in deployment["agents"]]
 
                 # Add monitoring pheromones
                 for i, pos in enumerate(agent_positions):
                     await pheromone_system.deposit_pheromone(
                         agent_id=f"monitor_{i}",
-                        pheromone_type='monitoring',
+                        pheromone_type="monitoring",
                         location=pos,
-                        intensity=1.0
+                        intensity=1.0,
                     )
 
                 # Check pheromone sensing
                 sensed = await pheromone_system.sense_pheromones(
-                    location=agent_positions[0],
-                    sensory_range=5.0
+                    location=agent_positions[0], sensory_range=5.0
                 )
 
-                assert 'monitoring' in sensed
+                assert "monitoring" in sensed
 
             asyncio.run(integration_test())
 
@@ -330,10 +373,10 @@ class TestApplicationIntegration:
         """Test environmental monitoring integration with digital stigmergy."""
         try:
             digital_stigmergy = DigitalStigmergy(
-                information_types=['sensor_data', 'anomaly_detection']
+                information_types=["sensor_data", "anomaly_detection"]
             )
 
-            swarm = EnvironmentalMonitoringSwarm(swarm_size=10)
+            _swarm = EnvironmentalMonitoringSwarm(swarm_size=10)
 
             async def integration_test():
                 # Generate sensor data
@@ -341,11 +384,11 @@ class TestApplicationIntegration:
                 for i in range(20):
                     reading = SensorReading(
                         agent_id=f"agent_{i}",
-                        sensor_type='temperature',
+                        sensor_type="temperature",
                         value=np.random.normal(20, 3),
                         location=np.random.uniform(-5, 5, 2),
                         timestamp=datetime.now(),
-                        quality_score=0.8
+                        quality_score=0.8,
                     )
                     sensor_readings.append(reading)
 
@@ -353,20 +396,20 @@ class TestApplicationIntegration:
                 for reading in sensor_readings:
                     await digital_stigmergy.contribute_information(
                         agent_id=reading.agent_id,
-                        information_type='sensor_data',
+                        information_type="sensor_data",
                         content={
-                            'sensor_type': reading.sensor_type,
-                            'value': reading.value,
-                            'quality_score': reading.quality_score
+                            "sensor_type": reading.sensor_type,
+                            "value": reading.value,
+                            "quality_score": reading.quality_score,
                         },
-                        location=reading.location
+                        location=reading.location,
                     )
 
                 # Query for anomalies
                 anomaly_info = await digital_stigmergy.query_stigmergy(
-                    agent_id='coordinator',
-                    query_type='anomaly_detection',
-                    credibility_threshold=0.7
+                    agent_id="coordinator",
+                    query_type="anomaly_detection",
+                    credibility_threshold=0.7,
                 )
 
                 assert len(anomaly_info) >= 0  # May be empty but should not error
@@ -389,10 +432,11 @@ class TestApplicationPerformance:
 
             async def performance_test():
                 import time
+
                 start_time = time.time()
 
                 # Deploy agents
-                deployment = await monitoring_swarm.deploy_agents()
+                _deployment = await monitoring_swarm.deploy_agents()
 
                 deployment_time = time.time() - start_time
                 assert deployment_time < 30.0  # Should deploy in reasonable time
@@ -403,25 +447,27 @@ class TestApplicationPerformance:
                 for i in range(min(100, size * 2)):
                     reading = SensorReading(
                         agent_id=f"agent_{i % size}",
-                        sensor_type='pm25_sensor',
+                        sensor_type="pm25_sensor",
                         value=np.random.normal(25, 5),
                         location=np.random.uniform(-10, 10, 2),
                         timestamp=datetime.now(),
-                        quality_score=0.8
+                        quality_score=0.8,
                     )
                     sensor_readings.append(reading)
 
                 # Process collective intelligence
                 assessment = await monitoring_swarm.process_collective_intelligence(
                     individual_measurements=sensor_readings,
-                    anomaly_detection='statistical'
+                    anomaly_detection="statistical",
                 )
 
                 processing_time = time.time() - start_time
                 assert processing_time < 10.0  # Should process in reasonable time
 
                 # Verify results
-                assert assessment['data_summary']['total_measurements'] == len(sensor_readings)
+                assert assessment["data_summary"]["total_measurements"] == len(
+                    sensor_readings
+                )
 
             asyncio.run(performance_test())
 
@@ -436,12 +482,11 @@ class TestApplicationErrorHandling:
         async def empty_data_test():
             # Process empty measurements
             assessment = await swarm.process_collective_intelligence(
-                individual_measurements=[],
-                anomaly_detection='statistical'
+                individual_measurements=[], anomaly_detection="statistical"
             )
 
-            assert 'data_summary' in assessment
-            assert assessment['data_summary']['total_measurements'] == 0
+            assert "data_summary" in assessment
+            assert assessment["data_summary"]["total_measurements"] == 0
 
         asyncio.run(empty_data_test())
 
@@ -452,17 +497,29 @@ class TestApplicationErrorHandling:
         async def invalid_data_test():
             # Generate invalid measurements
             invalid_readings = [
-                SensorReading("agent_1", 'invalid_sensor', float('inf'), np.array([0, 0]), datetime.now()),
-                SensorReading("agent_2", 'temperature', float('nan'), np.array([0, 0]), datetime.now())
+                SensorReading(
+                    "agent_1",
+                    "invalid_sensor",
+                    float("inf"),
+                    np.array([0, 0]),
+                    datetime.now(),
+                ),
+                SensorReading(
+                    "agent_2",
+                    "temperature",
+                    float("nan"),
+                    np.array([0, 0]),
+                    datetime.now(),
+                ),
             ]
 
             # Should handle gracefully
             assessment = await swarm.process_collective_intelligence(
                 individual_measurements=invalid_readings,
-                anomaly_detection='statistical'
+                anomaly_detection="statistical",
             )
 
-            assert 'error' not in assessment or assessment['error'] is None
+            assert "error" not in assessment or assessment["error"] is None
 
         asyncio.run(invalid_data_test())
 
@@ -480,17 +537,16 @@ class TestApplicationDataPersistence:
             for i in range(50):
                 reading = SensorReading(
                     agent_id=f"agent_{i}",
-                    sensor_type='pm25_sensor',
+                    sensor_type="pm25_sensor",
                     value=np.random.normal(25, 5),
                     location=np.random.uniform(-5, 5, 2),
                     timestamp=datetime.now(),
-                    quality_score=0.8
+                    quality_score=0.8,
                 )
                 sensor_readings.append(reading)
 
             assessment = await swarm.process_collective_intelligence(
-                individual_measurements=sensor_readings,
-                anomaly_detection='statistical'
+                individual_measurements=sensor_readings, anomaly_detection="statistical"
             )
 
             # Test JSON serialization
@@ -499,7 +555,7 @@ class TestApplicationDataPersistence:
 
             # Test deserialization
             restored_assessment = json.loads(assessment_json)
-            assert 'data_summary' in restored_assessment
+            assert "data_summary" in restored_assessment
 
         asyncio.run(serialization_test())
 

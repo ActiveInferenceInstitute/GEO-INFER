@@ -5,14 +5,12 @@ This module provides models and utilities for assessing security risks
 in geospatial applications and data.
 """
 
-from typing import Dict, List, Set, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union
 from enum import Enum
 import datetime
 import json
-import numpy as np
 import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon
 
 
 class RiskSeverity(Enum):
@@ -58,7 +56,7 @@ class GeospatialSecurityRisk:
         likelihood: RiskLikelihood,
         affected_asset: str,
         mitigation_strategies: Optional[List[str]] = None,
-        spatial_context: Optional[Union[Polygon, MultiPolygon]] = None
+        spatial_context: Optional[Union[Polygon, MultiPolygon]] = None,
     ):
         """
         Initialize a geospatial security risk.
@@ -81,7 +79,9 @@ class GeospatialSecurityRisk:
         self.affected_asset = affected_asset
         self.mitigation_strategies = mitigation_strategies or []
         self.spatial_context = spatial_context
-        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(
+            tzinfo=None
+        )
         self.updated_at = self.created_at
 
     def __repr__(self) -> str:
@@ -100,7 +100,7 @@ class GeospatialSecurityRisk:
             RiskSeverity.LOW: 1,
             RiskSeverity.MEDIUM: 2,
             RiskSeverity.HIGH: 3,
-            RiskSeverity.CRITICAL: 4
+            RiskSeverity.CRITICAL: 4,
         }
 
         # Map likelihood to score
@@ -109,7 +109,7 @@ class GeospatialSecurityRisk:
             RiskLikelihood.UNLIKELY: 2,
             RiskLikelihood.POSSIBLE: 3,
             RiskLikelihood.LIKELY: 4,
-            RiskLikelihood.CERTAIN: 5
+            RiskLikelihood.CERTAIN: 5,
         }
 
         # Risk score = Severity × Likelihood
@@ -132,18 +132,19 @@ class GeospatialSecurityRisk:
             "mitigation_strategies": self.mitigation_strategies,
             "risk_score": self.calculate_risk_score(),
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "updated_at": self.updated_at.isoformat(),
         }
 
         # Add spatial context if available
         if self.spatial_context is not None:
             import shapely.geometry
+
             result["spatial_context"] = shapely.geometry.mapping(self.spatial_context)
 
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'GeospatialSecurityRisk':
+    def from_dict(cls, data: Dict) -> "GeospatialSecurityRisk":
         """
         Create a risk from a dictionary.
 
@@ -157,6 +158,7 @@ class GeospatialSecurityRisk:
         spatial_context = None
         if "spatial_context" in data:
             import shapely.geometry
+
             spatial_context = shapely.geometry.shape(data["spatial_context"])
 
         # Create the risk
@@ -168,7 +170,7 @@ class GeospatialSecurityRisk:
             likelihood=RiskLikelihood(data["likelihood"]),
             affected_asset=data["affected_asset"],
             mitigation_strategies=data.get("mitigation_strategies", []),
-            spatial_context=spatial_context
+            spatial_context=spatial_context,
         )
 
         # Set timestamps if available
@@ -194,7 +196,9 @@ class RiskAssessment:
         self.name = name
         self.description = description
         self.risks: List[GeospatialSecurityRisk] = []
-        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(
+            tzinfo=None
+        )
         self.updated_at = self.created_at
 
     def add_risk(self, risk: GeospatialSecurityRisk) -> None:
@@ -205,7 +209,9 @@ class RiskAssessment:
             risk: Risk to add
         """
         self.risks.append(risk)
-        self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(
+            tzinfo=None
+        )
 
     def remove_risk(self, risk_name: str) -> bool:
         """
@@ -220,7 +226,9 @@ class RiskAssessment:
         for i, risk in enumerate(self.risks):
             if risk.name == risk_name:
                 self.risks.pop(i)
-                self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+                self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(
+                    tzinfo=None
+                )
                 return True
 
         return False
@@ -241,7 +249,9 @@ class RiskAssessment:
 
         return None
 
-    def get_risks_by_category(self, category: RiskCategory) -> List[GeospatialSecurityRisk]:
+    def get_risks_by_category(
+        self, category: RiskCategory
+    ) -> List[GeospatialSecurityRisk]:
         """
         Get all risks in a specific category.
 
@@ -253,7 +263,9 @@ class RiskAssessment:
         """
         return [risk for risk in self.risks if risk.category == category]
 
-    def get_risks_by_severity(self, severity: RiskSeverity) -> List[GeospatialSecurityRisk]:
+    def get_risks_by_severity(
+        self, severity: RiskSeverity
+    ) -> List[GeospatialSecurityRisk]:
         """
         Get all risks with a specific severity.
 
@@ -265,7 +277,9 @@ class RiskAssessment:
         """
         return [risk for risk in self.risks if risk.severity == severity]
 
-    def get_risks_by_likelihood(self, likelihood: RiskLikelihood) -> List[GeospatialSecurityRisk]:
+    def get_risks_by_likelihood(
+        self, likelihood: RiskLikelihood
+    ) -> List[GeospatialSecurityRisk]:
         """
         Get all risks with a specific likelihood.
 
@@ -298,9 +312,7 @@ class RiskAssessment:
         """
         # Sort risks by score in descending order
         sorted_risks = sorted(
-            self.risks,
-            key=lambda r: r.calculate_risk_score(),
-            reverse=True
+            self.risks, key=lambda r: r.calculate_risk_score(), reverse=True
         )
 
         # Return the top N risks
@@ -319,11 +331,11 @@ class RiskAssessment:
             "risks": [risk.to_dict() for risk in self.risks],
             "total_risk_score": self.calculate_total_risk_score(),
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "updated_at": self.updated_at.isoformat(),
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'RiskAssessment':
+    def from_dict(cls, data: Dict) -> "RiskAssessment":
         """
         Create an assessment from a dictionary.
 
@@ -333,10 +345,7 @@ class RiskAssessment:
         Returns:
             RiskAssessment instance
         """
-        assessment = cls(
-            name=data["name"],
-            description=data.get("description")
-        )
+        assessment = cls(name=data["name"], description=data.get("description"))
 
         # Add risks
         for risk_data in data.get("risks", []):
@@ -364,7 +373,7 @@ class RiskAssessment:
         return json.dumps(self.to_dict(), indent=indent)
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'RiskAssessment':
+    def from_json(cls, json_str: str) -> "RiskAssessment":
         """
         Create an assessment from a JSON string.
 
@@ -386,14 +395,10 @@ class RiskAssessment:
         """
         # Create a matrix of severity vs. likelihood
         severities = [s.value for s in RiskSeverity]
-        likelihoods = [l.value for l in RiskLikelihood]
+        likelihoods = [likelihood.value for likelihood in RiskLikelihood]
 
         # Initialize matrix with zeros
-        matrix = pd.DataFrame(
-            0,
-            index=severities,
-            columns=likelihoods
-        )
+        matrix = pd.DataFrame(0, index=severities, columns=likelihoods)
 
         # Count risks in each cell
         for risk in self.risks:
@@ -470,7 +475,10 @@ class RiskAssessment:
 
             for risk in self.get_highest_risks(5):
                 css_class = ""
-                if risk.severity == RiskSeverity.HIGH or risk.severity == RiskSeverity.CRITICAL:
+                if (
+                    risk.severity == RiskSeverity.HIGH
+                    or risk.severity == RiskSeverity.CRITICAL
+                ):
                     css_class = "high"
                 elif risk.severity == RiskSeverity.MEDIUM:
                     css_class = "medium"
@@ -523,9 +531,14 @@ class RiskAssessment:
                     </tr>
             """
 
-            for risk in sorted(self.risks, key=lambda r: r.calculate_risk_score(), reverse=True):
+            for risk in sorted(
+                self.risks, key=lambda r: r.calculate_risk_score(), reverse=True
+            ):
                 css_class = ""
-                if risk.severity == RiskSeverity.HIGH or risk.severity == RiskSeverity.CRITICAL:
+                if (
+                    risk.severity == RiskSeverity.HIGH
+                    or risk.severity == RiskSeverity.CRITICAL
+                ):
                     css_class = "high"
                 elif risk.severity == RiskSeverity.MEDIUM:
                     css_class = "medium"
@@ -565,122 +578,138 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
     risks = []
 
     # Privacy risks
-    risks.append(GeospatialSecurityRisk(
-        name="location_tracking",
-        description="Unauthorized tracking of individual movements through location data",
-        category=RiskCategory.PRIVACY,
-        severity=RiskSeverity.HIGH,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="user_location_data",
-        mitigation_strategies=[
-            "Implement location data anonymization",
-            "Limit precision of location data",
-            "Enforce strict retention policies"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="location_tracking",
+            description="Unauthorized tracking of individual movements through location data",
+            category=RiskCategory.PRIVACY,
+            severity=RiskSeverity.HIGH,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="user_location_data",
+            mitigation_strategies=[
+                "Implement location data anonymization",
+                "Limit precision of location data",
+                "Enforce strict retention policies",
+            ],
+        )
+    )
 
-    risks.append(GeospatialSecurityRisk(
-        name="sensitive_location_disclosure",
-        description="Disclosure of sensitive locations (homes, workplaces, etc.)",
-        category=RiskCategory.PRIVACY,
-        severity=RiskSeverity.HIGH,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="point_of_interest_data",
-        mitigation_strategies=[
-            "Apply geographic masking techniques",
-            "Implement access controls for sensitive locations",
-            "Use differential privacy for aggregated data"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="sensitive_location_disclosure",
+            description="Disclosure of sensitive locations (homes, workplaces, etc.)",
+            category=RiskCategory.PRIVACY,
+            severity=RiskSeverity.HIGH,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="point_of_interest_data",
+            mitigation_strategies=[
+                "Apply geographic masking techniques",
+                "Implement access controls for sensitive locations",
+                "Use differential privacy for aggregated data",
+            ],
+        )
+    )
 
     # Data breach risks
-    risks.append(GeospatialSecurityRisk(
-        name="geospatial_data_breach",
-        description="Unauthorized access to sensitive geospatial datasets",
-        category=RiskCategory.DATA_BREACH,
-        severity=RiskSeverity.CRITICAL,
-        likelihood=RiskLikelihood.UNLIKELY,
-        affected_asset="geospatial_database",
-        mitigation_strategies=[
-            "Encrypt sensitive geospatial data",
-            "Implement strong access controls",
-            "Regular security audits of database"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="geospatial_data_breach",
+            description="Unauthorized access to sensitive geospatial datasets",
+            category=RiskCategory.DATA_BREACH,
+            severity=RiskSeverity.CRITICAL,
+            likelihood=RiskLikelihood.UNLIKELY,
+            affected_asset="geospatial_database",
+            mitigation_strategies=[
+                "Encrypt sensitive geospatial data",
+                "Implement strong access controls",
+                "Regular security audits of database",
+            ],
+        )
+    )
 
     # Unauthorized access risks
-    risks.append(GeospatialSecurityRisk(
-        name="api_security_bypass",
-        description="Bypassing security controls on geospatial APIs",
-        category=RiskCategory.UNAUTHORIZED_ACCESS,
-        severity=RiskSeverity.HIGH,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="geospatial_api",
-        mitigation_strategies=[
-            "Implement robust API authentication",
-            "Rate limiting and request validation",
-            "Regular penetration testing of API endpoints"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="api_security_bypass",
+            description="Bypassing security controls on geospatial APIs",
+            category=RiskCategory.UNAUTHORIZED_ACCESS,
+            severity=RiskSeverity.HIGH,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="geospatial_api",
+            mitigation_strategies=[
+                "Implement robust API authentication",
+                "Rate limiting and request validation",
+                "Regular penetration testing of API endpoints",
+            ],
+        )
+    )
 
     # Regulatory risks
-    risks.append(GeospatialSecurityRisk(
-        name="gdpr_noncompliance",
-        description="Non-compliance with GDPR for location data of EU citizens",
-        category=RiskCategory.REGULATORY,
-        severity=RiskSeverity.HIGH,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="user_location_data",
-        mitigation_strategies=[
-            "Implement consent management",
-            "Data minimization practices",
-            "Right to be forgotten mechanisms"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="gdpr_noncompliance",
+            description="Non-compliance with GDPR for location data of EU citizens",
+            category=RiskCategory.REGULATORY,
+            severity=RiskSeverity.HIGH,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="user_location_data",
+            mitigation_strategies=[
+                "Implement consent management",
+                "Data minimization practices",
+                "Right to be forgotten mechanisms",
+            ],
+        )
+    )
 
     # Infrastructure risks
-    risks.append(GeospatialSecurityRisk(
-        name="gis_server_vulnerability",
-        description="Security vulnerabilities in GIS server software",
-        category=RiskCategory.INFRASTRUCTURE,
-        severity=RiskSeverity.MEDIUM,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="gis_server",
-        mitigation_strategies=[
-            "Regular security patching",
-            "Vulnerability scanning",
-            "Network segregation for GIS infrastructure"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="gis_server_vulnerability",
+            description="Security vulnerabilities in GIS server software",
+            category=RiskCategory.INFRASTRUCTURE,
+            severity=RiskSeverity.MEDIUM,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="gis_server",
+            mitigation_strategies=[
+                "Regular security patching",
+                "Vulnerability scanning",
+                "Network segregation for GIS infrastructure",
+            ],
+        )
+    )
 
     # Data quality risks
-    risks.append(GeospatialSecurityRisk(
-        name="coordinate_tampering",
-        description="Malicious tampering with coordinates in geospatial data",
-        category=RiskCategory.DATA_QUALITY,
-        severity=RiskSeverity.MEDIUM,
-        likelihood=RiskLikelihood.UNLIKELY,
-        affected_asset="vector_datasets",
-        mitigation_strategies=[
-            "Implement data validation checks",
-            "Digital signatures for geospatial data",
-            "Audit logging for data modifications"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="coordinate_tampering",
+            description="Malicious tampering with coordinates in geospatial data",
+            category=RiskCategory.DATA_QUALITY,
+            severity=RiskSeverity.MEDIUM,
+            likelihood=RiskLikelihood.UNLIKELY,
+            affected_asset="vector_datasets",
+            mitigation_strategies=[
+                "Implement data validation checks",
+                "Digital signatures for geospatial data",
+                "Audit logging for data modifications",
+            ],
+        )
+    )
 
     # Geopolitical risks
-    risks.append(GeospatialSecurityRisk(
-        name="border_data_disputes",
-        description="Security issues from disputed borders or territories in maps",
-        category=RiskCategory.GEOPOLITICAL,
-        severity=RiskSeverity.MEDIUM,
-        likelihood=RiskLikelihood.POSSIBLE,
-        affected_asset="boundary_data",
-        mitigation_strategies=[
-            "Multiple boundary datasets for different regions",
-            "Clear metadata about boundary sources",
-            "Regional-specific content delivery"
-        ]
-    ))
+    risks.append(
+        GeospatialSecurityRisk(
+            name="border_data_disputes",
+            description="Security issues from disputed borders or territories in maps",
+            category=RiskCategory.GEOPOLITICAL,
+            severity=RiskSeverity.MEDIUM,
+            likelihood=RiskLikelihood.POSSIBLE,
+            affected_asset="boundary_data",
+            mitigation_strategies=[
+                "Multiple boundary datasets for different regions",
+                "Clear metadata about boundary sources",
+                "Regional-specific content delivery",
+            ],
+        )
+    )
 
     return risks

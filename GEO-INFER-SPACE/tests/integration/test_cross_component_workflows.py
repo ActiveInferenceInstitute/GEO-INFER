@@ -14,9 +14,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from geo_infer_space.core import SpatialIndexingInterface
+from geo_infer_space.core import SpatialIndexingInterface  # noqa: E402
 
 
 class TestSpatialIndexingWorkflows:
@@ -25,7 +25,7 @@ class TestSpatialIndexingWorkflows:
     @pytest.fixture
     def indexer(self):
         """Create a spatial indexing interface."""
-        return SpatialIndexingInterface(backend='h3')
+        return SpatialIndexingInterface(backend="h3")
 
     def test_point_to_cell_to_neighbors_workflow(self, indexer):
         """
@@ -69,9 +69,9 @@ class TestSpatialIndexingWorkflows:
         assert len(children) > 0
 
         # Step 4: Verify the original cell is among the children
-        assert high_cell in children, (
-            f"High-res cell {high_cell} should be a child of its parent {parent_cell}"
-        )
+        assert (
+            high_cell in children
+        ), f"High-res cell {high_cell} should be a child of its parent {parent_cell}"
 
     def test_index_to_coordinates_round_trip(self, indexer):
         """
@@ -88,9 +88,9 @@ class TestSpatialIndexingWorkflows:
 
         # Step 3: Convert center back to cell -- should be the same cell
         cell_round_trip = indexer.latlng_to_cell(lat_out, lng_out, resolution)
-        assert cell == cell_round_trip, (
-            f"Round-trip failed: {cell} != {cell_round_trip}"
-        )
+        assert (
+            cell == cell_round_trip
+        ), f"Round-trip failed: {cell} != {cell_round_trip}"
 
     def test_cell_distance_positive_for_different_cells(self, indexer):
         """
@@ -123,13 +123,13 @@ class TestSpatialProcessorWorkflows:
 
         # Step 1: Create point GeoDataFrame
         points = gpd.GeoDataFrame(
-            {'name': ['A', 'B', 'C']},
+            {"name": ["A", "B", "C"]},
             geometry=[
                 Point(0.0, 0.0),
                 Point(1.0, 0.0),
                 Point(5.0, 5.0),
             ],
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Step 2: Buffer analysis

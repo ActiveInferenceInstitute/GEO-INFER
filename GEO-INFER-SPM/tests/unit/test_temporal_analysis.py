@@ -39,28 +39,36 @@ class TestTemporalAnalyzer:
         # Create data with known linear trend
         slope = 0.02
         intercept = 5.0
-        trend_data = slope * self.time_points + intercept + 0.1 * np.random.randn(self.n_timepoints)
+        trend_data = (
+            slope * self.time_points
+            + intercept
+            + 0.1 * np.random.randn(self.n_timepoints)
+        )
 
         analyzer = TemporalAnalyzer(self.time_points, trend_data)
         results = analyzer.detect_trends(trend_data.reshape(-1, 1))
 
-        trend = results['trends'][0]
-        assert 'slope' in trend
-        assert 'p_value' in trend
-        assert trend['significant'] == True
-        assert abs(trend['slope'] - slope) < 0.005  # Should recover true slope
+        trend = results["trends"][0]
+        assert "slope" in trend
+        assert "p_value" in trend
+        assert trend["significant"]
+        assert abs(trend["slope"] - slope) < 0.005  # Should recover true slope
 
     def test_mann_kendall_trend(self):
         """Test Mann-Kendall trend detection."""
         # Create monotonic increasing trend
-        trend_data = np.sort(np.random.randn(self.n_timepoints)) + 0.01 * self.time_points
+        trend_data = (
+            np.sort(np.random.randn(self.n_timepoints)) + 0.01 * self.time_points
+        )
 
         analyzer = TemporalAnalyzer(self.time_points, trend_data)
-        results = analyzer.detect_trends(trend_data.reshape(-1, 1), method='mann_kendall')
+        results = analyzer.detect_trends(
+            trend_data.reshape(-1, 1), method="mann_kendall"
+        )
 
-        trend = results['trends'][0]
-        assert trend['significant'] == True
-        assert trend['direction'] == 'increasing'
+        trend = results["trends"][0]
+        assert trend["significant"]
+        assert trend["direction"] == "increasing"
 
     def test_no_trend_detection(self):
         """Test trend detection on random data (no trend)."""
@@ -69,13 +77,17 @@ class TestTemporalAnalyzer:
         analyzer = TemporalAnalyzer(self.time_points, random_data)
         results = analyzer.detect_trends(random_data.reshape(-1, 1))
 
-        trend = results['trends'][0]
-        assert trend['significant'] == False
+        trend = results["trends"][0]
+        assert not trend["significant"]
 
     def test_seasonal_decomposition_fallback(self):
         """Test seasonal decomposition fallback when statsmodels unavailable."""
         # Create seasonal data
-        seasonal_data = 10 + 3 * np.sin(2 * np.pi * self.time_points / 12) + np.random.randn(self.n_timepoints)
+        seasonal_data = (
+            10
+            + 3 * np.sin(2 * np.pi * self.time_points / 12)
+            + np.random.randn(self.n_timepoints)
+        )
 
         analyzer = TemporalAnalyzer(self.time_points, seasonal_data)
 
@@ -83,10 +95,12 @@ class TestTemporalAnalyzer:
         try:
             result = analyzer.seasonal_decomposition(seasonal_data, period=12)
             # Result may be wrapped in decompositions list
-            decomp = result['decompositions'][0] if 'decompositions' in result else result
-            assert 'trend' in decomp
-            assert 'seasonal' in decomp
-            assert 'residual' in decomp
+            decomp = (
+                result["decompositions"][0] if "decompositions" in result else result
+            )
+            assert "trend" in decomp
+            assert "seasonal" in decomp
+            assert "residual" in decomp
         except ImportError:
             pytest.fail("Statsmodels not available for seasonal decomposition")
 
@@ -94,22 +108,24 @@ class TestTemporalAnalyzer:
         """Test sliding window analysis."""
         # Create data with changing patterns
         data = np.zeros(self.n_timepoints)
-        data[:30] = 1.0   # First 30 points: mean = 1
-        data[30:70] = 3.0 # Next 40 points: mean = 3
-        data[70:] = 2.0   # Last 30 points: mean = 2
+        data[:30] = 1.0  # First 30 points: mean = 1
+        data[30:70] = 3.0  # Next 40 points: mean = 3
+        data[70:] = 2.0  # Last 30 points: mean = 2
 
         analyzer = TemporalAnalyzer(self.time_points, data)
 
         result = analyzer.sliding_window_analysis(
-            data, window_size=20, step_size=10,
-            analysis_func=lambda x: {'mean': np.mean(x), 'std': np.std(x)}
+            data,
+            window_size=20,
+            step_size=10,
+            analysis_func=lambda x: {"mean": np.mean(x), "std": np.std(x)},
         )
 
-        assert 'window_results' in result
-        assert len(result['window_results']) > 0
+        assert "window_results" in result
+        assert len(result["window_results"]) > 0
 
         # Check that means change over time
-        means = [r['mean'] for r in result['window_results']]
+        means = [r["mean"] for r in result["window_results"]]
         assert means[-1] != means[0]  # Should detect change
 
     def test_temporal_basis_functions(self):
@@ -117,15 +133,21 @@ class TestTemporalAnalyzer:
         analyzer = TemporalAnalyzer(self.time_points)
 
         # Test Fourier basis
-        fourier_basis = analyzer.temporal_basis_functions(n_basis=6, basis_type='fourier')
+        fourier_basis = analyzer.temporal_basis_functions(
+            n_basis=6, basis_type="fourier"
+        )
         assert fourier_basis.shape == (self.n_timepoints, 6)
 
         # Test polynomial basis
-        poly_basis = analyzer.temporal_basis_functions(n_basis=4, basis_type='polynomial')
+        poly_basis = analyzer.temporal_basis_functions(
+            n_basis=4, basis_type="polynomial"
+        )
         assert poly_basis.shape == (self.n_timepoints, 4)
 
         # Test B-spline basis (may fallback)
-        bspline_basis = analyzer.temporal_basis_functions(n_basis=5, basis_type='bspline')
+        bspline_basis = analyzer.temporal_basis_functions(
+            n_basis=5, basis_type="bspline"
+        )
         assert bspline_basis.shape[0] == self.n_timepoints
 
     def test_arima_model_fallback(self):
@@ -134,14 +156,14 @@ class TestTemporalAnalyzer:
         ar_data = np.zeros(self.n_timepoints)
         phi = 0.7
         for i in range(1, self.n_timepoints):
-            ar_data[i] = phi * ar_data[i-1] + np.random.randn()
+            ar_data[i] = phi * ar_data[i - 1] + np.random.randn()
 
         analyzer = TemporalAnalyzer(self.time_points, ar_data)
 
         # This should either work or raise ImportError
         try:
             result = analyzer.fit_arima_model(ar_data, order=(1, 0, 0))
-            assert 'models' in result or 'success' in result
+            assert "models" in result or "success" in result
         except ImportError:
             pytest.fail("Statsmodels not available for ARIMA modeling")
 
@@ -168,8 +190,8 @@ class TestTemporalTrendDetection:
         analyzer = TemporalAnalyzer(self.time, data)
         results = analyzer.detect_trends(data.reshape(-1, 1))
 
-        estimated_slope = results['trends'][0]['slope']
-        estimated_intercept = results['trends'][0]['intercept']
+        estimated_slope = results["trends"][0]["slope"]
+        estimated_intercept = results["trends"][0]["intercept"]
 
         # Should recover parameters within reasonable bounds
         assert abs(estimated_slope - true_slope) < 0.01
@@ -181,28 +203,32 @@ class TestTemporalTrendDetection:
         strong_trend = 0.1 * self.time + np.random.randn(self.n_points) * 0.1
         analyzer = TemporalAnalyzer(self.time, strong_trend)
         results = analyzer.detect_trends(strong_trend.reshape(-1, 1))
-        assert results['trends'][0]['significant'] == True
+        assert results["trends"][0]["significant"]
 
         # Weak trend
         weak_trend = 0.01 * self.time + np.random.randn(self.n_points) * 0.5
         analyzer = TemporalAnalyzer(self.time, weak_trend)
         results = analyzer.detect_trends(weak_trend.reshape(-1, 1))
-        assert results['trends'][0]['significant'] == False
+        assert not results["trends"][0]["significant"]
 
     def test_seasonal_pattern_detection(self):
         """Test detection of seasonal patterns."""
         # Create seasonal data
-        seasonal_data = 10 + 5 * np.sin(2 * np.pi * self.time / 12) + np.random.randn(self.n_points)
+        seasonal_data = (
+            10 + 5 * np.sin(2 * np.pi * self.time / 12) + np.random.randn(self.n_points)
+        )
 
         analyzer = TemporalAnalyzer(self.time, seasonal_data)
 
         try:
             result = analyzer.seasonal_decomposition(seasonal_data, period=12)
-            decomposition = result['decompositions'][0] if 'decompositions' in result else result
-            assert 'seasonal' in decomposition
+            decomposition = (
+                result["decompositions"][0] if "decompositions" in result else result
+            )
+            assert "seasonal" in decomposition
 
             # Seasonal component should have the same period
-            seasonal_amplitude = np.nanstd(decomposition['seasonal'])
+            seasonal_amplitude = np.nanstd(decomposition["seasonal"])
             assert seasonal_amplitude > 2.0  # Should detect strong seasonal pattern
 
         except ImportError:
@@ -220,7 +246,7 @@ class TestTemporalTrendDetection:
         # This should either work or raise ImportError for ruptures
         try:
             result = analyzer.change_point_detection(data)
-            assert 'change_points' in result
+            assert "change_points" in result
         except ImportError:
             pytest.fail("Change point detection requires ruptures library")
 
@@ -235,7 +261,7 @@ class TestTemporalBasisFunctions:
 
     def test_fourier_basis_properties(self):
         """Test Fourier basis function properties."""
-        basis = self.analyzer.temporal_basis_functions(n_basis=8, basis_type='fourier')
+        basis = self.analyzer.temporal_basis_functions(n_basis=8, basis_type="fourier")
 
         # First column should be constant (intercept)
         assert np.allclose(basis[:, 0], 1.0)
@@ -243,7 +269,9 @@ class TestTemporalBasisFunctions:
         # Sine and cosine pairs should be orthogonal
         for i in range(1, basis.shape[1], 2):
             sine_comp = basis[:, i]
-            cosine_comp = basis[:, i+1] if i+1 < basis.shape[1] else np.zeros_like(sine_comp)
+            cosine_comp = (
+                basis[:, i + 1] if i + 1 < basis.shape[1] else np.zeros_like(sine_comp)
+            )
 
             # Check orthogonality (approximately)
             dot_product = np.abs(np.dot(sine_comp, cosine_comp))
@@ -251,19 +279,23 @@ class TestTemporalBasisFunctions:
 
     def test_polynomial_basis_orthogonality(self):
         """Test polynomial basis orthogonality."""
-        basis = self.analyzer.temporal_basis_functions(n_basis=4, basis_type='polynomial')
+        basis = self.analyzer.temporal_basis_functions(
+            n_basis=4, basis_type="polynomial"
+        )
 
         # Check that higher order polynomials have bounded dot products
         for i in range(basis.shape[1]):
-            for j in range(i+1, basis.shape[1]):
+            for j in range(i + 1, basis.shape[1]):
                 dot_product = abs(np.dot(basis[:, i], basis[:, j]))
                 # Standard monomial basis is not strictly orthogonal; check reasonable upper bound
                 assert dot_product < len(self.time_points) * 1.0
 
     def test_basis_normalization(self):
         """Test that basis functions are properly scaled."""
-        for basis_type in ['fourier', 'polynomial', 'bspline']:
-            basis = self.analyzer.temporal_basis_functions(n_basis=5, basis_type=basis_type)
+        for basis_type in ["fourier", "polynomial", "bspline"]:
+            basis = self.analyzer.temporal_basis_functions(
+                n_basis=5, basis_type=basis_type
+            )
 
             # Each column should have reasonable scale
             for col in range(basis.shape[1]):
@@ -274,7 +306,7 @@ class TestTemporalBasisFunctions:
     def test_invalid_basis_type(self):
         """Test error handling for invalid basis types."""
         with pytest.raises(ValueError, match="Unknown basis type"):
-            self.analyzer.temporal_basis_functions(basis_type='invalid')
+            self.analyzer.temporal_basis_functions(basis_type="invalid")
 
 
 class TestTemporalAnalysisEdgeCases:
@@ -320,7 +352,7 @@ class TestTemporalAnalysisEdgeCases:
 
         # Should handle irregular spacing
         trends = analyzer.detect_trends(data.reshape(-1, 1))
-        assert len(trends['trends']) == 1
+        assert len(trends["trends"]) == 1
 
     def test_duplicate_time_points(self):
         """Test handling of duplicate time points."""

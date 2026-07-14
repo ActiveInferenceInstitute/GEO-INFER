@@ -24,12 +24,13 @@ where:
 
 import logging
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Any
 from scipy import linalg, stats
 from scipy.optimize import minimize
+
 logger = logging.getLogger(__name__)
 
-from ...models.data_models import SPMData, SPMResult, DesignMatrix
+from ...models.data_models import SPMData, SPMResult, DesignMatrix  # noqa: E402
 
 
 class MixedEffectsSPM:
@@ -46,8 +47,12 @@ class MixedEffectsSPM:
         fitted_model: Fitted model parameters
     """
 
-    def __init__(self, fixed_design: DesignMatrix, random_groups: Dict[str, np.ndarray],
-                 random_effects: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        fixed_design: DesignMatrix,
+        random_groups: Dict[str, np.ndarray],
+        random_effects: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize mixed effects SPM.
 
@@ -78,8 +83,9 @@ class MixedEffectsSPM:
             if np.max(group_indices) >= n_points or np.min(group_indices) < 0:
                 raise ValueError(f"Group indices for {group_name} are out of bounds")
 
-    def fit(self, data: SPMData, method: str = "REML",
-            optimizer: str = "BFGS") -> SPMResult:
+    def fit(
+        self, data: SPMData, method: str = "REML", optimizer: str = "BFGS"
+    ) -> SPMResult:
         """
         Fit mixed effects model to SPM data.
 
@@ -98,9 +104,13 @@ class MixedEffectsSPM:
 
         # Estimate parameters using maximum likelihood
         if method.upper() == "REML":
-            beta_hat, variance_components, log_likelihood = self._fit_reml(X, Z, y, group_info)
+            beta_hat, variance_components, log_likelihood = self._fit_reml(
+                X, Z, y, group_info
+            )
         elif method.upper() == "ML":
-            beta_hat, variance_components, log_likelihood = self._fit_ml(X, Z, y, group_info)
+            beta_hat, variance_components, log_likelihood = self._fit_ml(
+                X, Z, y, group_info
+            )
         else:
             raise ValueError(f"Unknown estimation method: {method}")
 
@@ -110,11 +120,11 @@ class MixedEffectsSPM:
 
         # Store fitted model
         self.fitted_model = {
-            'beta': beta_hat,
-            'variance_components': variance_components,
-            'log_likelihood': log_likelihood,
-            'method': method,
-            'converged': True
+            "beta": beta_hat,
+            "variance_components": variance_components,
+            "log_likelihood": log_likelihood,
+            "method": method,
+            "converged": True,
         }
 
         # Create SPMResult
@@ -124,12 +134,12 @@ class MixedEffectsSPM:
             beta_coefficients=beta_hat,
             residuals=residuals,
             model_diagnostics={
-                'method': f'Mixed_Effects_{method}',
-                'log_likelihood': log_likelihood,
-                'variance_components': variance_components,
-                'n_groups': len(group_info),
-                'optimizer': optimizer
-            }
+                "method": f"Mixed_Effects_{method}",
+                "log_likelihood": log_likelihood,
+                "variance_components": variance_components,
+                "n_groups": len(group_info),
+                "optimizer": optimizer,
+            },
         )
 
         return result
@@ -141,7 +151,9 @@ class MixedEffectsSPM:
         else:
             raise TypeError("Mixed effects models require array data")
 
-    def _setup_matrices(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _setup_matrices(
+        self, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Set up design matrices for mixed effects model.
 
@@ -161,9 +173,9 @@ class MixedEffectsSPM:
             # Create random effects for this grouping variable
             n_groups = len(np.unique(group_indices))
             group_info[group_name] = {
-                'n_groups': n_groups,
-                'indices': group_indices,
-                'random_effects': self.random_effects.get(group_name, ['intercept'])
+                "n_groups": n_groups,
+                "indices": group_indices,
+                "random_effects": self.random_effects.get(group_name, ["intercept"]),
             }
 
             # Create Z matrix for this grouping variable
@@ -181,8 +193,9 @@ class MixedEffectsSPM:
 
         return X, Z, group_info
 
-    def _fit_reml(self, X: np.ndarray, Z: np.ndarray, y: np.ndarray,
-                  group_info: Dict[str, Any]) -> Tuple[np.ndarray, Dict[str, float], float]:
+    def _fit_reml(
+        self, X: np.ndarray, Z: np.ndarray, y: np.ndarray, group_info: Dict[str, Any]
+    ) -> Tuple[np.ndarray, Dict[str, float], float]:
         """
         Fit mixed effects model using Restricted Maximum Likelihood (REML).
 
@@ -194,7 +207,7 @@ class MixedEffectsSPM:
         def negative_reml_loglik(params):
             """Negative REML log-likelihood."""
             # Extract parameters
-            beta = params[:X.shape[1]]
+            beta = params[: X.shape[1]]
             sigma2 = np.exp(params[X.shape[1]])  # Ensure positive
             tau2 = np.exp(params[X.shape[1] + 1])  # Random effects variance
 
@@ -223,52 +236,53 @@ class MixedEffectsSPM:
                 return np.inf
 
         # Initial parameter guesses
-        n_params = X.shape[1] + 2  # beta + sigma2 + tau2
-        init_params = np.concatenate([
-            np.linalg.pinv(X) @ y,  # Initial beta
-            [0.0, 0.0]  # Log variances
-        ])
+        _n_params = X.shape[1] + 2  # beta + sigma2 + tau2
+        init_params = np.concatenate(
+            [np.linalg.pinv(X) @ y, [0.0, 0.0]]  # Initial beta  # Log variances
+        )
 
         # Optimize
         try:
             result = minimize(
                 negative_reml_loglik,
                 init_params,
-                method='L-BFGS-B',
-                options={'maxiter': 100}
+                method="L-BFGS-B",
+                options={"maxiter": 100},
             )
 
             if result.success:
-                beta_hat = result.x[:X.shape[1]]
+                beta_hat = result.x[: X.shape[1]]
                 sigma2 = np.exp(result.x[X.shape[1]])
                 tau2 = np.exp(result.x[X.shape[1] + 1])
                 log_likelihood = -result.fun
 
                 variance_components = {
-                    'residual_variance': sigma2,
-                    'random_effects_variance': tau2,
-                    'total_variance': sigma2 + tau2
+                    "residual_variance": sigma2,
+                    "random_effects_variance": tau2,
+                    "total_variance": sigma2 + tau2,
                 }
 
                 return beta_hat, variance_components, log_likelihood
             else:
                 logger.debug("REML optimization did not converge")
                 # Return OLS estimates
-                return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
+                return np.linalg.pinv(X) @ y, {"residual_variance": np.var(y)}, -np.inf
 
         except Exception as e:
             logger.debug("REML fitting failed: %s", e)
             # Fallback to OLS
-            return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
+            return np.linalg.pinv(X) @ y, {"residual_variance": np.var(y)}, -np.inf
 
-    def _fit_ml(self, X: np.ndarray, Z: np.ndarray, y: np.ndarray,
-                group_info: Dict[str, Any]) -> Tuple[np.ndarray, Dict[str, float], float]:
+    def _fit_ml(
+        self, X: np.ndarray, Z: np.ndarray, y: np.ndarray, group_info: Dict[str, Any]
+    ) -> Tuple[np.ndarray, Dict[str, float], float]:
         """
         Fit mixed effects model using Maximum Likelihood (ML).
         """
+
         # Simplified ML implementation (similar to REML but without restriction)
         def negative_ml_loglik(params):
-            beta = params[:X.shape[1]]
+            beta = params[: X.shape[1]]
             sigma2 = np.exp(params[X.shape[1]])
             tau2 = np.exp(params[X.shape[1] + 1])
 
@@ -293,42 +307,41 @@ class MixedEffectsSPM:
                 return np.inf
 
         # Same optimization as REML
-        n_params = X.shape[1] + 2
-        init_params = np.concatenate([
-            np.linalg.pinv(X) @ y,
-            [0.0, 0.0]
-        ])
+        _n_params = X.shape[1] + 2
+        init_params = np.concatenate([np.linalg.pinv(X) @ y, [0.0, 0.0]])
 
         try:
             result = minimize(
                 negative_ml_loglik,
                 init_params,
-                method='L-BFGS-B',
-                options={'maxiter': 100}
+                method="L-BFGS-B",
+                options={"maxiter": 100},
             )
 
             if result.success:
-                beta_hat = result.x[:X.shape[1]]
+                beta_hat = result.x[: X.shape[1]]
                 sigma2 = np.exp(result.x[X.shape[1]])
                 tau2 = np.exp(result.x[X.shape[1] + 1])
                 log_likelihood = -result.fun
 
                 variance_components = {
-                    'residual_variance': sigma2,
-                    'random_effects_variance': tau2,
-                    'total_variance': sigma2 + tau2
+                    "residual_variance": sigma2,
+                    "random_effects_variance": tau2,
+                    "total_variance": sigma2 + tau2,
                 }
 
                 return beta_hat, variance_components, log_likelihood
             else:
                 logger.debug("ML optimization did not converge")
-                return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
+                return np.linalg.pinv(X) @ y, {"residual_variance": np.var(y)}, -np.inf
 
         except Exception as e:
             logger.debug("ML fitting failed: %s", e)
-            return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
+            return np.linalg.pinv(X) @ y, {"residual_variance": np.var(y)}, -np.inf
 
-    def predict(self, new_data: SPMData, include_random_effects: bool = True) -> np.ndarray:
+    def predict(
+        self, new_data: SPMData, include_random_effects: bool = True
+    ) -> np.ndarray:
         """
         Make predictions using fitted mixed effects model.
 
@@ -345,7 +358,7 @@ class MixedEffectsSPM:
         # For simplicity, return fixed effects predictions only
         # Full implementation would handle random effects properly
         X_pred = self.fixed_design.matrix  # Would need to construct for new data
-        beta = self.fitted_model['beta']
+        beta = self.fitted_model["beta"]
 
         return X_pred @ beta
 
@@ -361,12 +374,9 @@ class MixedEffectsSPM:
 
         # Baseline - full implementation would extract random effects
         # from the fitted model
-        return {
-            'random_effects': np.array([]),
-            'group_effects': {}
-        }
+        return {"random_effects": np.array([]), "group_effects": {}}
 
-    def anova(self, other_model: 'MixedEffectsSPM') -> Dict[str, Any]:
+    def anova(self, other_model: "MixedEffectsSPM") -> Dict[str, Any]:
         """
         Perform likelihood ratio test comparing two nested models.
 
@@ -380,12 +390,12 @@ class MixedEffectsSPM:
             raise ValueError("Both models must be fitted")
 
         # Likelihood ratio test
-        ll1 = self.fitted_model['log_likelihood']
-        ll2 = other_model.fitted_model['log_likelihood']
+        ll1 = self.fitted_model["log_likelihood"]
+        ll2 = other_model.fitted_model["log_likelihood"]
 
         # Determine which model is nested
-        df1 = len(self.fitted_model['beta'])
-        df2 = len(other_model.fitted_model['beta'])
+        df1 = len(self.fitted_model["beta"])
+        df2 = len(other_model.fitted_model["beta"])
 
         if df1 != df2:
             lr_stat = 2 * abs(ll1 - ll2)
@@ -397,16 +407,19 @@ class MixedEffectsSPM:
             p_value = 1.0
 
         return {
-            'likelihood_ratio': lr_stat,
-            'df': df_diff,
-            'p_value': p_value,
-            'significant': p_value < 0.05
+            "likelihood_ratio": lr_stat,
+            "df": df_diff,
+            "p_value": p_value,
+            "significant": p_value < 0.05,
         }
 
 
-def fit_mixed_effects(data: SPMData, fixed_design: DesignMatrix,
-                     random_groups: Dict[str, np.ndarray],
-                     **kwargs) -> SPMResult:
+def fit_mixed_effects(
+    data: SPMData,
+    fixed_design: DesignMatrix,
+    random_groups: Dict[str, np.ndarray],
+    **kwargs,
+) -> SPMResult:
     """
     Convenience function to fit mixed effects SPM model.
 

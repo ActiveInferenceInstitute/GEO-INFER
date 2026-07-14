@@ -27,8 +27,12 @@ import yaml
 _CONFIG_PATH = os.path.normpath(
     os.path.join(
         os.path.dirname(__file__),
-        os.pardir, os.pardir,
-        "locations", "del_norte_county", "config", "analysis_config.yaml",
+        os.pardir,
+        os.pardir,
+        "locations",
+        "del_norte_county",
+        "config",
+        "analysis_config.yaml",
     )
 )
 
@@ -42,6 +46,7 @@ def _load_config() -> dict:
 # ---------------------------------------------------------------------------
 # CoastalResilienceAnalyzer
 # ---------------------------------------------------------------------------
+
 
 class TestCoastalResilienceAnalyzer(unittest.TestCase):
     """Tests for the CoastalResilienceAnalyzer."""
@@ -127,6 +132,7 @@ class TestCoastalResilienceAnalyzer(unittest.TestCase):
 # FireRiskAssessor
 # ---------------------------------------------------------------------------
 
+
 class TestFireRiskAssessor(unittest.TestCase):
     """Tests for the FireRiskAssessor."""
 
@@ -206,6 +212,7 @@ class TestFireRiskAssessor(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # SeismicHazardAnalyzer
 # ---------------------------------------------------------------------------
+
 
 class TestSeismicHazardAnalyzer(unittest.TestCase):
     """Tests for the SeismicHazardAnalyzer."""
@@ -297,6 +304,7 @@ class TestSeismicHazardAnalyzer(unittest.TestCase):
 # AdvancedDashboard
 # ---------------------------------------------------------------------------
 
+
 class TestAdvancedDashboard(unittest.TestCase):
     """Tests for the AdvancedDashboard (dashboard sub-package)."""
 
@@ -351,6 +359,7 @@ class TestAdvancedDashboard(unittest.TestCase):
     def test_create_map(self):
         """create_comprehensive_map should return a folium.Map."""
         import folium
+
         m = self.dashboard.create_comprehensive_map()
         self.assertIsInstance(m, folium.Map)
 
@@ -382,27 +391,35 @@ class TestAdvancedDashboard(unittest.TestCase):
 # __init__.py exports
 # ---------------------------------------------------------------------------
 
+
 class TestDelNorteExports(unittest.TestCase):
     """Verify that all expected classes are importable from the package."""
 
     def test_forest_health_monitor(self):
         from geo_infer_place.locations.del_norte_county import ForestHealthMonitor
+
         self.assertIsNotNone(ForestHealthMonitor)
 
     def test_coastal_resilience_analyzer(self):
         from geo_infer_place.locations.del_norte_county import CoastalResilienceAnalyzer
+
         self.assertIsNotNone(CoastalResilienceAnalyzer)
 
     def test_fire_risk_assessor(self):
         from geo_infer_place.locations.del_norte_county import FireRiskAssessor
+
         self.assertIsNotNone(FireRiskAssessor)
 
     def test_seismic_hazard_analyzer(self):
         from geo_infer_place.locations.del_norte_county import SeismicHazardAnalyzer
+
         self.assertIsNotNone(SeismicHazardAnalyzer)
 
     def test_comprehensive_dashboard(self):
-        from geo_infer_place.locations.del_norte_county import DelNorteComprehensiveDashboard
+        from geo_infer_place.locations.del_norte_county import (
+            DelNorteComprehensiveDashboard,
+        )
+
         self.assertIsNotNone(DelNorteComprehensiveDashboard)
 
 

@@ -29,9 +29,10 @@ import logging
 from typing import Dict, Optional, Tuple, Any
 from scipy import linalg
 from scipy.stats import t, f
+
 logger = logging.getLogger(__name__)
 
-from ..models.data_models import SPMData, DesignMatrix, SPMResult
+from ..models.data_models import SPMData, DesignMatrix, SPMResult  # noqa: E402
 
 
 class GeneralLinearModel:

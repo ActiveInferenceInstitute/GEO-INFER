@@ -20,10 +20,7 @@ Implemented Methods:
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
-from scipy import stats
-from scipy.optimize import minimize
-import warnings
+from typing import Dict, Optional, Tuple, Any
 
 from ...models.data_models import SPMData, SPMResult, DesignMatrix
 
@@ -42,8 +39,12 @@ class NonparametricSPM:
         fitted_model: Fitted nonparametric model
     """
 
-    def __init__(self, method: str = "loess", bandwidth: Optional[float] = None,
-                 kernel: str = "gaussian"):
+    def __init__(
+        self,
+        method: str = "loess",
+        bandwidth: Optional[float] = None,
+        kernel: str = "gaussian",
+    ):
         """
         Initialize nonparametric SPM.
 
@@ -61,16 +62,20 @@ class NonparametricSPM:
 
     def _validate_parameters(self):
         """Validate method parameters."""
-        valid_methods = ['loess', 'lowess', 'kernel', 'spline', 'gam', 'robust']
+        valid_methods = ["loess", "lowess", "kernel", "spline", "gam", "robust"]
         if self.method not in valid_methods:
             raise ValueError(f"Method must be one of {valid_methods}")
 
-        valid_kernels = ['gaussian', 'epanechnikov', 'uniform', 'triangular']
+        valid_kernels = ["gaussian", "epanechnikov", "uniform", "triangular"]
         if self.kernel not in valid_kernels:
             raise ValueError(f"Kernel must be one of {valid_kernels}")
 
-    def fit(self, data: SPMData, design_matrix: DesignMatrix,
-            response_var: Optional[str] = None) -> SPMResult:
+    def fit(
+        self,
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        response_var: Optional[str] = None,
+    ) -> SPMResult:
         """
         Fit nonparametric model to SPM data.
 
@@ -87,15 +92,15 @@ class NonparametricSPM:
         y = self._extract_response(data, response_var)
 
         # Fit nonparametric model
-        if self.method in ['loess', 'lowess']:
+        if self.method in ["loess", "lowess"]:
             y_hat, weights, diagnostics = self._fit_loess(X, y)
-        elif self.method == 'kernel':
+        elif self.method == "kernel":
             y_hat, weights, diagnostics = self._fit_kernel_regression(X, y)
-        elif self.method == 'spline':
+        elif self.method == "spline":
             y_hat, weights, diagnostics = self._fit_spline(X, y)
-        elif self.method == 'gam':
+        elif self.method == "gam":
             y_hat, weights, diagnostics = self._fit_gam(X, y)
-        elif self.method == 'robust':
+        elif self.method == "robust":
             y_hat, weights, diagnostics = self._fit_robust_regression(X, y)
         else:
             raise ValueError(f"Unknown method: {self.method}")
@@ -105,11 +110,11 @@ class NonparametricSPM:
 
         # Store fitted model
         self.fitted_model = {
-            'y_hat': y_hat,
-            'weights': weights,
-            'diagnostics': diagnostics,
-            'method': self.method,
-            'bandwidth': self.bandwidth
+            "y_hat": y_hat,
+            "weights": weights,
+            "diagnostics": diagnostics,
+            "method": self.method,
+            "bandwidth": self.bandwidth,
         }
 
         # Create SPMResult
@@ -119,17 +124,19 @@ class NonparametricSPM:
             beta_coefficients=np.array([]),  # Nonparametric, no beta coefficients
             residuals=residuals,
             model_diagnostics={
-                'method': f'Nonparametric_{self.method}',
-                'r_squared': diagnostics.get('r_squared', 0),
-                'bandwidth': self.bandwidth,
-                'kernel': self.kernel if self.method == 'kernel' else None,
-                'converged': diagnostics.get('converged', True)
-            }
+                "method": f"Nonparametric_{self.method}",
+                "r_squared": diagnostics.get("r_squared", 0),
+                "bandwidth": self.bandwidth,
+                "kernel": self.kernel if self.method == "kernel" else None,
+                "converged": diagnostics.get("converged", True),
+            },
         )
 
         return result
 
-    def _extract_response(self, data: SPMData, response_var: Optional[str]) -> np.ndarray:
+    def _extract_response(
+        self, data: SPMData, response_var: Optional[str]
+    ) -> np.ndarray:
         """Extract response variable from SPMData."""
         if isinstance(data.data, np.ndarray):
             if data.data.ndim == 1:
@@ -143,7 +150,9 @@ class NonparametricSPM:
         else:
             raise TypeError("Nonparametric methods require array data")
 
-    def _fit_loess(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _fit_loess(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit LOESS (Locally Estimated Scatterplot Smoothing).
 
@@ -172,7 +181,7 @@ class NonparametricSPM:
                 np.finfo(float).eps,
             )
             u = distances / max_dist
-            w = (1 - u**3)**3
+            w = (1 - u**3) ** 3
             w[u > 1] = 0  # Only use nearby points
 
             weights[i, :] = w
@@ -188,19 +197,21 @@ class NonparametricSPM:
                 y_hat[i] = np.mean(y[w > 0]) if np.any(w > 0) else y[i]
 
         # Compute diagnostics
-        ss_res = np.sum((y - y_hat)**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
+        ss_res = np.sum((y - y_hat) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         diagnostics = {
-            'r_squared': r_squared,
-            'bandwidth': self.bandwidth,
-            'converged': True
+            "r_squared": r_squared,
+            "bandwidth": self.bandwidth,
+            "converged": True,
         }
 
         return y_hat, weights, diagnostics
 
-    def _fit_kernel_regression(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _fit_kernel_regression(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit kernel regression model.
 
@@ -214,7 +225,7 @@ class NonparametricSPM:
 
         # Determine bandwidth
         if self.bandwidth is None:
-            self.bandwidth = 1.06 * np.std(x) * n_points**(-1/5)  # Scott's rule
+            self.bandwidth = 1.06 * np.std(x) * n_points ** (-1 / 5)  # Scott's rule
 
         weights = np.zeros((n_points, n_points))
 
@@ -222,13 +233,13 @@ class NonparametricSPM:
             # Compute kernel weights
             u = (x - x[i]) / self.bandwidth
 
-            if self.kernel == 'gaussian':
+            if self.kernel == "gaussian":
                 w = np.exp(-0.5 * u**2) / np.sqrt(2 * np.pi)
-            elif self.kernel == 'epanechnikov':
+            elif self.kernel == "epanechnikov":
                 w = 0.75 * (1 - u**2) * (np.abs(u) <= 1)
-            elif self.kernel == 'uniform':
+            elif self.kernel == "uniform":
                 w = 0.5 * (np.abs(u) <= 1)
-            elif self.kernel == 'triangular':
+            elif self.kernel == "triangular":
                 w = (1 - np.abs(u)) * (np.abs(u) <= 1)
             else:
                 w = np.exp(-0.5 * u**2) / np.sqrt(2 * np.pi)  # Default to Gaussian
@@ -237,20 +248,22 @@ class NonparametricSPM:
             y_hat[i] = np.sum(w * y) / np.sum(w) if np.sum(w) > 0 else y[i]
 
         # Compute diagnostics
-        ss_res = np.sum((y - y_hat)**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
+        ss_res = np.sum((y - y_hat) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         diagnostics = {
-            'r_squared': r_squared,
-            'bandwidth': self.bandwidth,
-            'kernel': self.kernel,
-            'converged': True
+            "r_squared": r_squared,
+            "bandwidth": self.bandwidth,
+            "kernel": self.kernel,
+            "converged": True,
         }
 
         return y_hat, weights, diagnostics
 
-    def _fit_spline(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _fit_spline(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit smoothing spline.
 
@@ -261,7 +274,7 @@ class NonparametricSPM:
 
         # Sort data by x
         sort_idx = np.argsort(x)
-        x_sorted = x[sort_idx]
+        _x_sorted = x[sort_idx]
         y_sorted = y[sort_idx]
 
         # Simple smoothing spline approximation
@@ -270,7 +283,9 @@ class NonparametricSPM:
 
         # Use moving average as approximation
         window_size = max(3, int(self.bandwidth * len(y)))
-        y_hat_sorted = np.convolve(y_sorted, np.ones(window_size)/window_size, mode='same')
+        y_hat_sorted = np.convolve(
+            y_sorted, np.ones(window_size) / window_size, mode="same"
+        )
 
         # Unsort results
         y_hat = np.zeros_like(y)
@@ -280,20 +295,22 @@ class NonparametricSPM:
         weights = np.eye(len(y))
 
         # Compute diagnostics
-        ss_res = np.sum((y - y_hat)**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
+        ss_res = np.sum((y - y_hat) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         diagnostics = {
-            'r_squared': r_squared,
-            'bandwidth': self.bandwidth,
-            'method': 'simplified_spline',
-            'converged': True
+            "r_squared": r_squared,
+            "bandwidth": self.bandwidth,
+            "method": "simplified_spline",
+            "converged": True,
         }
 
         return y_hat, weights, diagnostics
 
-    def _fit_gam(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _fit_gam(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit Generalized Additive Model (simplified).
 
@@ -324,20 +341,22 @@ class NonparametricSPM:
         weights = np.eye(n_points)
 
         # Compute diagnostics
-        ss_res = np.sum((y - y_hat)**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
+        ss_res = np.sum((y - y_hat) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         diagnostics = {
-            'r_squared': r_squared,
-            'bandwidth': self.bandwidth,
-            'n_predictors': n_predictors,
-            'converged': True
+            "r_squared": r_squared,
+            "bandwidth": self.bandwidth,
+            "n_predictors": n_predictors,
+            "converged": True,
         }
 
         return y_hat, weights, diagnostics
 
-    def _fit_robust_regression(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    def _fit_robust_regression(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit robust regression using iteratively reweighted least squares.
 
@@ -386,35 +405,38 @@ class NonparametricSPM:
         weights = np.eye(n_points)
 
         # Compute robust R-squared
-        ss_res = np.sum(weights * (y - y_hat)**2)
-        ss_tot = np.sum(weights * (y - np.median(y))**2)
+        ss_res = np.sum(weights * (y - y_hat) ** 2)
+        ss_tot = np.sum(weights * (y - np.median(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         diagnostics = {
-            'r_squared': r_squared,
-            'robust_scale': scale,
-            'n_iterations': iteration + 1,
-            'converged': iteration < max_iter - 1
+            "r_squared": r_squared,
+            "robust_scale": scale,
+            "n_iterations": iteration + 1,
+            "converged": iteration < max_iter - 1,
         }
 
         return y_hat, weights, diagnostics
 
-    def _local_smooth(self, x: np.ndarray, y: np.ndarray, bandwidth: float) -> np.ndarray:
+    def _local_smooth(
+        self, x: np.ndarray, y: np.ndarray, bandwidth: float
+    ) -> np.ndarray:
         """Local smoothing for GAM components."""
         n_points = len(x)
         y_smooth = np.zeros(n_points)
 
         for i in range(n_points):
             # Gaussian kernel weights
-            weights = np.exp(-0.5 * ((x - x[i]) / bandwidth)**2)
+            weights = np.exp(-0.5 * ((x - x[i]) / bandwidth) ** 2)
             weights /= np.sum(weights)
 
             y_smooth[i] = np.sum(weights * y)
 
         return y_smooth
 
-    def temporal_basis_functions(self, time_points: np.ndarray, n_basis: int = 5,
-                                basis_type: str = 'fourier') -> np.ndarray:
+    def temporal_basis_functions(
+        self, time_points: np.ndarray, n_basis: int = 5, basis_type: str = "fourier"
+    ) -> np.ndarray:
         """
         Generate temporal basis functions for time series modeling.
 
@@ -427,11 +449,12 @@ class NonparametricSPM:
             Basis matrix of shape (n_timepoints, n_basis)
         """
         import numpy as np
+
         n_points = len(time_points)
         t_range = float(time_points.max() - time_points.min())
         t_norm = (time_points - time_points.min()) / (t_range if t_range > 0 else 1.0)
 
-        if basis_type == 'fourier':
+        if basis_type == "fourier":
             basis = np.zeros((n_points, n_basis))
             basis[:, 0] = 1.0
             for k in range(1, n_basis):
@@ -440,18 +463,20 @@ class NonparametricSPM:
                     basis[:, k] = np.sin(2 * np.pi * freq * t_norm)
                 else:
                     basis[:, k] = np.cos(2 * np.pi * freq * t_norm)
-        elif basis_type == 'polynomial':
+        elif basis_type == "polynomial":
             basis = np.zeros((n_points, n_basis))
             for k in range(n_basis):
-                basis[:, k] = t_norm ** k
-        elif basis_type == 'bspline':
+                basis[:, k] = t_norm**k
+        elif basis_type == "bspline":
             basis = np.zeros((n_points, n_basis))
             knot_positions = np.linspace(0, 1, n_basis)
             width = 1.0 / max(n_basis - 1, 1)
             for k in range(n_basis):
                 basis[:, k] = np.exp(-0.5 * ((t_norm - knot_positions[k]) / width) ** 2)
         else:
-            raise ValueError(f"Unknown basis type: {basis_type}. Must be 'fourier', 'polynomial', or 'bspline'")
+            raise ValueError(
+                f"Unknown basis type: {basis_type}. Must be 'fourier', 'polynomial', or 'bspline'"
+            )
 
         return basis
 
@@ -469,7 +494,7 @@ class NonparametricSPM:
             raise ValueError("Model must be fitted before making predictions")
 
         # Simplified prediction - in practice would need proper interpolation
-        return self.fitted_model['y_hat']
+        return self.fitted_model["y_hat"]
 
     def get_smooth_components(self) -> Optional[np.ndarray]:
         """
@@ -481,11 +506,12 @@ class NonparametricSPM:
         if self.fitted_model is None:
             return None
 
-        return self.fitted_model.get('smooth_components')
+        return self.fitted_model.get("smooth_components")
 
 
-def fit_nonparametric(data: SPMData, design_matrix: DesignMatrix,
-                     method: str = "loess", **kwargs) -> SPMResult:
+def fit_nonparametric(
+    data: SPMData, design_matrix: DesignMatrix, method: str = "loess", **kwargs
+) -> SPMResult:
     """
     Convenience function to fit nonparametric SPM model.
 

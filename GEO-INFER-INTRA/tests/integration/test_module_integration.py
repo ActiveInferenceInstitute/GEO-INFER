@@ -1,7 +1,6 @@
 """Integration tests for cross-module functionality."""
 
 import pytest
-import os
 import sys
 import yaml
 import tempfile
@@ -9,6 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from intra_utils import import_module_by_path, collect_test_modules
+
 
 @pytest.mark.integration
 class TestCrossModuleIntegration:
@@ -39,6 +39,7 @@ class TestCrossModuleIntegration:
     @pytest.fixture(scope="class")
     def create_test_config_file(self, test_config_dir, test_log_dir):
         """Factory fixture to create config files for different modules."""
+
         def _create_config(module_name: str) -> Path:
             config_file = test_config_dir / f"{module_name}_config.yml"
             config = {
@@ -48,8 +49,8 @@ class TestCrossModuleIntegration:
                 "logging": {
                     "level": "DEBUG",
                     "format": "json",
-                    "file": str(test_log_dir / f"{module_name}.log")
-                }
+                    "file": str(test_log_dir / f"{module_name}.log"),
+                },
             }
 
             # Add module-specific configuration
@@ -60,14 +61,8 @@ class TestCrossModuleIntegration:
                 config["time_formats"] = ["ISO8601", "RFC3339"]
                 config["timezone"] = "UTC"
             elif module_name == "geo_infer_api":
-                config["server"] = {
-                    "host": "localhost",
-                    "port": 9000,
-                    "workers": 1
-                }
-                config["auth"] = {
-                    "enabled": False
-                }
+                config["server"] = {"host": "localhost", "port": 9000, "workers": 1}
+                config["auth"] = {"enabled": False}
 
             with open(config_file, "w") as f:
                 yaml.dump(config, f)
@@ -101,19 +96,19 @@ class TestCrossModuleIntegration:
         """Create a GeoJSON Feature for testing."""
         return {
             "type": "Feature",
-            "properties": {
-                "name": "Test Polygon",
-                "value": 42
-            },
+            "properties": {"name": "Test Polygon", "value": 42},
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
                     [
-                        [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
-                        [100.0, 1.0], [100.0, 0.0]
+                        [100.0, 0.0],
+                        [101.0, 0.0],
+                        [101.0, 1.0],
+                        [100.0, 1.0],
+                        [100.0, 0.0],
                     ]
-                ]
-            }
+                ],
+            },
         }
 
     @pytest.fixture(scope="class")
@@ -125,9 +120,9 @@ class TestCrossModuleIntegration:
                 "2023-01-02T00:00:00Z",
                 "2023-01-03T00:00:00Z",
                 "2023-01-04T00:00:00Z",
-                "2023-01-05T00:00:00Z"
+                "2023-01-05T00:00:00Z",
             ],
-            "values": [10.5, 11.2, 9.8, 12.3, 10.9]
+            "values": [10.5, 11.2, 9.8, 12.3, 10.9],
         }
 
     def test_module_discovery(self, geo_infer_modules):
@@ -135,17 +130,15 @@ class TestCrossModuleIntegration:
         assert len(geo_infer_modules) > 0
 
         # Check some key modules
-        expected_modules = [
-            "geo_infer_space",
-            "geo_infer_time",
-            "geo_infer_data"
-        ]
+        expected_modules = ["geo_infer_space", "geo_infer_time", "geo_infer_data"]
 
         # Adjust expectations based on what's actually available
         available_expected = [m for m in expected_modules if m in geo_infer_modules]
         if available_expected:
             for module_name in available_expected:
-                assert module_name in geo_infer_modules, f"Module {module_name} not found"
+                assert (
+                    module_name in geo_infer_modules
+                ), f"Module {module_name} not found"
         else:
             pytest.fail("No expected modules found in the project")
 
@@ -159,12 +152,16 @@ class TestCrossModuleIntegration:
             if module_name in geo_infer_modules:
                 modules_found = True
                 module_path = geo_infer_modules[module_name]
-                init_file = module_path / "src" / module_name.replace("-", "_") / "__init__.py"
+                init_file = (
+                    module_path / "src" / module_name.replace("-", "_") / "__init__.py"
+                )
 
                 if init_file.exists():
                     try:
                         # Try to import the module
-                        imported_module = import_module_by_path(str(init_file), module_name)
+                        imported_module = import_module_by_path(
+                            str(init_file), module_name
+                        )
                         assert imported_module is not None
                     except ImportError as e:
                         pytest.fail(f"Could not import {module_name}: {e}")
@@ -172,12 +169,15 @@ class TestCrossModuleIntegration:
         if not modules_found:
             pytest.fail("No testable modules found")
 
-    @pytest.mark.parametrize("config_fixture", [
-        "space_config_file",
-        "time_config_file",
-        "api_config_file",
-        "data_config_file"
-    ])
+    @pytest.mark.parametrize(
+        "config_fixture",
+        [
+            "space_config_file",
+            "time_config_file",
+            "api_config_file",
+            "data_config_file",
+        ],
+    )
     def test_module_configs(self, request, config_fixture):
         """Test that module-specific configuration files can be loaded."""
         config_file = request.getfixturevalue(config_fixture)
@@ -192,7 +192,9 @@ class TestCrossModuleIntegration:
         assert "debug" in config
         assert "logging" in config
 
-    def test_space_time_integration(self, geo_infer_modules, test_geojson_feature, test_time_series_data):
+    def test_space_time_integration(
+        self, geo_infer_modules, test_geojson_feature, test_time_series_data
+    ):
         """Test integration between space and time modules."""
         # Skip test if required modules not available
         required_modules = ["geo_infer_space", "geo_infer_time"]
@@ -206,13 +208,14 @@ class TestCrossModuleIntegration:
             "geometry": test_geojson_feature["geometry"],
             "properties": {
                 **test_geojson_feature["properties"],
-                "time_series": test_time_series_data
-            }
+                "time_series": test_time_series_data,
+            },
         }
 
         # Make assertions about the combined feature
         assert "time_series" in space_time_feature["properties"]
         assert "timestamps" in space_time_feature["properties"]["time_series"]
         assert "values" in space_time_feature["properties"]["time_series"]
-        assert len(space_time_feature["properties"]["time_series"]["timestamps"]) == \
-               len(space_time_feature["properties"]["time_series"]["values"])
+        assert len(
+            space_time_feature["properties"]["time_series"]["timestamps"]
+        ) == len(space_time_feature["properties"]["time_series"]["values"])

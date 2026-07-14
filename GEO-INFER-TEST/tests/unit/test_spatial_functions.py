@@ -14,41 +14,77 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import h3
-import shapely.geometry as sgeom
 from shapely.geometry import Point, Polygon, LineString
-from pathlib import Path
-import tempfile
 import json
 import time
+
 
 # Test data
 @pytest.fixture
 def sample_points():
     """Sample point geometries for testing."""
-    return gpd.GeoDataFrame({
-        'geometry': [
-            Point(-122.4194, 37.7749),  # San Francisco
-            Point(-122.4000, 37.7800),  # Oakland
-            Point(-122.4500, 37.7600),  # San Jose
-            Point(-122.5000, 37.7500),  # Further south
-            Point(-122.3500, 37.8000)   # Further north
-        ],
-        'name': ['San Francisco', 'Oakland', 'San Jose', 'South Point', 'North Point'],
-        'population': [873965, 440646, 1030119, 50000, 30000]
-    }, crs="EPSG:4326")
+    return gpd.GeoDataFrame(
+        {
+            "geometry": [
+                Point(-122.4194, 37.7749),  # San Francisco
+                Point(-122.4000, 37.7800),  # Oakland
+                Point(-122.4500, 37.7600),  # San Jose
+                Point(-122.5000, 37.7500),  # Further south
+                Point(-122.3500, 37.8000),  # Further north
+            ],
+            "name": [
+                "San Francisco",
+                "Oakland",
+                "San Jose",
+                "South Point",
+                "North Point",
+            ],
+            "population": [873965, 440646, 1030119, 50000, 30000],
+        },
+        crs="EPSG:4326",
+    )
+
 
 @pytest.fixture
 def sample_polygons():
     """Sample polygon geometries for testing."""
-    return gpd.GeoDataFrame({
-        'geometry': [
-            Polygon([(-122.5, 37.7), (-122.3, 37.7), (-122.3, 37.9), (-122.5, 37.9), (-122.5, 37.7)]),
-            Polygon([(-122.4, 37.6), (-122.2, 37.6), (-122.2, 37.8), (-122.4, 37.8), (-122.4, 37.6)]),
-            Polygon([(-122.6, 37.5), (-122.4, 37.5), (-122.4, 37.7), (-122.6, 37.7), (-122.6, 37.5)])
-        ],
-        'name': ['Region A', 'Region B', 'Region C'],
-        'area_km2': [100, 150, 200]
-    }, crs="EPSG:4326")
+    return gpd.GeoDataFrame(
+        {
+            "geometry": [
+                Polygon(
+                    [
+                        (-122.5, 37.7),
+                        (-122.3, 37.7),
+                        (-122.3, 37.9),
+                        (-122.5, 37.9),
+                        (-122.5, 37.7),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-122.4, 37.6),
+                        (-122.2, 37.6),
+                        (-122.2, 37.8),
+                        (-122.4, 37.8),
+                        (-122.4, 37.6),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-122.6, 37.5),
+                        (-122.4, 37.5),
+                        (-122.4, 37.7),
+                        (-122.6, 37.7),
+                        (-122.6, 37.5),
+                    ]
+                ),
+            ],
+            "name": ["Region A", "Region B", "Region C"],
+            "area_km2": [100, 150, 200],
+        },
+        crs="EPSG:4326",
+    )
+
 
 @pytest.fixture
 def sample_h3_indices():
@@ -67,6 +103,7 @@ def sample_h3_indices():
         indices.extend(list(neighbors)[:5])  # Limit to 5 neighbors
 
     return indices
+
 
 class TestH3SpatialIndexing:
     """Test H3 v4 spatial indexing functionality."""
@@ -124,7 +161,9 @@ class TestH3SpatialIndexing:
         boundary = h3.cell_to_boundary(h3_cell)
 
         assert len(boundary) == 6  # H3 cells are hexagonal
-        assert all(len(coord) == 2 for coord in boundary)  # Each coordinate is [lng, lat]
+        assert all(
+            len(coord) == 2 for coord in boundary
+        )  # Each coordinate is [lng, lat]
 
     def test_h3_resolution_consistency(self):
         """Test that H3 resolution is consistent across operations."""
@@ -168,6 +207,7 @@ class TestH3SpatialIndexing:
             cell_resolution = h3.get_resolution(cell)
             assert cell_resolution == resolution
 
+
 class TestSpatialDataProcessing:
     """Test spatial data processing functions."""
 
@@ -177,8 +217,8 @@ class TestSpatialDataProcessing:
 
         assert len(gdf) == 5
         assert all(isinstance(geom, Point) for geom in gdf.geometry)
-        assert 'name' in gdf.columns
-        assert 'population' in gdf.columns
+        assert "name" in gdf.columns
+        assert "population" in gdf.columns
 
     def test_spatial_indexing(self, sample_points):
         """Test spatial indexing for efficient queries."""
@@ -200,7 +240,7 @@ class TestSpatialDataProcessing:
         polygons_gdf = sample_polygons
 
         # Perform spatial join
-        joined = gpd.sjoin(points_gdf, polygons_gdf, how='inner', predicate='within')
+        joined = gpd.sjoin(points_gdf, polygons_gdf, how="inner", predicate="within")
 
         # Check that join produced results
         assert len(joined) >= 0  # May be 0 if no points are within polygons
@@ -212,11 +252,11 @@ class TestSpatialDataProcessing:
 
         # Create buffers
         metric_gdf = gdf.to_crs("EPSG:3857")
-        metric_gdf['buffer'] = metric_gdf.geometry.buffer(buffer_distance)
-        gdf['buffer'] = metric_gdf['buffer'].to_crs("EPSG:4326")
+        metric_gdf["buffer"] = metric_gdf.geometry.buffer(buffer_distance)
+        gdf["buffer"] = metric_gdf["buffer"].to_crs("EPSG:4326")
 
-        assert all(isinstance(buf, Polygon) for buf in gdf['buffer'])
-        assert all(buf.area > 0 for buf in gdf['buffer'])
+        assert all(isinstance(buf, Polygon) for buf in gdf["buffer"])
+        assert all(buf.area > 0 for buf in gdf["buffer"])
 
     def test_distance_calculations(self, sample_points):
         """Test distance calculations between geometries."""
@@ -230,6 +270,7 @@ class TestSpatialDataProcessing:
         assert len(distances) == len(gdf)
         assert distances.iloc[0] == 0  # Distance to self should be 0
         assert all(dist >= 0 for dist in distances)
+
 
 class TestCoordinateTransformations:
     """Test coordinate transformation functions."""
@@ -267,8 +308,12 @@ class TestCoordinateTransformations:
         from pyproj import Transformer
 
         # Forward and reverse transformations
-        forward_transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-        reverse_transformer = Transformer.from_crs("EPSG:3857", "EPSG:4326", always_xy=True)
+        forward_transformer = Transformer.from_crs(
+            "EPSG:4326", "EPSG:3857", always_xy=True
+        )
+        reverse_transformer = Transformer.from_crs(
+            "EPSG:3857", "EPSG:4326", always_xy=True
+        )
 
         # Original coordinates
         lon, lat = -122.4194, 37.7749
@@ -282,6 +327,7 @@ class TestCoordinateTransformations:
         # Check that we get back close to original coordinates
         assert abs(lon - lon_back) < 1e-6
         assert abs(lat - lat_back) < 1e-6
+
 
 class TestSpatialAnalysis:
     """Test spatial analysis functions."""
@@ -326,16 +372,17 @@ class TestSpatialAnalysis:
         lines = [
             LineString([(-122.4194, 37.7749), (-122.4000, 37.7800)]),
             LineString([(-122.4500, 37.7600), (-122.4194, 37.7749)]),
-            LineString([(-122.5000, 37.7500), (-122.3500, 37.8000)])
+            LineString([(-122.5000, 37.7500), (-122.3500, 37.8000)]),
         ]
 
-        gdf = gpd.GeoDataFrame({'geometry': lines})
+        gdf = gpd.GeoDataFrame({"geometry": lines})
 
         # Calculate lengths
         lengths = gdf.geometry.length
 
         assert len(lengths) == len(gdf)
         assert all(length > 0 for length in lengths)
+
 
 class TestSpatialDataValidation:
     """Test spatial data validation functions."""
@@ -375,6 +422,7 @@ class TestSpatialDataValidation:
         assert len(bbox) == 4  # [minx, miny, maxx, maxy]
         assert bbox[0] < bbox[2]  # minx < maxx
         assert bbox[1] < bbox[3]  # miny < maxy
+
 
 class TestSpatialDataIO:
     """Test spatial data input/output functions."""
@@ -419,33 +467,28 @@ class TestSpatialDataIO:
 
             feature = {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [coordinates]
-                },
+                "geometry": {"type": "Polygon", "coordinates": [coordinates]},
                 "properties": {
                     "h3_index": str(h3_cell),
-                    "resolution": h3.get_resolution(h3_cell)
-                }
+                    "resolution": h3.get_resolution(h3_cell),
+                },
             }
             geojson_features.append(feature)
 
-        geojson = {
-            "type": "FeatureCollection",
-            "features": geojson_features
-        }
+        geojson = {"type": "FeatureCollection", "features": geojson_features}
 
         # Write to file
         output_file = tmp_path / "h3_cells.geojson"
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(geojson, f)
 
         # Read back and validate
         gdf = gpd.read_file(output_file)
 
         assert len(gdf) == len(sample_h3_indices)
-        assert 'h3_index' in gdf.columns
-        assert 'resolution' in gdf.columns
+        assert "h3_index" in gdf.columns
+        assert "resolution" in gdf.columns
+
 
 @pytest.mark.performance
 class TestSpatialPerformance:
@@ -461,7 +504,7 @@ class TestSpatialPerformance:
         lats = np.random.uniform(37.7, 37.9, n_points)
 
         points = [Point(lon, lat) for lon, lat in zip(lons, lats)]
-        gdf = gpd.GeoDataFrame({'geometry': points})
+        gdf = gpd.GeoDataFrame({"geometry": points})
 
         # Test spatial indexing performance
         spatial_index = gdf.sindex
@@ -488,8 +531,9 @@ class TestSpatialPerformance:
 
         # Test bulk H3 cell creation
         start_time = time.time()
-        h3_cells = [h3.latlng_to_cell(lat, lon, resolution)
-                   for lat, lon in zip(lats, lons)]
+        h3_cells = [
+            h3.latlng_to_cell(lat, lon, resolution) for lat, lon in zip(lats, lons)
+        ]
         creation_time = time.time() - start_time
 
         assert creation_time < 5.0  # Should complete within 5 seconds
@@ -501,10 +545,13 @@ class TestSpatialPerformance:
 # Property-Based Tests (Hypothesis)
 # ---------------------------------------------------------------------------
 
+
 class TestHypothesisSpatial:
     """Property-based tests for spatial functions using Hypothesis."""
 
-    @given(st.floats(min_value=-80, max_value=80), st.floats(min_value=-180, max_value=180))
+    @given(
+        st.floats(min_value=-80, max_value=80), st.floats(min_value=-180, max_value=180)
+    )
     def test_h3_indexing_roundtrip(self, lat, lon):
         """Verify lat/lon -> h3 -> lat/lon consistency."""
         try:
@@ -530,13 +577,22 @@ class TestHypothesisSpatial:
             else:
                 pytest.fail(f"H3 roundtrip failed for {lat}, {lon}: {e}")
 
-    @given(st.lists(st.tuples(st.floats(min_value=0, max_value=10), st.floats(min_value=0, max_value=10)), min_size=3, max_size=10))
+    @given(
+        st.lists(
+            st.tuples(
+                st.floats(min_value=0, max_value=10),
+                st.floats(min_value=0, max_value=10),
+            ),
+            min_size=3,
+            max_size=10,
+        )
+    )
     def test_convex_hull_invariants(self, points):
         """Verify convex hull invariants on random point sets."""
         if len(points) < 3:
             return
 
-        df = pd.DataFrame(points, columns=['latitude', 'longitude'])
+        df = pd.DataFrame(points, columns=["latitude", "longitude"])
         gdf = gpd.GeoDataFrame(
             df,
             geometry=gpd.points_from_xy(df.longitude, df.latitude),
@@ -561,6 +617,7 @@ class TestHypothesisSpatial:
         buffered_hull = hull.buffer(1e-9)
         for geom in gdf.geometry:
             assert buffered_hull.contains(geom) or buffered_hull.touches(geom)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -57,14 +57,22 @@ def audit_model_contracts(seed: int = 42, *, strict: bool = False) -> dict[str, 
     categorical.set_likelihood_matrix(
         np.array([[4.0, 1.0, 0.0], [1.0, 4.0, 1.0], [0.0, 1.0, 4.0]])
     )
-    assert_stochastic_matrix(categorical.transition_matrix, axis=1, name="categorical.transition")
-    assert_stochastic_matrix(categorical.likelihood_matrix, axis=0, name="categorical.likelihood")
-    posterior = categorical.update_beliefs(np.array([10**9, 10**9 + 1, 10**9 + 2], dtype=float))
+    assert_stochastic_matrix(
+        categorical.transition_matrix, axis=1, name="categorical.transition"
+    )
+    assert_stochastic_matrix(
+        categorical.likelihood_matrix, axis=0, name="categorical.likelihood"
+    )
+    posterior = categorical.update_beliefs(
+        np.array([10**9, 10**9 + 1, 10**9 + 2], dtype=float)
+    )
     assert_probability(posterior, name="categorical.posterior")
     _record(records, "categorical.update_beliefs", posterior)
     _record(records, "categorical.step", categorical.step())
     categorical.reset()
-    assert_same_finite_values(categorical.beliefs, initial_categorical, name="categorical.reset")
+    assert_same_finite_values(
+        categorical.beliefs, initial_categorical, name="categorical.reset"
+    )
 
     gaussian = GaussianModel(state_dim=2, obs_dim=2)
     initial_gaussian = gaussian.belief_mean.copy()
@@ -74,14 +82,22 @@ def audit_model_contracts(seed: int = 42, *, strict: bool = False) -> dict[str, 
     _record(records, "gaussian.update_beliefs", gaussian_output)
     _record(records, "gaussian.step", gaussian.step(np.array([0.25])))
     gaussian.reset()
-    assert_same_finite_values(gaussian.belief_mean, initial_gaussian, name="gaussian.reset")
+    assert_same_finite_values(
+        gaussian.belief_mean, initial_gaussian, name="gaussian.reset"
+    )
 
     factories: list[tuple[str, Callable[[], Any]]] = [
         ("climate", lambda: ClimateModel(random_seed=seed)),
         ("ecological", lambda: EcologicalModel(random_seed=seed)),
         ("urban", lambda: UrbanModel(n_agents=2, n_locations=3, random_seed=seed)),
-        ("resource", lambda: ResourceModel(n_resources=2, n_locations=3, random_seed=seed)),
-        ("multi_agent", lambda: MultiAgentModel(n_agents=2, n_resources=2, random_seed=seed)),
+        (
+            "resource",
+            lambda: ResourceModel(n_resources=2, n_locations=3, random_seed=seed),
+        ),
+        (
+            "multi_agent",
+            lambda: MultiAgentModel(n_agents=2, n_resources=2, random_seed=seed),
+        ),
     ]
     for name, factory in factories:
         first = factory()
@@ -98,15 +114,33 @@ def audit_model_contracts(seed: int = 42, *, strict: bool = False) -> dict[str, 
             )
             before_reset = first._initial_resource_distribution.copy()
             first.reset()
-            assert_same_finite_values(first.resource_distribution, before_reset, name=f"{name}.reset")
+            assert_same_finite_values(
+                first.resource_distribution, before_reset, name=f"{name}.reset"
+            )
         elif name == "urban":
-            assert_same_finite_values(first.resource_levels, second.resource_levels, name=f"{name}.seed_replay")
+            assert_same_finite_values(
+                first.resource_levels,
+                second.resource_levels,
+                name=f"{name}.seed_replay",
+            )
             first.reset()
-            assert_same_finite_values(first.resource_levels, first._initial_resource_levels, name=f"{name}.reset")
+            assert_same_finite_values(
+                first.resource_levels,
+                first._initial_resource_levels,
+                name=f"{name}.reset",
+            )
         elif name == "multi_agent":
-            assert_same_finite_values(first.resource_distribution, second.resource_distribution, name=f"{name}.seed_replay")
+            assert_same_finite_values(
+                first.resource_distribution,
+                second.resource_distribution,
+                name=f"{name}.seed_replay",
+            )
             first.reset()
-            assert_same_finite_values(first.resource_distribution, first._initial_resource_distribution, name=f"{name}.reset")
+            assert_same_finite_values(
+                first.resource_distribution,
+                first._initial_resource_distribution,
+                name=f"{name}.reset",
+            )
         else:
             _finite_tree(first.current_beliefs, name=f"{name}.beliefs")
             _finite_tree(second.current_beliefs, name=f"{name}.replay_beliefs")

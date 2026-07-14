@@ -21,11 +21,13 @@ import pytest
 import numpy as np
 import asyncio
 from datetime import datetime, timedelta
-from collections import defaultdict
 
 # Import modules to test
 try:
-    from geo_infer_ant.analysis.patterns import SwarmPatternAnalyzer, AnalysisConfiguration
+    from geo_infer_ant.analysis.patterns import (
+        SwarmPatternAnalyzer,
+        AnalysisConfiguration,  # noqa: F401
+    )  # noqa: F401
     from geo_infer_ant.core.stigmergy import PheromoneSystem
     from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 except ImportError:
@@ -38,13 +40,13 @@ class TestSwarmPatternAnalyzer:
     def test_analyzer_initialization(self):
         """Test pattern analyzer initialization."""
         analyzer = SwarmPatternAnalyzer(
-            analysis_types=['spatial_patterns', 'interaction_networks'],
-            statistical_methods=['cluster_analysis', 'network_analysis'],
-            visualization_tools=['trajectory_plots', 'interaction_graphs']
+            analysis_types=["spatial_patterns", "interaction_networks"],
+            statistical_methods=["cluster_analysis", "network_analysis"],
+            visualization_tools=["trajectory_plots", "interaction_graphs"],
         )
 
         assert len(analyzer.config.analysis_types) == 2
-        assert 'spatial_patterns' in analyzer.config.analysis_types
+        assert "spatial_patterns" in analyzer.config.analysis_types
         assert len(analyzer.config.statistical_methods) == 2
         assert len(analyzer.config.visualization_tools) == 2
 
@@ -80,18 +82,18 @@ class TestSwarmPatternAnalyzer:
         # Analyze patterns
         analysis = analyzer.analyze_spatial_patterns(
             agent_trajectories=trajectories,
-            pattern_types=['clustering', 'flocking'],
-            spatial_scale=1000.0
+            pattern_types=["clustering", "flocking"],
+            spatial_scale=1000.0,
         )
 
-        assert analysis['analysis_type'] == 'spatial_patterns'
-        assert 'patterns_detected' in analysis
-        assert 'statistical_measures' in analysis
-        assert 'interpretation' in analysis
+        assert analysis["analysis_type"] == "spatial_patterns"
+        assert "patterns_detected" in analysis
+        assert "statistical_measures" in analysis
+        assert "interpretation" in analysis
 
         # Should detect clustering
-        clustering_result = analysis['patterns_detected'].get('clustering', {})
-        assert clustering_result.get('n_clusters', 0) > 1
+        clustering_result = analysis["patterns_detected"].get("clustering", {})
+        assert clustering_result.get("n_clusters", 0) > 1
 
     def test_flocking_pattern_detection(self):
         """Test flocking pattern detection."""
@@ -110,7 +112,9 @@ class TestSwarmPatternAnalyzer:
 
             for step in range(n_steps):
                 # Calculate average velocity of neighbors
-                neighbors = [initial_positions[i] for i in range(n_agents) if i != agent]
+                neighbors = [
+                    initial_positions[i] for i in range(n_agents) if i != agent
+                ]
                 avg_position = np.mean(neighbors, axis=0)
 
                 # Move toward average position (flocking behavior)
@@ -126,13 +130,12 @@ class TestSwarmPatternAnalyzer:
 
         # Analyze flocking patterns
         analysis = analyzer.analyze_spatial_patterns(
-            agent_trajectories=trajectories,
-            pattern_types=['flocking']
+            agent_trajectories=trajectories, pattern_types=["flocking"]
         )
 
-        flocking_result = analysis['patterns_detected'].get('flocking', {})
-        assert 'flocking_measures' in flocking_result
-        assert 'flocking_detected' in flocking_result
+        flocking_result = analysis["patterns_detected"].get("flocking", {})
+        assert "flocking_measures" in flocking_result
+        assert "flocking_detected" in flocking_result
 
     def test_migration_pattern_detection(self):
         """Test migration pattern detection."""
@@ -153,7 +156,9 @@ class TestSwarmPatternAnalyzer:
             for step in range(n_steps):
                 # Linear interpolation with noise (migration path)
                 progress = step / (n_steps - 1)
-                ideal_position = (1 - progress) * start_positions[agent] + progress * end_positions[agent]
+                ideal_position = (1 - progress) * start_positions[
+                    agent
+                ] + progress * end_positions[agent]
 
                 noise = np.random.normal(0, 0.5, 2)
                 position = ideal_position + noise
@@ -163,16 +168,15 @@ class TestSwarmPatternAnalyzer:
 
         # Analyze migration patterns
         analysis = analyzer.analyze_spatial_patterns(
-            agent_trajectories=trajectories,
-            pattern_types=['migration']
+            agent_trajectories=trajectories, pattern_types=["migration"]
         )
 
-        migration_result = analysis['patterns_detected'].get('migration', {})
-        assert 'migration_measures' in migration_result
-        assert 'migration_detected' in migration_result
+        migration_result = analysis["patterns_detected"].get("migration", {})
+        assert "migration_measures" in migration_result
+        assert "migration_detected" in migration_result
 
         # Should detect migration
-        assert migration_result['migration_detected'] is True
+        assert migration_result["migration_detected"] is True
 
     def test_interaction_network_analysis(self):
         """Test interaction network analysis."""
@@ -184,11 +188,12 @@ class TestSwarmPatternAnalyzer:
 
         for i in range(50):  # 50 communication events
             comm = {
-                'from': f'agent_{np.random.randint(0, n_agents)}',
-                'to': f'agent_{np.random.randint(0, n_agents)}',
-                'type': np.random.choice(['status_update', 'alert', 'coordination']),
-                'timestamp': datetime.now() - timedelta(minutes=np.random.randint(0, 60)),
-                'location': np.random.uniform(-10, 10, 2)
+                "from": f"agent_{np.random.randint(0, n_agents)}",
+                "to": f"agent_{np.random.randint(0, n_agents)}",
+                "type": np.random.choice(["status_update", "alert", "coordination"]),
+                "timestamp": datetime.now()
+                - timedelta(minutes=np.random.randint(0, 60)),
+                "location": np.random.uniform(-10, 10, 2),
             }
             communication_data.append(comm)
 
@@ -200,18 +205,18 @@ class TestSwarmPatternAnalyzer:
         analysis = analyzer.analyze_interactions(
             communication_data=communication_data,
             proximity_data=proximity_data,
-            network_metrics=['centrality', 'clustering']
+            network_metrics=["centrality", "clustering"],
         )
 
-        assert analysis['analysis_type'] == 'interaction_networks'
-        assert 'network_structure' in analysis
-        assert 'communication_patterns' in analysis
-        assert 'network_metrics' in analysis
+        assert analysis["analysis_type"] == "interaction_networks"
+        assert "network_structure" in analysis
+        assert "communication_patterns" in analysis
+        assert "network_metrics" in analysis
 
         # Check network properties
-        network_props = analysis['network_structure'].get('network_properties', {})
-        assert 'density' in network_props
-        assert 'clustering_coefficient' in network_props
+        network_props = analysis["network_structure"].get("network_properties", {})
+        assert "density" in network_props
+        assert "clustering_coefficient" in network_props
 
     def test_emergence_detection(self):
         """Test emergent phenomenon detection."""
@@ -223,33 +228,34 @@ class TestSwarmPatternAnalyzer:
 
         for i in range(n_agents):
             behavior = {
-                'agent_id': f'agent_{i}',
-                'action_type': np.random.choice(['forage', 'rest', 'communicate']),
-                'position': np.random.uniform(-10, 10, 2),
-                'timestamp': datetime.now() - timedelta(minutes=np.random.randint(0, 60))
+                "agent_id": f"agent_{i}",
+                "action_type": np.random.choice(["forage", "rest", "communicate"]),
+                "position": np.random.uniform(-10, 10, 2),
+                "timestamp": datetime.now()
+                - timedelta(minutes=np.random.randint(0, 60)),
             }
             individual_behaviors.append(behavior)
 
         # Generate collective outcomes
         collective_outcomes = {
-            'clustering_observed': True,
-            'coordination_efficiency': 0.7,
-            'information_flow': 0.8
+            "clustering_observed": True,
+            "coordination_efficiency": 0.7,
+            "information_flow": 0.8,
         }
 
         # Detect emergence
         emergence_analysis = analyzer.detect_emergence(
             individual_behaviors=individual_behaviors,
             collective_outcomes=collective_outcomes,
-            information_measures=['mutual_information'],
-            complexity_measures=['fractal_dimension']
+            information_measures=["mutual_information"],
+            complexity_measures=["fractal_dimension"],
         )
 
-        assert emergence_analysis['analysis_type'] == 'emergent_phenomena'
-        assert 'emergence_detected' in emergence_analysis
-        assert 'information_theory' in emergence_analysis
-        assert 'complexity_analysis' in emergence_analysis
-        assert 'emergence_interpretation' in emergence_analysis
+        assert emergence_analysis["analysis_type"] == "emergent_phenomena"
+        assert "emergence_detected" in emergence_analysis
+        assert "information_theory" in emergence_analysis
+        assert "complexity_analysis" in emergence_analysis
+        assert "emergence_interpretation" in emergence_analysis
 
     def test_mutual_information_calculation(self):
         """Test mutual information calculation."""
@@ -261,20 +267,22 @@ class TestSwarmPatternAnalyzer:
 
         # Create correlation: when agents forage collectively, clustering emerges
         for i in range(20):
-            foraging_action = np.random.choice(['forage', 'rest'], p=[0.7, 0.3])
+            foraging_action = np.random.choice(["forage", "rest"], p=[0.7, 0.3])
             behavior = {
-                'agent_id': f'agent_{i}',
-                'action_type': foraging_action,
-                'timestamp': datetime.now()
+                "agent_id": f"agent_{i}",
+                "action_type": foraging_action,
+                "timestamp": datetime.now(),
             }
             individual_behaviors.append(behavior)
 
-        collective_outcomes = {'clustering_observed': True}
+        collective_outcomes = {"clustering_observed": True}
 
-        mi_result = analyzer._calculate_mutual_information(individual_behaviors, collective_outcomes)
+        mi_result = analyzer._calculate_mutual_information(
+            individual_behaviors, collective_outcomes
+        )
 
-        assert 'mutual_information_score' in mi_result
-        assert 0 <= mi_result['mutual_information_score'] <= 1
+        assert "mutual_information_score" in mi_result
+        assert 0 <= mi_result["mutual_information_score"] <= 1
 
     def test_fractal_dimension_calculation(self):
         """Test fractal dimension calculation."""
@@ -284,16 +292,16 @@ class TestSwarmPatternAnalyzer:
         individual_behaviors = []
         for i in range(30):
             behavior = {
-                'agent_id': f'agent_{i}',
-                'position': np.random.uniform(-10, 10, 2),
-                'timestamp': datetime.now()
+                "agent_id": f"agent_{i}",
+                "position": np.random.uniform(-10, 10, 2),
+                "timestamp": datetime.now(),
             }
             individual_behaviors.append(behavior)
 
         fd_result = analyzer._calculate_fractal_dimension(individual_behaviors)
 
-        assert 'fractal_dimension' in fd_result
-        assert fd_result['fractal_dimension'] > 0
+        assert "fractal_dimension" in fd_result
+        assert fd_result["fractal_dimension"] > 0
 
     def test_lyapunov_exponent_calculation(self):
         """Test Lyapunov exponent calculation."""
@@ -306,16 +314,16 @@ class TestSwarmPatternAnalyzer:
         for i in range(20):
             for t in range(10):  # 10 time steps per agent
                 behavior = {
-                    'agent_id': f'agent_{i}',
-                    'action_type': np.random.choice(['forage', 'rest', 'move']),
-                    'timestamp': base_time + timedelta(minutes=t)
+                    "agent_id": f"agent_{i}",
+                    "action_type": np.random.choice(["forage", "rest", "move"]),
+                    "timestamp": base_time + timedelta(minutes=t),
                 }
                 individual_behaviors.append(behavior)
 
         le_result = analyzer._calculate_lyapunov_exponents(individual_behaviors)
 
-        assert 'max_lyapunov_exponent' in le_result
-        assert 'chaos_detected' in le_result
+        assert "max_lyapunov_exponent" in le_result
+        assert "chaos_detected" in le_result
 
     def test_analysis_caching(self):
         """Test analysis result caching."""
@@ -333,7 +341,7 @@ class TestSwarmPatternAnalyzer:
         assert len(analyzer.analysis_history) == 2
 
         # Results should be consistent
-        assert analysis1['analysis_type'] == analysis2['analysis_type']
+        assert analysis1["analysis_type"] == analysis2["analysis_type"]
 
     def test_analysis_summary(self):
         """Test analysis summary generation."""
@@ -346,10 +354,10 @@ class TestSwarmPatternAnalyzer:
 
         summary = analyzer.get_analysis_summary()
 
-        assert 'total_analyses' in summary
-        assert 'analysis_types_performed' in summary
-        assert summary['total_analyses'] == 2
-        assert len(summary['analysis_types_performed']) > 0
+        assert "total_analyses" in summary
+        assert "analysis_types_performed" in summary
+        assert summary["total_analyses"] == 2
+        assert len(summary["analysis_types_performed"]) > 0
 
 
 class TestIntegrationWithCoreComponents:
@@ -358,18 +366,18 @@ class TestIntegrationWithCoreComponents:
     def test_analyzer_with_pheromone_system(self):
         """Test pattern analyzer integration with pheromone system."""
         try:
-            pheromone_system = PheromoneSystem(pheromone_types=['trail', 'food'])
+            pheromone_system = PheromoneSystem(pheromone_types=["trail", "food"])
 
-            analyzer = SwarmPatternAnalyzer()
+            _analyzer = SwarmPatternAnalyzer()
 
             async def integration_test():
                 # Add pheromone deposits
                 for i in range(20):
                     await pheromone_system.deposit_pheromone(
                         agent_id=f"agent_{i}",
-                        pheromone_type='trail',
+                        pheromone_type="trail",
                         location=np.random.uniform(-10, 10, 2),
-                        intensity=np.random.uniform(0.5, 2.0)
+                        intensity=np.random.uniform(0.5, 2.0),
                     )
 
                 # Analyze pheromone patterns as spatial data
@@ -384,26 +392,26 @@ class TestIntegrationWithCoreComponents:
     def test_analyzer_with_digital_stigmergy(self):
         """Test pattern analyzer integration with digital stigmergy."""
         try:
-            digital_stigmergy = DigitalStigmergy(information_types=['sensor_data'])
+            digital_stigmergy = DigitalStigmergy(information_types=["sensor_data"])
 
-            analyzer = SwarmPatternAnalyzer()
+            _analyzer = SwarmPatternAnalyzer()
 
             async def integration_test():
                 # Add digital traces
                 for i in range(15):
                     await digital_stigmergy.contribute_information(
                         agent_id=f"agent_{i}",
-                        information_type='sensor_data',
-                        content={'temperature': 20 + i},
-                        location=np.random.uniform(-5, 5, 2)
+                        information_type="sensor_data",
+                        content={"temperature": 20 + i},
+                        location=np.random.uniform(-5, 5, 2),
                     )
 
                 # Extract patterns from digital stigmergy
                 patterns = await digital_stigmergy.extract_patterns(
-                    pattern_types=['clusters', 'flows']
+                    pattern_types=["clusters", "flows"]
                 )
 
-                assert 'status' in patterns
+                assert "status" in patterns
 
             asyncio.run(integration_test())
 
@@ -431,18 +439,19 @@ class TestAnalysisPerformance:
             large_trajectories.append(np.array(trajectory))
 
         import time
+
         start_time = time.time()
 
         analysis = analyzer.analyze_spatial_patterns(
             agent_trajectories=large_trajectories,
-            pattern_types=['clustering', 'migration']
+            pattern_types=["clustering", "migration"],
         )
 
         analysis_time = time.time() - start_time
 
         # Should complete in reasonable time
         assert analysis_time < 30.0  # 30 seconds for large dataset
-        assert analysis['analysis_type'] == 'spatial_patterns'
+        assert analysis["analysis_type"] == "spatial_patterns"
 
     def test_emergence_analysis_performance(self):
         """Test emergence analysis performance with many behaviors."""
@@ -456,28 +465,31 @@ class TestAnalysisPerformance:
         for agent in range(n_agents):
             for behavior in range(n_behaviors_per_agent):
                 behavior_data = {
-                    'agent_id': f'agent_{agent}',
-                    'action_type': np.random.choice(['forage', 'rest', 'communicate', 'move']),
-                    'position': np.random.uniform(-20, 20, 2),
-                    'timestamp': datetime.now() - timedelta(minutes=behavior)
+                    "agent_id": f"agent_{agent}",
+                    "action_type": np.random.choice(
+                        ["forage", "rest", "communicate", "move"]
+                    ),
+                    "position": np.random.uniform(-20, 20, 2),
+                    "timestamp": datetime.now() - timedelta(minutes=behavior),
                 }
                 individual_behaviors.append(behavior_data)
 
         import time
+
         start_time = time.time()
 
         emergence_analysis = analyzer.detect_emergence(
             individual_behaviors=individual_behaviors,
-            collective_outcomes={'system_efficiency': 0.8},
-            information_measures=['mutual_information'],
-            complexity_measures=['fractal_dimension']
+            collective_outcomes={"system_efficiency": 0.8},
+            information_measures=["mutual_information"],
+            complexity_measures=["fractal_dimension"],
         )
 
         analysis_time = time.time() - start_time
 
         # Should complete in reasonable time
         assert analysis_time < 15.0  # 15 seconds for complex analysis
-        assert 'emergence_detected' in emergence_analysis
+        assert "emergence_detected" in emergence_analysis
 
 
 class TestAnalysisErrorHandling:
@@ -489,12 +501,15 @@ class TestAnalysisErrorHandling:
 
         # Test with empty trajectories
         empty_analysis = analyzer.analyze_spatial_patterns([])
-        assert 'error' in empty_analysis or empty_analysis['analysis_type'] == 'spatial_patterns'
+        assert (
+            "error" in empty_analysis
+            or empty_analysis["analysis_type"] == "spatial_patterns"
+        )
 
         # Test with insufficient data
         minimal_trajectories = [np.random.uniform(-5, 5, (2, 2))]  # Very small dataset
         minimal_analysis = analyzer.analyze_spatial_patterns(minimal_trajectories)
-        assert minimal_analysis['analysis_type'] == 'spatial_patterns'
+        assert minimal_analysis["analysis_type"] == "spatial_patterns"
 
     def test_emergence_with_insufficient_data(self):
         """Test emergence detection with insufficient data."""
@@ -502,18 +517,21 @@ class TestAnalysisErrorHandling:
 
         # Test with very few behaviors
         minimal_behaviors = [
-            {'agent_id': 'agent_1', 'action_type': 'forage', 'timestamp': datetime.now()},
-            {'agent_id': 'agent_2', 'action_type': 'rest', 'timestamp': datetime.now()}
+            {
+                "agent_id": "agent_1",
+                "action_type": "forage",
+                "timestamp": datetime.now(),
+            },
+            {"agent_id": "agent_2", "action_type": "rest", "timestamp": datetime.now()},
         ]
 
-        minimal_outcomes = {'efficiency': 0.5}
+        minimal_outcomes = {"efficiency": 0.5}
 
         emergence_result = analyzer.detect_emergence(
-            individual_behaviors=minimal_behaviors,
-            collective_outcomes=minimal_outcomes
+            individual_behaviors=minimal_behaviors, collective_outcomes=minimal_outcomes
         )
 
-        assert 'emergence_detected' in emergence_result
+        assert "emergence_detected" in emergence_result
         # Should handle gracefully without errors
 
     def test_network_analysis_with_empty_data(self):
@@ -523,9 +541,9 @@ class TestAnalysisErrorHandling:
         # Test with empty communication data
         analysis = analyzer.analyze_interactions(communication_data=[])
 
-        assert analysis['analysis_type'] == 'interaction_networks'
-        assert 'communication_patterns' in analysis
-        assert 'network_structure' in analysis
+        assert analysis["analysis_type"] == "interaction_networks"
+        assert "communication_patterns" in analysis
+        assert "network_structure" in analysis
 
 
 class TestAnalysisValidation:
@@ -541,36 +559,56 @@ class TestAnalysisValidation:
         analysis = analyzer.analyze_spatial_patterns(trajectories)
 
         # Validate result structure
-        required_keys = ['analysis_type', 'analysis_time', 'patterns_detected', 'interpretation']
+        required_keys = [
+            "analysis_type",
+            "analysis_time",
+            "patterns_detected",
+            "interpretation",
+        ]
         for key in required_keys:
             assert key in analysis
 
         # Validate pattern detection structure
-        patterns = analysis['patterns_detected']
+        patterns = analysis["patterns_detected"]
         for pattern_type, pattern_result in patterns.items():
             assert isinstance(pattern_result, dict)
-            if 'status' in pattern_result:
-                assert pattern_result['status'] in ['success', 'failed', 'insufficient_data']
+            if "status" in pattern_result:
+                assert pattern_result["status"] in [
+                    "success",
+                    "failed",
+                    "insufficient_data",
+                ]
 
     def test_emergence_analysis_validation(self):
         """Test validation of emergence analysis results."""
         analyzer = SwarmPatternAnalyzer()
 
         # Generate test data
-        behaviors = [{'agent_id': f'agent_{i}', 'action_type': 'forage'} for i in range(10)]
-        outcomes = {'coordination': 0.7}
+        behaviors = [
+            {"agent_id": f"agent_{i}", "action_type": "forage"} for i in range(10)
+        ]
+        outcomes = {"coordination": 0.7}
 
         emergence = analyzer.detect_emergence(behaviors, outcomes)
 
         # Validate result structure
-        required_keys = ['analysis_type', 'emergence_detected', 'information_theory', 'emergence_interpretation']
+        required_keys = [
+            "analysis_type",
+            "emergence_detected",
+            "information_theory",
+            "emergence_interpretation",
+        ]
         for key in required_keys:
             assert key in emergence
 
         # Validate interpretation structure
-        interpretation = emergence['emergence_interpretation']
-        assert 'emergence_level' in interpretation
-        assert interpretation['emergence_level'] in ['detected', 'not_detected', 'insufficient_data']
+        interpretation = emergence["emergence_interpretation"]
+        assert "emergence_level" in interpretation
+        assert interpretation["emergence_level"] in [
+            "detected",
+            "not_detected",
+            "insufficient_data",
+        ]
 
 
 if __name__ == "__main__":

@@ -22,7 +22,11 @@ class IntegrationManager:
     def is_enabled(self, name: str) -> bool:
         """Return whether a named integration is explicitly enabled."""
         value = self.integrations.get(name, False)
-        return bool(value.get("enabled", False)) if isinstance(value, dict) else bool(value)
+        return (
+            bool(value.get("enabled", False))
+            if isinstance(value, dict)
+            else bool(value)
+        )
 
 
 __all__ = ["IntegrationManager"]

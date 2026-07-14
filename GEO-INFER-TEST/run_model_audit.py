@@ -18,7 +18,10 @@ from matplotlib.figure import Figure
 
 from geo_infer_act.models.base import CategoricalModel
 from geo_infer_act.models.resource import ResourceModel
-from geo_infer_test.testing import assert_no_nan_statistics, assert_visualization_manifest
+from geo_infer_test.testing import (
+    assert_no_nan_statistics,
+    assert_visualization_manifest,
+)
 from validate_model_contracts import audit_model_contracts
 
 
@@ -29,7 +32,9 @@ def _digest(path: Path) -> str:
 
 def _write_json(path: Path, value: Any) -> None:
     """Write canonical, newline-terminated JSON."""
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def run(seed: int, output_dir: Path, *, reproducible: bool = False) -> dict[str, Any]:
@@ -75,7 +80,10 @@ def run(seed: int, output_dir: Path, *, reproducible: bool = False) -> dict[str,
     figure.savefig(
         visualization_path,
         format="png",
-        metadata={"Software": "GEO-INFER deterministic model audit", "Creation Time": None},
+        metadata={
+            "Software": "GEO-INFER deterministic model audit",
+            "Creation Time": None,
+        },
     )
 
     artifacts = []
@@ -90,7 +98,11 @@ def run(seed: int, output_dir: Path, *, reproducible: bool = False) -> dict[str,
                 "path": path.name,
                 "bytes": path.stat().st_size,
                 "sha256": _digest(path),
-                "statistics": statistics if kind != "contracts" else {"models_checked": contracts["models_checked"]},
+                "statistics": (
+                    statistics
+                    if kind != "contracts"
+                    else {"models_checked": contracts["models_checked"]}
+                ),
             }
         )
     manifest_core = {"schema_version": "1.0", "seed": seed, "artifacts": artifacts}

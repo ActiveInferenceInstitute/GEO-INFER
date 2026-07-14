@@ -4,7 +4,7 @@ Unit tests for health check functionality.
 
 import pytest
 import asyncio
-from geo_infer_ops.health.checks import HealthChecker, HealthStatus, HealthCheck
+from geo_infer_ops.health.checks import HealthChecker, HealthStatus
 
 
 class TestHealthChecker:
@@ -34,16 +34,20 @@ class TestHealthChecker:
 
     def test_check_service(self, health_checker: HealthChecker) -> None:
         """Test service health checking."""
+
         def healthy_service():
             return True
 
-        check = asyncio.run(health_checker.check_service("test_service", healthy_service))
+        check = asyncio.run(
+            health_checker.check_service("test_service", healthy_service)
+        )
 
         assert check.name == "service_test_service"
         assert check.status == HealthStatus.HEALTHY
 
     def test_register_check(self, health_checker: HealthChecker) -> None:
         """Test registering custom health checks."""
+
         def custom_check():
             return {"status": HealthStatus.HEALTHY, "message": "OK"}
 
@@ -53,6 +57,7 @@ class TestHealthChecker:
 
     def test_run_all_checks(self, health_checker: HealthChecker) -> None:
         """Test running all health checks."""
+
         def healthy_check():
             return True
 
@@ -67,6 +72,7 @@ class TestHealthChecker:
 
     def test_get_health_status(self, health_checker: HealthChecker) -> None:
         """Test synchronous health status retrieval."""
+
         def healthy_check():
             return True
 
@@ -76,5 +82,3 @@ class TestHealthChecker:
 
         assert "status" in status
         assert "checks" in status
-
-

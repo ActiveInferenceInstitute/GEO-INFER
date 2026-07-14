@@ -255,9 +255,7 @@ class AuditLogger:
             Created AuditEvent object
         """
         severity = (
-            AuditEventSeverity.HIGH
-            if result == "denied"
-            else AuditEventSeverity.MEDIUM
+            AuditEventSeverity.HIGH if result == "denied" else AuditEventSeverity.MEDIUM
         )
 
         return self.log_event(
@@ -347,19 +345,13 @@ class AuditLogger:
             filtered_events = [e for e in filtered_events if e.user_id == user_id]
 
         if start_time:
-            filtered_events = [
-                e for e in filtered_events if e.timestamp >= start_time
-            ]
+            filtered_events = [e for e in filtered_events if e.timestamp >= start_time]
 
         if end_time:
-            filtered_events = [
-                e for e in filtered_events if e.timestamp <= end_time
-            ]
+            filtered_events = [e for e in filtered_events if e.timestamp <= end_time]
 
         if severity:
-            filtered_events = [
-                e for e in filtered_events if e.severity == severity
-            ]
+            filtered_events = [e for e in filtered_events if e.severity == severity]
 
         # Sort by timestamp (most recent first) and limit
         filtered_events.sort(key=lambda x: x.timestamp, reverse=True)
@@ -433,8 +425,7 @@ class AuditLogger:
             denied_access = [
                 e
                 for e in events
-                if e.event_type == AuditEventType.AUTHORIZATION
-                and e.result == "denied"
+                if e.event_type == AuditEventType.AUTHORIZATION and e.result == "denied"
             ]
 
             report["compliance_metrics"] = {
@@ -449,5 +440,3 @@ class AuditLogger:
             }
 
         return report
-
-

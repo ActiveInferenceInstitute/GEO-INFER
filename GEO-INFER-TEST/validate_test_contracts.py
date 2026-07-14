@@ -107,7 +107,9 @@ def validate(strict: bool) -> list[str]:
         except SyntaxError as exc:
             errors.append(f"{path}:{exc.lineno}: syntax error: {exc.msg}")
             continue
-        errors.extend(f"{path}: {finding}" for finding in forbidden_controls(tree, source))
+        errors.extend(
+            f"{path}: {finding}" for finding in forbidden_controls(tree, source)
+        )
         unknown = marker_names(tree) - known
         errors.extend(f"{path}: unknown marker {name!r}" for name in sorted(unknown))
         if strict:
@@ -125,7 +127,9 @@ def main() -> int:
         print("\n".join(errors), file=sys.stderr)
         print(f"test contract failed: {len(errors)} violation(s)", file=sys.stderr)
         return 1
-    print("test contract passed: every inventory, marker, control, and docstring check is clean")
+    print(
+        "test contract passed: every inventory, marker, control, and docstring check is clean"
+    )
     return 0
 
 

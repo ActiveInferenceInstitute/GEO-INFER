@@ -8,10 +8,9 @@ OAuth 2.0, JWT token management, and multi-factor authentication.
 import logging
 import hashlib
 import secrets
-import time
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import jwt
 from cryptography.hazmat.primitives import hashes
@@ -89,7 +88,9 @@ class AuthenticationManager:
         self.users: Dict[str, UserCredentials] = {}
         self.refresh_tokens: Dict[str, Dict[str, Any]] = {}
 
-    def hash_password(self, password: str, salt: Optional[bytes] = None) -> Tuple[str, bytes]:
+    def hash_password(
+        self, password: str, salt: Optional[bytes] = None
+    ) -> Tuple[str, bytes]:
         """
         Hash a password using PBKDF2.
 
@@ -116,9 +117,7 @@ class AuthenticationManager:
 
         return password_hash, salt_b64
 
-    def verify_password(
-        self, password: str, password_hash: str, salt: str
-    ) -> bool:
+    def verify_password(self, password: str, password_hash: str, salt: str) -> bool:
         """
         Verify a password against a hash.
 
@@ -233,7 +232,9 @@ class AuthenticationManager:
             # MFA verification would go here
             # For now, just check that code is provided
             if not mfa_code:
-                logger.warning(f"Authentication failed: MFA code required for {username}")
+                logger.warning(
+                    f"Authentication failed: MFA code required for {username}"
+                )
                 return None
 
         # Reset failed attempts on successful authentication
@@ -267,8 +268,7 @@ class AuthenticationManager:
             "sub": user_id,
             "username": username,
             "iat": now,
-            "exp": now
-            + timedelta(hours=self.token_expiration_hours),
+            "exp": now + timedelta(hours=self.token_expiration_hours),
             "scope": scope or ["read", "write"],
         }
 
@@ -282,8 +282,7 @@ class AuthenticationManager:
             "sub": user_id,
             "username": username,
             "token_type": "refresh",
-            "exp": now
-            + timedelta(days=self.refresh_token_expiration_days),
+            "exp": now + timedelta(days=self.refresh_token_expiration_days),
         }
 
         self.refresh_tokens[refresh_token] = refresh_token_payload
@@ -306,9 +305,7 @@ class AuthenticationManager:
             Token payload if valid, None otherwise
         """
         try:
-            payload = jwt.decode(
-                token, self._jwt_secret, algorithms=[self.algorithm]
-            )
+            payload = jwt.decode(token, self._jwt_secret, algorithms=[self.algorithm])
             return payload
         except jwt.ExpiredSignatureError:
             logger.warning("Token validation failed: token expired")
@@ -336,7 +333,9 @@ class AuthenticationManager:
         # Check expiration
         exp = refresh_payload.get("exp")
         now = datetime.now(timezone.utc).replace(tzinfo=None)
-        if exp and now > (exp if isinstance(exp, datetime) else datetime.fromtimestamp(exp)):
+        if exp and now > (
+            exp if isinstance(exp, datetime) else datetime.fromtimestamp(exp)
+        ):
             del self.refresh_tokens[refresh_token]
             logger.warning("Refresh token validation failed: token expired")
             return None

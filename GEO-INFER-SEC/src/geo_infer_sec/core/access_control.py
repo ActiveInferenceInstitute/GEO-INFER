@@ -6,13 +6,12 @@ to sensitive geospatial information, including spatial and attribute-based
 permissions.
 """
 
-from typing import Dict, List, Set, Optional, Union, Any
+from typing import Dict, List, Optional, Union
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon, shape
 import jwt
 import datetime
 import hashlib
-import json
 
 
 class SpatialPermission:
@@ -25,7 +24,7 @@ class SpatialPermission:
         wkt: Optional[str] = None,
         geojson: Optional[Dict] = None,
         attributes: Optional[List[str]] = None,
-        max_resolution: Optional[int] = None
+        max_resolution: Optional[int] = None,
     ):
         """
         Initialize a spatial permission.
@@ -47,6 +46,7 @@ class SpatialPermission:
             self.geometry = geometry
         elif wkt is not None:
             from shapely import wkt as shapely_wkt
+
             self.geometry = shapely_wkt.loads(wkt)
         elif geojson is not None:
             self.geometry = shape(geojson)
@@ -60,12 +60,15 @@ class SpatialPermission:
     def contains_point(self, lat: float, lon: float) -> bool:
         """Check if a point is contained in the permitted area."""
         from shapely.geometry import Point
+
         if self.geometry is None:
             return True  # No spatial restriction
         point = Point(lon, lat)
         return self.geometry.contains(point)
 
-    def filter_geodataframe(self, gdf: gpd.GeoDataFrame, geometry_col: str = "geometry") -> gpd.GeoDataFrame:
+    def filter_geodataframe(
+        self, gdf: gpd.GeoDataFrame, geometry_col: str = "geometry"
+    ) -> gpd.GeoDataFrame:
         """Filter a GeoDataFrame to only include geometries within the permitted area."""
         if self.geometry is None:
             return gdf
@@ -75,7 +78,9 @@ class SpatialPermission:
 
         # Attribute filter if attributes are specified
         if self.attributes:
-            cols_to_keep = [c for c in filtered.columns if c in self.attributes or c == geometry_col]
+            cols_to_keep = [
+                c for c in filtered.columns if c in self.attributes or c == geometry_col
+            ]
             filtered = filtered[cols_to_keep]
 
         return filtered
@@ -84,7 +89,9 @@ class SpatialPermission:
 class Role:
     """Represents a security role with associated permissions."""
 
-    def __init__(self, name: str, permissions: Optional[List[SpatialPermission]] = None):
+    def __init__(
+        self, name: str, permissions: Optional[List[SpatialPermission]] = None
+    ):
         """
         Initialize a role with permissions.
 
@@ -180,7 +187,7 @@ class GeospatialAccessManager:
             "user_id": user_id,
             "roles": role_names,
             "exp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-            + datetime.timedelta(hours=expiration_hours)
+            + datetime.timedelta(hours=expiration_hours),
         }
 
         return jwt.encode(payload, self._jwt_secret, algorithm="HS256")
@@ -226,7 +233,9 @@ class GeospatialAccessManager:
 
         return False
 
-    def filter_geodataframe(self, user_id: str, gdf: gpd.GeoDataFrame, geometry_col: str = "geometry") -> gpd.GeoDataFrame:
+    def filter_geodataframe(
+        self, user_id: str, gdf: gpd.GeoDataFrame, geometry_col: str = "geometry"
+    ) -> gpd.GeoDataFrame:
         """
         Filter a GeoDataFrame based on user's spatial permissions.
 
@@ -258,6 +267,7 @@ class GeospatialAccessManager:
         else:
             # Combine all accessible areas
             from shapely.ops import unary_union
+
             combined_area = unary_union(accessible_areas)
 
             # Filter by area
@@ -265,7 +275,11 @@ class GeospatialAccessManager:
 
         # Filter attributes if needed
         if permitted_attributes:
-            cols_to_keep = [c for c in filtered_gdf.columns if c in permitted_attributes or c == geometry_col]
+            cols_to_keep = [
+                c
+                for c in filtered_gdf.columns
+                if c in permitted_attributes or c == geometry_col
+            ]
             filtered_gdf = filtered_gdf[cols_to_keep]
 
         return filtered_gdf

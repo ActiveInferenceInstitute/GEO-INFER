@@ -5,6 +5,7 @@ This model implements resource allocation and management using Active Inference
 principles. Agents allocate resources across locations, balancing exploitation
 of known high-value sites with exploration of uncertain areas.
 """
+
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import logging
@@ -16,29 +17,33 @@ logger = logging.getLogger(__name__)
 
 class ResourceModel(ActiveInferenceModel):
     """Resource allocation modeling using active inference.
-    
+
     Simulates resource dynamics across spatial locations with:
     - Resource depletion through harvesting actions
     - Natural replenishment over time
     - Location connectivity for resource flow
     - Free-energy-based allocation scoring
-    
+
     States:
         resource_distribution: (n_resources x n_locations) matrix of resource levels
         location_demand: (n_locations,) vector of demand at each location
-        
+
     Actions:
         Allocation vectors specifying how much of each resource to direct to each location.
     """
-    
-    def __init__(self, n_resources: int = 4, n_locations: int = 5, 
-                 planning_horizon: int = 10, 
-                 replenishment_rate: float = 0.05,
-                 depletion_rate: float = 0.1,
-                 config: Optional[Dict[str, Any]] = None,
-                 random_seed: Optional[int] = None):
+
+    def __init__(
+        self,
+        n_resources: int = 4,
+        n_locations: int = 5,
+        planning_horizon: int = 10,
+        replenishment_rate: float = 0.05,
+        depletion_rate: float = 0.1,
+        config: Optional[Dict[str, Any]] = None,
+        random_seed: Optional[int] = None,
+    ):
         """Initialize the Resource Model.
-        
+
         Args:
             n_resources: Number of distinct resource types
             n_locations: Number of spatial locations
@@ -58,28 +63,28 @@ class ResourceModel(ActiveInferenceModel):
         self.replenishment_rate = replenishment_rate
         self.depletion_rate = depletion_rate
         self.step_count = 0
-        
+
         # Resource distribution: each entry in [0, 1] representing abundance
         self.resource_distribution = self.rng.uniform(
             0.3, 0.9, (self.n_resources, self.n_locations)
         )
-        
+
         # Location connectivity: adjacency-like matrix for resource flow
         self.location_connectivity = self._build_connectivity()
-        
+
         # Demand profile per location (how much each location consumes)
         self.location_demand = self.rng.uniform(0.02, 0.08, self.n_locations)
         self._initial_resource_distribution = self.resource_distribution.copy()
         self._initial_location_demand = self.location_demand.copy()
-        
+
         # History tracking
         self.history: List[Dict[str, Any]] = []
-        
+
         logger.info(
             f"ResourceModel initialized: {n_resources} resources × {n_locations} locations, "
             f"replenishment={replenishment_rate}, depletion={depletion_rate}"
         )
-    
+
     def _build_connectivity(self) -> np.ndarray:
         """Build location connectivity matrix with nearest-neighbor coupling."""
         conn = np.eye(self.n_locations) * 0.5
@@ -90,16 +95,16 @@ class ResourceModel(ActiveInferenceModel):
         row_sums = conn.sum(axis=1, keepdims=True)
         conn = conn / np.where(row_sums > 0, row_sums, 1.0)
         return conn
-    
+
     def step(self, actions=None) -> Tuple[Dict[str, Any], bool]:
         """Advance the resource model by one step.
-        
+
         Args:
             actions: Optional allocation actions. Can be:
                 - None: no harvesting, only natural dynamics
                 - np.ndarray of shape (n_resources, n_locations): harvest amounts
                 - Dict with 'allocations' key containing the above
-                
+
         Returns:
             Tuple of (state_dict, done_flag):
                 - state_dict: current resource state and metrics
@@ -107,26 +112,34 @@ class ResourceModel(ActiveInferenceModel):
         """
         self.step_count += 1
         prev_distribution = self.resource_distribution.copy()
-        
+
         # 1. Natural replenishment (logistic growth toward carrying capacity of 1.0)
-        growth = self.replenishment_rate * self.resource_distribution * (1.0 - self.resource_distribution)
+        growth = (
+            self.replenishment_rate
+            * self.resource_distribution
+            * (1.0 - self.resource_distribution)
+        )
         self.resource_distribution += growth
-        
+
         # 2. Natural demand depletion at each location
         for loc in range(self.n_locations):
             self.resource_distribution[:, loc] -= self.location_demand[loc]
-        
+
         # 3. Apply harvesting actions if provided
         harvest_yield = np.zeros((self.n_resources, self.n_locations))
         if actions is not None:
             if isinstance(actions, dict):
-                alloc = actions.get('allocations', np.zeros_like(self.resource_distribution))
+                alloc = actions.get(
+                    "allocations", np.zeros_like(self.resource_distribution)
+                )
             else:
                 alloc = np.asarray(actions)
-            
+
             if alloc.shape == self.resource_distribution.shape:
                 # Harvest: remove resources proportional to allocation × depletion_rate
-                harvest = np.minimum(alloc * self.depletion_rate, self.resource_distribution)
+                harvest = np.minimum(
+                    alloc * self.depletion_rate, self.resource_distribution
+                )
                 self.resource_distribution -= harvest
                 harvest_yield = harvest
             else:
@@ -134,47 +147,50 @@ class ResourceModel(ActiveInferenceModel):
                     f"Action shape {alloc.shape} doesn't match resource grid "
                     f"{self.resource_distribution.shape}, ignoring"
                 )
-        
+
         # 4. Resource flow between connected locations
         flow = np.zeros_like(self.resource_distribution)
         for r in range(self.n_resources):
-            gradient = self.resource_distribution[r, :, np.newaxis] - self.resource_distribution[r, np.newaxis, :]
+            gradient = (
+                self.resource_distribution[r, :, np.newaxis]
+                - self.resource_distribution[r, np.newaxis, :]
+            )
             net_flow = (self.location_connectivity * gradient).sum(axis=0) * 0.1
             flow[r, :] = -net_flow
         self.resource_distribution += flow
-        
+
         # 5. Clamp to [0, 1]
         self.resource_distribution = np.clip(self.resource_distribution, 0.0, 1.0)
-        
+
         # Compute metrics
         total_resources = self.resource_distribution.sum()
         change = self.resource_distribution - prev_distribution
         sustainability_score = float(np.mean(self.resource_distribution > 0.2))
-        
+
         # Free-energy-inspired score: surprise from deviation from preferred (high) resource levels
         preferred = np.ones_like(self.resource_distribution) * 0.7
         free_energy = float(np.sum((self.resource_distribution - preferred) ** 2))
-        
+
         state = {
-            'resource_distribution': self.resource_distribution.copy(),
-            'total_resources': float(total_resources),
-            'harvest_yield': harvest_yield,
-            'resource_change': change,
-            'sustainability_score': sustainability_score,
-            'free_energy': free_energy,
-            'step': self.step_count,
+            "resource_distribution": self.resource_distribution.copy(),
+            "total_resources": float(total_resources),
+            "harvest_yield": harvest_yield,
+            "resource_change": change,
+            "sustainability_score": sustainability_score,
+            "free_energy": free_energy,
+            "step": self.step_count,
         }
-        
+
         self.history.append(state)
-        
+
         # Done if any resource type is depleted across all locations
         done = bool(np.any(self.resource_distribution.sum(axis=1) < 0.01))
-        
+
         return state, done
-    
+
     def reset(self) -> Dict[str, Any]:
         """Reset the resource model to initial random state.
-        
+
         Returns:
             Initial state dictionary
         """
@@ -184,18 +200,18 @@ class ResourceModel(ActiveInferenceModel):
         self.history = []
         logger.info("ResourceModel reset")
         return {
-            'resource_distribution': self.resource_distribution.copy(),
-            'total_resources': float(self.resource_distribution.sum()),
-            'step': 0,
+            "resource_distribution": self.resource_distribution.copy(),
+            "total_resources": float(self.resource_distribution.sum()),
+            "step": 0,
         }
-    
+
     def get_allocation_scores(self) -> np.ndarray:
         """Compute free-energy-based allocation priority scores.
-        
+
         Locations with lower resources get higher allocation priority,
         weighted by demand. This implements the epistemic value of
         reducing uncertainty about resource sufficiency.
-        
+
         Returns:
             Priority scores of shape (n_resources, n_locations)
         """

@@ -22,17 +22,34 @@ class SpatialCovariance:
     @staticmethod
     def rbf(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
         """Return a squared-exponential covariance specification."""
-        return {"kernel_type": "rbf", "length_scale": length_scale, "variance": variance}
+        return {
+            "kernel_type": "rbf",
+            "length_scale": length_scale,
+            "variance": variance,
+        }
 
     @staticmethod
-    def matern_32(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
+    def matern_32(
+        length_scale: float = 1.0, variance: float = 1.0
+    ) -> dict[str, float | str]:
         """Return a Matérn 3/2 covariance specification."""
-        return {"kernel_type": "matern32", "length_scale": length_scale, "variance": variance}
+        return {
+            "kernel_type": "matern32",
+            "length_scale": length_scale,
+            "variance": variance,
+        }
 
     @staticmethod
-    def matern_52(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
+    def matern_52(
+        length_scale: float = 1.0, variance: float = 1.0
+    ) -> dict[str, float | str]:
         """Return a Matérn 5/2 covariance specification."""
-        return {"kernel_type": "matern52", "length_scale": length_scale, "variance": variance}
+        return {
+            "kernel_type": "matern52",
+            "length_scale": length_scale,
+            "variance": variance,
+        }
+
 
 # Import main submodules with error handling
 try:
@@ -40,6 +57,7 @@ try:
 except ImportError as e:
     api = None
     import logging
+
     logging.warning(f"BAYES API module not available: {e}")
 
 try:
@@ -47,6 +65,7 @@ try:
 except ImportError as e:
     core = None
     import logging
+
     logging.warning(f"BAYES core module not available: {e}")
 
 try:
@@ -54,6 +73,7 @@ try:
 except ImportError as e:
     models = None
     import logging
+
     logging.warning(f"BAYES models module not available: {e}")
 
 try:
@@ -61,6 +81,7 @@ try:
 except ImportError as e:
     utils = None
     import logging
+
     logging.warning(f"BAYES utils module not available: {e}")
 
 # Expose key classes for easy import with error handling
@@ -74,8 +95,8 @@ try:
 except ImportError:
     BayesianInference = None
 
-from .core.variational import VariationalInference
-from .core.mcmc import MCMC as MCMCSampler
+from .core.variational import VariationalInference  # noqa: E402
+from .core.mcmc import MCMC as MCMCSampler  # noqa: E402
 
 try:
     from .core.posterior import PosteriorAnalysis
@@ -108,7 +129,7 @@ class GaussianProcess:
 
     def __init__(
         self,
-        kernel_type: str = 'rbf',
+        kernel_type: str = "rbf",
         length_scale: float = 1.0,
         signal_variance: float = 1.0,
         noise_variance: float = 1e-2,
@@ -120,7 +141,9 @@ class GaussianProcess:
         if covariance_function is not None:
             kernel_type = str(covariance_function.get("kernel_type", kernel_type))
             length_scale = float(covariance_function.get("length_scale", length_scale))
-            signal_variance = float(covariance_function.get("variance", signal_variance))
+            signal_variance = float(
+                covariance_function.get("variance", signal_variance)
+            )
         self.kernel_type = kernel_type
         self.length_scale = length_scale
         self.signal_variance = signal_variance
@@ -150,21 +173,23 @@ class GaussianProcess:
         """
         sq_dists = self._squared_distances(X1, X2)
 
-        if self.kernel_type == 'rbf':
+        if self.kernel_type == "rbf":
             return self.signal_variance * np.exp(
-                -0.5 * sq_dists / (self.length_scale ** 2)
+                -0.5 * sq_dists / (self.length_scale**2)
             )
-        elif self.kernel_type == 'matern32':
+        elif self.kernel_type == "matern32":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             sqrt3_r = np.sqrt(3.0) * r
             return self.signal_variance * (1.0 + sqrt3_r) * np.exp(-sqrt3_r)
-        elif self.kernel_type == 'matern52':
+        elif self.kernel_type == "matern52":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             sqrt5_r = np.sqrt(5.0) * r
-            return self.signal_variance * (
-                1.0 + sqrt5_r + (5.0 / 3.0) * r**2
-            ) * np.exp(-sqrt5_r)
-        elif self.kernel_type == 'exponential':
+            return (
+                self.signal_variance
+                * (1.0 + sqrt5_r + (5.0 / 3.0) * r**2)
+                * np.exp(-sqrt5_r)
+            )
+        elif self.kernel_type == "exponential":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             return self.signal_variance * np.exp(-r)
         else:
@@ -183,15 +208,15 @@ class GaussianProcess:
         -------
         D : ndarray of shape (n1, n2)
         """
-        X1_sq = np.sum(X1 ** 2, axis=1, keepdims=True)
-        X2_sq = np.sum(X2 ** 2, axis=1, keepdims=True)
+        X1_sq = np.sum(X1**2, axis=1, keepdims=True)
+        X2_sq = np.sum(X2**2, axis=1, keepdims=True)
         return X1_sq + X2_sq.T - 2.0 * X1 @ X2.T
 
     # ------------------------------------------------------------------
     # Fit
     # ------------------------------------------------------------------
 
-    def fit(self, X: np.ndarray, y: np.ndarray, **kwargs) -> 'GaussianProcess':
+    def fit(self, X: np.ndarray, y: np.ndarray, **kwargs) -> "GaussianProcess":
         """Fit the Gaussian process model to training data.
 
         Stores training data, computes the kernel matrix K, and solves
@@ -281,7 +306,7 @@ class GaussianProcess:
 
             # Predictive variance: var_* = k(x_*, x_*) - v^T @ v
             K_ss_diag = self.signal_variance * np.ones(X_new.shape[0])
-            var = K_ss_diag - np.sum(v ** 2, axis=0)
+            var = K_ss_diag - np.sum(v**2, axis=0)
             var = np.maximum(var, self.jitter)
             std = np.sqrt(var)
             return mean, std
@@ -307,11 +332,11 @@ class GaussianProcess:
 
 
 __all__ = [
-    'SpatialGP',
-    'BayesianInference',
-    'PosteriorAnalysis',
-    'GaussianProcess',
-    'SpatialCovariance',
-    'VariationalInference',
-    'MCMCSampler',
+    "SpatialGP",
+    "BayesianInference",
+    "PosteriorAnalysis",
+    "GaussianProcess",
+    "SpatialCovariance",
+    "VariationalInference",
+    "MCMCSampler",
 ]

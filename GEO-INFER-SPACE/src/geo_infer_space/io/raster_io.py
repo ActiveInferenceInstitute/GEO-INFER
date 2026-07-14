@@ -20,6 +20,7 @@ try:
     from rasterio.transform import Affine, from_bounds
     from rasterio.enums import Resampling
     from rasterio.windows import Window
+
     HAS_RASTERIO = True
 except ImportError:
     HAS_RASTERIO = False
@@ -30,28 +31,28 @@ except ImportError:
 
 # Supported raster formats
 SUPPORTED_RASTER_FORMATS = {
-    '.tif': 'GeoTIFF',
-    '.tiff': 'GeoTIFF',
-    '.cog': 'COG',
-    '.nc': 'NetCDF',
-    '.hdf': 'HDF5',
-    '.h5': 'HDF5',
-    '.hdf5': 'HDF5',
-    '.jp2': 'JPEG2000',
-    '.png': 'PNG',
-    '.jpg': 'JPEG',
-    '.jpeg': 'JPEG',
+    ".tif": "GeoTIFF",
+    ".tiff": "GeoTIFF",
+    ".cog": "COG",
+    ".nc": "NetCDF",
+    ".hdf": "HDF5",
+    ".h5": "HDF5",
+    ".hdf5": "HDF5",
+    ".jp2": "JPEG2000",
+    ".png": "PNG",
+    ".jpg": "JPEG",
+    ".jpeg": "JPEG",
 }
 
 # Map format names to rasterio driver names
 FORMAT_DRIVERS = {
-    'GeoTIFF': 'GTiff',
-    'COG': 'COG',
-    'NetCDF': 'netCDF',
-    'HDF5': 'HDF5',
-    'JPEG2000': 'JP2OpenJPEG',
-    'PNG': 'PNG',
-    'JPEG': 'JPEG',
+    "GeoTIFF": "GTiff",
+    "COG": "COG",
+    "NetCDF": "netCDF",
+    "HDF5": "HDF5",
+    "JPEG2000": "JP2OpenJPEG",
+    "PNG": "PNG",
+    "JPEG": "JPEG",
 }
 
 
@@ -121,9 +122,11 @@ class RasterReader:
         try:
             format_name = self.supported_formats[file_ext]
 
-            if format_name == 'NetCDF':
-                return self._read_netcdf(file_path, bands=bands, masked=masked, **kwargs)
-            elif format_name == 'HDF5':
+            if format_name == "NetCDF":
+                return self._read_netcdf(
+                    file_path, bands=bands, masked=masked, **kwargs
+                )
+            elif format_name == "HDF5":
                 return self._read_hdf5(file_path, bands=bands, masked=masked, **kwargs)
             else:
                 return self._read_standard(
@@ -201,24 +204,28 @@ class RasterReader:
 
             # Collect tags and profile as metadata
             metadata = dict(src.profile)
-            metadata['tags'] = src.tags()
-            metadata['descriptions'] = list(src.descriptions)
+            metadata["tags"] = src.tags()
+            metadata["descriptions"] = list(src.descriptions)
 
             # Convert non-serialisable objects in profile to strings
-            if 'crs' in metadata:
-                metadata['crs'] = str(metadata['crs'])
-            if 'transform' in metadata:
-                metadata['transform'] = tuple(metadata['transform'])
+            if "crs" in metadata:
+                metadata["crs"] = str(metadata["crs"])
+            if "transform" in metadata:
+                metadata["transform"] = tuple(metadata["transform"])
 
             result = {
-                'data': np.asarray(data) if not masked else data,
-                'metadata': metadata,
-                'crs': str(src.crs) if src.crs else None,
-                'transform': tuple(transform),
-                'bounds': src.bounds if read_window is None else rasterio.windows.bounds(read_window, src.transform),
-                'nodata': src.nodata,
-                'dtype': str(src.dtypes[0]),
-                'shape': data.shape,
+                "data": np.asarray(data) if not masked else data,
+                "metadata": metadata,
+                "crs": str(src.crs) if src.crs else None,
+                "transform": tuple(transform),
+                "bounds": (
+                    src.bounds
+                    if read_window is None
+                    else rasterio.windows.bounds(read_window, src.transform)
+                ),
+                "nodata": src.nodata,
+                "dtype": str(src.dtypes[0]),
+                "shape": data.shape,
             }
 
             return result
@@ -317,23 +324,23 @@ class RasterReader:
 
         with rasterio.open(file_path) as src:
             metadata = dict(src.profile)
-            if 'crs' in metadata:
-                metadata['crs'] = str(metadata['crs'])
-            if 'transform' in metadata:
-                metadata['transform'] = tuple(metadata['transform'])
+            if "crs" in metadata:
+                metadata["crs"] = str(metadata["crs"])
+            if "transform" in metadata:
+                metadata["transform"] = tuple(metadata["transform"])
 
             return {
-                'metadata': metadata,
-                'crs': str(src.crs) if src.crs else None,
-                'transform': tuple(src.transform),
-                'bounds': tuple(src.bounds),
-                'nodata': src.nodata,
-                'dtype': str(src.dtypes[0]),
-                'shape': (src.count, src.height, src.width),
-                'band_count': src.count,
-                'overviews': [src.overviews(i) for i in range(1, src.count + 1)],
-                'tags': src.tags(),
-                'descriptions': list(src.descriptions),
+                "metadata": metadata,
+                "crs": str(src.crs) if src.crs else None,
+                "transform": tuple(src.transform),
+                "bounds": tuple(src.bounds),
+                "nodata": src.nodata,
+                "dtype": str(src.dtypes[0]),
+                "shape": (src.count, src.height, src.width),
+                "band_count": src.count,
+                "overviews": [src.overviews(i) for i in range(1, src.count + 1)],
+                "tags": src.tags(),
+                "descriptions": list(src.descriptions),
             }
 
 
@@ -409,7 +416,7 @@ class RasterWriter:
         # Resolve driver
         if driver is None:
             format_name = self.supported_formats[file_ext]
-            driver = FORMAT_DRIVERS.get(format_name, 'GTiff')
+            driver = FORMAT_DRIVERS.get(format_name, "GTiff")
 
         # Resolve dtype
         if dtype is None:
@@ -428,9 +435,10 @@ class RasterWriter:
             affine_transform = from_bounds(0, 0, width, height, width, height)
 
         try:
-            if self.supported_formats.get(file_ext) == 'COG':
+            if self.supported_formats.get(file_ext) == "COG":
                 self._write_cog(
-                    data, file_path,
+                    data,
+                    file_path,
                     crs=crs,
                     transform=affine_transform,
                     nodata=nodata,
@@ -441,7 +449,8 @@ class RasterWriter:
                 )
             else:
                 self._write_standard(
-                    data, file_path,
+                    data,
+                    file_path,
                     driver=driver,
                     crs=crs,
                     transform=affine_transform,
@@ -478,26 +487,26 @@ class RasterWriter:
         band_count, height, width = data.shape
 
         profile = {
-            'driver': driver,
-            'width': width,
-            'height': height,
-            'count': band_count,
-            'dtype': dtype,
+            "driver": driver,
+            "width": width,
+            "height": height,
+            "count": band_count,
+            "dtype": dtype,
         }
 
         if crs is not None:
-            profile['crs'] = CRS.from_user_input(crs)
+            profile["crs"] = CRS.from_user_input(crs)
         if transform is not None:
-            profile['transform'] = transform
+            profile["transform"] = transform
         if nodata is not None:
-            profile['nodata'] = nodata
+            profile["nodata"] = nodata
         if compress is not None:
-            profile['compress'] = compress
+            profile["compress"] = compress
 
         # Merge any extra kwargs into profile
         profile.update(kwargs)
 
-        with rasterio.open(file_path, 'w', **profile) as dst:
+        with rasterio.open(file_path, "w", **profile) as dst:
             dst.write(data.astype(dtype))
             if tags:
                 dst.update_tags(**tags)
@@ -513,7 +522,7 @@ class RasterWriter:
         compress: Optional[str],
         tags: Optional[Dict[str, str]],
         blocksize: int = 512,
-        overview_resampling: str = 'nearest',
+        overview_resampling: str = "nearest",
         **kwargs,
     ) -> None:
         """Write Cloud Optimized GeoTIFF.
@@ -524,30 +533,30 @@ class RasterWriter:
         band_count, height, width = data.shape
 
         profile = {
-            'driver': 'COG',
-            'width': width,
-            'height': height,
-            'count': band_count,
-            'dtype': dtype,
-            'blocksize': blocksize,
+            "driver": "COG",
+            "width": width,
+            "height": height,
+            "count": band_count,
+            "dtype": dtype,
+            "blocksize": blocksize,
         }
 
         if crs is not None:
-            profile['crs'] = CRS.from_user_input(crs)
+            profile["crs"] = CRS.from_user_input(crs)
         if transform is not None:
-            profile['transform'] = transform
+            profile["transform"] = transform
         if nodata is not None:
-            profile['nodata'] = nodata
+            profile["nodata"] = nodata
         if compress is not None:
-            profile['compress'] = compress
+            profile["compress"] = compress
         else:
-            profile['compress'] = 'deflate'
+            profile["compress"] = "deflate"
 
-        profile['overview_resampling'] = overview_resampling
+        profile["overview_resampling"] = overview_resampling
         profile.update(kwargs)
 
         try:
-            with rasterio.open(file_path, 'w', **profile) as dst:
+            with rasterio.open(file_path, "w", **profile) as dst:
                 dst.write(data.astype(dtype))
                 if tags:
                     dst.update_tags(**tags)
@@ -555,28 +564,28 @@ class RasterWriter:
             # Fallback: write a tiled GeoTIFF with overviews
             logger.info("COG driver unavailable, writing tiled GeoTIFF with overviews.")
             fallback_profile = {
-                'driver': 'GTiff',
-                'width': width,
-                'height': height,
-                'count': band_count,
-                'dtype': dtype,
-                'tiled': True,
-                'blockxsize': blocksize,
-                'blockysize': blocksize,
+                "driver": "GTiff",
+                "width": width,
+                "height": height,
+                "count": band_count,
+                "dtype": dtype,
+                "tiled": True,
+                "blockxsize": blocksize,
+                "blockysize": blocksize,
             }
 
             if crs is not None:
-                fallback_profile['crs'] = CRS.from_user_input(crs)
+                fallback_profile["crs"] = CRS.from_user_input(crs)
             if transform is not None:
-                fallback_profile['transform'] = transform
+                fallback_profile["transform"] = transform
             if nodata is not None:
-                fallback_profile['nodata'] = nodata
+                fallback_profile["nodata"] = nodata
             if compress is not None:
-                fallback_profile['compress'] = compress
+                fallback_profile["compress"] = compress
             else:
-                fallback_profile['compress'] = 'deflate'
+                fallback_profile["compress"] = "deflate"
 
-            with rasterio.open(file_path, 'w', **fallback_profile) as dst:
+            with rasterio.open(file_path, "w", **fallback_profile) as dst:
                 dst.write(data.astype(dtype))
                 if tags:
                     dst.update_tags(**tags)
@@ -593,7 +602,7 @@ class RasterWriter:
                         Resampling, overview_resampling, Resampling.nearest
                     )
                     dst.build_overviews(overview_factors, resampling)
-                    dst.update_tags(ns='rio_overview', resampling=overview_resampling)
+                    dst.update_tags(ns="rio_overview", resampling=overview_resampling)
 
     def write_from_dict(
         self,
@@ -610,17 +619,18 @@ class RasterWriter:
             **kwargs: Additional parameters forwarded to write().
         """
         self.write(
-            data=raster_dict['data'],
+            data=raster_dict["data"],
             file_path=file_path,
-            crs=raster_dict.get('crs'),
-            transform=raster_dict.get('transform'),
-            nodata=raster_dict.get('nodata'),
-            dtype=raster_dict.get('dtype'),
+            crs=raster_dict.get("crs"),
+            transform=raster_dict.get("transform"),
+            nodata=raster_dict.get("nodata"),
+            dtype=raster_dict.get("dtype"),
             **kwargs,
         )
 
 
 # Convenience functions
+
 
 def read_raster_file(
     file_path: Union[str, Path],
@@ -695,40 +705,40 @@ def validate_raster_file(file_path: Union[str, Path]) -> Dict[str, Any]:
     file_path = Path(file_path)
 
     result: Dict[str, Any] = {
-        'valid': False,
-        'format': None,
-        'error': None,
-        'metadata': {},
+        "valid": False,
+        "format": None,
+        "error": None,
+        "metadata": {},
     }
 
     try:
         if not file_path.exists():
-            result['error'] = 'File does not exist'
+            result["error"] = "File does not exist"
             return result
 
         format_name = detect_raster_format(file_path)
         if not format_name:
-            result['error'] = f'Unsupported format: {file_path.suffix}'
+            result["error"] = f"Unsupported format: {file_path.suffix}"
             return result
 
-        result['format'] = format_name
+        result["format"] = format_name
 
         reader = RasterReader()
         info = reader.read_metadata(file_path)
 
-        result['metadata'] = {
-            'band_count': info['band_count'],
-            'shape': info['shape'],
-            'dtype': info['dtype'],
-            'crs': info['crs'],
-            'bounds': info['bounds'],
-            'nodata': info['nodata'],
-            'overviews': info['overviews'],
+        result["metadata"] = {
+            "band_count": info["band_count"],
+            "shape": info["shape"],
+            "dtype": info["dtype"],
+            "crs": info["crs"],
+            "bounds": info["bounds"],
+            "nodata": info["nodata"],
+            "overviews": info["overviews"],
         }
 
-        result['valid'] = True
+        result["valid"] = True
 
     except Exception as e:
-        result['error'] = str(e)
+        result["error"] = str(e)
 
     return result

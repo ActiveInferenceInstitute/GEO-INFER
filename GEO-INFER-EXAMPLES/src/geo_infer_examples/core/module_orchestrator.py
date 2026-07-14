@@ -9,18 +9,17 @@ workflow execution, and pattern-based coordination across the GEO-INFER ecosyste
 import asyncio
 import logging
 import time
-from typing import Dict, List, Any, Optional, Callable, Tuple, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import yaml
-import json
 from pathlib import Path
-import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 from ..models.integration_models import (
-    WorkflowDefinition, ModuleSpec, IntegrationResult,
-    ExecutionContext, ModuleConnection
+    WorkflowDefinition,
+    IntegrationResult,
+    ExecutionContext,
 )
 
 
@@ -57,6 +56,7 @@ class PerformanceMonitor:
 
 class ExecutionStrategy(Enum):
     """Available execution strategies for workflow orchestration."""
+
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
     CONDITIONAL = "conditional"
@@ -66,6 +66,7 @@ class ExecutionStrategy(Enum):
 
 class ModuleStatus(Enum):
     """Module availability and health status."""
+
     AVAILABLE = "available"
     UNAVAILABLE = "unavailable"
     DEGRADED = "degraded"
@@ -76,6 +77,7 @@ class ModuleStatus(Enum):
 @dataclass
 class WorkflowExecution:
     """Represents a single workflow execution instance."""
+
     workflow_id: str
     execution_id: str
     status: str
@@ -99,10 +101,12 @@ class ModuleOrchestrator:
     - Configuration management across modules
     """
 
-    def __init__(self,
-                 config_path: Optional[str] = None,
-                 monitoring_enabled: bool = True,
-                 resilience_enabled: bool = True):
+    def __init__(
+        self,
+        config_path: Optional[str] = None,
+        monitoring_enabled: bool = True,
+        resilience_enabled: bool = True,
+    ):
         """
         Initialize the module orchestrator.
 
@@ -139,16 +143,18 @@ class ModuleOrchestrator:
         """Load orchestrator configuration and workflow definitions."""
         try:
             # Load orchestrator settings
-            orchestrator_config = self.config_manager.get_config('orchestrator', {})
-            self.max_concurrent_workflows = orchestrator_config.get('max_concurrent_workflows', 5)
-            self.default_timeout = orchestrator_config.get('default_timeout', 300)
-            self.retry_attempts = orchestrator_config.get('retry_attempts', 3)
+            orchestrator_config = self.config_manager.get_config("orchestrator", {})
+            self.max_concurrent_workflows = orchestrator_config.get(
+                "max_concurrent_workflows", 5
+            )
+            self.default_timeout = orchestrator_config.get("default_timeout", 300)
+            self.retry_attempts = orchestrator_config.get("retry_attempts", 3)
 
             # Load workflow definitions
-            workflows_path = Path(__file__).parent.parent / 'workflows'
+            workflows_path = Path(__file__).parent.parent / "workflows"
             if workflows_path.exists():
-                for workflow_file in workflows_path.glob('*.yaml'):
-                    with open(workflow_file, 'r') as f:
+                for workflow_file in workflows_path.glob("*.yaml"):
+                    with open(workflow_file, "r") as f:
                         workflow_data = yaml.safe_load(f)
                         workflow = WorkflowDefinition.from_dict(workflow_data)
                         self.workflows[workflow.id] = workflow
@@ -161,7 +167,7 @@ class ModuleOrchestrator:
 
     def _initialize_modules(self):
         """Initialize and health-check available modules."""
-        module_configs = self.config_manager.get_config('modules', {})
+        module_configs = self.config_manager.get_config("modules", {})
 
         for module_name, module_config in module_configs.items():
             try:
@@ -178,17 +184,15 @@ class ModuleOrchestrator:
         try:
             # Health check via API
             health_response = self.api_connector.get(
-                module=module_name,
-                endpoint='/health',
-                timeout=10
+                module=module_name, endpoint="/health", timeout=10
             )
 
             if health_response.status_code == 200:
                 self.module_health[module_name] = ModuleStatus.AVAILABLE
                 self.modules[module_name] = {
-                    'config': config,
-                    'api_base': config.get('api_base'),
-                    'capabilities': health_response.json().get('capabilities', [])
+                    "config": config,
+                    "api_base": config.get("api_base"),
+                    "capabilities": health_response.json().get("capabilities", []),
                 }
                 self.logger.info(f"Module {module_name} is available")
             else:
@@ -240,15 +244,19 @@ class ModuleOrchestrator:
         for step in workflow.steps:
             for dependency in step.dependencies:
                 if dependency not in step_names:
-                    self.logger.error(f"Invalid dependency {dependency} in step {step.name}")
+                    self.logger.error(
+                        f"Invalid dependency {dependency} in step {step.name}"
+                    )
                     return False
 
         return True
 
-    async def execute_workflow(self,
-                             workflow_id: str,
-                             input_data: Dict[str, Any],
-                             execution_context: Optional[ExecutionContext] = None) -> IntegrationResult:
+    async def execute_workflow(
+        self,
+        workflow_id: str,
+        input_data: Dict[str, Any],
+        execution_context: Optional[ExecutionContext] = None,
+    ) -> IntegrationResult:
         """
         Execute a registered workflow with given input data.
 
@@ -271,7 +279,7 @@ class ModuleOrchestrator:
             workflow_id=workflow_id,
             execution_id=execution_id,
             status="initializing",
-            start_time=time.time()
+            start_time=time.time(),
         )
         self.active_executions[execution_id] = execution
 
@@ -287,20 +295,30 @@ class ModuleOrchestrator:
             elif workflow.execution_strategy == ExecutionStrategy.PARALLEL:
                 result = await self._execute_parallel(workflow, input_data, execution)
             elif workflow.execution_strategy == ExecutionStrategy.CONDITIONAL:
-                result = await self._execute_conditional(workflow, input_data, execution)
+                result = await self._execute_conditional(
+                    workflow, input_data, execution
+                )
             elif workflow.execution_strategy == ExecutionStrategy.EVENT_DRIVEN:
-                result = await self._execute_event_driven(workflow, input_data, execution)
+                result = await self._execute_event_driven(
+                    workflow, input_data, execution
+                )
             elif workflow.execution_strategy == ExecutionStrategy.FEEDBACK_LOOP:
-                result = await self._execute_feedback_loop(workflow, input_data, execution)
+                result = await self._execute_feedback_loop(
+                    workflow, input_data, execution
+                )
             else:
-                raise ValueError(f"Unknown execution strategy: {workflow.execution_strategy}")
+                raise ValueError(
+                    f"Unknown execution strategy: {workflow.execution_strategy}"
+                )
 
             execution.status = "completed"
             execution.end_time = time.time()
             execution.results = result.data
 
             if self.monitoring_enabled:
-                execution.performance_metrics = self.performance_monitor.get_workflow_metrics(execution_id)
+                execution.performance_metrics = (
+                    self.performance_monitor.get_workflow_metrics(execution_id)
+                )
 
             self.logger.info(f"Workflow execution completed: {execution_id}")
             return result
@@ -314,7 +332,9 @@ class ModuleOrchestrator:
 
             if self.resilience_enabled:
                 # Attempt recovery
-                recovery_result = await self._attempt_recovery(workflow, input_data, execution, e)
+                recovery_result = await self._attempt_recovery(
+                    workflow, input_data, execution, e
+                )
                 if recovery_result:
                     return recovery_result
 
@@ -323,10 +343,12 @@ class ModuleOrchestrator:
             if self.monitoring_enabled:
                 self.performance_monitor.stop_workflow_tracking(execution_id)
 
-    async def _execute_sequential(self,
-                                workflow: WorkflowDefinition,
-                                input_data: Dict[str, Any],
-                                execution: WorkflowExecution) -> IntegrationResult:
+    async def _execute_sequential(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+    ) -> IntegrationResult:
         """Execute workflow steps sequentially."""
         current_data = input_data.copy()
         results = {}
@@ -366,14 +388,16 @@ class ModuleOrchestrator:
             metadata={
                 "execution_id": execution.execution_id,
                 "workflow_id": workflow.id,
-                "execution_time": time.time() - execution.start_time
-            }
+                "execution_time": time.time() - execution.start_time,
+            },
         )
 
-    async def _execute_parallel(self,
-                              workflow: WorkflowDefinition,
-                              input_data: Dict[str, Any],
-                              execution: WorkflowExecution) -> IntegrationResult:
+    async def _execute_parallel(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+    ) -> IntegrationResult:
         """Execute independent workflow steps in parallel."""
         # Group steps by dependencies
         dependency_groups = self._group_by_dependencies(workflow.steps)
@@ -416,23 +440,30 @@ class ModuleOrchestrator:
             metadata={
                 "execution_id": execution.execution_id,
                 "workflow_id": workflow.id,
-                "execution_time": time.time() - execution.start_time
-            }
+                "execution_time": time.time() - execution.start_time,
+            },
         )
 
-    async def _execute_conditional(self,
-                                 workflow: WorkflowDefinition,
-                                 input_data: Dict[str, Any],
-                                 execution: WorkflowExecution) -> IntegrationResult:
+    async def _execute_conditional(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+    ) -> IntegrationResult:
         """Execute workflow with conditional step execution."""
         current_data = input_data.copy()
         results = {}
 
         for step in workflow.steps:
             # Check execution condition
-            if step.condition and not self._evaluate_condition(step.condition, current_data):
+            if step.condition and not self._evaluate_condition(
+                step.condition, current_data
+            ):
                 self.logger.debug(f"Skipping step {step.name} - condition not met")
-                results[step.name] = {"status": "skipped", "reason": "condition_not_met"}
+                results[step.name] = {
+                    "status": "skipped",
+                    "reason": "condition_not_met",
+                }
                 continue
 
             try:
@@ -460,14 +491,16 @@ class ModuleOrchestrator:
             metadata={
                 "execution_id": execution.execution_id,
                 "workflow_id": workflow.id,
-                "execution_time": time.time() - execution.start_time
-            }
+                "execution_time": time.time() - execution.start_time,
+            },
         )
 
-    async def _execute_event_driven(self,
-                                  workflow: WorkflowDefinition,
-                                  input_data: Dict[str, Any],
-                                  execution: WorkflowExecution) -> IntegrationResult:
+    async def _execute_event_driven(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+    ) -> IntegrationResult:
         """Execute workflow using event-driven pattern."""
         # Initialize event bus for this execution
         execution_events = {}
@@ -495,8 +528,14 @@ class ModuleOrchestrator:
                 # Trigger events
                 if step.emits_events:
                     for event in step.emits_events:
-                        await self._trigger_event(event, step_result, execution_events,
-                                                current_data, execution, results)
+                        await self._trigger_event(
+                            event,
+                            step_result,
+                            execution_events,
+                            current_data,
+                            execution,
+                            results,
+                        )
 
             except Exception as e:
                 if not step.optional:
@@ -509,14 +548,16 @@ class ModuleOrchestrator:
             metadata={
                 "execution_id": execution.execution_id,
                 "workflow_id": workflow.id,
-                "execution_time": time.time() - execution.start_time
-            }
+                "execution_time": time.time() - execution.start_time,
+            },
         )
 
-    async def _execute_feedback_loop(self,
-                                   workflow: WorkflowDefinition,
-                                   input_data: Dict[str, Any],
-                                   execution: WorkflowExecution) -> IntegrationResult:
+    async def _execute_feedback_loop(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+    ) -> IntegrationResult:
         """Execute workflow with feedback loops (Active Inference pattern)."""
         current_data = input_data.copy()
         results = {}
@@ -530,7 +571,9 @@ class ModuleOrchestrator:
             # Execute all steps in current iteration
             for step in workflow.steps:
                 try:
-                    step_result = await self._execute_step(step, current_data, execution)
+                    step_result = await self._execute_step(
+                        step, current_data, execution
+                    )
                     iteration_results[step.name] = step_result
 
                     # Update beliefs/data
@@ -546,7 +589,9 @@ class ModuleOrchestrator:
             results[f"iteration_{iteration}"] = iteration_results
 
             # Check convergence
-            if iteration > 0 and self._check_convergence(results, convergence_threshold):
+            if iteration > 0 and self._check_convergence(
+                results, convergence_threshold
+            ):
                 self.logger.info(f"Workflow converged at iteration {iteration + 1}")
                 break
 
@@ -556,44 +601,53 @@ class ModuleOrchestrator:
             metadata={
                 "execution_id": execution.execution_id,
                 "workflow_id": workflow.id,
-                "iterations": len([k for k in results.keys() if k.startswith("iteration_")]),
-                "execution_time": time.time() - execution.start_time
-            }
+                "iterations": len(
+                    [k for k in results.keys() if k.startswith("iteration_")]
+                ),
+                "execution_time": time.time() - execution.start_time,
+            },
         )
 
-    async def _execute_step(self,
-                          step: Any,
-                          input_data: Dict[str, Any],
-                          execution: WorkflowExecution) -> Dict[str, Any]:
+    async def _execute_step(
+        self, step: Any, input_data: Dict[str, Any], execution: WorkflowExecution
+    ) -> Dict[str, Any]:
         """Execute a single workflow step."""
         module_name = step.module
 
         if self.monitoring_enabled:
-            self.performance_monitor.start_step_tracking(execution.execution_id, step.name)
+            self.performance_monitor.start_step_tracking(
+                execution.execution_id, step.name
+            )
 
         try:
             # Prepare step input
             step_input = input_data.copy()
             if step.input_mapping:
-                step_input = {key: input_data.get(value, value)
-                            for key, value in step.input_mapping.items()}
+                step_input = {
+                    key: input_data.get(value, value)
+                    for key, value in step.input_mapping.items()
+                }
 
             # Execute via API
             response = await self.api_connector.post_async(
                 module=module_name,
                 endpoint=step.endpoint,
                 data=step_input,
-                timeout=step.timeout or self.default_timeout
+                timeout=step.timeout or self.default_timeout,
             )
 
             if response.status_code == 200:
                 return response.json()
             else:
-                raise Exception(f"Step execution failed: {response.status_code} - {response.text}")
+                raise Exception(
+                    f"Step execution failed: {response.status_code} - {response.text}"
+                )
 
         finally:
             if self.monitoring_enabled:
-                self.performance_monitor.stop_step_tracking(execution.execution_id, step.name)
+                self.performance_monitor.stop_step_tracking(
+                    execution.execution_id, step.name
+                )
 
     def _group_by_dependencies(self, steps: List[Any]) -> List[List[Any]]:
         """Group workflow steps by their dependency relationships."""
@@ -628,28 +682,37 @@ class ModuleOrchestrator:
         except Exception:
             return False
 
-    async def _trigger_event(self,
-                           event_name: str,
-                           event_data: Dict[str, Any],
-                           execution_events: Dict[str, List[Any]],
-                           current_data: Dict[str, Any],
-                           execution: WorkflowExecution,
-                           results: Dict[str, Any]):
+    async def _trigger_event(
+        self,
+        event_name: str,
+        event_data: Dict[str, Any],
+        execution_events: Dict[str, List[Any]],
+        current_data: Dict[str, Any],
+        execution: WorkflowExecution,
+        results: Dict[str, Any],
+    ):
         """Trigger an event and execute associated steps."""
         if event_name in execution_events:
             for step in execution_events[event_name]:
                 if step.name not in results:  # Avoid duplicate execution
                     try:
-                        step_result = await self._execute_step(step, current_data, execution)
+                        step_result = await self._execute_step(
+                            step, current_data, execution
+                        )
                         results[step.name] = step_result
                         current_data.update(step_result)
 
                         # Chain events
                         if step.emits_events:
                             for next_event in step.emits_events:
-                                await self._trigger_event(next_event, step_result,
-                                                        execution_events, current_data,
-                                                        execution, results)
+                                await self._trigger_event(
+                                    next_event,
+                                    step_result,
+                                    execution_events,
+                                    current_data,
+                                    execution,
+                                    results,
+                                )
                     except Exception as e:
                         if not step.optional:
                             raise
@@ -692,11 +755,13 @@ class ModuleOrchestrator:
         except Exception:
             return False
 
-    async def _attempt_recovery(self,
-                              workflow: WorkflowDefinition,
-                              input_data: Dict[str, Any],
-                              execution: WorkflowExecution,
-                              error: Exception) -> Optional[IntegrationResult]:
+    async def _attempt_recovery(
+        self,
+        workflow: WorkflowDefinition,
+        input_data: Dict[str, Any],
+        execution: WorkflowExecution,
+        error: Exception,
+    ) -> Optional[IntegrationResult]:
         """Attempt to recover from workflow execution failure."""
         self.logger.info(f"Attempting recovery for execution {execution.execution_id}")
 
@@ -713,21 +778,24 @@ class ModuleOrchestrator:
             # Try again with optional modules marked as skippable
             modified_workflow = self._create_resilient_workflow(workflow)
             return await self.execute_workflow(
-                modified_workflow.id,
-                input_data,
-                ExecutionContext(resilience_mode=True)
+                modified_workflow.id, input_data, ExecutionContext(resilience_mode=True)
             )
 
         except Exception as recovery_error:
             self.logger.error(f"Recovery failed: {recovery_error}")
             return None
 
-    def _create_resilient_workflow(self, workflow: WorkflowDefinition) -> WorkflowDefinition:
+    def _create_resilient_workflow(
+        self, workflow: WorkflowDefinition
+    ) -> WorkflowDefinition:
         """Create a modified workflow for resilient execution."""
         # Mark problematic modules as optional
         resilient_workflow = workflow.copy()
         for step in resilient_workflow.steps:
-            if self.module_health.get(step.module) in [ModuleStatus.ERROR, ModuleStatus.UNAVAILABLE]:
+            if self.module_health.get(step.module) in [
+                ModuleStatus.ERROR,
+                ModuleStatus.UNAVAILABLE,
+            ]:
                 step.optional = True
 
         return resilient_workflow
@@ -755,16 +823,14 @@ class ModuleOrchestrator:
             "modules": {},
             "active_executions": len(self.active_executions),
             "registered_workflows": len(self.workflows),
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
 
         # Check each module
         for module_name in self.modules:
             try:
                 response = await self.api_connector.get_async(
-                    module=module_name,
-                    endpoint='/health',
-                    timeout=5
+                    module=module_name, endpoint="/health", timeout=5
                 )
 
                 if response.status_code == 200:
@@ -813,23 +879,23 @@ SAMPLE_WORKFLOWS = {
                 "module": "DATA",
                 "endpoint": "/ingest",
                 "dependencies": [],
-                "optional": False
+                "optional": False,
             },
             {
                 "name": "spatial_analysis",
                 "module": "SPACE",
                 "endpoint": "/analyze/spatial",
                 "dependencies": ["data_ingestion"],
-                "optional": False
+                "optional": False,
             },
             {
                 "name": "health_assessment",
                 "module": "HEALTH",
                 "endpoint": "/assess/outbreak",
                 "dependencies": ["spatial_analysis"],
-                "optional": False
-            }
-        ]
+                "optional": False,
+            },
+        ],
     }
 }
 
@@ -847,8 +913,7 @@ if __name__ == "__main__":
         if orchestrator.workflows:
             workflow_id = list(orchestrator.workflows.keys())[0]
             result = await orchestrator.execute_workflow(
-                workflow_id,
-                {"test_data": "sample_input"}
+                workflow_id, {"test_data": "sample_input"}
             )
             print(f"Workflow result: {result}")
 

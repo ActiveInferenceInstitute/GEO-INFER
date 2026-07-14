@@ -97,7 +97,9 @@ class TestForecastARIMA:
 
     def test_arima_returns_forecast(self, engine, trending_series):
         """ARIMA produces a forecast with expected keys."""
-        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=5)
+        result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=5
+        )
         assert "forecast" in result
         assert "lower_bound" in result
         assert "upper_bound" in result
@@ -106,14 +108,18 @@ class TestForecastARIMA:
     def test_arima_forecast_length(self, engine, trending_series):
         """Forecast length matches requested steps."""
         steps = 12
-        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=steps)
+        result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=steps
+        )
         assert len(result["forecast"]) == steps
         assert len(result["lower_bound"]) == steps
         assert len(result["upper_bound"]) == steps
 
     def test_arima_confidence_interval_ordering(self, engine, trending_series):
         """Lower bound <= forecast <= upper bound for each step."""
-        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=5)
+        result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=5
+        )
         for i in range(5):
             lb = result["lower_bound"].iloc[i]
             ub = result["upper_bound"].iloc[i]
@@ -127,7 +133,9 @@ class TestForecastARIMA:
 
     def test_arima_stationary_series(self, engine, stationary_series):
         """ARIMA works on stationary data with (1,0,0)."""
-        result = engine.forecast_arima(stationary_series, order=(1, 0, 0), forecast_steps=5)
+        result = engine.forecast_arima(
+            stationary_series, order=(1, 0, 0), forecast_steps=5
+        )
         assert len(result["forecast"]) == 5
 
     def test_arima_with_seasonal_order(self, engine, seasonal_series):
@@ -142,7 +150,9 @@ class TestForecastARIMA:
 
     def test_arima_forecast_not_nan(self, engine, trending_series):
         """Forecast values should not be NaN."""
-        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=5)
+        result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=5
+        )
         assert not result["forecast"].isna().any()
 
 
@@ -224,12 +234,12 @@ class TestDetectTrendSeasonality:
     def test_trending_series_has_trend(self, engine, trending_series):
         """Trending series is identified as having a trend."""
         result = engine.detect_trend_seasonality(trending_series)
-        assert result["has_trend"] == True
+        assert result["has_trend"]
 
     def test_seasonal_series_has_seasonality(self, engine, seasonal_series):
         """Seasonal series is identified as having seasonality."""
         result = engine.detect_trend_seasonality(seasonal_series)
-        assert result["has_seasonality"] == True
+        assert result["has_seasonality"]
 
     def test_trend_strength_range(self, engine, trending_series):
         """trend_strength is a non-negative float."""
@@ -267,7 +277,9 @@ class TestImportGuard:
 
     def test_arima_backend_is_available(self, engine, trending_series):
         """The required ARIMA backend executes on a valid series."""
-        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=2)
+        result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=2
+        )
         assert len(result["forecast"]) == 2
 
     def test_exp_smoothing_backend_is_available(self, engine, trending_series):
@@ -293,7 +305,9 @@ class TestForecastingIntegration:
 
     def test_arima_and_exp_smoothing_same_series(self, engine, trending_series):
         """Both methods produce valid forecasts for the same series."""
-        arima_result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=5)
+        arima_result = engine.forecast_arima(
+            trending_series, order=(1, 1, 0), forecast_steps=5
+        )
         es_result = engine.forecast_exponential_smoothing(
             trending_series, trend="add", forecast_steps=5
         )

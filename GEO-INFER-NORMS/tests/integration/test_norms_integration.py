@@ -10,6 +10,7 @@ import datetime
 
 try:
     from shapely.geometry import Point, Polygon
+
     HAS_SHAPELY = True
 except ImportError:
     HAS_SHAPELY = False
@@ -32,11 +33,15 @@ def normative_engine():
         condition=lambda obs: obs.get("building_height", 0) <= 35,
         probability=1.0,
         description="Buildings must not exceed 35 feet",
-        spatial_constraint=Polygon([
-            (-118.30, 34.00), (-118.30, 34.10),
-            (-118.20, 34.10), (-118.20, 34.00),
-            (-118.30, 34.00),
-        ]),
+        spatial_constraint=Polygon(
+            [
+                (-118.30, 34.00),
+                (-118.30, 34.10),
+                (-118.20, 34.10),
+                (-118.20, 34.00),
+                (-118.30, 34.00),
+            ]
+        ),
     )
 
     # Add lot coverage norm
@@ -71,8 +76,13 @@ class TestNormativeCompliancePipeline:
         engine, height_id, coverage_id, setback_id = normative_engine
 
         # Add observations for a compliant entity
-        engine.add_observation("building_A", "building_height", 30,
-                               location=Point(-118.25, 34.05), certainty=0.95)
+        engine.add_observation(
+            "building_A",
+            "building_height",
+            30,
+            location=Point(-118.25, 34.05),
+            certainty=0.95,
+        )
         engine.add_observation("building_A", "lot_coverage", 0.45, certainty=0.9)
         engine.add_observation("building_A", "front_setback", 25, certainty=0.85)
 
@@ -87,8 +97,13 @@ class TestNormativeCompliancePipeline:
         engine, height_id, coverage_id, setback_id = normative_engine
 
         # Add observations for a non-compliant entity
-        engine.add_observation("building_B", "building_height", 50,
-                               location=Point(-118.25, 34.05), certainty=0.95)
+        engine.add_observation(
+            "building_B",
+            "building_height",
+            50,
+            location=Point(-118.25, 34.05),
+            certainty=0.95,
+        )
         engine.add_observation("building_B", "lot_coverage", 0.75, certainty=0.9)
         engine.add_observation("building_B", "front_setback", 10, certainty=0.85)
 
@@ -97,7 +112,9 @@ class TestNormativeCompliancePipeline:
         # compliance probabilities below the prior but not extremely low.
         # Use a threshold that matches the Bayesian update behavior.
         violations = engine.identify_norm_violations("building_B", threshold=0.95)
-        assert len(violations) > 0, "Should detect at least one violation at threshold=0.95"
+        assert (
+            len(violations) > 0
+        ), "Should detect at least one violation at threshold=0.95"
 
         # Violations should be sorted by severity
         if len(violations) > 1:
@@ -115,20 +132,32 @@ class TestNormativeCompliancePipeline:
         engine.set_prior_belief(height_id, "building_C", compliance_probability=0.5)
 
         # Add compliant observation
-        engine.add_observation("building_C", "building_height", 25,
-                               location=Point(-118.25, 34.05), certainty=0.9)
+        engine.add_observation(
+            "building_C",
+            "building_height",
+            25,
+            location=Point(-118.25, 34.05),
+            certainty=0.9,
+        )
 
         # Infer compliance
         compliance_prob = engine.infer_compliance("building_C", height_id)
-        assert compliance_prob > 0.5, "Compliance probability should increase with compliant observation"
+        assert (
+            compliance_prob > 0.5
+        ), "Compliance probability should increase with compliant observation"
 
     def test_network_compliance_uses_relationships(self, normative_engine):
         """Test that network compliance considers norm relationships."""
         engine, height_id, coverage_id, setback_id = normative_engine
 
         # Add observations
-        engine.add_observation("building_D", "building_height", 30,
-                               location=Point(-118.25, 34.05), certainty=0.9)
+        engine.add_observation(
+            "building_D",
+            "building_height",
+            30,
+            location=Point(-118.25, 34.05),
+            certainty=0.9,
+        )
         engine.add_observation("building_D", "lot_coverage", 0.40, certainty=0.9)
 
         # Network compliance should consider the "supports" relationship
@@ -143,8 +172,13 @@ class TestNormativeCompliancePipeline:
         """Test inferring compliance across all norms at once."""
         engine, height_id, coverage_id, setback_id = normative_engine
 
-        engine.add_observation("building_E", "building_height", 28,
-                               location=Point(-118.25, 34.05), certainty=0.85)
+        engine.add_observation(
+            "building_E",
+            "building_height",
+            28,
+            location=Point(-118.25, 34.05),
+            certainty=0.85,
+        )
         engine.add_observation("building_E", "lot_coverage", 0.55, certainty=0.8)
         engine.add_observation("building_E", "front_setback", 22, certainty=0.9)
 
@@ -154,24 +188,35 @@ class TestNormativeCompliancePipeline:
         assert len(all_compliance) == 3, "Should have compliance for all 3 norms"
 
         for norm_id, prob in all_compliance.items():
-            assert 0.0 <= prob <= 1.0, f"Compliance probability {prob} out of range for norm {norm_id}"
+            assert (
+                0.0 <= prob <= 1.0
+            ), f"Compliance probability {prob} out of range for norm {norm_id}"
 
     def test_compliance_improvement_suggestions(self, normative_engine):
         """Test that improvement suggestions are generated for non-compliant entities."""
         engine, height_id, coverage_id, setback_id = normative_engine
 
         # Non-compliant entity
-        engine.add_observation("building_F", "building_height", 45,
-                               location=Point(-118.25, 34.05), certainty=0.95)
+        engine.add_observation(
+            "building_F",
+            "building_height",
+            45,
+            location=Point(-118.25, 34.05),
+            certainty=0.95,
+        )
         engine.add_observation("building_F", "lot_coverage", 0.80, certainty=0.9)
         engine.add_observation("building_F", "front_setback", 12, certainty=0.85)
 
         # The Bayesian model yields compliance probabilities near 0.5 for
         # non-compliant observations with default priors, so use a threshold
         # of 0.95 to catch them as candidates for improvement.
-        suggestions = engine.suggest_compliance_improvements("building_F", improvement_threshold=0.95)
+        suggestions = engine.suggest_compliance_improvements(
+            "building_F", improvement_threshold=0.95
+        )
         assert isinstance(suggestions, list)
-        assert len(suggestions) > 0, "Should suggest improvements for non-compliant entity"
+        assert (
+            len(suggestions) > 0
+        ), "Should suggest improvements for non-compliant entity"
 
         for suggestion in suggestions:
             assert "norm_id" in suggestion
@@ -190,8 +235,12 @@ class TestSocialNormDiffusionPipeline:
 
         # Add entities in a spatial arrangement
         locations = [
-            Point(0, 0), Point(1, 0), Point(2, 0),
-            Point(0, 1), Point(1, 1), Point(2, 1),
+            Point(0, 0),
+            Point(1, 0),
+            Point(2, 0),
+            Point(0, 1),
+            Point(1, 1),
+            Point(2, 1),
         ]
         for i, loc in enumerate(locations):
             model.add_entity(
@@ -203,8 +252,13 @@ class TestSocialNormDiffusionPipeline:
 
         # Add social connections (grid neighbors)
         connections = [
-            (0, 1), (1, 2), (3, 4), (4, 5),
-            (0, 3), (1, 4), (2, 5),
+            (0, 1),
+            (1, 2),
+            (3, 4),
+            (4, 5),
+            (0, 3),
+            (1, 4),
+            (2, 5),
         ]
         for i, j in connections:
             model.add_social_connection(f"entity_{i}", f"entity_{j}", strength=0.8)
@@ -225,7 +279,9 @@ class TestSocialNormDiffusionPipeline:
         # Check adoption summary
         summary = model.get_adoption_summary()
         assert "recycling_norm" in summary
-        assert summary["recycling_norm"]["adopted_count"] >= 2  # At least initial adopters
+        assert (
+            summary["recycling_norm"]["adopted_count"] >= 2
+        )  # At least initial adopters
 
     def test_diffusion_with_multiple_norms(self):
         """Test diffusion with multiple norms simultaneously."""
@@ -234,15 +290,29 @@ class TestSocialNormDiffusionPipeline:
         model = SocialNormDiffusion()
 
         for i in range(5):
-            model.add_entity(f"e_{i}", attributes={"region": "urban"}, adoption_threshold=0.4)
+            model.add_entity(
+                f"e_{i}", attributes={"region": "urban"}, adoption_threshold=0.4
+            )
 
         for i in range(4):
             model.add_social_connection(f"e_{i}", f"e_{i+1}", strength=0.9)
 
-        model.add_norm("norm_A", name="Norm A", initial_adopters=["e_0"], network_factor=0.8, spatial_factor=0.2)
-        model.add_norm("norm_B", name="Norm B", initial_adopters=["e_4"], network_factor=0.8, spatial_factor=0.2)
+        model.add_norm(
+            "norm_A",
+            name="Norm A",
+            initial_adopters=["e_0"],
+            network_factor=0.8,
+            spatial_factor=0.2,
+        )
+        model.add_norm(
+            "norm_B",
+            name="Norm B",
+            initial_adopters=["e_4"],
+            network_factor=0.8,
+            spatial_factor=0.2,
+        )
 
-        results = model.simulate(steps=10)
+        _results = model.simulate(steps=10)
         summary = model.get_adoption_summary()
 
         assert "norm_A" in summary
@@ -287,11 +357,15 @@ class TestZoningModelsIntegration:
             name="Downtown Core",
             zoning_code="C-2",
             jurisdiction_id="city_001",
-            geometry=Polygon([
-                (-118.25, 34.04), (-118.25, 34.06),
-                (-118.23, 34.06), (-118.23, 34.04),
-                (-118.25, 34.04),
-            ]),
+            geometry=Polygon(
+                [
+                    (-118.25, 34.04),
+                    (-118.25, 34.06),
+                    (-118.23, 34.06),
+                    (-118.23, 34.04),
+                    (-118.25, 34.04),
+                ]
+            ),
             effective_date=datetime.date(2020, 1, 1),
         )
 
@@ -325,11 +399,15 @@ class TestZoningModelsIntegration:
             name="Main Street Corridor",
             zoning_code=code.code,
             jurisdiction_id="city_001",
-            geometry=Polygon([
-                (-118.26, 34.04), (-118.26, 34.06),
-                (-118.24, 34.06), (-118.24, 34.04),
-                (-118.26, 34.04),
-            ]),
+            geometry=Polygon(
+                [
+                    (-118.26, 34.04),
+                    (-118.26, 34.06),
+                    (-118.24, 34.06),
+                    (-118.24, 34.04),
+                    (-118.26, 34.04),
+                ]
+            ),
         )
 
         # Validate a proposed use against the district's zoning code

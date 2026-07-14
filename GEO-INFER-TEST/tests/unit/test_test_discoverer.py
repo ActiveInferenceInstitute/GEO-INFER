@@ -17,6 +17,7 @@ from geo_infer_test.core.test_discoverer import TestDiscoverer as _TestDiscovere
 # Helpers
 # ============================================================================
 
+
 def _make_repo(base: Path, modules: list[str], with_tests: bool = True):
     """Create a mini GEO-INFER repo layout under *base*."""
     for mod in modules:
@@ -29,14 +30,16 @@ def _make_repo(base: Path, modules: list[str], with_tests: bool = True):
             unit_dir = tests_dir / "unit"
             unit_dir.mkdir(exist_ok=True)
             (unit_dir / f"test_{mod.lower()}.py").write_text(
-                dedent(f'''
+                dedent(
+                    f'''
                     """Tests for {mod}."""
                     import pytest
 
                     class Test{mod.title().replace('-','')}Basic:
                         def test_example(self):
                             assert True
-                ''')
+                '''
+                )
             )
     return base
 
@@ -44,6 +47,7 @@ def _make_repo(base: Path, modules: list[str], with_tests: bool = True):
 # ============================================================================
 # Standard Tests
 # ============================================================================
+
 
 class TestTestDiscovererBasic:
     """Standard tests for TestDiscoverer."""
@@ -124,8 +128,24 @@ class TestTestDiscovererBasic:
 # Parametric Tests
 # ============================================================================
 
-_MODULE_NAMES = ["SPACE", "TIME", "AI", "BAYES", "ACT", "AGENT", "SEC", "APP",
-                 "API", "LOG", "DATA", "OPS", "RISK", "ECON", "HEALTH"]
+_MODULE_NAMES = [
+    "SPACE",
+    "TIME",
+    "AI",
+    "BAYES",
+    "ACT",
+    "AGENT",
+    "SEC",
+    "APP",
+    "API",
+    "LOG",
+    "DATA",
+    "OPS",
+    "RISK",
+    "ECON",
+    "HEALTH",
+]
+
 
 class TestTestDiscovererParametric:
     """Parametric tests exercising many module combinations."""
@@ -161,11 +181,18 @@ class TestTestDiscovererParametric:
 # Property-Based Tests (Hypothesis)
 # ============================================================================
 
+
 class TestHypothesisTestDiscoverer:
     """Fuzzing tests for TestDiscoverer."""
 
     @settings(max_examples=200)
-    @given(st.text(min_size=1, max_size=15, alphabet=st.characters(whitelist_categories=('Lu',))))
+    @given(
+        st.text(
+            min_size=1,
+            max_size=15,
+            alphabet=st.characters(whitelist_categories=("Lu",)),
+        )
+    )
     def test_discover_never_crashes(self, module_name):
         """TestDiscoverer should never crash regardless of module name."""
         with tempfile.TemporaryDirectory() as tmp:
@@ -173,16 +200,24 @@ class TestHypothesisTestDiscoverer:
             # Create the module directory
             mod_dir = base / f"GEO-INFER-{module_name}"
             mod_dir.mkdir(parents=True, exist_ok=True)
-            
+
             d = _TestDiscoverer(base_path=base)
             results = d.discover_all_tests([module_name])
             assert isinstance(results, dict)
 
     @settings(max_examples=200)
-    @given(st.lists(
-        st.text(min_size=1, max_size=8, alphabet=st.characters(whitelist_categories=('Lu',))),
-        min_size=1, max_size=10, unique=True
-    ))
+    @given(
+        st.lists(
+            st.text(
+                min_size=1,
+                max_size=8,
+                alphabet=st.characters(whitelist_categories=("Lu",)),
+            ),
+            min_size=1,
+            max_size=10,
+            unique=True,
+        )
+    )
     def test_discover_all_returns_all(self, module_names):
         """All requested modules should appear in discovery results."""
         with tempfile.TemporaryDirectory() as tmp:

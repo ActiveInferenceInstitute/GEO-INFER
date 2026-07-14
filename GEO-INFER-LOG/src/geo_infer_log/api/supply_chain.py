@@ -5,16 +5,17 @@ This module provides FastAPI endpoints for supply chain modeling,
 resilience analysis, network optimization, and facility location.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
 from pydantic import Field
 from geo_infer_log.models.base import BaseModel
 
-from geo_infer_log.models.schemas import (
-    FacilityLocation, SupplyChainNetwork
-)
+from geo_infer_log.models.schemas import SupplyChainNetwork
 from geo_infer_log.core.supply_chain import (
-    SupplyChainModel, ResilienceAnalyzer, NetworkOptimizer, FacilityLocator
+    SupplyChainModel,
+    ResilienceAnalyzer,
+    NetworkOptimizer,
+    FacilityLocator,
 )
 
 
@@ -27,6 +28,7 @@ router = APIRouter(
 
 class NetworkRequest(BaseModel):
     """Request model for supply chain network operations."""
+
     network: SupplyChainNetwork
 
     class Config:
@@ -42,7 +44,7 @@ class NetworkRequest(BaseModel):
                             "location": (13.4050, 52.5200),
                             "type": "distribution_center",
                             "capacity": 5000,
-                            "operating_cost": 10000
+                            "operating_cost": 10000,
                         },
                         {
                             "id": "wh-001",
@@ -50,8 +52,8 @@ class NetworkRequest(BaseModel):
                             "location": (11.5820, 48.1351),
                             "type": "warehouse",
                             "capacity": 3000,
-                            "operating_cost": 8000
-                        }
+                            "operating_cost": 8000,
+                        },
                     ],
                     "links": [
                         {
@@ -60,9 +62,9 @@ class NetworkRequest(BaseModel):
                             "distance": 504,
                             "time": 300,
                             "cost": 600,
-                            "capacity": 1000
+                            "capacity": 1000,
                         }
-                    ]
+                    ],
                 }
             }
         }
@@ -70,6 +72,7 @@ class NetworkRequest(BaseModel):
 
 class FlowOptimizationRequest(BaseModel):
     """Request model for supply chain flow optimization."""
+
     network_id: str
     demand_points: List[Dict]
     supply_points: List[Dict]
@@ -84,7 +87,7 @@ class FlowOptimizationRequest(BaseModel):
                         "id": "dp-001",
                         "location": (8.6821, 50.1109),
                         "demand": 200,
-                        "priority": 1
+                        "priority": 1,
                     }
                 ],
                 "supply_points": [
@@ -92,16 +95,17 @@ class FlowOptimizationRequest(BaseModel):
                         "id": "sp-001",
                         "location": (18.0686, 59.3293),
                         "supply": 500,
-                        "reliability": 0.95
+                        "reliability": 0.95,
                     }
                 ],
-                "objective": "cost"
+                "objective": "cost",
             }
         }
 
 
 class DisruptionAnalysisRequest(BaseModel):
     """Request model for supply chain disruption analysis."""
+
     network_id: str
     disrupted_nodes: List[str] = Field(default_factory=list)
     disrupted_edges: List[Tuple[str, str]] = Field(default_factory=list)
@@ -111,13 +115,14 @@ class DisruptionAnalysisRequest(BaseModel):
             "example": {
                 "network_id": "network-001",
                 "disrupted_nodes": ["wh-001"],
-                "disrupted_edges": [["dc-001", "wh-002"]]
+                "disrupted_edges": [["dc-001", "wh-002"]],
             }
         }
 
 
 class FacilityLocationRequest(BaseModel):
     """Request model for facility location optimization."""
+
     candidates: List[Dict]
     demand_points: List[Dict]
     num_facilities: int
@@ -128,20 +133,21 @@ class FacilityLocationRequest(BaseModel):
             "example": {
                 "candidates": [
                     {"id": "c1", "location": (13.4050, 52.5200), "cost": 10000},
-                    {"id": "c2", "location": (11.5820, 48.1351), "cost": 8000}
+                    {"id": "c2", "location": (11.5820, 48.1351), "cost": 8000},
                 ],
                 "demand_points": [
                     {"id": "d1", "location": (8.6821, 50.1109), "demand": 200},
-                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300}
+                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300},
                 ],
                 "num_facilities": 1,
-                "max_distance": 500
+                "max_distance": 500,
             }
         }
 
 
 class NetworkOptimizationRequest(BaseModel):
     """Request model for network design optimization."""
+
     locations: List[Dict]
     demand_points: List[Dict]
     constraints: Dict
@@ -151,17 +157,17 @@ class NetworkOptimizationRequest(BaseModel):
             "example": {
                 "locations": [
                     {"id": "loc1", "location": (13.4050, 52.5200), "cost": 10000},
-                    {"id": "loc2", "location": (11.5820, 48.1351), "cost": 8000}
+                    {"id": "loc2", "location": (11.5820, 48.1351), "cost": 8000},
                 ],
                 "demand_points": [
                     {"id": "d1", "location": (8.6821, 50.1109), "demand": 200},
-                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300}
+                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300},
                 ],
                 "constraints": {
                     "max_facilities": 3,
                     "max_distance": 500,
-                    "budget": 30000
-                }
+                    "budget": 30000,
+                },
             }
         }
 
@@ -173,9 +179,7 @@ def get_supply_chain_model():
 
 
 # Get a resilience analyzer instance
-def get_resilience_analyzer(
-    model: SupplyChainModel = Depends(get_supply_chain_model)
-):
+def get_resilience_analyzer(model: SupplyChainModel = Depends(get_supply_chain_model)):
     """Dependency for resilience analyzer."""
     return ResilienceAnalyzer(model)
 
@@ -194,8 +198,7 @@ def get_facility_locator():
 
 @router.post("/networks", response_model=Dict)
 async def create_network(
-    request: NetworkRequest,
-    model: SupplyChainModel = Depends(get_supply_chain_model)
+    request: NetworkRequest, model: SupplyChainModel = Depends(get_supply_chain_model)
 ):
     """Create a supply chain network."""
     try:
@@ -208,14 +211,14 @@ async def create_network(
 @router.post("/flow", response_model=Dict)
 async def optimize_flow(
     request: FlowOptimizationRequest,
-    model: SupplyChainModel = Depends(get_supply_chain_model)
+    model: SupplyChainModel = Depends(get_supply_chain_model),
 ):
     """Optimize flow in a supply chain network."""
     try:
         result = model.optimize_flow(
             demand_points=request.demand_points,
             supply_points=request.supply_points,
-            objective=request.objective
+            objective=request.objective,
         )
         return result
     except Exception as e:
@@ -225,13 +228,13 @@ async def optimize_flow(
 @router.post("/resilience/disruption", response_model=Dict)
 async def analyze_disruption(
     request: DisruptionAnalysisRequest,
-    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer)
+    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
 ):
     """Analyze the impact of a disruption in the supply chain."""
     try:
         result = analyzer.simulate_disruption(
             disrupted_nodes=request.disrupted_nodes,
-            disrupted_edges=request.disrupted_edges
+            disrupted_edges=request.disrupted_edges,
         )
         return result
     except Exception as e:
@@ -240,7 +243,7 @@ async def analyze_disruption(
 
 @router.get("/resilience/critical-nodes", response_model=List[str])
 async def get_critical_nodes(
-    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer)
+    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
 ):
     """Identify critical nodes in the supply chain network."""
     try:
@@ -251,7 +254,7 @@ async def get_critical_nodes(
 
 @router.post("/resilience/improvements", response_model=List[Dict])
 async def get_improvement_suggestions(
-    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer)
+    analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
 ):
     """Get improvement suggestions for supply chain resilience."""
     try:
@@ -263,7 +266,7 @@ async def get_improvement_suggestions(
 @router.post("/facility-location", response_model=List[Dict])
 async def optimize_facility_locations(
     request: FacilityLocationRequest,
-    locator: FacilityLocator = Depends(get_facility_locator)
+    locator: FacilityLocator = Depends(get_facility_locator),
 ):
     """Optimize facility locations."""
     try:
@@ -271,7 +274,7 @@ async def optimize_facility_locations(
             candidates=request.candidates,
             demand_points=request.demand_points,
             num_facilities=request.num_facilities,
-            max_distance=request.max_distance
+            max_distance=request.max_distance,
         )
         return result
     except Exception as e:
@@ -281,14 +284,14 @@ async def optimize_facility_locations(
 @router.post("/network-optimization", response_model=Dict)
 async def optimize_network(
     request: NetworkOptimizationRequest,
-    optimizer: NetworkOptimizer = Depends(get_network_optimizer)
+    optimizer: NetworkOptimizer = Depends(get_network_optimizer),
 ):
     """Optimize supply chain network design."""
     try:
         result = optimizer.optimize_network(
             locations=request.locations,
             demand_points=request.demand_points,
-            constraints=request.constraints
+            constraints=request.constraints,
         )
         return result
     except Exception as e:

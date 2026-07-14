@@ -19,16 +19,22 @@ class TestBayesianSPM:
         n_regressors = 3
 
         # Create test data
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
         self.X = np.random.randn(n_points, n_regressors)
         self.beta_true = np.array([1.0, 2.0, -1.5])
         self.y = self.X @ self.beta_true + 0.1 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=self.y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=self.X, names=['intercept', 'x1', 'x2'])
+        self.spm_data = SPMData(
+            data=self.y, coordinates=self.coordinates, crs="EPSG:4326"
+        )
+        self.design_matrix = DesignMatrix(
+            matrix=self.X, names=["intercept", "x1", "x2"]
+        )
 
         self.bayesian_spm = BayesianSPM()
 
@@ -42,10 +48,10 @@ class TestBayesianSPM:
         """Test default prior specification."""
         priors = self.bayesian_spm._default_priors(3)
 
-        required_keys = ['beta', 'sigma', 'beta_intercept']
+        required_keys = ["beta", "sigma", "beta_intercept"]
         for key in required_keys:
             assert key in priors
-            assert 'type' in priors[key]
+            assert "type" in priors[key]
 
     def test_empirical_bayes_glm(self):
         """Test empirical Bayes GLM fitting."""
@@ -53,26 +59,20 @@ class TestBayesianSPM:
         self.bayesian_spm.model_type = "empirical_bayes"
 
         result = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data,
-            self.design_matrix.matrix,
-            n_samples=100,
-            n_tune=50
+            self.spm_data, self.design_matrix.matrix, n_samples=100, n_tune=50
         )
 
         assert result.beta_coefficients.shape == (3,)
         assert result.residuals.shape == (50,)
-        assert 'method' in result.model_diagnostics
-        assert result.model_diagnostics['method'] == 'Empirical_Bayes_GLM'
+        assert "method" in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "Empirical_Bayes_GLM"
 
     def test_pymc3_fallback(self):
         """Test PyMC3 fallback behavior."""
         # This should work even if PyMC3 is not available
         try:
             result = self.bayesian_spm.fit_bayesian_glm(
-                self.spm_data,
-                self.design_matrix.matrix,
-                n_samples=50,
-                n_tune=25
+                self.spm_data, self.design_matrix.matrix, n_samples=50, n_tune=25
             )
             assert result is not None
         except ImportError:
@@ -83,16 +83,17 @@ class TestBayesianSPM:
         """Test posterior probability map computation."""
         # First fit a model
         self.bayesian_spm.model_type = "empirical_bayes"
-        result = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data,
-            self.design_matrix.matrix
+        _result = self.bayesian_spm.fit_bayesian_glm(
+            self.spm_data, self.design_matrix.matrix
         )
 
         # Create mock statistical map
         stat_map = np.random.randn(50)
 
         # This should work with empirical Bayes
-        posterior_prob = self.bayesian_spm.posterior_probability_map(stat_map, threshold=0.95)
+        posterior_prob = self.bayesian_spm.posterior_probability_map(
+            stat_map, threshold=0.95
+        )
 
         assert posterior_prob.shape == stat_map.shape
         assert np.all((posterior_prob >= 0) & (posterior_prob <= 1))
@@ -103,48 +104,39 @@ class TestBayesianSPM:
         self.bayesian_spm.model_type = "empirical_bayes"
 
         model1 = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data,
-            self.design_matrix.matrix[:, :2]  # Fewer parameters
+            self.spm_data, self.design_matrix.matrix[:, :2]  # Fewer parameters
         )
 
         model2 = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data,
-            self.design_matrix.matrix  # All parameters
+            self.spm_data, self.design_matrix.matrix  # All parameters
         )
 
         comparison = self.bayesian_spm.bayesian_model_comparison([model1, model2])
 
-        assert 'method' in comparison
-        assert 'best_model_index' in comparison
-        assert comparison['best_model_index'] in [0, 1]
+        assert "method" in comparison
+        assert "best_model_index" in comparison
+        assert comparison["best_model_index"] in [0, 1]
 
     def test_spatial_hierarchical_model(self):
         """Test spatial hierarchical model."""
-        spatial_structure = {
-            'n_basis': 5,
-            'scale': 10.0
-        }
+        spatial_structure = {"n_basis": 5, "scale": 10.0}
 
         result = self.bayesian_spm.spatial_hierarchical_model(
-            self.spm_data,
-            self.design_matrix.matrix,
-            spatial_structure
+            self.spm_data, self.design_matrix.matrix, spatial_structure
         )
 
         assert result.beta_coefficients.shape[0] > 3  # Should include spatial basis
-        assert result.model_diagnostics.get('spatial_hierarchical') == True
+        assert result.model_diagnostics.get("spatial_hierarchical")
 
     def test_variational_inference(self):
         """Test variational inference approximation."""
         result = self.bayesian_spm.variational_inference(
-            self.spm_data,
-            self.design_matrix.matrix,
-            n_iterations=20
+            self.spm_data, self.design_matrix.matrix, n_iterations=20
         )
 
         assert result.beta_coefficients.shape == (3,)
-        assert 'method' in result.model_diagnostics
-        assert result.model_diagnostics['method'] == 'Variational_Inference'
+        assert "method" in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "Variational_Inference"
 
 
 class TestBayesianModelTypes:
@@ -155,15 +147,17 @@ class TestBayesianModelTypes:
         np.random.seed(42)
         n_points = 30
 
-        coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
         X = np.random.randn(n_points, 2)
         y = X @ np.array([1.5, -0.5]) + 0.2 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=X, names=['intercept', 'slope'])
+        self.spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(matrix=X, names=["intercept", "slope"])
 
     def test_hierarchical_glm_model(self):
         """Test hierarchical GLM model specification."""
@@ -174,10 +168,7 @@ class TestBayesianModelTypes:
 
         # Test fitting (should fallback to empirical Bayes if PyMC3 unavailable)
         result = bayesian_spm.fit_bayesian_glm(
-            self.spm_data,
-            self.design_matrix.matrix,
-            n_samples=50,
-            n_tune=25
+            self.spm_data, self.design_matrix.matrix, n_samples=50, n_tune=25
         )
 
         assert result is not None
@@ -186,20 +177,15 @@ class TestBayesianModelTypes:
         """Test spatial hierarchical model."""
         bayesian_spm = BayesianSPM(model_type="spatial_hierarchical")
 
-        spatial_structure = {
-            'n_basis': 3,
-            'scale': 5.0
-        }
+        spatial_structure = {"n_basis": 3, "scale": 5.0}
 
         result = bayesian_spm.spatial_hierarchical_model(
-            self.spm_data,
-            self.design_matrix.matrix,
-            spatial_structure
+            self.spm_data, self.design_matrix.matrix, spatial_structure
         )
 
         # Should include spatial basis functions
         assert result.beta_coefficients.shape[0] >= 2  # At least original parameters
-        assert result.model_diagnostics.get('spatial_hierarchical') == True
+        assert result.model_diagnostics.get("spatial_hierarchical")
 
 
 class TestBayesianDiagnostics:
@@ -212,9 +198,9 @@ class TestBayesianDiagnostics:
         # Mock trace object
         class MockTrace:
             def __init__(self):
-                self.posterior = type('obj', (object,), {
-                    'dims': {'chain': 4, 'draw': 100}
-                })()
+                self.posterior = type(
+                    "obj", (object,), {"dims": {"chain": 4, "draw": 100}}
+                )()
 
         mock_trace = MockTrace()
         r_hat = bayesian_spm._compute_r_hat(mock_trace)
@@ -230,9 +216,9 @@ class TestBayesianDiagnostics:
         # Mock trace object
         class MockTrace:
             def __init__(self):
-                self.posterior = type('obj', (object,), {
-                    'dims': {'chain': 2, 'draw': 200}
-                })()
+                self.posterior = type(
+                    "obj", (object,), {"dims": {"chain": 2, "draw": 200}}
+                )()
 
         mock_trace = MockTrace()
         ess = bayesian_spm._compute_ess(mock_trace)
@@ -244,8 +230,10 @@ class TestBayesianDiagnostics:
         """Test spatial basis function creation for hierarchical models."""
         bayesian_spm = BayesianSPM()
 
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
-        spatial_structure = {'n_basis': 5, 'scale': 10.0}
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        )
+        spatial_structure = {"n_basis": 5, "scale": 10.0}
 
         basis = bayesian_spm._create_spatial_basis(coordinates, spatial_structure)
 
@@ -262,8 +250,8 @@ class TestBayesianEdgeCases:
         X = np.array([[1.0, 0.5], [1.0, 1.5]])
         y = np.array([1.0, 2.0])
 
-        spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        design_matrix = DesignMatrix(matrix=X, names=['intercept', 'slope'])
+        spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=X, names=["intercept", "slope"])
 
         bayesian_spm = BayesianSPM()
 
@@ -274,13 +262,15 @@ class TestBayesianEdgeCases:
 
     def test_rank_deficient_design(self):
         """Test with rank deficient design matrix."""
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)]
+        )
         X = np.ones((10, 3))  # Rank deficient
         X[:, 1] = np.random.randn(10) * 0.01  # Nearly constant
         y = np.random.randn(10)
 
-        spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        design_matrix = DesignMatrix(matrix=X, names=['int', 'x1', 'x2'])
+        spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=X, names=["int", "x1", "x2"])
 
         bayesian_spm = BayesianSPM()
 
@@ -291,12 +281,16 @@ class TestBayesianEdgeCases:
 
     def test_extreme_parameter_values(self):
         """Test with extreme parameter values."""
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        )
         X = np.random.randn(20, 2) * 1000  # Very large values
-        y = X @ np.array([0.001, -0.002]) + 0.0001 * np.random.randn(20)  # Very small coefficients
+        y = X @ np.array([0.001, -0.002]) + 0.0001 * np.random.randn(
+            20
+        )  # Very small coefficients
 
-        spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        design_matrix = DesignMatrix(matrix=X, names=['x1', 'x2'])
+        spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=X, names=["x1", "x2"])
 
         bayesian_spm = BayesianSPM()
 
@@ -321,17 +315,19 @@ class TestBayesianEdgeCases:
         bayesian_spm = BayesianSPM()
 
         # Create a simple model
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)]
+        )
         X = np.random.randn(10, 2)
         y = X @ np.array([1.0, -0.5]) + 0.1 * np.random.randn(10)
 
-        spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        design_matrix = DesignMatrix(matrix=X, names=['int', 'slope'])
+        spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=X, names=["int", "slope"])
 
         model = bayesian_spm.fit_bayesian_glm(spm_data, design_matrix.matrix)
 
         # Single model comparison should work
         comparison = bayesian_spm.bayesian_model_comparison([model])
 
-        assert 'method' in comparison
-        assert comparison['best_model_index'] == 0
+        assert "method" in comparison
+        assert comparison["best_model_index"] == 0

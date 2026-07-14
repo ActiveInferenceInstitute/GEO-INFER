@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import sys
+
 sys.path.insert(0, "GEO-INFER-ENERGY/src")
 
 from geo_infer_energy.core.wind_analysis import WindAnalyzer
@@ -82,8 +83,12 @@ class TestWindExtrapolation:
     def test_roughness_effect(self, analyzer):
         # With log wind profile, higher roughness gives steeper shear,
         # so extrapolating UP from same ref-height speed yields higher target speed.
-        speed_smooth = analyzer.extrapolate_wind_speed(7.0, 10.0, 80.0, roughness_length=0.001)
-        speed_rough = analyzer.extrapolate_wind_speed(7.0, 10.0, 80.0, roughness_length=0.5)
+        speed_smooth = analyzer.extrapolate_wind_speed(
+            7.0, 10.0, 80.0, roughness_length=0.001
+        )
+        speed_rough = analyzer.extrapolate_wind_speed(
+            7.0, 10.0, 80.0, roughness_length=0.5
+        )
         assert speed_rough > speed_smooth
 
 

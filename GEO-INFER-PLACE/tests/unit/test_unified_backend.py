@@ -1,4 +1,5 @@
 """Unit tests for CascadianAgriculturalH3Backend."""
+
 import pytest
 
 from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
@@ -69,10 +70,12 @@ class TestCascadianBackendSPACEIntegration:
     def test_imports_without_space(self):
         """Backend loads even when geo_infer_space is unavailable."""
         from geo_infer_place.core.unified_backend import SPACE_AVAILABLE
+
         assert isinstance(SPACE_AVAILABLE, bool)
 
     def test_cell_to_boundary_returns_polygon(self, backend):
         import h3
+
         cell = h3.latlng_to_cell(41.75, -124.2, 8)
         try:
             boundary = backend.cell_to_boundary(cell)

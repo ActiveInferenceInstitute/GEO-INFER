@@ -4,7 +4,7 @@ GEO-INFER-TIME Integration Adapter
 Provides temporal analysis wrapper for economic time series.
 """
 
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 import logging
@@ -16,6 +16,7 @@ try:
     from geo_infer_time.core.analysis import TemporalAnalyzer
     from geo_infer_time.core.forecasting import ForecastingEngine
     from geo_infer_time.models.timeseries import TimeSeries
+
     TIME_AVAILABLE = True
 except ImportError:
     TIME_AVAILABLE = False
@@ -27,22 +28,22 @@ except ImportError:
 class TimeIntegration:
     """
     Integration adapter for GEO-INFER-TIME.
-    
+
     Provides temporal analysis for economic data including:
     - Time series analysis (trends, seasonality, decomposition)
     - Forecasting (economic indicators, growth rates)
     - Temporal alignment and synchronization
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize time integration.
-        
+
         Args:
             config: Optional configuration dictionary
         """
         self.config = config or {}
-        
+
         if not TIME_AVAILABLE:
             self.analyzer = None
             self.forecaster = None
@@ -60,20 +61,20 @@ class TimeIntegration:
         """Convert a pandas series to the current GEO-INFER-TIME model."""
         if not isinstance(time_series, pd.Series):
             raise TypeError("time_series must be a pandas Series")
-        return TimeSeries(data=time_series, timestamps=pd.DatetimeIndex(time_series.index))
-    
+        return TimeSeries(
+            data=time_series, timestamps=pd.DatetimeIndex(time_series.index)
+        )
+
     def detect_trend(
-        self,
-        time_series: pd.Series,
-        method: str = 'linear'
+        self, time_series: pd.Series, method: str = "linear"
     ) -> Optional[Dict[str, Any]]:
         """
         Detect trends in economic time series.
-        
+
         Args:
             time_series: Time series data
             method: Trend detection method ('linear', 'polynomial', etc.)
-            
+
         Returns:
             Dictionary with trend analysis results or None if unavailable
         """
@@ -81,43 +82,50 @@ class TimeIntegration:
             # Fallback to simple linear trend
             try:
                 from scipy import stats
+
                 x = np.arange(len(time_series))
-                slope, intercept, r_value, p_value, std_err = stats.linregress(x, time_series.values)
+                slope, intercept, r_value, p_value, std_err = stats.linregress(
+                    x, time_series.values
+                )
                 return {
-                    'slope': slope,
-                    'intercept': intercept,
-                    'r_squared': r_value**2,
-                    'p_value': p_value,
-                    'trend': 'increasing' if slope > 0 else 'decreasing' if slope < 0 else 'stable'
+                    "slope": slope,
+                    "intercept": intercept,
+                    "r_squared": r_value**2,
+                    "p_value": p_value,
+                    "trend": (
+                        "increasing"
+                        if slope > 0
+                        else "decreasing" if slope < 0 else "stable"
+                    ),
                 }
             except Exception as e:
                 logger.error(f"Failed to detect trend: {e}")
                 return None
-        
+
         try:
-            return self.analyzer.detect_trend(self._as_timeseries(time_series), method=method)
+            return self.analyzer.detect_trend(
+                self._as_timeseries(time_series), method=method
+            )
         except Exception as e:
             logger.error(f"Failed to detect trend: {e}")
             return None
-    
+
     def analyze_seasonality(
-        self,
-        time_series: pd.Series,
-        period: Optional[int] = None
+        self, time_series: pd.Series, period: Optional[int] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Analyze seasonality in economic time series.
-        
+
         Args:
             time_series: Time series data
             period: Expected seasonal period (auto-detect if None)
-            
+
         Returns:
             Dictionary with seasonality analysis results or None if unavailable
         """
         if not TIME_AVAILABLE or self.analyzer is None:
             return None
-        
+
         try:
             timeseries = self._as_timeseries(time_series)
             return self.analyzer.detect_seasonality(
@@ -126,19 +134,17 @@ class TimeIntegration:
         except Exception as e:
             logger.error(f"Failed to analyze seasonality: {e}")
             return None
-    
+
     def decompose_time_series(
-        self,
-        time_series: pd.Series,
-        model: str = 'additive'
+        self, time_series: pd.Series, model: str = "additive"
     ) -> Optional[Dict[str, pd.Series]]:
         """
         Decompose time series into trend, seasonal, and residual components.
-        
+
         Args:
             time_series: Time series data
             model: Decomposition model ('additive' or 'multiplicative')
-            
+
         Returns:
             Dictionary with decomposed components or None if unavailable
         """
@@ -146,20 +152,23 @@ class TimeIntegration:
             # Fallback to statsmodels
             try:
                 from statsmodels.tsa.seasonal import seasonal_decompose
+
                 decomposition = seasonal_decompose(
-                    time_series, 
-                    model=model, 
-                    period=max(2, len(time_series) // 10) if len(time_series) > 10 else 2
+                    time_series,
+                    model=model,
+                    period=(
+                        max(2, len(time_series) // 10) if len(time_series) > 10 else 2
+                    ),
                 )
                 return {
-                    'trend': decomposition.trend,
-                    'seasonal': decomposition.seasonal,
-                    'residual': decomposition.resid
+                    "trend": decomposition.trend,
+                    "seasonal": decomposition.seasonal,
+                    "residual": decomposition.resid,
                 }
             except Exception as e:
                 logger.error(f"Failed to decompose time series: {e}")
                 return None
-        
+
         try:
             result = self.analyzer.decompose(
                 self._as_timeseries(time_series), model=model
@@ -167,30 +176,24 @@ class TimeIntegration:
             converted: Dict[str, pd.Series] = {}
             for name, values in result.items():
                 if name in {"trend", "seasonal", "residual"}:
-                    converted[name] = pd.Series(values).reindex(
-                        range(len(time_series))
-                    )
+                    converted[name] = pd.Series(values).reindex(range(len(time_series)))
             return converted
         except Exception as e:
             logger.error(f"Failed to decompose time series: {e}")
             return None
-    
+
     def forecast(
-        self,
-        time_series: pd.Series,
-        horizon: int,
-        method: str = 'arima',
-        **kwargs
+        self, time_series: pd.Series, horizon: int, method: str = "arima", **kwargs
     ) -> Optional[Dict[str, Any]]:
         """
         Forecast economic time series.
-        
+
         Args:
             time_series: Historical time series data
             horizon: Forecast horizon (number of periods ahead)
             method: Forecasting method ('arima', 'exponential_smoothing', etc.)
             **kwargs: Additional parameters for forecasting
-            
+
         Returns:
             Dictionary with forecast results or None if unavailable
         """
@@ -211,19 +214,17 @@ class TimeIntegration:
         except Exception as e:
             logger.error(f"Failed to forecast: {e}")
             return None
-    
+
     def align_time_series(
-        self,
-        time_series_list: List[pd.Series],
-        method: str = 'interpolate'
+        self, time_series_list: List[pd.Series], method: str = "interpolate"
     ) -> Optional[List[pd.Series]]:
         """
         Align multiple time series to common time index.
-        
+
         Args:
             time_series_list: List of time series to align
             method: Alignment method ('interpolate', 'forward_fill', etc.)
-            
+
         Returns:
             List of aligned time series or None if unavailable
         """
@@ -234,21 +235,21 @@ class TimeIntegration:
                 common_index = time_series_list[0].index
                 for ts in time_series_list[1:]:
                     common_index = common_index.union(ts.index)
-                
+
                 aligned = []
                 for ts in time_series_list:
-                    if method == 'interpolate':
+                    if method == "interpolate":
                         aligned.append(ts.reindex(common_index).interpolate())
-                    elif method == 'forward_fill':
+                    elif method == "forward_fill":
                         aligned.append(ts.reindex(common_index).ffill())
                     else:
                         aligned.append(ts.reindex(common_index))
-                
+
                 return aligned
             except Exception as e:
                 logger.error(f"Failed to align time series: {e}")
                 return None
-        
+
         try:
             common_index = time_series_list[0].index
             for series in time_series_list[1:]:
@@ -256,18 +257,18 @@ class TimeIntegration:
             aligned = []
             for series in time_series_list:
                 values = series.reindex(common_index)
-                if method == 'interpolate':
+                if method == "interpolate":
                     values = values.interpolate()
-                elif method == 'forward_fill':
+                elif method == "forward_fill":
                     values = values.ffill()
-                elif method != 'none':
+                elif method != "none":
                     raise ValueError(f"Unsupported alignment method: {method}")
                 aligned.append(values)
             return aligned
         except Exception as e:
             logger.error("Failed to align time series: %s", e)
             return None
-    
+
     def is_available(self) -> bool:
         """Check if GEO-INFER-TIME is available."""
         return TIME_AVAILABLE and self.analyzer is not None

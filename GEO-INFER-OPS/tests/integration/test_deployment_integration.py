@@ -10,7 +10,6 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-from kubernetes import client
 
 from geo_infer_ops.core.deployment import DeploymentManager
 from geo_infer_ops.core import deployment as deployment_module
@@ -27,11 +26,15 @@ class FakeAppsApi:
         del namespace
         self.deployments[body["metadata"]["name"]] = body
 
-    def replace_namespaced_deployment(self, *, name: str, namespace: str, body: dict) -> None:
+    def replace_namespaced_deployment(
+        self, *, name: str, namespace: str, body: dict
+    ) -> None:
         del namespace
         self.deployments[name] = body
 
-    def read_namespaced_deployment(self, *, name: str, namespace: str) -> SimpleNamespace:
+    def read_namespaced_deployment(
+        self, *, name: str, namespace: str
+    ) -> SimpleNamespace:
         del namespace
         body = self.deployments[name]
         replicas = body["spec"]["replicas"]
@@ -62,11 +65,13 @@ class FakeAppsApi:
         del namespace
         self.rollback_revisions[name] = body["rollbackTo"]["revision"]
 
-    def patch_namespaced_deployment(self, *, name: str, namespace: str, body: dict) -> None:
+    def patch_namespaced_deployment(
+        self, *, name: str, namespace: str, body: dict
+    ) -> None:
         del namespace
-        self.deployments[name].setdefault("metadata", {}).setdefault("annotations", {}).update(
-            body.get("metadata", {}).get("annotations", {})
-        )
+        self.deployments[name].setdefault("metadata", {}).setdefault(
+            "annotations", {}
+        ).update(body.get("metadata", {}).get("annotations", {}))
 
 
 class FakeCoreApi:
@@ -118,7 +123,9 @@ class FakeCoreApi:
                     SimpleNamespace(type="Initialized", status="True"),
                 ],
                 container_statuses=[
-                    SimpleNamespace(name="test-container", image="local:test", ready=True)
+                    SimpleNamespace(
+                        name="test-container", image="local:test", ready=True
+                    )
                 ],
             ),
             spec=SimpleNamespace(node_name="local-test-node"),
@@ -159,7 +166,9 @@ def deployment_manager(monkeypatch: pytest.MonkeyPatch, test_namespace: str):
     return DeploymentManager(namespace=test_namespace)
 
 
-def deployment_manifest(name: str, image: str = "local:test", replicas: int = 1) -> dict:
+def deployment_manifest(
+    name: str, image: str = "local:test", replicas: int = 1
+) -> dict:
     """Build a minimal deployment manifest used by lifecycle tests."""
     return {
         "apiVersion": "apps/v1",
@@ -179,7 +188,10 @@ def deployment_manifest(name: str, image: str = "local:test", replicas: int = 1)
 def test_deployment_lifecycle(deployment_manager, test_namespace):
     """Create, inspect, scale, health-check, and delete a local deployment."""
     del test_namespace
-    assert deployment_manager.deploy_kubernetes(deployment_manifest("test-deployment")) is True
+    assert (
+        deployment_manager.deploy_kubernetes(deployment_manifest("test-deployment"))
+        is True
+    )
     status = deployment_manager.get_deployment_status("test-deployment")
     assert status["name"] == "test-deployment"
     assert status["replicas"] == 1
@@ -217,7 +229,10 @@ def test_network_policy_management(deployment_manager, test_namespace):
         "apiVersion": "networking.k8s.io/v1",
         "kind": "NetworkPolicy",
         "metadata": {"name": "test-policy", "namespace": test_namespace},
-        "spec": {"podSelector": {"matchLabels": {"app": "test"}}, "policyTypes": ["Ingress"]},
+        "spec": {
+            "podSelector": {"matchLabels": {"app": "test"}},
+            "policyTypes": ["Ingress"],
+        },
     }
     assert deployment_manager.validate_network_policy(policy) is True
     assert deployment_manager.apply_network_policy(policy) is True
@@ -232,5 +247,8 @@ def test_deployment_rollback_scenario(deployment_manager, test_namespace):
     manifest["spec"]["template"]["spec"]["containers"][0]["image"] = "local:v2"
     assert deployment_manager.deploy_kubernetes(manifest) is True
     assert deployment_manager.rollback_deployment("rollback-test", "1") is True
-    assert deployment_manager.get_deployment_status("rollback-test")["name"] == "rollback-test"
+    assert (
+        deployment_manager.get_deployment_status("rollback-test")["name"]
+        == "rollback-test"
+    )
     assert deployment_manager.delete_deployment("rollback-test") is True

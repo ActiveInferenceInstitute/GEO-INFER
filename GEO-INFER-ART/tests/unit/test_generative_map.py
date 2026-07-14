@@ -7,7 +7,6 @@ import os
 import tempfile
 import unittest
 import numpy as np
-from PIL import Image
 
 from geo_infer_art.core.generation.generative_map import GenerativeMap
 
@@ -45,7 +44,7 @@ class TestGenerativeMap(unittest.TestCase):
             region=self.test_elevation,
             resolution=128,
             abstraction_level=0.5,
-            style="contour"
+            style="contour",
         )
 
         self.assertIsNotNone(gen_map.data)
@@ -63,7 +62,7 @@ class TestGenerativeMap(unittest.TestCase):
                 region=self.test_bbox,
                 resolution=128,
                 abstraction_level=0.5,
-                style="contour"
+                style="contour",
             )
 
             self.assertIsNotNone(gen_map.data)
@@ -85,7 +84,7 @@ class TestGenerativeMap(unittest.TestCase):
                 region="grand_canyon",
                 resolution=128,
                 abstraction_level=0.5,
-                style="contour"
+                style="contour",
             )
 
             self.assertIsNotNone(gen_map.data)
@@ -106,9 +105,7 @@ class TestGenerativeMap(unittest.TestCase):
         for style in styles:
             try:
                 gen_map = GenerativeMap.from_elevation(
-                    region=self.test_elevation,
-                    resolution=128,
-                    style=style
+                    region=self.test_elevation, resolution=128, style=style
                 )
 
                 self.assertIsNotNone(gen_map.image)
@@ -131,13 +128,15 @@ class TestGenerativeMap(unittest.TestCase):
                     region=self.test_elevation,
                     resolution=128,
                     abstraction_level=level,
-                    style="contour"
+                    style="contour",
                 )
 
                 self.assertIsNotNone(gen_map.image)
 
                 # Save the output for this abstraction level
-                output_path = os.path.join(self.test_dir, f"gen_map_abstract_{level}.png")
+                output_path = os.path.join(
+                    self.test_dir, f"gen_map_abstract_{level}.png"
+                )
                 gen_map.save(output_path)
                 self.assertTrue(os.path.exists(output_path))
 
@@ -147,9 +146,7 @@ class TestGenerativeMap(unittest.TestCase):
     def test_save_and_show(self):
         """Test saving and showing the map."""
         gen_map = GenerativeMap.from_elevation(
-            region=self.test_elevation,
-            resolution=128,
-            style="contour"
+            region=self.test_elevation, resolution=128, style="contour"
         )
 
         # Test save method
@@ -161,7 +158,8 @@ class TestGenerativeMap(unittest.TestCase):
         # Test show method - can only check that it doesn't raise an error
         try:
             import matplotlib.pyplot as plt
-            plt.switch_backend('Agg')  # Non-interactive backend for testing
+
+            plt.switch_backend("Agg")  # Non-interactive backend for testing
             gen_map.show()
         except Exception as e:
             self.fail(f"show() method raised an error: {str(e)}")
@@ -171,22 +169,20 @@ class TestGenerativeMap(unittest.TestCase):
         # Test invalid region type
         with self.assertRaises(ValueError):
             GenerativeMap.from_elevation(
-                region=123,  # Not a valid region type
-                resolution=128
+                region=123, resolution=128  # Not a valid region type
             )
 
         # Test invalid style
         with self.assertRaises(ValueError):
             GenerativeMap.from_elevation(
-                region=self.test_elevation,
-                style="invalid_style"
+                region=self.test_elevation, style="invalid_style"
             )
 
         # Test invalid abstraction level
         with self.assertRaises(ValueError):
             GenerativeMap.from_elevation(
                 region=self.test_elevation,
-                abstraction_level=1.5  # Should be between 0 and 1
+                abstraction_level=1.5,  # Should be between 0 and 1
             )
 
 

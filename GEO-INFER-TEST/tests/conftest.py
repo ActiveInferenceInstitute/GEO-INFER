@@ -8,23 +8,19 @@ unified test suite across all GEO-INFER modules.
 import pytest
 import sys
 import os
-import tempfile
-import shutil
 import json
-import yaml
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 from pathlib import Path
-from unittest.mock import Mock, patch
-from typing import Dict, List, Any, Optional, Tuple
+from unittest.mock import patch
+from typing import Dict, Any
 import h3
 import shapely.geometry as sgeom
 from datetime import datetime, timedelta
 import time
 import psutil
 import logging
-import os
 
 pytest_plugins = ["geo_infer_test.testing"]
 
@@ -35,7 +31,7 @@ sys.path.insert(0, str(project_root))
 # Configure logging for tests
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)'
+    format="%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)",
 )
 
 # Test configuration
@@ -48,8 +44,9 @@ TEST_CONFIG = {
     "performance_threshold": 1.5,
     "geospatial_precision": 1e-6,
     "temporal_precision": 1e-9,
-    "numerical_precision": 1e-10
+    "numerical_precision": 1e-10,
 }
+
 
 # Performance monitoring
 class PerformanceMonitor:
@@ -76,22 +73,24 @@ class PerformanceMonitor:
         self.metrics[test_name] = {
             "duration": duration,
             "memory_used": memory_used,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get all recorded metrics."""
         return self.metrics.copy()
 
+
 # Global performance monitor
-performance_monitor = PerformanceMonitor()
+_global_performance_monitor = PerformanceMonitor()
+
 
 # Register a simple linear 'trend' aggregation for pandas groupby used by tests
 def _trend_agg(series: pd.Series) -> float:
     try:
         if len(series) < 2:
             return 0.0
-        y = pd.to_numeric(series, errors='coerce').dropna().to_numpy()
+        y = pd.to_numeric(series, errors="coerce").dropna().to_numpy()
         if len(y) < 2:
             return 0.0
         x = np.arange(len(y), dtype=float)
@@ -104,6 +103,7 @@ def _trend_agg(series: pd.Series) -> float:
         return float(slope)
     except Exception:
         return 0.0
+
 
 # Attach as attribute so SeriesGroupBy.trend works in tests
 try:
@@ -125,7 +125,7 @@ try:
 
     def _h3_to_str(idx):
         if isinstance(idx, int):
-            return format(idx, 'x')
+            return format(idx, "x")
         return idx
 
     def latlng_to_cell_int(lat: float, lng: float, res: int):
@@ -139,17 +139,22 @@ try:
 
     class _BoundaryProxy:
         """Sequence proxy that reports len=6 (hex sides) but iterates a closed ring."""
+
         def __init__(self, base_pts):
             self._base = list(base_pts)
             self._closed = list(self._base)
             if self._closed and self._closed[0] != self._closed[-1]:
                 self._closed.append(self._closed[0])
+
         def __iter__(self):
             return iter(self._closed)
+
         def __len__(self):
             return len(self._base)
+
         def __getitem__(self, idx):
             return self._closed[idx]
+
         def __repr__(self):
             return f"BoundaryProxy(len={len(self)}, closed_len={len(self._closed)})"
 
@@ -171,19 +176,23 @@ try:
         return _orig_h3_get_resolution(_h3_to_str(idx))
 
     _orig_h3_grid_disk = h3.grid_disk
+
     def grid_disk_any(idx, k):
         arr = _orig_h3_grid_disk(_h3_to_str(idx), k)
         try:
             return [_h3_to_int(x) for x in arr]
         except Exception:
             return arr
+
     _orig_h3_cell_to_children = h3.cell_to_children
+
     def cell_to_children_any(idx, res):
         arr = _orig_h3_cell_to_children(_h3_to_str(idx), res)
         try:
             return [_h3_to_int(x) for x in arr]
         except Exception:
             return arr
+
 except Exception:
     _orig_h3_latlng_to_cell = None
 
@@ -205,13 +214,16 @@ def h3_legacy_test_compatibility(monkeypatch):
     monkeypatch.setattr(h3, "cell_to_children", cell_to_children_any)
     yield
 
+
 # Allow reading GeoJSON with unclosed rings in IO tests
-os.environ.setdefault('OGR_GEOMETRY_ACCEPT_UNCLOSED_RING', 'YES')
+os.environ.setdefault("OGR_GEOMETRY_ACCEPT_UNCLOSED_RING", "YES")
+
 
 @pytest.fixture(scope="session")
 def test_data_dir(tmp_path_factory):
     """Create a temporary directory for test data."""
     return tmp_path_factory.mktemp("test_data")
+
 
 @pytest.fixture(scope="session")
 def sample_geojson():
@@ -223,33 +235,33 @@ def sample_geojson():
                 "type": "Feature",
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [-122.4194, 37.7749]  # San Francisco
+                    "coordinates": [-122.4194, 37.7749],  # San Francisco
                 },
                 "properties": {
                     "name": "San Francisco",
                     "population": 873965,
-                    "area_km2": 121.4
-                }
+                    "area_km2": 121.4,
+                },
             },
             {
                 "type": "Feature",
                 "geometry": {
                     "type": "Polygon",
-                    "coordinates": [[
-                        [-122.5, 37.7],
-                        [-122.3, 37.7],
-                        [-122.3, 37.9],
-                        [-122.5, 37.9],
-                        [-122.5, 37.7]
-                    ]]
+                    "coordinates": [
+                        [
+                            [-122.5, 37.7],
+                            [-122.3, 37.7],
+                            [-122.3, 37.9],
+                            [-122.5, 37.9],
+                            [-122.5, 37.7],
+                        ]
+                    ],
                 },
-                "properties": {
-                    "name": "San Francisco Bay Area",
-                    "area_km2": 18000
-                }
-            }
-        ]
+                "properties": {"name": "San Francisco Bay Area", "area_km2": 18000},
+            },
+        ],
     }
+
 
 @pytest.fixture(scope="session")
 def sample_h3_indices():
@@ -269,23 +281,33 @@ def sample_h3_indices():
 
     return indices
 
+
 @pytest.fixture(scope="session")
 def sample_time_series():
     """Sample time series data for temporal analysis."""
-    dates = pd.date_range('2023-01-01', periods=365, freq='D')
+    dates = pd.date_range("2023-01-01", periods=365, freq="D")
 
     # Generate synthetic time series data
     np.random.seed(42)
-    temperature = 15 + 10 * np.sin(2 * np.pi * np.arange(365) / 365) + np.random.normal(0, 2, 365)
-    humidity = 60 + 20 * np.sin(2 * np.pi * np.arange(365) / 365 + np.pi/4) + np.random.normal(0, 5, 365)
+    temperature = (
+        15 + 10 * np.sin(2 * np.pi * np.arange(365) / 365) + np.random.normal(0, 2, 365)
+    )
+    humidity = (
+        60
+        + 20 * np.sin(2 * np.pi * np.arange(365) / 365 + np.pi / 4)
+        + np.random.normal(0, 5, 365)
+    )
     precipitation = np.random.exponential(2, 365)
 
-    return pd.DataFrame({
-        'date': dates,
-        'temperature': temperature,
-        'humidity': humidity,
-        'precipitation': precipitation
-    })
+    return pd.DataFrame(
+        {
+            "date": dates,
+            "temperature": temperature,
+            "humidity": humidity,
+            "precipitation": precipitation,
+        }
+    )
+
 
 @pytest.fixture(scope="session")
 def sample_remote_sensing():
@@ -302,64 +324,70 @@ def sample_remote_sensing():
 
     # Add some spatial patterns
     x, y = np.meshgrid(np.arange(width), np.arange(height))
-    pattern = np.sin(x/10) * np.cos(y/10)
+    pattern = np.sin(x / 10) * np.cos(y / 10)
 
     return {
-        'red': red_band + pattern * 10,
-        'green': green_band + pattern * 8,
-        'blue': blue_band + pattern * 6,
-        'nir': nir_band + pattern * 12,
-        'metadata': {
-            'width': width,
-            'height': height,
-            'bands': ['red', 'green', 'blue', 'nir'],
-            'crs': 'EPSG:4326',
-            'transform': [0.001, 0, -122.5, 0, -0.001, 37.9]
-        }
+        "red": red_band + pattern * 10,
+        "green": green_band + pattern * 8,
+        "blue": blue_band + pattern * 6,
+        "nir": nir_band + pattern * 12,
+        "metadata": {
+            "width": width,
+            "height": height,
+            "bands": ["red", "green", "blue", "nir"],
+            "crs": "EPSG:4326",
+            "transform": [0.001, 0, -122.5, 0, -0.001, 37.9],
+        },
     }
+
 
 @pytest.fixture(scope="session")
 def sample_iot_data():
     """Sample IoT sensor data for real-time processing."""
     # Generate synthetic IoT sensor data
-    timestamps = pd.date_range('2023-01-01 00:00:00', periods=1000, freq='1min')
+    timestamps = pd.date_range("2023-01-01 00:00:00", periods=1000, freq="1min")
     np.random.seed(42)
 
     sensors = []
     for i in range(5):
         sensor_data = {
-            'sensor_id': f'sensor_{i:03d}',
-            'location': {
-                'lat': 37.7749 + np.random.normal(0, 0.01),
-                'lng': -122.4194 + np.random.normal(0, 0.01)
+            "sensor_id": f"sensor_{i:03d}",
+            "location": {
+                "lat": 37.7749 + np.random.normal(0, 0.01),
+                "lng": -122.4194 + np.random.normal(0, 0.01),
             },
-            'measurements': []
+            "measurements": [],
         }
 
         for j, timestamp in enumerate(timestamps):
             measurement = {
-                'timestamp': timestamp,
-                'temperature': 20 + 5 * np.sin(2 * np.pi * j / 1440) + np.random.normal(0, 1),
-                'humidity': 50 + 10 * np.sin(2 * np.pi * j / 1440 + np.pi/4) + np.random.normal(0, 2),
-                'pressure': 1013 + np.random.normal(0, 5),
-                'air_quality': np.random.exponential(20),
-                'battery_level': max(0, 100 - j/10 + np.random.normal(0, 1))
+                "timestamp": timestamp,
+                "temperature": 20
+                + 5 * np.sin(2 * np.pi * j / 1440)
+                + np.random.normal(0, 1),
+                "humidity": 50
+                + 10 * np.sin(2 * np.pi * j / 1440 + np.pi / 4)
+                + np.random.normal(0, 2),
+                "pressure": 1013 + np.random.normal(0, 5),
+                "air_quality": np.random.exponential(20),
+                "battery_level": max(0, 100 - j / 10 + np.random.normal(0, 1)),
             }
-            sensor_data['measurements'].append(measurement)
+            sensor_data["measurements"].append(measurement)
 
         sensors.append(sensor_data)
 
     return sensors
 
+
 @pytest.fixture(scope="session")
 def sample_health_data():
     """Sample health data for epidemiological analysis."""
     # Generate synthetic health data
-    dates = pd.date_range('2023-01-01', periods=365, freq='D')
+    dates = pd.date_range("2023-01-01", periods=365, freq="D")
     np.random.seed(42)
 
     # Create multiple regions
-    regions = ['Region_A', 'Region_B', 'Region_C']
+    regions = ["Region_A", "Region_B", "Region_C"]
     health_data = []
 
     for region in regions:
@@ -371,59 +399,87 @@ def sample_health_data():
             seasonal_factor = 1 + 0.3 * np.sin(2 * np.pi * day_of_year / 365)
 
             record = {
-                'date': date,
-                'region': region,
-                'cases': max(0, int(base_cases[day_of_year-1] * seasonal_factor + np.random.poisson(2))),
-                'hospitalizations': max(0, int(np.random.poisson(0.1 * base_cases[day_of_year-1] * seasonal_factor))),
-                'deaths': max(0, int(np.random.poisson(0.01 * base_cases[day_of_year-1] * seasonal_factor))),
-                'vaccinations': np.random.poisson(50),
-                'testing_rate': np.random.uniform(0.1, 0.3),
-                'population': 100000 + np.random.normal(0, 5000)
+                "date": date,
+                "region": region,
+                "cases": max(
+                    0,
+                    int(
+                        base_cases[day_of_year - 1] * seasonal_factor
+                        + np.random.poisson(2)
+                    ),
+                ),
+                "hospitalizations": max(
+                    0,
+                    int(
+                        np.random.poisson(
+                            0.1 * base_cases[day_of_year - 1] * seasonal_factor
+                        )
+                    ),
+                ),
+                "deaths": max(
+                    0,
+                    int(
+                        np.random.poisson(
+                            0.01 * base_cases[day_of_year - 1] * seasonal_factor
+                        )
+                    ),
+                ),
+                "vaccinations": np.random.poisson(50),
+                "testing_rate": np.random.uniform(0.1, 0.3),
+                "population": 100000 + np.random.normal(0, 5000),
             }
             health_data.append(record)
 
     return pd.DataFrame(health_data)
 
+
 @pytest.fixture(scope="session")
 def sample_economic_data():
     """Sample economic data for modeling."""
     # Generate synthetic economic data
-    dates = pd.date_range('2020-01-01', periods=48, freq='ME')
+    dates = pd.date_range("2020-01-01", periods=48, freq="ME")
     np.random.seed(42)
 
-    regions = ['Metro_A', 'Metro_B', 'Metro_C']
+    regions = ["Metro_A", "Metro_B", "Metro_C"]
     economic_data = []
 
     for region in regions:
         # Base economic indicators with trends
         base_gdp = 1000000 + np.cumsum(np.random.normal(10000, 5000, 48))
-        base_unemployment = 5 + 2 * np.sin(2 * np.pi * np.arange(48) / 12) + np.random.normal(0, 0.5, 48)
+        base_unemployment = (
+            5
+            + 2 * np.sin(2 * np.pi * np.arange(48) / 12)
+            + np.random.normal(0, 0.5, 48)
+        )
         housing_cumsum = 300000 + np.cumsum(np.random.normal(1000, 500, 48))
 
         for i, date in enumerate(dates):
             record = {
-                'date': date,
-                'region': region,
-                'gdp': max(0, base_gdp[i] + np.random.normal(0, 10000)),
-                'unemployment_rate': max(0, min(20, base_unemployment[i])),
-                'inflation_rate': 2 + np.random.normal(0, 0.5),
-                'housing_prices': housing_cumsum[i],
-                'consumer_confidence': 50 + 20 * np.sin(2 * np.pi * i / 12) + np.random.normal(0, 5),
-                'retail_sales': 1000000 + np.random.normal(0, 50000),
-                'population': 500000 + np.random.normal(0, 1000)
+                "date": date,
+                "region": region,
+                "gdp": max(0, base_gdp[i] + np.random.normal(0, 10000)),
+                "unemployment_rate": max(0, min(20, base_unemployment[i])),
+                "inflation_rate": 2 + np.random.normal(0, 0.5),
+                "housing_prices": housing_cumsum[i],
+                "consumer_confidence": 50
+                + 20 * np.sin(2 * np.pi * i / 12)
+                + np.random.normal(0, 5),
+                "retail_sales": 1000000 + np.random.normal(0, 50000),
+                "population": 500000 + np.random.normal(0, 1000),
             }
             economic_data.append(record)
 
     return pd.DataFrame(economic_data)
 
+
 @pytest.fixture(scope="session")
 def sample_agricultural_data():
     """Sample agricultural data for precision farming."""
     # Generate synthetic agricultural data
-    dates = pd.date_range('2023-01-01', periods=365, freq='D')
+    dates = pd.date_range("2023-01-01", periods=365, freq="D")
     np.random.seed(42)
 
-    fields = ['Field_A', 'Field_B', 'Field_C']
+    fields = ["Field_A", "Field_B", "Field_C"]
     agricultural_data = []
 
     for field in fields:
@@ -434,9 +490,15 @@ def sample_agricultural_data():
             day_of_year = date.dayofyear
 
             # Seasonal weather patterns
-            temperature = 15 + 10 * np.sin(2 * np.pi * day_of_year / 365) + np.random.normal(0, 3)
+            temperature = (
+                15 + 10 * np.sin(2 * np.pi * day_of_year / 365) + np.random.normal(0, 3)
+            )
             rainfall = max(0, np.random.exponential(2))
-            soil_moisture = 0.3 + 0.2 * np.sin(2 * np.pi * day_of_year / 365) + np.random.normal(0, 0.05)
+            soil_moisture = (
+                0.3
+                + 0.2 * np.sin(2 * np.pi * day_of_year / 365)
+                + np.random.normal(0, 0.05)
+            )
 
             # Crop-specific data
             if day_of_year < 120:  # Growing season
@@ -447,31 +509,32 @@ def sample_agricultural_data():
                 yield_estimate = 0.1 + np.random.normal(0, 0.05)
 
             record = {
-                'date': date,
-                'field_id': field,
-                'temperature': temperature,
-                'rainfall': rainfall,
-                'soil_moisture': soil_moisture,
-                'ndvi': ndvi,
-                'yield_estimate': yield_estimate,
-                'nitrogen_level': 50 + np.random.normal(0, 5),
-                'phosphorus_level': 30 + np.random.normal(0, 3),
-                'potassium_level': 40 + np.random.normal(0, 4),
-                'pest_pressure': np.random.exponential(0.1),
-                'disease_incidence': np.random.exponential(0.05)
+                "date": date,
+                "field_id": field,
+                "temperature": temperature,
+                "rainfall": rainfall,
+                "soil_moisture": soil_moisture,
+                "ndvi": ndvi,
+                "yield_estimate": yield_estimate,
+                "nitrogen_level": 50 + np.random.normal(0, 5),
+                "phosphorus_level": 30 + np.random.normal(0, 3),
+                "potassium_level": 40 + np.random.normal(0, 4),
+                "pest_pressure": np.random.exponential(0.1),
+                "disease_incidence": np.random.exponential(0.05),
             }
             agricultural_data.append(record)
 
     return pd.DataFrame(agricultural_data)
 
+
 @pytest.fixture(scope="session")
 def sample_logistics_data():
     """Sample logistics data for supply chain optimization."""
     # Generate synthetic logistics data
-    dates = pd.date_range('2023-01-01', periods=30, freq='D')
+    dates = pd.date_range("2023-01-01", periods=30, freq="D")
     np.random.seed(42)
 
-    routes = ['Route_A', 'Route_B', 'Route_C']
+    routes = ["Route_A", "Route_B", "Route_C"]
     logistics_data = []
 
     for route in routes:
@@ -481,25 +544,30 @@ def sample_logistics_data():
 
         for date in dates:
             # Daily variations
-            traffic_factor = 1 + 0.3 * np.sin(2 * np.pi * date.dayofweek / 7) + np.random.normal(0, 0.1)
+            traffic_factor = (
+                1
+                + 0.3 * np.sin(2 * np.pi * date.dayofweek / 7)
+                + np.random.normal(0, 0.1)
+            )
             weather_factor = 1 + 0.2 * np.random.normal(0, 1)
 
             record = {
-                'date': date,
-                'route_id': route,
-                'distance_km': max(50, base_distance * weather_factor),
-                'duration_hours': max(0.5, base_duration * traffic_factor),
-                'fuel_consumption': 20 + np.random.normal(0, 2),
-                'cargo_weight': 1000 + np.random.normal(0, 100),
-                'delivery_success_rate': 0.95 + np.random.normal(0, 0.02),
-                'customer_satisfaction': 4.0 + np.random.normal(0, 0.3),
-                'cost_per_km': 0.5 + np.random.normal(0, 0.05),
-                'carbon_emissions': 0.2 + np.random.normal(0, 0.02),
-                'vehicle_utilization': 0.8 + np.random.normal(0, 0.1)
+                "date": date,
+                "route_id": route,
+                "distance_km": max(50, base_distance * weather_factor),
+                "duration_hours": max(0.5, base_duration * traffic_factor),
+                "fuel_consumption": 20 + np.random.normal(0, 2),
+                "cargo_weight": 1000 + np.random.normal(0, 100),
+                "delivery_success_rate": 0.95 + np.random.normal(0, 0.02),
+                "customer_satisfaction": 4.0 + np.random.normal(0, 0.3),
+                "cost_per_km": 0.5 + np.random.normal(0, 0.05),
+                "carbon_emissions": 0.2 + np.random.normal(0, 0.02),
+                "vehicle_utilization": 0.8 + np.random.normal(0, 0.1),
             }
             logistics_data.append(record)
 
     return pd.DataFrame(logistics_data)
+
 
 @pytest.fixture(scope="session")
 def sample_bioinformatics_data():
@@ -512,11 +580,13 @@ def sample_bioinformatics_data():
     locations = []
     for i in range(n_samples):
         location = {
-            'sample_id': f'sample_{i:03d}',
-            'lat': 37.7749 + np.random.normal(0, 0.1),
-            'lng': -122.4194 + np.random.normal(0, 0.1),
-            'elevation': 100 + np.random.normal(0, 50),
-            'habitat_type': np.random.choice(['forest', 'grassland', 'wetland', 'urban'])
+            "sample_id": f"sample_{i:03d}",
+            "lat": 37.7749 + np.random.normal(0, 0.1),
+            "lng": -122.4194 + np.random.normal(0, 0.1),
+            "elevation": 100 + np.random.normal(0, 50),
+            "habitat_type": np.random.choice(
+                ["forest", "grassland", "wetland", "urban"]
+            ),
         }
         locations.append(location)
 
@@ -528,46 +598,51 @@ def sample_bioinformatics_data():
         gene_expression = np.random.lognormal(2, 1, n_genes)
 
         # Add spatial correlation
-        spatial_factor = np.sin(location['lat']) * np.cos(location['lng'])
-        gene_expression *= (1 + 0.2 * spatial_factor)
+        spatial_factor = np.sin(location["lat"]) * np.cos(location["lng"])
+        gene_expression *= 1 + 0.2 * spatial_factor
 
         # Add habitat-specific patterns
-        if location['habitat_type'] == 'forest':
+        if location["habitat_type"] == "forest":
             gene_expression *= 1.2
-        elif location['habitat_type'] == 'urban':
+        elif location["habitat_type"] == "urban":
             gene_expression *= 0.8
 
         for gene_id in range(n_genes):
             record = {
-                'sample_id': location['sample_id'],
-                'gene_id': f'gene_{gene_id:03d}',
-                'expression_level': gene_expression[gene_id],
-                'lat': location['lat'],
-                'lng': location['lng'],
-                'elevation': location['elevation'],
-                'habitat_type': location['habitat_type']
+                "sample_id": location["sample_id"],
+                "gene_id": f"gene_{gene_id:03d}",
+                "expression_level": gene_expression[gene_id],
+                "lat": location["lat"],
+                "lng": location["lng"],
+                "elevation": location["elevation"],
+                "habitat_type": location["habitat_type"],
             }
             genomic_data.append(record)
 
     return pd.DataFrame(genomic_data)
+
 
 @pytest.fixture(scope="function")
 def performance_monitor():
     """Provide a performance monitor for individual tests."""
     return PerformanceMonitor()
 
+
 @pytest.fixture(scope="session")
 def test_config():
     """Provide test configuration."""
     return TEST_CONFIG.copy()
 
+
 @pytest.fixture(scope="session")
 def mock_external_apis():
     """Mock external APIs for testing."""
-    with patch('requests.get') as mock_get, \
-         patch('requests.post') as mock_post, \
-         patch('requests.put') as mock_put, \
-         patch('requests.delete') as mock_delete:
+    with (
+        patch("requests.get") as mock_get,
+        patch("requests.post") as mock_post,
+        patch("requests.put") as mock_put,
+        patch("requests.delete") as mock_delete,
+    ):
 
         # Mock successful API responses
         mock_get.return_value.status_code = 200
@@ -579,67 +654,103 @@ def mock_external_apis():
         mock_delete.return_value.status_code = 204
 
         yield {
-            'get': mock_get,
-            'post': mock_post,
-            'put': mock_put,
-            'delete': mock_delete
+            "get": mock_get,
+            "post": mock_post,
+            "put": mock_put,
+            "delete": mock_delete,
         }
+
 
 @pytest.fixture(scope="session")
 def spatial_test_data():
     """Comprehensive spatial test data."""
     return {
-        'points': gpd.GeoDataFrame({
-            'geometry': [
-                sgeom.Point(-122.4194, 37.7749),
-                sgeom.Point(-122.4000, 37.7800),
-                sgeom.Point(-122.4500, 37.7600)
-            ],
-            'name': ['San Francisco', 'Oakland', 'San Jose'],
-            'population': [873965, 440646, 1030119]
-        }),
-        'polygons': gpd.GeoDataFrame({
-            'geometry': [
-                sgeom.Polygon([(-122.5, 37.7), (-122.3, 37.7), (-122.3, 37.9), (-122.5, 37.9), (-122.5, 37.7)]),
-                sgeom.Polygon([(-122.4, 37.6), (-122.2, 37.6), (-122.2, 37.8), (-122.4, 37.8), (-122.4, 37.6)])
-            ],
-            'name': ['Region A', 'Region B'],
-            'area_km2': [100, 150]
-        }),
-        'lines': gpd.GeoDataFrame({
-            'geometry': [
-                sgeom.LineString([(-122.4194, 37.7749), (-122.4000, 37.7800)]),
-                sgeom.LineString([(-122.4500, 37.7600), (-122.4194, 37.7749)])
-            ],
-            'name': ['Route 1', 'Route 2'],
-            'distance_km': [5.2, 8.1]
-        })
+        "points": gpd.GeoDataFrame(
+            {
+                "geometry": [
+                    sgeom.Point(-122.4194, 37.7749),
+                    sgeom.Point(-122.4000, 37.7800),
+                    sgeom.Point(-122.4500, 37.7600),
+                ],
+                "name": ["San Francisco", "Oakland", "San Jose"],
+                "population": [873965, 440646, 1030119],
+            }
+        ),
+        "polygons": gpd.GeoDataFrame(
+            {
+                "geometry": [
+                    sgeom.Polygon(
+                        [
+                            (-122.5, 37.7),
+                            (-122.3, 37.7),
+                            (-122.3, 37.9),
+                            (-122.5, 37.9),
+                            (-122.5, 37.7),
+                        ]
+                    ),
+                    sgeom.Polygon(
+                        [
+                            (-122.4, 37.6),
+                            (-122.2, 37.6),
+                            (-122.2, 37.8),
+                            (-122.4, 37.8),
+                            (-122.4, 37.6),
+                        ]
+                    ),
+                ],
+                "name": ["Region A", "Region B"],
+                "area_km2": [100, 150],
+            }
+        ),
+        "lines": gpd.GeoDataFrame(
+            {
+                "geometry": [
+                    sgeom.LineString([(-122.4194, 37.7749), (-122.4000, 37.7800)]),
+                    sgeom.LineString([(-122.4500, 37.7600), (-122.4194, 37.7749)]),
+                ],
+                "name": ["Route 1", "Route 2"],
+                "distance_km": [5.2, 8.1],
+            }
+        ),
     }
+
 
 @pytest.fixture(scope="session")
 def temporal_test_data():
     """Comprehensive temporal test data."""
-    dates = pd.date_range('2023-01-01', periods=100, freq='h')
+    dates = pd.date_range("2023-01-01", periods=100, freq="h")
     np.random.seed(42)
 
     return {
-        'time_series': pd.DataFrame({
-            'timestamp': dates,
-            'value': np.cumsum(np.random.normal(0, 1, 100)),
-            'category': np.random.choice(['A', 'B', 'C'], 100)
-        }),
-        'events': pd.DataFrame({
-            'start_time': pd.date_range('2023-01-01', periods=10, freq='D'),
-            'end_time': pd.date_range('2023-01-01', periods=10, freq='D') + timedelta(hours=2),
-            'event_type': np.random.choice(['alert', 'warning', 'info'], 10),
-            'severity': np.random.randint(1, 6, 10)
-        }),
-        'seasonal_data': pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=365, freq='D'),
-            'temperature': 15 + 10 * np.sin(2 * np.pi * np.arange(365) / 365) + np.random.normal(0, 2, 365),
-            'humidity': 60 + 20 * np.sin(2 * np.pi * np.arange(365) / 365 + np.pi/4) + np.random.normal(0, 5, 365)
-        })
+        "time_series": pd.DataFrame(
+            {
+                "timestamp": dates,
+                "value": np.cumsum(np.random.normal(0, 1, 100)),
+                "category": np.random.choice(["A", "B", "C"], 100),
+            }
+        ),
+        "events": pd.DataFrame(
+            {
+                "start_time": pd.date_range("2023-01-01", periods=10, freq="D"),
+                "end_time": pd.date_range("2023-01-01", periods=10, freq="D")
+                + timedelta(hours=2),
+                "event_type": np.random.choice(["alert", "warning", "info"], 10),
+                "severity": np.random.randint(1, 6, 10),
+            }
+        ),
+        "seasonal_data": pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2023-01-01", periods=365, freq="D"),
+                "temperature": 15
+                + 10 * np.sin(2 * np.pi * np.arange(365) / 365)
+                + np.random.normal(0, 2, 365),
+                "humidity": 60
+                + 20 * np.sin(2 * np.pi * np.arange(365) / 365 + np.pi / 4)
+                + np.random.normal(0, 5, 365),
+            }
+        ),
     }
+
 
 # Test markers
 def pytest_configure(config):
@@ -650,30 +761,19 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: Integration tests for cross-module interactions"
     )
-    config.addinivalue_line(
-        "markers", "system: System tests for end-to-end workflows"
-    )
+    config.addinivalue_line("markers", "system: System tests for end-to-end workflows")
     config.addinivalue_line(
         "markers", "performance: Performance tests for scalability validation"
     )
-    config.addinivalue_line(
-        "markers", "api: API tests for external interfaces"
-    )
+    config.addinivalue_line("markers", "api: API tests for external interfaces")
     config.addinivalue_line(
         "markers", "geospatial: Geospatial-specific tests for spatial functionality"
     )
-    config.addinivalue_line(
-        "markers", "slow: Tests that take a long time to run"
-    )
-    config.addinivalue_line(
-        "markers", "fast: Tests that run quickly"
-    )
-    config.addinivalue_line(
-        "markers", "temporal: Temporal data tests"
-    )
-    config.addinivalue_line(
-        "markers", "ml: Machine learning tests"
-    )
+    config.addinivalue_line("markers", "slow: Tests that take a long time to run")
+    config.addinivalue_line("markers", "fast: Tests that run quickly")
+    config.addinivalue_line("markers", "temporal: Temporal data tests")
+    config.addinivalue_line("markers", "ml: Machine learning tests")
+
 
 # Test collection hooks
 def pytest_collection_modifyitems(config, items):
@@ -696,22 +796,30 @@ def pytest_collection_modifyitems(config, items):
         if "test_basic" in item.nodeid or "test_simple" in item.nodeid:
             item.add_marker(pytest.mark.fast)
 
+
 # Test reporting
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Generate custom test summary."""
-    if hasattr(performance_monitor, 'metrics') and performance_monitor.metrics:
+    if (
+        hasattr(_global_performance_monitor, "metrics")
+        and _global_performance_monitor.metrics
+    ):
         terminalreporter.write_sep("=", "Performance Metrics")
-        for test_name, metrics in performance_monitor.metrics.items():
+        for test_name, metrics in _global_performance_monitor.metrics.items():
             terminalreporter.write_line(
                 f"{test_name}: {metrics['duration']:.3f}s, "
                 f"{metrics['memory_used'] / 1024 / 1024:.1f}MB"
             )
 
+
 # Cleanup
 def pytest_sessionfinish(session, exitstatus):
     """Clean up after test session."""
     # Save performance metrics
-    if hasattr(performance_monitor, 'metrics') and performance_monitor.metrics:
+    if (
+        hasattr(_global_performance_monitor, "metrics")
+        and _global_performance_monitor.metrics
+    ):
         metrics_file = Path("test_performance_metrics.json")
-        with open(metrics_file, 'w') as f:
-            json.dump(performance_monitor.metrics, f, indent=2)
+        with open(metrics_file, "w") as f:
+            json.dump(_global_performance_monitor.metrics, f, indent=2)

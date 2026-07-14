@@ -7,8 +7,6 @@ and that spatial functions work with or without the SPACE module available.
 """
 
 import numpy as np
-import pytest
-from typing import Dict, Any
 
 
 class TestSpaceImportSafety:
@@ -18,20 +16,24 @@ class TestSpaceImportSafety:
         """Test that the integration module loads even without geo_infer_space."""
         # This should never raise ImportError since the import is wrapped
         from geo_infer_act.utils.integration import integrate_space
+
         assert callable(integrate_space)
 
     def test_space_h3_fallback(self) -> None:
         """Test that space_h3 variable is None when SPACE unavailable."""
         from geo_infer_act.utils import integration
+
         # space_h3 is either a valid module or None
         # Either way, the module should have loaded
-        assert hasattr(integration, 'space_h3')
+        assert hasattr(integration, "space_h3")
 
     def test_h3_spatial_model_creation(self) -> None:
         """Test H3 spatial model creation (uses h3 directly, not space module)."""
         from geo_infer_act.utils.integration import create_h3_spatial_model
+
         try:
-            import h3
+            import h3  # noqa: F401
+
             h3_available = True
         except ImportError:
             h3_available = False
@@ -40,18 +42,26 @@ class TestSpaceImportSafety:
             config={},
             h3_resolution=4,
             boundary={
-                'coordinates': [[
-                    [[-122.5, 37.7], [-122.4, 37.7], [-122.4, 37.8], [-122.5, 37.8], [-122.5, 37.7]]
-                ]]
-            }
+                "coordinates": [
+                    [
+                        [
+                            [-122.5, 37.7],
+                            [-122.4, 37.7],
+                            [-122.4, 37.8],
+                            [-122.5, 37.8],
+                            [-122.5, 37.7],
+                        ]
+                    ]
+                ]
+            },
         )
 
         if h3_available:
-            assert result['status'] == 'success'
-            assert 'model_config' in result
-            assert 'boundary_cells' in result['model_config']
+            assert result["status"] == "success"
+            assert "model_config" in result
+            assert "boundary_cells" in result["model_config"]
         else:
-            assert result['status'] == 'error'
+            assert result["status"] == "error"
 
 
 class TestSpaceIntegrationFunction:
@@ -60,16 +70,18 @@ class TestSpaceIntegrationFunction:
     def test_disabled_integration_returns_empty(self) -> None:
         """Test that disabled integration returns empty dict."""
         from geo_infer_act.utils.integration import integrate_space
+
         result = integrate_space(config={})
         assert result == {}
 
     def test_no_endpoint_returns_empty(self) -> None:
         """Test that missing endpoint returns empty dict."""
         from geo_infer_act.utils.integration import integrate_space
+
         config = {
-            'integration': {
-                'space_module': {
-                    'enabled': True
+            "integration": {
+                "space_module": {
+                    "enabled": True
                     # No api_endpoint
                 }
             }
@@ -80,17 +92,18 @@ class TestSpaceIntegrationFunction:
     def test_invalid_endpoint_returns_error(self) -> None:
         """Test that invalid endpoint returns error gracefully."""
         from geo_infer_act.utils.integration import integrate_space
+
         config = {
-            'integration': {
-                'space_module': {
-                    'enabled': True,
-                    'api_endpoint': 'nonexistent.module.Class'
+            "integration": {
+                "space_module": {
+                    "enabled": True,
+                    "api_endpoint": "nonexistent.module.Class",
                 }
             }
         }
-        data = {'action': 'test'}
+        data = {"action": "test"}
         result = integrate_space(config, data)
-        assert result.get('status') == 'error'
+        assert result.get("status") == "error"
 
 
 class TestMultiAgentSpatialIntegration:
@@ -99,26 +112,29 @@ class TestMultiAgentSpatialIntegration:
     def test_multi_agent_model_has_spatial_mode(self) -> None:
         """Test that MultiAgentModel can be created with spatial attributes."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=2, n_locations=3)
-        assert hasattr(model, 'spatial_mode')
+        assert hasattr(model, "spatial_mode")
         assert model.spatial_mode is False
 
     def test_multi_agent_coordination_without_spatial(self) -> None:
         """Test coordination works in non-spatial mode."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=3, n_locations=4)
         result = model.coordinate_agents()
-        assert 'coordination_matrix' in result
-        assert 'average_coordination' in result
-        assert result['coordination_matrix'].shape[0] == 3
+        assert "coordination_matrix" in result
+        assert "average_coordination" in result
+        assert result["coordination_matrix"].shape[0] == 3
 
     def test_multi_agent_step_integration(self) -> None:
         """Test that multi-agent step works regardless of spatial module."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=2, n_locations=3)
         state, done = model.step()
-        assert 'resource_distribution' in state
-        assert 'agent_locations' in state
+        assert "resource_distribution" in state
+        assert "agent_locations" in state
         assert not done
 
 
@@ -128,18 +144,20 @@ class TestModernToolsIntegration:
     def test_integration_hub_creates(self) -> None:
         """Test that ModernToolsIntegration can be instantiated."""
         from geo_infer_act.utils.integration import ModernToolsIntegration
+
         hub = ModernToolsIntegration()
         assert isinstance(hub.available_tools, dict)
         # Should have checked for various tools
-        expected_keys = ['rxinfer', 'bayeux', 'pymdp', 'pymc', 'pyro', 'jax']
+        expected_keys = ["rxinfer", "bayeux", "pymdp", "pymc", "pyro", "jax"]
         for key in expected_keys:
             assert key in hub.available_tools
 
     def test_rxinfer_local_fallback_contract(self) -> None:
         """Test deterministic local RxInfer-compatible behavior without Julia."""
         from geo_infer_act.utils.integration import ModernToolsIntegration
+
         hub = ModernToolsIntegration({"allow_local_fallback": True})
-        if not hub.available_tools.get('rxinfer', False):
+        if not hub.available_tools.get("rxinfer", False):
             result = hub.create_rxinfer_model(
                 "", {"observations": np.array([1.0, 2.0, 3.0])}
             )

@@ -170,9 +170,7 @@ class ScenarioManager:
         logger.info(f"Deleted scenario: {scenario_id}")
         return True
 
-    def save_scenario_result(
-        self, scenario_id: str, result: Dict[str, Any]
-    ) -> None:
+    def save_scenario_result(self, scenario_id: str, result: Dict[str, Any]) -> None:
         """
         Save results for a scenario.
 
@@ -374,10 +372,11 @@ class ScenarioManager:
                     analysis["best_scenarios"][metric_name] = {
                         "scenario_id": best_scenario_id,
                         "value": float(metric_values[best_idx]),
-                        "scenario_name": self.scenarios.get(best_scenario_id, {}).name
-                        if best_scenario_id in self.scenarios
-                        else "Unknown",
+                        "scenario_name": (
+                            self.scenarios.get(best_scenario_id, {}).name
+                            if best_scenario_id in self.scenarios
+                            else "Unknown"
+                        ),
                     }
 
         return analysis
-

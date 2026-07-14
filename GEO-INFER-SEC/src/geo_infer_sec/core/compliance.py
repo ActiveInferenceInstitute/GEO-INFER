@@ -5,15 +5,12 @@ This module provides tools for ensuring compliance with various
 regulatory requirements for geospatial data handling.
 """
 
-from typing import Dict, List, Set, Optional, Union, Any, Callable
+from typing import Dict, List, Optional, Union, Any, Callable
 from enum import Enum
 import datetime
 import json
 import logging
-import os
-import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Polygon, MultiPolygon
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +36,7 @@ class ComplianceRule:
         regime: ComplianceRegime,
         description: str,
         validator: Callable[[Any], bool],
-        priority: int = 1
+        priority: int = 1,
     ):
         """
         Initialize a compliance rule.
@@ -86,7 +83,7 @@ class ComplianceViolation:
         rule: ComplianceRule,
         data_reference: str,
         timestamp: Optional[datetime.datetime] = None,
-        details: Optional[str] = None
+        details: Optional[str] = None,
     ):
         """
         Initialize a compliance violation.
@@ -99,7 +96,9 @@ class ComplianceViolation:
         """
         self.rule = rule
         self.data_reference = data_reference
-        self.timestamp = timestamp or datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        self.timestamp = timestamp or datetime.datetime.now(
+            datetime.timezone.utc
+        ).replace(tzinfo=None)
         self.details = details
 
     def __repr__(self) -> str:
@@ -113,7 +112,7 @@ class ComplianceViolation:
             "regime": self.rule.regime.value,
             "data_reference": self.data_reference,
             "timestamp": self.timestamp.isoformat(),
-            "details": self.details
+            "details": self.details,
         }
 
 
@@ -150,7 +149,7 @@ class ComplianceFramework:
         self,
         data: Any,
         data_reference: str,
-        regimes: Optional[List[ComplianceRegime]] = None
+        regimes: Optional[List[ComplianceRegime]] = None,
     ) -> List[ComplianceViolation]:
         """
         Check compliance of data against rules.
@@ -180,7 +179,7 @@ class ComplianceFramework:
                 violation = ComplianceViolation(
                     rule=rule,
                     data_reference=data_reference,
-                    details=f"Failed compliance check for {rule.regime.value}"
+                    details=f"Failed compliance check for {rule.regime.value}",
                 )
                 violations.append(violation)
                 self.violations.append(violation)
@@ -191,7 +190,7 @@ class ComplianceFramework:
         self,
         gdf: gpd.GeoDataFrame,
         data_reference: str,
-        regimes: Optional[List[ComplianceRegime]] = None
+        regimes: Optional[List[ComplianceRegime]] = None,
     ) -> List[ComplianceViolation]:
         """
         Check compliance of a GeoDataFrame.
@@ -207,9 +206,7 @@ class ComplianceFramework:
         return self.check_compliance(gdf, data_reference, regimes)
 
     def generate_compliance_report(
-        self,
-        output_format: str = "json",
-        output_file: Optional[str] = None
+        self, output_format: str = "json", output_file: Optional[str] = None
     ) -> Union[str, Dict]:
         """
         Generate a compliance report.
@@ -222,11 +219,13 @@ class ComplianceFramework:
             Report as a string or dictionary
         """
         report = {
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat(),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc)
+            .replace(tzinfo=None)
+            .isoformat(),
             "total_rules": len(self.rules),
             "total_violations": len(self.violations),
             "violations_by_regime": {},
-            "violations": [v.to_dict() for v in self.violations]
+            "violations": [v.to_dict() for v in self.violations],
         }
 
         # Count violations by regime
@@ -317,8 +316,12 @@ def create_gdpr_validators() -> Dict[str, ComplianceRule]:
 
     # Personal data minimization validator
     def personal_data_minimization(gdf: gpd.GeoDataFrame) -> bool:
-        sensitive_columns = ['name', 'address', 'phone', 'email', 'id_number', 'ssn']
-        found_columns = [col for col in gdf.columns if any(s in col.lower() for s in sensitive_columns)]
+        sensitive_columns = ["name", "address", "phone", "email", "id_number", "ssn"]
+        found_columns = [
+            col
+            for col in gdf.columns
+            if any(s in col.lower() for s in sensitive_columns)
+        ]
         return len(found_columns) <= 2  # Allow at most 2 PII columns
 
     validators["gdpr_data_minimization"] = ComplianceRule(
@@ -326,14 +329,14 @@ def create_gdpr_validators() -> Dict[str, ComplianceRule]:
         regime=ComplianceRegime.GDPR,
         description="Minimize personal data collection",
         validator=personal_data_minimization,
-        priority=10
+        priority=10,
     )
 
     # Location precision validator (reduce precision for personal locations)
     def location_precision(gdf: gpd.GeoDataFrame) -> bool:
-        if 'precision' in gdf.columns:
+        if "precision" in gdf.columns:
             # If dataset tracks precision, check it's not too high
-            return all(gdf['precision'] <= 3)  # Limit precision to city level
+            return all(gdf["precision"] <= 3)  # Limit precision to city level
         return True
 
     validators["gdpr_location_precision"] = ComplianceRule(
@@ -341,7 +344,7 @@ def create_gdpr_validators() -> Dict[str, ComplianceRule]:
         regime=ComplianceRegime.GDPR,
         description="Limit location precision for personal data",
         validator=location_precision,
-        priority=8
+        priority=8,
     )
 
     return validators

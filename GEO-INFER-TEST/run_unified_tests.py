@@ -129,7 +129,11 @@ def junit_contract_errors(path: Path | None) -> list[str]:
     for testcase in root.iter("testcase"):
         skipped = testcase.find("skipped")
         if skipped is not None:
-            name = testcase.attrib.get("classname", "") + "::" + testcase.attrib.get("name", "")
+            name = (
+                testcase.attrib.get("classname", "")
+                + "::"
+                + testcase.attrib.get("name", "")
+            )
             reason = skipped.attrib.get("message", "") or (skipped.text or "")
             errors.append(f"forbidden skipped/xfail testcase {name}: {reason}")
     return errors
@@ -269,16 +273,17 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
             continue
         discovered = True
         if not any(
-            has_test_files(path) if path.is_dir() else path.is_file()
-            for path in paths
+            has_test_files(path) if path.is_dir() else path.is_file() for path in paths
         ):
-            report.add(CommandResult(
-                name=f"{module.name} {category} tests",
-                success=False,
-                duration=0.0,
-                command=[],
-                stderr=f"No pytest files discovered in {category_path}.",
-            ))
+            report.add(
+                CommandResult(
+                    name=f"{module.name} {category} tests",
+                    success=False,
+                    duration=0.0,
+                    command=[],
+                    stderr=f"No pytest files discovered in {category_path}.",
+                )
+            )
             continue
         command = [
             *pytest_base_args(),
@@ -316,7 +321,11 @@ def run_performance_tests(timeout: int) -> SuiteReport:
     discovered = False
     for module in discover_geo_infer_modules():
         performance_dir = module.test_path / "performance"
-        performance_files = sorted(performance_dir.rglob("test_*.py")) if performance_dir.exists() else []
+        performance_files = (
+            sorted(performance_dir.rglob("test_*.py"))
+            if performance_dir.exists()
+            else []
+        )
         performance_files.extend(sorted(module.test_path.glob("**/*performance*.py")))
         performance_files = sorted(set(performance_files))
         if not performance_files:

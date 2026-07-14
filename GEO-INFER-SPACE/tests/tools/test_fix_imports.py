@@ -4,7 +4,9 @@ from pathlib import Path
 
 def load_module(module_filename: str):
     tools_dir = Path(__file__).parents[2] / "src" / "geo_infer_space" / "tools"
-    spec = importlib.util.spec_from_file_location("_fix_imports", tools_dir / module_filename)
+    spec = importlib.util.spec_from_file_location(
+        "_fix_imports", tools_dir / module_filename
+    )
     module = importlib.util.module_from_spec(spec)  # type: ignore
     assert spec is not None and spec.loader is not None
     spec.loader.exec_module(module)  # type: ignore
@@ -12,6 +14,7 @@ def load_module(module_filename: str):
 
 
 essage = "from h3.module import something\n"
+
 
 def test_fix_imports_in_file(tmp_path: Path):
     """Behavior-focused test: test_fix_imports_in_file."""

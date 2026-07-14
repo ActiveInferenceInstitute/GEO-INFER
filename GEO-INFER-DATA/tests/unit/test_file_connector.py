@@ -3,8 +3,6 @@ Tests for FileConnector and StreamingFileConnector in geo_infer_data.connectors.
 """
 
 import asyncio
-import json
-import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +18,7 @@ def _run(coro):
 # ---------------------------------------------------------------------------
 # FileConnector
 # ---------------------------------------------------------------------------
+
 
 class TestFileConnector:
     def test_init_creates_base_path(self, tmp_path):
@@ -129,6 +128,7 @@ class TestFileConnector:
 # ---------------------------------------------------------------------------
 # StreamingFileConnector
 # ---------------------------------------------------------------------------
+
 
 class TestStreamingFileConnector:
     def test_init_default_chunk_size(self):

@@ -33,7 +33,9 @@ def test_categorical_posteriors_are_normalized_for_any_valid_dimensions(
 @given(
     dimension=st.integers(min_value=1, max_value=6),
     values=st.lists(
-        st.floats(min_value=0.01, max_value=10.0, allow_nan=False, allow_infinity=False),
+        st.floats(
+            min_value=0.01, max_value=10.0, allow_nan=False, allow_infinity=False
+        ),
         min_size=36,
         max_size=36,
     ),
@@ -42,7 +44,9 @@ def test_stochastic_matrix_contract_normalizes_nonnegative_rows(
     dimension: int, values: list[float]
 ) -> None:
     """Every valid nonnegative transition matrix is row-stochastic after setting."""
-    matrix = np.asarray(values[: dimension * dimension], dtype=float).reshape(dimension, dimension)
+    matrix = np.asarray(values[: dimension * dimension], dtype=float).reshape(
+        dimension, dimension
+    )
     model = CategoricalModel(state_dim=dimension, obs_dim=dimension)
     model.set_transition_matrix(matrix)
     assert_stochastic_matrix(model.transition_matrix, axis=1, name="transition")

@@ -47,7 +47,9 @@ def validate_spm_data(data: SPMData) -> SPMData:
 
     # Check data dimensionality
     if data.data.ndim > 2:
-        logger.debug("Data has %s dimensions; SPM typically uses 1D or 2D data", data.data.ndim)
+        logger.debug(
+            "Data has %s dimensions; SPM typically uses 1D or 2D data", data.data.ndim
+        )
 
     # Validate coordinates
     if not hasattr(data, "coordinates") or data.coordinates is None:
@@ -170,7 +172,9 @@ def validate_design_matrix(
     # Check for rank deficiency
     rank = np.linalg.matrix_rank(design_matrix.matrix)
     if rank < n_regressors:
-        logger.debug("Design matrix is rank deficient: rank %s < %s", rank, n_regressors)
+        logger.debug(
+            "Design matrix is rank deficient: rank %s < %s", rank, n_regressors
+        )
 
     # Check for multicollinearity
     if n_regressors > 1:
@@ -180,7 +184,9 @@ def validate_design_matrix(
         max_corr = np.nanmax(np.abs(corr_matrix)) if corr_matrix.size else 0.0
 
         if max_corr > 0.9:
-            logger.debug("High multicollinearity detected (max correlation: %.3f)", max_corr)
+            logger.debug(
+                "High multicollinearity detected (max correlation: %.3f)", max_corr
+            )
 
     # Validate factors if present
     if hasattr(design_matrix, "factors") and design_matrix.factors:
@@ -189,7 +195,10 @@ def validate_design_matrix(
     # Check condition number
     condition_number = np.linalg.cond(design_matrix.matrix)
     if condition_number > 1e10:
-        logger.debug("Design matrix is ill-conditioned (condition number: %.2e)", condition_number)
+        logger.debug(
+            "Design matrix is ill-conditioned (condition number: %.2e)",
+            condition_number,
+        )
 
     return design_matrix
 

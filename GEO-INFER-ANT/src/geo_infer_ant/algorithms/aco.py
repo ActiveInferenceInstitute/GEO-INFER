@@ -16,13 +16,10 @@ Key Features:
 """
 
 import numpy as np
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
 from dataclasses import dataclass, field
-from collections import defaultdict
-import math
 
 # Integration imports
 try:
@@ -39,11 +36,12 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ACOParameters:
     """Parameters for Ant Colony Optimization algorithm."""
+
     number_of_ants: int = 50
     pheromone_evaporation_rate: float = 0.1
     pheromone_deposition_amount: float = 1.0
     alpha: float = 1.0  # Pheromone influence parameter
-    beta: float = 2.0   # Heuristic influence parameter
+    beta: float = 2.0  # Heuristic influence parameter
     initial_pheromone: float = 1.0
     max_iterations: int = 100
     convergence_threshold: float = 0.001
@@ -68,6 +66,7 @@ class ACOParameters:
 @dataclass
 class OptimizationResult:
     """Result of ACO optimization."""
+
     best_solution: List[Any]
     best_fitness: float
     convergence_history: List[float] = field(default_factory=list)
@@ -79,13 +78,13 @@ class OptimizationResult:
     def to_dict(self) -> Dict[str, Any]:
         """Convert result to dictionary."""
         return {
-            'best_solution': self.best_solution,
-            'best_fitness': self.best_fitness,
-            'convergence_history': self.convergence_history,
-            'pheromone_history': self.pheromone_history,
-            'computation_time': self.computation_time,
-            'iterations_completed': self.iterations_completed,
-            'convergence_achieved': self.convergence_achieved
+            "best_solution": self.best_solution,
+            "best_fitness": self.best_fitness,
+            "convergence_history": self.convergence_history,
+            "pheromone_history": self.pheromone_history,
+            "computation_time": self.computation_time,
+            "iterations_completed": self.iterations_completed,
+            "convergence_achieved": self.convergence_achieved,
         }
 
 
@@ -115,10 +114,10 @@ class AntColonyOptimization:
         beta: float = 2.0,
         initial_pheromone: float = 1.0,
         max_iterations: int = 100,
-        variant: str = 'AS',  # 'AS', 'ACS', 'MMAS'
+        variant: str = "AS",  # 'AS', 'ACS', 'MMAS'
         spatial_graph: Optional[Any] = None,
         convergence_threshold: float = 0.001,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize ACO algorithm.
@@ -143,7 +142,7 @@ class AntColonyOptimization:
             beta=beta,
             initial_pheromone=initial_pheromone,
             max_iterations=max_iterations,
-            convergence_threshold=convergence_threshold
+            convergence_threshold=convergence_threshold,
         )
 
         self.variant = variant
@@ -157,9 +156,9 @@ class AntColonyOptimization:
 
         # Optimization state
         self.best_solution: Optional[List[Any]] = None
-        self.best_fitness: float = float('inf')
+        self.best_fitness: float = float("inf")
         self.global_best_solution: Optional[List[Any]] = None
-        self.global_best_fitness: float = float('inf')
+        self.global_best_fitness: float = float("inf")
 
         # History tracking
         self.convergence_history: List[float] = []
@@ -184,14 +183,14 @@ class AntColonyOptimization:
         # Initialize spatial components
         if SpatialIndexingInterface:
             try:
-                self.spatial_indexer = SpatialIndexingInterface(backend='h3')
+                self.spatial_indexer = SpatialIndexingInterface(backend="h3")
                 logger.info("Spatial indexer initialized for ACO")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial indexer: {e}")
 
         if SpatialAnalyticsInterface:
             try:
-                self.spatial_analytics = SpatialAnalyticsInterface(backend='h3')
+                self.spatial_analytics = SpatialAnalyticsInterface(backend="h3")
                 logger.info("Spatial analytics initialized for ACO")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial analytics: {e}")
@@ -199,10 +198,11 @@ class AntColonyOptimization:
         # Initialize pheromone system
         try:
             from geo_infer_ant.core.stigmergy import PheromoneSystem
+
             self.pheromone_system = PheromoneSystem(
-                spatial_resolution='h3_r8',
-                pheromone_types=['trail', 'food'],
-                bounds={'min_lat': -90, 'max_lat': 90, 'min_lng': -180, 'max_lng': 180}
+                spatial_resolution="h3_r8",
+                pheromone_types=["trail", "food"],
+                bounds={"min_lat": -90, "max_lat": 90, "min_lng": -180, "max_lng": 180},
             )
             logger.info("Pheromone system initialized for ACO")
         except Exception as e:
@@ -213,7 +213,7 @@ class AntColonyOptimization:
         nodes: List[Any],
         distance_matrix: Optional[np.ndarray] = None,
         heuristic_matrix: Optional[np.ndarray] = None,
-        constraints: Optional[Dict[str, Any]] = None
+        constraints: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Initialize the optimization problem.
@@ -265,8 +265,8 @@ class AntColonyOptimization:
         self,
         start_locations: List[np.ndarray],
         end_locations: List[np.ndarray],
-        objective_function: str = 'minimize_total_distance',
-        constraints: Optional[Dict[str, Any]] = None
+        objective_function: str = "minimize_total_distance",
+        constraints: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Optimize paths between multiple start and end locations.
@@ -280,7 +280,9 @@ class AntColonyOptimization:
         Returns:
             List of optimized paths with metadata
         """
-        logger.info(f"Optimizing {len(start_locations)} paths from start to end locations")
+        logger.info(
+            f"Optimizing {len(start_locations)} paths from start to end locations"
+        )
 
         optimized_paths = []
 
@@ -306,19 +308,25 @@ class AntColonyOptimization:
             # Extract path information
             if result.best_solution:
                 path_info = {
-                    'start_location': start,
-                    'end_location': end,
-                    'optimal_path': [path_nodes[i] for i in result.best_solution],
-                    'path_fitness': result.best_fitness,
-                    'path_length': self._calculate_path_length(result.best_solution, path_nodes),
-                    'optimization_metadata': result.to_dict()
+                    "start_location": start,
+                    "end_location": end,
+                    "optimal_path": [path_nodes[i] for i in result.best_solution],
+                    "path_fitness": result.best_fitness,
+                    "path_length": self._calculate_path_length(
+                        result.best_solution, path_nodes
+                    ),
+                    "optimization_metadata": result.to_dict(),
                 }
                 optimized_paths.append(path_info)
 
-        logger.info(f"Path optimization completed: {len(optimized_paths)} paths optimized")
+        logger.info(
+            f"Path optimization completed: {len(optimized_paths)} paths optimized"
+        )
         return optimized_paths
 
-    def _find_intermediate_nodes(self, start: np.ndarray, end: np.ndarray) -> List[np.ndarray]:
+    def _find_intermediate_nodes(
+        self, start: np.ndarray, end: np.ndarray
+    ) -> List[np.ndarray]:
         """Find intermediate nodes between start and end locations."""
         if not self.spatial_analytics:
             return []
@@ -331,7 +339,9 @@ class AntColonyOptimization:
             logger.warning(f"Failed to find intermediate nodes: {e}")
             return []
 
-    def _calculate_path_length(self, path_indices: List[int], nodes: List[np.ndarray]) -> float:
+    def _calculate_path_length(
+        self, path_indices: List[int], nodes: List[np.ndarray]
+    ) -> float:
         """Calculate total length of a path."""
         if len(path_indices) < 2:
             return 0.0
@@ -353,7 +363,9 @@ class AntColonyOptimization:
         """
         start_time = datetime.now()
 
-        logger.info(f"Starting ACO optimization with {self.parameters.max_iterations} max iterations")
+        logger.info(
+            f"Starting ACO optimization with {self.parameters.max_iterations} max iterations"
+        )
 
         # Initialize algorithm state
         self._initialize_algorithm_state()
@@ -392,7 +404,9 @@ class AntColonyOptimization:
             pheromone_history=self.pheromone_history.copy(),
             computation_time=computation_time,
             iterations_completed=len(self.convergence_history),
-            convergence_achieved=self._check_convergence(self.parameters.max_iterations - 1)
+            convergence_achieved=self._check_convergence(
+                self.parameters.max_iterations - 1
+            ),
         )
 
         logger.info(f"ACO optimization completed: best fitness = {result.best_fitness}")
@@ -401,7 +415,7 @@ class AntColonyOptimization:
     def _initialize_algorithm_state(self) -> None:
         """Initialize algorithm state for optimization."""
         self.best_solution = None
-        self.best_fitness = float('inf')
+        self.best_fitness = float("inf")
         self.convergence_history = []
         self.pheromone_history = []
         self.iteration_times = []
@@ -418,11 +432,7 @@ class AntColonyOptimization:
             solution = self._construct_single_solution(ant)
             fitness = self._evaluate_solution(solution)
 
-            solutions.append({
-                'solution': solution,
-                'fitness': fitness,
-                'ant_id': ant
-            })
+            solutions.append({"solution": solution, "fitness": fitness, "ant_id": ant})
 
             self.function_evaluations += 1
 
@@ -452,19 +462,23 @@ class AntColonyOptimization:
 
         return solution
 
-    def _select_next_node(self, current_node: int, visited: set, ant_id: int) -> Optional[int]:
+    def _select_next_node(
+        self, current_node: int, visited: set, ant_id: int
+    ) -> Optional[int]:
         """Select next node for ant based on pheromone and heuristic information."""
         candidates = []
 
         for node in range(self.problem_size):
             if node not in visited and node != current_node:
                 # Calculate selection probability
-                pheromone = self.pheromone_matrix.get((current_node, node), self.parameters.initial_pheromone)
+                pheromone = self.pheromone_matrix.get(
+                    (current_node, node), self.parameters.initial_pheromone
+                )
                 heuristic = self.heuristic_matrix.get((current_node, node), 0.0)
 
                 # Apply power transformation
-                pheromone_factor = pheromone ** self.parameters.alpha
-                heuristic_factor = heuristic ** self.parameters.beta
+                pheromone_factor = pheromone**self.parameters.alpha
+                heuristic_factor = heuristic**self.parameters.beta
 
                 probability = pheromone_factor * heuristic_factor
                 candidates.append((node, probability))
@@ -488,7 +502,7 @@ class AntColonyOptimization:
     def _evaluate_solution(self, solution: List[int]) -> float:
         """Evaluate fitness of a solution."""
         if not solution or len(solution) < 2:
-            return float('inf')
+            return float("inf")
 
         # Calculate total path length (for TSP-like problems)
         total_distance = 0.0
@@ -498,7 +512,7 @@ class AntColonyOptimization:
             node2 = solution[i + 1]
 
             # Get distance between nodes
-            if hasattr(self, 'distance_matrix') and self.distance_matrix is not None:
+            if hasattr(self, "distance_matrix") and self.distance_matrix is not None:
                 distance = self.distance_matrix[node1, node2]
             else:
                 # Calculate Euclidean distance if positions available
@@ -522,16 +536,16 @@ class AntColonyOptimization:
         penalty = 0.0
 
         # Example constraint: maximum path length
-        if 'max_path_length' in self.constraints:
-            max_length = self.constraints['max_path_length']
+        if "max_path_length" in self.constraints:
+            max_length = self.constraints["max_path_length"]
             actual_length = self._calculate_path_length(solution, self.nodes)
 
             if actual_length > max_length:
                 penalty += (actual_length - max_length) * 10  # Penalty factor
 
         # Example constraint: required nodes
-        if 'required_nodes' in self.constraints:
-            required = set(self.constraints['required_nodes'])
+        if "required_nodes" in self.constraints:
+            required = set(self.constraints["required_nodes"])
             solution_set = set(solution)
 
             missing_nodes = required - solution_set
@@ -543,12 +557,14 @@ class AntColonyOptimization:
         """Update pheromone trails based on solution quality."""
         # Evaporate pheromones
         for edge, pheromone in self.pheromone_matrix.items():
-            self.pheromone_matrix[edge] *= (1 - self.parameters.pheromone_evaporation_rate)
+            self.pheromone_matrix[edge] *= (
+                1 - self.parameters.pheromone_evaporation_rate
+            )
 
         # Apply variant-specific updates
-        if self.variant == 'ACS':
+        if self.variant == "ACS":
             self._update_pheromones_acs(solutions)
-        elif self.variant == 'MMAS':
+        elif self.variant == "MMAS":
             self._update_pheromones_mmas(solutions)
         else:  # AS (Ant System) - default
             self._update_pheromones_as(solutions)
@@ -560,8 +576,8 @@ class AntColonyOptimization:
         """Update pheromones using Ant System (AS) variant."""
         # Deposit pheromones based on solution quality
         for solution_info in solutions:
-            solution = solution_info['solution']
-            fitness = solution_info['fitness']
+            solution = solution_info["solution"]
+            fitness = solution_info["fitness"]
 
             # Calculate pheromone deposit amount (inverse of fitness)
             if fitness > 0:
@@ -577,12 +593,14 @@ class AntColonyOptimization:
     def _update_pheromones_acs(self, solutions: List[Dict[str, Any]]) -> None:
         """Update pheromones using Ant Colony System (ACS) variant."""
         # Deposit pheromones only on best solution edges
-        best_solution_info = min(solutions, key=lambda x: x['fitness'])
-        best_solution = best_solution_info['solution']
-        best_fitness = best_solution_info['fitness']
+        best_solution_info = min(solutions, key=lambda x: x["fitness"])
+        best_solution = best_solution_info["solution"]
+        best_fitness = best_solution_info["fitness"]
 
         if best_fitness > 0:
-            pheromone_amount = self.parameters.pheromone_deposition_amount / best_fitness
+            pheromone_amount = (
+                self.parameters.pheromone_deposition_amount / best_fitness
+            )
         else:
             pheromone_amount = self.parameters.pheromone_deposition_amount
 
@@ -604,20 +622,22 @@ class AntColonyOptimization:
     def _update_pheromones_mmas(self, solutions: List[Dict[str, Any]]) -> None:
         """Update pheromones using Max-Min Ant System (MMAS) variant."""
         # Find best and worst solutions
-        best_solution_info = min(solutions, key=lambda x: x['fitness'])
-        worst_solution_info = max(solutions, key=lambda x: x['fitness'])
+        best_solution_info = min(solutions, key=lambda x: x["fitness"])
+        worst_solution_info = max(solutions, key=lambda x: x["fitness"])
 
-        best_fitness = best_solution_info['fitness']
-        worst_fitness = worst_solution_info['fitness']
+        best_fitness = best_solution_info["fitness"]
+        _worst_fitness = worst_solution_info["fitness"]
 
         # Deposit pheromones only on best solution
         if best_fitness > 0:
-            pheromone_amount = self.parameters.pheromone_deposition_amount / best_fitness
+            pheromone_amount = (
+                self.parameters.pheromone_deposition_amount / best_fitness
+            )
         else:
             pheromone_amount = self.parameters.pheromone_deposition_amount
 
         # Update best solution
-        best_solution = best_solution_info['solution']
+        best_solution = best_solution_info["solution"]
         for i in range(len(best_solution) - 1):
             edge = (best_solution[i], best_solution[i + 1])
             self.pheromone_matrix[edge] += pheromone_amount
@@ -626,23 +646,23 @@ class AntColonyOptimization:
         for edge in self.pheromone_matrix:
             self.pheromone_matrix[edge] = max(
                 self.parameters.min_pheromone,
-                min(self.pheromone_matrix[edge], self.parameters.max_pheromone)
+                min(self.pheromone_matrix[edge], self.parameters.max_pheromone),
             )
 
     def _update_best_solution(self, solutions: List[Dict[str, Any]]) -> None:
         """Update best solution found so far."""
         # Find best solution in current iteration
-        best_solution_info = min(solutions, key=lambda x: x['fitness'])
-        current_best_fitness = best_solution_info['fitness']
+        best_solution_info = min(solutions, key=lambda x: x["fitness"])
+        current_best_fitness = best_solution_info["fitness"]
 
         # Update iteration best
         if current_best_fitness < self.best_fitness:
-            self.best_solution = best_solution_info['solution'].copy()
+            self.best_solution = best_solution_info["solution"].copy()
             self.best_fitness = current_best_fitness
 
         # Update global best if this is better
         if current_best_fitness < self.global_best_fitness:
-            self.global_best_solution = best_solution_info['solution'].copy()
+            self.global_best_solution = best_solution_info["solution"].copy()
             self.global_best_fitness = current_best_fitness
 
     def _check_convergence(self, iteration: int) -> bool:
@@ -667,11 +687,11 @@ class AntColonyOptimization:
         if self.pheromone_matrix:
             concentrations = list(self.pheromone_matrix.values())
             pheromone_stats = {
-                'iteration': iteration,
-                'max_pheromone': np.max(concentrations),
-                'min_pheromone': np.min(concentrations),
-                'avg_pheromone': np.mean(concentrations),
-                'pheromone_std': np.std(concentrations)
+                "iteration": iteration,
+                "max_pheromone": np.max(concentrations),
+                "min_pheromone": np.min(concentrations),
+                "avg_pheromone": np.mean(concentrations),
+                "pheromone_std": np.std(concentrations),
             }
             self.pheromone_history.append(pheromone_stats)
 
@@ -680,9 +700,9 @@ class AntColonyOptimization:
         if self.pheromone_matrix:
             concentrations = list(self.pheromone_matrix.values())
             stats = {
-                'max_pheromone': np.max(concentrations),
-                'min_pheromone': np.min(concentrations),
-                'avg_pheromone': np.mean(concentrations)
+                "max_pheromone": np.max(concentrations),
+                "min_pheromone": np.min(concentrations),
+                "avg_pheromone": np.mean(concentrations),
             }
             self.pheromone_history.append(stats)
 
@@ -691,7 +711,7 @@ class AntColonyOptimization:
         objectives: List[str],
         population_size: int = 100,
         generations: int = 50,
-        spatial_constraints: Optional[Dict[str, Any]] = None
+        spatial_constraints: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Perform multi-objective optimization using ACO.
@@ -735,7 +755,7 @@ class AntColonyOptimization:
                     if obj_name == "minimize_total_distance":
                         obj_vals.append(self._evaluate_solution(sol))
                     elif obj_name == "maximize_pheromone_coverage":
-                        covered = {(sol[i], sol[i+1]) for i in range(len(sol)-1)}
+                        covered = {(sol[i], sol[i + 1]) for i in range(len(sol) - 1)}
                         max_edges = max(1, self.problem_size * (self.problem_size - 1))
                         obj_vals.append(-len(covered) / max_edges)  # negate to minimise
                     else:
@@ -758,21 +778,25 @@ class AntColonyOptimization:
 
             for idx, sol_info in enumerate(solutions):
                 scalar_fitness = float(np.dot(weights, obj_norm[idx]))
-                pareto_solutions.append({
-                    "solution": sol_info["solution"],
-                    "objectives": dict(zip(objectives, obj_array[idx].tolist())),
-                    "scalar_fitness": scalar_fitness,
-                })
+                pareto_solutions.append(
+                    {
+                        "solution": sol_info["solution"],
+                        "objectives": dict(zip(objectives, obj_array[idx].tolist())),
+                        "scalar_fitness": scalar_fitness,
+                    }
+                )
 
             # Pareto dominance filter (keep non-dominated solutions)
             if len(pareto_solutions) > population_size * 2:
-                pareto_solutions = self._non_dominated_sort(pareto_solutions, objectives)
+                pareto_solutions = self._non_dominated_sort(
+                    pareto_solutions, objectives
+                )
 
             # Update pheromones using best scalar solution of current gen
             if solutions:
                 best_scalar = min(
                     range(len(solutions)),
-                    key=lambda i: float(np.dot(weights, obj_norm[i]))
+                    key=lambda i: float(np.dot(weights, obj_norm[i])),
                 )
                 self._update_pheromones([solutions[best_scalar]])
 
@@ -789,26 +813,28 @@ class AntColonyOptimization:
         pareto_front_solutions = self._non_dominated_sort(pareto_solutions, objectives)
 
         pareto_front = {
-            'solutions': pareto_front_solutions[:population_size],
-            'objectives': objectives,
-            'constraints': spatial_constraints,
-            'metadata': {
-                'algorithm': 'Multi-Objective ACO (weighted-sum + Pareto)',
-                'population_size': population_size,
-                'generations': generations,
-                'n_objectives': n_objectives,
-                'weights': weights,
-            }
+            "solutions": pareto_front_solutions[:population_size],
+            "objectives": objectives,
+            "constraints": spatial_constraints,
+            "metadata": {
+                "algorithm": "Multi-Objective ACO (weighted-sum + Pareto)",
+                "population_size": population_size,
+                "generations": generations,
+                "n_objectives": n_objectives,
+                "weights": weights,
+            },
         }
 
-        logger.info(f"Multi-objective optimisation completed: {len(pareto_front_solutions)} Pareto solutions")
+        logger.info(
+            f"Multi-objective optimisation completed: {len(pareto_front_solutions)} Pareto solutions"
+        )
         return pareto_front
 
     def adapt_to_changes(
         self,
         environmental_changes: Dict[str, Any],
-        pheromone_update_strategy: str = 'reinforcement_learning',
-        convergence_monitoring: bool = True
+        pheromone_update_strategy: str = "reinforcement_learning",
+        convergence_monitoring: bool = True,
     ) -> Dict[str, Any]:
         """
         Adapt ACO algorithm to environmental changes.
@@ -824,86 +850,97 @@ class AntColonyOptimization:
         logger.info(f"Adapting ACO to environmental changes: {environmental_changes}")
 
         adaptation_results = {
-            'changes_applied': [],
-            'parameters_updated': {},
-            'convergence_reset': False
+            "changes_applied": [],
+            "parameters_updated": {},
+            "convergence_reset": False,
         }
 
         # Update pheromone evaporation based on environmental volatility
-        if 'volatility' in environmental_changes:
-            volatility = environmental_changes['volatility']
+        if "volatility" in environmental_changes:
+            volatility = environmental_changes["volatility"]
 
             # Increase evaporation rate in volatile environments
             old_rate = self.parameters.pheromone_evaporation_rate
             new_rate = min(0.5, old_rate * (1 + volatility))
 
             self.parameters.pheromone_evaporation_rate = new_rate
-            adaptation_results['parameters_updated']['pheromone_evaporation_rate'] = new_rate
-            adaptation_results['changes_applied'].append('pheromone_evaporation_adjusted')
+            adaptation_results["parameters_updated"][
+                "pheromone_evaporation_rate"
+            ] = new_rate
+            adaptation_results["changes_applied"].append(
+                "pheromone_evaporation_adjusted"
+            )
 
         # Update exploration rate based on problem complexity
-        if 'problem_complexity' in environmental_changes:
-            complexity = environmental_changes['problem_complexity']
+        if "problem_complexity" in environmental_changes:
+            complexity = environmental_changes["problem_complexity"]
 
-            old_exploration = getattr(self.parameters, 'exploration_rate', 0.1)
+            old_exploration = getattr(self.parameters, "exploration_rate", 0.1)
             new_exploration = min(0.3, old_exploration * (1 + complexity * 0.5))
 
             self.parameters.exploration_rate = new_exploration
-            adaptation_results['parameters_updated']['exploration_rate'] = new_exploration
-            adaptation_results['changes_applied'].append('exploration_rate_adjusted')
+            adaptation_results["parameters_updated"][
+                "exploration_rate"
+            ] = new_exploration
+            adaptation_results["changes_applied"].append("exploration_rate_adjusted")
 
         # Reset convergence tracking if major changes
-        if environmental_changes.get('major_change', False):
+        if environmental_changes.get("major_change", False):
             self.convergence_history = []
-            adaptation_results['convergence_reset'] = True
-            adaptation_results['changes_applied'].append('convergence_reset')
+            adaptation_results["convergence_reset"] = True
+            adaptation_results["changes_applied"].append("convergence_reset")
 
-        logger.info(f"ACO adaptation completed: {len(adaptation_results['changes_applied'])} changes applied")
+        logger.info(
+            f"ACO adaptation completed: {len(adaptation_results['changes_applied'])} changes applied"
+        )
         return adaptation_results
 
     def get_optimization_statistics(self) -> Dict[str, Any]:
         """Get comprehensive optimization statistics."""
         stats = {
-            'algorithm': 'Ant Colony Optimization',
-            'variant': self.variant,
-            'parameters': {
-                'number_of_ants': self.parameters.number_of_ants,
-                'pheromone_evaporation_rate': self.parameters.pheromone_evaporation_rate,
-                'alpha': self.parameters.alpha,
-                'beta': self.parameters.beta,
-                'max_iterations': self.parameters.max_iterations
+            "algorithm": "Ant Colony Optimization",
+            "variant": self.variant,
+            "parameters": {
+                "number_of_ants": self.parameters.number_of_ants,
+                "pheromone_evaporation_rate": self.parameters.pheromone_evaporation_rate,
+                "alpha": self.parameters.alpha,
+                "beta": self.parameters.beta,
+                "max_iterations": self.parameters.max_iterations,
             },
-            'problem_info': {
-                'problem_size': self.problem_size,
-                'number_of_nodes': len(self.nodes),
-                'constraints': self.constraints
+            "problem_info": {
+                "problem_size": self.problem_size,
+                "number_of_nodes": len(self.nodes),
+                "constraints": self.constraints,
             },
-            'optimization_results': {
-                'best_fitness': self.best_fitness,
-                'global_best_fitness': self.global_best_fitness,
-                'iterations_completed': len(self.convergence_history),
-                'function_evaluations': self.function_evaluations
+            "optimization_results": {
+                "best_fitness": self.best_fitness,
+                "global_best_fitness": self.global_best_fitness,
+                "iterations_completed": len(self.convergence_history),
+                "function_evaluations": self.function_evaluations,
             },
-            'pheromone_statistics': {}
+            "pheromone_statistics": {},
         }
 
         # Pheromone statistics
         if self.pheromone_matrix:
             concentrations = list(self.pheromone_matrix.values())
-            stats['pheromone_statistics'] = {
-                'max_pheromone': np.max(concentrations),
-                'min_pheromone': np.min(concentrations),
-                'avg_pheromone': np.mean(concentrations),
-                'std_pheromone': np.std(concentrations),
-                'active_edges': len([c for c in concentrations if c > self.parameters.min_pheromone])
+            stats["pheromone_statistics"] = {
+                "max_pheromone": np.max(concentrations),
+                "min_pheromone": np.min(concentrations),
+                "avg_pheromone": np.mean(concentrations),
+                "std_pheromone": np.std(concentrations),
+                "active_edges": len(
+                    [c for c in concentrations if c > self.parameters.min_pheromone]
+                ),
             }
 
         # Performance statistics
         if self.iteration_times:
-            stats['performance'] = {
-                'avg_iteration_time': np.mean(self.iteration_times),
-                'total_computation_time': sum(self.iteration_times),
-                'iterations_per_second': len(self.iteration_times) / sum(self.iteration_times)
+            stats["performance"] = {
+                "avg_iteration_time": np.mean(self.iteration_times),
+                "total_computation_time": sum(self.iteration_times),
+                "iterations_per_second": len(self.iteration_times)
+                / sum(self.iteration_times),
             }
 
         return stats
@@ -941,41 +978,43 @@ class AntColonyOptimization:
             import json
 
             state = {
-                'variant': self.variant,
-                'parameters': {
-                    'number_of_ants': self.parameters.number_of_ants,
-                    'pheromone_evaporation_rate': self.parameters.pheromone_evaporation_rate,
-                    'pheromone_deposition_amount': self.parameters.pheromone_deposition_amount,
-                    'alpha': self.parameters.alpha,
-                    'beta': self.parameters.beta,
-                    'initial_pheromone': self.parameters.initial_pheromone,
-                    'max_iterations': self.parameters.max_iterations,
+                "variant": self.variant,
+                "parameters": {
+                    "number_of_ants": self.parameters.number_of_ants,
+                    "pheromone_evaporation_rate": self.parameters.pheromone_evaporation_rate,
+                    "pheromone_deposition_amount": self.parameters.pheromone_deposition_amount,
+                    "alpha": self.parameters.alpha,
+                    "beta": self.parameters.beta,
+                    "initial_pheromone": self.parameters.initial_pheromone,
+                    "max_iterations": self.parameters.max_iterations,
                 },
-                'problem_state': {
-                    'nodes': self.nodes,
-                    'problem_size': self.problem_size,
-                    'constraints': self.constraints
+                "problem_state": {
+                    "nodes": self.nodes,
+                    "problem_size": self.problem_size,
+                    "constraints": self.constraints,
                 },
-                'pheromone_matrix': {
-                    str(edge): pheromone for edge, pheromone in self.pheromone_matrix.items()
+                "pheromone_matrix": {
+                    str(edge): pheromone
+                    for edge, pheromone in self.pheromone_matrix.items()
                 },
-                'heuristic_matrix': {
-                    str(edge): heuristic for edge, heuristic in self.heuristic_matrix.items()
+                "heuristic_matrix": {
+                    str(edge): heuristic
+                    for edge, heuristic in self.heuristic_matrix.items()
                 },
-                'optimization_results': {
-                    'best_solution': self.best_solution,
-                    'best_fitness': self.best_fitness,
-                    'global_best_solution': self.global_best_solution,
-                    'global_best_fitness': self.global_best_fitness
+                "optimization_results": {
+                    "best_solution": self.best_solution,
+                    "best_fitness": self.best_fitness,
+                    "global_best_solution": self.global_best_solution,
+                    "global_best_fitness": self.global_best_fitness,
                 },
-                'history': {
-                    'convergence_history': self.convergence_history,
-                    'pheromone_history': self.pheromone_history,
-                    'iteration_times': self.iteration_times
-                }
+                "history": {
+                    "convergence_history": self.convergence_history,
+                    "pheromone_history": self.pheromone_history,
+                    "iteration_times": self.iteration_times,
+                },
             }
 
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(state, f, indent=2)
 
             logger.info(f"ACO state saved to {filepath}")
@@ -990,42 +1029,44 @@ class AntColonyOptimization:
         try:
             import json
 
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 state = json.load(f)
 
             # Restore variant (stored at top level, not inside parameters)
-            self.variant = state.get('variant', 'AS')
+            self.variant = state.get("variant", "AS")
 
             # Restore parameters
-            params = state['parameters']
+            params = state["parameters"]
             self.parameters = ACOParameters(**params)
 
             # Restore problem state
-            problem = state['problem_state']
-            self.nodes = problem['nodes']
-            self.problem_size = problem['problem_size']
-            self.constraints = problem['constraints']
+            problem = state["problem_state"]
+            self.nodes = problem["nodes"]
+            self.problem_size = problem["problem_size"]
+            self.constraints = problem["constraints"]
 
             # Restore pheromone and heuristic matrices
             self.pheromone_matrix = {
-                tuple(eval(edge)): pheromone for edge, pheromone in state['pheromone_matrix'].items()
+                tuple(eval(edge)): pheromone
+                for edge, pheromone in state["pheromone_matrix"].items()
             }
             self.heuristic_matrix = {
-                tuple(eval(edge)): heuristic for edge, heuristic in state['heuristic_matrix'].items()
+                tuple(eval(edge)): heuristic
+                for edge, heuristic in state["heuristic_matrix"].items()
             }
 
             # Restore optimization results
-            results = state['optimization_results']
-            self.best_solution = results['best_solution']
-            self.best_fitness = results['best_fitness']
-            self.global_best_solution = results['global_best_solution']
-            self.global_best_fitness = results['global_best_fitness']
+            results = state["optimization_results"]
+            self.best_solution = results["best_solution"]
+            self.best_fitness = results["best_fitness"]
+            self.global_best_solution = results["global_best_solution"]
+            self.global_best_fitness = results["global_best_fitness"]
 
             # Restore history
-            history = state['history']
-            self.convergence_history = history['convergence_history']
-            self.pheromone_history = history['pheromone_history']
-            self.iteration_times = history['iteration_times']
+            history = state["history"]
+            self.convergence_history = history["convergence_history"]
+            self.pheromone_history = history["pheromone_history"]
+            self.iteration_times = history["iteration_times"]
 
             logger.info(f"ACO state loaded from {filepath}")
             return True

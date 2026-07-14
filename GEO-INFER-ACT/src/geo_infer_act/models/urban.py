@@ -227,7 +227,9 @@ class UrbanModel(ActiveInferenceModel):
     def reset(self) -> Dict[str, Any]:
         """Restore the seeded environment and every agent's initial location."""
         self.resource_levels = self._initial_resource_levels.copy()
-        for agent_data, initial_location in zip(self.agents, self._initial_agent_locations):
+        for agent_data, initial_location in zip(
+            self.agents, self._initial_agent_locations
+        ):
             agent_data["location"] = initial_location
             agent_data["history"] = []
             agent_data["model"].reset()
