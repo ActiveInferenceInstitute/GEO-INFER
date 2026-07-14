@@ -35,6 +35,19 @@ from geo_infer_act.utils.pymdp_adapter import PymdpStepResult, run_model_step
 logger = logging.getLogger(__name__)
 
 
+def _coerce_action_count(value: Any, default: int = 3) -> int:
+    """Return a positive action count from scalar or pymdp-style values."""
+    if value is None:
+        value = default
+    array = np.asarray(value)
+    if array.size != 1:
+        raise ValueError("num_controls must be a scalar or a single-item sequence")
+    count = int(array.reshape(-1)[0])
+    if count < 1:
+        raise ValueError("num_controls must be positive")
+    return count
+
+
 class ActiveInferenceModel:
     """
     Main class for active inference agents with support for nested models.
@@ -58,6 +71,7 @@ class ActiveInferenceModel:
             "policy_selection_mode", self.parameters.pop("selection_mode", "sample")
         )
         random_seed = self.parameters.pop("random_seed", None)
+        self.random_seed = random_seed
 
         # Initialize core components
         self.generative_model = None
@@ -99,6 +113,7 @@ class ActiveInferenceModel:
             )
             self.model_type = model.model_type
         self.current_beliefs = self._extract_model_beliefs(model)
+        self._initial_beliefs = self._clone_beliefs(self.current_beliefs)
         if self.preferences is None:
             self.preferences = self._extract_model_preferences(model)
 
@@ -135,6 +150,8 @@ class ActiveInferenceModel:
         """
         if self.generative_model is None:
             raise ValueError("Generative model must be set before action selection")
+        if available_actions is not None and not available_actions:
+            raise ValueError("available_actions must contain at least one action")
 
         if (
             self.model_type == "categorical"
@@ -145,14 +162,15 @@ class ActiveInferenceModel:
                 action_count = (
                     len(available_actions)
                     if available_actions is not None
-                    else int(self.parameters.get("num_controls", 3))
+                    else _coerce_action_count(
+                        self.parameters.get("num_controls"), default=3
+                    )
                 )
                 pymdp_result = run_model_step(
                     self.generative_model,
                     self.current_observations,
                     action_count=action_count,
-                    random_seed=int(self.parameters.get("random_seed", 0))
-                    + len(self.history),
+                    random_seed=int(self.random_seed or 0) + len(self.history),
                     prior=self.current_beliefs,
                 )
                 self.latest_pymdp_result = pymdp_result
@@ -234,7 +252,7 @@ class ActiveInferenceModel:
 
     def update_preferences(self, preferences: Dict[str, float]) -> None:
         """Update preferences for the active inference model."""
-        self.preferences = preferences
+        self.set_preferences(preferences)
 
     def update_with_outcome(
         self, decision: Dict[str, Any], outcome: Dict[str, Any]
@@ -445,7 +463,12 @@ class ActiveInferenceModel:
     def reset(self):
         """Reset the model to initial state."""
         if self.generative_model is not None:
-            self.current_beliefs = self._extract_model_beliefs(self.generative_model)
+            initial_beliefs = getattr(self, "_initial_beliefs", None)
+            if initial_beliefs is None:
+                initial_beliefs = self._extract_model_beliefs(self.generative_model)
+                self._initial_beliefs = self._clone_beliefs(initial_beliefs)
+            self.generative_model.beliefs = self._clone_beliefs(initial_beliefs)
+            self.current_beliefs = self._clone_beliefs(initial_beliefs)
         else:
             self.current_beliefs = None
 
@@ -778,7 +801,14 @@ class ActiveInferenceModel:
 
     def set_preferences(self, preferences: Union[np.ndarray, Dict[str, Any]]):
         """Override prior preferences used during inference."""
-        self.preferences = preferences
+        self.preferences = copy.deepcopy(preferences)
+        if self.generative_model is None:
+            return
+        model_preferences = getattr(self.generative_model, "preferences", None)
+        if isinstance(model_preferences, dict) and isinstance(preferences, dict):
+            self.generative_model.set_preferences(preferences)
+        else:
+            self.generative_model.preferences = copy.deepcopy(preferences)
 
     def _extract_model_beliefs(self, model: GenerativeModel):
         beliefs = getattr(model, "beliefs", None)
@@ -872,8 +902,7 @@ class ActiveInferenceModel:
                 pymdp_result = run_model_step(
                     self.generative_model,
                     observation,
-                    random_seed=int(self.parameters.get("random_seed", 0))
-                    + len(self.history),
+                    random_seed=int(self.random_seed or 0) + len(self.history),
                     prior=self.current_beliefs,
                 )
                 self.latest_pymdp_result = pymdp_result
@@ -941,12 +970,6 @@ class ActiveInferenceModel:
         # PYMDP Integration Check
         if self.model_type == "categorical":
             A = getattr(self.generative_model, "observation_model", None)
-
-            # Safely get prior
-            if isinstance(self.current_beliefs, dict):
-                prior = self.current_beliefs.get("states")
-            else:
-                prior = self.current_beliefs  # Assume it's the states array/list
 
             # Local Bayes update for simple categorical matrices.
             prior_vec = self._extract_belief_vector(

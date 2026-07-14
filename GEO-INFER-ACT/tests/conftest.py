@@ -4,11 +4,9 @@ Pytest fixtures for GEO-INFER-ACT tests.
 Provides Active Inference agents, generative model configurations,
 observation sequences, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Point
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
@@ -26,8 +24,11 @@ def sample_coordinates() -> List[Tuple[float, float]]:
 
 
 @pytest.fixture(scope="function")
-def sample_geodataframe() -> gpd.GeoDataFrame:
+def sample_geodataframe() -> Any:
     """Standard GeoDataFrame with EPSG:4326 for spatial tests."""
+    gpd = pytest.importorskip("geopandas")
+    from shapely.geometry import Point
+
     return gpd.GeoDataFrame(
         {"id": range(5), "value": np.random.uniform(0, 100, 5)},
         geometry=[Point(-122.33 + i * 0.01, 47.61 + i * 0.01) for i in range(5)],
@@ -57,22 +58,26 @@ def free_energy_agent() -> Dict[str, Any]:
     n_actions = 2
 
     # Observation model: P(observation | hidden state)
-    A = np.array([
-        [0.8, 0.1, 0.1],
-        [0.1, 0.8, 0.1],
-        [0.1, 0.1, 0.8],
-    ])
+    A = np.array(
+        [
+            [0.8, 0.1, 0.1],
+            [0.1, 0.8, 0.1],
+            [0.1, 0.1, 0.8],
+        ]
+    )
 
     # Transition model: P(state_t+1 | state_t, action)
     B = np.zeros((n_actions, n_states, n_states))
     # Action 0: stay
     B[0] = np.eye(n_states)
     # Action 1: cycle forward
-    B[1] = np.array([
-        [0.0, 0.0, 1.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-    ])
+    B[1] = np.array(
+        [
+            [0.0, 0.0, 1.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+        ]
+    )
 
     # Preference vector (log preferences over observations)
     C = np.array([1.0, 0.0, -1.0])

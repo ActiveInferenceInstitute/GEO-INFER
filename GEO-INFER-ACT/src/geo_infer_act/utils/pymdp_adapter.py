@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from importlib import metadata
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 import warnings
 
 import numpy as np
@@ -138,13 +138,25 @@ def _belief_vector(values: Any, state_dim: int) -> np.ndarray:
     return _normalize_distribution(vector)
 
 
+def _coerce_action_count(value: Any, default: int = 3) -> int:
+    """Return a positive action count from scalar or pymdp-style values."""
+    if value is None:
+        value = default
+    array = np.asarray(value)
+    if array.size != 1:
+        raise ValueError("action_count must be a scalar or a single-item sequence")
+    count = int(array.reshape(-1)[0])
+    if count < 1:
+        raise ValueError("action_count must be positive")
+    return count
+
+
 def _model_num_controls(model: Any, default: int = 3) -> int:
+    """Read and normalize a model's pymdp-style control-count value."""
     value = getattr(model, "num_controls", None)
     if value is None:
         value = getattr(model, "parameters", {}).get("num_controls", default)
-    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
-        value = value[0] if value else default
-    return max(1, int(value))
+    return _coerce_action_count(value, default=default)
 
 
 def _extract_agent_belief(qs: List[Any]) -> np.ndarray:
@@ -186,6 +198,7 @@ def run_pymdp_step(
     action_selection: str = "deterministic",
 ) -> PymdpStepResult:
     """Run one real pymdp 1.0.3 categorical perception-policy step."""
+    action_count = _coerce_action_count(action_count)
     version = validate_pymdp_version()
     h3_versions = real_h3_version_metadata()
 
@@ -270,7 +283,9 @@ def run_model_step(
     """Run pymdp inference for a GEO-INFER categorical GenerativeModel."""
     if getattr(model, "model_type", None) != "categorical":
         raise ValueError("pymdp adapter currently supports categorical models")
-    controls = action_count or _model_num_controls(model)
+    controls = _coerce_action_count(
+        action_count if action_count is not None else _model_num_controls(model)
+    )
     return run_pymdp_step(
         observation=observation,
         observation_model=getattr(model, "observation_model"),

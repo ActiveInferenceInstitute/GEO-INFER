@@ -542,7 +542,10 @@ class MultiAgentModel(ActiveInferenceModel):
                 # Based on the agent's beliefs (e.g. they believe it's a good state), they modify the environment
                 # E.g. high belief in state index 3 (excellent)
                 belief_tensor = np.array(data["beliefs"])
-                positive_pull = belief_tensor[3] - belief_tensor[0]
+                # Stigmergic traces accumulate: an agent with weak positive
+                # evidence should not erase activity deposited by earlier
+                # agents merely because its current belief favors state 0.
+                positive_pull = max(float(belief_tensor[3] - belief_tensor[0]), 0.0)
 
                 # We modify standard fields to reflect the presence/activity of agents
                 # Example: human_activity increases, which can subsequently influence observations
