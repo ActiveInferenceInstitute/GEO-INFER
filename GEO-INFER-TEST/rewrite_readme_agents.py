@@ -482,7 +482,7 @@ Use this file as the repository-level operating contract for automated agents wo
 
 ## Repository Scope
 
-- Root path: `{REPO_ROOT}`
+- Root path: repository root (`.`; resolve it from the checkout in use)
 - Modules: {module_names}
 - Package manager: `uv`
 - Python target: 3.11+
