@@ -162,6 +162,13 @@ class TestGeospatialValidator:
         future_result = validator.validate_temporal_data(future_df)
         assert future_result.score < 0.9  # Should have warnings about future dates
 
+    def test_timezone_aware_temporal_validation(self, validator):
+        data = pd.DataFrame(
+            {"timestamp": pd.date_range("2024-01-01", periods=2, tz="UTC")}
+        )
+        result = validator.validate_temporal_data(data)
+        assert result.status == QualityStatus.PASS
+
 
 class TestDataQualityManager:
     """Test cases for DataQualityManager."""

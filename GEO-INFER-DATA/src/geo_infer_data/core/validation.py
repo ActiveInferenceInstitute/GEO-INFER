@@ -30,6 +30,25 @@ from ..models.schemas import (
 logger = logging.getLogger(__name__)
 
 
+def _now_for_series(series: pd.Series) -> pd.Timestamp:
+    """Return a comparison timestamp matching a datetime series timezone."""
+    if isinstance(series.dtype, pd.DatetimeTZDtype):
+        return pd.Timestamp.now(tz=series.dt.tz)
+    return pd.Timestamp.now()
+
+
+def _coerce_for_series(value: datetime, series: pd.Series) -> pd.Timestamp:
+    """Coerce metadata timestamps to the timezone of a datetime series."""
+    timestamp = pd.Timestamp(value)
+    if isinstance(series.dtype, pd.DatetimeTZDtype):
+        if timestamp.tzinfo is None:
+            return timestamp.tz_localize(series.dt.tz)
+        return timestamp.tz_convert(series.dt.tz)
+    if timestamp.tzinfo is not None:
+        return timestamp.tz_convert(None)
+    return timestamp
+
+
 class ValidationLevel(str, Enum):
     """Validation strictness levels."""
 
@@ -210,7 +229,7 @@ class GeospatialValidator:
             series = data[col].dropna()
             if series.empty:
                 continue
-            future_mask = series > datetime.now()
+            future_mask = series > _now_for_series(series)
             if future_mask.any():
                 ratio = future_mask.sum() / len(series)
                 issues.append(
@@ -480,7 +499,9 @@ class GeospatialValidator:
                 score -= 0.2
 
             # Check temporal consistency if datetime columns exist
-            datetime_cols = data.select_dtypes(include=["datetime"]).columns
+            datetime_cols = data.select_dtypes(
+                include=["datetime", "datetimetz"]
+            ).columns
             for col in datetime_cols:
                 if col in data.columns:
                     # Check for chronological order
@@ -581,12 +602,14 @@ class GeospatialValidator:
 
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             # Find datetime columns
-            datetime_cols = data.select_dtypes(include=["datetime"]).columns
+            datetime_cols = data.select_dtypes(
+                include=["datetime", "datetimetz"]
+            ).columns
 
             for col in datetime_cols:
                 if col in data.columns:
                     # Check for future dates (might be data entry errors)
-                    future_dates = data[col] > datetime.now()
+                    future_dates = data[col] > _now_for_series(data[col])
                     if future_dates.any():
                         future_percent = future_dates.sum() / len(data)
                         issues.append(
@@ -614,15 +637,17 @@ class GeospatialValidator:
         if metadata and metadata.temporal:
             # Validate temporal extent consistency
             if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
-                datetime_cols = data.select_dtypes(include=["datetime"]).columns
+                datetime_cols = data.select_dtypes(
+                    include=["datetime", "datetimetz"]
+                ).columns
                 if len(datetime_cols) > 0:
-                    data_min = data[datetime_cols[0]].min()
-                    data_max = data[datetime_cols[0]].max()
+                    series = data[datetime_cols[0]]
+                    data_min = series.min()
+                    data_max = series.max()
 
-                    if (
-                        data_min < metadata.temporal.start
-                        or data_max > metadata.temporal.end
-                    ):
+                    if data_min < _coerce_for_series(
+                        metadata.temporal.start, series
+                    ) or data_max > _coerce_for_series(metadata.temporal.end, series):
                         issues.append(
                             {
                                 "type": "temporal_extent_mismatch",

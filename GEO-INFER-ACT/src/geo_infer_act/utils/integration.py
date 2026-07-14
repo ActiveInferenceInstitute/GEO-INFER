@@ -19,17 +19,8 @@ except ImportError:
 
 
 def initialize_logger():
-    """Initialize module logger."""
-    logger = logging.getLogger("geo_infer_act.integration")
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+    """Return the module logger without configuring process-wide handlers."""
+    return logging.getLogger(__name__)
 
 
 logger = initialize_logger()
@@ -57,6 +48,20 @@ class ModernToolsIntegration:
         self.config = config or {}
         self.available_tools = self._check_available_tools()
         logger.info(f"Available tools: {list(self.available_tools.keys())}")
+
+    def _execute_dynamic_source(
+        self, source: str, namespace: Dict[str, Any], description: str
+    ) -> Dict[str, Any]:
+        """Execute optional model source only after explicit caller opt-in."""
+        if not self.config.get("allow_dynamic_code", False):
+            raise RuntimeError(
+                f"{description} requires config['allow_dynamic_code']=True"
+            )
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError(f"{description} must be a non-empty source string")
+        namespace = dict(namespace)
+        exec(source, namespace, namespace)
+        return namespace
 
     def _check_available_tools(self) -> Dict[str, bool]:
         """Check which modern tools are available in the environment."""
@@ -197,15 +202,31 @@ class ModernToolsIntegration:
         try:
             import bayeux as bx
 
-            # Create log density function
-            exec(log_density_fn, globals())
-            log_density = globals().get("log_density")
+            # Execute user-provided sources in a per-call namespace.  Dynamic
+            # model code is opt-in through ``allow_dynamic_code``.
+            source_namespace = self._execute_dynamic_source(
+                log_density_fn,
+                {"__name__": "geo_infer_act.dynamic.bayeux"},
+                "Bayeux log-density source",
+            )
+            log_density = source_namespace.get("log_density")
 
             if transform_fn:
-                exec(transform_fn, globals())
-                transform_function = globals().get("transform_fn")
+                source_namespace = self._execute_dynamic_source(
+                    transform_fn,
+                    source_namespace,
+                    "Bayeux transform source",
+                )
+                transform_function = source_namespace.get("transform_fn")
             else:
                 transform_function = None
+
+            if not callable(log_density):
+                raise ValueError(
+                    "Log-density source must define callable 'log_density'"
+                )
+            if transform_fn and not callable(transform_function):
+                raise ValueError("Transform source must define callable 'transform_fn'")
 
             # Create Bayeux model
             model = bx.Model(
@@ -292,9 +313,11 @@ class ModernToolsIntegration:
                 batch_size=1,
             )
 
-            # Test inference with random observation
+            # Test inference with a deterministic observation.  This helper is
+            # a contract smoke test, not a source of model randomness.
+            rng = np.random.default_rng(0)
             obs = [
-                jnp.eye(num_obs[i])[np.random.randint(0, num_obs[i])].reshape(1, -1)
+                jnp.eye(num_obs[i])[rng.integers(0, num_obs[i])].reshape(1, -1)
                 for i in range(len(num_obs))
             ]
             qs = agent.infer_states(obs, empirical_prior=agent.D)
@@ -337,9 +360,13 @@ class ModernToolsIntegration:
             import pymc as pm
             import arviz as az
 
-            # Create model context and execute specification
-            model_context = {"pm": pm, "data": data}
-            exec(model_spec, model_context)
+            # Create model context and execute specification in an isolated
+            # namespace after explicit caller opt-in.
+            model_context = self._execute_dynamic_source(
+                model_spec,
+                {"pm": pm, "data": data},
+                "PyMC model source",
+            )
             model = model_context.get("model")
 
             if model is None:
@@ -402,13 +429,17 @@ class ModernToolsIntegration:
 
             # Create model and guide functions
             exec_env = {
-                **globals(),
                 "pyro": pyro,
                 "dist": dist,
                 "torch": torch,
+                "np": np,
             }
-            exec(model_fn, exec_env)
-            exec(guide_fn, exec_env)
+            exec_env = self._execute_dynamic_source(
+                model_fn, exec_env, "Pyro model source"
+            )
+            exec_env = self._execute_dynamic_source(
+                guide_fn, exec_env, "Pyro guide source"
+            )
 
             model = exec_env.get("model")
             guide = exec_env.get("guide")
@@ -753,6 +784,10 @@ def create_h3_spatial_model(
         H3 spatial model configuration
     """
     try:
+        settings = config or {}
+        max_cells = int(settings.get("max_cells", 100_000))
+        if max_cells < 1:
+            raise ValueError("max_cells must be at least 1")
         from geo_infer_act.utils.h3_adapter import get_h3_adapter
 
         adapter = get_h3_adapter()
@@ -816,11 +851,21 @@ def create_h3_spatial_model(
             boundary_cells.update(neighbors)
 
         num_cells = len(boundary_cells)
+        if num_cells > max_cells:
+            return {
+                "status": "error",
+                "message": (
+                    f"H3 boundary produced {num_cells} cells, exceeding the "
+                    f"max_cells limit of {max_cells}; use a coarser resolution "
+                    "or raise config['max_cells']"
+                ),
+            }
         return {
             "status": "success",
             "model_config": {
                 "boundary_cells": list(boundary_cells),
                 "estimated_cells": num_cells,
+                "max_cells": max_cells,
             },
         }
     except RuntimeError as exc:

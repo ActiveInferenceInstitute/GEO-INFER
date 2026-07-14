@@ -6,11 +6,12 @@ and transmission of geospatial data.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, Optional, Any
 import gzip
 import lzma
 import bz2
 import pickle
+from io import BytesIO
 
 import geopandas as gpd
 import pandas as pd
@@ -44,20 +45,20 @@ class DataCompressor:
         >>> print(f"Compression ratio: {stats['ratio']:.2f}x")
     """
 
-    def __init__(self, algorithm: str = 'gzip', level: int = 6):
+    def __init__(self, algorithm: str = "gzip", level: int = 6):
         self.algorithm = algorithm
         self.level = level
         self.compression_stats = {
-            'total_compressed': 0,
-            'total_original': 0,
-            'compression_count': 0
+            "total_compressed": 0,
+            "total_original": 0,
+            "compression_count": 0,
         }
 
         logger.info(f"Initialized DataCompressor with {algorithm} algorithm")
 
     def is_enabled(self) -> bool:
         """Check if compression is enabled."""
-        return self.algorithm != 'none'
+        return self.algorithm != "none"
 
     def compress_data(self, data: Any, format: Optional[DataFormat] = None) -> bytes:
         """
@@ -76,26 +77,30 @@ class DataCompressor:
         serialized_data = self._serialize_data(data, format)
 
         # Compress based on algorithm
-        if self.algorithm == 'gzip':
+        if self.algorithm == "gzip":
             compressed_data = gzip.compress(serialized_data, compresslevel=self.level)
-        elif self.algorithm == 'lzma':
+        elif self.algorithm == "lzma":
             compressed_data = lzma.compress(serialized_data, preset=self.level)
-        elif self.algorithm == 'bz2':
+        elif self.algorithm == "bz2":
             compressed_data = bz2.compress(serialized_data, compresslevel=self.level)
-        elif self.algorithm == 'none':
+        elif self.algorithm == "none":
             compressed_data = serialized_data
         else:
             raise ValueError(f"Unknown compression algorithm: {self.algorithm}")
 
         # Update statistics
-        self.compression_stats['total_compressed'] += len(compressed_data)
-        self.compression_stats['total_original'] += len(serialized_data)
-        self.compression_stats['compression_count'] += 1
+        self.compression_stats["total_compressed"] += len(compressed_data)
+        self.compression_stats["total_original"] += len(serialized_data)
+        self.compression_stats["compression_count"] += 1
 
-        logger.debug(f"Compressed data: {len(serialized_data)} -> {len(compressed_data)} bytes")
+        logger.debug(
+            f"Compressed data: {len(serialized_data)} -> {len(compressed_data)} bytes"
+        )
         return compressed_data
 
-    def decompress_data(self, compressed_data: bytes, format: Optional[DataFormat] = None) -> Any:
+    def decompress_data(
+        self, compressed_data: bytes, format: Optional[DataFormat] = None
+    ) -> Any:
         """
         Decompress geospatial data.
 
@@ -109,13 +114,13 @@ class DataCompressor:
         logger.debug(f"Decompressing data with {self.algorithm} algorithm")
 
         # Decompress based on algorithm
-        if self.algorithm == 'gzip':
+        if self.algorithm == "gzip":
             decompressed_data = gzip.decompress(compressed_data)
-        elif self.algorithm == 'lzma':
+        elif self.algorithm == "lzma":
             decompressed_data = lzma.decompress(compressed_data)
-        elif self.algorithm == 'bz2':
+        elif self.algorithm == "bz2":
             decompressed_data = bz2.decompress(compressed_data)
-        elif self.algorithm == 'none':
+        elif self.algorithm == "none":
             decompressed_data = compressed_data
         else:
             raise ValueError(f"Unknown compression algorithm: {self.algorithm}")
@@ -123,7 +128,9 @@ class DataCompressor:
         # Deserialize data
         data = self._deserialize_data(decompressed_data, format)
 
-        logger.debug(f"Decompressed data: {len(compressed_data)} -> {len(decompressed_data)} bytes")
+        logger.debug(
+            f"Decompressed data: {len(compressed_data)} -> {len(decompressed_data)} bytes"
+        )
         return data
 
     def _serialize_data(self, data: Any, format: Optional[DataFormat] = None) -> bytes:
@@ -142,22 +149,19 @@ class DataCompressor:
         else:
             return pickle.dumps(data)
 
-    def _deserialize_data(self, data: bytes, format: Optional[DataFormat] = None) -> Any:
+    def _deserialize_data(
+        self, data: bytes, format: Optional[DataFormat] = None
+    ) -> Any:
         """Deserialize data from bytes."""
-        try:
-            # Try to deserialize as DataFrame first
-            if format == DataFormat.PARQUET or b'PAR1' in data[:4]:
-                return pd.read_parquet(data)
-            else:
-                return pickle.loads(data)
-        except Exception:
-            # Fallback to pickle
-            return pickle.loads(data)
+        if format == DataFormat.PARQUET or data[:4] == b"PAR1":
+            # pandas engines require a file-like object for in-memory parquet.
+            return pd.read_parquet(BytesIO(data))
+        return pickle.loads(data)
 
     def get_compression_stats(self) -> Dict[str, Any]:
         """Get compression statistics."""
-        total_compressed = self.compression_stats['total_compressed']
-        total_original = self.compression_stats['total_original']
+        total_compressed = self.compression_stats["total_compressed"]
+        total_original = self.compression_stats["total_original"]
 
         if total_original > 0:
             compression_ratio = total_original / total_compressed
@@ -165,12 +169,12 @@ class DataCompressor:
             compression_ratio = 1.0
 
         return {
-            'algorithm': self.algorithm,
-            'level': self.level,
-            'total_compressed_bytes': total_compressed,
-            'total_original_bytes': total_original,
-            'compression_ratio': compression_ratio,
-            'compression_count': self.compression_stats['compression_count']
+            "algorithm": self.algorithm,
+            "level": self.level,
+            "total_compressed_bytes": total_compressed,
+            "total_original_bytes": total_original,
+            "compression_ratio": compression_ratio,
+            "compression_count": self.compression_stats["compression_count"],
         }
 
     def optimize_for_storage(self, data: Any) -> Dict[str, Any]:
@@ -184,23 +188,21 @@ class DataCompressor:
             Optimization recommendations
         """
         recommendations = {
-            'recommended_compression': self.algorithm,
-            'estimated_savings': 0.0,
-            'format_recommendation': DataFormat.CSV
+            "recommended_compression": self.algorithm,
+            "estimated_savings": 0.0,
+            "format_recommendation": DataFormat.CSV,
         }
 
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             # Analyze data characteristics
-            data_size = data.memory_usage(deep=True).sum()
-
             if len(data) > 10000:
-                recommendations['format_recommendation'] = DataFormat.PARQUET
-                recommendations['estimated_savings'] = 0.7  # 70% compression
+                recommendations["format_recommendation"] = DataFormat.PARQUET
+                recommendations["estimated_savings"] = 0.7  # 70% compression
             elif isinstance(data, gpd.GeoDataFrame):
-                recommendations['format_recommendation'] = DataFormat.GEOPACKAGE
-                recommendations['estimated_savings'] = 0.5  # 50% compression
+                recommendations["format_recommendation"] = DataFormat.GEOPACKAGE
+                recommendations["estimated_savings"] = 0.5  # 50% compression
             else:
-                recommendations['format_recommendation'] = DataFormat.CSV
-                recommendations['estimated_savings'] = 0.3  # 30% compression
+                recommendations["format_recommendation"] = DataFormat.CSV
+                recommendations["estimated_savings"] = 0.3  # 30% compression
 
         return recommendations

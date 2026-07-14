@@ -3,19 +3,33 @@ API endpoints for GeoJSON polygon operations.
 
 Implements OGC API Features compatible endpoints for working with GeoJSON polygons.
 """
+
+import math
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Query, Path, status
 from pydantic import BaseModel
 
 from geo_infer_api.core.config import get_settings, Settings
-from geo_infer_api.core.exceptions import BadRequestError, ConflictError, NotFoundError, ValidationError
+from geo_infer_api.core.exceptions import (
+    BadRequestError,
+    ConflictError,
+    NotFoundError,
+    ValidationError,
+)
 from geo_infer_api.models.geojson import (
-    GeoJSONType, Polygon, PolygonFeature, PolygonFeatureCollection
+    GeoJSONType,
+    PolygonFeature,
+    PolygonFeatureCollection,
 )
 from geo_infer_api.utils.geojson_helpers import (
-    calculate_polygon_area, create_polygon_feature, polygon_contains_point, simplify_polygon,
-    create_buffer, calculate_intersection, calculate_union, calculate_distance
+    calculate_polygon_area,
+    polygon_contains_point,
+    simplify_polygon,
+    create_buffer,
+    calculate_intersection,
+    calculate_union,
+    calculate_distance,
 )
 
 # Create router
@@ -30,13 +44,16 @@ POLYGON_FEATURES: Dict[str, PolygonFeature] = {}
 # Request body models for operation endpoints
 # ---------------------------------------------------------------------------
 
+
 class MultiPolygonRequest(BaseModel):
     """Request body containing multiple polygon features for set operations."""
+
     polygons: List[PolygonFeature]
 
 
 class DistanceRequest(BaseModel):
     """Request body for polygon distance calculation."""
+
     polygon1: PolygonFeature
     polygon2: PolygonFeature
 
@@ -44,6 +61,7 @@ class DistanceRequest(BaseModel):
 # ---------------------------------------------------------------------------
 # OGC API Features – Collections
 # ---------------------------------------------------------------------------
+
 
 @router.get("/collections", summary="List available feature collections")
 async def list_collections(settings: Settings = Depends(get_settings)):
@@ -128,7 +146,9 @@ async def list_polygon_features(
         None,
         description="Bounding box (minLon,minLat,maxLon,maxLat)",
     ),
-    limit: int = Query(10, ge=1, le=1000, description="Maximum number of features to return"),
+    limit: int = Query(
+        10, ge=1, le=1000, description="Maximum number of features to return"
+    ),
 ):
     """
     List polygon features with optional bounding-box filtering.
@@ -139,7 +159,14 @@ async def list_polygon_features(
 
     if bbox:
         try:
-            min_lon, min_lat, max_lon, max_lat = map(float, bbox.split(","))
+            values = [float(value.strip()) for value in bbox.split(",")]
+            if len(values) != 4 or not all(math.isfinite(value) for value in values):
+                raise ValueError
+            min_lon, min_lat, max_lon, max_lat = values
+            if not (
+                -180 <= min_lon <= max_lon <= 180 and -90 <= min_lat <= max_lat <= 90
+            ):
+                raise ValueError
         except ValueError:
             raise BadRequestError(
                 "Invalid bbox format. Expected 'minLon,minLat,maxLon,maxLat'",
@@ -147,11 +174,20 @@ async def list_polygon_features(
             )
 
         def polygon_intersects_bbox(polygon_feature: PolygonFeature) -> bool:
-            for ring in polygon_feature.geometry.coordinates:
-                for lon, lat in ring:
-                    if min_lon <= lon <= max_lon and min_lat <= lat <= max_lat:
-                        return True
-            return False
+            coordinates = [
+                position
+                for ring in polygon_feature.geometry.coordinates
+                for position in ring
+            ]
+            if not coordinates:
+                return False
+            polygon_lons, polygon_lats = zip(*coordinates)
+            return (
+                min(polygon_lons) <= max_lon
+                and max(polygon_lons) >= min_lon
+                and min(polygon_lats) <= max_lat
+                and max(polygon_lats) >= min_lat
+            )
 
         features = [f for f in features if polygon_intersects_bbox(f)]
 
@@ -210,7 +246,9 @@ async def update_polygon_feature(
         raise NotFoundError("Polygon feature", feature_id)
 
     if feature.id and str(feature.id) != feature_id:
-        raise ValidationError("Feature ID in body does not match path parameter", field="id")
+        raise ValidationError(
+            "Feature ID in body does not match path parameter", field="id"
+        )
 
     feature_copy = feature.model_copy(update={"id": feature_id})
     POLYGON_FEATURES[feature_id] = feature_copy
@@ -236,6 +274,7 @@ async def delete_polygon_feature(
 # Polygon geometry operations
 # ---------------------------------------------------------------------------
 
+
 @router.post("/operations/polygon/area", summary="Calculate polygon area")
 async def calculate_area(feature: PolygonFeature):
     """
@@ -258,7 +297,9 @@ async def calculate_area(feature: PolygonFeature):
 )
 async def simplify_polygon_endpoint(
     feature: PolygonFeature,
-    tolerance: float = Query(0.01, ge=0.001, le=1.0, description="Simplification tolerance"),
+    tolerance: float = Query(
+        0.01, ge=0.001, le=1.0, description="Simplification tolerance"
+    ),
 ):
     """
     Simplify a polygon using the Ramer-Douglas-Peucker algorithm.
@@ -274,7 +315,9 @@ async def simplify_polygon_endpoint(
     )
 
 
-@router.post("/operations/polygon/contains", summary="Check if a polygon contains a point")
+@router.post(
+    "/operations/polygon/contains", summary="Check if a polygon contains a point"
+)
 async def check_polygon_contains_point(
     feature: PolygonFeature,
     lon: float = Query(..., ge=-180, le=180, description="Longitude of the point"),
@@ -297,13 +340,17 @@ async def check_polygon_contains_point(
 )
 async def create_buffer_endpoint(
     feature: PolygonFeature,
-    distance: float = Query(..., ge=0, description="Buffer distance in the specified unit"),
+    distance: float = Query(
+        ..., ge=0, description="Buffer distance in the specified unit"
+    ),
     unit: str = Query(
         "kilometers",
         enum=["meters", "kilometers", "miles"],
         description="Unit for the buffer distance",
     ),
-    segments: int = Query(16, ge=8, le=100, description="Segments for buffer approximation"),
+    segments: int = Query(
+        16, ge=8, le=100, description="Segments for buffer approximation"
+    ),
 ):
     """
     Create a bounding-box buffer zone around a polygon at a specified distance.

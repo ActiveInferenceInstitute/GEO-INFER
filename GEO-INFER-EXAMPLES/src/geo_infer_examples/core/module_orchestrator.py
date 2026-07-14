@@ -7,7 +7,9 @@ workflow execution, and pattern-based coordination across the GEO-INFER ecosyste
 """
 
 import asyncio
+import ast
 import logging
+import operator
 import time
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
@@ -72,6 +74,111 @@ class ModuleStatus(Enum):
     DEGRADED = "degraded"
     ERROR = "error"
     INITIALIZING = "initializing"
+
+
+class _SafeConditionEvaluator(ast.NodeVisitor):
+    """Evaluate a small, data-only expression language for workflow guards."""
+
+    _binary_operators = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.FloorDiv: operator.floordiv,
+        ast.Mod: operator.mod,
+        ast.Pow: operator.pow,
+    }
+    _comparison_operators = {
+        ast.Eq: operator.eq,
+        ast.NotEq: operator.ne,
+        ast.Lt: operator.lt,
+        ast.LtE: operator.le,
+        ast.Gt: operator.gt,
+        ast.GtE: operator.ge,
+        ast.In: lambda left, right: left in right,
+        ast.NotIn: lambda left, right: left not in right,
+        ast.Is: operator.is_,
+        ast.IsNot: operator.is_not,
+    }
+
+    def __init__(self, data: Dict[str, Any]):
+        self.data = data
+
+    def evaluate(self, condition: str) -> bool:
+        if not condition or len(condition) > 1000:
+            raise ValueError("condition must contain at most 1000 characters")
+        tree = ast.parse(condition, mode="eval")
+        return bool(self.visit(tree.body))
+
+    def visit_Name(self, node: ast.Name) -> Any:
+        if node.id != "data":
+            raise ValueError("only the data name is available")
+        return self.data
+
+    def visit_Attribute(self, node: ast.Attribute) -> Any:
+        if node.attr.startswith("_"):
+            raise ValueError("private attributes are not allowed")
+        value = self.visit(node.value)
+        if isinstance(value, dict):
+            return value[node.attr]
+        return getattr(value, node.attr)
+
+    def visit_Subscript(self, node: ast.Subscript) -> Any:
+        value = self.visit(node.value)
+        index = self.visit(node.slice)
+        if not isinstance(index, (str, int)):
+            raise ValueError("only string and integer indexes are allowed")
+        return value[index]
+
+    def visit_Constant(self, node: ast.Constant) -> Any:
+        return node.value
+
+    def visit_List(self, node: ast.List) -> list[Any]:
+        return [self.visit(element) for element in node.elts]
+
+    def visit_Tuple(self, node: ast.Tuple) -> tuple[Any, ...]:
+        return tuple(self.visit(element) for element in node.elts)
+
+    def visit_Set(self, node: ast.Set) -> set[Any]:
+        return {self.visit(element) for element in node.elts}
+
+    def visit_BoolOp(self, node: ast.BoolOp) -> bool:
+        if isinstance(node.op, ast.And):
+            return all(self.visit(value) for value in node.values)
+        if isinstance(node.op, ast.Or):
+            return any(self.visit(value) for value in node.values)
+        raise ValueError("unsupported boolean operator")
+
+    def visit_UnaryOp(self, node: ast.UnaryOp) -> Any:
+        value = self.visit(node.operand)
+        if isinstance(node.op, ast.Not):
+            return not value
+        if isinstance(node.op, ast.UAdd):
+            return operator.pos(value)
+        if isinstance(node.op, ast.USub):
+            return operator.neg(value)
+        raise ValueError("unsupported unary operator")
+
+    def visit_BinOp(self, node: ast.BinOp) -> Any:
+        operation = self._binary_operators.get(type(node.op))
+        if operation is None:
+            raise ValueError("unsupported binary operator")
+        return operation(self.visit(node.left), self.visit(node.right))
+
+    def visit_Compare(self, node: ast.Compare) -> bool:
+        left = self.visit(node.left)
+        for operation_node, comparator_node in zip(node.ops, node.comparators):
+            operation = self._comparison_operators.get(type(operation_node))
+            if operation is None:
+                raise ValueError("unsupported comparison operator")
+            right = self.visit(comparator_node)
+            if not operation(left, right):
+                return False
+            left = right
+        return True
+
+    def generic_visit(self, node: ast.AST) -> Any:
+        raise ValueError(f"unsupported condition syntax: {type(node).__name__}")
 
 
 @dataclass
@@ -676,9 +783,7 @@ class ModuleOrchestrator:
     def _evaluate_condition(self, condition: str, data: Dict[str, Any]) -> bool:
         """Evaluate a conditional expression against current data."""
         try:
-            # Simple expression evaluation (extend as needed)
-            # Example: "data.temperature > 25"
-            return eval(condition, {"data": data, "__builtins__": {}})
+            return _SafeConditionEvaluator(data).evaluate(condition)
         except Exception:
             return False
 

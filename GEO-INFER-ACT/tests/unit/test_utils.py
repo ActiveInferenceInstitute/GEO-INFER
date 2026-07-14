@@ -303,6 +303,20 @@ class TestAnalysisUtils(unittest.TestCase):
 class TestIntegrationUtils(unittest.TestCase):
     """Tests for integration utilities."""
 
+    def test_dynamic_source_requires_explicit_opt_in_and_isolated_namespace(self):
+        """Dynamic integration source must be opt-in and not leak globals."""
+        integration = ModernToolsIntegration({})
+        with self.assertRaises(RuntimeError):
+            integration._execute_dynamic_source("value = 1", {}, "test source")
+
+        integration = ModernToolsIntegration({"allow_dynamic_code": True})
+        namespace = integration._execute_dynamic_source(
+            "value = 1", {"existing": 2}, "test source"
+        )
+        self.assertEqual(namespace["value"], 1)
+        self.assertEqual(namespace["existing"], 2)
+        self.assertNotIn("value", globals())
+
     def test_modern_tools_integration(self):
         """Test modern tools."""
         integration = ModernToolsIntegration()

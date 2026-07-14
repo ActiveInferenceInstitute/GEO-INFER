@@ -55,6 +55,13 @@ class TestDataCompressor:
         assert isinstance(compressed, bytes)
         assert len(compressed) > 0
 
+    def test_large_dataframe_parquet_round_trip(self):
+        compressor = DataCompressor(algorithm="gzip")
+        frame = pd.DataFrame({"a": range(1100)})
+        compressed = compressor.compress_data(frame)
+        restored = compressor.decompress_data(compressed)
+        pd.testing.assert_frame_equal(frame, restored)
+
     def test_numpy_array_compression(self):
         compressor = DataCompressor(algorithm="gzip")
         arr = np.random.rand(50, 50)

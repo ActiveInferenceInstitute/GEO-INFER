@@ -52,7 +52,15 @@ class TestH3Methods(unittest.TestCase):
             ]
         }
         self.simple_boundary = {
-            "coordinates": [[[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]]
+            "coordinates": [
+                [
+                    [-122.42, 37.77],
+                    [-122.42, 37.78],
+                    [-122.41, 37.78],
+                    [-122.41, 37.77],
+                    [-122.42, 37.77],
+                ]
+            ]
         }
         logger.info("H3 test setup complete")
 
@@ -111,12 +119,36 @@ class TestH3Methods(unittest.TestCase):
 
         logger.info("H3 belief updating test passed")
 
+    def test_expanded_h3_model_accepts_full_grid_observation(self):
+        """The generic update path remains valid after H3 expands state space."""
+        model = GenerativeModel("categorical", {"state_dim": 2})
+        small_boundary = {
+            "coordinates": [
+                [
+                    [-122.42, 37.77],
+                    [-122.42, 37.771],
+                    [-122.419, 37.771],
+                    [-122.419, 37.77],
+                    [-122.42, 37.77],
+                ]
+            ]
+        }
+        model.enable_h3_spatial(8, small_boundary)
+        observation = np.zeros(model.state_dim)
+        observation[0] = 1.0
+
+        beliefs = model.update_beliefs({"observations": observation})["states"]
+
+        self.assertEqual(beliefs.shape, (model.state_dim,))
+        self.assertAlmostEqual(float(np.sum(beliefs)), 1.0, places=6)
+
     def test_infer_over_h3_grid(self):
         """Test active inference over H3 grid."""
         aim = ActiveInferenceModel()
         gen = GenerativeModel("categorical", {"state_dim": 3})
         gen.enable_h3_spatial(8, self.simple_boundary)
         aim.set_generative_model(gen)
+        original_model_beliefs = np.array(gen.beliefs["states"], copy=True)
 
         # Create grid observations
         grid_observations = {}
@@ -128,6 +160,8 @@ class TestH3Methods(unittest.TestCase):
         # Perform inference
         results = aim.infer_over_h3_grid(grid_observations)
         typed = aim.infer_over_h3_grid(grid_observations, return_result=True)
+
+        np.testing.assert_allclose(gen.beliefs["states"], original_model_beliefs)
 
         # Verify results structure
         self.assertEqual(len(results), len(grid_observations))

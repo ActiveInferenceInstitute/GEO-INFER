@@ -16,6 +16,14 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+def _normalise_timestamp(value: Optional[datetime]) -> datetime:
+    """Return a timezone-aware UTC timestamp for current and legacy entries."""
+    timestamp = value or datetime.now(timezone.utc)
+    if timestamp.tzinfo is None:
+        return timestamp.replace(tzinfo=timezone.utc)
+    return timestamp.astimezone(timezone.utc)
+
+
 class CacheEntry:
     """Cache entry with metadata."""
 
@@ -32,9 +40,9 @@ class CacheEntry:
         self.key = key
         self.data = data
         self.ttl = ttl  # Time to live in seconds
-        self.created_at = created_at or datetime.now(timezone.utc)
+        self.created_at = _normalise_timestamp(created_at)
         self.access_count = access_count
-        self.last_accessed = last_accessed or datetime.now(timezone.utc)
+        self.last_accessed = _normalise_timestamp(last_accessed)
         self.metadata = metadata or {}
 
     def is_expired(self) -> bool:
@@ -85,6 +93,10 @@ class CacheManager:
         enable_persistence: bool = False,
         persistence_path: Optional[Path] = None,
     ):
+        if max_size < 1:
+            raise ValueError("max_size must be at least 1")
+        if default_ttl is not None and default_ttl < 0:
+            raise ValueError("default_ttl must be non-negative or None")
         self.max_size = max_size
         self.default_ttl = default_ttl
         self.enable_persistence = enable_persistence
@@ -120,6 +132,9 @@ class CacheManager:
         Returns:
             True if successful
         """
+        if ttl is not None and ttl < 0:
+            raise ValueError("ttl must be non-negative or None")
+
         if len(self.cache) >= self.max_size:
             # Remove expired entries first
             self._cleanup_expired()
@@ -130,7 +145,10 @@ class CacheManager:
 
         # Create cache entry
         entry = CacheEntry(
-            key=key, data=data, ttl=ttl or self.default_ttl, metadata=metadata or {}
+            key=key,
+            data=data,
+            ttl=self.default_ttl if ttl is None else ttl,
+            metadata=metadata or {},
         )
 
         self.cache[key] = entry
@@ -189,7 +207,7 @@ class CacheManager:
 
             # Remove from persistence
             if self.enable_persistence:
-                cache_file = self.persistence_path / f"{key}.pkl"
+                cache_file = self._cache_file(key)
                 if cache_file.exists():
                     cache_file.unlink()
 
@@ -216,7 +234,7 @@ class CacheManager:
         for key in expired_keys:
             del self.cache[key]
             if self.enable_persistence:
-                cache_file = self.persistence_path / f"{key}.pkl"
+                cache_file = self._cache_file(key)
                 if cache_file.exists():
                     cache_file.unlink()
 
@@ -234,7 +252,7 @@ class CacheManager:
         for key, entry in sorted_entries[:entries_to_remove]:
             del self.cache[key]
             if self.enable_persistence:
-                cache_file = self.persistence_path / f"{key}.pkl"
+                cache_file = self._cache_file(key)
                 if cache_file.exists():
                     cache_file.unlink()
 
@@ -242,7 +260,7 @@ class CacheManager:
 
     def _persist_entry(self, entry: CacheEntry):
         """Persist cache entry to file."""
-        cache_file = self.persistence_path / f"{entry.key}.pkl"
+        cache_file = self._cache_file(entry.key)
 
         # Serialize entry
         entry_data = {
@@ -257,6 +275,17 @@ class CacheManager:
 
         with open(cache_file, "wb") as f:
             pickle.dump(entry_data, f)
+
+    def _cache_file(self, key: str) -> Path:
+        """Return a filesystem-safe path for a logical cache key.
+
+        Cache keys may contain slashes, traversal segments, or characters that
+        are invalid on a target filesystem. Hashing keeps the logical key in
+        the serialized payload while guaranteeing that persistence stays
+        inside ``persistence_path``.
+        """
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
+        return self.persistence_path / f"{digest}.pkl"
 
     def _load_persistent_cache(self):
         """Load persistent cache from files."""
