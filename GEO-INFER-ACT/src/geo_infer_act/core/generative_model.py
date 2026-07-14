@@ -1155,8 +1155,14 @@ class GenerativeModel:
                 "log_marginal_likelihood": float("nan"),
                 "diagnostics": {"sampler": "numpyro_nuts"},
             }
-        except ImportError:
-            logger.info("bayeux/JAX not available — using NumPy random-walk Metropolis")
+        except Exception as backend_error:
+            # Optional Bayeux/JAX installations can be present but unusable on
+            # CPU-only or warning-as-error environments. Treat that the same as
+            # an unavailable backend so callers retain a local inference path.
+            logger.info(
+                "Bayeux/JAX unavailable (%s) — using NumPy random-walk Metropolis",
+                backend_error,
+            )
             n_samples = 1000
             current = {k: v.copy() for k, v in test_point.items()}
             samples: Dict[str, list] = {k: [] for k in current}
@@ -1187,6 +1193,7 @@ class GenerativeModel:
                 "diagnostics": {
                     "sampler": "numpy_metropolis",
                     "effective_sample_size": n_samples // 2,
+                    "backend_error": str(backend_error),
                 },
             }
         except Exception as e:
