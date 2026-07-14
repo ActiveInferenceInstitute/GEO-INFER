@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -119,3 +120,27 @@ def test_non_pytest_no_tests_exit_remains_failure(tmp_path, monkeypatch):
     )
 
     assert result.success is False
+
+
+def test_write_summary_decodes_timeout_output_bytes(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    monkeypatch.setattr(runner, "RESULTS_DIR", tmp_path / "results")
+    report = runner.SuiteReport(
+        results=[
+            runner.CommandResult(
+                name="timed out command",
+                success=False,
+                duration=10.0,
+                command=["python", "script.py"],
+                stdout=b"partial stdout",
+                stderr=b"partial stderr\xff",
+            )
+        ]
+    )
+
+    runner.write_summary(report)
+
+    summary = json.loads((tmp_path / "results" / "summary.json").read_text())
+    result = summary["results"][0]
+    assert result["stdout_tail"] == "partial stdout"
+    assert result["stderr_tail"] == "partial stderr\ufffd"
