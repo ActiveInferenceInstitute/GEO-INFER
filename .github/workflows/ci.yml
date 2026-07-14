@@ -28,9 +28,22 @@ jobs:
           uv sync --all-extras || uv sync
 
       - name: Run code quality checks
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
         run: |
-          uv run ruff check GEO-INFER-*/src/ GEO-INFER-TEST/*.py
-          uv run black --check GEO-INFER-*/src/ GEO-INFER-TEST/*.py
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- '*.py')"
+          if [ -z "$changed_files" ]; then
+            echo "No Python files changed; skipping code quality checks."
+            exit 0
+          fi
+
+          echo "Checking changed Python files:"
+          printf '%s\n' "$changed_files"
+          git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" -- '*.py' | \
+            xargs -0 uv run --with 'ruff>=0.3.0' --with 'black>=21.9.0' ruff check
+          git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" -- '*.py' | \
+            xargs -0 uv run --with 'ruff>=0.3.0' --with 'black>=21.9.0' black --check
 
       - name: Validate repository contracts
         run: |

@@ -170,8 +170,7 @@ class ActiveInferenceModel:
                     self.generative_model,
                     self.current_observations,
                     action_count=action_count,
-                    random_seed=int(self.random_seed or 0)
-                    + len(self.history),
+                    random_seed=int(self.random_seed or 0) + len(self.history),
                     prior=self.current_beliefs,
                 )
                 self.latest_pymdp_result = pymdp_result
@@ -903,8 +902,7 @@ class ActiveInferenceModel:
                 pymdp_result = run_model_step(
                     self.generative_model,
                     observation,
-                    random_seed=int(self.random_seed or 0)
-                    + len(self.history),
+                    random_seed=int(self.random_seed or 0) + len(self.history),
                     prior=self.current_beliefs,
                 )
                 self.latest_pymdp_result = pymdp_result
@@ -972,12 +970,6 @@ class ActiveInferenceModel:
         # PYMDP Integration Check
         if self.model_type == "categorical":
             A = getattr(self.generative_model, "observation_model", None)
-
-            # Safely get prior
-            if isinstance(self.current_beliefs, dict):
-                prior = self.current_beliefs.get("states")
-            else:
-                prior = self.current_beliefs  # Assume it's the states array/list
 
             # Local Bayes update for simple categorical matrices.
             prior_vec = self._extract_belief_vector(

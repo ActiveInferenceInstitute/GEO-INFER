@@ -1,6 +1,6 @@
 import unittest
-import numpy as np
-from geo_infer_act.utils.integration import ModernToolsIntegration, integrate_rxinfer, integrate_bayeux, integrate_pymdp
+from geo_infer_act.utils.integration import ModernToolsIntegration
+
 
 class TestModernToolsIntegration(unittest.TestCase):
     """Tests for ModernToolsIntegration."""
@@ -13,21 +13,23 @@ class TestModernToolsIntegration(unittest.TestCase):
         """Test checking available tools."""
         tools = self.integration._check_available_tools()
         self.assertIsInstance(tools, dict)
-        self.assertIn('pymdp', tools)  # Assume at least one is checked
+        self.assertIn("pymdp", tools)  # Assume at least one is checked
 
     # Add conditional tests for each integration method
     def test_create_pymdp_agent(self):
         """Test pymdp integration if available."""
-        if self.integration.available_tools.get('pymdp', False):
+        if self.integration.available_tools.get("pymdp", False):
             try:
                 from pymdp.agent import Agent  # Correct import
-                # Test code
+
+                self.assertIsNotNone(Agent)
             except ImportError as e:
-                self.fail(f'pymdp import failed: {e}')
+                self.fail(f"pymdp import failed: {e}")
         else:
-            self.fail('pymdp is required by the declared ACT test dependencies')
+            self.fail("pymdp is required by the declared ACT test dependencies")
 
     # Similar for other tools like rxinfer, bayeux, etc.
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

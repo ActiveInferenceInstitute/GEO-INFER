@@ -545,9 +545,7 @@ class MultiAgentModel(ActiveInferenceModel):
                 # Stigmergic traces accumulate: an agent with weak positive
                 # evidence should not erase activity deposited by earlier
                 # agents merely because its current belief favors state 0.
-                positive_pull = max(
-                    float(belief_tensor[3] - belief_tensor[0]), 0.0
-                )
+                positive_pull = max(float(belief_tensor[3] - belief_tensor[0]), 0.0)
 
                 # We modify standard fields to reflect the presence/activity of agents
                 # Example: human_activity increases, which can subsequently influence observations
