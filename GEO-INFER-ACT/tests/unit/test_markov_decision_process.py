@@ -70,6 +70,11 @@ class TestMDPInitialization:
                 transition_prob=trans
             )
 
+    def test_non_positive_dimensions_raise(self) -> None:
+        """The state, observation, and action spaces must be non-empty."""
+        with pytest.raises(ValueError, match="positive integer"):
+            MarkovDecisionProcess(n_states=0, n_observations=2, n_actions=1)
+
 
 class TestMDPTransitions:
     """Test MDP state transitions."""
@@ -199,6 +204,16 @@ class TestMDPBeliefUpdating:
         posterior = mdp.update_belief(prior, observation=0)
         # Observation 0 is more likely from state 0
         assert posterior[0] > posterior[1]
+
+    def test_zero_support_observation_raises(self) -> None:
+        """Impossible observations must not return NaN beliefs."""
+        obs_prob = np.array([[1.0, 0.0], [0.0, 1.0]])
+        mdp = MarkovDecisionProcess(
+            n_states=2, n_observations=2, n_actions=1,
+            observation_prob=obs_prob
+        )
+        with pytest.raises(ValueError, match="zero posterior support"):
+            mdp.update_belief(np.array([0.0, 1.0]), observation=0)
 
     def test_predictive_state(self) -> None:
         """Test predictive state distribution after action."""

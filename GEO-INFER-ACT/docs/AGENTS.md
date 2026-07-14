@@ -23,6 +23,7 @@
 
 - `active_inference_overview.md`
 - `api_schema.yaml`
+- `categorical_inference.md`
 - `free_energy_principle.md`
 - `geospatial_applications.md`
 - `mathematical_framework.md`

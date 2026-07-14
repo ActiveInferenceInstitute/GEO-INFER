@@ -23,11 +23,11 @@ class TestModernToolsIntegration(unittest.TestCase):
                 from pymdp.agent import Agent  # Correct import
                 # Test code
             except ImportError as e:
-                self.skipTest(f'pymdp import failed: {e}')
+                self.fail(f'pymdp import failed: {e}')
         else:
-            self.skipTest('pymdp not available')
+            self.fail('pymdp is required by the declared ACT test dependencies')
 
     # Similar for other tools like rxinfer, bayeux, etc.
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

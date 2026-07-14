@@ -106,6 +106,20 @@ def test_run_model_step_uses_generativemodel_matrices() -> None:
     _assert_pymdp_metadata(result.to_metadata())
 
 
+def test_run_model_step_normalizes_list_valued_action_count() -> None:
+    model = GenerativeModel("categorical", {"state_dim": 4, "obs_dim": 4})
+
+    result = run_model_step(
+        model,
+        np.array([1.0, 0.0, 0.0, 0.0]),
+        action_count=[2],
+        random_seed=3,
+    )
+
+    assert result.metadata["action_count"] == 2
+    assert result.policy_posterior.size == 2
+
+
 def test_flat_h3_grid_inference_exposes_real_pymdp_metadata() -> None:
     cells = _cells()
     model = GenerativeModel("categorical", {"state_dim": 4, "obs_dim": 4})

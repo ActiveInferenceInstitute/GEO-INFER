@@ -6,11 +6,8 @@ information-theoretic quantities, probability distributions,
 and Active Inference specific calculations.
 """
 import numpy as np
-from typing import Union, Optional, Tuple, List, Dict
-from scipy import stats
+from typing import Dict, Optional, Union
 from scipy.signal import find_peaks
-from sklearn.metrics import mutual_info_score
-import warnings
 
 
 def softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:
@@ -47,16 +44,122 @@ def normalize_distribution(x: np.ndarray, axis: int = -1) -> np.ndarray:
     Returns:
         Normalized probability distribution
     """
-    # Ensure non-negative values
-    x_pos = np.maximum(x, 0)
-    
-    # Normalize
-    sum_x = np.sum(x_pos, axis=axis, keepdims=True)
-    
-    # Handle zero sum case
-    sum_x = np.where(sum_x == 0, 1, sum_x)
-    
-    return x_pos / sum_x
+    values = np.asarray(x, dtype=float)
+    if values.size == 0:
+        return values.copy()
+    if not np.all(np.isfinite(values)):
+        raise ValueError("Distribution values must be finite")
+
+    if values.ndim == 0:
+        return np.asarray(1.0, dtype=float)
+
+    # Ensure non-negative values while retaining the historical clipping
+    # behaviour used by callers that pass small numerical negatives.
+    values = np.maximum(values, 0.0)
+    sum_x = np.sum(values, axis=axis, keepdims=True)
+    normalized = np.divide(
+        values,
+        sum_x,
+        out=np.zeros_like(values),
+        where=sum_x != 0,
+    )
+
+    # A zero vector is not a probability distribution.  Use the least
+    # informative valid distribution rather than silently returning zeros.
+    width = values.shape[axis]
+    if width == 0:
+        return normalized
+    uniform = np.full_like(values, 1.0 / width)
+    return np.where(sum_x == 0, uniform, normalized)
+
+
+def categorical_posterior(
+    prior_beliefs: np.ndarray,
+    observation: np.ndarray,
+    likelihood_matrix: np.ndarray,
+) -> np.ndarray:
+    """Compute a numerically stable categorical Bayes posterior.
+
+    ``likelihood_matrix`` is interpreted as ``P(observation | state)`` with
+    observations on rows and states on columns.  Observation values may be
+    non-negative hard or soft counts.  The likelihood product is evaluated in
+    log space, so large count totals cannot underflow the normalization step.
+
+    Args:
+        prior_beliefs: Prior state distribution.
+        observation: Non-negative observation/count vector.
+        likelihood_matrix: Observation model with shape
+            ``(observation_dim, state_dim)``.
+
+    Returns:
+        A finite, non-negative state distribution whose entries sum to one.
+
+    Raises:
+        ValueError: If an input has an invalid shape/value or no state has
+            non-zero posterior support.
+    """
+    prior = np.asarray(prior_beliefs, dtype=float).reshape(-1)
+    obs = np.asarray(observation, dtype=float).reshape(-1)
+    likelihood = np.asarray(likelihood_matrix, dtype=float)
+
+    if prior.size == 0:
+        raise ValueError("Categorical priors must not be empty")
+    if obs.size == 0:
+        raise ValueError("Categorical observations must not be empty")
+    if likelihood.shape != (obs.size, prior.size):
+        raise ValueError(
+            "Categorical likelihood matrix must have shape "
+            f"({obs.size}, {prior.size}), got {likelihood.shape}"
+        )
+    if not np.all(np.isfinite(prior)):
+        raise ValueError("Categorical priors must contain finite values")
+    if not np.all(np.isfinite(obs)):
+        raise ValueError("Categorical observations must contain finite values")
+    if not np.all(np.isfinite(likelihood)):
+        raise ValueError("Categorical likelihoods must contain finite values")
+    if np.any(prior < 0):
+        raise ValueError("Categorical priors must be non-negative")
+    if np.any(obs < 0):
+        raise ValueError("Categorical observations must be non-negative")
+    if np.any(likelihood < 0):
+        raise ValueError("Categorical likelihoods must be non-negative")
+
+    prior_total = float(np.sum(prior))
+    if prior_total <= 0:
+        raise ValueError("Categorical priors must have positive total mass")
+    prior = prior / prior_total
+
+    column_totals = np.sum(likelihood, axis=0)
+    if np.any(column_totals <= 0):
+        raise ValueError("Each categorical likelihood column needs positive mass")
+    likelihood = likelihood / column_totals
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_likelihood = np.sum(
+            np.where(
+                obs[:, np.newaxis] > 0,
+                obs[:, np.newaxis] * np.log(likelihood),
+                0.0,
+            ),
+            axis=0,
+        )
+        log_prior = np.full(prior.shape, -np.inf, dtype=float)
+        positive_prior = prior > 0
+        log_prior[positive_prior] = np.log(prior[positive_prior])
+        log_posterior = log_likelihood + log_prior
+
+    maximum = float(np.max(log_posterior))
+    if not np.isfinite(maximum):
+        raise ValueError(
+            "Categorical observation has zero posterior support under the "
+            "current prior and likelihood model"
+        )
+
+    posterior = np.exp(log_posterior - maximum)
+    posterior_total = float(np.sum(posterior))
+    if not np.isfinite(posterior_total) or posterior_total <= 0:
+        raise ValueError("Categorical posterior could not be normalized")
+    return np.asarray(posterior / posterior_total, dtype=float)
 
 
 def kl_divergence(p: np.ndarray, q: np.ndarray, epsilon: float = 1e-10) -> float:
@@ -107,16 +210,18 @@ def entropy(p: np.ndarray, base: Union[float, str] = 'e') -> float:
         return 0.0
     
     # Compute entropy
-    if base == 'e':
-        log_func = np.log
+    if base == "e":
+        entropy_value = np.sum(p_nonzero * np.log(p_nonzero))
     elif base == 2:
-        log_func = np.log2
+        entropy_value = np.sum(p_nonzero * np.log2(p_nonzero))
     elif base == 10:
-        log_func = np.log10
+        entropy_value = np.sum(p_nonzero * np.log10(p_nonzero))
     else:
-        log_func = lambda x: np.log(x) / np.log(base)
-    
-    return -np.sum(p_nonzero * log_func(p_nonzero))
+        entropy_value = np.sum(
+            p_nonzero * (np.log(p_nonzero) / np.log(float(base)))
+        )
+
+    return float(-entropy_value)
 
 
 def mutual_information(joint: np.ndarray) -> float:
@@ -390,8 +495,19 @@ def stable_log_sum_exp(x: np.ndarray, axis: int = -1) -> np.ndarray:
     Returns:
         Stable log-sum-exp
     """
-    x_max = np.max(x, axis=axis, keepdims=True)
-    return x_max + np.log(np.sum(np.exp(x - x_max), axis=axis, keepdims=True))
+    values = np.asarray(x, dtype=float)
+    if values.size == 0:
+        empty_shape = np.sum(values, axis=axis, keepdims=True).shape
+        return np.full(empty_shape, -np.inf, dtype=float)
+    if np.any(np.isnan(values)):
+        raise ValueError("log-sum-exp input must not contain NaN values")
+
+    x_max = np.max(values, axis=axis, keepdims=True)
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        result = x_max + np.log(
+            np.sum(np.exp(values - x_max), axis=axis, keepdims=True)
+        )
+    return np.where(np.isneginf(x_max), -np.inf, result)
 
 
 def matrix_log_det(matrix: np.ndarray) -> float:
@@ -406,7 +522,7 @@ def matrix_log_det(matrix: np.ndarray) -> float:
     """
     try:
         return float(np.log(np.linalg.det(matrix)))
-    except:
+    except Exception:
         # Fallback using eigenvalues
         eigenvals = np.linalg.eigvals(matrix)
         eigenvals = eigenvals[eigenvals > 0]  # Only positive eigenvalues
@@ -536,7 +652,7 @@ def assess_complexity(data: np.ndarray) -> Dict[str, float]:
         hist = hist + 1  # Add pseudocount
         probs = hist / np.sum(hist)
         entropy_complexity = entropy(probs) / np.log(len(probs))
-    except:
+    except Exception:
         entropy_complexity = 0.0
     
     # 2. Variation complexity
@@ -548,7 +664,7 @@ def assess_complexity(data: np.ndarray) -> Dict[str, float]:
         try:
             autocorr = np.corrcoef(data[:-1], data[1:])[0, 1]
             autocorr_complexity = 1.0 - abs(autocorr) if not np.isnan(autocorr) else 0.5
-        except:
+        except Exception:
             autocorr_complexity = 0.5
     else:
         autocorr_complexity = 0.0
@@ -558,7 +674,7 @@ def assess_complexity(data: np.ndarray) -> Dict[str, float]:
         try:
             trend_coef = np.polyfit(range(len(data)), data, 1)[0]
             trend_complexity = min(1.0, abs(trend_coef) / (np.std(data) + 1e-8))
-        except:
+        except Exception:
             trend_complexity = 0.0
     else:
         trend_complexity = 0.0
@@ -616,7 +732,7 @@ def compute_prediction_accuracy(predictions: np.ndarray, targets: np.ndarray) ->
         correlation = np.corrcoef(predictions, targets)[0, 1]
         if np.isnan(correlation):
             correlation = 0.0
-    except:
+    except Exception:
         correlation = 0.0
     
     return {

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="geo_infer_act",
-    version="0.1.0",
+    version="0.2.0",
     description="Active Inference modeling module for the GEO-INFER framework",
     author="GEO-INFER Team",
     packages=find_packages(where="src"),
