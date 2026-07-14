@@ -5,6 +5,8 @@ Base models for active inference framework.
 from typing import Dict, Optional, Any
 import numpy as np
 
+from geo_infer_act.utils.math import categorical_posterior
+
 # from abc import ABC, abstractmethod
 
 
@@ -87,7 +89,9 @@ class CategoricalModel(ActiveInferenceModel):
         self.preferences = np.ones(obs_dim) / obs_dim
 
         # Initialize transition and likelihood matrices
-        self.transition_matrix = np.ones((state_dim, state_dim)) / state_dim
+        # Rows encode P(next_state | current_state).  The identity default
+        # preserves state continuity until a caller supplies dynamics.
+        self.transition_matrix = np.eye(state_dim)
         self.likelihood_matrix = np.ones((obs_dim, state_dim)) / obs_dim
 
     def set_preferences(self, preferences: np.ndarray) -> None:
@@ -97,12 +101,17 @@ class CategoricalModel(ActiveInferenceModel):
         Args:
             preferences: Preference distribution
         """
+        preferences = np.asarray(preferences, dtype=float)
         if preferences.shape != (self.obs_dim,):
             raise ValueError(f"Preferences must have shape ({self.obs_dim},)")
+        if not np.all(np.isfinite(preferences)) or np.any(preferences < 0):
+            raise ValueError("Preferences must be finite and non-negative")
+        total = float(np.sum(preferences))
+        if total <= 0:
+            raise ValueError("Preferences must have positive total mass")
 
         # Normalize
-        preferences = preferences / np.sum(preferences)
-        self.preferences = preferences
+        self.preferences = preferences / total
 
     def set_transition_matrix(self, transition_matrix: np.ndarray) -> None:
         """
@@ -111,15 +120,18 @@ class CategoricalModel(ActiveInferenceModel):
         Args:
             transition_matrix: Transition probability matrix
         """
+        transition_matrix = np.asarray(transition_matrix, dtype=float)
         expected_shape = (self.state_dim, self.state_dim)
         if transition_matrix.shape != expected_shape:
             raise ValueError(f"Transition matrix must have shape {expected_shape}")
+        if not np.all(np.isfinite(transition_matrix)) or np.any(transition_matrix < 0):
+            raise ValueError("Transition matrix must be finite and non-negative")
+        row_sums = np.sum(transition_matrix, axis=1, keepdims=True)
+        if np.any(row_sums <= 0):
+            raise ValueError("Each transition matrix row needs positive mass")
 
         # Normalize rows
-        transition_matrix = transition_matrix / np.sum(
-            transition_matrix, axis=1, keepdims=True
-        )
-        self.transition_matrix = transition_matrix
+        self.transition_matrix = transition_matrix / row_sums
 
     def set_likelihood_matrix(self, likelihood_matrix: np.ndarray) -> None:
         """
@@ -128,30 +140,38 @@ class CategoricalModel(ActiveInferenceModel):
         Args:
             likelihood_matrix: Likelihood matrix
         """
+        likelihood_matrix = np.asarray(likelihood_matrix, dtype=float)
         expected_shape = (self.obs_dim, self.state_dim)
         if likelihood_matrix.shape != expected_shape:
             raise ValueError(f"Likelihood matrix must have shape {expected_shape}")
+        if not np.all(np.isfinite(likelihood_matrix)) or np.any(likelihood_matrix < 0):
+            raise ValueError("Likelihood matrix must be finite and non-negative")
 
         # Normalize columns
         col_sums = np.sum(likelihood_matrix, axis=0, keepdims=True)
-        likelihood_matrix = likelihood_matrix / col_sums
-        self.likelihood_matrix = likelihood_matrix
+        if np.any(col_sums <= 0):
+            raise ValueError("Each likelihood matrix column needs positive mass")
+        self.likelihood_matrix = likelihood_matrix / col_sums
+
+    def _predict_beliefs(self) -> np.ndarray:
+        """Apply the row-stochastic transition model to current beliefs."""
+        predicted = self.transition_matrix.T @ self.beliefs
+        total = float(np.sum(predicted))
+        if not np.isfinite(total) or total <= 0:
+            raise ValueError("Transition model produced an invalid prior")
+        return predicted / total
 
     def update_beliefs(self, observation: np.ndarray) -> np.ndarray:
-        """Update beliefs given observation."""
+        """Predict with ``B`` and update with the categorical observation."""
+        observation = np.asarray(observation, dtype=float)
         if observation.shape != (self.obs_dim,):
             raise ValueError(f"Observation must have shape ({self.obs_dim},)")
 
-        # Likelihood of observation given each state
-        likelihood = np.prod(
-            self.likelihood_matrix ** observation[:, np.newaxis], axis=0
+        # The shared helper evaluates the count likelihood in log space and
+        # guarantees a normalized posterior for arbitrarily large counts.
+        posterior = categorical_posterior(
+            self._predict_beliefs(), observation, self.likelihood_matrix
         )
-
-        # Posterior (unnormalized)
-        posterior = likelihood * self.beliefs
-
-        # Normalize
-        posterior = posterior / np.sum(posterior)
 
         # Update beliefs
         self.beliefs = posterior
@@ -169,7 +189,7 @@ class CategoricalModel(ActiveInferenceModel):
             New belief distribution
         """
         # Apply dynamics (prediction step)
-        predicted_belief = self.transition_matrix.T @ self.beliefs
+        predicted_belief = self._predict_beliefs()
 
         # Update beliefs
         self.beliefs = predicted_belief

@@ -165,6 +165,21 @@ class DynamicCausalModel:
         if initial_state is None:
             initial_state = np.zeros(self.state_dim)
 
+        observations = np.asarray(observations, dtype=float)
+        inputs = np.asarray(inputs, dtype=float)
+        time_points = np.asarray(time_points, dtype=float)
+        initial_state = np.asarray(initial_state, dtype=float)
+        if observations.ndim != 2 or observations.shape[1] != self.output_dim:
+            raise ValueError(f"observations must have shape (n, {self.output_dim})")
+        if observations.shape[0] == 0:
+            raise ValueError("observations must contain at least one timestep")
+        if time_points.ndim != 1 or len(time_points) != len(observations):
+            raise ValueError("time_points must have one value per observation")
+        if inputs.ndim != 2 or inputs.shape[1] != self.input_dim:
+            raise ValueError(f"inputs must have shape (n, {self.input_dim})")
+        if initial_state.shape != (self.state_dim,):
+            raise ValueError(f"initial_state must have shape ({self.state_dim},)")
+
         # Simplified parameter estimation using least squares
         # In practice, would use more sophisticated methods like EM algorithm
 

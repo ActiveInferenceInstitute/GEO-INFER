@@ -34,6 +34,15 @@ class MarkovDecisionProcess:
             observation_prob: Observation probability matrix (n_observations × n_states)
             random_seed: Optional seed for reproducible sampling
         """
+        dimensions = {
+            "n_states": n_states,
+            "n_observations": n_observations,
+            "n_actions": n_actions,
+        }
+        for name, value in dimensions.items():
+            if not isinstance(value, (int, np.integer)) or int(value) < 1:
+                raise ValueError(f"{name} must be a positive integer")
+
         self.n_states = n_states
         self.n_observations = n_observations
         self.n_actions = n_actions
@@ -44,16 +53,18 @@ class MarkovDecisionProcess:
             # Default: uniform transitions
             self.transition_prob = np.ones((n_states, n_states, n_actions)) / n_states
         else:
+            transition_prob = np.asarray(transition_prob, dtype=float)
             self._validate_transition_prob(transition_prob)
-            self.transition_prob = transition_prob
+            self.transition_prob = transition_prob.copy()
 
         # Initialize observation probabilities: P(o|s)
         if observation_prob is None:
             # Default: uniform observations
             self.observation_prob = np.ones((n_observations, n_states)) / n_observations
         else:
+            observation_prob = np.asarray(observation_prob, dtype=float)
             self._validate_observation_prob(observation_prob)
-            self.observation_prob = observation_prob
+            self.observation_prob = observation_prob.copy()
 
         # Initialize policy space
         self.policies = self._initialize_policies()
@@ -71,6 +82,8 @@ class MarkovDecisionProcess:
                 f"Transition probability tensor shape should be {expected_shape}, "
                 f"got {transition_prob.shape}"
             )
+        if not np.all(np.isfinite(transition_prob)) or np.any(transition_prob < 0):
+            raise ValueError("Transition probabilities must be finite and non-negative")
 
         # Check that probabilities sum to 1 for each state-action pair
         for s in range(self.n_states):
@@ -94,6 +107,10 @@ class MarkovDecisionProcess:
             raise ValueError(
                 f"Observation probability matrix shape should be {expected_shape}, "
                 f"got {observation_prob.shape}"
+            )
+        if not np.all(np.isfinite(observation_prob)) or np.any(observation_prob < 0):
+            raise ValueError(
+                "Observation probabilities must be finite and non-negative"
             )
 
         # Check that probabilities sum to 1 for each state
@@ -309,6 +326,18 @@ class MarkovDecisionProcess:
         Returns:
             Posterior belief distribution
         """
+        prior_belief = np.asarray(prior_belief, dtype=float)
+        if prior_belief.shape != (self.n_states,):
+            raise ValueError(
+                f"Prior belief shape should be ({self.n_states},), got {prior_belief.shape}"
+            )
+        if not np.all(np.isfinite(prior_belief)) or np.any(prior_belief < 0):
+            raise ValueError("Prior belief must be finite and non-negative")
+        if not isinstance(observation, (int, np.integer)) or not (
+            0 <= int(observation) < self.n_observations
+        ):
+            raise ValueError("Observation index is outside the observation space")
+
         # Likelihood: P(o|s)
         likelihood = self.observation_prob[observation, :]
 
@@ -316,7 +345,10 @@ class MarkovDecisionProcess:
         posterior = likelihood * prior_belief
 
         # Normalize
-        posterior = posterior / np.sum(posterior)
+        total = float(np.sum(posterior))
+        if total <= 0 or not np.isfinite(total):
+            raise ValueError("Observation has zero posterior support")
+        posterior = posterior / total
 
         return posterior
 

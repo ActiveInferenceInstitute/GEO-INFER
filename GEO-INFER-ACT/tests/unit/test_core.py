@@ -19,7 +19,6 @@ from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.core.markov_decision_process import MarkovDecisionProcess
 from geo_infer_act.core.policy_selection import PolicySelector
 from geo_infer_act.core.variational_inference import VariationalInference
-from geo_infer_act.utils.integration import ModernToolsIntegration
 from geo_infer_act.core.generative_model import MarkovBlanket
 
 
@@ -54,6 +53,40 @@ class TestActiveInferenceModel(unittest.TestCase):
             else self.model.current_beliefs
         )
         self.assertTrue(np.allclose(beliefs_states, np.ones(3) / 3))
+
+    def test_seed_preferences_and_control_shape_reach_runtime_backend(self):
+        """Seed, preferences, and list-valued controls must reach pymdp."""
+        gen_model = GenerativeModel(
+            "categorical",
+            {"state_dim": 3, "obs_dim": 3, "C": np.zeros(3)},
+        )
+        model = ActiveInferenceModel(
+            model_type="categorical",
+            random_seed=17,
+            num_controls=[2],
+            policy_selection_mode="deterministic",
+        )
+        model.set_generative_model(gen_model)
+        model.set_preferences({"observations": np.array([1.0, 0.0, 0.0])})
+
+        assert model.random_seed == 17
+        np.testing.assert_allclose(
+            model.generative_model.preferences["observations"], [1.0, 0.0, 0.0]
+        )
+        model.perceive(np.array([1.0, 0.0, 0.0]))
+        assert model.act() in {0, 1}
+
+    def test_reset_restores_generative_model_beliefs(self):
+        """Reset must restore both agent and generative-model state."""
+        gen_model = GenerativeModel("categorical", {"state_dim": 3, "obs_dim": 3})
+        self.model.set_generative_model(gen_model)
+        gen_model.beliefs["states"] = np.array([0.0, 1.0, 0.0])
+        self.model.current_beliefs = {"states": np.array([0.0, 1.0, 0.0])}
+
+        self.model.reset()
+
+        np.testing.assert_allclose(gen_model.beliefs["states"], [1 / 3] * 3)
+        np.testing.assert_allclose(self.model.current_beliefs["states"], [1 / 3] * 3)
 
     def test_perceive(self):
         """Test belief updating via perceive."""
@@ -525,28 +558,23 @@ class TestGenerativeModel(unittest.TestCase):
         self.assertTrue(np.allclose(np.sum(parent.beliefs["states"]), 1.0))
         self.assertTrue(np.allclose(np.sum(child.beliefs["states"]), 1.0))
 
-    # Add tests for integrate_rxinfer and integrate_bayeux
-    # Since they require external libs, use skipIf not available
-    @unittest.skipUnless(
-        ModernToolsIntegration().available_tools.get("rxinfer", False),
-        "RxInfer not available",
-    )
     def test_integrate_rxinfer(self):
-        """Test RxInfer integration."""
-        # This test will only run if rxinfer is available
+        """Test RxInfer integration with a deterministic local backend."""
         model_spec = """ # Julia code for model """
         data = {"observations": np.random.randn(10)}
         result = self.model.integrate_rxinfer(model_spec, data)
         self.assertEqual(result["status"], "success")
+        self.assertIn(result["backend"], {"rxinfer", "deterministic-local"})
 
-    @unittest.skipUnless(
-        ModernToolsIntegration().available_tools.get("bayeux", False),
-        "Bayeux not available",
-    )
     def test_integrate_bayeux(self):
-        """Test Bayeux integration."""
-        # This test will only run if bayeux is available
-        pass
+        """Test Bayeux-compatible inference with deterministic NumPy sampling."""
+        result = self.model.integrate_bayeux(
+            lambda location, scale_log: -float(np.sum(location**2))
+            - float(scale_log**2),
+            {"location": np.zeros(2), "scale_log": np.array(0.0)},
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertTrue(np.isfinite(result["posterior_samples"]["location"]).all())
 
     # Add more tests for other methods like add_nested_level, integrate_rxinfer, etc.
     # For integrations, we can test if they run without error, but since they may require external libs, use try-except or skip.

@@ -38,8 +38,11 @@ class TestMDPInitialization:
         obs = np.array([[0.9, 0.1], [0.1, 0.9]])
 
         mdp = MarkovDecisionProcess(
-            n_states=2, n_observations=2, n_actions=2,
-            transition_prob=trans, observation_prob=obs
+            n_states=2,
+            n_observations=2,
+            n_actions=2,
+            transition_prob=trans,
+            observation_prob=obs,
         )
         np.testing.assert_array_equal(mdp.transition_prob, trans)
 
@@ -48,8 +51,7 @@ class TestMDPInitialization:
         bad_trans = np.ones((3, 3, 3)) / 3
         with pytest.raises(ValueError, match="shape"):
             MarkovDecisionProcess(
-                n_states=3, n_observations=2, n_actions=2,
-                transition_prob=bad_trans
+                n_states=3, n_observations=2, n_actions=2, transition_prob=bad_trans
             )
 
     def test_invalid_observation_shape_raises(self) -> None:
@@ -57,8 +59,7 @@ class TestMDPInitialization:
         bad_obs = np.ones((3, 3)) / 3
         with pytest.raises(ValueError, match="shape"):
             MarkovDecisionProcess(
-                n_states=3, n_observations=2, n_actions=2,
-                observation_prob=bad_obs
+                n_states=3, n_observations=2, n_actions=2, observation_prob=bad_obs
             )
 
     def test_non_normalized_transition_raises(self) -> None:
@@ -66,9 +67,13 @@ class TestMDPInitialization:
         trans = np.ones((3, 3, 2))  # Sums to 3, not 1
         with pytest.raises(ValueError, match="sum to"):
             MarkovDecisionProcess(
-                n_states=3, n_observations=2, n_actions=2,
-                transition_prob=trans
+                n_states=3, n_observations=2, n_actions=2, transition_prob=trans
             )
+
+    def test_non_positive_dimensions_raise(self) -> None:
+        """The state, observation, and action spaces must be non-empty."""
+        with pytest.raises(ValueError, match="positive integer"):
+            MarkovDecisionProcess(n_states=0, n_observations=2, n_actions=1)
 
 
 class TestMDPTransitions:
@@ -90,8 +95,11 @@ class TestMDPTransitions:
         obs = np.eye(3)  # Perfect observation
 
         self.mdp = MarkovDecisionProcess(
-            n_states=3, n_observations=3, n_actions=2,
-            transition_prob=trans, observation_prob=obs
+            n_states=3,
+            n_observations=3,
+            n_actions=2,
+            transition_prob=trans,
+            observation_prob=obs,
         )
 
     def test_deterministic_transition(self) -> None:
@@ -119,8 +127,7 @@ class TestMDPObservations:
         """Test observation with identity observation matrix."""
         obs_prob = np.eye(3)
         mdp = MarkovDecisionProcess(
-            n_states=3, n_observations=3, n_actions=1,
-            observation_prob=obs_prob
+            n_states=3, n_observations=3, n_actions=1, observation_prob=obs_prob
         )
         obs = mdp.observe(1)
         assert obs == 1
@@ -129,8 +136,7 @@ class TestMDPObservations:
         """Test observation probability retrieval."""
         obs_prob = np.array([[0.8, 0.2], [0.2, 0.8]])
         mdp = MarkovDecisionProcess(
-            n_states=2, n_observations=2, n_actions=1,
-            observation_prob=obs_prob
+            n_states=2, n_observations=2, n_actions=1, observation_prob=obs_prob
         )
         probs = mdp.get_observation_prob(0)
         np.testing.assert_array_equal(probs, np.array([0.8, 0.2]))
@@ -156,8 +162,11 @@ class TestMDPSimulation:
         obs_prob = np.eye(2)
 
         mdp = MarkovDecisionProcess(
-            n_states=2, n_observations=2, n_actions=1,
-            transition_prob=trans, observation_prob=obs_prob
+            n_states=2,
+            n_observations=2,
+            n_actions=1,
+            transition_prob=trans,
+            observation_prob=obs_prob,
         )
         states, obs = mdp.simulate(0, [0, 0, 0, 0], stochastic=False)
         assert states == [0, 1, 0, 1, 0]
@@ -181,8 +190,7 @@ class TestMDPBeliefUpdating:
         """Test that belief update produces normalized distribution."""
         obs_prob = np.array([[0.8, 0.2], [0.2, 0.8]])
         mdp = MarkovDecisionProcess(
-            n_states=2, n_observations=2, n_actions=1,
-            observation_prob=obs_prob
+            n_states=2, n_observations=2, n_actions=1, observation_prob=obs_prob
         )
         prior = np.array([0.5, 0.5])
         posterior = mdp.update_belief(prior, observation=0)
@@ -192,13 +200,21 @@ class TestMDPBeliefUpdating:
         """Test that observations shift beliefs toward the correct state."""
         obs_prob = np.array([[0.9, 0.1], [0.1, 0.9]])
         mdp = MarkovDecisionProcess(
-            n_states=2, n_observations=2, n_actions=1,
-            observation_prob=obs_prob
+            n_states=2, n_observations=2, n_actions=1, observation_prob=obs_prob
         )
         prior = np.array([0.5, 0.5])
         posterior = mdp.update_belief(prior, observation=0)
         # Observation 0 is more likely from state 0
         assert posterior[0] > posterior[1]
+
+    def test_zero_support_observation_raises(self) -> None:
+        """Impossible observations must not return NaN beliefs."""
+        obs_prob = np.array([[1.0, 0.0], [0.0, 1.0]])
+        mdp = MarkovDecisionProcess(
+            n_states=2, n_observations=2, n_actions=1, observation_prob=obs_prob
+        )
+        with pytest.raises(ValueError, match="zero posterior support"):
+            mdp.update_belief(np.array([0.0, 1.0]), observation=0)
 
     def test_predictive_state(self) -> None:
         """Test predictive state distribution after action."""

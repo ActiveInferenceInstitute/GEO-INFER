@@ -9,16 +9,19 @@ import pytest
 
 h3 = pytest.importorskip("h3")
 
-from geo_infer_act import ActiveInferenceModel, GenerativeModel
-from geo_infer_act.core.types import H3GridInferenceResult, NestedH3GridInferenceResult
-from geo_infer_act.utils import pymdp_adapter
-from geo_infer_act.utils.pymdp_adapter import (
+from geo_infer_act import ActiveInferenceModel, GenerativeModel  # noqa: E402
+from geo_infer_act.core.types import (  # noqa: E402
+    H3GridInferenceResult,
+    NestedH3GridInferenceResult,
+)
+from geo_infer_act.utils import pymdp_adapter  # noqa: E402
+from geo_infer_act.utils.pymdp_adapter import (  # noqa: E402
     EXPECTED_PYMDP_VERSION,
     real_h3_version_metadata,
     run_model_step,
     run_pymdp_step,
     validate_pymdp_version,
-)
+)  # noqa: E402
 
 
 def _assert_probability(values: object) -> None:
@@ -104,6 +107,20 @@ def test_run_model_step_uses_generativemodel_matrices() -> None:
 
     _assert_probability(result.beliefs)
     _assert_pymdp_metadata(result.to_metadata())
+
+
+def test_run_model_step_normalizes_list_valued_action_count() -> None:
+    model = GenerativeModel("categorical", {"state_dim": 4, "obs_dim": 4})
+
+    result = run_model_step(
+        model,
+        np.array([1.0, 0.0, 0.0, 0.0]),
+        action_count=[2],
+        random_seed=3,
+    )
+
+    assert result.metadata["action_count"] == 2
+    assert result.policy_posterior.size == 2
 
 
 def test_flat_h3_grid_inference_exposes_real_pymdp_metadata() -> None:
