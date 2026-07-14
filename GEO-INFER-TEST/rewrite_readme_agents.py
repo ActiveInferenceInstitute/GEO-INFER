@@ -262,6 +262,8 @@ def module_readme_notes(path: Path, module: ModuleInfo | None) -> str:
   `uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py`.
   The supported runtime is `uv run`; system Python may contain older pymdp
   distributions and is not a valid H3 runtime contract.
+- Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
+  `config["allow_dynamic_code"] = True` and execute in per-call namespaces.
 
 ```python
 import numpy as np
@@ -373,6 +375,13 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   flux should show finite variation above the validator thresholds.
 - Use `uv run` for ACT/H3 commands. A system Python installation with a legacy
   `inferactively-pymdp` distribution is outside the supported contract.
+- `create_h3_spatial_model` enforces a default 100,000-cell budget; callers
+  with intentionally larger domains must pass `config["max_cells"]` explicitly.
+- `infer_over_h3_grid` is read-only with respect to the attached generative
+  model; preserve this contract when adding grid diagnostics.
+- Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
+  `config["allow_dynamic_code"] = True` and execute in per-call namespaces;
+  keep this opt-in boundary when adding integrations.
 
 ## Failure Triage
 
@@ -401,6 +410,41 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   `geo_infer_space.nested.core.nested_grid.NestedH3Grid` first.
 - If ACT nested contracts fail after SPACE edits, run the SPACE nested unit test
   and then `uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py`.
+"""
+    if module.name == "GEO-INFER-DATA":
+        return """
+## Data Boundary Contracts
+
+- Persistent cache filenames are derived from SHA-256 digests of logical keys;
+  never reconstruct cache paths directly from caller-provided strings.
+- Cache timestamps are normalized to UTC, and `ttl=0` means immediate expiry.
+- Large DataFrame compression uses in-memory Parquet via a file-like reader;
+  preserve this round-trip behavior when changing serializers.
+- Temporal validators accept both timezone-naive and timezone-aware pandas
+  datetime columns without mixing comparison timezones.
+"""
+    if module.name == "GEO-INFER-API":
+        return """
+## GeoJSON Contracts
+
+- GeoJSON positions must be finite WGS84 longitude/latitude values.
+- Polygon bbox filtering uses geometry extents, so containing and crossing
+  polygons are not missed when no vertex lies inside the query bbox.
+"""
+    if module.name == "GEO-INFER-OPS":
+        return """
+## Cache Contracts
+
+- Redis cache clearing must always execute an initial SCAN at cursor `0` and
+  continue until Redis returns cursor `0` again.
+"""
+    if module.name == "GEO-INFER-EXAMPLES":
+        return """
+## Workflow Guard Contracts
+
+- Conditional workflow expressions use the constrained data-only evaluator;
+  function calls, imports, private attributes, and executable expressions are
+  rejected.
 """
     return ""
 

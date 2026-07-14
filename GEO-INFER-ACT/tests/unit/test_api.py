@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock, patch
 import numpy as np
 from geo_infer_act.api.interface import ActiveInferenceInterface
 from geo_infer_act.api.client import Client
@@ -86,6 +87,25 @@ class TestClient(unittest.TestCase):
     def test_initialization(self):
         """Test client initializes."""
         self.assertEqual(self.client.base_url, "http://test")
+        self.assertEqual(self.client.timeout, 10.0)
+
+    def test_request_uses_timeout_and_raises_http_errors(self):
+        response = Mock()
+        response.json.return_value = {"id": "model"}
+        with patch(
+            "geo_infer_act.api.client.requests.request", return_value=response
+        ) as request:
+            self.assertEqual(self.client.get_model("a/model"), {"id": "model"})
+        request.assert_called_once_with(
+            "GET",
+            "http://test/models/a%2Fmodel",
+            timeout=10.0,
+        )
+        response.raise_for_status.assert_called_once_with()
+
+    def test_non_positive_timeout_is_rejected(self):
+        with self.assertRaises(ValueError):
+            Client(timeout=0)
 
 
 # Test endpoints function

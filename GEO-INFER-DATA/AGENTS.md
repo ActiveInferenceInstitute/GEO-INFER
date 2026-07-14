@@ -42,6 +42,16 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
 
+## Data Boundary Contracts
+
+- Persistent cache filenames are derived from SHA-256 digests of logical keys;
+  never reconstruct cache paths directly from caller-provided strings.
+- Cache timestamps are normalized to UTC, and `ttl=0` means immediate expiry.
+- Large DataFrame compression uses in-memory Parquet via a file-like reader;
+  preserve this round-trip behavior when changing serializers.
+- Temporal validators accept both timezone-naive and timezone-aware pandas
+  datetime columns without mixing comparison timezones.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

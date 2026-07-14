@@ -73,6 +73,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
   flux should show finite variation above the validator thresholds.
 - Use `uv run` for ACT/H3 commands. A system Python installation with a legacy
   `inferactively-pymdp` distribution is outside the supported contract.
+- `create_h3_spatial_model` enforces a default 100,000-cell budget; callers
+  with intentionally larger domains must pass `config["max_cells"]` explicitly.
+- `infer_over_h3_grid` is read-only with respect to the attached generative
+  model; preserve this contract when adding grid diagnostics.
+- Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
+  `config["allow_dynamic_code"] = True` and execute in per-call namespaces;
+  keep this opt-in boundary when adding integrations.
 
 ## Failure Triage
 

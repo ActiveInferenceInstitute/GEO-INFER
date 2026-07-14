@@ -669,6 +669,21 @@ class GenerativeModel:
                     "Standard categorical belief updates require an integer "
                     "state_dim; factorized models must use their domain adapter"
                 )
+            if getattr(self, "spatial_mode", False) and getattr(self, "h3_cells", None):
+                if obs_vector.size != int(self.state_dim):
+                    raise ValueError(
+                        "H3 spatial update_beliefs requires one observation per "
+                        "expanded state; use update_h3_beliefs for cell mappings"
+                    )
+                prior = normalize_distribution(
+                    np.asarray(self.beliefs["states"], dtype=float).reshape(-1)
+                )
+                self.beliefs["states"] = categorical_posterior(
+                    prior,
+                    obs_vector,
+                    np.eye(int(self.state_dim), dtype=float),
+                )
+                return self.beliefs
             prior = self._categorical_transition(int(self.state_dim)) @ np.asarray(
                 self.beliefs["states"], dtype=float
             ).reshape(-1)

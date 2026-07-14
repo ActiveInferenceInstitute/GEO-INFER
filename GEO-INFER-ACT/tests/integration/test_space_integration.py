@@ -63,6 +63,29 @@ class TestSpaceImportSafety:
         else:
             assert result["status"] == "error"
 
+    def test_h3_spatial_model_enforces_cell_budget(self) -> None:
+        """Large fills fail before an unbounded model is constructed."""
+        from geo_infer_act.utils.integration import create_h3_spatial_model
+
+        result = create_h3_spatial_model(
+            config={"max_cells": 1},
+            h3_resolution=8,
+            boundary={
+                "coordinates": [
+                    [
+                        [-122.5, 37.7],
+                        [-122.4, 37.7],
+                        [-122.4, 37.8],
+                        [-122.5, 37.8],
+                        [-122.5, 37.7],
+                    ]
+                ]
+            },
+        )
+
+        assert result["status"] == "error"
+        assert "max_cells" in result["message"]
+
 
 class TestSpaceIntegrationFunction:
     """Test the integrate_space function behavior."""

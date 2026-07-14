@@ -44,6 +44,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
 ```
 
 
+## Workflow Guard Contracts
+
+- Conditional workflow expressions use the constrained data-only evaluator;
+  function calls, imports, private attributes, and executable expressions are
+  rejected.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

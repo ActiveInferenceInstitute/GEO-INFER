@@ -45,6 +45,11 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS
 ```
 
 
+## Cache Contracts
+
+- Redis cache clearing must always execute an initial SCAN at cursor `0` and
+  continue until Redis returns cursor `0` again.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

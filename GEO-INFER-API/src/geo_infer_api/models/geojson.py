@@ -4,7 +4,9 @@ Pydantic models for GeoJSON data structures.
 These models follow the GeoJSON specification (RFC 7946)
 https://tools.ietf.org/html/rfc7946
 """
+
 from enum import Enum
+import math
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -12,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 class GeoJSONType(str, Enum):
     """Valid GeoJSON types."""
+
     POINT = "Point"
     MULTI_POINT = "MultiPoint"
     LINE_STRING = "LineString"
@@ -23,9 +26,24 @@ class GeoJSONType(str, Enum):
     FEATURE_COLLECTION = "FeatureCollection"
 
 
+def _validate_position(position: Tuple[float, float]) -> Tuple[float, float]:
+    """Validate a GeoJSON longitude/latitude position."""
+    if len(position) != 2:
+        raise ValueError("Positions must be [longitude, latitude]")
+    lon, lat = position
+    if not math.isfinite(lon) or not math.isfinite(lat):
+        raise ValueError("Coordinates must be finite")
+    if not (-180 <= lon <= 180):
+        raise ValueError("Longitude must be between -180 and 180")
+    if not (-90 <= lat <= 90):
+        raise ValueError("Latitude must be between -90 and 90")
+    return position
+
+
 # Base geometry models
 class GeometryBase(BaseModel):
     """Base model for all GeoJSON geometry objects."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: GeoJSONType
@@ -34,6 +52,7 @@ class GeometryBase(BaseModel):
 
 class Point(GeometryBase):
     """GeoJSON Point geometry."""
+
     type: Literal[GeoJSONType.POINT] = GeoJSONType.POINT
     coordinates: Tuple[float, float] = Field(..., description="[longitude, latitude]")
 
@@ -41,18 +60,12 @@ class Point(GeometryBase):
     @classmethod
     def validate_coordinates(cls, v: Tuple[float, float]) -> Tuple[float, float]:
         """Validate point coordinates."""
-        if len(v) != 2:
-            raise ValueError("Point coordinates must be [longitude, latitude]")
-        lon, lat = v
-        if not (-180 <= lon <= 180):
-            raise ValueError("Longitude must be between -180 and 180")
-        if not (-90 <= lat <= 90):
-            raise ValueError("Latitude must be between -90 and 90")
-        return v
+        return _validate_position(v)
 
 
 class LineString(GeometryBase):
     """GeoJSON LineString geometry."""
+
     type: Literal[GeoJSONType.LINE_STRING] = GeoJSONType.LINE_STRING
     coordinates: List[Tuple[float, float]] = Field(
         ..., description="Array of [longitude, latitude] positions"
@@ -60,10 +73,14 @@ class LineString(GeometryBase):
 
     @field_validator("coordinates")
     @classmethod
-    def validate_coordinates(cls, v: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
+    def validate_coordinates(
+        cls, v: List[Tuple[float, float]]
+    ) -> List[Tuple[float, float]]:
         """Validate LineString has at least 2 points."""
         if len(v) < 2:
             raise ValueError("LineString must have at least 2 points")
+        for position in v:
+            _validate_position(position)
         return v
 
 
@@ -73,6 +90,7 @@ class Polygon(GeometryBase):
     The first array of coordinates represents the exterior ring.
     Any subsequent arrays represent interior rings (holes).
     """
+
     type: Literal[GeoJSONType.POLYGON] = GeoJSONType.POLYGON
     coordinates: List[List[Tuple[float, float]]] = Field(
         ..., description="Array of linear rings"
@@ -94,31 +112,79 @@ class Polygon(GeometryBase):
 
             # First and last positions must be the same (closed ring)
             if ring[0] != ring[-1]:
-                raise ValueError("First and last positions in a polygon ring must be the same")
+                raise ValueError(
+                    "First and last positions in a polygon ring must be the same"
+                )
+            for position in ring:
+                _validate_position(position)
 
         return v
 
 
 class MultiPoint(GeometryBase):
     """GeoJSON MultiPoint geometry."""
+
     type: Literal[GeoJSONType.MULTI_POINT] = GeoJSONType.MULTI_POINT
-    coordinates: List[Tuple[float, float]] = Field(..., description="Array of positions")
+    coordinates: List[Tuple[float, float]] = Field(
+        ..., description="Array of positions"
+    )
+
+    @field_validator("coordinates")
+    @classmethod
+    def validate_coordinates(
+        cls, v: List[Tuple[float, float]]
+    ) -> List[Tuple[float, float]]:
+        """Validate every point in the collection."""
+        for position in v:
+            _validate_position(position)
+        return v
 
 
 class MultiLineString(GeometryBase):
     """GeoJSON MultiLineString geometry."""
+
     type: Literal[GeoJSONType.MULTI_LINE_STRING] = GeoJSONType.MULTI_LINE_STRING
     coordinates: List[List[Tuple[float, float]]] = Field(
         ..., description="Array of line strings"
     )
 
+    @field_validator("coordinates")
+    @classmethod
+    def validate_coordinates(
+        cls, v: List[List[Tuple[float, float]]]
+    ) -> List[List[Tuple[float, float]]]:
+        """Validate every line position in the collection."""
+        for line in v:
+            if len(line) < 2:
+                raise ValueError("LineString must have at least 2 points")
+            for position in line:
+                _validate_position(position)
+        return v
+
 
 class MultiPolygon(GeometryBase):
     """GeoJSON MultiPolygon geometry."""
+
     type: Literal[GeoJSONType.MULTI_POLYGON] = GeoJSONType.MULTI_POLYGON
     coordinates: List[List[List[Tuple[float, float]]]] = Field(
         ..., description="Array of polygons"
     )
+
+    @field_validator("coordinates")
+    @classmethod
+    def validate_coordinates(
+        cls, v: List[List[List[Tuple[float, float]]]]
+    ) -> List[List[List[Tuple[float, float]]]]:
+        """Validate every ring and position in the collection."""
+        for polygon in v:
+            for ring in polygon:
+                if len(ring) < 4:
+                    raise ValueError("Each polygon ring must have at least 4 positions")
+                if ring[0] != ring[-1]:
+                    raise ValueError("Polygon rings must be closed")
+                for position in ring:
+                    _validate_position(position)
+        return v
 
 
 # Union of all geometry types
@@ -127,6 +193,7 @@ Geometry = Union[Point, LineString, Polygon, MultiPoint, MultiLineString, MultiP
 
 class Feature(BaseModel):
     """GeoJSON Feature object."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: Literal[GeoJSONType.FEATURE] = GeoJSONType.FEATURE
@@ -137,6 +204,7 @@ class Feature(BaseModel):
 
 class FeatureCollection(BaseModel):
     """GeoJSON FeatureCollection object."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: Literal[GeoJSONType.FEATURE_COLLECTION] = GeoJSONType.FEATURE_COLLECTION
@@ -145,8 +213,10 @@ class FeatureCollection(BaseModel):
 
 # Specialized models for specific API operations
 
+
 class PolygonFeature(Feature):
     """A GeoJSON Feature with a Polygon geometry."""
+
     geometry: Polygon  # type: ignore[assignment]
 
     @model_validator(mode="before")
@@ -162,4 +232,5 @@ class PolygonFeature(Feature):
 
 class PolygonFeatureCollection(FeatureCollection):
     """A GeoJSON FeatureCollection containing only Polygon features."""
+
     features: List[PolygonFeature]  # type: ignore[assignment]

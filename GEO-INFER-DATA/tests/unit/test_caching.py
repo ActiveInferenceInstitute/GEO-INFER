@@ -37,6 +37,15 @@ class TestCacheEntry:
         entry.update_access()
         assert entry.access_count == 1
 
+    def test_legacy_naive_timestamp_is_normalised(self):
+        entry = CacheEntry(
+            key="k",
+            data="v",
+            ttl=1,
+            created_at=datetime.now() - timedelta(seconds=5),
+        )
+        assert entry.is_expired() is True
+
 
 # ---------------------------------------------------------------------------
 # CacheManager
@@ -52,6 +61,30 @@ class TestCacheManager:
         self._run(cache.set("key1", {"data": 42}))
         result = self._run(cache.get("key1"))
         assert result == {"data": 42}
+
+    def test_zero_ttl_expires_immediately(self):
+        cache = CacheManager(max_size=10, default_ttl=3600)
+        self._run(cache.set("key1", "value", ttl=0))
+        assert self._run(cache.get("key1")) is None
+
+    def test_persistent_keys_stay_inside_cache_directory(self, tmp_path):
+        cache = CacheManager(
+            max_size=10,
+            enable_persistence=True,
+            persistence_path=tmp_path,
+        )
+        self._run(cache.set("../../outside", "value"))
+        files = list(tmp_path.glob("*.pkl"))
+        assert len(files) == 1
+        assert files[0].parent == tmp_path
+
+    def test_invalid_max_size_is_rejected(self):
+        try:
+            CacheManager(max_size=0)
+        except ValueError as exc:
+            assert "max_size" in str(exc)
+        else:
+            raise AssertionError("CacheManager accepted max_size=0")
 
     def test_get_missing_key_returns_none(self):
         cache = CacheManager(max_size=10)

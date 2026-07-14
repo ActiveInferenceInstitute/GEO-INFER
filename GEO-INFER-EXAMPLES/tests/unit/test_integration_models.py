@@ -1,8 +1,5 @@
 """Tests for integration_models: enums, ModuleSpec, ModuleConnection, WorkflowStep."""
 
-import pytest
-from datetime import datetime
-
 from geo_infer_examples.models.integration_models import (
     ModuleType,
     DataFormat,
@@ -11,6 +8,7 @@ from geo_infer_examples.models.integration_models import (
     ModuleConnection,
     WorkflowStep,
 )
+from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
 
 
 class TestEnums:
@@ -201,3 +199,16 @@ class TestWorkflowStep:
         assert restored.name == step.name
         assert restored.timeout == 120
         assert restored.dependencies == ["geocode"]
+
+
+class TestWorkflowConditions:
+    """Verify workflow guards accept data expressions without executing code."""
+
+    def test_data_expression_is_evaluated(self):
+        orchestrator = ModuleOrchestrator()
+        assert orchestrator._evaluate_condition("data.count > 0", {"count": 2})
+
+    def test_function_calls_are_rejected(self):
+        orchestrator = ModuleOrchestrator()
+        condition = "data.get('count', 0) > 0"
+        assert orchestrator._evaluate_condition(condition, {"count": 2}) is False

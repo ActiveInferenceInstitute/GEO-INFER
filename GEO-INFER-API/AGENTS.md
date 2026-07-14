@@ -38,6 +38,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module API
 ```
 
 
+## GeoJSON Contracts
+
+- GeoJSON positions must be finite WGS84 longitude/latitude values.
+- Polygon bbox filtering uses geometry extents, so containing and crossing
+  polygons are not missed when no vertex lies inside the query bbox.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

@@ -557,6 +557,11 @@ class ActiveInferenceModel:
         original_policy_evaluation = self.latest_policy_evaluation
         original_policy_selection = self.latest_policy_selection
         original_pymdp_result = self.latest_pymdp_result
+        original_model_beliefs = (
+            copy.deepcopy(getattr(self.generative_model, "beliefs", None))
+            if self.generative_model is not None
+            else None
+        )
         history_len = len(self.history)
 
         try:
@@ -584,6 +589,8 @@ class ActiveInferenceModel:
             self.latest_policy_evaluation = original_policy_evaluation
             self.latest_policy_selection = original_policy_selection
             self.latest_pymdp_result = original_pymdp_result
+            if self.generative_model is not None:
+                self.generative_model.beliefs = original_model_beliefs
             if len(self.history) > history_len:
                 self.history = self.history[:history_len]
 

@@ -3,13 +3,11 @@ Tests for GeospatialValidator in geo_infer_data.utils.validation.
 """
 
 import asyncio
-from datetime import datetime
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pytest
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 
 from geo_infer_data.models.schemas import QualityStatus
 from geo_infer_data.utils.validation import GeospatialValidator
@@ -22,6 +20,7 @@ def _run(coro):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _valid_gdf(n: int = 5) -> gpd.GeoDataFrame:
     lats = np.linspace(37.0, 38.0, n)
@@ -36,6 +35,7 @@ def _valid_gdf(n: int = 5) -> gpd.GeoDataFrame:
 # ---------------------------------------------------------------------------
 # validate_data (comprehensive)
 # ---------------------------------------------------------------------------
+
 
 class TestValidateData:
     def test_valid_geodataframe_passes(self):
@@ -56,6 +56,7 @@ class TestValidateData:
 # ---------------------------------------------------------------------------
 # validate_geometries
 # ---------------------------------------------------------------------------
+
 
 class TestValidateGeometries:
     def test_valid_geometries_pass(self):
@@ -85,6 +86,7 @@ class TestValidateGeometries:
 # ---------------------------------------------------------------------------
 # validate_coordinates
 # ---------------------------------------------------------------------------
+
 
 class TestValidateCoordinates:
     def test_valid_gdf_coordinates_pass(self):
@@ -119,6 +121,7 @@ class TestValidateCoordinates:
 # validate_temporal_data
 # ---------------------------------------------------------------------------
 
+
 class TestValidateTemporalData:
     def test_chronological_data_passes(self):
         validator = GeospatialValidator()
@@ -138,11 +141,15 @@ class TestValidateTemporalData:
     def test_non_chronological_order_penalised(self):
         validator = GeospatialValidator()
         df = pd.DataFrame(
-            {
-                "timestamp": pd.to_datetime(
-                    ["2024-03-01", "2024-01-01", "2024-02-01"]
-                )
-            }
+            {"timestamp": pd.to_datetime(["2024-03-01", "2024-01-01", "2024-02-01"])}
         )
         result = validator.validate_temporal_data(df)
         assert any(i["type"] == "non_chronological" for i in result.issues)
+
+    def test_timezone_aware_data_does_not_raise(self):
+        validator = GeospatialValidator()
+        df = pd.DataFrame(
+            {"timestamp": pd.date_range("2024-01-01", periods=2, tz="UTC")}
+        )
+        result = validator.validate_temporal_data(df)
+        assert result.status == QualityStatus.PASS

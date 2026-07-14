@@ -113,6 +113,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
   `uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py`.
   The supported runtime is `uv run`; system Python may contain older pymdp
   distributions and is not a valid H3 runtime contract.
+- Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
+  `config["allow_dynamic_code"] = True` and execute in per-call namespaces.
 
 ```python
 import numpy as np
