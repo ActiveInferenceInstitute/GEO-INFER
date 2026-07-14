@@ -1,19 +1,21 @@
 """CRM Data Visualization functions."""
-from typing import List, Dict, Any, Optional
-import pandas as pd
+
+from typing import List, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
 from ..models.crm_models import Customer
 from ..crm.transformer import convert_customers_to_dataframe
-from ..reporting.crm_reports import generate_customer_segmentation_report # For data
 
 # Ensure output directory exists
 DEFAULT_OUTPUT_DIR = Path("visualizations_output")
 DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-def plot_customer_distribution_by_status(customers: List[Customer], output_dir: Path = DEFAULT_OUTPUT_DIR) -> Optional[str]:
+
+def plot_customer_distribution_by_status(
+    customers: List[Customer], output_dir: Path = DEFAULT_OUTPUT_DIR
+) -> Optional[str]:
     """
     Generates a bar chart of customer distribution by status.
     Saves the plot to a file and returns the file path.
@@ -23,15 +25,15 @@ def plot_customer_distribution_by_status(customers: List[Customer], output_dir: 
         return None
 
     df = convert_customers_to_dataframe(customers)
-    if df.empty or 'status' not in df.columns:
+    if df.empty or "status" not in df.columns:
         print("Customer data is empty or 'status' column missing for plotting.")
         return None
 
     plt.figure(figsize=(10, 6))
-    sns.countplot(data=df, x='status', order=df['status'].value_counts().index)
-    plt.title('Customer Distribution by Status')
-    plt.xlabel('Status')
-    plt.ylabel('Number of Customers')
+    sns.countplot(data=df, x="status", order=df["status"].value_counts().index)
+    plt.title("Customer Distribution by Status")
+    plt.xlabel("Status")
+    plt.ylabel("Number of Customers")
     plt.xticks(rotation=45)
     plt.tight_layout()
 
@@ -39,14 +41,17 @@ def plot_customer_distribution_by_status(customers: List[Customer], output_dir: 
     try:
         plt.savefig(file_path)
         print(f"Saved customer status distribution plot to: {file_path}")
-        plt.close() # Close the plot to free memory
+        plt.close()  # Close the plot to free memory
         return str(file_path)
     except Exception as e:
         print(f"Error saving plot: {e}")
         plt.close()
         return None
 
-def plot_customer_distribution_by_source(customers: List[Customer], output_dir: Path = DEFAULT_OUTPUT_DIR) -> Optional[str]:
+
+def plot_customer_distribution_by_source(
+    customers: List[Customer], output_dir: Path = DEFAULT_OUTPUT_DIR
+) -> Optional[str]:
     """
     Generates a bar chart of customer distribution by source.
     Saves the plot to a file and returns the file path.
@@ -56,18 +61,22 @@ def plot_customer_distribution_by_source(customers: List[Customer], output_dir: 
         return None
 
     df = convert_customers_to_dataframe(customers)
-    if df.empty or 'source' not in df.columns:
+    if df.empty or "source" not in df.columns:
         print("Customer data is empty or 'source' column missing for plotting.")
         return None
 
     plt.figure(figsize=(12, 7))
     sns.countplot(
-        data=df, y='source', order=df['source'].value_counts().index,
-        hue='source', palette="viridis", legend=False,
+        data=df,
+        y="source",
+        order=df["source"].value_counts().index,
+        hue="source",
+        palette="viridis",
+        legend=False,
     )
-    plt.title('Customer Distribution by Source')
-    plt.xlabel('Number of Customers')
-    plt.ylabel('Source')
+    plt.title("Customer Distribution by Source")
+    plt.xlabel("Number of Customers")
+    plt.ylabel("Source")
     plt.tight_layout()
 
     file_path = output_dir / "customer_source_distribution.png"
@@ -80,6 +89,7 @@ def plot_customer_distribution_by_source(customers: List[Customer], output_dir: 
         print(f"Error saving plot: {e}")
         plt.close()
         return None
+
 
 # Add more CRM visualization functions here, e.g.:
 # - Sales pipeline funnel chart

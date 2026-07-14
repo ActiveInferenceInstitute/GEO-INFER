@@ -5,35 +5,40 @@ GeoArt module for artistic visualization of geospatial data.
 import os
 import threading
 import time
-from typing import Dict, List, Optional, Tuple, Union, Callable, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union, Callable, Any
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.animation import FuncAnimation
 
 from geo_infer_art.core.aesthetics import ColorPalette
 from geo_infer_art.utils.validators import validate_file_path, validate_geospatial_data
 
+if TYPE_CHECKING:
+    from geo_infer_art.core.visualization.map_styling import MapStyle
+
 # Optional imports for advanced features
 try:
     import plotly.graph_objects as go
     import plotly.express as px
+
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
 
 try:
     import folium
-    from folium.plugins import MarkerCluster
+    from folium.plugins import MarkerCluster  # noqa: F401
+
     FOLIUM_AVAILABLE = True
 except ImportError:
     FOLIUM_AVAILABLE = False
 
 try:
     import mayavi.mlab as mlab
-    import mayavi
+    import mayavi  # noqa: F401
+
     MAYAVI_AVAILABLE = True
 except ImportError:
     MAYAVI_AVAILABLE = False
@@ -42,26 +47,26 @@ except ImportError:
 class GeoArt:
     """
     A class for creating artistic visualizations of geospatial data.
-    
+
     The GeoArt class provides methods for loading, transforming, and
     visualizing geospatial data with artistic elements and aesthetic
     considerations.
-    
+
     Attributes:
         data: The geospatial data as a GeoDataFrame or raster array
         metadata: Additional information about the data
         crs: Coordinate reference system of the data
     """
-    
+
     def __init__(
-        self, 
-        data: Optional[Union[gpd.GeoDataFrame, np.ndarray]] = None, 
+        self,
+        data: Optional[Union[gpd.GeoDataFrame, np.ndarray]] = None,
         metadata: Optional[Dict] = None,
-        crs: Optional[str] = "EPSG:4326"
+        crs: Optional[str] = "EPSG:4326",
     ):
         """
         Initialize a GeoArt object.
-        
+
         Args:
             data: Geospatial data as a GeoDataFrame or numpy array (for raster)
             metadata: Additional information about the data
@@ -72,24 +77,24 @@ class GeoArt:
         self.crs = crs
         self._figure = None
         self._ax = None
-    
+
     @classmethod
-    def load_geojson(cls, file_path: str) -> 'GeoArt':
+    def load_geojson(cls, file_path: str) -> "GeoArt":
         """
         Load geospatial data from a GeoJSON file.
-        
+
         Args:
             file_path: Path to the GeoJSON file
-            
+
         Returns:
             A new GeoArt object with the loaded data
-        
+
         Raises:
             FileNotFoundError: If the file does not exist
             ValueError: If the file is not a valid GeoJSON
         """
-        validate_file_path(file_path, ['.geojson', '.json'])
-        
+        validate_file_path(file_path, [".geojson", ".json"])
+
         try:
             data = gpd.read_file(file_path)
             metadata = {
@@ -101,26 +106,26 @@ class GeoArt:
             return cls(data=data, metadata=metadata, crs=data.crs)
         except Exception as e:
             raise ValueError(f"Failed to load GeoJSON: {str(e)}") from e
-    
+
     @classmethod
-    def load_raster(cls, file_path: str) -> 'GeoArt':
+    def load_raster(cls, file_path: str) -> "GeoArt":
         """
         Load geospatial data from a raster file (e.g., GeoTIFF).
-        
+
         Args:
             file_path: Path to the raster file
-            
+
         Returns:
             A new GeoArt object with the loaded data
-            
+
         Raises:
             FileNotFoundError: If the file does not exist
             ValueError: If the file is not a valid raster
         """
         import rasterio
-        
-        validate_file_path(file_path, ['.tif', '.tiff', '.jpg', '.png'])
-        
+
+        validate_file_path(file_path, [".tif", ".tiff", ".jpg", ".png"])
+
         try:
             with rasterio.open(file_path) as src:
                 data = src.read()
@@ -134,7 +139,7 @@ class GeoArt:
                 return cls(data=data, metadata=metadata, crs=src.crs.to_string())
         except Exception as e:
             raise ValueError(f"Failed to load raster: {str(e)}") from e
-    
+
     def apply_style(
         self,
         style: str = "default",
@@ -142,10 +147,10 @@ class GeoArt:
         line_width: float = 1.0,
         alpha: float = 0.8,
         background_color: str = "white",
-        map_style: Optional[Union[str, 'MapStyle']] = None,
+        map_style: Optional[Union[str, "MapStyle"]] = None,
         legend: bool = False,
         title: Optional[str] = None,
-    ) -> 'GeoArt':
+    ) -> "GeoArt":
         """
         Apply an artistic style to the geospatial data.
 
@@ -167,9 +172,9 @@ class GeoArt:
         """
         if self.data is None:
             raise ValueError("No data loaded. Load data first.")
-        
+
         validate_geospatial_data(self.data)
-        
+
         # Handle color palette
         if isinstance(color_palette, str):
             palette = ColorPalette.get_palette(color_palette)
@@ -189,10 +194,11 @@ class GeoArt:
             palette = ColorPalette.get_palette(palette_name)
         else:
             raise ValueError(f"Unsupported color_palette type: {type(color_palette)}")
-        
+
         # Handle map_style parameter
         if isinstance(map_style, str):
             from geo_infer_art.core.visualization.map_styling import MapStyle
+
             map_style_obj = MapStyle(name=map_style)
         elif map_style is not None:
             map_style_obj = map_style
@@ -210,19 +216,19 @@ class GeoArt:
         if isinstance(self.data, gpd.GeoDataFrame):
             # Vector data visualization
             plot_kwargs = {
-                'ax': ax,
-                'cmap': palette.cmap,
-                'linewidth': line_width,
-                'alpha': alpha,
+                "ax": ax,
+                "cmap": palette.cmap,
+                "linewidth": line_width,
+                "alpha": alpha,
             }
 
             # Add legend if requested
             if legend and len(self.data.columns) > 1:
                 # Try to use a categorical column for legend
-                categorical_cols = self.data.select_dtypes(include=['object']).columns
+                categorical_cols = self.data.select_dtypes(include=["object"]).columns
                 if len(categorical_cols) > 0:
-                    plot_kwargs['legend'] = True
-                    plot_kwargs['c'] = categorical_cols[0]
+                    plot_kwargs["legend"] = True
+                    plot_kwargs["c"] = categorical_cols[0]
 
             self.data.plot(**plot_kwargs)
 
@@ -245,11 +251,11 @@ class GeoArt:
             ax.patch.set_alpha(0.3)
             ax.grid(False)
         elif style == "minimal":
-            ax.axis('off')
+            ax.axis("off")
             ax.grid(False)
         elif style == "blueprint":
-            ax.set_facecolor('#072448')
-            ax.grid(True, color='#1E88E5', alpha=0.3, linestyle='-')
+            ax.set_facecolor("#072448")
+            ax.grid(True, color="#1E88E5", alpha=0.3, linestyle="-")
 
         # Set title
         if title is not None:
@@ -261,54 +267,54 @@ class GeoArt:
         self._ax = ax
 
         return self
-    
+
     def save(self, output_path: str, dpi: int = 300) -> str:
         """
         Save the visualization to a file.
-        
+
         Args:
             output_path: Path where the file should be saved
             dpi: Resolution for the output image
-            
+
         Returns:
             The path to the saved file
-            
+
         Raises:
             ValueError: If no visualization has been created
         """
         if self._figure is None:
             raise ValueError("No visualization to save. Apply a style first.")
-        
+
         directory = os.path.dirname(output_path)
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
-            
-        self._figure.savefig(output_path, dpi=dpi, bbox_inches='tight')
+
+        self._figure.savefig(output_path, dpi=dpi, bbox_inches="tight")
         plt.close(self._figure)
         return output_path
-    
+
     def show(self) -> None:
         """
         Display the visualization.
-        
+
         Raises:
             ValueError: If no visualization has been created
         """
         if self._figure is None:
             raise ValueError("No visualization to show. Apply a style first.")
-        
+
         if "agg" in plt.get_backend().lower() or not plt.isinteractive():
             self._figure.canvas.draw()
             return
         plt.show()
-    
+
     def create_animation(
         self,
         output_path: str,
         style_sequence: List[str],
         duration: float = 5.0,
         fps: int = 24,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Create an animated visualization cycling through different styles.
@@ -347,8 +353,7 @@ class GeoArt:
 
         # Create the animation
         anim = animation.FuncAnimation(
-            frames[0], animate, frames=num_frames,
-            interval=1000/fps, blit=False
+            frames[0], animate, frames=num_frames, interval=1000 / fps, blit=False
         )
 
         # Save animation
@@ -357,21 +362,21 @@ class GeoArt:
             os.makedirs(directory)
 
         # Save as GIF or video
-        if output_path.lower().endswith('.gif'):
-            anim.save(output_path, writer='pillow', fps=fps)
+        if output_path.lower().endswith(".gif"):
+            anim.save(output_path, writer="pillow", fps=fps)
         else:
             # Try to save as video (requires additional dependencies)
             try:
-                anim.save(output_path, writer='ffmpeg', fps=fps)
+                anim.save(output_path, writer="ffmpeg", fps=fps)
             except Exception:
                 # Fallback to GIF
-                gif_path = output_path.rsplit('.', 1)[0] + '.gif'
-                anim.save(gif_path, writer='pillow', fps=fps)
+                gif_path = output_path.rsplit(".", 1)[0] + ".gif"
+                anim.save(gif_path, writer="pillow", fps=fps)
                 output_path = gif_path
 
         return output_path
 
-    def add_interactive_elements(self, interactive_type: str = "zoom") -> 'GeoArt':
+    def add_interactive_elements(self, interactive_type: str = "zoom") -> "GeoArt":
         """
         Add interactive elements to the visualization.
 
@@ -386,26 +391,40 @@ class GeoArt:
 
         # Real implementation using matplotlib interactive features and mplcursors
         if interactive_type == "zoom":
-            if hasattr(self._figure.canvas, 'toolbar') and self._figure.canvas.toolbar is not None:
+            if (
+                hasattr(self._figure.canvas, "toolbar")
+                and self._figure.canvas.toolbar is not None
+            ):
                 self._figure.canvas.toolbar.zoom()
             else:
                 self._ax.set_navigate(True)
         elif interactive_type == "pan":
-            if hasattr(self._figure.canvas, 'toolbar') and self._figure.canvas.toolbar is not None:
+            if (
+                hasattr(self._figure.canvas, "toolbar")
+                and self._figure.canvas.toolbar is not None
+            ):
                 self._figure.canvas.toolbar.pan()
             else:
                 self._ax.set_navigate(True)
         elif interactive_type in ["hover", "click"]:
             try:
                 import mplcursors
-                hover = (interactive_type == "hover")
+
+                hover = interactive_type == "hover"
                 cursor = mplcursors.cursor(self._ax, hover=hover)
+
                 @cursor.connect("add")
                 def on_add(sel):
-                    sel.annotation.get_bbox_patch().set(boxstyle="round,pad=0.5", alpha=0.9, color="white")
+                    sel.annotation.get_bbox_patch().set(
+                        boxstyle="round,pad=0.5", alpha=0.9, color="white"
+                    )
+
             except ImportError:
                 import logging
-                logging.getLogger(__name__).warning("mplcursors not installed. Cannot enable hover/click interactivity.")
+
+                logging.getLogger(__name__).warning(
+                    "mplcursors not installed. Cannot enable hover/click interactivity."
+                )
 
         return self
 
@@ -429,10 +448,10 @@ class GeoArt:
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
 
-        self._figure.savefig(output_path, format='svg', bbox_inches='tight')
+        self._figure.savefig(output_path, format="svg", bbox_inches="tight")
         return output_path
 
-    def get_colorbar(self, label: str = "Value") -> 'GeoArt':
+    def get_colorbar(self, label: str = "Value") -> "GeoArt":
         """
         Add a colorbar to the visualization.
 
@@ -450,12 +469,15 @@ class GeoArt:
 
         # Add colorbar for raster data or styled vector data
         if not isinstance(self.data, gpd.GeoDataFrame):
-            plt.colorbar(self._ax.images[0] if self._ax.images else None,
-                        ax=self._ax, label=label)
+            plt.colorbar(
+                self._ax.images[0] if self._ax.images else None,
+                ax=self._ax,
+                label=label,
+            )
 
         return self
 
-    def set_projection(self, projection: str = "plate_carree") -> 'GeoArt':
+    def set_projection(self, projection: str = "plate_carree") -> "GeoArt":
         """
         Set the map projection for the visualization.
 
@@ -473,7 +495,7 @@ class GeoArt:
         self.metadata["projection"] = projection
         return self
 
-    def add_annotations(self, annotations: List[Dict]) -> 'GeoArt':
+    def add_annotations(self, annotations: List[Dict]) -> "GeoArt":
         """
         Add text or graphical annotations to the visualization.
 
@@ -491,24 +513,25 @@ class GeoArt:
             raise ValueError("No visualization to annotate. Apply a style first.")
 
         for annotation in annotations:
-            text = annotation.get('text', '')
-            x = annotation.get('x', 0)
-            y = annotation.get('y', 0)
-            color = annotation.get('color', 'black')
-            fontsize = annotation.get('fontsize', 12)
+            text = annotation.get("text", "")
+            x = annotation.get("x", 0)
+            y = annotation.get("y", 0)
+            color = annotation.get("color", "black")
+            fontsize = annotation.get("fontsize", 12)
 
             self._ax.annotate(
-                text, xy=(x, y),
+                text,
+                xy=(x, y),
                 color=color,
                 fontsize=fontsize,
-                ha='center',
-                va='center',
-                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8)
+                ha="center",
+                va="center",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8),
             )
 
         return self
 
-    def apply_filter(self, filter_type: str, **kwargs) -> 'GeoArt':
+    def apply_filter(self, filter_type: str, **kwargs) -> "GeoArt":
         """
         Apply a spatial or visual filter to the data.
 
@@ -560,8 +583,8 @@ class GeoArt:
         style: str = "default",
         max_updates: Optional[int] = None,
         output_file: Optional[str] = None,
-        **kwargs
-    ) -> 'RealtimeVisualization':
+        **kwargs,
+    ) -> "RealtimeVisualization":
         """
         Create a real-time visualization that updates with live data.
 
@@ -580,7 +603,9 @@ class GeoArt:
             ValueError: If no data callback is provided
         """
         if data_callback is None:
-            raise ValueError("Data callback function is required for real-time visualization")
+            raise ValueError(
+                "Data callback function is required for real-time visualization"
+            )
 
         realtime_viz = RealtimeVisualization(
             geo_art=self,
@@ -589,7 +614,7 @@ class GeoArt:
             style=style,
             max_updates=max_updates,
             output_file=output_file,
-            **kwargs
+            **kwargs,
         )
 
         return realtime_viz
@@ -598,8 +623,8 @@ class GeoArt:
         self,
         elevation_data: Optional[np.ndarray] = None,
         z_column: Optional[str] = None,
-        **kwargs
-    ) -> 'GeoArt3D':
+        **kwargs,
+    ) -> "GeoArt3D":
         """
         Create a 3D visualization of the geospatial data.
 
@@ -621,17 +646,14 @@ class GeoArt:
             )
 
         return GeoArt3D(
-            geo_art=self,
-            elevation_data=elevation_data,
-            z_column=z_column,
-            **kwargs
+            geo_art=self, elevation_data=elevation_data, z_column=z_column, **kwargs
         )
 
     def create_interactive_web_map(
         self,
         output_file: str = "interactive_map.html",
         tiles: str = "OpenStreetMap",
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Create an interactive web-based map using Folium.
@@ -667,8 +689,8 @@ class GeoArt:
 
         web_map = folium.Map(
             location=[center_lat, center_lon],
-            zoom_start=kwargs.get('zoom_start', 10),
-            tiles=tiles
+            zoom_start=kwargs.get("zoom_start", 10),
+            tiles=tiles,
         )
 
         if isinstance(self.data, gpd.GeoDataFrame):
@@ -677,36 +699,33 @@ class GeoArt:
                 # Create popup with feature information
                 popup_content = f"<b>{row.get('name', f'Feature {idx}')}</b><br>"
                 for col in self.data.columns:
-                    if col != 'geometry' and col in row:
+                    if col != "geometry" and col in row:
                         popup_content += f"{col}: {row[col]}<br>"
 
                 # Add geometry based on type
                 geom = row.geometry
-                if geom.geom_type == 'Point':
+                if geom.geom_type == "Point":
                     folium.CircleMarker(
                         location=[geom.y, geom.x],
                         radius=5,
                         popup=popup_content,
-                        color='blue',
+                        color="blue",
                         fill=True,
-                        fillColor='blue'
+                        fillColor="blue",
                     ).add_to(web_map)
-                elif geom.geom_type in ['LineString', 'MultiLineString']:
+                elif geom.geom_type in ["LineString", "MultiLineString"]:
                     coords = [(point[1], point[0]) for point in geom.coords]
                     folium.PolyLine(
-                        coords,
-                        popup=popup_content,
-                        color='red',
-                        weight=3
+                        coords, popup=popup_content, color="red", weight=3
                     ).add_to(web_map)
-                elif geom.geom_type in ['Polygon', 'MultiPolygon']:
+                elif geom.geom_type in ["Polygon", "MultiPolygon"]:
                     coords = [(point[1], point[0]) for point in geom.exterior.coords]
                     folium.Polygon(
                         coords,
                         popup=popup_content,
-                        color='green',
+                        color="green",
                         fill=True,
-                        fillOpacity=0.4
+                        fillOpacity=0.4,
                     ).add_to(web_map)
 
         # Save the map
@@ -717,11 +736,7 @@ class GeoArt:
         web_map.save(output_file)
         return output_file
 
-    def create_plotly_visualization(
-        self,
-        plot_type: str = "scatter",
-        **kwargs
-    ) -> Any:
+    def create_plotly_visualization(self, plot_type: str = "scatter", **kwargs) -> Any:
         """
         Create an interactive Plotly visualization.
 
@@ -756,11 +771,11 @@ class GeoArt:
                 self.data,
                 lat=self.data.geometry.y,
                 lon=self.data.geometry.x,
-                hover_name=kwargs.get('hover_name', 'name'),
-                color=kwargs.get('color_column'),
-                size=kwargs.get('size_column'),
-                zoom=kwargs.get('zoom', 10),
-                mapbox_style=kwargs.get('mapbox_style', 'carto-positron')
+                hover_name=kwargs.get("hover_name", "name"),
+                color=kwargs.get("color_column"),
+                size=kwargs.get("size_column"),
+                zoom=kwargs.get("zoom", 10),
+                mapbox_style=kwargs.get("mapbox_style", "carto-positron"),
             )
 
         elif plot_type == "choropleth":
@@ -769,10 +784,10 @@ class GeoArt:
                 self.data,
                 geojson=self.data.geometry,
                 locations=self.data.index,
-                color=kwargs.get('color_column'),
-                hover_name=kwargs.get('hover_name', 'name'),
-                mapbox_style=kwargs.get('mapbox_style', 'carto-positron'),
-                zoom=kwargs.get('zoom', 10)
+                color=kwargs.get("color_column"),
+                hover_name=kwargs.get("hover_name", "name"),
+                mapbox_style=kwargs.get("mapbox_style", "carto-positron"),
+                zoom=kwargs.get("zoom", 10),
             )
 
         else:
@@ -786,9 +801,9 @@ class GeoArt:
             # Create heatmap from raster
             fig = go.Figure(data=go.Heatmap(z=self.data))
             fig.update_layout(
-                title=kwargs.get('title', 'Raster Heatmap'),
-                xaxis_title=kwargs.get('x_label', 'X'),
-                yaxis_title=kwargs.get('y_label', 'Y')
+                title=kwargs.get("title", "Raster Heatmap"),
+                xaxis_title=kwargs.get("x_label", "X"),
+                yaxis_title=kwargs.get("y_label", "Y"),
             )
 
         elif plot_type == "3d":
@@ -799,12 +814,8 @@ class GeoArt:
 
             fig = go.Figure(data=[go.Surface(z=self.data, x=X, y=Y)])
             fig.update_layout(
-                title=kwargs.get('title', '3D Surface'),
-                scene=dict(
-                    xaxis_title='X',
-                    yaxis_title='Y',
-                    zaxis_title='Z'
-                )
+                title=kwargs.get("title", "3D Surface"),
+                scene=dict(xaxis_title="X", yaxis_title="Y", zaxis_title="Z"),
             )
 
         else:
@@ -816,8 +827,8 @@ class GeoArt:
         self,
         target_resolution: Optional[Tuple[int, int]] = None,
         simplify_tolerance: Optional[float] = None,
-        cache_data: bool = True
-    ) -> 'GeoArt':
+        cache_data: bool = True,
+    ) -> "GeoArt":
         """
         Optimize the visualization for better performance.
 
@@ -836,33 +847,40 @@ class GeoArt:
             raise ValueError("No data loaded for optimization")
 
         # Create optimized copy
-        optimized = GeoArt(data=self.data.copy(), metadata=self.metadata.copy(), crs=self.crs)
+        optimized = GeoArt(
+            data=self.data.copy(), metadata=self.metadata.copy(), crs=self.crs
+        )
 
         if isinstance(self.data, gpd.GeoDataFrame) and simplify_tolerance:
             # Simplify geometries for better performance
-            optimized.data['geometry'] = optimized.data['geometry'].simplify(simplify_tolerance)
+            optimized.data["geometry"] = optimized.data["geometry"].simplify(
+                simplify_tolerance
+            )
 
         if not isinstance(self.data, gpd.GeoDataFrame) and target_resolution:
             # Downsample raster data
             from scipy.ndimage import zoom
+
             scale_factor = (
                 target_resolution[0] / self.data.shape[0],
-                target_resolution[1] / self.data.shape[1]
+                target_resolution[1] / self.data.shape[1],
             )
             optimized.data = zoom(self.data, scale_factor, order=1)
 
         if cache_data:
             # Cache the optimized data
-            optimized.metadata['cached'] = True
-            optimized.metadata['original_shape'] = self.data.shape if not isinstance(self.data, gpd.GeoDataFrame) else len(self.data)
+            optimized.metadata["cached"] = True
+            optimized.metadata["original_shape"] = (
+                self.data.shape
+                if not isinstance(self.data, gpd.GeoDataFrame)
+                else len(self.data)
+            )
 
         return optimized
 
     def create_multi_scale_visualization(
-        self,
-        scales: List[str] = ["global", "regional", "local"],
-        **kwargs
-    ) -> Dict[str, 'GeoArt']:
+        self, scales: List[str] = ["global", "regional", "local"], **kwargs
+    ) -> Dict[str, "GeoArt"]:
         """
         Create visualizations at multiple scales.
 
@@ -895,8 +913,8 @@ class GeoArt:
                     height = (bounds[3] - bounds[1]) * 0.5
 
                     scale_data = self.data.cx[
-                        center_x - width/2:center_x + width/2,
-                        center_y - height/2:center_y + height/2
+                        center_x - width / 2 : center_x + width / 2,
+                        center_y - height / 2 : center_y + height / 2,
                     ]
                     zoom_factor = 2.0
                 elif scale == "local":
@@ -907,8 +925,8 @@ class GeoArt:
                     height = (bounds[3] - bounds[1]) * 0.25
 
                     scale_data = self.data.cx[
-                        center_x - width/2:center_x + width/2,
-                        center_y - height/2:center_y + height/2
+                        center_x - width / 2 : center_x + width / 2,
+                        center_y - height / 2 : center_y + height / 2,
                     ]
                     zoom_factor = 4.0
                 else:
@@ -920,18 +938,15 @@ class GeoArt:
                         **self.metadata,
                         "scale": scale,
                         "zoom_factor": zoom_factor,
-                        "scale_bounds": scale_data.total_bounds
+                        "scale_bounds": scale_data.total_bounds,
                     }
                     multi_scale_viz[scale] = scale_art
 
         return multi_scale_viz
 
     def apply_custom_algorithm(
-        self,
-        algorithm_function: Callable,
-        algorithm_name: str = "custom",
-        **params
-    ) -> 'GeoArt':
+        self, algorithm_function: Callable, algorithm_name: str = "custom", **params
+    ) -> "GeoArt":
         """
         Apply a custom algorithm to the geospatial data.
 
@@ -961,7 +976,7 @@ class GeoArt:
             result.metadata = {
                 **self.metadata,
                 "custom_algorithm": algorithm_name,
-                "algorithm_params": params
+                "algorithm_params": params,
             }
 
             return result
@@ -997,7 +1012,7 @@ class RealtimeVisualization:
         style: str = "default",
         max_updates: Optional[int] = None,
         output_file: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize real-time visualization.
@@ -1133,7 +1148,7 @@ class GeoArt3D:
         geo_art: GeoArt,
         elevation_data: Optional[np.ndarray] = None,
         z_column: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize 3D visualization.
@@ -1151,11 +1166,7 @@ class GeoArt3D:
 
         self.figure_3d = None
 
-    def create_3d_surface(
-        self,
-        output_file: Optional[str] = None,
-        **kwargs
-    ) -> Any:
+    def create_3d_surface(self, output_file: Optional[str] = None, **kwargs) -> Any:
         """
         Create a 3D surface visualization.
 
@@ -1188,20 +1199,25 @@ class GeoArt3D:
                 z_values = self.geo_art.data[self.z_column]
             else:
                 # Use elevation data or default
-                z_values = self.elevation_data.flatten() if self.elevation_data is not None else np.zeros(len(self.geo_art.data))
-
-            fig = go.Figure(data=[go.Scatter3d(
-                x=self.geo_art.data.geometry.x,
-                y=self.geo_art.data.geometry.y,
-                z=z_values,
-                mode='markers',
-                marker=dict(
-                    size=5,
-                    color=z_values,
-                    colorscale='Viridis',
-                    opacity=0.8
+                z_values = (
+                    self.elevation_data.flatten()
+                    if self.elevation_data is not None
+                    else np.zeros(len(self.geo_art.data))
                 )
-            )])
+
+            fig = go.Figure(
+                data=[
+                    go.Scatter3d(
+                        x=self.geo_art.data.geometry.x,
+                        y=self.geo_art.data.geometry.y,
+                        z=z_values,
+                        mode="markers",
+                        marker=dict(
+                            size=5, color=z_values, colorscale="Viridis", opacity=0.8
+                        ),
+                    )
+                ]
+            )
 
         else:
             # For raster data, create 3D surface
@@ -1209,24 +1225,17 @@ class GeoArt3D:
             y = np.arange(self.geo_art.data.shape[0])
             X, Y = np.meshgrid(x, y)
 
-            fig = go.Figure(data=[go.Surface(
-                z=self.geo_art.data,
-                x=X,
-                y=Y,
-                colorscale='Viridis'
-            )])
+            fig = go.Figure(
+                data=[go.Surface(z=self.geo_art.data, x=X, y=Y, colorscale="Viridis")]
+            )
 
         fig.update_layout(
-            title=kwargs.get('title', '3D Geospatial Visualization'),
-            scene=dict(
-                xaxis_title='X',
-                yaxis_title='Y',
-                zaxis_title='Z'
-            )
+            title=kwargs.get("title", "3D Geospatial Visualization"),
+            scene=dict(xaxis_title="X", yaxis_title="Y", zaxis_title="Z"),
         )
 
         if output_file:
-            if output_file.endswith('.html'):
+            if output_file.endswith(".html"):
                 fig.write_html(output_file)
             else:
                 # Save as image
@@ -1256,7 +1265,7 @@ class GeoArt3D:
         else:
             # Create 3D surface from raster
             mlab.figure(size=(800, 600))
-            mlab.surf(self.geo_art.data, warp_scale='auto')
+            mlab.surf(self.geo_art.data, warp_scale="auto")
 
         if output_file:
             mlab.savefig(output_file)
@@ -1287,7 +1296,7 @@ class GeoArt3D:
         output_file = kwargs.get("output_file", None)
 
         if MAYAVI_AVAILABLE:
-            scene = self._create_mayavi_3d_surface(output_file=None, **kwargs)
+            _scene = self._create_mayavi_3d_surface(output_file=None, **kwargs)
 
             @mlab.animate(delay=interval)
             def _rotate():
@@ -1309,7 +1318,11 @@ class GeoArt3D:
         if isinstance(self.geo_art.data, gpd.GeoDataFrame):
             x = self.geo_art.data.geometry.x.values
             y = self.geo_art.data.geometry.y.values
-            z_col = self.z_column if self.z_column and self.z_column in self.geo_art.data.columns else None
+            z_col = (
+                self.z_column
+                if self.z_column and self.z_column in self.geo_art.data.columns
+                else None
+            )
             z = self.geo_art.data[z_col].values if z_col else np.zeros(len(x))
             ax.scatter(x, y, z, s=1)
         else:

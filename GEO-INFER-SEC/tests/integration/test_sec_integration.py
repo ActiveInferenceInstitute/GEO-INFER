@@ -11,13 +11,15 @@ import numpy as np
 try:
     import geopandas as gpd
     from shapely.geometry import Point, Polygon
-    import pandas as pd
+    import pandas as pd  # noqa: F401
+
     HAS_GEO_DEPS = True
 except ImportError:
     HAS_GEO_DEPS = False
 
 try:
-    from cryptography.fernet import Fernet
+    from cryptography.fernet import Fernet  # noqa: F401
+
     HAS_CRYPTO = True
 except ImportError:
     HAS_CRYPTO = False
@@ -51,21 +53,32 @@ def sample_geodataframe():
 @pytest.fixture
 def admin_boundaries():
     """Create administrative boundary polygons for geographic masking."""
-    boundaries = gpd.GeoDataFrame({
-        "admin_id": ["zone_A", "zone_B"],
-        "geometry": [
-            Polygon([
-                (-118.35, 33.95), (-118.35, 34.05),
-                (-118.24, 34.05), (-118.24, 33.95),
-                (-118.35, 33.95),
-            ]),
-            Polygon([
-                (-118.24, 34.05), (-118.24, 34.15),
-                (-118.13, 34.15), (-118.13, 34.05),
-                (-118.24, 34.05),
-            ]),
-        ],
-    }, crs="EPSG:4326")
+    boundaries = gpd.GeoDataFrame(
+        {
+            "admin_id": ["zone_A", "zone_B"],
+            "geometry": [
+                Polygon(
+                    [
+                        (-118.35, 33.95),
+                        (-118.35, 34.05),
+                        (-118.24, 34.05),
+                        (-118.24, 33.95),
+                        (-118.35, 33.95),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-118.24, 34.05),
+                        (-118.24, 34.15),
+                        (-118.13, 34.15),
+                        (-118.13, 34.05),
+                        (-118.24, 34.05),
+                    ]
+                ),
+            ],
+        },
+        crs="EPSG:4326",
+    )
     return boundaries
 
 
@@ -87,25 +100,36 @@ class TestAnonymizationPipeline:
         original_coords = [(p.x, p.y) for p in sample_geodataframe.geometry]
         perturbed_coords = [(p.x, p.y) for p in result.geometry]
         coords_changed = sum(
-            1 for o, p in zip(original_coords, perturbed_coords)
+            1
+            for o, p in zip(original_coords, perturbed_coords)
             if abs(o[0] - p[0]) > 1e-10 or abs(o[1] - p[1]) > 1e-10
         )
-        assert coords_changed == len(sample_geodataframe), "All coordinates should be perturbed"
+        assert coords_changed == len(
+            sample_geodataframe
+        ), "All coordinates should be perturbed"
 
         # Perturbation within expected bounds (500m ~ 0.0045 degrees)
         max_displacement_deg = 500.0 / 111000.0  # meters to degrees approximation
         for orig, pert in zip(original_coords, perturbed_coords):
             dx = abs(orig[0] - pert[0])
             dy = abs(orig[1] - pert[1])
-            assert dx < max_displacement_deg * 2, f"X displacement {dx} exceeds expected range"
-            assert dy < max_displacement_deg * 2, f"Y displacement {dy} exceeds expected range"
+            assert (
+                dx < max_displacement_deg * 2
+            ), f"X displacement {dx} exceeds expected range"
+            assert (
+                dy < max_displacement_deg * 2
+            ), f"Y displacement {dy} exceeds expected range"
 
     def test_perturbation_reproducibility_with_seed(self, sample_geodataframe):
         """Test that same seed produces identical perturbation."""
         from geo_infer_sec.core.anonymization import GeospatialAnonymizer
 
-        result1 = GeospatialAnonymizer(seed=99).location_perturbation(sample_geodataframe, epsilon=200.0)
-        result2 = GeospatialAnonymizer(seed=99).location_perturbation(sample_geodataframe, epsilon=200.0)
+        result1 = GeospatialAnonymizer(seed=99).location_perturbation(
+            sample_geodataframe, epsilon=200.0
+        )
+        result2 = GeospatialAnonymizer(seed=99).location_perturbation(
+            sample_geodataframe, epsilon=200.0
+        )
 
         for p1, p2 in zip(result1.geometry, result2.geometry):
             assert abs(p1.x - p2.x) < 1e-12
@@ -117,7 +141,9 @@ class TestAnonymizationPipeline:
 
         anonymizer = GeospatialAnonymizer(seed=42)
         k = 3
-        result = anonymizer.spatial_k_anonymity(sample_geodataframe, k=k, h3_resolution=7)
+        result = anonymizer.spatial_k_anonymity(
+            sample_geodataframe, k=k, h3_resolution=7
+        )
 
         # All points should be snapped to cell centroids
         assert len(result) == len(sample_geodataframe)
@@ -125,11 +151,14 @@ class TestAnonymizationPipeline:
         # Count unique locations (centroids) and verify at least k points per centroid
         coords = [(round(p.x, 8), round(p.y, 8)) for p in result.geometry]
         from collections import Counter
+
         coord_counts = Counter(coords)
         for coord, count in coord_counts.items():
             assert count >= k, f"Cell at {coord} has {count} points, below k={k}"
 
-    def test_geographic_masking_aggregates_to_boundaries(self, sample_geodataframe, admin_boundaries):
+    def test_geographic_masking_aggregates_to_boundaries(
+        self, sample_geodataframe, admin_boundaries
+    ):
         """Test that geographic masking aggregates data to admin boundaries."""
         from geo_infer_sec.core.anonymization import GeospatialAnonymizer
 
@@ -159,7 +188,9 @@ class TestEncryptionPipeline:
         original = "Sensitive location data: 34.0522, -118.2437"
 
         encrypted = encryptor.encrypt_text(original)
-        assert encrypted != original.encode(), "Encrypted data should differ from original"
+        assert (
+            encrypted != original.encode()
+        ), "Encrypted data should differ from original"
 
         decrypted = encryptor.decrypt_text(encrypted)
         assert decrypted == original, "Decrypted text should match original"
@@ -218,7 +249,9 @@ class TestAnonymizationEncryptionPipeline:
 
         # Step 1: Anonymize locations
         anonymizer = GeospatialAnonymizer(seed=42)
-        anonymized = anonymizer.location_perturbation(sample_geodataframe, epsilon=300.0)
+        anonymized = anonymizer.location_perturbation(
+            sample_geodataframe, epsilon=300.0
+        )
 
         # Step 2: Encrypt sensitive attributes
         encryptor = GeospatialEncryption()

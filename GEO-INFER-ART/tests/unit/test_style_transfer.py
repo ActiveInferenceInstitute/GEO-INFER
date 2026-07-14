@@ -12,7 +12,6 @@ from shapely.geometry import Polygon
 from PIL import Image
 
 from geo_infer_art.core.aesthetics.style_transfer import StyleTransfer
-from geo_infer_art.core.visualization.geo_art import GeoArt
 
 
 class TestStyleTransfer(unittest.TestCase):
@@ -42,9 +41,7 @@ class TestStyleTransfer(unittest.TestCase):
             Polygon([(1, 0), (2, 0), (2, 1), (1, 1)]),
         ]
         self.geo_data = gpd.GeoDataFrame(
-            {'name': ['Region A', 'Region B']},
-            geometry=geometries,
-            crs="EPSG:4326"
+            {"name": ["Region A", "Region B"]}, geometry=geometries, crs="EPSG:4326"
         )
 
     def tearDown(self):
@@ -55,13 +52,12 @@ class TestStyleTransfer(unittest.TestCase):
         """Test initialization with content and style images."""
         # Skip test if TensorFlow is not available
         try:
-            import tensorflow as tf
+            import tensorflow as tf  # noqa: F401
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
         style_transfer = StyleTransfer(
-            style_image=self.style_image_path,
-            content_image=self.content_image_path
+            style_image=self.style_image_path, content_image=self.content_image_path
         )
 
         self.assertIsNotNone(style_transfer.style_image)
@@ -84,7 +80,7 @@ class TestStyleTransfer(unittest.TestCase):
         """Test loading a style image."""
         # Skip test if TensorFlow is not available
         try:
-            import tensorflow as tf
+            import tensorflow as tf  # noqa: F401
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
@@ -107,7 +103,7 @@ class TestStyleTransfer(unittest.TestCase):
         """Test applying style transfer to geospatial data."""
         # Skip test if TensorFlow is not available
         try:
-            import tensorflow as tf
+            import tensorflow as tf  # noqa: F401
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
@@ -116,7 +112,7 @@ class TestStyleTransfer(unittest.TestCase):
             styled_image = StyleTransfer.apply(
                 geo_data=self.geo_data,
                 style="watercolor",
-                iterations=5  # Use low iterations for faster test
+                iterations=5,  # Use low iterations for faster test
             )
 
             self.assertIsInstance(styled_image, Image.Image)
@@ -133,7 +129,7 @@ class TestStyleTransfer(unittest.TestCase):
         """Test applying style transfer with custom weights."""
         # Skip test if TensorFlow is not available
         try:
-            import tensorflow as tf
+            import tensorflow as tf  # noqa: F401
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
@@ -145,7 +141,7 @@ class TestStyleTransfer(unittest.TestCase):
                 content_image=self.content_image_path,
                 style_weight=1e-3,
                 content_weight=1e3,
-                iterations=3  # Use low iterations for faster test
+                iterations=3,  # Use low iterations for faster test
             )
 
             self.assertIsInstance(styled_image, Image.Image)
@@ -157,23 +153,17 @@ class TestStyleTransfer(unittest.TestCase):
         """Test applying style transfer with invalid inputs."""
         # Skip test if TensorFlow is not available
         try:
-            import tensorflow as tf
+            import tensorflow as tf  # noqa: F401
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
         # Test with invalid style
         with self.assertRaises(ValueError):
-            StyleTransfer.apply(
-                geo_data=self.geo_data,
-                style="nonexistent_style"
-            )
+            StyleTransfer.apply(geo_data=self.geo_data, style="nonexistent_style")
 
         # Test with invalid geo_data
         with self.assertRaises(ValueError):
-            StyleTransfer.apply(
-                geo_data="not_geo_data",
-                style="watercolor"
-            )
+            StyleTransfer.apply(geo_data="not_geo_data", style="watercolor")
 
 
 if __name__ == "__main__":

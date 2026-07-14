@@ -4,7 +4,7 @@ Unit tests for orchestrator functionality.
 
 import pytest
 import asyncio
-from geo_infer_ops.core.orchestrator import Orchestrator, Task, TaskStatus
+from geo_infer_ops.core.orchestrator import Orchestrator, TaskStatus
 
 
 class TestOrchestrator:
@@ -17,6 +17,7 @@ class TestOrchestrator:
 
     def test_add_task(self, orchestrator: Orchestrator) -> None:
         """Test adding tasks."""
+
         def simple_task():
             return "result"
 
@@ -30,6 +31,7 @@ class TestOrchestrator:
 
     def test_task_dependencies(self, orchestrator: Orchestrator) -> None:
         """Test task with dependencies."""
+
         def task1():
             return "task1_result"
 
@@ -89,6 +91,7 @@ class TestOrchestrator:
 
     def test_get_task_status(self, orchestrator: Orchestrator) -> None:
         """Test getting task status."""
+
         def simple_task():
             return "result"
 
@@ -102,6 +105,7 @@ class TestOrchestrator:
 
     def test_get_workflow_status(self, orchestrator: Orchestrator) -> None:
         """Test getting workflow status."""
+
         def task1():
             return "result1"
 
@@ -116,5 +120,3 @@ class TestOrchestrator:
         assert status["total_tasks"] == 2
         assert "status_counts" in status
         assert "tasks" in status
-
-

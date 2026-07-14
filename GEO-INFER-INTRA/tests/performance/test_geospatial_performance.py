@@ -9,9 +9,13 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from intra_utils.geospatial import (
-    create_point, create_polygon, create_feature, create_feature_collection,
-    haversine_distance
+    create_point,
+    create_polygon,
+    create_feature,
+    create_feature_collection,
+    haversine_distance,
 )
+
 
 @pytest.mark.performance
 @pytest.mark.geospatial
@@ -22,10 +26,7 @@ class TestGeospatialPerformance:
     def random_points(self, n: int = 10000) -> List[Dict[str, Any]]:
         """Generate n random GeoJSON points."""
         return [
-            create_point(
-                lon=random.uniform(-180, 180),
-                lat=random.uniform(-90, 90)
-            )
+            create_point(lon=random.uniform(-180, 180), lat=random.uniform(-90, 90))
             for _ in range(n)
         ]
 
@@ -35,10 +36,9 @@ class TestGeospatialPerformance:
         return [
             create_feature(
                 create_point(
-                    lon=random.uniform(-180, 180),
-                    lat=random.uniform(-90, 90)
+                    lon=random.uniform(-180, 180), lat=random.uniform(-90, 90)
                 ),
-                {"id": i, "value": random.random()}
+                {"id": i, "value": random.random()},
             )
             for i in range(n)
         ]
@@ -57,7 +57,9 @@ class TestGeospatialPerformance:
         duration = end_time - start_time
 
         # Log performance data
-        print(f"\nCreated FeatureCollection with {n_points} features in {duration:.4f} seconds")
+        print(
+            f"\nCreated FeatureCollection with {n_points} features in {duration:.4f} seconds"
+        )
 
         # Add some basic assertions to validate the result
         assert fc["type"] == "FeatureCollection"
@@ -65,7 +67,9 @@ class TestGeospatialPerformance:
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.1 * n_points / 1000  # Scale with number of points
-        assert duration < max_duration, f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert (
+            duration < max_duration
+        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
 
     @pytest.mark.parametrize("n_points", [100, 1000])
     def test_distance_calculation(self, random_points, n_points):
@@ -83,8 +87,7 @@ class TestGeospatialPerformance:
         for point in points:
             coords = point["coordinates"]
             dist = haversine_distance(
-                reference_point[0], reference_point[1],
-                coords[0], coords[1]
+                reference_point[0], reference_point[1], coords[0], coords[1]
             )
             distances.append(dist)
 
@@ -93,11 +96,15 @@ class TestGeospatialPerformance:
 
         # Log performance data
         print(f"\nCalculated {n_points} distances in {duration:.4f} seconds")
-        print(f"Average time per distance calculation: {(duration / n_points) * 1000:.4f} ms")
+        print(
+            f"Average time per distance calculation: {(duration / n_points) * 1000:.4f} ms"
+        )
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.05 * n_points / 1000  # Scale with number of points
-        assert duration < max_duration, f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert (
+            duration < max_duration
+        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
 
     @pytest.mark.parametrize("n_coords", [10, 100, 1000])
     def test_polygon_creation(self, n_coords):
@@ -132,4 +139,6 @@ class TestGeospatialPerformance:
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.05 * n_coords / 1000  # Scale with number of coordinates
-        assert duration < max_duration, f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert (
+            duration < max_duration
+        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"

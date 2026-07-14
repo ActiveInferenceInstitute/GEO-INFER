@@ -1,6 +1,7 @@
 """
 Ecological model for active inference.
 """
+
 from typing import Dict, Any, List
 import numpy as np
 
@@ -48,38 +49,38 @@ class EcologicalModel(ActiveInferenceModel):
         self.num_controls = [3]
 
         # 4. Construct Matrices (if not provided in config)
-        if 'A' not in config:
-            config['A'] = self._build_A_matrix()
-        if 'B' not in config:
-            config['B'] = self._build_B_matrix()
-        if 'C' not in config:
-             config['C'] = self._build_C_matrix()
-        if 'D' not in config:
-             config['D'] = self._build_D_matrix()
+        if "A" not in config:
+            config["A"] = self._build_A_matrix()
+        if "B" not in config:
+            config["B"] = self._build_B_matrix()
+        if "C" not in config:
+            config["C"] = self._build_C_matrix()
+        if "D" not in config:
+            config["D"] = self._build_D_matrix()
 
         # Initialize base Active Inference Agent
-        super().__init__(
-            model_type="categorical",
-            **config
-        )
+        super().__init__(model_type="categorical", **config)
 
         # Ensure GenerativeModel is set with these parameters
         from geo_infer_act.core.generative_model import GenerativeModel
+
         gen_model = GenerativeModel(
-            model_type="categorical",
-            parameters=config,
-            model_id="ecological_agent"
+            model_type="categorical", parameters=config, model_id="ecological_agent"
         )
         self.set_generative_model(gen_model)
 
     def _build_A_matrix(self):
         """Build Likelihood Matrix A: P(o|s)."""
         try:
-             from pymdp.utils import obj_array_zeros
-             A = obj_array_zeros([self.num_obs, self.num_states])
+            from pymdp.utils import obj_array_zeros
+
+            A = obj_array_zeros([self.num_obs, self.num_states])
         except ImportError:
-             # Fallback if pymdp utils not available (though we added it)
-             A = [np.zeros((self.num_obs[m], np.prod(self.num_states))) for m in range(self.num_modalities)]
+            # Fallback if pymdp utils not available (though we added it)
+            A = [
+                np.zeros((self.num_obs[m], np.prod(self.num_states)))
+                for m in range(self.num_modalities)
+            ]
 
         # --- Modality 0: Food Signal (mapping from Resource Level) ---
         # State Factor 0 (Resources): Low(0) -> None(0), Med(1) -> Scant(1), High(2) -> Abundant(2)
@@ -132,7 +133,7 @@ class EcologicalModel(ActiveInferenceModel):
         # Control: Action (3 actions)
         B = [
             np.zeros((self.num_states[0], self.num_states[0], self.num_controls[0])),
-            np.zeros((self.num_states[1], self.num_states[1], self.num_controls[0]))
+            np.zeros((self.num_states[1], self.num_states[1], self.num_controls[0])),
         ]
 
         # --- Factor 0: Resource Dynamics ---
@@ -174,16 +175,16 @@ class EcologicalModel(ActiveInferenceModel):
 
         # Action 1: Forage (Risk increases)
         B_risk_forage = np.zeros((2, 2))
-        B_risk_forage[0, 0] = 0.4 # Safe stays safe? Less likely
-        B_risk_forage[1, 0] = 0.6 # Safe becomes Risky
+        B_risk_forage[0, 0] = 0.4  # Safe stays safe? Less likely
+        B_risk_forage[1, 0] = 0.6  # Safe becomes Risky
         B_risk_forage[0, 1] = 0.0
-        B_risk_forage[1, 1] = 1.0 # Risky stays Risky
+        B_risk_forage[1, 1] = 1.0  # Risky stays Risky
         B[1][:, :, 1] = B_risk_forage
 
         # Action 2: Hide (Risk decreases)
         B_risk_hide = np.zeros((2, 2))
-        B_risk_hide[0, 0] = 1.0 # Safe stays Safe
-        B_risk_hide[0, 1] = 0.8 # Risky becomes Safe
+        B_risk_hide[0, 0] = 1.0  # Safe stays Safe
+        B_risk_hide[0, 1] = 0.8  # Risky becomes Safe
         B_risk_hide[1, 1] = 0.2
         B[1][:, :, 2] = B_risk_hide
 
@@ -192,19 +193,20 @@ class EcologicalModel(ActiveInferenceModel):
     def _build_C_matrix(self):
         """Build Preference Matrix C: P(o)."""
         try:
-             from pymdp.utils import obj_array_zeros
-             C = obj_array_zeros(self.num_obs)
-        except:
-             C = [np.zeros(dim) for dim in self.num_obs]
+            from pymdp.utils import obj_array_zeros
+
+            C = obj_array_zeros(self.num_obs)
+        except Exception:
+            C = [np.zeros(dim) for dim in self.num_obs]
 
         # Prefer Abundant Food (Modality 0, Index 2)
         # C values are log-probabilities (utilities)
         C[0][0] = -2.0  # None (Dislike)
-        C[0][1] = 0.0   # Scant (Neutral)
-        C[0][2] = 4.0   # Abundant (Like)
+        C[0][1] = 0.0  # Scant (Neutral)
+        C[0][2] = 4.0  # Abundant (Like)
 
         # Prefer Quiet/Safe (Modality 1, Index 0)
-        C[1][0] = 2.0   # Quiet (Safe)
+        C[1][0] = 2.0  # Quiet (Safe)
         C[1][1] = -4.0  # Noise (Danger)
 
         return C
@@ -212,10 +214,11 @@ class EcologicalModel(ActiveInferenceModel):
     def _build_D_matrix(self):
         """Build Prior Matrix D: P(s)."""
         try:
-             from pymdp.utils import obj_array_zeros
-             D = obj_array_zeros(self.num_states)
-        except:
-             D = [np.zeros(dim) for dim in self.num_states]
+            from pymdp.utils import obj_array_zeros
+
+            D = obj_array_zeros(self.num_states)
+        except Exception:
+            D = [np.zeros(dim) for dim in self.num_states]
 
         # Start expecting High Resources
         D[0][0] = 0.1
@@ -236,7 +239,7 @@ class EcologicalModel(ActiveInferenceModel):
             observation: List of integers [Food_Obs_Idx, Threat_Obs_Idx]
         """
         if observation is None:
-             observation = [0, 0]
+            observation = [0, 0]
 
         # Perceive
         beliefs = self.perceive(observation)
@@ -244,8 +247,4 @@ class EcologicalModel(ActiveInferenceModel):
         # Act
         action = self.act()
 
-        return {
-            'beliefs': beliefs,
-            'action': action,
-            'observation': observation
-        }
+        return {"beliefs": beliefs, "action": action, "observation": observation}

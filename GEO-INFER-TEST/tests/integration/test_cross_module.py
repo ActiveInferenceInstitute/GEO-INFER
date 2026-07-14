@@ -24,7 +24,11 @@ except ImportError:
     pytest.fail("geo_infer_test package not available")
 
 try:
-    from geo_infer_test.core.log_integration import LogIntegration, LoggingTestReporter, LogAnalyzer
+    from geo_infer_test.core.log_integration import (
+        LogIntegration,
+        LoggingTestReporter,
+        LogAnalyzer,
+    )
 except ImportError:
     pytest.fail("geo_infer_test.core.log_integration not available")
 
@@ -33,20 +37,23 @@ except ImportError:
 # Fixtures – real data
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def sensor_dataframe():
     """Real IoT sensor dataframe with timestamps, IDs, and radiation readings."""
     now = datetime.now(timezone.utc)
     records = []
     for i in range(20):
-        records.append({
-            "sensor_id": f"sensor_{i}",
-            "timestamp": (now - timedelta(hours=i)).isoformat(),
-            "radiation_level": float(np.random.uniform(0.5, 15.0)),
-            "latitude": float(np.random.uniform(37.0, 38.0)),
-            "longitude": float(np.random.uniform(-123.0, -122.0)),
-            "value": float(np.random.uniform(10, 100)),
-        })
+        records.append(
+            {
+                "sensor_id": f"sensor_{i}",
+                "timestamp": (now - timedelta(hours=i)).isoformat(),
+                "radiation_level": float(np.random.uniform(0.5, 15.0)),
+                "latitude": float(np.random.uniform(37.0, 38.0)),
+                "longitude": float(np.random.uniform(-123.0, -122.0)),
+                "value": float(np.random.uniform(10, 100)),
+            }
+        )
     return pd.DataFrame(records)
 
 
@@ -54,6 +61,7 @@ def sensor_dataframe():
 def spatial_dataframe():
     """Real spatial dataframe with lat/lon and h3 indices."""
     import h3
+
     coords = [
         (37.7749, -122.4194),
         (34.0522, -118.2437),
@@ -63,12 +71,14 @@ def spatial_dataframe():
     ]
     records = []
     for lat, lon in coords:
-        records.append({
-            "latitude": lat,
-            "longitude": lon,
-            "h3_index": h3.latlng_to_cell(lat, lon, 7),
-            "value": float(np.random.uniform(1, 100)),
-        })
+        records.append(
+            {
+                "latitude": lat,
+                "longitude": lon,
+                "h3_index": h3.latlng_to_cell(lat, lon, 7),
+                "value": float(np.random.uniform(1, 100)),
+            }
+        )
     return pd.DataFrame(records)
 
 
@@ -92,6 +102,7 @@ def bayesian_results():
 # Integration tests — real cross-module data flow
 # ---------------------------------------------------------------------------
 
+
 class TestCrossModuleDataFlow:
     """Validate data flowing across actual validators."""
 
@@ -108,7 +119,9 @@ class TestCrossModuleDataFlow:
 
         assert sv_results["total_records"] == 20
         assert "coordinate_validity" in sv_results["spatial_validation"]
-        valid_coords = sv_results["spatial_validation"]["coordinate_validity"]["valid_coordinates"]
+        valid_coords = sv_results["spatial_validation"]["coordinate_validity"][
+            "valid_coordinates"
+        ]
         assert valid_coords == 20
 
     def test_bayesian_validation(self, bayesian_results):
@@ -118,7 +131,10 @@ class TestCrossModuleDataFlow:
 
         assert results["inference_validation"]["convergence"] is True
         assert results["overall_quality"] in ("excellent", "good")
-        assert results["inference_validation"]["prediction_quality"]["total_predictions"] == 50
+        assert (
+            results["inference_validation"]["prediction_quality"]["total_predictions"]
+            == 50
+        )
 
     def test_performance_validation(self):
         """Validate performance metrics through PerformanceValidator."""
@@ -148,7 +164,11 @@ class TestCrossModuleDataFlow:
         )
 
         assert "overall_results" in results
-        assert results["overall_results"]["system_quality"] in ("excellent", "good", "acceptable")
+        assert results["overall_results"]["system_quality"] in (
+            "excellent",
+            "good",
+            "acceptable",
+        )
         assert results["overall_results"]["components_tested"] >= 2
         assert len(results["components_validated"]) >= 2
 
@@ -206,21 +226,27 @@ class TestCrossModuleErrorHandling:
     def test_spatial_validator_with_invalid_data(self):
         """SpatialValidator handles invalid coordinates gracefully."""
         sv = SpatialValidator(config={}, logger=None)
-        bad_data = pd.DataFrame({
-            "latitude": [200.0, -100.0, 37.0],
-            "longitude": [-122.0, 500.0, -73.0],
-        })
+        bad_data = pd.DataFrame(
+            {
+                "latitude": [200.0, -100.0, 37.0],
+                "longitude": [-122.0, 500.0, -73.0],
+            }
+        )
         results = sv.validate(bad_data)
-        invalid = results["spatial_validation"]["coordinate_validity"]["invalid_coordinates"]
+        invalid = results["spatial_validation"]["coordinate_validity"][
+            "invalid_coordinates"
+        ]
         assert invalid >= 2
 
     def test_bayesian_validator_unconverged(self):
         """BayesianValidator correctly flags non-converged results."""
         bv = BayesianValidator(config={}, logger=None)
-        results = bv.validate({
-            "converged": False,
-            "predictions": [1.0, 2.0, float("nan")],
-            "uncertainty": [0.1, -0.5, 0.3],
-        })
+        results = bv.validate(
+            {
+                "converged": False,
+                "predictions": [1.0, 2.0, float("nan")],
+                "uncertainty": [0.1, -0.5, 0.3],
+            }
+        )
         assert results["overall_quality"] == "poor"
         assert results["inference_validation"]["convergence"] is False

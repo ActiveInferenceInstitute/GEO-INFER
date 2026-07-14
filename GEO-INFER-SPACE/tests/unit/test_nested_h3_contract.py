@@ -12,7 +12,7 @@ SPACE_SRC = Path(__file__).resolve().parents[2] / "src"
 if str(SPACE_SRC) not in sys.path:
     sys.path.insert(0, str(SPACE_SRC))
 
-from geo_infer_space.nested import NestedH3Grid
+from geo_infer_space.nested import NestedH3Grid  # noqa: E402
 
 
 def _sf_boundary() -> dict:

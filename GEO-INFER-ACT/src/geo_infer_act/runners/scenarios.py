@@ -640,7 +640,9 @@ def _nested_h3_resolutions(config: RunConfig) -> List[int]:
     return resolutions
 
 
-def _write_spatial_trace_outputs(config: RunConfig, traces: List[Any]) -> Dict[str, Any]:
+def _write_spatial_trace_outputs(
+    config: RunConfig, traces: List[Any]
+) -> Dict[str, Any]:
     """Write spatial active-inference trace JSON and diagnostic CSV files."""
     if not traces:
         raise ValueError("Spatial inference traces are required for geospatial runs")
@@ -689,7 +691,9 @@ def _write_spatial_trace_outputs(config: RunConfig, traces: List[Any]) -> Dict[s
         "backend_metadata": traces[-1].backend_metadata,
         "research_statistics": research_statistics,
     }
-    write_json(config.output_dir / "data" / "spatial_inference_trace.json", trace_payload)
+    write_json(
+        config.output_dir / "data" / "spatial_inference_trace.json", trace_payload
+    )
     write_csv(config.output_dir / "data" / "h3_cell_diagnostics.csv", cell_rows)
     write_csv(config.output_dir / "data" / "h3_edge_diagnostics.csv", edge_rows)
     write_json(
@@ -747,9 +751,7 @@ def _trace_cell_rows(traces: List[Any]) -> List[Dict[str, Any]]:
 def _nested_parent_child_rows(cell_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Build parent-child residual rows from nested trace cell diagnostics."""
     adapter = get_h3_adapter()
-    parent_rows = {
-        (row["cell"], int(row["timestep"])): row for row in cell_rows
-    }
+    parent_rows = {(row["cell"], int(row["timestep"])): row for row in cell_rows}
     rows: List[Dict[str, Any]] = []
     for row in cell_rows:
         parent = row.get("parent_cell")
@@ -816,13 +818,15 @@ def _build_h3_lattice_animation_payload(
             raise ValueError(f"Invalid H3 cell in lattice animation payload: {cell}")
         lat, lng = adapter.cell_to_latlng(cell)
         boundary = adapter.cell_to_boundary(cell)
-        ring = [[float(boundary_lng), float(boundary_lat)] for boundary_lat, boundary_lng in boundary]
+        ring = [
+            [float(boundary_lng), float(boundary_lat)]
+            for boundary_lat, boundary_lng in boundary
+        ]
         if ring and ring[0] != ring[-1]:
             ring.append(ring[0])
         cell_rows_for_cell = [row for row in cell_rows if str(row["cell"]) == cell]
         aggregate_parent = any(
-            bool(row.get("aggregate_parent_cell", False))
-            for row in cell_rows_for_cell
+            bool(row.get("aggregate_parent_cell", False)) for row in cell_rows_for_cell
         )
         cells.append(
             {
@@ -964,9 +968,7 @@ def _lattice_cell_state(row: Mapping[str, Any]) -> Dict[str, Any]:
         "posterior_delta": _finite_float(row.get("posterior_delta", 0.0)),
         "belief_flux_in": _finite_float(row.get("belief_flux_in", 0.0)),
         "belief_flux_out": _finite_float(row.get("belief_flux_out", 0.0)),
-        "belief_flux_divergence": _finite_float(
-            row.get("belief_flux_divergence", 0.0)
-        ),
+        "belief_flux_divergence": _finite_float(row.get("belief_flux_divergence", 0.0)),
         "cross_level_consistency": _finite_float(
             row.get("cross_level_consistency", 0.0)
         ),
@@ -1416,7 +1418,9 @@ def _write_nested_h3_hierarchy_map(config: RunConfig, nested_update: Any) -> Pat
             child_lat, child_lng = adapter.cell_to_latlng(child)
             if parent_belief is not None:
                 distance = float(
-                    np.linalg.norm(normalize_belief_vector(parent_belief) - child_belief)
+                    np.linalg.norm(
+                        normalize_belief_vector(parent_belief) - child_belief
+                    )
                 )
                 consistency = float(1.0 / (1.0 + distance))
             else:
@@ -3167,7 +3171,7 @@ def _write_spatial_inference_research_report(
     parent_child_rows: List[Dict[str, Any]],
 ) -> Path:
     """Write a compact HTML research report for spatial active inference runs."""
-    leaf_rows = _leaf_trace_rows(trace_rows)
+    _leaf_rows = _leaf_trace_rows(trace_rows)
     final_rows = _latest_leaf_trace_rows(trace_rows)
     summary_rows = statistics_summary_rows(research_statistics)
     summary_rows.extend(
@@ -3177,11 +3181,13 @@ def _write_spatial_inference_research_report(
             {
                 "group": "run",
                 "metric": "final_mean_local_coherence",
-                "value": float(
-                    np.mean([float(row["local_coherence"]) for row in final_rows])
-                )
-                if final_rows
-                else 0.0,
+                "value": (
+                    float(
+                        np.mean([float(row["local_coherence"]) for row in final_rows])
+                    )
+                    if final_rows
+                    else 0.0
+                ),
             },
         ]
     )
@@ -3242,7 +3248,7 @@ def _write_spatial_inference_research_report(
             ]
         )
     artifact_rows = "\n".join(
-        f"<li><a href=\"{href}\">{label}</a></li>" for label, href in artifact_links
+        f'<li><a href="{href}">{label}</a></li>' for label, href in artifact_links
     )
     html = f"""
 <!doctype html>
@@ -3321,9 +3327,7 @@ def _write_spatial_inference_research_report(
 def _leaf_trace_rows(trace_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Return trace rows for leaf/runtime cells, excluding aggregate parents."""
     return [
-        row
-        for row in trace_rows
-        if not bool(row.get("aggregate_parent_cell", False))
+        row for row in trace_rows if not bool(row.get("aggregate_parent_cell", False))
     ]
 
 
@@ -3360,9 +3364,7 @@ def _spatial_autocorrelation_rows(
                 target_delta = entropy_by_cell[target] - entropy_mean
                 neighbor_contrast.append(abs(source_delta - target_delta))
                 products.append(source_delta * target_delta)
-        flux_values = [
-            float(row["belief_flux_divergence"]) for row in timestep_rows
-        ]
+        flux_values = [float(row["belief_flux_divergence"]) for row in timestep_rows]
         output.append(
             {
                 "timestep": timestep,
@@ -3371,29 +3373,33 @@ def _spatial_autocorrelation_rows(
                     if products and entropy_var > 1e-12
                     else 0.0
                 ),
-                "mean_edge_belief_distance": float(
-                    np.mean(
-                        [
-                            float(edge.get("belief_distance", 0.0))
-                            for edge in edge_subset
-                        ]
+                "mean_edge_belief_distance": (
+                    float(
+                        np.mean(
+                            [
+                                float(edge.get("belief_distance", 0.0))
+                                for edge in edge_subset
+                            ]
+                        )
                     )
-                )
-                if edge_subset
-                else 0.0,
-                "mean_edge_coherence": float(
-                    np.mean(
-                        [float(edge.get("coherence", 0.0)) for edge in edge_subset]
+                    if edge_subset
+                    else 0.0
+                ),
+                "mean_edge_coherence": (
+                    float(
+                        np.mean(
+                            [float(edge.get("coherence", 0.0)) for edge in edge_subset]
+                        )
                     )
-                )
-                if edge_subset
-                else 0.0,
+                    if edge_subset
+                    else 0.0
+                ),
                 "mean_neighbor_entropy_contrast": (
                     float(np.mean(neighbor_contrast)) if neighbor_contrast else 0.0
                 ),
-                "mean_abs_flux_balance": abs(float(np.sum(flux_values)))
-                if flux_values
-                else 0.0,
+                "mean_abs_flux_balance": (
+                    abs(float(np.sum(flux_values))) if flux_values else 0.0
+                ),
             }
         )
     return output

@@ -7,7 +7,6 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-import numpy as np
 from PIL import Image
 
 from geo_infer_art.core.generation.procedural_art import ProceduralArt
@@ -46,18 +45,11 @@ class TestProceduralArt(unittest.TestCase):
     def test_init_with_custom_parameters(self):
         """Test initialization with custom parameters."""
         algorithm = "l_system"
-        params = {
-            "iterations": 5,
-            "angle": 25.0,
-            "axiom": "F",
-            "rules": {"F": "F+F-F"}
-        }
+        params = {"iterations": 5, "angle": 25.0, "axiom": "F", "rules": {"F": "F+F-F"}}
         resolution = (600, 400)
 
         proc_art = ProceduralArt(
-            algorithm=algorithm,
-            params=params,
-            resolution=resolution
+            algorithm=algorithm, params=params, resolution=resolution
         )
 
         self.assertEqual(proc_art.algorithm, algorithm)
@@ -68,8 +60,7 @@ class TestProceduralArt(unittest.TestCase):
         """Test creating ProceduralArt from geographic coordinates."""
         # Test basic creation
         proc_art = ProceduralArt.from_geo_coordinates(
-            lat=self.test_lat,
-            lon=self.test_lon
+            lat=self.test_lat, lon=self.test_lon
         )
 
         self.assertEqual(proc_art.algorithm, "noise_field")  # Default algorithm
@@ -77,16 +68,13 @@ class TestProceduralArt(unittest.TestCase):
         self.assertIsNotNone(proc_art.image)
 
         # Test with different algorithm and params
-        additional_params = {
-            "color_palette": "sunset",
-            "iterations": 3
-        }
+        additional_params = {"color_palette": "sunset", "iterations": 3}
 
         proc_art = ProceduralArt.from_geo_coordinates(
             lat=self.test_lat,
             lon=self.test_lon,
             algorithm="l_system",
-            additional_params=additional_params
+            additional_params=additional_params,
         )
 
         self.assertEqual(proc_art.algorithm, "l_system")
@@ -98,8 +86,7 @@ class TestProceduralArt(unittest.TestCase):
         """Test creating ProceduralArt from geographic features."""
         # Test basic creation
         proc_art = ProceduralArt.from_geo_features(
-            feature_type="rivers",
-            feature_count=3
+            feature_type="rivers", feature_count=3
         )
 
         self.assertEqual(proc_art.algorithm, "l_system")  # Default for features
@@ -109,16 +96,13 @@ class TestProceduralArt(unittest.TestCase):
         self.assertIsNotNone(proc_art.image)
 
         # Test with different algorithm and params
-        additional_params = {
-            "color_palette": "ocean",
-            "complexity": 0.7
-        }
+        additional_params = {"color_palette": "ocean", "complexity": 0.7}
 
         proc_art = ProceduralArt.from_geo_features(
             feature_type="coastlines",
             feature_count=1,
             algorithm="cellular_automata",
-            additional_params=additional_params
+            additional_params=additional_params,
         )
 
         self.assertEqual(proc_art.algorithm, "cellular_automata")
@@ -132,7 +116,7 @@ class TestProceduralArt(unittest.TestCase):
         proc_art = ProceduralArt(
             algorithm="noise_field",
             params={"color_palette": "viridis"},
-            resolution=(400, 400)
+            resolution=(400, 400),
         )
 
         # Image should not exist yet
@@ -150,9 +134,7 @@ class TestProceduralArt(unittest.TestCase):
         """Test saving and showing procedural art."""
         # Create procedural art
         proc_art = ProceduralArt.from_geo_coordinates(
-            lat=self.test_lat,
-            lon=self.test_lon,
-            algorithm="noise_field"
+            lat=self.test_lat, lon=self.test_lon, algorithm="noise_field"
         )
 
         # Test save method
@@ -175,7 +157,7 @@ class TestProceduralArt(unittest.TestCase):
             "cellular_automata",
             "reaction_diffusion",
             "voronoi",
-            "fractal_tree"
+            "fractal_tree",
         ]
 
         for algorithm in algorithms:
@@ -184,7 +166,7 @@ class TestProceduralArt(unittest.TestCase):
                 proc_art = ProceduralArt(
                     algorithm=algorithm,
                     params={"color_palette": "viridis"},
-                    resolution=(300, 300)  # Smaller for faster tests
+                    resolution=(300, 300),  # Smaller for faster tests
                 )
 
                 proc_art.generate()
@@ -207,15 +189,13 @@ class TestProceduralArt(unittest.TestCase):
         # Test invalid coordinates
         with self.assertRaises(ValueError):
             ProceduralArt.from_geo_coordinates(
-                lat=100.0,  # Invalid latitude
-                lon=self.test_lon
+                lat=100.0, lon=self.test_lon  # Invalid latitude
             )
 
         # Test invalid feature type
         with self.assertRaises(ValueError):
             ProceduralArt.from_geo_features(
-                feature_type="invalid_feature_type",
-                feature_count=1
+                feature_type="invalid_feature_type", feature_count=1
             )
 
         # Test invalid resolution

@@ -4,7 +4,6 @@ Source: src/geo_infer_place/core/dashboard/ (core.py, analyzers.py)
 
 These tests exercise the implemented dashboard contract.
 """
-import pytest
 
 try:
     from geo_infer_place.core.dashboard.core import AdvancedDashboard
@@ -13,9 +12,11 @@ try:
         ZoningAnalyzer,
         AgroEconomicAnalyzer,
     )
+
     _HAS_MODULE = True
 except ImportError:
     _HAS_MODULE = False
+
 
 class TestClimateAnalyzer:
     def test_init(self, temp_output_dir):

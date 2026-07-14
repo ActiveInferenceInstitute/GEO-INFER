@@ -9,7 +9,7 @@ import logging
 import asyncio
 import time
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -148,9 +148,9 @@ class HealthChecker:
                 details={
                     "cpu_percent": cpu_percent,
                     "memory_percent": memory.percent,
-                    "memory_available_gb": memory.available / (1024 ** 3),
+                    "memory_available_gb": memory.available / (1024**3),
                     "disk_percent": disk.percent,
-                    "disk_free_gb": disk.free / (1024 ** 3),
+                    "disk_free_gb": disk.free / (1024**3),
                 },
                 duration_ms=duration_ms,
             )
@@ -282,7 +282,11 @@ class HealthChecker:
                     checks.append(
                         HealthCheck(
                             name=name,
-                            status=HealthStatus.HEALTHY if result else HealthStatus.UNHEALTHY,
+                            status=(
+                                HealthStatus.HEALTHY
+                                if result
+                                else HealthStatus.UNHEALTHY
+                            ),
                             message=f"Check {name} completed",
                         )
                     )
@@ -315,7 +319,9 @@ class HealthChecker:
                 "total": len(checks),
                 "healthy": sum(1 for c in checks if c.status == HealthStatus.HEALTHY),
                 "degraded": sum(1 for c in checks if c.status == HealthStatus.DEGRADED),
-                "unhealthy": sum(1 for c in checks if c.status == HealthStatus.UNHEALTHY),
+                "unhealthy": sum(
+                    1 for c in checks if c.status == HealthStatus.UNHEALTHY
+                ),
             },
         }
 
@@ -359,4 +365,3 @@ class HealthChecker:
             ]
 
         return history[-limit:]
-

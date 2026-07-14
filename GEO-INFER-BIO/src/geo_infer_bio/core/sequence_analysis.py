@@ -3,9 +3,8 @@ Sequence analysis module for GEO-INFER-BIO.
 """
 
 from typing import Dict, List, Optional, Union
-import numpy as np
 import pandas as pd
-from Bio import SeqIO, AlignIO
+from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment, PairwiseAligner
@@ -19,8 +18,10 @@ except ImportError:
     matlist = None
     try:
         from Bio.Align import substitution_matrices as _sub_matrices
+
         class _MatlistCompat:
             """Compatibility shim for old Bio.SubsMat.MatrixInfo API."""
+
             @property
             def blosum62(self):
                 mat = _sub_matrices.load("BLOSUM62")
@@ -30,6 +31,7 @@ except ImportError:
                     for b in mat.alphabet:
                         result[(a, b)] = mat[a, b]
                 return result
+
         matlist = _MatlistCompat()
     except ImportError:
         pass
@@ -117,9 +119,7 @@ class SequenceAnalyzer:
         gc_count = sequence.count("G") + sequence.count("C")
         return (gc_count / len(sequence)) * 100
 
-    def find_motifs(
-        self, sequence: Seq, motif_length: int = 6
-    ) -> Dict[str, List[int]]:
+    def find_motifs(self, sequence: Seq, motif_length: int = 6) -> Dict[str, List[int]]:
         """
         Find repeated motifs in a sequence.
 
@@ -132,16 +132,14 @@ class SequenceAnalyzer:
         """
         motifs = {}
         for i in range(len(sequence) - motif_length + 1):
-            motif = str(sequence[i:i + motif_length])
+            motif = str(sequence[i : i + motif_length])
             if motif in motifs:
                 motifs[motif].append(i)
             else:
                 motifs[motif] = [i]
         return {k: v for k, v in motifs.items() if len(v) > 1}
 
-    def calculate_sequence_similarity(
-        self, seq1: Seq, seq2: Seq
-    ) -> float:
+    def calculate_sequence_similarity(self, seq1: Seq, seq2: Seq) -> float:
         """
         Calculate sequence similarity using BLOSUM62 matrix.
 
@@ -193,18 +191,20 @@ class SequenceAnalyzer:
 
         for frame in range(3):
             for i in range(frame, len(sequence) - 2, 3):
-                codon = str(sequence[i:i + 3])
+                codon = str(sequence[i : i + 3])
                 if codon in start_codons:
                     start_pos = i
                     for j in range(i + 3, len(sequence) - 2, 3):
-                        codon = str(sequence[j:j + 3])
+                        codon = str(sequence[j : j + 3])
                         if codon in stop_codons:
                             if j - start_pos >= min_length:
-                                coding_regions.append({
-                                    "frame": frame,
-                                    "start": start_pos,
-                                    "end": j + 2,
-                                })
+                                coding_regions.append(
+                                    {
+                                        "frame": frame,
+                                        "start": start_pos,
+                                        "end": j + 2,
+                                    }
+                                )
                             break
         return coding_regions
 
@@ -234,30 +234,34 @@ class SequenceAnalyzer:
             motifs = self.find_motifs(seq.seq)
             coding_regions = self.predict_coding_regions(seq.seq)
 
-            results["gc_content"].append({
-                "sequence_id": seq.id,
-                "gc_content": gc,
-                "latitude": spatial.latitude,
-                "longitude": spatial.longitude,
-            })
+            results["gc_content"].append(
+                {
+                    "sequence_id": seq.id,
+                    "gc_content": gc,
+                    "latitude": spatial.latitude,
+                    "longitude": spatial.longitude,
+                }
+            )
 
-            results["motif_density"].append({
-                "sequence_id": seq.id,
-                "motif_count": len(motifs),
-                "latitude": spatial.latitude,
-                "longitude": spatial.longitude,
-            })
+            results["motif_density"].append(
+                {
+                    "sequence_id": seq.id,
+                    "motif_count": len(motifs),
+                    "latitude": spatial.latitude,
+                    "longitude": spatial.longitude,
+                }
+            )
 
-            results["coding_potential"].append({
-                "sequence_id": seq.id,
-                "coding_regions": len(coding_regions),
-                "latitude": spatial.latitude,
-                "longitude": spatial.longitude,
-            })
+            results["coding_potential"].append(
+                {
+                    "sequence_id": seq.id,
+                    "coding_regions": len(coding_regions),
+                    "latitude": spatial.latitude,
+                    "longitude": spatial.longitude,
+                }
+            )
 
-        return {
-            k: pd.DataFrame(v) for k, v in results.items()
-        }
+        return {k: pd.DataFrame(v) for k, v in results.items()}
 
     def visualize_spatial_patterns(
         self,

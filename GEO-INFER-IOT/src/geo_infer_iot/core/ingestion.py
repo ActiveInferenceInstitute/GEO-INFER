@@ -17,7 +17,7 @@ import asyncio
 import logging
 import json
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass, field
 from collections import defaultdict
 import time
@@ -32,15 +32,10 @@ import pandas as pd
 # drift is an explicit import failure instead of a silent fallback.
 from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
 from geo_infer_space.utils.h3_utils import (
-    cell_to_latlngjson,
-    geojson_to_h3,
     get_h3_neighbors,
     h3_resolution_stats,
 )
 from geo_infer_bayes import GaussianProcess, SpatialCovariance
-from geo_infer_bayes.core.inference import BayesianInference
-from geo_infer_bayes.core.variational import VariationalInference
-from geo_infer_bayes.core.mcmc import MCMC as MCMCSampler
 
 HAS_GEO_SPACE = True
 HAS_GEO_BAYES = True
@@ -52,7 +47,9 @@ class SpatialOperations:
     def __init__(self) -> None:
         self.indexer = SpatialIndexingInterface(backend="h3")
 
-    def latlon_to_meters(self, latitude: float, longitude: float) -> tuple[float, float]:
+    def latlon_to_meters(
+        self, latitude: float, longitude: float
+    ) -> tuple[float, float]:
         """Convert latitude/longitude to a deterministic local metric approximation."""
         return longitude * 111_320.0, latitude * 110_540.0
 
@@ -70,6 +67,7 @@ class OSCCatalog:
     def add_measurement(self, measurement: "SensorMeasurement") -> None:
         """Record a measurement for deterministic local integration tests."""
         self.measurements.append(measurement)
+
 
 # Protocol handlers
 try:

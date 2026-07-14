@@ -10,6 +10,7 @@ import numpy as np
 
 try:
     import xarray as xr
+
     HAS_XARRAY = True
 except ImportError:
     HAS_XARRAY = False
@@ -114,7 +115,9 @@ class TestForestHealthPipeline:
         assert float(result["health_index"].min()) >= 0.0
         assert float(result["health_index"].max()) <= 1.0 + 1e-6
 
-    def test_health_with_climate_data(self, ndvi_data, temperature_data, precipitation_data):
+    def test_health_with_climate_data(
+        self, ndvi_data, temperature_data, precipitation_data
+    ):
         """Test health assessment including climate stress factors."""
         from geo_infer_forest.core.forest_health import ForestHealthMonitor
 
@@ -146,7 +149,9 @@ class TestForestHealthPipeline:
 
         # Should detect some deforestation given our declining cover data
         deforestation_count = int(result["deforestation"].sum())
-        assert deforestation_count > 0, "Should detect deforestation in declining cover data"
+        assert (
+            deforestation_count > 0
+        ), "Should detect deforestation in declining cover data"
 
 
 class TestCarbonSequestrationPipeline:
@@ -154,7 +159,9 @@ class TestCarbonSequestrationPipeline:
 
     def test_carbon_stock_from_biomass(self, biomass_data):
         """Test carbon stock calculation from biomass."""
-        from geo_infer_forest.core.carbon_sequestration import CarbonSequestrationModeler
+        from geo_infer_forest.core.carbon_sequestration import (
+            CarbonSequestrationModeler,
+        )
 
         modeler = CarbonSequestrationModeler()
         carbon_stock = modeler.calculate_carbon_stock(biomass_data)
@@ -165,7 +172,9 @@ class TestCarbonSequestrationPipeline:
 
     def test_sequestration_rate_estimation(self):
         """Test sequestration rate from growth data."""
-        from geo_infer_forest.core.carbon_sequestration import CarbonSequestrationModeler
+        from geo_infer_forest.core.carbon_sequestration import (
+            CarbonSequestrationModeler,
+        )
 
         modeler = CarbonSequestrationModeler()
 
@@ -180,7 +189,9 @@ class TestCarbonSequestrationPipeline:
 
     def test_carbon_credits_calculation(self, biomass_data):
         """Test carbon credit value calculation."""
-        from geo_infer_forest.core.carbon_sequestration import CarbonSequestrationModeler
+        from geo_infer_forest.core.carbon_sequestration import (
+            CarbonSequestrationModeler,
+        )
 
         modeler = CarbonSequestrationModeler()
 
@@ -193,7 +204,9 @@ class TestCarbonSequestrationPipeline:
             dims=["lat", "lon"],
         )
 
-        credits = modeler.calculate_carbon_credits(sequestration, area, price_per_ton=50.0)
+        credits = modeler.calculate_carbon_credits(
+            sequestration, area, price_per_ton=50.0
+        )
 
         # Expected: 5 * 3.67 * 100 * 50 = 91,750 per cell
         expected_per_cell = 5.0 * 3.67 * 100.0 * 50.0
@@ -206,7 +219,9 @@ class TestForestCarbonIntegrationPipeline:
     def test_health_to_carbon_pipeline(self, ndvi_data, biomass_data):
         """Test the full pipeline from health assessment through carbon credit valuation."""
         from geo_infer_forest.core.forest_health import ForestHealthMonitor
-        from geo_infer_forest.core.carbon_sequestration import CarbonSequestrationModeler
+        from geo_infer_forest.core.carbon_sequestration import (
+            CarbonSequestrationModeler,
+        )
 
         # Step 1: Assess forest health
         monitor = ForestHealthMonitor()
@@ -222,18 +237,25 @@ class TestForestCarbonIntegrationPipeline:
 
         # Carbon stock should be less than or equal to raw biomass * 0.5
         raw_carbon = biomass_data * 0.5
-        assert float(carbon_stock.mean()) <= float(raw_carbon.mean()), \
-            "Health-adjusted carbon should not exceed raw carbon estimate"
+        assert float(carbon_stock.mean()) <= float(
+            raw_carbon.mean()
+        ), "Health-adjusted carbon should not exceed raw carbon estimate"
         assert float(carbon_stock.min()) >= 0, "Carbon stock should be non-negative"
 
-    def test_deforestation_impact_on_carbon(self, forest_cover_time_series, biomass_data):
+    def test_deforestation_impact_on_carbon(
+        self, forest_cover_time_series, biomass_data
+    ):
         """Test how detected deforestation impacts carbon stock estimates."""
         from geo_infer_forest.core.forest_health import ForestHealthMonitor
-        from geo_infer_forest.core.carbon_sequestration import CarbonSequestrationModeler
+        from geo_infer_forest.core.carbon_sequestration import (
+            CarbonSequestrationModeler,
+        )
 
         # Detect deforestation
         monitor = ForestHealthMonitor()
-        deforestation = monitor.detect_deforestation(forest_cover_time_series, threshold=0.05)
+        deforestation = monitor.detect_deforestation(
+            forest_cover_time_series, threshold=0.05
+        )
 
         # Calculate carbon stock with and without deforestation masking
         modeler = CarbonSequestrationModeler()
@@ -244,5 +266,6 @@ class TestForestCarbonIntegrationPipeline:
         remaining_carbon = full_carbon * (1 - deforest_mask)
 
         # Remaining carbon should be less than full carbon
-        assert float(remaining_carbon.sum()) < float(full_carbon.sum()), \
-            "Deforestation should reduce total carbon stock"
+        assert float(remaining_carbon.sum()) < float(
+            full_carbon.sum()
+        ), "Deforestation should reduce total carbon stock"

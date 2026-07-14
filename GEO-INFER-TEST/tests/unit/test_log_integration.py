@@ -14,8 +14,12 @@ from hypothesis import given, settings, strategies as st
 
 # Import the modules we're testing
 from geo_infer_test.core.log_integration import (
-    LogIntegration, LoggingTestReporter, TestLogger as _TestLogger, LogAnalyzer,
-    TestLogEntry as _TestLogEntry, ModuleTestSummary
+    LogIntegration,
+    LoggingTestReporter,
+    TestLogger as _TestLogger,
+    LogAnalyzer,
+    TestLogEntry as _TestLogEntry,
+    ModuleTestSummary,
 )
 
 
@@ -26,9 +30,9 @@ class TestLogIntegration:
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
         self.log_config = {
-            'level': 'INFO',
-            'log_dir': self.temp_dir,
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "level": "INFO",
+            "log_dir": self.temp_dir,
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         }
 
     def test_log_integration_initialization(self):
@@ -63,7 +67,9 @@ class TestLogIntegration:
         log_integration = LogIntegration(self.log_config)
 
         with pytest.raises(ValueError):
-            with log_integration.test_context("test_002", "TIME", "test_temporal_analysis"):
+            with log_integration.test_context(
+                "test_002", "TIME", "test_temporal_analysis"
+            ):
                 # Simulate test failure
                 raise ValueError("Test failed")
 
@@ -76,7 +82,7 @@ class TestLogIntegration:
         assert entry.test_name == "test_temporal_analysis"
         assert entry.status == "FAIL"
         assert entry.error_info is not None
-        assert "ValueError" in entry.error_info['exception_type']
+        assert "ValueError" in entry.error_info["exception_type"]
 
     def test_module_summary_updates(self):
         """Test that module summaries are updated correctly."""
@@ -100,7 +106,7 @@ class TestLogIntegration:
         assert summary.failed == 0
         assert summary.errors == 1  # RuntimeError counts as error
 
-    @patch('geo_infer_test.core.log_integration.LOG_MODULE_AVAILABLE', False)
+    @patch("geo_infer_test.core.log_integration.LOG_MODULE_AVAILABLE", False)
     def test_log_integration_without_log_module(self):
         """Test LogIntegration when GEO-INFER-LOG is not available."""
         log_integration = LogIntegration(self.log_config)
@@ -120,7 +126,7 @@ class TestLoggingTestReporter:
     def setup_method(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.log_config = {'log_dir': self.temp_dir}
+        self.log_config = {"log_dir": self.temp_dir}
         self.log_integration = LogIntegration(self.log_config)
 
     def test_report_generation(self):
@@ -130,7 +136,9 @@ class TestLoggingTestReporter:
             pass
 
         with pytest.raises(AssertionError):
-            with self.log_integration.test_context("test_007", "SPACE", "test_projections"):
+            with self.log_integration.test_context(
+                "test_007", "SPACE", "test_projections"
+            ):
                 raise AssertionError("Projection test failed")
 
         # Generate report
@@ -139,17 +147,17 @@ class TestLoggingTestReporter:
         report_data = reporter.generate_test_report(output_dir)
 
         # Verify report structure
-        assert 'timestamp' in report_data
-        assert 'summary' in report_data
-        assert 'module_summaries' in report_data
-        assert 'test_entries' in report_data
+        assert "timestamp" in report_data
+        assert "summary" in report_data
+        assert "module_summaries" in report_data
+        assert "test_entries" in report_data
 
         # Verify summary data
-        summary = report_data['summary']
-        assert summary['total_tests'] == 2
-        assert summary['passed'] == 1
-        assert summary['failed'] == 1
-        assert summary['success_rate'] == 50.0
+        summary = report_data["summary"]
+        assert summary["total_tests"] == 2
+        assert summary["passed"] == 1
+        assert summary["failed"] == 1
+        assert summary["success_rate"] == 50.0
 
     def test_report_file_creation(self):
         """Test that report files are actually created."""
@@ -167,10 +175,11 @@ class TestLoggingTestReporter:
 
         # Verify JSON content
         import json
+
         with open(json_reports[0]) as f:
             report_data = json.load(f)
 
-        assert report_data['summary']['total_tests'] == 1
+        assert report_data["summary"]["total_tests"] == 1
 
 
 class TestLogAnalyzer:
@@ -192,6 +201,7 @@ class TestLogAnalyzer:
         for test_id, module, test_name, duration, status in test_scenarios:
             # Manually create test entries for analysis
             import datetime
+
             entry = _TestLogEntry(
                 timestamp=datetime.datetime.now(),
                 test_id=test_id,
@@ -200,7 +210,7 @@ class TestLogAnalyzer:
                 status=status,
                 duration=duration,
                 message=f"Test {status.lower()}",
-                details={}
+                details={},
             )
             self.log_integration.test_entries.append(entry)
 
@@ -213,7 +223,7 @@ class TestLogAnalyzer:
                     failed=0,
                     skipped=0,
                     errors=0,
-                    total_duration=0.0
+                    total_duration=0.0,
                 )
 
             summary = self.log_integration.module_summaries[module]
@@ -230,18 +240,18 @@ class TestLogAnalyzer:
         analyzer = LogAnalyzer(self.log_integration)
         analysis = analyzer.analyze_test_patterns()
 
-        assert 'total_tests_analyzed' in analysis
-        assert analysis['total_tests_analyzed'] == 5
+        assert "total_tests_analyzed" in analysis
+        assert analysis["total_tests_analyzed"] == 5
 
-        assert 'module_reliability' in analysis
+        assert "module_reliability" in analysis
 
         # Check SPACE module reliability
-        space_reliability = analysis['module_reliability']['SPACE']
-        assert space_reliability['success_rate'] == 100.0  # 2/2 passed
+        space_reliability = analysis["module_reliability"]["SPACE"]
+        assert space_reliability["success_rate"] == 100.0  # 2/2 passed
 
         # Check TIME module reliability
-        time_reliability = analysis['module_reliability']['TIME']
-        assert time_reliability['success_rate'] == 50.0  # 1/2 passed
+        time_reliability = analysis["module_reliability"]["TIME"]
+        assert time_reliability["success_rate"] == 50.0  # 1/2 passed
 
     def test_performance_bottleneck_detection(self):
         """Test identification of performance bottlenecks."""
@@ -251,10 +261,12 @@ class TestLogAnalyzer:
         # Should identify the slow test (1.0s when average is much lower)
         assert len(bottlenecks) >= 1
 
-        slow_test = next((b for b in bottlenecks if b['test_name'] == 'test_slow'), None)
+        slow_test = next(
+            (b for b in bottlenecks if b["test_name"] == "test_slow"), None
+        )
         assert slow_test is not None
-        assert slow_test['duration'] == 1.0
-        assert slow_test['slowness_factor'] > 2.0  # Much slower than average
+        assert slow_test["duration"] == 1.0
+        assert slow_test["slowness_factor"] > 2.0  # Much slower than average
 
 
 class TestTestLogger:
@@ -270,11 +282,7 @@ class TestTestLogger:
             pass
 
         # Log performance metrics
-        metrics = {
-            'cpu_usage': 45.2,
-            'memory_mb': 128.5,
-            'operations_per_second': 1500
-        }
+        metrics = {"cpu_usage": 45.2, "memory_mb": 128.5, "operations_per_second": 1500}
 
         test_logger.log_performance_metrics("test_009", metrics)
 
@@ -287,11 +295,7 @@ class TestTestLogger:
         log_integration = LogIntegration({})
         test_logger = _TestLogger(log_integration)
 
-        health_data = {
-            'status': 'healthy',
-            'response_time': 0.05,
-            'last_error': None
-        }
+        health_data = {"status": "healthy", "response_time": 0.05, "last_error": None}
 
         # This should not raise an exception
         test_logger.log_module_health("SPACE", health_data)
@@ -337,13 +341,13 @@ def test_full_workflow_integration():
     # Analyze patterns
     analyzer = LogAnalyzer(log_integration)
     analysis = analyzer.analyze_test_patterns()
-    bottlenecks = analyzer.identify_performance_bottlenecks()
+    _bottlenecks = analyzer.identify_performance_bottlenecks()
 
     # Verify the workflow completed successfully
     assert len(log_integration.test_entries) == 4
-    assert report_data['summary']['total_tests'] == 4
-    assert report_data['summary']['success_rate'] == 75.0  # 3/4 passed
-    assert len(analysis['module_reliability']) == 3  # 3 different modules
+    assert report_data["summary"]["total_tests"] == 4
+    assert report_data["summary"]["success_rate"] == 75.0  # 3/4 passed
+    assert len(analysis["module_reliability"]) == 3  # 3 different modules
 
     print("✅ Full workflow integration test completed successfully!")
 
@@ -352,10 +356,15 @@ def test_full_workflow_integration():
 # Property-Based Tests (Hypothesis)
 # ---------------------------------------------------------------------------
 
+
 class TestHypothesisLogIntegration:
     """Property-based tests for LogIntegration."""
 
-    @given(st.text(min_size=1, max_size=50), st.text(min_size=1, max_size=20), st.sampled_from(["PASS", "FAIL", "ERROR", "SKIP"]))
+    @given(
+        st.text(min_size=1, max_size=50),
+        st.text(min_size=1, max_size=20),
+        st.sampled_from(["PASS", "FAIL", "ERROR", "SKIP"]),
+    )
     @settings(max_examples=50, deadline=None)
     def test_log_entry_creation_fuzz(self, message, test_id, status):
         """Fuzz LogEntry creation with random text and statuses."""
@@ -366,7 +375,7 @@ class TestHypothesisLogIntegration:
                 entry.message = message
                 # Override status logic: force failure if needed to test recording
                 if status != "PASS":
-                     raise ValueError(message)
+                    raise ValueError(message)
         except ValueError:
             pass
         except Exception:
@@ -381,7 +390,18 @@ class TestHypothesisLogIntegration:
             # So we check if the original message is contained or equal
             assert message in recorded.message or recorded.message == message
 
-    @given(st.lists(st.tuples(st.text(min_size=1, alphabet=st.characters(whitelist_categories=('L', 'N'))), st.sampled_from(["PASS", "FAIL"])), min_size=1, max_size=20))
+    @given(
+        st.lists(
+            st.tuples(
+                st.text(
+                    min_size=1, alphabet=st.characters(whitelist_categories=("L", "N"))
+                ),
+                st.sampled_from(["PASS", "FAIL"]),
+            ),
+            min_size=1,
+            max_size=20,
+        )
+    )
     @settings(max_examples=50, deadline=None)
     def test_analyzer_statistics_fuzz(self, results):
         """Fuzz LogAnalyzer stats calculation."""
@@ -409,5 +429,6 @@ class TestHypothesisLogIntegration:
             # stats["module_reliability"][m] is a dict, not a float
             rel_data = stats["module_reliability"].get(m, {})
             success_rate = rel_data.get("success_rate", 100.0)
-            assert success_rate < 100.0, f"Module {m} had failures (rate: {success_rate})"
-
+            assert (
+                success_rate < 100.0
+            ), f"Module {m} had failures (rate: {success_rate})"

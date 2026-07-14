@@ -125,9 +125,9 @@ class TestModulePyprojectConsistency:
         if not pyproject.is_file():
             pytest.fail(f"No pyproject.toml for GEO-INFER-{module}")
         content = pyproject.read_text()
-        assert "[project]" in content or "[tool." in content, (
-            f"pyproject.toml for GEO-INFER-{module} has no [project] or [tool.*] section"
-        )
+        assert (
+            "[project]" in content or "[tool." in content
+        ), f"pyproject.toml for GEO-INFER-{module} has no [project] or [tool.*] section"
 
     @pytest.mark.parametrize("module", list(MODULE_PACKAGES.keys()))
     def test_module_pyproject_has_name(self, module):
@@ -137,4 +137,6 @@ class TestModulePyprojectConsistency:
             pytest.fail(f"No pyproject.toml for GEO-INFER-{module}")
         content = pyproject.read_text()
         if "[project]" in content:
-            assert 'name' in content, f"pyproject.toml for GEO-INFER-{module} missing name field"
+            assert (
+                "name" in content
+            ), f"pyproject.toml for GEO-INFER-{module} missing name field"

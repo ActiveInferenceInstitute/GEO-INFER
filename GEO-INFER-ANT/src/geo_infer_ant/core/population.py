@@ -17,11 +17,14 @@ Key Features:
 import numpy as np
 import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
-from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Dict, List, Any, Optional, Callable
+from datetime import datetime
 from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
 import json
+
+if TYPE_CHECKING:
+    from .agent_base import SwarmAgent
 
 # Integration imports
 try:
@@ -43,10 +46,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PopulationConfig:
     """Configuration for agent population dynamics."""
+
     population_size: int = 1000
-    agent_types: List[str] = field(default_factory=lambda: ['worker', 'scout', 'soldier'])
-    spatial_distribution: str = 'random'  # 'random', 'clustered', 'uniform', 'custom'
-    behavioral_heterogeneity: str = 'stochastic'  # 'stochastic', 'deterministic', 'adaptive'
+    agent_types: List[str] = field(
+        default_factory=lambda: ["worker", "scout", "soldier"]
+    )
+    spatial_distribution: str = "random"  # 'random', 'clustered', 'uniform', 'custom'
+    behavioral_heterogeneity: str = (
+        "stochastic"  # 'stochastic', 'deterministic', 'adaptive'
+    )
 
     # Spatial configuration
     spatial_bounds: Optional[Dict[str, float]] = None
@@ -72,13 +80,19 @@ class PopulationConfig:
         if not self.agent_types:
             raise ValueError("At least one agent type must be specified")
 
-        if self.spatial_distribution not in ['random', 'clustered', 'uniform', 'custom']:
+        if self.spatial_distribution not in [
+            "random",
+            "clustered",
+            "uniform",
+            "custom",
+        ]:
             raise ValueError("Invalid spatial distribution type")
 
 
 @dataclass
 class EnvironmentalState:
     """Current state of the simulation environment."""
+
     spatial_bounds: Dict[str, float]
     resource_distribution: Dict[str, Any] = field(default_factory=dict)
     obstacle_map: Dict[str, Any] = field(default_factory=dict)
@@ -101,7 +115,7 @@ class EnvironmentalState:
         resources = {}
 
         for resource_type, distribution in self.resource_distribution.items():
-            if distribution.get('type') == 'spatial_field':
+            if distribution.get("type") == "spatial_field":
                 # Calculate resource density at location
                 resources[resource_type] = self._calculate_resource_density(
                     location, distribution
@@ -109,10 +123,12 @@ class EnvironmentalState:
 
         return resources
 
-    def _calculate_resource_density(self, location: np.ndarray, distribution: Dict[str, Any]) -> float:
+    def _calculate_resource_density(
+        self, location: np.ndarray, distribution: Dict[str, Any]
+    ) -> float:
         """Calculate resource density at given location."""
         # Simplified calculation - would use actual spatial interpolation
-        centers = distribution.get('centers', [])
+        centers = distribution.get("centers", [])
         if not centers:
             return 0.0
 
@@ -121,8 +137,8 @@ class EnvironmentalState:
         min_distance = min(distances)
 
         # Exponential decay with distance
-        max_density = distribution.get('max_density', 1.0)
-        decay_rate = distribution.get('decay_rate', 0.1)
+        max_density = distribution.get("max_density", 1.0)
+        decay_rate = distribution.get("decay_rate", 0.1)
 
         return max_density * np.exp(-decay_rate * min_distance)
 
@@ -130,6 +146,7 @@ class EnvironmentalState:
 @dataclass
 class SimulationResults:
     """Results from population dynamics simulation."""
+
     trajectories: List[np.ndarray] = field(default_factory=list)
     interactions: List[Dict[str, Any]] = field(default_factory=list)
     emergent_patterns: Dict[str, Any] = field(default_factory=dict)
@@ -160,13 +177,16 @@ class SimulationResults:
     def to_dict(self) -> Dict[str, Any]:
         """Convert results to dictionary."""
         return {
-            'trajectories': [traj.tolist() if hasattr(traj, 'tolist') else traj for traj in self.trajectories],
-            'interactions': self.interactions,
-            'emergent_patterns': self.emergent_patterns,
-            'performance_metrics': self.performance_metrics,
-            'simulation_time': self.simulation_time,
-            'time_steps': self.time_steps,
-            'population_size': self.population_size
+            "trajectories": [
+                traj.tolist() if hasattr(traj, "tolist") else traj
+                for traj in self.trajectories
+            ],
+            "interactions": self.interactions,
+            "emergent_patterns": self.emergent_patterns,
+            "performance_metrics": self.performance_metrics,
+            "simulation_time": self.simulation_time,
+            "time_steps": self.time_steps,
+            "population_size": self.population_size,
         }
 
 
@@ -191,10 +211,10 @@ class AgentPopulation:
         self,
         population_size: int = 1000,
         agent_types: List[str] = None,
-        spatial_distribution: str = 'random',
-        behavioral_heterogeneity: str = 'stochastic',
+        spatial_distribution: str = "random",
+        behavioral_heterogeneity: str = "stochastic",
         spatial_bounds: Optional[Dict[str, float]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize agent population.
@@ -209,17 +229,21 @@ class AgentPopulation:
         """
         self.config = PopulationConfig(
             population_size=population_size,
-            agent_types=agent_types if agent_types is not None else ['worker', 'scout', 'soldier'],
+            agent_types=(
+                agent_types
+                if agent_types is not None
+                else ["worker", "scout", "soldier"]
+            ),
             spatial_distribution=spatial_distribution,
             behavioral_heterogeneity=behavioral_heterogeneity,
-            spatial_bounds=spatial_bounds
+            spatial_bounds=spatial_bounds,
         )
 
         # Expose population size as direct attribute
         self.population_size = population_size
 
         # Population state
-        self.agents: List['SwarmAgent'] = []
+        self.agents: List["SwarmAgent"] = []
         self.environment = None
         self.simulation_results = SimulationResults()
 
@@ -249,7 +273,7 @@ class AgentPopulation:
         # Initialize spatial indexing
         if SpatialIndexingInterface:
             try:
-                self.spatial_indexer = SpatialIndexingInterface(backend='h3')
+                self.spatial_indexer = SpatialIndexingInterface(backend="h3")
                 logger.info("Spatial indexer initialized for population")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial indexer: {e}")
@@ -257,7 +281,7 @@ class AgentPopulation:
         # Initialize spatial analytics
         if SpatialAnalyticsInterface:
             try:
-                self.spatial_analytics = SpatialAnalyticsInterface(backend='h3')
+                self.spatial_analytics = SpatialAnalyticsInterface(backend="h3")
                 logger.info("Spatial analytics initialized for population")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial analytics: {e}")
@@ -274,7 +298,7 @@ class AgentPopulation:
         self,
         foraging_rules: Optional[Dict[str, Any]] = None,
         communication_rules: Optional[Dict[str, Any]] = None,
-        adaptation_rules: Optional[Dict[str, Any]] = None
+        adaptation_rules: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Configure behavioral rules for the population.
@@ -302,7 +326,7 @@ class AgentPopulation:
         resource_distribution: Optional[Dict[str, Any]] = None,
         obstacle_map: Optional[Dict[str, Any]] = None,
         pheromone_diffusion: Optional[Dict[str, Any]] = None,
-        environmental_factors: Optional[Dict[str, Any]] = None
+        environmental_factors: Optional[Dict[str, Any]] = None,
     ) -> EnvironmentalState:
         """
         Initialize the spatial environment for agent simulation.
@@ -322,17 +346,21 @@ class AgentPopulation:
             self.config.spatial_bounds = spatial_bounds
 
         bounds = self.config.spatial_bounds or {
-            'min_lat': -10, 'max_lat': 10,
-            'min_lng': -10, 'max_lng': 10
+            "min_lat": -10,
+            "max_lat": 10,
+            "min_lng": -10,
+            "max_lng": 10,
         }
 
         # Initialize environmental state
         self.environment = EnvironmentalState(
             spatial_bounds=bounds,
-            resource_distribution=resource_distribution or self._default_resource_distribution(),
+            resource_distribution=resource_distribution
+            or self._default_resource_distribution(),
             obstacle_map=obstacle_map or {},
-            pheromone_diffusion=pheromone_diffusion or self._default_pheromone_diffusion(),
-            environmental_factors=environmental_factors or {}
+            pheromone_diffusion=pheromone_diffusion
+            or self._default_pheromone_diffusion(),
+            environmental_factors=environmental_factors or {},
         )
 
         logger.info(f"Environment initialized with bounds: {bounds}")
@@ -341,43 +369,43 @@ class AgentPopulation:
     def _default_resource_distribution(self) -> Dict[str, Any]:
         """Generate default resource distribution."""
         return {
-            'food': {
-                'type': 'spatial_field',
-                'centers': [np.random.uniform(-8, 8, 2) for _ in range(10)],
-                'max_density': 1.0,
-                'decay_rate': 0.1,
-                'regeneration_rate': 0.05
+            "food": {
+                "type": "spatial_field",
+                "centers": [np.random.uniform(-8, 8, 2) for _ in range(10)],
+                "max_density": 1.0,
+                "decay_rate": 0.1,
+                "regeneration_rate": 0.05,
             },
-            'water': {
-                'type': 'spatial_field',
-                'centers': [np.random.uniform(-8, 8, 2) for _ in range(5)],
-                'max_density': 0.8,
-                'decay_rate': 0.15,
-                'regeneration_rate': 0.1
-            }
+            "water": {
+                "type": "spatial_field",
+                "centers": [np.random.uniform(-8, 8, 2) for _ in range(5)],
+                "max_density": 0.8,
+                "decay_rate": 0.15,
+                "regeneration_rate": 0.1,
+            },
         }
 
     def _default_pheromone_diffusion(self) -> Dict[str, Any]:
         """Generate default pheromone diffusion parameters."""
         return {
-            'trail': {
-                'evaporation_rate': 0.1,
-                'diffusion_rate': 0.05,
-                'max_intensity': 2.0
+            "trail": {
+                "evaporation_rate": 0.1,
+                "diffusion_rate": 0.05,
+                "max_intensity": 2.0,
             },
-            'food': {
-                'evaporation_rate': 0.05,
-                'diffusion_rate': 0.1,
-                'max_intensity': 1.5
+            "food": {
+                "evaporation_rate": 0.05,
+                "diffusion_rate": 0.1,
+                "max_intensity": 1.5,
             },
-            'alarm': {
-                'evaporation_rate': 0.2,
-                'diffusion_rate': 0.2,
-                'max_intensity': 3.0
-            }
+            "alarm": {
+                "evaporation_rate": 0.2,
+                "diffusion_rate": 0.2,
+                "max_intensity": 3.0,
+            },
         }
 
-    def create_agents(self) -> List['SwarmAgent']:
+    def create_agents(self) -> List["SwarmAgent"]:
         """
         Create and initialize all agents in the population.
 
@@ -399,11 +427,7 @@ class AgentPopulation:
                 # Create agent with type-specific parameters
                 agent_config = self._get_agent_config(agent_type)
 
-                agent = SwarmAgent(
-                    agent_id=agent_id,
-                    position=position,
-                    **agent_config
-                )
+                agent = SwarmAgent(agent_id=agent_id, position=position, **agent_config)
 
                 # Set agent type and initial state
                 agent.agent_type = agent_type
@@ -437,17 +461,26 @@ class AgentPopulation:
 
     def _generate_initial_position(self, agent_type: str, index: int) -> np.ndarray:
         """Generate initial position for agent based on distribution strategy."""
-        if self.config.spatial_distribution == 'random':
-            bounds = self.config.spatial_bounds or {'min_lat': -10, 'max_lat': 10, 'min_lng': -10, 'max_lng': 10}
-            return np.array([
-                np.random.uniform(bounds['min_lat'], bounds['max_lat']),
-                np.random.uniform(bounds['min_lng'], bounds['max_lng'])
-            ])
+        if self.config.spatial_distribution == "random":
+            bounds = self.config.spatial_bounds or {
+                "min_lat": -10,
+                "max_lat": 10,
+                "min_lng": -10,
+                "max_lng": 10,
+            }
+            return np.array(
+                [
+                    np.random.uniform(bounds["min_lat"], bounds["max_lat"]),
+                    np.random.uniform(bounds["min_lng"], bounds["max_lng"]),
+                ]
+            )
 
-        elif self.config.spatial_distribution == 'clustered':
+        elif self.config.spatial_distribution == "clustered":
             # Create clusters around predefined centers
             centers = self.config.clustering_centers or [
-                np.array([0, 0]), np.array([5, 5]), np.array([-5, -5])
+                np.array([0, 0]),
+                np.array([5, 5]),
+                np.array([-5, -5]),
             ]
 
             center_idx = index % len(centers)
@@ -457,63 +490,63 @@ class AgentPopulation:
             angle = np.random.uniform(0, 2 * np.pi)
             distance = np.random.uniform(0, self.config.clustering_radius)
 
-            return center + np.array([
-                distance * np.cos(angle),
-                distance * np.sin(angle)
-            ])
+            return center + np.array(
+                [distance * np.cos(angle), distance * np.sin(angle)]
+            )
 
-        elif self.config.spatial_distribution == 'uniform':
+        elif self.config.spatial_distribution == "uniform":
             # Grid-like distribution
             grid_size = int(np.sqrt(self.config.population_size))
-            bounds = self.config.spatial_bounds or {'min_lat': -10, 'max_lat': 10, 'min_lng': -10, 'max_lng': 10}
+            bounds = self.config.spatial_bounds or {
+                "min_lat": -10,
+                "max_lat": 10,
+                "min_lng": -10,
+                "max_lng": 10,
+            }
 
             row = index // grid_size
             col = index % grid_size
 
-            lat_step = (bounds['max_lat'] - bounds['min_lat']) / grid_size
-            lng_step = (bounds['max_lng'] - bounds['min_lng']) / grid_size
+            lat_step = (bounds["max_lat"] - bounds["min_lat"]) / grid_size
+            lng_step = (bounds["max_lng"] - bounds["min_lng"]) / grid_size
 
-            return np.array([
-                bounds['min_lat'] + (row + 0.5) * lat_step,
-                bounds['min_lng'] + (col + 0.5) * lng_step
-            ])
+            return np.array(
+                [
+                    bounds["min_lat"] + (row + 0.5) * lat_step,
+                    bounds["min_lng"] + (col + 0.5) * lng_step,
+                ]
+            )
 
         else:  # custom or fallback to random
-            return self._generate_initial_position('random', index)
+            return self._generate_initial_position("random", index)
 
     def _get_agent_config(self, agent_type: str) -> Dict[str, Any]:
         """Get configuration parameters for specific agent type."""
         base_config = {
-            'sensory_range': 100.0,
-            'movement_speed': 1.5,
-            'active_inference_enabled': True,
-            'spatial_backend': 'h3'
+            "sensory_range": 100.0,
+            "movement_speed": 1.5,
+            "active_inference_enabled": True,
+            "spatial_backend": "h3",
         }
 
         # Type-specific modifications
-        if agent_type == 'scout':
-            base_config.update({
-                'sensory_range': 150.0,
-                'movement_speed': 2.0,
-                'initial_energy': 1.2
-            })
-        elif agent_type == 'soldier':
-            base_config.update({
-                'sensory_range': 80.0,
-                'movement_speed': 1.2,
-                'initial_energy': 1.5
-            })
-        elif agent_type == 'queen':
-            base_config.update({
-                'sensory_range': 200.0,
-                'movement_speed': 0.8,
-                'initial_energy': 2.0
-            })
+        if agent_type == "scout":
+            base_config.update(
+                {"sensory_range": 150.0, "movement_speed": 2.0, "initial_energy": 1.2}
+            )
+        elif agent_type == "soldier":
+            base_config.update(
+                {"sensory_range": 80.0, "movement_speed": 1.2, "initial_energy": 1.5}
+            )
+        elif agent_type == "queen":
+            base_config.update(
+                {"sensory_range": 200.0, "movement_speed": 0.8, "initial_energy": 2.0}
+            )
 
         # Add behavioral heterogeneity if configured
-        if self.config.behavioral_heterogeneity == 'stochastic':
+        if self.config.behavioral_heterogeneity == "stochastic":
             # Add random variation to parameters
-            for key in ['sensory_range', 'movement_speed']:
+            for key in ["sensory_range", "movement_speed"]:
                 if key in base_config:
                     variation = np.random.normal(1.0, 0.1)  # 10% variation
                     base_config[key] *= variation
@@ -525,7 +558,7 @@ class AgentPopulation:
         time_steps: int = 1000,
         environmental_changes: Optional[List[Dict[str, Any]]] = None,
         data_collection: List[str] = None,
-        progress_callback: Optional[Callable[[int, Dict[str, Any]], None]] = None
+        progress_callback: Optional[Callable[[int, Dict[str, Any]], None]] = None,
     ) -> SimulationResults:
         """
         Run population dynamics simulation.
@@ -549,16 +582,22 @@ class AgentPopulation:
             self.initialize_environment()
 
         # Set up data collection
-        data_types = data_collection or ['trajectories', 'interactions', 'emergent_patterns']
+        data_types = data_collection or [
+            "trajectories",
+            "interactions",
+            "emergent_patterns",
+        ]
         self.simulation_results = SimulationResults()
         self.simulation_results.population_size = len(self.agents)
 
         # Initialize environmental changes schedule
-        environmental_schedule = self._create_environmental_schedule(environmental_changes or [])
+        environmental_schedule = self._create_environmental_schedule(
+            environmental_changes or []
+        )
 
         # Simulation loop
         for step in range(time_steps):
-            step_start_time = datetime.now()
+            _step_start_time = datetime.now()
 
             # Update environment
             await self._update_environment(step, environmental_schedule)
@@ -572,10 +611,12 @@ class AgentPopulation:
             # Progress reporting
             if progress_callback and step % 10 == 0:
                 progress_info = {
-                    'step': step,
-                    'time_steps': time_steps,
-                    'agents_alive': sum(1 for agent in self.agents if agent.energy_level > 0),
-                    'simulation_time': self.simulation_results.simulation_time
+                    "step": step,
+                    "time_steps": time_steps,
+                    "agents_alive": sum(
+                        1 for agent in self.agents if agent.energy_level > 0
+                    ),
+                    "simulation_time": self.simulation_results.simulation_time,
                 }
                 progress_callback(step, progress_info)
 
@@ -590,15 +631,15 @@ class AgentPopulation:
         # Final data collection and analysis
         await self._finalize_simulation(data_types)
 
-        logger.info(f"Simulation completed: {self.simulation_results.time_steps} steps, "
-                   f"{self.simulation_results.simulation_time:.2f} simulation time")
+        logger.info(
+            f"Simulation completed: {self.simulation_results.time_steps} steps, "
+            f"{self.simulation_results.simulation_time:.2f} simulation time"
+        )
 
         return self.simulation_results
 
     async def _update_environment(
-        self,
-        step: int,
-        environmental_schedule: List[Dict[str, Any]]
+        self, step: int, environmental_schedule: List[Dict[str, Any]]
     ) -> None:
         """Update environmental state for current time step."""
         if not self.environment:
@@ -608,19 +649,26 @@ class AgentPopulation:
 
         # Apply scheduled environmental changes
         for change in environmental_schedule:
-            if change['start_time'] <= current_time <= change['end_time']:
-                self.environment.update_environmental_factors(change['factors'])
+            if change["start_time"] <= current_time <= change["end_time"]:
+                self.environment.update_environmental_factors(change["factors"])
 
         # Update resource distribution (regeneration/depletion)
         if self.environment.resource_distribution:
-            for resource_type, distribution in self.environment.resource_distribution.items():
-                if 'regeneration_rate' in distribution:
+            for (
+                resource_type,
+                distribution,
+            ) in self.environment.resource_distribution.items():
+                if "regeneration_rate" in distribution:
                     # Simple resource regeneration
-                    max_density = distribution.get('max_density', 1.0)
-                    current_density = distribution.get('current_density', max_density)
-                    regeneration = distribution['regeneration_rate'] * self.config.time_step
+                    max_density = distribution.get("max_density", 1.0)
+                    current_density = distribution.get("current_density", max_density)
+                    regeneration = (
+                        distribution["regeneration_rate"] * self.config.time_step
+                    )
 
-                    distribution['current_density'] = min(max_density, current_density + regeneration)
+                    distribution["current_density"] = min(
+                        max_density, current_density + regeneration
+                    )
 
     async def _update_agents(self, step: int) -> None:
         """Update all agents for current time step."""
@@ -633,7 +681,6 @@ class AgentPopulation:
 
     async def _parallel_agent_update(self, step: int) -> None:
         """Update agents in parallel."""
-        import concurrent.futures
 
         def update_single_agent(agent):
             """Update a single agent (for parallel execution)."""
@@ -649,14 +696,16 @@ class AgentPopulation:
             results = list(executor.map(update_single_agent, self.agents))
 
         successful_updates = sum(results)
-        logger.debug(f"Parallel update completed: {successful_updates}/{len(self.agents)} agents updated")
+        logger.debug(
+            f"Parallel update completed: {successful_updates}/{len(self.agents)} agents updated"
+        )
 
     async def _sequential_agent_update(self, step: int) -> None:
         """Update agents sequentially."""
         for agent in self.agents:
             await self._update_single_agent(agent, step)
 
-    async def _update_single_agent(self, agent: 'SwarmAgent', step: int) -> None:
+    async def _update_single_agent(self, agent: "SwarmAgent", step: int) -> None:
         """Update a single agent for current time step."""
         try:
             # Check if agent is still active
@@ -668,29 +717,38 @@ class AgentPopulation:
 
             # Agent perception
             sensory_input = await agent.perceive_environment(
-                spatial_context={'position': agent.position, 'bounds': self.environment.spatial_bounds},
+                spatial_context={
+                    "position": agent.position,
+                    "bounds": self.environment.spatial_bounds,
+                },
                 environmental_signals=environmental_context,
                 social_signals=self._get_social_context(agent),
-                temporal_context={'simulation_time': self.simulation_results.simulation_time}
+                temporal_context={
+                    "simulation_time": self.simulation_results.simulation_time
+                },
             )
 
             # Agent decision making
             motivations = self._get_agent_motivations(agent, sensory_input)
-            decision = agent.make_decision(sensory_input, motivations, self._get_behavioral_rules(agent))
+            decision = agent.make_decision(
+                sensory_input, motivations, self._get_behavioral_rules(agent)
+            )
 
             # Agent action execution
             if decision:
                 result = await agent.execute_action(decision)
 
                 # Record interaction if significant
-                if result.get('success', False):
-                    self.simulation_results.add_interaction({
-                        'step': step,
-                        'agent_id': agent.agent_id,
-                        'action_type': decision.action_type,
-                        'result': result,
-                        'position': agent.position.tolist()
-                    })
+                if result.get("success", False):
+                    self.simulation_results.add_interaction(
+                        {
+                            "step": step,
+                            "agent_id": agent.agent_id,
+                            "action_type": decision.action_type,
+                            "result": result,
+                            "position": agent.position.tolist(),
+                        }
+                    )
 
         except Exception as e:
             logger.error(f"Error updating agent {agent.agent_id}: {e}")
@@ -715,13 +773,9 @@ class AgentPopulation:
 
         return context
 
-    def _get_social_context(self, agent: 'SwarmAgent') -> Dict[str, Any]:
+    def _get_social_context(self, agent: "SwarmAgent") -> Dict[str, Any]:
         """Get social context for agent (nearby agents)."""
-        context = {
-            'nearby_agents': 0,
-            'nearby_agent_types': {},
-            'social_signals': []
-        }
+        context = {"nearby_agents": 0, "nearby_agent_types": {}, "social_signals": []}
 
         if not self.spatial_indexer:
             # Fallback: simple distance-based calculation
@@ -729,88 +783,94 @@ class AgentPopulation:
                 if other_agent != agent and other_agent.energy_level > 0:
                     distance = np.linalg.norm(agent.position - other_agent.position)
                     if distance <= agent.sensory_range:
-                        context['nearby_agents'] += 1
-                        agent_type = getattr(other_agent, 'agent_type', 'unknown')
-                        context['nearby_agent_types'][agent_type] = \
-                            context['nearby_agent_types'].get(agent_type, 0) + 1
+                        context["nearby_agents"] += 1
+                        agent_type = getattr(other_agent, "agent_type", "unknown")
+                        context["nearby_agent_types"][agent_type] = (
+                            context["nearby_agent_types"].get(agent_type, 0) + 1
+                        )
         else:
             # Use spatial indexing for efficient neighbor search
             try:
                 # This would integrate with actual spatial indexing
                 neighbors = self.spatial_indexer.get_neighbors(
-                    position=agent.position,
-                    radius=agent.sensory_range
+                    position=agent.position, radius=agent.sensory_range
                 )
-                context['nearby_agents'] = len(neighbors)
+                context["nearby_agents"] = len(neighbors)
             except Exception as e:
                 logger.warning(f"Spatial neighbor search failed: {e}")
 
         return context
 
-    def _get_agent_motivations(self, agent: 'SwarmAgent', sensory_input: Any) -> Dict[str, float]:
+    def _get_agent_motivations(
+        self, agent: "SwarmAgent", sensory_input: Any
+    ) -> Dict[str, float]:
         """Get internal motivations for agent based on current state."""
         motivations = {
-            'energy_conservation': max(0, 1.0 - agent.energy_level),
-            'task_completion': 0.5,
-            'social_coordination': 0.3,
-            'exploration': 0.2
+            "energy_conservation": max(0, 1.0 - agent.energy_level),
+            "task_completion": 0.5,
+            "social_coordination": 0.3,
+            "exploration": 0.2,
         }
 
         # Adjust based on agent type
-        agent_type = getattr(agent, 'agent_type', 'worker')
-        if agent_type == 'scout':
-            motivations['exploration'] = 0.8
-        elif agent_type == 'soldier':
-            motivations['social_coordination'] = 0.8
+        agent_type = getattr(agent, "agent_type", "worker")
+        if agent_type == "scout":
+            motivations["exploration"] = 0.8
+        elif agent_type == "soldier":
+            motivations["social_coordination"] = 0.8
 
         # Adjust based on environmental context
-        processed = sensory_input.processed_data if hasattr(sensory_input, 'processed_data') else {}
+        processed = (
+            sensory_input.processed_data
+            if hasattr(sensory_input, "processed_data")
+            else {}
+        )
 
-        if processed.get('env_food_nearby', False):
-            motivations['task_completion'] = 0.9
+        if processed.get("env_food_nearby", False):
+            motivations["task_completion"] = 0.9
 
-        if processed.get('social_nearby_agents', 0) > 5:
-            motivations['social_coordination'] = 0.7
+        if processed.get("social_nearby_agents", 0) > 5:
+            motivations["social_coordination"] = 0.7
 
         return motivations
 
-    def _get_behavioral_rules(self, agent: 'SwarmAgent') -> Dict[str, Any]:
+    def _get_behavioral_rules(self, agent: "SwarmAgent") -> Dict[str, Any]:
         """Get behavioral rules for agent."""
         rules = {}
 
         # Apply foraging rules
         if self.foraging_rules:
-            rules['foraging'] = self.foraging_rules
+            rules["foraging"] = self.foraging_rules
 
         # Apply communication rules
         if self.communication_rules:
-            rules['communication'] = self.communication_rules
+            rules["communication"] = self.communication_rules
 
         # Apply adaptation rules
         if self.adaptation_rules:
-            rules['adaptation'] = self.adaptation_rules
+            rules["adaptation"] = self.adaptation_rules
 
         # Add agent type specific rules
-        agent_type = getattr(agent, 'agent_type', 'worker')
-        rules['agent_type'] = agent_type
+        agent_type = getattr(agent, "agent_type", "worker")
+        rules["agent_type"] = agent_type
 
         return rules
 
     async def _collect_simulation_data(self, step: int, data_types: List[str]) -> None:
         """Collect simulation data for current step."""
         # Collect agent positions for trajectory analysis
-        if 'trajectories' in data_types:
+        if "trajectories" in data_types:
             active_agents = [agent for agent in self.agents if agent.energy_level > 0]
             tracked = active_agents if active_agents else self.agents
             positions = np.array([agent.position for agent in tracked])
             self.simulation_results.add_trajectory(step, positions)
 
         # Collect performance metrics
-        if 'performance' in data_types or 'emergent_patterns' in data_types:
+        if "performance" in data_types or "emergent_patterns" in data_types:
             metrics = self._calculate_population_metrics()
             self.simulation_results.update_performance_metrics(metrics)
 
-            if 'emergent_patterns' in data_types:
+            if "emergent_patterns" in data_types:
                 patterns = self._analyze_emergent_patterns()
                 self.simulation_results.update_emergent_patterns(patterns)
 
@@ -822,36 +882,37 @@ class AgentPopulation:
         active_agents = [agent for agent in self.agents if agent.energy_level > 0]
 
         if not active_agents:
-            return {'population_status': 'extinct'}
+            return {"population_status": "extinct"}
 
         # Basic population metrics
         metrics = {
-            'active_agents': len(active_agents),
-            'total_agents': len(self.agents),
-            'average_energy': np.mean([agent.energy_level for agent in active_agents]),
-            'energy_std': np.std([agent.energy_level for agent in active_agents]),
+            "active_agents": len(active_agents),
+            "total_agents": len(self.agents),
+            "average_energy": np.mean([agent.energy_level for agent in active_agents]),
+            "energy_std": np.std([agent.energy_level for agent in active_agents]),
         }
 
         # Spatial distribution metrics
         positions = np.array([agent.position for agent in active_agents])
         if len(positions) > 1:
-            metrics['spatial_center'] = np.mean(positions, axis=0).tolist()
-            metrics['spatial_spread'] = np.std(positions, axis=0).tolist()
+            metrics["spatial_center"] = np.mean(positions, axis=0).tolist()
+            metrics["spatial_spread"] = np.std(positions, axis=0).tolist()
 
             # Clustering analysis (simplified)
             if len(positions) > 2:
                 from scipy.spatial.distance import pdist
+
                 distances = pdist(positions)
-                metrics['average_inter_agent_distance'] = np.mean(distances)
-                metrics['max_inter_agent_distance'] = np.max(distances)
+                metrics["average_inter_agent_distance"] = np.mean(distances)
+                metrics["max_inter_agent_distance"] = np.max(distances)
 
         # Agent type distribution
         agent_types = {}
         for agent in active_agents:
-            agent_type = getattr(agent, 'agent_type', 'unknown')
+            agent_type = getattr(agent, "agent_type", "unknown")
             agent_types[agent_type] = agent_types.get(agent_type, 0) + 1
 
-        metrics['agent_type_distribution'] = agent_types
+        metrics["agent_type_distribution"] = agent_types
 
         return metrics
 
@@ -863,10 +924,12 @@ class AgentPopulation:
             return patterns
 
         # Get recent performance history
-        recent_metrics = self.performance_history[-10:] if self.performance_history else []
+        recent_metrics = (
+            self.performance_history[-10:] if self.performance_history else []
+        )
 
         if len(recent_metrics) < 3:
-            return {'status': 'insufficient_data'}
+            return {"status": "insufficient_data"}
 
         # Analyze spatial clustering
         try:
@@ -882,10 +945,10 @@ class AgentPopulation:
                     kmeans = KMeans(n_clusters=n_clusters, n_init=10)
                     cluster_labels = kmeans.fit_predict(positions)
 
-                    patterns['spatial_clusters'] = {
-                        'n_clusters': n_clusters,
-                        'cluster_centers': kmeans.cluster_centers_.tolist(),
-                        'cluster_sizes': np.bincount(cluster_labels).tolist()
+                    patterns["spatial_clusters"] = {
+                        "n_clusters": n_clusters,
+                        "cluster_centers": kmeans.cluster_centers_.tolist(),
+                        "cluster_sizes": np.bincount(cluster_labels).tolist(),
                     }
 
         except Exception as e:
@@ -893,26 +956,30 @@ class AgentPopulation:
 
         # Analyze temporal patterns
         if recent_metrics:
-            energy_trend = [m.get('average_energy', 0) for m in recent_metrics]
+            energy_trend = [m.get("average_energy", 0) for m in recent_metrics]
             if len(energy_trend) > 2:
-                patterns['energy_trend'] = 'increasing' if energy_trend[-1] > energy_trend[0] else 'decreasing'
+                patterns["energy_trend"] = (
+                    "increasing" if energy_trend[-1] > energy_trend[0] else "decreasing"
+                )
 
         return patterns
 
-    def _create_environmental_schedule(self, changes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _create_environmental_schedule(
+        self, changes: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Create schedule for environmental changes."""
         schedule = []
 
         for change in changes:
             schedule_item = {
-                'start_time': change.get('start_time', 0),
-                'end_time': change.get('end_time', float('inf')),
-                'factors': change.get('factors', {})
+                "start_time": change.get("start_time", 0),
+                "end_time": change.get("end_time", float("inf")),
+                "factors": change.get("factors", {}),
             }
             schedule.append(schedule_item)
 
         # Sort by start time
-        schedule.sort(key=lambda x: x['start_time'])
+        schedule.sort(key=lambda x: x["start_time"])
 
         return schedule
 
@@ -923,7 +990,10 @@ class AgentPopulation:
             active_count = sum(1 for agent in self.agents if agent.energy_level > 0)
             if active_count == 0:
                 return True
-            if self.simulation_results.simulation_time >= self.config.max_simulation_time:
+            if (
+                self.simulation_results.simulation_time
+                >= self.config.max_simulation_time
+            ):
                 return True
 
         return False
@@ -935,32 +1005,40 @@ class AgentPopulation:
         self.simulation_results.update_performance_metrics(final_metrics)
 
         # Analyze final emergent patterns
-        if 'emergent_patterns' in data_types:
+        if "emergent_patterns" in data_types:
             final_patterns = self._analyze_emergent_patterns()
             self.simulation_results.update_emergent_patterns(final_patterns)
             # Also include in performance_metrics for test compatibility
-            self.simulation_results.performance_metrics['emergent_patterns'] = final_patterns
+            self.simulation_results.performance_metrics["emergent_patterns"] = (
+                final_patterns
+            )
 
         # Generate summary statistics
-        self.simulation_results.performance_metrics['summary'] = {
-            'total_simulation_time': self.simulation_results.simulation_time,
-            'total_time_steps': self.simulation_results.time_steps,
-            'final_population_size': self.simulation_results.population_size,
-            'data_collection_complete': True
+        self.simulation_results.performance_metrics["summary"] = {
+            "total_simulation_time": self.simulation_results.simulation_time,
+            "total_time_steps": self.simulation_results.time_steps,
+            "final_population_size": self.simulation_results.population_size,
+            "data_collection_complete": True,
         }
 
-    def get_agent_by_id(self, agent_id: str) -> Optional['SwarmAgent']:
+    def get_agent_by_id(self, agent_id: str) -> Optional["SwarmAgent"]:
         """Get agent by ID."""
         for agent in self.agents:
             if agent.agent_id == agent_id:
                 return agent
         return None
 
-    def get_agents_by_type(self, agent_type: str) -> List['SwarmAgent']:
+    def get_agents_by_type(self, agent_type: str) -> List["SwarmAgent"]:
         """Get all agents of specified type."""
-        return [agent for agent in self.agents if getattr(agent, 'agent_type', None) == agent_type]
+        return [
+            agent
+            for agent in self.agents
+            if getattr(agent, "agent_type", None) == agent_type
+        ]
 
-    def get_agents_in_region(self, center: np.ndarray, radius: float) -> List['SwarmAgent']:
+    def get_agents_in_region(
+        self, center: np.ndarray, radius: float
+    ) -> List["SwarmAgent"]:
         """Get all agents within specified radius of center."""
         agents_in_region = []
 
@@ -975,7 +1053,7 @@ class AgentPopulation:
     def save_simulation_results(self, filepath: str) -> None:
         """Save simulation results to file."""
         try:
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(self.simulation_results.to_dict(), f, indent=2)
             logger.info(f"Simulation results saved to {filepath}")
         except Exception as e:
@@ -985,17 +1063,19 @@ class AgentPopulation:
     def load_simulation_results(self, filepath: str) -> SimulationResults:
         """Load simulation results from file."""
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 data = json.load(f)
 
             results = SimulationResults()
-            results.trajectories = [np.array(traj) for traj in data.get('trajectories', [])]
-            results.interactions = data.get('interactions', [])
-            results.emergent_patterns = data.get('emergent_patterns', {})
-            results.performance_metrics = data.get('performance_metrics', {})
-            results.simulation_time = data.get('simulation_time', 0.0)
-            results.time_steps = data.get('time_steps', 0)
-            results.population_size = data.get('population_size', 0)
+            results.trajectories = [
+                np.array(traj) for traj in data.get("trajectories", [])
+            ]
+            results.interactions = data.get("interactions", [])
+            results.emergent_patterns = data.get("emergent_patterns", {})
+            results.performance_metrics = data.get("performance_metrics", {})
+            results.simulation_time = data.get("simulation_time", 0.0)
+            results.time_steps = data.get("time_steps", 0)
+            results.population_size = data.get("population_size", 0)
 
             self.simulation_results = results
             logger.info(f"Simulation results loaded from {filepath}")

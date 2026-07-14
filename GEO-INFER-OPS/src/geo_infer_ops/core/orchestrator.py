@@ -8,7 +8,7 @@ dependency management for GEO-INFER module operations.
 import logging
 import asyncio
 from typing import Dict, List, Optional, Any, Callable, Set
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 import uuid
@@ -130,9 +130,7 @@ class Orchestrator:
         for task_id, deps in self.task_dependencies.items():
             for dep_id in deps:
                 if dep_id not in self.tasks:
-                    logger.error(
-                        f"Task {task_id} has invalid dependency: {dep_id}"
-                    )
+                    logger.error(f"Task {task_id} has invalid dependency: {dep_id}")
                     return False
         return True
 
@@ -259,7 +257,9 @@ class Orchestrator:
 
             # Execute ready tasks concurrently (up to max_concurrent_tasks)
             tasks_to_execute = ready_tasks[: self.max_concurrent_tasks]
-            await asyncio.gather(*[self._execute_task(task) for task in tasks_to_execute])
+            await asyncio.gather(
+                *[self._execute_task(task) for task in tasks_to_execute]
+            )
 
             # Update counters
             for task in self.tasks.values():
@@ -347,8 +347,7 @@ class Orchestrator:
             "total_tasks": len(self.tasks),
             "status_counts": status_counts,
             "tasks": {
-                task_id: self.get_task_status(task_id)
-                for task_id in self.tasks.keys()
+                task_id: self.get_task_status(task_id) for task_id in self.tasks.keys()
             },
         }
 
@@ -385,5 +384,3 @@ class Orchestrator:
             task.retry_count = 0
 
         logger.info("Workflow reset")
-
-

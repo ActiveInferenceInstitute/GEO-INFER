@@ -5,18 +5,16 @@ This module defines the data structures used across the logistics and
 supply chain optimization components.
 """
 
-from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 from pydantic import Field
 from geo_infer_log.models.base import BaseModel
-import geopandas as gpd
-from shapely.geometry import Point, LineString, Polygon
 
 
 class VehicleType(str, Enum):
     """Types of vehicles for routing and fleet management."""
+
     TRUCK = "truck"
     VAN = "van"
     CAR = "car"
@@ -29,6 +27,7 @@ class VehicleType(str, Enum):
 
 class FuelType(str, Enum):
     """Types of fuel/energy for vehicles."""
+
     DIESEL = "diesel"
     GASOLINE = "gasoline"
     ELECTRIC = "electric"
@@ -41,6 +40,7 @@ class FuelType(str, Enum):
 
 class DeliveryStatus(str, Enum):
     """Status values for delivery tracking."""
+
     PENDING = "pending"
     ASSIGNED = "assigned"
     IN_TRANSIT = "in_transit"
@@ -51,6 +51,7 @@ class DeliveryStatus(str, Enum):
 
 class Vehicle(BaseModel):
     """Model representing a vehicle for routing and fleet management."""
+
     id: str
     type: VehicleType
     capacity: float = Field(..., description="Cargo capacity in kg or m³")
@@ -58,12 +59,18 @@ class Vehicle(BaseModel):
     speed: float = Field(..., description="Average speed in km/h")
     cost_per_km: float = Field(..., description="Operating cost per kilometer")
     emissions_per_km: float = Field(..., description="Emissions in kg CO2e per km")
-    location: Tuple[float, float] = Field(..., description="Current (lon, lat) coordinates")
+    location: Tuple[float, float] = Field(
+        ..., description="Current (lon, lat) coordinates"
+    )
     fuel_type: FuelType = Field(default=FuelType.DIESEL)
-    fuel_capacity: Optional[float] = Field(default=None, description="Fuel capacity in liters or kWh")
+    fuel_capacity: Optional[float] = Field(
+        default=None, description="Fuel capacity in liters or kWh"
+    )
     fuel_level: Optional[float] = Field(default=None, description="Current fuel level")
     maintenance_status: Optional[str] = Field(default=None)
-    available: bool = Field(default=True, description="Whether vehicle is available for assignments")
+    available: bool = Field(
+        default=True, description="Whether vehicle is available for assignments"
+    )
 
     class Config:
         schema_extra = {
@@ -80,28 +87,29 @@ class Vehicle(BaseModel):
                 "fuel_capacity": 200,
                 "fuel_level": 150,
                 "maintenance_status": "good",
-                "available": True
+                "available": True,
             }
         }
 
 
 class Location(BaseModel):
     """Model representing a geographic location with metadata."""
+
     name: str
     coordinates: Tuple[float, float] = Field(..., description="(lon, lat) coordinates")
     address: Optional[str] = None
-    type: str = Field(..., description="Type of location (e.g., depot, customer, supplier)")
+    type: str = Field(
+        ..., description="Type of location (e.g., depot, customer, supplier)"
+    )
     time_windows: Optional[List[Tuple[datetime, datetime]]] = Field(
-        default=None,
-        description="Time windows when location is accessible"
+        default=None, description="Time windows when location is accessible"
     )
     service_time: Optional[int] = Field(
         default=None,
-        description="Time in minutes required for service at this location"
+        description="Time in minutes required for service at this location",
     )
     priority: Optional[int] = Field(
-        default=None,
-        description="Priority of this location (lower is higher priority)"
+        default=None, description="Priority of this location (lower is higher priority)"
     )
 
     class Config:
@@ -113,16 +121,17 @@ class Location(BaseModel):
                 "type": "customer",
                 "time_windows": [
                     ("2023-01-01T09:00:00", "2023-01-01T12:00:00"),
-                    ("2023-01-01T14:00:00", "2023-01-01T17:00:00")
+                    ("2023-01-01T14:00:00", "2023-01-01T17:00:00"),
                 ],
                 "service_time": 15,
-                "priority": 1
+                "priority": 1,
             }
         }
 
 
 class Shipment(BaseModel):
     """Model representing a shipment to be delivered."""
+
     id: str
     origin: Location
     destination: Location
@@ -141,12 +150,12 @@ class Shipment(BaseModel):
                 "origin": {
                     "name": "Warehouse B",
                     "coordinates": (13.4050, 52.5200),
-                    "type": "warehouse"
+                    "type": "warehouse",
                 },
                 "destination": {
                     "name": "Customer C",
                     "coordinates": (13.5050, 52.4200),
-                    "type": "customer"
+                    "type": "customer",
                 },
                 "weight": 150,
                 "volume": 0.8,
@@ -154,13 +163,14 @@ class Shipment(BaseModel):
                 "priority": 2,
                 "status": "pending",
                 "special_requirements": ["refrigeration", "fragile"],
-                "assigned_vehicle": None
+                "assigned_vehicle": None,
             }
         }
 
 
 class Route(BaseModel):
     """Model representing an optimized route."""
+
     id: str
     vehicle_id: str
     stops: List[Location]
@@ -171,8 +181,7 @@ class Route(BaseModel):
     total_cost: float
     total_emissions: float = Field(..., description="Total emissions in kg CO2e")
     geometry: Optional[dict] = Field(
-        default=None,
-        description="GeoJSON representation of route geometry"
+        default=None, description="GeoJSON representation of route geometry"
     )
 
     class Config:
@@ -181,10 +190,26 @@ class Route(BaseModel):
                 "id": "route-456",
                 "vehicle_id": "truck-001",
                 "stops": [
-                    {"name": "Warehouse A", "coordinates": (13.4050, 52.5200), "type": "depot"},
-                    {"name": "Customer B", "coordinates": (13.5050, 52.4200), "type": "customer"},
-                    {"name": "Customer C", "coordinates": (13.6050, 52.3200), "type": "customer"},
-                    {"name": "Warehouse A", "coordinates": (13.4050, 52.5200), "type": "depot"}
+                    {
+                        "name": "Warehouse A",
+                        "coordinates": (13.4050, 52.5200),
+                        "type": "depot",
+                    },
+                    {
+                        "name": "Customer B",
+                        "coordinates": (13.5050, 52.4200),
+                        "type": "customer",
+                    },
+                    {
+                        "name": "Customer C",
+                        "coordinates": (13.6050, 52.3200),
+                        "type": "customer",
+                    },
+                    {
+                        "name": "Warehouse A",
+                        "coordinates": (13.4050, 52.5200),
+                        "type": "depot",
+                    },
                 ],
                 "departure_time": "2023-01-01T08:00:00",
                 "estimated_arrival_time": "2023-01-01T16:30:00",
@@ -198,35 +223,34 @@ class Route(BaseModel):
                         [13.4050, 52.5200],
                         [13.5050, 52.4200],
                         [13.6050, 52.3200],
-                        [13.4050, 52.5200]
-                    ]
-                }
+                        [13.4050, 52.5200],
+                    ],
+                },
             }
         }
 
 
 class RoutingParameters(BaseModel):
     """Parameters for routing optimization."""
+
     weight_factor: str = Field(
         default="time",
-        description="Factor to optimize for (time, distance, cost, emissions)"
+        description="Factor to optimize for (time, distance, cost, emissions)",
     )
     avoid_highways: bool = False
     avoid_tolls: bool = False
     avoid_ferries: bool = False
     traffic_model: str = Field(
         default="best_guess",
-        description="Traffic model (best_guess, optimistic, pessimistic)"
+        description="Traffic model (best_guess, optimistic, pessimistic)",
     )
     departure_time: Optional[datetime] = None
     max_stops_per_route: Optional[int] = None
     max_route_duration: Optional[int] = Field(
-        default=None,
-        description="Maximum route duration in minutes"
+        default=None, description="Maximum route duration in minutes"
     )
     max_route_distance: Optional[float] = Field(
-        default=None,
-        description="Maximum route distance in km"
+        default=None, description="Maximum route distance in km"
     )
 
     class Config:
@@ -240,24 +264,26 @@ class RoutingParameters(BaseModel):
                 "departure_time": "2023-01-01T08:00:00",
                 "max_stops_per_route": 20,
                 "max_route_duration": 480,
-                "max_route_distance": 300
+                "max_route_distance": 300,
             }
         }
 
 
 class FacilityLocation(BaseModel):
     """Model representing a facility location in a supply chain network."""
+
     id: str
     name: str
     location: Tuple[float, float] = Field(..., description="(lon, lat) coordinates")
-    type: str = Field(..., description="Type of facility (warehouse, distribution center, etc.)")
+    type: str = Field(
+        ..., description="Type of facility (warehouse, distribution center, etc.)"
+    )
     capacity: float
     operating_cost: float
     inbound_capacity: Optional[float] = None
     outbound_capacity: Optional[float] = None
     service_area: Optional[dict] = Field(
-        default=None,
-        description="GeoJSON representation of service area"
+        default=None, description="GeoJSON representation of service area"
     )
 
     class Config:
@@ -279,22 +305,22 @@ class FacilityLocation(BaseModel):
                             [13.5, 52.4],
                             [13.5, 52.6],
                             [13.3, 52.6],
-                            [13.3, 52.4]
+                            [13.3, 52.4],
                         ]
-                    ]
-                }
+                    ],
+                },
             }
         }
 
 
 class SupplyChainNetwork(BaseModel):
     """Model representing a supply chain network."""
+
     id: str
     name: str
     facilities: List[FacilityLocation]
     links: List[Dict] = Field(
-        ...,
-        description="List of links between facilities with transportation costs"
+        ..., description="List of links between facilities with transportation costs"
     )
     demand_points: Optional[List[Dict]] = None
     supply_points: Optional[List[Dict]] = None
@@ -311,7 +337,7 @@ class SupplyChainNetwork(BaseModel):
                         "location": (13.4050, 52.5200),
                         "type": "distribution_center",
                         "capacity": 5000,
-                        "operating_cost": 10000
+                        "operating_cost": 10000,
                     },
                     {
                         "id": "wh-001",
@@ -319,8 +345,8 @@ class SupplyChainNetwork(BaseModel):
                         "location": (11.5820, 48.1351),
                         "type": "warehouse",
                         "capacity": 3000,
-                        "operating_cost": 8000
-                    }
+                        "operating_cost": 8000,
+                    },
                 ],
                 "links": [
                     {
@@ -329,7 +355,7 @@ class SupplyChainNetwork(BaseModel):
                         "distance": 504,
                         "time": 300,
                         "cost": 600,
-                        "capacity": 1000
+                        "capacity": 1000,
                     }
                 ],
                 "demand_points": [
@@ -337,7 +363,7 @@ class SupplyChainNetwork(BaseModel):
                         "id": "dp-001",
                         "location": (8.6821, 50.1109),
                         "demand": 200,
-                        "priority": 1
+                        "priority": 1,
                     }
                 ],
                 "supply_points": [
@@ -345,8 +371,8 @@ class SupplyChainNetwork(BaseModel):
                         "id": "sp-001",
                         "location": (18.0686, 59.3293),
                         "supply": 500,
-                        "reliability": 0.95
+                        "reliability": 0.95,
                     }
-                ]
+                ],
             }
         }

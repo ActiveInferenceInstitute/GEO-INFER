@@ -8,9 +8,8 @@ into a unified geospatial dataset.
 import logging
 import pandas as pd
 import geopandas as gpd
-from typing import Dict, List, Optional
+from typing import Dict, List
 from pathlib import Path
-from datetime import datetime
 from pyproj import Transformer
 from shapely.ops import transform as shapely_transform
 
@@ -28,10 +27,12 @@ def _reproject(frame: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
     )
     return result.set_crs(target_crs, allow_override=True)
 
+
 class DataIntegrator:
     """
     Integrates data from multiple sources into a unified geospatial dataset.
     """
+
     def __init__(self, sources: List[Dict[str, str]]):
         """
         Initialize the integrator with data sources.
@@ -54,14 +55,16 @@ class DataIntegrator:
 
         for source in self.sources:
             try:
-                if source['path'].endswith('.geojson'):
-                    df = gpd.read_file(source['path'])
-                elif source['path'].endswith('.csv'):
-                    df = pd.read_csv(source['path'])
-                    if 'geometry' in df.columns:
-                        df = gpd.GeoDataFrame(df, geometry=gpd.GeoSeries.from_wkt(df['geometry']))
-                elif source['path'].endswith('.shp'):
-                    df = gpd.read_file(source['path'])
+                if source["path"].endswith(".geojson"):
+                    df = gpd.read_file(source["path"])
+                elif source["path"].endswith(".csv"):
+                    df = pd.read_csv(source["path"])
+                    if "geometry" in df.columns:
+                        df = gpd.GeoDataFrame(
+                            df, geometry=gpd.GeoSeries.from_wkt(df["geometry"])
+                        )
+                elif source["path"].endswith(".shp"):
+                    df = gpd.read_file(source["path"])
                 else:
                     continue
 
@@ -73,11 +76,17 @@ class DataIntegrator:
                     df = df.set_crs(target_crs)
 
                 # Harmonize CRS if needed
-                if df.crs is not None and target_crs is not None and df.crs != target_crs:
+                if (
+                    df.crs is not None
+                    and target_crs is not None
+                    and df.crs != target_crs
+                ):
                     df = _reproject(df, target_crs)
-                    logger.info(f"Transformed {source['name']} from {df.crs} to {target_crs}")
+                    logger.info(
+                        f"Transformed {source['name']} from {df.crs} to {target_crs}"
+                    )
 
-                df['source'] = source['name']
+                df["source"] = source["name"]
                 dataframes.append(df)
             except Exception as e:
                 logger.error(f"Failed to load {source['name']}: {e}")
@@ -88,7 +97,9 @@ class DataIntegrator:
             )
         return self.integrated_data
 
-    def export_integrated_data(self, output_path: Path, format: str = 'geojson') -> None:
+    def export_integrated_data(
+        self, output_path: Path, format: str = "geojson"
+    ) -> None:
         """
         Export integrated data.
 

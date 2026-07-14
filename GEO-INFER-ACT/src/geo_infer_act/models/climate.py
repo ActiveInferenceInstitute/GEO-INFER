@@ -9,6 +9,9 @@ from typing import Dict, Any, Optional
 import numpy as np
 import logging
 
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_act.core.generative_model import GenerativeModel
+
 
 class _PymdpCompatUtils:
     """Object-array and distribution helpers used by the climate model."""
@@ -28,10 +31,6 @@ class _PymdpCompatUtils:
 
 
 utils = _PymdpCompatUtils()
-
-
-from geo_infer_act.core.active_inference import ActiveInferenceModel
-from geo_infer_act.core.generative_model import GenerativeModel
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 Field boundary management functionality for agricultural applications.
 """
 
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, Optional, Union, Any
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -24,9 +24,7 @@ class FieldBoundaryManager:
     """
 
     def __init__(
-        self,
-        fields: Optional[gpd.GeoDataFrame] = None,
-        crs: str = "EPSG:4326"
+        self, fields: Optional[gpd.GeoDataFrame] = None, crs: str = "EPSG:4326"
     ):
         """
         Initialize the field boundary manager.
@@ -36,9 +34,11 @@ class FieldBoundaryManager:
             crs: Coordinate reference system for spatial data
         """
         if fields is None:
-            self.fields = gpd.GeoDataFrame(columns=["field_id", "name", "area_ha", "crop_type"],
-                                          geometry=[],
-                                          crs=crs)
+            self.fields = gpd.GeoDataFrame(
+                columns=["field_id", "name", "area_ha", "crop_type"],
+                geometry=[],
+                crs=crs,
+            )
         else:
             self.fields = fields.copy()
             # Ensure the GeoDataFrame has the required CRS
@@ -62,7 +62,7 @@ class FieldBoundaryManager:
         field_id: Optional[str] = None,
         name: Optional[str] = None,
         crop_type: Optional[str] = None,
-        attributes: Optional[Dict[str, Any]] = None
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Add a new field boundary.
@@ -92,7 +92,7 @@ class FieldBoundaryManager:
             "field_id": field_id,
             "name": name,
             "crop_type": crop_type,
-            "geometry": geometry
+            "geometry": geometry,
         }
 
         # Add additional attributes if provided
@@ -102,10 +102,10 @@ class FieldBoundaryManager:
                     new_field[key] = value
 
         # Append to GeoDataFrame
-        self.fields = pd.concat([
-            self.fields,
-            gpd.GeoDataFrame([new_field], crs=self.fields.crs)
-        ], ignore_index=True)
+        self.fields = pd.concat(
+            [self.fields, gpd.GeoDataFrame([new_field], crs=self.fields.crs)],
+            ignore_index=True,
+        )
 
         # Calculate area for the new field
         self._calculate_areas()
@@ -125,7 +125,9 @@ class FieldBoundaryManager:
         if field_id not in self.fields["field_id"].values:
             return False
 
-        self.fields = self.fields[self.fields["field_id"] != field_id].reset_index(drop=True)
+        self.fields = self.fields[self.fields["field_id"] != field_id].reset_index(
+            drop=True
+        )
         return True
 
     def update_field(
@@ -134,7 +136,7 @@ class FieldBoundaryManager:
         geometry: Optional[Union[Polygon, MultiPolygon]] = None,
         name: Optional[str] = None,
         crop_type: Optional[str] = None,
-        attributes: Optional[Dict[str, Any]] = None
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Update a field's properties.
@@ -211,9 +213,7 @@ class FieldBoundaryManager:
         return self.fields[self.fields["crop_type"] == crop_type].copy()
 
     def get_neighboring_fields(
-        self,
-        field_id: str,
-        buffer_distance: float = 10.0
+        self, field_id: str, buffer_distance: float = 10.0
     ) -> gpd.GeoDataFrame:
         """
         Get fields that neighbor the specified field.
@@ -238,8 +238,8 @@ class FieldBoundaryManager:
 
         # Find fields that intersect with the buffer (excluding the original field)
         neighbors = self.fields[
-            (self.fields["field_id"] != field_id) &
-            (self.fields.geometry.intersects(buffer_geom))
+            (self.fields["field_id"] != field_id)
+            & (self.fields.geometry.intersects(buffer_geom))
         ].copy()
 
         return neighbors
@@ -249,7 +249,7 @@ class FieldBoundaryManager:
         raster_path: str,
         value_field: Optional[str] = None,
         min_area: float = 0.1,
-        simplify_tolerance: Optional[float] = None
+        simplify_tolerance: Optional[float] = None,
     ) -> int:
         """
         Extract field boundaries from a classified raster image.
@@ -277,12 +277,10 @@ class FieldBoundaryManager:
 
                 # Get polygons from raster
                 results = (
-                    {'properties': {'raster_val': v}, 'geometry': s}
-                    for i, (s, v) in enumerate(shapes(
-                        raster_data,
-                        mask=raster_mask,
-                        transform=src.transform
-                    ))
+                    {"properties": {"raster_val": v}, "geometry": s}
+                    for i, (s, v) in enumerate(
+                        shapes(raster_data, mask=raster_mask, transform=src.transform)
+                    )
                 )
 
                 # Convert to GeoDataFrame
@@ -290,7 +288,11 @@ class FieldBoundaryManager:
 
                 # Convert area units and filter by minimum area
                 area_factor = 0.0001  # Convert m² to hectares
-                metric_gdf = gdf.to_crs("EPSG:3857") if gdf.crs and gdf.crs.is_geographic else gdf
+                metric_gdf = (
+                    gdf.to_crs("EPSG:3857")
+                    if gdf.crs and gdf.crs.is_geographic
+                    else gdf
+                )
                 gdf["area_ha"] = metric_gdf.geometry.area * area_factor
                 gdf = gdf[gdf["area_ha"] >= min_area]
 
@@ -305,7 +307,7 @@ class FieldBoundaryManager:
                         geometry=row.geometry,
                         field_id=f"field_r_{idx+1}",
                         name=f"Field R{idx+1}",
-                        attributes={"source": "raster_extraction"}
+                        attributes={"source": "raster_extraction"},
                     )
 
                 return len(self.fields) - orig_count
@@ -313,11 +315,7 @@ class FieldBoundaryManager:
         except Exception as e:
             raise ValueError(f"Error extracting fields from raster: {str(e)}")
 
-    def export_to_file(
-        self,
-        output_path: str,
-        driver: str = "ESRI Shapefile"
-    ) -> None:
+    def export_to_file(self, output_path: str, driver: str = "ESRI Shapefile") -> None:
         """
         Export field boundaries to a file.
 

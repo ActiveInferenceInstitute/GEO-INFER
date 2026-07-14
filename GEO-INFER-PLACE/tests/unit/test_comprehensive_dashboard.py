@@ -4,13 +4,16 @@ Source: src/geo_infer_place/core/comprehensive_dashboard.py
 
 These tests exercise the implemented dashboard contract.
 """
-import pytest
 
 try:
-    from geo_infer_place.core.comprehensive_dashboard import DelNorteComprehensiveDashboard
+    from geo_infer_place.core.comprehensive_dashboard import (
+        DelNorteComprehensiveDashboard,
+    )
+
     _HAS_MODULE = True
 except ImportError:
     _HAS_MODULE = False
+
 
 class TestDelNorteComprehensiveDashboard:
     def test_init(self, temp_output_dir):

@@ -110,7 +110,9 @@ def assert_model_contract(
     if shape is not None and array.shape != shape:
         raise AssertionError(f"model_output has shape {array.shape}, expected {shape}")
     if dtype is not None and not np.can_cast(array.dtype, dtype, casting="safe"):
-        raise AssertionError(f"model_output dtype {array.dtype} is not compatible with {dtype}")
+        raise AssertionError(
+            f"model_output dtype {array.dtype} is not compatible with {dtype}"
+        )
     if probability:
         assert_probability(array, name="model_probability")
     if stochastic_axis is not None:
@@ -193,6 +195,7 @@ def sqlite_database(tmp_path: Path) -> Iterator[sqlite3.Connection]:
 @pytest.fixture
 def local_http_server() -> Iterator[str]:
     """Serve deterministic JSON over localhost without external network access."""
+
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802 - stdlib protocol name
             body = json.dumps({"status": "ok", "source": "local-fixture"}).encode()

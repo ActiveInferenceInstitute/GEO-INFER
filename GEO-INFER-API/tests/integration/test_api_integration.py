@@ -10,6 +10,7 @@ import pytest
 try:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
+
     HAS_FASTAPI = True
 except ImportError:
     HAS_FASTAPI = False
@@ -23,6 +24,7 @@ pytestmark = [
 def settings():
     """Create test settings."""
     from geo_infer_api.core.config import Settings
+
     return Settings(
         app_name="GEO-INFER-API-Test",
         app_version="0.0.1-test",
@@ -33,7 +35,10 @@ def settings():
 @pytest.fixture
 def test_app():
     """Create a minimal FastAPI app with middleware and routers for testing."""
-    from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
+    from geo_infer_api.core.middleware import (
+        ErrorHandlerMiddleware,
+        RequestLoggingMiddleware,
+    )
     from geo_infer_api.endpoints import health_router
 
     app = FastAPI(title="Test App", version="0.0.1")
@@ -70,6 +75,7 @@ class TestConfigIntegration:
     def test_cached_settings_singleton(self):
         """Test that get_settings returns cached instance."""
         from geo_infer_api.core.config import get_settings
+
         get_settings.cache_clear()
         s1 = get_settings()
         s2 = get_settings()
@@ -178,7 +184,10 @@ class TestMiddlewareIntegration:
 
     def test_error_handler_catches_unexpected_errors(self):
         """Test ErrorHandlerMiddleware catches unexpected (non-HTTP) errors."""
-        from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
+        from geo_infer_api.core.middleware import (
+            ErrorHandlerMiddleware,
+            RequestLoggingMiddleware,
+        )
 
         app = FastAPI()
         app.add_middleware(ErrorHandlerMiddleware)
@@ -197,7 +206,10 @@ class TestMiddlewareIntegration:
 
     def test_api_error_returns_proper_status(self):
         """Test that APIError (HTTPException subclass) returns correct status via FastAPI handler."""
-        from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
+        from geo_infer_api.core.middleware import (
+            ErrorHandlerMiddleware,
+            RequestLoggingMiddleware,
+        )
         from geo_infer_api.core.exceptions import APIError
 
         app = FastAPI()
@@ -245,6 +257,7 @@ class TestFullAPIWorkflow:
         """TestClient wrapping the full main_app."""
         from geo_infer_api.app import main_app
         from geo_infer_api.endpoints.geojson_router import POLYGON_FEATURES
+
         POLYGON_FEATURES.clear()
         yield TestClient(main_app)
         POLYGON_FEATURES.clear()
@@ -269,7 +282,9 @@ class TestFullAPIWorkflow:
     def test_create_read_update_delete_workflow(self, main_client):
         """Full CRUD lifecycle for a polygon feature."""
         # CREATE
-        resp = main_client.post("/api/v1/collections/polygons/items", json=self.POLYGON_BODY)
+        resp = main_client.post(
+            "/api/v1/collections/polygons/items", json=self.POLYGON_BODY
+        )
         assert resp.status_code == 201
         feature_id = resp.json()["id"]
 
@@ -296,7 +311,9 @@ class TestFullAPIWorkflow:
 
     def test_area_operation_on_feature(self, main_client):
         """Area calculation operation returns positive area_sq_km."""
-        resp = main_client.post("/api/v1/operations/polygon/area", json=self.POLYGON_BODY)
+        resp = main_client.post(
+            "/api/v1/operations/polygon/area", json=self.POLYGON_BODY
+        )
         assert resp.status_code == 200
         data = resp.json()
         assert data["area_sq_km"] > 0

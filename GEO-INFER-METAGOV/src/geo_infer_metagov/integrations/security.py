@@ -1,13 +1,16 @@
 """Security integration for governance data and operations."""
 
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
 
 # Optional security integration
 try:
-    from geo_infer_sec.core.digital_security import DigitalSecurityManager as SecurityManager
+    from geo_infer_sec.core.digital_security import (
+        DigitalSecurityManager as SecurityManager,
+    )
+
     SEC_AVAILABLE = True
 except ImportError:
     SEC_AVAILABLE = False
@@ -17,18 +20,18 @@ except ImportError:
 class SecurityGovernanceIntegration:
     """
     Integrate security controls for governance systems.
-    
+
     Provides:
     - Access control for governance operations
     - Audit logging for governance decisions
     - Secure communication channels
     - Governance data encryption
-    
+
     References:
     - Security frameworks for governance systems
     - Access control in multi-stakeholder environments
     """
-    
+
     def __init__(self):
         """Initialize security governance integration."""
         if SEC_AVAILABLE:
@@ -42,79 +45,94 @@ class SecurityGovernanceIntegration:
         else:
             self.security_manager = None
             self.sec_available = False
-            logger.warning("Security integration disabled - GEO-INFER-SEC not available")
-    
+            logger.warning(
+                "Security integration disabled - GEO-INFER-SEC not available"
+            )
+
     def secure_governance_data(
-        self,
-        governance_data: Dict[str, Any],
-        sensitivity_level: str = 'medium'
+        self, governance_data: Dict[str, Any], sensitivity_level: str = "medium"
     ) -> Dict[str, Any]:
         """
         Apply security controls to governance data.
-        
+
         Parameters:
         -----------
         governance_data : Dict[str, Any]
             Governance data to secure
         sensitivity_level : str
             Data sensitivity level ('low', 'medium', 'high', 'confidential')
-            
+
         Returns:
         --------
         Dict[str, Any]
             Security configuration for governance data
         """
         security_config = {
-            'secured': True,
-            'sensitivity_level': sensitivity_level,
-            'access_controls': {},
-            'encryption': {},
-            'audit_logging': {}
+            "secured": True,
+            "sensitivity_level": sensitivity_level,
+            "access_controls": {},
+            "encryption": {},
+            "audit_logging": {},
         }
-        
+
         if not self.sec_available:
-            security_config['secured'] = False
-            security_config['reason'] = 'Security module not available'
+            security_config["secured"] = False
+            security_config["reason"] = "Security module not available"
             return security_config
-        
+
         # Configure access controls based on sensitivity
         sensitivity_controls = {
-            'low': {'access_level': 'public', 'encryption': False},
-            'medium': {'access_level': 'restricted', 'encryption': True},
-            'high': {'access_level': 'confidential', 'encryption': True, 'audit_required': True},
-            'confidential': {'access_level': 'secret', 'encryption': True, 'audit_required': True, 'multi_factor': True}
+            "low": {"access_level": "public", "encryption": False},
+            "medium": {"access_level": "restricted", "encryption": True},
+            "high": {
+                "access_level": "confidential",
+                "encryption": True,
+                "audit_required": True,
+            },
+            "confidential": {
+                "access_level": "secret",
+                "encryption": True,
+                "audit_required": True,
+                "multi_factor": True,
+            },
         }
-        
-        controls = sensitivity_controls.get(sensitivity_level.lower(), sensitivity_controls['medium'])
-        security_config['access_controls'] = controls
-        
+
+        controls = sensitivity_controls.get(
+            sensitivity_level.lower(), sensitivity_controls["medium"]
+        )
+        security_config["access_controls"] = controls
+
         # Encryption configuration
-        if controls.get('encryption'):
-            security_config['encryption'] = {
-                'enabled': True,
-                'algorithm': 'AES-256',
-                'key_management': 'centralized'
+        if controls.get("encryption"):
+            security_config["encryption"] = {
+                "enabled": True,
+                "algorithm": "AES-256",
+                "key_management": "centralized",
             }
-        
+
         # Audit logging
-        security_config['audit_logging'] = {
-            'enabled': True,
-            'log_level': 'detailed' if sensitivity_level in ['high', 'confidential'] else 'standard',
-            'retention': '10_years' if sensitivity_level in ['high', 'confidential'] else '5_years'
+        security_config["audit_logging"] = {
+            "enabled": True,
+            "log_level": (
+                "detailed"
+                if sensitivity_level in ["high", "confidential"]
+                else "standard"
+            ),
+            "retention": (
+                "10_years"
+                if sensitivity_level in ["high", "confidential"]
+                else "5_years"
+            ),
         }
-        
+
         return security_config
-    
+
     def create_audit_log_entry(
-        self,
-        action: str,
-        actor: str,
-        governance_entity: str,
-        details: Dict[str, Any]
+        self, action: str, actor: str, governance_entity: str, details: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Create audit log entry for governance action.
-        
+
         Parameters:
         -----------
         action : str
@@ -125,85 +143,86 @@ class SecurityGovernanceIntegration:
             Governance entity involved
         details : Dict[str, Any]
             Additional details
-            
+
         Returns:
         --------
         Dict[str, Any]
             Audit log entry
         """
         from datetime import datetime
-        
+
         log_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'action': action,
-            'actor': actor,
-            'governance_entity': governance_entity,
-            'details': details,
-            'logged': True
+            "timestamp": datetime.now().isoformat(),
+            "action": action,
+            "actor": actor,
+            "governance_entity": governance_entity,
+            "details": details,
+            "logged": True,
         }
-        
+
         if self.sec_available and self.security_manager:
             # In real implementation, would use SecurityManager to log
-            log_entry['security_verified'] = True
+            log_entry["security_verified"] = True
         else:
-            log_entry['security_verified'] = False
-        
+            log_entry["security_verified"] = False
+
         return log_entry
-    
+
     def configure_access_control(
-        self,
-        governance_structure: Dict[str, Any],
-        access_policies: Dict[str, Any]
+        self, governance_structure: Dict[str, Any], access_policies: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Configure access control for governance operations.
-        
+
         Parameters:
         -----------
         governance_structure : Dict[str, Any]
             Governance structure to secure
         access_policies : Dict[str, Any]
             Access control policies
-            
+
         Returns:
         --------
         Dict[str, Any]
             Access control configuration
         """
         access_config = {
-            'configured': True,
-            'policies': access_policies,
-            'entity_access': {}
+            "configured": True,
+            "policies": access_policies,
+            "entity_access": {},
         }
-        
+
         if not self.sec_available:
-            access_config['configured'] = False
-            access_config['reason'] = 'Security module not available'
+            access_config["configured"] = False
+            access_config["reason"] = "Security module not available"
             return access_config
-        
+
         # Configure access for each governance entity
-        entities = governance_structure.get('entities', [])
+        entities = governance_structure.get("entities", [])
         for entity in entities:
-            entity_id = entity.get('entity_id', 'unknown')
-            entity_level = entity.get('governance_level', 'unknown')
-            
+            entity_id = entity.get("entity_id", "unknown")
+            entity_level = entity.get("governance_level", "unknown")
+
             # Determine access level based on entity level
             level_access = {
-                'local': 'public',
-                'regional': 'restricted',
-                'national': 'confidential',
-                'international': 'secret'
+                "local": "public",
+                "regional": "restricted",
+                "national": "confidential",
+                "international": "secret",
             }
-            
-            default_access = level_access.get(str(entity_level).lower(), 'restricted')
-            entity_access = access_policies.get(entity_id, {'access_level': default_access})
-            
-            access_config['entity_access'][entity_id] = {
-                'entity': entity_id,
-                'access_level': entity_access.get('access_level', default_access),
-                'allowed_operations': entity_access.get('allowed_operations', ['read', 'view']),
-                'restricted_operations': entity_access.get('restricted_operations', [])
-            }
-        
-        return access_config
 
+            default_access = level_access.get(str(entity_level).lower(), "restricted")
+            entity_access = access_policies.get(
+                entity_id, {"access_level": default_access}
+            )
+
+            access_config["entity_access"][entity_id] = {
+                "entity": entity_id,
+                "access_level": entity_access.get("access_level", default_access),
+                "allowed_operations": entity_access.get(
+                    "allowed_operations", ["read", "view"]
+                ),
+                "restricted_operations": entity_access.get("restricted_operations", []),
+            }
+
+        return access_config

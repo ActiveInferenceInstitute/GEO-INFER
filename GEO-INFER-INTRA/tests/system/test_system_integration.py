@@ -4,16 +4,19 @@ These tests verify end-to-end integration across multiple modules.
 """
 
 import pytest
-import os
 import sys
 import tempfile
-import yaml
 import json
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from intra_utils import import_module_by_path, collect_test_modules
-from intra_utils.geospatial import create_point, create_feature, create_feature_collection
+from intra_utils import collect_test_modules
+from intra_utils.geospatial import (
+    create_point,
+    create_feature,
+    create_feature_collection,
+)
+
 
 @pytest.mark.system
 class TestSystemIntegration:
@@ -42,7 +45,7 @@ class TestSystemIntegration:
             ("Los Angeles", -118.2437, 34.0522),
             ("Chicago", -87.6298, 41.8781),
             ("San Francisco", -122.4194, 37.7749),
-            ("Miami", -80.1918, 25.7617)
+            ("Miami", -80.1918, 25.7617),
         ]
 
         features = []
@@ -53,8 +56,8 @@ class TestSystemIntegration:
                 {
                     "name": city,
                     "population": 1000000 + (hash(city) % 9000000),  # Random population
-                    "country": "USA"
-                }
+                    "country": "USA",
+                },
             )
             features.append(feature)
 
@@ -110,9 +113,7 @@ class TestSystemIntegration:
         # Add time properties to features
         for i, feature in enumerate(data["features"]):
             # Add timestamps and values for a simple time series
-            timestamps = [
-                f"2023-01-{d:02d}T00:00:00Z" for d in range(1, 6)
-            ]
+            timestamps = [f"2023-01-{d:02d}T00:00:00Z" for d in range(1, 6)]
             # Generate some values that increase over time with a random factor
             base_value = 10 + i
             values = [base_value + (d * 0.5) for d in range(5)]
@@ -120,7 +121,7 @@ class TestSystemIntegration:
             # Add to properties
             feature["properties"]["time_series"] = {
                 "timestamps": timestamps,
-                "values": values
+                "values": values,
             }
 
         # In a real implementation, we'd use the geo_infer_space module to handle the
@@ -157,9 +158,9 @@ class TestSystemIntegration:
                     min(f["geometry"]["coordinates"][0] for f in data["features"]),
                     min(f["geometry"]["coordinates"][1] for f in data["features"]),
                     max(f["geometry"]["coordinates"][0] for f in data["features"]),
-                    max(f["geometry"]["coordinates"][1] for f in data["features"])
-                ]
-            }
+                    max(f["geometry"]["coordinates"][1] for f in data["features"]),
+                ],
+            },
         }
 
         # Verify API response structure

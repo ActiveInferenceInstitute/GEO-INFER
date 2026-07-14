@@ -1,22 +1,18 @@
 """
 Tests for security management.
 """
-import os
-import base64
+
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, mock_open
 
 import pytest
 import jwt
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.x509.oid import NameOID
 
 from geo_infer_ops.core.security import SecurityManager
 from geo_infer_ops.core.config import Config, SecurityConfig, TLSConfig, AuthConfig
+
 
 @pytest.fixture
 def mock_config():
@@ -24,17 +20,12 @@ def mock_config():
     return Config(
         security=SecurityConfig(
             tls=TLSConfig(
-                enabled=True,
-                cert_file="/tmp/test.crt",
-                key_file="/tmp/test.key"
+                enabled=True, cert_file="/tmp/test.crt", key_file="/tmp/test.key"
             ),
-            auth=AuthConfig(
-                enabled=True,
-                jwt_secret="test-secret",
-                token_expiry=3600
-            )
+            auth=AuthConfig(enabled=True, jwt_secret="test-secret", token_expiry=3600),
         )
     )
+
 
 @pytest.fixture
 def security_manager(mock_config):
@@ -44,40 +35,37 @@ def security_manager(mock_config):
         manager = SecurityManager()
         yield manager
 
+
 def test_generate_tls_certificate(security_manager, tmp_path):
     """Test TLS certificate generation."""
     # Mock file operations
     with patch("builtins.open", mock_open()) as mock_file:
         result = security_manager.generate_tls_certificate(
-            common_name="test.example.com",
-            organization="Test Org",
-            country="US"
+            common_name="test.example.com", organization="Test Org", country="US"
         )
 
         assert result["cert_file"] == "/tmp/test.crt"
         assert result["key_file"] == "/tmp/test.key"
         assert mock_file.call_count == 2
 
+
 def test_generate_csr(security_manager):
     """Test CSR generation."""
     # Mock file operations
     with patch("builtins.open", mock_open()) as mock_file:
         csr = security_manager.generate_csr(
-            common_name="test.example.com",
-            organization="Test Org",
-            country="US"
+            common_name="test.example.com", organization="Test Org", country="US"
         )
 
         assert isinstance(csr, str)
         assert "BEGIN CERTIFICATE REQUEST" in csr
         assert mock_file.call_count == 1
 
+
 def test_generate_jwt_token(security_manager):
     """Test JWT token generation."""
     token = security_manager.generate_jwt_token(
-        user_id="test-user",
-        roles=["admin"],
-        expires_in=3600
+        user_id="test-user", roles=["admin"], expires_in=3600
     )
 
     assert isinstance(token, str)
@@ -86,18 +74,17 @@ def test_generate_jwt_token(security_manager):
     assert payload["roles"] == ["admin"]
     assert "exp" in payload
 
+
 def test_verify_jwt_token(security_manager):
     """Test JWT token verification."""
     # Generate token
-    token = security_manager.generate_jwt_token(
-        user_id="test-user",
-        roles=["admin"]
-    )
+    token = security_manager.generate_jwt_token(user_id="test-user", roles=["admin"])
 
     # Verify token
     payload = security_manager.verify_jwt_token(token)
     assert payload["user_id"] == "test-user"
     assert payload["roles"] == ["admin"]
+
 
 def test_verify_jwt_token_expired(security_manager):
     """Test verification of expired JWT token."""
@@ -105,7 +92,7 @@ def test_verify_jwt_token_expired(security_manager):
     payload = {
         "user_id": "test-user",
         "roles": ["admin"],
-        "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1)
+        "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1),
     }
     token = jwt.encode(payload, "test-secret", algorithm="HS256")
 
@@ -113,10 +100,12 @@ def test_verify_jwt_token_expired(security_manager):
     with pytest.raises(jwt.ExpiredSignatureError):
         security_manager.verify_jwt_token(token)
 
+
 def test_verify_jwt_token_invalid(security_manager):
     """Test verification of invalid JWT token."""
     with pytest.raises(jwt.InvalidTokenError):
         security_manager.verify_jwt_token("invalid-token")
+
 
 def test_encrypt_decrypt_data(security_manager):
     """Test data encryption and decryption."""
@@ -132,6 +121,7 @@ def test_encrypt_decrypt_data(security_manager):
     decrypted = security_manager.decrypt_data(encrypted)
     assert decrypted == test_data
 
+
 def test_generate_password_hash(security_manager):
     """Test password hash generation."""
     # Generate hash
@@ -142,6 +132,7 @@ def test_generate_password_hash(security_manager):
     assert isinstance(result["hash"], bytes)
     assert isinstance(result["salt"], bytes)
 
+
 def test_verify_password(security_manager):
     """Test password verification."""
     # Generate hash
@@ -149,18 +140,19 @@ def test_verify_password(security_manager):
     result = security_manager.generate_password_hash(password)
 
     # Verify password
-    assert security_manager.verify_password(
-        password,
-        result["hash"],
-        result["salt"]
-    ) is True
+    assert (
+        security_manager.verify_password(password, result["hash"], result["salt"])
+        is True
+    )
 
     # Verify wrong password
-    assert security_manager.verify_password(
-        "wrong-password",
-        result["hash"],
-        result["salt"]
-    ) is False
+    assert (
+        security_manager.verify_password(
+            "wrong-password", result["hash"], result["salt"]
+        )
+        is False
+    )
+
 
 def test_security_disabled(security_manager):
     """Test operations when security is disabled."""
@@ -174,36 +166,41 @@ def test_security_disabled(security_manager):
     with pytest.raises(ValueError):
         security_manager.verify_jwt_token("test-token")
 
+
 def test_load_keys_failure(security_manager):
     """Test key loading failure."""
     with patch("builtins.open", side_effect=IOError("File not found")):
         with pytest.raises(Exception):
             security_manager._load_keys()
 
+
 def test_certificate_validation(security_manager):
     """Test certificate validation."""
     # Generate certificate
     result = security_manager.generate_tls_certificate(
-        common_name="test.example.com",
-        organization="Test Org",
-        country="US"
+        common_name="test.example.com", organization="Test Org", country="US"
     )
 
     # Load and validate certificate
     with open(result["cert_file"], "rb") as f:
         cert = load_pem_x509_certificate(f.read())
 
-    assert cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == "test.example.com"
-    assert cert.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value == "Test Org"
+    assert (
+        cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+        == "test.example.com"
+    )
+    assert (
+        cert.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value
+        == "Test Org"
+    )
     assert cert.subject.get_attributes_for_oid(NameOID.COUNTRY_NAME)[0].value == "US"
+
 
 def test_csr_validation(security_manager):
     """Test CSR validation."""
     # Generate CSR
     csr = security_manager.generate_csr(
-        common_name="test.example.com",
-        organization="Test Org",
-        country="US"
+        common_name="test.example.com", organization="Test Org", country="US"
     )
 
     # Validate CSR

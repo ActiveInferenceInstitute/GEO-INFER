@@ -5,22 +5,57 @@ Validates the structural integrity, test coverage, and consistency
 of all GEO-INFER modules as a unified ecosystem.
 """
 
-import os
 import ast
-import importlib
 from pathlib import Path
 
 import pytest
 
 # Canonical list of ALL GEO-INFER modules
 GEO_INFER_MODULES = [
-    "ACT", "AG", "AGENT", "AI", "ANT", "API", "APP", "ART",
-    "BAYES", "BIO", "CIV", "CLIMATE", "COG", "COMMS", "DATA",
-    "ECON", "EDU", "EMERGENCY", "ENERGY", "EXAMPLES", "FOREST",
-    "GIT", "HEALTH", "INTRA", "IOT", "LOG", "MARINE", "MATH",
-    "METAGOV", "NORMS", "OPS", "ORG", "PEP", "PLACE", "REQ",
-    "RISK", "SEC", "SIM", "SPACE", "SPM", "TEST", "TIME",
-    "TRANSPORT", "WATER",
+    "ACT",
+    "AG",
+    "AGENT",
+    "AI",
+    "ANT",
+    "API",
+    "APP",
+    "ART",
+    "BAYES",
+    "BIO",
+    "CIV",
+    "CLIMATE",
+    "COG",
+    "COMMS",
+    "DATA",
+    "ECON",
+    "EDU",
+    "EMERGENCY",
+    "ENERGY",
+    "EXAMPLES",
+    "FOREST",
+    "GIT",
+    "HEALTH",
+    "INTRA",
+    "IOT",
+    "LOG",
+    "MARINE",
+    "MATH",
+    "METAGOV",
+    "NORMS",
+    "OPS",
+    "ORG",
+    "PEP",
+    "PLACE",
+    "REQ",
+    "RISK",
+    "SEC",
+    "SIM",
+    "SPACE",
+    "SPM",
+    "TEST",
+    "TIME",
+    "TRANSPORT",
+    "WATER",
 ]
 
 REPO_ROOT = Path(__file__).resolve().parents[3]  # GEO-INFER repo root
@@ -29,6 +64,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]  # GEO-INFER repo root
 # ============================================================================
 # Module structure tests
 # ============================================================================
+
 
 class TestModuleDirectoryStructure:
     """Verify each module has the expected directory structure."""
@@ -60,6 +96,7 @@ class TestModuleDirectoryStructure:
 # ============================================================================
 # Test file quality checks
 # ============================================================================
+
 
 class TestTestFileQuality:
     """Validate test file consistency across the ecosystem."""
@@ -112,7 +149,9 @@ class TestTestFileQuality:
                 for node in ast.walk(tree):
                     if isinstance(node, ast.FunctionDef):
                         # Functions in test files should be either test_ or helper
-                        if not node.name.startswith(("test_", "_", "setup", "teardown")):
+                        if not node.name.startswith(
+                            ("test_", "_", "setup", "teardown")
+                        ):
                             # Check if it's within a Test class (ok for helper methods)
                             pass  # Allow helper methods in classes
             except SyntaxError:
@@ -123,16 +162,20 @@ class TestTestFileQuality:
 # Ecosystem-level counts and statistics
 # ============================================================================
 
+
 class TestEcosystemStatistics:
     """Verify ecosystem-level test statistics."""
 
     def test_total_module_count(self):
         """There should be 44 GEO-INFER modules."""
         module_dirs = [
-            d for d in REPO_ROOT.iterdir()
+            d
+            for d in REPO_ROOT.iterdir()
             if d.is_dir() and d.name.startswith("GEO-INFER-")
         ]
-        assert len(module_dirs) >= 44, f"Expected >=44 modules, found {len(module_dirs)}"
+        assert (
+            len(module_dirs) >= 44
+        ), f"Expected >=44 modules, found {len(module_dirs)}"
 
     def test_total_test_file_count(self):
         """There should be 200+ test files across the ecosystem."""
@@ -147,13 +190,14 @@ class TestEcosystemStatistics:
         """TestDiscoverer should find all modules."""
         try:
             from geo_infer_test.core.test_discoverer import TestDiscoverer
+
             discoverer = TestDiscoverer(base_path=REPO_ROOT)
             results = discoverer.discover_all_tests(GEO_INFER_MODULES)
             # Should discover at least 40 modules
             modules_with_tests = [m for m in GEO_INFER_MODULES if m in results]
-            assert len(modules_with_tests) >= 40, (
-                f"TestDiscoverer found tests for {len(modules_with_tests)} modules, expected >=40"
-            )
+            assert (
+                len(modules_with_tests) >= 40
+            ), f"TestDiscoverer found tests for {len(modules_with_tests)} modules, expected >=40"
         except ImportError:
             pytest.fail("geo_infer_test.core.test_discoverer not available")
 
@@ -161,6 +205,7 @@ class TestEcosystemStatistics:
 # ============================================================================
 # Source structure validation
 # ============================================================================
+
 
 class TestSourceStructure:
     """Validate source code structure for each module."""
@@ -174,11 +219,12 @@ class TestSourceStructure:
         has_src = (mod_dir / "src").is_dir()
         has_package = any(
             (mod_dir / d / "__init__.py").is_file()
-            for d in mod_dir.iterdir() if d.is_dir() and d.name.startswith("geo_infer")
+            for d in mod_dir.iterdir()
+            if d.is_dir() and d.name.startswith("geo_infer")
         )
-        assert has_src or has_package, (
-            f"GEO-INFER-{module} has neither src/ nor a geo_infer_* package"
-        )
+        assert (
+            has_src or has_package
+        ), f"GEO-INFER-{module} has neither src/ nor a geo_infer_* package"
 
     @pytest.mark.parametrize("module", GEO_INFER_MODULES)
     def test_module_has_pyproject_or_setup(self, module):
@@ -189,6 +235,6 @@ class TestSourceStructure:
         has_pyproject = (mod_dir / "pyproject.toml").is_file()
         has_setup = (mod_dir / "setup.py").is_file()
         has_setup_cfg = (mod_dir / "setup.cfg").is_file()
-        assert has_pyproject or has_setup or has_setup_cfg, (
-            f"GEO-INFER-{module} has no pyproject.toml, setup.py, or setup.cfg"
-        )
+        assert (
+            has_pyproject or has_setup or has_setup_cfg
+        ), f"GEO-INFER-{module} has no pyproject.toml, setup.py, or setup.cfg"

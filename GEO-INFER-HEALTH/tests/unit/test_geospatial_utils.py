@@ -4,10 +4,12 @@ Unit tests for geospatial utility functions.
 
 import pytest
 import math
-import numpy as np
 
 from geo_infer_health.models import Location
-from geo_infer_health.utils.geospatial_utils import haversine_distance, create_bounding_box
+from geo_infer_health.utils.geospatial_utils import (
+    haversine_distance,
+    create_bounding_box,
+)
 
 
 class TestHaversineDistance:
@@ -29,7 +31,9 @@ class TestHaversineDistance:
         expected_distance = 3935.0  # km
         actual_distance = haversine_distance(la, ny)
 
-        assert actual_distance == pytest.approx(expected_distance, abs=50)  # Allow 50km tolerance
+        assert actual_distance == pytest.approx(
+            expected_distance, abs=50
+        )  # Allow 50km tolerance
 
     def test_symmetry(self):
         """Test that distance calculation is symmetric."""
@@ -120,8 +124,12 @@ class TestBoundingBox:
         east_lon = bbox[1].longitude
 
         # Check symmetry
-        assert abs(center.latitude - south_lat) == pytest.approx(abs(north_lat - center.latitude), abs=1e-6)
-        assert abs(center.longitude - west_lon) == pytest.approx(abs(east_lon - center.longitude), abs=1e-6)
+        assert abs(center.latitude - south_lat) == pytest.approx(
+            abs(north_lat - center.latitude), abs=1e-6
+        )
+        assert abs(center.longitude - west_lon) == pytest.approx(
+            abs(east_lon - center.longitude), abs=1e-6
+        )
 
     def test_bounding_box_size(self):
         """Test bounding box size for different distances."""
@@ -233,8 +241,12 @@ class TestGeospatialIntegration:
             pytest.fail("Need at least 2 locations for this test")
 
         # Create a bounding box that should contain all points
-        center_lat = sum(loc.latitude for loc in sample_locations) / len(sample_locations)
-        center_lon = sum(loc.longitude for loc in sample_locations) / len(sample_locations)
+        center_lat = sum(loc.latitude for loc in sample_locations) / len(
+            sample_locations
+        )
+        center_lon = sum(loc.longitude for loc in sample_locations) / len(
+            sample_locations
+        )
         center = Location(latitude=center_lat, longitude=center_lon)
 
         # Find maximum distance from center to any point

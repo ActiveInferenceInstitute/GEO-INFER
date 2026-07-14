@@ -11,10 +11,14 @@ import pytest
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from geo_infer_time.models.timeseries import TimeSeries
-from geo_infer_time.io import TimeSeriesReader, TimeSeriesWriter, read_timeseries, write_timeseries
+from geo_infer_time.io import (
+    TimeSeriesReader,
+    TimeSeriesWriter,
+    read_timeseries,
+    write_timeseries,
+)
 from geo_infer_time.utils import (
     validate_timeseries,
     detect_frequency,
@@ -29,6 +33,7 @@ from geo_infer_time.db import InMemoryStore
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 class MockTimeSeries:
     """Mock TimeSeries for testing."""
 
@@ -41,7 +46,9 @@ class MockTimeSeries:
         return pd.DataFrame({"value": self.values}, index=dates)
 
 
-def _make_ts(n=50, freq="D", start="2024-01-01", col="value", metadata=None, spatial=None):
+def _make_ts(
+    n=50, freq="D", start="2024-01-01", col="value", metadata=None, spatial=None
+):
     """Create a simple TimeSeries for reuse across tests."""
     dates = pd.date_range(start, periods=n, freq=freq)
     df = pd.DataFrame({col: np.arange(n, dtype=float)}, index=dates)
@@ -139,7 +146,9 @@ class TestTimeSeriesWriter:
 
     @pytest.fixture
     def sample_ts(self):
-        return _make_ts(n=15, metadata={"source": "test"}, spatial={"lat": 1.0, "lon": 2.0})
+        return _make_ts(
+            n=15, metadata={"source": "test"}, spatial={"lat": 1.0, "lon": 2.0}
+        )
 
     def test_write_csv(self, writer, sample_ts, tmp_path):
         """Write CSV and verify file exists."""
@@ -192,7 +201,9 @@ class TestCSVRoundTrip:
 
     def test_csv_round_trip_values(self, tmp_path):
         """Values survive a CSV write-read cycle."""
-        ts_orig = _make_ts(n=20, metadata={"round": "trip"}, spatial={"lat": 10.0, "lon": 20.0})
+        ts_orig = _make_ts(
+            n=20, metadata={"round": "trip"}, spatial={"lat": 10.0, "lon": 20.0}
+        )
         csv_path = tmp_path / "round_trip.csv"
 
         writer = TimeSeriesWriter()
@@ -272,7 +283,9 @@ class TestCreateTimeseries:
         """Metadata and spatial_location are passed through."""
         meta = {"sensor": "A1"}
         loc = {"lat": 0.0, "lon": 0.0}
-        ts = create_timeseries([1, 2], start="2024-01-01", freq="D", metadata=meta, spatial_location=loc)
+        ts = create_timeseries(
+            [1, 2], start="2024-01-01", freq="D", metadata=meta, spatial_location=loc
+        )
         assert ts.metadata == meta
         assert ts.spatial_location == loc
 
@@ -327,10 +340,12 @@ class TestValidateTimeseries:
         ts = TimeSeries(data=df)
         try:
             result = validate_timeseries(ts)
-            assert result["is_monotonic"] is False or result["is_monotonic"] == False
+            assert not result["is_monotonic"]
             assert any("monotonic" in w.lower() for w in result["warnings"])
         except IndexError:
-            pytest.fail("validate_timeseries crashes on non-monotonic index (known bug)")
+            pytest.fail(
+                "validate_timeseries crashes on non-monotonic index (known bug)"
+            )
 
     def test_duplicate_timestamps_warning(self):
         """Duplicate timestamps produce a warning.
@@ -345,7 +360,9 @@ class TestValidateTimeseries:
             result = validate_timeseries(ts)
             assert result["duplicate_timestamps"] > 0
         except IndexError:
-            pytest.fail("validate_timeseries crashes on duplicate timestamps (known bug)")
+            pytest.fail(
+                "validate_timeseries crashes on duplicate timestamps (known bug)"
+            )
 
     def test_gap_detection(self):
         """Large gaps in timestamps are detected.
@@ -406,7 +423,10 @@ class TestDetectFrequency:
         # Roughly daily but with noise
         np.random.seed(42)
         base = pd.Timestamp("2024-01-01")
-        timestamps = [base + timedelta(days=i, hours=int(np.random.uniform(-2, 2))) for i in range(30)]
+        timestamps = [
+            base + timedelta(days=i, hours=int(np.random.uniform(-2, 2)))
+            for i in range(30)
+        ]
         df = pd.DataFrame({"value": range(30)}, index=pd.DatetimeIndex(timestamps))
         ts = TimeSeries(data=df)
         freq = detect_frequency(ts)
@@ -420,11 +440,18 @@ class TestFillGaps:
     @pytest.fixture
     def gapped_ts(self):
         """TimeSeries with a gap (missing day 5)."""
-        dates = pd.to_datetime([
-            "2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04",
-            # gap: 2024-01-05 missing
-            "2024-01-06", "2024-01-07", "2024-01-08",
-        ])
+        dates = pd.to_datetime(
+            [
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-03",
+                "2024-01-04",
+                # gap: 2024-01-05 missing
+                "2024-01-06",
+                "2024-01-07",
+                "2024-01-08",
+            ]
+        )
         df = pd.DataFrame({"value": [1.0, 2.0, 3.0, 4.0, 6.0, 7.0, 8.0]}, index=dates)
         return TimeSeries(data=df)
 
@@ -544,7 +571,9 @@ class TestInMemoryStoreBasic:
 
     @pytest.fixture
     def sample_ts(self):
-        return _make_ts(n=20, metadata={"sensor": "A"}, spatial={"lat": 1.0, "lon": 2.0})
+        return _make_ts(
+            n=20, metadata={"sensor": "A"}, spatial={"lat": 1.0, "lon": 2.0}
+        )
 
     def test_store_and_retrieve(self, store, sample_ts):
         """Store a series and retrieve it by name."""
@@ -654,7 +683,9 @@ class TestInMemoryStoreQuery:
 
     def test_query_preserves_metadata(self, store_with_data):
         """Queried result preserves spatial_location and metadata."""
-        ts = _make_ts(n=10, metadata={"source": "sensor"}, spatial={"lat": 5.0, "lon": 10.0})
+        ts = _make_ts(
+            n=10, metadata={"source": "sensor"}, spatial={"lat": 5.0, "lon": 10.0}
+        )
         store_with_data.store("annotated", ts)
         result = store_with_data.query("annotated")
         assert result.metadata.get("source") == "sensor"
@@ -697,7 +728,9 @@ class TestEdgeCases:
 
     def test_empty_dataframe_validation(self):
         """Validate empty TimeSeries returns invalid."""
-        df = pd.DataFrame({"value": pd.Series([], dtype=float)}, index=pd.DatetimeIndex([]))
+        df = pd.DataFrame(
+            {"value": pd.Series([], dtype=float)}, index=pd.DatetimeIndex([])
+        )
         ts = TimeSeries(data=df)
         result = validate_timeseries(ts)
         assert result["valid"] is False
@@ -718,7 +751,9 @@ class TestEdgeCases:
     def test_store_empty_ts(self):
         """InMemoryStore can store and retrieve an empty TimeSeries."""
         store = InMemoryStore()
-        df = pd.DataFrame({"value": pd.Series([], dtype=float)}, index=pd.DatetimeIndex([]))
+        df = pd.DataFrame(
+            {"value": pd.Series([], dtype=float)}, index=pd.DatetimeIndex([])
+        )
         ts = TimeSeries(data=df)
         store.store("empty", ts)
         retrieved = store.retrieve("empty")

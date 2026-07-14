@@ -16,13 +16,10 @@ Key Features:
 """
 
 import numpy as np
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple, Callable
+from datetime import datetime
 from dataclasses import dataclass, field
-from collections import defaultdict
-import math
 
 # Integration imports
 try:
@@ -39,12 +36,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PSOParameters:
     """Parameters for Particle Swarm Optimization algorithm."""
+
     swarm_size: int = 100
     dimensions: int = 2
-    bounds: List[Tuple[float, float]] = field(default_factory=lambda: [(-10, 10), (-10, 10)])
+    bounds: List[Tuple[float, float]] = field(
+        default_factory=lambda: [(-10, 10), (-10, 10)]
+    )
     inertia_weight: float = 0.7
     cognitive_acceleration: float = 1.5  # c1 - personal best influence
-    social_acceleration: float = 1.5    # c2 - global best influence
+    social_acceleration: float = 1.5  # c2 - global best influence
     max_velocity: float = 3.0
     min_velocity: float = -3.0
     max_iterations: int = 200
@@ -53,7 +53,7 @@ class PSOParameters:
     # Advanced parameters
     velocity_clamping: bool = True
     adaptive_parameters: bool = False
-    neighborhood_topology: str = 'global'  # 'global', 'local', 'adaptive'
+    neighborhood_topology: str = "global"  # 'global', 'local', 'adaptive'
     neighborhood_size: int = 5
 
     def __post_init__(self):
@@ -69,11 +69,12 @@ class PSOParameters:
 @dataclass
 class Particle:
     """Individual particle in the PSO swarm."""
+
     position: np.ndarray
     velocity: np.ndarray
     personal_best_position: np.ndarray
-    personal_best_fitness: float = float('inf')
-    fitness: float = float('inf')
+    personal_best_fitness: float = float("inf")
+    fitness: float = float("inf")
 
     def update_personal_best(self) -> None:
         """Update personal best if current fitness is better."""
@@ -87,7 +88,7 @@ class Particle:
         inertia_weight: float,
         cognitive_acceleration: float,
         social_acceleration: float,
-        neighborhood_best_position: Optional[np.ndarray] = None
+        neighborhood_best_position: Optional[np.ndarray] = None,
     ) -> None:
         """
         Update particle velocity using PSO formula.
@@ -104,7 +105,9 @@ class Particle:
         r2 = np.random.uniform(0, 1, self.position.shape)
 
         # Cognitive component (personal best)
-        cognitive_component = cognitive_acceleration * r1 * (self.personal_best_position - self.position)
+        cognitive_component = (
+            cognitive_acceleration * r1 * (self.personal_best_position - self.position)
+        )
 
         # Social component (global or neighborhood best)
         if neighborhood_best_position is not None:
@@ -115,13 +118,15 @@ class Particle:
         social_component = social_acceleration * r2 * (social_target - self.position)
 
         # Update velocity
-        self.velocity = (inertia_weight * self.velocity +
-                        cognitive_component +
-                        social_component)
+        self.velocity = (
+            inertia_weight * self.velocity + cognitive_component + social_component
+        )
 
         # Apply velocity clamping if enabled
-        if hasattr(self, 'velocity_clamping') and self.velocity_clamping:
-            np.clip(self.velocity, -self.max_velocity, self.max_velocity, out=self.velocity)
+        if hasattr(self, "velocity_clamping") and self.velocity_clamping:
+            np.clip(
+                self.velocity, -self.max_velocity, self.max_velocity, out=self.velocity
+            )
 
     def update_position(self, bounds: List[Tuple[float, float]]) -> None:
         """Update particle position based on velocity."""
@@ -160,7 +165,7 @@ class ParticleSwarmOptimization:
         max_velocity: float = 3.0,
         max_iterations: int = 200,
         spatial_constraints: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize PSO algorithm.
@@ -182,8 +187,8 @@ class ParticleSwarmOptimization:
             bounds = [(-10, 10)] * dimensions
 
         # Extract neighborhood parameters from kwargs before constructing PSOParameters
-        neighborhood_topology = kwargs.pop('neighborhood_topology', 'global')
-        neighborhood_size = kwargs.pop('neighborhood_size', 5)
+        neighborhood_topology = kwargs.pop("neighborhood_topology", "global")
+        neighborhood_size = kwargs.pop("neighborhood_size", 5)
 
         self.parameters = PSOParameters(
             swarm_size=swarm_size,
@@ -203,7 +208,7 @@ class ParticleSwarmOptimization:
         # Swarm state
         self.swarm: List[Particle] = []
         self.global_best_position: Optional[np.ndarray] = None
-        self.global_best_fitness: float = float('inf')
+        self.global_best_fitness: float = float("inf")
 
         # Neighborhood structure (for local topology)
         self.neighborhoods: Dict[int, List[int]] = {}
@@ -224,20 +229,22 @@ class ParticleSwarmOptimization:
         # Initialize integrations
         self._initialize_integrations()
 
-        logger.info(f"PSO initialized with {swarm_size} particles, {dimensions} dimensions")
+        logger.info(
+            f"PSO initialized with {swarm_size} particles, {dimensions} dimensions"
+        )
 
     def _initialize_integrations(self) -> None:
         """Initialize integration with other GEO-INFER modules."""
         if SpatialIndexingInterface:
             try:
-                self.spatial_indexer = SpatialIndexingInterface(backend='h3')
+                self.spatial_indexer = SpatialIndexingInterface(backend="h3")
                 logger.info("Spatial indexer initialized for PSO")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial indexer: {e}")
 
         if SpatialAnalyticsInterface:
             try:
-                self.spatial_analytics = SpatialAnalyticsInterface(backend='h3')
+                self.spatial_analytics = SpatialAnalyticsInterface(backend="h3")
                 logger.info("Spatial analytics initialized for PSO")
             except Exception as e:
                 logger.warning(f"Failed to initialize spatial analytics: {e}")
@@ -257,46 +264,54 @@ class ParticleSwarmOptimization:
                 position = initial_positions[i].copy()
             else:
                 # Generate random initial position within bounds
-                position = np.array([
-                    np.random.uniform(min_bound, max_bound)
-                    for min_bound, max_bound in self.parameters.bounds
-                ])
+                position = np.array(
+                    [
+                        np.random.uniform(min_bound, max_bound)
+                        for min_bound, max_bound in self.parameters.bounds
+                    ]
+                )
 
             # Generate random initial velocity
-            velocity = np.array([
-                np.random.uniform(self.parameters.min_velocity, self.parameters.max_velocity)
-                for _ in range(self.parameters.dimensions)
-            ])
+            velocity = np.array(
+                [
+                    np.random.uniform(
+                        self.parameters.min_velocity, self.parameters.max_velocity
+                    )
+                    for _ in range(self.parameters.dimensions)
+                ]
+            )
 
             # Create particle
             particle = Particle(
                 position=position,
                 velocity=velocity,
                 personal_best_position=position.copy(),
-                personal_best_fitness=float('inf'),
-                fitness=float('inf')
+                personal_best_fitness=float("inf"),
+                fitness=float("inf"),
             )
 
             self.swarm.append(particle)
 
         # Initialize global best
         self.global_best_position = None
-        self.global_best_fitness = float('inf')
+        self.global_best_fitness = float("inf")
 
         # Initialize neighborhoods if using local topology
-        if self.parameters.neighborhood_topology == 'local':
+        if self.parameters.neighborhood_topology == "local":
             self._initialize_neighborhoods()
 
         logger.info(f"PSO swarm initialized with {len(self.swarm)} particles")
 
     def _initialize_neighborhoods(self) -> None:
         """Initialize neighborhood structure for local topology."""
-        if self.parameters.neighborhood_topology == 'local':
+        if self.parameters.neighborhood_topology == "local":
             # Ring topology neighborhoods
             for i in range(self.parameters.swarm_size):
                 neighborhood = []
-                for j in range(-self.parameters.neighborhood_size//2,
-                              self.parameters.neighborhood_size//2 + 1):
+                for j in range(
+                    -self.parameters.neighborhood_size // 2,
+                    self.parameters.neighborhood_size // 2 + 1,
+                ):
                     neighbor_idx = (i + j) % self.parameters.swarm_size
                     if neighbor_idx != i:
                         neighborhood.append(neighbor_idx)
@@ -307,7 +322,7 @@ class ParticleSwarmOptimization:
         objective_function: Callable[[np.ndarray], float],
         initial_positions: Optional[np.ndarray] = None,
         velocity_bounds: Optional[Tuple[float, float]] = None,
-        convergence_criteria: Optional[Dict[str, Any]] = None
+        convergence_criteria: Optional[Dict[str, Any]] = None,
     ) -> np.ndarray:
         """
         Optimize the objective function using PSO.
@@ -323,7 +338,9 @@ class ParticleSwarmOptimization:
         """
         start_time = datetime.now()
 
-        logger.info(f"Starting PSO optimization with {self.parameters.max_iterations} max iterations")
+        logger.info(
+            f"Starting PSO optimization with {self.parameters.max_iterations} max iterations"
+        )
 
         # Update velocity bounds if provided
         if velocity_bounds:
@@ -337,9 +354,9 @@ class ParticleSwarmOptimization:
             self.convergence_criteria = convergence_criteria
         else:
             self.convergence_criteria = {
-                'tolerance': self.parameters.convergence_threshold,
-                'max_iterations': self.parameters.max_iterations,
-                'min_improvement': 1e-8
+                "tolerance": self.parameters.convergence_threshold,
+                "max_iterations": self.parameters.max_iterations,
+                "min_improvement": 1e-8,
             }
 
         # Main optimization loop
@@ -374,14 +391,22 @@ class ParticleSwarmOptimization:
         self._evaluate_swarm(objective_function)
         self._update_bests()
 
-        computation_time = (datetime.now() - start_time).total_seconds()
+        _computation_time = (datetime.now() - start_time).total_seconds()
 
-        logger.info(f"PSO optimization completed: best fitness = {self.global_best_fitness}")
+        logger.info(
+            f"PSO optimization completed: best fitness = {self.global_best_fitness}"
+        )
         logger.info(f"Optimal solution: {self.global_best_position}")
 
-        return self.global_best_position.copy() if self.global_best_position is not None else np.zeros(self.parameters.dimensions)
+        return (
+            self.global_best_position.copy()
+            if self.global_best_position is not None
+            else np.zeros(self.parameters.dimensions)
+        )
 
-    def _evaluate_swarm(self, objective_function: Callable[[np.ndarray], float]) -> None:
+    def _evaluate_swarm(
+        self, objective_function: Callable[[np.ndarray], float]
+    ) -> None:
         """Evaluate fitness of all particles."""
         for particle in self.swarm:
             # Apply spatial constraints if any
@@ -398,15 +423,17 @@ class ParticleSwarmOptimization:
         constrained_position = position.copy()
 
         # Example constraint: keep within spatial bounds
-        if 'spatial_bounds' in self.spatial_constraints:
-            bounds = self.spatial_constraints['spatial_bounds']
+        if "spatial_bounds" in self.spatial_constraints:
+            bounds = self.spatial_constraints["spatial_bounds"]
             for i in range(len(constrained_position)):
                 if i < len(bounds):
                     min_bound, max_bound = bounds[i]
-                    constrained_position[i] = np.clip(constrained_position[i], min_bound, max_bound)
+                    constrained_position[i] = np.clip(
+                        constrained_position[i], min_bound, max_bound
+                    )
 
         # Example constraint: avoid obstacles
-        if 'obstacles' in self.spatial_constraints:
+        if "obstacles" in self.spatial_constraints:
             constrained_position = self._avoid_obstacles(constrained_position)
 
         return constrained_position
@@ -437,7 +464,7 @@ class ParticleSwarmOptimization:
                 inertia_weight=self.parameters.inertia_weight,
                 cognitive_acceleration=self.parameters.cognitive_acceleration,
                 social_acceleration=self.parameters.social_acceleration,
-                neighborhood_best_position=neighborhood_best
+                neighborhood_best_position=neighborhood_best,
             )
 
             # Update position
@@ -445,16 +472,18 @@ class ParticleSwarmOptimization:
 
     def _get_neighborhood_best(self, particle_idx: int) -> Optional[np.ndarray]:
         """Get best position in particle's neighborhood."""
-        if self.parameters.neighborhood_topology == 'global':
+        if self.parameters.neighborhood_topology == "global":
             return self.global_best_position
 
-        elif self.parameters.neighborhood_topology == 'local':
+        elif self.parameters.neighborhood_topology == "local":
             if particle_idx in self.neighborhoods:
                 neighborhood_indices = self.neighborhoods[particle_idx]
                 neighborhood_particles = [self.swarm[i] for i in neighborhood_indices]
 
                 # Find best in neighborhood
-                best_in_neighborhood = min(neighborhood_particles, key=lambda p: p.personal_best_fitness)
+                best_in_neighborhood = min(
+                    neighborhood_particles, key=lambda p: p.personal_best_fitness
+                )
                 return best_in_neighborhood.personal_best_position
 
         return self.global_best_position
@@ -468,7 +497,7 @@ class ParticleSwarmOptimization:
         recent_fitness = self.convergence_history[-10:]
         improvement = recent_fitness[0] - recent_fitness[-1]
 
-        if improvement < self.convergence_criteria.get('min_improvement', 1e-8):
+        if improvement < self.convergence_criteria.get("min_improvement", 1e-8):
             return True
 
         # Check fitness stability
@@ -477,7 +506,9 @@ class ParticleSwarmOptimization:
 
         if fitness_mean > 0:
             coefficient_of_variation = fitness_std / fitness_mean
-            return coefficient_of_variation < self.convergence_criteria.get('tolerance', 1e-6)
+            return coefficient_of_variation < self.convergence_criteria.get(
+                "tolerance", 1e-6
+            )
 
         return False
 
@@ -489,15 +520,19 @@ class ParticleSwarmOptimization:
         if len(self.swarm) > 1:
             positions = np.array([p.position for p in self.swarm])
             position_mean = np.mean(positions, axis=0)
-            diversity = np.mean([np.linalg.norm(pos - position_mean) for pos in positions])
+            diversity = np.mean(
+                [np.linalg.norm(pos - position_mean) for pos in positions]
+            )
             self.diversity_history.append(diversity)
 
         # Record parameter values
-        self.parameter_history.append({
-            'iteration': iteration,
-            'inertia_weight': self.parameters.inertia_weight,
-            'global_best_fitness': self.global_best_fitness
-        })
+        self.parameter_history.append(
+            {
+                "iteration": iteration,
+                "inertia_weight": self.parameters.inertia_weight,
+                "global_best_fitness": self.global_best_fitness,
+            }
+        )
 
     def _adapt_parameters(self, iteration: int) -> None:
         """Adapt PSO parameters based on optimization progress."""
@@ -514,18 +549,24 @@ class ParticleSwarmOptimization:
         if len(self.diversity_history) > 5:
             # Increase exploration if diversity is low
             recent_diversity = np.mean(self.diversity_history[-5:])
-            initial_diversity = self.diversity_history[0] if self.diversity_history else 1.0
+            initial_diversity = (
+                self.diversity_history[0] if self.diversity_history else 1.0
+            )
 
             if recent_diversity < initial_diversity * 0.1:
                 # Low diversity - increase cognitive acceleration
-                self.parameters.cognitive_acceleration = min(2.5, self.parameters.cognitive_acceleration * 1.1)
-                self.parameters.social_acceleration = max(0.5, self.parameters.social_acceleration * 0.9)
+                self.parameters.cognitive_acceleration = min(
+                    2.5, self.parameters.cognitive_acceleration * 1.1
+                )
+                self.parameters.social_acceleration = max(
+                    0.5, self.parameters.social_acceleration * 0.9
+                )
 
     def coordinate_swarms(
         self,
-        sub_swarms: List['ParticleSwarmOptimization'],
-        communication_topology: str = 'hierarchical',
-        information_sharing: str = 'best_positions'
+        sub_swarms: List["ParticleSwarmOptimization"],
+        communication_topology: str = "hierarchical",
+        information_sharing: str = "best_positions",
     ) -> Dict[str, Any]:
         """
         Coordinate multiple PSO swarms for complex optimization.
@@ -541,11 +582,11 @@ class ParticleSwarmOptimization:
         logger.info(f"Coordinating {len(sub_swarms)} PSO swarms")
 
         coordination_results = {
-            'topology': communication_topology,
-            'information_sharing': information_sharing,
-            'sub_swarm_results': [],
-            'combined_best_solution': None,
-            'combined_best_fitness': float('inf')
+            "topology": communication_topology,
+            "information_sharing": information_sharing,
+            "sub_swarm_results": [],
+            "combined_best_solution": None,
+            "combined_best_fitness": float("inf"),
         }
 
         # Run each sub-swarm
@@ -558,43 +599,53 @@ class ParticleSwarmOptimization:
 
             # Baseline result
             result = {
-                'sub_swarm_id': i,
-                'best_fitness': np.random.uniform(0, 1),
-                'best_solution': np.random.uniform(-10, 10, sub_swarm.parameters.dimensions)
+                "sub_swarm_id": i,
+                "best_fitness": np.random.uniform(0, 1),
+                "best_solution": np.random.uniform(
+                    -10, 10, sub_swarm.parameters.dimensions
+                ),
             }
 
-            coordination_results['sub_swarm_results'].append(result)
+            coordination_results["sub_swarm_results"].append(result)
 
             # Update combined best
-            if result['best_fitness'] < coordination_results['combined_best_fitness']:
-                coordination_results['combined_best_fitness'] = result['best_fitness']
-                coordination_results['combined_best_solution'] = result['best_solution']
+            if result["best_fitness"] < coordination_results["combined_best_fitness"]:
+                coordination_results["combined_best_fitness"] = result["best_fitness"]
+                coordination_results["combined_best_solution"] = result["best_solution"]
 
         # Implement inter-swarm communication
-        if communication_topology == 'hierarchical':
+        if communication_topology == "hierarchical":
             self._hierarchical_communication(sub_swarms, coordination_results)
-        elif communication_topology == 'ring':
+        elif communication_topology == "ring":
             self._ring_communication(sub_swarms, coordination_results)
 
-        logger.info(f"Swarm coordination completed: best fitness = {coordination_results['combined_best_fitness']}")
+        logger.info(
+            f"Swarm coordination completed: best fitness = {coordination_results['combined_best_fitness']}"
+        )
         return coordination_results
 
-    def _hierarchical_communication(self, sub_swarms: List['ParticleSwarmOptimization'], results: Dict[str, Any]) -> None:
+    def _hierarchical_communication(
+        self, sub_swarms: List["ParticleSwarmOptimization"], results: Dict[str, Any]
+    ) -> None:
         """Implement hierarchical communication between swarms."""
         # Find best sub-swarm
-        best_swarm_idx = np.argmin([r['best_fitness'] for r in results['sub_swarm_results']])
+        best_swarm_idx = np.argmin(
+            [r["best_fitness"] for r in results["sub_swarm_results"]]
+        )
 
         # Share best solution with all other swarms
-        best_solution = results['sub_swarm_results'][best_swarm_idx]['best_solution']
+        best_solution = results["sub_swarm_results"][best_swarm_idx]["best_solution"]
 
         for i, swarm in enumerate(sub_swarms):
             if i != best_swarm_idx:
                 # Update swarm's global best
-                if swarm.global_best_fitness > results['combined_best_fitness']:
+                if swarm.global_best_fitness > results["combined_best_fitness"]:
                     swarm.global_best_position = best_solution.copy()
-                    swarm.global_best_fitness = results['combined_best_fitness']
+                    swarm.global_best_fitness = results["combined_best_fitness"]
 
-    def _ring_communication(self, sub_swarms: List['ParticleSwarmOptimization'], results: Dict[str, Any]) -> None:
+    def _ring_communication(
+        self, sub_swarms: List["ParticleSwarmOptimization"], results: Dict[str, Any]
+    ) -> None:
         """Implement ring topology communication between swarms."""
         n_swarms = len(sub_swarms)
 
@@ -604,20 +655,22 @@ class ParticleSwarmOptimization:
             right_neighbor = (i + 1) % n_swarms
 
             current_swarm = sub_swarms[i]
-            left_result = results['sub_swarm_results'][left_neighbor]
-            right_result = results['sub_swarm_results'][right_neighbor]
+            left_result = results["sub_swarm_results"][left_neighbor]
+            right_result = results["sub_swarm_results"][right_neighbor]
 
             # Update with better neighbor solution
             for neighbor_result in [left_result, right_result]:
-                if neighbor_result['best_fitness'] < current_swarm.global_best_fitness:
-                    current_swarm.global_best_position = neighbor_result['best_solution'].copy()
-                    current_swarm.global_best_fitness = neighbor_result['best_fitness']
+                if neighbor_result["best_fitness"] < current_swarm.global_best_fitness:
+                    current_swarm.global_best_position = neighbor_result[
+                        "best_solution"
+                    ].copy()
+                    current_swarm.global_best_fitness = neighbor_result["best_fitness"]
 
     def adapt_parameters(
         self,
         performance_history: List[Dict[str, Any]],
         environmental_changes: Dict[str, Any],
-        adaptation_strategy: str = 'self_tuning'
+        adaptation_strategy: str = "self_tuning",
     ) -> Dict[str, Any]:
         """
         Adapt PSO parameters based on performance and environmental changes.
@@ -633,75 +686,107 @@ class ParticleSwarmOptimization:
         logger.info(f"Adapting PSO parameters using {adaptation_strategy} strategy")
 
         adaptation_results = {
-            'strategy': adaptation_strategy,
-            'changes_applied': [],
-            'parameters_updated': {},
-            'performance_improvement': 0.0
+            "strategy": adaptation_strategy,
+            "changes_applied": [],
+            "parameters_updated": {},
+            "performance_improvement": 0.0,
         }
 
-        if adaptation_strategy == 'self_tuning':
+        if adaptation_strategy == "self_tuning":
             # Analyze performance trends
             if len(performance_history) > 10:
                 recent_performance = performance_history[-5:]
-                older_performance = performance_history[-15:-10] if len(performance_history) > 15 else performance_history[:5]
+                older_performance = (
+                    performance_history[-15:-10]
+                    if len(performance_history) > 15
+                    else performance_history[:5]
+                )
 
-                recent_avg_fitness = np.mean([p.get('fitness', 1.0) for p in recent_performance])
-                older_avg_fitness = np.mean([p.get('fitness', 1.0) for p in older_performance])
+                recent_avg_fitness = np.mean(
+                    [p.get("fitness", 1.0) for p in recent_performance]
+                )
+                older_avg_fitness = np.mean(
+                    [p.get("fitness", 1.0) for p in older_performance]
+                )
 
-                improvement_rate = (older_avg_fitness - recent_avg_fitness) / older_avg_fitness
+                improvement_rate = (
+                    older_avg_fitness - recent_avg_fitness
+                ) / older_avg_fitness
 
                 # Adjust parameters based on improvement rate
                 if improvement_rate < 0.01:  # Slow improvement
                     # Increase exploration
                     old_inertia = self.parameters.inertia_weight
                     self.parameters.inertia_weight = min(0.9, old_inertia * 1.1)
-                    adaptation_results['parameters_updated']['inertia_weight'] = self.parameters.inertia_weight
-                    adaptation_results['changes_applied'].append('increased_exploration')
+                    adaptation_results["parameters_updated"][
+                        "inertia_weight"
+                    ] = self.parameters.inertia_weight
+                    adaptation_results["changes_applied"].append(
+                        "increased_exploration"
+                    )
 
                 elif improvement_rate > 0.1:  # Fast improvement
                     # Increase exploitation
                     old_inertia = self.parameters.inertia_weight
                     self.parameters.inertia_weight = max(0.4, old_inertia * 0.9)
-                    adaptation_results['parameters_updated']['inertia_weight'] = self.parameters.inertia_weight
-                    adaptation_results['changes_applied'].append('increased_exploitation')
+                    adaptation_results["parameters_updated"][
+                        "inertia_weight"
+                    ] = self.parameters.inertia_weight
+                    adaptation_results["changes_applied"].append(
+                        "increased_exploitation"
+                    )
 
-        elif adaptation_strategy == 'environmental':
+        elif adaptation_strategy == "environmental":
             # Adapt to environmental changes
-            if 'noise_level' in environmental_changes:
-                noise = environmental_changes['noise_level']
+            if "noise_level" in environmental_changes:
+                noise = environmental_changes["noise_level"]
 
                 # Increase robustness in noisy environments
                 if noise > 0.5:
-                    self.parameters.cognitive_acceleration = min(2.0, self.parameters.cognitive_acceleration * 1.2)
-                    self.parameters.social_acceleration = min(2.0, self.parameters.social_acceleration * 1.2)
-                    adaptation_results['parameters_updated']['cognitive_acceleration'] = self.parameters.cognitive_acceleration
-                    adaptation_results['parameters_updated']['social_acceleration'] = self.parameters.social_acceleration
-                    adaptation_results['changes_applied'].append('adapted_to_noise')
+                    self.parameters.cognitive_acceleration = min(
+                        2.0, self.parameters.cognitive_acceleration * 1.2
+                    )
+                    self.parameters.social_acceleration = min(
+                        2.0, self.parameters.social_acceleration * 1.2
+                    )
+                    adaptation_results["parameters_updated"][
+                        "cognitive_acceleration"
+                    ] = self.parameters.cognitive_acceleration
+                    adaptation_results["parameters_updated"][
+                        "social_acceleration"
+                    ] = self.parameters.social_acceleration
+                    adaptation_results["changes_applied"].append("adapted_to_noise")
 
-        adaptation_results['performance_improvement'] = adaptation_results.get('performance_improvement', 0.0)
+        adaptation_results["performance_improvement"] = adaptation_results.get(
+            "performance_improvement", 0.0
+        )
 
-        logger.info(f"PSO adaptation completed: {len(adaptation_results['changes_applied'])} changes applied")
+        logger.info(
+            f"PSO adaptation completed: {len(adaptation_results['changes_applied'])} changes applied"
+        )
         return adaptation_results
 
     def get_optimization_statistics(self) -> Dict[str, Any]:
         """Get comprehensive optimization statistics."""
         stats = {
-            'algorithm': 'Particle Swarm Optimization',
-            'parameters': {
-                'swarm_size': self.parameters.swarm_size,
-                'dimensions': self.parameters.dimensions,
-                'inertia_weight': self.parameters.inertia_weight,
-                'cognitive_acceleration': self.parameters.cognitive_acceleration,
-                'social_acceleration': self.parameters.social_acceleration,
-                'max_iterations': self.parameters.max_iterations
+            "algorithm": "Particle Swarm Optimization",
+            "parameters": {
+                "swarm_size": self.parameters.swarm_size,
+                "dimensions": self.parameters.dimensions,
+                "inertia_weight": self.parameters.inertia_weight,
+                "cognitive_acceleration": self.parameters.cognitive_acceleration,
+                "social_acceleration": self.parameters.social_acceleration,
+                "max_iterations": self.parameters.max_iterations,
             },
-            'optimization_results': {
-                'best_fitness': self.global_best_fitness,
-                'iterations_completed': len(self.convergence_history),
-                'function_evaluations': self.function_evaluations,
-                'convergence_achieved': self._check_convergence(self.parameters.max_iterations - 1)
+            "optimization_results": {
+                "best_fitness": self.global_best_fitness,
+                "iterations_completed": len(self.convergence_history),
+                "function_evaluations": self.function_evaluations,
+                "convergence_achieved": self._check_convergence(
+                    self.parameters.max_iterations - 1
+                ),
             },
-            'swarm_statistics': {}
+            "swarm_statistics": {},
         }
 
         # Swarm diversity and distribution
@@ -709,29 +794,32 @@ class ParticleSwarmOptimization:
             positions = np.array([p.position for p in self.swarm])
             fitnesses = np.array([p.fitness for p in self.swarm])
 
-            stats['swarm_statistics'] = {
-                'position_mean': np.mean(positions, axis=0).tolist(),
-                'position_std': np.std(positions, axis=0).tolist(),
-                'fitness_mean': np.mean(fitnesses),
-                'fitness_std': np.std(fitnesses),
-                'best_particle_index': np.argmin(fitnesses)
+            stats["swarm_statistics"] = {
+                "position_mean": np.mean(positions, axis=0).tolist(),
+                "position_std": np.std(positions, axis=0).tolist(),
+                "fitness_mean": np.mean(fitnesses),
+                "fitness_std": np.std(fitnesses),
+                "best_particle_index": np.argmin(fitnesses),
             }
 
         # Performance statistics
         if self.iteration_times:
-            stats['performance'] = {
-                'avg_iteration_time': np.mean(self.iteration_times),
-                'total_computation_time': sum(self.iteration_times),
-                'iterations_per_second': len(self.iteration_times) / sum(self.iteration_times)
+            stats["performance"] = {
+                "avg_iteration_time": np.mean(self.iteration_times),
+                "total_computation_time": sum(self.iteration_times),
+                "iterations_per_second": len(self.iteration_times)
+                / sum(self.iteration_times),
             }
 
         # Convergence analysis
         if len(self.convergence_history) > 10:
-            recent_improvement = self.convergence_history[-1] - self.convergence_history[-10]
-            stats['convergence'] = {
-                'recent_improvement': recent_improvement,
-                'improvement_rate': recent_improvement / 10,
-                'convergence_stability': np.std(self.convergence_history[-10:])
+            recent_improvement = (
+                self.convergence_history[-1] - self.convergence_history[-10]
+            )
+            stats["convergence"] = {
+                "recent_improvement": recent_improvement,
+                "improvement_rate": recent_improvement / 10,
+                "convergence_stability": np.std(self.convergence_history[-10:]),
             }
 
         return stats
@@ -742,38 +830,42 @@ class ParticleSwarmOptimization:
             import json
 
             state = {
-                'parameters': {
-                    'swarm_size': self.parameters.swarm_size,
-                    'dimensions': self.parameters.dimensions,
-                    'bounds': self.parameters.bounds,
-                    'inertia_weight': self.parameters.inertia_weight,
-                    'cognitive_acceleration': self.parameters.cognitive_acceleration,
-                    'social_acceleration': self.parameters.social_acceleration,
-                    'max_velocity': self.parameters.max_velocity,
-                    'max_iterations': self.parameters.max_iterations
+                "parameters": {
+                    "swarm_size": self.parameters.swarm_size,
+                    "dimensions": self.parameters.dimensions,
+                    "bounds": self.parameters.bounds,
+                    "inertia_weight": self.parameters.inertia_weight,
+                    "cognitive_acceleration": self.parameters.cognitive_acceleration,
+                    "social_acceleration": self.parameters.social_acceleration,
+                    "max_velocity": self.parameters.max_velocity,
+                    "max_iterations": self.parameters.max_iterations,
                 },
-                'swarm_state': [
+                "swarm_state": [
                     {
-                        'position': particle.position.tolist(),
-                        'velocity': particle.velocity.tolist(),
-                        'personal_best_position': particle.personal_best_position.tolist(),
-                        'personal_best_fitness': particle.personal_best_fitness,
-                        'fitness': particle.fitness
+                        "position": particle.position.tolist(),
+                        "velocity": particle.velocity.tolist(),
+                        "personal_best_position": particle.personal_best_position.tolist(),
+                        "personal_best_fitness": particle.personal_best_fitness,
+                        "fitness": particle.fitness,
                     }
                     for particle in self.swarm
                 ],
-                'global_best': {
-                    'position': self.global_best_position.tolist() if self.global_best_position is not None else None,
-                    'fitness': self.global_best_fitness
+                "global_best": {
+                    "position": (
+                        self.global_best_position.tolist()
+                        if self.global_best_position is not None
+                        else None
+                    ),
+                    "fitness": self.global_best_fitness,
                 },
-                'history': {
-                    'convergence_history': self.convergence_history,
-                    'diversity_history': self.diversity_history,
-                    'parameter_history': self.parameter_history
-                }
+                "history": {
+                    "convergence_history": self.convergence_history,
+                    "diversity_history": self.diversity_history,
+                    "parameter_history": self.parameter_history,
+                },
             }
 
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(state, f, indent=2)
 
             logger.info(f"PSO state saved to {filepath}")
@@ -788,35 +880,39 @@ class ParticleSwarmOptimization:
         try:
             import json
 
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 state = json.load(f)
 
             # Restore parameters
-            params = state['parameters']
+            params = state["parameters"]
             self.parameters = PSOParameters(**params)
 
             # Restore swarm
             self.swarm = []
-            for particle_data in state['swarm_state']:
+            for particle_data in state["swarm_state"]:
                 particle = Particle(
-                    position=np.array(particle_data['position']),
-                    velocity=np.array(particle_data['velocity']),
-                    personal_best_position=np.array(particle_data['personal_best_position']),
-                    personal_best_fitness=particle_data['personal_best_fitness'],
-                    fitness=particle_data['fitness']
+                    position=np.array(particle_data["position"]),
+                    velocity=np.array(particle_data["velocity"]),
+                    personal_best_position=np.array(
+                        particle_data["personal_best_position"]
+                    ),
+                    personal_best_fitness=particle_data["personal_best_fitness"],
+                    fitness=particle_data["fitness"],
                 )
                 self.swarm.append(particle)
 
             # Restore global best
-            global_best = state['global_best']
-            self.global_best_position = np.array(global_best['position']) if global_best['position'] else None
-            self.global_best_fitness = global_best['fitness']
+            global_best = state["global_best"]
+            self.global_best_position = (
+                np.array(global_best["position"]) if global_best["position"] else None
+            )
+            self.global_best_fitness = global_best["fitness"]
 
             # Restore history
-            history = state['history']
-            self.convergence_history = history['convergence_history']
-            self.diversity_history = history['diversity_history']
-            self.parameter_history = history['parameter_history']
+            history = state["history"]
+            self.convergence_history = history["convergence_history"]
+            self.diversity_history = history["diversity_history"]
+            self.parameter_history = history["parameter_history"]
 
             logger.info(f"PSO state loaded from {filepath}")
             return True

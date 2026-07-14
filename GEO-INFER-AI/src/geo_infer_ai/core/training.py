@@ -7,12 +7,11 @@ cross-validation, and hyperparameter search capabilities.
 """
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -206,9 +205,7 @@ class ModelTrainer:
             "model": model,
         }
 
-        logger.info(
-            f"Training completed. Validation R²: {r2:.4f}, RMSE: {rmse:.4f}"
-        )
+        logger.info(f"Training completed. Validation R²: {r2:.4f}, RMSE: {rmse:.4f}")
         return results
 
     def evaluate_model(
@@ -237,21 +234,28 @@ class ModelTrainer:
         if task_type == "classification":
             accuracy = accuracy_score(y_test, y_pred)
             report = classification_report(y_test, y_pred, output_dict=True)
-            
+
             # Additional classification metrics
-            from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
-            
+            from sklearn.metrics import (
+                precision_score,
+                recall_score,
+                f1_score,
+                confusion_matrix,
+            )
+
             # Handle multi-class vs binary
             if len(np.unique(y_test)) == 2:
-                average = 'binary'
+                average = "binary"
             else:
-                average = 'weighted'
-            
-            precision = precision_score(y_test, y_pred, average=average, zero_division=0)
+                average = "weighted"
+
+            precision = precision_score(
+                y_test, y_pred, average=average, zero_division=0
+            )
             recall = recall_score(y_test, y_pred, average=average, zero_division=0)
             f1 = f1_score(y_test, y_pred, average=average, zero_division=0)
             cm = confusion_matrix(y_test, y_pred)
-            
+
             return {
                 "accuracy": float(accuracy),
                 "precision": float(precision),
@@ -259,7 +263,9 @@ class ModelTrainer:
                 "f1_score": float(f1),
                 "confusion_matrix": cm.tolist(),
                 "classification_report": report,
-                "predictions": y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred,
+                "predictions": (
+                    y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred
+                ),
             }
         elif task_type == "regression":
             mse = mean_squared_error(y_test, y_pred)
@@ -272,15 +278,17 @@ class ModelTrainer:
             else:
                 r2 = r2_score(y_test, y_pred)
             rmse = np.sqrt(mse)
-            
+
             # Additional regression metrics
-            mape = np.mean(np.abs((y_test - y_pred) / (y_test + 1e-10))) * 100  # Mean Absolute Percentage Error
+            mape = (
+                np.mean(np.abs((y_test - y_pred) / (y_test + 1e-10))) * 100
+            )  # Mean Absolute Percentage Error
             median_ae = np.median(np.abs(y_test - y_pred))  # Median Absolute Error
-            
+
             # Calculate residuals
             residuals = y_test - y_pred
             residual_std = np.std(residuals)
-            
+
             return {
                 "mse": float(mse),
                 "mae": float(mae),
@@ -289,7 +297,9 @@ class ModelTrainer:
                 "mape": float(mape),
                 "median_ae": float(median_ae),
                 "residual_std": float(residual_std),
-                "predictions": y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred,
+                "predictions": (
+                    y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred
+                ),
             }
         else:
             raise ValueError(
@@ -418,9 +428,7 @@ class ModelTrainer:
         if scoring is None:
             scoring = "accuracy" if task_type == "classification" else "r2"
 
-        logger.info(
-            f"Starting hyperparameter search over {len(param_grid)} parameters"
-        )
+        logger.info(f"Starting hyperparameter search over {len(param_grid)} parameters")
 
         param_names = list(param_grid.keys())
         param_values = list(param_grid.values())
@@ -452,9 +460,7 @@ class ModelTrainer:
                 {
                     "params": params,
                     "score": score,
-                    "score_std": cv_result["aggregate"].get(
-                        f"{scoring}_std", 0.0
-                    ),
+                    "score_std": cv_result["aggregate"].get(f"{scoring}_std", 0.0),
                 }
             )
 
@@ -473,9 +479,7 @@ class ModelTrainer:
             "n_combinations": len(all_combinations),
         }
 
-        logger.info(
-            f"Hyperparameter search complete. Best {scoring}: {best_score:.4f}"
-        )
+        logger.info(f"Hyperparameter search complete. Best {scoring}: {best_score:.4f}")
         return result
 
     def split_data(
@@ -504,7 +508,10 @@ class ModelTrainer:
         stratify_y = y if stratify else None
 
         X_trainval, X_test, y_trainval, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=random_state,
+            X,
+            y,
+            test_size=test_size,
+            random_state=random_state,
             stratify=stratify_y,
         )
 
@@ -514,8 +521,11 @@ class ModelTrainer:
         if val_fraction > 0:
             stratify_trainval = y_trainval if stratify else None
             X_train, X_val, y_train, y_val = train_test_split(
-                X_trainval, y_trainval, test_size=val_fraction,
-                random_state=random_state, stratify=stratify_trainval,
+                X_trainval,
+                y_trainval,
+                test_size=val_fraction,
+                random_state=random_state,
+                stratify=stratify_trainval,
             )
         else:
             X_train, X_val = X_trainval, np.array([])
@@ -548,11 +558,13 @@ class ModelTrainer:
         # Try joblib first (more efficient for sklearn models)
         try:
             import joblib
+
             joblib.dump(model, path)
             logger.info(f"Model saved to {path} using joblib")
         except ImportError:
             # Fallback to pickle
             import pickle
+
             with open(path, "wb") as f:
                 pickle.dump(model, f)
             logger.info(f"Model saved to {path} using pickle (joblib not available)")
@@ -574,14 +586,15 @@ class ModelTrainer:
         # Try joblib first
         try:
             import joblib
+
             model = joblib.load(path)
             logger.info(f"Model loaded from {path} using joblib")
             return model
         except (ImportError, ValueError):
             # Fallback to pickle
             import pickle
+
             with open(path, "rb") as f:
                 model = pickle.load(f)
             logger.info(f"Model loaded from {path} using pickle")
             return model
-

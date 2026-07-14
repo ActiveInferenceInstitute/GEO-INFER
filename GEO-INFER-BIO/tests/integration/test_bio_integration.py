@@ -6,26 +6,29 @@ using in-memory sequence data and spatial coordinates.
 """
 
 import pytest
-import numpy as np
 import pandas as pd
 
 try:
     from Bio.Seq import Seq
     from Bio.SeqRecord import SeqRecord
+
     HAS_BIOPYTHON = True
 except ImportError:
     HAS_BIOPYTHON = False
 
 try:
     import matplotlib
+
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # noqa: F401
+
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
 
 try:
-    import geopandas as gpd
+    import geopandas as gpd  # noqa: F401
+
     HAS_GEOPANDAS = True
 except ImportError:
     HAS_GEOPANDAS = False
@@ -40,9 +43,21 @@ pytestmark = [
 def sample_sequences():
     """Create synthetic DNA sequences with spatial metadata."""
     sequences = [
-        SeqRecord(Seq("ATGCGATCGATCGATCGATCGATCGATCGATCGATCGATCG"), id="seq_001", name="Sample_A"),
-        SeqRecord(Seq("GCGCGCGCATATATATATAGCGCGCGCGCATATATATAT"), id="seq_002", name="Sample_B"),
-        SeqRecord(Seq("ATGATGATGATGATGATGATGATGATGATGATGATGATGATG"), id="seq_003", name="Sample_C"),
+        SeqRecord(
+            Seq("ATGCGATCGATCGATCGATCGATCGATCGATCGATCGATCG"),
+            id="seq_001",
+            name="Sample_A",
+        ),
+        SeqRecord(
+            Seq("GCGCGCGCATATATATATAGCGCGCGCGCATATATATAT"),
+            id="seq_002",
+            name="Sample_B",
+        ),
+        SeqRecord(
+            Seq("ATGATGATGATGATGATGATGATGATGATGATGATGATGATG"),
+            id="seq_003",
+            name="Sample_C",
+        ),
     ]
     return sequences
 
@@ -50,11 +65,13 @@ def sample_sequences():
 @pytest.fixture
 def spatial_data():
     """Create spatial metadata for sequence samples."""
-    return pd.DataFrame({
-        "latitude": [34.05, 36.77, 37.77],
-        "longitude": [-118.24, -119.42, -122.42],
-        "collection_site": ["Los Angeles", "Fresno", "San Francisco"],
-    })
+    return pd.DataFrame(
+        {
+            "latitude": [34.05, 36.77, 37.77],
+            "longitude": [-118.24, -119.42, -122.42],
+            "collection_site": ["Los Angeles", "Fresno", "San Francisco"],
+        }
+    )
 
 
 class TestSequenceAnalysisPipeline:
@@ -73,7 +90,9 @@ class TestSequenceAnalysisPipeline:
             assert 0.0 <= gc <= 100.0, f"GC content {gc} out of range for {record.id}"
 
         # Verify distinct GC values for different sequences
-        assert len(set(round(v, 2) for v in gc_values)) > 1, "Expected distinct GC values across sequences"
+        assert (
+            len(set(round(v, 2) for v in gc_values)) > 1
+        ), "Expected distinct GC values across sequences"
 
     def test_motif_finding(self, sample_sequences):
         """Test motif detection on synthetic sequences with known repeats."""
@@ -150,9 +169,13 @@ class TestSpatialAnalysisPipeline:
 
         gc_values = results["gc_content"]["gc_content"].tolist()
         # Sequences have different GC compositions, so values should differ
-        assert max(gc_values) - min(gc_values) > 1.0, "GC content should vary across diverse sequences"
+        assert (
+            max(gc_values) - min(gc_values) > 1.0
+        ), "GC content should vary across diverse sequences"
 
-    def test_visualization_from_analysis_output(self, sample_sequences, spatial_data, tmp_path):
+    def test_visualization_from_analysis_output(
+        self, sample_sequences, spatial_data, tmp_path
+    ):
         """Test that visualization consumes analysis output without error."""
         from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer
         from geo_infer_bio.utils.visualization import BioVisualizer
@@ -167,6 +190,7 @@ class TestSpatialAnalysisPipeline:
         visualizer.plot_spatial_distribution(results, output_path=output_file)
 
         import os
+
         assert os.path.exists(output_file), "Visualization file should be created"
 
     def test_gc_distribution_plot(self, sample_sequences, spatial_data, tmp_path):
@@ -182,6 +206,7 @@ class TestSpatialAnalysisPipeline:
         visualizer.plot_gc_distribution(results["gc_content"], output_path=output_file)
 
         import os
+
         assert os.path.exists(output_file), "GC distribution plot should be created"
 
 
@@ -209,4 +234,6 @@ class TestSequenceSimilarityPipeline:
         cross_sim = analyzer.calculate_sequence_similarity(
             sample_sequences[0].seq, sample_sequences[1].seq
         )
-        assert cross_sim < self_sim, "Cross-sequence similarity should be less than self-similarity"
+        assert (
+            cross_sim < self_sim
+        ), "Cross-sequence similarity should be less than self-similarity"

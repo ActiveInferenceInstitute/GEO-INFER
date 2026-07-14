@@ -25,7 +25,6 @@ import numpy as np
 from typing import Dict, Optional, Any
 from scipy.spatial.distance import pdist, squareform
 from scipy.optimize import minimize
-import warnings
 
 from ..models.data_models import SPMData, SPMResult
 
@@ -180,7 +179,9 @@ class SpatialAnalyzer:
                     predicted = model_func(distances, nugget, sill, range_)
                     return np.sum((values - predicted) ** 2)
 
-                minimum_range = max(float(np.finfo(float).eps), float(distances[-1]) * 1e-9)
+                minimum_range = max(
+                    float(np.finfo(float).eps), float(distances[-1]) * 1e-9
+                )
                 bounds = [
                     (0, sill_guess),
                     (nugget_guess, sill_guess * 2),

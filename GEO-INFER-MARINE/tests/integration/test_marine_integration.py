@@ -10,6 +10,7 @@ import numpy as np
 
 try:
     import xarray as xr
+
     HAS_XARRAY = True
 except ImportError:
     HAS_XARRAY = False
@@ -65,6 +66,7 @@ def bathymetry():
 def ecosystem_modeler():
     """Create a MarineEcosystemModeler instance."""
     from geo_infer_marine.core.marine_ecosystems import MarineEcosystemModeler
+
     return MarineEcosystemModeler()
 
 
@@ -81,7 +83,9 @@ class TestCoralReefAssessment:
 
     def test_coral_health_with_ph(self, ecosystem_modeler, sea_temperature, ocean_ph):
         """Test coral reef health with temperature and pH data."""
-        result = ecosystem_modeler.assess_coral_reef_health(sea_temperature, ph=ocean_ph)
+        result = ecosystem_modeler.assess_coral_reef_health(
+            sea_temperature, ph=ocean_ph
+        )
 
         assert "thermal_stress" in result
         assert "bleaching_risk" in result
@@ -104,7 +108,9 @@ class TestBiodiversityAnalysis:
             "lionfish": 12,
         }
 
-        result = ecosystem_modeler.calculate_biodiversity_indices(species_counts, area_km2=2.0)
+        result = ecosystem_modeler.calculate_biodiversity_indices(
+            species_counts, area_km2=2.0
+        )
 
         assert result["species_richness"] == 7
         assert result["total_abundance"] == 135
@@ -133,10 +139,13 @@ class TestBiodiversityAnalysis:
 class TestSpeciesDistribution:
     """Test species distribution modeling pipeline."""
 
-    def test_species_distribution_modeling(self, ecosystem_modeler, sea_temperature, bathymetry):
+    def test_species_distribution_modeling(
+        self, ecosystem_modeler, sea_temperature, bathymetry
+    ):
         """Test species distribution from environmental data."""
         from geo_infer_marine.core.marine_ecosystems import (
-            SpeciesData, MarineHabitatType,
+            SpeciesData,
+            MarineHabitatType,
         )
 
         # Register a coral reef fish species
@@ -153,7 +162,9 @@ class TestSpeciesDistribution:
         ecosystem_modeler.register_species(species)
 
         result = ecosystem_modeler.model_species_distribution(
-            "sp_001", sea_temperature, bathymetry,
+            "sp_001",
+            sea_temperature,
+            bathymetry,
         )
 
         assert "suitability" in result
@@ -165,10 +176,14 @@ class TestSpeciesDistribution:
         assert float(result["occurrence_probability"].min()) >= 0
         assert float(result["occurrence_probability"].max()) <= 1
 
-    def test_unregistered_species_raises(self, ecosystem_modeler, sea_temperature, bathymetry):
+    def test_unregistered_species_raises(
+        self, ecosystem_modeler, sea_temperature, bathymetry
+    ):
         """Test that requesting an unregistered species raises ValueError."""
         with pytest.raises(ValueError, match="not registered"):
-            ecosystem_modeler.model_species_distribution("nonexistent", sea_temperature, bathymetry)
+            ecosystem_modeler.model_species_distribution(
+                "nonexistent", sea_temperature, bathymetry
+            )
 
 
 class TestMarineProtectedAreas:
@@ -181,8 +196,10 @@ class TestMarineProtectedAreas:
             mpa_id="mpa_001",
             name="Test Reef MPA",
             boundary=[
-                (-86.0, 22.0), (-86.0, 23.0),
-                (-85.0, 23.0), (-85.0, 22.0),
+                (-86.0, 22.0),
+                (-86.0, 23.0),
+                (-85.0, 23.0),
+                (-85.0, 22.0),
             ],
             protection_level="full",
             target_species=["sp_001"],
@@ -201,7 +218,9 @@ class TestMarineProtectedAreas:
         )
 
         assert result["mpa_name"] == "Test Reef MPA"
-        assert result["abundance_ratio"] > 1.0, "Inside should be more abundant than outside"
+        assert (
+            result["abundance_ratio"] > 1.0
+        ), "Inside should be more abundant than outside"
         assert result["richness_ratio"] > 1.0, "Inside should have more species"
         assert 0 <= result["effectiveness_score"] <= 100
         assert "recommendation" in result
@@ -254,7 +273,9 @@ class TestBlueCarbon:
             "coral_reef": 200.0,
         }
 
-        result = ecosystem_modeler.estimate_blue_carbon(habitat_areas, condition="healthy")
+        result = ecosystem_modeler.estimate_blue_carbon(
+            habitat_areas, condition="healthy"
+        )
 
         assert result["total_area_km2"] == 380.0
         assert result["total_annual_storage_tonnes"] > 0
@@ -270,10 +291,17 @@ class TestBlueCarbon:
         """Test that degraded habitat has lower carbon storage."""
         habitat_areas = {"mangrove": 50.0, "seagrass": 100.0}
 
-        healthy = ecosystem_modeler.estimate_blue_carbon(habitat_areas, condition="healthy")
-        degraded = ecosystem_modeler.estimate_blue_carbon(habitat_areas, condition="degraded")
+        healthy = ecosystem_modeler.estimate_blue_carbon(
+            habitat_areas, condition="healthy"
+        )
+        degraded = ecosystem_modeler.estimate_blue_carbon(
+            habitat_areas, condition="degraded"
+        )
 
-        assert degraded["total_annual_storage_tonnes"] < healthy["total_annual_storage_tonnes"]
+        assert (
+            degraded["total_annual_storage_tonnes"]
+            < healthy["total_annual_storage_tonnes"]
+        )
         assert degraded["condition_multiplier"] < healthy["condition_multiplier"]
 
 
@@ -297,6 +325,10 @@ class TestFisheriesModeling:
         pressure = xr.DataArray(np.full((5, 5), 30.0), dims=["lat", "lon"])
 
         no_pressure = ecosystem_modeler.model_fisheries_stock(habitat)
-        with_pressure = ecosystem_modeler.model_fisheries_stock(habitat, fishing_pressure=pressure)
+        with_pressure = ecosystem_modeler.model_fisheries_stock(
+            habitat, fishing_pressure=pressure
+        )
 
-        assert float(with_pressure["stock_abundance"].mean()) < float(no_pressure["stock_abundance"].mean())
+        assert float(with_pressure["stock_abundance"].mean()) < float(
+            no_pressure["stock_abundance"].mean()
+        )

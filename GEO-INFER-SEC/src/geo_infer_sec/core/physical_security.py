@@ -10,9 +10,9 @@ This module provides comprehensive physical security measures including:
 - Facility security management and compliance
 """
 
-import asyncio
 import logging
 import threading
+import time
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Any, Union
@@ -20,19 +20,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import geopandas as gpd
-import numpy as np
-import pandas as pd
 from shapely.geometry import Point, Polygon, MultiPolygon
-from shapely.ops import unary_union
 import yaml
 
 from ..utils.geospatial_utils import GeoSpatialUtils
 from ..utils.security_utils import SecurityUtils
-from ..models.security_models import SecurityEvent, ThreatLevel, SecurityZone
+from ..models.security_models import ThreatLevel
 
 
 class AccessControlType(Enum):
     """Types of access control systems."""
+
     CARD_READER = "card_reader"
     BIOMETRIC = "biometric"
     KEYPAD = "keypad"
@@ -45,6 +43,7 @@ class AccessControlType(Enum):
 
 class SurveillanceType(Enum):
     """Types of surveillance systems."""
+
     CCTV = "cctv"
     THERMAL_CAMERA = "thermal_camera"
     MOTION_DETECTOR = "motion_detector"
@@ -57,6 +56,7 @@ class SurveillanceType(Enum):
 
 class SecurityZoneType(Enum):
     """Types of security zones."""
+
     PUBLIC = "public"
     RESTRICTED = "restricted"
     CONFIDENTIAL = "confidential"
@@ -68,6 +68,7 @@ class SecurityZoneType(Enum):
 @dataclass
 class AccessControlDevice:
     """Represents a physical access control device."""
+
     device_id: str
     name: str
     device_type: AccessControlType
@@ -84,6 +85,7 @@ class AccessControlDevice:
 @dataclass
 class SurveillanceDevice:
     """Represents a surveillance device."""
+
     device_id: str
     name: str
     device_type: SurveillanceType
@@ -101,12 +103,15 @@ class SurveillanceDevice:
 @dataclass
 class SecurityZone:
     """Represents a security zone with specific access requirements."""
+
     zone_id: str
     name: str
     zone_type: SecurityZoneType
     boundary: Union[Polygon, MultiPolygon]
     required_clearance_level: int
-    access_hours: Optional[Dict[str, Any]] = None  # {"start": "08:00", "end": "18:00", "days": ["mon", "tue", ...]}
+    access_hours: Optional[Dict[str, Any]] = (
+        None  # {"start": "08:00", "end": "18:00", "days": ["mon", "tue", ...]}
+    )
     escort_required: bool = False
     two_person_rule: bool = False
     emergency_evacuation: bool = True
@@ -116,6 +121,7 @@ class SecurityZone:
 @dataclass
 class PhysicalThreat:
     """Represents a detected physical threat."""
+
     threat_id: str
     threat_type: str
     location: Point
@@ -158,27 +164,29 @@ class PhysicalSecurityManager:
     def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
         """Load configuration from file."""
         if config_path and Path(config_path).exists():
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f)
         return {
             "monitoring_interval": 5,
             "alert_threshold": 0.7,
             "default_security_level": 1,
             "emergency_contacts": [],
-            "logging_level": "INFO"
+            "logging_level": "INFO",
         }
 
     def _initialize_security_zones(self):
         """Initialize default security zones."""
         # Create default zones if none exist
         if not self.security_zones:
-            self.add_security_zone(SecurityZone(
-                zone_id="public",
-                name="Public Area",
-                zone_type=SecurityZoneType.PUBLIC,
-                boundary=self.geo_utils.create_circle(Point(0, 0), 1000),
-                required_clearance_level=0
-            ))
+            self.add_security_zone(
+                SecurityZone(
+                    zone_id="public",
+                    name="Public Area",
+                    zone_type=SecurityZoneType.PUBLIC,
+                    boundary=self.geo_utils.create_circle(Point(0, 0), 1000),
+                    required_clearance_level=0,
+                )
+            )
 
     def _initialize_devices(self):
         """Initialize devices from configuration."""
@@ -217,7 +225,9 @@ class PhysicalSecurityManager:
                 zones.append(zone)
         return zones
 
-    def update_zone_boundary(self, zone_id: str, new_boundary: Union[Polygon, MultiPolygon]) -> bool:
+    def update_zone_boundary(
+        self, zone_id: str, new_boundary: Union[Polygon, MultiPolygon]
+    ) -> bool:
         """Update the boundary of a security zone."""
         if zone_id in self.security_zones:
             self.security_zones[zone_id].boundary = new_boundary
@@ -236,8 +246,9 @@ class PhysicalSecurityManager:
             self.logger.error(f"Error adding access device: {e}")
             return False
 
-    def verify_access_permission(self, user_id: str, device_id: str,
-                               clearance_level: int) -> Tuple[bool, str]:
+    def verify_access_permission(
+        self, user_id: str, device_id: str, clearance_level: int
+    ) -> Tuple[bool, str]:
         """Verify if a user has permission to access a device."""
         device = self.access_devices.get(device_id)
         if not device:
@@ -259,20 +270,31 @@ class PhysicalSecurityManager:
         for zone in zones:
             if zone.access_hours:
                 if not self._is_within_access_hours(current_time, zone.access_hours):
-                    return False, f"Access outside permitted hours for zone {zone.zone_id}"
+                    return (
+                        False,
+                        f"Access outside permitted hours for zone {zone.zone_id}",
+                    )
 
         return True, "Access granted"
 
-    def _is_within_access_hours(self, current_time: datetime, access_hours: Dict[str, Any]) -> bool:
+    def _is_within_access_hours(
+        self, current_time: datetime, access_hours: Dict[str, Any]
+    ) -> bool:
         """Check if current time is within permitted access hours."""
         # Implementation for time-based access control
         try:
-            start_time = datetime.strptime(access_hours.get("start", "00:00"), "%H:%M").time()
-            end_time = datetime.strptime(access_hours.get("end", "23:59"), "%H:%M").time()
+            start_time = datetime.strptime(
+                access_hours.get("start", "00:00"), "%H:%M"
+            ).time()
+            end_time = datetime.strptime(
+                access_hours.get("end", "23:59"), "%H:%M"
+            ).time()
             current_time_only = current_time.time()
 
             # Check if current day is allowed
-            allowed_days = access_hours.get("days", ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
+            allowed_days = access_hours.get(
+                "days", ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+            )
             current_day = current_time.strftime("%a").lower()
 
             if current_day not in allowed_days:
@@ -313,27 +335,36 @@ class PhysicalSecurityManager:
         for device in self.surveillance_devices.values():
             if device.coverage_area and device.is_active:
                 coverage_areas.append(device.coverage_area)
-                device_info.append({
-                    'device_id': device.device_id,
-                    'device_type': device.device_type.value,
-                    'name': device.name
-                })
+                device_info.append(
+                    {
+                        "device_id": device.device_id,
+                        "device_type": device.device_type.value,
+                        "name": device.name,
+                    }
+                )
 
         if coverage_areas:
-            coverage_gdf = gpd.GeoDataFrame(device_info, geometry=coverage_areas, crs="EPSG:4326")
+            coverage_gdf = gpd.GeoDataFrame(
+                device_info, geometry=coverage_areas, crs="EPSG:4326"
+            )
             return coverage_gdf
         else:
-            return gpd.GeoDataFrame(columns=['device_id', 'device_type', 'name', 'geometry'])
+            return gpd.GeoDataFrame(
+                columns=["device_id", "device_type", "name", "geometry"]
+            )
 
     # Threat Detection and Response
-    def detect_intrusion(self, location: Point, detection_method: str,
-                        confidence: float = 1.0) -> Optional[PhysicalThreat]:
+    def detect_intrusion(
+        self, location: Point, detection_method: str, confidence: float = 1.0
+    ) -> Optional[PhysicalThreat]:
         """Detect and register a potential intrusion."""
         threat_id = f"intrusion_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
         # Determine threat severity based on location and zones
         zones = self.get_zones_for_location(location)
-        max_security_level = max([zone.required_clearance_level for zone in zones], default=0)
+        max_security_level = max(
+            [zone.required_clearance_level for zone in zones], default=0
+        )
 
         if max_security_level >= 3:
             severity = ThreatLevel.CRITICAL
@@ -350,7 +381,7 @@ class PhysicalSecurityManager:
             detected_at=datetime.now(),
             detection_method=detection_method,
             description=f"Intrusion detected at {location.x}, {location.y}",
-            metadata={"confidence": confidence, "zones": [z.zone_id for z in zones]}
+            metadata={"confidence": confidence, "zones": [z.zone_id for z in zones]},
         )
 
         self.active_threats[threat_id] = threat
@@ -358,8 +389,9 @@ class PhysicalSecurityManager:
 
         return threat
 
-    def detect_unauthorized_access(self, device_id: str, user_id: str,
-                                 attempted_at: datetime) -> Optional[PhysicalThreat]:
+    def detect_unauthorized_access(
+        self, device_id: str, user_id: str, attempted_at: datetime
+    ) -> Optional[PhysicalThreat]:
         """Detect unauthorized access attempts."""
         device = self.access_devices.get(device_id)
         if not device:
@@ -375,7 +407,11 @@ class PhysicalSecurityManager:
             detected_at=datetime.now(),
             detection_method="access_control",
             description=f"Unauthorized access attempt by user {user_id} at device {device_id}",
-            metadata={"device_id": device_id, "user_id": user_id, "attempted_at": attempted_at.isoformat()}
+            metadata={
+                "device_id": device_id,
+                "user_id": user_id,
+                "attempted_at": attempted_at.isoformat(),
+            },
         )
 
         self.active_threats[threat_id] = threat
@@ -392,7 +428,9 @@ class PhysicalSecurityManager:
                 self.logger.error(f"Error in alert callback: {e}")
 
         # Log the alert
-        self.logger.warning(f"SECURITY ALERT: {threat.threat_type} at {threat.location} - {threat.description}")
+        self.logger.warning(
+            f"SECURITY ALERT: {threat.threat_type} at {threat.location} - {threat.description}"
+        )
 
     def add_alert_callback(self, callback: callable):
         """Add a callback function for security alerts."""
@@ -436,24 +474,31 @@ class PhysicalSecurityManager:
             if device.last_heartbeat:
                 time_since_heartbeat = current_time - device.last_heartbeat
                 if time_since_heartbeat > timedelta(minutes=5):
-                    self.logger.warning(f"Access device {device.device_id} may be offline")
+                    self.logger.warning(
+                        f"Access device {device.device_id} may be offline"
+                    )
 
         # Check surveillance devices
         for device in self.surveillance_devices.values():
-            if hasattr(device, 'last_heartbeat') and device.last_heartbeat:
+            if hasattr(device, "last_heartbeat") and device.last_heartbeat:
                 time_since_heartbeat = current_time - device.last_heartbeat
                 if time_since_heartbeat > timedelta(minutes=5):
-                    self.logger.warning(f"Surveillance device {device.device_id} may be offline")
+                    self.logger.warning(
+                        f"Surveillance device {device.device_id} may be offline"
+                    )
 
     def _check_zone_integrity(self):
         """Check integrity of security zones by verifying device coverage."""
         for zone_id, zone in self.security_zones.items():
             zone_devices = [
-                d for d in self.access_devices.values()
-                if getattr(d, 'zone_id', None) == zone_id
+                d
+                for d in self.access_devices.values()
+                if getattr(d, "zone_id", None) == zone_id
             ]
             if not zone_devices:
-                self.logger.warning(f"Security zone {zone_id} has no active access devices")
+                self.logger.warning(
+                    f"Security zone {zone_id} has no active access devices"
+                )
 
     def _process_alerts(self):
         """Process and manage active alerts."""
@@ -471,23 +516,27 @@ class PhysicalSecurityManager:
             del self.active_threats[threat_id]
 
     # Reporting and Analytics
-    def generate_security_report(self, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
+    def generate_security_report(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict[str, Any]:
         """Generate a comprehensive security report."""
         report = {
             "report_period": {
                 "start": start_date.isoformat(),
-                "end": end_date.isoformat()
+                "end": end_date.isoformat(),
             },
             "summary": {
                 "total_threats": len(self.active_threats),
-                "active_devices": len([d for d in self.access_devices.values() if d.is_active]),
+                "active_devices": len(
+                    [d for d in self.access_devices.values() if d.is_active]
+                ),
                 "security_zones": len(self.security_zones),
-                "surveillance_coverage": self._calculate_coverage_percentage()
+                "surveillance_coverage": self._calculate_coverage_percentage(),
             },
             "threat_analysis": self._analyze_threats(start_date, end_date),
             "device_status": self._get_device_status_summary(),
             "zone_analysis": self._analyze_zones(),
-            "recommendations": self._generate_recommendations()
+            "recommendations": self._generate_recommendations(),
         }
 
         return report
@@ -496,17 +545,25 @@ class PhysicalSecurityManager:
         """Calculate percentage of area under surveillance."""
         # This is a simplified calculation
         total_area = sum([zone.boundary.area for zone in self.security_zones.values()])
-        covered_area = sum([device.coverage_area.area for device in self.surveillance_devices.values()
-                          if device.coverage_area and device.is_active])
+        covered_area = sum(
+            [
+                device.coverage_area.area
+                for device in self.surveillance_devices.values()
+                if device.coverage_area and device.is_active
+            ]
+        )
 
         if total_area > 0:
             return min(100.0, (covered_area / total_area) * 100)
         return 0.0
 
-    def _analyze_threats(self, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
+    def _analyze_threats(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict[str, Any]:
         """Analyze threats within a date range."""
         relevant_threats = [
-            threat for threat in self.active_threats.values()
+            threat
+            for threat in self.active_threats.values()
             if start_date <= threat.detected_at <= end_date
         ]
 
@@ -514,14 +571,18 @@ class PhysicalSecurityManager:
         severity_counts = {}
 
         for threat in relevant_threats:
-            threat_types[threat.threat_type] = threat_types.get(threat.threat_type, 0) + 1
-            severity_counts[threat.severity.value] = severity_counts.get(threat.severity.value, 0) + 1
+            threat_types[threat.threat_type] = (
+                threat_types.get(threat.threat_type, 0) + 1
+            )
+            severity_counts[threat.severity.value] = (
+                severity_counts.get(threat.severity.value, 0) + 1
+            )
 
         return {
             "total_threats": len(relevant_threats),
             "threat_types": threat_types,
             "severity_distribution": severity_counts,
-            "resolution_rate": self._calculate_resolution_rate(relevant_threats)
+            "resolution_rate": self._calculate_resolution_rate(relevant_threats),
         }
 
     def _calculate_resolution_rate(self, threats: List[PhysicalThreat]) -> float:
@@ -538,19 +599,21 @@ class PhysicalSecurityManager:
         active_access = len([d for d in self.access_devices.values() if d.is_active])
 
         surveillance_devices = len(self.surveillance_devices)
-        active_surveillance = len([d for d in self.surveillance_devices.values() if d.is_active])
+        active_surveillance = len(
+            [d for d in self.surveillance_devices.values() if d.is_active]
+        )
 
         return {
             "access_control": {
                 "total": access_devices,
                 "active": active_access,
-                "inactive": access_devices - active_access
+                "inactive": access_devices - active_access,
             },
             "surveillance": {
                 "total": surveillance_devices,
                 "active": active_surveillance,
-                "inactive": surveillance_devices - active_surveillance
-            }
+                "inactive": surveillance_devices - active_surveillance,
+            },
         }
 
     def _analyze_zones(self) -> Dict[str, Any]:
@@ -567,7 +630,9 @@ class PhysicalSecurityManager:
             # Count surveillance coverage
             surveillance_coverage = 0
             for device in self.surveillance_devices.values():
-                if device.coverage_area and zone.boundary.intersects(device.coverage_area):
+                if device.coverage_area and zone.boundary.intersects(
+                    device.coverage_area
+                ):
                     surveillance_coverage += 1
 
             zone_analysis[zone.zone_id] = {
@@ -575,7 +640,7 @@ class PhysicalSecurityManager:
                 "clearance_level": zone.required_clearance_level,
                 "access_devices": devices_in_zone,
                 "surveillance_coverage": surveillance_coverage,
-                "area": zone.boundary.area
+                "area": zone.boundary.area,
             }
 
         return zone_analysis
@@ -586,32 +651,49 @@ class PhysicalSecurityManager:
 
         # Check for zones without adequate coverage
         for zone in self.security_zones.values():
-            devices_in_zone = sum(1 for device in self.access_devices.values()
-                                if zone.boundary.contains(device.location))
+            devices_in_zone = sum(
+                1
+                for device in self.access_devices.values()
+                if zone.boundary.contains(device.location)
+            )
             if devices_in_zone == 0 and zone.zone_type != SecurityZoneType.PUBLIC:
-                recommendations.append(f"Zone {zone.zone_id} lacks access control devices")
+                recommendations.append(
+                    f"Zone {zone.zone_id} lacks access control devices"
+                )
 
         # Check for inactive devices
         inactive_devices = [d for d in self.access_devices.values() if not d.is_active]
         if inactive_devices:
-            recommendations.append(f"{len(inactive_devices)} access control devices are inactive")
+            recommendations.append(
+                f"{len(inactive_devices)} access control devices are inactive"
+            )
 
         # Check surveillance coverage
         coverage = self._calculate_coverage_percentage()
         if coverage < 80:
-            recommendations.append(f"Surveillance coverage is only {coverage:.1f}% - consider adding more cameras")
+            recommendations.append(
+                f"Surveillance coverage is only {coverage:.1f}% - consider adding more cameras"
+            )
 
         return recommendations
 
     def get_active_threats(self) -> List[PhysicalThreat]:
         """Get all active threats."""
-        return [threat for threat in self.active_threats.values() if threat.status == "active"]
+        return [
+            threat
+            for threat in self.active_threats.values()
+            if threat.status == "active"
+        ]
 
     def resolve_threat(self, threat_id: str, resolution_notes: str = "") -> bool:
         """Mark a threat as resolved."""
         if threat_id in self.active_threats:
             self.active_threats[threat_id].status = "resolved"
-            self.active_threats[threat_id].metadata["resolution_notes"] = resolution_notes
-            self.active_threats[threat_id].metadata["resolved_at"] = datetime.now().isoformat()
+            self.active_threats[threat_id].metadata[
+                "resolution_notes"
+            ] = resolution_notes
+            self.active_threats[threat_id].metadata[
+                "resolved_at"
+            ] = datetime.now().isoformat()
             return True
         return False

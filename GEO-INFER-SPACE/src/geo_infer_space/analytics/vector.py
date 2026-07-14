@@ -8,14 +8,11 @@ computations using GeoPandas and Shapely.
 
 import logging
 import numpy as np
-import pandas as pd
 import geopandas as gpd
-from typing import Union, List, Dict, Any, Optional, Tuple
-from shapely.geometry import Point, LineString, Polygon, MultiPolygon
-from shapely.ops import unary_union, nearest_points
+from typing import Union, Optional
+from shapely.ops import unary_union
 from shapely.ops import transform as shapely_transform
 from pyproj import Transformer
-import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +28,11 @@ def _reproject(frame: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
     )
     return result.set_crs(target_crs, allow_override=True)
 
+
 def buffer_and_intersect(
     points_gdf: gpd.GeoDataFrame,
     polygons_gdf: gpd.GeoDataFrame,
-    buffer_distance_meters: Union[int, float]
+    buffer_distance_meters: Union[int, float],
 ) -> gpd.GeoDataFrame:
     """Buffer points and intersect with polygons.
 
@@ -65,7 +63,7 @@ def buffer_and_intersect(
     buffered = points_gdf.buffer(buffer_distance_meters)
     buffered_gdf = gpd.GeoDataFrame(geometry=buffered, crs=points_gdf.crs)
 
-    intersection = gpd.overlay(buffered_gdf, polygons_gdf, how='intersection')
+    intersection = gpd.overlay(buffered_gdf, polygons_gdf, how="intersection")
 
     # Reproject back to original CRS
     intersection = intersection.to_crs(original_crs)
@@ -77,8 +75,8 @@ def buffer_and_intersect(
 def overlay_analysis(
     gdf1: gpd.GeoDataFrame,
     gdf2: gpd.GeoDataFrame,
-    operation: str = 'intersection',
-    keep_geom_type: bool = True
+    operation: str = "intersection",
+    keep_geom_type: bool = True,
 ) -> gpd.GeoDataFrame:
     """
     Perform overlay operations between two GeoDataFrames.
@@ -95,7 +93,7 @@ def overlay_analysis(
     Raises:
         ValueError: If invalid operation or CRS mismatch
     """
-    valid_operations = ['intersection', 'union', 'difference', 'symmetric_difference']
+    valid_operations = ["intersection", "union", "difference", "symmetric_difference"]
     if operation not in valid_operations:
         raise ValueError(f"Operation must be one of {valid_operations}")
 
@@ -113,9 +111,7 @@ def overlay_analysis(
 
 
 def proximity_analysis(
-    gdf1: gpd.GeoDataFrame,
-    gdf2: gpd.GeoDataFrame,
-    max_distance: Optional[float] = None
+    gdf1: gpd.GeoDataFrame, gdf2: gpd.GeoDataFrame, max_distance: Optional[float] = None
 ) -> gpd.GeoDataFrame:
     """
     Calculate proximity metrics between two sets of geometries.
@@ -131,14 +127,18 @@ def proximity_analysis(
     if gdf1.crs != gdf2.crs:
         gdf2 = gdf2.to_crs(gdf1.crs)
 
-    metric_gdf1 = gdf1.to_crs("EPSG:3857") if gdf1.crs and gdf1.crs.is_geographic else gdf1
-    metric_gdf2 = gdf2.to_crs("EPSG:3857") if gdf2.crs and gdf2.crs.is_geographic else gdf2
+    metric_gdf1 = (
+        gdf1.to_crs("EPSG:3857") if gdf1.crs and gdf1.crs.is_geographic else gdf1
+    )
+    metric_gdf2 = (
+        gdf2.to_crs("EPSG:3857") if gdf2.crs and gdf2.crs.is_geographic else gdf2
+    )
     result_data = []
 
     for idx1, geom1 in metric_gdf1.iterrows():
         distances = []
         nearest_idx = None
-        min_distance = float('inf')
+        min_distance = float("inf")
 
         for idx2, geom2 in metric_gdf2.iterrows():
             distance = geom1.geometry.distance(geom2.geometry)
@@ -152,13 +152,15 @@ def proximity_analysis(
         if max_distance and min_distance > max_distance:
             continue
 
-        result_data.append({
-            'source_id': idx1,
-            'nearest_id': nearest_idx,
-            'min_distance': min_distance,
-            'mean_distance': np.mean(distances),
-            'geometry': gdf1.loc[idx1].geometry
-        })
+        result_data.append(
+            {
+                "source_id": idx1,
+                "nearest_id": nearest_idx,
+                "min_distance": min_distance,
+                "mean_distance": np.mean(distances),
+                "geometry": gdf1.loc[idx1].geometry,
+            }
+        )
 
     result_gdf = gpd.GeoDataFrame(result_data, crs=gdf1.crs)
     logger.info(f"Proximity analysis completed: {len(result_gdf)} features")
@@ -168,8 +170,8 @@ def proximity_analysis(
 def spatial_join_analysis(
     left_gdf: gpd.GeoDataFrame,
     right_gdf: gpd.GeoDataFrame,
-    predicate: str = 'intersects',
-    how: str = 'inner'
+    predicate: str = "intersects",
+    how: str = "inner",
 ) -> gpd.GeoDataFrame:
     """
     Perform spatial join between two GeoDataFrames.
@@ -183,7 +185,14 @@ def spatial_join_analysis(
     Returns:
         GeoDataFrame with joined attributes
     """
-    valid_predicates = ['intersects', 'contains', 'within', 'touches', 'crosses', 'overlaps']
+    valid_predicates = [
+        "intersects",
+        "contains",
+        "within",
+        "touches",
+        "crosses",
+        "overlaps",
+    ]
     if predicate not in valid_predicates:
         raise ValueError(f"Predicate must be one of {valid_predicates}")
 
@@ -213,40 +222,42 @@ def geometric_calculations(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     metric_gdf = gdf.to_crs("EPSG:3857") if gdf.crs and gdf.crs.is_geographic else gdf
 
     # Calculate area for polygons
-    polygon_mask = gdf.geometry.geom_type.isin(['Polygon', 'MultiPolygon'])
+    polygon_mask = gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
     if any(polygon_mask):
-        result.loc[polygon_mask, 'area'] = metric_gdf.loc[polygon_mask, 'geometry'].area
-        result.loc[polygon_mask, 'perimeter'] = metric_gdf.loc[polygon_mask, 'geometry'].length
+        result.loc[polygon_mask, "area"] = metric_gdf.loc[polygon_mask, "geometry"].area
+        result.loc[polygon_mask, "perimeter"] = metric_gdf.loc[
+            polygon_mask, "geometry"
+        ].length
     else:
-        result['area'] = 0.0
-        result['perimeter'] = 0.0
+        result["area"] = 0.0
+        result["perimeter"] = 0.0
 
     # Calculate length for lines
-    if any(gdf.geometry.geom_type.isin(['LineString', 'MultiLineString'])):
-        result['length'] = metric_gdf.geometry.length
+    if any(gdf.geometry.geom_type.isin(["LineString", "MultiLineString"])):
+        result["length"] = metric_gdf.geometry.length
 
     # Calculate centroids for all geometries
     metric_centroids = metric_gdf.geometry.centroid
-    result['centroid_x'] = metric_centroids.x
-    result['centroid_y'] = metric_centroids.y
+    result["centroid_x"] = metric_centroids.x
+    result["centroid_y"] = metric_centroids.y
 
     # Calculate bounds
     bounds = gdf.bounds
-    result['bbox_area'] = (bounds['maxx'] - bounds['minx']) * (bounds['maxy'] - bounds['miny'])
+    result["bbox_area"] = (bounds["maxx"] - bounds["minx"]) * (
+        bounds["maxy"] - bounds["miny"]
+    )
 
     # Calculate convex hull area ratio (compactness measure)
-    result['convex_hull_area'] = metric_gdf.geometry.convex_hull.area
+    result["convex_hull_area"] = metric_gdf.geometry.convex_hull.area
     # Avoid division by zero
-    result['compactness'] = result['area'] / result['convex_hull_area'].replace(0, 1)
+    result["compactness"] = result["area"] / result["convex_hull_area"].replace(0, 1)
 
     logger.info("Geometric calculations completed")
     return result
 
 
 def topology_operations(
-    gdf: gpd.GeoDataFrame,
-    operation: str,
-    tolerance: float = 0.0
+    gdf: gpd.GeoDataFrame, operation: str, tolerance: float = 0.0
 ) -> gpd.GeoDataFrame:
     """
     Perform topology operations on geometries.
@@ -266,22 +277,24 @@ def topology_operations(
         )
     metric_gdf = gdf.to_crs("EPSG:3857") if gdf.crs and gdf.crs.is_geographic else gdf
 
-    if operation == 'buffer':
-        result['geometry'] = metric_gdf.geometry.buffer(tolerance)
+    if operation == "buffer":
+        result["geometry"] = metric_gdf.geometry.buffer(tolerance)
 
-    elif operation == 'simplify':
-        result['geometry'] = metric_gdf.geometry.simplify(tolerance, preserve_topology=True)
+    elif operation == "simplify":
+        result["geometry"] = metric_gdf.geometry.simplify(
+            tolerance, preserve_topology=True
+        )
 
-    elif operation == 'convex_hull':
-        result['geometry'] = metric_gdf.geometry.convex_hull
+    elif operation == "convex_hull":
+        result["geometry"] = metric_gdf.geometry.convex_hull
 
-    elif operation == 'envelope':
-        result['geometry'] = metric_gdf.geometry.envelope
+    elif operation == "envelope":
+        result["geometry"] = metric_gdf.geometry.envelope
 
-    elif operation == 'dissolve':
+    elif operation == "dissolve":
         # Dissolve all geometries into one
         dissolved_geom = unary_union(metric_gdf.geometry.tolist())
-        result = gpd.GeoDataFrame([{'geometry': dissolved_geom}], crs=metric_gdf.crs)
+        result = gpd.GeoDataFrame([{"geometry": dissolved_geom}], crs=metric_gdf.crs)
 
     if gdf.crs and gdf.crs.is_geographic and operation != "dissolve":
         result = result.to_crs(gdf.crs)

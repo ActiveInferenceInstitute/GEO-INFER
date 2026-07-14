@@ -24,7 +24,7 @@ P(θ) is prior, and P(D) is marginal likelihood.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Any
 from scipy import stats
 from scipy.optimize import minimize
 import logging
@@ -33,12 +33,13 @@ logger = logging.getLogger(__name__)
 
 try:
     import pymc3 as pm
+
     PYMC3_AVAILABLE = True
 except ImportError:
     PYMC3_AVAILABLE = False
     logger.debug("PyMC3 is unavailable; Bayesian SPM uses empirical Bayes.")
 
-from ..models.data_models import SPMData, SPMResult, ContrastResult
+from ..models.data_models import SPMData, SPMResult  # noqa: E402
 
 
 class BayesianSPM:
@@ -71,9 +72,14 @@ class BayesianSPM:
         if not PYMC3_AVAILABLE and model_type != "empirical_bayes":
             logger.info("Using empirical Bayes approximation for %s", model_type)
 
-    def fit_bayesian_glm(self, data: SPMData, design_matrix: np.ndarray,
-                        priors: Optional[Dict[str, Any]] = None,
-                        n_samples: int = 1000, n_tune: int = 1000) -> SPMResult:
+    def fit_bayesian_glm(
+        self,
+        data: SPMData,
+        design_matrix: np.ndarray,
+        priors: Optional[Dict[str, Any]] = None,
+        n_samples: int = 1000,
+        n_tune: int = 1000,
+    ) -> SPMResult:
         """
         Fit Bayesian GLM using MCMC sampling.
 
@@ -98,49 +104,61 @@ class BayesianSPM:
     def _default_priors(self, n_regressors: int) -> Dict[str, Any]:
         """Set default prior distributions."""
         priors = {
-            'beta': {'type': 'normal', 'mu': 0, 'sigma': 1},
-            'sigma': {'type': 'half_normal', 'sigma': 1},
-            'nu': {'type': 'exponential', 'lam': 1/30}  # For robust regression
+            "beta": {"type": "normal", "mu": 0, "sigma": 1},
+            "sigma": {"type": "half_normal", "sigma": 1},
+            "nu": {"type": "exponential", "lam": 1 / 30},  # For robust regression
         }
 
         # Different priors for intercept vs. other coefficients
-        priors['beta_intercept'] = {'type': 'normal', 'mu': 0, 'sigma': 10}
+        priors["beta_intercept"] = {"type": "normal", "mu": 0, "sigma": 10}
 
         return priors
 
-    def _fit_pymc3_glm(self, data: SPMData, design_matrix: np.ndarray,
-                      priors: Dict[str, Any], n_samples: int, n_tune: int) -> SPMResult:
+    def _fit_pymc3_glm(
+        self,
+        data: SPMData,
+        design_matrix: np.ndarray,
+        priors: Dict[str, Any],
+        n_samples: int,
+        n_tune: int,
+    ) -> SPMResult:
         """Fit GLM using PyMC3 MCMC sampling."""
         y = data.data.flatten() if data.data.ndim > 1 else data.data
         X = design_matrix
 
-        with pm.Model() as model:
+        with pm.Model() as _model:
             # Priors
-            beta_intercept = pm.Normal('beta_intercept',
-                                     mu=priors['beta_intercept']['mu'],
-                                     sigma=priors['beta_intercept']['sigma'])
+            beta_intercept = pm.Normal(
+                "beta_intercept",
+                mu=priors["beta_intercept"]["mu"],
+                sigma=priors["beta_intercept"]["sigma"],
+            )
 
-            beta_other = pm.Normal('beta_other',
-                                 mu=priors['beta']['mu'],
-                                 sigma=priors['beta']['sigma'],
-                                 shape=X.shape[1]-1)
+            beta_other = pm.Normal(
+                "beta_other",
+                mu=priors["beta"]["mu"],
+                sigma=priors["beta"]["sigma"],
+                shape=X.shape[1] - 1,
+            )
 
             beta = pm.math.concatenate([[beta_intercept], beta_other])
 
-            sigma = pm.HalfNormal('sigma', sigma=priors['sigma']['sigma'])
+            sigma = pm.HalfNormal("sigma", sigma=priors["sigma"]["sigma"])
 
             # Likelihood
             mu = pm.math.dot(X, beta)
-            likelihood = pm.Normal('y', mu=mu, sigma=sigma, observed=y)
+            _likelihood = pm.Normal("y", mu=mu, sigma=sigma, observed=y)
 
             # Sample from posterior
             trace = pm.sample(n_samples, tune=n_tune, return_inferencedata=True)
 
         # Extract posterior samples
-        beta_samples = np.column_stack([
-            trace.posterior['beta_intercept'].values.flatten(),
-            trace.posterior['beta_other'].values.reshape(-1, X.shape[1]-1)
-        ])
+        beta_samples = np.column_stack(
+            [
+                trace.posterior["beta_intercept"].values.flatten(),
+                trace.posterior["beta_other"].values.reshape(-1, X.shape[1] - 1),
+            ]
+        )
 
         # Compute posterior means and credible intervals
         beta_mean = np.mean(beta_samples, axis=0)
@@ -153,16 +171,14 @@ class BayesianSPM:
 
         # Store results
         self.posterior_samples = {
-            'beta': beta_samples,
-            'sigma': trace.posterior['sigma'].values.flatten()
+            "beta": beta_samples,
+            "sigma": trace.posterior["sigma"].values.flatten(),
         }
 
         # Create SPMResult
         from ..models.data_models import DesignMatrix
-        design = DesignMatrix(
-            matrix=X,
-            names=[f'beta_{i}' for i in range(X.shape[1])]
-        )
+
+        design = DesignMatrix(matrix=X, names=[f"beta_{i}" for i in range(X.shape[1])])
 
         result = SPMResult(
             spm_data=data,
@@ -170,20 +186,21 @@ class BayesianSPM:
             beta_coefficients=beta_mean,
             residuals=residuals,
             model_diagnostics={
-                'method': 'Bayesian_GLM_PyMC3',
-                'n_samples': n_samples,
-                'n_tune': n_tune,
-                'beta_ci_lower': beta_ci_lower,
-                'beta_ci_upper': beta_ci_upper,
-                'r_hat': self._compute_r_hat(trace),
-                'effective_sample_size': self._compute_ess(trace)
-            }
+                "method": "Bayesian_GLM_PyMC3",
+                "n_samples": n_samples,
+                "n_tune": n_tune,
+                "beta_ci_lower": beta_ci_lower,
+                "beta_ci_upper": beta_ci_upper,
+                "r_hat": self._compute_r_hat(trace),
+                "effective_sample_size": self._compute_ess(trace),
+            },
         )
 
         return result
 
-    def _fit_empirical_bayes_glm(self, data: SPMData, design_matrix: np.ndarray,
-                                priors: Dict[str, Any]) -> SPMResult:
+    def _fit_empirical_bayes_glm(
+        self, data: SPMData, design_matrix: np.ndarray, priors: Dict[str, Any]
+    ) -> SPMResult:
         """Fit GLM using empirical Bayes approximation."""
         # Use maximum a posteriori (MAP) estimation as approximation
         y = data.data.flatten() if data.data.ndim > 1 else data.data
@@ -194,18 +211,18 @@ class BayesianSPM:
             mu = X @ beta
 
             # Likelihood (Gaussian)
-            nll_likelihood = 0.5 * np.sum((y - mu)**2)
+            nll_likelihood = 0.5 * np.sum((y - mu) ** 2)
 
             # Prior (Gaussian)
             beta_prior_mu = np.zeros(len(beta))
             beta_prior_sigma = np.ones(len(beta))
-            nll_prior = 0.5 * np.sum((beta - beta_prior_mu)**2 / beta_prior_sigma**2)
+            nll_prior = 0.5 * np.sum((beta - beta_prior_mu) ** 2 / beta_prior_sigma**2)
 
             return nll_likelihood + nll_prior
 
         # Optimize MAP estimate
         beta_init = np.linalg.pinv(X) @ y
-        result = minimize(negative_log_posterior, beta_init, method='BFGS')
+        result = minimize(negative_log_posterior, beta_init, method="BFGS")
 
         if not result.success:
             logger.debug("MAP optimization did not converge")
@@ -226,18 +243,18 @@ class BayesianSPM:
         try:
             beta_samples = np.random.multivariate_normal(beta_map, cov_beta, 500)
         except np.linalg.LinAlgError:
-            beta_samples = beta_map + np.random.randn(500, len(beta_map)) * np.sqrt(np.abs(np.diag(cov_beta)))
+            beta_samples = beta_map + np.random.randn(500, len(beta_map)) * np.sqrt(
+                np.abs(np.diag(cov_beta))
+            )
         self.posterior_samples = {
-            'beta': beta_samples,
-            'sigma': np.full(500, float(np.std(residuals)) or 1.0)
+            "beta": beta_samples,
+            "sigma": np.full(500, float(np.std(residuals)) or 1.0),
         }
 
         # Create SPMResult
         from ..models.data_models import DesignMatrix
-        design = DesignMatrix(
-            matrix=X,
-            names=[f'beta_{i}' for i in range(X.shape[1])]
-        )
+
+        design = DesignMatrix(matrix=X, names=[f"beta_{i}" for i in range(X.shape[1])])
 
         result = SPMResult(
             spm_data=data,
@@ -245,16 +262,17 @@ class BayesianSPM:
             beta_coefficients=beta_map,
             residuals=residuals,
             model_diagnostics={
-                'method': 'Empirical_Bayes_GLM',
-                'beta_covariance': cov_beta,
-                'beta_standard_errors': np.sqrt(np.diag(cov_beta))
-            }
+                "method": "Empirical_Bayes_GLM",
+                "beta_covariance": cov_beta,
+                "beta_standard_errors": np.sqrt(np.diag(cov_beta)),
+            },
         )
 
         return result
 
-    def posterior_probability_map(self, statistical_map: np.ndarray,
-                                threshold: float = 0.95) -> np.ndarray:
+    def posterior_probability_map(
+        self, statistical_map: np.ndarray, threshold: float = 0.95
+    ) -> np.ndarray:
         """
         Compute posterior probability map.
 
@@ -266,11 +284,13 @@ class BayesianSPM:
             Posterior probability map
         """
         if self.posterior_samples is None:
-            raise ValueError("Model must be fitted before computing posterior probabilities")
+            raise ValueError(
+                "Model must be fitted before computing posterior probabilities"
+            )
 
         # For Bayesian GLM, posterior probability that effect > 0
         # This is a simplified implementation
-        beta_samples = self.posterior_samples.get('beta', None)
+        beta_samples = self.posterior_samples.get("beta", None)
         if beta_samples is None:
             raise ValueError("Beta posterior samples not available")
 
@@ -285,8 +305,9 @@ class BayesianSPM:
 
         return posterior_prob
 
-    def bayesian_model_comparison(self, models: List[SPMResult],
-                                method: str = "bayes_factor") -> Dict[str, Any]:
+    def bayesian_model_comparison(
+        self, models: List[SPMResult], method: str = "bayes_factor"
+    ) -> Dict[str, Any]:
         """
         Compare Bayesian models using Bayes factors or information criteria.
 
@@ -313,14 +334,14 @@ class BayesianSPM:
 
         bic_values = []
         for model in models:
-            if 'bic' in model.model_diagnostics:
-                bic_values.append(model.model_diagnostics['bic'])
+            if "bic" in model.model_diagnostics:
+                bic_values.append(model.model_diagnostics["bic"])
             else:
                 # Approximate BIC
                 n = model.spm_data.n_points
                 k = model.design_matrix.n_regressors
                 rss = np.sum(model.residuals**2)
-                bic = n * np.log(rss/n) + k * np.log(n)
+                bic = n * np.log(rss / n) + k * np.log(n)
                 bic_values.append(bic)
 
         bic_values = np.array(bic_values)
@@ -330,10 +351,10 @@ class BayesianSPM:
         bayes_factors = np.exp((min_bic - bic_values) / 2)
 
         return {
-            'method': 'BIC_approximation',
-            'bic_values': bic_values,
-            'bayes_factors': bayes_factors,
-            'best_model_index': np.argmin(bic_values)
+            "method": "BIC_approximation",
+            "bic_values": bic_values,
+            "bayes_factors": bayes_factors,
+            "best_model_index": np.argmin(bic_values),
         }
 
     def _compute_dic(self, models: List[SPMResult]) -> Dict[str, Any]:
@@ -343,7 +364,7 @@ class BayesianSPM:
         for model in models:
             # DIC = D_bar + p_D, where D_bar is expected deviance, p_D is effective parameters
             # Simplified approximation
-            deviance = -2 * model.model_diagnostics.get('log_likelihood', 0)
+            deviance = -2 * model.model_diagnostics.get("log_likelihood", 0)
             n_params = model.design_matrix.n_regressors
 
             # Approximate effective number of parameters
@@ -353,9 +374,9 @@ class BayesianSPM:
             dic_values.append(dic)
 
         return {
-            'method': 'DIC',
-            'dic_values': dic_values,
-            'best_model_index': np.argmin(dic_values)
+            "method": "DIC",
+            "dic_values": dic_values,
+            "best_model_index": np.argmin(dic_values),
         }
 
     def _compute_waic(self, models: List[SPMResult]) -> Dict[str, Any]:
@@ -371,16 +392,18 @@ class BayesianSPM:
         waic_values = []
         for model in models:
             try:
-                y = (model.spm_data.data.flatten()
-                     if model.spm_data.data.ndim > 1
-                     else model.spm_data.data)
+                y = (
+                    model.spm_data.data.flatten()
+                    if model.spm_data.data.ndim > 1
+                    else model.spm_data.data
+                )
                 residuals = model.residuals
                 n = len(y)
                 k = model.design_matrix.n_regressors
 
-                if self.posterior_samples and 'beta' in self.posterior_samples:
+                if self.posterior_samples and "beta" in self.posterior_samples:
                     # Real WAIC using posterior samples
-                    beta_samples = self.posterior_samples['beta']  # shape (S, k)
+                    beta_samples = self.posterior_samples["beta"]  # shape (S, k)
                     X = model.design_matrix.matrix
                     sigma_est = float(np.std(residuals)) or 1.0
                     # Pointwise log-likelihood for each sample: (S, n)
@@ -392,10 +415,12 @@ class BayesianSPM:
                     p_waic = float(np.sum(var_i))
                 else:
                     # BIC-based approximation when no samples available
-                    rss = float(np.sum(residuals ** 2))
+                    rss = float(np.sum(residuals**2))
                     sigma_sq = rss / max(n - k, 1)
                     # Pointwise log-likelihood under Gaussian assumption
-                    lppd_approx = -0.5 * n * np.log(2 * np.pi * sigma_sq) - rss / (2 * sigma_sq)
+                    lppd_approx = -0.5 * n * np.log(2 * np.pi * sigma_sq) - rss / (
+                        2 * sigma_sq
+                    )
                     elpd = lppd_approx
                     p_waic = k  # rough parameter count
 
@@ -403,18 +428,21 @@ class BayesianSPM:
                 waic_values.append(waic)
             except Exception as e:
                 logger.debug("WAIC computation failed for model: %s", e)
-                waic_values.append(float('inf'))
+                waic_values.append(float("inf"))
 
         best_idx = int(np.argmin(waic_values)) if waic_values else 0
         return {
-            'method': 'WAIC',
-            'waic_values': waic_values,
-            'best_model_index': best_idx,
+            "method": "WAIC",
+            "waic_values": waic_values,
+            "best_model_index": best_idx,
         }
 
-
-    def spatial_hierarchical_model(self, data: SPMData, design_matrix: np.ndarray,
-                                  spatial_structure: Dict[str, Any]) -> SPMResult:
+    def spatial_hierarchical_model(
+        self,
+        data: SPMData,
+        design_matrix: np.ndarray,
+        spatial_structure: Dict[str, Any],
+    ) -> SPMResult:
         """
         Fit spatial hierarchical Bayesian model.
 
@@ -439,28 +467,30 @@ class BayesianSPM:
         X_augmented = np.column_stack([design_matrix, spatial_basis])
 
         # Fit using empirical Bayes
-        result = self._fit_empirical_bayes_glm(data, X_augmented,
-                                             self._default_priors(X_augmented.shape[1]))
+        result = self._fit_empirical_bayes_glm(
+            data, X_augmented, self._default_priors(X_augmented.shape[1])
+        )
 
-        result.model_diagnostics['spatial_hierarchical'] = True
-        result.model_diagnostics['spatial_structure'] = spatial_structure
+        result.model_diagnostics["spatial_hierarchical"] = True
+        result.model_diagnostics["spatial_structure"] = spatial_structure
 
         return result
 
-    def _create_spatial_basis(self, coordinates: np.ndarray,
-                             spatial_structure: Dict[str, Any]) -> np.ndarray:
+    def _create_spatial_basis(
+        self, coordinates: np.ndarray, spatial_structure: Dict[str, Any]
+    ) -> np.ndarray:
         """Create spatial basis functions for hierarchical model."""
         n_points = coordinates.shape[0]
-        n_basis = spatial_structure.get('n_basis', min(20, n_points // 10))
+        n_basis = spatial_structure.get("n_basis", min(20, n_points // 10))
 
         # Simple Gaussian basis functions
         centers = coordinates[np.random.choice(n_points, size=n_basis, replace=False)]
-        scale = spatial_structure.get('scale', np.std(coordinates) / np.sqrt(n_basis))
+        scale = spatial_structure.get("scale", np.std(coordinates) / np.sqrt(n_basis))
 
         basis = np.zeros((n_points, n_basis))
         for i in range(n_basis):
             distances = np.linalg.norm(coordinates - centers[i], axis=1)
-            basis[:, i] = np.exp(-(distances / scale)**2)
+            basis[:, i] = np.exp(-((distances / scale) ** 2))
 
         return basis
 
@@ -469,20 +499,21 @@ class BayesianSPM:
         # Simplified R-hat computation
         # In practice, would use proper Gelman-Rubin diagnostic
         try:
-            return np.array([1.0] * trace.posterior.dims['chain'])  # Baseline
-        except:
+            return np.array([1.0] * trace.posterior.dims["chain"])  # Baseline
+        except Exception:
             return np.array([1.0])
 
     def _compute_ess(self, trace) -> np.ndarray:
         """Compute effective sample size."""
         # Simplified ESS computation
         try:
-            return np.array([len(trace.posterior.draw) * trace.posterior.dims['chain']])
-        except:
+            return np.array([len(trace.posterior.draw) * trace.posterior.dims["chain"]])
+        except Exception:
             return np.array([1000])  # Baseline
 
-    def variational_inference(self, data: SPMData, design_matrix: np.ndarray,
-                            n_iterations: int = 100) -> SPMResult:
+    def variational_inference(
+        self, data: SPMData, design_matrix: np.ndarray, n_iterations: int = 100
+    ) -> SPMResult:
         """
         Perform variational inference for scalable Bayesian computation.
 
@@ -505,7 +536,7 @@ class BayesianSPM:
 
         # Initialize variational parameters (mean-field approximation)
         mu_beta = np.zeros(n_regressors)  # Mean of beta
-        sigma_beta = np.ones(n_regressors)  # Variance of beta
+        _sigma_beta = np.ones(n_regressors)  # Variance of beta
         a_sigma = b_sigma = 1.0  # Gamma parameters for sigma
 
         # Variational inference loop
@@ -533,10 +564,8 @@ class BayesianSPM:
 
         # Create SPMResult
         from ..models.data_models import DesignMatrix
-        design = DesignMatrix(
-            matrix=X,
-            names=[f'beta_{i}' for i in range(X.shape[1])]
-        )
+
+        design = DesignMatrix(matrix=X, names=[f"beta_{i}" for i in range(X.shape[1])])
 
         result = SPMResult(
             spm_data=data,
@@ -544,11 +573,11 @@ class BayesianSPM:
             beta_coefficients=beta_map,
             residuals=residuals,
             model_diagnostics={
-                'method': 'Variational_Inference',
-                'n_iterations': n_iterations,
-                'beta_covariance': cov_beta,
-                'final_sigma_sq': sigma_sq_final
-            }
+                "method": "Variational_Inference",
+                "n_iterations": n_iterations,
+                "beta_covariance": cov_beta,
+                "final_sigma_sq": sigma_sq_final,
+            },
         )
 
         return result

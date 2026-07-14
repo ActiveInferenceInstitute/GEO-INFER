@@ -10,6 +10,7 @@ import numpy as np
 
 try:
     import xarray as xr
+
     HAS_XARRAY = True
 except ImportError:
     HAS_XARRAY = False
@@ -89,7 +90,9 @@ class TestSolarAssessmentPipeline:
 
         assert "solar_potential" in result
         assert "annual_energy" in result
-        assert float(result["solar_potential"].min()) > 0, "Solar potential should be positive"
+        assert (
+            float(result["solar_potential"].min()) > 0
+        ), "Solar potential should be positive"
         assert result["annual_energy"].shape == solar_irradiance.shape
 
     def test_solar_with_terrain(self, solar_irradiance):
@@ -108,12 +111,16 @@ class TestSolarAssessmentPipeline:
         )
 
         assessor = RenewableResourceAssessor()
-        result = assessor.assess_solar_potential(solar_irradiance, slope=slope, aspect=aspect)
+        result = assessor.assess_solar_potential(
+            solar_irradiance, slope=slope, aspect=aspect
+        )
 
         assert float(result["solar_potential"].min()) >= 0
         # Terrain correction should reduce some values compared to no-terrain
         result_no_terrain = assessor.assess_solar_potential(solar_irradiance)
-        assert float(result["solar_potential"].mean()) <= float(result_no_terrain["solar_potential"].mean())
+        assert float(result["solar_potential"].mean()) <= float(
+            result_no_terrain["solar_potential"].mean()
+        )
 
 
 class TestWindAssessmentPipeline:
@@ -134,7 +141,8 @@ class TestWindAssessmentPipeline:
     def test_wind_capacity_factor(self, wind_speed):
         """Test capacity factor calculation for a wind turbine."""
         from geo_infer_energy.core.renewable_resources import (
-            RenewableResourceAssessor, RenewableType,
+            RenewableResourceAssessor,
+            RenewableType,
         )
 
         assessor = RenewableResourceAssessor()
@@ -145,7 +153,9 @@ class TestWindAssessmentPipeline:
         )
 
         cf_result = assessor.calculate_capacity_factor(
-            RenewableType.ONSHORE_WIND, wind_ts, rated_capacity_mw=2.0,
+            RenewableType.ONSHORE_WIND,
+            wind_ts,
+            rated_capacity_mw=2.0,
         )
 
         assert 0 <= cf_result["capacity_factor"] <= 1
@@ -160,7 +170,8 @@ class TestSiteSuitabilityPipeline:
     def test_site_suitability_scoring(self):
         """Test suitability scoring with constraints."""
         from geo_infer_energy.core.renewable_resources import (
-            RenewableResourceAssessor, RenewableType,
+            RenewableResourceAssessor,
+            RenewableType,
         )
 
         assessor = RenewableResourceAssessor()
@@ -187,7 +198,8 @@ class TestSiteSuitabilityPipeline:
     def test_lcoe_calculation(self):
         """Test LCOE calculation for a solar project."""
         from geo_infer_energy.core.renewable_resources import (
-            RenewableResourceAssessor, RenewableType,
+            RenewableResourceAssessor,
+            RenewableType,
         )
 
         assessor = RenewableResourceAssessor()
@@ -201,7 +213,11 @@ class TestSiteSuitabilityPipeline:
         assert lcoe["lcoe_usd_mwh"] > 0
         assert lcoe["annual_generation_mwh"] > 0
         assert lcoe["lifetime_generation_gwh"] > 0
-        assert lcoe["competitiveness"] in ["Competitive", "Moderately competitive", "High cost"]
+        assert lcoe["competitiveness"] in [
+            "Competitive",
+            "Moderately competitive",
+            "High cost",
+        ]
 
 
 class TestPortfolioAndStoragePipeline:
@@ -210,15 +226,41 @@ class TestPortfolioAndStoragePipeline:
     def test_register_sites_and_get_portfolio(self):
         """Test registering renewable sites and getting portfolio summary."""
         from geo_infer_energy.core.renewable_resources import (
-            RenewableResourceAssessor, RenewableType, RenewableSite,
+            RenewableResourceAssessor,
+            RenewableType,
+            RenewableSite,
         )
 
         assessor = RenewableResourceAssessor()
 
         sites = [
-            RenewableSite("s1", "Desert Solar", (-115.0, 35.0), RenewableType.SOLAR_PV, 50.0, 0.25, 109.5),
-            RenewableSite("s2", "Mountain Wind", (-117.0, 34.5), RenewableType.ONSHORE_WIND, 30.0, 0.35, 91.98),
-            RenewableSite("s3", "Coast Solar", (-118.5, 33.8), RenewableType.SOLAR_PV, 20.0, 0.20, 35.04),
+            RenewableSite(
+                "s1",
+                "Desert Solar",
+                (-115.0, 35.0),
+                RenewableType.SOLAR_PV,
+                50.0,
+                0.25,
+                109.5,
+            ),
+            RenewableSite(
+                "s2",
+                "Mountain Wind",
+                (-117.0, 34.5),
+                RenewableType.ONSHORE_WIND,
+                30.0,
+                0.35,
+                91.98,
+            ),
+            RenewableSite(
+                "s3",
+                "Coast Solar",
+                (-118.5, 33.8),
+                RenewableType.SOLAR_PV,
+                20.0,
+                0.20,
+                35.04,
+            ),
         ]
 
         for site in sites:
@@ -237,7 +279,9 @@ class TestPortfolioAndStoragePipeline:
 
         assessor = RenewableResourceAssessor()
         result = assessor.analyze_storage_requirements(
-            hourly_generation, hourly_demand, renewable_penetration=0.5,
+            hourly_generation,
+            hourly_demand,
+            renewable_penetration=0.5,
         )
 
         assert "renewable_penetration" in result

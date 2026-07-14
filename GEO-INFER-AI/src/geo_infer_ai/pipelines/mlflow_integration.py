@@ -9,7 +9,6 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +16,11 @@ logger = logging.getLogger(__name__)
 try:
     import mlflow
     import mlflow.sklearn
+
     MLFLOW_AVAILABLE = True
 except ImportError:
     MLFLOW_AVAILABLE = False
-    logger.debug(
-        "MLflow not available. Install with: uv pip install mlflow"
-    )
+    logger.debug("MLflow not available. Install with: uv pip install mlflow")
 
 
 class MLflowPipeline:
@@ -70,11 +68,13 @@ class MLflowPipeline:
             try:
                 experiment = mlflow.get_experiment_by_name(self.experiment_name)
                 if experiment is None:
-                    experiment_id = mlflow.create_experiment(self.experiment_name)
+                    _experiment_id = mlflow.create_experiment(self.experiment_name)
                     logger.info(f"Created MLflow experiment: {self.experiment_name}")
                 else:
-                    experiment_id = experiment.experiment_id
-                    logger.info(f"Using existing MLflow experiment: {self.experiment_name}")
+                    _experiment_id = experiment.experiment_id
+                    logger.info(
+                        f"Using existing MLflow experiment: {self.experiment_name}"
+                    )
             except Exception as e:
                 logger.warning(f"Could not set up MLflow experiment: {e}")
                 self.enabled = False
@@ -83,7 +83,9 @@ class MLflowPipeline:
             logger.warning(f"MLflow setup failed: {e}. Tracking disabled.")
             self.enabled = False
 
-    def start_run(self, run_name: Optional[str] = None, tags: Optional[Dict[str, str]] = None) -> None:
+    def start_run(
+        self, run_name: Optional[str] = None, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """
         Start a new MLflow run.
 
@@ -129,7 +131,9 @@ class MLflowPipeline:
         except Exception as e:
             logger.warning(f"Failed to log parameters: {e}")
 
-    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None) -> None:
+    def log_metrics(
+        self, metrics: Dict[str, float], step: Optional[int] = None
+    ) -> None:
         """
         Log metrics to MLflow.
 
@@ -184,7 +188,9 @@ class MLflowPipeline:
         except Exception as e:
             logger.warning(f"Failed to log model: {e}")
 
-    def log_artifacts(self, local_dir: Union[str, Path], artifact_path: Optional[str] = None) -> None:
+    def log_artifacts(
+        self, local_dir: Union[str, Path], artifact_path: Optional[str] = None
+    ) -> None:
         """
         Log artifacts (files) to MLflow.
 
@@ -221,4 +227,3 @@ class MLflowPipeline:
         except Exception as e:
             logger.error(f"Failed to load model from MLflow: {e}")
             raise
-
