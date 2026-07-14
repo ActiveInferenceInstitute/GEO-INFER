@@ -21,6 +21,7 @@ from geo_infer_act.utils.math import (
     compute_free_energy_categorical,
     compute_expected_free_energy,
     sample_dirichlet,
+    stable_log_sum_exp,
 )
 from geo_infer_act.utils.visualization import (
     plot_belief_update,
@@ -99,6 +100,20 @@ class TestMathUtils(unittest.TestCase):
         norm = normalize_distribution(x)
         self.assertTrue(np.allclose(np.sum(norm), 1.0))
         self.assertTrue(np.allclose(norm, x / np.sum(x)))
+
+    def test_normalize_scalar_distribution(self):
+        """A scalar represents the one-category distribution."""
+        self.assertEqual(float(normalize_distribution(np.array(2.0))), 1.0)
+
+    def test_stable_log_sum_exp_handles_empty_and_zero_support(self):
+        """Log-sum-exp should preserve the mathematical -inf identity."""
+        self.assertEqual(
+            stable_log_sum_exp(np.array([-np.inf, -np.inf])).item(), -np.inf
+        )
+        np.testing.assert_array_equal(
+            stable_log_sum_exp(np.empty((2, 0)), axis=1),
+            np.array([[-np.inf], [-np.inf]]),
+        )
 
     def test_kl_divergence(self):
         """Test KL divergence."""
@@ -317,11 +332,8 @@ class TestIntegrationUtils(unittest.TestCase):
             self.assertEqual(result["status"], "success")
             self.assertIn("boundary_cells", result["model_config"])
 
-    @unittest.skipUnless(
-        ModernToolsIntegration().available_tools.get("rxinfer", False),
-        "RxInfer not available",
-    )
     def test_integrate_rxinfer(self):
+        """Run the deterministic local RxInfer-compatible contract."""
         config = {}
         params = {
             "model_specification": "@model function test() end",
@@ -329,6 +341,7 @@ class TestIntegrationUtils(unittest.TestCase):
         }
         result = integrate_rxinfer(config, params)
         self.assertEqual(result["status"], "success")
+        self.assertIn(result["backend"], {"rxinfer", "deterministic-local"})
 
 
 if __name__ == "__main__":

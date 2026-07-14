@@ -1,11 +1,10 @@
 """
 Belief updating for Active Inference models.
 """
-from typing import Dict, List, Optional, Any
+from typing import Dict
 import numpy as np
-from scipy import stats
 
-from geo_infer_act.utils.math import kl_divergence, entropy
+from geo_infer_act.utils.math import categorical_posterior
 
 
 class BayesianBeliefUpdate:
@@ -40,18 +39,11 @@ class BayesianBeliefUpdate:
         Returns:
             Updated posterior beliefs
         """
-        # Compute likelihood for each state
-        likelihood = np.zeros(len(prior_beliefs))
-        for state_idx in range(len(prior_beliefs)):
-            likelihood[state_idx] = np.prod(
-                likelihood_matrix[:, state_idx] ** observation
-            )
-        
-        # Apply Bayes' rule
-        posterior = likelihood * prior_beliefs
-        posterior = posterior / (np.sum(posterior) + 1e-10)
-        
-        return posterior
+        return categorical_posterior(
+            prior_beliefs,
+            observation,
+            likelihood_matrix,
+        )
     
     def update_gaussian(self,
                        prior_mean: np.ndarray,

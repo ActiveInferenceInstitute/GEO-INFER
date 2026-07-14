@@ -23,6 +23,7 @@
 
 - `test_analysis.py`
 - `test_api.py`
+- `test_categorical_regressions.py`
 - `test_climate_model.py`
 - `test_core.py`
 - `test_dynamic_causal_model.py`
