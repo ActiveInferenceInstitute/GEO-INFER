@@ -397,6 +397,23 @@ def run_all_modules(timeout: int) -> SuiteReport:
     return report
 
 
+def _text_tail(value: object, limit: int = 2000) -> str:
+    """Return a JSON-safe tail for subprocess output.
+
+    ``subprocess.TimeoutExpired`` can expose captured output as ``bytes`` even
+    when ``text=True`` was requested.  Normalizing at the report boundary keeps
+    a timed-out command from causing the overall test run to fail while its
+    diagnostic summary is being written.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        value = value.decode("utf-8", errors="replace")
+    elif not isinstance(value, str):
+        value = str(value)
+    return value[-limit:]
+
+
 def write_summary(report: SuiteReport) -> None:
     ensure_results_dir()
     summary = {
@@ -408,8 +425,8 @@ def write_summary(report: SuiteReport) -> None:
                 "success": result.success,
                 "duration": round(result.duration, 3),
                 "command": result.command,
-                "stdout_tail": result.stdout[-2000:],
-                "stderr_tail": result.stderr[-2000:],
+                "stdout_tail": _text_tail(result.stdout),
+                "stderr_tail": _text_tail(result.stderr),
             }
             for result in report.results
         ],
