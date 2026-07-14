@@ -31,8 +31,11 @@ jobs:
           # available; the hosted CPU runners do not provide one. Keep the
           # performance extra available to developers while excluding it from
           # this CPU-only validation environment.
+          # Mayavi is an optional Python <3.12 3-D extra whose source build is
+          # incompatible with the hosted runner's VTK dependency; no CI test
+          # requires that optional backend.
           uv sync --python "$(command -v python)" --all-packages --all-extras \
-            --no-install-package cupy
+            --no-install-package cupy --no-install-package mayavi
 
       - name: Run code quality checks
         env:
