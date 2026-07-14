@@ -124,9 +124,7 @@ class CategoricalModel(ActiveInferenceModel):
         expected_shape = (self.state_dim, self.state_dim)
         if transition_matrix.shape != expected_shape:
             raise ValueError(f"Transition matrix must have shape {expected_shape}")
-        if not np.all(np.isfinite(transition_matrix)) or np.any(
-            transition_matrix < 0
-        ):
+        if not np.all(np.isfinite(transition_matrix)) or np.any(transition_matrix < 0):
             raise ValueError("Transition matrix must be finite and non-negative")
         row_sums = np.sum(transition_matrix, axis=1, keepdims=True)
         if np.any(row_sums <= 0):
@@ -146,9 +144,7 @@ class CategoricalModel(ActiveInferenceModel):
         expected_shape = (self.obs_dim, self.state_dim)
         if likelihood_matrix.shape != expected_shape:
             raise ValueError(f"Likelihood matrix must have shape {expected_shape}")
-        if not np.all(np.isfinite(likelihood_matrix)) or np.any(
-            likelihood_matrix < 0
-        ):
+        if not np.all(np.isfinite(likelihood_matrix)) or np.any(likelihood_matrix < 0):
             raise ValueError("Likelihood matrix must be finite and non-negative")
 
         # Normalize columns

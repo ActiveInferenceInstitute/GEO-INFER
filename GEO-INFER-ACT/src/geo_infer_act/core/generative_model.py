@@ -462,9 +462,7 @@ class GenerativeModel:
             axis=0,
             name="Categorical transition model B",
         )
-        return {
-            f"level_{level.level_id}": matrix.copy() for level in self.levels
-        }
+        return {f"level_{level.level_id}": matrix.copy() for level in self.levels}
 
     def _categorical_transition(
         self, state_dim: int, level_key: Optional[str] = None
@@ -478,7 +476,9 @@ class GenerativeModel:
                     "A categorical transition mapping requires a hierarchical level"
                 )
             if level_key not in transition:
-                raise ValueError(f"Categorical transition model B is missing {level_key}")
+                raise ValueError(
+                    f"Categorical transition model B is missing {level_key}"
+                )
             transition = transition[level_key]
             name = f"Categorical transition model B[{level_key}]"
         return _normalize_categorical_matrix(
@@ -713,9 +713,9 @@ class GenerativeModel:
         current_beliefs = self.beliefs[level_key]
 
         obs_model = self.observation_model[level_key]
-        prior = self._categorical_transition(
-            level.state_dim, level_key
-        ) @ np.asarray(current_beliefs["states"], dtype=float).reshape(-1)
+        prior = self._categorical_transition(level.state_dim, level_key) @ np.asarray(
+            current_beliefs["states"], dtype=float
+        ).reshape(-1)
         posterior = categorical_posterior(prior, observation, obs_model)
 
         return {"states": posterior, "precision": current_beliefs["precision"]}
@@ -758,9 +758,7 @@ class GenerativeModel:
             )
         self.beliefs[level_key] = updated
 
-    def _compute_log_likelihood(
-        self, observation: np.ndarray, state_idx: int
-    ) -> float:
+    def _compute_log_likelihood(self, observation: np.ndarray, state_idx: int) -> float:
         """Compute a categorical log-likelihood without linear underflow."""
         if self.model_type != "categorical":
             raise ValueError(
@@ -778,10 +776,10 @@ class GenerativeModel:
             raise ValueError("Categorical observations must be finite and non-negative")
         column = matrix[:, state_idx]
         column_total = float(np.sum(column))
-        if column_total <= 0 or np.any(column < 0) or not np.all(
-            np.isfinite(column)
-        ):
-            raise ValueError("Categorical likelihood columns must be valid probabilities")
+        if column_total <= 0 or np.any(column < 0) or not np.all(np.isfinite(column)):
+            raise ValueError(
+                "Categorical likelihood columns must be valid probabilities"
+            )
         column = column / column_total
         with np.errstate(divide="ignore", invalid="ignore"):
             log_terms = np.where(
@@ -1085,12 +1083,17 @@ class GenerativeModel:
                 result.setdefault("backend", "rxinfer")
                 return result
             else:
-                logger.info("Julia/RxInfer unavailable; using deterministic local inference")
+                logger.info(
+                    "Julia/RxInfer unavailable; using deterministic local inference"
+                )
                 return self._deterministic_rxinfer_result(data)
         except FileNotFoundError:
             return self._deterministic_rxinfer_result(data)
         except Exception as e:
-            logger.info("RxInfer integration unavailable; using deterministic local inference: %s", e)
+            logger.info(
+                "RxInfer integration unavailable; using deterministic local inference: %s",
+                e,
+            )
             return self._deterministic_rxinfer_result(data)
 
     @staticmethod

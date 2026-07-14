@@ -13,7 +13,6 @@ from geo_infer_act.models.base import CategoricalModel
 from geo_infer_act.models.multi_agent import MultiAgentModel
 from geo_infer_act.utils.math import categorical_posterior, normalize_distribution
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 

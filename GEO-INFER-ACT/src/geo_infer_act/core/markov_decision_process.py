@@ -109,7 +109,9 @@ class MarkovDecisionProcess:
                 f"got {observation_prob.shape}"
             )
         if not np.all(np.isfinite(observation_prob)) or np.any(observation_prob < 0):
-            raise ValueError("Observation probabilities must be finite and non-negative")
+            raise ValueError(
+                "Observation probabilities must be finite and non-negative"
+            )
 
         # Check that probabilities sum to 1 for each state
         for s in range(self.n_states):

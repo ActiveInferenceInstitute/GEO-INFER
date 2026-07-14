@@ -9,16 +9,19 @@ import pytest
 
 h3 = pytest.importorskip("h3")
 
-from geo_infer_act import ActiveInferenceModel, GenerativeModel
-from geo_infer_act.core.types import H3GridInferenceResult, NestedH3GridInferenceResult
-from geo_infer_act.utils import pymdp_adapter
-from geo_infer_act.utils.pymdp_adapter import (
+from geo_infer_act import ActiveInferenceModel, GenerativeModel  # noqa: E402
+from geo_infer_act.core.types import (  # noqa: E402
+    H3GridInferenceResult,
+    NestedH3GridInferenceResult,
+)
+from geo_infer_act.utils import pymdp_adapter  # noqa: E402
+from geo_infer_act.utils.pymdp_adapter import (  # noqa: E402
     EXPECTED_PYMDP_VERSION,
     real_h3_version_metadata,
     run_model_step,
     run_pymdp_step,
     validate_pymdp_version,
-)
+)  # noqa: E402
 
 
 def _assert_probability(values: object) -> None:
