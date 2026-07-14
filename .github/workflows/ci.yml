@@ -67,11 +67,16 @@ jobs:
 
       - name: Run unit tests
         run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
+          # ACT's real-H3 and visualization unit surface is CPU-bound on the
+          # hosted runner; keep the per-module timeout explicit without
+          # converting a slow but valid module into a false CI failure.
+          uv run python GEO-INFER-TEST/run_unified_tests.py --category unit \
+            --timeout 600
 
       - name: Run integration tests
         run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+          uv run python GEO-INFER-TEST/run_unified_tests.py --category integration \
+            --timeout 600
 
       - name: Run H3 contracts
         run: |
