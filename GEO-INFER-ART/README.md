@@ -4,7 +4,6 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

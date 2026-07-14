@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-MATH`.
 
 ## Contents
 
-- `geo_infer_math.egg-info/`
 - `geo_infer_math/`
 
 ## Public Interface

@@ -4,7 +4,6 @@ Advanced risk analysis and catastrophe modeling framework for geospatial applica
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

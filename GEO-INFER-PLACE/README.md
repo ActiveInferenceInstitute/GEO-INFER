@@ -4,7 +4,6 @@ Comprehensive place-based analysis framework providing deep insights into specif
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `data/`
 - `docs/`

@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-COG`.
 
 ## Contents
 
-- `geo_infer_cog.egg-info/`
 - `geo_infer_cog/`
 
 ## Public Interface

@@ -4,7 +4,6 @@ Version control and repository management tools specifically designed for geospa
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

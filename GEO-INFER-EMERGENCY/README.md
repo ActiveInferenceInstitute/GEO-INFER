@@ -4,7 +4,6 @@ Emergency management and disaster response capabilities for geospatial systems.
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

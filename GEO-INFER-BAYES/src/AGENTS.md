@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_bayes.egg-info/`
 - `geo_infer_bayes/`
 
 ## Validation

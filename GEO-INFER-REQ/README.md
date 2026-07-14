@@ -4,7 +4,6 @@ Requirements engineering using P3IF framework for geospatial systems, user stori
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

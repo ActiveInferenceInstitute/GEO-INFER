@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_energy.egg-info/`
 - `geo_infer_energy/`
 
 ## Validation

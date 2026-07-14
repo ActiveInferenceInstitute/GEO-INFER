@@ -4,7 +4,6 @@ Social-technical compliance modeling with deterministic and probabilistic analys
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

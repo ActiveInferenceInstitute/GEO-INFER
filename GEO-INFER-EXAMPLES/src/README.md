@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-EXAMPLES`.
 
 ## Contents
 
-- `geo_infer_examples.egg-info/`
 - `geo_infer_examples/`
 
 ## Public Interface

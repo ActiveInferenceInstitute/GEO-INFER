@@ -4,7 +4,6 @@ Comprehensive security and privacy framework for geospatial information systems 
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

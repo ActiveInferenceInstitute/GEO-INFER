@@ -4,7 +4,6 @@ Comprehensive swarm intelligence and complex adaptive systems modeling using Act
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

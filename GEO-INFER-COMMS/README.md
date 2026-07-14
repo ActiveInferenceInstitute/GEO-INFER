@@ -4,7 +4,6 @@ Communications infrastructure for geospatial systems enabling data exchange, mes
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

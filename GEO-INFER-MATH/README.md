@@ -4,7 +4,6 @@ Core mathematical and statistical engine providing geometric operations, spatial
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

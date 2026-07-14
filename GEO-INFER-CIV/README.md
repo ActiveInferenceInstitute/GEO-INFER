@@ -4,7 +4,6 @@ Empowering communities with participatory mapping, citizen science, and collabor
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

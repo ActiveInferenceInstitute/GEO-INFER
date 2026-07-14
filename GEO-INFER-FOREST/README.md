@@ -4,7 +4,6 @@ Forest management, carbon sequestration, wildfire risk, and forest ecosystem ana
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

@@ -4,7 +4,6 @@ Energy systems analysis, renewable energy optimization, and grid management.
 
 ## Contents
 
-- `.pytest_cache/`
 - `.test-results/`
 - `docs/`
 - `examples/`

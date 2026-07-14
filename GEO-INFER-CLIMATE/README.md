@@ -4,7 +4,6 @@ Climate modeling, weather analysis, and climate change impact assessment for geo
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

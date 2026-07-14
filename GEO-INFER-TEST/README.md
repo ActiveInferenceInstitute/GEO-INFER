@@ -4,7 +4,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -32,6 +31,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 - `rewrite_readme_agents.py:ModuleInfo` (class)
 - `rewrite_readme_agents.py:git_ls_files` (function)
+- `rewrite_readme_agents.py:tracked_files` (function)
 - `rewrite_readme_agents.py:read_pyproject` (function)
 - `rewrite_readme_agents.py:requirement_lines` (function)
 - `rewrite_readme_agents.py:discover_modules` (function)
@@ -49,7 +49,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:render_readme` (function)
 - `rewrite_readme_agents.py:render_agents` (function)
 - `rewrite_readme_agents.py:expected_doc_files` (function)
-- `rewrite_readme_agents.py:check_docs_current` (function)
 
 ## Module Metadata
 

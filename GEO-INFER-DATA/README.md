@@ -4,7 +4,6 @@ Foundational data backbone providing ETL pipelines, storage optimization, and da
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `etl/`

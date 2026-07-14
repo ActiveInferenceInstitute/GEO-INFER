@@ -4,7 +4,6 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 
 ## Contents
 
-- `.pytest_cache/`
 - `assessment_results/`
 - `config/`
 - `docs/`

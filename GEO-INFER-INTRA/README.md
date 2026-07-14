@@ -4,7 +4,6 @@ Comprehensive project documentation, workflow management, and ontology systems f
 
 ## Contents
 
-- `.pytest_cache/`
 - `assessment_results/`
 - `config/`
 - `docs/`

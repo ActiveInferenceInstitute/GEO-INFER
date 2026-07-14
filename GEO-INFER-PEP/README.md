@@ -4,7 +4,6 @@ Comprehensive people operations management including HR, CRM, talent acquisition
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

@@ -4,7 +4,6 @@ IoT sensor networks, real-time geospatial data streams, and sensor data fusion f
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`

@@ -4,7 +4,6 @@ Bioinformatics and biological data analysis with geospatial context for spatial 
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
