@@ -1381,6 +1381,10 @@ class MultiScaleHierarchicalAnalyzer:
                 correlations = []
                 for i in range(belief_matrix.shape[1]):  # For each belief dimension
                     for j in range(i + 1, belief_matrix.shape[1]):
+                        left = belief_matrix[:, i]
+                        right = belief_matrix[:, j]
+                        if np.std(left) <= 1e-12 or np.std(right) <= 1e-12:
+                            continue
                         corr = np.corrcoef(belief_matrix[:, i], belief_matrix[:, j])[
                             0, 1
                         ]

@@ -10,6 +10,7 @@ import numpy as np
 from dataclasses import dataclass, field
 import logging
 import copy
+import warnings
 
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 from geo_infer_act.core.types import (
@@ -1118,14 +1119,16 @@ class GenerativeModel:
         installed, so the caller still gets real posterior samples.
         """
         try:
-            import bayeux as bx  # type: ignore
-            import jax
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                import bayeux as bx  # type: ignore
+                import jax
 
-            model = bx.Model(log_density=log_density_fn, test_point=test_point)
-            # Use NUTS sampler by default
-            results = model.mcmc.numpyro_nuts(
-                seed=jax.random.PRNGKey(0), num_samples=1000
-            )
+                model = bx.Model(log_density=log_density_fn, test_point=test_point)
+                # Use NUTS sampler by default
+                results = model.mcmc.numpyro_nuts(
+                    seed=jax.random.PRNGKey(0), num_samples=1000
+                )
             posterior_samples = {k: np.array(v) for k, v in results.items()}
             logger.info("Bayeux/JAX NUTS sampling completed")
             return {
