@@ -7,7 +7,8 @@ resilience analysis, network optimization, and facility location.
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import Field
+from geo_infer_log.models.base import BaseModel
 
 from geo_infer_log.models.schemas import (
     FacilityLocation, SupplyChainNetwork
@@ -291,4 +292,4 @@ async def optimize_network(
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))

@@ -52,7 +52,7 @@ def sample_customer_data_list():
 def dummy_csv_file(tmp_path):
     """Creates a dummy CSV file for importer testing and returns its path."""
     csv_path = tmp_path / "dummy_crm.csv"
-    headers = ['id', 'first_name', 'last_name', 'email', 'phone', 'company_name', 'title', 
+    headers = ['id', 'first_name', 'last_name', 'email', 'phone', 'company_name', 'title',
                'address_street', 'address_city', 'address_state', 'address_postal_code', 'address_country',
                'created_at', 'updated_at', 'lead_source', 'status', 'tags', 'notes', 'notes_detail']
     row1 = ['cust1', 'John', 'Doe', 'john.doe@example.com', '555-1234', 'Acme Corp', 'Developer',
@@ -61,7 +61,7 @@ def dummy_csv_file(tmp_path):
     row2 = ['cust2', 'Jane', 'Smith', 'jane.smith@example.com', '555-5678', 'Beta Inc', 'Manager',
             '456 Oak Ave', 'Otherville', 'NY', '10001', 'USA',
             datetime(2023,1,15).isoformat(), datetime.now().isoformat(), 'Referral', 'lead', 'manager', 'Followed up', 'Interested']
-    
+
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(headers)
@@ -71,6 +71,7 @@ def dummy_csv_file(tmp_path):
 
 # Model Tests
 def test_customer_model():
+    """Behavior-focused test: test_customer_model."""
     addr = Address(street="123 Test St", city="Testville", country="Testland")
     interaction = InteractionLog(channel="email", summary="Test email")
     cust = Customer(
@@ -86,6 +87,7 @@ def test_customer_model():
 
 # Importer Tests
 def test_csv_crm_importer(dummy_csv_file):
+    """Behavior-focused test: test_csv_crm_importer."""
     importer = CSVCRMImporter(file_path=str(dummy_csv_file))
     customers = importer.import_customers()
     assert len(customers) == 2
@@ -94,18 +96,21 @@ def test_csv_crm_importer(dummy_csv_file):
 
 # Transformer Tests
 def test_clean_customer_data(sample_customer_data_list):
+    """Behavior-focused test: test_clean_customer_data."""
     cleaned = clean_customer_data(sample_customer_data_list)
     assert len(cleaned) == 3
     assert cleaned[0].email == "john.doe@example.com" # Already lowercase
     # Add more specific assertions for cleaning if rules are complex
 
 def test_enrich_customer_data(sample_customer_data_list):
+    """Behavior-focused test: test_enrich_customer_data."""
     enriched = enrich_customer_data(sample_customer_data_list)
     assert len(enriched) == 3
     # Example: Check if VIP_CUSTOMER tag was added if not present
     assert "vip_customer" in enriched[2].tags or "VIP_CUSTOMER" in enriched[2].tags
 
 def test_convert_customers_to_dataframe(sample_customer_data_list):
+    """Behavior-focused test: test_convert_customers_to_dataframe."""
     df = convert_customers_to_dataframe(sample_customer_data_list)
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 3
@@ -113,6 +118,7 @@ def test_convert_customers_to_dataframe(sample_customer_data_list):
 
 # Reporting Tests
 def test_generate_customer_segmentation_report(sample_customer_data_list):
+    """Behavior-focused test: test_generate_customer_segmentation_report."""
     report = generate_customer_segmentation_report(sample_customer_data_list)
     assert 'customers_by_status' in report
     assert report['customers_by_status'].get('active') == 1
@@ -121,6 +127,7 @@ def test_generate_customer_segmentation_report(sample_customer_data_list):
     assert 'total_customers' in report
 
 def test_generate_lead_conversion_report(sample_customer_data_list):
+    """Behavior-focused test: test_generate_lead_conversion_report."""
     report = generate_lead_conversion_report(sample_customer_data_list)
     assert 'total_identified_leads' in report
     assert report['total_identified_leads'] == 1
@@ -129,6 +136,7 @@ def test_generate_lead_conversion_report(sample_customer_data_list):
 
 # Visualization Tests
 def test_plot_customer_distribution_by_status(sample_customer_data_list, tmp_path):
+    """Behavior-focused test: test_plot_customer_distribution_by_status."""
     output_dir = tmp_path / "crm_visuals"
     output_dir.mkdir()
     plot_path = plot_customer_distribution_by_status(sample_customer_data_list, output_dir=output_dir)
@@ -137,6 +145,7 @@ def test_plot_customer_distribution_by_status(sample_customer_data_list, tmp_pat
     assert Path(plot_path).name == "customer_status_distribution.png"
 
 def test_plot_customer_distribution_by_source(sample_customer_data_list, tmp_path):
+    """Behavior-focused test: test_plot_customer_distribution_by_source."""
     output_dir = tmp_path / "crm_visuals"
     output_dir.mkdir() # Ensure it's created if not by the previous test in parallel runs
     plot_path = plot_customer_distribution_by_source(sample_customer_data_list, output_dir=output_dir)
@@ -146,14 +155,16 @@ def test_plot_customer_distribution_by_source(sample_customer_data_list, tmp_pat
 
 # Test with empty data
 def test_crm_reports_empty_data():
+    """Behavior-focused test: test_crm_reports_empty_data."""
     empty_list = []
     seg_report = generate_customer_segmentation_report(empty_list)
     assert "No customer data" in seg_report.get("message", "")
-    
+
     conv_report = generate_lead_conversion_report(empty_list)
     assert "No customer data" in conv_report.get("message", "")
 
 def test_crm_visuals_empty_data(tmp_path):
+    """Behavior-focused test: test_crm_visuals_empty_data."""
     empty_list = []
     output_dir = tmp_path / "crm_visuals_empty"
     output_dir.mkdir()
@@ -164,9 +175,10 @@ def test_crm_visuals_empty_data(tmp_path):
 
 # Test importer with non-existent file
 def test_csv_crm_importer_file_not_found():
+    """Behavior-focused test: test_csv_crm_importer_file_not_found."""
     importer = CSVCRMImporter(file_path="non_existent_file.csv")
     with pytest.raises(FileNotFoundError):
         importer.connect()
     # Further test: import_customers should also fail or handle this
     with pytest.raises(FileNotFoundError): # Assuming connect is called within import_customers
-         importer.import_customers() 
+        importer.import_customers()

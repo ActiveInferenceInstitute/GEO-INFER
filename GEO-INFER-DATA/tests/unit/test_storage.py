@@ -252,9 +252,7 @@ class TestPostgreSQLBackend:
 
         # Mock the actual storage implementation
         with patch.object(backend, "_store_dataframe") as mock_store:
-            mock_store.return_value = asyncio.create_task(
-                asyncio.coroutine(lambda: None)()
-            )
+            mock_store.return_value = None
             data_id = await backend.store(data, metadata)
             assert data_id.startswith("pg_")
 
@@ -266,9 +264,7 @@ class TestPostgreSQLBackend:
 
         # Mock retrieval
         with patch.object(backend, "_retrieve_dataframe") as mock_retrieve:
-            mock_retrieve.return_value = asyncio.create_task(
-                asyncio.coroutine(lambda: pd.DataFrame({"id": [1, 2, 3]}))()
-            )
+            mock_retrieve.return_value = pd.DataFrame({"id": [1, 2, 3]})
             result = await backend.retrieve(data_id, query)
             assert isinstance(result, pd.DataFrame)
 

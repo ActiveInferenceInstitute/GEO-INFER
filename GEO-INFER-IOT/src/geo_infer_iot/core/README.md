@@ -11,6 +11,9 @@ Core workspace within `GEO-INFER-IOT`.
 
 ## Public Interface
 
+- `ingestion.py:SpatialOperations` (class)
+- `ingestion.py:CoordinateTransform` (class)
+- `ingestion.py:OSCCatalog` (class)
 - `ingestion.py:SensorMeasurement` (class)
 - `ingestion.py:SpatialInferenceConfig` (class)
 - `ingestion.py:IoTDataIngestion` (class)
@@ -34,7 +37,7 @@ Core workspace within `GEO-INFER-IOT`.
 ## Dependencies
 
 - `aiocoap>=0.4.3`
-- `asyncio-mqtt>=0.11.0`
+- `aiomqtt>=2.4.0`
 - `confluent-kafka>=1.8.0`
 - `fastapi>=0.68.0`
 - `folium>=0.12.0`
@@ -45,6 +48,7 @@ Core workspace within `GEO-INFER-IOT`.
 - `numpy>=1.20.0`
 - `paho-mqtt>=1.6.0`
 - `pandas>=1.3.0`
+
 
 ## Validation
 

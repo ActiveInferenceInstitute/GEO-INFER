@@ -275,7 +275,7 @@ class TestOutlierRemoval:
             assert len(processed.data) <= len(self.spm_data.data)
 
         except ImportError:
-            pytest.skip("scikit-learn not available for isolation forest")
+            pytest.fail("scikit-learn not available for isolation forest")
 
     def test_no_outliers(self):
         """Test outlier removal on data without outliers."""
@@ -383,7 +383,7 @@ class TestTemporalFiltering:
             assert processed.metadata['temporal_filter']['method'] == 'savitzky_golay'
 
         except ImportError:
-            pytest.skip("SciPy not available for Savitzky-Golay filter")
+            pytest.fail("SciPy not available for Savitzky-Golay filter")
 
     def test_temporal_filter_without_time(self):
         """Test error handling when temporal data is missing."""

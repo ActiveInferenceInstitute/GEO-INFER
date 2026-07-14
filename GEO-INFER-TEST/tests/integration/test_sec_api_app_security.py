@@ -5,32 +5,13 @@ Tests real integration between security, API gateway, and application modules.
 """
 
 import pytest
-from typing import Dict, Any
 
-# Try to import actual modules
-try:
-    from geo_infer_sec.core.security import SecurityManager
-    from geo_infer_sec.core.authentication import AuthenticationManager
-    SEC_AVAILABLE = True
-except ImportError:
-    SEC_AVAILABLE = False
-    pytest.skip("GEO-INFER-SEC not available", allow_module_level=True)
-
-try:
-    from geo_infer_api.app import create_app
-    from geo_infer_api.core.gateway import APIGateway
-    API_AVAILABLE = True
-except ImportError:
-    API_AVAILABLE = False
-    pytest.skip("GEO-INFER-API not available", allow_module_level=True)
-
-try:
-    from geo_infer_app.models.agent_interface import AgentInterface
-    from geo_infer_app.components.dashboard import DashboardComponent
-    APP_AVAILABLE = True
-except ImportError:
-    APP_AVAILABLE = False
-    pytest.skip("GEO-INFER-APP not available", allow_module_level=True)
+from geo_infer_api.app import main_app
+from geo_infer_app.models.agent_interface import AgentState, AgentType
+from geo_infer_app.models.agent_visualization import AgentVisualization
+from geo_infer_sec.core.authentication import AuthenticationManager
+from geo_infer_sec.core.authorization import GeospatialAccessManager
+from geo_infer_sec import SecurityFramework
 
 
 @pytest.fixture
@@ -50,32 +31,17 @@ class TestSecApiAppSecurity:
     
     def test_api_security_integration(self, sample_security_config):
         """Test API security with SEC module integration."""
-        if not (SEC_AVAILABLE and API_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
-        # Create security manager
-        security = SecurityManager(
-            config=sample_security_config
-        )
-        
-        # Create API application
-        app = create_app(
-            title="GEO-INFER API",
-            version="1.0.0"
-        )
-        
+        security = SecurityFramework(config=sample_security_config)
+
         # Verify integration
-        assert app is not None
+        assert main_app.title == "GEO-INFER-API"
         assert security is not None
     
     def test_authentication_flow(self, sample_security_config):
         """Test authentication flow through API to APP."""
-        if not (SEC_AVAILABLE and API_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create authentication manager
         auth = AuthenticationManager(
-            method=sample_security_config['authentication_method']
+            secret_key="strict-test-secret",
         )
         
         # Simulate authentication
@@ -86,55 +52,34 @@ class TestSecApiAppSecurity:
         
         # Verify authentication manager
         assert auth is not None
-        assert auth.method == sample_security_config['authentication_method']
+        assert auth.secret_key == "strict-test-secret"
     
     def test_api_gateway_with_security(self, sample_security_config):
         """Test API gateway with security integration."""
-        if not (SEC_AVAILABLE and API_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
-        # Create API gateway
-        gateway = APIGateway(
-            security_enabled=True,
-            authentication_required=True
-        )
-        
+        gateway = main_app
+
         # Verify gateway creation
         assert gateway is not None
-        assert gateway.security_enabled is True
+        assert any(route.path == "/docs" for route in gateway.routes)
     
     def test_app_security_integration(self, sample_security_config):
         """Test application security with SEC and API."""
-        if not (SEC_AVAILABLE and API_AVAILABLE and APP_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
-        # Create security manager
-        security = SecurityManager(config=sample_security_config)
-        
-        # Create API application
-        app = create_app(
-            title="GEO-INFER API",
-            version="1.0.0",
-            security_enabled=True
+        state = AgentState(
+            agent_id="secure-agent",
+            agent_type=AgentType.ACTIVE_INFERENCE,
+            status="authenticated",
+            location={"lat": 37.78, "lng": -122.42},
         )
-        
+        feature = AgentVisualization.state_to_map_feature(state)
+
         # Verify security integration
-        assert app is not None
-        assert security is not None
+        assert feature["properties"]["id"] == "secure-agent"
+        assert feature["geometry"]["coordinates"] == [-122.42, 37.78]
     
     def test_secure_data_flow(self, sample_security_config):
         """Test secure data flow from API through security to APP."""
-        if not (SEC_AVAILABLE and API_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
-        # Create security manager
-        security = SecurityManager(config=sample_security_config)
-        
-        # Create API gateway
-        gateway = APIGateway(
-            security_enabled=True,
-            authentication_required=True
-        )
+        security = GeospatialAccessManager(secret_key="strict-test-secret")
+        gateway = main_app
         
         # Simulate secure request
         test_request = {
@@ -144,8 +89,7 @@ class TestSecApiAppSecurity:
         }
         
         # Verify security components
-        assert security is not None
+        assert security.secret_key == "strict-test-secret"
         assert gateway is not None
-        assert gateway.security_enabled is True
-
+        assert test_request["headers"]["Authorization"].startswith("Bearer ")
 

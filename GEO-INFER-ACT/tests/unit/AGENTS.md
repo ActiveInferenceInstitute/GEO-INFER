@@ -34,6 +34,7 @@
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_markov_decision_process.py`
+- `test_model_contracts.py`
 - `test_models.py`
 - `test_nested_h3_active_inference.py`
 - `test_policy_selection.py`

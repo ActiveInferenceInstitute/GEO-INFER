@@ -8,7 +8,7 @@ patterns, and network management for IoT sensor deployments.
 import logging
 from typing import Dict, List, Optional, Any, Set, Tuple
 from datetime import datetime, timedelta
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 from enum import Enum
 import networkx as nx
 import h3

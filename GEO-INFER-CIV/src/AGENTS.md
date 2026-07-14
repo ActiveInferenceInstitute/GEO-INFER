@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `geo_infer_civ.egg-info/`
 - `geo_infer_civ/`
 
 ## Validation

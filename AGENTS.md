@@ -4,7 +4,7 @@ Use this file as the repository-level operating contract for automated agents wo
 
 ## Repository Scope
 
-- Root path: `/Users/4d/Documents/GitHub/projects/ongoing/instituteos/repos/GEO-INFER`
+- Root path: `/Users/mini/Documents/GitHub/GEO-INFER`
 - Modules: `GEO-INFER-ACT`, `GEO-INFER-AG`, `GEO-INFER-AGENT`, `GEO-INFER-AI`, `GEO-INFER-ANT`, `GEO-INFER-API`, `GEO-INFER-APP`, `GEO-INFER-ART`, `GEO-INFER-BAYES`, `GEO-INFER-BIO`, `GEO-INFER-CIV`, `GEO-INFER-CLIMATE`, `GEO-INFER-COG`, `GEO-INFER-COMMS`, `GEO-INFER-DATA`, `GEO-INFER-ECON`, `GEO-INFER-EDU`, `GEO-INFER-EMERGENCY`, `GEO-INFER-ENERGY`, `GEO-INFER-EXAMPLES`, `GEO-INFER-FOREST`, `GEO-INFER-GIT`, `GEO-INFER-HEALTH`, `GEO-INFER-INTRA`, `GEO-INFER-IOT`, `GEO-INFER-LOG`, `GEO-INFER-MARINE`, `GEO-INFER-MATH`, `GEO-INFER-METAGOV`, `GEO-INFER-NORMS`, `GEO-INFER-OPS`, `GEO-INFER-ORG`, `GEO-INFER-PEP`, `GEO-INFER-PLACE`, `GEO-INFER-REQ`, `GEO-INFER-RISK`, `GEO-INFER-SEC`, `GEO-INFER-SIM`, `GEO-INFER-SPACE`, `GEO-INFER-SPM`, `GEO-INFER-TEST`, `GEO-INFER-TIME`, `GEO-INFER-TRANSPORT`, `GEO-INFER-WATER`
 - Package manager: `uv`
 - Python target: 3.11+
@@ -26,7 +26,11 @@ uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
 uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
+uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 ```
 
 ## Modular Hygiene Contract

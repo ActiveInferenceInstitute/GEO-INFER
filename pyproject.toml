@@ -132,10 +132,13 @@ quality = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
+    "pytest-mock>=3.12.0",
     "black>=21.9.0",
     "ruff>=0.3.0",
     "mypy>=0.910",
-        "hypothesis>=6.0.0",
+    "hypothesis>=6.0.0",
+    "ruptures>=1.1.9",
+    "srai>=0.8.0",
     "pydocstyle>=6.0.0",
 ]
 
@@ -159,7 +162,7 @@ web = [
 # IoT and real-time
 iot = [
     "paho-mqtt>=1.6.0",
-    "asyncio-mqtt>=0.11.0",
+    "aiomqtt>=2.4.0",
     "websockets>=10.0",
     "influxdb-client>=1.24.0",
 ]
@@ -202,7 +205,12 @@ all = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-        "mypy>=0.910",
+    "ruff>=0.3.0",
+    "mypy>=0.910",
+    "pytest-mock>=3.12.0",
+    "hypothesis>=6.0.0",
+    "ruptures>=1.1.9",
+    "srai>=0.8.0",
         # docs
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
@@ -216,7 +224,7 @@ all = [
     "jinja2>=3.0.0",
     # iot
     "paho-mqtt>=1.6.0",
-    "asyncio-mqtt>=0.11.0",
+    "aiomqtt>=2.4.0",
     "websockets>=10.0",
     "influxdb-client>=1.24.0",
 ]
@@ -297,8 +305,18 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
 minversion = "6.0"
-addopts = "-ra -q --strict-markers --strict-config --import-mode=importlib"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+    "--import-mode=importlib",
+    "-W",
+    "error",
+]
 testpaths = [
     "GEO-INFER-*/tests",
     "tests",
@@ -317,7 +335,12 @@ markers = [
     "api: marks tests related to API functionality",
     "reporting: marks tests for reporting and visualization outputs",
     "fast: marks tests intended to run quickly",
+    "model: marks model-contract and model-behavior tests",
+    "reproducibility: marks deterministic replay and artifact tests",
+    "artifact: marks generated artifact and visualization tests",
+    "spatial: marks spatial/geospatial behavior tests",
 ]
+filterwarnings = ["error"]
 
 [tool.coverage.run]
 source = ["GEO-INFER-*/src"]

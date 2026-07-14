@@ -4,6 +4,7 @@ Emergency management and disaster response capabilities for geospatial systems.
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -26,6 +27,7 @@ Emergency management and disaster response capabilities for geospatial systems.
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

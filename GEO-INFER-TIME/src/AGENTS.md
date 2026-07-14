@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `geo_infer_time.egg-info/`
 - `geo_infer_time/`
 
 ## Validation

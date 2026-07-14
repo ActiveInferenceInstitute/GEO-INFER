@@ -422,6 +422,10 @@ class RasterWriter:
                 affine_transform = transform
             else:
                 affine_transform = Affine(*transform[:6])
+        elif HAS_RASTERIO:
+            # A non-identity affine transform makes synthetic rasters valid
+            # geospatial datasets and avoids Rasterio's warning on write.
+            affine_transform = from_bounds(0, 0, width, height, width, height)
 
         try:
             if self.supported_formats.get(file_ext) == 'COG':

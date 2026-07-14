@@ -49,7 +49,7 @@ class TestPlaceAnalyzer(unittest.TestCase):
             'config', 'analysis_config.yaml'
         )
         if not os.path.exists(del_norte_config):
-            self.skipTest("Del Norte County config file not found")
+            self.fail("Del Norte County config file not found")
         import yaml
         with open(del_norte_config, 'r') as f:
             config = yaml.safe_load(f)
@@ -93,9 +93,9 @@ class TestLocationConfigurations(unittest.TestCase):
                                 f"Analysis '{analysis}' should be configured")
                     
             except ImportError:
-                self.skipTest("PyYAML not available for config testing")
+                self.fail("PyYAML not available for config testing")
         else:
-            self.skipTest("Del Norte County config file not found")
+            self.fail("Del Norte County config file not found")
     
     def test_requirements_files_exist(self):
         """Test that location-specific requirements files exist."""
@@ -140,7 +140,7 @@ class TestIntegrationCapabilities(unittest.TestCase):
                                 f"Core dependency '{dep}' should be listed")
                     
         except (AttributeError, ImportError):
-            self.skipTest("Package info not available")
+            self.fail("Package info not available")
     
     def test_api_endpoints_defined(self):
         """Test that API endpoints are properly defined."""
@@ -194,7 +194,7 @@ class TestForestHealthMonitor(unittest.TestCase):
             )
 
         except ImportError as e:
-            self.skipTest(f"ForestHealthMonitor not available: {e}")
+            self.fail(f"ForestHealthMonitor not available: {e}")
 
     def test_monitor_initialization(self):
         """Test that ForestHealthMonitor initializes correctly."""

@@ -85,7 +85,7 @@ class TestForecastingEngine:
             assert result['order'] == (1, 1, 1)
             assert len(result['forecast']) == 5
         except ImportError:
-            pytest.skip("statsmodels not available for ARIMA")
+            pytest.fail("statsmodels not available for ARIMA")
     
     def test_forecast_exponential_smoothing(self, engine, trend_series):
         """Test exponential smoothing forecasting."""
@@ -101,7 +101,7 @@ class TestForecastingEngine:
             assert result['alpha'] == 0.3
             assert len(result['forecast']) == 5
         except ImportError:
-            pytest.skip("statsmodels not available for exponential smoothing")
+            pytest.fail("statsmodels not available for exponential smoothing")
     
     def test_forecast_timestamps_format(self, engine, trend_series):
         """Test that forecast timestamps are valid ISO format."""

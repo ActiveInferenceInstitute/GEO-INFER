@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-FOREST`.
 
 ## Contents
 
+- `geo_infer_forest.egg-info/`
 - `geo_infer_forest/`
 
 ## Public Interface
@@ -27,6 +28,7 @@ Src workspace within `GEO-INFER-FOREST`.
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

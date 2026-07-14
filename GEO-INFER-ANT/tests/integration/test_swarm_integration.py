@@ -29,7 +29,7 @@ try:
     from geo_infer_ant.applications import EnvironmentalMonitoringSwarm
     from geo_infer_ant.analysis import SwarmPatternAnalyzer
 except ImportError:
-    pytest.skip("Core modules not fully implemented", allow_module_level=True)
+    pytest.fail("Core modules not fully implemented")
 
 
 class TestEndToEndSimulation:
@@ -226,7 +226,7 @@ class TestCrossModuleIntegration:
                 assert cell is not None
 
         except ImportError:
-            pytest.skip("GEO-INFER-SPACE not available")
+            pytest.fail("GEO-INFER-SPACE not available")
 
     def test_act_integration(self):
         """Test integration with GEO-INFER-ACT."""
@@ -243,19 +243,18 @@ class TestCrossModuleIntegration:
             assert model.preferences is not None
 
         except ImportError:
-            pytest.skip("GEO-INFER-ACT not available")
+            pytest.fail("GEO-INFER-ACT not available")
 
     def test_math_integration(self):
         """Test integration with GEO-INFER-MATH."""
         try:
-            from geo_infer_math.core.optimization import OptimizationBase
+            from geo_infer_math.core.optimization import Optimizer
 
             # Test mathematical optimization integration
-            # This would test actual optimization algorithms
-            assert True  # Placeholder for actual integration test
+            assert issubclass(Optimizer, object)
 
         except ImportError:
-            pytest.skip("GEO-INFER-MATH not available")
+            pytest.fail("GEO-INFER-MATH not available")
 
 
 class TestPerformanceIntegration:

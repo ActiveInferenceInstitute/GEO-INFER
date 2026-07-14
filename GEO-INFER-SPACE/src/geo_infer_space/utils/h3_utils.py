@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     """
     Convert lat/lng to H3 cell index using H3 v4 API.
-    
+
     Args:
         lat: Latitude
         lng: Longitude
         resolution: H3 resolution (0-15)
-        
+
     Returns:
         H3 cell index
     """
@@ -29,17 +29,17 @@ def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for latlng_to_cell")
-    
+
     return h3.latlng_to_cell(lat, lng, resolution)
 
 
 def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
     """
     Convert H3 cell index to lat/lng using H3 v4 API.
-    
+
     Args:
         h3_index: H3 cell index
-        
+
     Returns:
         (lat, lng) tuple
     """
@@ -48,17 +48,17 @@ def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlng")
-    
+
     return h3.cell_to_latlng(h3_index)
 
 
 def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
     """
     Get H3 cell boundary as list of lat/lng pairs using H3 v4 API.
-    
+
     Args:
         h3_index: H3 cell index
-        
+
     Returns:
         List of (lat, lng) tuples representing the boundary
     """
@@ -67,18 +67,18 @@ def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlng_boundary")
-    
+
     return h3.cell_to_boundary(h3_index)
 
 
 def polygon_to_cells(polygon: Union[Dict[str, Any], List[List[float]]], resolution: int) -> List[str]:
     """
     Convert polygon to H3 cell indices using h3 v4 API.
-    
+
     Args:
         polygon: Either a GeoJSON-like dict or list of [lng, lat] coordinate pairs
         resolution: H3 resolution (0-15)
-        
+
     Returns:
         List of H3 cell indices covering the polygon
     """
@@ -87,7 +87,7 @@ def polygon_to_cells(polygon: Union[Dict[str, Any], List[List[float]]], resoluti
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for polygon_to_cells")
-    
+
     # Handle different input formats
     if isinstance(polygon, dict):
         # For GeoJSON Feature or FeatureCollection
@@ -194,11 +194,11 @@ def geojson_to_h3(
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for geojson_to_h3")
-    
+
     # Parse GeoJSON if it's a string
     if isinstance(geojson_data, str):
         geojson_data = json.loads(geojson_data)
-    
+
     # Get features from GeoJSON
     if "type" in geojson_data and geojson_data["type"] == "FeatureCollection":
         features = geojson_data.get("features", [])
@@ -207,22 +207,22 @@ def geojson_to_h3(
     else:
         # Assume it's a geometry object
         features = [{"type": "Feature", "geometry": geojson_data, "properties": {}}]
-    
+
     h3_indices = []
     properties_dict = {}
-    
+
     for feature in features:
         geometry = feature.get("geometry", {})
         props = feature.get("properties", {})
-        
+
         # Skip features without geometry
         if not geometry:
             continue
-        
+
         # Convert geometry to H3 indices
         try:
             cells = h3.geo_to_cells(geometry, resolution)
-            
+
             # Add to results
             for cell in cells:
                 h3_indices.append(cell)
@@ -230,11 +230,11 @@ def geojson_to_h3(
                     properties_dict[cell] = props
         except Exception as e:
             logger.error(f"Failed to convert geometry to H3: {e}")
-    
+
     result = {"h3_indices": h3_indices}
     if feature_properties:
         result["properties"] = properties_dict
-    
+
     return result
 
 # Additional H3 v4 utility functions
@@ -246,7 +246,7 @@ def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for geo_to_cells")
-    
+
     return list(h3.geo_to_cells(geojson, resolution))
 
 def grid_disk(h3_index: str, k: int) -> List[str]:
@@ -256,8 +256,27 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for grid_disk")
-    
+
     return list(h3.grid_disk(h3_index, k))
+
+
+def get_h3_neighbors(h3_index: str, ring_size: int = 1) -> List[str]:
+    """Return H3 cells in the requested neighborhood ring, including center."""
+    return grid_disk(h3_index, ring_size)
+
+
+def h3_resolution_stats(resolution: int) -> Dict[str, float]:
+    """Return finite area statistics for an H3 resolution."""
+    try:
+        import h3
+    except ImportError as exc:
+        raise ImportError("h3-py package required for h3_resolution_stats") from exc
+    if not 0 <= resolution <= 15:
+        raise ValueError("H3 resolution must be between 0 and 15")
+    return {
+        "resolution": float(resolution),
+        "area_km2": float(h3.average_hexagon_area(resolution, unit="km^2")),
+    }
 
 def grid_distance(h3_index1: str, h3_index2: str) -> int:
     """Get grid distance between two H3 indices using H3 v4 API."""
@@ -266,7 +285,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for grid_distance")
-    
+
     return h3.grid_distance(h3_index1, h3_index2)
 
 def compact_cells(h3_indices: List[str]) -> List[str]:
@@ -276,7 +295,7 @@ def compact_cells(h3_indices: List[str]) -> List[str]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for compact_cells")
-    
+
     return list(h3.compact_cells(h3_indices))
 
 def uncompact_cells(h3_indices: List[str], resolution: int) -> List[str]:
@@ -286,7 +305,7 @@ def uncompact_cells(h3_indices: List[str], resolution: int) -> List[str]:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for uncompact_cells")
-    
+
     return list(h3.uncompact_cells(h3_indices, resolution))
 
 def cell_area(h3_index: str, unit: str = 'km^2') -> float:
@@ -296,7 +315,7 @@ def cell_area(h3_index: str, unit: str = 'km^2') -> float:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_area")
-    
+
     return h3.cell_area(h3_index, unit)
 
 def get_resolution(h3_index: str) -> int:
@@ -306,7 +325,7 @@ def get_resolution(h3_index: str) -> int:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for get_resolution")
-    
+
     return h3.get_resolution(h3_index)
 
 def is_valid_cell(h3_index: str) -> bool:
@@ -316,7 +335,7 @@ def is_valid_cell(h3_index: str) -> bool:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for is_valid_cell")
-    
+
     return h3.is_valid_cell(h3_index)
 
 def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
@@ -326,5 +345,5 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for are_neighbor_cells")
-    
-    return h3.are_neighbor_cells(h3_index1, h3_index2) 
+
+    return h3.are_neighbor_cells(h3_index1, h3_index2)

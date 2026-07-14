@@ -12,14 +12,13 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-# Try importing TFP; fall back gracefully
-try:
-    import tensorflow_probability as tfp  # type: ignore
-    import tensorflow as tf  # type: ignore
-    TFP_AVAILABLE = True
-except ImportError:
-    TFP_AVAILABLE = False
-    logger.info("TensorFlow Probability not installed; using NumPy/SciPy GP backend.")
+# TensorFlow Probability emits a distutils deprecation warning during import
+# with the supported TensorFlow versions. Use the deterministic NumPy/SciPy
+# implementation until the TFP integration is migrated.
+tfp = None
+tf = None
+TFP_AVAILABLE = False
+logger.debug("Using NumPy/SciPy GP backend for deterministic compatibility.")
 
 
 def _squared_exponential_kernel(X1: np.ndarray, X2: np.ndarray,

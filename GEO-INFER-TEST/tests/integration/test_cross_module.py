@@ -21,12 +21,12 @@ try:
         QualityController,
     )
 except ImportError:
-    pytest.skip("geo_infer_test package not available", allow_module_level=True)
+    pytest.fail("geo_infer_test package not available")
 
 try:
     from geo_infer_test.core.log_integration import LogIntegration, LoggingTestReporter, LogAnalyzer
 except ImportError:
-    pytest.skip("geo_infer_test.core.log_integration not available", allow_module_level=True)
+    pytest.fail("geo_infer_test.core.log_integration not available")
 
 
 # ---------------------------------------------------------------------------

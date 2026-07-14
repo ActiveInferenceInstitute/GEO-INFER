@@ -19,10 +19,9 @@ class TestHealthChecker:
             enable_system_checks=True,
         )
 
-    @pytest.mark.asyncio
-    async def test_check_system_resources(self, health_checker: HealthChecker) -> None:
+    def test_check_system_resources(self, health_checker: HealthChecker) -> None:
         """Test system resource checking."""
-        check = await health_checker.check_system_resources()
+        check = asyncio.run(health_checker.check_system_resources())
 
         assert check.name == "system_resources"
         assert check.status in [
@@ -33,19 +32,17 @@ class TestHealthChecker:
         assert "cpu_percent" in check.details
         assert "memory_percent" in check.details
 
-    @pytest.mark.asyncio
-    async def test_check_service(self, health_checker: HealthChecker) -> None:
+    def test_check_service(self, health_checker: HealthChecker) -> None:
         """Test service health checking."""
         def healthy_service():
             return True
 
-        check = await health_checker.check_service("test_service", healthy_service)
+        check = asyncio.run(health_checker.check_service("test_service", healthy_service))
 
         assert check.name == "service_test_service"
         assert check.status == HealthStatus.HEALTHY
 
-    @pytest.mark.asyncio
-    async def test_register_check(self, health_checker: HealthChecker) -> None:
+    def test_register_check(self, health_checker: HealthChecker) -> None:
         """Test registering custom health checks."""
         def custom_check():
             return {"status": HealthStatus.HEALTHY, "message": "OK"}
@@ -54,15 +51,14 @@ class TestHealthChecker:
 
         assert "custom" in health_checker.custom_checks
 
-    @pytest.mark.asyncio
-    async def test_run_all_checks(self, health_checker: HealthChecker) -> None:
+    def test_run_all_checks(self, health_checker: HealthChecker) -> None:
         """Test running all health checks."""
         def healthy_check():
             return True
 
         health_checker.register_check("test_check", healthy_check)
 
-        results = await health_checker.run_all_checks()
+        results = asyncio.run(health_checker.run_all_checks())
 
         assert "status" in results
         assert "checks" in results
@@ -80,6 +76,5 @@ class TestHealthChecker:
 
         assert "status" in status
         assert "checks" in status
-
 
 

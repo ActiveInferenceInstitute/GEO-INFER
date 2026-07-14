@@ -196,7 +196,7 @@ class TestProceduralArt(unittest.TestCase):
                 self.assertTrue(os.path.exists(output_path))
 
             except Exception as e:
-                self.skipTest(f"Generation with algorithm {algorithm} failed: {str(e)}")
+                self.fail(f"Generation with algorithm {algorithm} failed: {str(e)}")
 
     def test_invalid_inputs(self):
         """Test handling of invalid inputs."""

@@ -12,6 +12,7 @@ def load_module(module_filename: str):
 
 
 def test_fix_h3_calls_in_file(tmp_path: Path):
+    """Behavior-focused test: test_fix_h3_calls_in_file."""
     mod = load_module("fix_h3_calls.py")
     source = tmp_path / "viz.py"
     source.write_text(
@@ -35,5 +36,3 @@ latlng_to_cell(1,2,3)
     assert "h3_lib.cell_area" in content
     assert "h3_lib.cell_to_latlng" in content
     assert "h3_lib.latlng_to_cell" in content
-
-

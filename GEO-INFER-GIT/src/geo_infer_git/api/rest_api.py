@@ -13,12 +13,12 @@ import json
 import time
 from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 import uvicorn
 
 from ..core.repo_manager import RepoManager
@@ -63,7 +63,8 @@ class RepositoryRequest(BaseModel):
     auto_sync: bool = Field(True, description="Enable automatic synchronization")
     sync_interval: int = Field(3600, description="Sync interval in seconds")
 
-    @validator('platform')
+    @field_validator('platform')
+    @classmethod
     def validate_platform(cls, v):
         if v not in ['github', 'gitlab', 'bitbucket', 'local']:
             raise ValueError('Platform must be one of: github, gitlab, bitbucket, local')
@@ -272,7 +273,7 @@ async def health_check():
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc).replace(tzinfo=None),
         components={
             "repository_manager": {"status": "up" if repo_manager else "down"},
             "github_api": {"status": "up" if github_api else "down"},
@@ -349,8 +350,8 @@ async def add_repository(
             "platform": request.platform,
             "clone_url": request.clone_url,
             "status": "pending",
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc).replace(tzinfo=None),
+            "updated_at": datetime.now(timezone.utc).replace(tzinfo=None)
         }
 
         # Start clone operation in background
@@ -395,7 +396,7 @@ async def clone_repository(
             job_id=job_id,
             status="queued",
             progress=0.0,
-            estimated_completion=datetime.utcnow()  # Would need better estimation
+            estimated_completion=datetime.now(timezone.utc).replace(tzinfo=None)
         )
 
     except Exception as e:
@@ -420,7 +421,7 @@ async def sync_repository(
             job_id=job_id,
             status="queued",
             changes_detected=False,  # Would be determined during sync
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc).replace(tzinfo=None)
         )
 
     except Exception as e:

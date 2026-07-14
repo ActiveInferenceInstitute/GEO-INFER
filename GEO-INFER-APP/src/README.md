@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-APP`.
 
 ## Contents
 
+- `geo_infer_app.egg-info/`
 - `geo_infer_app/`
 
 ## Public Interface
@@ -23,6 +24,7 @@ Src workspace within `GEO-INFER-APP`.
 - `fastapi>=0.68.0`
 - `uvicorn>=0.15.0`
 - `pydantic>=1.8.0`
+
 
 ## Validation
 

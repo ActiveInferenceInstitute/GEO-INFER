@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional organizational integration
 try:
-    from geo_infer_org.core.organizations import OrganizationModel
+    from geo_infer_org.core import OrganizationModel
     ORG_AVAILABLE = True
 except ImportError:
     ORG_AVAILABLE = False
@@ -254,6 +254,5 @@ class OrganizationalGovernanceIntegration:
         )
         
         return alignment
-
 
 

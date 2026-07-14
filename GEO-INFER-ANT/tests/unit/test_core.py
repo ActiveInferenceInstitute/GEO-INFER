@@ -27,7 +27,7 @@ try:
     from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 except ImportError:
     # Fallback for testing without full implementation
-    pytest.skip("Core modules not fully implemented", allow_module_level=True)
+    pytest.fail("Core modules not fully implemented")
 
 
 class TestSwarmAgent:
@@ -614,7 +614,7 @@ class TestIntegration:
             assert cell_id is not None
 
         except ImportError:
-            pytest.skip("Spatial indexing not available")
+            pytest.fail("Spatial indexing not available")
 
 
 class TestPerformance:

@@ -547,10 +547,14 @@ class PlaceArt:
             raise ValueError("No image generated. Generate art first.")
 
         # Create a new figure
-        plt.figure(figsize=(10, 10))
+        figure = plt.figure(figsize=(10, 10))
         plt.imshow(self.image)
         plt.axis("off")
         plt.tight_layout()
+        if "agg" in plt.get_backend().lower() or not plt.isinteractive():
+            figure.canvas.draw()
+            plt.close(figure)
+            return
         plt.show()
 
     def create_series(self, styles: List[str], output_dir: str = "output") -> List[str]:

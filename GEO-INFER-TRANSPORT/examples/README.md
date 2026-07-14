@@ -24,6 +24,7 @@ Examples workspace within `GEO-INFER-TRANSPORT`.
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
+
 ## Validation
 
 ```bash

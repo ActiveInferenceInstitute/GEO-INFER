@@ -25,6 +25,7 @@ class UrbanModel(ActiveInferenceModel):
         n_resources: int = 3,  # Reduced to 3 for 'Low', 'Med', 'High' levels of amenity
         n_locations: int = 5,
         planning_horizon: int = 5,
+        random_seed: Optional[int] = None,
     ):
         """
         Initialize the urban planning model.
@@ -37,6 +38,10 @@ class UrbanModel(ActiveInferenceModel):
             planning_horizon: Planning time horizon
         """
         super().__init__(config)
+        if random_seed is None and config:
+            random_seed = config.get("random_seed")
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
 
         self.n_agents = n_agents
         self.n_resources = n_resources
@@ -45,7 +50,7 @@ class UrbanModel(ActiveInferenceModel):
 
         # Environment State
         # resource_levels[loc] = level (0=Low, 1=Med, 2=High)
-        self.resource_levels = np.random.randint(0, n_resources, size=n_locations)
+        self.resource_levels = self.rng.integers(0, n_resources, size=n_locations)
 
         # Connectivity Graph (Adjacency Matrix)
         # Create a ring graph + random connections
@@ -57,6 +62,8 @@ class UrbanModel(ActiveInferenceModel):
         # Agents
         self.agents: List[Dict[str, Any]] = []
         self._initialize_agents()
+        self._initial_resource_levels = self.resource_levels.copy()
+        self._initial_agent_locations = [agent["location"] for agent in self.agents]
 
     def _initialize_agents(self):
         """Initialize active inference agents with concrete models."""
@@ -136,6 +143,9 @@ class UrbanModel(ActiveInferenceModel):
                 "num_obs": num_obs,
                 "num_controls": num_controls,
                 "inference_horizon": self.planning_horizon,
+                "random_seed": (
+                    None if self.random_seed is None else self.random_seed + i
+                ),
             }
 
             agent = Agent(model_type="categorical", **config)
@@ -147,7 +157,7 @@ class UrbanModel(ActiveInferenceModel):
             agent.set_generative_model(gen_model)
 
             # Initial absolute state (simulation truth)
-            start_loc = np.random.randint(0, self.n_locations)
+            start_loc = int(self.rng.integers(0, self.n_locations))
 
             self.agents.append(
                 {"id": agent_id, "model": agent, "location": start_loc, "history": []}
@@ -213,3 +223,12 @@ class UrbanModel(ActiveInferenceModel):
             state, _ = self.step()
             history.append(state)
         return history
+
+    def reset(self) -> Dict[str, Any]:
+        """Restore the seeded environment and every agent's initial location."""
+        self.resource_levels = self._initial_resource_levels.copy()
+        for agent_data, initial_location in zip(self.agents, self._initial_agent_locations):
+            agent_data["location"] = initial_location
+            agent_data["history"] = []
+            agent_data["model"].reset()
+        return {"resource_map": self.resource_levels.tolist(), "states": []}

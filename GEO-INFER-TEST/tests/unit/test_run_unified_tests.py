@@ -75,7 +75,7 @@ def test_run_command_passes_workspace_env(tmp_path, monkeypatch):
     assert str(src_path) in captured["env"]["PYTHONPATH"]
 
 
-def test_pytest_no_tests_exit_is_recorded_as_skipped_success(tmp_path, monkeypatch):
+def test_pytest_no_tests_exit_is_a_failure(tmp_path, monkeypatch):
     runner = load_runner_module()
     monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
 
@@ -96,8 +96,8 @@ def test_pytest_no_tests_exit_is_recorded_as_skipped_success(tmp_path, monkeypat
         cwd=tmp_path,
     )
 
-    assert result.success is True
-    assert "skipped-success" in result.stdout
+    assert result.success is False
+    assert "pytest collected no tests" in result.stderr
 
 
 def test_non_pytest_no_tests_exit_remains_failure(tmp_path, monkeypatch):

@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-GIT`.
 
 ## Contents
 
+- `geo_infer_git.egg-info/`
 - `geo_infer_git/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-GIT`.
 - `black>=23.3.0`
 - `flake8>=6.0.0`
 - `mypy>=1.3.0`
+
 
 ## Validation
 

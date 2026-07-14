@@ -8,7 +8,7 @@ access attempts, data operations, and compliance tracking.
 import logging
 import json
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 from pathlib import Path
@@ -143,7 +143,7 @@ class AuditLogger:
         event = AuditEvent(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None),
             user_id=user_id,
             username=username,
             resource=resource,
@@ -416,7 +416,7 @@ class AuditLogger:
             "result_counts": result_counts,
             "severity_counts": severity_counts,
             "critical_events_count": len(critical_events),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
         }
 
         if report_type == "detailed":
@@ -449,6 +449,5 @@ class AuditLogger:
             }
 
         return report
-
 
 

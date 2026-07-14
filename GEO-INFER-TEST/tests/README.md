@@ -11,6 +11,7 @@ Tests workspace within `GEO-INFER-TEST`.
 ## Public Interface
 
 - `conftest.py:PerformanceMonitor` (class)
+- `conftest.py:h3_legacy_test_compatibility` (function)
 - `conftest.py:test_data_dir` (function)
 - `conftest.py:sample_geojson` (function)
 - `conftest.py:sample_h3_indices` (function)
@@ -29,7 +30,6 @@ Tests workspace within `GEO-INFER-TEST`.
 - `conftest.py:temporal_test_data` (function)
 - `conftest.py:pytest_configure` (function)
 - `conftest.py:pytest_collection_modifyitems` (function)
-- `conftest.py:pytest_terminal_summary` (function)
 
 ## Module Metadata
 
@@ -53,6 +53,25 @@ Tests workspace within `GEO-INFER-TEST`.
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
+
+
+## Strict Test Inventory
+
+- Purpose: validate the `GEO-INFER-TEST` module's current behavior through unit,
+  integration, system, and performance test surfaces.
+- Primary marker: tests receive exactly one primary marker from their canonical
+  directory; additive domain markers remain allowed.
+- Required fixtures: local `tests/conftest.py` fixtures and shared
+  `geo_infer_test.testing` fixtures for deterministic RNG, filesystem, HTTP,
+  SQLite, service, model, and artifact boundaries.
+- Dependencies: required test/runtime dependencies are installed by
+  `uv sync --all-packages --all-extras`; missing backends are failures.
+- Expected artifacts: JUnit XML under `.geo-infer-test-results/`; model and
+  visualization outputs require finite statistics, sidecars, hashes, and a
+  manifest.
+- Failure triage: `env -u VIRTUAL_ENV uv run pytest -c pyproject.toml -q
+  GEO-INFER-TEST/tests`, followed by
+  `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`.
 
 ## Validation
 

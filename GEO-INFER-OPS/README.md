@@ -4,6 +4,7 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 
 ## Contents
 
+- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`
@@ -47,6 +48,7 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 - `isort>=5.12.0`
 - `flake8>=6.0.0`
 - `pytest-cov>=4.1.0`
+
 
 ## Validation
 

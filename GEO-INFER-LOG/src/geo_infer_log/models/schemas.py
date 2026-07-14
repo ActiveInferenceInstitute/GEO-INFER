@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import Field
+from geo_infer_log.models.base import BaseModel
 import geopandas as gpd
 from shapely.geometry import Point, LineString, Polygon
 
@@ -63,7 +64,7 @@ class Vehicle(BaseModel):
     fuel_level: Optional[float] = Field(default=None, description="Current fuel level")
     maintenance_status: Optional[str] = Field(default=None)
     available: bool = Field(default=True, description="Whether vehicle is available for assignments")
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -91,7 +92,7 @@ class Location(BaseModel):
     address: Optional[str] = None
     type: str = Field(..., description="Type of location (e.g., depot, customer, supplier)")
     time_windows: Optional[List[Tuple[datetime, datetime]]] = Field(
-        default=None, 
+        default=None,
         description="Time windows when location is accessible"
     )
     service_time: Optional[int] = Field(
@@ -132,7 +133,7 @@ class Shipment(BaseModel):
     status: DeliveryStatus = DeliveryStatus.PENDING
     special_requirements: Optional[List[str]] = None
     assigned_vehicle: Optional[str] = None
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -170,10 +171,10 @@ class Route(BaseModel):
     total_cost: float
     total_emissions: float = Field(..., description="Total emissions in kg CO2e")
     geometry: Optional[dict] = Field(
-        default=None, 
+        default=None,
         description="GeoJSON representation of route geometry"
     )
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -227,7 +228,7 @@ class RoutingParameters(BaseModel):
         default=None,
         description="Maximum route distance in km"
     )
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -255,10 +256,10 @@ class FacilityLocation(BaseModel):
     inbound_capacity: Optional[float] = None
     outbound_capacity: Optional[float] = None
     service_area: Optional[dict] = Field(
-        default=None, 
+        default=None,
         description="GeoJSON representation of service area"
     )
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -297,7 +298,7 @@ class SupplyChainNetwork(BaseModel):
     )
     demand_points: Optional[List[Dict]] = None
     supply_points: Optional[List[Dict]] = None
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -348,4 +349,4 @@ class SupplyChainNetwork(BaseModel):
                     }
                 ]
             }
-        } 
+        }

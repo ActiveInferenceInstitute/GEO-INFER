@@ -469,6 +469,7 @@ class CulturalMap:
 
             # Store the image
             self.image = np.array(base_img)
+            plt.close(geo_art._figure)
         else:
             raise ValueError("Failed to generate the base map.")
 
@@ -883,10 +884,14 @@ class CulturalMap:
             raise ValueError("No map generated to display.")
 
         # Create a new figure
-        plt.figure(figsize=(10, 10))
+        figure = plt.figure(figsize=(10, 10))
         plt.imshow(self.image)
         plt.axis("off")
         plt.tight_layout()
+        if "agg" in plt.get_backend().lower() or not plt.isinteractive():
+            figure.canvas.draw()
+            plt.close(figure)
+            return
         plt.show()
 
     def add_interactive_storytelling(self, story_elements: List[Dict]) -> "CulturalMap":

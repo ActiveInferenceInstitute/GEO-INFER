@@ -37,6 +37,7 @@ Comprehensive people operations management including HR, CRM, talent acquisition
 - `matplotlib>=3.7.0`
 - `seaborn>=0.13.0`
 
+
 ## Validation
 
 ```bash

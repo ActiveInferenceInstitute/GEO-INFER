@@ -306,14 +306,13 @@ except ImportError:
     SRAI_INSTALLED = False
 
 
-@pytest.mark.skipif(not SRAI_INSTALLED, reason="SRAI library not installed")
 class TestSRAIBackendWithLibrary:
     """SRAI backend tests that require SRAI to be installed."""
 
     def test_srai_latlng_to_cell(self, srai_backend):
         """Test SRAI coordinate to cell conversion."""
         if not srai_backend.is_available():
-            pytest.skip("SRAI not available")
+            pytest.fail("SRAI not available")
         
         cell = srai_backend.latlng_to_cell(37.7749, -122.4194, 9)
         assert isinstance(cell, str)
@@ -321,7 +320,7 @@ class TestSRAIBackendWithLibrary:
     def test_srai_cell_to_latlng(self, srai_backend):
         """Test SRAI cell to coordinate conversion."""
         if not srai_backend.is_available():
-            pytest.skip("SRAI not available")
+            pytest.fail("SRAI not available")
         
         cell = srai_backend.latlng_to_cell(37.7749, -122.4194, 9)
         lat, lng = srai_backend.cell_to_latlng(cell)

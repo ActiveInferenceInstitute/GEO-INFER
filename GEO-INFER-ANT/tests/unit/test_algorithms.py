@@ -25,7 +25,7 @@ try:
     from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
     from geo_infer_ant.algorithms.abc import ArtificialBeeColony, FoodSource
 except ImportError:
-    pytest.skip("Algorithm modules not available", allow_module_level=True)
+    pytest.fail("Algorithm modules not available")
 
 
 class TestAntColonyOptimization:
@@ -648,7 +648,7 @@ class TestAlgorithmIntegration:
             assert aco.pheromone_system is not None
 
         except ImportError:
-            pytest.skip("Pheromone system not available")
+            pytest.fail("Pheromone system not available")
 
     def test_pso_with_spatial_constraints(self):
         """Test PSO with spatial constraints."""

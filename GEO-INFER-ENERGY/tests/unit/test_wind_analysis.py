@@ -57,7 +57,7 @@ class TestWindPowerDensity:
         speed_2 = np.array([10.0])
         wpd_1 = analyzer.wind_power_density(speed_1)
         wpd_2 = analyzer.wind_power_density(speed_2)
-        ratio = float(wpd_2 / wpd_1)
+        ratio = float(np.asarray(wpd_2 / wpd_1).reshape(-1)[0])
         assert abs(ratio - 8.0) < 0.01  # (10/5)^3 = 8
 
     def test_positive_values(self, analyzer):

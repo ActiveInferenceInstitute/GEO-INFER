@@ -57,7 +57,7 @@ class TestStyleTransfer(unittest.TestCase):
         try:
             import tensorflow as tf
         except ImportError:
-            self.skipTest("TensorFlow not available, skipping test")
+            self.fail("TensorFlow is required by the declared ART test dependencies")
 
         style_transfer = StyleTransfer(
             style_image=self.style_image_path,
@@ -74,7 +74,7 @@ class TestStyleTransfer(unittest.TestCase):
             style_path = StyleTransfer.get_predefined_style_path("watercolor")
             self.assertTrue(os.path.exists(style_path))
         except FileNotFoundError:
-            self.skipTest("Predefined styles not installed, skipping test")
+            self.fail("The deterministic ART style fixture was not installed")
 
         # Test an invalid style name
         with self.assertRaises(ValueError):
@@ -86,7 +86,7 @@ class TestStyleTransfer(unittest.TestCase):
         try:
             import tensorflow as tf
         except ImportError:
-            self.skipTest("TensorFlow not available, skipping test")
+            self.fail("TensorFlow is required by the declared ART test dependencies")
 
         style_transfer = StyleTransfer()
 
@@ -109,7 +109,7 @@ class TestStyleTransfer(unittest.TestCase):
         try:
             import tensorflow as tf
         except ImportError:
-            self.skipTest("TensorFlow not available, skipping test")
+            self.fail("TensorFlow is required by the declared ART test dependencies")
 
         # Test with predefined style
         try:
@@ -127,7 +127,7 @@ class TestStyleTransfer(unittest.TestCase):
             self.assertTrue(os.path.exists(output_path))
 
         except Exception as e:
-            self.skipTest(f"Style transfer test failed: {str(e)}")
+            self.fail(f"Style transfer test failed: {str(e)}")
 
     def test_apply_with_custom_weights(self):
         """Test applying style transfer with custom weights."""
@@ -135,7 +135,7 @@ class TestStyleTransfer(unittest.TestCase):
         try:
             import tensorflow as tf
         except ImportError:
-            self.skipTest("TensorFlow not available, skipping test")
+            self.fail("TensorFlow is required by the declared ART test dependencies")
 
         try:
             # Apply with custom weights
@@ -151,7 +151,7 @@ class TestStyleTransfer(unittest.TestCase):
             self.assertIsInstance(styled_image, Image.Image)
 
         except Exception as e:
-            self.skipTest(f"Style transfer with custom weights failed: {str(e)}")
+            self.fail(f"Style transfer with custom weights failed: {str(e)}")
 
     def test_apply_with_invalid_inputs(self):
         """Test applying style transfer with invalid inputs."""
@@ -159,7 +159,7 @@ class TestStyleTransfer(unittest.TestCase):
         try:
             import tensorflow as tf
         except ImportError:
-            self.skipTest("TensorFlow not available, skipping test")
+            self.fail("TensorFlow is required by the declared ART test dependencies")
 
         # Test with invalid style
         with self.assertRaises(ValueError):

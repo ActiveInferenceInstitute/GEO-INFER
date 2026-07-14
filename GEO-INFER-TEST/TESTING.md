@@ -1,74 +1,43 @@
-# GEO-INFER Testing Guide
+# GEO-INFER strict testing program
 
-## Overview
+The repository test contract is zero-warning, zero-failure, and zero-skip. The shared root configuration enables strict markers/configuration, importlib discovery, `pytest-asyncio` auto mode, and `-W error`. The runner treats missing tests, collection errors, pytest exit code 5, skips, xfails, and xpasses as failures.
 
-This document provides instructions for running tests across the GEO-INFER ecosystem. The testing infrastructure includes:
+## Canonical gate
 
-- Module-specific unit tests
-- Cross-module integration tests
-- Performance benchmarks
-- Coverage analysis
-- **Property-based fuzzing (Hypothesis)**
-
-## Test Execution
-
-### 1. Running All Tests (Recommended)
+Run from the repository root:
 
 ```bash
-# Navigate to GEO-INFER-TEST
-cd GEO-INFER-TEST
-
-# Run full suite
-python -m pytest
+uv sync --all-packages --all-extras
+python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
+uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
+uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 ```
 
-### 2. Property-Based Testing
+Use `env -u VIRTUAL_ENV` before `uv` when a different shell environment is active. This avoids an environment-selection warning and ensures the workspace `.venv` is used.
 
-We use [Hypothesis](https://hypothesis.readthedocs.io/) to generate thousands of test cases, fuzzing inputs for robustness.
+## Test taxonomy and fixtures
 
-```bash
-# Run tests with execution statistics
-python -m pytest --hypothesis-show-statistics
+Every test receives exactly one primary marker based on its canonical directory: `unit`, `integration`, `system`, or `performance`. Markers such as `api`, `core`, `geospatial`, `model`, `reporting`, `reproducibility`, `spatial`, and `artifact` are additive. `geo_infer_test.testing` provides deterministic RNG, local filesystem, localhost HTTP, SQLite, in-process service, finite-value, probability-vector, stochastic-matrix, model-contract, and artifact-manifest helpers.
 
-# key modules covered:
-# - Spatial Functions (H3, Geometry)
-# - Module Health (FileSystem resilience)
-# - Test Orchestrator (DAG resolution)
-# - Log Integration (Message fuzzing)
-```
+Required external behavior is represented by local fixtures. A test must not use `pytest.skip`, `skipif`, `importorskip`, `xfail`, or warning suppression. Missing dependencies and unavailable required backends are explicit failures.
 
-### 3. Running Specific Categories
+## Model and artifact contracts
 
-```bash
-# Run only unit tests
-python -m pytest tests/unit
+Model checks require finite outputs, declared shapes and dtypes, normalized probabilities, valid stochastic matrices, deterministic seeded replay, reset restoration, and explicit invalid-input errors. `validate_model_contracts.py` exercises representative ACT categorical, Gaussian, climate, ecological, urban, resource, and multi-agent models.
 
-# Run only integration tests
-python -m pytest tests/integration
+`run_model_audit.py` writes `model_contracts.json`, `statistics.json`, `model_audit.png`, and `manifest.json` beneath `.geo-infer-test-results/model-audit/`. The manifest records schema version, finite statistics, byte counts, SHA-256 hashes, and a deterministic manifest hash. The shared `assert_visualization_manifest` helper verifies every sidecar.
 
-# Run performance benchmarks
-python -m pytest tests/unit/test_performance_monitor.py
-```
+## Failure triage
 
-## Test Reports
-
-After test execution, results are available in:
-
-- Console output (standard)
-- `test_report_*.json` (if LogIntegration is configured)
-
-## Adding Tests
-
-1. **Standard Unit Tests**:
-   - Create `tests/unit/test_<module>.py`
-   - Use `pytest` fixtures
-
-2. **Property-Based Tests**:
-   - Import `from hypothesis import given, strategies as st`
-   - Decorate test functions with `@given(...)`
-   - Ensure tests are deterministic and stateless where possible
-
-## Troubleshooting
-
-- **Fixture Errors**: Ensure `conftest.py` is present or fixtures are defined in the test file.
-- **Hypothesis Flakiness**: If a test fails only sometimes, run with `--hypothesis-seed=<SEED>` to reproduce.
+- Contract failure: run `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict` and fix the reported source file.
+- Warning or collection failure: run the affected module with `uv run pytest -c pyproject.toml -W error -vv path/to/test.py`.
+- Model failure: run `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`.
+- Artifact failure: run `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible` and inspect the manifest sidecars.
+- Category failure: inspect the corresponding JUnit XML and `summary.json` under `.geo-infer-test-results/`.

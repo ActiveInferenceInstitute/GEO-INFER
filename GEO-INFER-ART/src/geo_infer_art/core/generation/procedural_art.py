@@ -445,7 +445,7 @@ class ProceduralArt:
                     poly = plt.Polygon(
                         polygon,
                         fill=True,
-                        color=color,
+                        facecolor=color,
                         alpha=0.8,
                         edgecolor="black",
                         linewidth=edge_width,
@@ -872,6 +872,7 @@ class ProceduralArt:
             .resize(self.resolution, Image.Resampling.LANCZOS)
         )
         self.image = img
+        plt.close(self._figure)
 
     def save(self, output_path: str) -> str:
         """
@@ -909,10 +910,16 @@ class ProceduralArt:
         Raises:
             ValueError: If no image has been generated
         """
-        if self._figure is None:
+        if self.image is None:
             raise ValueError("No image generated. Generate art first.")
 
-        plt.figure(self._figure.number)
+        figure = plt.figure()
+        plt.imshow(self.image)
+        plt.axis("off")
+        if "agg" in plt.get_backend().lower() or not plt.isinteractive():
+            figure.canvas.draw()
+            plt.close(figure)
+            return
         plt.show()
 
     def _generate_mandelbrot(self) -> None:

@@ -7,8 +7,7 @@ import math
 
 import numpy as np
 import pytest
-
-h3 = pytest.importorskip("h3")
+import h3
 
 from geo_infer_act import (
     ActiveInferenceModel,

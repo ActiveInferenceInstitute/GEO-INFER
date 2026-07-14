@@ -4,6 +4,7 @@ Energy systems analysis, renewable energy optimization, and grid management.
 
 ## Contents
 
+- `.pytest_cache/`
 - `.test-results/`
 - `docs/`
 - `examples/`
@@ -35,6 +36,7 @@ Energy systems analysis, renewable energy optimization, and grid management.
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

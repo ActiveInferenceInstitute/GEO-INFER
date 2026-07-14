@@ -30,7 +30,7 @@ try:
         ArtificialBeeColony,
     )
 except ImportError:
-    pytest.skip("Core modules not available", allow_module_level=True)
+    pytest.fail("Core modules not available")
 
 
 class TestLargeScalePerformance:

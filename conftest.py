@@ -1,13 +1,93 @@
-"""
-Root conftest.py for the GEO-INFER ecosystem.
+"""Strict, shared pytest policy for the GEO-INFER ecosystem."""
 
-Registers ecosystem-wide markers so modules with custom markers
-don't trigger PytestUnknownMarkWarning during collection.
-"""
+from __future__ import annotations
+
+import warnings
+from pathlib import Path
 
 import pytest
 
+pytest_plugins = ["geo_infer_test.testing"]
 
-def pytest_configure(config):
-    """Register ecosystem-wide markers."""
+
+PRIMARY_MARKERS = ("unit", "integration", "system", "performance")
+DOMAIN_MARKERS = (
+    "slow",
+    "core",
+    "geospatial",
+    "api",
+    "reporting",
+    "fast",
+    "model",
+    "reproducibility",
+    "artifact",
+    "spatial",
+)
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register ecosystem-wide markers before collection."""
+    # Module-local pyproject files are the nearest pytest configuration for
+    # most packages, so the root ``addopts`` cannot be relied on here.
+    # Installing the filter in the shared plugin makes the zero-warning policy
+    # effective for every module invocation.
+    warnings.simplefilter("error")
     config.addinivalue_line("markers", "module: auto-applied module marker")
+    for marker in (*PRIMARY_MARKERS, *DOMAIN_MARKERS):
+        config.addinivalue_line("markers", f"{marker}: GEO-INFER test taxonomy marker")
+
+
+def _primary_marker_for_path(path: Path) -> str:
+    """Infer the required primary marker from the canonical test directory."""
+    parts = set(path.parts)
+    for marker in PRIMARY_MARKERS:
+        if marker in parts:
+            return marker
+    return "unit"
+
+
+def pytest_collection_modifyitems(
+    session: pytest.Session, config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Apply one primary marker to every test and forbid skip controls at runtime."""
+    del session, config
+    for item in items:
+        marker = _primary_marker_for_path(Path(str(item.fspath)))
+        # Directory taxonomy is canonical. Remove contradictory inherited or
+        # legacy markers before adding the one effective primary marker.
+        node = item
+        while node is not None:
+            node.own_markers = [
+                mark for mark in node.own_markers if mark.name not in PRIMARY_MARKERS
+            ]
+            node = node.parent
+        item.add_marker(getattr(pytest.mark, marker))
+        item.add_marker(pytest.mark.module)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[object]):
+    """Convert any runtime skip into a failure so skipped tests cannot pass."""
+    outcome = yield
+    report = outcome.get_result()
+    if report.outcome == "skipped":
+        report.outcome = "failed"
+        report.longrepr = (
+            f"Skipped tests are forbidden by the GEO-INFER test contract: "
+            f"{report.longrepr}"
+        )
+
+
+def pytest_terminal_summary(terminalreporter: object) -> None:
+    """Fail the session if pytest recorded a skipped or xfailed report."""
+    stats = getattr(terminalreporter, "stats", {})
+    forbidden = [
+        *stats.get("skipped", []),
+        *stats.get("xfailed", []),
+        *stats.get("xpassed", []),
+    ]
+    if forbidden:
+        raise pytest.UsageError(
+            "Skipped/xfail test reports are forbidden by the GEO-INFER test contract: "
+            + ", ".join(getattr(report, "nodeid", "unknown") for report in forbidden)
+        )

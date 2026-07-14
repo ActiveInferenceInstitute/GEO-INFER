@@ -8,7 +8,7 @@ multiple simulation paradigms including ABM, system dynamics, and CA.
 import logging
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 import numpy as np
@@ -161,7 +161,7 @@ class SimulationEngine:
         logger.info(f"Starting simulation (max_time={self.config.max_time})")
 
         self.state = SimulationState.RUNNING
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
         try:
             while self.current_time < self.config.max_time:
@@ -171,7 +171,7 @@ class SimulationEngine:
                 self.step(step_func)
 
             self.state = SimulationState.COMPLETED
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc).replace(tzinfo=None)
             duration = (end_time - start_time).total_seconds()
 
             results = {

@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-REQ`.
 
 ## Contents
 
+- `geo_infer_req.egg-info/`
 - `geo_infer_req/`
 
 ## Public Interface
@@ -21,6 +22,7 @@ Src workspace within `GEO-INFER-REQ`.
 ## Dependencies
 
 - `pydantic>=1.8.0`
+
 
 ## Validation
 

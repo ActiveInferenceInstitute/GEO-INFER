@@ -16,7 +16,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, FileResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 import logging
 import numpy as np
 import pandas as pd
@@ -677,4 +677,4 @@ class EconomicAnalysisAPI:
 
     def get_app(self) -> FastAPI:
         """Get the FastAPI application instance."""
-        return self.app 
+        return self.app

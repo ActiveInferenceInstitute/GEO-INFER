@@ -8,7 +8,7 @@ including batch processing, quality metadata, and temporal analysis.
 import logging
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime, timedelta
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic.v1 import BaseModel, Field, validator, root_validator
 import numpy as np
 import h3
 

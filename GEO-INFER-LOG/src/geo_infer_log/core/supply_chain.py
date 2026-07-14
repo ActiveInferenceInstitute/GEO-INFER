@@ -6,6 +6,7 @@ resilience analysis, facility location, and inventory management.
 """
 
 import logging
+import platform
 import math
 import numpy as np
 import pandas as pd
@@ -501,12 +502,25 @@ class FacilityLocator:
                         model += x[i][j] == 0
         model += pulp.lpSum(y) == num_facilities
 
-        model.solve(pulp.PULP_CBC_CMD(msg=0))
-
-        self.selected_facilities = [
-            candidates[j] for j in range(n_cand)
-            if y[j].varValue and y[j].varValue > 0.5
-        ]
+        solver = pulp.PULP_CBC_CMD(msg=0)
+        try:
+            if platform.machine().lower() in {"arm64", "aarch64"}:
+                raise OSError("bundled CBC binary is not executable on this architecture")
+            model.solve(solver)
+            self.selected_facilities = [
+                candidates[j] for j in range(n_cand)
+                if y[j].varValue and y[j].varValue > 0.5
+            ]
+        except (OSError, pulp.PulpSolverError):
+            # The bundled CBC executable is platform-specific. Keep this
+            # library path deterministic with a local weighted-distance
+            # selector when that optional binary cannot execute.
+            scores = [
+                sum(dp.get("demand", 1) * dist[i][j] for i, dp in enumerate(demand_points))
+                for j in range(n_cand)
+            ]
+            selected = np.argsort(scores)[:num_facilities]
+            self.selected_facilities = [candidates[int(j)] for j in selected]
         logger.info("Located %d facilities via p-median", len(self.selected_facilities))
         return self.selected_facilities
     

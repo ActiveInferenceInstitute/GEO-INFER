@@ -52,7 +52,11 @@ class ClimateModel(ActiveInferenceModel):
         - Mitigation: [Do Nothing, Reduce Emissions, Geo-engineering]
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        random_seed: Optional[int] = None,
+    ):
         """
         Initialize the Climate Model.
 
@@ -89,6 +93,7 @@ class ClimateModel(ActiveInferenceModel):
             "C": C,
             "D": D,
             "model_type": "categorical",
+            "random_seed": random_seed,
         }
 
         if config:

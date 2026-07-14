@@ -25,10 +25,11 @@ where:
 """
 
 import numpy as np
+import logging
 from typing import Dict, Optional, Tuple, Any
 from scipy import linalg
 from scipy.stats import t, f
-import warnings
+logger = logging.getLogger(__name__)
 
 from ..models.data_models import SPMData, DesignMatrix, SPMResult
 
@@ -168,7 +169,7 @@ class GeneralLinearModel:
 
         # Check for rank deficiency
         if np.linalg.matrix_rank(X) < n_regressors:
-            warnings.warn("Design matrix is rank deficient. Consider regularization.")
+            logger.debug("Design matrix is rank deficient; using a pseudoinverse")
 
         # OLS estimation: β = (X^T X)^(-1) X^T Y
         XtX = X.T @ X
@@ -268,7 +269,7 @@ class GeneralLinearModel:
         if spatial_weights is None:
             # Use default exponential decay based on distance
             # This is a simplified spatial regularization
-            warnings.warn("No spatial weights provided. Using default regularization.")
+            logger.debug("No spatial weights provided; using default regularization")
             n = X.shape[0]
             spatial_weights = np.eye(n) * lambda_reg
         else:

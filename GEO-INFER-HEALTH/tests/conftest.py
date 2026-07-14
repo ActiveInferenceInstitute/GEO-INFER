@@ -25,7 +25,7 @@ try:
     from geo_infer_health.utils import haversine_distance, create_bounding_box
     from geo_infer_health.utils.config import HealthConfig
 except ImportError as e:
-    pytest.skip(f"Cannot import geo_infer_health modules: {e}", allow_module_level=True)
+    pytest.fail(f"Cannot import geo_infer_health modules: {e}")
 
 
 @pytest.fixture

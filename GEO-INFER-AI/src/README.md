@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-AI`.
 
 ## Contents
 
+- `geo_infer_ai.egg-info/`
 - `geo_infer_ai/`
 
 ## Public Interface
@@ -25,6 +26,7 @@ Src workspace within `GEO-INFER-AI`.
 - `torch>=1.9.0`
 - `tensorflow>=2.6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

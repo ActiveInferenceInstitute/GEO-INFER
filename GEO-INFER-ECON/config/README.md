@@ -32,6 +32,7 @@ Config workspace within `GEO-INFER-ECON`.
 - `pyyaml>=6.0`
 - `requests>=2.28.0`
 
+
 ## Validation
 
 ```bash

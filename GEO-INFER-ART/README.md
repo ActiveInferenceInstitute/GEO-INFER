@@ -42,6 +42,7 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 - `opencv-python>=4.5.0`
 - `pillow>=8.3.0`
 
+
 ## Validation
 
 ```bash

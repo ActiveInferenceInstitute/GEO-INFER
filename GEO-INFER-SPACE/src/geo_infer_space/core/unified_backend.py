@@ -29,7 +29,7 @@ try:
 except ImportError:
     OSC_GEO_AVAILABLE = False
     H3DataLoader = None
-    
+
     def create_h3_data_loader(*args, **kwargs):
         """Fallback for when osc_geo is not available."""
         raise ImportError("osc_geo module not available. OSC data loading disabled.")
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 class NumpyEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles numpy types and Shapely geometries."""
-    
+
     def default(self, obj):
         if isinstance(obj, np.integer):
             return int(obj)
@@ -65,7 +65,7 @@ class UnifiedH3Backend:
     """
     Unified H3-indexed backend for comprehensive geospatial analysis.
     """
-    
+
     def __init__(self,
                  modules: Dict[str, 'BaseAnalysisModule'],
                  resolution: int = 8,
@@ -75,7 +75,7 @@ class UnifiedH3Backend:
                  osc_repo_dir: Optional[str] = None):
         """
         Initialize the unified backend with H3 spatial indexing.
-        
+
         Args:
             modules: A dictionary of initialized analysis module instances.
             resolution: H3 resolution level (default: 8)
@@ -93,7 +93,7 @@ class UnifiedH3Backend:
             self.base_data_dir = Path('./data')
         self.unified_data: Dict[str, Dict] = {}
         self.analysis_scores: Dict[str, Dict] = {}
-        
+
         # --- OSC Integration ---
         try:
             self.h3_loader: Optional[H3DataLoader] = create_h3_data_loader(repo_base_dir=osc_repo_dir)
@@ -104,7 +104,7 @@ class UnifiedH3Backend:
         # --- End OSC Integration ---
 
         self.target_hexagons_by_area, self.target_hexagons = self._define_target_region(target_areas)
-        
+
         logger.info(f"UnifiedH3Backend initialized for '{self.target_region}' with {len(self.modules)} active modules at H3 resolution {self.resolution}")
         logger.info(f"Active modules: {list(self.modules.keys())}")
         logger.info(f"Defined {len(self.target_hexagons)} total target hexagons across {len(self.target_hexagons_by_area)} areas.")
@@ -112,10 +112,10 @@ class UnifiedH3Backend:
     def _define_target_region(self, target_areas: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, List[str]], List[str]]:
         """
         Define the target region based on geometries.
-        
+
         Args:
             target_areas: Dictionary mapping areas to lists of subareas
-            
+
         Returns:
             Tuple of (hexagons_by_area, all_hexagons)
         """
@@ -126,7 +126,7 @@ class UnifiedH3Backend:
             return {}, []
 
         hexagons_by_area: Dict[str, set] = {area: set() for area in area_geoms.keys()}
-        
+
         for area, geoms in area_geoms.items():
             for geom_name, geom in geoms.items():
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
@@ -135,29 +135,29 @@ class UnifiedH3Backend:
                     if isinstance(geom, (Polygon, MultiPolygon)):
                         # Convert to GeoJSON format for H3 v4 API
                         geojson_geom = mapping(geom)
-                        
+
                         # Ensure proper GeoJSON structure for H3 v4
                         if geojson_geom.get('type') == 'Polygon' and geojson_geom.get('coordinates'):
                             # Ensure coordinates are properly nested for H3 v4
                             if not isinstance(geojson_geom['coordinates'][0][0], (list, tuple)):
                                 geojson_geom['coordinates'] = [geojson_geom['coordinates']]
-                        
+
                         # Use H3 v4 API
                         hexagons_in_area = h3.geo_to_cells(geojson_geom, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
                         logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
-                    
+
                     # Handle GeoJSON dict
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
                         # Ensure coordinates are properly nested for H3 v4
                         if not isinstance(geom['coordinates'][0][0], (list, tuple)):
                             geom['coordinates'] = [geom['coordinates']]
-                        
+
                         # Use H3 v4 API
                         hexagons_in_area = h3.geo_to_cells(geom, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
                         logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
-                    
+
                     # Handle GeoJSON Feature
                     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
                         geometry = geom.get('geometry', {})
@@ -166,21 +166,21 @@ class UnifiedH3Backend:
                             if geometry.get('type') == 'Polygon' and geometry.get('coordinates'):
                                 if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
                                     geometry['coordinates'] = [geometry['coordinates']]
-                            
+
                             # Use H3 v4 API
                             hexagons_in_area = h3.geo_to_cells(geometry, self.resolution)
                             hexagons_by_area[area].update(hexagons_in_area)
                             logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
                         else:
                             logger.warning(f"Invalid or missing geometry in Feature for {geom_name}, {area}")
-                    
+
                     else:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
-                
+
                 except Exception as e:
                     logger.error(f"H3 geo_to_cells failed for {geom_name}, {area}: {e}")
                     logger.debug(f"Geometry that failed: {geom}")
-                    
+
                     # Try fallback method with polygon_to_cells
                     try:
                         from geo_infer_space.utils.h3_utils import polygon_to_cells
@@ -191,7 +191,7 @@ class UnifiedH3Backend:
                             hexagons_in_area = polygon_to_cells(geom, self.resolution)
                         else:
                             raise ValueError(f"Unsupported geometry type: {type(geom)}")
-                        
+
                         hexagons_by_area[area].update(hexagons_in_area)
                         logger.info(f"Generated {len(hexagons_in_area)} hexagons using fallback for {geom_name}, {area}")
                     except Exception as fallback_error:
@@ -199,11 +199,11 @@ class UnifiedH3Backend:
 
         final_hex_by_area = {k: sorted(list(v)) for k, v in hexagons_by_area.items() if v}
         final_all_hexagons = sorted(list(set.union(*[set(v) for v in hexagons_by_area.values()])))
-            
+
         if not final_all_hexagons:
             logger.error(f"Failed to generate any H3 hexagons for region '{self.target_region}' with filters {target_areas}")
             return {}, []
-            
+
         return final_hex_by_area, final_all_hexagons
 
     def _get_geometries(self, target_areas: Optional[Dict[str, List[str]]]) -> Dict[str, Dict[str, Any]]:
@@ -228,12 +228,12 @@ class UnifiedH3Backend:
                 geom_dict = {}
                 for subarea in subareas:
                     if subarea == 'all':
-                        geom = area_gdf.unary_union
+                        geom = area_gdf.geometry.union_all()
                         geom_dict['all'] = geom
                     else:
                         sub_gdf = area_gdf[area_gdf['subarea'] == subarea]
                         if not sub_gdf.empty:
-                            geom_dict[subarea] = sub_gdf.unary_union
+                            geom_dict[subarea] = sub_gdf.geometry.union_all()
                 if geom_dict:
                     output_geoms[area] = geom_dict
             return output_geoms
@@ -257,17 +257,18 @@ class UnifiedH3Backend:
             except Exception as e:
                 logger.error(f"Failed to process module {name.upper()}: {e}", exc_info=True)
                 module_results[name] = {}
-        
+
         self._aggregate_module_results(module_results)
+        self.calculate_analysis_scores()
         logger.info("Comprehensive analysis complete. All module data has been aggregated.")
-    
+
     def _aggregate_module_results(self, results: Dict[str, Dict]):
         """Combine all module results into a unified H3-indexed dataset."""
         logger.info("Aggregating results from all modules...")
-        
+
         for hexagon in self.target_hexagons:
             hex_data = {'hex_id': hexagon}
-            
+
             # Add geometry and metadata
             try:
                 # Use the correct h3-py v4.x API
@@ -282,15 +283,15 @@ class UnifiedH3Backend:
             # Add module data
             for module_name, module_data in results.items():
                 hex_data[module_name] = module_data.get(hexagon, {})
-            
+
             self.unified_data[hexagon] = hex_data
-            
+
         logger.info(f"Aggregated data for {len(self.target_hexagons)} hexagons from {len(results)} modules.")
 
     def calculate_analysis_scores(self) -> Dict[str, Dict]:
         """
         Calculate analysis scores based on the unified dataset.
-        
+
         Returns:
             Dictionary of scores for each hexagon.
         """
@@ -314,14 +315,14 @@ class UnifiedH3Backend:
                 'composite_score': composite_score,
                 'factors': scores
             }
-        
+
         logger.info(f"Calculated scores for {len(self.analysis_scores)} hexagons.")
         return self.analysis_scores
 
     def get_comprehensive_summary(self) -> Dict[str, Any]:
         """
         Generate a comprehensive summary of the analysis results.
-        
+
         Returns:
             Dictionary containing the analysis summary.
         """
@@ -329,7 +330,7 @@ class UnifiedH3Backend:
             return {'error': 'Analysis has not been run.'}
 
         scores = [s['composite_score'] for s in self.analysis_scores.values()]
-        
+
         summary = {
             'target_region': self.target_region,
             'h3_resolution': self.resolution,
@@ -352,20 +353,20 @@ class UnifiedH3Backend:
                 'processed_hexagons': valid_hex_count,
                 'coverage': round(valid_hex_count / len(self.target_hexagons) * 100, 2) if self.target_hexagons else 0,
             }
-        
+
         return summary
-    
+
     def export_unified_data(self, output_path: str, export_format: str = 'geojson') -> None:
         """
         Export unified data and scores to a specified format.
-        
+
         Args:
             output_path: Output file path.
             export_format: 'geojson', 'csv', or 'json'.
         """
         if not self.unified_data:
             raise ValueError("No unified data to export. Please run the analysis first.")
-        
+
         # Combine unified data with analysis scores
         export_data = {}
         for h3_index, data in self.unified_data.items():
@@ -390,7 +391,7 @@ class UnifiedH3Backend:
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
             boundary = h3.cell_to_boundary(hex_id)
-            
+
             features.append({
                 'type': 'Feature',
                 'geometry': {
@@ -399,12 +400,12 @@ class UnifiedH3Backend:
                 },
                 'properties': properties
             })
-            
+
         feature_collection = {
             'type': 'FeatureCollection',
             'features': features
         }
-        
+
         with open(output_path, 'w') as f:
             json.dump(feature_collection, f, cls=NumpyEncoder)
 
@@ -421,14 +422,14 @@ class UnifiedH3Backend:
                 else:
                     row[key] = value
             flat_data.append(row)
-        
+
         df = pd.DataFrame(flat_data)
         df.to_csv(output_path, index=False)
 
     def generate_interactive_dashboard(self, output_path: str) -> None:
         """
         Generate an interactive Folium dashboard with multiple data overlays.
-        
+
         Args:
             output_path: Path to save the HTML dashboard file.
         """
@@ -456,7 +457,7 @@ class UnifiedH3Backend:
         m.get_root().header.add_child(folium.Element(title_html))
 
         folium.TileLayer('Stamen Terrain', attr='Stamen').add_to(m)
-        
+
         # --- Create Feature Groups for each layer ---
         groups = {
             'analysis': folium.FeatureGroup(name="Analysis Potential", show=True),
@@ -466,7 +467,7 @@ class UnifiedH3Backend:
         for h3_index, hex_data in self.unified_data.items():
             boundary = hex_data.get('boundary')
             if not boundary: continue
-            
+
             # Analysis Layer
             score_data = self.analysis_scores.get(h3_index, {})
             score = score_data.get('composite_score', 0)
@@ -487,11 +488,11 @@ class UnifiedH3Backend:
         # --- Add Heatmap ---
         heat_data = [
             [
-                self.unified_data[h]['centroid'][0], 
-                self.unified_data[h]['centroid'][1], 
+                self.unified_data[h]['centroid'][0],
+                self.unified_data[h]['centroid'][1],
                 self.analysis_scores.get(h, {}).get('composite_score', 0)
             ]
-            for h in self.target_hexagons 
+            for h in self.target_hexagons
             if h in self.unified_data and 'centroid' in self.unified_data[h] and self.unified_data[h]['centroid']
         ]
 
@@ -500,7 +501,7 @@ class UnifiedH3Backend:
 
         # Add layer control
         folium.LayerControl().add_to(m)
-        
+
         try:
             m.save(output_path)
             logger.info(f"Successfully generated interactive dashboard at {output_path}")
@@ -516,4 +517,4 @@ class UnifiedH3Backend:
         if score > 0.75: return '#2ca25f'
         if score > 0.5: return '#99d8c9'
         if score > 0.25: return '#fed976'
-        return '#e31a1c' 
+        return '#e31a1c'

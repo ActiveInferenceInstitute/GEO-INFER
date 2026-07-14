@@ -10,7 +10,7 @@ Covers:
 Tests follow the existing patterns in this repository:
   - conftest.py at tests/conftest.py adds src/ to sys.path
   - Use pytest fixtures and classes
-  - Use try/except ImportError with pytest.skip() for optional deps
+  - Use try/except ImportError with pytest.fail() for optional deps
 """
 
 import os
@@ -165,7 +165,7 @@ class TestVectorReaderWriter:
             import geopandas as gpd
             from shapely.geometry import Point
         except ImportError:
-            pytest.skip("geopandas/shapely not available")
+            pytest.fail("geopandas/shapely not available")
 
         from geo_infer_space.io.vector_io import VectorWriter
 
@@ -189,14 +189,14 @@ class TestRasterIOImports:
         try:
             from geo_infer_space.io.raster_io import RasterReader
         except ImportError:
-            pytest.skip("raster_io not importable (rasterio may not be installed)")
+            pytest.fail("raster_io not importable (rasterio may not be installed)")
         assert RasterReader is not None
 
     def test_raster_writer_class_exists(self):
         try:
             from geo_infer_space.io.raster_io import RasterWriter
         except ImportError:
-            pytest.skip("raster_io not importable (rasterio may not be installed)")
+            pytest.fail("raster_io not importable (rasterio may not be installed)")
         assert RasterWriter is not None
 
     def test_convenience_functions_importable(self):
@@ -207,7 +207,7 @@ class TestRasterIOImports:
                 supported_raster_formats,
             )
         except ImportError:
-            pytest.skip("raster_io not importable (rasterio may not be installed)")
+            pytest.fail("raster_io not importable (rasterio may not be installed)")
         assert callable(read_raster_file)
         assert callable(write_raster_file)
         assert callable(supported_raster_formats)
@@ -222,7 +222,7 @@ class TestSupportedRasterFormats:
             from geo_infer_space.io.raster_io import supported_raster_formats
             self._supported_raster_formats = supported_raster_formats
         except ImportError:
-            pytest.skip("raster_io not importable")
+            pytest.fail("raster_io not importable")
 
     def test_returns_dict(self):
         result = self._supported_raster_formats()
@@ -277,7 +277,7 @@ class TestRasterReaderErrors:
             from geo_infer_space.io.raster_io import RasterReader
             self._RasterReader = RasterReader
         except ImportError:
-            pytest.skip("raster_io not importable")
+            pytest.fail("raster_io not importable")
 
     def test_read_missing_file_raises_file_not_found(self):
         reader = self._RasterReader()
@@ -301,7 +301,7 @@ class TestRasterWriterDirectoryCreation:
             from geo_infer_space.io.raster_io import RasterWriter
             self._RasterWriter = RasterWriter
         except ImportError:
-            pytest.skip("raster_io not importable")
+            pytest.fail("raster_io not importable")
         try:
             import rasterio
             self._has_rasterio = True
@@ -310,7 +310,7 @@ class TestRasterWriterDirectoryCreation:
 
     def test_write_creates_parent_directory(self, tmp_path):
         if not self._has_rasterio:
-            pytest.skip("rasterio not installed")
+            pytest.fail("rasterio not installed")
 
         nested_dir = tmp_path / "a" / "b" / "c"
         out_file = nested_dir / "output.tif"
@@ -324,7 +324,7 @@ class TestRasterWriterDirectoryCreation:
 
     def test_write_unsupported_format_raises_value_error(self, tmp_path):
         if not self._has_rasterio:
-            pytest.skip("rasterio not installed")
+            pytest.fail("rasterio not installed")
 
         writer = self._RasterWriter()
         data = np.zeros((1, 4, 4), dtype=np.float32)
@@ -333,7 +333,7 @@ class TestRasterWriterDirectoryCreation:
 
     def test_write_rejects_4d_array(self, tmp_path):
         if not self._has_rasterio:
-            pytest.skip("rasterio not installed")
+            pytest.fail("rasterio not installed")
 
         writer = self._RasterWriter()
         data = np.zeros((2, 3, 4, 4), dtype=np.float32)
@@ -349,7 +349,7 @@ class TestRasterRoundTrip:
         try:
             import rasterio
         except ImportError:
-            pytest.skip("rasterio not installed")
+            pytest.fail("rasterio not installed")
         try:
             from geo_infer_space.io.raster_io import (
                 RasterReader,
@@ -362,7 +362,7 @@ class TestRasterRoundTrip:
             self._read_raster_file = read_raster_file
             self._write_raster_file = write_raster_file
         except ImportError:
-            pytest.skip("raster_io not importable")
+            pytest.fail("raster_io not importable")
 
     def test_single_band_round_trip(self, tmp_path):
         out = tmp_path / "single_band.tif"
@@ -446,14 +446,14 @@ class TestPointCloudIOImports:
         try:
             from geo_infer_space.io.point_cloud_io import PointCloudReader
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
         assert PointCloudReader is not None
 
     def test_point_cloud_writer_class_exists(self):
         try:
             from geo_infer_space.io.point_cloud_io import PointCloudWriter
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
         assert PointCloudWriter is not None
 
     def test_convenience_functions_importable(self):
@@ -464,7 +464,7 @@ class TestPointCloudIOImports:
                 supported_point_cloud_formats,
             )
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
         assert callable(read_point_cloud_file)
         assert callable(write_point_cloud_file)
         assert callable(supported_point_cloud_formats)
@@ -479,7 +479,7 @@ class TestSupportedPointCloudFormats:
             from geo_infer_space.io.point_cloud_io import supported_point_cloud_formats
             self._supported = supported_point_cloud_formats
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_returns_dict(self):
         result = self._supported()
@@ -521,7 +521,7 @@ class TestPointCloudValidation:
             from geo_infer_space.io.point_cloud_io import PointCloudWriter
             self._Writer = PointCloudWriter
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_rejects_1d_array(self, tmp_path):
         writer = self._Writer()
@@ -551,7 +551,7 @@ class TestPointCloudValidation:
         try:
             from geo_infer_space.io.point_cloud_io import PointCloudReader
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
         reader = PointCloudReader()
         with pytest.raises(FileNotFoundError):
             reader.read("/nonexistent/cloud.xyz")
@@ -560,7 +560,7 @@ class TestPointCloudValidation:
         try:
             from geo_infer_space.io.point_cloud_io import PointCloudReader
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
         bad = tmp_path / "cloud.obj"
         bad.write_text("junk")
         reader = PointCloudReader()
@@ -606,7 +606,7 @@ class TestXYZRoundTrip:
             self._Reader = PointCloudReader
             self._Writer = PointCloudWriter
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_xyz_basic_round_trip(self, tmp_path, sample_points):
         fpath = tmp_path / "basic.xyz"
@@ -696,7 +696,7 @@ class TestCSVRoundTrip:
             self._Reader = PointCloudReader
             self._Writer = PointCloudWriter
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_csv_basic_round_trip(self, tmp_path, sample_points):
         fpath = tmp_path / "points.csv"
@@ -790,7 +790,7 @@ class TestPLYRoundTrip:
             self._Reader = PointCloudReader
             self._Writer = PointCloudWriter
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_ply_binary_round_trip(self, tmp_path, sample_points):
         fpath = tmp_path / "binary.ply"
@@ -955,7 +955,7 @@ class TestPointCloudConvenienceFunctions:
             self._read = read_point_cloud_file
             self._write = write_point_cloud_file
         except ImportError:
-            pytest.skip("point_cloud_io not importable")
+            pytest.fail("point_cloud_io not importable")
 
     def test_write_then_read_xyz(self, tmp_path, sample_points):
         fpath = tmp_path / "conv.xyz"
@@ -983,7 +983,7 @@ class TestFormatHandlerABC:
             from geo_infer_space.io.format_handlers import FormatHandler
             self._FormatHandler = FormatHandler
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_cannot_instantiate_directly(self):
         with pytest.raises(TypeError):
@@ -1019,7 +1019,7 @@ class TestGeoJSONHandler:
             from geo_infer_space.io.format_handlers import GeoJSONHandler
             self._handler = GeoJSONHandler()
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_can_handle_geojson_extension(self):
         assert self._handler.can_handle("data.geojson") is True
@@ -1050,7 +1050,7 @@ class TestShapefileHandler:
             from geo_infer_space.io.format_handlers import ShapefileHandler
             self._handler = ShapefileHandler()
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_can_handle_shp(self):
         assert self._handler.can_handle("boundaries.shp") is True
@@ -1077,7 +1077,7 @@ class TestGeoTIFFHandler:
             from geo_infer_space.io.format_handlers import GeoTIFFHandler
             self._handler = GeoTIFFHandler()
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_can_handle_tif(self):
         assert self._handler.can_handle("elevation.tif") is True
@@ -1112,7 +1112,7 @@ class TestCOGHandler:
             self._handler = COGHandler()
             self._GeoTIFFHandler = GeoTIFFHandler
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_inherits_from_geotiff_handler(self):
         assert isinstance(self._handler, self._GeoTIFFHandler)
@@ -1137,7 +1137,7 @@ class TestLASHandler:
             from geo_infer_space.io.format_handlers import LASHandler
             self._handler = LASHandler()
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_can_handle_las(self):
         assert self._handler.can_handle("terrain.las") is True
@@ -1168,7 +1168,7 @@ class TestNetCDFHandler:
             from geo_infer_space.io.format_handlers import NetCDFHandler
             self._handler = NetCDFHandler()
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_can_handle_nc(self):
         assert self._handler.can_handle("climate.nc") is True
@@ -1215,7 +1215,7 @@ class TestGetHandlerForPath:
             self._LASHandler = LASHandler
             self._NetCDFHandler = NetCDFHandler
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_geojson_returns_geojson_handler(self):
         handler = self._get_handler("rivers.geojson")
@@ -1269,7 +1269,7 @@ class TestListSupportedFormats:
             from geo_infer_space.io.format_handlers import list_supported_formats
             self._list = list_supported_formats
         except ImportError:
-            pytest.skip("format_handlers not importable")
+            pytest.fail("format_handlers not importable")
 
     def test_returns_dict(self):
         result = self._list()
@@ -1324,46 +1324,46 @@ class TestIOModuleReExports:
             from geo_infer_space.io import RasterReader
             assert RasterReader is not None
         except ImportError:
-            pytest.skip("RasterReader not available in io package")
+            pytest.fail("RasterReader not available in io package")
 
     def test_raster_writer_if_available(self):
         try:
             from geo_infer_space.io import RasterWriter
             assert RasterWriter is not None
         except ImportError:
-            pytest.skip("RasterWriter not available in io package")
+            pytest.fail("RasterWriter not available in io package")
 
     def test_point_cloud_reader_if_available(self):
         try:
             from geo_infer_space.io import PointCloudReader
             assert PointCloudReader is not None
         except ImportError:
-            pytest.skip("PointCloudReader not available in io package")
+            pytest.fail("PointCloudReader not available in io package")
 
     def test_point_cloud_writer_if_available(self):
         try:
             from geo_infer_space.io import PointCloudWriter
             assert PointCloudWriter is not None
         except ImportError:
-            pytest.skip("PointCloudWriter not available in io package")
+            pytest.fail("PointCloudWriter not available in io package")
 
     def test_format_handler_if_available(self):
         try:
             from geo_infer_space.io import FormatHandler
             assert FormatHandler is not None
         except ImportError:
-            pytest.skip("FormatHandler not available in io package")
+            pytest.fail("FormatHandler not available in io package")
 
     def test_geojson_handler_if_available(self):
         try:
             from geo_infer_space.io import GeoJSONHandler
             assert GeoJSONHandler is not None
         except ImportError:
-            pytest.skip("GeoJSONHandler not available in io package")
+            pytest.fail("GeoJSONHandler not available in io package")
 
     def test_geotiff_handler_if_available(self):
         try:
             from geo_infer_space.io import GeoTIFFHandler
             assert GeoTIFFHandler is not None
         except ImportError:
-            pytest.skip("GeoTIFFHandler not available in io package")
+            pytest.fail("GeoTIFFHandler not available in io package")

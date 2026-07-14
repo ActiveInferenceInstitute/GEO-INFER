@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Union, Any, Literal
 from datetime import datetime, timezone
 from enum import Enum
 from dataclasses import dataclass, field
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 import uuid
 import json
 

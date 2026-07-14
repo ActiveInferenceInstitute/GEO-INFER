@@ -12,6 +12,7 @@ def load_module(module_filename: str):
 
 
 def test_fix_double_h3_lib(tmp_path: Path):
+    """Behavior-focused test: test_fix_double_h3_lib."""
     mod = load_module("fix_double_h3.py")
     f = tmp_path / "a.py"
     f.write_text("h3_lib.h3_lib.is_valid_cell(x)", encoding="utf-8")
@@ -21,5 +22,3 @@ def test_fix_double_h3_lib(tmp_path: Path):
     content = f.read_text(encoding="utf-8")
     assert "h3_lib.h3_lib" not in content
     assert "h3_lib.is_valid_cell" in content
-
-

@@ -135,6 +135,7 @@ class SpatialAnalyzer:
 
         def spherical_model(h, nugget, sill, range_):
             """Spherical variogram model."""
+            range_ = np.maximum(range_, np.finfo(float).eps)
             h_norm = h / range_
             return np.where(
                 h_norm <= 1,
@@ -144,10 +145,12 @@ class SpatialAnalyzer:
 
         def exponential_model(h, nugget, sill, range_):
             """Exponential variogram model."""
+            range_ = np.maximum(range_, np.finfo(float).eps)
             return nugget + sill * (1 - np.exp(-h / range_))
 
         def gaussian_model(h, nugget, sill, range_):
             """Gaussian variogram model."""
+            range_ = np.maximum(range_, np.finfo(float).eps)
             return nugget + sill * (1 - np.exp(-((h / range_) ** 2)))
 
         # Try different models
@@ -177,11 +180,13 @@ class SpatialAnalyzer:
                     predicted = model_func(distances, nugget, sill, range_)
                     return np.sum((values - predicted) ** 2)
 
+                minimum_range = max(float(np.finfo(float).eps), float(distances[-1]) * 1e-9)
                 bounds = [
                     (0, sill_guess),
                     (nugget_guess, sill_guess * 2),
-                    (0, distances[-1] * 2),
+                    (minimum_range, distances[-1] * 2),
                 ]
+                range_guess = max(float(range_guess), minimum_range)
                 result = minimize(
                     objective,
                     [nugget_guess, sill_guess, range_guess],
@@ -198,8 +203,7 @@ class SpatialAnalyzer:
                         "model": model_name,
                     }
 
-            except Exception as e:
-                warnings.warn(f"Failed to fit {model_name} model: {e}")
+            except (ValueError, FloatingPointError, RuntimeError):
                 continue
 
         if best_params is None:

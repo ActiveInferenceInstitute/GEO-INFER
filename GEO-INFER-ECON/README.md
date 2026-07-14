@@ -42,6 +42,7 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 - `pyyaml>=6.0`
 - `requests>=2.28.0`
 
+
 ## Validation
 
 ```bash

@@ -23,6 +23,7 @@ Manuscript workspace within GEO-INFER.
 
 - No public Python symbols are defined directly in this directory.
 
+
 ## Validation
 
 ```bash

@@ -55,7 +55,7 @@ zstandard>=0.21.0
 structlog>=23.1.0
 
 # Async processing
-asyncio-mqtt>=0.13.0
+aiomqtt>=2.4.0
 aiofiles>=23.1.0
 
 # Development and testing

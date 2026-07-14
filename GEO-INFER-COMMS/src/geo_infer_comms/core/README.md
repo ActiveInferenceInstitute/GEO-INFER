@@ -49,6 +49,7 @@ Core workspace within `GEO-INFER-COMMS`.
 - `fastapi>=0.68.0`
 - `pydantic>=1.8.0`
 
+
 ## Validation
 
 ```bash

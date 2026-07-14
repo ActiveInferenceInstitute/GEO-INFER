@@ -105,7 +105,7 @@ class TestTimeIntegration(unittest.TestCase):
         self.time = TimeIntegration()
         
         # Create test time series
-        dates = pd.date_range(start='2020-01-01', periods=24, freq='M')
+        dates = pd.date_range(start='2020-01-01', periods=24, freq='ME')
         self.test_series = pd.Series(
             np.random.randn(24).cumsum() * 0.5 + 100,
             index=dates,
@@ -247,7 +247,7 @@ class TestIntegratedWorkflow(unittest.TestCase):
             [-122.4194, -122.2711, -122.2730]
         )])
         
-        dates = pd.date_range(start='2020-01-01', periods=12, freq='M')
+        dates = pd.date_range(start='2020-01-01', periods=12, freq='ME')
         self.time_series = pd.Series(
             np.random.randn(12).cumsum() * 0.5 + 100,
             index=dates
@@ -281,4 +281,3 @@ class TestIntegratedWorkflow(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -33,6 +33,7 @@ Human-computer interaction layer providing accessible geospatial applications, d
 - `uvicorn>=0.15.0`
 - `pydantic>=1.8.0`
 
+
 ## Validation
 
 ```bash

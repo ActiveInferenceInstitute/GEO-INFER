@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-AG`.
 
 ## Contents
 
+- `geo_infer_ag.egg-info/`
 - `geo_infer_ag/`
 
 ## Public Interface
@@ -26,6 +27,7 @@ Src workspace within `GEO-INFER-AG`.
 - `shapely>=1.8.0`
 - `scikit-learn>=1.0.0`
 - `rasterio>=1.2.0`
+
 
 ## Validation
 

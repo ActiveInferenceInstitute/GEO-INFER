@@ -15,7 +15,7 @@ from geo_infer_test.core.validators import (
     BayesianValidator,
     ValidationRule
 )
-from geo_infer_test.models.types import TestResult
+from geo_infer_test.models.types import TestResult as _TestResult
 
 # Strategies for DataQualityValidator
 @st.composite

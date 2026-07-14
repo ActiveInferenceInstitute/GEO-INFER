@@ -14,8 +14,7 @@ def load_module(module_filename: str):
 essage = ""
 
 def test_run_h3_tests_main_smoke():
+    """Behavior-focused test: test_run_h3_tests_main_smoke."""
     mod = load_module("run_h3_tests_simple.py")
     rc = mod.main()
     assert isinstance(rc, int)
-
-

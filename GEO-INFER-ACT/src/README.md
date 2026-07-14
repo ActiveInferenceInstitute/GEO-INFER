@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-ACT`.
 
 ## Contents
 
+- `geo_infer_act.egg-info/`
 - `geo_infer_act/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-ACT`.
 - `bayeux-ml>=0.0.1`
 - `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
+
 
 ## Validation
 

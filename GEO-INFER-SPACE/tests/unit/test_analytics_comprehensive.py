@@ -94,7 +94,9 @@ class TestVectorOperations:
     
     def test_proximity_analysis(self, sample_points, sample_polygons):
         """Test proximity calculations."""
-        result = proximity_analysis(sample_points, sample_polygons.centroid.to_frame('geometry'))
+        projected_centroids = sample_polygons.to_crs('EPSG:3857').centroid
+        centroid_frame = gpd.GeoDataFrame(geometry=projected_centroids, crs='EPSG:3857')
+        result = proximity_analysis(sample_points, centroid_frame)
         
         assert isinstance(result, gpd.GeoDataFrame)
         assert 'min_distance' in result.columns

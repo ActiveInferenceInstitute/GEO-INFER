@@ -4,6 +4,7 @@ Forest management, carbon sequestration, wildfire risk, and forest ecosystem ana
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -34,6 +35,7 @@ Forest management, carbon sequestration, wildfire risk, and forest ecosystem ana
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

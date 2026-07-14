@@ -5,6 +5,7 @@ Src workspace within `GEO-INFER-SPACE`.
 ## Contents
 
 - `examples/`
+- `geo_infer_space.egg-info/`
 - `geo_infer_space/`
 - `h3_v3_to_v4_upgrade.py`
 
@@ -36,6 +37,7 @@ Src workspace within `GEO-INFER-SPACE`.
 - `pyproj>=3.3.0`
 - `python-multipart>=0.0.5`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

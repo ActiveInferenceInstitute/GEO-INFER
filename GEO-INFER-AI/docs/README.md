@@ -26,6 +26,7 @@ Docs workspace within `GEO-INFER-AI`.
 - `tensorflow>=2.6.0`
 - `scikit-learn>=1.0.0`
 
+
 ## Validation
 
 ```bash

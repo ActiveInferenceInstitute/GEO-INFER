@@ -45,7 +45,7 @@ class TestEndToEndWorkflows:
         # Create realistic environmental data
         data = {
             'sensor_id': [f'sensor_{i%10}' for i in range(n_records)],
-            'timestamp': pd.date_range('2023-01-01', periods=n_records, freq='H'),
+            'timestamp': pd.date_range('2023-01-01', periods=n_records, freq='h'),
             'temperature': np.random.normal(20, 5, n_records),
             'humidity': np.random.normal(60, 10, n_records),
             'air_quality': np.random.normal(50, 15, n_records),
@@ -392,7 +392,7 @@ class TestCrossComponentIntegration:
 
         # Create test data
         test_data = pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=100, freq='H'),
+            'timestamp': pd.date_range('2023-01-01', periods=100, freq='h'),
             'temperature': np.random.normal(20, 5, 100),
             'latitude': np.random.normal(37.7, 0.1, 100),
             'longitude': np.random.normal(-122.4, 0.1, 100)
@@ -561,7 +561,7 @@ class TestDataFlowIntegration:
 
         # Create time series data
         ts_data = pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=1000, freq='H'),
+            'timestamp': pd.date_range('2023-01-01', periods=1000, freq='h'),
             'temperature': np.random.normal(20, 5, 1000),
             'humidity': np.random.normal(60, 10, 1000)
         })

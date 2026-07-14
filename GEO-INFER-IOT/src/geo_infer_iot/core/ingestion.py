@@ -27,127 +27,49 @@ import h3
 import numpy as np
 import pandas as pd
 
-if not hasattr(asyncio, "coroutine"):
+# GEO-INFER-SPACE and GEO-INFER-BAYES are required workspace dependencies for
+# this module. Import their current public paths directly so compatibility
+# drift is an explicit import failure instead of a silent fallback.
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_space.utils.h3_utils import (
+    cell_to_latlngjson,
+    geojson_to_h3,
+    get_h3_neighbors,
+    h3_resolution_stats,
+)
+from geo_infer_bayes import GaussianProcess, SpatialCovariance
+from geo_infer_bayes.core.inference import BayesianInference
+from geo_infer_bayes.core.variational import VariationalInference
+from geo_infer_bayes.core.mcmc import MCMC as MCMCSampler
 
-    def _legacy_coroutine(func):
-        """Python 3.12-compatible subset of the removed asyncio.coroutine API."""
+HAS_GEO_SPACE = True
+HAS_GEO_BAYES = True
 
-        async def _wrapped(*args, **kwargs):
-            try:
-                result = func(*args, **kwargs)
-            except TypeError as exc:
-                if args or kwargs:
-                    raise
-                try:
-                    result = func(None)
-                except TypeError:
-                    raise exc
 
-            if asyncio.iscoroutine(result):
-                return await result
-            return result
+class SpatialOperations:
+    """IoT-facing adapter over the current GEO-INFER-SPACE indexing API."""
 
-        return _wrapped
+    def __init__(self) -> None:
+        self.indexer = SpatialIndexingInterface(backend="h3")
 
-    asyncio.coroutine = _legacy_coroutine
+    def latlon_to_meters(self, latitude: float, longitude: float) -> tuple[float, float]:
+        """Convert latitude/longitude to a deterministic local metric approximation."""
+        return longitude * 111_320.0, latitude * 110_540.0
 
-# Optional dependencies (graceful degradation if not available)
-try:
-    from geo_infer_space.osc_geo.utils.h3_utils import (
-        cell_to_latlngjson,
-        geojson_to_h3,
-        get_h3_neighbors,
-        h3_resolution_stats,
-    )
-    from geo_infer_space.osc_geo.utils.spatial_operations import (
-        SpatialOperations,
-        CoordinateTransform,
-    )
-    from geo_infer_space.osc_geo.core.osc_catalog import OSCCatalog
 
-    HAS_GEO_SPACE = True
-except ImportError:
-    HAS_GEO_SPACE = False
+class CoordinateTransform(SpatialOperations):
+    """Backward-compatible name for the IoT coordinate adapter."""
 
-    class SpatialOperations:
-        """Minimal spatial operations fallback used when GEO-INFER-SPACE is unavailable."""
 
-        def latlon_to_meters(
-            self, latitude: float, longitude: float
-        ) -> tuple[float, float]:
-            return longitude * 111_320.0, latitude * 110_540.0
+class OSCCatalog:
+    """Minimal local measurement catalog owned by the IoT integration boundary."""
 
-    class CoordinateTransform:
-        """Minimal coordinate transform fallback used when GEO-INFER-SPACE is unavailable."""
+    def __init__(self) -> None:
+        self.measurements: list[Any] = []
 
-        def latlon_to_meters(
-            self, latitude: float, longitude: float
-        ) -> tuple[float, float]:
-            return longitude * 111_320.0, latitude * 110_540.0
-
-    class OSCCatalog:
-        """Minimal OSC catalog fallback used when GEO-INFER-SPACE is unavailable."""
-
-        def __init__(self):
-            self.measurements = []
-
-        def add_measurement(self, measurement: "SensorMeasurement") -> None:
-            self.measurements.append(measurement)
-
-    def get_h3_neighbors(cell: str) -> List[str]:
-        return list(h3.grid_disk(cell, 1))
-
-    def h3_resolution_stats(resolution: int) -> Dict[str, float]:
-        return {
-            "resolution": resolution,
-            "area_km2": h3.average_hexagon_area(resolution, unit="km^2"),
-        }
-
-    def cell_to_latlngjson(cell: str) -> Dict[str, float]:
-        lat, lng = h3.cell_to_latlng(cell)
-        return {"lat": lat, "lng": lng}
-
-    def geojson_to_h3(*args, **kwargs) -> List[str]:
-        return []
-
-    logging.warning("GEO-INFER-SPACE not available, using basic H3 operations")
-
-try:
-    from geo_infer_bayes import (
-        GaussianProcess,
-        BayesianInference,
-        SpatialCovariance,
-        VariationalInference,
-        MCMCSampler,
-    )
-
-    HAS_GEO_BAYES = True
-except ImportError:
-    HAS_GEO_BAYES = False
-
-    class _UnavailableGeoBayesDependency:
-        """Raises a clear error when GEO-INFER-BAYES integration is requested."""
-
-        def __init__(self, *args, **kwargs):
-            raise ImportError("GEO-INFER-BAYES is required for spatial inference")
-
-    class SpatialCovariance:
-        """Unavailable GEO-INFER-BAYES covariance facade."""
-
-        @staticmethod
-        def matern_52(*args, **kwargs):
-            raise ImportError("GEO-INFER-BAYES is required for spatial covariance")
-
-        @staticmethod
-        def rbf(*args, **kwargs):
-            raise ImportError("GEO-INFER-BAYES is required for spatial covariance")
-
-    GaussianProcess = _UnavailableGeoBayesDependency
-    BayesianInference = _UnavailableGeoBayesDependency
-    VariationalInference = _UnavailableGeoBayesDependency
-    MCMCSampler = _UnavailableGeoBayesDependency
-
-    logging.warning("GEO-INFER-BAYES not available, spatial inference disabled")
+    def add_measurement(self, measurement: "SensorMeasurement") -> None:
+        """Record a measurement for deterministic local integration tests."""
+        self.measurements.append(measurement)
 
 # Protocol handlers
 try:
@@ -158,7 +80,7 @@ except ImportError:
     HAS_MQTT = False
 
 try:
-    import asyncio_mqtt
+    import aiomqtt as asyncio_mqtt
 
     HAS_ASYNC_MQTT = True
 except ImportError:

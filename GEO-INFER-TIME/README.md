@@ -4,6 +4,7 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -38,6 +39,7 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 - `scikit-learn>=1.6.1`
 - `scipy>=1.7.0`
 - `statsmodels>=0.13.0`
+
 
 ## Validation
 

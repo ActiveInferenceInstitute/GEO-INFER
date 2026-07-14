@@ -259,7 +259,6 @@ class TestBoundaryManagement:
         assert BoundaryType.IMPERMEABLE
 
 
-@pytest.mark.skipif(not OPERATIONS_AVAILABLE, reason="Operations module not available")
 class TestOperations:
     """Test lumping, splitting, and aggregation operations."""
     
@@ -309,7 +308,6 @@ class TestOperations:
         assert AggregationFunction.COUNT
 
 
-@pytest.mark.skipif(not MESSAGING_AVAILABLE, reason="Messaging module not available")
 class TestMessaging:
     """Test message passing and routing."""
     
@@ -377,7 +375,6 @@ class TestMessaging:
         broker.unregister_handler(handler_id)
 
 
-@pytest.mark.skipif(not ANALYTICS_AVAILABLE, reason="Analytics module not available")
 class TestAnalytics:
     """Test flow analysis, hierarchy metrics, and pattern detection."""
     
@@ -519,7 +516,7 @@ class TestIntegration:
     def test_h3_integration_real(self):
         """Test integration with real H3 indices if available."""
         if not H3_AVAILABLE:
-            pytest.skip("H3 library not available")
+            pytest.fail("H3 library not available")
         
         # Create system with real H3 cells
         grid = create_nested_system("h3_integration_test")
@@ -627,16 +624,6 @@ def run_comprehensive_tests():
                     'class': test_class.__name__,
                     'method': test_method,
                     'status': 'PASSED'
-                })
-            
-            except pytest.skip.Exception as e:
-                print(f"⏭️  {test_method} (SKIPPED: {e})")
-                results['skipped_tests'] += 1
-                results['test_details'].append({
-                    'class': test_class.__name__,
-                    'method': test_method,
-                    'status': 'SKIPPED',
-                    'reason': str(e)
                 })
             
             except Exception as e:

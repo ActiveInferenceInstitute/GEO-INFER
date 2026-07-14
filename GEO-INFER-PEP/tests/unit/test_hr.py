@@ -83,6 +83,7 @@ def dummy_hr_csv_file(tmp_path):
 
 # Model Tests
 def test_employee_model():
+    """Behavior-focused test: test_employee_model."""
     comp = Compensation(salary=50000, currency="USD", pay_frequency="annual")
     history = JobHistoryEntry(job_title="Previous Role", department="Old Dept", start_date=date(2020,1,1), end_date=date(2021,12,31))
     emp = Employee(
@@ -103,9 +104,10 @@ def test_employee_model():
 
 # Importer Tests
 def test_csv_hr_importer(dummy_hr_csv_file, capsys):
+    """Behavior-focused test: test_csv_hr_importer."""
     importer = CSVHRImporter(file_path=str(dummy_hr_csv_file))
     employees = importer.import_employees()
-    
+
     captured = capsys.readouterr() # To check for warnings
     assert "Warning: Could not parse hire_date for record: emp_csv_003" in captured.out
 
@@ -143,16 +145,19 @@ def test_csv_hr_importer(dummy_hr_csv_file, capsys):
 # Transformer Tests (simulated, as actual transformation from CSV depends on importer populating fields)
 # These tests remain largely the same as transformers are simple pass-throughs for now.
 def test_clean_employee_data(sample_employee_data_list):
+    """Behavior-focused test: test_clean_employee_data."""
     cleaned = clean_employee_data(sample_employee_data_list) # Currently a pass-through
     assert len(cleaned) == 4
     # Add specific assertions if/when cleaning logic is implemented
 
 def test_enrich_employee_data(sample_employee_data_list):
+    """Behavior-focused test: test_enrich_employee_data."""
     enriched = enrich_employee_data(sample_employee_data_list) # Currently a pass-through
     assert len(enriched) == 4
     # Add specific assertions if/when enrichment logic is implemented (e.g., tenure calculation)
 
 def test_convert_employees_to_dataframe(sample_employee_data_list):
+    """Behavior-focused test: test_convert_employees_to_dataframe."""
     df = convert_employees_to_dataframe(sample_employee_data_list)
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 4
@@ -160,12 +165,14 @@ def test_convert_employees_to_dataframe(sample_employee_data_list):
 
 # Reporting Tests
 def test_generate_headcount_report(sample_employee_data_list):
+    """Behavior-focused test: test_generate_headcount_report."""
     report = generate_headcount_report(sample_employee_data_list, group_by=["department"])
     assert report["total_headcount"] == 3 # emp3 is PENDING_HIRE
     assert report["headcount_by_department"]["Technology"] == 2
     assert report["headcount_by_department"]["Operations"] == 1
 
 def test_generate_diversity_report(sample_employee_data_list):
+    """Behavior-focused test: test_generate_diversity_report."""
     report = generate_diversity_report(sample_employee_data_list, diversity_fields=["gender", "department"])
     assert report["total_active_employees_for_diversity_metrics"] == 3
     assert "counts" in report["diversity_by_gender"]
@@ -175,6 +182,7 @@ def test_generate_diversity_report(sample_employee_data_list):
 
 # Visualization Tests
 def test_plot_headcount_by_department(sample_employee_data_list, tmp_path):
+    """Behavior-focused test: test_plot_headcount_by_department."""
     output_dir = tmp_path / "hr_visuals"
     output_dir.mkdir()
     plot_path = plot_headcount_by_department(sample_employee_data_list, output_dir=output_dir)
@@ -183,6 +191,7 @@ def test_plot_headcount_by_department(sample_employee_data_list, tmp_path):
     assert Path(plot_path).name == "headcount_by_department.png"
 
 def test_plot_gender_distribution(sample_employee_data_list, tmp_path):
+    """Behavior-focused test: test_plot_gender_distribution."""
     output_dir = tmp_path / "hr_visuals"
     output_dir.mkdir(parents=True, exist_ok=True)
     plot_path = plot_gender_distribution(sample_employee_data_list, output_dir=output_dir)
@@ -192,6 +201,7 @@ def test_plot_gender_distribution(sample_employee_data_list, tmp_path):
 
 # Test with empty data
 def test_hr_reports_empty_data():
+    """Behavior-focused test: test_hr_reports_empty_data."""
     empty_list = []
     headcount_report = generate_headcount_report(empty_list)
     assert "No employee data" in headcount_report.get("message", "")
@@ -199,6 +209,7 @@ def test_hr_reports_empty_data():
     assert "No employee data" in diversity_report.get("message", "")
 
 def test_hr_visuals_empty_data(tmp_path):
+    """Behavior-focused test: test_hr_visuals_empty_data."""
     empty_list = []
     output_dir = tmp_path / "hr_visuals_empty"
     output_dir.mkdir()
@@ -209,8 +220,9 @@ def test_hr_visuals_empty_data(tmp_path):
 
 # Test importer with non-existent file
 def test_csv_hr_importer_file_not_found():
+    """Behavior-focused test: test_csv_hr_importer_file_not_found."""
     importer = CSVHRImporter(file_path="non_existent_hr_file.csv")
     with pytest.raises(FileNotFoundError):
         importer.connect()
-    with pytest.raises(FileNotFoundError): 
-         importer.import_employees() 
+    with pytest.raises(FileNotFoundError):
+        importer.import_employees()

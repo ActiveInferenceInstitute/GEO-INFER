@@ -47,6 +47,7 @@ Comprehensive place-based analysis framework providing deep insights into specif
 - `branca>=0.6.0`
 - `requests>=2.28.0`
 
+
 ## Validation
 
 ```bash

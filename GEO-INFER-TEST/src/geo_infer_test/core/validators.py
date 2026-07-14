@@ -473,19 +473,24 @@ class IoTValidator(BaseValidator):
 
         # Drop NaNs for calculation
         valid_rad = df["radiation_level"].dropna()
-        radiation_values = valid_rad.values
+        radiation_values = valid_rad.to_numpy(dtype=float)
+        radiation_values = radiation_values[np.isfinite(radiation_values)]
         
         if len(radiation_values) < 2:
              return {"error": "Not enough valid data for anomaly detection"}
 
         # Statistical anomaly detection
-        mean_rad = np.mean(radiation_values)
-        std_rad = np.std(radiation_values)
+        scale = max(float(np.max(np.abs(radiation_values))), 1.0)
+        scaled_values = radiation_values / scale
+        mean_scaled = float(np.mean(scaled_values, dtype=np.float64))
+        std_scaled = float(np.std(scaled_values, dtype=np.float64))
+        mean_rad = mean_scaled * scale
+        std_rad = std_scaled * scale
         
         if std_rad == 0:
             z_scores = np.zeros_like(radiation_values)
         else:
-            z_scores = np.abs((radiation_values - mean_rad) / std_rad)
+            z_scores = np.abs((scaled_values - mean_scaled) / std_scaled)
         
         mild_anomalies = np.sum(z_scores >= 2.0)
         severe_anomalies = np.sum(z_scores >= 3.0)
@@ -592,13 +597,23 @@ class BayesianValidator(BaseValidator):
         if not isinstance(predictions, (list, tuple, np.ndarray)):
              return {"error": "Predictions must be a list or array", "quality": "poor"}
 
-        pred_array = np.array(predictions)
+        pred_array = np.asarray(predictions, dtype=float)
         
         if pred_array.ndim == 0:
             pred_array = pred_array.reshape(1)
 
         if len(pred_array) == 0:
              return {}
+
+        finite_values = pred_array[np.isfinite(pred_array)]
+        if finite_values.size:
+            with np.errstate(over="ignore", invalid="ignore"):
+                mean = float(np.mean(finite_values, dtype=np.float64))
+                std = float(np.std(finite_values, dtype=np.float64))
+                minimum = float(np.min(finite_values))
+                maximum = float(np.max(finite_values))
+        else:
+            mean = std = minimum = maximum = 0.0
 
         return {
             "total_predictions": len(pred_array),
@@ -607,10 +622,10 @@ class BayesianValidator(BaseValidator):
             "infinite_predictions": int(np.sum(np.isinf(pred_array))),
             "negative_predictions": int(np.sum(pred_array < 0)),
             "prediction_stats": {
-                "mean": float(np.nanmean(pred_array)) if len(pred_array) > 0 else 0.0,
-                "std": float(np.nanstd(pred_array)) if len(pred_array) > 0 else 0.0,
-                "min": float(np.nanmin(pred_array)) if len(pred_array) > 0 else 0.0,
-                "max": float(np.nanmax(pred_array)) if len(pred_array) > 0 else 0.0
+                "mean": mean,
+                "std": std,
+                "min": minimum,
+                "max": maximum,
             }
         }
     
@@ -620,7 +635,7 @@ class BayesianValidator(BaseValidator):
         if not isinstance(uncertainty, (list, tuple, np.ndarray)):
              return {"error": "Uncertainty must be a list or array", "quality": "poor"}
 
-        unc_array = np.array(uncertainty)
+        unc_array = np.asarray(uncertainty, dtype=float)
         
         if unc_array.ndim == 0:
             unc_array = unc_array.reshape(1)
@@ -628,14 +643,24 @@ class BayesianValidator(BaseValidator):
         if len(unc_array) == 0:
              return {}
 
+        finite_values = unc_array[np.isfinite(unc_array)]
+        if finite_values.size:
+            with np.errstate(over="ignore", invalid="ignore"):
+                mean = float(np.mean(finite_values, dtype=np.float64))
+                std = float(np.std(finite_values, dtype=np.float64))
+                minimum = float(np.min(finite_values))
+                maximum = float(np.max(finite_values))
+        else:
+            mean = std = minimum = maximum = 0.0
+
         return {
             "total_uncertainty_estimates": len(unc_array),
             "finite_uncertainty": int(np.sum(np.isfinite(unc_array))),
             "uncertainty_stats": {
-                "mean": float(np.nanmean(unc_array)) if len(unc_array) > 0 else 0.0,
-                "std": float(np.nanstd(unc_array)) if len(unc_array) > 0 else 0.0,
-                "min": float(np.nanmin(unc_array)) if len(unc_array) > 0 else 0.0,
-                "max": float(np.nanmax(unc_array)) if len(unc_array) > 0 else 0.0
+                "mean": mean,
+                "std": std,
+                "min": minimum,
+                "max": maximum,
             },
             "uncertainty_quality": "good" if np.all(unc_array >= 0) and np.all(np.isfinite(unc_array)) else "poor"
         }

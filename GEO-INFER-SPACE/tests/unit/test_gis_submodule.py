@@ -30,7 +30,6 @@ def test_coordinate_transformation(gis_manager):
     assert isinstance(result, tuple)
     assert len(result) == 2
 
-@pytest.mark.skipif(not HAS_GEOPANDAS, reason="GeoPandas is required for this test")
 def test_buffer_analysis(gis_manager):
     """Test standard shape buffer analysis routing through GISManager."""
     df = gpd.GeoDataFrame({'geometry': [Point(0, 0), Point(1, 1)]}, crs="EPSG:4326")

@@ -17,7 +17,7 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 
 class RiskSeverity(Enum):
     """Severity levels for security risks."""
-    
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -26,7 +26,7 @@ class RiskSeverity(Enum):
 
 class RiskLikelihood(Enum):
     """Likelihood levels for security risks."""
-    
+
     RARE = "rare"
     UNLIKELY = "unlikely"
     POSSIBLE = "possible"
@@ -36,7 +36,7 @@ class RiskLikelihood(Enum):
 
 class RiskCategory(Enum):
     """Categories of geospatial security risks."""
-    
+
     PRIVACY = "privacy"
     DATA_BREACH = "data_breach"
     UNAUTHORIZED_ACCESS = "unauthorized_access"
@@ -48,7 +48,7 @@ class RiskCategory(Enum):
 
 class GeospatialSecurityRisk:
     """Model representing a security risk in a geospatial context."""
-    
+
     def __init__(
         self,
         name: str,
@@ -62,7 +62,7 @@ class GeospatialSecurityRisk:
     ):
         """
         Initialize a geospatial security risk.
-        
+
         Args:
             name: Risk name
             description: Risk description
@@ -81,17 +81,17 @@ class GeospatialSecurityRisk:
         self.affected_asset = affected_asset
         self.mitigation_strategies = mitigation_strategies or []
         self.spatial_context = spatial_context
-        self.created_at = datetime.datetime.utcnow()
+        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         self.updated_at = self.created_at
-        
+
     def __repr__(self) -> str:
         """Return string representation of the risk."""
         return f"GeospatialSecurityRisk({self.name}, {self.category.value}, {self.severity.value})"
-        
+
     def calculate_risk_score(self) -> int:
         """
         Calculate a numerical risk score.
-        
+
         Returns:
             Risk score (higher is more severe)
         """
@@ -102,7 +102,7 @@ class GeospatialSecurityRisk:
             RiskSeverity.HIGH: 3,
             RiskSeverity.CRITICAL: 4
         }
-        
+
         # Map likelihood to score
         likelihood_scores = {
             RiskLikelihood.RARE: 1,
@@ -111,14 +111,14 @@ class GeospatialSecurityRisk:
             RiskLikelihood.LIKELY: 4,
             RiskLikelihood.CERTAIN: 5
         }
-        
+
         # Risk score = Severity × Likelihood
         return severity_scores[self.severity] * likelihood_scores[self.likelihood]
-        
+
     def to_dict(self) -> Dict:
         """
         Convert the risk to a dictionary.
-        
+
         Returns:
             Dictionary representation of the risk
         """
@@ -134,22 +134,22 @@ class GeospatialSecurityRisk:
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat()
         }
-        
+
         # Add spatial context if available
         if self.spatial_context is not None:
             import shapely.geometry
             result["spatial_context"] = shapely.geometry.mapping(self.spatial_context)
-            
+
         return result
-        
+
     @classmethod
     def from_dict(cls, data: Dict) -> 'GeospatialSecurityRisk':
         """
         Create a risk from a dictionary.
-        
+
         Args:
             data: Dictionary with risk data
-            
+
         Returns:
             GeospatialSecurityRisk instance
         """
@@ -158,7 +158,7 @@ class GeospatialSecurityRisk:
         if "spatial_context" in data:
             import shapely.geometry
             spatial_context = shapely.geometry.shape(data["spatial_context"])
-            
+
         # Create the risk
         risk = cls(
             name=data["name"],
@@ -170,23 +170,23 @@ class GeospatialSecurityRisk:
             mitigation_strategies=data.get("mitigation_strategies", []),
             spatial_context=spatial_context
         )
-        
+
         # Set timestamps if available
         if "created_at" in data:
             risk.created_at = datetime.datetime.fromisoformat(data["created_at"])
         if "updated_at" in data:
             risk.updated_at = datetime.datetime.fromisoformat(data["updated_at"])
-            
+
         return risk
 
 
 class RiskAssessment:
     """Assessment of multiple security risks for a geospatial system."""
-    
+
     def __init__(self, name: str, description: Optional[str] = None):
         """
         Initialize a risk assessment.
-        
+
         Args:
             name: Assessment name
             description: Assessment description
@@ -194,105 +194,105 @@ class RiskAssessment:
         self.name = name
         self.description = description
         self.risks: List[GeospatialSecurityRisk] = []
-        self.created_at = datetime.datetime.utcnow()
+        self.created_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         self.updated_at = self.created_at
-        
+
     def add_risk(self, risk: GeospatialSecurityRisk) -> None:
         """
         Add a risk to the assessment.
-        
+
         Args:
             risk: Risk to add
         """
         self.risks.append(risk)
-        self.updated_at = datetime.datetime.utcnow()
-        
+        self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
     def remove_risk(self, risk_name: str) -> bool:
         """
         Remove a risk from the assessment.
-        
+
         Args:
             risk_name: Name of the risk to remove
-            
+
         Returns:
             True if the risk was removed, False if not found
         """
         for i, risk in enumerate(self.risks):
             if risk.name == risk_name:
                 self.risks.pop(i)
-                self.updated_at = datetime.datetime.utcnow()
+                self.updated_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
                 return True
-                
+
         return False
-        
+
     def get_risk_by_name(self, risk_name: str) -> Optional[GeospatialSecurityRisk]:
         """
         Get a risk by its name.
-        
+
         Args:
             risk_name: Name of the risk
-            
+
         Returns:
             The risk if found, None otherwise
         """
         for risk in self.risks:
             if risk.name == risk_name:
                 return risk
-                
+
         return None
-        
+
     def get_risks_by_category(self, category: RiskCategory) -> List[GeospatialSecurityRisk]:
         """
         Get all risks in a specific category.
-        
+
         Args:
             category: Risk category
-            
+
         Returns:
             List of risks in the category
         """
         return [risk for risk in self.risks if risk.category == category]
-        
+
     def get_risks_by_severity(self, severity: RiskSeverity) -> List[GeospatialSecurityRisk]:
         """
         Get all risks with a specific severity.
-        
+
         Args:
             severity: Risk severity
-            
+
         Returns:
             List of risks with the severity
         """
         return [risk for risk in self.risks if risk.severity == severity]
-        
+
     def get_risks_by_likelihood(self, likelihood: RiskLikelihood) -> List[GeospatialSecurityRisk]:
         """
         Get all risks with a specific likelihood.
-        
+
         Args:
             likelihood: Risk likelihood
-            
+
         Returns:
             List of risks with the likelihood
         """
         return [risk for risk in self.risks if risk.likelihood == likelihood]
-        
+
     def calculate_total_risk_score(self) -> int:
         """
         Calculate the total risk score for the assessment.
-        
+
         Returns:
             Total risk score
         """
         return sum(risk.calculate_risk_score() for risk in self.risks)
-        
+
     def get_highest_risks(self, count: int = 5) -> List[GeospatialSecurityRisk]:
         """
         Get the highest-scoring risks.
-        
+
         Args:
             count: Number of risks to return
-            
+
         Returns:
             List of the highest-scoring risks
         """
@@ -302,14 +302,14 @@ class RiskAssessment:
             key=lambda r: r.calculate_risk_score(),
             reverse=True
         )
-        
+
         # Return the top N risks
         return sorted_risks[:count]
-        
+
     def to_dict(self) -> Dict:
         """
         Convert the assessment to a dictionary.
-        
+
         Returns:
             Dictionary representation of the assessment
         """
@@ -321,15 +321,15 @@ class RiskAssessment:
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat()
         }
-        
+
     @classmethod
     def from_dict(cls, data: Dict) -> 'RiskAssessment':
         """
         Create an assessment from a dictionary.
-        
+
         Args:
             data: Dictionary with assessment data
-            
+
         Returns:
             RiskAssessment instance
         """
@@ -337,77 +337,77 @@ class RiskAssessment:
             name=data["name"],
             description=data.get("description")
         )
-        
+
         # Add risks
         for risk_data in data.get("risks", []):
             risk = GeospatialSecurityRisk.from_dict(risk_data)
             assessment.add_risk(risk)
-            
+
         # Set timestamps if available
         if "created_at" in data:
             assessment.created_at = datetime.datetime.fromisoformat(data["created_at"])
         if "updated_at" in data:
             assessment.updated_at = datetime.datetime.fromisoformat(data["updated_at"])
-            
+
         return assessment
-        
+
     def to_json(self, indent: int = 2) -> str:
         """
         Convert the assessment to a JSON string.
-        
+
         Args:
             indent: JSON indentation level
-            
+
         Returns:
             JSON string
         """
         return json.dumps(self.to_dict(), indent=indent)
-        
+
     @classmethod
     def from_json(cls, json_str: str) -> 'RiskAssessment':
         """
         Create an assessment from a JSON string.
-        
+
         Args:
             json_str: JSON string with assessment data
-            
+
         Returns:
             RiskAssessment instance
         """
         data = json.loads(json_str)
         return cls.from_dict(data)
-        
+
     def generate_risk_matrix(self) -> pd.DataFrame:
         """
         Generate a risk matrix showing the distribution of risks.
-        
+
         Returns:
             DataFrame representing the risk matrix
         """
         # Create a matrix of severity vs. likelihood
         severities = [s.value for s in RiskSeverity]
         likelihoods = [l.value for l in RiskLikelihood]
-        
+
         # Initialize matrix with zeros
         matrix = pd.DataFrame(
             0,
             index=severities,
             columns=likelihoods
         )
-        
+
         # Count risks in each cell
         for risk in self.risks:
             matrix.loc[risk.severity.value, risk.likelihood.value] += 1
-            
+
         return matrix
-        
+
     def generate_risk_report(self, format: str = "text") -> str:
         """
         Generate a risk assessment report.
-        
+
         Args:
             format: Report format ('text' or 'html')
-            
+
         Returns:
             Report as a string
         """
@@ -415,24 +415,24 @@ class RiskAssessment:
             report = f"Risk Assessment: {self.name}\n"
             report += f"Description: {self.description or 'N/A'}\n"
             report += f"Date: {self.updated_at.strftime('%Y-%m-%d')}\n\n"
-            
+
             report += f"Total Risk Score: {self.calculate_total_risk_score()}\n"
             report += f"Number of Risks: {len(self.risks)}\n\n"
-            
+
             report += "Highest Risks:\n"
             for i, risk in enumerate(self.get_highest_risks(5), 1):
                 report += f"{i}. {risk.name} (Score: {risk.calculate_risk_score()})\n"
                 report += f"   Severity: {risk.severity.value}, Likelihood: {risk.likelihood.value}\n"
                 report += f"   Category: {risk.category.value}\n"
                 report += f"   Description: {risk.description}\n\n"
-                
+
             report += "Risk Categories:\n"
             for category in RiskCategory:
                 risks = self.get_risks_by_category(category)
                 report += f"{category.value}: {len(risks)} risks\n"
-                
+
             return report
-            
+
         elif format == "html":
             report = f"""
             <html>
@@ -455,7 +455,7 @@ class RiskAssessment:
                 <p><strong>Date:</strong> {self.updated_at.strftime('%Y-%m-%d')}</p>
                 <p><strong>Total Risk Score:</strong> {self.calculate_total_risk_score()}</p>
                 <p><strong>Number of Risks:</strong> {len(self.risks)}</p>
-                
+
                 <h2>Highest Risks</h2>
                 <table>
                     <tr>
@@ -467,7 +467,7 @@ class RiskAssessment:
                         <th>Description</th>
                     </tr>
             """
-            
+
             for risk in self.get_highest_risks(5):
                 css_class = ""
                 if risk.severity == RiskSeverity.HIGH or risk.severity == RiskSeverity.CRITICAL:
@@ -476,7 +476,7 @@ class RiskAssessment:
                     css_class = "medium"
                 else:
                     css_class = "low"
-                    
+
                 report += f"""
                     <tr class="{css_class}">
                         <td>{risk.name}</td>
@@ -487,10 +487,10 @@ class RiskAssessment:
                         <td>{risk.description}</td>
                     </tr>
                 """
-                
+
             report += """
                 </table>
-                
+
                 <h2>Risk Categories</h2>
                 <table>
                     <tr>
@@ -498,7 +498,7 @@ class RiskAssessment:
                         <th>Count</th>
                     </tr>
             """
-            
+
             for category in RiskCategory:
                 risks = self.get_risks_by_category(category)
                 report += f"""
@@ -507,10 +507,10 @@ class RiskAssessment:
                         <td>{len(risks)}</td>
                     </tr>
                 """
-                
+
             report += """
                 </table>
-                
+
                 <h2>All Risks</h2>
                 <table>
                     <tr>
@@ -522,7 +522,7 @@ class RiskAssessment:
                         <th>Affected Asset</th>
                     </tr>
             """
-            
+
             for risk in sorted(self.risks, key=lambda r: r.calculate_risk_score(), reverse=True):
                 css_class = ""
                 if risk.severity == RiskSeverity.HIGH or risk.severity == RiskSeverity.CRITICAL:
@@ -531,7 +531,7 @@ class RiskAssessment:
                     css_class = "medium"
                 else:
                     css_class = "low"
-                    
+
                 report += f"""
                     <tr class="{css_class}">
                         <td>{risk.name}</td>
@@ -542,15 +542,15 @@ class RiskAssessment:
                         <td>{risk.affected_asset}</td>
                     </tr>
                 """
-                
+
             report += """
                 </table>
             </body>
             </html>
             """
-            
+
             return report
-            
+
         else:
             raise ValueError(f"Unsupported format: {format}")
 
@@ -558,12 +558,12 @@ class RiskAssessment:
 def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
     """
     Create a list of common geospatial security risks.
-    
+
     Returns:
         List of common security risks
     """
     risks = []
-    
+
     # Privacy risks
     risks.append(GeospatialSecurityRisk(
         name="location_tracking",
@@ -578,7 +578,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Enforce strict retention policies"
         ]
     ))
-    
+
     risks.append(GeospatialSecurityRisk(
         name="sensitive_location_disclosure",
         description="Disclosure of sensitive locations (homes, workplaces, etc.)",
@@ -592,7 +592,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Use differential privacy for aggregated data"
         ]
     ))
-    
+
     # Data breach risks
     risks.append(GeospatialSecurityRisk(
         name="geospatial_data_breach",
@@ -607,7 +607,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Regular security audits of database"
         ]
     ))
-    
+
     # Unauthorized access risks
     risks.append(GeospatialSecurityRisk(
         name="api_security_bypass",
@@ -622,7 +622,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Regular penetration testing of API endpoints"
         ]
     ))
-    
+
     # Regulatory risks
     risks.append(GeospatialSecurityRisk(
         name="gdpr_noncompliance",
@@ -637,7 +637,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Right to be forgotten mechanisms"
         ]
     ))
-    
+
     # Infrastructure risks
     risks.append(GeospatialSecurityRisk(
         name="gis_server_vulnerability",
@@ -652,7 +652,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Network segregation for GIS infrastructure"
         ]
     ))
-    
+
     # Data quality risks
     risks.append(GeospatialSecurityRisk(
         name="coordinate_tampering",
@@ -667,7 +667,7 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Audit logging for data modifications"
         ]
     ))
-    
+
     # Geopolitical risks
     risks.append(GeospatialSecurityRisk(
         name="border_data_disputes",
@@ -682,5 +682,5 @@ def create_common_geospatial_risks() -> List[GeospatialSecurityRisk]:
             "Regional-specific content delivery"
         ]
     ))
-    
-    return risks 
+
+    return risks

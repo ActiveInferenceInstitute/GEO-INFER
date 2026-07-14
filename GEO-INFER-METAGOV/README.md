@@ -35,6 +35,7 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 - `pyyaml>=6.0`
 - `typing_extensions>=4.0`
 
+
 ## Validation
 
 ```bash

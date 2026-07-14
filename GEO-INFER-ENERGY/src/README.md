@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-ENERGY`.
 
 ## Contents
 
+- `geo_infer_energy.egg-info/`
 - `geo_infer_energy/`
 
 ## Public Interface
@@ -27,6 +28,7 @@ Src workspace within `GEO-INFER-ENERGY`.
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

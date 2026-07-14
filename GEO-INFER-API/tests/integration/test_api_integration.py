@@ -16,7 +16,6 @@ except ImportError:
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed"),
 ]
 
 

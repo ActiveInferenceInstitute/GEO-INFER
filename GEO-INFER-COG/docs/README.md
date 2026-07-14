@@ -23,6 +23,7 @@ Docs workspace within `GEO-INFER-COG`.
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 
+
 ## Validation
 
 ```bash

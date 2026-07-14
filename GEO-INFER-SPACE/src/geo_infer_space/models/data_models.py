@@ -9,7 +9,7 @@ validation and serialization capabilities.
 from typing import List, Dict, Any, Optional, Union, Tuple
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 from geojson_pydantic import Feature, FeatureCollection, Point, Polygon, LineString
 
 

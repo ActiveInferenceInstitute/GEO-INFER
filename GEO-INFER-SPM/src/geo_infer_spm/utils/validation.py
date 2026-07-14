@@ -9,9 +9,11 @@ and compatibility with SPM statistical methods.
 import numpy as np
 from scipy import stats
 from typing import Dict, Optional, Any
-import warnings
+import logging
 
 from ..models.data_models import SPMData, DesignMatrix
+
+logger = logging.getLogger(__name__)
 
 
 def validate_spm_data(data: SPMData) -> SPMData:
@@ -45,9 +47,7 @@ def validate_spm_data(data: SPMData) -> SPMData:
 
     # Check data dimensionality
     if data.data.ndim > 2:
-        warnings.warn(
-            f"Data has {data.data.ndim} dimensions. SPM typically works with 1D or 2D data."
-        )
+        logger.debug("Data has %s dimensions; SPM typically uses 1D or 2D data", data.data.ndim)
 
     # Validate coordinates
     if not hasattr(data, "coordinates") or data.coordinates is None:
@@ -90,11 +90,11 @@ def validate_spm_data(data: SPMData) -> SPMData:
     # Check for NaN/inf values
     if np.any(np.isnan(data.data)):
         nan_count = np.sum(np.isnan(data.data))
-        warnings.warn(f"Data contains {nan_count} NaN values")
+        logger.debug("Data contains %s NaN values", nan_count)
 
     if np.any(np.isinf(data.data)):
         inf_count = np.sum(np.isinf(data.data))
-        warnings.warn(f"Data contains {inf_count} infinite values")
+        logger.debug("Data contains %s infinite values", inf_count)
 
     # Validate coordinate ranges for common CRS
     if hasattr(data, "crs") and data.crs and data.coordinates.shape[1] == 2:
@@ -170,20 +170,17 @@ def validate_design_matrix(
     # Check for rank deficiency
     rank = np.linalg.matrix_rank(design_matrix.matrix)
     if rank < n_regressors:
-        warnings.warn(
-            f"Design matrix is rank deficient: rank {rank} < {n_regressors} regressors"
-        )
+        logger.debug("Design matrix is rank deficient: rank %s < %s", rank, n_regressors)
 
     # Check for multicollinearity
     if n_regressors > 1:
-        corr_matrix = np.corrcoef(design_matrix.matrix.T)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            corr_matrix = np.corrcoef(design_matrix.matrix.T)
         np.fill_diagonal(corr_matrix, 0)  # Ignore self-correlations
-        max_corr = np.max(np.abs(corr_matrix))
+        max_corr = np.nanmax(np.abs(corr_matrix)) if corr_matrix.size else 0.0
 
         if max_corr > 0.9:
-            warnings.warn(
-                f"High multicollinearity detected (max correlation: {max_corr:.3f})"
-            )
+            logger.debug("High multicollinearity detected (max correlation: %.3f)", max_corr)
 
     # Validate factors if present
     if hasattr(design_matrix, "factors") and design_matrix.factors:
@@ -192,9 +189,7 @@ def validate_design_matrix(
     # Check condition number
     condition_number = np.linalg.cond(design_matrix.matrix)
     if condition_number > 1e10:
-        warnings.warn(
-            f"Design matrix is ill-conditioned (condition number: {condition_number:.2e})"
-        )
+        logger.debug("Design matrix is ill-conditioned (condition number: %.2e)", condition_number)
 
     return design_matrix
 
@@ -216,13 +211,16 @@ def _validate_factors(design_matrix: DesignMatrix):
         ]
 
         if len(factor_cols) == 0:
-            warnings.warn(f"No columns found for factor '{factor_name}'")
+            logger.debug("No columns found for factor '%s'", factor_name)
 
         # Check if number of columns matches expected (n_levels - 1 for dummy coding)
         expected_cols = len(levels) - 1
         if len(factor_cols) != expected_cols:
-            warnings.warn(
-                f"Factor '{factor_name}' has {len(factor_cols)} columns, expected {expected_cols}"
+            logger.debug(
+                "Factor '%s' has %s columns, expected %s",
+                factor_name,
+                len(factor_cols),
+                expected_cols,
             )
 
 
@@ -271,7 +269,7 @@ def validate_contrast(
 
     # Check if contrast is not all zeros
     if np.allclose(contrast_vector, 0):
-        warnings.warn("Contrast vector is all zeros - will result in zero statistic")
+        logger.debug("Contrast vector is all zeros; statistic will be zero")
 
     return contrast_vector
 

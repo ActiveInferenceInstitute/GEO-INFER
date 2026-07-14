@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-CIV`.
 
 ## Contents
 
+- `geo_infer_civ.egg-info/`
 - `geo_infer_civ/`
 
 ## Public Interface
@@ -23,6 +24,7 @@ Src workspace within `GEO-INFER-CIV`.
 - `geopandas>=0.10.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
+
 
 ## Validation
 

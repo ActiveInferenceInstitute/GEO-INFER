@@ -20,7 +20,7 @@ try:
     SPACE_AVAILABLE = True
 except ImportError:
     SPACE_AVAILABLE = False
-    pytest.skip("GEO-INFER-SPACE not available", allow_module_level=True)
+    pytest.fail("GEO-INFER-SPACE not available")
 
 try:
     from geo_infer_time.core.analysis import TemporalAnalyzer
@@ -28,7 +28,7 @@ try:
     TIME_AVAILABLE = True
 except ImportError:
     TIME_AVAILABLE = False
-    pytest.skip("GEO-INFER-TIME not available", allow_module_level=True)
+    pytest.fail("GEO-INFER-TIME not available")
 
 try:
     from geo_infer_data.core.ingestion import MultiSourceDataIngestion
@@ -36,7 +36,7 @@ try:
     DATA_AVAILABLE = True
 except ImportError:
     DATA_AVAILABLE = False
-    pytest.skip("GEO-INFER-DATA not available", allow_module_level=True)
+    pytest.fail("GEO-INFER-DATA not available")
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ class TestSpaceTimeDataIntegration:
     def test_spatial_indexing_with_temporal_data(self, sample_spatial_temporal_data):
         """Test spatial indexing of temporal geospatial data."""
         if not (SPACE_AVAILABLE and TIME_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         gdf = sample_spatial_temporal_data
         
@@ -103,7 +103,7 @@ class TestSpaceTimeDataIntegration:
     def test_temporal_analysis_with_spatial_context(self, sample_spatial_temporal_data):
         """Test temporal analysis with spatial grouping."""
         if not (TIME_AVAILABLE and SPACE_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
             
         import sys
         if 'geo_infer_time' in sys.modules:
@@ -145,9 +145,8 @@ class TestSpaceTimeDataIntegration:
     
     def test_data_storage_and_retrieval_workflow(self, sample_spatial_temporal_data, tmp_path):
         """Test data storage and retrieval with spatial-temporal queries."""
-        pytest.skip("AdaptiveDataStorage requires Postgres/MinIO backend configuration")
         if not (DATA_AVAILABLE and SPACE_AVAILABLE and TIME_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         gdf = sample_spatial_temporal_data
         
@@ -158,7 +157,11 @@ class TestSpaceTimeDataIntegration:
         )
         
         # Store data
-        storage = AdaptiveDataStorage(storage_path=str(tmp_path))
+        storage = AdaptiveDataStorage(
+            storage_backends=["local"],
+            optimization_strategy="balanced",
+            caching_enabled=False,
+        )
         
         # Save spatial-temporal data
         storage_path = tmp_path / "spatial_temporal_data.parquet"
@@ -174,7 +177,7 @@ class TestSpaceTimeDataIntegration:
     def test_spatial_temporal_interpolation_workflow(self, sample_spatial_temporal_data):
         """Test spatial-temporal interpolation workflow."""
         if not (SPACE_AVAILABLE and TIME_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         gdf = sample_spatial_temporal_data
         
@@ -204,11 +207,11 @@ class TestDataIngestionToSpatialTemporal:
     def test_multi_source_ingestion_to_spatial_temporal(self, tmp_path):
         """Test ingesting data from multiple sources and processing with SPACE+TIME."""
         if not (DATA_AVAILABLE and SPACE_AVAILABLE and TIME_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         # Create sample data sources
         sensor_data = pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=100, freq='H'),
+            'timestamp': pd.date_range('2023-01-01', periods=100, freq='h'),
             'sensor_id': ['sensor_001'] * 100,
             'lat': [37.7749] * 100,
             'lng': [-122.4194] * 100,
@@ -241,5 +244,4 @@ class TestDataIngestionToSpatialTemporal:
         # Verify integration
         assert 'h3_cell' in sensor_data.columns
         assert 'trend' in trend or 'slope' in trend or isinstance(trend, dict)
-
 

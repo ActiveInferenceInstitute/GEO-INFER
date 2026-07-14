@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-TIME`.
 
 ## Contents
 
+- `geo_infer_time.egg-info/`
 - `geo_infer_time/`
 
 ## Public Interface
@@ -25,6 +26,7 @@ Src workspace within `GEO-INFER-TIME`.
 - `scikit-learn>=1.6.1`
 - `scipy>=1.7.0`
 - `statsmodels>=0.13.0`
+
 
 ## Validation
 

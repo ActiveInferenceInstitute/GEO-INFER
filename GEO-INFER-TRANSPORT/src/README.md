@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-TRANSPORT`.
 
 ## Contents
 
+- `geo_infer_transport.egg-info/`
 - `geo_infer_transport/`
 
 ## Public Interface
@@ -21,6 +22,7 @@ Src workspace within `GEO-INFER-TRANSPORT`.
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

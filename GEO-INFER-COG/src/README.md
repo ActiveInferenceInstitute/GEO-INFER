@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-COG`.
 
 ## Contents
 
+- `geo_infer_cog.egg-info/`
 - `geo_infer_cog/`
 
 ## Public Interface
@@ -22,6 +23,7 @@ Src workspace within `GEO-INFER-COG`.
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
+
 
 ## Validation
 

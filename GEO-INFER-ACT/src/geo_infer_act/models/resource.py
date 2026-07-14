@@ -35,7 +35,8 @@ class ResourceModel(ActiveInferenceModel):
                  planning_horizon: int = 10, 
                  replenishment_rate: float = 0.05,
                  depletion_rate: float = 0.1,
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 random_seed: Optional[int] = None):
         """Initialize the Resource Model.
         
         Args:
@@ -47,6 +48,10 @@ class ResourceModel(ActiveInferenceModel):
             config: Optional configuration dictionary
         """
         super().__init__(config)
+        if random_seed is None and config:
+            random_seed = config.get("random_seed")
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
         self.n_resources = n_resources
         self.n_locations = n_locations
         self.planning_horizon = planning_horizon
@@ -55,13 +60,17 @@ class ResourceModel(ActiveInferenceModel):
         self.step_count = 0
         
         # Resource distribution: each entry in [0, 1] representing abundance
-        self.resource_distribution = np.random.uniform(0.3, 0.9, (self.n_resources, self.n_locations))
+        self.resource_distribution = self.rng.uniform(
+            0.3, 0.9, (self.n_resources, self.n_locations)
+        )
         
         # Location connectivity: adjacency-like matrix for resource flow
         self.location_connectivity = self._build_connectivity()
         
         # Demand profile per location (how much each location consumes)
-        self.location_demand = np.random.uniform(0.02, 0.08, self.n_locations)
+        self.location_demand = self.rng.uniform(0.02, 0.08, self.n_locations)
+        self._initial_resource_distribution = self.resource_distribution.copy()
+        self._initial_location_demand = self.location_demand.copy()
         
         # History tracking
         self.history: List[Dict[str, Any]] = []
@@ -169,7 +178,8 @@ class ResourceModel(ActiveInferenceModel):
         Returns:
             Initial state dictionary
         """
-        self.resource_distribution = np.random.uniform(0.3, 0.9, (self.n_resources, self.n_locations))
+        self.resource_distribution = self._initial_resource_distribution.copy()
+        self.location_demand = self._initial_location_demand.copy()
         self.step_count = 0
         self.history = []
         logger.info("ResourceModel reset")

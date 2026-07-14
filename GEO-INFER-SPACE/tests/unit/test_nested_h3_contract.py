@@ -6,8 +6,7 @@ import numpy as np
 import pytest
 import sys
 from pathlib import Path
-
-h3 = pytest.importorskip("h3")
+import h3
 
 SPACE_SRC = Path(__file__).resolve().parents[2] / "src"
 if str(SPACE_SRC) not in sys.path:

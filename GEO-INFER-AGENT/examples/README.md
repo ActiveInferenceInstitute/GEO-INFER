@@ -46,6 +46,7 @@ Examples workspace within `GEO-INFER-AGENT`.
 - `isort>=5.12.0`
 - `matplotlib>=3.7.1`
 
+
 ## Validation
 
 ```bash

@@ -341,8 +341,11 @@ class GenerativeMap:
         seed_points = np.random.rand(n_points, 2)
 
         # Scale seed points to data dimensions
-        seed_points[:, 0] *= self.data.shape[0]
-        seed_points[:, 1] *= self.data.shape[1]
+        # Streamplot coordinates are indexed from zero through ``shape - 1``.
+        # Scaling by ``shape`` occasionally generated an out-of-bounds seed and
+        # caused the style path to fail nondeterministically.
+        seed_points[:, 0] *= self.data.shape[1] - 1
+        seed_points[:, 1] *= self.data.shape[0] - 1
 
         # Create streamplot
         ax.streamplot(
@@ -354,7 +357,7 @@ class GenerativeMap:
             linewidth=line_width,
             cmap=palette.cmap,
             density=density,
-            arrowsize=0,  # No arrows for artistic look
+            arrowsize=0.1,  # Minimal arrow size avoids Matplotlib zero-size warnings
             start_points=seed_points,
         )
 
@@ -510,7 +513,7 @@ class GenerativeMap:
             linewidth=1.0 + abstraction_level,
             cmap=palette2.cmap,
             density=0.8 - 0.5 * abstraction_level,
-            arrowsize=0,
+            arrowsize=0.1,
         )
 
         # Remove axes for artistic effect
@@ -548,6 +551,7 @@ class GenerativeMap:
         if resolution is not None:
             img = img.resize((resolution, resolution), Image.Resampling.LANCZOS)
         self.image = img
+        plt.close(self._figure)
 
     def save(self, output_path: str) -> str:
         """
@@ -585,10 +589,18 @@ class GenerativeMap:
         Raises:
             ValueError: If no image has been generated
         """
-        if self._figure is None:
+        if self.image is None:
             raise ValueError("No image generated. Generate art first.")
 
-        plt.figure(self._figure.number)
+        figure = plt.figure()
+        plt.imshow(self.image)
+        plt.axis("off")
+        # ``Agg`` is the deterministic headless backend used by CI. Calling
+        # ``show`` there emits a backend warning even though rendering works.
+        if "agg" in plt.get_backend().lower() or not plt.isinteractive():
+            figure.canvas.draw()
+            plt.close(figure)
+            return
         plt.show()
 
     def create_animation(

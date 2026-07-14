@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `geo_infer_marine.egg-info/`
 - `geo_infer_marine/`
 
 ## Validation

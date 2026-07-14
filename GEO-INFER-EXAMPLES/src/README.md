@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-EXAMPLES`.
 
 ## Contents
 
+- `geo_infer_examples.egg-info/`
 - `geo_infer_examples/`
 
 ## Public Interface
@@ -27,6 +28,7 @@ Src workspace within `GEO-INFER-EXAMPLES`.
 - `requests>=2.28.0`
 - `rich>=12.0.0`
 - `typer>=0.7.0`
+
 
 ## Validation
 

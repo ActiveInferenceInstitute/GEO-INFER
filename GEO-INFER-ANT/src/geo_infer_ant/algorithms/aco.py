@@ -28,12 +28,10 @@ import math
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
     from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-    from geo_infer_math.core.optimization import OptimizationBase
 except ImportError as e:
-    logging.warning(f"Integration modules not available: {e}")
+    logging.getLogger(__name__).debug("Optional spatial integration unavailable: %s", e)
     SpatialIndexingInterface = None
     SpatialAnalyticsInterface = None
-    OptimizationBase = object
 
 logger = logging.getLogger(__name__)
 
@@ -654,6 +652,8 @@ class AntColonyOptimization:
 
         # Check if per-step improvement rate has dropped below threshold
         recent_fitness = self.convergence_history[-10:]
+        if not np.all(np.isfinite(recent_fitness)):
+            return False
         total_improvement = recent_fitness[0] - recent_fitness[-1]
         reference = max(abs(recent_fitness[0]), 1e-10)
         per_step_improvement = total_improvement / reference / len(recent_fitness)
@@ -744,17 +744,23 @@ class AntColonyOptimization:
                 obj_values_per_solution.append(obj_vals)
 
             # Normalise objectives across solutions in this generation
-            obj_array = np.array(obj_values_per_solution, dtype=float)
+            obj_array = np.nan_to_num(
+                np.array(obj_values_per_solution, dtype=float),
+                nan=1e12,
+                posinf=1e12,
+                neginf=-1e12,
+            )
             obj_min = obj_array.min(axis=0)
             obj_max = obj_array.max(axis=0)
-            obj_range = np.where(obj_max - obj_min > 0, obj_max - obj_min, 1.0)
+            raw_range = obj_max - obj_min
+            obj_range = np.where(raw_range > 0, raw_range, 1.0)
             obj_norm = (obj_array - obj_min) / obj_range
 
             for idx, sol_info in enumerate(solutions):
                 scalar_fitness = float(np.dot(weights, obj_norm[idx]))
                 pareto_solutions.append({
                     "solution": sol_info["solution"],
-                    "objectives": dict(zip(objectives, obj_values_per_solution[idx])),
+                    "objectives": dict(zip(objectives, obj_array[idx].tolist())),
                     "scalar_fitness": scalar_fitness,
                 })
 

@@ -15,6 +15,25 @@ __email__ = "geo-infer@activeinference.institute"
 import numpy as np
 from typing import Optional, Tuple, Union
 
+
+class SpatialCovariance:
+    """Factory for covariance specifications consumed by ``GaussianProcess``."""
+
+    @staticmethod
+    def rbf(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
+        """Return a squared-exponential covariance specification."""
+        return {"kernel_type": "rbf", "length_scale": length_scale, "variance": variance}
+
+    @staticmethod
+    def matern_32(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
+        """Return a Matérn 3/2 covariance specification."""
+        return {"kernel_type": "matern32", "length_scale": length_scale, "variance": variance}
+
+    @staticmethod
+    def matern_52(length_scale: float = 1.0, variance: float = 1.0) -> dict[str, float | str]:
+        """Return a Matérn 5/2 covariance specification."""
+        return {"kernel_type": "matern52", "length_scale": length_scale, "variance": variance}
+
 # Import main submodules with error handling
 try:
     from . import api
@@ -55,6 +74,9 @@ try:
 except ImportError:
     BayesianInference = None
 
+from .core.variational import VariationalInference
+from .core.mcmc import MCMC as MCMCSampler
+
 try:
     from .core.posterior import PosteriorAnalysis
 except ImportError:
@@ -91,12 +113,20 @@ class GaussianProcess:
         signal_variance: float = 1.0,
         noise_variance: float = 1e-2,
         jitter: float = 1e-6,
+        covariance_function: Optional[dict[str, float | str]] = None,
+        mean_function: str = "constant",
+        **_: object,
     ) -> None:
+        if covariance_function is not None:
+            kernel_type = str(covariance_function.get("kernel_type", kernel_type))
+            length_scale = float(covariance_function.get("length_scale", length_scale))
+            signal_variance = float(covariance_function.get("variance", signal_variance))
         self.kernel_type = kernel_type
         self.length_scale = length_scale
         self.signal_variance = signal_variance
         self.noise_variance = noise_variance
         self.jitter = jitter
+        self.mean_function = mean_function
         self.X_train: Optional[np.ndarray] = None
         self.y_train: Optional[np.ndarray] = None
         self._L: Optional[np.ndarray] = None
@@ -128,6 +158,12 @@ class GaussianProcess:
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             sqrt3_r = np.sqrt(3.0) * r
             return self.signal_variance * (1.0 + sqrt3_r) * np.exp(-sqrt3_r)
+        elif self.kernel_type == 'matern52':
+            r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
+            sqrt5_r = np.sqrt(5.0) * r
+            return self.signal_variance * (
+                1.0 + sqrt5_r + (5.0 / 3.0) * r**2
+            ) * np.exp(-sqrt5_r)
         elif self.kernel_type == 'exponential':
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             return self.signal_variance * np.exp(-r)
@@ -275,4 +311,7 @@ __all__ = [
     'BayesianInference',
     'PosteriorAnalysis',
     'GaussianProcess',
-] 
+    'SpatialCovariance',
+    'VariationalInference',
+    'MCMCSampler',
+]

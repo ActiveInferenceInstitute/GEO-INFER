@@ -194,7 +194,7 @@ class TestEconomicIndicators(unittest.TestCase):
         }
 
         self.time_series_data = pd.DataFrame({
-            'time': pd.date_range('2020-01-01', periods=12, freq='M'),
+            'time': pd.date_range('2020-01-01', periods=12, freq='ME'),
             'gdp': [100 + i*10 + np.random.normal(0, 5) for i in range(12)],
             'unemployment': [5 + np.random.normal(0, 0.5) for _ in range(12)]
         })
@@ -618,7 +618,7 @@ class TestIntegrationPatterns(unittest.TestCase):
         """Test integration with GEO-INFER-TIME"""
         # Mock time series data
         time_data = pd.DataFrame({
-            'time': pd.date_range('2020-01-01', periods=12, freq='M'),
+            'time': pd.date_range('2020-01-01', periods=12, freq='ME'),
             'gdp': range(100, 112)
         })
 
@@ -682,4 +682,4 @@ def run_comprehensive_test_suite():
 
 if __name__ == '__main__':
     success = run_comprehensive_test_suite()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

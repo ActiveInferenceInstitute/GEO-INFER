@@ -25,6 +25,7 @@ Interfaces workspace within `GEO-INFER-APP`.
 - `uvicorn>=0.15.0`
 - `pydantic>=1.8.0`
 
+
 ## Validation
 
 ```bash

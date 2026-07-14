@@ -18,7 +18,7 @@ class TestVisualizationImports:
             assert hasattr(maps, 'create_statistical_map')
             assert hasattr(maps, 'plot_spm_results')
         except ImportError:
-            pytest.skip("Visualization dependencies not available")
+            pytest.fail("Visualization dependencies not available")
 
     def test_diagnostics_import(self):
         """Test diagnostics module import."""
@@ -27,7 +27,7 @@ class TestVisualizationImports:
             assert hasattr(diagnostics, 'plot_model_diagnostics')
             assert hasattr(diagnostics, 'plot_contrast_results')
         except ImportError:
-            pytest.skip("Visualization dependencies not available")
+            pytest.fail("Visualization dependencies not available")
 
     def test_interactive_import(self):
         """Test interactive module import."""
@@ -36,7 +36,7 @@ class TestVisualizationImports:
             assert hasattr(interactive, 'create_interactive_map')
             assert hasattr(interactive, 'create_dashboard')
         except ImportError:
-            pytest.skip("Visualization dependencies not available")
+            pytest.fail("Visualization dependencies not available")
 
 
 class TestStatisticalMapVisualization:
@@ -94,7 +94,7 @@ class TestStatisticalMapVisualization:
             assert len(viz_data['stat_values']) == 50
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
     def test_statistical_map_with_contrast(self):
         """Test statistical map with specific contrast."""
@@ -116,7 +116,7 @@ class TestStatisticalMapVisualization:
             assert 'significance_mask' in viz_data
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
     def test_plot_spm_results_dispatch(self):
         """Test SPM results plotting dispatch."""
@@ -132,7 +132,7 @@ class TestStatisticalMapVisualization:
             assert isinstance(result, dict)
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
 
 class TestModelDiagnosticsVisualization:
@@ -180,7 +180,7 @@ class TestModelDiagnosticsVisualization:
                 assert stat in stats
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
     def test_plot_contrast_results(self):
         """Test contrast results plotting."""
@@ -203,7 +203,7 @@ class TestModelDiagnosticsVisualization:
             assert 'correction_method' in result
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
     def test_diagnostic_helper_functions(self):
         """Test diagnostic helper functions."""
@@ -222,7 +222,7 @@ class TestModelDiagnosticsVisualization:
             assert 'residual_std' in stats
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
 
 class TestInteractiveVisualization:
@@ -269,7 +269,7 @@ class TestInteractiveVisualization:
             assert interactive_map is None or hasattr(interactive_map, 'show')
 
         except ImportError:
-            pytest.skip("Plotly not available")
+            pytest.fail("Plotly not available")
 
     def test_create_dashboard(self):
         """Test dashboard creation."""
@@ -282,7 +282,7 @@ class TestInteractiveVisualization:
             assert dashboard is None or hasattr(dashboard, 'show')
 
         except ImportError:
-            pytest.skip("Plotly not available")
+            pytest.fail("Plotly not available")
 
     def test_create_time_series_explorer(self):
         """Test time series explorer creation."""
@@ -299,7 +299,7 @@ class TestInteractiveVisualization:
             assert explorer is None or hasattr(explorer, 'show')
 
         except ImportError:
-            pytest.skip("Plotly not available")
+            pytest.fail("Plotly not available")
 
 
 class TestVisualizationDataStructures:
@@ -334,7 +334,7 @@ class TestVisualizationDataStructures:
             assert len(viz_data['coordinates']) == len(viz_data['stat_values'])
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
     def test_visualization_error_handling(self):
         """Test error handling in visualization functions."""
@@ -361,7 +361,7 @@ class TestVisualizationDataStructures:
                 create_statistical_map(spm_result, contrast_idx=5)
 
         except ImportError:
-            pytest.skip("Matplotlib not available")
+            pytest.fail("Matplotlib not available")
 
 
 class TestVisualizationWithoutDependencies:
@@ -408,7 +408,7 @@ class TestVisualizationWithoutDependencies:
 
             except ImportError:
                 # This is expected if visualization dependencies are not available
-                pytest.skip("Visualization dependencies not available")
+                pytest.fail("Visualization dependencies not available")
 
         finally:
             # Restore original modules

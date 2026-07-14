@@ -230,7 +230,7 @@ class TestCulturalMap(unittest.TestCase):
                 self.assertTrue(os.path.exists(output_path))
 
             except Exception as e:
-                self.skipTest(f"Creation with theme {theme} failed: {str(e)}")
+                self.fail(f"Creation with theme {theme} failed: {str(e)}")
 
     def test_different_styles(self):
         """Test creating cultural maps with different styles."""
@@ -258,7 +258,7 @@ class TestCulturalMap(unittest.TestCase):
                 self.assertTrue(os.path.exists(output_path))
 
             except Exception as e:
-                self.skipTest(f"Creation with style {style} failed: {str(e)}")
+                self.fail(f"Creation with style {style} failed: {str(e)}")
 
     def test_invalid_inputs(self):
         """Test handling of invalid inputs."""

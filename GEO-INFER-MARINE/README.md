@@ -4,6 +4,7 @@ Marine and oceanographic analysis, coastal management, and marine ecosystem moni
 
 ## Contents
 
+- `.pytest_cache/`
 - `.test-results/`
 - `docs/`
 - `examples/`
@@ -35,6 +36,7 @@ Marine and oceanographic analysis, coastal management, and marine ecosystem moni
 - `xarray>=0.19.0`
 - `netcdf4>=1.5.8`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

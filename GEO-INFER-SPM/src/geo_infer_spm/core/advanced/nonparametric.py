@@ -167,7 +167,10 @@ class NonparametricSPM:
             distances = np.abs(x - x[i])
 
             # Compute tricube weights
-            max_dist = np.percentile(distances, self.bandwidth * 100)
+            max_dist = max(
+                np.percentile(distances, self.bandwidth * 100),
+                np.finfo(float).eps,
+            )
             u = distances / max_dist
             w = (1 - u**3)**3
             w[u > 1] = 0  # Only use nearby points

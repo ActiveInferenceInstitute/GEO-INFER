@@ -184,6 +184,20 @@ def module_readme_notes(path: Path, module: ModuleInfo | None) -> str:
     """Return implemented module-specific README notes for module roots."""
     if not module or path.parent != module.path:
         return ""
+    if module.name == "GEO-INFER-TEST":
+        return """
+## Strict Testing Contracts
+
+- `src/geo_infer_test/testing.py` exports deterministic RNG, local filesystem,
+  HTTP, SQLite, and service fixtures plus finite/probability/matrix/model and
+  visualization-manifest assertions.
+- `validate_test_contracts.py --strict` validates every module inventory,
+  primary marker, forbidden pytest control, syntax tree, and behavior-test
+  docstring.
+- `validate_model_contracts.py` checks representative ACT model contracts;
+  `run_model_audit.py` emits finite statistics, a PNG visualization, SHA-256
+  sidecars, and a deterministic manifest.
+"""
     if module.name == "GEO-INFER-ACT":
         return """
 ## Implemented H3 Active Inference Contracts
@@ -298,6 +312,19 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
     """Return implemented module-specific AGENTS notes for module roots."""
     if not module or path.parent != module.path:
         return ""
+    if module.name == "GEO-INFER-TEST":
+        return """
+## Strict Testing Contracts
+
+- Reuse `geo_infer_test.testing` fixtures and assertions for local boundaries,
+  model contracts, and visualization artifacts.
+- Missing dependencies, unavailable backends, warnings, skips, xfails, and
+  empty selections are failures; do not hide them with warning filters or
+  conditional pytest controls.
+- Keep `validate_test_contracts.py`, `validate_model_contracts.py`, and
+  `run_model_audit.py` synchronized with the documented commands and output
+  schemas.
+"""
     if module.name == "GEO-INFER-ACT":
         return """
 ## Current H3 Contracts
@@ -415,7 +442,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
+- Performance tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category performance`
 - H3 contracts: `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
+- Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
+- Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
+- Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
+
+## Zero-warning test policy
+
+The shared pytest policy treats warnings as errors, requires strict markers/configuration, assigns exactly one primary marker to every test, and rejects skips, xfails, xpasses, collection errors, missing dependencies, missing fixtures, and empty selections. Every module has a test inventory at `GEO-INFER-*/tests/README.md`; the inventory records purpose, fixtures, dependencies, artifacts, and triage commands.
 
 ## Documentation Policy
 
@@ -453,7 +488,11 @@ uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
 uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
+uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 ```
 
 ## Modular Hygiene Contract
@@ -510,6 +549,28 @@ def render_readme(path: Path, module: ModuleInfo | None) -> str:
 {deps}
 """
 
+    test_inventory = ""
+    if module and path.parent.name == "tests":
+        test_inventory = f"""
+## Strict Test Inventory
+
+- Purpose: validate the `{module.name}` module's current behavior through unit,
+  integration, system, and performance test surfaces.
+- Primary marker: tests receive exactly one primary marker from their canonical
+  directory; additive domain markers remain allowed.
+- Required fixtures: local `tests/conftest.py` fixtures and shared
+  `geo_infer_test.testing` fixtures for deterministic RNG, filesystem, HTTP,
+  SQLite, service, model, and artifact boundaries.
+- Dependencies: required test/runtime dependencies are installed by
+  `uv sync --all-packages --all-extras`; missing backends are failures.
+- Expected artifacts: JUnit XML under `.geo-infer-test-results/`; model and
+  visualization outputs require finite statistics, sidecars, hashes, and a
+  manifest.
+- Failure triage: `env -u VIRTUAL_ENV uv run pytest -c pyproject.toml -q
+  {module.name}/tests`, followed by
+  `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`.
+"""
+
     return f"""# {title}
 
 {purpose_for(path, module)}
@@ -522,6 +583,7 @@ def render_readme(path: Path, module: ModuleInfo | None) -> str:
 
 {symbol_lines}
 {module_lines}
+{test_inventory}
 ## Validation
 
 ```bash

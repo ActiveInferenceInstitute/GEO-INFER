@@ -23,6 +23,8 @@
 
 - `__init__.py`
 - `config.py`
+- `integration.py`
+- `logging.py`
 
 ## Validation
 

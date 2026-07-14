@@ -84,7 +84,7 @@ class TestFileConnector:
         try:
             import pyarrow  # noqa: F401
         except ImportError:
-            pytest.skip("pyarrow not installed")
+            pytest.fail("pyarrow not installed")
         connector = FileConnector(base_path=str(tmp_path))
         df = pd.DataFrame({"a": range(10)})
         result_path = _run(connector.write_geospatial(df, tmp_path / "out.parquet"))

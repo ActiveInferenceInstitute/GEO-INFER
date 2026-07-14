@@ -17,6 +17,7 @@ Unit workspace within `GEO-INFER-ACT`.
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_markov_decision_process.py`
+- `test_model_contracts.py`
 - `test_models.py`
 - `test_nested_h3_active_inference.py`
 - `test_policy_selection.py`
@@ -54,6 +55,7 @@ Unit workspace within `GEO-INFER-ACT`.
 - `bayeux-ml>=0.0.1`
 - `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
+
 
 ## Validation
 

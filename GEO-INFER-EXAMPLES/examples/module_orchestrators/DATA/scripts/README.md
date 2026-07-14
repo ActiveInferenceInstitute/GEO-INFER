@@ -30,6 +30,7 @@ Scripts workspace within `GEO-INFER-EXAMPLES`.
 - `rich>=12.0.0`
 - `typer>=0.7.0`
 
+
 ## Validation
 
 ```bash
