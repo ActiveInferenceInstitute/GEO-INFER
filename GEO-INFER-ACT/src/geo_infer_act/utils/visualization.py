@@ -1433,7 +1433,7 @@ def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str 
             plt.close(fig)
         
         # Save as GIF
-        imageio.mimsave(output_path, images, fps=2, loop=0)
+        imageio.mimsave(output_path, images, duration=0.5, loop=0)
         logger.info(f'H3 evolution GIF saved to {output_path}')
         
     except Exception as e:

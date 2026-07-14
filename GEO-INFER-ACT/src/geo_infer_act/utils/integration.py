@@ -109,6 +109,10 @@ class ModernToolsIntegration:
             Inference results
         """
         if not self.available_tools.get("rxinfer", False):
+            if not self.config.get("allow_local_fallback", False):
+                raise RuntimeError(
+                    "RxInfer not available. Please install Julia, PyJulia, and RxInfer"
+                )
             observations = np.asarray(data.get("observations", []), dtype=float)
             if observations.size == 0 or not np.isfinite(observations).all():
                 raise ValueError("RxInfer data must contain finite observations")
@@ -448,7 +452,9 @@ def integrate_rxinfer(
     config: Dict[str, Any], model_params: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Integrate with RxInfer for scalable nested inference."""
-    integration_hub = ModernToolsIntegration(config)
+    integration_config = dict(config or {})
+    integration_config.setdefault("allow_local_fallback", True)
+    integration_hub = ModernToolsIntegration(integration_config)
 
     # Default RxInfer model for spatial inference
     default_model = """
