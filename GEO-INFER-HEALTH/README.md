@@ -4,7 +4,6 @@ Epidemiology, healthcare accessibility analysis, disease surveillance, and spati
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

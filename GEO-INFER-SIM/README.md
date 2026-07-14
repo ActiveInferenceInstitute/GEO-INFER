@@ -4,7 +4,6 @@ Advanced simulation environments for geospatial hypothesis testing, policy evalu
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

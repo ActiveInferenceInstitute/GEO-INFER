@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `.pytest_cache/`
 - `config/`
 - `data/`
 - `docs/`

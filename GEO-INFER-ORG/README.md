@@ -4,7 +4,6 @@ Organizational structures, governance frameworks, and community processes for ge
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

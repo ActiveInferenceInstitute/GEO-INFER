@@ -4,7 +4,6 @@ Advanced machine learning and artificial intelligence capabilities specifically 
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

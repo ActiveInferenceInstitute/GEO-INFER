@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-GIT`.
 
 ## Contents
 
-- `geo_infer_git.egg-info/`
 - `geo_infer_git/`
 
 ## Public Interface

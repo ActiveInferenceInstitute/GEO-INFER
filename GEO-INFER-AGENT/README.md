@@ -4,7 +4,6 @@ Intelligent autonomous agents for geospatial decision-making, perception, and ac
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-TIME`.
 
 ## Contents
 
-- `geo_infer_time.egg-info/`
 - `geo_infer_time/`
 
 ## Public Interface

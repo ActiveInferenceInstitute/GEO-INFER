@@ -4,7 +4,6 @@ Water resources management, hydrology, and water quality monitoring.
 
 ## Contents
 
-- `.pytest_cache/`
 - `examples/`
 - `src/`
 - `tests/`

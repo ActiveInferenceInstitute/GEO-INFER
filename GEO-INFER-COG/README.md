@@ -4,7 +4,6 @@ Human-centered geospatial tools that model perception, reasoning, and spatial co
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

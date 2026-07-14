@@ -4,7 +4,6 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-SPM`.
 
 ## Contents
 
-- `geo_infer_spm.egg-info/`
 - `geo_infer_spm/`
 
 ## Public Interface

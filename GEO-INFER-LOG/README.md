@@ -4,7 +4,6 @@ Geospatial intelligence for logistics optimization, supply chain management, rou
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

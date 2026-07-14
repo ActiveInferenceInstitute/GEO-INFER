@@ -4,9 +4,6 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 
 ## Contents
 
-- `.mypy_cache/`
-- `.pytest_cache/`
-- `.ruff_cache/`
 - `config/`
 - `docs/`
 - `examples/`

@@ -4,7 +4,6 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

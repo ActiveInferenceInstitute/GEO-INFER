@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-WATER`.
 
 ## Contents
 
-- `geo_infer_water.egg-info/`
 - `geo_infer_water/`
 
 ## Public Interface

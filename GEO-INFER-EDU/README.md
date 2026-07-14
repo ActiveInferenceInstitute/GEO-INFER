@@ -4,7 +4,6 @@ Educational technology for geospatial systems including curriculum design, inter
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

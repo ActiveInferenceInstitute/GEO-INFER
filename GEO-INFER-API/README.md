@@ -4,7 +4,6 @@ Comprehensive API development and integration services enabling interoperability
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

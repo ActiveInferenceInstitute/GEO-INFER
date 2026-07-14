@@ -4,7 +4,6 @@ Transportation planning and traffic analysis for geospatial systems.
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`

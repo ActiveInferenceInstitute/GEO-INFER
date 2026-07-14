@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-SIM`.
 
 ## Contents
 
-- `geo_infer_sim.egg-info/`
 - `geo_infer_sim/`
 
 ## Public Interface

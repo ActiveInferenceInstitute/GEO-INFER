@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `geo_infer_climate.egg-info/`
 - `geo_infer_climate/`
 
 ## Validation

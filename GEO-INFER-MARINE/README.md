@@ -4,7 +4,6 @@ Marine and oceanographic analysis, coastal management, and marine ecosystem moni
 
 ## Contents
 
-- `.pytest_cache/`
 - `.test-results/`
 - `docs/`
 - `examples/`

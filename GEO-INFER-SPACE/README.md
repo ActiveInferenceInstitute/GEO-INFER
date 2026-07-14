@@ -4,7 +4,6 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 
 ## Contents
 
-- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `output/`

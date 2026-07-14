@@ -4,7 +4,6 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-CLIMATE`.
 
 ## Contents
 
-- `geo_infer_climate.egg-info/`
 - `geo_infer_climate/`
 
 ## Public Interface

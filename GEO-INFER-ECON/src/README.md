@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-ECON`.
 
 ## Contents
 
-- `geo_infer_econ.egg-info/`
 - `geo_infer_econ/`
 
 ## Public Interface

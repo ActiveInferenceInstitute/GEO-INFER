@@ -4,7 +4,6 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `deployment/`
 - `docs/`

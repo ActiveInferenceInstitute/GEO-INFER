@@ -4,7 +4,6 @@ Comprehensive Bayesian inference framework with probabilistic modeling, uncertai
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

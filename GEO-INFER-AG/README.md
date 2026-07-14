@@ -4,7 +4,6 @@ Advanced agricultural analysis and precision farming applications using geospati
 
 ## Contents
 
-- `.pytest_cache/`
 - `config/`
 - `docs/`
 - `examples/`

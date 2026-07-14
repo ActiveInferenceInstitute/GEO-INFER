@@ -6,7 +6,6 @@ Locations workspace within `GEO-INFER-PLACE`.
 
 - `australia/`
 - `cascadia/`
-- `del_norte/`
 - `del_norte_county/`
 - `del_norte_county_synthetic/`
 - `houston/`

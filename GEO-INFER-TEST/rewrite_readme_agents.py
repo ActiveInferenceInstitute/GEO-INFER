@@ -21,6 +21,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODULE_PREFIX = "GEO-INFER-"
 MAX_SYMBOLS = 20
+_TRACKED_FILES: set[Path] | None = None
 
 
 @dataclass
@@ -44,6 +45,14 @@ def git_ls_files() -> list[Path]:
         check=True,
     )
     return [REPO_ROOT / line for line in result.stdout.splitlines() if line]
+
+
+def tracked_files() -> set[Path]:
+    """Return tracked paths once so generated docs ignore local build output."""
+    global _TRACKED_FILES
+    if _TRACKED_FILES is None:
+        _TRACKED_FILES = set(git_ls_files())
+    return _TRACKED_FILES
 
 
 def read_pyproject(module_dir: Path) -> dict:
@@ -107,18 +116,25 @@ def tracked_doc_files() -> tuple[list[Path], list[Path]]:
 
 
 def direct_contents(directory: Path) -> tuple[list[str], list[str], list[str]]:
+    tracked = tracked_files()
     dirs = sorted(
         child.name + "/"
         for child in directory.iterdir()
-        if child.is_dir() and child.name not in {".git", ".venv", "__pycache__"}
+        if child.is_dir()
+        and child.name not in {".git", ".venv", "__pycache__"}
+        and any(child in path.parents for path in tracked)
     )
-    py_files = sorted(child.name for child in directory.glob("*.py"))
+    py_files = sorted(
+        path.name
+        for path in tracked
+        if path.parent == directory and path.suffix == ".py"
+    )
     other_files = sorted(
-        child.name
-        for child in directory.iterdir()
-        if child.is_file()
-        and child.name not in {"README.md", "AGENTS.md"}
-        and child.suffix != ".py"
+        path.name
+        for path in tracked
+        if path.parent == directory
+        and path.name not in {"README.md", "AGENTS.md"}
+        and path.suffix != ".py"
     )
     return dirs[:24], py_files[:24], other_files[:24]
 

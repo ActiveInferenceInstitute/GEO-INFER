@@ -4,7 +4,6 @@ Src workspace within `GEO-INFER-RISK`.
 
 ## Contents
 
-- `geo_infer_risk.egg-info/`
 - `geo_infer_risk/`
 
 ## Public Interface
