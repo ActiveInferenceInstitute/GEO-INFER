@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-ART`.
 
 ## Contents
 
+- `geo_infer_art.egg-info/`
 - `geo_infer_art/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-ART`.
 - `numpy>=1.21.0`
 - `opencv-python>=4.5.0`
 - `pillow>=8.3.0`
+
 
 ## Validation
 

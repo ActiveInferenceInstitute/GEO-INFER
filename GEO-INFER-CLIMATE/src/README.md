@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-CLIMATE`.
 
 ## Contents
 
+- `geo_infer_climate.egg-info/`
 - `geo_infer_climate/`
 
 ## Public Interface
@@ -28,6 +29,7 @@ Src workspace within `GEO-INFER-CLIMATE`.
 - `netcdf4>=1.5.8`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+
 
 ## Validation
 

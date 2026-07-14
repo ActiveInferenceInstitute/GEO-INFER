@@ -5,6 +5,7 @@ Integration workspace within `GEO-INFER-AG`.
 ## Contents
 
 - `integration_agricultural_workflow.py`
+- `test_agricultural_workflow.py`
 
 ## Public Interface
 
@@ -26,6 +27,7 @@ Integration workspace within `GEO-INFER-AG`.
 - `shapely>=1.8.0`
 - `scikit-learn>=1.0.0`
 - `rasterio>=1.2.0`
+
 
 ## Validation
 

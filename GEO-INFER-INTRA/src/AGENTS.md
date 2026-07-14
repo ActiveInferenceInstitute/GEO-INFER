@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `geo_infer_intra.egg-info/`
 - `geo_infer_intra/`
 - `markdown_to_pdf.py`
 - `README_markdown_to_pdf.md`

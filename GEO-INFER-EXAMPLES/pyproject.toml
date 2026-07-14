@@ -128,6 +128,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 minversion = "6.0"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
@@ -162,4 +163,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-

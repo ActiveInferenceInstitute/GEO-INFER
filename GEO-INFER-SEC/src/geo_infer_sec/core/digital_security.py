@@ -22,7 +22,7 @@ import ssl
 import threading
 import time
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union, Set
@@ -617,8 +617,9 @@ class DigitalSecurityManager:
             payload = {
                 "user_id": user_id,
                 "permissions": permissions,
-                "iat": datetime.utcnow(),
-                "exp": datetime.utcnow() + timedelta(hours=expires_in_hours)
+                "iat": datetime.now(timezone.utc).replace(tzinfo=None),
+                "exp": datetime.now(timezone.utc).replace(tzinfo=None)
+                + timedelta(hours=expires_in_hours)
             }
             
             secret = self.encryption_keys.get("jwt_secret", self.encryption_keys["master_key"])

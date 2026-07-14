@@ -33,6 +33,7 @@ Models workspace within `GEO-INFER-ART`.
 - `opencv-python>=4.5.0`
 - `pillow>=8.3.0`
 
+
 ## Validation
 
 ```bash

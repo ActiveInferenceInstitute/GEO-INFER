@@ -801,12 +801,16 @@ class EnvironmentalMonitoringSwarm:
 
         summary['sensor_statistics'] = {}
         for sensor_type, values in sensor_stats.items():
+            finite_values = np.asarray(values, dtype=float)
+            finite_values = finite_values[np.isfinite(finite_values)]
+            if finite_values.size == 0:
+                finite_values = np.array([0.0])
             summary['sensor_statistics'][sensor_type] = {
                 'count': len(values),
-                'mean': np.mean(values),
-                'std': np.std(values),
-                'min': np.min(values),
-                'max': np.max(values)
+                'mean': float(np.mean(finite_values)),
+                'std': float(np.std(finite_values)),
+                'min': float(np.min(finite_values)),
+                'max': float(np.max(finite_values))
             }
 
         return summary

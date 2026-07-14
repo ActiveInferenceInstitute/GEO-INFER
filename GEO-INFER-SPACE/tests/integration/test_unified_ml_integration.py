@@ -82,7 +82,6 @@ class TestUnifiedMLIntegration:
         # This confirms we can perform the spatial lookups needed for ML
         assert isinstance(k2_neighbors, (list, set))
         
-    @pytest.mark.skipif(sys.platform == 'win32', reason="Skipping specific platform checks if needed")
     def test_backend_switch_consistency(self):
         """Verify features can be generated consistently across backends (where available)."""
         # This test mainly ensures the interface holds up

@@ -44,6 +44,7 @@ Intelligent autonomous agents for geospatial decision-making, perception, and ac
 - `isort>=5.12.0`
 - `matplotlib>=3.7.1`
 
+
 ## Validation
 
 ```bash

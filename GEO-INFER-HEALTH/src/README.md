@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-HEALTH`.
 
 ## Contents
 
+- `geo_infer_health.egg-info/`
 - `geo_infer_health/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-HEALTH`.
 - `numpy>=1.24.0`
 - `scipy>=1.11.0`
 - `pandas>=2.1.0`
+
 
 ## Validation
 

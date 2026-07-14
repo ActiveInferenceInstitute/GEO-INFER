@@ -5,36 +5,17 @@ Tests real integration between Active Inference, Agent framework,
 and Swarm Intelligence modules.
 """
 
-import pytest
+import asyncio
 import numpy as np
-from typing import Dict, Any, List
+import pytest
 
-# Try to import actual modules
-try:
-    from geo_infer_act.core.active_inference import ActiveInferenceModel
-    from geo_infer_act.core.free_energy import FreeEnergyCalculator
-    ACT_AVAILABLE = True
-except ImportError:
-    ACT_AVAILABLE = False
-    pytest.skip("GEO-INFER-ACT not available", allow_module_level=True)
-
-try:
-    from geo_infer_agent.core.agent_base import BaseAgent, AgentState
-    from geo_infer_agent.core.agent_registry import AgentRegistry
-    from geo_infer_agent.api.messaging import MessagingService
-    AGENT_AVAILABLE = True
-except ImportError:
-    AGENT_AVAILABLE = False
-    pytest.skip("GEO-INFER-AGENT not available", allow_module_level=True)
-
-try:
-    from geo_infer_ant.core.population import AgentPopulation
-    from geo_infer_ant.core.swarm_agent import SwarmAgent
-    from geo_infer_ant.algorithms.aco import AntColonyOptimization
-    ANT_AVAILABLE = True
-except ImportError:
-    ANT_AVAILABLE = False
-    pytest.skip("GEO-INFER-ANT not available", allow_module_level=True)
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_agent.api.messaging import MessagingService
+from geo_infer_agent.core.agent_base import ExampleAgent
+from geo_infer_agent.core.agent_registry import AgentRegistry
+from geo_infer_ant.algorithms.aco import AntColonyOptimization
+from geo_infer_ant.core.agent_base import SwarmAgent
+from geo_infer_ant.core.population import AgentPopulation
 
 
 @pytest.fixture
@@ -58,9 +39,6 @@ class TestActAgentAntCoordination:
     
     def test_active_inference_agent_creation(self, sample_agent_config):
         """Test creating agents with Active Inference models."""
-        if not (ACT_AVAILABLE and AGENT_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create Active Inference model
         act_model = ActiveInferenceModel(
             model_type='categorical',
@@ -69,20 +47,18 @@ class TestActAgentAntCoordination:
         )
         
         # Create agent with Active Inference
-        agent = BaseAgent(
+        agent = ExampleAgent(
             agent_id="test_agent_001",
             config=sample_agent_config
         )
         
         # Verify agent creation
         assert agent.agent_id == "test_agent_001"
-        assert agent.get_state() is not None
+        assert agent.state is not None
+        assert act_model is not None
     
     def test_swarm_agent_with_active_inference(self, sample_agent_config):
         """Test swarm agents using Active Inference for decision-making."""
-        if not (ACT_AVAILABLE and ANT_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create Active Inference model for swarm agent
         act_model = ActiveInferenceModel(
             model_type='categorical',
@@ -92,34 +68,38 @@ class TestActAgentAntCoordination:
         
         # Create swarm agent population
         population = AgentPopulation(
-            num_agents=sample_agent_config['num_agents'],
+            population_size=sample_agent_config['num_agents'],
             spatial_bounds=sample_agent_config['spatial_bounds']
         )
         
         # Verify population creation
         assert len(population.agents) == sample_agent_config['num_agents']
-        assert population.spatial_bounds == sample_agent_config['spatial_bounds']
+        assert population.config.spatial_bounds == sample_agent_config['spatial_bounds']
+        assert act_model is not None
+        assert isinstance(population.agents[0], SwarmAgent)
     
     def test_multi_agent_coordination(self, sample_agent_config):
         """Test multi-agent coordination with messaging."""
-        if not (AGENT_AVAILABLE and ACT_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create agent registry
         registry = AgentRegistry()
+        registry.agents.clear()
         
         # Create multiple agents
         agents = []
         for i in range(3):
-            agent = BaseAgent(
-                agent_id=f"coord_agent_{i:03d}",
-                config=sample_agent_config
+            agent_id = asyncio.run(
+                registry.create_agent(
+                    "default",
+                    sample_agent_config,
+                    agent_id=f"coord_agent_{i:03d}",
+                )
             )
-            agents.append(agent)
-            registry.register(agent)
+            agents.append(registry.agents[agent_id])
         
         # Create messaging service
         messaging = MessagingService()
+        for agent in agents:
+            messaging.register_agent(agent.agent_id)
         
         # Send message between agents
         if len(agents) >= 2:
@@ -136,16 +116,13 @@ class TestActAgentAntCoordination:
     
     def test_swarm_optimization_with_agent_framework(self, sample_agent_config):
         """Test swarm optimization algorithms with agent framework."""
-        if not (ANT_AVAILABLE and AGENT_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create ant colony optimization
         aco = AntColonyOptimization(
-            num_ants=10,
-            num_iterations=5,
+            number_of_ants=10,
+            max_iterations=5,
             alpha=1.0,
             beta=2.0,
-            evaporation_rate=0.5
+            pheromone_evaporation_rate=0.5,
         )
         
         # Create simple problem (distance matrix)
@@ -155,17 +132,16 @@ class TestActAgentAntCoordination:
         np.fill_diagonal(distance_matrix, 0)
         
         # Run optimization
-        result = aco.optimize(distance_matrix)
+        aco.initialize_problem(list(range(n_nodes)), distance_matrix=distance_matrix)
+        result = aco.solve()
         
         # Verify optimization result
         assert result is not None
-        assert 'best_path' in result or 'solution' in result or isinstance(result, (list, np.ndarray))
+        assert result.best_solution
+        assert np.isfinite(result.best_fitness)
     
     def test_agent_population_with_active_inference(self, sample_agent_config):
         """Test agent population using Active Inference for collective behavior."""
-        if not (ACT_AVAILABLE and ANT_AVAILABLE):
-            pytest.skip("Required modules not available")
-        
         # Create Active Inference model
         act_model = ActiveInferenceModel(
             model_type='categorical',
@@ -175,19 +151,19 @@ class TestActAgentAntCoordination:
         
         # Create agent population
         population = AgentPopulation(
-            num_agents=sample_agent_config['num_agents'],
+            population_size=sample_agent_config['num_agents'],
             spatial_bounds=sample_agent_config['spatial_bounds']
         )
         
         # Simulate collective behavior
         for agent in population.agents[:3]:  # Test first 3 agents
             # Get agent state
-            state = agent.get_state() if hasattr(agent, 'get_state') else {}
+            state = agent.state if hasattr(agent, 'state') else {}
             
             # Verify agent has state
             assert state is not None or isinstance(state, dict)
         
         # Verify population structure
         assert len(population.agents) == sample_agent_config['num_agents']
-
+        assert act_model is not None
 

@@ -4,6 +4,7 @@ Transportation planning and traffic analysis for geospatial systems.
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -26,6 +27,7 @@ Transportation planning and traffic analysis for geospatial systems.
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

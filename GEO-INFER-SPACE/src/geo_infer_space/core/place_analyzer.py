@@ -28,7 +28,7 @@ class PlaceAnalyzer:
                  processor: Optional[SpatialProcessor] = None):
         """
         Initialize the PlaceAnalyzer.
-        
+
         Args:
             place_name: Name of the place/region being analyzed
             base_dir: Base directory for data and outputs
@@ -39,25 +39,25 @@ class PlaceAnalyzer:
         self.processor = processor or SpatialProcessor()
         self.analysis_results: Dict[str, Any] = {}
         self.integrated_data: gpd.GeoDataFrame = gpd.GeoDataFrame()
-        
+
         # Setup directories
         self.data_dir = self.base_dir / 'data'
         self.output_dir = self.base_dir / 'outputs'
         self.data_dir.mkdir(exist_ok=True)
         self.output_dir.mkdir(exist_ok=True)
-        
+
         logger.info(f"Initialized PlaceAnalyzer for {place_name}")
 
     def load_place_data(self, data_sources: List[Dict[str, str]]) -> None:
         """
         Load and integrate data from multiple sources.
-        
+
         Args:
             data_sources: List of dictionaries with 'name' and 'path'
         """
         dataframes = []
         target_crs = None
-        
+
         for source in data_sources:
             try:
                 if source['path'].endswith('.geojson'):
@@ -79,37 +79,42 @@ class PlaceAnalyzer:
                 else:
                     logger.warning(f"Unsupported file type for {source['name']}")
                     continue
-                
+
                 # Set target CRS from first valid source
                 if target_crs is None and df.crs is not None:
                     target_crs = df.crs
-                
+
+                if df.crs is None and target_crs is not None and "geometry" in df:
+                    df = df.set_crs(target_crs)
+
                 # Harmonize CRS if needed
                 if df.crs is not None and target_crs is not None and df.crs != target_crs:
                     df = df.to_crs(target_crs)
                     logger.info(f"Transformed {source['name']} from {df.crs} to {target_crs}")
-                
+
                 df['source'] = source['name']
                 dataframes.append(df)
                 logger.info(f"Loaded data from {source['name']} with {len(df)} features")
             except Exception as e:
                 logger.error(f"Failed to load {source['name']}: {e}")
-        
+
         if dataframes:
-            self.integrated_data = gpd.GeoDataFrame(pd.concat(dataframes, ignore_index=True))
+            self.integrated_data = gpd.GeoDataFrame(
+                pd.concat(dataframes, ignore_index=True), crs=target_crs
+            )
             logger.info(f"Integrated {len(self.integrated_data)} total features")
 
     def perform_spatial_analysis(self, analysis_types: List[str]) -> None:
         """
         Perform specified spatial analyses on integrated data.
-        
+
         Args:
             analysis_types: List of analysis types to perform
         """
         if self.integrated_data.empty:
             logger.warning("No integrated data available for analysis")
             return
-        
+
         for analysis in analysis_types:
             try:
                 if analysis == 'buffer':
@@ -135,10 +140,10 @@ class PlaceAnalyzer:
     def generate_report(self, output_format: str = 'json') -> str:
         """
         Generate analysis report in specified format.
-        
+
         Args:
             output_format: 'json' or 'html'
-        
+
         Returns:
             Path to generated report
         """
@@ -151,7 +156,7 @@ class PlaceAnalyzer:
             },
             'analysis_results': self.analysis_results
         }
-        
+
         output_path = self.output_dir / f'{self.place_name}_report.{output_format}'
         if output_format == 'json':
             with open(output_path, 'w') as f:
@@ -169,26 +174,26 @@ class PlaceAnalyzer:
                 html += f"<pre>{json.dumps(value, indent=2)}</pre>"
             with open(output_path, 'w') as f:
                 f.write(html)
-        
+
         logger.info(f"Generated report at {output_path}")
         return str(output_path)
 
     def run_full_analysis(self, data_sources: List[Dict[str, str]], analysis_types: List[str]) -> Dict[str, Any]:
         """
         Run the complete analysis pipeline.
-        
+
         Args:
             data_sources: List of data sources
             analysis_types: List of analyses to perform
-        
+
         Returns:
             Dictionary with analysis results and report path
         """
         self.load_place_data(data_sources)
         self.perform_spatial_analysis(analysis_types)
         report_path = self.generate_report()
-        
+
         return {
             'results': self.analysis_results,
             'report_path': report_path
-        } 
+        }

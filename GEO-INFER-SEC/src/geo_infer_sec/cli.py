@@ -598,7 +598,7 @@ def command_audit(args: argparse.Namespace) -> None:
     
     audit_results = {
         "file": args.input_file,
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat(),
         "record_count": len(df),
         "columns": list(df.columns),
         "issues": []

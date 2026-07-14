@@ -881,6 +881,9 @@ def _build_h3_lattice_animation_payload(
             {
                 "timestep": int(timestep),
                 "cells": raw_states,
+                # Mapping form is the stable validation/API contract; retain
+                # the list above for the existing browser visualization.
+                "cell_metrics": states_by_cell,
                 "edges": frame_edges,
                 "parent_child_links": parent_child_links,
                 "level_summaries": [

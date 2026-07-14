@@ -30,8 +30,13 @@ class SpatialProcessor:
             raise ValueError("Input GeoDataFrame is empty or missing geometry column")
         try:
             buffered = gdf.copy()
-
-            buffered['geometry'] = buffered.geometry.buffer(buffer_distance)
+            original_crs = buffered.crs
+            if original_crs is not None and original_crs.is_geographic:
+                buffered = buffered.to_crs("EPSG:3857")
+                buffered["geometry"] = buffered.geometry.buffer(buffer_distance)
+                buffered = buffered.to_crs(original_crs)
+            else:
+                buffered['geometry'] = buffered.geometry.buffer(buffer_distance)
             return buffered
         except Exception as e:
             logger.error(f"Buffer analysis failed: {e}")
@@ -55,6 +60,9 @@ class SpatialProcessor:
             gdf2 = gdf2.to_crs(gdf1.crs)
             
         try:
+            if gdf1.crs is not None and gdf1.crs.is_geographic:
+                gdf1 = gdf1.to_crs("EPSG:3857")
+                gdf2 = gdf2.to_crs("EPSG:3857")
             # Vectorized nearest distance calculation
             # Use sjoin_nearest to get distances natively (O(N log M))
             # Requires geopandas >= 0.10.0

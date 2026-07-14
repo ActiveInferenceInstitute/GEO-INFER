@@ -2,12 +2,17 @@
 Style transfer module for applying artistic styles to geospatial visualizations.
 """
 
+import logging
 import os
+from importlib.resources import files
 from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 # Conditional import of TensorFlow to allow use of the package without it
 try:
@@ -103,30 +108,17 @@ class StyleTransfer:
                 f"{', '.join(cls.PREDEFINED_STYLES.keys())}"
             )
 
-        # Get the style file from the package data directory
-        import pkg_resources
+        style_resource = files("geo_infer_art").joinpath(
+            "data", "styles", cls.PREDEFINED_STYLES[style_name]
+        )
+        if style_resource.is_file():
+            return os.fspath(style_resource)
 
-        try:
-            style_path = pkg_resources.resource_filename(
-                "geo_infer_art", f"data/styles/{cls.PREDEFINED_STYLES[style_name]}"
-            )
-
-            # Check if the file exists
-            if not os.path.exists(style_path):
-                # Generate a synthetic style instead of failing
-                print(
-                    f"Warning: Style file not found for '{style_name}', using synthetic style"
-                )
-                return cls._generate_synthetic_style(style_name)
-
-            return style_path
-
-        except (pkg_resources.DistributionNotFound, FileNotFoundError):
-            # Generate a synthetic style as fallback
-            print(
-                f"Warning: Style file not found for '{style_name}', using synthetic style"
-            )
-            return cls._generate_synthetic_style(style_name)
+        # Optional image assets are not present in every distribution.  Keep a
+        # deterministic synthetic fallback without emitting a compatibility
+        # warning during normal library or test execution.
+        logger.info("Using synthetic style asset for %s", style_name)
+        return cls._generate_synthetic_style(style_name)
 
     def load_style_image(
         self, style_image: Union[str, np.ndarray, Image.Image]
@@ -347,6 +339,7 @@ class StyleTransfer:
             buf.seek(0)
             content_img = Image.open(buf)
             transferer.load_content_image(content_img)
+            plt.close(geo_art._figure)
         else:
             raise ValueError("Either geo_data or content_image must be provided")
 

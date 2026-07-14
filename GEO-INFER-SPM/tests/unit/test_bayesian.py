@@ -77,7 +77,7 @@ class TestBayesianSPM:
             assert result is not None
         except ImportError:
             # Should fallback to empirical Bayes
-            pytest.skip("PyMC3 not available, testing fallback")
+            pytest.fail("PyMC3 not available, testing fallback")
 
     def test_posterior_probability_map(self):
         """Test posterior probability map computation."""

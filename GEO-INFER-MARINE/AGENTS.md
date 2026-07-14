@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `.pytest_cache/`
 - `.test-results/`
 - `docs/`
 - `examples/`

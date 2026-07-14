@@ -33,6 +33,19 @@ from .core.validators import (
 # Import test runner
 from .core.test_runner import GeoInferTestRunner as TestRunner
 
+from .testing import (
+    LocalService,
+    as_finite_array,
+    assert_finite,
+    assert_model_contract,
+    assert_no_nan_statistics,
+    assert_probability,
+    assert_same_finite_values,
+    assert_seed_replay,
+    assert_stochastic_matrix,
+    assert_visualization_manifest,
+)
+
 __version__ = "1.0.0"
 
 __all__ = [
@@ -45,6 +58,31 @@ __all__ = [
     "SpatialValidator",
     "IoTValidator",
     "BayesianValidator",
-    "QualityController", 
-    "run_full_system_test"
+    "QualityController",
+    "run_full_system_test",
+    "LocalService",
+    "as_finite_array",
+    "assert_finite",
+    "assert_model_contract",
+    "assert_no_nan_statistics",
+    "assert_probability",
+    "assert_same_finite_values",
+    "assert_seed_replay",
+    "assert_stochastic_matrix",
+    "assert_visualization_manifest",
+]
+from geo_infer_test.testing import (
+    assert_finite,
+    assert_no_nan_statistics,
+    assert_probability,
+    assert_same_finite_values,
+    assert_stochastic_matrix,
+)
+
+__all__ = [
+    "assert_finite",
+    "assert_no_nan_statistics",
+    "assert_probability",
+    "assert_same_finite_values",
+    "assert_stochastic_matrix",
 ]

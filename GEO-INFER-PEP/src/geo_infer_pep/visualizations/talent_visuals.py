@@ -27,7 +27,11 @@ def plot_candidate_pipeline_by_status(candidates: List[Candidate], output_dir: P
     plt.figure(figsize=(12, 7))
     # Ensure the order of CandidateStatus enum is used for a logical flow if desired
     status_order = [status.value for status in CandidateStatus]
-    sns.countplot(data=df, y='status', order=df['status'].value_counts().reindex(status_order, fill_value=0).index, palette="magma")
+    sns.countplot(
+        data=df, y='status',
+        order=df['status'].value_counts().reindex(status_order, fill_value=0).index,
+        hue='status', palette="magma", legend=False,
+    )
     plt.title('Candidate Pipeline by Status')
     plt.xlabel('Number of Candidates')
     plt.ylabel('Status')
@@ -74,4 +78,4 @@ def plot_time_to_hire_distribution(hired_candidates_with_tth_days: List[int], ou
 # Add more Talent visualization functions here, e.g.:
 # - Offer acceptance rate over time (line chart)
 # - Candidate source effectiveness (bar chart)
-# - Pipeline conversion rates (funnel chart) 
+# - Pipeline conversion rates (funnel chart)

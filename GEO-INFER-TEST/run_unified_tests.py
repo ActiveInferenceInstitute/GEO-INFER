@@ -19,6 +19,7 @@ import os
 import subprocess
 import sys
 import time
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -110,13 +111,28 @@ def build_subprocess_env() -> dict[str, str]:
     return env
 
 
-def is_pytest_no_tests_success(command: list[str], returncode: int) -> bool:
-    """Treat pytest's no-tests exit code as a skipped-success outcome."""
-    return (
-        returncode == PYTEST_NO_TESTS_EXIT_CODE
-        and len(command) >= 3
-        and command[1:3] == ["-m", "pytest"]
-    )
+def junit_path(command: list[str]) -> Path | None:
+    """Return the JUnit path embedded in a pytest command, if present."""
+    prefix = "--junitxml="
+    for argument in command:
+        if argument.startswith(prefix):
+            return Path(argument.removeprefix(prefix))
+    return None
+
+
+def junit_contract_errors(path: Path | None) -> list[str]:
+    """Reject skipped, xfailed, and xpassed entries in a JUnit report."""
+    if path is None or not path.exists():
+        return []
+    root = ET.parse(path).getroot()
+    errors: list[str] = []
+    for testcase in root.iter("testcase"):
+        skipped = testcase.find("skipped")
+        if skipped is not None:
+            name = testcase.attrib.get("classname", "") + "::" + testcase.attrib.get("name", "")
+            reason = skipped.attrib.get("message", "") or (skipped.text or "")
+            errors.append(f"forbidden skipped/xfail testcase {name}: {reason}")
+    return errors
 
 
 def run_command(
@@ -152,9 +168,13 @@ def run_command(
         )
 
     duration = time.time() - started
-    skipped_success = is_pytest_no_tests_success(command, completed.returncode)
-    success = completed.returncode == 0 or skipped_success
-    outcome = "SKIP" if skipped_success else "PASS" if success else "FAIL"
+    junit_errors = junit_contract_errors(junit_path(command))
+    if completed.returncode == PYTEST_NO_TESTS_EXIT_CODE:
+        junit_errors.append("pytest collected no tests (exit code 5)")
+    if junit_errors:
+        completed.stderr = "\n".join((*filter(None, [completed.stderr]), *junit_errors))
+    success = completed.returncode == 0 and not junit_errors
+    outcome = "PASS" if success else "FAIL"
     print(f"{outcome} in {duration:.2f}s")
     if not success:
         failure_output = "\n".join(
@@ -163,16 +183,12 @@ def run_command(
         if failure_output:
             print(failure_output)
 
-    stdout = completed.stdout
-    if skipped_success:
-        stdout = f"{stdout}\nNo tests collected; recorded as skipped-success."
-
     return CommandResult(
         name=name,
         success=success,
         duration=duration,
         command=command,
-        stdout=stdout,
+        stdout=completed.stdout,
         stderr=completed.stderr,
     )
 
@@ -187,7 +203,18 @@ def module_by_name(name: str) -> Module:
 
 
 def pytest_base_args() -> list[str]:
-    return [sys.executable, "-m", "pytest", "-v", "--tb=short", "--durations=10"]
+    return [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-c",
+        str(PROJECT_ROOT / "pyproject.toml"),
+        "-v",
+        "--tb=short",
+        "--durations=10",
+        "-W",
+        "error",
+    ]
 
 
 def has_test_files(path: Path) -> bool:
@@ -220,23 +247,42 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
     discovered = False
     for module in discover_geo_infer_modules():
         category_path = module.test_path / category
-        if not category_path.exists():
+        if category_path.exists():
+            paths: list[Path] = [category_path]
+            if category == "unit" and not has_test_files(category_path):
+                # Several legacy modules keep unit tests directly under
+                # tests/ while retaining an empty tests/unit directory.
+                root_files = sorted(module.test_path.glob("test_*.py"))
+                root_files.extend(sorted(module.test_path.glob("*_test.py")))
+                paths = sorted(set(root_files))
+                if not paths:
+                    continue
+        elif category == "unit" and module.test_path.exists():
+            # Several legacy modules keep unit tests directly under tests/.
+            # Treat those files as unit tests instead of silently omitting them.
+            root_files = sorted(module.test_path.glob("test_*.py"))
+            root_files.extend(sorted(module.test_path.glob("*_test.py")))
+            paths = sorted(set(root_files))
+            if not paths:
+                continue
+        else:
             continue
         discovered = True
-        if not has_test_files(category_path):
-            report.add(
-                CommandResult(
-                    name=f"{module.name} {category} tests",
-                    success=True,
-                    duration=0.0,
-                    command=[],
-                    stdout=f"No pytest files discovered in {category_path}.",
-                )
-            )
+        if not any(
+            has_test_files(path) if path.is_dir() else path.is_file()
+            for path in paths
+        ):
+            report.add(CommandResult(
+                name=f"{module.name} {category} tests",
+                success=False,
+                duration=0.0,
+                command=[],
+                stderr=f"No pytest files discovered in {category_path}.",
+            ))
             continue
         command = [
             *pytest_base_args(),
-            str(category_path),
+            *map(str, paths),
             f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
         ]
         report.add(
@@ -247,10 +293,10 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
         report.add(
             CommandResult(
                 name=f"{category} tests",
-                success=True,
+                success=False,
                 duration=0.0,
                 command=[],
-                stdout=f"No {category} tests discovered.",
+                stderr=f"No {category} tests discovered.",
             )
         )
     return report
@@ -269,7 +315,10 @@ def run_performance_tests(timeout: int) -> SuiteReport:
     ensure_results_dir(clean=True)
     discovered = False
     for module in discover_geo_infer_modules():
-        performance_files = sorted(module.test_path.glob("**/*performance*.py"))
+        performance_dir = module.test_path / "performance"
+        performance_files = sorted(performance_dir.rglob("test_*.py")) if performance_dir.exists() else []
+        performance_files.extend(sorted(module.test_path.glob("**/*performance*.py")))
+        performance_files = sorted(set(performance_files))
         if not performance_files:
             continue
         discovered = True
@@ -286,10 +335,10 @@ def run_performance_tests(timeout: int) -> SuiteReport:
         report.add(
             CommandResult(
                 name="performance tests",
-                success=True,
+                success=False,
                 duration=0.0,
                 command=[],
-                stdout="No performance tests discovered.",
+                stderr="No performance tests discovered.",
             )
         )
         return report

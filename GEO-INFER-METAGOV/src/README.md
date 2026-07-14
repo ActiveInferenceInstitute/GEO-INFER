@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-METAGOV`.
 
 ## Contents
 
+- `geo_infer_metagov.egg-info/`
 - `geo_infer_metagov/`
 
 ## Public Interface
@@ -23,6 +24,7 @@ Src workspace within `GEO-INFER-METAGOV`.
 - `numpy>=1.20`
 - `pyyaml>=6.0`
 - `typing_extensions>=4.0`
+
 
 ## Validation
 

@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-EMERGENCY`.
 
 ## Contents
 
+- `geo_infer_emergency.egg-info/`
 - `geo_infer_emergency/`
 
 ## Public Interface
@@ -21,6 +22,7 @@ Src workspace within `GEO-INFER-EMERGENCY`.
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

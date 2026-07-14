@@ -10,7 +10,7 @@ import hashlib
 import secrets
 import time
 from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 
 import jwt
@@ -76,6 +76,10 @@ class AuthenticationManager:
             password_min_length: Minimum password length requirement
         """
         self.secret_key = secret_key
+        # PyJWT warns for HMAC keys below the RFC 7518 recommendation. Hash
+        # caller-provided material into a stable 32-byte signing key while
+        # retaining the original value for configuration introspection.
+        self._jwt_secret = hashlib.sha256(secret_key.encode("utf-8")).digest()
         self.algorithm = algorithm
         self.token_expiration_hours = token_expiration_hours
         self.refresh_token_expiration_days = refresh_token_expiration_days
@@ -234,7 +238,8 @@ class AuthenticationManager:
 
         # Reset failed attempts on successful authentication
         user.failed_attempts = 0
-        user.last_login = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        user.last_login = now
 
         # Generate tokens
         token_info = self.generate_tokens(user.user_id, username)
@@ -256,18 +261,19 @@ class AuthenticationManager:
         Returns:
             TokenInfo with access and refresh tokens
         """
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         # Generate access token
         access_token_payload = {
             "sub": user_id,
             "username": username,
-            "iat": datetime.utcnow(),
-            "exp": datetime.utcnow()
+            "iat": now,
+            "exp": now
             + timedelta(hours=self.token_expiration_hours),
             "scope": scope or ["read", "write"],
         }
 
         access_token = jwt.encode(
-            access_token_payload, self.secret_key, algorithm=self.algorithm
+            access_token_payload, self._jwt_secret, algorithm=self.algorithm
         )
 
         # Generate refresh token
@@ -276,7 +282,7 @@ class AuthenticationManager:
             "sub": user_id,
             "username": username,
             "token_type": "refresh",
-            "exp": datetime.utcnow()
+            "exp": now
             + timedelta(days=self.refresh_token_expiration_days),
         }
 
@@ -301,7 +307,7 @@ class AuthenticationManager:
         """
         try:
             payload = jwt.decode(
-                token, self.secret_key, algorithms=[self.algorithm]
+                token, self._jwt_secret, algorithms=[self.algorithm]
             )
             return payload
         except jwt.ExpiredSignatureError:
@@ -329,7 +335,8 @@ class AuthenticationManager:
 
         # Check expiration
         exp = refresh_payload.get("exp")
-        if exp and datetime.utcnow() > (exp if isinstance(exp, datetime) else datetime.fromtimestamp(exp)):
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        if exp and now > (exp if isinstance(exp, datetime) else datetime.fromtimestamp(exp)):
             del self.refresh_tokens[refresh_token]
             logger.warning("Refresh token validation failed: token expired")
             return None
@@ -412,6 +419,3 @@ class AuthenticationManager:
 
         logger.info(f"MFA disabled for user {username}")
         return True
-
-
-

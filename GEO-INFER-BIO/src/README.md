@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-BIO`.
 
 ## Contents
 
+- `geo_infer_bio.egg-info/`
 - `geo_infer_bio/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-BIO`.
 - `shapely>=1.8.0`
 - `fastapi>=0.68.0`
 - `uvicorn>=0.15.0`
+
 
 ## Validation
 

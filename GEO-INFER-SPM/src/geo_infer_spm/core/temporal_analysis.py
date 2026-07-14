@@ -118,6 +118,17 @@ class TemporalAnalyzer:
         self, x: np.ndarray, y: np.ndarray, alpha: float
     ) -> Dict[str, Any]:
         """Test for linear trend using ordinary least squares."""
+        if len(x) < 2 or np.unique(x).size < 2:
+            return {
+                "slope": 0.0,
+                "intercept": float(np.mean(y)) if len(y) else 0.0,
+                "r_squared": 0.0,
+                "p_value": 1.0,
+                "std_err": 0.0,
+                "trend_magnitude": 0.0,
+                "significant": False,
+                "direction": "stable",
+            }
         slope, intercept, r_value, p_value, std_err = linregress(x, y)
 
         # Compute trend magnitude over time period

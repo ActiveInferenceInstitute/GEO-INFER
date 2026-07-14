@@ -3,7 +3,7 @@
 import os
 from typing import Optional, Dict, Any
 
-from pydantic import BaseModel, Field, field_validator, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class LoggingConfig(BaseModel):
@@ -133,14 +133,16 @@ class DeploymentConfig(BaseModel):
         default_factory=KubernetesConfig, description="Kubernetes configuration"
     )
 
-    @validator("replicas")
+    @field_validator("replicas")
+    @classmethod
     def validate_replicas(cls, v: int) -> int:
         """Validate replicas count."""
         if v < 1:
             raise ValueError("Replicas must be at least 1")
         return v
 
-    @validator("timeout")
+    @field_validator("timeout")
+    @classmethod
     def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""
         if v < 1:

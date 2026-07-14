@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-EDU`.
 
 ## Contents
 
+- `geo_infer_edu.egg-info/`
 - `geo_infer_edu/`
 
 ## Public Interface
@@ -21,6 +22,7 @@ Src workspace within `GEO-INFER-EDU`.
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

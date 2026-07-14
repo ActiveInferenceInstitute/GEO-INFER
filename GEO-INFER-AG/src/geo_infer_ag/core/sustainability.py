@@ -9,6 +9,7 @@ import geopandas as gpd
 from datetime import datetime
 import logging
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 logger = logging.getLogger(__name__)
 
@@ -506,10 +507,15 @@ class SustainabilityAssessment:
         
         # Calculate edge habitat length and area
         # Edge habitats often support higher biodiversity
-        result_data["perimeter_m"] = result_data.geometry.length
+        metric_data = (
+            result_data.to_crs("EPSG:3857")
+            if result_data.crs and result_data.crs.is_geographic
+            else result_data
+        )
+        result_data["perimeter_m"] = metric_data.geometry.length
         result_data["edge_habitat_area_ha"] = (
-            result_data.geometry.buffer(edge_habitat_buffer).area - 
-            result_data.geometry.area
+            metric_data.geometry.buffer(edge_habitat_buffer).area
+            - metric_data.geometry.area
         ) / 10000  # Convert m² to ha
         
         # Calculate edge density (m/ha) - higher values generally better for biodiversity
@@ -857,10 +863,13 @@ class SustainabilityAssessment:
         ax.set_title(title)
         ax.set_axis_off()
 
-        # Ensure a matplotlib Legend object is present.
-        # geopandas plot(legend=True) with continuous data creates a colorbar
-        # (ScalarMappable), not a Legend; explicitly call legend() if needed.
+        # Continuous GeoPandas plots expose a colorbar rather than a legend.
+        # Add one explicit, labeled handle so exported figures retain a
+        # discoverable metric key without invoking an empty legend warning.
         if ax.get_legend() is None:
-            ax.legend()
+            ax.legend(
+                handles=[Line2D([], [], color="none", label=f"{title} (0-10 scale)")],
+                loc="upper right",
+            )
 
         return ax

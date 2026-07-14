@@ -21,6 +21,9 @@
 
 ## Local Contents
 
+- `.mypy_cache/`
+- `.pytest_cache/`
+- `.ruff_cache/`
 - `config/`
 - `docs/`
 - `examples/`

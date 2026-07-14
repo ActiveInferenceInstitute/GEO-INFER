@@ -50,28 +50,19 @@ class TestCascadianBackendInit:
 
 class TestCascadianBackendH3Operations:
     def test_get_h3_cell_returns_string(self, backend):
-        try:
-            cell = backend.get_h3_cell(lat=41.75, lon=-124.2)
-            assert isinstance(cell, str)
-            assert len(cell) > 0
-        except AttributeError:
-            pytest.skip("get_h3_cell not available on this backend version")
+        cell = backend.get_h3_cell(lat=41.75, lon=-124.2)
+        assert isinstance(cell, str)
+        assert len(cell) > 0
 
     def test_cache_key_deterministic(self, backend):
         """Same lat/lon/resolution produces the same cache key."""
-        try:
-            cell1 = backend.get_h3_cell(lat=41.75, lon=-124.2)
-            cell2 = backend.get_h3_cell(lat=41.75, lon=-124.2)
-            assert cell1 == cell2
-        except AttributeError:
-            pytest.skip("get_h3_cell not available on this backend version")
+        cell1 = backend.get_h3_cell(lat=41.75, lon=-124.2)
+        cell2 = backend.get_h3_cell(lat=41.75, lon=-124.2)
+        assert cell1 == cell2
 
     def test_export_to_geojson(self, backend, temp_output_dir):
-        try:
-            result = backend.export_to_geojson(output_dir=str(temp_output_dir))
-            assert result is not None
-        except (AttributeError, TypeError, NotImplementedError):
-            pytest.skip("export_to_geojson not available on this backend version")
+        result = backend.export_to_geojson(output_dir=str(temp_output_dir))
+        assert result is not None
 
 
 class TestCascadianBackendSPACEIntegration:

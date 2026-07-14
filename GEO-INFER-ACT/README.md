@@ -4,6 +4,9 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 
 ## Contents
 
+- `.mypy_cache/`
+- `.pytest_cache/`
+- `.ruff_cache/`
 - `config/`
 - `docs/`
 - `examples/`
@@ -58,6 +61,7 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 - `bayeux-ml>=0.0.1`
 - `h3>=4.5.0,<5`
 - `imageio>=2.9.0`
+
 
 ## Validation
 

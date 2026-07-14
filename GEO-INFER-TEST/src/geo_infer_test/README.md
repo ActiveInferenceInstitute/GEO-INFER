@@ -9,10 +9,25 @@ Geo Infer Test workspace within `GEO-INFER-TEST`.
 - `models/`
 - `utils/`
 - `__init__.py`
+- `testing.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `testing.py:as_finite_array` (function)
+- `testing.py:assert_finite` (function)
+- `testing.py:assert_probability` (function)
+- `testing.py:assert_stochastic_matrix` (function)
+- `testing.py:assert_same_finite_values` (function)
+- `testing.py:assert_no_nan_statistics` (function)
+- `testing.py:assert_model_contract` (function)
+- `testing.py:assert_seed_replay` (function)
+- `testing.py:assert_visualization_manifest` (function)
+- `testing.py:LocalService` (class)
+- `testing.py:deterministic_rng` (function)
+- `testing.py:local_filesystem` (function)
+- `testing.py:sqlite_database` (function)
+- `testing.py:local_http_server` (function)
+- `testing.py:local_service` (function)
 
 ## Module Metadata
 
@@ -36,6 +51,7 @@ Geo Infer Test workspace within `GEO-INFER-TEST`.
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
+
 
 ## Validation
 

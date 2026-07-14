@@ -14,13 +14,6 @@ import tempfile
 from geo_infer_time.core.visualization import TemporalVisualization, HAS_MATPLOTLIB
 
 
-# Skip all tests if matplotlib is not available
-pytestmark = pytest.mark.skipif(
-    not HAS_MATPLOTLIB, 
-    reason="matplotlib not available"
-)
-
-
 @pytest.fixture
 def viz():
     """Create a TemporalVisualization instance."""

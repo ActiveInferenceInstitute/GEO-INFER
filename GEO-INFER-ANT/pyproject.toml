@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "asyncio-mqtt>=0.11.0",
+    "aiomqtt>=2.4.0",
     "geopandas>=0.10.0",
     "h3>=4.5.0,<5",
     "jsonschema>=4.0.0",
@@ -131,6 +131,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 minversion = "6.0"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
@@ -165,4 +166,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-

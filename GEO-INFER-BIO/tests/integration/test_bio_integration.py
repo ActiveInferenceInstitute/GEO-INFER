@@ -33,7 +33,6 @@ except ImportError:
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not HAS_BIOPYTHON, reason="Biopython not installed"),
 ]
 
 
@@ -153,7 +152,6 @@ class TestSpatialAnalysisPipeline:
         # Sequences have different GC compositions, so values should differ
         assert max(gc_values) - min(gc_values) > 1.0, "GC content should vary across diverse sequences"
 
-    @pytest.mark.skipif(not HAS_MATPLOTLIB or not HAS_GEOPANDAS, reason="matplotlib/geopandas required")
     def test_visualization_from_analysis_output(self, sample_sequences, spatial_data, tmp_path):
         """Test that visualization consumes analysis output without error."""
         from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer
@@ -171,7 +169,6 @@ class TestSpatialAnalysisPipeline:
         import os
         assert os.path.exists(output_file), "Visualization file should be created"
 
-    @pytest.mark.skipif(not HAS_MATPLOTLIB or not HAS_GEOPANDAS, reason="matplotlib/geopandas required")
     def test_gc_distribution_plot(self, sample_sequences, spatial_data, tmp_path):
         """Test GC content distribution plot from analysis pipeline."""
         from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer

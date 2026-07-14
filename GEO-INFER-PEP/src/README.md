@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-PEP`.
 
 ## Contents
 
+- `geo_infer_pep.egg-info/`
 - `geo_infer_pep/`
 
 ## Public Interface
@@ -26,6 +27,7 @@ Src workspace within `GEO-INFER-PEP`.
 - `pandas>=2.0`
 - `matplotlib>=3.7.0`
 - `seaborn>=0.13.0`
+
 
 ## Validation
 

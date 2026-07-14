@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `base.py`
 - `schemas.py`
 
 ## Validation

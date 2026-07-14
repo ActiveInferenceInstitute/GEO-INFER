@@ -330,7 +330,7 @@ class TestValidateTimeseries:
             assert result["is_monotonic"] is False or result["is_monotonic"] == False
             assert any("monotonic" in w.lower() for w in result["warnings"])
         except IndexError:
-            pytest.skip("validate_timeseries crashes on non-monotonic index (known bug)")
+            pytest.fail("validate_timeseries crashes on non-monotonic index (known bug)")
 
     def test_duplicate_timestamps_warning(self):
         """Duplicate timestamps produce a warning.
@@ -345,7 +345,7 @@ class TestValidateTimeseries:
             result = validate_timeseries(ts)
             assert result["duplicate_timestamps"] > 0
         except IndexError:
-            pytest.skip("validate_timeseries crashes on duplicate timestamps (known bug)")
+            pytest.fail("validate_timeseries crashes on duplicate timestamps (known bug)")
 
     def test_gap_detection(self):
         """Large gaps in timestamps are detected.
@@ -362,7 +362,7 @@ class TestValidateTimeseries:
             result = validate_timeseries(ts)
             assert result["gap_count"] >= 1
         except IndexError:
-            pytest.skip("validate_timeseries crashes during gap detection (known bug)")
+            pytest.fail("validate_timeseries crashes during gap detection (known bug)")
 
     def test_single_point_valid(self):
         """A single-point TimeSeries is valid (no gaps possible)."""

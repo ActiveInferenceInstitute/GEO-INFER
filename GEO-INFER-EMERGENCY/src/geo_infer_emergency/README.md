@@ -23,6 +23,7 @@ Geo Infer Emergency workspace within `GEO-INFER-EMERGENCY`.
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
+
 ## Validation
 
 ```bash

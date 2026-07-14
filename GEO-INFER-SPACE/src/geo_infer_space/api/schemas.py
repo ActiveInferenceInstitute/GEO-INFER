@@ -6,7 +6,7 @@ using Pydantic for automatic validation and documentation generation.
 """
 
 from typing import List, Dict, Any, Optional, Union
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 from geojson_pydantic import Feature, FeatureCollection, Polygon, Point, LineString
 
 

@@ -8,7 +8,7 @@ capabilities for simulation experiments.
 import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import numpy as np
 
@@ -25,7 +25,9 @@ class Scenario:
     parameters: Dict[str, Any] = field(default_factory=dict)
     initial_conditions: Dict[str, Any] = field(default_factory=dict)
     interventions: List[Dict[str, Any]] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -378,5 +380,4 @@ class ScenarioManager:
                     }
 
         return analysis
-
 

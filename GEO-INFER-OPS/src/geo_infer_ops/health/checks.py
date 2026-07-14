@@ -9,7 +9,7 @@ import logging
 import asyncio
 import time
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -35,7 +35,9 @@ class HealthCheck:
     status: HealthStatus
     message: str = ""
     details: Dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
     duration_ms: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -307,7 +309,7 @@ class HealthChecker:
 
         results = {
             "status": overall_status.value,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             "checks": [check.to_dict() for check in checks],
             "summary": {
                 "total": len(checks),
@@ -357,6 +359,4 @@ class HealthChecker:
             ]
 
         return history[-limit:]
-
-
 

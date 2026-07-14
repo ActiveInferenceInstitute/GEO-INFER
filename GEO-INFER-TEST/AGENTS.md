@@ -28,14 +28,17 @@
 - `src/`
 - `tests/`
 - `rewrite_readme_agents.py`
+- `run_model_audit.py`
 - `run_unified_tests.py`
 - `setup.py`
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
 - `validate_h3_active_inference_contract.py`
+- `validate_model_contracts.py`
 - `validate_repo_contracts.py`
 - `validate_skills.py`
+- `validate_test_contracts.py`
 - `.cursorrules`
 - `SKILL.md`
 - `TESTING.md`
@@ -49,6 +52,17 @@ uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
+
+## Strict Testing Contracts
+
+- Reuse `geo_infer_test.testing` fixtures and assertions for local boundaries,
+  model contracts, and visualization artifacts.
+- Missing dependencies, unavailable backends, warnings, skips, xfails, and
+  empty selections are failures; do not hide them with warning filters or
+  conditional pytest controls.
+- Keep `validate_test_contracts.py`, `validate_model_contracts.py`, and
+  `run_model_audit.py` synchronized with the documented commands and output
+  schemas.
 
 ## Integration Notes
 

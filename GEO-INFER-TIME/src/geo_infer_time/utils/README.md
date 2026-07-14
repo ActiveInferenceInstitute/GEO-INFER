@@ -30,6 +30,7 @@ Utils workspace within `GEO-INFER-TIME`.
 - `scipy>=1.7.0`
 - `statsmodels>=0.13.0`
 
+
 ## Validation
 
 ```bash

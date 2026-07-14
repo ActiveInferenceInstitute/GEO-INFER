@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-PLACE`.
 
 ## Contents
 
+- `geo_infer_place.egg-info/`
 - `geo_infer_place/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-PLACE`.
 - `seaborn>=0.12.0`
 - `branca>=0.6.0`
 - `requests>=2.28.0`
+
 
 ## Validation
 

@@ -6,6 +6,8 @@ Utils workspace within `GEO-INFER-ANT`.
 
 - `__init__.py`
 - `config.py`
+- `integration.py`
+- `logging.py`
 
 ## Public Interface
 
@@ -21,6 +23,8 @@ Utils workspace within `GEO-INFER-ANT`.
 - `config.py:save_config` (function)
 - `config.py:get_default_config` (function)
 - `config.py:update_config` (function)
+- `integration.py:IntegrationManager` (class)
+- `logging.py:setup_logging` (function)
 
 ## Module Metadata
 
@@ -32,7 +36,7 @@ Utils workspace within `GEO-INFER-ANT`.
 
 ## Dependencies
 
-- `asyncio-mqtt>=0.11.0`
+- `aiomqtt>=2.4.0`
 - `geopandas>=0.10.0`
 - `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
@@ -42,6 +46,7 @@ Utils workspace within `GEO-INFER-ANT`.
 - `pyyaml>=6.0`
 - `scikit-learn>=1.1.0`
 - `scipy>=1.7.0`
+
 
 ## Validation
 

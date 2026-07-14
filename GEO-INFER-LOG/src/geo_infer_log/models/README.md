@@ -5,10 +5,12 @@ Models workspace within `GEO-INFER-LOG`.
 ## Contents
 
 - `__init__.py`
+- `base.py`
 - `schemas.py`
 
 ## Public Interface
 
+- `base.py:BaseModel` (class)
 - `schemas.py:VehicleType` (class)
 - `schemas.py:FuelType` (class)
 - `schemas.py:DeliveryStatus` (class)
@@ -32,6 +34,7 @@ Models workspace within `GEO-INFER-LOG`.
 
 - `pandas>=1.3.0`
 - `geopandas>=0.10.0`
+
 
 ## Validation
 

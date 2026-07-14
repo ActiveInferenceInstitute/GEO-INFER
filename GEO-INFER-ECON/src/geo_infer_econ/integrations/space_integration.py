@@ -81,7 +81,12 @@ class SpaceIntegration:
             return None
         
         try:
-            return self.indexer.latlng_to_cell(lat, lng, resolution)
+            cell = self.indexer.latlng_to_cell(lat, lng, resolution)
+            if isinstance(cell, int):
+                import h3
+
+                return h3.int_to_str(cell)
+            return str(cell)
         except Exception as e:
             logger.error(f"Failed to convert lat/lng to cell: {e}")
             return None
@@ -101,6 +106,10 @@ class SpaceIntegration:
             return None
         
         try:
+            if isinstance(cell, int):
+                import h3
+
+                cell = h3.int_to_str(cell)
             return self.indexer.cell_to_latlng(cell)
         except Exception as e:
             logger.error(f"Failed to convert cell to lat/lng: {e}")
@@ -237,4 +246,3 @@ class SpaceIntegration:
     def is_available(self) -> bool:
         """Check if GEO-INFER-SPACE is available."""
         return SPACE_AVAILABLE and self.indexer is not None
-

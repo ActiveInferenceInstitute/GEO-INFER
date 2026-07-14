@@ -230,7 +230,7 @@ class TestGeospatialIntegration:
     def test_bbox_coverage(self, sample_locations):
         """Test that bounding boxes properly cover point sets."""
         if len(sample_locations) < 2:
-            pytest.skip("Need at least 2 locations for this test")
+            pytest.fail("Need at least 2 locations for this test")
 
         # Create a bounding box that should contain all points
         center_lat = sum(loc.latitude for loc in sample_locations) / len(sample_locations)

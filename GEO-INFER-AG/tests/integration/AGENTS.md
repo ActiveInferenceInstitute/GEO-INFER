@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `integration_agricultural_workflow.py`
+- `test_agricultural_workflow.py`
 
 ## Validation
 

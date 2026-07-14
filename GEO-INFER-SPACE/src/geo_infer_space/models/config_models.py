@@ -8,7 +8,7 @@ and database connections.
 
 from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
-from pydantic import BaseModel, Field, validator, model_validator
+from pydantic.v1 import BaseModel, Field, root_validator, validator
 
 
 class DatabaseConfig(BaseModel):
@@ -278,10 +278,9 @@ class SpaceConfig(BaseModel):
             raise ValueError(f'Environment must be one of {valid_environments}')
         return v.lower()
     
-    @model_validator(mode='after')
-    def validate_directories(self):
+    @root_validator
+    def validate_directories(cls, values):
         """Ensure directories exist or can be created."""
-        values = self.model_dump()
         for dir_field in ['data_directory', 'temp_directory']:
             if dir_field in values and values[dir_field]:
                 directory = Path(values[dir_field])
@@ -289,7 +288,7 @@ class SpaceConfig(BaseModel):
                     directory.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
                     raise ValueError(f'Cannot create directory {directory}: {e}')
-        return self
+        return values
     
     @classmethod
     def from_file(cls, config_path: Union[str, Path]) -> 'SpaceConfig':

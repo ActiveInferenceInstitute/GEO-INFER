@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-INTRA`.
 
 ## Contents
 
+- `geo_infer_intra.egg-info/`
 - `geo_infer_intra/`
 - `markdown_to_pdf.py`
 - `README_markdown_to_pdf.md`
@@ -38,6 +39,7 @@ Src workspace within `GEO-INFER-INTRA`.
 - `typer>=0.7.0`
 - `rich>=12.0.0`
 - `uvicorn>=0.20.0`
+
 
 ## Validation
 

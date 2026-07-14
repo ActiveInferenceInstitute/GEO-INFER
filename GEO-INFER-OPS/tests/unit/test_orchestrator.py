@@ -44,8 +44,7 @@ class TestOrchestrator:
         assert task2_id in orchestrator.tasks
         assert orchestrator.tasks[task2_id].dependencies == [task1_id]
 
-    @pytest.mark.asyncio
-    async def test_execute_workflow(self, orchestrator: Orchestrator) -> None:
+    def test_execute_workflow(self, orchestrator: Orchestrator) -> None:
         """Test workflow execution."""
         results = []
 
@@ -60,14 +59,13 @@ class TestOrchestrator:
         orchestrator.add_task(name="task1", func=task1)
         orchestrator.add_task(name="task2", func=task2)
 
-        workflow_result = await orchestrator.execute_workflow()
+        workflow_result = asyncio.run(orchestrator.execute_workflow())
 
         assert workflow_result["completed_tasks"] == 2
         assert "task1" in results
         assert "task2" in results
 
-    @pytest.mark.asyncio
-    async def test_execute_workflow_with_dependencies(
+    def test_execute_workflow_with_dependencies(
         self, orchestrator: Orchestrator
     ) -> None:
         """Test workflow execution with dependencies."""
@@ -84,7 +82,7 @@ class TestOrchestrator:
         task1_id = orchestrator.add_task(name="task1", func=task1)
         orchestrator.add_task(name="task2", func=task2, dependencies=[task1_id])
 
-        await orchestrator.execute_workflow()
+        asyncio.run(orchestrator.execute_workflow())
 
         # Task1 should execute before task2
         assert execution_order == [1, 2]
@@ -118,6 +116,5 @@ class TestOrchestrator:
         assert status["total_tasks"] == 2
         assert "status_counts" in status
         assert "tasks" in status
-
 
 

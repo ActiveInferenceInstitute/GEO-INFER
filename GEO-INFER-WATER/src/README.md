@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-WATER`.
 
 ## Contents
 
+- `geo_infer_water.egg-info/`
 - `geo_infer_water/`
 
 ## Public Interface
@@ -26,6 +27,7 @@ Src workspace within `GEO-INFER-WATER`.
 - `matplotlib>=3.4.0`
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

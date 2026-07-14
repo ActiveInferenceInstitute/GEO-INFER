@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-TEST`.
 
 ## Contents
 
+- `geo_infer_test.egg-info/`
 - `geo_infer_test/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-TEST`.
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
+
 
 ## Validation
 

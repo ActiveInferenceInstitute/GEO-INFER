@@ -24,7 +24,7 @@ import json
 try:
     from geo_infer_ant.analysis.metrics import SwarmPerformanceMetrics, PerformanceConfiguration
 except ImportError:
-    pytest.skip("Metrics module not available", allow_module_level=True)
+    pytest.fail("Metrics module not available")
 
 
 class TestPerformanceMetrics:

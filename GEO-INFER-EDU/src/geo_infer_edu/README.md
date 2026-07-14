@@ -23,6 +23,7 @@ Geo Infer Edu workspace within `GEO-INFER-EDU`.
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
+
 ## Validation
 
 ```bash

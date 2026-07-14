@@ -52,7 +52,9 @@ class DataIntegration:
         else:
             try:
                 self.service = DataService()
-                self.ingestion = MultiSourceDataIngestion()
+                self.ingestion = MultiSourceDataIngestion(
+                    data_sources=["sensors"], validation_enabled=True
+                )
                 logger.info("DataIntegration initialized")
             except Exception as e:
                 logger.error(f"Failed to initialize DataIntegration: {e}")
@@ -147,15 +149,18 @@ class DataIntegration:
                 datasets = self.service.list_datasets()
             
             # Apply filters
+            normalized = [
+                d.model_dump() if hasattr(d, "model_dump") else d for d in datasets
+            ]
             if dataset_type:
-                datasets = [d for d in datasets if d.get('type') == dataset_type]
+                normalized = [d for d in normalized if d.get('type') == dataset_type]
             if tags:
-                datasets = [
-                    d for d in datasets 
+                normalized = [
+                    d for d in normalized
                     if any(tag in d.get('tags', []) for tag in tags)
                 ]
-            
-            return datasets
+
+            return normalized
         except Exception as e:
             logger.error(f"Failed to list datasets: {e}")
             return None
@@ -206,4 +211,3 @@ class DataIntegration:
     def is_available(self) -> bool:
         """Check if GEO-INFER-DATA is available."""
         return DATA_AVAILABLE and self.service is not None
-

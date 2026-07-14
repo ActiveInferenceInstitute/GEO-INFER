@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-BAYES`.
 
 ## Contents
 
+- `geo_infer_bayes.egg-info/`
 - `geo_infer_bayes/`
 
 ## Public Interface
@@ -31,6 +32,7 @@ Src workspace within `GEO-INFER-BAYES`.
 - `scipy`
 - `tensorflow-probability`
 - `xarray`
+
 
 ## Validation
 

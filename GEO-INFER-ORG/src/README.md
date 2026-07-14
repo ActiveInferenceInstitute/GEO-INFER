@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-ORG`.
 
 ## Contents
 
+- `geo_infer_org.egg-info/`
 - `geo_infer_org/`
 
 ## Public Interface
@@ -21,6 +22,7 @@ Src workspace within `GEO-INFER-ORG`.
 ## Dependencies
 
 - `pandas>=1.3.0`
+
 
 ## Validation
 

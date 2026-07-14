@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-MARINE`.
 
 ## Contents
 
+- `geo_infer_marine.egg-info/`
 - `geo_infer_marine/`
 
 ## Public Interface
@@ -27,6 +28,7 @@ Src workspace within `GEO-INFER-MARINE`.
 - `xarray>=0.19.0`
 - `netcdf4>=1.5.8`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

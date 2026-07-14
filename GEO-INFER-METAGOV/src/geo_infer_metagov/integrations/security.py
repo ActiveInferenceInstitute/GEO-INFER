@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional security integration
 try:
-    from geo_infer_sec.core.security import SecurityManager
+    from geo_infer_sec.core.digital_security import DigitalSecurityManager as SecurityManager
     SEC_AVAILABLE = True
 except ImportError:
     SEC_AVAILABLE = False
@@ -206,6 +206,4 @@ class SecurityGovernanceIntegration:
             }
         
         return access_config
-
-
 

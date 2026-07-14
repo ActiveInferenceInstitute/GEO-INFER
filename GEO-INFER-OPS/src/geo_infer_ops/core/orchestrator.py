@@ -8,7 +8,7 @@ dependency management for GEO-INFER module operations.
 import logging
 import asyncio
 from typing import Dict, List, Optional, Any, Callable, Set
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 import uuid
@@ -168,7 +168,7 @@ class Orchestrator:
             task: Task to execute
         """
         task.status = TaskStatus.RUNNING
-        task.start_time = datetime.utcnow()
+        task.start_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
         logger.info(f"Executing task: {task.name} (ID: {task.task_id})")
 
@@ -181,7 +181,7 @@ class Orchestrator:
 
             task.result = result
             task.status = TaskStatus.COMPLETED
-            task.end_time = datetime.utcnow()
+            task.end_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
             duration = (task.end_time - task.start_time).total_seconds()
             logger.info(
@@ -190,7 +190,7 @@ class Orchestrator:
 
         except Exception as e:
             task.error = str(e)
-            task.end_time = datetime.utcnow()
+            task.end_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
             if task.retry_count < task.max_retries:
                 task.retry_count += 1
@@ -219,7 +219,7 @@ class Orchestrator:
         if not self._validate_dependencies():
             raise ValueError("Invalid task dependencies detected")
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None)
         completed_tasks = 0
         failed_tasks = 0
 
@@ -269,7 +269,7 @@ class Orchestrator:
                 elif task.status == TaskStatus.FAILED:
                     failed_tasks += 1
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc).replace(tzinfo=None)
         duration = (end_time - start_time).total_seconds()
 
         # Generate execution summary
@@ -368,7 +368,7 @@ class Orchestrator:
         task = self.tasks[task_id]
         if task.status in [TaskStatus.PENDING, TaskStatus.RUNNING]:
             task.status = TaskStatus.CANCELLED
-            task.end_time = datetime.utcnow()
+            task.end_time = datetime.now(timezone.utc).replace(tzinfo=None)
             logger.info(f"Cancelled task: {task.name} (ID: {task_id})")
             return True
 
@@ -385,6 +385,5 @@ class Orchestrator:
             task.retry_count = 0
 
         logger.info("Workflow reset")
-
 
 

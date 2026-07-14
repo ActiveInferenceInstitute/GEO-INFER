@@ -29,17 +29,6 @@ from ..utils.caching import CacheManager
 logger = logging.getLogger(__name__)
 
 
-if not hasattr(asyncio, "coroutine"):
-
-    def _legacy_coroutine(func):
-        async def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        return _wrapper
-
-    asyncio.coroutine = _legacy_coroutine  # type: ignore[attr-defined]
-
-
 async def _maybe_await(value: Any) -> Any:
     """Await coroutine-like backend helpers while accepting synchronous results."""
     while asyncio.isfuture(value) or asyncio.iscoroutine(value):

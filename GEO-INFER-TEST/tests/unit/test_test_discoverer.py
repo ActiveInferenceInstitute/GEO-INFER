@@ -10,7 +10,7 @@ from textwrap import dedent
 import pytest
 from hypothesis import given, settings, strategies as st
 
-from geo_infer_test.core.test_discoverer import TestDiscoverer
+from geo_infer_test.core.test_discoverer import TestDiscoverer as _TestDiscoverer
 
 
 # ============================================================================
@@ -61,14 +61,14 @@ class TestTestDiscovererBasic:
         shutil.rmtree(tmp)
 
     def test_discover_finds_modules(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         results = d.discover_all_tests(["AAA", "BBB", "CCC"])
         assert "AAA" in results
         assert "BBB" in results
         assert "CCC" in results
 
     def test_discover_finds_test_files(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         results = d.discover_all_tests(["AAA"])
         # Should find at least the test file we created
         aaa = results.get("AAA", {})
@@ -83,39 +83,39 @@ class TestTestDiscovererBasic:
         assert len(all_files) >= 1
 
     def test_discover_unknown_module(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         results = d.discover_all_tests(["NONEXISTENT"])
         # Should still return a dict (possibly empty for unknown)
         assert isinstance(results, dict)
 
     def test_statistics_structure(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         d.discover_all_tests(["AAA", "BBB"])
         stats = d.get_test_statistics()
         assert isinstance(stats, dict)
 
     def test_validate_test_structure(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         d.discover_all_tests(["AAA"])
         validation = d.validate_test_structure()
         assert isinstance(validation, dict)
 
     def test_analyze_test_file(self, repo):
         test_file = repo / "GEO-INFER-AAA" / "tests" / "unit" / "test_aaa.py"
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         analysis = d.analyze_test_file(test_file)
         assert isinstance(analysis, dict)
         # Should detect pytest framework
         assert "framework" in analysis
 
     def test_find_cross_module_tests(self, repo):
-        d = TestDiscoverer(base_path=repo)
+        d = _TestDiscoverer(base_path=repo)
         d.discover_all_tests(["AAA", "BBB", "CCC"])
         cross_tests = d.find_cross_module_tests()
         assert isinstance(cross_tests, (list, dict))
 
     def test_empty_repo_no_crash(self, empty_repo):
-        d = TestDiscoverer(base_path=empty_repo)
+        d = _TestDiscoverer(base_path=empty_repo)
         results = d.discover_all_tests(["DDD"])
         assert isinstance(results, dict)
 
@@ -134,7 +134,7 @@ class TestTestDiscovererParametric:
     def test_discover_single_module(self, mod):
         with tempfile.TemporaryDirectory() as tmp:
             base = _make_repo(Path(tmp), [mod])
-            d = TestDiscoverer(base_path=base)
+            d = _TestDiscoverer(base_path=base)
             results = d.discover_all_tests([mod])
             assert mod in results
 
@@ -143,7 +143,7 @@ class TestTestDiscovererParametric:
         mods = _MODULE_NAMES[:count]
         with tempfile.TemporaryDirectory() as tmp:
             base = _make_repo(Path(tmp), mods)
-            d = TestDiscoverer(base_path=base)
+            d = _TestDiscoverer(base_path=base)
             results = d.discover_all_tests(mods)
             assert len(results) == count
 
@@ -151,7 +151,7 @@ class TestTestDiscovererParametric:
     def test_statistics_per_module(self, mod):
         with tempfile.TemporaryDirectory() as tmp:
             base = _make_repo(Path(tmp), [mod])
-            d = TestDiscoverer(base_path=base)
+            d = _TestDiscoverer(base_path=base)
             d.discover_all_tests([mod])
             stats = d.get_test_statistics()
             assert isinstance(stats, dict)
@@ -174,7 +174,7 @@ class TestHypothesisTestDiscoverer:
             mod_dir = base / f"GEO-INFER-{module_name}"
             mod_dir.mkdir(parents=True, exist_ok=True)
             
-            d = TestDiscoverer(base_path=base)
+            d = _TestDiscoverer(base_path=base)
             results = d.discover_all_tests([module_name])
             assert isinstance(results, dict)
 
@@ -187,7 +187,7 @@ class TestHypothesisTestDiscoverer:
         """All requested modules should appear in discovery results."""
         with tempfile.TemporaryDirectory() as tmp:
             base = _make_repo(Path(tmp), module_names)
-            d = TestDiscoverer(base_path=base)
+            d = _TestDiscoverer(base_path=base)
             results = d.discover_all_tests(module_names)
             for name in module_names:
                 assert name in results
@@ -197,6 +197,6 @@ class TestHypothesisTestDiscoverer:
     def test_is_test_file_never_crashes(self, filename):
         """_is_test_file should handle any filename string."""
         with tempfile.TemporaryDirectory() as tmp:
-            d = TestDiscoverer(base_path=Path(tmp))
+            d = _TestDiscoverer(base_path=Path(tmp))
             result = d._is_test_file(Path(filename))
             assert isinstance(result, bool)

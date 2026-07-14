@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-RISK`.
 
 ## Contents
 
+- `geo_infer_risk.egg-info/`
 - `geo_infer_risk/`
 
 ## Public Interface
@@ -23,6 +24,7 @@ Src workspace within `GEO-INFER-RISK`.
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `scipy>=1.7.0`
+
 
 ## Validation
 

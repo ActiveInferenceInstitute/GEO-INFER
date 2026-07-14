@@ -11,7 +11,7 @@ from geo_infer_pep.models.talent_models import (
 )
 from geo_infer_pep.talent.importer import CSVTalentImporter
 from geo_infer_pep.talent.transformer import (
-    clean_candidate_data, enrich_candidate_data, 
+    clean_candidate_data, enrich_candidate_data,
     convert_candidates_to_dataframe, convert_requisitions_to_dataframe
 )
 from geo_infer_pep.reporting.talent_reports import generate_candidate_pipeline_report, calculate_time_to_hire
@@ -97,7 +97,7 @@ def dummy_talent_csv_files(tmp_path):
         writer.writerow(cand_row1)
         writer.writerow(cand_row2)
         writer.writerow(cand_bad_date)
-    
+
     # Requisition CSV Data
     req_headers = ['requisition_id', 'job_title', 'department', 'status', 'opened_at', 'closed_at', 'hiring_manager_id']
     req_row1 = ['req_csv_1', 'Data Scientist', 'Analytics', 'open', '2023-01-01', '', 'mgr_analytics']
@@ -116,6 +116,7 @@ def dummy_talent_csv_files(tmp_path):
 
 # Model Tests
 def test_candidate_model():
+    """Behavior-focused test: test_candidate_model."""
     cand = Candidate(
         candidate_id="cand_test",
         first_name="Test",
@@ -126,6 +127,7 @@ def test_candidate_model():
     assert cand.status == CandidateStatus.APPLIED # Default
 
 def test_job_requisition_model():
+    """Behavior-focused test: test_job_requisition_model."""
     req = JobRequisition(
         requisition_id="req_test",
         job_title="Test Engineer",
@@ -137,20 +139,21 @@ def test_job_requisition_model():
 
 # Importer Tests
 def test_csv_talent_importer(dummy_talent_csv_files, capsys):
+    """Behavior-focused test: test_csv_talent_importer."""
     importer = CSVTalentImporter(
         candidate_file_path=str(dummy_talent_csv_files["candidates"]),
         requisition_file_path=str(dummy_talent_csv_files["requisitions"])
     )
-    
+
     candidates = importer.import_candidates()
     requisitions = importer.import_requisitions()
-    
+
     captured = capsys.readouterr()
     assert "Warn: Bad applied_at for cand cand_csv_3" in captured.out
     assert "Warn: Bad opened_at for req req_csv_3" in captured.out
 
     # Expect 2 valid candidates, 1 with default applied_at due to bad date format
-    assert len(candidates) == 3 
+    assert len(candidates) == 3
     cand1 = next(c for c in candidates if c.candidate_id == 'cand_csv_1')
     assert cand1.first_name == "CSV"
     assert cand1.email == "csv.one@example.com"
@@ -178,27 +181,32 @@ def test_csv_talent_importer(dummy_talent_csv_files, capsys):
 
 # Transformer Tests (simulated)
 def test_clean_candidate_data(sample_candidate_data_list):
+    """Behavior-focused test: test_clean_candidate_data."""
     cleaned = clean_candidate_data(sample_candidate_data_list) # Pass-through
     assert len(cleaned) == 3
     if cleaned[0].skills:  # Check skills exist and are lowercased
-        assert all(s == s.lower() for s in cleaned[0].skills)
+       assert all(s == s.lower() for s in cleaned[0].skills)
 
 def test_enrich_candidate_data(sample_candidate_data_list, sample_job_requisition_list):
+    """Behavior-focused test: test_enrich_candidate_data."""
     enriched = enrich_candidate_data(sample_candidate_data_list, sample_job_requisition_list) # Pass-through
     assert len(enriched) == 3
 
 def test_convert_candidates_to_dataframe(sample_candidate_data_list):
+    """Behavior-focused test: test_convert_candidates_to_dataframe."""
     df = convert_candidates_to_dataframe(sample_candidate_data_list)
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 3
 
 def test_convert_requisitions_to_dataframe(sample_job_requisition_list):
+    """Behavior-focused test: test_convert_requisitions_to_dataframe."""
     df = convert_requisitions_to_dataframe(sample_job_requisition_list)
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 2
 
 # Reporting Tests
 def test_generate_candidate_pipeline_report(sample_candidate_data_list, sample_job_requisition_list):
+    """Behavior-focused test: test_generate_candidate_pipeline_report."""
     report = generate_candidate_pipeline_report(sample_candidate_data_list, sample_job_requisition_list)
     assert report["total_candidates"] == 3
     assert report["candidates_by_status"].get(CandidateStatus.APPLIED.value) == 1
@@ -208,6 +216,7 @@ def test_generate_candidate_pipeline_report(sample_candidate_data_list, sample_j
     assert report["pipeline_by_active_requisition"]["req1"]["total_candidates_for_req"] == 3
 
 def test_calculate_time_to_hire(sample_candidate_data_list):
+    """Behavior-focused test: test_calculate_time_to_hire."""
     hired_candidates = [c for c in sample_candidate_data_list if c.status == CandidateStatus.HIRED]
     report = calculate_time_to_hire(hired_candidates)
     assert report["number_of_hires_in_calc"] == 1
@@ -216,6 +225,7 @@ def test_calculate_time_to_hire(sample_candidate_data_list):
 
 # Visualization Tests
 def test_plot_candidate_pipeline_by_status(sample_candidate_data_list, tmp_path):
+    """Behavior-focused test: test_plot_candidate_pipeline_by_status."""
     output_dir = tmp_path / "talent_visuals"
     output_dir.mkdir()
     plot_path = plot_candidate_pipeline_by_status(sample_candidate_data_list, output_dir=output_dir)
@@ -224,13 +234,14 @@ def test_plot_candidate_pipeline_by_status(sample_candidate_data_list, tmp_path)
     assert Path(plot_path).name == "candidate_pipeline_status.png"
 
 def test_plot_time_to_hire_distribution(sample_candidate_data_list, tmp_path):
+    """Behavior-focused test: test_plot_time_to_hire_distribution."""
     # Prepare TTH data (days) for the hired candidate
     tth_days_list = []
     hired_cand = next((c for c in sample_candidate_data_list if c.status == CandidateStatus.HIRED), None)
     if hired_cand and hired_cand.applied_at and hired_cand.updated_at: # updated_at is proxy for hired_at
         duration = hired_cand.updated_at - hired_cand.applied_at
         tth_days_list.append(duration.days)
-    
+
     output_dir = tmp_path / "talent_visuals"
     output_dir.mkdir(exist_ok=True) # Ensure dir exists
     plot_path = plot_time_to_hire_distribution(tth_days_list, output_dir=output_dir)
@@ -239,10 +250,11 @@ def test_plot_time_to_hire_distribution(sample_candidate_data_list, tmp_path):
         assert os.path.exists(plot_path)
         assert Path(plot_path).name == "time_to_hire_distribution.png"
     else:
-        assert plot_path is None
+       assert plot_path is None
 
 # Empty data tests
 def test_talent_reports_empty_data():
+    """Behavior-focused test: test_talent_reports_empty_data."""
     empty_list = []
     pipeline_report = generate_candidate_pipeline_report(empty_list)
     assert "No candidate data" in pipeline_report.get("message", "")
@@ -250,10 +262,11 @@ def test_talent_reports_empty_data():
     assert "No hired candidate data" in tth_report.get("message", "")
 
 def test_talent_visuals_empty_data(tmp_path):
+    """Behavior-focused test: test_talent_visuals_empty_data."""
     empty_list = []
     output_dir = tmp_path / "talent_visuals_empty"
     output_dir.mkdir()
     pipeline_plot = plot_candidate_pipeline_by_status(empty_list, output_dir=output_dir)
     assert pipeline_plot is None
     tth_plot = plot_time_to_hire_distribution([], output_dir=output_dir) # Empty list for TTH days
-    assert tth_plot is None 
+    assert tth_plot is None

@@ -8,7 +8,7 @@ import pandas as pd
 from Bio import SeqIO, AlignIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
+from Bio.Align import MultipleSeqAlignment, PairwiseAligner
 from Bio.Data import CodonTable
 
 try:
@@ -33,14 +33,6 @@ except ImportError:
         matlist = _MatlistCompat()
     except ImportError:
         pass
-
-try:
-    from Bio import pairwise2
-    from Bio.pairwise2 import format_alignment
-except ImportError:
-    # Bio.pairwise2 was removed in Biopython >= 1.83
-    pairwise2 = None
-    format_alignment = None
 
 from ..utils.validation import DataValidator
 from ..utils.visualization import BioVisualizer
@@ -68,7 +60,8 @@ class SequenceAnalyzer:
         Returns:
             Sequence record(s) from the file
         """
-        return list(SeqIO.parse(file_path, format))
+        with open(file_path, "r", encoding="utf-8") as handle:
+            return list(SeqIO.parse(handle, format))
 
     def align_sequences(
         self,
@@ -89,32 +82,27 @@ class SequenceAnalyzer:
         Returns:
             Multiple sequence alignment
         """
-        alignments = []
-        for i in range(len(sequences)):
-            for j in range(i + 1, len(sequences)):
-                if algorithm == "global":
-                    alignments.append(
-                        pairwise2.align.globalms(
-                            sequences[i].seq,
-                            sequences[j].seq,
-                            2,
-                            -1,
-                            gap_open,
-                            gap_extend,
-                        )
-                    )
-                else:
-                    alignments.append(
-                        pairwise2.align.localms(
-                            sequences[i].seq,
-                            sequences[j].seq,
-                            2,
-                            -1,
-                            gap_open,
-                            gap_extend,
-                        )
-                    )
-        return MultipleSeqAlignment(alignments)
+        if len(sequences) < 2:
+            raise ValueError("at least two sequences are required for alignment")
+        if algorithm not in {"global", "local"}:
+            raise ValueError("algorithm must be 'global' or 'local'")
+
+        # PairwiseAligner is the supported Biopython replacement for the
+        # deprecated pairwise2 API.  The returned alignment is represented as
+        # a MultipleSeqAlignment for compatibility with the downstream BIO
+        # validators and visualizers.
+        aligner = PairwiseAligner()
+        aligner.mode = algorithm
+        aligner.match_score = 2
+        aligner.mismatch_score = -1
+        aligner.open_gap_score = gap_open
+        aligner.extend_gap_score = gap_extend
+        alignment = aligner.align(sequences[0].seq, sequences[1].seq)[0]
+        aligned_records = [
+            SeqRecord(Seq(str(alignment[row])), id=sequences[row].id)
+            for row in range(2)
+        ]
+        return MultipleSeqAlignment(aligned_records)
 
     def calculate_gc_content(self, sequence: Seq) -> float:
         """
@@ -286,4 +274,4 @@ class SequenceAnalyzer:
         self.visualizer.plot_spatial_distribution(
             spatial_analysis,
             output_path=output_path,
-        ) 
+        )

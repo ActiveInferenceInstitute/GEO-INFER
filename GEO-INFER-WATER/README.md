@@ -4,6 +4,7 @@ Water resources management, hydrology, and water quality monitoring.
 
 ## Contents
 
+- `.pytest_cache/`
 - `examples/`
 - `src/`
 - `tests/`
@@ -32,6 +33,7 @@ Water resources management, hydrology, and water quality monitoring.
 - `matplotlib>=3.4.0`
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

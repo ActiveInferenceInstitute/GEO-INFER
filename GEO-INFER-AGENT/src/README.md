@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-AGENT`.
 
 ## Contents
 
+- `geo_infer_agent.egg-info/`
 - `geo_infer_agent/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-AGENT`.
 - `black>=23.3.0`
 - `isort>=5.12.0`
 - `matplotlib>=3.7.1`
+
 
 ## Validation
 

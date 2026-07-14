@@ -154,6 +154,13 @@ class TestDCMParameterEstimation:
                 np.empty((0, 2)), np.empty((0, 1)), np.empty(0)
             )
 
+    def test_empty_observations_raise_value_error(self) -> None:
+        """Empty data should fail with a useful contract error."""
+        with pytest.raises(ValueError, match="at least one timestep"):
+            self.dcm.estimate_parameters(
+                np.empty((0, 2)), np.empty((0, 1)), np.empty(0)
+            )
+
     def test_estimated_matrices_shapes(self) -> None:
         """Test that estimated matrices have correct shapes."""
         result = self.dcm.estimate_parameters(

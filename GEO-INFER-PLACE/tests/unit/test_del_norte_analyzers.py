@@ -75,7 +75,7 @@ class TestCoastalResilienceAnalyzer(unittest.TestCase):
 
     def setUp(self):
         if not self._available:
-            self.skipTest(f"CoastalResilienceAnalyzer not available: {self._skip_reason}")
+            self.fail(f"CoastalResilienceAnalyzer not available: {self._skip_reason}")
 
     # -- Initialization -----------------------------------------------------
 
@@ -159,7 +159,7 @@ class TestFireRiskAssessor(unittest.TestCase):
 
     def setUp(self):
         if not self._available:
-            self.skipTest(f"FireRiskAssessor not available: {self._skip_reason}")
+            self.fail(f"FireRiskAssessor not available: {self._skip_reason}")
 
     # -- Initialization -----------------------------------------------------
 
@@ -239,7 +239,7 @@ class TestSeismicHazardAnalyzer(unittest.TestCase):
 
     def setUp(self):
         if not self._available:
-            self.skipTest(f"SeismicHazardAnalyzer not available: {self._skip_reason}")
+            self.fail(f"SeismicHazardAnalyzer not available: {self._skip_reason}")
 
     # -- Initialization -----------------------------------------------------
 
@@ -323,7 +323,7 @@ class TestAdvancedDashboard(unittest.TestCase):
 
     def setUp(self):
         if not self._available:
-            self.skipTest(f"AdvancedDashboard not available: {self._skip_reason}")
+            self.fail(f"AdvancedDashboard not available: {self._skip_reason}")
 
     # -- Initialization -----------------------------------------------------
 

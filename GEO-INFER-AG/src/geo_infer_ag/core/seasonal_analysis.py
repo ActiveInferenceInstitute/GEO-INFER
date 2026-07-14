@@ -477,6 +477,10 @@ class SeasonalAnalysis:
         spatial_mean = da.mean(dim=[lat_dim, lon_dim])
 
         # Calculate regional statistics
+        def _scalar(value: Any) -> float:
+            """Extract one numeric value from numpy/xarray scalar output."""
+            return float(np.asarray(value).reshape(-1)[0])
+
         results = {
             "variable": variable,
             "temporal_stats": {
@@ -486,10 +490,10 @@ class SeasonalAnalysis:
             },
             "spatial_series": spatial_mean,
             "dataset_stats": {
-                "global_mean": float(da.mean().values),
-                "global_std": float(da.std().values),
-                "global_min": float(da.min().values),
-                "global_max": float(da.max().values),
+                "global_mean": _scalar(da.mean().values),
+                "global_std": _scalar(da.std().values),
+                "global_min": _scalar(da.min().values),
+                "global_max": _scalar(da.max().values),
             },
         }
 

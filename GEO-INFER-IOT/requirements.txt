@@ -1,6 +1,6 @@
 # GEO-INFER-IOT Requirements
 aiocoap>=0.4.3
-asyncio-mqtt>=0.11.0
+aiomqtt>=2.4.0
 confluent-kafka>=1.8.0
 fastapi>=0.68.0
 folium>=0.12.0

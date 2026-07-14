@@ -135,10 +135,14 @@ class TestModernToolsIntegration:
         for key in expected_keys:
             assert key in hub.available_tools
 
-    def test_unavailable_tool_raises(self) -> None:
-        """Test that using unavailable tool raises RuntimeError."""
+    def test_rxinfer_local_fallback_contract(self) -> None:
+        """Test deterministic local RxInfer-compatible behavior without Julia."""
         from geo_infer_act.utils.integration import ModernToolsIntegration
-        hub = ModernToolsIntegration()
+        hub = ModernToolsIntegration({"allow_local_fallback": True})
         if not hub.available_tools.get('rxinfer', False):
-            with pytest.raises(RuntimeError, match="not available"):
-                hub.create_rxinfer_model("", {})
+            result = hub.create_rxinfer_model(
+                "", {"observations": np.array([1.0, 2.0, 3.0])}
+            )
+            assert result["status"] == "success"
+            assert result["backend"] == "deterministic-local"
+            assert np.isfinite(result["posterior_marginals"]["mean"])

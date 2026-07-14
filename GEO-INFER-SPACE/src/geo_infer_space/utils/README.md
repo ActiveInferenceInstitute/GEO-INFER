@@ -20,6 +20,8 @@ Utils workspace within `GEO-INFER-SPACE`.
 - `h3_utils.py:geojson_to_h3` (function)
 - `h3_utils.py:geo_to_cells` (function)
 - `h3_utils.py:grid_disk` (function)
+- `h3_utils.py:get_h3_neighbors` (function)
+- `h3_utils.py:h3_resolution_stats` (function)
 - `h3_utils.py:grid_distance` (function)
 - `h3_utils.py:compact_cells` (function)
 - `h3_utils.py:uncompact_cells` (function)
@@ -50,6 +52,7 @@ Utils workspace within `GEO-INFER-SPACE`.
 - `pyproj>=3.3.0`
 - `python-multipart>=0.0.5`
 - `pyyaml>=6.0`
+
 
 ## Validation
 

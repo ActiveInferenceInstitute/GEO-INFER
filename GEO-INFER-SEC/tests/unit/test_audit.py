@@ -4,7 +4,7 @@ Unit tests for audit logging functionality.
 
 import pytest
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
 
@@ -98,18 +98,18 @@ class TestAuditLogger:
 
     def test_get_events_time_range(self, audit_logger: AuditLogger) -> None:
         """Test event retrieval with time range."""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
         audit_logger.log_authentication(username="user1", result="success")
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
         events = audit_logger.get_events(start_time=start_time, end_time=end_time)
         assert len(events) >= 1
 
     def test_generate_compliance_report(self, audit_logger: AuditLogger) -> None:
         """Test compliance report generation."""
-        start_time = datetime.utcnow() - timedelta(days=1)
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=1)
 
         # Log various events
         audit_logger.log_authentication(username="user1", result="success")
@@ -122,7 +122,7 @@ class TestAuditLogger:
         )
 
         # Set end_time AFTER logging events so they fall within the range
-        end_time = datetime.utcnow() + timedelta(seconds=1)
+        end_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=1)
 
         report = audit_logger.generate_compliance_report(
             start_time=start_time, end_time=end_time, report_type="compliance"
@@ -147,5 +147,4 @@ def test_security_framework_audit_access_records_event(caplog) -> None:
     assert event["status"] == "recorded"
     assert event in framework.audit_log
     assert "timestamp" in event
-
 

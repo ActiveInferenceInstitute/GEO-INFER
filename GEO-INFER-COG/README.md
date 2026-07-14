@@ -32,6 +32,7 @@ Human-centered geospatial tools that model perception, reasoning, and spatial co
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 
+
 ## Validation
 
 ```bash

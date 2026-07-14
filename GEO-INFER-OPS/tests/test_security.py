@@ -3,7 +3,7 @@ Tests for security management.
 """
 import os
 import base64
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch, MagicMock, mock_open
 
@@ -53,7 +53,7 @@ def test_generate_tls_certificate(security_manager, tmp_path):
             organization="Test Org",
             country="US"
         )
-        
+
         assert result["cert_file"] == "/tmp/test.crt"
         assert result["key_file"] == "/tmp/test.key"
         assert mock_file.call_count == 2
@@ -67,7 +67,7 @@ def test_generate_csr(security_manager):
             organization="Test Org",
             country="US"
         )
-        
+
         assert isinstance(csr, str)
         assert "BEGIN CERTIFICATE REQUEST" in csr
         assert mock_file.call_count == 1
@@ -79,7 +79,7 @@ def test_generate_jwt_token(security_manager):
         roles=["admin"],
         expires_in=3600
     )
-    
+
     assert isinstance(token, str)
     payload = jwt.decode(token, "test-secret", algorithms=["HS256"])
     assert payload["user_id"] == "test-user"
@@ -93,7 +93,7 @@ def test_verify_jwt_token(security_manager):
         user_id="test-user",
         roles=["admin"]
     )
-    
+
     # Verify token
     payload = security_manager.verify_jwt_token(token)
     assert payload["user_id"] == "test-user"
@@ -105,10 +105,10 @@ def test_verify_jwt_token_expired(security_manager):
     payload = {
         "user_id": "test-user",
         "roles": ["admin"],
-        "exp": datetime.utcnow() - timedelta(hours=1)
+        "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1)
     }
     token = jwt.encode(payload, "test-secret", algorithm="HS256")
-    
+
     # Verify token
     with pytest.raises(jwt.ExpiredSignatureError):
         security_manager.verify_jwt_token(token)
@@ -122,12 +122,12 @@ def test_encrypt_decrypt_data(security_manager):
     """Test data encryption and decryption."""
     # Test data
     test_data = "sensitive information"
-    
+
     # Encrypt data
     encrypted = security_manager.encrypt_data(test_data)
     assert isinstance(encrypted, str)
     assert encrypted != test_data
-    
+
     # Decrypt data
     decrypted = security_manager.decrypt_data(encrypted)
     assert decrypted == test_data
@@ -136,7 +136,7 @@ def test_generate_password_hash(security_manager):
     """Test password hash generation."""
     # Generate hash
     result = security_manager.generate_password_hash("test-password")
-    
+
     assert "hash" in result
     assert "salt" in result
     assert isinstance(result["hash"], bytes)
@@ -147,14 +147,14 @@ def test_verify_password(security_manager):
     # Generate hash
     password = "test-password"
     result = security_manager.generate_password_hash(password)
-    
+
     # Verify password
     assert security_manager.verify_password(
         password,
         result["hash"],
         result["salt"]
     ) is True
-    
+
     # Verify wrong password
     assert security_manager.verify_password(
         "wrong-password",
@@ -166,11 +166,11 @@ def test_security_disabled(security_manager):
     """Test operations when security is disabled."""
     # Disable security
     security_manager.config.security.auth.enabled = False
-    
+
     # Test JWT operations
     with pytest.raises(ValueError):
         security_manager.generate_jwt_token("test-user", ["admin"])
-    
+
     with pytest.raises(ValueError):
         security_manager.verify_jwt_token("test-token")
 
@@ -188,11 +188,11 @@ def test_certificate_validation(security_manager):
         organization="Test Org",
         country="US"
     )
-    
+
     # Load and validate certificate
     with open(result["cert_file"], "rb") as f:
         cert = load_pem_x509_certificate(f.read())
-    
+
     assert cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value == "test.example.com"
     assert cert.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value == "Test Org"
     assert cert.subject.get_attributes_for_oid(NameOID.COUNTRY_NAME)[0].value == "US"
@@ -205,10 +205,10 @@ def test_csr_validation(security_manager):
         organization="Test Org",
         country="US"
     )
-    
+
     # Validate CSR
     assert "BEGIN CERTIFICATE REQUEST" in csr
     assert "END CERTIFICATE REQUEST" in csr
     assert "test.example.com" in csr
     assert "Test Org" in csr
-    assert "US" in csr 
+    assert "US" in csr

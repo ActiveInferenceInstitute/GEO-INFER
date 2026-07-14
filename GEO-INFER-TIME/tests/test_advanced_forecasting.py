@@ -2,8 +2,7 @@
 Tests for GEO-INFER-TIME advanced forecasting module.
 
 Covers AdvancedForecastingEngine: ARIMA, exponential smoothing,
-and trend/seasonality detection. Tests are skipped when statsmodels
-is not available.
+and trend/seasonality detection against the declared statsmodels dependency.
 """
 
 import pytest
@@ -14,13 +13,6 @@ from geo_infer_time.core.advanced_forecasting import (
     AdvancedForecastingEngine,
     STATSMODELS_AVAILABLE,
 )
-
-# Conditional skip for all tests requiring statsmodels
-requires_statsmodels = pytest.mark.skipif(
-    not STATSMODELS_AVAILABLE,
-    reason="statsmodels is not installed",
-)
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -100,7 +92,6 @@ class TestEngineInit:
 # ===================================================================
 
 
-@requires_statsmodels
 class TestForecastARIMA:
     """Tests for forecast_arima."""
 
@@ -160,7 +151,6 @@ class TestForecastARIMA:
 # ===================================================================
 
 
-@requires_statsmodels
 class TestForecastExponentialSmoothing:
     """Tests for forecast_exponential_smoothing."""
 
@@ -217,7 +207,6 @@ class TestForecastExponentialSmoothing:
 # ===================================================================
 
 
-@requires_statsmodels
 class TestDetectTrendSeasonality:
     """Tests for detect_trend_seasonality."""
 
@@ -270,41 +259,28 @@ class TestDetectTrendSeasonality:
 
 
 class TestImportGuard:
-    """Tests for behavior when statsmodels is not available."""
+    """Verify the declared statsmodels backend is installed and operational."""
 
     def test_statsmodels_flag_is_bool(self):
         """STATSMODELS_AVAILABLE is a boolean."""
         assert isinstance(STATSMODELS_AVAILABLE, bool)
 
-    @pytest.mark.skipif(
-        STATSMODELS_AVAILABLE,
-        reason="Only run when statsmodels is NOT available",
-    )
-    def test_arima_raises_without_statsmodels(self, engine, ):
-        """forecast_arima raises ImportError without statsmodels."""
-        dummy = pd.Series([1, 2, 3, 4, 5])
-        with pytest.raises(ImportError):
-            engine.forecast_arima(dummy)
+    def test_arima_backend_is_available(self, engine, trending_series):
+        """The required ARIMA backend executes on a valid series."""
+        result = engine.forecast_arima(trending_series, order=(1, 1, 0), forecast_steps=2)
+        assert len(result["forecast"]) == 2
 
-    @pytest.mark.skipif(
-        STATSMODELS_AVAILABLE,
-        reason="Only run when statsmodels is NOT available",
-    )
-    def test_exp_smoothing_raises_without_statsmodels(self, engine):
-        """forecast_exponential_smoothing raises ImportError without statsmodels."""
-        dummy = pd.Series([1, 2, 3, 4, 5])
-        with pytest.raises(ImportError):
-            engine.forecast_exponential_smoothing(dummy)
+    def test_exp_smoothing_backend_is_available(self, engine, trending_series):
+        """The required exponential-smoothing backend executes on valid data."""
+        result = engine.forecast_exponential_smoothing(
+            trending_series, trend="add", forecast_steps=2
+        )
+        assert len(result["forecast"]) == 2
 
-    @pytest.mark.skipif(
-        STATSMODELS_AVAILABLE,
-        reason="Only run when statsmodels is NOT available",
-    )
-    def test_detect_raises_without_statsmodels(self, engine):
-        """detect_trend_seasonality raises ImportError without statsmodels."""
-        dummy = pd.Series([1, 2, 3, 4, 5])
-        with pytest.raises(ImportError):
-            engine.detect_trend_seasonality(dummy)
+    def test_decomposition_backend_is_available(self, engine, seasonal_series):
+        """The required decomposition backend executes on seasonal data."""
+        result = engine.detect_trend_seasonality(seasonal_series)
+        assert len(result["residual"]) == len(seasonal_series)
 
 
 # ===================================================================
@@ -312,7 +288,6 @@ class TestImportGuard:
 # ===================================================================
 
 
-@requires_statsmodels
 class TestForecastingIntegration:
     """Integration tests combining multiple forecasting methods."""
 

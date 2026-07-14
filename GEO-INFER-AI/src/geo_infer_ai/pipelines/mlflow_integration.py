@@ -20,7 +20,7 @@ try:
     MLFLOW_AVAILABLE = True
 except ImportError:
     MLFLOW_AVAILABLE = False
-    logger.warning(
+    logger.debug(
         "MLflow not available. Install with: uv pip install mlflow"
     )
 
@@ -221,5 +221,4 @@ class MLflowPipeline:
         except Exception as e:
             logger.error(f"Failed to load model from MLflow: {e}")
             raise
-
 

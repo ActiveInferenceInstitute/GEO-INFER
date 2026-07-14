@@ -38,6 +38,7 @@ Core mathematical and statistical engine providing geometric operations, spatial
 - `scikit-learn>=1.0.0`
 - `sympy>=1.9.0`
 
+
 ## Validation
 
 ```bash

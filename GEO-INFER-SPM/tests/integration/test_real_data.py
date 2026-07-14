@@ -332,7 +332,7 @@ class TestTemporalDataIntegration:
             assert seasonal_amplitude > 2.0
 
         except ImportError:
-            pytest.skip("Statsmodels not available for seasonal decomposition")
+            pytest.fail("Statsmodels not available for seasonal decomposition")
 
 
 class TestLargeScaleDataHandling:

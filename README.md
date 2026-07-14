@@ -7,8 +7,8 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | Metric | Value |
 | --- | ---: |
 | Modules | 44 |
-| Python source files | 887 |
-| Python test files | 451 |
+| Python source files | 891 |
+| Python test files | 460 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -25,32 +25,32 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
-| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 28 |
-| `GEO-INFER-AG` | `geo_infer_ag` | 15 | 9 |
+| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 29 |
+| `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
 | `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
-| `GEO-INFER-ANT` | `geo_infer_ant` | 21 | 7 |
+| `GEO-INFER-ANT` | `geo_infer_ant` | 23 | 7 |
 | `GEO-INFER-API` | `geo_infer_api` | 13 | 9 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
-| `GEO-INFER-ART` | `geo_infer_art` | 21 | 7 |
+| `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
 | `GEO-INFER-BAYES` | `geo_infer_bayes` | 32 | 13 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
-| `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 7 |
+| `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
 | `GEO-INFER-COG` | `geo_infer_cog` | 20 | 11 |
 | `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 7 |
 | `GEO-INFER-DATA` | `geo_infer_data` | 23 | 19 |
 | `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 12 |
-| `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 6 |
-| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 6 |
+| `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 7 |
+| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 7 |
 | `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 8 |
-| `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 4 | 4 |
+| `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 4 | 5 |
 | `GEO-INFER-FOREST` | `geo_infer_forest` | 11 | 8 |
-| `GEO-INFER-GIT` | `geo_infer_git` | 20 | 8 |
+| `GEO-INFER-GIT` | `geo_infer_git` | 20 | 9 |
 | `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 9 |
 | `GEO-INFER-INTRA` | `geo_infer_intra` | 11 | 7 |
 | `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 7 |
-| `GEO-INFER-LOG` | `geo_infer_log` | 18 | 8 |
+| `GEO-INFER-LOG` | `geo_infer_log` | 19 | 8 |
 | `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 8 |
 | `GEO-INFER-MATH` | `geo_infer_math` | 66 | 16 |
 | `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 12 |
@@ -65,9 +65,9 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 30 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
-| `GEO-INFER-TEST` | `geo_infer_test` | 13 | 22 |
+| `GEO-INFER-TEST` | `geo_infer_test` | 14 | 22 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
-| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 6 |
+| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 7 |
 | `GEO-INFER-WATER` | `geo_infer_water` | 11 | 7 |
 
 ## Modular Hygiene
@@ -85,7 +85,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
+- Performance tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category performance`
 - H3 contracts: `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
+- Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
+- Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
+- Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
+
+## Zero-warning test policy
+
+The shared pytest policy treats warnings as errors, requires strict markers/configuration, assigns exactly one primary marker to every test, and rejects skips, xfails, xpasses, collection errors, missing dependencies, missing fixtures, and empty selections. Every module has a test inventory at `GEO-INFER-*/tests/README.md`; the inventory records purpose, fixtures, dependencies, artifacts, and triage commands.
 
 ## Documentation Policy
 

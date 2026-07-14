@@ -8,7 +8,7 @@ and its interaction with other GEO-INFER modules.
 import unittest
 import asyncio
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import AsyncMock, Mock, patch, MagicMock
 import numpy as np
 import h3
 
@@ -65,7 +65,7 @@ class TestIoTModuleIntegration(unittest.TestCase):
         )
 
         # Mock spatial inference to avoid dependency issues
-        ingestion._update_spatial_inference = Mock(return_value=asyncio.coroutine(lambda x: None)())
+        ingestion._update_spatial_inference = AsyncMock(return_value=None)
 
         # Test ingestion
         result = asyncio.run(ingestion.ingest_measurement(measurement))
@@ -170,7 +170,7 @@ class TestIoTModuleIntegration(unittest.TestCase):
         # Ingestion
         for measurement in measurements:
             sensor_measurement = ingestion._dict_to_measurement(measurement)
-            ingestion._update_spatial_inference = Mock(return_value=asyncio.coroutine(lambda x: None)())
+            ingestion._update_spatial_inference = AsyncMock(return_value=None)
             asyncio.run(ingestion.ingest_measurement(sensor_measurement))
 
         # Spatial fusion
@@ -199,7 +199,7 @@ class TestIoTModuleIntegration(unittest.TestCase):
 
         # Should handle gracefully
         sensor_measurement = ingestion._dict_to_measurement(invalid_measurement)
-        ingestion._update_spatial_inference = Mock(return_value=asyncio.coroutine(lambda x: None)())
+        ingestion._update_spatial_inference = AsyncMock(return_value=None)
 
         result = asyncio.run(ingestion.ingest_measurement(sensor_measurement))
 
@@ -226,8 +226,8 @@ class TestCrossModuleIntegration(unittest.TestCase):
 
         # Mock BAYES components
         mock_gp = Mock()
-        mock_gp.fit_async = Mock(return_value=asyncio.coroutine(lambda x, y: {'success': True})())
-        mock_gp.predict_async = Mock(return_value=asyncio.coroutine(lambda x, **kwargs: ([0.1, 0.2], [0.01, 0.02]))())
+        mock_gp.fit_async = AsyncMock(return_value={'success': True})
+        mock_gp.predict_async = AsyncMock(return_value=([0.1, 0.2], [0.01, 0.02]))
 
         with patch('geo_infer_iot.core.ingestion.GaussianProcess', return_value=mock_gp):
             with patch('geo_infer_iot.core.ingestion.SpatialCovariance'):

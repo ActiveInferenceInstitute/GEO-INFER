@@ -4,6 +4,7 @@ Educational technology for geospatial systems including curriculum design, inter
 
 ## Contents
 
+- `.pytest_cache/`
 - `docs/`
 - `examples/`
 - `src/`
@@ -26,6 +27,7 @@ Educational technology for geospatial systems including curriculum design, inter
 ## Dependencies
 
 - Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+
 
 ## Validation
 

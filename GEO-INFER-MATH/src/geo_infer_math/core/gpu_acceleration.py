@@ -23,7 +23,7 @@ class GPUAccelerator:
         if self.gpu_available:
             logger.info(f"GPU acceleration available with backends: {list(self.backends.keys())}")
         else:
-            logger.warning("No GPU acceleration backends available")
+            logger.debug("No GPU acceleration backends available; using CPU implementations")
 
     def _check_gpu_availability(self) -> bool:
         """Check if GPU acceleration is available."""

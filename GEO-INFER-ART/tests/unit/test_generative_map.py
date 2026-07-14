@@ -76,7 +76,7 @@ class TestGenerativeMap(unittest.TestCase):
             self.assertEqual(gen_map.metadata["bbox"], self.test_bbox)
 
         except Exception as e:
-            self.skipTest(f"Elevation data retrieval failed: {str(e)}")
+            self.fail(f"Elevation data retrieval failed: {str(e)}")
 
     def test_from_elevation_with_named_region(self):
         """Test creating a GenerativeMap from a named region."""
@@ -97,7 +97,7 @@ class TestGenerativeMap(unittest.TestCase):
             self.assertEqual(gen_map.metadata["region"], "grand_canyon")
 
         except Exception as e:
-            self.skipTest(f"Named region retrieval failed: {str(e)}")
+            self.fail(f"Named region retrieval failed: {str(e)}")
 
     def test_different_styles(self):
         """Test generating maps with different styles."""
@@ -119,7 +119,7 @@ class TestGenerativeMap(unittest.TestCase):
                 self.assertTrue(os.path.exists(output_path))
 
             except Exception as e:
-                self.skipTest(f"Generation with style {style} failed: {str(e)}")
+                self.fail(f"Generation with style {style} failed: {str(e)}")
 
     def test_abstraction_levels(self):
         """Test generating maps with different abstraction levels."""
@@ -142,7 +142,7 @@ class TestGenerativeMap(unittest.TestCase):
                 self.assertTrue(os.path.exists(output_path))
 
             except Exception as e:
-                self.skipTest(f"Generation with abstraction level {level} failed: {str(e)}")
+                self.fail(f"Generation with abstraction level {level} failed: {str(e)}")
 
     def test_save_and_show(self):
         """Test saving and showing the map."""

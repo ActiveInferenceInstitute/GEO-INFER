@@ -13,15 +13,15 @@ logger = logging.getLogger(__name__)
 
 # Try to import GEO-INFER-TIME modules
 try:
-    from geo_infer_time.core.temporal_analyzer import TemporalAnalyzer
+    from geo_infer_time.core.analysis import TemporalAnalyzer
     from geo_infer_time.core.forecasting import ForecastingEngine
+    from geo_infer_time.models.timeseries import TimeSeries
     TIME_AVAILABLE = True
 except ImportError:
     TIME_AVAILABLE = False
-    logger.warning(
-        "GEO-INFER-TIME not available. Temporal operations will be limited. "
-        "Install geo-infer-time to enable full functionality."
-    )
+    TemporalAnalyzer = None  # type: ignore[assignment,misc]
+    ForecastingEngine = None  # type: ignore[assignment,misc]
+    TimeSeries = None  # type: ignore[assignment,misc]
 
 
 class TimeIntegration:
@@ -44,18 +44,23 @@ class TimeIntegration:
         self.config = config or {}
         
         if not TIME_AVAILABLE:
-            logger.warning("TimeIntegration initialized but GEO-INFER-TIME not available")
             self.analyzer = None
             self.forecaster = None
         else:
             try:
                 self.analyzer = TemporalAnalyzer()
                 self.forecaster = ForecastingEngine()
-                logger.info("TimeIntegration initialized")
             except Exception as e:
-                logger.error(f"Failed to initialize TimeIntegration: {e}")
+                logger.error("Failed to initialize TimeIntegration: %s", e)
                 self.analyzer = None
                 self.forecaster = None
+
+    @staticmethod
+    def _as_timeseries(time_series: pd.Series) -> "TimeSeries":
+        """Convert a pandas series to the current GEO-INFER-TIME model."""
+        if not isinstance(time_series, pd.Series):
+            raise TypeError("time_series must be a pandas Series")
+        return TimeSeries(data=time_series, timestamps=pd.DatetimeIndex(time_series.index))
     
     def detect_trend(
         self,
@@ -90,7 +95,7 @@ class TimeIntegration:
                 return None
         
         try:
-            return self.analyzer.detect_trend(time_series, method=method)
+            return self.analyzer.detect_trend(self._as_timeseries(time_series), method=method)
         except Exception as e:
             logger.error(f"Failed to detect trend: {e}")
             return None
@@ -111,11 +116,13 @@ class TimeIntegration:
             Dictionary with seasonality analysis results or None if unavailable
         """
         if not TIME_AVAILABLE or self.analyzer is None:
-            logger.warning("Temporal analyzer not available for seasonality analysis")
             return None
         
         try:
-            return self.analyzer.analyze_seasonality(time_series, period=period)
+            timeseries = self._as_timeseries(time_series)
+            return self.analyzer.detect_seasonality(
+                timeseries, max_periods=period or 12
+            )
         except Exception as e:
             logger.error(f"Failed to analyze seasonality: {e}")
             return None
@@ -154,7 +161,16 @@ class TimeIntegration:
                 return None
         
         try:
-            return self.analyzer.decompose(time_series, model=model)
+            result = self.analyzer.decompose(
+                self._as_timeseries(time_series), model=model
+            )
+            converted: Dict[str, pd.Series] = {}
+            for name, values in result.items():
+                if name in {"trend", "seasonal", "residual"}:
+                    converted[name] = pd.Series(values).reindex(
+                        range(len(time_series))
+                    )
+            return converted
         except Exception as e:
             logger.error(f"Failed to decompose time series: {e}")
             return None
@@ -179,11 +195,19 @@ class TimeIntegration:
             Dictionary with forecast results or None if unavailable
         """
         if not TIME_AVAILABLE or self.forecaster is None:
-            logger.warning("Forecasting engine not available")
             return None
-        
+
         try:
-            return self.forecaster.forecast(time_series, horizon=horizon, method=method, **kwargs)
+            timeseries = self._as_timeseries(time_series)
+            methods = {
+                "arima": self.forecaster.forecast_arima,
+                "linear": self.forecaster.forecast_linear,
+                "moving_average": self.forecaster.forecast_moving_average,
+                "exponential_smoothing": self.forecaster.forecast_exponential_smoothing,
+            }
+            if method not in methods:
+                raise ValueError(f"Unsupported forecasting method: {method}")
+            return methods[method](timeseries, horizon=horizon, **kwargs)
         except Exception as e:
             logger.error(f"Failed to forecast: {e}")
             return None
@@ -226,12 +250,24 @@ class TimeIntegration:
                 return None
         
         try:
-            return self.analyzer.align_time_series(time_series_list, method=method)
+            common_index = time_series_list[0].index
+            for series in time_series_list[1:]:
+                common_index = common_index.union(series.index)
+            aligned = []
+            for series in time_series_list:
+                values = series.reindex(common_index)
+                if method == 'interpolate':
+                    values = values.interpolate()
+                elif method == 'forward_fill':
+                    values = values.ffill()
+                elif method != 'none':
+                    raise ValueError(f"Unsupported alignment method: {method}")
+                aligned.append(values)
+            return aligned
         except Exception as e:
-            logger.error(f"Failed to align time series: {e}")
+            logger.error("Failed to align time series: %s", e)
             return None
     
     def is_available(self) -> bool:
         """Check if GEO-INFER-TIME is available."""
         return TIME_AVAILABLE and self.analyzer is not None
-

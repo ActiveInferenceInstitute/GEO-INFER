@@ -6,7 +6,8 @@ This module provides FastAPI endpoints for route optimization functionality.
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import Field
+from geo_infer_log.models.base import BaseModel
 
 from geo_infer_log.models.schemas import (
     Vehicle, Location, Route, RoutingParameters
@@ -26,7 +27,7 @@ class RouteRequest(BaseModel):
     origin: Tuple[float, float] = Field(..., description="(lon, lat) of origin")
     destination: Tuple[float, float] = Field(..., description="(lon, lat) of destination")
     waypoints: Optional[List[Tuple[float, float]]] = Field(
-        default=None, 
+        default=None,
         description="List of (lon, lat) waypoints"
     )
     parameters: Optional[RoutingParameters] = None
@@ -153,14 +154,14 @@ async def optimize_route(
         # Apply parameters if provided
         if request.parameters:
             optimizer.parameters = request.parameters
-            
+
         # Optimize route
         route = optimizer.optimize_route(
             origin=request.origin,
             destination=request.destination,
             waypoints=request.waypoints
         )
-        
+
         return route
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -189,14 +190,14 @@ async def solve_vrp(
         # Register vehicles with fleet manager
         for vehicle in request.vehicles:
             router.fleet_manager.add_vehicle(vehicle)
-            
+
         # Solve VRP
         result = router.solve_vrp(
             deliveries=[delivery.dict() for delivery in request.deliveries],
             depots=[request.depot.coordinates],
             constraints=request.constraints
         )
-        
+
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -210,4 +211,4 @@ async def get_vehicles(
     try:
         return list(fleet_manager.vehicles.values())
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))

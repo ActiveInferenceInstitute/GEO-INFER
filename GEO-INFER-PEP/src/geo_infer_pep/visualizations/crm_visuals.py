@@ -34,7 +34,7 @@ def plot_customer_distribution_by_status(customers: List[Customer], output_dir: 
     plt.ylabel('Number of Customers')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    
+
     file_path = output_dir / "customer_status_distribution.png"
     try:
         plt.savefig(file_path)
@@ -54,14 +54,17 @@ def plot_customer_distribution_by_source(customers: List[Customer], output_dir: 
     if not customers:
         print("No customer data to plot distribution by source.")
         return None
-    
+
     df = convert_customers_to_dataframe(customers)
     if df.empty or 'source' not in df.columns:
         print("Customer data is empty or 'source' column missing for plotting.")
         return None
 
     plt.figure(figsize=(12, 7))
-    sns.countplot(data=df, y='source', order=df['source'].value_counts().index, palette="viridis")
+    sns.countplot(
+        data=df, y='source', order=df['source'].value_counts().index,
+        hue='source', palette="viridis", legend=False,
+    )
     plt.title('Customer Distribution by Source')
     plt.xlabel('Number of Customers')
     plt.ylabel('Source')
@@ -98,9 +101,9 @@ def plot_customer_distribution_by_source(customers: List[Customer], output_dir: 
 #         status_plot_path = plot_customer_distribution_by_status(enriched)
 #         if status_plot_path:
 #             print(f"Status plot created at: {status_plot_path}")
-        
+
 #         source_plot_path = plot_customer_distribution_by_source(enriched)
 #         if source_plot_path:
 #             print(f"Source plot created at: {source_plot_path}")
 #     else:
-#         print("No data to generate visualizations.") 
+#         print("No data to generate visualizations.")

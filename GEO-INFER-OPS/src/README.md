@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-OPS`.
 
 ## Contents
 
+- `geo_infer_ops.egg-info/`
 - `geo_infer_ops/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-OPS`.
 - `isort>=5.12.0`
 - `flake8>=6.0.0`
 - `pytest-cov>=4.1.0`
+
 
 ## Validation
 

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional normative integration
 try:
-    from geo_infer_norms.core.norms import NormativeSystemManager
+    from geo_infer_norms.core.normative_inference import NormativeInference as NormativeSystemManager
     NORMS_AVAILABLE = True
 except ImportError:
     NORMS_AVAILABLE = False
@@ -323,6 +323,5 @@ class NormativeGovernanceIntegration:
             alignment['alignment_score'] = 0.5  # Neutral if no norms to compare
         
         return alignment
-
 
 

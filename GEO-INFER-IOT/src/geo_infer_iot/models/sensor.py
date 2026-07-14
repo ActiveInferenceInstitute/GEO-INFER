@@ -8,7 +8,7 @@ and related metadata using Pydantic for validation and type safety.
 import logging
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 import h3
 
 # Optional imports for enhanced functionality

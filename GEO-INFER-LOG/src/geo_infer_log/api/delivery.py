@@ -7,7 +7,8 @@ service area analysis, and delivery scheduling.
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import Field
+from geo_infer_log.models.base import BaseModel
 from datetime import datetime
 
 from geo_infer_log.models.schemas import Vehicle, Location, Route, RoutingParameters
@@ -213,7 +214,7 @@ async def optimize_deliveries(
             vehicles=request.vehicles,
             constraints=request.constraints
         )
-        
+
         # Convert route objects to dictionaries
         return [route.dict() for route in routes]
     except Exception as e:
@@ -250,7 +251,7 @@ async def get_daily_schedule(
         # Parse date string to datetime
         date_obj = datetime.fromisoformat(date)
         routes = scheduler.get_daily_schedule(date_obj)
-        
+
         # Convert route objects to dictionaries
         return [route.dict() for route in routes]
     except Exception as e:
@@ -265,7 +266,7 @@ async def get_vehicle_schedule(
     """Get the schedule for a specific vehicle."""
     try:
         routes = scheduler.get_vehicle_schedule(vehicle_id)
-        
+
         # Convert route objects to dictionaries
         return [route.dict() for route in routes]
     except Exception as e:
@@ -302,10 +303,10 @@ async def create_service_area(
             max_time=request.max_time,
             max_distance=request.max_distance
         )
-        
+
         # Convert GeoDataFrame to GeoJSON
         geo_json = gdf.to_json()
-        
+
         return {
             "depot_id": request.depot_id,
             "max_time": request.max_time,
@@ -361,4 +362,4 @@ async def analyze_coverage(
             "depot_coverage": depot_coverage,
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))

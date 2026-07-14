@@ -12,6 +12,7 @@ def load_module(module_filename: str):
 
 
 def test_verifier_detects_v3_and_v4(tmp_path):
+    """Behavior-focused test: test_verifier_detects_v3_and_v4."""
     mod = load_module("verify_h3_v4_compliance.py")
     v3 = tmp_path / "old.py"
     v4 = tmp_path / "new.py"
@@ -24,5 +25,3 @@ def test_verifier_detects_v3_and_v4(tmp_path):
 
     assert has_v3 and issues
     assert has_v4 and usage
-
-

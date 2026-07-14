@@ -11,14 +11,17 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `src/`
 - `tests/`
 - `rewrite_readme_agents.py`
+- `run_model_audit.py`
 - `run_unified_tests.py`
 - `setup.py`
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
 - `validate_h3_active_inference_contract.py`
+- `validate_model_contracts.py`
 - `validate_repo_contracts.py`
 - `validate_skills.py`
+- `validate_test_contracts.py`
 - `.cursorrules`
 - `SKILL.md`
 - `TESTING.md`
@@ -71,6 +74,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 
+
 ## Validation
 
 ```bash
@@ -78,6 +82,18 @@ uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
+
+## Strict Testing Contracts
+
+- `src/geo_infer_test/testing.py` exports deterministic RNG, local filesystem,
+  HTTP, SQLite, and service fixtures plus finite/probability/matrix/model and
+  visualization-manifest assertions.
+- `validate_test_contracts.py --strict` validates every module inventory,
+  primary marker, forbidden pytest control, syntax tree, and behavior-test
+  docstring.
+- `validate_model_contracts.py` checks representative ACT model contracts;
+  `run_model_audit.py` emits finite statistics, a PNG visualization, SHA-256
+  sidecars, and a deterministic manifest.
 
 ## Documentation Notes
 

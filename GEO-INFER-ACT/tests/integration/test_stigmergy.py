@@ -5,6 +5,7 @@ from geo_infer_act.utils.geospatial_ai import EnvironmentalActiveInferenceEngine
 
 class TestStigmergicCoordination(unittest.TestCase):
     def test_stigmergy_convergence(self):
+        """Behavior-focused test: test_stigmergy_convergence."""
         # 1. Initialize the Environmental Engine
         boundary = {
             "type": "Polygon",

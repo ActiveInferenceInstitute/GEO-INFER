@@ -32,6 +32,7 @@ Geospatial intelligence for logistics optimization, supply chain management, rou
 - `pandas>=1.3.0`
 - `geopandas>=0.10.0`
 
+
 ## Validation
 
 ```bash

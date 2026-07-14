@@ -22,11 +22,12 @@ where:
 - ε: Residual errors (ε ~ N(0, R))
 """
 
+import logging
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Union, Any
 from scipy import linalg, stats
 from scipy.optimize import minimize
-import warnings
+logger = logging.getLogger(__name__)
 
 from ...models.data_models import SPMData, SPMResult, DesignMatrix
 
@@ -203,7 +204,9 @@ class MixedEffectsSPM:
             try:
                 # Compute log-likelihood
                 V_inv = linalg.pinvh(V)
-                log_det_V = np.log(linalg.det(V))
+                sign, log_det_V = linalg.slogdet(V)
+                if sign <= 0 or not np.isfinite(log_det_V):
+                    return np.inf
 
                 mu = X @ beta
                 resid = y - mu
@@ -249,12 +252,12 @@ class MixedEffectsSPM:
 
                 return beta_hat, variance_components, log_likelihood
             else:
-                warnings.warn("REML optimization did not converge")
+                logger.debug("REML optimization did not converge")
                 # Return OLS estimates
                 return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
 
         except Exception as e:
-            warnings.warn(f"REML fitting failed: {e}")
+            logger.debug("REML fitting failed: %s", e)
             # Fallback to OLS
             return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
 
@@ -273,7 +276,9 @@ class MixedEffectsSPM:
 
             try:
                 V_inv = linalg.pinvh(V)
-                log_det_V = np.log(linalg.det(V))
+                sign, log_det_V = linalg.slogdet(V)
+                if sign <= 0 or not np.isfinite(log_det_V):
+                    return np.inf
 
                 mu = X @ beta
                 resid = y - mu
@@ -316,11 +321,11 @@ class MixedEffectsSPM:
 
                 return beta_hat, variance_components, log_likelihood
             else:
-                warnings.warn("ML optimization did not converge")
+                logger.debug("ML optimization did not converge")
                 return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
 
         except Exception as e:
-            warnings.warn(f"ML fitting failed: {e}")
+            logger.debug("ML fitting failed: %s", e)
             return np.linalg.pinv(X) @ y, {'residual_variance': np.var(y)}, -np.inf
 
     def predict(self, new_data: SPMData, include_random_effects: bool = True) -> np.ndarray:

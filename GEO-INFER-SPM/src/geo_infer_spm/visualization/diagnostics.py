@@ -6,8 +6,10 @@ visual assessments of SPM model fit and statistical assumptions.
 """
 
 import numpy as np
+import logging
 from typing import Dict, List, Optional, Any, Tuple
-import warnings
+
+logger = logging.getLogger(__name__)
 
 try:
     import matplotlib.pyplot as plt
@@ -133,11 +135,11 @@ def _plot_residuals_vs_fitted(spm_result: SPMResult, ax):
 
     # Add smoothed line
     try:
-        from scipy.stats import lowess
+        from statsmodels.nonparametric.smoothers_lowess import lowess
         smoothed = lowess(residuals, fitted, frac=0.3)
         ax.plot(smoothed[:, 0], smoothed[:, 1], color='blue', linewidth=2, alpha=0.8)
     except ImportError:
-        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
+        logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
 def _plot_scale_location(spm_result: SPMResult, ax):
@@ -158,7 +160,7 @@ def _plot_scale_location(spm_result: SPMResult, ax):
         smoothed = lowess(sqrt_abs_residuals, fitted, frac=0.3)
         ax.plot(smoothed[:, 0], smoothed[:, 1], color='blue', linewidth=2, alpha=0.8)
     except ImportError:
-        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
+        logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
 def _plot_residual_histogram(spm_result: SPMResult, ax):
@@ -188,7 +190,7 @@ def _plot_residual_histogram(spm_result: SPMResult, ax):
                 transform=ax.transAxes, verticalalignment='top',
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     except ImportError:
-        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
+        logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
 def _plot_cooks_distance(spm_result: SPMResult, ax):
@@ -282,7 +284,7 @@ def _compute_diagnostic_stats(spm_result: SPMResult) -> Dict[str, Any]:
         stats_dict['shapiro_normality_p'] = float(shapiro_p)
         stats_dict['dagostino_normality_p'] = float(normal_p)
     except ImportError:
-        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
+        logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
     # Leverage and influence
     hat_matrix = X @ np.linalg.pinv(X.T @ X) @ X.T

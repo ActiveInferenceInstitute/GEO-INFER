@@ -29,7 +29,7 @@ try:
     from geo_infer_ant.core.stigmergy import PheromoneSystem
     from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 except ImportError:
-    pytest.skip("Analysis modules not available", allow_module_level=True)
+    pytest.fail("Analysis modules not available")
 
 
 class TestSwarmPatternAnalyzer:
@@ -379,7 +379,7 @@ class TestIntegrationWithCoreComponents:
             asyncio.run(integration_test())
 
         except ImportError:
-            pytest.skip("Pheromone system not available")
+            pytest.fail("Pheromone system not available")
 
     def test_analyzer_with_digital_stigmergy(self):
         """Test pattern analyzer integration with digital stigmergy."""
@@ -408,7 +408,7 @@ class TestIntegrationWithCoreComponents:
             asyncio.run(integration_test())
 
         except ImportError:
-            pytest.skip("Digital stigmergy not available")
+            pytest.fail("Digital stigmergy not available")
 
 
 class TestAnalysisPerformance:

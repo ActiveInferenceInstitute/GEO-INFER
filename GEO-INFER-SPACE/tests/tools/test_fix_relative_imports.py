@@ -12,6 +12,7 @@ def load_module(module_filename: str):
 
 
 def test_fix_relative_imports_in_file(tmp_path: Path):
+    """Behavior-focused test: test_fix_relative_imports_in_file."""
     mod = load_module("fix_relative_imports.py")
     f = tmp_path / "mod.py"
     f.write_text("from .utils import helper\n", encoding="utf-8")
@@ -20,5 +21,3 @@ def test_fix_relative_imports_in_file(tmp_path: Path):
 
     content = f.read_text(encoding="utf-8")
     assert content.startswith("from utils import helper")
-
-

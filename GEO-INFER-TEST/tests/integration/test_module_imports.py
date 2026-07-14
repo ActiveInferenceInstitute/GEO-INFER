@@ -92,7 +92,7 @@ class TestModuleImports:
         except ImportError as e:
             # Expected for some modules with heavy optional deps
             if "No module named" in str(e):
-                pytest.skip(f"Optional dependency missing for {package}: {e}")
+                pytest.fail(f"Optional dependency missing for {package}: {e}")
             else:
                 pytest.fail(f"Import error for {package}: {e}")
         except Exception as e:
@@ -110,7 +110,7 @@ class TestModuleImports:
         elif pkg_dir.is_dir():
             init_file = pkg_dir / "__init__.py"
         if init_file is None or not init_file.is_file():
-            pytest.skip(f"No __init__.py found for {package}")
+            pytest.fail(f"No __init__.py found for {package}")
         content = init_file.read_text()
         assert len(content) > 0, f"{package}/__init__.py is empty"
 
@@ -123,7 +123,7 @@ class TestModulePyprojectConsistency:
         """Each module should have pyproject.toml."""
         pyproject = REPO_ROOT / f"GEO-INFER-{module}" / "pyproject.toml"
         if not pyproject.is_file():
-            pytest.skip(f"No pyproject.toml for GEO-INFER-{module}")
+            pytest.fail(f"No pyproject.toml for GEO-INFER-{module}")
         content = pyproject.read_text()
         assert "[project]" in content or "[tool." in content, (
             f"pyproject.toml for GEO-INFER-{module} has no [project] or [tool.*] section"
@@ -134,7 +134,7 @@ class TestModulePyprojectConsistency:
         """pyproject.toml should declare a project name."""
         pyproject = REPO_ROOT / f"GEO-INFER-{module}" / "pyproject.toml"
         if not pyproject.is_file():
-            pytest.skip(f"No pyproject.toml for GEO-INFER-{module}")
+            pytest.fail(f"No pyproject.toml for GEO-INFER-{module}")
         content = pyproject.read_text()
         if "[project]" in content:
             assert 'name' in content, f"pyproject.toml for GEO-INFER-{module} missing name field"

@@ -25,7 +25,6 @@ except ImportError:
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not HAS_GEO_DEPS, reason="geopandas/shapely required"),
 ]
 
 
@@ -149,7 +148,6 @@ class TestAnonymizationPipeline:
         assert "income" in result.columns
 
 
-@pytest.mark.skipif(not HAS_CRYPTO, reason="cryptography package required")
 class TestEncryptionPipeline:
     """Test encryption and decryption of geospatial data."""
 
@@ -210,7 +208,6 @@ class TestEncryptionPipeline:
         assert decrypted == original
 
 
-@pytest.mark.skipif(not HAS_CRYPTO, reason="cryptography package required")
 class TestAnonymizationEncryptionPipeline:
     """Test anonymization followed by encryption in a combined pipeline."""
 

@@ -40,6 +40,7 @@ Core workspace within `GEO-INFER-HEALTH`.
 - `scipy>=1.11.0`
 - `pandas>=2.1.0`
 
+
 ## Validation
 
 ```bash

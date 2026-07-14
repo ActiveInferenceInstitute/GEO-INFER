@@ -52,7 +52,7 @@ class TestModuleDirectoryStructure:
     def test_module_has_test_files(self, module):
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
-            pytest.skip(f"No tests dir for {module}")
+            pytest.fail(f"No tests dir for {module}")
         test_files = list(tests_dir.rglob("test_*.py"))
         assert len(test_files) > 0, f"No test files found in GEO-INFER-{module}/tests/"
 
@@ -69,7 +69,7 @@ class TestTestFileQuality:
         """All test files should be valid Python."""
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
-            pytest.skip(f"No tests dir for {module}")
+            pytest.fail(f"No tests dir for {module}")
         for test_file in tests_dir.rglob("test_*.py"):
             try:
                 ast.parse(test_file.read_text())
@@ -81,7 +81,7 @@ class TestTestFileQuality:
         """Test files should have module-level docstrings."""
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
-            pytest.skip(f"No tests dir for {module}")
+            pytest.fail(f"No tests dir for {module}")
         missing = []
         for test_file in tests_dir.rglob("test_*.py"):
             try:
@@ -105,7 +105,7 @@ class TestTestFileQuality:
         """Test functions should start with test_."""
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
-            pytest.skip(f"No tests dir for {module}")
+            pytest.fail(f"No tests dir for {module}")
         for test_file in tests_dir.rglob("test_*.py"):
             try:
                 tree = ast.parse(test_file.read_text())
@@ -155,7 +155,7 @@ class TestEcosystemStatistics:
                 f"TestDiscoverer found tests for {len(modules_with_tests)} modules, expected >=40"
             )
         except ImportError:
-            pytest.skip("geo_infer_test.core.test_discoverer not available")
+            pytest.fail("geo_infer_test.core.test_discoverer not available")
 
 
 # ============================================================================
@@ -170,7 +170,7 @@ class TestSourceStructure:
         """Each module should have a src/ directory or a Python package."""
         mod_dir = REPO_ROOT / f"GEO-INFER-{module}"
         if not mod_dir.is_dir():
-            pytest.skip(f"Module {module} directory missing")
+            pytest.fail(f"Module {module} directory missing")
         has_src = (mod_dir / "src").is_dir()
         has_package = any(
             (mod_dir / d / "__init__.py").is_file()
@@ -185,7 +185,7 @@ class TestSourceStructure:
         """Each module should have a pyproject.toml or setup.py."""
         mod_dir = REPO_ROOT / f"GEO-INFER-{module}"
         if not mod_dir.is_dir():
-            pytest.skip(f"Module {module} directory missing")
+            pytest.fail(f"Module {module} directory missing")
         has_pyproject = (mod_dir / "pyproject.toml").is_file()
         has_setup = (mod_dir / "setup.py").is_file()
         has_setup_cfg = (mod_dir / "setup.cfg").is_file()

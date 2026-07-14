@@ -115,7 +115,7 @@ class TestSpatialProcessorWorkflows:
             import geopandas as gpd
             from shapely.geometry import Point
         except ImportError:
-            pytest.skip("geopandas or shapely not available")
+            pytest.fail("geopandas or shapely not available")
 
         from geo_infer_space.core.spatial_processor import SpatialProcessor
 
@@ -133,7 +133,9 @@ class TestSpatialProcessorWorkflows:
         )
 
         # Step 2: Buffer analysis
-        buffered = processor.buffer_analysis(points, buffer_distance=2.0)
+        # ``buffer_distance`` is expressed in metres for geographic inputs;
+        # 200 km covers the nearby one-degree pair but not the distant point.
+        buffered = processor.buffer_analysis(points, buffer_distance=200_000.0)
 
         # Step 3: Verify buffers exist and are larger than points
         assert len(buffered) == 3

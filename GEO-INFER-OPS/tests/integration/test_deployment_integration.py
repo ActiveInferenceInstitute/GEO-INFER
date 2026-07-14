@@ -1,241 +1,236 @@
-"""
-Integration tests for deployment management.
+"""Deterministic integration tests for the Kubernetes deployment boundary.
+
+The production manager still uses the official Kubernetes client.  These tests
+replace its client factories with an in-memory service so lifecycle behavior is
+validated without requiring a cluster, kubeconfig, network, or cleanup hooks.
 """
 
-import os
+from __future__ import annotations
+
+from types import SimpleNamespace
+
 import pytest
-from kubernetes import client, config
-from kubernetes.client.rest import ApiException
+from kubernetes import client
 
 from geo_infer_ops.core.deployment import DeploymentManager
-from geo_infer_ops.core.config import Config, DeploymentConfig
-
-pytestmark = pytest.mark.skipif(
-    os.getenv("GEO_INFER_OPS_LIVE_K8S") != "1",
-    reason="requires GEO_INFER_OPS_LIVE_K8S=1 and a reachable Kubernetes cluster",
-)
+from geo_infer_ops.core import deployment as deployment_module
 
 
-@pytest.fixture(scope="module")
-def k8s_config():
-    """Load Kubernetes configuration."""
-    try:
-        config.load_kube_config()
-    except config.ConfigException:
-        config.load_incluster_config()
+class FakeAppsApi:
+    """Small in-memory implementation of the AppsV1 operations under test."""
+
+    def __init__(self) -> None:
+        self.deployments: dict[str, dict] = {}
+        self.rollback_revisions: dict[str, int] = {}
+
+    def create_namespaced_deployment(self, *, namespace: str, body: dict) -> None:
+        del namespace
+        self.deployments[body["metadata"]["name"]] = body
+
+    def replace_namespaced_deployment(self, *, name: str, namespace: str, body: dict) -> None:
+        del namespace
+        self.deployments[name] = body
+
+    def read_namespaced_deployment(self, *, name: str, namespace: str) -> SimpleNamespace:
+        del namespace
+        body = self.deployments[name]
+        replicas = body["spec"]["replicas"]
+        return SimpleNamespace(
+            metadata=SimpleNamespace(name=name),
+            spec=SimpleNamespace(replicas=replicas),
+            status=SimpleNamespace(
+                available_replicas=replicas,
+                ready_replicas=replicas,
+                updated_replicas=replicas,
+                conditions=[],
+            ),
+        )
+
+    def patch_namespaced_deployment_scale(
+        self, *, name: str, namespace: str, body: dict
+    ) -> None:
+        del namespace
+        self.deployments[name]["spec"]["replicas"] = body["spec"]["replicas"]
+
+    def delete_namespaced_deployment(self, *, name: str, namespace: str) -> None:
+        del namespace
+        self.deployments.pop(name, None)
+
+    def create_namespaced_deployment_rollback(
+        self, *, name: str, namespace: str, body: dict
+    ) -> None:
+        del namespace
+        self.rollback_revisions[name] = body["rollbackTo"]["revision"]
+
+    def patch_namespaced_deployment(self, *, name: str, namespace: str, body: dict) -> None:
+        del namespace
+        self.deployments[name].setdefault("metadata", {}).setdefault("annotations", {}).update(
+            body.get("metadata", {}).get("annotations", {})
+        )
 
 
-@pytest.fixture(scope="module")
-def k8s_client(k8s_config):
-    """Create Kubernetes API clients."""
+class FakeCoreApi:
+    """In-memory CoreV1 operations for quota and pod health checks."""
+
+    def __init__(self, apps: FakeAppsApi) -> None:
+        self.apps = apps
+        self.quotas: dict[str, dict] = {}
+        self.pods: dict[str, SimpleNamespace] = {}
+
+    def create_namespaced_resource_quota(self, *, namespace: str, body: dict) -> None:
+        self.quotas[body["metadata"]["name"]] = body
+        del namespace
+
+    def list_namespaced_pod(self, *, namespace: str, label_selector: str | None = None):
+        del namespace, label_selector
+        for deployment in self.apps.deployments.values():
+            name = deployment["metadata"]["name"] + "-pod"
+            self.pods[name] = self._healthy_pod(name)
+        return SimpleNamespace(items=list(self.pods.values()))
+
+    def read_namespaced_pod(self, *, name: str, namespace: str) -> SimpleNamespace:
+        del namespace
+        self.pods.setdefault(name, self._healthy_pod(name))
+        return self.pods[name]
+
+    def delete_namespaced_pod(self, *, name: str, namespace: str) -> None:
+        del namespace
+        self.pods.pop(name, None)
+
+    def create_namespaced_pod(self, *, namespace: str, body: dict) -> None:
+        del namespace
+        name = body["metadata"]["name"]
+        self.pods[name] = self._healthy_pod(name)
+
+    def create_namespaced_binding(self, *, namespace: str, body: dict) -> None:
+        del namespace, body
+
+    @staticmethod
+    def _healthy_pod(name: str) -> SimpleNamespace:
+        return SimpleNamespace(
+            metadata=SimpleNamespace(name=name),
+            status=SimpleNamespace(
+                phase="Running",
+                pod_ip="127.0.0.1",
+                node_name="local-test-node",
+                conditions=[
+                    SimpleNamespace(type="Ready", status="True"),
+                    SimpleNamespace(type="Initialized", status="True"),
+                ],
+                container_statuses=[
+                    SimpleNamespace(name="test-container", image="local:test", ready=True)
+                ],
+            ),
+            spec=SimpleNamespace(node_name="local-test-node"),
+        )
+
+
+class FakeNetworkingApi:
+    """In-memory NetworkPolicy operations."""
+
+    def __init__(self) -> None:
+        self.policies: dict[str, dict] = {}
+
+    def create_namespaced_network_policy(self, *, namespace: str, body: dict) -> None:
+        del namespace
+        self.policies[body["metadata"]["name"]] = body
+
+    def delete_namespaced_network_policy(self, *, name: str, namespace: str) -> None:
+        del namespace
+        self.policies.pop(name, None)
+
+
+@pytest.fixture
+def test_namespace() -> str:
+    """Provide a deterministic namespace name without contacting Kubernetes."""
+    return "geo-infer-test"
+
+
+@pytest.fixture
+def deployment_manager(monkeypatch: pytest.MonkeyPatch, test_namespace: str):
+    """Create a manager backed by local fake Kubernetes services."""
+    apps = FakeAppsApi()
+    core = FakeCoreApi(apps)
+    networking = FakeNetworkingApi()
+    monkeypatch.setattr(deployment_module.config, "load_incluster_config", lambda: None)
+    monkeypatch.setattr(deployment_module.client, "AppsV1Api", lambda: apps)
+    monkeypatch.setattr(deployment_module.client, "CoreV1Api", lambda: core)
+    monkeypatch.setattr(deployment_module.client, "NetworkingV1Api", lambda: networking)
+    return DeploymentManager(namespace=test_namespace)
+
+
+def deployment_manifest(name: str, image: str = "local:test", replicas: int = 1) -> dict:
+    """Build a minimal deployment manifest used by lifecycle tests."""
     return {
-        "apps": client.AppsV1Api(),
-        "core": client.CoreV1Api(),
-        "networking": client.NetworkingV1Api(),
-    }
-
-
-@pytest.fixture(scope="module")
-def test_namespace():
-    """Create and manage a test namespace."""
-    namespace = "geo-infer-test"
-    k8s_client = client.CoreV1Api()
-
-    # Create namespace
-    try:
-        k8s_client.create_namespace(
-            client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
-        )
-    except ApiException as e:
-        if e.status != 409:  # Ignore if namespace already exists
-            raise
-
-    yield namespace
-
-    # Cleanup namespace
-    try:
-        k8s_client.delete_namespace(name=namespace)
-    except ApiException as e:
-        if e.status != 404:  # Ignore if namespace doesn't exist
-            raise
-
-
-@pytest.fixture(scope="module")
-def deployment_manager(test_namespace):
-    """Create a deployment manager instance."""
-    config = Config(
-        deployment=DeploymentConfig(
-            kubernetes=DeploymentConfig.KubernetesConfig(namespace=test_namespace)
-        )
-    )
-    return DeploymentManager(config)
-
-
-def test_deployment_lifecycle(deployment_manager, test_namespace):
-    """Test complete deployment lifecycle."""
-    # Test deployment creation
-    deployment_manifest = {
         "apiVersion": "apps/v1",
         "kind": "Deployment",
-        "metadata": {"name": "test-deployment", "namespace": test_namespace},
+        "metadata": {"name": name},
         "spec": {
-            "replicas": 1,
-            "selector": {"matchLabels": {"app": "test"}},
+            "replicas": replicas,
+            "selector": {"matchLabels": {"app": name}},
             "template": {
-                "metadata": {"labels": {"app": "test"}},
-                "spec": {
-                    "containers": [
-                        {
-                            "name": "test-container",
-                            "image": "nginx:latest",
-                            "ports": [{"containerPort": 80}],
-                        }
-                    ]
-                },
+                "metadata": {"labels": {"app": name}},
+                "spec": {"containers": [{"name": "test-container", "image": image}]},
             },
         },
     }
 
-    result = deployment_manager.deploy_kubernetes(deployment_manifest)
-    assert result is True
 
-    # Test deployment status
+def test_deployment_lifecycle(deployment_manager, test_namespace):
+    """Create, inspect, scale, health-check, and delete a local deployment."""
+    del test_namespace
+    assert deployment_manager.deploy_kubernetes(deployment_manifest("test-deployment")) is True
     status = deployment_manager.get_deployment_status("test-deployment")
     assert status["name"] == "test-deployment"
     assert status["replicas"] == 1
 
-    # Test pod health
     pods = deployment_manager.get_pods()
-    assert len(pods) > 0
-    pod_name = pods[0]["name"]
-    health = deployment_manager.check_pod_health(pod_name)
-    assert health["healthy"] is True
-
-    # Test deployment scaling
-    result = deployment_manager.scale_deployment("test-deployment", 2)
-    assert result is True
-    status = deployment_manager.get_deployment_status("test-deployment")
-    assert status["replicas"] == 2
-
-    # Test deployment deletion
-    result = deployment_manager.delete_deployment("test-deployment")
-    assert result is True
+    assert len(pods) == 1
+    assert deployment_manager.check_pod_health(pods[0]["name"])["healthy"] is True
+    assert deployment_manager.scale_deployment("test-deployment", 2) is True
+    assert deployment_manager.get_deployment_status("test-deployment")["replicas"] == 2
+    assert deployment_manager.delete_deployment("test-deployment") is True
 
 
 def test_resource_quota_management(deployment_manager, test_namespace):
-    """Test resource quota management."""
-    # Create resource quota
-    quota_manifest = {
+    """Apply a local resource quota and validate a resource-bearing deployment."""
+    quota = {
         "apiVersion": "v1",
         "kind": "ResourceQuota",
         "metadata": {"name": "test-quota", "namespace": test_namespace},
         "spec": {"hard": {"cpu": "2", "memory": "4Gi", "pods": "4"}},
     }
-
-    result = deployment_manager.apply_resource_quota(quota_manifest)
-    assert result is True
-
-    # Test deployment with resource limits
-    deployment_manifest = {
-        "apiVersion": "apps/v1",
-        "kind": "Deployment",
-        "metadata": {"name": "resource-test", "namespace": test_namespace},
-        "spec": {
-            "replicas": 1,
-            "selector": {"matchLabels": {"app": "resource-test"}},
-            "template": {
-                "metadata": {"labels": {"app": "resource-test"}},
-                "spec": {
-                    "containers": [
-                        {
-                            "name": "test-container",
-                            "image": "nginx:latest",
-                            "resources": {
-                                "requests": {"cpu": "100m", "memory": "128Mi"},
-                                "limits": {"cpu": "200m", "memory": "256Mi"},
-                            },
-                        }
-                    ]
-                },
-            },
-        },
+    assert deployment_manager.apply_resource_quota(quota) is True
+    manifest = deployment_manifest("resource-test")
+    manifest["spec"]["template"]["spec"]["containers"][0]["resources"] = {
+        "requests": {"cpu": "100m", "memory": "128Mi"},
+        "limits": {"cpu": "200m", "memory": "256Mi"},
     }
-
-    result = deployment_manager.deploy_kubernetes(deployment_manifest)
-    assert result is True
-
-    # Cleanup
-    deployment_manager.delete_deployment("resource-test")
+    assert deployment_manager.validate_resource_quota(manifest) is True
+    assert deployment_manager.deploy_kubernetes(manifest) is True
+    assert deployment_manager.delete_deployment("resource-test") is True
 
 
 def test_network_policy_management(deployment_manager, test_namespace):
-    """Test network policy management."""
-    # Create network policy
-    policy_manifest = {
+    """Apply and delete a local NetworkPolicy through the manager."""
+    policy = {
         "apiVersion": "networking.k8s.io/v1",
         "kind": "NetworkPolicy",
         "metadata": {"name": "test-policy", "namespace": test_namespace},
-        "spec": {
-            "podSelector": {"matchLabels": {"app": "test"}},
-            "policyTypes": ["Ingress"],
-            "ingress": [
-                {
-                    "from": [{"podSelector": {"matchLabels": {"app": "test"}}}],
-                    "ports": [{"protocol": "TCP", "port": 80}],
-                }
-            ],
-        },
+        "spec": {"podSelector": {"matchLabels": {"app": "test"}}, "policyTypes": ["Ingress"]},
     }
-
-    result = deployment_manager.apply_network_policy(policy_manifest)
-    assert result is True
-
-    # Cleanup
-    deployment_manager.delete_network_policy("test-policy")
+    assert deployment_manager.validate_network_policy(policy) is True
+    assert deployment_manager.apply_network_policy(policy) is True
+    assert deployment_manager.delete_network_policy("test-policy") is True
 
 
 def test_deployment_rollback_scenario(deployment_manager, test_namespace):
-    """Test deployment rollback scenario."""
-    # Create initial deployment
-    deployment_manifest = {
-        "apiVersion": "apps/v1",
-        "kind": "Deployment",
-        "metadata": {"name": "rollback-test", "namespace": test_namespace},
-        "spec": {
-            "replicas": 1,
-            "selector": {"matchLabels": {"app": "rollback-test"}},
-            "template": {
-                "metadata": {"labels": {"app": "rollback-test"}},
-                "spec": {
-                    "containers": [
-                        {
-                            "name": "test-container",
-                            "image": "nginx:1.19",
-                            "ports": [{"containerPort": 80}],
-                        }
-                    ]
-                },
-            },
-        },
-    }
-
-    result = deployment_manager.deploy_kubernetes(deployment_manifest)
-    assert result is True
-
-    # Update deployment with new image
-    deployment_manifest["spec"]["template"]["spec"]["containers"][0][
-        "image"
-    ] = "nginx:1.20"
-    result = deployment_manager.deploy_kubernetes(deployment_manifest)
-    assert result is True
-
-    # Test rollback
-    result = deployment_manager.rollback_deployment("rollback-test", "1")
-    assert result is True
-
-    # Verify rollback
-    status = deployment_manager.get_deployment_status("rollback-test")
-    assert status["name"] == "rollback-test"
-
-    # Cleanup
-    deployment_manager.delete_deployment("rollback-test")
+    """Update a local deployment and record a deterministic rollback revision."""
+    del test_namespace
+    manifest = deployment_manifest("rollback-test", image="local:v1")
+    assert deployment_manager.deploy_kubernetes(manifest) is True
+    manifest["spec"]["template"]["spec"]["containers"][0]["image"] = "local:v2"
+    assert deployment_manager.deploy_kubernetes(manifest) is True
+    assert deployment_manager.rollback_deployment("rollback-test", "1") is True
+    assert deployment_manager.get_deployment_status("rollback-test")["name"] == "rollback-test"
+    assert deployment_manager.delete_deployment("rollback-test") is True

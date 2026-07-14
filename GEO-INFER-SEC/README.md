@@ -42,6 +42,7 @@ Comprehensive security and privacy framework for geospatial information systems 
 - `sqlalchemy>=1.4.0`
 - `bcrypt>=3.2.0`
 
+
 ## Validation
 
 ```bash

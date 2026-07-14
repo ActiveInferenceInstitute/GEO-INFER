@@ -6,7 +6,6 @@ Locations workspace within `GEO-INFER-PLACE`.
 
 - `australia/`
 - `cascadia/`
-- `del_norte/`
 - `del_norte_county/`
 - `del_norte_county_synthetic/`
 - `houston/`
@@ -38,6 +37,7 @@ Locations workspace within `GEO-INFER-PLACE`.
 - `seaborn>=0.12.0`
 - `branca>=0.6.0`
 - `requests>=2.28.0`
+
 
 ## Validation
 

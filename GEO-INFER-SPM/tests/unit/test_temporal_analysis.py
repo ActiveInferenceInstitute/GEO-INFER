@@ -88,7 +88,7 @@ class TestTemporalAnalyzer:
             assert 'seasonal' in decomp
             assert 'residual' in decomp
         except ImportError:
-            pytest.skip("Statsmodels not available for seasonal decomposition")
+            pytest.fail("Statsmodels not available for seasonal decomposition")
 
     def test_sliding_window_analysis(self):
         """Test sliding window analysis."""
@@ -143,7 +143,7 @@ class TestTemporalAnalyzer:
             result = analyzer.fit_arima_model(ar_data, order=(1, 0, 0))
             assert 'models' in result or 'success' in result
         except ImportError:
-            pytest.skip("Statsmodels not available for ARIMA modeling")
+            pytest.fail("Statsmodels not available for ARIMA modeling")
 
 
 class TestTemporalTrendDetection:
@@ -206,7 +206,7 @@ class TestTemporalTrendDetection:
             assert seasonal_amplitude > 2.0  # Should detect strong seasonal pattern
 
         except ImportError:
-            pytest.skip("Seasonal decomposition requires statsmodels")
+            pytest.fail("Seasonal decomposition requires statsmodels")
 
     def test_change_point_detection_unavailable(self):
         """Test change point detection (requires external library)."""
@@ -222,7 +222,7 @@ class TestTemporalTrendDetection:
             result = analyzer.change_point_detection(data)
             assert 'change_points' in result
         except ImportError:
-            pytest.skip("Change point detection requires ruptures library")
+            pytest.fail("Change point detection requires ruptures library")
 
 
 class TestTemporalBasisFunctions:

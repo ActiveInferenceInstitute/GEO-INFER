@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-COMMS`.
 
 ## Contents
 
+- `geo_infer_comms.egg-info/`
 - `geo_infer_comms/`
 
 ## Public Interface
@@ -22,6 +23,7 @@ Src workspace within `GEO-INFER-COMMS`.
 
 - `fastapi>=0.68.0`
 - `pydantic>=1.8.0`
+
 
 ## Validation
 

@@ -30,7 +30,11 @@ def plot_headcount_by_department(employees: List[Employee], output_dir: Path = D
         return None
 
     plt.figure(figsize=(12, 7))
-    sns.countplot(data=active_df, y='department', order=active_df['department'].value_counts().index, palette="crest")
+    sns.countplot(
+        data=active_df, y='department',
+        order=active_df['department'].value_counts().index,
+        hue='department', palette="crest", legend=False,
+    )
     plt.title('Active Employee Headcount by Department')
     plt.xlabel('Number of Active Employees')
     plt.ylabel('Department')
@@ -87,4 +91,4 @@ def plot_gender_distribution(employees: List[Employee], output_dir: Path = DEFAU
 # Add more HR visualization functions here, e.g.:
 # - Tenure distribution (histogram)
 # - Attrition trends over time (line chart)
-# - Compensation distribution by job level (box plot) 
+# - Compensation distribution by job level (box plot)

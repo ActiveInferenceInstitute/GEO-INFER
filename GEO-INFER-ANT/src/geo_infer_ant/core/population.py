@@ -27,12 +27,15 @@ import json
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
     from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-    from geo_infer_time.core.temporal import TemporalManager
 except ImportError as e:
-    logging.warning(f"Integration modules not available: {e}")
+    logging.getLogger(__name__).debug("Optional spatial integration unavailable: %s", e)
     SpatialIndexingInterface = None
     SpatialAnalyticsInterface = None
-    TemporalManager = None
+
+# GEO-INFER-TIME currently exposes analysis and forecasting engines rather than
+# the historical TemporalManager class. Keep this integration point explicit so
+# population construction never performs a misleading import-time fallback.
+TemporalManager = None
 
 logger = logging.getLogger(__name__)
 

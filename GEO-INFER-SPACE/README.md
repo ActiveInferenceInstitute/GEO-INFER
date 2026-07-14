@@ -53,6 +53,7 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 - `python-multipart>=0.0.5`
 - `pyyaml>=6.0`
 
+
 ## Validation
 
 ```bash

@@ -27,8 +27,13 @@ class MultiAgentModel(ActiveInferenceModel):
         planning_horizon: int = 10,
         config: Optional[Dict[str, Any]] = None,
         environmental_engine: Optional[Any] = None,
+        random_seed: Optional[int] = None,
     ):
         super().__init__(config)
+        if random_seed is None and config:
+            random_seed = config.get("random_seed")
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
         self.n_agents = n_agents
         self.n_resources = n_resources
         self.n_locations = n_locations
@@ -46,11 +51,15 @@ class MultiAgentModel(ActiveInferenceModel):
             agent.set_transition_matrix(self._create_environmental_transition_model())
             self.agent_models.append(agent)
 
-        self.resource_distribution = np.random.rand(self.n_resources, self.n_locations)
+        self.resource_distribution = self.rng.random(
+            (self.n_resources, self.n_locations)
+        )
         self.location_connectivity = np.eye(
             self.n_locations
         )  # Example, adjust as needed
-        self.agent_preferences = np.random.rand(self.n_agents, self.n_resources)
+        self.agent_preferences = self.rng.random((self.n_agents, self.n_resources))
+        self._initial_resource_distribution = self.resource_distribution.copy()
+        self._initial_agent_preferences = self.agent_preferences.copy()
 
         # H3 spatial properties
         self.spatial_mode = False
@@ -58,6 +67,15 @@ class MultiAgentModel(ActiveInferenceModel):
         self.h3_resolution = 8
         self.spatial_graph = None
         self.agent_location_map = {}
+
+    def reset(self) -> None:
+        """Restore deterministic initial resource and preference state."""
+        self.resource_distribution = self._initial_resource_distribution.copy()
+        self.agent_preferences = self._initial_agent_preferences.copy()
+        for agent in self.agent_models:
+            reset = getattr(agent, "reset", None)
+            if callable(reset):
+                reset()
 
     def _create_environmental_observation_model(self) -> np.ndarray:
         """Create realistic environmental observation model for agents."""
@@ -575,7 +593,7 @@ class MultiAgentModel(ActiveInferenceModel):
         """
         if not hasattr(self, "spatial_mode") or not self.spatial_mode:
             # Simple coordination for non-spatial case
-            coordination_matrix = np.random.rand(self.n_agents, self.n_agents)
+            coordination_matrix = self.rng.random((self.n_agents, self.n_agents))
             coordination_matrix = (
                 coordination_matrix + coordination_matrix.T
             ) / 2  # Make symmetric

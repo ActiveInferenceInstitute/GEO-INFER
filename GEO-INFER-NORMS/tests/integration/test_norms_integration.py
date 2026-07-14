@@ -16,7 +16,6 @@ except ImportError:
 
 pytestmark = [
     pytest.mark.integration,
-    pytest.mark.skipif(not HAS_SHAPELY, reason="shapely required"),
 ]
 
 

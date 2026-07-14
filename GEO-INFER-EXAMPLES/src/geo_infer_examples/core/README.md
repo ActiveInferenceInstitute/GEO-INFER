@@ -8,6 +8,10 @@ Core workspace within `GEO-INFER-EXAMPLES`.
 
 ## Public Interface
 
+- `module_orchestrator.py:ConfigManager` (class)
+- `module_orchestrator.py:setup_logging` (function)
+- `module_orchestrator.py:APIConnector` (class)
+- `module_orchestrator.py:PerformanceMonitor` (class)
 - `module_orchestrator.py:ExecutionStrategy` (class)
 - `module_orchestrator.py:ModuleStatus` (class)
 - `module_orchestrator.py:WorkflowExecution` (class)
@@ -30,6 +34,7 @@ Core workspace within `GEO-INFER-EXAMPLES`.
 - `requests>=2.28.0`
 - `rich>=12.0.0`
 - `typer>=0.7.0`
+
 
 ## Validation
 

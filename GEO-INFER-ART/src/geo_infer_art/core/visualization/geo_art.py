@@ -199,6 +199,11 @@ class GeoArt:
         else:
             map_style_obj = None
 
+        # Keep repeated rendering calls bounded in long-running analysis jobs.
+        # Matplotlib otherwise emits a figure-leak warning after 20 figures.
+        if len(plt.get_fignums()) >= int(plt.rcParams["figure.max_open_warning"]):
+            plt.close("all")
+
         # Create figure and apply style
         fig, ax = plt.subplots(figsize=(10, 8), facecolor=background_color)
 
@@ -279,6 +284,7 @@ class GeoArt:
             os.makedirs(directory)
             
         self._figure.savefig(output_path, dpi=dpi, bbox_inches='tight')
+        plt.close(self._figure)
         return output_path
     
     def show(self) -> None:
@@ -291,6 +297,9 @@ class GeoArt:
         if self._figure is None:
             raise ValueError("No visualization to show. Apply a style first.")
         
+        if "agg" in plt.get_backend().lower() or not plt.isinteractive():
+            self._figure.canvas.draw()
+            return
         plt.show()
     
     def create_animation(

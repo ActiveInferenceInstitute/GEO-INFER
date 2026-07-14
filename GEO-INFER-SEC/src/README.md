@@ -4,6 +4,7 @@ Src workspace within `GEO-INFER-SEC`.
 
 ## Contents
 
+- `geo_infer_sec.egg-info/`
 - `geo_infer_sec/`
 
 ## Public Interface
@@ -32,6 +33,7 @@ Src workspace within `GEO-INFER-SEC`.
 - `flask>=2.0.0`
 - `sqlalchemy>=1.4.0`
 - `bcrypt>=3.2.0`
+
 
 ## Validation
 

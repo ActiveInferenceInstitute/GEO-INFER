@@ -96,7 +96,6 @@ class TestTimeSeriesUtils:
         for i in range(1, len(values)):
             assert values[i] != values[i - 1]
 
-    @pytest.mark.skip(reason="Math logic needs review")
     def test_seasonal_generator(self):
         """Test seasonal generator."""
         # Generate values for a full period
@@ -108,8 +107,9 @@ class TestTimeSeriesUtils:
             for i in range(period)
         ]
 
-        # First and last values should be approximately equal (full cycle)
-        assert abs(values[0] - values[-1]) < 0.01
+        # The sample contains indices 0..period-1; index ``period`` is the
+        # exact repeat of the first point and is represented by the boundary.
+        assert values[0] == 10.0
 
         # Peak should be at 1/4 period (sin wave peaks at π/2)
         peak_index = period // 4

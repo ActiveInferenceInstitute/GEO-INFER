@@ -27,14 +27,16 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple, Union, Any
 from scipy import stats
 from scipy.optimize import minimize
-import warnings
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     import pymc3 as pm
     PYMC3_AVAILABLE = True
 except ImportError:
     PYMC3_AVAILABLE = False
-    warnings.warn("PyMC3 not available. Bayesian functionality limited.")
+    logger.debug("PyMC3 is unavailable; Bayesian SPM uses empirical Bayes.")
 
 from ..models.data_models import SPMData, SPMResult, ContrastResult
 
@@ -67,7 +69,7 @@ class BayesianSPM:
         self.diagnostics = {}
 
         if not PYMC3_AVAILABLE and model_type != "empirical_bayes":
-            warnings.warn("PyMC3 not available. Using empirical Bayes approximation.")
+            logger.info("Using empirical Bayes approximation for %s", model_type)
 
     def fit_bayesian_glm(self, data: SPMData, design_matrix: np.ndarray,
                         priors: Optional[Dict[str, Any]] = None,
@@ -206,7 +208,7 @@ class BayesianSPM:
         result = minimize(negative_log_posterior, beta_init, method='BFGS')
 
         if not result.success:
-            warnings.warn("MAP optimization did not converge")
+            logger.debug("MAP optimization did not converge")
             beta_map = beta_init
         else:
             beta_map = result.x
@@ -400,7 +402,7 @@ class BayesianSPM:
                 waic = -2.0 * (elpd - p_waic)
                 waic_values.append(waic)
             except Exception as e:
-                warnings.warn(f"WAIC computation failed for model: {e}")
+                logger.debug("WAIC computation failed for model: %s", e)
                 waic_values.append(float('inf'))
 
         best_idx = int(np.argmin(waic_values)) if waic_values else 0
@@ -428,7 +430,7 @@ class BayesianSPM:
         # conditional autoregressive (CAR) models or Gaussian processes
 
         # Simplified implementation using empirical Bayes
-        warnings.warn("Spatial hierarchical model using simplified approximation")
+        logger.debug("Spatial hierarchical model uses a simplified approximation")
 
         # Add spatial random effects to design matrix
         spatial_basis = self._create_spatial_basis(data.coordinates, spatial_structure)

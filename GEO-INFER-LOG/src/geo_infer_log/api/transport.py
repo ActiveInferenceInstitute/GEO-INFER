@@ -7,12 +7,13 @@ transportation network analysis, and emissions calculation.
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Optional, Tuple
-from pydantic import BaseModel, Field
+from pydantic import Field
+from geo_infer_log.models.base import BaseModel
 import pandas as pd
 
 from geo_infer_log.models.schemas import Vehicle, Route, VehicleType, FuelType
 from geo_infer_log.core.transport import (
-    MultiModalPlanner, TransportationNetworkAnalyzer, 
+    MultiModalPlanner, TransportationNetworkAnalyzer,
     TrafficSimulator, EmissionsCalculator
 )
 
@@ -52,7 +53,7 @@ class CompareRoutesRequest(BaseModel):
     origin: Tuple[float, float] = Field(..., description="(lon, lat) of origin")
     destination: Tuple[float, float] = Field(..., description="(lon, lat) of destination")
     mode_combinations: List[List[str]] = Field(
-        ..., 
+        ...,
         description="List of mode combinations to compare"
     )
 
@@ -221,7 +222,7 @@ async def compare_routes(
             destination=request.destination,
             mode_combinations=request.mode_combinations
         )
-        
+
         # Convert DataFrame to dict
         return {"comparisons": df.to_dict(orient="records")}
     except Exception as e:
@@ -318,7 +319,7 @@ async def compare_vehicle_emissions(
             route=request.route,
             vehicle_options=request.vehicle_options
         )
-        
+
         # Convert DataFrame to dict
         return {"comparisons": df.to_dict(orient="records")}
     except Exception as e:
@@ -339,4 +340,4 @@ async def calculate_fleet_emissions(
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))

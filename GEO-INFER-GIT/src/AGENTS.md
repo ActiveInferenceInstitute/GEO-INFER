@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `geo_infer_git.egg-info/`
 - `geo_infer_git/`
 
 ## Validation

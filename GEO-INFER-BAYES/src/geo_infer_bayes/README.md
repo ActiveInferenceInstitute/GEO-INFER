@@ -12,6 +12,7 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 
 ## Public Interface
 
+- `__init__.py:SpatialCovariance` (class)
 - `__init__.py:GaussianProcess` (class)
 
 ## Module Metadata
@@ -35,6 +36,7 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 - `scipy`
 - `tensorflow-probability`
 - `xarray`
+
 
 ## Validation
 

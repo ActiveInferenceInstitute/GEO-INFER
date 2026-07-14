@@ -1422,6 +1422,37 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             return
         logger.info(f"✅ Successfully exported enhanced unified data to {output_path}")
 
+    def get_h3_cell(self, lat: float, lon: float) -> str:
+        """Return the deterministic H3 cell containing a latitude/longitude."""
+        if not (-90.0 <= float(lat) <= 90.0):
+            raise ValueError("lat must be between -90 and 90 degrees")
+        if not (-180.0 <= float(lon) <= 180.0):
+            raise ValueError("lon must be between -180 and 180 degrees")
+        return h3.latlng_to_cell(float(lat), float(lon), self.resolution)
+
+    def export_to_geojson(self, output_dir: str) -> str:
+        """Export current backend data and return the created GeoJSON path.
+
+        An empty backend is a valid initialized state.  In that state a valid
+        empty FeatureCollection is emitted, making export behavior explicit and
+        testable without requiring external agricultural data.
+        """
+        directory = Path(output_dir)
+        directory.mkdir(parents=True, exist_ok=True)
+        output_path = directory / "unified_data.geojson"
+        if self.unified_data:
+            self.export_unified_data(str(output_path), export_format="geojson")
+        else:
+            output_path.write_text(
+                json.dumps(
+                    {"type": "FeatureCollection", "features": []},
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+        return str(output_path)
+
     def _export_geojson_enhanced(self, data_to_export: Dict, output_path: str):
         """Enhanced GeoJSON export using SPACE utilities"""
         try:

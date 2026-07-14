@@ -18,7 +18,7 @@ try:
     AI_AVAILABLE = True
 except ImportError:
     AI_AVAILABLE = False
-    pytest.skip("GEO-INFER-AI not available", allow_module_level=True)
+    pytest.fail("GEO-INFER-AI not available")
 
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
@@ -26,10 +26,10 @@ try:
     SPACE_AVAILABLE = True
 except ImportError:
     SPACE_AVAILABLE = False
-    pytest.skip("GEO-INFER-SPACE not available", allow_module_level=True)
+    pytest.fail("GEO-INFER-SPACE not available")
 
 try:
-    from geo_infer_ag.core.agricultural import AgriculturalAnalysis
+    from geo_infer_ag.core.agricultural_analysis import AgriculturalAnalysis
     from geo_infer_ag.models.crop_yield import CropYieldModel
     AG_AVAILABLE = True
 except ImportError:
@@ -94,7 +94,7 @@ class TestAiSpaceAgIntegration:
     def test_spatial_feature_engineering_for_agriculture(self, sample_agricultural_data):
         """Test spatial feature engineering for agricultural ML models."""
         if not (AI_AVAILABLE and SPACE_AVAILABLE and AG_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         sensors = sample_agricultural_data['sensors']
         
@@ -128,7 +128,7 @@ class TestAiSpaceAgIntegration:
     def test_crop_yield_prediction_with_spatial_ai(self, sample_agricultural_data):
         """Test crop yield prediction using AI and spatial analysis."""
         if not (AI_AVAILABLE and SPACE_AVAILABLE and AG_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         fields = sample_agricultural_data['fields']
         sensors = sample_agricultural_data['sensors']
@@ -182,7 +182,7 @@ class TestAiSpaceHealthIntegration:
     def test_epidemiological_analysis_with_spatial_ai(self):
         """Test epidemiological analysis using AI and spatial analysis."""
         if not (AI_AVAILABLE and SPACE_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         # Create sample health data
         np.random.seed(42)
@@ -198,7 +198,8 @@ class TestAiSpaceHealthIntegration:
         
         # Add spatial indexing
         indexer = SpatialIndexingInterface(backend='h3')
-        regions['h3_cell'] = regions.geometry.centroid.apply(
+        projected_centroids = regions.to_crs("EPSG:3857").geometry.centroid.to_crs("EPSG:4326")
+        regions['h3_cell'] = projected_centroids.apply(
             lambda point: indexer.latlng_to_cell(point.y, point.x, resolution=9)
         )
         
@@ -218,7 +219,7 @@ class TestAiSpaceEconIntegration:
     def test_economic_modeling_with_spatial_ai(self):
         """Test economic modeling using AI and spatial analysis."""
         if not (AI_AVAILABLE and SPACE_AVAILABLE):
-            pytest.skip("Required modules not available")
+            pytest.fail("Required modules not available")
         
         # Create sample economic data
         np.random.seed(42)
@@ -251,5 +252,4 @@ class TestAiSpaceEconIntegration:
         assert 'h3_cell' in economic_regions.columns
         assert 'gdp_per_capita' in economic_regions.columns
         assert len(features) == 3
-
 
