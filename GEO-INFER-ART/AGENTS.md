@@ -38,6 +38,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
 
 
+## Visualization Guidance
+
+- Validate style alpha, line width, animation timing, and supported scale names
+  at the public API boundary.
+- Do not use mutable defaults for scale/style collections.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

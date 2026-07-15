@@ -48,6 +48,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
 ```
 
 
+## Visualization Contracts
+
+- Statistical and interactive maps reject invalid contrast indices, empty or
+  non-finite coordinates/statistics, and misaligned significance arrays.
+- Diagnostic leverage and Cook's distance use a numerically stable hat-matrix
+  calculation, and the package-level interactive-map export is unambiguous.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

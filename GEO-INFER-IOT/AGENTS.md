@@ -40,6 +40,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
 
 
+## Visualization Guidance
+
+- Validate sensor/interpolation coordinates and aligned values before passing
+  data to Folium or Matplotlib; create parents before writing artifacts.
+- Close saved figures and preserve explicit error dictionaries for invalid input.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

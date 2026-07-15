@@ -12,7 +12,6 @@ from .maps import (
     _plot_beta_coefficients,
     _plot_residuals,
     _plot_model_diagnostics,
-    create_interactive_map
 )
 from .diagnostics import (
     plot_model_diagnostics,
@@ -23,12 +22,12 @@ from .diagnostics import (
     _plot_residual_histogram,
     _plot_cooks_distance,
     _plot_leverage,
-    _compute_diagnostic_stats
+    _compute_diagnostic_stats,
 )
 from .interactive import (
     create_interactive_map,
     create_dashboard,
-    create_time_series_explorer
+    create_time_series_explorer,
 )
 
 __all__ = [
@@ -40,7 +39,6 @@ __all__ = [
     "create_interactive_map",
     "create_dashboard",
     "create_time_series_explorer",
-
     # Internal helper functions (for advanced users)
     "_plot_beta_coefficients",
     "_plot_residuals",
@@ -51,5 +49,5 @@ __all__ = [
     "_plot_residual_histogram",
     "_plot_cooks_distance",
     "_plot_leverage",
-    "_compute_diagnostic_stats"
+    "_compute_diagnostic_stats",
 ]

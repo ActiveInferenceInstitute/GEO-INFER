@@ -1,11 +1,12 @@
 """
 Visualization utilities for GEO-INFER-BIO.
 """
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import geopandas as gpd
-from typing import Optional
+from typing import Any, Optional
 from pathlib import Path
 
 
@@ -23,12 +24,61 @@ class BioVisualizer:
                 plt.style.use("ggplot")
         sns.set_palette("husl")
 
+    @staticmethod
+    def _as_frame(data: Any, required_columns: tuple[str, ...]) -> pd.DataFrame:
+        """Normalize supported inputs and validate columns used by a plot."""
+        if isinstance(data, dict):
+            if not data:
+                raise ValueError("data mapping must contain at least one table")
+            data = next(iter(data.values()))
+        if not isinstance(data, pd.DataFrame):
+            raise TypeError("data must be a pandas DataFrame or a non-empty mapping")
+        missing = [column for column in required_columns if column not in data]
+        if missing:
+            raise ValueError(f"data is missing required columns: {missing}")
+        if data.empty:
+            raise ValueError("data must contain at least one row")
+        return data.copy()
+
+    @staticmethod
+    def _spatial_frame(data: Any, value_column: Optional[str] = None) -> pd.DataFrame:
+        """Validate a table that will be converted to point geometries."""
+        required = ("longitude", "latitude")
+        if value_column is not None:
+            required += (value_column,)
+        frame = BioVisualizer._as_frame(data, required)
+        for column in (
+            ("longitude", "latitude")
+            if value_column is None
+            else ("longitude", "latitude", value_column)
+        ):
+            values = pd.to_numeric(frame[column], errors="coerce")
+            if not values.notna().all():
+                raise ValueError(f"{column} must contain finite numeric values")
+            frame[column] = values
+        if ((frame["longitude"] < -180) | (frame["longitude"] > 180)).any():
+            raise ValueError("longitude values must be between -180 and 180")
+        if ((frame["latitude"] < -90) | (frame["latitude"] > 90)).any():
+            raise ValueError("latitude values must be between -90 and 90")
+        return frame
+
+    @staticmethod
+    def _finish(fig: plt.Figure, output_path: Optional[str]) -> plt.Figure:
+        """Lay out, optionally persist, and release a rendered figure."""
+        fig.tight_layout()
+        if output_path:
+            path = Path(output_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fig.savefig(path, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+        return fig
+
     def plot_spatial_distribution(
         self,
         data,
         output_path: Optional[str] = None,
         title: str = "Spatial Distribution",
-    ) -> None:
+    ) -> plt.Figure:
         """
         Plot spatial distribution of biological features.
 
@@ -37,10 +87,7 @@ class BioVisualizer:
             output_path: Optional path to save the plot
             title: Plot title
         """
-        # Handle dict of DataFrames (from analyze_spatial_distribution)
-        if isinstance(data, dict):
-            data = next(iter(data.values()))
-
+        data = self._spatial_frame(data)
         gdf = gpd.GeoDataFrame(
             data,
             geometry=gpd.points_from_xy(data.longitude, data.latitude),
@@ -53,15 +100,13 @@ class BioVisualizer:
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
 
-        if output_path:
-            plt.savefig(output_path, dpi=300, bbox_inches="tight")
-        plt.close()
+        return self._finish(fig, output_path)
 
     def plot_gc_distribution(
         self,
         data: pd.DataFrame,
         output_path: Optional[str] = None,
-    ) -> None:
+    ) -> plt.Figure:
         """
         Plot GC content distribution.
 
@@ -69,6 +114,7 @@ class BioVisualizer:
             data: DataFrame containing GC content data
             output_path: Optional path to save the plot
         """
+        data = self._spatial_frame(data, "gc_content")
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 
         # Histogram
@@ -88,16 +134,13 @@ class BioVisualizer:
         ax2.set_xlabel("Longitude")
         ax2.set_ylabel("Latitude")
 
-        plt.tight_layout()
-        if output_path:
-            plt.savefig(output_path, dpi=300, bbox_inches="tight")
-        plt.close()
+        return self._finish(fig, output_path)
 
     def plot_motif_density(
         self,
         data: pd.DataFrame,
         output_path: Optional[str] = None,
-    ) -> None:
+    ) -> plt.Figure:
         """
         Plot motif density distribution.
 
@@ -105,6 +148,7 @@ class BioVisualizer:
             data: DataFrame containing motif density data
             output_path: Optional path to save the plot
         """
+        data = self._spatial_frame(data, "motif_count")
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 
         # Bar plot
@@ -125,16 +169,13 @@ class BioVisualizer:
         ax2.set_xlabel("Longitude")
         ax2.set_ylabel("Latitude")
 
-        plt.tight_layout()
-        if output_path:
-            plt.savefig(output_path, dpi=300, bbox_inches="tight")
-        plt.close()
+        return self._finish(fig, output_path)
 
     def plot_coding_potential(
         self,
         data: pd.DataFrame,
         output_path: Optional[str] = None,
-    ) -> None:
+    ) -> plt.Figure:
         """
         Plot coding potential distribution.
 
@@ -142,6 +183,7 @@ class BioVisualizer:
             data: DataFrame containing coding potential data
             output_path: Optional path to save the plot
         """
+        data = self._spatial_frame(data, "coding_regions")
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 
         # Bar plot
@@ -162,16 +204,13 @@ class BioVisualizer:
         ax2.set_xlabel("Longitude")
         ax2.set_ylabel("Latitude")
 
-        plt.tight_layout()
-        if output_path:
-            plt.savefig(output_path, dpi=300, bbox_inches="tight")
-        plt.close()
+        return self._finish(fig, output_path)
 
     def plot_sequence_alignment(
         self,
         alignment,
         output_path: Optional[str] = None,
-    ) -> None:
+    ) -> plt.Figure:
         """
         Plot sequence alignment.
 
@@ -179,9 +218,14 @@ class BioVisualizer:
             alignment: MultipleSeqAlignment object
             output_path: Optional path to save the plot
         """
+        if alignment is None:
+            raise ValueError("alignment must not be None")
+        alignment_frame = pd.DataFrame(alignment)
+        if alignment_frame.empty:
+            raise ValueError("alignment must contain at least one sequence")
         fig, ax = plt.subplots(figsize=(15, 8))
         sns.heatmap(
-            pd.DataFrame(alignment),
+            alignment_frame,
             ax=ax,
             cmap="YlOrRd",
             cbar_kws={"label": "Nucleotide"},
@@ -190,6 +234,4 @@ class BioVisualizer:
         ax.set_xlabel("Position")
         ax.set_ylabel("Sequence ID")
 
-        if output_path:
-            plt.savefig(output_path, dpi=300, bbox_inches="tight")
-        plt.close() 
+        return self._finish(fig, output_path)

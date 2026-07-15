@@ -32,6 +32,7 @@
 - `test_modeling_engine.py`
 - `test_policy_engine.py`
 - `test_producer_theory.py`
+- `test_visualizer.py`
 
 ## Validation
 

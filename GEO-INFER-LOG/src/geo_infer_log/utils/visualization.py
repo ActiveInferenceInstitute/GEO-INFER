@@ -8,15 +8,41 @@ networks, service areas, and other logistics data.
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.patches import Patch
+import math
 import networkx as nx
 import geopandas as gpd
 import folium
+from shapely.geometry import LineString
 from typing import List, Dict, Tuple, Optional, Any
 
 try:
     import contextily as ctx
 except ImportError:
     ctx = None
+
+
+def _coordinate(point: Tuple[float, float], name: str) -> Tuple[float, float]:
+    """Validate and normalize a ``(longitude, latitude)`` coordinate."""
+    if not isinstance(point, (tuple, list)) or len(point) != 2:
+        raise ValueError(f"{name} must be a (longitude, latitude) pair")
+    try:
+        longitude, latitude = float(point[0]), float(point[1])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must contain numeric coordinates") from exc
+    if not math.isfinite(longitude) or not math.isfinite(latitude):
+        raise ValueError(f"{name} coordinates must be finite")
+    if not -180 <= longitude <= 180 or not -90 <= latitude <= 90:
+        raise ValueError(f"{name} coordinates are outside geographic bounds")
+    return longitude, latitude
+
+
+def _route(
+    route: List[Tuple[float, float]], name: str = "route"
+) -> List[Tuple[float, float]]:
+    """Validate a route and require enough points to form a line."""
+    if not route or len(route) < 2:
+        raise ValueError(f"{name} must contain at least two coordinates")
+    return [_coordinate(point, f"{name}[{index}]") for index, point in enumerate(route)]
 
 
 def plot_route(
@@ -41,6 +67,8 @@ def plot_route(
     Returns:
         Matplotlib figure
     """
+    route = _route(route)
+
     # Convert route to GeoDataFrame
     route_gdf = gpd.GeoDataFrame(
         geometry=gpd.points_from_xy([p[0] for p in route], [p[1] for p in route]),
@@ -52,11 +80,7 @@ def plot_route(
 
     # Extract route line
     route_line = gpd.GeoDataFrame(
-        geometry=[
-            gpd.points_from_xy(
-                [p[0] for p in route], [p[1] for p in route]
-            ).unary_union.convex_hull
-        ],
+        geometry=[LineString(route)],
         crs="EPSG:4326",
     ).to_crs(epsg=3857)
 
@@ -82,6 +106,12 @@ def plot_route(
 
     # Add points of interest if provided
     if points_of_interest:
+        points_of_interest = [
+            _coordinate(point, f"points_of_interest[{index}]")
+            for index, point in enumerate(points_of_interest)
+        ]
+        if labels is not None and len(labels) != len(points_of_interest):
+            raise ValueError("labels must have one entry per point of interest")
         poi_gdf = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(
                 [p[0] for p in points_of_interest], [p[1] for p in points_of_interest]
@@ -127,7 +157,7 @@ def plot_route(
     ax.set_xticks([])
     ax.set_yticks([])
 
-    plt.tight_layout()
+    fig.tight_layout()
 
     return fig
 
@@ -156,6 +186,15 @@ def plot_network(
     Returns:
         Matplotlib figure
     """
+    if not isinstance(graph, nx.Graph):
+        raise TypeError("graph must be a networkx graph")
+    if highlight_path:
+        missing = set(highlight_path) - set(graph.nodes)
+        if missing:
+            raise ValueError(
+                f"highlight_path contains unknown nodes: {sorted(missing)}"
+            )
+
     # Create figure
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -220,7 +259,7 @@ def plot_network(
     # Remove axis
     ax.axis("off")
 
-    plt.tight_layout()
+    fig.tight_layout()
 
     return fig
 
@@ -293,7 +332,7 @@ def plot_service_area(
         demand_points.plot(ax=ax, color="red", markersize=30, marker="o", alpha=0.7)
 
     # Add basemap if requested
-    if basemap:
+    if basemap and ctx is not None:
         ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
     # Create legend
@@ -318,7 +357,7 @@ def plot_service_area(
     ax.set_xticks([])
     ax.set_yticks([])
 
-    plt.tight_layout()
+    fig.tight_layout()
 
     return fig
 
@@ -345,6 +384,18 @@ def create_interactive_map(
     Returns:
         Folium map
     """
+    if not isinstance(zoom, int) or not 0 <= zoom <= 18:
+        raise ValueError("zoom must be an integer between 0 and 18")
+    if routes:
+        routes = [
+            _route(route, f"routes[{index}]") for index, route in enumerate(routes)
+        ]
+    if center is not None:
+        if not isinstance(center, (tuple, list)) or len(center) != 2:
+            raise ValueError("center must be a (latitude, longitude) pair")
+        latitude, longitude = _coordinate((center[1], center[0]), "center")
+        center = (latitude, longitude)
+
     # Determine center of map
     if center is None:
         # Try to infer from other inputs

@@ -49,6 +49,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
 ```
 
 
+## Visualization Contracts
+
+- Economic chart and map inputs validate nonempty finite numeric data, and
+  figures save to nested output paths without mutating global plot style.
+- Diagnostics handle absent optional metrics safely; dashboard HTML is written
+  when an output path is provided.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

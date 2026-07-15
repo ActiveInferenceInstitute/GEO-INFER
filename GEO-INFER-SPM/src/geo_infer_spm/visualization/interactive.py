@@ -7,22 +7,23 @@ result presentation.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Any
+from typing import Optional, Any
 import warnings
 
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
     from plotly.subplots import make_subplots
+
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
 
-from ..models.data_models import SPMResult, ContrastResult
+from ..models.data_models import SPMResult
 
 
-def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
-                          map_type: str = 'scattergeo', **kwargs) -> Optional[Any]:
+def create_interactive_map(
+    spm_result: SPMResult, contrast_idx: int = 0, map_type: str = "scattergeo", **kwargs
+) -> Optional[Any]:
     """
     Create interactive geographical map of SPM results.
 
@@ -39,27 +40,56 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
         warnings.warn("plotly not available for interactive visualization")
         return None
 
-    coordinates = spm_result.spm_data.coordinates
+    if not isinstance(contrast_idx, int) or contrast_idx < 0:
+        raise ValueError("contrast_idx must be a non-negative integer")
+    coordinates = np.asarray(spm_result.spm_data.coordinates, dtype=float)
+    if coordinates.ndim != 2 or coordinates.shape[1] < 2 or coordinates.shape[0] == 0:
+        raise ValueError("spm_result coordinates must be a non-empty (n, >=2) array")
+    if not np.all(np.isfinite(coordinates)):
+        raise ValueError("spm_result coordinates must contain only finite values")
 
     if contrast_idx < len(spm_result.contrasts):
         contrast = spm_result.contrasts[contrast_idx]
-        stat_values = (contrast.t_statistic.flatten() if contrast.t_statistic.ndim > 1
-                      else contrast.t_statistic)
+        stat_values = (
+            contrast.t_statistic.flatten()
+            if contrast.t_statistic.ndim > 1
+            else contrast.t_statistic
+        )
+        stat_values = np.asarray(stat_values, dtype=float).reshape(-1)
+        if len(stat_values) != len(coordinates):
+            raise ValueError("contrast statistics must align with coordinates")
     else:
         # Fallback to beta coefficients when no contrasts available
         contrast = None
-        beta = spm_result.beta_coefficients
-        stat_values = np.full(len(coordinates), float(beta[0])) if beta.ndim == 1 else beta[:, 0]
+        beta = np.asarray(spm_result.beta_coefficients, dtype=float)
+        if beta.size == 0:
+            raise ValueError("beta_coefficients must not be empty")
+        if beta.ndim == 1 and len(beta) == len(coordinates):
+            stat_values = beta
+        elif beta.ndim == 2 and beta.shape[0] == len(coordinates):
+            stat_values = beta[:, 0]
+        elif beta.ndim == 2 and beta.shape[1] == len(coordinates):
+            stat_values = beta[0]
+        else:
+            stat_values = np.full(len(coordinates), float(np.mean(beta)))
+        if not np.all(np.isfinite(stat_values)):
+            raise ValueError("statistical values must be finite")
 
     # Prepare data
 
     # Create hover information
     hover_text = []
     for i in range(len(coordinates)):
-        sig_status = "Significant" if (contrast is not None and
-                                     hasattr(contrast, 'significance_mask') and
-                                     contrast.significance_mask is not None and
-                                     contrast.significance_mask[i]) else "Not significant"
+        sig_status = (
+            "Significant"
+            if (
+                contrast is not None
+                and hasattr(contrast, "significance_mask")
+                and contrast.significance_mask is not None
+                and contrast.significance_mask[i]
+            )
+            else "Not significant"
+        )
         p_val_str = f"{contrast.p_values[i]:.3f}" if contrast is not None else "N/A"
         hover_text.append(
             f"Point {i}<br>"
@@ -70,27 +100,35 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
             f"Status: {sig_status}"
         )
 
-    if map_type == 'scattergeo':
+    if map_type == "scattergeo":
         # Create scatter geo plot
-        fig = go.Figure(data=go.Scattergeo(
-            lon=coordinates[:, 0],
-            lat=coordinates[:, 1],
-            text=hover_text,
-            mode='markers',
-            marker=dict(
-                size=8,
-                color=stat_values,
-                colorscale='RdBu_r',
-                showscale=True,
-                colorbar=dict(title='T-statistic'),
-                line=dict(width=1, color='black'),
-                # Highlight significant points
-                symbol='star' if (hasattr(contrast, 'significance_mask') and
-                                contrast.significance_mask is not None and
-                                np.any(contrast.significance_mask)) else 'circle'
-            ),
-            hovertemplate="%{text}<extra></extra>"
-        ))
+        fig = go.Figure(
+            data=go.Scattergeo(
+                lon=coordinates[:, 0],
+                lat=coordinates[:, 1],
+                text=hover_text,
+                mode="markers",
+                marker=dict(
+                    size=8,
+                    color=stat_values,
+                    colorscale="RdBu_r",
+                    showscale=True,
+                    colorbar=dict(title="T-statistic"),
+                    line=dict(width=1, color="black"),
+                    # Highlight significant points
+                    symbol=(
+                        "star"
+                        if (
+                            hasattr(contrast, "significance_mask")
+                            and contrast.significance_mask is not None
+                            and np.any(contrast.significance_mask)
+                        )
+                        else "circle"
+                    ),
+                ),
+                hovertemplate="%{text}<extra></extra>",
+            )
+        )
 
         # Update layout for geographical projection
         fig.update_layout(
@@ -99,21 +137,23 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
                 showframe=False,
                 showcoastlines=True,
                 coastlinecolor="RebeccaPurple",
-                projection_type='natural earth',
+                projection_type="natural earth",
                 showland=True,
                 landcolor="LightGreen",
                 showocean=True,
-                oceancolor="LightBlue"
+                oceancolor="LightBlue",
             ),
             height=600,
-            margin=dict(l=0, r=0, t=40, b=0)
+            margin=dict(l=0, r=0, t=40, b=0),
         )
 
-    elif map_type == 'choropleth':
+    elif map_type == "choropleth":
         # For choropleth, we would need polygon data
         # This is a extension point for future implementation
-        warnings.warn("Choropleth map requires polygon data. Using scatter plot instead.")
-        return create_interactive_map(spm_result, contrast_idx, 'scattergeo', **kwargs)
+        warnings.warn(
+            "Choropleth map requires polygon data. Using scatter plot instead."
+        )
+        return create_interactive_map(spm_result, contrast_idx, "scattergeo", **kwargs)
 
     else:
         raise ValueError(f"Unknown map type: {map_type}")
@@ -121,7 +161,9 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
     return fig
 
 
-def create_dashboard(spm_result: SPMResult, include_diagnostics: bool = True) -> Optional[Any]:
+def create_dashboard(
+    spm_result: SPMResult, include_diagnostics: bool = True
+) -> Optional[Any]:
     """
     Create comprehensive interactive dashboard of SPM results.
 
@@ -147,52 +189,56 @@ def create_dashboard(spm_result: SPMResult, include_diagnostics: bool = True) ->
         subplot_titles.append("P-Value Distribution")
 
     if include_diagnostics:
-        subplot_titles.extend([
-            "Residuals vs Fitted",
-            "Q-Q Plot",
-            "Cook's Distance"
-        ])
+        subplot_titles.extend(["Residuals vs Fitted", "Q-Q Plot", "Cook's Distance"])
 
     fig = make_subplots(
-        rows=n_rows, cols=n_cols,
+        rows=n_rows,
+        cols=n_cols,
         subplot_titles=subplot_titles,
-        specs=[[{"type": "scattergeo"}, {"type": "histogram"}, {"type": "histogram"}],
-               [{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}] if include_diagnostics else []]
+        specs=[
+            [{"type": "scattergeo"}, {"type": "histogram"}, {"type": "histogram"}],
+            (
+                [{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]
+                if include_diagnostics
+                else []
+            ),
+        ],
     )
 
     # Add statistical map
     if spm_result.contrasts:
         contrast = spm_result.contrasts[0]  # Use first contrast
         coordinates = spm_result.spm_data.coordinates
-        stat_values = contrast.t_statistic.flatten()
+        stat_values = np.asarray(contrast.t_statistic, dtype=float).reshape(-1)
+        if len(stat_values) != len(spm_result.spm_data.coordinates):
+            raise ValueError("contrast statistics must align with coordinates")
 
         fig.add_trace(
             go.Scattergeo(
                 lon=coordinates[:, 0],
                 lat=coordinates[:, 1],
-                mode='markers',
+                mode="markers",
                 marker=dict(
                     size=6,
                     color=stat_values,
-                    colorscale='RdBu_r',
+                    colorscale="RdBu_r",
                     showscale=True,
-                    colorbar=dict(title='T-statistic', x=0.25)
+                    colorbar=dict(title="T-statistic", x=0.25),
                 ),
-                showlegend=False
+                showlegend=False,
             ),
-            row=1, col=1
+            row=1,
+            col=1,
         )
 
         # T-statistic histogram
         fig.add_trace(
-            go.Histogram(x=stat_values, nbinsx=30, showlegend=False),
-            row=1, col=2
+            go.Histogram(x=stat_values, nbinsx=30, showlegend=False), row=1, col=2
         )
 
         # P-value histogram
         fig.add_trace(
-            go.Histogram(x=contrast.p_values, nbinsx=30, showlegend=False),
-            row=1, col=3
+            go.Histogram(x=contrast.p_values, nbinsx=30, showlegend=False), row=1, col=3
         )
 
     # Add diagnostic plots
@@ -202,54 +248,78 @@ def create_dashboard(spm_result: SPMResult, include_diagnostics: bool = True) ->
 
         # Residuals vs Fitted
         fig.add_trace(
-            go.Scatter(x=fitted, y=residuals, mode='markers',
-                      marker=dict(size=4, opacity=0.6), showlegend=False),
-            row=2, col=1
+            go.Scatter(
+                x=fitted,
+                y=residuals,
+                mode="markers",
+                marker=dict(size=4, opacity=0.6),
+                showlegend=False,
+            ),
+            row=2,
+            col=1,
         )
 
         # Q-Q plot
         from scipy import stats
+
         (osm, osr), (slope, intercept, r) = stats.probplot(residuals, dist="norm")
         fig.add_trace(
-            go.Scatter(x=osm, y=osr, mode='markers',
-                      marker=dict(size=4, opacity=0.6), showlegend=False),
-            row=2, col=2
+            go.Scatter(
+                x=osm,
+                y=osr,
+                mode="markers",
+                marker=dict(size=4, opacity=0.6),
+                showlegend=False,
+            ),
+            row=2,
+            col=2,
         )
         # Add reference line
         fig.add_trace(
-            go.Scatter(x=osm, y=slope*osm + intercept, mode='lines',
-                      line=dict(color='red', dash='dash'), showlegend=False),
-            row=2, col=2
+            go.Scatter(
+                x=osm,
+                y=slope * osm + intercept,
+                mode="lines",
+                line=dict(color="red", dash="dash"),
+                showlegend=False,
+            ),
+            row=2,
+            col=2,
         )
 
         # Cook's distance (simplified)
         n, p = spm_result.design_matrix.matrix.shape
-        mse = np.sum(residuals**2) / (n - p)
-        hat_matrix = (spm_result.design_matrix.matrix @
-                     np.linalg.pinv(spm_result.design_matrix.matrix.T @
-                                  spm_result.design_matrix.matrix) @
-                     spm_result.design_matrix.matrix.T)
-        leverage = np.diag(hat_matrix)
-        cooks_d = (residuals**2 / (p * mse)) * (leverage / (1 - leverage)**2)
+        mse = np.sum(residuals**2) / max(n - p, 1)
+        hat_matrix = (
+            spm_result.design_matrix.matrix
+            @ np.linalg.pinv(
+                spm_result.design_matrix.matrix.T @ spm_result.design_matrix.matrix
+            )
+            @ spm_result.design_matrix.matrix.T
+        )
+        leverage = np.clip(np.diag(hat_matrix), 0.0, 1.0 - np.finfo(float).eps)
+        cooks_d = (residuals**2 / max(p * mse, np.finfo(float).eps)) * (
+            leverage / (1 - leverage) ** 2
+        )
 
         fig.add_trace(
-            go.Scatter(x=list(range(len(cooks_d))), y=cooks_d, mode='markers',
-                      marker=dict(size=4, opacity=0.6), showlegend=False),
-            row=2, col=3
+            go.Scatter(
+                x=list(range(len(cooks_d))),
+                y=cooks_d,
+                mode="markers",
+                marker=dict(size=4, opacity=0.6),
+                showlegend=False,
+            ),
+            row=2,
+            col=3,
         )
 
     # Update layout
-    fig.update_layout(
-        height=800,
-        title_text="SPM Analysis Dashboard",
-        showlegend=False
-    )
+    fig.update_layout(height=800, title_text="SPM Analysis Dashboard", showlegend=False)
 
     # Update geo subplot
     fig.update_geos(
-        showframe=False,
-        showcoastlines=True,
-        projection_type='natural earth'
+        showframe=False, showcoastlines=True, projection_type="natural earth"
     )
 
     return fig
@@ -275,8 +345,10 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
 
     import numpy as np
 
-    data = spm_result.spm_data.data  # shape: (n_locations, n_timepoints) or (n_timepoints,)
-    time_labels = getattr(spm_result.spm_data, 'time_labels', None)
+    data = (
+        spm_result.spm_data.data
+    )  # shape: (n_locations, n_timepoints) or (n_timepoints,)
+    time_labels = getattr(spm_result.spm_data, "time_labels", None)
 
     if data.ndim == 1:
         # Single time series
@@ -291,9 +363,12 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
 
     if time_labels is None:
         time_labels = list(range(n_time))
+    elif len(time_labels) != n_time:
+        raise ValueError("time_labels must have one value per time point")
 
     fig = make_subplots(
-        rows=2, cols=1,
+        rows=2,
+        cols=1,
         subplot_titles=["Spatial Mean ± 1 SD", "Residual Time Series"],
         shared_xaxes=True,
         vertical_spacing=0.15,
@@ -302,28 +377,39 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
     # Row 1: Mean ± confidence band
     fig.add_trace(
         go.Scatter(
-            x=time_labels, y=(mean_ts + std_ts).tolist(),
-            mode='lines', line=dict(width=0), showlegend=False,
+            x=time_labels,
+            y=(mean_ts + std_ts).tolist(),
+            mode="lines",
+            line=dict(width=0),
+            showlegend=False,
         ),
-        row=1, col=1,
+        row=1,
+        col=1,
     )
     fig.add_trace(
         go.Scatter(
-            x=time_labels, y=(mean_ts - std_ts).tolist(),
-            mode='lines', line=dict(width=0),
-            fill='tonexty', fillcolor='rgba(68,68,255,0.2)',
-            name='±1 SD',
+            x=time_labels,
+            y=(mean_ts - std_ts).tolist(),
+            mode="lines",
+            line=dict(width=0),
+            fill="tonexty",
+            fillcolor="rgba(68,68,255,0.2)",
+            name="±1 SD",
         ),
-        row=1, col=1,
+        row=1,
+        col=1,
     )
     fig.add_trace(
         go.Scatter(
-            x=time_labels, y=mean_ts.tolist(),
-            mode='lines+markers', name='Spatial Mean',
-            line=dict(color='rgb(68,68,255)', width=2),
+            x=time_labels,
+            y=mean_ts.tolist(),
+            mode="lines+markers",
+            name="Spatial Mean",
+            line=dict(color="rgb(68,68,255)", width=2),
             marker=dict(size=4),
         ),
-        row=1, col=1,
+        row=1,
+        col=1,
     )
 
     # Row 2: Residual time series (if available)
@@ -332,16 +418,23 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
         if residuals.ndim == 1:
             res_ts = residuals
         else:
-            res_ts = np.mean(residuals, axis=0) if residuals.shape[1] == n_time else residuals[:n_time]
+            res_ts = (
+                np.mean(residuals, axis=0)
+                if residuals.shape[1] == n_time
+                else residuals[:n_time]
+            )
 
         fig.add_trace(
             go.Scatter(
-                x=time_labels[:len(res_ts)], y=res_ts.tolist(),
-                mode='lines+markers', name='Mean Residual',
-                line=dict(color='rgb(255,68,68)', width=1),
+                x=time_labels[: len(res_ts)],
+                y=res_ts.tolist(),
+                mode="lines+markers",
+                name="Mean Residual",
+                line=dict(color="rgb(255,68,68)", width=1),
                 marker=dict(size=3),
             ),
-            row=2, col=1,
+            row=2,
+            col=1,
         )
         # Zero reference line
         fig.add_hline(y=0, line_dash="dash", line_color="gray", row=2, col=1)
@@ -356,4 +449,3 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
     )
 
     return fig
-

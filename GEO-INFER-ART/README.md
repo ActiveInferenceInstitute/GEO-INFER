@@ -49,6 +49,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
 
 
+## Visualization Contracts
+
+- Map styling validates alpha and line-width values before applying them.
+- Animation and multi-scale rendering validate nonempty supported styles,
+  positive timing values, and use an immutable-safe default scale selection.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

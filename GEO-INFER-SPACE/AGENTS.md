@@ -61,6 +61,11 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 - If ACT nested contracts fail after SPACE edits, run the SPACE nested unit test
   and then `uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py`.
 
+## Visualization Guidance
+
+- Validate H3 resolution, bounds, dashboard result mappings, and user-facing map
+  options before building a dashboard.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

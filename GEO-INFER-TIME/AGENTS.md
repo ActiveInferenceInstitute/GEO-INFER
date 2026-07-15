@@ -41,6 +41,11 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
 ```
 
 
+## Visualization Guidance
+
+- Validate finite aligned series, timestamp lengths, confidence bounds, and
+  anomaly indices at plotting boundaries; keep style changes call-local.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

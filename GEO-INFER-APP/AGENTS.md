@@ -38,6 +38,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
 ```
 
 
+## Visualization Guidance
+
+- Validate geographic coordinates before creating map features and keep emitted
+  metadata JSON-safe for downstream GeoJSON/dashboard clients.
+- Preserve dashboard widget schemas when adding agent state visualizations.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

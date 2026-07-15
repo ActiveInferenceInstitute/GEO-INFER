@@ -172,6 +172,10 @@ class GeoArt:
         """
         if self.data is None:
             raise ValueError("No data loaded. Load data first.")
+        if not 0 <= alpha <= 1:
+            raise ValueError("alpha must be between 0 and 1")
+        if not np.isfinite(line_width) or line_width <= 0:
+            raise ValueError("line_width must be finite and positive")
 
         validate_geospatial_data(self.data)
 
@@ -336,6 +340,12 @@ class GeoArt:
 
         if self.data is None:
             raise ValueError("No data loaded. Load data first.")
+        if not style_sequence:
+            raise ValueError("style_sequence must contain at least one style")
+        if not np.isfinite(duration) or duration <= 0:
+            raise ValueError("duration must be finite and positive")
+        if not isinstance(fps, int) or fps <= 0:
+            raise ValueError("fps must be a positive integer")
 
         # Create frames for each style
         frames = []
@@ -879,7 +889,7 @@ class GeoArt:
         return optimized
 
     def create_multi_scale_visualization(
-        self, scales: List[str] = ["global", "regional", "local"], **kwargs
+        self, scales: Optional[List[str]] = None, **kwargs
     ) -> Dict[str, "GeoArt"]:
         """
         Create visualizations at multiple scales.
@@ -893,6 +903,13 @@ class GeoArt:
         """
         if self.data is None:
             raise ValueError("No data loaded for multi-scale visualization")
+        scales = ["global", "regional", "local"] if scales is None else list(scales)
+        supported_scales = {"global", "regional", "local"}
+        unknown_scales = set(scales) - supported_scales
+        if unknown_scales:
+            raise ValueError(f"Unsupported scales: {sorted(unknown_scales)}")
+        if not scales:
+            raise ValueError("scales must contain at least one scale")
 
         multi_scale_viz = {}
 

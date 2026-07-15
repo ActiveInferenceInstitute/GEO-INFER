@@ -1,10 +1,10 @@
 """Tests for agent visualization utilities."""
 
 import pytest
+import json
 from geo_infer_app.models.agent_visualization import (
     AgentVisualization,
     VisualizationType,
-    VisualizationConfig,
 )
 from geo_infer_app.models.agent_interface import AgentState, AgentType
 
@@ -46,6 +46,27 @@ class TestAgentVisualization:
         with pytest.raises(ValueError, match="no location"):
             AgentVisualization.state_to_map_feature(state)
 
+    def test_state_to_map_feature_rejects_invalid_coordinates(self):
+        state = AgentState(
+            agent_id="a-invalid",
+            agent_type=AgentType.RL,
+            status="idle",
+            location={"lat": 91.0, "lng": 0.0},
+        )
+        with pytest.raises(ValueError, match="latitude"):
+            AgentVisualization.state_to_map_feature(state)
+
+    def test_map_feature_metadata_is_json_safe(self):
+        state = AgentState(
+            agent_id="a-json",
+            agent_type=AgentType.ACTIVE_INFERENCE,
+            status="active",
+            location={"lat": 40.0, "lng": -124.0},
+            metadata={"score": object()},
+        )
+        feature = AgentVisualization.state_to_map_feature(state)
+        json.dumps(feature)
+
     def test_state_to_dashboard(self):
         state = AgentState(
             agent_id="a3",
@@ -69,3 +90,13 @@ class TestAgentVisualization:
         )
         data = AgentVisualization.state_to_dashboard_data(state)
         assert "intentions" in data["widgets"]
+
+    def test_dashboard_active_inference_predictions(self):
+        state = AgentState(
+            agent_id="a5",
+            agent_type=AgentType.ACTIVE_INFERENCE,
+            status="active",
+            metadata={"predictions": {"next": 0.8}},
+        )
+        data = AgentVisualization.state_to_dashboard_data(state)
+        assert data["widgets"]["predictions"]["value"]["next"] == 0.8

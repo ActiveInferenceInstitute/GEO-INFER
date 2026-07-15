@@ -40,6 +40,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
 ```
 
 
+## Visualization Guidance
+
+- Keep spatial plotting inputs nonempty, finite, geographically bounded, and
+  explicit about required columns; return figures for programmatic inspection.
+- Create nested output directories before saving and close saved figures.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

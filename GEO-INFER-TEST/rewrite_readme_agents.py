@@ -292,6 +292,14 @@ trace = agent.trace_over_nested_h3_grid(
 )
 ```
 
+## Visualization Contracts
+
+- Belief, policy, free-energy, hierarchical, and H3-grid plots validate finite
+  aligned inputs, preserve caller-supplied figure sizes, and avoid changing
+  process-wide matplotlib or seaborn state.
+- H3 static and animated outputs create their parent directories before writing;
+  constant-valued grids still receive a valid color scale.
+
 Nested validation command:
 
 ```bash
@@ -324,6 +332,12 @@ assert hierarchy["validation"]["is_valid"]
 assert hierarchy["validation"]["orphan_count"] == 0
 ```
 
+## Visualization Contracts
+
+- The visualization engine validates H3 resolution and finite geographic bounds
+  at construction, and validates dashboard result/configuration mappings.
+- Dashboard configuration honors validated `zoom_start` and `tiles` values.
+
 Nested validation command:
 
 ```bash
@@ -331,7 +345,111 @@ uv run pytest GEO-INFER-SPACE/tests/unit/test_nested_h3_contract.py -q
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 ```
 """
-    return ""
+    visualization_notes = {
+        "GEO-INFER-ACT": """
+## Visualization Contracts
+
+- Belief, policy, free-energy, hierarchical, and H3-grid plots validate finite
+  aligned inputs, preserve caller-supplied figure sizes, and avoid changing
+  process-wide matplotlib or seaborn state.
+- H3 static and animated outputs create their parent directories before writing;
+  constant-valued grids still receive a valid color scale.
+""",
+        "GEO-INFER-APP": """
+## Visualization Contracts
+
+- Agent map features validate finite longitude/latitude values and geographic
+  bounds, and normalize metadata to JSON-safe values.
+- Active-inference prediction and reinforcement-learning reward series are
+  exposed in dashboard widgets when present in agent metadata.
+""",
+        "GEO-INFER-ART": """
+## Visualization Contracts
+
+- Map styling validates alpha and line-width values before applying them.
+- Animation and multi-scale rendering validate nonempty supported styles,
+  positive timing values, and use an immutable-safe default scale selection.
+""",
+        "GEO-INFER-BAYES": """
+## Visualization Contracts
+
+- Spatial prediction, uncertainty, posterior, and model-comparison plots
+  validate finite aligned numeric inputs and confidence levels.
+- Spatial prediction handles the single-panel case when uncertainty is omitted
+  and returns a valid figure for both single- and multi-panel layouts.
+""",
+        "GEO-INFER-BIO": """
+## Visualization Contracts
+
+- Biological plotting helpers validate required columns, finite coordinates and
+  values, sequence inputs, and geographic bounds before rendering.
+- Plot helpers return their Matplotlib figure and create nested output parents;
+  saved figures are closed after writing to avoid leaking global figure state.
+""",
+        "GEO-INFER-COG": """
+## Visualization Contracts
+
+- Human-centered visualization IDs are deterministic per visualizer instance,
+  and proximity thresholds and color counts are validated at construction.
+- Proximity grouping uses connected components and similarity grouping returns
+  explicit geometry groups with confidence metadata.
+""",
+        "GEO-INFER-ECON": """
+## Visualization Contracts
+
+- Economic chart and map inputs validate nonempty finite numeric data, and
+  figures save to nested output paths without mutating global plot style.
+- Diagnostics handle absent optional metrics safely; dashboard HTML is written
+  when an output path is provided.
+""",
+        "GEO-INFER-IOT": """
+## Visualization Contracts
+
+- Sensor and interpolation maps validate finite WGS84 coordinates and aligned
+  value arrays, and all HTML/image writers create nested output parents.
+- Saved Matplotlib figures are closed after writing to avoid leaking figure
+  state across monitoring cycles.
+""",
+        "GEO-INFER-LOG": """
+## Visualization Contracts
+
+- Route plotting validates geographic coordinates and preserves the supplied
+  path geometry; network highlighting rejects unknown nodes.
+- Interactive map zoom and optional map basemaps are validated/guarded so
+  plotting remains usable without contextily network access.
+""",
+        "GEO-INFER-PLACE": """
+## Visualization Contracts
+
+- The visualization engine validates H3 resolution and finite geographic bounds
+  at construction, and validates dashboard result/configuration mappings.
+- Dashboard configuration honors validated `zoom_start` and `tiles` values.
+""",
+        "GEO-INFER-SPACE": """
+## Visualization Contracts
+
+- The visualization engine validates H3 resolution and finite geographic bounds
+  at construction, and validates dashboard result/configuration mappings.
+- Dashboard configuration honors validated `zoom_start` and `tiles` values.
+""",
+        "GEO-INFER-SPM": """
+## Visualization Contracts
+
+- Statistical and interactive maps reject invalid contrast indices, empty or
+  non-finite coordinates/statistics, and misaligned significance arrays.
+- Diagnostic leverage and Cook's distance use a numerically stable hat-matrix
+  calculation, and the package-level interactive-map export is unambiguous.
+""",
+        "GEO-INFER-TIME": """
+## Visualization Contracts
+
+- Temporal plotting helpers validate nonempty finite series, aligned timestamps,
+  confidence bounds, and anomaly indices before rendering.
+- Figure creation and saving remain scoped to each call, preserving reusable
+  style configuration without leaking global matplotlib state.
+""",
+    }
+    return visualization_notes.get(module.name, "")
 
 
 def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
@@ -402,6 +520,13 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   `geo_infer_act.runners.io` together.
 - Re-run `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
   after changing any H3 or nested spatial inference path.
+
+## Visualization Guidance
+
+- Keep plotting inputs finite and shape-aligned; use local figure styling so a
+  library call cannot mutate the caller's matplotlib or seaborn configuration.
+- H3 visualization writers must create output directories and handle constant
+  metric ranges without emitting invalid colorbar limits.
 """
     if module.name == "GEO-INFER-SPACE":
         return """
@@ -421,6 +546,11 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   `geo_infer_space.nested.core.nested_grid.NestedH3Grid` first.
 - If ACT nested contracts fail after SPACE edits, run the SPACE nested unit test
   and then `uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py`.
+
+## Visualization Guidance
+
+- Validate H3 resolution, bounds, dashboard result mappings, and user-facing map
+  options before building a dashboard.
 """
     if module.name == "GEO-INFER-DATA":
         return """
@@ -457,7 +587,99 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   function calls, imports, private attributes, and executable expressions are
   rejected.
 """
-    return ""
+    visualization_notes = {
+        "GEO-INFER-ACT": """
+## Visualization Guidance
+
+- Keep plotting inputs finite and shape-aligned; use local figure styling so a
+  library call cannot mutate the caller's matplotlib or seaborn configuration.
+- H3 visualization writers must create output directories and handle constant
+  metric ranges without emitting invalid colorbar limits.
+""",
+        "GEO-INFER-APP": """
+## Visualization Guidance
+
+- Validate geographic coordinates before creating map features and keep emitted
+  metadata JSON-safe for downstream GeoJSON/dashboard clients.
+- Preserve dashboard widget schemas when adding agent state visualizations.
+""",
+        "GEO-INFER-ART": """
+## Visualization Guidance
+
+- Validate style alpha, line width, animation timing, and supported scale names
+  at the public API boundary.
+- Do not use mutable defaults for scale/style collections.
+""",
+        "GEO-INFER-BAYES": """
+## Visualization Guidance
+
+- Validate finite aligned spatial arrays and confidence levels before plotting.
+- Normalize single-axis layouts before indexing axes so optional uncertainty
+  panels work for one and many spatial predictions.
+""",
+        "GEO-INFER-BIO": """
+## Visualization Guidance
+
+- Keep spatial plotting inputs nonempty, finite, geographically bounded, and
+  explicit about required columns; return figures for programmatic inspection.
+- Create nested output directories before saving and close saved figures.
+""",
+        "GEO-INFER-COG": """
+## Visualization Guidance
+
+- Keep visualization IDs reproducible within a visualizer instance and validate
+  cognitive thresholds/color counts at construction.
+- Return meaningful grouping clusters and confidence metadata rather than
+  placeholder groups.
+""",
+        "GEO-INFER-ECON": """
+## Visualization Guidance
+
+- Validate finite nonempty chart inputs and use call-local figure saving; do not
+  mutate process-wide matplotlib/seaborn style from a visualizer constructor.
+- Keep dashboard output paths operational and format optional metrics safely.
+""",
+        "GEO-INFER-IOT": """
+## Visualization Guidance
+
+- Validate sensor/interpolation coordinates and aligned values before passing
+  data to Folium or Matplotlib; create parents before writing artifacts.
+- Close saved figures and preserve explicit error dictionaries for invalid input.
+""",
+        "GEO-INFER-LOG": """
+## Visualization Guidance
+
+- Validate route points, zoom bounds, and network highlight nodes at public
+  boundaries; draw route lines from the ordered input path, not its hull.
+- Guard optional basemap integrations when contextily is unavailable.
+""",
+        "GEO-INFER-PLACE": """
+## Visualization Guidance
+
+- Validate H3 resolution, bounds, dashboard result mappings, and user-facing map
+  options before building a dashboard.
+""",
+        "GEO-INFER-SPACE": """
+## Visualization Guidance
+
+- Validate H3 resolution, bounds, dashboard result mappings, and user-facing map
+  options before building a dashboard.
+""",
+        "GEO-INFER-SPM": """
+## Visualization Guidance
+
+- Reject invalid contrast/statistic/coordinate inputs before map construction.
+- Keep diagnostic leverage calculations numerically stable and maintain one
+  canonical package-level interactive-map export.
+""",
+        "GEO-INFER-TIME": """
+## Visualization Guidance
+
+- Validate finite aligned series, timestamp lengths, confidence bounds, and
+  anomaly indices at plotting boundaries; keep style changes call-local.
+""",
+    }
+    return visualization_notes.get(module.name, "")
 
 
 def render_root_readme(

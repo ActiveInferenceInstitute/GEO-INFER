@@ -39,6 +39,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
 ```
 
 
+## Visualization Contracts
+
+- Human-centered visualization IDs are deterministic per visualizer instance,
+  and proximity thresholds and color counts are validated at construction.
+- Proximity grouping uses connected components and similarity grouping returns
+  explicit geometry groups with confidence metadata.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

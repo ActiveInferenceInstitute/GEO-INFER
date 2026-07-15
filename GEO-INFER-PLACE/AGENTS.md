@@ -42,6 +42,11 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
 ```
 
 
+## Visualization Guidance
+
+- Validate H3 resolution, bounds, dashboard result mappings, and user-facing map
+  options before building a dashboard.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

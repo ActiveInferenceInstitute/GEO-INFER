@@ -51,6 +51,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO
 ```
 
 
+## Visualization Contracts
+
+- Biological plotting helpers validate required columns, finite coordinates and
+  values, sequence inputs, and geographic bounds before rendering.
+- Plot helpers return their Matplotlib figure and create nested output parents;
+  saved figures are closed after writing to avoid leaking global figure state.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

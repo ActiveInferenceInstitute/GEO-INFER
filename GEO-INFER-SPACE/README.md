@@ -82,6 +82,12 @@ assert hierarchy["validation"]["is_valid"]
 assert hierarchy["validation"]["orphan_count"] == 0
 ```
 
+## Visualization Contracts
+
+- The visualization engine validates H3 resolution and finite geographic bounds
+  at construction, and validates dashboard result/configuration mappings.
+- Dashboard configuration honors validated `zoom_start` and `tiles` values.
+
 Nested validation command:
 
 ```bash
