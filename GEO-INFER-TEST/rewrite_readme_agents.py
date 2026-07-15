@@ -93,7 +93,12 @@ def discover_modules() -> dict[str, ModuleInfo]:
             version=str(project.get("version", "unversioned")),
             dependencies=requirement_lines(module_dir),
             source_files=len(list((module_dir / "src").glob("**/*.py"))),
-            test_files=len(list((module_dir / "tests").glob("**/test_*.py"))),
+            test_files=len(
+                {
+                    *(module_dir / "tests").glob("**/test_*.py"),
+                    *(module_dir / "tests").glob("**/*_test.py"),
+                }
+            ),
         )
     return modules
 

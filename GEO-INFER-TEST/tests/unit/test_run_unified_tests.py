@@ -30,6 +30,13 @@ def make_module(root: Path, name: str) -> Path:
     return src_path
 
 
+def make_test_module(root: Path, name: str) -> Path:
+    module_path = root / f"GEO-INFER-{name}"
+    (module_path / "tests" / "performance").mkdir(parents=True)
+    (module_path / "tests" / "unit").mkdir()
+    return module_path
+
+
 def test_workspace_src_paths_are_sorted(tmp_path, monkeypatch):
     runner = load_runner_module()
     b_src = make_module(tmp_path, "B")
@@ -144,3 +151,31 @@ def test_write_summary_decodes_timeout_output_bytes(tmp_path, monkeypatch):
     result = summary["results"][0]
     assert result["stdout_tail"] == "partial stdout"
     assert result["stderr_tail"] == "partial stderr\ufffd"
+
+
+def test_performance_category_uses_canonical_directory_only(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    module_path = make_test_module(tmp_path, "SAMPLE")
+    performance_file = module_path / "tests" / "performance" / "test_benchmark.py"
+    performance_file.write_text("def test_benchmark():\n    assert True\n")
+    unit_file = module_path / "tests" / "unit" / "test_performance_monitor.py"
+    unit_file.write_text("def test_unit_monitor():\n    assert True\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(runner, "ensure_results_dir", lambda clean=False: None)
+
+    captured = []
+
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+        captured.append((name, command, timeout, cwd))
+        return runner.CommandResult(
+            name=name, success=True, duration=0.0, command=command
+        )
+
+    monkeypatch.setattr(runner, "run_command", fake_run)
+
+    report = runner.run_performance_tests(timeout=42)
+
+    assert report.success is True
+    assert len(captured) == 1
+    assert str(performance_file) in captured[0][1]
+    assert str(unit_file) not in captured[0][1]
