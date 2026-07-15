@@ -71,6 +71,11 @@ Agents maintain an energy level that depletes through actions and recovers throu
 - **Spatial distribution**: Initial placement strategy (random, clustered, uniform)
 - **Behavioral heterogeneity**: Stochastic variation in agent parameters
 
+For populations larger than ten, `parallel_processing=True` uses the active
+asyncio event loop and bounds in-flight updates with `PopulationConfig.max_workers`.
+Social context is calculated from active agents' in-memory positions, so the
+reported value is an agent count rather than a count of H3 cells.
+
 ## First Example: Swarm Foraging Simulation
 
 This example creates a population of 50 agents that forage for resources in a bounded spatial environment.

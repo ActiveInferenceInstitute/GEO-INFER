@@ -20,7 +20,6 @@ import logging
 from typing import TYPE_CHECKING, Dict, List, Any, Optional, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor
 import json
 
 if TYPE_CHECKING:
@@ -680,20 +679,29 @@ class AgentPopulation:
             await self._sequential_agent_update(step)
 
     async def _parallel_agent_update(self, step: int) -> None:
-        """Update agents in parallel."""
+        """Update agents concurrently on the active event loop.
 
-        def update_single_agent(agent):
-            """Update a single agent (for parallel execution)."""
-            try:
-                # Simplified update for parallel execution
-                asyncio.run(self._update_single_agent(agent, step))
-                return True
-            except Exception as e:
-                logger.error(f"Error updating agent {agent.agent_id}: {e}")
-                return False
+        Agent updates are async APIs. Creating a thread and a new event loop for
+        every agent on every simulation step added substantial overhead and made
+        integrations that own event-loop state fragile. A semaphore preserves
+        the configured concurrency limit while keeping all updates on the
+        simulation loop.
+        """
+        semaphore = asyncio.Semaphore(max(1, self.config.max_workers))
 
-        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            results = list(executor.map(update_single_agent, self.agents))
+        async def update_single_agent(agent):
+            """Update one agent while respecting the concurrency limit."""
+            async with semaphore:
+                try:
+                    await self._update_single_agent(agent, step)
+                    return True
+                except Exception as e:
+                    logger.error(f"Error updating agent {agent.agent_id}: {e}")
+                    return False
+
+        results = await asyncio.gather(
+            *(update_single_agent(agent) for agent in self.agents)
+        )
 
         successful_updates = sum(results)
         logger.debug(
@@ -777,27 +785,28 @@ class AgentPopulation:
         """Get social context for agent (nearby agents)."""
         context = {"nearby_agents": 0, "nearby_agent_types": {}, "social_signals": []}
 
-        if not self.spatial_indexer:
-            # Fallback: simple distance-based calculation
-            for other_agent in self.agents:
-                if other_agent != agent and other_agent.energy_level > 0:
-                    distance = np.linalg.norm(agent.position - other_agent.position)
-                    if distance <= agent.sensory_range:
-                        context["nearby_agents"] += 1
-                        agent_type = getattr(other_agent, "agent_type", "unknown")
-                        context["nearby_agent_types"][agent_type] = (
-                            context["nearby_agent_types"].get(agent_type, 0) + 1
-                        )
-        else:
-            # Use spatial indexing for efficient neighbor search
-            try:
-                # This would integrate with actual spatial indexing
-                neighbors = self.spatial_indexer.get_neighbors(
-                    position=agent.position, radius=agent.sensory_range
+        # Population positions are the authoritative agent state. The generic
+        # SPACE cell-neighbor API returns cells, not agents, so using it here
+        # both miscounted neighbors and passed coordinates to a cell API. Keep
+        # the exact in-memory distance calculation until a population-aware
+        # spatial index is maintained.
+        active_agents = [
+            other_agent
+            for other_agent in self.agents
+            if other_agent is not agent and other_agent.energy_level > 0
+        ]
+        if not active_agents:
+            return context
+
+        positions = np.asarray([other_agent.position for other_agent in active_agents])
+        distances = np.linalg.norm(positions - agent.position, axis=1)
+        for other_agent, distance in zip(active_agents, distances):
+            if distance <= agent.sensory_range:
+                context["nearby_agents"] += 1
+                agent_type = getattr(other_agent, "agent_type", "unknown")
+                context["nearby_agent_types"][agent_type] = (
+                    context["nearby_agent_types"].get(agent_type, 0) + 1
                 )
-                context["nearby_agents"] = len(neighbors)
-            except Exception as e:
-                logger.warning(f"Spatial neighbor search failed: {e}")
 
         return context
 
