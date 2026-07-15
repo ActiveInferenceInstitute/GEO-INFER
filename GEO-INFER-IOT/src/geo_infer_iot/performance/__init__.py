@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import json
 import os
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

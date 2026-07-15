@@ -1131,7 +1131,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
                 'location': loc,
                 'scale': scale
             }
-        except:
+        except Exception:
             # Fallback to Gumbel distribution
             loc, scale = stats.gumbel_r.fit(depths)
             return {

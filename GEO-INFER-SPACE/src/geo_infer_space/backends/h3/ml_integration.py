@@ -403,7 +403,7 @@ class H3MLFeatureEngine:
             if H3_AVAILABLE:
                 area_km2 = h3.cell_area(cell.index, 'km^2')
                 patterns['demand_density'] = demand_value / area_km2 if area_km2 > 0 else 0
-        except:
+        except Exception:
             patterns['demand_density'] = 0
         
         return patterns

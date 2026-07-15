@@ -285,7 +285,7 @@ def uncompact_cells(cells: List[str], resolution: int) -> List[str]:
 # ============================================================================
 
 
-def cells_to_geodataframe(cells: List[str]) -> 'gpd.GeoDataFrame':
+def cells_to_geodataframe(cells: List[str]) -> Any:
     """
     Convert a list of H3 cells to a GeoDataFrame with polygon geometries.
     

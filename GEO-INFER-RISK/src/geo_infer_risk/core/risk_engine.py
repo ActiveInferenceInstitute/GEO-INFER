@@ -133,6 +133,13 @@ class EnhancedRiskEngine:
             config = load_config_with_defaults()
 
         self.config = config
+        # Logging needs the output directory before it creates its file handler.
+        # Resolve and create it here so initialization is deterministic and the
+        # first startup does not emit a misleading "output_dir" warning.
+        self.output_dir = config.get("general", {}).get("output_directory", "./outputs")
+        self.cache_dir = config.get("general", {}).get("cache_directory", "./cache")
+        os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(self.cache_dir, exist_ok=True)
         self.logger = self._setup_enhanced_logging()
 
         # Validate the configuration
@@ -162,12 +169,6 @@ class EnhancedRiskEngine:
         # Initialize spatial and temporal interfaces
         self._initialize_spatial_interface()
         self._initialize_temporal_interface()
-
-        # Setup output and caching
-        self.output_dir = config.get("general", {}).get("output_directory", "./outputs")
-        self.cache_dir = config.get("general", {}).get("cache_directory", "./cache")
-        os.makedirs(self.output_dir, exist_ok=True)
-        os.makedirs(self.cache_dir, exist_ok=True)
 
         # Initialize threading and async support
         self.executor = ThreadPoolExecutor(max_workers=config.get("general", {}).get("num_workers", 4))
@@ -273,21 +274,28 @@ class EnhancedRiskEngine:
             "%(asctime)s - %(name)s - %(levelname)s - [%(module)s:%(funcName)s:%(lineno)d] - %(message)s"
         )
 
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        # Reuse handlers when multiple engines are created in one process.
+        # This prevents duplicate log lines and repeated file descriptors.
+        if not logger.handlers:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(level)
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
 
         # File handler if output directory is available
-        try:
-            log_file = os.path.join(self.output_dir, "risk_engine.log")
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(level)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-        except Exception as e:
-            logger.warning(f"Could not create log file: {e}")
+        log_file = os.path.abspath(os.path.join(self.output_dir, "risk_engine.log"))
+        if not any(
+            isinstance(handler, logging.FileHandler)
+            and os.path.abspath(handler.baseFilename) == log_file
+            for handler in logger.handlers
+        ):
+            try:
+                file_handler = logging.FileHandler(log_file)
+                file_handler.setLevel(level)
+                file_handler.setFormatter(formatter)
+                logger.addHandler(file_handler)
+            except OSError as exc:
+                logger.warning("Could not create log file %s: %s", log_file, exc)
 
         return logger
 

@@ -481,7 +481,7 @@ class ModelValidator:
         try:
             stat, p_value = stats.shapiro(residuals)
             return {'statistic': stat, 'p_value': p_value, 'normal': p_value > 0.05}
-        except:
+        except Exception:
             return {'statistic': np.nan, 'p_value': np.nan, 'normal': False}
 
     def _jarque_bera_test(self, residuals: np.ndarray) -> Dict[str, float]:
@@ -489,7 +489,7 @@ class ModelValidator:
         try:
             stat, p_value = stats.jarque_bera(residuals)
             return {'statistic': stat, 'p_value': p_value, 'normal': p_value > 0.05}
-        except:
+        except Exception:
             return {'statistic': np.nan, 'p_value': np.nan, 'normal': False}
 
     def _breusch_pagan_test(self, residuals: np.ndarray, fitted: np.ndarray) -> Dict[str, float]:
@@ -515,7 +515,7 @@ class ModelValidator:
                 'p_value': p_value,
                 'homoscedastic': p_value > 0.05
             }
-        except:
+        except Exception:
             return {'statistic': np.nan, 'p_value': np.nan, 'homoscedastic': True}
 
     def _durbin_watson_test(self, residuals: np.ndarray) -> Dict[str, float]:

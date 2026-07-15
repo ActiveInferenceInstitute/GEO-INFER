@@ -317,7 +317,7 @@ class EconomicIndicators:
                     inv_cov = np.linalg.inv(cov_matrix)
                     diff = norm_values1 - norm_values2
                     distance = np.sqrt(diff @ inv_cov @ diff)
-                except:
+                except Exception:
                     # Fall back to Euclidean if covariance matrix is singular
                     distance = np.sqrt(np.sum((norm_values1 - norm_values2) ** 2))
             else:

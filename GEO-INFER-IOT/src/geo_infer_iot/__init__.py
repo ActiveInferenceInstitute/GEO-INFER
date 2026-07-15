@@ -15,11 +15,14 @@ Key components:
 """
 
 # Import available modules
+import logging
 import numpy as np
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from geo_infer_iot.core.ingestion import IoTDataIngestion, RadiationMonitoringSystem, GlobalMonitoringSystem
 from geo_infer_iot.core.registry import SensorRegistry
+
+logger = logging.getLogger(__name__)
 
 # Import additional modules if they exist
 try:
@@ -1428,4 +1431,4 @@ class PredictiveMaintenance:
 
         return schedule
 
-# Classes already included in __all__ above 
+# Classes already included in __all__ above

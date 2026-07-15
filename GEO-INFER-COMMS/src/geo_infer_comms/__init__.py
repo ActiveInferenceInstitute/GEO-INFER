@@ -40,6 +40,7 @@ from geo_infer_comms.models.message import (
     NotificationListResponse, CollaborationSessionListResponse,
     StreamListResponse, HealthResponse, Error, Participant,
     ParticipantRole, ParticipantStatus, MessageMetadata,
+    EventSubscriptionRequest,
     validate_geospatial_bounds
 )
 

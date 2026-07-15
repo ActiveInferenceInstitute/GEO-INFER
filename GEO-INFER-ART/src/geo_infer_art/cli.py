@@ -8,6 +8,9 @@ import os
 import sys
 from typing import Dict, List, Optional, Tuple, Union
 
+import numpy as np
+from PIL import Image
+
 from geo_infer_art import (
     GeoArt,
     MapStyle,

@@ -159,7 +159,7 @@ class TheoremProver:
                     try:
                         expr = z3.parse_smt2_string(assumption)
                         solver.add(expr)
-                    except:
+                    except Exception:
                         # Fallback: try as Python expression (safely)
                         # Use ast.literal_eval for safer evaluation, or compile/exec for z3 expressions
                         try:
@@ -175,7 +175,7 @@ class TheoremProver:
                 try:
                     negated = z3.Not(z3.parse_smt2_string(theorem))
                     solver.add(negated)
-                except:
+                except Exception:
                     # Fallback: try as Python expression (safely)
                     try:
                         # Try to compile and evaluate safely
@@ -283,7 +283,7 @@ class TheoremProver:
             try:
                 # This would need proper proof parsing
                 return True
-            except:
+            except Exception:
                 return False
         else:
             # Numpy backend cannot verify proofs

@@ -480,7 +480,7 @@ class NormativeInference:
                                         "impact": "potentially increases compliance"
                                     })
                                     continue
-                            except:
+                            except Exception:
                                 pass
                             
                             # Test decrease
@@ -494,7 +494,7 @@ class NormativeInference:
                                         "change": "decrease",
                                         "impact": "potentially increases compliance"
                                     })
-                            except:
+                            except Exception:
                                 pass
                 
                 # Build a human-readable recommendation string from identified behaviors

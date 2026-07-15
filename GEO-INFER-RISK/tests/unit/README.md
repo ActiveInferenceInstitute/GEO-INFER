@@ -4,10 +4,12 @@ Unit workspace within `GEO-INFER-RISK`.
 
 ## Contents
 
+- `test_config_loader.py`
 - `test_core.py`
 - `test_exposure_model.py`
 - `test_hazard_model.py`
 - `test_insurance_models.py`
+- `test_portfolio_management.py`
 - `test_risk_metrics.py`
 - `test_risk_models.py`
 - `test_underwriting.py`

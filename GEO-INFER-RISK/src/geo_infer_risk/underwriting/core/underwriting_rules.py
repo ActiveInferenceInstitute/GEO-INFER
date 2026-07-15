@@ -11,6 +11,7 @@ This module provides sophisticated rule evaluation capabilities including:
 
 import logging
 import re
+import time
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -560,7 +561,7 @@ class UnderwritingRulesEngine:
                         parsed_value = float(value)
                     else:
                         parsed_value = value
-                except:
+                except Exception:
                     parsed_value = value
 
                 # Create condition

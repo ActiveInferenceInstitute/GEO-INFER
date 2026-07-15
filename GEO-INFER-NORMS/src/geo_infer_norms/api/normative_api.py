@@ -7,6 +7,7 @@ to analyze, model, and predict the diffusion of social norms across geographies.
 
 from typing import Dict, List, Optional, Union, Any
 import datetime
+import numpy as np
 from fastapi import APIRouter, HTTPException, Query, Path, Body, Depends
 from pydantic import BaseModel, Field
 import geopandas as gpd
@@ -790,4 +791,4 @@ class NormativeAPI:
                 "geojson": geojson
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}") 
+            raise HTTPException(status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}")

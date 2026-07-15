@@ -4,6 +4,7 @@ Unit tests for simulation engine.
 
 import pytest
 from geo_infer_sim.core.simulation_engine import SimulationEngine, SimulationConfig, SimulationState
+from geo_infer_sim.module_simulations import ModuleSimulationConfig, ModuleSimulations
 
 
 class TestSimulationEngine:
@@ -72,5 +73,15 @@ class TestSimulationEngine:
         assert "test_metric" in engine.metrics
         assert engine.metrics["test_metric"] == [42.0]
 
+    def test_ant_simulation_updates_pheromone_trails(self) -> None:
+        simulations = ModuleSimulations(
+            ModuleSimulationConfig(time_horizon=1.0, time_step=1.0, random_seed=42)
+        )
+
+        result = simulations.simulate_ant(colony_size=2)
+
+        assert result["module"] == "ANT"
+        assert len(result["trail_history"]) == 1
+        assert result["final_trails"].sum() > 0
 
 

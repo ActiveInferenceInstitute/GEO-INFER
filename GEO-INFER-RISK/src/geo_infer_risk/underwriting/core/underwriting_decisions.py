@@ -202,7 +202,9 @@ class UnderwritingDecisionEngine:
                 decision = "decline"
 
             # Generate decision explanation
-            explanation = self._generate_decision_explanation(criteria_results, overall_score, framework)
+            explanation = self._generate_decision_explanation(
+                criteria_results, overall_score, framework, decision
+            )
 
             # Create decision result
             decision_result = {
@@ -236,7 +238,8 @@ class UnderwritingDecisionEngine:
             }
 
     def _generate_decision_explanation(self, criteria_results: Dict[str, Any],
-                                     overall_score: float, framework: DecisionFramework) -> str:
+                                     overall_score: float, framework: DecisionFramework,
+                                     decision: str) -> str:
         """Generate human-readable decision explanation."""
         explanation_parts = [
             f"Overall Decision Score: {overall_score:.3f}",

@@ -144,7 +144,7 @@ class ActionDecision:
         }
 
 
-class SwarmAgent(BaseAgent if BaseAgent != object else ABC):
+class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
     """
     Base class for swarm intelligence agents.
 
@@ -190,7 +190,7 @@ class SwarmAgent(BaseAgent if BaseAgent != object else ABC):
             raise ValueError("sensory_range must be non-negative")
 
         # Initialize base agent (fallback if BaseAgent not available)
-        if BaseAgent != object:
+        if BaseAgent is not object:
             super().__init__(agent_id, kwargs)
         else:
             self.agent_id = agent_id

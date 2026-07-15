@@ -1,6 +1,7 @@
 """Tests for multimodal transport module."""
 
 import pytest
+import networkx as nx
 from geo_infer_log.core.transport import (
     MultiModalPlanner,
     TransportationNetworkAnalyzer,
@@ -18,6 +19,24 @@ class TestMultiModalPlanner:
 
     def test_import(self) -> None:
         assert MultiModalPlanner is not None
+
+    def test_add_transfer_point_connects_networks(self) -> None:
+        planner = MultiModalPlanner()
+        network = nx.Graph()
+        network.add_node("station", x=0.0, y=0.0)
+        planner.networks["rail"] = network
+
+        planner.add_transfer_point(
+            location=(0.1, 0.1),
+            name="Central",
+            modes=["rail"],
+            transfer_time={("rail", "bus"): 8},
+        )
+
+        assert planner.transfer_points[0]["id"] == 0
+        transfer_node = "transfer_0_rail"
+        assert transfer_node in network
+        assert network.edges["station", transfer_node]["weight"] == 8
 
 
 class TestTransportationNetworkAnalyzer:

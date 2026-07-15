@@ -42,8 +42,8 @@ class ConfigurationValidator:
 
     def _get_default_schema_path(self) -> str:
         """Get default schema path."""
-        current_dir = Path(__file__).parent.parent.parent
-        return str(current_dir / "config" / "schema.json")
+        module_root = Path(__file__).resolve().parents[3]
+        return str(module_root / "config" / "schema.json")
 
     def _load_schema(self) -> Dict[str, Any]:
         """Load JSON schema for validation."""

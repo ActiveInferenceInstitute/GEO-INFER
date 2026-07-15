@@ -280,7 +280,7 @@ class SpatialDataFusion:
                             between_cell_consistency = max(0, 1.0 - between_cell_diff / consistency_threshold)
                         else:
                             between_cell_consistency = 1.0
-                    except:
+                    except Exception:
                         between_cell_consistency = 1.0  # Default if neighbor analysis fails
                 else:
                     between_cell_consistency = 1.0

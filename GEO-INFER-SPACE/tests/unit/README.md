@@ -12,6 +12,7 @@ Unit workspace within `GEO-INFER-SPACE`.
 - `test_dispatch_comprehensive.py`
 - `test_gis_submodule.py`
 - `test_h3_enhanced.py`
+- `test_h3_operations_runtime.py`
 - `test_io_modules.py`
 - `test_nested_comprehensive.py`
 - `test_nested_h3_contract.py`

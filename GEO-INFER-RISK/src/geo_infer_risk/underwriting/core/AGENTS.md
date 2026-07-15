@@ -23,6 +23,7 @@
 
 - `claims_processing.py`
 - `policy_management.py`
+- `portfolio_management.py`
 - `pricing_engine.py`
 - `risk_assessment.py`
 - `underwriting_decisions.py`
