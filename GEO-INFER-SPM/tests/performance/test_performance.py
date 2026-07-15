@@ -377,18 +377,25 @@ class TestComputationalComplexity:
             spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
             design_matrix = DesignMatrix(matrix=X, names=["int", "x1", "x2"])
 
-            start_time = time.time()
+            # Warm up the linear-algebra path, then amortize timer and BLAS
+            # startup noise across repeated fits. A single sub-millisecond
+            # sample makes adjacent ratios meaningless on shared CI runners.
             fit_glm(spm_data, design_matrix)
-            execution_time = time.time() - start_time
+            measurements = []
+            for _ in range(5):
+                start_time = time.perf_counter()
+                fit_glm(spm_data, design_matrix)
+                measurements.append(time.perf_counter() - start_time)
 
-            times.append(execution_time)
+            times.append(float(np.median(measurements)))
 
         # Check scaling is reasonable (should be roughly O(n))
         ratios = [times[i] / times[i - 1] for i in range(1, len(times))]
         size_ratios = [sizes[i] / sizes[i - 1] for i in range(1, len(sizes))]
 
-        # Time ratios should be roughly proportional to size ratios
-        # Allow some flexibility due to constant factors
+        # Time ratios should be roughly proportional to size ratios. Median
+        # repeated measurements keep the oracle focused on scaling rather than
+        # scheduler noise from one tiny benchmark invocation.
         for ratio, size_ratio in zip(ratios, size_ratios):
             assert ratio < size_ratio * 3  # Allow up to 3x overhead
 
