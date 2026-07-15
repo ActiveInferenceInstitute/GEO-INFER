@@ -299,7 +299,7 @@ Create and initialize all agents with type-specific configurations and spatial p
 
 #### `async run_simulation(time_steps, environmental_changes=None, data_collection=None, progress_callback=None) -> SimulationResults`
 
-Run the full simulation loop: update environment, update agents (parallel or sequential), collect data, analyze emergent patterns. Environmental changes can be scheduled with `start_time`, `end_time`, and `factors`.
+Run the full simulation loop: update environment, update agents (parallel or sequential), collect data, analyze emergent patterns. Environmental changes can be scheduled with `start_time`, `end_time`, and `factors`. Parallel updates use the current asyncio loop and bound in-flight work with `PopulationConfig.max_workers`; social context is derived from active agents' positions and reports nearby-agent counts directly rather than treating spatial-index cells as agents.
 
 #### `get_agent_by_id(agent_id: str) -> Optional[SwarmAgent]`
 #### `get_agents_by_type(agent_type: str) -> List[SwarmAgent]`
