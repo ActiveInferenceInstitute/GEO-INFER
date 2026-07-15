@@ -11,7 +11,7 @@ import logging
 import numpy as np
 
 from geo_infer_act.core.types import FreeEnergyBreakdown
-from geo_infer_act.utils.math import softmax
+from geo_infer_act.utils.math import kl_divergence, softmax
 
 logger = logging.getLogger(__name__)
 
@@ -164,23 +164,45 @@ class FreeEnergyCalculator:
         Returns:
             Free energy value
         """
-        # Set defaults
+        mean = np.asarray(mean, dtype=float).reshape(-1)
+        precision = np.asarray(precision, dtype=float)
+        observations = np.asarray(observations, dtype=float).reshape(-1)
+        if mean.size == 0 or observations.shape != mean.shape:
+            raise ValueError("mean and observations must be non-empty vectors with the same shape")
+        if precision.shape != (mean.size, mean.size):
+            raise ValueError("precision must be square with one row per state")
         if prior_mean is None:
             prior_mean = np.zeros_like(mean)
+        else:
+            prior_mean = np.asarray(prior_mean, dtype=float).reshape(-1)
         if prior_precision is None:
             prior_precision = np.eye(len(mean))
+        else:
+            prior_precision = np.asarray(prior_precision, dtype=float)
+        if prior_mean.shape != mean.shape or prior_precision.shape != precision.shape:
+            raise ValueError("prior mean and precision must match the belief dimensions")
+        for name, matrix in (("precision", precision), ("prior_precision", prior_precision)):
+            if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
+                raise ValueError(f"{name} must be finite and symmetric")
+            try:
+                np.linalg.cholesky(matrix)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(f"{name} must be positive definite") from exc
+        if not np.all(np.isfinite(mean)) or not np.all(np.isfinite(observations)):
+            raise ValueError("mean and observations must be finite")
 
-        # Complexity term (KL divergence from prior)
-        try:
-            complexity = 0.5 * (
-                np.trace(np.linalg.solve(prior_precision, precision))
-                + (mean - prior_mean).T @ prior_precision @ (mean - prior_mean)
-                - len(mean)
-                + np.log(np.linalg.det(prior_precision) / np.linalg.det(precision))
-            )
-        except np.linalg.LinAlgError:
-            # Fallback calculation
-            complexity = 0.5 * np.trace(precision)
+        # Complexity term (KL divergence from prior), using log-determinants
+        # instead of determinants so well-conditioned large matrices remain
+        # finite.
+        _, logdet_prior = np.linalg.slogdet(prior_precision)
+        _, logdet_precision = np.linalg.slogdet(precision)
+        complexity = 0.5 * (
+            np.trace(np.linalg.solve(prior_precision, precision))
+            + (mean - prior_mean).T @ prior_precision @ (mean - prior_mean)
+            - len(mean)
+            + logdet_prior
+            - logdet_precision
+        )
 
         # Accuracy term (negative log likelihood)
         residual = observations - mean
@@ -237,7 +259,15 @@ class FreeEnergyCalculator:
             predictive = beliefs
 
         entropy = float(-np.sum(predictive * np.log(predictive + EPSILON)))
-        epistemic_value = entropy
+        if "expected_posterior" in policy or "posterior_beliefs" in policy:
+            expected_posterior = _coerce_probability_vector(
+                policy.get("expected_posterior", policy.get("posterior_beliefs")),
+                len(beliefs),
+            )
+            epistemic_value = kl_divergence(expected_posterior, predictive)
+        else:
+            expected_posterior = None
+            epistemic_value = entropy
 
         if preferences is not None:
             preferences = _coerce_probability_vector(preferences, len(beliefs))
@@ -272,6 +302,16 @@ class FreeEnergyCalculator:
                 metadata={
                     "model_type": "expected_policy",
                     "predictive_beliefs": predictive.copy(),
+                    "expected_posterior": (
+                        expected_posterior.copy()
+                        if expected_posterior is not None
+                        else None
+                    ),
+                    "epistemic_value_source": (
+                        "expected_posterior_kl"
+                        if expected_posterior is not None
+                        else "predictive_entropy"
+                    ),
                     "temporal_discount": temporal_discount,
                     "exploration_bonus": exploration_bonus,
                 },

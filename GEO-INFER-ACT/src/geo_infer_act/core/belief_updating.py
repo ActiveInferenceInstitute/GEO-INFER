@@ -5,7 +5,7 @@ Belief updating for Active Inference models.
 from typing import Dict
 import numpy as np
 
-from geo_infer_act.utils.math import categorical_posterior
+from geo_infer_act.utils.math import categorical_posterior, compute_surprise as _compute_surprise
 
 
 class BayesianBeliefUpdate:
@@ -23,7 +23,9 @@ class BayesianBeliefUpdate:
         Args:
             prior_precision: Precision of prior beliefs
         """
-        self.prior_precision = prior_precision
+        if not np.isfinite(prior_precision) or prior_precision <= 0:
+            raise ValueError("prior_precision must be finite and strictly positive")
+        self.prior_precision = float(prior_precision)
 
     def update_categorical(
         self,
@@ -69,22 +71,69 @@ class BayesianBeliefUpdate:
         Returns:
             Updated mean and precision
         """
-        # Convert precision to covariance for computation
-        prior_cov = np.linalg.inv(prior_precision)
-        obs_cov = np.linalg.inv(observation_precision)
+        prior_mean = np.asarray(prior_mean, dtype=float).reshape(-1)
+        observation = np.asarray(observation, dtype=float).reshape(-1)
+        prior_precision = np.asarray(prior_precision, dtype=float)
+        observation_matrix = np.asarray(observation_matrix, dtype=float)
+        observation_precision = np.asarray(observation_precision, dtype=float)
+        state_dim = prior_mean.size
+        if state_dim == 0 or observation.size == 0:
+            raise ValueError("Gaussian belief vectors must not be empty")
+        if observation_matrix.shape != (observation.size, state_dim):
+            raise ValueError(
+                "observation_matrix must have shape "
+                f"({observation.size}, {state_dim})"
+            )
+        if prior_precision.shape != (state_dim, state_dim):
+            raise ValueError(
+                f"prior_precision must have shape ({state_dim}, {state_dim})"
+            )
+        if observation_precision.shape != (observation.size, observation.size):
+            raise ValueError(
+                "observation_precision must be square with one row per observation"
+            )
+        for name, matrix in (
+            ("prior_precision", prior_precision),
+            ("observation_precision", observation_precision),
+        ):
+            if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
+                raise ValueError(f"{name} must be finite and symmetric")
+            try:
+                np.linalg.cholesky(matrix)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(f"{name} must be positive definite") from exc
+        if not np.all(np.isfinite(prior_mean)) or not np.all(np.isfinite(observation)):
+            raise ValueError("Gaussian belief vectors must be finite")
+
+        # Convert precision to covariance without explicitly inverting during
+        # the Kalman update.  Explicit inverses amplify conditioning errors.
+        identity_state = np.eye(state_dim)
+        identity_obs = np.eye(observation.size)
+        prior_cov = np.linalg.solve(prior_precision, identity_state)
+        obs_cov = np.linalg.solve(observation_precision, identity_obs)
 
         # Kalman filter update
         H = observation_matrix
-        K = prior_cov @ H.T @ np.linalg.inv(H @ prior_cov @ H.T + obs_cov)
+        innovation_cov = H @ prior_cov @ H.T + obs_cov
+        cross_cov = prior_cov @ H.T
+        K = np.linalg.solve(innovation_cov.T, cross_cov.T).T
 
         # Updated mean
         posterior_mean = prior_mean + K @ (observation - H @ prior_mean)
 
         # Updated covariance
-        posterior_cov = (np.eye(len(prior_mean)) - K @ H) @ prior_cov
+        # Joseph form keeps the posterior covariance symmetric and positive
+        # semidefinite in finite precision arithmetic.
+        residual_transform = np.eye(state_dim) - K @ H
+        posterior_cov = (
+            residual_transform @ prior_cov @ residual_transform.T
+            + K @ obs_cov @ K.T
+        )
+        posterior_cov = (posterior_cov + posterior_cov.T) / 2.0
 
         # Convert back to precision
-        posterior_precision = np.linalg.inv(posterior_cov)
+        posterior_precision = np.linalg.solve(posterior_cov, identity_state)
+        posterior_precision = (posterior_precision + posterior_precision.T) / 2.0
 
         return {"mean": posterior_mean, "precision": posterior_precision}
 
@@ -102,8 +151,16 @@ class BayesianBeliefUpdate:
         Returns:
             Prediction error
         """
+        prediction = np.asarray(prediction, dtype=float)
+        observation = np.asarray(observation, dtype=float)
+        if prediction.shape != observation.shape:
+            raise ValueError("prediction and observation must have the same shape")
+        if not np.all(np.isfinite(prediction)) or not np.all(np.isfinite(observation)):
+            raise ValueError("prediction and observation must be finite")
+        if not np.isfinite(precision) or precision < 0:
+            raise ValueError("precision must be finite and non-negative")
         error = observation - prediction
-        return precision * np.sum(error**2)
+        return float(precision * np.sum(error**2))
 
     def compute_surprise(
         self, observation: np.ndarray, predicted_distribution: np.ndarray
@@ -118,16 +175,7 @@ class BayesianBeliefUpdate:
         Returns:
             Surprise value
         """
-        # For categorical observations
-        if observation.ndim == 1 and np.allclose(np.sum(observation), 1.0):
-            prob = np.sum(observation * predicted_distribution)
-            return -np.log(prob + 1e-10)
-
-        # For continuous observations (simplified Gaussian assumption)
-        else:
-            mean = np.mean(predicted_distribution)
-            var = np.var(predicted_distribution)
-            return 0.5 * ((observation - mean) ** 2 / var + np.log(2 * np.pi * var))
+        return _compute_surprise(observation, predicted_distribution)
 
     def update_beliefs(
         self, prior_beliefs: np.ndarray, observation: np.ndarray, likelihood: np.ndarray

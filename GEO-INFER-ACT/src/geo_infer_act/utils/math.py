@@ -23,15 +23,28 @@ def softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarr
     Returns:
         Softmax-transformed array
     """
-    # Subtract max for numerical stability
-    x_stable = x - np.max(x, axis=axis, keepdims=True)
+    values = np.asarray(x, dtype=float)
+    if values.size == 0:
+        raise ValueError("softmax input must not be empty")
+    if not np.isfinite(temperature) or temperature <= 0:
+        raise ValueError("temperature must be finite and strictly positive")
+    if np.any(~np.isfinite(values)):
+        raise ValueError("softmax input must contain only finite values")
+    if values.ndim == 0:
+        return np.ones_like(values, dtype=float)
 
-    # Apply temperature scaling
-    x_scaled = x_stable / temperature
+    if not isinstance(axis, (int, np.integer)) or not -values.ndim <= axis < values.ndim:
+        raise ValueError(f"axis {axis} is invalid for an array with {values.ndim} dimensions")
+    axis = int(axis) % values.ndim
+    if values.shape[axis] == 0:
+        raise ValueError("softmax cannot normalize an empty axis")
 
-    # Compute softmax
+    # Subtract the maximum before scaling so large EFE magnitudes remain
+    # finite while preserving the exact normalized result.
+    x_scaled = (values - np.max(values, axis=axis, keepdims=True)) / temperature
     exp_x = np.exp(x_scaled)
-    return exp_x / np.sum(exp_x, axis=axis, keepdims=True)
+    denominator = np.sum(exp_x, axis=axis, keepdims=True)
+    return exp_x / denominator
 
 
 def normalize_distribution(x: np.ndarray, axis: int = -1) -> np.ndarray:
@@ -175,20 +188,29 @@ def kl_divergence(p: np.ndarray, q: np.ndarray, epsilon: float = 1e-10) -> float
     Returns:
         KL divergence D(p||q)
     """
-    # Ensure both are valid probability distributions
-    p = np.asarray(p)
-    q = np.asarray(q)
+    p = np.asarray(p, dtype=float)
+    q = np.asarray(q, dtype=float)
+    if p.shape != q.shape:
+        raise ValueError(f"p and q must have the same shape, got {p.shape} and {q.shape}")
+    if p.size == 0:
+        raise ValueError("KL divergence inputs must not be empty")
+    if not np.isfinite(epsilon) or epsilon <= 0:
+        raise ValueError("epsilon must be finite and strictly positive")
+    if not np.all(np.isfinite(p)) or not np.all(np.isfinite(q)):
+        raise ValueError("KL divergence inputs must be finite")
+    if np.any(p < 0) or np.any(q < 0):
+        raise ValueError("KL divergence inputs must be non-negative")
 
-    # Add small epsilon to avoid log(0)
-    p_safe = p + epsilon
-    q_safe = q + epsilon
-
-    # Normalize to ensure they sum to 1
-    p_safe = p_safe / np.sum(p_safe)
-    q_safe = q_safe / np.sum(q_safe)
-
-    # Compute KL divergence
-    return np.sum(p_safe * np.log(p_safe / q_safe))
+    p_total = float(np.sum(p))
+    q_total = float(np.sum(q))
+    if p_total <= 0 or q_total <= 0:
+        raise ValueError("KL divergence inputs must have positive total mass")
+    p = p / p_total
+    q = q / q_total
+    q_safe = np.maximum(q, epsilon)
+    positive = p > 0
+    divergence = np.sum(p[positive] * np.log(p[positive] / q_safe[positive]))
+    return float(max(0.0, divergence))
 
 
 def entropy(p: np.ndarray, base: Union[float, str] = "e") -> float:
@@ -202,7 +224,15 @@ def entropy(p: np.ndarray, base: Union[float, str] = "e") -> float:
     Returns:
         Entropy value
     """
-    p = np.asarray(p)
+    p = np.asarray(p, dtype=float)
+    if p.size == 0:
+        return 0.0
+    if not np.all(np.isfinite(p)) or np.any(p < 0):
+        raise ValueError("entropy input must be finite and non-negative")
+    total = float(np.sum(p))
+    if total <= 0:
+        raise ValueError("entropy input must have positive total mass")
+    p = p / total
 
     # Filter out zero probabilities
     p_nonzero = p[p > 0]
@@ -290,9 +320,13 @@ def gaussian_log_likelihood(
     Returns:
         Log likelihood
     """
-    x = np.asarray(x)
-    mean = np.asarray(mean)
-    precision = np.asarray(precision)
+    x = np.asarray(x, dtype=float).reshape(-1)
+    mean = np.asarray(mean, dtype=float).reshape(-1)
+    precision = np.asarray(precision, dtype=float)
+    if x.shape != mean.shape or x.size == 0:
+        raise ValueError("x and mean must be non-empty vectors with the same shape")
+    if not np.all(np.isfinite(x)) or not np.all(np.isfinite(mean)):
+        raise ValueError("x and mean must be finite")
 
     # Residual
     residual = x - mean
@@ -302,21 +336,27 @@ def gaussian_log_likelihood(
 
     if precision.ndim == 0 or (precision.ndim == 1 and len(precision) == 1):
         # Scalar precision
-        log_det_precision = d * np.log(precision)
-        quadratic_form = precision * np.sum(residual**2)
+        scalar_precision = float(precision.reshape(-1)[0])
+        if not np.isfinite(scalar_precision) or scalar_precision <= 0:
+            raise ValueError("Gaussian precision must be finite and positive")
+        log_det_precision = d * np.log(scalar_precision)
+        quadratic_form = scalar_precision * np.sum(residual**2)
     elif precision.ndim == 1:
         # Diagonal precision
+        if precision.shape != (d,) or not np.all(np.isfinite(precision)) or np.any(precision <= 0):
+            raise ValueError("Diagonal Gaussian precision must be finite and positive")
         log_det_precision = np.sum(np.log(precision))
         quadratic_form = np.sum(precision * residual**2)
     else:
         # Full precision matrix
-        try:
-            log_det_precision = np.log(np.linalg.det(precision))
-            quadratic_form = residual.T @ precision @ residual
-        except np.linalg.LinAlgError:
-            # Fallback for singular matrices
-            log_det_precision = np.sum(np.log(np.diag(precision)))
-            quadratic_form = np.sum(np.diag(precision) * residual**2)
+        if precision.shape != (d, d) or not np.all(np.isfinite(precision)):
+            raise ValueError("Full Gaussian precision must be a finite square matrix")
+        if not np.allclose(precision, precision.T, atol=1e-10):
+            raise ValueError("Full Gaussian precision must be symmetric")
+        sign, log_det_precision = np.linalg.slogdet(precision)
+        if sign <= 0 or not np.isfinite(log_det_precision):
+            raise ValueError("Gaussian precision must be positive definite")
+        quadratic_form = residual.T @ precision @ residual
 
     # Log likelihood
     log_likelihood = 0.5 * (log_det_precision - d * np.log(2 * np.pi) - quadratic_form)
@@ -337,12 +377,21 @@ def categorical_log_likelihood(
     Returns:
         Log likelihood
     """
-    observations = np.asarray(observations)
-    probabilities = np.asarray(probabilities)
+    observations = np.asarray(observations, dtype=float).reshape(-1)
+    probabilities = np.asarray(probabilities, dtype=float).reshape(-1)
+    if observations.shape != probabilities.shape or observations.size == 0:
+        raise ValueError("observations and probabilities must have the same non-empty shape")
+    if not np.all(np.isfinite(observations)) or np.any(observations < 0):
+        raise ValueError("observations must be finite and non-negative")
+    if not np.all(np.isfinite(probabilities)) or np.any(probabilities < 0):
+        raise ValueError("probabilities must be finite and non-negative")
+    total = float(np.sum(probabilities))
+    if total <= 0:
+        raise ValueError("probabilities must have positive total mass")
 
     # Ensure probabilities are valid
-    probabilities = probabilities + 1e-10
-    probabilities = probabilities / np.sum(probabilities)
+    probabilities = probabilities / total
+    probabilities = np.maximum(probabilities, 1e-10)
 
     # Compute log likelihood
     return float(np.sum(observations * np.log(probabilities)))
@@ -393,13 +442,19 @@ def sample_categorical(
     Returns:
         Sampled indices
     """
-    if random_state is not None:
-        np.random.seed(random_state)
-
-    probabilities = np.asarray(probabilities)
-    probabilities = probabilities / np.sum(probabilities)
-
-    return np.random.choice(len(probabilities), size=n_samples, p=probabilities)
+    probabilities = np.asarray(probabilities, dtype=float).reshape(-1)
+    if probabilities.size == 0:
+        raise ValueError("probabilities must not be empty")
+    if isinstance(n_samples, bool) or int(n_samples) != n_samples or n_samples < 0:
+        raise ValueError("n_samples must be a non-negative integer")
+    if not np.all(np.isfinite(probabilities)) or np.any(probabilities < 0):
+        raise ValueError("probabilities must be finite and non-negative")
+    total = float(np.sum(probabilities))
+    if total <= 0:
+        raise ValueError("probabilities must have positive total mass")
+    probabilities = probabilities / total
+    rng = np.random.default_rng(random_state)
+    return rng.choice(len(probabilities), size=int(n_samples), p=probabilities)
 
 
 def compute_free_energy_categorical(
@@ -786,12 +841,24 @@ def compute_surprise(
     Returns:
         Surprise value (negative log probability)
     """
-    observation = np.asarray(observation)
-    predicted_distribution = np.asarray(predicted_distribution)
+    observation = np.asarray(observation, dtype=float)
+    predicted_distribution = np.asarray(predicted_distribution, dtype=float).reshape(-1)
+    if predicted_distribution.size == 0:
+        raise ValueError("predicted_distribution must not be empty")
+    if not np.all(np.isfinite(observation)):
+        raise ValueError("observation must be finite")
+    if not np.all(np.isfinite(predicted_distribution)) or np.any(predicted_distribution < 0):
+        raise ValueError("predicted_distribution must be finite and non-negative")
+    if not np.isfinite(sigma) or sigma <= 0:
+        raise ValueError("sigma must be finite and strictly positive")
+    total = float(np.sum(predicted_distribution))
+    if total <= 0:
+        raise ValueError("predicted_distribution must have positive total mass")
 
     # Ensure valid distribution
-    predicted_distribution = predicted_distribution + 1e-10
-    predicted_distribution = predicted_distribution / np.sum(predicted_distribution)
+    predicted_distribution = predicted_distribution / total
+    predicted_distribution = np.maximum(predicted_distribution, 1e-10)
+    predicted_distribution /= np.sum(predicted_distribution)
 
     # For one-hot encoded observations (categorical)
     if (
@@ -799,6 +866,8 @@ def compute_surprise(
         and len(observation) == len(predicted_distribution)
         and np.allclose(np.sum(observation), 1.0)
     ):
+        if np.any(observation < 0):
+            raise ValueError("categorical observations must be non-negative")
         prob = np.sum(observation * predicted_distribution)
         return float(-np.log(prob + 1e-10))
 

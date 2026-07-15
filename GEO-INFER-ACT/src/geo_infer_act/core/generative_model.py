@@ -37,6 +37,59 @@ from geo_infer_act.utils.spatial_diagnostics import SpatialDiagnostics
 logger = logging.getLogger(__name__)
 
 
+def _kalman_posterior(
+    predicted_mean: np.ndarray,
+    predicted_covariance: np.ndarray,
+    observation: np.ndarray,
+    observation_matrix: np.ndarray,
+    observation_covariance: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compute a numerically stable Gaussian posterior in covariance space."""
+    predicted_mean = np.asarray(predicted_mean, dtype=float).reshape(-1)
+    predicted_covariance = np.asarray(predicted_covariance, dtype=float)
+    observation = np.asarray(observation, dtype=float).reshape(-1)
+    observation_matrix = np.asarray(observation_matrix, dtype=float)
+    observation_covariance = np.asarray(observation_covariance, dtype=float)
+    state_dim = predicted_mean.size
+    if predicted_covariance.shape != (state_dim, state_dim):
+        raise ValueError("predicted covariance has an invalid shape")
+    if observation_matrix.shape != (observation.size, state_dim):
+        raise ValueError("observation matrix does not match the observation shape")
+    if observation_covariance.shape != (observation.size, observation.size):
+        raise ValueError("observation covariance has an invalid shape")
+    if not all(
+        np.all(np.isfinite(value))
+        for value in (
+            predicted_mean,
+            predicted_covariance,
+            observation,
+            observation_matrix,
+            observation_covariance,
+        )
+    ):
+        raise ValueError("Gaussian posterior inputs must be finite")
+
+    innovation_covariance = (
+        observation_matrix @ predicted_covariance @ observation_matrix.T
+        + observation_covariance
+    )
+    cross_covariance = predicted_covariance @ observation_matrix.T
+    gain = np.linalg.solve(innovation_covariance.T, cross_covariance.T).T
+    posterior_mean = predicted_mean + gain @ (
+        observation - observation_matrix @ predicted_mean
+    )
+    residual_transform = np.eye(state_dim) - gain @ observation_matrix
+    posterior_covariance = (
+        residual_transform @ predicted_covariance @ residual_transform.T
+        + gain @ observation_covariance @ gain.T
+    )
+    posterior_covariance = (posterior_covariance + posterior_covariance.T) / 2.0
+    posterior_precision = np.linalg.solve(
+        posterior_covariance, np.eye(state_dim)
+    )
+    return posterior_mean, (posterior_precision + posterior_precision.T) / 2.0
+
+
 def _normalize_categorical_matrix(
     matrix: Any,
     expected_shape: tuple[int, int],
@@ -703,16 +756,18 @@ class GenerativeModel:
             A = self.transition_model["A"]
             Q = self.transition_model["Q"]
             pred_mean = A @ self.beliefs["mean"]
-            pred_cov = A @ np.linalg.inv(self.beliefs["precision"]) @ A.T + Q
+            pred_cov = np.linalg.solve(
+                self.beliefs["precision"], np.eye(self.state_dim)
+            )
+            pred_cov = A @ pred_cov @ A.T + Q
 
-            # Update step
+            # Update step.  The Joseph form avoids asymmetric or indefinite
+            # covariance matrices caused by explicit matrix inverses.
             C = self.observation_model["C"]
             R = self.observation_model["R"]
-            K = pred_cov @ C.T @ np.linalg.inv(C @ pred_cov @ C.T + R)
-
-            updated_mean = pred_mean + K @ (obs_vector - C @ pred_mean)
-            updated_cov = (np.eye(self.state_dim) - K @ C) @ pred_cov
-            updated_precision = np.linalg.inv(updated_cov)
+            updated_mean, updated_precision = _kalman_posterior(
+                pred_mean, pred_cov, obs_vector, C, R
+            )
 
             # Update beliefs
             self.beliefs["mean"] = updated_mean
@@ -750,13 +805,16 @@ class GenerativeModel:
 
         # Prediction
         pred_mean = A @ current_beliefs["mean"]
-        pred_cov = A @ np.linalg.inv(current_beliefs["precision"]) @ A.T + Q
+        pred_cov = np.linalg.solve(
+            current_beliefs["precision"], np.eye(level.state_dim)
+        )
+        pred_cov = A @ pred_cov @ A.T + Q
 
-        # Update
-        K = pred_cov @ C.T @ np.linalg.inv(C @ pred_cov @ C.T + R)
-        updated_mean = pred_mean + K @ (observation - C @ pred_mean)
-        updated_cov = (np.eye(level.state_dim) - K @ C) @ pred_cov
-        updated_precision = np.linalg.inv(updated_cov + 1e-10 * np.eye(level.state_dim))
+        # Update using the same stable Gaussian posterior path as the
+        # single-level model.
+        updated_mean, updated_precision = _kalman_posterior(
+            pred_mean, pred_cov, observation, C, R
+        )
 
         return {"mean": updated_mean, "precision": updated_precision}
 
