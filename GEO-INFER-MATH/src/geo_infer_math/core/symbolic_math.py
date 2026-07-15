@@ -6,16 +6,17 @@ including symbolic expressions, derivatives, integrals, and equation solving.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
+from typing import List, Tuple, Dict, Optional, Any
 import logging
 import warnings
 
 logger = logging.getLogger(__name__)
 
+
 class SymbolicMath:
     """Symbolic mathematics engine for geospatial analysis."""
 
-    def __init__(self, backend: str = 'sympy'):
+    def __init__(self, backend: str = "sympy"):
         """
         Initialize symbolic mathematics engine.
 
@@ -27,8 +28,9 @@ class SymbolicMath:
         self._symbols = {}
 
         try:
-            if backend == 'sympy':
+            if backend == "sympy":
                 import sympy as sp
+
                 self._engine = sp
                 self.Symbol = sp.Symbol
                 self.symbols = sp.symbols
@@ -40,8 +42,9 @@ class SymbolicMath:
                 self.factor = sp.factor
                 self.Matrix = sp.Matrix
                 self.Function = sp.Function
-            elif backend == 'symengine':
+            elif backend == "symengine":
                 import symengine as se
+
                 self._engine = se
                 self.Symbol = se.Symbol
                 self.symbols = se.symbols
@@ -59,8 +62,10 @@ class SymbolicMath:
             logger.info(f"Initialized symbolic math with {backend} backend")
 
         except ImportError as e:
-            warnings.warn(f"Backend {backend} not available: {e}. Using numpy-based symbolic operations.")
-            self._engine = 'numpy'
+            warnings.warn(
+                f"Backend {backend} not available: {e}. Using numpy-based symbolic operations."
+            )
+            self._engine = "numpy"
             self._setup_numpy_backend()
 
     def _setup_numpy_backend(self):
@@ -79,7 +84,7 @@ class SymbolicMath:
 
     def _numpy_symbol(self, name: str):
         """Create a numpy-based symbolic symbol."""
-        return {'type': 'symbol', 'name': name}
+        return {"type": "symbol", "name": name}
 
     def _numpy_symbols(self, *names):
         """Create multiple numpy-based symbolic symbols."""
@@ -99,7 +104,7 @@ class SymbolicMath:
         For compound dict expressions (type='derivative', 'integral', 'solution'),
         returns a nested derivative descriptor.
         """
-        var_name = var.get('name', str(var)) if isinstance(var, dict) else str(var)
+        var_name = var.get("name", str(var)) if isinstance(var, dict) else str(var)
 
         # Case 1: callable expression → numerical central difference
         if callable(expr):
@@ -112,12 +117,17 @@ class SymbolicMath:
 
         # Case 2: symbol dict → analytic identity / zero rule
         if isinstance(expr, dict):
-            expr_type = expr.get('type', '')
-            if expr_type == 'symbol':
+            expr_type = expr.get("type", "")
+            if expr_type == "symbol":
                 # d/dx x = 1, d/dx y = 0
-                return 1.0 if expr.get('name') == var_name else 0.0
+                return 1.0 if expr.get("name") == var_name else 0.0
             # For compound sub-expressions, return a derivative descriptor
-            return {'type': 'derivative', 'expression': expr, 'variable': var, 'order': 1}
+            return {
+                "type": "derivative",
+                "expression": expr,
+                "variable": var,
+                "order": 1,
+            }
 
         # Case 3: numeric constant → derivative is zero
         try:
@@ -127,16 +137,15 @@ class SymbolicMath:
             pass
 
         # Fallback descriptor
-        return {'type': 'derivative', 'expression': expr, 'variable': var, 'order': 1}
-
+        return {"type": "derivative", "expression": expr, "variable": var, "order": 1}
 
     def _numpy_integrate(self, expr, var):
         """Numerical integration (simplified)."""
-        return {'type': 'integral', 'expression': expr, 'variable': var}
+        return {"type": "integral", "expression": expr, "variable": var}
 
     def _numpy_solve(self, expr, var):
         """Numerical equation solving (simplified)."""
-        return {'type': 'solution', 'expression': expr, 'variable': var}
+        return {"type": "solution", "expression": expr, "variable": var}
 
     def _numpy_simplify(self, expr):
         """Simplify expression (no-op for numpy backend)."""
@@ -156,11 +165,14 @@ class SymbolicMath:
 
     def _numpy_function(self, name):
         """Create function (no-op for numpy backend)."""
-        return {'type': 'function', 'name': name}
+        return {"type": "function", "name": name}
 
-    def define_spatial_model(self, variables: List[str],
-                           equations: List[str],
-                           constraints: Optional[List[str]] = None) -> Dict[str, Any]:
+    def define_spatial_model(
+        self,
+        variables: List[str],
+        equations: List[str],
+        constraints: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
         """
         Define a symbolic spatial model.
 
@@ -173,45 +185,46 @@ class SymbolicMath:
             Symbolic model definition
         """
         # Create symbols for variables
-        var_symbols = self.symbols(','.join(variables))
+        var_symbols = self.symbols(",".join(variables))
 
         # Parse equations
         parsed_equations = []
         for eq in equations:
             try:
                 # This is a simplified parser - real implementation would use the symbolic engine
-                parsed_equations.append({
-                    'original': eq,
-                    'parsed': self._parse_equation(eq, var_symbols)
-                })
+                parsed_equations.append(
+                    {"original": eq, "parsed": self._parse_equation(eq, var_symbols)}
+                )
             except Exception as e:
                 logger.warning(f"Failed to parse equation '{eq}': {e}")
-                parsed_equations.append({'original': eq, 'error': str(e)})
+                parsed_equations.append({"original": eq, "error": str(e)})
 
         # Parse constraints
         parsed_constraints = []
         if constraints:
             for constraint in constraints:
                 try:
-                    parsed_constraints.append({
-                        'original': constraint,
-                        'parsed': self._parse_constraint(constraint, var_symbols)
-                    })
+                    parsed_constraints.append(
+                        {
+                            "original": constraint,
+                            "parsed": self._parse_constraint(constraint, var_symbols),
+                        }
+                    )
                 except Exception as e:
                     logger.warning(f"Failed to parse constraint '{constraint}': {e}")
-                    parsed_constraints.append({'original': constraint, 'error': str(e)})
+                    parsed_constraints.append({"original": constraint, "error": str(e)})
 
         return {
-            'variables': variables,
-            'symbols': var_symbols,
-            'equations': parsed_equations,
-            'constraints': parsed_constraints,
-            'backend': self.backend
+            "variables": variables,
+            "symbols": var_symbols,
+            "equations": parsed_equations,
+            "constraints": parsed_constraints,
+            "backend": self.backend,
         }
 
     def _parse_equation(self, equation: str, symbols: List):
         """Parse an equation string into symbolic form."""
-        if self.backend in ['sympy', 'symengine']:
+        if self.backend in ["sympy", "symengine"]:
             # Use the actual symbolic engine
             try:
                 # This is a simplified approach - real implementation would need proper parsing
@@ -220,17 +233,18 @@ class SymbolicMath:
                 return equation
         else:
             # Numpy backend
-            return {'type': 'equation', 'string': equation}
+            return {"type": "equation", "string": equation}
 
     def _parse_constraint(self, constraint: str, symbols: List):
         """Parse a constraint string."""
-        if self.backend in ['sympy', 'symengine']:
+        if self.backend in ["sympy", "symengine"]:
             return self._engine.sympify(constraint)
         else:
-            return {'type': 'constraint', 'string': constraint}
+            return {"type": "constraint", "string": constraint}
 
-    def compute_gradients(self, model: Dict[str, Any],
-                         parameters: List[str]) -> Dict[str, Any]:
+    def compute_gradients(
+        self, model: Dict[str, Any], parameters: List[str]
+    ) -> Dict[str, Any]:
         """
         Compute gradients of model equations with respect to parameters.
 
@@ -250,16 +264,20 @@ class SymbolicMath:
 
                 # Compute gradients for each equation
                 equation_gradients = []
-                for eq in model['equations']:
-                    if 'parsed' in eq and 'error' not in eq:
+                for eq in model["equations"]:
+                    if "parsed" in eq and "error" not in eq:
                         try:
-                            if self.backend in ['sympy', 'symengine']:
-                                gradient = self.diff(eq['parsed'], param_symbol)
+                            if self.backend in ["sympy", "symengine"]:
+                                gradient = self.diff(eq["parsed"], param_symbol)
                                 equation_gradients.append(gradient)
                             else:
-                                equation_gradients.append(self._numpy_diff(eq['parsed'], param_symbol))
+                                equation_gradients.append(
+                                    self._numpy_diff(eq["parsed"], param_symbol)
+                                )
                         except Exception as e:
-                            logger.warning(f"Failed to compute gradient for {eq['original']}: {e}")
+                            logger.warning(
+                                f"Failed to compute gradient for {eq['original']}: {e}"
+                            )
                             equation_gradients.append(None)
 
                 gradients[param] = equation_gradients
@@ -270,10 +288,13 @@ class SymbolicMath:
 
         return gradients
 
-    def optimize_symbolic_model(self, model: Dict[str, Any],
-                              objective: str,
-                              parameters: List[str],
-                              bounds: Optional[Dict[str, Tuple[float, float]]] = None) -> Dict[str, Any]:
+    def optimize_symbolic_model(
+        self,
+        model: Dict[str, Any],
+        objective: str,
+        parameters: List[str],
+        bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+    ) -> Dict[str, Any]:
         """
         Optimize a symbolic model.
 
@@ -287,7 +308,7 @@ class SymbolicMath:
             Optimization results
         """
         try:
-            if self.backend in ['sympy', 'symengine']:
+            if self.backend in ["sympy", "symengine"]:
                 # Parse the objective expression symbolically
                 objective_expr = self._engine.sympify(objective)
 
@@ -295,15 +316,18 @@ class SymbolicMath:
                 param_symbols = [self.Symbol(p) for p in parameters]
 
                 # Compute symbolic gradient and lambdify for scipy
-                grad_exprs = [self._engine.diff(objective_expr, ps) for ps in param_symbols]
+                grad_exprs = [
+                    self._engine.diff(objective_expr, ps) for ps in param_symbols
+                ]
 
                 try:
                     from scipy.optimize import minimize as sci_minimize  # type: ignore
-                    obj_fn = self._engine.lambdify(param_symbols, objective_expr, modules='numpy')
+
+                    obj_fn = self._engine.lambdify(
+                        param_symbols, objective_expr, modules="numpy"
+                    )
                     jac_fn = self._engine.lambdify(
-                        param_symbols,
-                        self._engine.Matrix(grad_exprs),
-                        modules='numpy'
+                        param_symbols, self._engine.Matrix(grad_exprs), modules="numpy"
                     )
 
                     def _f(x):
@@ -314,68 +338,78 @@ class SymbolicMath:
                         return np.array(g).flatten().astype(float)
 
                     # Apply bounds if provided
-                    sci_bounds = [
-                        bounds.get(p, (None, None)) for p in parameters
-                    ] if bounds else None
+                    sci_bounds = (
+                        [bounds.get(p, (None, None)) for p in parameters]
+                        if bounds
+                        else None
+                    )
 
                     x0 = np.zeros(len(parameters))
-                    result = sci_minimize(_f, x0, jac=_jac, bounds=sci_bounds, method='L-BFGS-B')
+                    result = sci_minimize(
+                        _f, x0, jac=_jac, bounds=sci_bounds, method="L-BFGS-B"
+                    )
 
                     return {
-                        'success': bool(result.success),
-                        'parameters': dict(zip(parameters, result.x.tolist())),
-                        'objective_value': float(result.fun),
-                        'iterations': result.nit,
-                        'message': result.message,
-                        'backend': self.backend,
+                        "success": bool(result.success),
+                        "parameters": dict(zip(parameters, result.x.tolist())),
+                        "objective_value": float(result.fun),
+                        "iterations": result.nit,
+                        "message": result.message,
+                        "backend": self.backend,
                     }
                 except ImportError:
                     return {
-                        'success': False,
-                        'message': 'scipy required for symbolic optimization (pip install scipy)',
-                        'backend': self.backend,
+                        "success": False,
+                        "message": "scipy required for symbolic optimization (pip install scipy)",
+                        "backend": self.backend,
                     }
 
             else:
                 # Numpy backend: objective must be callable; use scipy numerically
                 try:
                     from scipy.optimize import minimize as sci_minimize  # type: ignore
+
                     if not callable(objective):
                         raise TypeError("Numpy backend requires a callable objective")
 
-                    sci_bounds = [
-                        bounds.get(p, (None, None)) for p in parameters
-                    ] if bounds else None
+                    sci_bounds = (
+                        [bounds.get(p, (None, None)) for p in parameters]
+                        if bounds
+                        else None
+                    )
 
                     x0 = np.zeros(len(parameters))
-                    result = sci_minimize(lambda x: float(objective(*x)), x0,
-                                          bounds=sci_bounds, method='L-BFGS-B')
+                    result = sci_minimize(
+                        lambda x: float(objective(*x)),
+                        x0,
+                        bounds=sci_bounds,
+                        method="L-BFGS-B",
+                    )
                     return {
-                        'success': bool(result.success),
-                        'parameters': dict(zip(parameters, result.x.tolist())),
-                        'objective_value': float(result.fun),
-                        'iterations': result.nit,
-                        'message': result.message,
-                        'backend': self.backend,
+                        "success": bool(result.success),
+                        "parameters": dict(zip(parameters, result.x.tolist())),
+                        "objective_value": float(result.fun),
+                        "iterations": result.nit,
+                        "message": result.message,
+                        "backend": self.backend,
                     }
                 except ImportError:
                     return {
-                        'success': False,
-                        'message': 'scipy required for numerical optimization (pip install scipy)',
-                        'backend': self.backend,
+                        "success": False,
+                        "message": "scipy required for numerical optimization (pip install scipy)",
+                        "backend": self.backend,
                     }
 
         except Exception as e:
             logger.error(f"Error optimizing symbolic model: {e}")
-            return {
-                'success': False,
-                'error': str(e),
-                'backend': self.backend
-            }
+            return {"success": False, "error": str(e), "backend": self.backend}
 
-    def derive_spatial_relationships(self, coordinates: np.ndarray,
-                                   values: np.ndarray,
-                                   relationship_type: str = 'polynomial') -> Dict[str, Any]:
+    def derive_spatial_relationships(
+        self,
+        coordinates: np.ndarray,
+        values: np.ndarray,
+        relationship_type: str = "polynomial",
+    ) -> Dict[str, Any]:
         """
         Derive symbolic relationships between spatial coordinates and values.
 
@@ -389,57 +423,59 @@ class SymbolicMath:
         """
         try:
             # Create coordinate symbols
-            x, y = self.symbols('x y')
+            x, y = self.symbols("x y")
 
-            if relationship_type == 'polynomial':
+            if relationship_type == "polynomial":
                 # Fit polynomial relationship
                 degree = min(3, len(coordinates) - 1)  # Adaptive degree
 
                 # Simple polynomial fitting (simplified)
-                if self.backend in ['sympy', 'symengine']:
+                if self.backend in ["sympy", "symengine"]:
                     # Use sympy for polynomial fitting
                     coeffs = np.polyfit(coordinates[:, 0], values, degree)
                     poly_expr = sum(c * x**i for i, c in enumerate(reversed(coeffs)))
 
                     return {
-                        'type': 'polynomial',
-                        'degree': degree,
-                        'expression': poly_expr,
-                        'coefficients': coeffs,
-                        'backend': self.backend
+                        "type": "polynomial",
+                        "degree": degree,
+                        "expression": poly_expr,
+                        "coefficients": coeffs,
+                        "backend": self.backend,
                     }
 
-            elif relationship_type == 'exponential':
+            elif relationship_type == "exponential":
                 # Exponential relationship
-                if self.backend in ['sympy', 'symengine']:
+                if self.backend in ["sympy", "symengine"]:
                     # Simplified exponential model
-                    exp_expr = self.Symbol('a') * self._engine.exp(self.Symbol('b') * x + self.Symbol('c') * y)
+                    exp_expr = self.Symbol("a") * self._engine.exp(
+                        self.Symbol("b") * x + self.Symbol("c") * y
+                    )
 
                     return {
-                        'type': 'exponential',
-                        'expression': exp_expr,
-                        'backend': self.backend
+                        "type": "exponential",
+                        "expression": exp_expr,
+                        "backend": self.backend,
                     }
 
             return {
-                'type': relationship_type,
-                'expression': None,
-                'backend': self.backend,
-                'message': f'Relationship type {relationship_type} not fully implemented'
+                "type": relationship_type,
+                "expression": None,
+                "backend": self.backend,
+                "message": f"Relationship type {relationship_type} not fully implemented",
             }
 
         except Exception as e:
             logger.error(f"Error deriving spatial relationships: {e}")
             return {
-                'type': relationship_type,
-                'expression': None,
-                'error': str(e),
-                'backend': self.backend
+                "type": relationship_type,
+                "expression": None,
+                "error": str(e),
+                "backend": self.backend,
             }
 
-    def create_symbolic_spatial_field(self, domain: Dict[str, float],
-                                    expression: str,
-                                    variables: List[str]) -> Dict[str, Any]:
+    def create_symbolic_spatial_field(
+        self, domain: Dict[str, float], expression: str, variables: List[str]
+    ) -> Dict[str, Any]:
         """
         Create a symbolic spatial field.
 
@@ -453,39 +489,36 @@ class SymbolicMath:
         """
         try:
             # Create variable symbols
-            var_symbols = self.symbols(','.join(variables))
+            var_symbols = self.symbols(",".join(variables))
 
             # Parse the expression
-            if self.backend in ['sympy', 'symengine']:
+            if self.backend in ["sympy", "symengine"]:
                 field_expr = self._engine.sympify(expression)
             else:
-                field_expr = {'type': 'expression', 'string': expression}
+                field_expr = {"type": "expression", "string": expression}
 
             # Define the spatial domain
             spatial_domain = {
-                'x_range': (domain.get('x_min', 0), domain.get('x_max', 1)),
-                'y_range': (domain.get('y_min', 0), domain.get('y_max', 1)),
-                'resolution': domain.get('resolution', 0.1)
+                "x_range": (domain.get("x_min", 0), domain.get("x_max", 1)),
+                "y_range": (domain.get("y_min", 0), domain.get("y_max", 1)),
+                "resolution": domain.get("resolution", 0.1),
             }
 
             return {
-                'expression': field_expr,
-                'variables': variables,
-                'symbols': var_symbols,
-                'domain': spatial_domain,
-                'backend': self.backend
+                "expression": field_expr,
+                "variables": variables,
+                "symbols": var_symbols,
+                "domain": spatial_domain,
+                "backend": self.backend,
             }
 
         except Exception as e:
             logger.error(f"Error creating symbolic spatial field: {e}")
-            return {
-                'expression': None,
-                'error': str(e),
-                'backend': self.backend
-            }
+            return {"expression": None, "error": str(e), "backend": self.backend}
 
-    def evaluate_symbolic_expression(self, expression: Any,
-                                   variable_values: Dict[str, float]) -> float:
+    def evaluate_symbolic_expression(
+        self, expression: Any, variable_values: Dict[str, float]
+    ) -> float:
         """
         Evaluate a symbolic expression with given variable values.
 
@@ -497,9 +530,11 @@ class SymbolicMath:
             Numerical value of the expression
         """
         try:
-            if self.backend in ['sympy', 'symengine']:
+            if self.backend in ["sympy", "symengine"]:
                 # Substitute values and evaluate
-                subs_dict = {self.Symbol(var): val for var, val in variable_values.items()}
+                subs_dict = {
+                    self.Symbol(var): val for var, val in variable_values.items()
+                }
                 result = expression.subs(subs_dict)
                 return float(result.evalf())
             else:
@@ -511,8 +546,9 @@ class SymbolicMath:
             logger.error(f"Error evaluating symbolic expression: {e}")
             return np.nan
 
-    def differentiate_spatially(self, expression: Any,
-                               variables: List[str]) -> Dict[str, Any]:
+    def differentiate_spatially(
+        self, expression: Any, variables: List[str]
+    ) -> Dict[str, Any]:
         """
         Compute spatial derivatives of an expression.
 
@@ -529,7 +565,7 @@ class SymbolicMath:
             try:
                 var_symbol = self.Symbol(var)
 
-                if self.backend in ['sympy', 'symengine']:
+                if self.backend in ["sympy", "symengine"]:
                     derivative = self.diff(expression, var_symbol)
                     derivatives[var] = derivative
                 else:
@@ -541,9 +577,12 @@ class SymbolicMath:
 
         return derivatives
 
-    def integrate_spatially(self, expression: Any,
-                           variables: List[str],
-                           limits: Dict[str, Tuple[float, float]]) -> Dict[str, Any]:
+    def integrate_spatially(
+        self,
+        expression: Any,
+        variables: List[str],
+        limits: Dict[str, Tuple[float, float]],
+    ) -> Dict[str, Any]:
         """
         Compute spatial integrals of an expression.
 
@@ -562,7 +601,7 @@ class SymbolicMath:
                 var_symbol = self.Symbol(var)
                 lower, upper = limits.get(var, (0, 1))
 
-                if self.backend in ['sympy', 'symengine']:
+                if self.backend in ["sympy", "symengine"]:
                     integral = self.integrate(expression, (var_symbol, lower, upper))
                     integrals[var] = integral
                 else:
@@ -574,8 +613,9 @@ class SymbolicMath:
 
         return integrals
 
-    def solve_spatial_equations(self, equations: List[Any],
-                               variables: List[str]) -> Dict[str, Any]:
+    def solve_spatial_equations(
+        self, equations: List[Any], variables: List[str]
+    ) -> Dict[str, Any]:
         """
         Solve systems of spatial equations.
 
@@ -589,30 +629,26 @@ class SymbolicMath:
         try:
             var_symbols = [self.Symbol(var) for var in variables]
 
-            if self.backend in ['sympy', 'symengine']:
+            if self.backend in ["sympy", "symengine"]:
                 # Solve the system
                 solutions = self.solve(equations, var_symbols)
                 return {
-                    'solutions': solutions,
-                    'variables': variables,
-                    'backend': self.backend
+                    "solutions": solutions,
+                    "variables": variables,
+                    "backend": self.backend,
                 }
             else:
                 # Numpy backend - simplified
                 return {
-                    'solutions': None,
-                    'variables': variables,
-                    'backend': self.backend,
-                    'message': 'Equation solving not implemented for numpy backend'
+                    "solutions": None,
+                    "variables": variables,
+                    "backend": self.backend,
+                    "message": "Equation solving not implemented for numpy backend",
                 }
 
         except Exception as e:
             logger.error(f"Error solving spatial equations: {e}")
-            return {
-                'solutions': None,
-                'error': str(e),
-                'backend': self.backend
-            }
+            return {"solutions": None, "error": str(e), "backend": self.backend}
 
     def get_backend_info(self) -> Dict[str, Any]:
         """
@@ -622,27 +658,28 @@ class SymbolicMath:
             Backend information
         """
         return {
-            'backend': self.backend,
-            'engine_available': self._engine is not None and self._engine != 'numpy',
-            'supported_operations': [
-                'differentiation',
-                'integration',
-                'equation_solving',
-                'simplification',
-                'expansion'
+            "backend": self.backend,
+            "engine_available": self._engine is not None and self._engine != "numpy",
+            "supported_operations": [
+                "differentiation",
+                "integration",
+                "equation_solving",
+                "simplification",
+                "expansion",
             ],
-            'limitations': [] if self.backend in ['sympy', 'symengine'] else [
-                'Limited symbolic operations',
-                'No advanced equation solving',
-                'Simplified differentiation and integration'
-            ]
+            "limitations": (
+                []
+                if self.backend in ["sympy", "symengine"]
+                else [
+                    "Limited symbolic operations",
+                    "No advanced equation solving",
+                    "Simplified differentiation and integration",
+                ]
+            ),
         }
-    
+
     def generate_proof(
-        self,
-        expression: Any,
-        operation: str,
-        result: Optional[Any] = None
+        self, expression: Any, operation: str, result: Optional[Any] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Generate proof for a symbolic operation.
@@ -657,29 +694,24 @@ class SymbolicMath:
         """
         try:
             from geo_infer_math.core.theorem_proving.integration import (
-                generate_proof_from_symbolic
+                generate_proof_from_symbolic,
             )
-            
+
             proof_result = generate_proof_from_symbolic(expression, operation)
-            
+
             if proof_result:
                 return {
-                    'status': proof_result.status.value,
-                    'theorem': proof_result.theorem,
-                    'proof': proof_result.proof,
-                    'backend': proof_result.backend
+                    "status": proof_result.status.value,
+                    "theorem": proof_result.theorem,
+                    "proof": proof_result.proof,
+                    "backend": proof_result.backend,
                 }
         except ImportError:
             logger.debug("Theorem proving not available for proof generation")
-        
+
         return None
-    
-    def verify_operation(
-        self,
-        original: Any,
-        result: Any,
-        operation: str
-    ) -> bool:
+
+    def verify_operation(self, original: Any, result: Any, operation: str) -> bool:
         """
         Verify a symbolic operation using theorem proving.
 
@@ -693,20 +725,16 @@ class SymbolicMath:
         """
         try:
             from geo_infer_math.core.theorem_proving.integration import (
-                verify_symbolic_operation
+                verify_symbolic_operation,
             )
-            
+
             return verify_symbolic_operation(original, result, operation)
         except ImportError:
             logger.debug("Theorem proving not available for verification")
             return False
-    
+
     def improved_differentiate(
-        self,
-        expression: Any,
-        variable: Any,
-        order: int = 1,
-        verify: bool = False
+        self, expression: Any, variable: Any, order: int = 1, verify: bool = False
     ) -> Tuple[Any, Optional[Dict[str, Any]]]:
         """
         Improved automatic differentiation with optional proof generation.
@@ -721,23 +749,21 @@ class SymbolicMath:
             Tuple of (derivative, proof_info)
         """
         # Perform differentiation
-        if self.backend in ['sympy', 'symengine']:
+        if self.backend in ["sympy", "symengine"]:
             derivative = self.diff(expression, variable, order)
         else:
             derivative = self._numpy_diff(expression, variable)
-        
+
         proof_info = None
-        
+
         # Generate proof if requested
         if verify:
-            proof_info = self.generate_proof(expression, 'differentiate', derivative)
-        
+            proof_info = self.generate_proof(expression, "differentiate", derivative)
+
         return derivative, proof_info
-    
+
     def verify_spatial_model(
-        self,
-        model: Dict[str, Any],
-        constraints: Optional[List[str]] = None
+        self, model: Dict[str, Any], constraints: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Verify a spatial model using theorem proving.
@@ -751,30 +777,30 @@ class SymbolicMath:
         """
         try:
             from geo_infer_math.core.theorem_proving.prover import TheoremProver
-            
+
             prover = TheoremProver()
             results = {}
-            
+
             # Verify each equation in the model
-            for eq in model.get('equations', []):
-                if 'parsed' in eq:
-                    theorem = str(eq['parsed'])
+            for eq in model.get("equations", []):
+                if "parsed" in eq:
+                    theorem = str(eq["parsed"])
                     proof_result = prover.prove(theorem, constraints)
-                    results[eq.get('original', theorem)] = {
-                        'status': proof_result.status.value,
-                        'verified': proof_result.status.value == 'proven'
+                    results[eq.get("original", theorem)] = {
+                        "status": proof_result.status.value,
+                        "verified": proof_result.status.value == "proven",
                     }
-            
+
             return results
         except ImportError:
             logger.debug("Theorem proving not available for model verification")
-            return {'error': 'Theorem proving not available'}
-    
+            return {"error": "Theorem proving not available"}
+
     def symbolic_to_numeric_with_proof(
         self,
         expression: Any,
         variable_values: Dict[str, float],
-        preserve_proof: bool = True
+        preserve_proof: bool = True,
     ) -> Tuple[float, Optional[Dict[str, Any]]]:
         """
         Convert symbolic expression to numeric with proof preservation.
@@ -789,38 +815,45 @@ class SymbolicMath:
         """
         # Evaluate expression
         numeric_value = self.evaluate_symbolic_expression(expression, variable_values)
-        
+
         proof_info = None
         if preserve_proof:
             # Generate proof for evaluation
             proof_info = {
-                'expression': str(expression),
-                'variable_values': variable_values,
-                'result': numeric_value,
-                'evaluation_proof': 'Direct substitution and evaluation'
+                "expression": str(expression),
+                "variable_values": variable_values,
+                "result": numeric_value,
+                "evaluation_proof": "Direct substitution and evaluation",
             }
-        
+
         return numeric_value, proof_info
 
+
 # Convenience functions
-def create_symbolic_math_engine(backend: str = 'sympy') -> SymbolicMath:
+def create_symbolic_math_engine(backend: str = "sympy") -> SymbolicMath:
     """Create a symbolic math engine."""
     return SymbolicMath(backend)
 
-def define_spatial_model(variables: List[str], equations: List[str],
-                        constraints: Optional[List[str]] = None) -> Dict[str, Any]:
+
+def define_spatial_model(
+    variables: List[str], equations: List[str], constraints: Optional[List[str]] = None
+) -> Dict[str, Any]:
     """Define a symbolic spatial model."""
     engine = SymbolicMath()
     return engine.define_spatial_model(variables, equations, constraints)
 
-def compute_spatial_gradients(model: Dict[str, Any], parameters: List[str]) -> Dict[str, Any]:
+
+def compute_spatial_gradients(
+    model: Dict[str, Any], parameters: List[str]
+) -> Dict[str, Any]:
     """Compute gradients of spatial model."""
     engine = SymbolicMath()
     return engine.compute_gradients(model, parameters)
+
 
 __all__ = [
     "SymbolicMath",
     "create_symbolic_math_engine",
     "define_spatial_model",
-    "compute_spatial_gradients"
+    "compute_spatial_gradients",
 ]

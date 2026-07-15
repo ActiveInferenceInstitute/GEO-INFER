@@ -8,19 +8,20 @@ sensor data streaming and live monitoring capabilities.
 import logging
 import asyncio
 import json
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, Optional, Set
 from datetime import datetime
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-import h3
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 # Optional imports for enhanced functionality
 try:
     from geo_infer_iot.core.ingestion import IoTDataIngestion
+
     HAS_INGESTION = True
 except ImportError:
     HAS_INGESTION = False
 
 logger = logging.getLogger(__name__)
+
 
 class StreamingAPI:
     """
@@ -64,7 +65,7 @@ class StreamingAPI:
                 "version": "1.0.0",
                 "status": "operational",
                 "websocket_endpoint": "/ws/sensor-stream",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         @self.app.websocket("/ws/sensor-stream")
@@ -80,8 +81,8 @@ class StreamingAPI:
                 subscription_data = await websocket.receive_text()
                 subscription = json.loads(subscription_data)
 
-                sensor_ids = subscription.get('sensor_ids', [])
-                h3_indices = subscription.get('h3_indices', [])
+                sensor_ids = subscription.get("sensor_ids", [])
+                h3_indices = subscription.get("h3_indices", [])
 
                 # Register subscriptions
                 for sensor_id in sensor_ids:
@@ -95,12 +96,16 @@ class StreamingAPI:
                     self.spatial_subscriptions[h3_index].add(websocket)
 
                 # Send confirmation
-                await websocket.send_text(json.dumps({
-                    "type": "subscription_confirmed",
-                    "sensor_ids": sensor_ids,
-                    "h3_indices": h3_indices,
-                    "timestamp": datetime.now().isoformat()
-                }))
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "type": "subscription_confirmed",
+                            "sensor_ids": sensor_ids,
+                            "h3_indices": h3_indices,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
+                )
 
                 # Keep connection alive and forward data
                 while True:
@@ -109,10 +114,14 @@ class StreamingAPI:
                     await asyncio.sleep(1)
 
                     # Example: Send periodic heartbeat
-                    await websocket.send_text(json.dumps({
-                        "type": "heartbeat",
-                        "timestamp": datetime.now().isoformat()
-                    }))
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "heartbeat",
+                                "timestamp": datetime.now().isoformat(),
+                            }
+                        )
+                    )
 
             except WebSocketDisconnect:
                 # Remove from all subscriptions
@@ -137,28 +146,28 @@ class StreamingAPI:
                     "format": "json",
                     "real_time": True,
                     "websocket_endpoint": "/ws/sensor-stream",
-                    "description": "Real-time sensor measurement stream"
+                    "description": "Real-time sensor measurement stream",
                 },
                 "spatial_inference_stream": {
                     "type": "spatial_predictions",
                     "format": "json",
                     "real_time": True,
                     "websocket_endpoint": "/ws/spatial-stream",
-                    "description": "Real-time spatial inference results"
+                    "description": "Real-time spatial inference results",
                 },
                 "anomaly_alert_stream": {
                     "type": "anomaly_alerts",
                     "format": "json",
                     "real_time": True,
                     "websocket_endpoint": "/ws/anomaly-stream",
-                    "description": "Real-time anomaly detection alerts"
-                }
+                    "description": "Real-time anomaly detection alerts",
+                },
             }
 
             return {
                 "streams": streams,
                 "total_streams": len(streams),
-                "active_connections": len(self.active_connections)
+                "active_connections": len(self.active_connections),
             }
 
         @self.app.get("/subscriptions")
@@ -174,21 +183,21 @@ class StreamingAPI:
                     h3_index: len(connections)
                     for h3_index, connections in self.spatial_subscriptions.items()
                 },
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     def broadcast_measurement(self, measurement: Dict):
         """Broadcast a new measurement to subscribed clients."""
         # This would be called when new measurements are ingested
-        sensor_id = measurement.get('sensor_id')
-        h3_index = measurement.get('h3_index')
+        sensor_id = measurement.get("sensor_id")
+        h3_index = measurement.get("h3_index")
 
         # Send to sensor-specific subscribers
         if sensor_id in self.sensor_subscriptions:
             message = {
                 "type": "sensor_measurement",
                 "data": measurement,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             # Send to all subscribers for this sensor
@@ -205,7 +214,7 @@ class StreamingAPI:
                 "type": "spatial_measurement",
                 "data": measurement,
                 "h3_index": h3_index,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             for websocket in list(self.spatial_subscriptions[h3_index]):
@@ -220,7 +229,7 @@ class StreamingAPI:
         message = {
             "type": "spatial_inference",
             "data": inference_result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Send to all active connections

@@ -9,26 +9,21 @@ machines or containers, enabling horizontal scaling and distributed processing
 of repository operations.
 """
 
-import os
 import json
 import time
 import socket
 import threading
-import logging
 from typing import Dict, List, Any, Optional, Callable, Union, Tuple
 from dataclasses import dataclass, field
-from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 import uuid
 import hashlib
 import queue
-import multiprocessing
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 
 from ..utils.logging_utils import get_logger
-from ..utils.error_handler import NetworkError, ErrorCategory
 
 logger = get_logger(__name__)
+
 
 @dataclass
 class NodeInfo:
@@ -45,6 +40,7 @@ class NodeInfo:
     max_load: float = 1.0
     last_heartbeat: datetime = field(default_factory=datetime.utcnow)
     metadata: Dict[str, Any] = field(default_factory=dict)
+
 
 @dataclass
 class JobInfo:
@@ -67,6 +63,7 @@ class JobInfo:
     dependencies: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class CoordinationMessage:
     """Message for distributed coordination."""
@@ -78,6 +75,7 @@ class CoordinationMessage:
     timestamp: datetime = field(default_factory=datetime.utcnow)
     payload: Dict[str, Any] = field(default_factory=dict)
     ttl: int = 300  # Time to live in seconds
+
 
 class DistributedCoordinator:
     """
@@ -91,8 +89,13 @@ class DistributedCoordinator:
     - Resource allocation and optimization
     """
 
-    def __init__(self, node_id: Optional[str] = None, role: str = "coordinator",
-                 discovery_port: int = 5555, coordination_port: int = 5556):
+    def __init__(
+        self,
+        node_id: Optional[str] = None,
+        role: str = "coordinator",
+        discovery_port: int = 5555,
+        coordination_port: int = 5556,
+    ):
         """
         Initialize distributed coordinator.
 
@@ -115,7 +118,7 @@ class DistributedCoordinator:
             ip_address=self._get_local_ip(),
             port=coordination_port,
             role=role,
-            status="active"
+            status="active",
         )
         self.nodes[self.node_id] = self.current_node
 
@@ -166,19 +169,19 @@ class DistributedCoordinator:
     def _setup_message_handlers(self) -> None:
         """Set up message handlers for coordination."""
         self.message_handlers = {
-            'heartbeat': self._handle_heartbeat,
-            'node_register': self._handle_node_register,
-            'node_unregister': self._handle_node_unregister,
-            'job_request': self._handle_job_request,
-            'job_complete': self._handle_job_complete,
-            'job_failed': self._handle_job_failed,
-            'status_request': self._handle_status_request,
-            'coordination_message': self._handle_coordination_message
+            "heartbeat": self._handle_heartbeat,
+            "node_register": self._handle_node_register,
+            "node_unregister": self._handle_node_unregister,
+            "job_request": self._handle_job_request,
+            "job_complete": self._handle_job_complete,
+            "job_failed": self._handle_job_failed,
+            "status_request": self._handle_status_request,
+            "coordination_message": self._handle_coordination_message,
         }
 
     def _start_services(self) -> None:
         """Start background coordination services."""
-        if self.role in ['coordinator', 'master']:
+        if self.role in ["coordinator", "master"]:
             # Start discovery service
             self.discovery_thread = threading.Thread(
                 target=self._discovery_service, daemon=True
@@ -211,16 +214,16 @@ class DistributedCoordinator:
         try:
             discovery_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
             discovery_socket.setsockopt(sock.SOL_SOCKET, sock.SO_BROADCAST, 1)
-            discovery_socket.bind(('', self.discovery_port))
+            discovery_socket.bind(("", self.discovery_port))
 
             logger.info(f"Discovery service listening on port {self.discovery_port}")
 
             while not self.shutdown_event.is_set():
                 try:
                     data, addr = discovery_socket.recvfrom(1024)
-                    message = json.loads(data.decode('utf-8'))
+                    message = json.loads(data.decode("utf-8"))
 
-                    if message.get('type') == 'node_discovery':
+                    if message.get("type") == "node_discovery":
                         self._handle_node_discovery(message, addr)
                 except Exception as e:
                     logger.warning(f"Error in discovery service: {e}")
@@ -232,10 +235,12 @@ class DistributedCoordinator:
             if discovery_socket is not None:
                 discovery_socket.close()
 
-    def _handle_node_discovery(self, message: Dict[str, Any], addr: Tuple[str, int]) -> None:
+    def _handle_node_discovery(
+        self, message: Dict[str, Any], addr: Tuple[str, int]
+    ) -> None:
         """Handle node discovery message."""
-        node_info = message.get('node_info', {})
-        node_id = node_info.get('node_id')
+        node_info = message.get("node_info", {})
+        node_id = node_info.get("node_id")
 
         if node_id:
             # Update node information with discovered address
@@ -249,12 +254,12 @@ class DistributedCoordinator:
                 # Create new node from discovery
                 new_node = NodeInfo(
                     node_id=node_id,
-                    hostname=node_info.get('hostname', 'unknown'),
+                    hostname=node_info.get("hostname", "unknown"),
                     ip_address=addr[0],
                     port=addr[1],
-                    role=node_info.get('role', 'worker'),
-                    capabilities=node_info.get('capabilities', []),
-                    status="active"
+                    role=node_info.get("role", "worker"),
+                    capabilities=node_info.get("capabilities", []),
+                    status="active",
                 )
 
                 with self.lock:
@@ -272,7 +277,9 @@ class DistributedCoordinator:
             coord_socket.bind((self.current_node.ip_address, self.coordination_port))
             coord_socket.listen(10)
 
-            logger.info(f"Coordination service listening on {self.current_node.ip_address}:{self.coordination_port}")
+            logger.info(
+                f"Coordination service listening on {self.current_node.ip_address}:{self.coordination_port}"
+            )
 
             while not self.shutdown_event.is_set():
                 try:
@@ -282,7 +289,7 @@ class DistributedCoordinator:
                     client_thread = threading.Thread(
                         target=self._handle_client_connection,
                         args=(client_socket, client_addr),
-                        daemon=True
+                        daemon=True,
                     )
                     client_thread.start()
 
@@ -300,7 +307,7 @@ class DistributedCoordinator:
         try:
             data = client_socket.recv(4096)
             if data:
-                message = json.loads(data.decode('utf-8'))
+                message = json.loads(data.decode("utf-8"))
                 self._process_message(message)
 
         except Exception as e:
@@ -319,7 +326,9 @@ class DistributedCoordinator:
                     dead_nodes = []
                     for node_id, node in self.nodes.items():
                         if node_id != self.node_id:  # Don't check self
-                            time_since_heartbeat = (current_time - node.last_heartbeat).total_seconds()
+                            time_since_heartbeat = (
+                                current_time - node.last_heartbeat
+                            ).total_seconds()
 
                             if time_since_heartbeat > 30:  # 30 second timeout
                                 node.status = "inactive"
@@ -329,7 +338,9 @@ class DistributedCoordinator:
                     # Remove dead nodes after longer timeout
                     for node_id in dead_nodes:
                         if node_id in self.nodes:
-                            time_since_inactive = (current_time - self.nodes[node_id].last_heartbeat).total_seconds()
+                            time_since_inactive = (
+                                current_time - self.nodes[node_id].last_heartbeat
+                            ).total_seconds()
                             if time_since_inactive > 60:  # 60 second removal timeout
                                 del self.nodes[node_id]
                                 logger.info(f"Removed dead node {node_id}")
@@ -357,11 +368,15 @@ class DistributedCoordinator:
                                 job = self.jobs[job_id]
 
                                 # Find suitable node
-                                assigned_node = self._select_node_for_job(job, available_nodes)
+                                assigned_node = self._select_node_for_job(
+                                    job, available_nodes
+                                )
 
                                 if assigned_node:
                                     self._assign_job_to_node(job, assigned_node)
-                                    available_nodes = self._get_available_nodes()  # Refresh
+                                    available_nodes = (
+                                        self._get_available_nodes()
+                                    )  # Refresh
                                 else:
                                     # No suitable node, put job back in queue
                                     self.job_queue.put((priority, job_id))
@@ -382,23 +397,28 @@ class DistributedCoordinator:
 
         with self.lock:
             for node in self.nodes.values():
-                if (node.status == "active" and
-                    node.current_load < node.max_load and
-                    node.node_id != self.node_id):  # Don't assign to self
+                if (
+                    node.status == "active"
+                    and node.current_load < node.max_load
+                    and node.node_id != self.node_id
+                ):  # Don't assign to self
                     available_nodes.append(node)
 
         return available_nodes
 
-    def _select_node_for_job(self, job: JobInfo, available_nodes: List[NodeInfo]) -> Optional[NodeInfo]:
+    def _select_node_for_job(
+        self, job: JobInfo, available_nodes: List[NodeInfo]
+    ) -> Optional[NodeInfo]:
         """Select the best node for a job based on load and capabilities."""
         if not available_nodes:
             return None
 
         # Filter nodes by capabilities if job requires specific capabilities
-        required_capabilities = job.metadata.get('required_capabilities', [])
+        required_capabilities = job.metadata.get("required_capabilities", [])
         if required_capabilities:
             suitable_nodes = [
-                node for node in available_nodes
+                node
+                for node in available_nodes
                 if all(cap in node.capabilities for cap in required_capabilities)
             ]
         else:
@@ -429,10 +449,10 @@ class DistributedCoordinator:
                 sender_id=self.node_id,
                 recipient_id=node.node_id,
                 payload={
-                    'job_id': job.job_id,
-                    'job_type': job.job_type,
-                    'metadata': job.metadata
-                }
+                    "job_id": job.job_id,
+                    "job_type": job.job_type,
+                    "metadata": job.metadata,
+                },
             )
 
             self._send_message_to_node(node, message)
@@ -440,12 +460,14 @@ class DistributedCoordinator:
             logger.info(f"Assigned job {job.job_id} to node {node.node_id}")
 
         except Exception as e:
-            logger.error(f"Error assigning job {job.job_id} to node {node.node_id}: {e}")
+            logger.error(
+                f"Error assigning job {job.job_id} to node {node.node_id}: {e}"
+            )
 
     def _process_message(self, message: Dict[str, Any]) -> None:
         """Process an incoming coordination message."""
         try:
-            message_type = message.get('type')
+            message_type = message.get("type")
             handler = self.message_handlers.get(message_type)
 
             if handler:
@@ -458,25 +480,25 @@ class DistributedCoordinator:
 
     def _handle_heartbeat(self, message: Dict[str, Any]) -> None:
         """Handle heartbeat message from a node."""
-        node_id = message.get('node_id')
+        node_id = message.get("node_id")
         if node_id in self.nodes:
             self.nodes[node_id].last_heartbeat = datetime.utcnow()
             self.nodes[node_id].status = "active"
 
     def _handle_node_register(self, message: Dict[str, Any]) -> None:
         """Handle node registration message."""
-        node_info = message.get('node_info', {})
-        node_id = node_info.get('node_id')
+        node_info = message.get("node_info", {})
+        node_id = node_info.get("node_id")
 
         if node_id:
             node = NodeInfo(
                 node_id=node_id,
-                hostname=node_info.get('hostname', 'unknown'),
-                ip_address=node_info.get('ip_address', 'unknown'),
-                port=node_info.get('port', 0),
-                role=node_info.get('role', 'worker'),
-                capabilities=node_info.get('capabilities', []),
-                status="active"
+                hostname=node_info.get("hostname", "unknown"),
+                ip_address=node_info.get("ip_address", "unknown"),
+                port=node_info.get("port", 0),
+                role=node_info.get("role", "worker"),
+                capabilities=node_info.get("capabilities", []),
+                status="active",
             )
 
             with self.lock:
@@ -486,7 +508,7 @@ class DistributedCoordinator:
 
     def _handle_node_unregister(self, message: Dict[str, Any]) -> None:
         """Handle node unregistration message."""
-        node_id = message.get('node_id')
+        node_id = message.get("node_id")
 
         if node_id and node_id in self.nodes:
             with self.lock:
@@ -496,8 +518,8 @@ class DistributedCoordinator:
 
     def _handle_job_request(self, message: Dict[str, Any]) -> None:
         """Handle job request from a node."""
-        job_info = message.get('job_info', {})
-        job_id = job_info.get('job_id')
+        job_info = message.get("job_info", {})
+        job_id = job_info.get("job_id")
 
         if job_id and job_id in self.jobs:
             job = self.jobs[job_id]
@@ -508,8 +530,7 @@ class DistributedCoordinator:
 
     def _handle_job_complete(self, message: Dict[str, Any]) -> None:
         """Handle job completion message."""
-        job_id = message.get('job_id')
-        results = message.get('results', {})
+        job_id = message.get("job_id")
 
         if job_id in self.jobs:
             job = self.jobs[job_id]
@@ -525,8 +546,8 @@ class DistributedCoordinator:
 
     def _handle_job_failed(self, message: Dict[str, Any]) -> None:
         """Handle job failure message."""
-        job_id = message.get('job_id')
-        error = message.get('error', 'Unknown error')
+        job_id = message.get("job_id")
+        error = message.get("error", "Unknown error")
 
         if job_id in self.jobs:
             job = self.jobs[job_id]
@@ -547,11 +568,13 @@ class DistributedCoordinator:
                 job.assigned_node = None
                 self.job_queue.put((job.priority, job_id))
 
-                logger.warning(f"Job {job_id} failed, retrying (attempt {job.retry_count + 1})")
+                logger.warning(
+                    f"Job {job_id} failed, retrying (attempt {job.retry_count + 1})"
+                )
 
     def _handle_status_request(self, message: Dict[str, Any]) -> None:
         """Handle status request message."""
-        sender_id = message.get('sender_id')
+        sender_id = message.get("sender_id")
 
         # Send status response
         status_message = CoordinationMessage(
@@ -560,11 +583,13 @@ class DistributedCoordinator:
             sender_id=self.node_id,
             recipient_id=sender_id,
             payload={
-                'node_status': self.current_node.status,
-                'active_jobs': len([j for j in self.jobs.values() if j.status == "running"]),
-                'queue_size': self.job_queue.qsize(),
-                'available_nodes': len(self._get_available_nodes())
-            }
+                "node_status": self.current_node.status,
+                "active_jobs": len(
+                    [j for j in self.jobs.values() if j.status == "running"]
+                ),
+                "queue_size": self.job_queue.qsize(),
+                "available_nodes": len(self._get_available_nodes()),
+            },
         )
 
         self._send_message_to_node(sender_id, status_message)
@@ -574,22 +599,28 @@ class DistributedCoordinator:
         # Custom message handling can be implemented here
         logger.debug(f"Received coordination message: {message}")
 
-    def _send_message_to_node(self, node: Union[NodeInfo, str], message: CoordinationMessage) -> None:
+    def _send_message_to_node(
+        self, node: Union[NodeInfo, str], message: CoordinationMessage
+    ) -> None:
         """Send a message to a specific node."""
         try:
             import socket as sock
 
             target_ip = node.ip_address if isinstance(node, NodeInfo) else node
-            target_port = node.port if isinstance(node, NodeInfo) else self.coordination_port
+            target_port = (
+                node.port if isinstance(node, NodeInfo) else self.coordination_port
+            )
 
-            message_data = json.dumps({
-                'message_id': message.message_id,
-                'type': message.message_type,
-                'sender_id': message.sender_id,
-                'recipient_id': message.recipient_id,
-                'timestamp': message.timestamp.isoformat(),
-                'payload': message.payload
-            }).encode('utf-8')
+            message_data = json.dumps(
+                {
+                    "message_id": message.message_id,
+                    "type": message.message_type,
+                    "sender_id": message.sender_id,
+                    "recipient_id": message.recipient_id,
+                    "timestamp": message.timestamp.isoformat(),
+                    "payload": message.payload,
+                }
+            ).encode("utf-8")
 
             client_socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
             client_socket.connect((target_ip, target_port))
@@ -614,14 +645,16 @@ class DistributedCoordinator:
             message_id=str(uuid.uuid4()),
             message_type="node_register",
             sender_id=self.node_id,
-            payload={'node_info': {
-                'node_id': node_info.node_id,
-                'hostname': node_info.hostname,
-                'ip_address': node_info.ip_address,
-                'port': node_info.port,
-                'role': node_info.role,
-                'capabilities': node_info.capabilities
-            }}
+            payload={
+                "node_info": {
+                    "node_id": node_info.node_id,
+                    "hostname": node_info.hostname,
+                    "ip_address": node_info.ip_address,
+                    "port": node_info.port,
+                    "role": node_info.role,
+                    "capabilities": node_info.capabilities,
+                }
+            },
         )
 
         self._broadcast_message(message)
@@ -644,15 +677,20 @@ class DistributedCoordinator:
                 message_id=str(uuid.uuid4()),
                 message_type="node_unregister",
                 sender_id=self.node_id,
-                payload={'node_id': node_id}
+                payload={"node_id": node_id},
             )
 
             self._broadcast_message(message)
 
             logger.info(f"Unregistered node {node_id}")
 
-    def submit_job(self, job_type: str, metadata: Dict[str, Any] = None,
-                   priority: int = 1, dependencies: List[str] = None) -> str:
+    def submit_job(
+        self,
+        job_type: str,
+        metadata: Dict[str, Any] = None,
+        priority: int = 1,
+        dependencies: List[str] = None,
+    ) -> str:
         """
         Submit a job for distributed execution.
 
@@ -672,7 +710,7 @@ class DistributedCoordinator:
             job_type=job_type,
             priority=priority,
             metadata=metadata or {},
-            dependencies=dependencies or []
+            dependencies=dependencies or [],
         )
 
         with self.lock:
@@ -732,24 +770,32 @@ class DistributedCoordinator:
             Dictionary with cluster status information
         """
         with self.lock:
-            active_nodes = sum(1 for node in self.nodes.values() if node.status == "active")
+            active_nodes = sum(
+                1 for node in self.nodes.values() if node.status == "active"
+            )
             total_jobs = len(self.jobs)
-            running_jobs = sum(1 for job in self.jobs.values() if job.status == "running")
-            pending_jobs = sum(1 for job in self.jobs.values() if job.status == "pending")
-            completed_jobs = sum(1 for job in self.jobs.values() if job.status == "completed")
+            running_jobs = sum(
+                1 for job in self.jobs.values() if job.status == "running"
+            )
+            pending_jobs = sum(
+                1 for job in self.jobs.values() if job.status == "pending"
+            )
+            completed_jobs = sum(
+                1 for job in self.jobs.values() if job.status == "completed"
+            )
             failed_jobs = sum(1 for job in self.jobs.values() if job.status == "failed")
 
         return {
-            'total_nodes': len(self.nodes),
-            'active_nodes': active_nodes,
-            'coordinator_node': self.node_id,
-            'total_jobs': total_jobs,
-            'running_jobs': running_jobs,
-            'pending_jobs': pending_jobs,
-            'completed_jobs': completed_jobs,
-            'failed_jobs': failed_jobs,
-            'queue_size': self.job_queue.qsize(),
-            'cluster_health': self._calculate_cluster_health()
+            "total_nodes": len(self.nodes),
+            "active_nodes": active_nodes,
+            "coordinator_node": self.node_id,
+            "total_jobs": total_jobs,
+            "running_jobs": running_jobs,
+            "pending_jobs": pending_jobs,
+            "completed_jobs": completed_jobs,
+            "failed_jobs": failed_jobs,
+            "queue_size": self.job_queue.qsize(),
+            "cluster_health": self._calculate_cluster_health(),
         }
 
     def _calculate_cluster_health(self) -> str:
@@ -758,7 +804,9 @@ class DistributedCoordinator:
             if not self.nodes:
                 return "empty"
 
-            active_count = sum(1 for node in self.nodes.values() if node.status == "active")
+            active_count = sum(
+                1 for node in self.nodes.values() if node.status == "active"
+            )
 
             if active_count == 0:
                 return "critical"
@@ -796,8 +844,10 @@ class DistributedCoordinator:
 
         logger.info("Distributed coordinator shutdown complete")
 
-def create_distributed_coordinator(role: str = "coordinator",
-                                 coordinator_host: str = "localhost") -> DistributedCoordinator:
+
+def create_distributed_coordinator(
+    role: str = "coordinator", coordinator_host: str = "localhost"
+) -> DistributedCoordinator:
     """
     Create a distributed coordinator with appropriate configuration.
 
@@ -811,7 +861,9 @@ def create_distributed_coordinator(role: str = "coordinator",
     # If this is a worker node, try to connect to coordinator
     if role in ["worker"]:
         try:
-            logger.info("Configuring worker node for coordinator host %s", coordinator_host)
+            logger.info(
+                "Configuring worker node for coordinator host %s", coordinator_host
+            )
         except Exception as e:
             logger.warning(f"Failed to connect to coordinator: {e}")
             role = "coordinator"  # Fallback to coordinator

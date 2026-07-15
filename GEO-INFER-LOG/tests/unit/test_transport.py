@@ -1,6 +1,5 @@
 """Tests for multimodal transport module."""
 
-import pytest
 import networkx as nx
 from geo_infer_log.core.transport import (
     MultiModalPlanner,

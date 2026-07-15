@@ -6,11 +6,10 @@ through web services, enabling integration with web applications
 and distributed computing environments.
 """
 
-from typing import Dict, List, Optional, Any
-import json
+from typing import Dict, Any
 import numpy as np
 
-from ..models.data_models import SPMData, SPMResult, ContrastResult
+from ..models.data_models import SPMData, SPMResult
 from ..core.glm import fit_glm
 from ..core.contrasts import contrast
 from ..core.rft import compute_spm
@@ -26,10 +25,10 @@ class SPMAPI:
 
     def __init__(self):
         self.datasets = {}  # Store uploaded datasets
-        self.results = {}   # Store analysis results
+        self.results = {}  # Store analysis results
         self.next_id = 1
 
-    def upload_data(self, data: Dict[str, Any], format: str = 'json') -> Dict[str, Any]:
+    def upload_data(self, data: Dict[str, Any], format: str = "json") -> Dict[str, Any]:
         """
         Upload geospatial data for analysis.
 
@@ -45,9 +44,9 @@ class SPMAPI:
             self.next_id += 1
 
             # Convert to SPMData
-            if format == 'json':
+            if format == "json":
                 spm_data = self._json_to_spmdata(data)
-            elif format == 'csv':
+            elif format == "csv":
                 spm_data = self._csv_to_spmdata(data)
             else:
                 raise ValueError(f"Unsupported format: {format}")
@@ -55,20 +54,18 @@ class SPMAPI:
             self.datasets[dataset_id] = spm_data
 
             return {
-                'status': 'success',
-                'dataset_id': dataset_id,
-                'n_points': spm_data.n_points,
-                'has_temporal': spm_data.has_temporal
+                "status": "success",
+                "dataset_id": dataset_id,
+                "n_points": spm_data.n_points,
+                "has_temporal": spm_data.has_temporal,
             }
 
         except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
+            return {"status": "error", "message": str(e)}
 
-    def fit_model(self, dataset_id: str, design_spec: Dict[str, Any],
-                 method: str = 'OLS') -> Dict[str, Any]:
+    def fit_model(
+        self, dataset_id: str, design_spec: Dict[str, Any], method: str = "OLS"
+    ) -> Dict[str, Any]:
         """
         Fit GLM to uploaded dataset.
 
@@ -97,20 +94,21 @@ class SPMAPI:
             self.results[result_id] = result
 
             return {
-                'status': 'success',
-                'result_id': result_id,
-                'r_squared': result.model_diagnostics.get('r_squared', 0),
-                'n_regressors': design_matrix.n_regressors
+                "status": "success",
+                "result_id": result_id,
+                "r_squared": result.model_diagnostics.get("r_squared", 0),
+                "n_regressors": design_matrix.n_regressors,
             }
 
         except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
+            return {"status": "error", "message": str(e)}
 
-    def run_contrast(self, result_id: str, contrast_spec: Dict[str, Any],
-                    correction: str = 'uncorrected') -> Dict[str, Any]:
+    def run_contrast(
+        self,
+        result_id: str,
+        contrast_spec: Dict[str, Any],
+        correction: str = "uncorrected",
+    ) -> Dict[str, Any]:
         """
         Run statistical contrast on fitted model.
 
@@ -129,12 +127,14 @@ class SPMAPI:
             model_result = self.results[result_id]
 
             # Create contrast
-            if 'vector' in contrast_spec:
-                contrast_obj = contrast(model_result, contrast_spec['vector'])
-            elif 'string' in contrast_spec:
-                contrast_obj = contrast(model_result, contrast_spec['string'])
+            if "vector" in contrast_spec:
+                contrast_obj = contrast(model_result, contrast_spec["vector"])
+            elif "string" in contrast_spec:
+                contrast_obj = contrast(model_result, contrast_spec["string"])
             else:
-                raise ValueError("Contrast specification must include 'vector' or 'string'")
+                raise ValueError(
+                    "Contrast specification must include 'vector' or 'string'"
+                )
 
             # Apply correction
             spm_result = compute_spm(model_result, contrast_obj, correction=correction)
@@ -143,21 +143,20 @@ class SPMAPI:
             self.results[result_id] = model_result
 
             return {
-                'status': 'success',
-                'result_id': result_id,
-                'contrast_name': contrast_obj.name if hasattr(contrast_obj, 'name') else 'unnamed',
-                'correction_method': correction,
-                'n_significant': spm_result.n_significant,
-                'threshold': spm_result.threshold
+                "status": "success",
+                "result_id": result_id,
+                "contrast_name": (
+                    contrast_obj.name if hasattr(contrast_obj, "name") else "unnamed"
+                ),
+                "correction_method": correction,
+                "n_significant": spm_result.n_significant,
+                "threshold": spm_result.threshold,
             }
 
         except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
+            return {"status": "error", "message": str(e)}
 
-    def get_results(self, result_id: str, format: str = 'summary') -> Dict[str, Any]:
+    def get_results(self, result_id: str, format: str = "summary") -> Dict[str, Any]:
         """
         Retrieve analysis results.
 
@@ -174,51 +173,48 @@ class SPMAPI:
 
             result = self.results[result_id]
 
-            if format == 'summary':
+            if format == "summary":
                 return self._format_summary(result)
-            elif format == 'full':
+            elif format == "full":
                 return self._format_full(result)
-            elif format == 'visualization':
+            elif format == "visualization":
                 return self._format_visualization(result)
             else:
                 raise ValueError(f"Unknown format: {format}")
 
         except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
+            return {"status": "error", "message": str(e)}
 
     def list_datasets(self) -> Dict[str, Any]:
         """List all uploaded datasets."""
         return {
-            'status': 'success',
-            'datasets': list(self.datasets.keys()),
-            'count': len(self.datasets)
+            "status": "success",
+            "datasets": list(self.datasets.keys()),
+            "count": len(self.datasets),
         }
 
     def list_results(self) -> Dict[str, Any]:
         """List all analysis results."""
         return {
-            'status': 'success',
-            'results': list(self.results.keys()),
-            'count': len(self.results)
+            "status": "success",
+            "results": list(self.results.keys()),
+            "count": len(self.results),
         }
 
     def _json_to_spmdata(self, data: Dict[str, Any]) -> SPMData:
         """Convert JSON data to SPMData object."""
         from ..models.data_models import SPMData
 
-        coordinates = np.array(data['coordinates'])
-        data_values = np.array(data.get('data', []))
+        coordinates = np.array(data["coordinates"])
+        data_values = np.array(data.get("data", []))
 
         return SPMData(
             data=data_values,
             coordinates=coordinates,
-            time=data.get('time'),
-            covariates=data.get('covariates', {}),
-            metadata=data.get('metadata', {}),
-            crs=data.get('crs', 'EPSG:4326')
+            time=data.get("time"),
+            covariates=data.get("covariates", {}),
+            metadata=data.get("metadata", {}),
+            crs=data.get("crs", "EPSG:4326"),
         )
 
     def _csv_to_spmdata(self, data: Dict[str, Any]) -> SPMData:
@@ -240,11 +236,11 @@ class SPMAPI:
         """
         import numpy as np
 
-        coord_keys_lat = {'lat', 'latitude', 'y', 'northing'}
-        coord_keys_lon = {'lon', 'lng', 'longitude', 'x', 'easting'}
+        coord_keys_lat = {"lat", "latitude", "y", "northing"}
+        coord_keys_lon = {"lon", "lng", "longitude", "x", "easting"}
 
-        rows = data.get('rows', [])
-        columns = data.get('columns', {})
+        rows = data.get("rows", [])
+        columns = data.get("columns", {})
 
         # Convert column-oriented to row-oriented if needed
         if columns and not rows:
@@ -277,20 +273,22 @@ class SPMAPI:
                 continue  # Skip non-numeric columns
 
         coordinates = np.array([[float(r[lat_col]), float(r[lon_col])] for r in rows])
-        data_values = np.array([[float(r.get(c, 0)) for c in numeric_cols] for r in rows])
+        data_values = np.array(
+            [[float(r.get(c, 0)) for c in numeric_cols] for r in rows]
+        )
 
         return SPMData(
             data=data_values,
             coordinates=coordinates,
-            time=data.get('time'),
-            covariates=data.get('covariates', {}),
+            time=data.get("time"),
+            covariates=data.get("covariates", {}),
             metadata={
-                'source_format': 'csv',
-                'coordinate_columns': [lat_col, lon_col],
-                'value_columns': numeric_cols,
-                **(data.get('metadata', {})),
+                "source_format": "csv",
+                "coordinate_columns": [lat_col, lon_col],
+                "value_columns": numeric_cols,
+                **(data.get("metadata", {})),
             },
-            crs=data.get('crs', 'EPSG:4326'),
+            crs=data.get("crs", "EPSG:4326"),
         )
 
     def _create_design_from_spec(self, design_spec: Dict[str, Any], data: SPMData):
@@ -299,41 +297,44 @@ class SPMAPI:
 
         return create_design_matrix(
             data,
-            covariates=design_spec.get('covariates', []),
-            factors=design_spec.get('factors', {}),
-            intercept=design_spec.get('intercept', True)
+            covariates=design_spec.get("covariates", []),
+            factors=design_spec.get("factors", {}),
+            intercept=design_spec.get("intercept", True),
         )
 
     def _format_summary(self, result: SPMResult) -> Dict[str, Any]:
         """Format results as summary."""
         return {
-            'status': 'success',
-            'result_type': 'SPMResult',
-            'n_points': result.spm_data.n_points,
-            'n_regressors': result.design_matrix.n_regressors,
-            'r_squared': result.r_squared,
-            'log_likelihood': result.log_likelihood,
-            'n_contrasts': len(result.contrasts),
-            'significant_contrasts': sum(1 for c in result.contrasts if c.n_significant > 0)
+            "status": "success",
+            "result_type": "SPMResult",
+            "n_points": result.spm_data.n_points,
+            "n_regressors": result.design_matrix.n_regressors,
+            "r_squared": result.r_squared,
+            "log_likelihood": result.log_likelihood,
+            "n_contrasts": len(result.contrasts),
+            "significant_contrasts": sum(
+                1 for c in result.contrasts if c.n_significant > 0
+            ),
         }
 
     def _format_full(self, result: SPMResult) -> Dict[str, Any]:
         """Format full results."""
         return {
-            'status': 'success',
-            'result': {
-                'beta_coefficients': result.beta_coefficients.tolist(),
-                'residuals': result.residuals.tolist(),
-                'model_diagnostics': result.model_diagnostics,
-                'processing_metadata': result.processing_metadata,
-                'contrasts': [
+            "status": "success",
+            "result": {
+                "beta_coefficients": result.beta_coefficients.tolist(),
+                "residuals": result.residuals.tolist(),
+                "model_diagnostics": result.model_diagnostics,
+                "processing_metadata": result.processing_metadata,
+                "contrasts": [
                     {
-                        'name': getattr(c, 'name', 'unnamed'),
-                        'n_significant': c.n_significant,
-                        'correction_method': c.correction_method
-                    } for c in result.contrasts
-                ]
-            }
+                        "name": getattr(c, "name", "unnamed"),
+                        "n_significant": c.n_significant,
+                        "correction_method": c.correction_method,
+                    }
+                    for c in result.contrasts
+                ],
+            },
         }
 
     def _format_visualization(self, result: SPMResult) -> Dict[str, Any]:
@@ -341,11 +342,14 @@ class SPMAPI:
         # This would create visualization data structures
         # For now, return basic structure
         return {
-            'status': 'success',
-            'visualization_data': {
-                'coordinates': result.spm_data.coordinates.tolist(),
-                'beta_map': result.beta_coefficients.tolist() if result.beta_coefficients.ndim == 1
-                           else result.beta_coefficients[:, 0].tolist(),
-                'residuals': result.residuals.tolist()
-            }
+            "status": "success",
+            "visualization_data": {
+                "coordinates": result.spm_data.coordinates.tolist(),
+                "beta_map": (
+                    result.beta_coefficients.tolist()
+                    if result.beta_coefficients.ndim == 1
+                    else result.beta_coefficients[:, 0].tolist()
+                ),
+                "residuals": result.residuals.tolist(),
+            },
         }

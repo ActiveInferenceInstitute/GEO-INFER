@@ -15,13 +15,11 @@ Key Features:
 """
 
 import numpy as np
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
-import statistics
 
 logger = logging.getLogger(__name__)
 
@@ -29,15 +27,36 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PerformanceConfiguration:
     """Configuration for performance evaluation."""
-    evaluation_criteria: List[str] = field(default_factory=lambda: ['efficiency', 'robustness', 'adaptability', 'scalability'])
+
+    evaluation_criteria: List[str] = field(
+        default_factory=lambda: [
+            "efficiency",
+            "robustness",
+            "adaptability",
+            "scalability",
+        ]
+    )
     benchmark_datasets: List[str] = field(default_factory=list)
-    statistical_analysis: List[str] = field(default_factory=lambda: ['hypothesis_testing', 'effect_size', 'confidence_intervals'])
+    statistical_analysis: List[str] = field(
+        default_factory=lambda: [
+            "hypothesis_testing",
+            "effect_size",
+            "confidence_intervals",
+        ]
+    )
     performance_thresholds: Dict[str, float] = field(default_factory=dict)
     comparison_baselines: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate configuration after initialization."""
-        valid_criteria = ['efficiency', 'robustness', 'adaptability', 'scalability', 'accuracy', 'speed']
+        valid_criteria = [
+            "efficiency",
+            "robustness",
+            "adaptability",
+            "scalability",
+            "accuracy",
+            "speed",
+        ]
         for criterion in self.evaluation_criteria:
             if criterion not in valid_criteria:
                 raise ValueError(f"Invalid evaluation criterion: {criterion}")
@@ -62,7 +81,7 @@ class SwarmPerformanceMetrics:
         evaluation_criteria: Optional[List[str]] = None,
         benchmark_datasets: Optional[List[str]] = None,
         statistical_analysis: Optional[List[str]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize performance metrics system.
@@ -74,9 +93,11 @@ class SwarmPerformanceMetrics:
             **kwargs: Additional configuration parameters
         """
         self.config = PerformanceConfiguration(
-            evaluation_criteria=evaluation_criteria or ['efficiency', 'robustness', 'adaptability'],
+            evaluation_criteria=evaluation_criteria
+            or ["efficiency", "robustness", "adaptability"],
             benchmark_datasets=benchmark_datasets or [],
-            statistical_analysis=statistical_analysis or ['hypothesis_testing', 'confidence_intervals']
+            statistical_analysis=statistical_analysis
+            or ["hypothesis_testing", "confidence_intervals"],
         )
 
         # Performance data storage
@@ -88,14 +109,16 @@ class SwarmPerformanceMetrics:
         self.statistical_tests: Dict[str, Any] = {}
         self.confidence_intervals: Dict[str, Any] = {}
 
-        logger.info(f"SwarmPerformanceMetrics initialized with {len(self.config.evaluation_criteria)} criteria")
+        logger.info(
+            f"SwarmPerformanceMetrics initialized with {len(self.config.evaluation_criteria)} criteria"
+        )
 
     def evaluate_performance(
         self,
         swarm_behavior: Dict[str, Any],
         task_objectives: Dict[str, Any],
         environmental_conditions: Optional[Dict[str, Any]] = None,
-        comparison_baselines: Optional[List[str]] = None
+        comparison_baselines: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Evaluate comprehensive swarm system performance.
@@ -112,14 +135,14 @@ class SwarmPerformanceMetrics:
         logger.info("Evaluating swarm system performance")
 
         assessment = {
-            'evaluation_time': datetime.now(),
-            'performance_scores': {},
-            'efficiency_metrics': {},
-            'robustness_metrics': {},
-            'adaptability_metrics': {},
-            'scalability_metrics': {},
-            'statistical_analysis': {},
-            'recommendations': []
+            "evaluation_time": datetime.now(),
+            "performance_scores": {},
+            "efficiency_metrics": {},
+            "robustness_metrics": {},
+            "adaptability_metrics": {},
+            "scalability_metrics": {},
+            "statistical_analysis": {},
+            "recommendations": [],
         }
 
         try:
@@ -129,335 +152,431 @@ class SwarmPerformanceMetrics:
 
             # Evaluate each performance criterion
             for criterion in self.config.evaluation_criteria:
-                if criterion == 'efficiency':
-                    efficiency = self._evaluate_efficiency(swarm_behavior, task_objectives)
-                    assessment['efficiency_metrics'] = efficiency
-                    assessment['performance_scores']['efficiency'] = efficiency.get('overall_score', 0.0)
+                if criterion == "efficiency":
+                    efficiency = self._evaluate_efficiency(
+                        swarm_behavior, task_objectives
+                    )
+                    assessment["efficiency_metrics"] = efficiency
+                    assessment["performance_scores"]["efficiency"] = efficiency.get(
+                        "overall_score", 0.0
+                    )
 
-                elif criterion == 'robustness':
-                    robustness = self._evaluate_robustness(swarm_behavior, environmental_conditions)
-                    assessment['robustness_metrics'] = robustness
-                    assessment['performance_scores']['robustness'] = robustness.get('overall_score', 0.0)
+                elif criterion == "robustness":
+                    robustness = self._evaluate_robustness(
+                        swarm_behavior, environmental_conditions
+                    )
+                    assessment["robustness_metrics"] = robustness
+                    assessment["performance_scores"]["robustness"] = robustness.get(
+                        "overall_score", 0.0
+                    )
 
-                elif criterion == 'adaptability':
-                    adaptability = self._evaluate_adaptability(swarm_behavior, environmental_conditions)
-                    assessment['adaptability_metrics'] = adaptability
-                    assessment['performance_scores']['adaptability'] = adaptability.get('overall_score', 0.0)
+                elif criterion == "adaptability":
+                    adaptability = self._evaluate_adaptability(
+                        swarm_behavior, environmental_conditions
+                    )
+                    assessment["adaptability_metrics"] = adaptability
+                    assessment["performance_scores"]["adaptability"] = adaptability.get(
+                        "overall_score", 0.0
+                    )
 
-                elif criterion == 'scalability':
+                elif criterion == "scalability":
                     scalability = self._evaluate_scalability(swarm_behavior)
-                    assessment['scalability_metrics'] = scalability
-                    assessment['performance_scores']['scalability'] = scalability.get('overall_score', 0.0)
+                    assessment["scalability_metrics"] = scalability
+                    assessment["performance_scores"]["scalability"] = scalability.get(
+                        "overall_score", 0.0
+                    )
 
             # Perform statistical analysis
             statistical_analysis = self._perform_statistical_analysis(assessment)
-            assessment['statistical_analysis'] = statistical_analysis
+            assessment["statistical_analysis"] = statistical_analysis
 
             # Generate recommendations
             recommendations = self._generate_performance_recommendations(assessment)
-            assessment['recommendations'] = recommendations
+            assessment["recommendations"] = recommendations
 
             # Store performance history
             self.performance_history.append(assessment)
 
         except Exception as e:
             logger.error(f"Performance evaluation failed: {e}")
-            assessment['error'] = str(e)
+            assessment["error"] = str(e)
 
         logger.info("Performance evaluation completed")
         return assessment
 
-    def _evaluate_efficiency(self, swarm_behavior: Dict[str, Any], task_objectives: Dict[str, Any]) -> Dict[str, Any]:
+    def _evaluate_efficiency(
+        self, swarm_behavior: Dict[str, Any], task_objectives: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Evaluate swarm system efficiency."""
         efficiency = {
-            'overall_score': 0.0,
-            'task_completion_rate': 0.0,
-            'resource_utilization': 0.0,
-            'energy_efficiency': 0.0,
-            'communication_efficiency': 0.0,
-            'computational_efficiency': 0.0
+            "overall_score": 0.0,
+            "task_completion_rate": 0.0,
+            "resource_utilization": 0.0,
+            "energy_efficiency": 0.0,
+            "communication_efficiency": 0.0,
+            "computational_efficiency": 0.0,
         }
 
         try:
             # Task completion rate
-            if 'task_completion' in swarm_behavior:
-                completed_tasks = swarm_behavior['task_completion'].get('completed', 0)
-                total_tasks = swarm_behavior['task_completion'].get('total', 1)
-                efficiency['task_completion_rate'] = completed_tasks / total_tasks
+            if "task_completion" in swarm_behavior:
+                completed_tasks = swarm_behavior["task_completion"].get("completed", 0)
+                total_tasks = swarm_behavior["task_completion"].get("total", 1)
+                efficiency["task_completion_rate"] = completed_tasks / total_tasks
 
             # Resource utilization
-            if 'resource_usage' in swarm_behavior:
-                resources = swarm_behavior['resource_usage']
-                efficiency['resource_utilization'] = resources.get('utilization_rate', 0.0)
+            if "resource_usage" in swarm_behavior:
+                resources = swarm_behavior["resource_usage"]
+                efficiency["resource_utilization"] = resources.get(
+                    "utilization_rate", 0.0
+                )
 
             # Energy efficiency
-            if 'energy_metrics' in swarm_behavior:
-                energy_data = swarm_behavior['energy_metrics']
-                total_energy = energy_data.get('total_consumed', 1.0)
-                useful_energy = energy_data.get('useful_energy', 0.0)
-                efficiency['energy_efficiency'] = useful_energy / total_energy if total_energy > 0 else 0.0
+            if "energy_metrics" in swarm_behavior:
+                energy_data = swarm_behavior["energy_metrics"]
+                total_energy = energy_data.get("total_consumed", 1.0)
+                useful_energy = energy_data.get("useful_energy", 0.0)
+                efficiency["energy_efficiency"] = (
+                    useful_energy / total_energy if total_energy > 0 else 0.0
+                )
 
             # Communication efficiency
-            if 'communication_metrics' in swarm_behavior:
-                comm_data = swarm_behavior['communication_metrics']
-                successful_comms = comm_data.get('successful', 0)
-                total_comms = comm_data.get('total', 1)
-                efficiency['communication_efficiency'] = successful_comms / total_comms
+            if "communication_metrics" in swarm_behavior:
+                comm_data = swarm_behavior["communication_metrics"]
+                successful_comms = comm_data.get("successful", 0)
+                total_comms = comm_data.get("total", 1)
+                efficiency["communication_efficiency"] = successful_comms / total_comms
 
             # Computational efficiency
-            if 'computation_metrics' in swarm_behavior:
-                comp_data = swarm_behavior['computation_metrics']
-                efficiency['computational_efficiency'] = comp_data.get('efficiency_score', 0.0)
+            if "computation_metrics" in swarm_behavior:
+                comp_data = swarm_behavior["computation_metrics"]
+                efficiency["computational_efficiency"] = comp_data.get(
+                    "efficiency_score", 0.0
+                )
 
             # Calculate overall efficiency score
-            weights = {'task_completion': 0.3, 'resource_utilization': 0.2, 'energy_efficiency': 0.2,
-                      'communication_efficiency': 0.15, 'computational_efficiency': 0.15}
+            weights = {
+                "task_completion": 0.3,
+                "resource_utilization": 0.2,
+                "energy_efficiency": 0.2,
+                "communication_efficiency": 0.15,
+                "computational_efficiency": 0.15,
+            }
 
             overall_score = 0.0
             for metric, weight in weights.items():
                 if metric in efficiency:
                     overall_score += efficiency[metric] * weight
 
-            efficiency['overall_score'] = min(1.0, overall_score)
+            efficiency["overall_score"] = min(1.0, overall_score)
 
         except Exception as e:
             logger.warning(f"Efficiency evaluation failed: {e}")
-            efficiency['error'] = str(e)
+            efficiency["error"] = str(e)
 
         return efficiency
 
-    def _evaluate_robustness(self, swarm_behavior: Dict[str, Any], environmental_conditions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _evaluate_robustness(
+        self,
+        swarm_behavior: Dict[str, Any],
+        environmental_conditions: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Evaluate swarm system robustness."""
         robustness = {
-            'overall_score': 0.0,
-            'failure_recovery': 0.0,
-            'environmental_resilience': 0.0,
-            'communication_robustness': 0.0,
-            'task_robustness': 0.0
+            "overall_score": 0.0,
+            "failure_recovery": 0.0,
+            "environmental_resilience": 0.0,
+            "communication_robustness": 0.0,
+            "task_robustness": 0.0,
         }
 
         try:
             # Failure recovery analysis
-            if 'failure_scenarios' in swarm_behavior:
-                failure_data = swarm_behavior['failure_scenarios']
-                recovered_failures = failure_data.get('recovered', 0)
-                total_failures = failure_data.get('total', 1)
-                robustness['failure_recovery'] = recovered_failures / total_failures
+            if "failure_scenarios" in swarm_behavior:
+                failure_data = swarm_behavior["failure_scenarios"]
+                recovered_failures = failure_data.get("recovered", 0)
+                total_failures = failure_data.get("total", 1)
+                robustness["failure_recovery"] = recovered_failures / total_failures
 
             # Environmental resilience
             if environmental_conditions:
-                env_volatility = environmental_conditions.get('volatility', 0.0)
-                noise_level = environmental_conditions.get('noise_level', 0.0)
-                robustness['environmental_resilience'] = 1.0 - min(1.0, (env_volatility + noise_level) / 2.0)
+                env_volatility = environmental_conditions.get("volatility", 0.0)
+                noise_level = environmental_conditions.get("noise_level", 0.0)
+                robustness["environmental_resilience"] = 1.0 - min(
+                    1.0, (env_volatility + noise_level) / 2.0
+                )
 
             # Communication robustness
-            if 'communication_failures' in swarm_behavior:
-                comm_failures = swarm_behavior['communication_failures']
-                robustness['communication_robustness'] = 1.0 - comm_failures.get('failure_rate', 0.0)
+            if "communication_failures" in swarm_behavior:
+                comm_failures = swarm_behavior["communication_failures"]
+                robustness["communication_robustness"] = 1.0 - comm_failures.get(
+                    "failure_rate", 0.0
+                )
 
             # Task robustness (ability to complete tasks despite disruptions)
-            if 'task_disruptions' in swarm_behavior:
-                disruptions = swarm_behavior['task_disruptions']
-                robustness['task_robustness'] = disruptions.get('completion_rate', 0.0)
+            if "task_disruptions" in swarm_behavior:
+                disruptions = swarm_behavior["task_disruptions"]
+                robustness["task_robustness"] = disruptions.get("completion_rate", 0.0)
 
             # Calculate overall robustness score
-            weights = {'failure_recovery': 0.3, 'environmental_resilience': 0.25,
-                      'communication_robustness': 0.25, 'task_robustness': 0.2}
+            weights = {
+                "failure_recovery": 0.3,
+                "environmental_resilience": 0.25,
+                "communication_robustness": 0.25,
+                "task_robustness": 0.2,
+            }
 
             overall_score = 0.0
             for metric, weight in weights.items():
                 if metric in robustness:
                     overall_score += robustness[metric] * weight
 
-            robustness['overall_score'] = min(1.0, overall_score)
+            robustness["overall_score"] = min(1.0, overall_score)
 
         except Exception as e:
             logger.warning(f"Robustness evaluation failed: {e}")
-            robustness['error'] = str(e)
+            robustness["error"] = str(e)
 
         return robustness
 
-    def _evaluate_adaptability(self, swarm_behavior: Dict[str, Any], environmental_conditions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _evaluate_adaptability(
+        self,
+        swarm_behavior: Dict[str, Any],
+        environmental_conditions: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Evaluate swarm system adaptability."""
         adaptability = {
-            'overall_score': 0.0,
-            'learning_rate': 0.0,
-            'parameter_adaptation': 0.0,
-            'environmental_adaptation': 0.0,
-            'behavioral_flexibility': 0.0
+            "overall_score": 0.0,
+            "learning_rate": 0.0,
+            "parameter_adaptation": 0.0,
+            "environmental_adaptation": 0.0,
+            "behavioral_flexibility": 0.0,
         }
 
         try:
             # Learning rate analysis
-            if 'learning_metrics' in swarm_behavior:
-                learning_data = swarm_behavior['learning_metrics']
-                adaptability['learning_rate'] = learning_data.get('improvement_rate', 0.0)
+            if "learning_metrics" in swarm_behavior:
+                learning_data = swarm_behavior["learning_metrics"]
+                adaptability["learning_rate"] = learning_data.get(
+                    "improvement_rate", 0.0
+                )
 
             # Parameter adaptation
-            if 'parameter_changes' in swarm_behavior:
-                param_data = swarm_behavior['parameter_changes']
-                adaptability['parameter_adaptation'] = param_data.get('adaptation_effectiveness', 0.0)
+            if "parameter_changes" in swarm_behavior:
+                param_data = swarm_behavior["parameter_changes"]
+                adaptability["parameter_adaptation"] = param_data.get(
+                    "adaptation_effectiveness", 0.0
+                )
 
             # Environmental adaptation
             if environmental_conditions:
-                env_changes = environmental_conditions.get('change_frequency', 0.0)
-                adaptability['environmental_adaptation'] = 1.0 - min(1.0, env_changes)
+                env_changes = environmental_conditions.get("change_frequency", 0.0)
+                adaptability["environmental_adaptation"] = 1.0 - min(1.0, env_changes)
 
             # Behavioral flexibility
-            if 'behavioral_changes' in swarm_behavior:
-                behavioral_data = swarm_behavior['behavioral_changes']
-                adaptability['behavioral_flexibility'] = behavioral_data.get('flexibility_score', 0.0)
+            if "behavioral_changes" in swarm_behavior:
+                behavioral_data = swarm_behavior["behavioral_changes"]
+                adaptability["behavioral_flexibility"] = behavioral_data.get(
+                    "flexibility_score", 0.0
+                )
 
             # Calculate overall adaptability score
-            weights = {'learning_rate': 0.3, 'parameter_adaptation': 0.25,
-                      'environmental_adaptation': 0.25, 'behavioral_flexibility': 0.2}
+            weights = {
+                "learning_rate": 0.3,
+                "parameter_adaptation": 0.25,
+                "environmental_adaptation": 0.25,
+                "behavioral_flexibility": 0.2,
+            }
 
             overall_score = 0.0
             for metric, weight in weights.items():
                 if metric in adaptability:
                     overall_score += adaptability[metric] * weight
 
-            adaptability['overall_score'] = min(1.0, overall_score)
+            adaptability["overall_score"] = min(1.0, overall_score)
 
         except Exception as e:
             logger.warning(f"Adaptability evaluation failed: {e}")
-            adaptability['error'] = str(e)
+            adaptability["error"] = str(e)
 
         return adaptability
 
     def _evaluate_scalability(self, swarm_behavior: Dict[str, Any]) -> Dict[str, Any]:
         """Evaluate swarm system scalability."""
         scalability = {
-            'overall_score': 0.0,
-            'size_scalability': 0.0,
-            'performance_scaling': 0.0,
-            'communication_scaling': 0.0,
-            'memory_scaling': 0.0
+            "overall_score": 0.0,
+            "size_scalability": 0.0,
+            "performance_scaling": 0.0,
+            "communication_scaling": 0.0,
+            "memory_scaling": 0.0,
         }
 
         try:
             # Size scalability (how performance changes with swarm size)
-            if 'size_performance' in swarm_behavior:
-                size_data = swarm_behavior['size_performance']
-                scalability['size_scalability'] = size_data.get('scaling_efficiency', 0.0)
+            if "size_performance" in swarm_behavior:
+                size_data = swarm_behavior["size_performance"]
+                scalability["size_scalability"] = size_data.get(
+                    "scaling_efficiency", 0.0
+                )
 
             # Performance scaling (how well performance scales with problem size)
-            if 'problem_scaling' in swarm_behavior:
-                problem_data = swarm_behavior['problem_scaling']
-                scalability['performance_scaling'] = problem_data.get('scaling_efficiency', 0.0)
+            if "problem_scaling" in swarm_behavior:
+                problem_data = swarm_behavior["problem_scaling"]
+                scalability["performance_scaling"] = problem_data.get(
+                    "scaling_efficiency", 0.0
+                )
 
             # Communication scaling
-            if 'communication_scaling' in swarm_behavior:
-                comm_data = swarm_behavior['communication_scaling']
-                scalability['communication_scaling'] = comm_data.get('scaling_efficiency', 0.0)
+            if "communication_scaling" in swarm_behavior:
+                comm_data = swarm_behavior["communication_scaling"]
+                scalability["communication_scaling"] = comm_data.get(
+                    "scaling_efficiency", 0.0
+                )
 
             # Memory scaling
-            if 'memory_scaling' in swarm_behavior:
-                memory_data = swarm_behavior['memory_scaling']
-                scalability['memory_scaling'] = memory_data.get('scaling_efficiency', 0.0)
+            if "memory_scaling" in swarm_behavior:
+                memory_data = swarm_behavior["memory_scaling"]
+                scalability["memory_scaling"] = memory_data.get(
+                    "scaling_efficiency", 0.0
+                )
 
             # Calculate overall scalability score
-            weights = {'size_scalability': 0.3, 'performance_scaling': 0.3,
-                      'communication_scaling': 0.2, 'memory_scaling': 0.2}
+            weights = {
+                "size_scalability": 0.3,
+                "performance_scaling": 0.3,
+                "communication_scaling": 0.2,
+                "memory_scaling": 0.2,
+            }
 
             overall_score = 0.0
             for metric, weight in weights.items():
                 if metric in scalability:
                     overall_score += scalability[metric] * weight
 
-            scalability['overall_score'] = min(1.0, overall_score)
+            scalability["overall_score"] = min(1.0, overall_score)
 
         except Exception as e:
             logger.warning(f"Scalability evaluation failed: {e}")
-            scalability['error'] = str(e)
+            scalability["error"] = str(e)
 
         return scalability
 
-    def _perform_statistical_analysis(self, assessment: Dict[str, Any]) -> Dict[str, Any]:
+    def _perform_statistical_analysis(
+        self, assessment: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Perform statistical analysis on performance metrics."""
         analysis = {
-            'hypothesis_tests': {},
-            'confidence_intervals': {},
-            'effect_sizes': {},
-            'statistical_significance': {}
+            "hypothesis_tests": {},
+            "confidence_intervals": {},
+            "effect_sizes": {},
+            "statistical_significance": {},
         }
 
         try:
             # Simple statistical analysis (would integrate with actual statistical libraries)
-            performance_scores = assessment.get('performance_scores', {})
+            performance_scores = assessment.get("performance_scores", {})
 
             for metric, score in performance_scores.items():
                 # Calculate confidence interval (simplified)
                 if isinstance(score, (int, float)):
                     # Assume normal distribution with known variance
                     std_error = 0.1  # Baseline
-                    confidence_interval = (score - 1.96 * std_error, score + 1.96 * std_error)
-                    analysis['confidence_intervals'][metric] = confidence_interval
+                    confidence_interval = (
+                        score - 1.96 * std_error,
+                        score + 1.96 * std_error,
+                    )
+                    analysis["confidence_intervals"][metric] = confidence_interval
 
                 # Statistical significance (simplified)
-                analysis['statistical_significance'][metric] = score > 0.5
+                analysis["statistical_significance"][metric] = score > 0.5
 
             # Hypothesis testing (simplified)
             if len(performance_scores) > 1:
                 scores_list = list(performance_scores.values())
-                analysis['hypothesis_tests']['performance_consistency'] = {
-                    'test_statistic': np.std(scores_list),
-                    'p_value': 0.05 if np.std(scores_list) > 0.2 else 0.95,
-                    'significant': np.std(scores_list) > 0.2
+                analysis["hypothesis_tests"]["performance_consistency"] = {
+                    "test_statistic": np.std(scores_list),
+                    "p_value": 0.05 if np.std(scores_list) > 0.2 else 0.95,
+                    "significant": np.std(scores_list) > 0.2,
                 }
 
         except Exception as e:
             logger.warning(f"Statistical analysis failed: {e}")
-            analysis['error'] = str(e)
+            analysis["error"] = str(e)
 
         return analysis
 
-    def _generate_performance_recommendations(self, assessment: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_performance_recommendations(
+        self, assessment: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Generate performance improvement recommendations."""
         recommendations = []
 
         try:
-            performance_scores = assessment.get('performance_scores', {})
+            performance_scores = assessment.get("performance_scores", {})
 
             # Efficiency recommendations
-            efficiency_score = performance_scores.get('efficiency', 0.0)
+            efficiency_score = performance_scores.get("efficiency", 0.0)
             if efficiency_score < 0.7:
-                recommendations.append({
-                    'category': 'efficiency',
-                    'priority': 'high' if efficiency_score < 0.5 else 'medium',
-                    'description': f'Improve efficiency from {efficiency_score:.2f} to >0.7',
-                    'actions': ['optimize_resource_allocation', 'reduce_communication_overhead', 'improve_task_coordination']
-                })
+                recommendations.append(
+                    {
+                        "category": "efficiency",
+                        "priority": "high" if efficiency_score < 0.5 else "medium",
+                        "description": f"Improve efficiency from {efficiency_score:.2f} to >0.7",
+                        "actions": [
+                            "optimize_resource_allocation",
+                            "reduce_communication_overhead",
+                            "improve_task_coordination",
+                        ],
+                    }
+                )
 
             # Robustness recommendations
-            robustness_score = performance_scores.get('robustness', 0.0)
+            robustness_score = performance_scores.get("robustness", 0.0)
             if robustness_score < 0.8:
-                recommendations.append({
-                    'category': 'robustness',
-                    'priority': 'high' if robustness_score < 0.6 else 'medium',
-                    'description': f'Improve robustness from {robustness_score:.2f} to >0.8',
-                    'actions': ['add_redundancy_mechanisms', 'improve_failure_recovery', 'enhance_environmental_resilience']
-                })
+                recommendations.append(
+                    {
+                        "category": "robustness",
+                        "priority": "high" if robustness_score < 0.6 else "medium",
+                        "description": f"Improve robustness from {robustness_score:.2f} to >0.8",
+                        "actions": [
+                            "add_redundancy_mechanisms",
+                            "improve_failure_recovery",
+                            "enhance_environmental_resilience",
+                        ],
+                    }
+                )
 
             # Adaptability recommendations
-            adaptability_score = performance_scores.get('adaptability', 0.0)
+            adaptability_score = performance_scores.get("adaptability", 0.0)
             if adaptability_score < 0.6:
-                recommendations.append({
-                    'category': 'adaptability',
-                    'priority': 'medium',
-                    'description': f'Improve adaptability from {adaptability_score:.2f} to >0.6',
-                    'actions': ['enhance_learning_algorithms', 'implement_adaptive_parameters', 'add_environmental_sensing']
-                })
+                recommendations.append(
+                    {
+                        "category": "adaptability",
+                        "priority": "medium",
+                        "description": f"Improve adaptability from {adaptability_score:.2f} to >0.6",
+                        "actions": [
+                            "enhance_learning_algorithms",
+                            "implement_adaptive_parameters",
+                            "add_environmental_sensing",
+                        ],
+                    }
+                )
 
             # Scalability recommendations
-            scalability_score = performance_scores.get('scalability', 0.0)
+            scalability_score = performance_scores.get("scalability", 0.0)
             if scalability_score < 0.7:
-                recommendations.append({
-                    'category': 'scalability',
-                    'priority': 'medium',
-                    'description': f'Improve scalability from {scalability_score:.2f} to >0.7',
-                    'actions': ['optimize_parallel_processing', 'implement_spatial_partitioning', 'add_load_balancing']
-                })
+                recommendations.append(
+                    {
+                        "category": "scalability",
+                        "priority": "medium",
+                        "description": f"Improve scalability from {scalability_score:.2f} to >0.7",
+                        "actions": [
+                            "optimize_parallel_processing",
+                            "implement_spatial_partitioning",
+                            "add_load_balancing",
+                        ],
+                    }
+                )
 
         except Exception as e:
             logger.warning(f"Recommendation generation failed: {e}")
@@ -468,7 +587,7 @@ class SwarmPerformanceMetrics:
         self,
         failure_scenarios: List[str],
         recovery_mechanisms: List[str],
-        performance_degradation: Dict[str, float]
+        performance_degradation: Dict[str, float],
     ) -> Dict[str, Any]:
         """
         Analyze system robustness under various failure scenarios.
@@ -481,16 +600,18 @@ class SwarmPerformanceMetrics:
         Returns:
             Robustness analysis results
         """
-        logger.info(f"Analyzing robustness for {len(failure_scenarios)} failure scenarios")
+        logger.info(
+            f"Analyzing robustness for {len(failure_scenarios)} failure scenarios"
+        )
 
         robustness_analysis = {
-            'analysis_time': datetime.now(),
-            'failure_scenarios': failure_scenarios,
-            'recovery_mechanisms': recovery_mechanisms,
-            'scenario_results': {},
-            'overall_robustness': 0.0,
-            'critical_failures': [],
-            'recovery_effectiveness': {}
+            "analysis_time": datetime.now(),
+            "failure_scenarios": failure_scenarios,
+            "recovery_mechanisms": recovery_mechanisms,
+            "scenario_results": {},
+            "overall_robustness": 0.0,
+            "critical_failures": [],
+            "recovery_effectiveness": {},
         }
 
         try:
@@ -499,87 +620,101 @@ class SwarmPerformanceMetrics:
                 scenario_result = self._analyze_single_failure_scenario(
                     scenario, recovery_mechanisms, performance_degradation
                 )
-                robustness_analysis['scenario_results'][scenario] = scenario_result
+                robustness_analysis["scenario_results"][scenario] = scenario_result
 
                 # Check if failure is critical
-                degradation = scenario_result.get('performance_degradation', 1.0)
-                if degradation > performance_degradation.get('critical_threshold', 0.8):
-                    robustness_analysis['critical_failures'].append(scenario)
+                degradation = scenario_result.get("performance_degradation", 1.0)
+                if degradation > performance_degradation.get("critical_threshold", 0.8):
+                    robustness_analysis["critical_failures"].append(scenario)
 
             # Analyze recovery effectiveness
             for mechanism in recovery_mechanisms:
-                effectiveness = self._evaluate_recovery_mechanism(mechanism, robustness_analysis['scenario_results'])
-                robustness_analysis['recovery_effectiveness'][mechanism] = effectiveness
+                effectiveness = self._evaluate_recovery_mechanism(
+                    mechanism, robustness_analysis["scenario_results"]
+                )
+                robustness_analysis["recovery_effectiveness"][mechanism] = effectiveness
 
             # Calculate overall robustness
-            scenario_scores = [result.get('robustness_score', 0.0)
-                             for result in robustness_analysis['scenario_results'].values()]
-            robustness_analysis['overall_robustness'] = np.mean(scenario_scores) if scenario_scores else 0.0
+            scenario_scores = [
+                result.get("robustness_score", 0.0)
+                for result in robustness_analysis["scenario_results"].values()
+            ]
+            robustness_analysis["overall_robustness"] = (
+                np.mean(scenario_scores) if scenario_scores else 0.0
+            )
 
         except Exception as e:
             logger.error(f"Robustness analysis failed: {e}")
-            robustness_analysis['error'] = str(e)
+            robustness_analysis["error"] = str(e)
 
-        logger.info(f"Robustness analysis completed: overall score = {robustness_analysis['overall_robustness']}")
+        logger.info(
+            f"Robustness analysis completed: overall score = {robustness_analysis['overall_robustness']}"
+        )
         return robustness_analysis
 
     def _analyze_single_failure_scenario(
         self,
         scenario: str,
         recovery_mechanisms: List[str],
-        performance_degradation: Dict[str, float]
+        performance_degradation: Dict[str, float],
     ) -> Dict[str, Any]:
         """Analyze a single failure scenario."""
         # Simplified failure analysis - would integrate with actual failure simulation
         scenario_results = {
-            'scenario': scenario,
-            'failure_impact': 0.0,
-            'recovery_time': 0.0,
-            'performance_degradation': 0.0,
-            'robustness_score': 1.0
+            "scenario": scenario,
+            "failure_impact": 0.0,
+            "recovery_time": 0.0,
+            "performance_degradation": 0.0,
+            "robustness_score": 1.0,
         }
 
         # Simulate different failure types
         failure_impacts = {
-            'agent_loss': 0.2,
-            'communication_failure': 0.3,
-            'environmental_change': 0.1,
-            'resource_shortage': 0.25,
-            'coordination_breakdown': 0.4
+            "agent_loss": 0.2,
+            "communication_failure": 0.3,
+            "environmental_change": 0.1,
+            "resource_shortage": 0.25,
+            "coordination_breakdown": 0.4,
         }
 
         base_impact = failure_impacts.get(scenario, 0.3)
-        scenario_results['failure_impact'] = base_impact
+        scenario_results["failure_impact"] = base_impact
 
         # Simulate recovery
         recovery_times = {
-            'redundancy': 10.0,
-            'adaptation': 30.0,
-            'reorganization': 60.0,
-            'restart': 120.0
+            "redundancy": 10.0,
+            "adaptation": 30.0,
+            "reorganization": 60.0,
+            "restart": 120.0,
         }
 
         if recovery_mechanisms:
-            fastest_recovery = min([recovery_times.get(mech, 60.0) for mech in recovery_mechanisms])
-            scenario_results['recovery_time'] = fastest_recovery
+            fastest_recovery = min(
+                [recovery_times.get(mech, 60.0) for mech in recovery_mechanisms]
+            )
+            scenario_results["recovery_time"] = fastest_recovery
 
         # Calculate performance degradation
-        degradation = base_impact * (1.0 - 0.1 * len(recovery_mechanisms))  # Recovery mechanisms reduce degradation
-        scenario_results['performance_degradation'] = min(1.0, degradation)
+        degradation = base_impact * (
+            1.0 - 0.1 * len(recovery_mechanisms)
+        )  # Recovery mechanisms reduce degradation
+        scenario_results["performance_degradation"] = min(1.0, degradation)
 
         # Calculate robustness score
-        scenario_results['robustness_score'] = 1.0 - degradation
+        scenario_results["robustness_score"] = 1.0 - degradation
 
         return scenario_results
 
-    def _evaluate_recovery_mechanism(self, mechanism: str, scenario_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _evaluate_recovery_mechanism(
+        self, mechanism: str, scenario_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Evaluate effectiveness of a recovery mechanism."""
         effectiveness = {
-            'mechanism': mechanism,
-            'avg_recovery_time': 0.0,
-            'success_rate': 0.0,
-            'performance_restoration': 0.0,
-            'overall_effectiveness': 0.0
+            "mechanism": mechanism,
+            "avg_recovery_time": 0.0,
+            "success_rate": 0.0,
+            "performance_restoration": 0.0,
+            "overall_effectiveness": 0.0,
         }
 
         try:
@@ -588,27 +723,45 @@ class SwarmPerformanceMetrics:
             performance_restoration = []
 
             for scenario, result in scenario_results.items():
-                if mechanism in ['redundancy', 'adaptation', 'reorganization', 'restart']:  # All mechanisms apply
-                    recovery_times.append(result.get('recovery_time', 60.0))
-                    success_rates.append(1.0 - result.get('performance_degradation', 0.5))
-                    performance_restoration.append(result.get('robustness_score', 0.5))
+                if mechanism in [
+                    "redundancy",
+                    "adaptation",
+                    "reorganization",
+                    "restart",
+                ]:  # All mechanisms apply
+                    recovery_times.append(result.get("recovery_time", 60.0))
+                    success_rates.append(
+                        1.0 - result.get("performance_degradation", 0.5)
+                    )
+                    performance_restoration.append(result.get("robustness_score", 0.5))
 
             if recovery_times:
-                effectiveness['avg_recovery_time'] = np.mean(recovery_times)
-                effectiveness['success_rate'] = np.mean(success_rates)
-                effectiveness['performance_restoration'] = np.mean(performance_restoration)
+                effectiveness["avg_recovery_time"] = np.mean(recovery_times)
+                effectiveness["success_rate"] = np.mean(success_rates)
+                effectiveness["performance_restoration"] = np.mean(
+                    performance_restoration
+                )
 
                 # Overall effectiveness combines factors (all terms capped at their weight)
-                weights = {'recovery_time': 0.3, 'success_rate': 0.4, 'performance_restoration': 0.3}
-                effectiveness['overall_effectiveness'] = min(1.0, (
-                    min(1.0, 60.0 / effectiveness['avg_recovery_time']) * weights['recovery_time'] +  # Faster is better
-                    effectiveness['success_rate'] * weights['success_rate'] +
-                    effectiveness['performance_restoration'] * weights['performance_restoration']
-                ))
+                weights = {
+                    "recovery_time": 0.3,
+                    "success_rate": 0.4,
+                    "performance_restoration": 0.3,
+                }
+                effectiveness["overall_effectiveness"] = min(
+                    1.0,
+                    (
+                        min(1.0, 60.0 / effectiveness["avg_recovery_time"])
+                        * weights["recovery_time"]  # Faster is better
+                        + effectiveness["success_rate"] * weights["success_rate"]
+                        + effectiveness["performance_restoration"]
+                        * weights["performance_restoration"]
+                    ),
+                )
 
         except Exception as e:
             logger.warning(f"Recovery mechanism evaluation failed: {e}")
-            effectiveness['error'] = str(e)
+            effectiveness["error"] = str(e)
 
         return effectiveness
 
@@ -617,7 +770,7 @@ class SwarmPerformanceMetrics:
         swarm_sizes: List[int],
         problem_complexity_levels: List[str],
         computational_resources: Dict[str, Any],
-        performance_requirements: Dict[str, Any]
+        performance_requirements: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
         Assess system scalability across different configurations.
@@ -631,16 +784,18 @@ class SwarmPerformanceMetrics:
         Returns:
             Scalability assessment results
         """
-        logger.info(f"Assessing scalability for {len(swarm_sizes)} swarm sizes and {len(problem_complexity_levels)} complexity levels")
+        logger.info(
+            f"Assessing scalability for {len(swarm_sizes)} swarm sizes and {len(problem_complexity_levels)} complexity levels"
+        )
 
         scalability_assessment = {
-            'assessment_time': datetime.now(),
-            'test_configurations': [],
-            'scaling_results': {},
-            'performance_bottlenecks': [],
-            'scaling_recommendations': [],
-            'max_scalable_size': 0,
-            'overall_scalability_score': 0.0
+            "assessment_time": datetime.now(),
+            "test_configurations": [],
+            "scaling_results": {},
+            "performance_bottlenecks": [],
+            "scaling_recommendations": [],
+            "max_scalable_size": 0,
+            "overall_scalability_score": 0.0,
         }
 
         try:
@@ -648,38 +803,51 @@ class SwarmPerformanceMetrics:
             for swarm_size in swarm_sizes:
                 for complexity in problem_complexity_levels:
                     config_result = self._test_scaling_configuration(
-                        swarm_size, complexity, computational_resources, performance_requirements
+                        swarm_size,
+                        complexity,
+                        computational_resources,
+                        performance_requirements,
                     )
-                    scalability_assessment['test_configurations'].append({
-                        'swarm_size': swarm_size,
-                        'complexity': complexity,
-                        'result': config_result
-                    })
+                    scalability_assessment["test_configurations"].append(
+                        {
+                            "swarm_size": swarm_size,
+                            "complexity": complexity,
+                            "result": config_result,
+                        }
+                    )
 
                     # Store results by size and complexity
-                    if swarm_size not in scalability_assessment['scaling_results']:
-                        scalability_assessment['scaling_results'][swarm_size] = {}
-                    scalability_assessment['scaling_results'][swarm_size][complexity] = config_result
+                    if swarm_size not in scalability_assessment["scaling_results"]:
+                        scalability_assessment["scaling_results"][swarm_size] = {}
+                    scalability_assessment["scaling_results"][swarm_size][
+                        complexity
+                    ] = config_result
 
             # Analyze scaling trends
-            scaling_analysis = self._analyze_scaling_trends(scalability_assessment['scaling_results'])
+            scaling_analysis = self._analyze_scaling_trends(
+                scalability_assessment["scaling_results"]
+            )
             scalability_assessment.update(scaling_analysis)
 
             # Identify bottlenecks
-            bottlenecks = self._identify_performance_bottlenecks(scalability_assessment['scaling_results'])
-            scalability_assessment['performance_bottlenecks'] = bottlenecks
+            bottlenecks = self._identify_performance_bottlenecks(
+                scalability_assessment["scaling_results"]
+            )
+            scalability_assessment["performance_bottlenecks"] = bottlenecks
 
             # Generate recommendations
             recommendations = self._generate_scaling_recommendations(
-                scalability_assessment['scaling_results'], performance_requirements
+                scalability_assessment["scaling_results"], performance_requirements
             )
-            scalability_assessment['scaling_recommendations'] = recommendations
+            scalability_assessment["scaling_recommendations"] = recommendations
 
         except Exception as e:
             logger.error(f"Scalability assessment failed: {e}")
-            scalability_assessment['error'] = str(e)
+            scalability_assessment["error"] = str(e)
 
-        logger.info(f"Scalability assessment completed: max size = {scalability_assessment['max_scalable_size']}")
+        logger.info(
+            f"Scalability assessment completed: max size = {scalability_assessment['max_scalable_size']}"
+        )
         return scalability_assessment
 
     def _test_scaling_configuration(
@@ -687,17 +855,17 @@ class SwarmPerformanceMetrics:
         swarm_size: int,
         complexity: str,
         computational_resources: Dict[str, Any],
-        performance_requirements: Dict[str, Any]
+        performance_requirements: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Test a specific scaling configuration."""
         # Simplified scaling test - would integrate with actual performance testing
         config_result = {
-            'swarm_size': swarm_size,
-            'complexity': complexity,
-            'performance_score': 0.0,
-            'resource_utilization': {},
-            'meets_requirements': False,
-            'bottlenecks': []
+            "swarm_size": swarm_size,
+            "complexity": complexity,
+            "performance_score": 0.0,
+            "resource_utilization": {},
+            "meets_requirements": False,
+            "bottlenecks": [],
         }
 
         # Simulate performance based on scaling laws
@@ -707,55 +875,62 @@ class SwarmPerformanceMetrics:
         size_factor = 1.0 / (1.0 + 0.1 * np.log(swarm_size))
 
         # Complexity scaling
-        complexity_factors = {'simple': 1.0, 'moderate': 0.8, 'complex': 0.6}
+        complexity_factors = {"simple": 1.0, "moderate": 0.8, "complex": 0.6}
         complexity_factor = complexity_factors.get(complexity, 0.7)
 
-        config_result['performance_score'] = base_performance * size_factor * complexity_factor
+        config_result["performance_score"] = (
+            base_performance * size_factor * complexity_factor
+        )
 
         # Check resource utilization
-        config_result['resource_utilization'] = {
-            'cpu': min(1.0, swarm_size / 1000.0),  # Assume 1000 agents = 100% CPU
-            'memory': min(1.0, swarm_size / 500.0),  # Assume 500 agents = 100% memory
-            'network': min(1.0, swarm_size / 200.0)  # Assume 200 agents = 100% network
+        config_result["resource_utilization"] = {
+            "cpu": min(1.0, swarm_size / 1000.0),  # Assume 1000 agents = 100% CPU
+            "memory": min(1.0, swarm_size / 500.0),  # Assume 500 agents = 100% memory
+            "network": min(1.0, swarm_size / 200.0),  # Assume 200 agents = 100% network
         }
 
         # Check if requirements are met
-        meets_cpu = config_result['resource_utilization']['cpu'] <= 1.0
-        meets_memory = config_result['resource_utilization']['memory'] <= 1.0
-        meets_performance = config_result['performance_score'] >= performance_requirements.get('min_performance', 0.7)
+        meets_cpu = config_result["resource_utilization"]["cpu"] <= 1.0
+        meets_memory = config_result["resource_utilization"]["memory"] <= 1.0
+        meets_performance = config_result[
+            "performance_score"
+        ] >= performance_requirements.get("min_performance", 0.7)
 
-        config_result['meets_requirements'] = bool(meets_cpu and meets_memory and meets_performance)
+        config_result["meets_requirements"] = bool(
+            meets_cpu and meets_memory and meets_performance
+        )
 
         # Identify bottlenecks
         if not meets_cpu:
-            config_result['bottlenecks'].append('cpu')
+            config_result["bottlenecks"].append("cpu")
         if not meets_memory:
-            config_result['bottlenecks'].append('memory')
+            config_result["bottlenecks"].append("memory")
         if not meets_performance:
-            config_result['bottlenecks'].append('performance')
+            config_result["bottlenecks"].append("performance")
 
         return config_result
 
-    def _analyze_scaling_trends(self, scaling_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_scaling_trends(
+        self, scaling_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Analyze trends in scaling performance."""
         analysis = {
-            'max_scalable_size': 0,
-            'scaling_efficiency': 0.0,
-            'performance_trends': {},
-            'resource_trends': {}
+            "max_scalable_size": 0,
+            "scaling_efficiency": 0.0,
+            "performance_trends": {},
+            "resource_trends": {},
         }
 
         try:
-            # Find maximum scalable size (where performance > threshold)
-            performance_threshold = 0.7
-
+            # Find the largest size that still meets the configured requirements.
             max_size = 0
             for size in sorted(scaling_results.keys()):
                 complexities = scaling_results[size]
 
                 # Check if any complexity level meets requirements
                 meets_requirements = any(
-                    result.get('meets_requirements', False) for result in complexities.values()
+                    result.get("meets_requirements", False)
+                    for result in complexities.values()
                 )
 
                 if meets_requirements:
@@ -763,7 +938,7 @@ class SwarmPerformanceMetrics:
                 else:
                     break  # Stop when requirements are no longer met
 
-            analysis['max_scalable_size'] = max_size
+            analysis["max_scalable_size"] = max_size
 
             # Analyze scaling efficiency (how performance changes with size)
             if len(scaling_results) > 1:
@@ -772,9 +947,12 @@ class SwarmPerformanceMetrics:
 
                 for size in sizes:
                     complexities = scaling_results[size]
-                    avg_perf = np.mean([
-                        result.get('performance_score', 0.0) for result in complexities.values()
-                    ])
+                    avg_perf = np.mean(
+                        [
+                            result.get("performance_score", 0.0)
+                            for result in complexities.values()
+                        ]
+                    )
                     avg_performance.append(avg_perf)
 
                 # Calculate scaling efficiency (negative of performance degradation rate)
@@ -783,30 +961,36 @@ class SwarmPerformanceMetrics:
                     size_change = sizes[-1] - sizes[0]
                     if size_change > 0:
                         scaling_rate = performance_change / size_change
-                        analysis['scaling_efficiency'] = 1.0 - abs(scaling_rate)  # Closer to 0 change is better
+                        analysis["scaling_efficiency"] = 1.0 - abs(
+                            scaling_rate
+                        )  # Closer to 0 change is better
 
             # Performance trends by complexity
-            for complexity in ['simple', 'moderate', 'complex']:
+            for complexity in ["simple", "moderate", "complex"]:
                 performances = []
                 for size in scaling_results:
                     result = scaling_results[size].get(complexity)
                     if result:
-                        performances.append(result.get('performance_score', 0.0))
+                        performances.append(result.get("performance_score", 0.0))
 
                 if performances:
-                    analysis['performance_trends'][complexity] = {
-                        'avg_performance': np.mean(performances),
-                        'performance_range': (min(performances), max(performances)),
-                        'performance_trend': 'stable' if np.std(performances) < 0.1 else 'variable'
+                    analysis["performance_trends"][complexity] = {
+                        "avg_performance": np.mean(performances),
+                        "performance_range": (min(performances), max(performances)),
+                        "performance_trend": (
+                            "stable" if np.std(performances) < 0.1 else "variable"
+                        ),
                     }
 
         except Exception as e:
             logger.warning(f"Scaling trend analysis failed: {e}")
-            analysis['error'] = str(e)
+            analysis["error"] = str(e)
 
         return analysis
 
-    def _identify_performance_bottlenecks(self, scaling_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _identify_performance_bottlenecks(
+        self, scaling_results: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Identify performance bottlenecks in scaling results."""
         bottlenecks = []
 
@@ -816,59 +1000,75 @@ class SwarmPerformanceMetrics:
                 complexities = scaling_results[size]
 
                 for complexity, result in complexities.items():
-                    utilization = result.get('resource_utilization', {})
+                    utilization = result.get("resource_utilization", {})
 
                     # Check each resource type
                     for resource, usage in utilization.items():
                         if usage > 0.9:  # High utilization threshold
-                            bottlenecks.append({
-                                'swarm_size': size,
-                                'complexity': complexity,
-                                'resource': resource,
-                                'utilization': usage,
-                                'severity': 'high' if usage > 0.95 else 'medium'
-                            })
+                            bottlenecks.append(
+                                {
+                                    "swarm_size": size,
+                                    "complexity": complexity,
+                                    "resource": resource,
+                                    "utilization": usage,
+                                    "severity": "high" if usage > 0.95 else "medium",
+                                }
+                            )
 
         except Exception as e:
             logger.warning(f"Bottleneck identification failed: {e}")
 
         return bottlenecks
 
-    def _generate_scaling_recommendations(self, scaling_results: Dict[str, Any], performance_requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_scaling_recommendations(
+        self, scaling_results: Dict[str, Any], performance_requirements: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Generate recommendations for improving scalability."""
         recommendations = []
 
         try:
             # Check if scaling requirements are met
             max_size = max(scaling_results.keys()) if scaling_results else 0
-            required_size = performance_requirements.get('max_swarm_size', 1000)
+            required_size = performance_requirements.get("max_swarm_size", 1000)
 
             if max_size < required_size:
-                recommendations.append({
-                    'type': 'scaling_limitation',
-                    'priority': 'high',
-                    'description': f'Current max size ({max_size}) < required size ({required_size})',
-                    'actions': ['optimize_algorithms', 'add_parallel_processing', 'implement_spatial_partitioning']
-                })
+                recommendations.append(
+                    {
+                        "type": "scaling_limitation",
+                        "priority": "high",
+                        "description": f"Current max size ({max_size}) < required size ({required_size})",
+                        "actions": [
+                            "optimize_algorithms",
+                            "add_parallel_processing",
+                            "implement_spatial_partitioning",
+                        ],
+                    }
+                )
 
             # Check resource utilization
             high_utilization_resources = set()
             for size in scaling_results:
                 for complexity in scaling_results[size]:
                     result = scaling_results[size][complexity]
-                    utilization = result.get('resource_utilization', {})
+                    utilization = result.get("resource_utilization", {})
 
                     for resource, usage in utilization.items():
                         if usage > 0.8:
                             high_utilization_resources.add(resource)
 
             if high_utilization_resources:
-                recommendations.append({
-                    'type': 'resource_optimization',
-                    'priority': 'medium',
-                    'description': f'High utilization detected for: {list(high_utilization_resources)}',
-                    'actions': ['scale_computational_resources', 'optimize_memory_usage', 'implement_load_balancing']
-                })
+                recommendations.append(
+                    {
+                        "type": "resource_optimization",
+                        "priority": "medium",
+                        "description": f"High utilization detected for: {list(high_utilization_resources)}",
+                        "actions": [
+                            "scale_computational_resources",
+                            "optimize_memory_usage",
+                            "implement_load_balancing",
+                        ],
+                    }
+                )
 
         except Exception as e:
             logger.warning(f"Scaling recommendation generation failed: {e}")
@@ -878,9 +1078,9 @@ class SwarmPerformanceMetrics:
     def generate_performance_report(
         self,
         assessment_results: Dict[str, Any],
-        report_format: str = 'comprehensive',
+        report_format: str = "comprehensive",
         include_visualizations: bool = True,
-        comparative_analysis: bool = True
+        comparative_analysis: bool = True,
     ) -> Dict[str, Any]:
         """
         Generate comprehensive performance report.
@@ -897,96 +1097,119 @@ class SwarmPerformanceMetrics:
         logger.info(f"Generating {report_format} performance report")
 
         report = {
-            'report_type': report_format,
-            'generation_time': datetime.now(),
-            'summary': {},
-            'detailed_metrics': {},
-            'visualization_data': {},
-            'comparative_analysis': {},
-            'recommendations': []
+            "report_type": report_format,
+            "generation_time": datetime.now(),
+            "summary": {},
+            "detailed_metrics": {},
+            "visualization_data": {},
+            "comparative_analysis": {},
+            "recommendations": [],
         }
 
         try:
             # Generate summary
-            performance_scores = assessment_results.get('performance_scores', {})
-            report['summary'] = {
-                'overall_performance': np.mean(list(performance_scores.values())) if performance_scores else 0.0,
-                'best_metric': max(performance_scores.items(), key=lambda x: x[1]) if performance_scores else None,
-                'worst_metric': min(performance_scores.items(), key=lambda x: x[1]) if performance_scores else None,
-                'performance_balance': np.std(list(performance_scores.values())) if performance_scores else 0.0
+            performance_scores = assessment_results.get("performance_scores", {})
+            report["summary"] = {
+                "overall_performance": (
+                    np.mean(list(performance_scores.values()))
+                    if performance_scores
+                    else 0.0
+                ),
+                "best_metric": (
+                    max(performance_scores.items(), key=lambda x: x[1])
+                    if performance_scores
+                    else None
+                ),
+                "worst_metric": (
+                    min(performance_scores.items(), key=lambda x: x[1])
+                    if performance_scores
+                    else None
+                ),
+                "performance_balance": (
+                    np.std(list(performance_scores.values()))
+                    if performance_scores
+                    else 0.0
+                ),
             }
 
             # Include detailed metrics based on format
-            if report_format in ['comprehensive', 'detailed']:
-                report['detailed_metrics'] = assessment_results
+            if report_format in ["comprehensive", "detailed"]:
+                report["detailed_metrics"] = assessment_results
 
             # Include visualization data
             if include_visualizations:
                 viz_data = self._generate_visualization_data(assessment_results)
-                report['visualization_data'] = viz_data
+                report["visualization_data"] = viz_data
 
             # Include comparative analysis
             if comparative_analysis and self.baseline_metrics:
                 comparison = self._perform_comparative_analysis(assessment_results)
-                report['comparative_analysis'] = comparison
+                report["comparative_analysis"] = comparison
 
             # Include recommendations
-            recommendations = assessment_results.get('recommendations', [])
-            report['recommendations'] = recommendations
+            recommendations = assessment_results.get("recommendations", [])
+            report["recommendations"] = recommendations
 
         except Exception as e:
             logger.error(f"Performance report generation failed: {e}")
-            report['error'] = str(e)
+            report["error"] = str(e)
 
-        logger.info(f"Performance report generated: {len(report['recommendations'])} recommendations")
+        logger.info(
+            f"Performance report generated: {len(report['recommendations'])} recommendations"
+        )
         return report
 
-    def _generate_visualization_data(self, assessment: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_visualization_data(
+        self, assessment: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Generate data for performance visualizations."""
         viz_data = {
-            'performance_radar': {},
-            'timeline_charts': {},
-            'comparison_bars': {},
-            'trend_lines': {}
+            "performance_radar": {},
+            "timeline_charts": {},
+            "comparison_bars": {},
+            "trend_lines": {},
         }
 
         try:
-            performance_scores = assessment.get('performance_scores', {})
+            performance_scores = assessment.get("performance_scores", {})
 
             # Radar chart data
-            viz_data['performance_radar'] = {
-                'metrics': list(performance_scores.keys()),
-                'scores': list(performance_scores.values()),
-                'ideal_scores': [0.9] * len(performance_scores)  # Ideal performance levels
+            viz_data["performance_radar"] = {
+                "metrics": list(performance_scores.keys()),
+                "scores": list(performance_scores.values()),
+                "ideal_scores": [0.9]
+                * len(performance_scores),  # Ideal performance levels
             }
 
             # Timeline data (if historical data available)
             if self.performance_history:
                 timeline_metrics = defaultdict(list)
                 for record in self.performance_history[-10:]:  # Last 10 records
-                    for metric, score in record.get('performance_scores', {}).items():
+                    for metric, score in record.get("performance_scores", {}).items():
                         timeline_metrics[metric].append(score)
 
-                viz_data['timeline_charts'] = dict(timeline_metrics)
+                viz_data["timeline_charts"] = dict(timeline_metrics)
 
         except Exception as e:
             logger.warning(f"Visualization data generation failed: {e}")
-            viz_data['error'] = str(e)
+            viz_data["error"] = str(e)
 
         return viz_data
 
-    def _perform_comparative_analysis(self, current_assessment: Dict[str, Any]) -> Dict[str, Any]:
+    def _perform_comparative_analysis(
+        self, current_assessment: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Perform comparative analysis with baseline metrics."""
         comparison = {
-            'baselines': self.baseline_metrics,
-            'current_performance': current_assessment.get('performance_scores', {}),
-            'improvements': {},
-            'regressions': {},
-            'overall_comparison': {}
+            "baselines": self.baseline_metrics,
+            "current_performance": current_assessment.get("performance_scores", {}),
+            "improvements": {},
+            "regressions": {},
+            "overall_comparison": {},
         }
 
         try:
-            current_scores = comparison['current_performance']
+            current_scores = comparison["current_performance"]
 
             for metric, current_score in current_scores.items():
                 if metric in self.baseline_metrics:
@@ -994,37 +1217,41 @@ class SwarmPerformanceMetrics:
                     improvement = current_score - baseline_score
 
                     if improvement > 0.05:  # Significant improvement
-                        comparison['improvements'][metric] = improvement
+                        comparison["improvements"][metric] = improvement
                     elif improvement < -0.05:  # Significant regression
-                        comparison['regressions'][metric] = abs(improvement)
+                        comparison["regressions"][metric] = abs(improvement)
 
             # Overall comparison
             if current_scores and self.baseline_metrics:
                 current_avg = np.mean(list(current_scores.values()))
                 baseline_avg = np.mean(list(self.baseline_metrics.values()))
 
-                comparison['overall_comparison'] = {
-                    'current_average': current_avg,
-                    'baseline_average': baseline_avg,
-                    'overall_improvement': current_avg - baseline_avg,
-                    'improvement_percentage': ((current_avg - baseline_avg) / baseline_avg) * 100 if baseline_avg > 0 else 0
+                comparison["overall_comparison"] = {
+                    "current_average": current_avg,
+                    "baseline_average": baseline_avg,
+                    "overall_improvement": current_avg - baseline_avg,
+                    "improvement_percentage": (
+                        ((current_avg - baseline_avg) / baseline_avg) * 100
+                        if baseline_avg > 0
+                        else 0
+                    ),
                 }
 
         except Exception as e:
             logger.warning(f"Comparative analysis failed: {e}")
-            comparison['error'] = str(e)
+            comparison["error"] = str(e)
 
         return comparison
 
     def get_performance_summary(self) -> Dict[str, Any]:
         """Get summary of all performance evaluations."""
         summary = {
-            'total_evaluations': len(self.performance_history),
-            'evaluation_criteria': self.config.evaluation_criteria,
-            'performance_trends': {},
-            'best_performance': {},
-            'worst_performance': {},
-            'average_performance': {}
+            "total_evaluations": len(self.performance_history),
+            "evaluation_criteria": self.config.evaluation_criteria,
+            "performance_trends": {},
+            "best_performance": {},
+            "worst_performance": {},
+            "average_performance": {},
         }
 
         try:
@@ -1034,7 +1261,7 @@ class SwarmPerformanceMetrics:
             # Calculate performance trends
             all_scores = defaultdict(list)
             for evaluation in self.performance_history:
-                scores = evaluation.get('performance_scores', {})
+                scores = evaluation.get("performance_scores", {})
                 for metric, score in scores.items():
                     all_scores[metric].append(score)
 
@@ -1042,23 +1269,31 @@ class SwarmPerformanceMetrics:
             for metric, scores in all_scores.items():
                 if len(scores) > 1:
                     trend = np.polyfit(range(len(scores)), scores, 1)[0]  # Linear trend
-                    summary['performance_trends'][metric] = trend
+                    summary["performance_trends"][metric] = trend
                 else:
-                    summary['performance_trends'][metric] = 0.0
+                    summary["performance_trends"][metric] = 0.0
 
             # Find best and worst performances
             recent_evaluation = self.performance_history[-1]
-            recent_scores = recent_evaluation.get('performance_scores', {})
+            recent_scores = recent_evaluation.get("performance_scores", {})
 
-            summary['best_performance'] = max(recent_scores.items(), key=lambda x: x[1]) if recent_scores else None
-            summary['worst_performance'] = min(recent_scores.items(), key=lambda x: x[1]) if recent_scores else None
+            summary["best_performance"] = (
+                max(recent_scores.items(), key=lambda x: x[1])
+                if recent_scores
+                else None
+            )
+            summary["worst_performance"] = (
+                min(recent_scores.items(), key=lambda x: x[1])
+                if recent_scores
+                else None
+            )
 
             # Calculate averages
             for metric, scores in all_scores.items():
-                summary['average_performance'][metric] = np.mean(scores)
+                summary["average_performance"][metric] = np.mean(scores)
 
         except Exception as e:
             logger.warning(f"Performance summary generation failed: {e}")
-            summary['error'] = str(e)
+            summary["error"] = str(e)
 
         return summary

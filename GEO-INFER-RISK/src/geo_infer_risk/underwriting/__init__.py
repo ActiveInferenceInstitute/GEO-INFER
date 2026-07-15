@@ -20,14 +20,50 @@ __author__ = "GEO-INFER-RISK Team"
 from typing import Any, Dict, Optional
 
 # Import main underwriting components
-from .core.underwriting_engine import UnderwritingEngine, UnderwritingConfig, UnderwritingMetrics
-from .core.risk_assessment import RiskAssessmentEngine, RiskAssessmentConfig, RiskMetrics
-from .core.policy_management import PolicyManager, PolicyLifecycle, Policy, Coverage, Endorsement
-from .core.claims_processing import ClaimsProcessor, ClaimsEngine, Claim, ClaimStatus, Payment, Reserve
+from .core.underwriting_engine import (
+    UnderwritingEngine,
+    UnderwritingConfig,
+    UnderwritingMetrics,
+)
+from .core.risk_assessment import (
+    RiskAssessmentEngine,
+    RiskAssessmentConfig,
+    RiskMetrics,
+)
+from .core.policy_management import (
+    PolicyManager,
+    PolicyLifecycle,
+    Policy,
+    Coverage,
+    Endorsement,
+)
+from .core.claims_processing import (
+    ClaimsProcessor,
+    ClaimsEngine,
+    Claim,
+    ClaimStatus,
+    Payment,
+    Reserve,
+)
 from .core.portfolio_management import PortfolioManager, PortfolioOptimizer
-from .core.underwriting_rules import UnderwritingRulesEngine, RuleEvaluator, UnderwritingRule, RuleCondition, RuleType
-from .core.pricing_engine import PricingEngine, PremiumCalculator, PremiumCalculation, PricingMethod
-from .core.underwriting_decisions import UnderwritingDecisionEngine, DecisionFramework, DecisionCriteria
+from .core.underwriting_rules import (  # noqa: F401
+    UnderwritingRulesEngine,
+    RuleEvaluator,
+    UnderwritingRule,
+    RuleCondition,
+    RuleType,
+)
+from .core.pricing_engine import (
+    PricingEngine,
+    PremiumCalculator,
+    PremiumCalculation,
+    PricingMethod,
+)
+from .core.underwriting_decisions import (  # noqa: F401
+    UnderwritingDecisionEngine,
+    DecisionFramework,
+    DecisionCriteria,
+)
 
 # Import utility modules
 from .utils.validation import UnderwritingValidator, PolicyValidator
@@ -36,8 +72,18 @@ from .utils.compliance import ComplianceEngine, RegulatoryFramework, ComplianceS
 from .utils.reporting import UnderwritingReporter, ReportingEngine
 
 # Import models and data structures
-from .models.policy_models import Policy as PolicyModel, Coverage as CoverageModel, Endorsement as EndorsementModel, Exclusion
-from .models.claim_models import Claim as ClaimModel, ClaimStatus as ClaimStatusModel, Payment as PaymentModel, Reserve as ReserveModel
+from .models.policy_models import (  # noqa: F401
+    Policy as PolicyModel,
+    Coverage as CoverageModel,
+    Endorsement as EndorsementModel,
+    Exclusion,
+)
+from .models.claim_models import (  # noqa: F401
+    Claim as ClaimModel,
+    ClaimStatus as ClaimStatusModel,
+    Payment as PaymentModel,
+    Reserve as ReserveModel,
+)
 from .models.risk_models import RiskProfile, ExposureProfile, VulnerabilityProfile
 from .models.underwriting_models import UnderwritingCase, Decision, Guideline
 
@@ -46,61 +92,83 @@ from .core.underwriting_engine import UnderwritingStatus
 from .models.policy_models import CoverageType
 from .models.claim_models import ClaimType, PaymentType
 from .models.risk_models import RiskLevel, RiskCategory
-from .core.underwriting_decisions import DecisionType, DecisionCriteria
-from .core.underwriting_rules import RuleType
-from .utils.compliance import ComplianceFramework, ComplianceStatus
-from .core.pricing_engine import PricingMethod
+from .core.underwriting_decisions import DecisionType
+from .utils.compliance import ComplianceFramework
+
 
 # Convenience functions
-def underwrite_policy(application_data: Dict[str, Any],
-                     config: Optional[UnderwritingConfig] = None) -> UnderwritingCase:
+def underwrite_policy(
+    application_data: Dict[str, Any], config: Optional[UnderwritingConfig] = None
+) -> UnderwritingCase:
     """Convenience function to underwrite a policy."""
     engine = create_underwriting_engine(config)
     return engine.underwrite_policy(application_data)
 
-def process_claim(claim_data: Dict[str, Any],
-                 config: Optional[Dict[str, Any]] = None) -> Claim:
+
+def process_claim(
+    claim_data: Dict[str, Any], config: Optional[Dict[str, Any]] = None
+) -> Claim:
     """Convenience function to process a claim."""
     processor = create_claims_processor(config)
     return processor.process_claim(claim_data)
 
-def assess_risk(entity_data: Dict[str, Any],
-               assessment_type: str = "comprehensive") -> Dict[str, Any]:
+
+def assess_risk(
+    entity_data: Dict[str, Any], assessment_type: str = "comprehensive"
+) -> Dict[str, Any]:
     """Convenience function to assess risk."""
     engine = create_risk_assessment()
     return engine.assess_risk(entity_data, assessment_type)
 
-def calculate_premium(policy_data: Dict[str, Any],
-                     risk_assessment: Dict[str, Any],
-                     rule_evaluation: Dict[str, Any]) -> PremiumCalculation:
+
+def calculate_premium(
+    policy_data: Dict[str, Any],
+    risk_assessment: Dict[str, Any],
+    rule_evaluation: Dict[str, Any],
+) -> PremiumCalculation:
     """Convenience function to calculate premium."""
     engine = create_pricing_engine()
     return engine.calculate_premium(policy_data, risk_assessment, rule_evaluation)
 
+
 def create_pricing_engine(config: Optional[Dict[str, Any]] = None) -> PricingEngine:
     """Create a pricing engine for premium calculations."""
     from .core.pricing_engine import PricingEngine
+
     return PricingEngine(config)
 
-def create_underwriting_engine(config: Optional[UnderwritingConfig] = None) -> UnderwritingEngine:
+
+def create_underwriting_engine(
+    config: Optional[UnderwritingConfig] = None,
+) -> UnderwritingEngine:
     """Create a new underwriting engine."""
     from .core.underwriting_engine import UnderwritingEngine
+
     return UnderwritingEngine(config)
 
-def create_risk_assessment(config: Optional[RiskAssessmentConfig] = None) -> RiskAssessmentEngine:
+
+def create_risk_assessment(
+    config: Optional[RiskAssessmentConfig] = None,
+) -> RiskAssessmentEngine:
     """Create a risk assessment engine."""
     from .core.risk_assessment import RiskAssessmentEngine
+
     return RiskAssessmentEngine(config)
+
 
 def create_policy_manager(config: Optional[Dict[str, Any]] = None) -> PolicyManager:
     """Create a policy manager."""
     from .core.policy_management import PolicyManager
+
     return PolicyManager(config)
+
 
 def create_claims_processor(config: Optional[Dict[str, Any]] = None) -> ClaimsProcessor:
     """Create a claims processor."""
     from .core.claims_processing import ClaimsProcessor
+
     return ClaimsProcessor(config)
+
 
 # Package exports
 __all__ = [
@@ -122,7 +190,6 @@ __all__ = [
     "PricingEngine",
     "PremiumCalculator",
     "UnderwritingDecisionEngine",
-
     # Models
     "Policy",
     "Coverage",
@@ -138,7 +205,6 @@ __all__ = [
     "UnderwritingCase",
     "Decision",
     "Guideline",
-
     # Utilities
     "UnderwritingValidator",
     "PolicyValidator",
@@ -148,7 +214,6 @@ __all__ = [
     "RegulatoryFramework",
     "UnderwritingReporter",
     "ReportingEngine",
-
     # Enums and Types
     "UnderwritingStatus",
     "CoverageType",
@@ -162,7 +227,6 @@ __all__ = [
     "ComplianceFramework",
     "ComplianceStatus",
     "PricingMethod",
-
     # Convenience functions
     "create_underwriting_engine",
     "create_risk_assessment",
@@ -172,5 +236,5 @@ __all__ = [
     "underwrite_policy",
     "process_claim",
     "assess_risk",
-    "calculate_premium"
+    "calculate_premium",
 ]

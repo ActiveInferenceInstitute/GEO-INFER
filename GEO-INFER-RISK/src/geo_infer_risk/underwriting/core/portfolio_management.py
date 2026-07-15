@@ -52,10 +52,18 @@ class PortfolioManager:
         normalized = {
             "policy_id": policy_id,
             "portfolio_id": portfolio_id,
-            "status": getattr(record.get("status"), "value", record.get("status", "unknown")),
-            "premium": float(record.get("total_premium", record.get("premium", 0.0)) or 0.0),
+            "status": getattr(
+                record.get("status"), "value", record.get("status", "unknown")
+            ),
+            "premium": float(
+                record.get("total_premium", record.get("premium", 0.0)) or 0.0
+            ),
             "exposure": float(
-                record.get("total_exposure", record.get("limit", record.get("insured_value", 0.0))) or 0.0
+                record.get(
+                    "total_exposure",
+                    record.get("limit", record.get("insured_value", 0.0)),
+                )
+                or 0.0
             ),
             "risk_score": float(record.get("risk_score", 0.0) or 0.0),
             "region": str(record.get("region", record.get("territory", "unknown"))),
@@ -78,23 +86,31 @@ class PortfolioManager:
         record = dict(_as_mapping(claim))
         claim_id = str(record.get("claim_id") or record.get("id") or len(self.claims))
         amount = float(
-            record.get("settlement_amount", record.get("total_paid", record.get("amount", 0.0))) or 0.0
+            record.get(
+                "settlement_amount", record.get("total_paid", record.get("amount", 0.0))
+            )
+            or 0.0
         )
         normalized = {
             "claim_id": claim_id,
             "policy_id": str(record.get("policy_id", "")),
             "amount": max(0.0, amount),
-            "status": getattr(record.get("status"), "value", record.get("status", "unknown")),
+            "status": getattr(
+                record.get("status"), "value", record.get("status", "unknown")
+            ),
             "timestamp": datetime.now().isoformat(),
             "record": record,
         }
         self.claims.append(normalized)
         return normalized
 
-    def get_portfolio_summary(self, portfolio_id: Optional[str] = None) -> Dict[str, Any]:
+    def get_portfolio_summary(
+        self, portfolio_id: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Return deterministic aggregate portfolio metrics."""
         records = [
-            policy for policy in self.policies.values()
+            policy
+            for policy in self.policies.values()
             if portfolio_id is None or policy["portfolio_id"] == str(portfolio_id)
         ]
         policy_ids = {policy["policy_id"] for policy in records}
@@ -112,13 +128,17 @@ class PortfolioManager:
         return {
             "portfolio_id": portfolio_id,
             "total_policies": len(records),
-            "active_policies": sum(policy["status"] in {"active", "bound", "quoted"} for policy in records),
+            "active_policies": sum(
+                policy["status"] in {"active", "bound", "quoted"} for policy in records
+            ),
             "total_premium": total_premium,
             "total_exposure": total_exposure,
             "total_claims": total_claims,
             "loss_ratio": total_claims / total_premium if total_premium > 0 else 0.0,
             "average_risk_score": (
-                sum(policy["risk_score"] for policy in records) / len(records) if records else 0.0
+                sum(policy["risk_score"] for policy in records) / len(records)
+                if records
+                else 0.0
             ),
             "policies_by_status": dict(status_counts),
             "exposure_by_region": dict(region_exposure),
@@ -132,21 +152,30 @@ class PortfolioOptimizer:
     def __init__(self, config: Optional[Any] = None):
         self.config = config or {}
 
-    def optimize(self, policies: Iterable[Any], max_exposure: Optional[float] = None) -> Dict[str, Any]:
+    def optimize(
+        self, policies: Iterable[Any], max_exposure: Optional[float] = None
+    ) -> Dict[str, Any]:
         """Rank policies by risk-adjusted premium and flag capacity breaches."""
         records = [dict(_as_mapping(policy)) for policy in policies]
         normalized = [
             {
                 "policy_id": str(record.get("policy_id", record.get("id", index))),
                 "risk_score": float(record.get("risk_score", 0.0) or 0.0),
-                "premium": float(record.get("total_premium", record.get("premium", 0.0)) or 0.0),
-                "exposure": float(record.get("total_exposure", record.get("limit", 0.0)) or 0.0),
+                "premium": float(
+                    record.get("total_premium", record.get("premium", 0.0)) or 0.0
+                ),
+                "exposure": float(
+                    record.get("total_exposure", record.get("limit", 0.0)) or 0.0
+                ),
             }
             for index, record in enumerate(records)
         ]
         ranked = sorted(
             normalized,
-            key=lambda record: (record["premium"] / max(record["exposure"], 1.0), -record["risk_score"]),
+            key=lambda record: (
+                record["premium"] / max(record["exposure"], 1.0),
+                -record["risk_score"],
+            ),
             reverse=True,
         )
         total_exposure = sum(record["exposure"] for record in ranked)
@@ -154,5 +183,6 @@ class PortfolioOptimizer:
             "recommended_order": ranked,
             "total_exposure": total_exposure,
             "capacity_limit": max_exposure,
-            "capacity_exceeded": max_exposure is not None and total_exposure > max_exposure,
+            "capacity_exceeded": max_exposure is not None
+            and total_exposure > max_exposure,
         }

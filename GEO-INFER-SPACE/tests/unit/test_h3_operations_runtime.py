@@ -2,7 +2,10 @@
 
 import pytest
 
-from geo_infer_space.backends.h3.operations import cell_to_coordinates, coordinate_to_cell
+from geo_infer_space.backends.h3.operations import (
+    cell_to_coordinates,
+    coordinate_to_cell,
+)
 
 
 def test_cell_to_coordinates_round_trip() -> None:
