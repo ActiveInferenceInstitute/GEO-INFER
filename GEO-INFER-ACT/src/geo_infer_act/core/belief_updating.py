@@ -5,7 +5,10 @@ Belief updating for Active Inference models.
 from typing import Dict
 import numpy as np
 
-from geo_infer_act.utils.math import categorical_posterior, compute_surprise as _compute_surprise
+from geo_infer_act.utils.math import (
+    categorical_posterior,
+    compute_surprise as _compute_surprise,
+)
 
 
 class BayesianBeliefUpdate:
@@ -126,8 +129,7 @@ class BayesianBeliefUpdate:
         # semidefinite in finite precision arithmetic.
         residual_transform = np.eye(state_dim) - K @ H
         posterior_cov = (
-            residual_transform @ prior_cov @ residual_transform.T
-            + K @ obs_cov @ K.T
+            residual_transform @ prior_cov @ residual_transform.T + K @ obs_cov @ K.T
         )
         posterior_cov = (posterior_cov + posterior_cov.T) / 2.0
 

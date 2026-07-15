@@ -276,7 +276,9 @@ class PolicySelector:
         Returns:
             Computed precision parameter
         """
-        expected_free_energies = np.asarray(expected_free_energies, dtype=float).reshape(-1)
+        expected_free_energies = np.asarray(
+            expected_free_energies, dtype=float
+        ).reshape(-1)
         if expected_free_energies.size == 0:
             raise ValueError("expected_free_energies must not be empty")
         if not np.all(np.isfinite(expected_free_energies)):

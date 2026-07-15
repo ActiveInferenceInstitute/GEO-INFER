@@ -33,8 +33,13 @@ def softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarr
     if values.ndim == 0:
         return np.ones_like(values, dtype=float)
 
-    if not isinstance(axis, (int, np.integer)) or not -values.ndim <= axis < values.ndim:
-        raise ValueError(f"axis {axis} is invalid for an array with {values.ndim} dimensions")
+    if (
+        not isinstance(axis, (int, np.integer))
+        or not -values.ndim <= axis < values.ndim
+    ):
+        raise ValueError(
+            f"axis {axis} is invalid for an array with {values.ndim} dimensions"
+        )
     axis = int(axis) % values.ndim
     if values.shape[axis] == 0:
         raise ValueError("softmax cannot normalize an empty axis")
@@ -191,7 +196,9 @@ def kl_divergence(p: np.ndarray, q: np.ndarray, epsilon: float = 1e-10) -> float
     p = np.asarray(p, dtype=float)
     q = np.asarray(q, dtype=float)
     if p.shape != q.shape:
-        raise ValueError(f"p and q must have the same shape, got {p.shape} and {q.shape}")
+        raise ValueError(
+            f"p and q must have the same shape, got {p.shape} and {q.shape}"
+        )
     if p.size == 0:
         raise ValueError("KL divergence inputs must not be empty")
     if not np.isfinite(epsilon) or epsilon <= 0:
@@ -343,7 +350,11 @@ def gaussian_log_likelihood(
         quadratic_form = scalar_precision * np.sum(residual**2)
     elif precision.ndim == 1:
         # Diagonal precision
-        if precision.shape != (d,) or not np.all(np.isfinite(precision)) or np.any(precision <= 0):
+        if (
+            precision.shape != (d,)
+            or not np.all(np.isfinite(precision))
+            or np.any(precision <= 0)
+        ):
             raise ValueError("Diagonal Gaussian precision must be finite and positive")
         log_det_precision = np.sum(np.log(precision))
         quadratic_form = np.sum(precision * residual**2)
@@ -380,7 +391,9 @@ def categorical_log_likelihood(
     observations = np.asarray(observations, dtype=float).reshape(-1)
     probabilities = np.asarray(probabilities, dtype=float).reshape(-1)
     if observations.shape != probabilities.shape or observations.size == 0:
-        raise ValueError("observations and probabilities must have the same non-empty shape")
+        raise ValueError(
+            "observations and probabilities must have the same non-empty shape"
+        )
     if not np.all(np.isfinite(observations)) or np.any(observations < 0):
         raise ValueError("observations must be finite and non-negative")
     if not np.all(np.isfinite(probabilities)) or np.any(probabilities < 0):
@@ -847,7 +860,9 @@ def compute_surprise(
         raise ValueError("predicted_distribution must not be empty")
     if not np.all(np.isfinite(observation)):
         raise ValueError("observation must be finite")
-    if not np.all(np.isfinite(predicted_distribution)) or np.any(predicted_distribution < 0):
+    if not np.all(np.isfinite(predicted_distribution)) or np.any(
+        predicted_distribution < 0
+    ):
         raise ValueError("predicted_distribution must be finite and non-negative")
     if not np.isfinite(sigma) or sigma <= 0:
         raise ValueError("sigma must be finite and strictly positive")

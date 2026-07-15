@@ -96,9 +96,7 @@ def test_factor_graph_message_passing_uses_pairwise_potential() -> None:
 def test_dynamic_causal_model_rejects_nonmonotonic_time() -> None:
     model = DynamicCausalModel(2, 1, 1)
     with pytest.raises(ValueError, match="strictly increasing"):
-        model.integrate_dynamics(
-            np.zeros(2), np.zeros((2, 1)), np.array([0.0, 0.0])
-        )
+        model.integrate_dynamics(np.zeros(2), np.zeros((2, 1)), np.array([0.0, 0.0]))
 
 
 def test_multi_agent_step_updates_beliefs_and_harvests_requested_resource() -> None:

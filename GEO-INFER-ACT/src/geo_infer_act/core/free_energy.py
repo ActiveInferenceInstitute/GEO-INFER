@@ -168,7 +168,9 @@ class FreeEnergyCalculator:
         precision = np.asarray(precision, dtype=float)
         observations = np.asarray(observations, dtype=float).reshape(-1)
         if mean.size == 0 or observations.shape != mean.shape:
-            raise ValueError("mean and observations must be non-empty vectors with the same shape")
+            raise ValueError(
+                "mean and observations must be non-empty vectors with the same shape"
+            )
         if precision.shape != (mean.size, mean.size):
             raise ValueError("precision must be square with one row per state")
         if prior_mean is None:
@@ -180,8 +182,13 @@ class FreeEnergyCalculator:
         else:
             prior_precision = np.asarray(prior_precision, dtype=float)
         if prior_mean.shape != mean.shape or prior_precision.shape != precision.shape:
-            raise ValueError("prior mean and precision must match the belief dimensions")
-        for name, matrix in (("precision", precision), ("prior_precision", prior_precision)):
+            raise ValueError(
+                "prior mean and precision must match the belief dimensions"
+            )
+        for name, matrix in (
+            ("precision", precision),
+            ("prior_precision", prior_precision),
+        ):
             if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
                 raise ValueError(f"{name} must be finite and symmetric")
             try:
