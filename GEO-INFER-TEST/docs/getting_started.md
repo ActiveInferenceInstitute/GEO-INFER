@@ -63,7 +63,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT
 
 ### Run by Category
 
-Filter tests by pytest marker:
+Run the canonical test-directory categories:
 
 ```bash
 # Only unit tests

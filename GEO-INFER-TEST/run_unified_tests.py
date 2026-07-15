@@ -321,13 +321,20 @@ def run_performance_tests(timeout: int) -> SuiteReport:
     discovered = False
     for module in discover_geo_infer_modules():
         performance_dir = module.test_path / "performance"
+        # The directory is the canonical category boundary.  A unit test can
+        # legitimately contain "performance" in its filename while still
+        # exercising a small utility in the unit suite; selecting by filename
+        # made this command silently execute unit tests twice.
         performance_files = (
-            sorted(performance_dir.rglob("test_*.py"))
+            sorted(
+                {
+                    *performance_dir.rglob("test_*.py"),
+                    *performance_dir.rglob("*_test.py"),
+                }
+            )
             if performance_dir.exists()
             else []
         )
-        performance_files.extend(sorted(module.test_path.glob("**/*performance*.py")))
-        performance_files = sorted(set(performance_files))
         if not performance_files:
             continue
         discovered = True

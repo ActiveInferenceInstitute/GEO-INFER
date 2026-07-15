@@ -62,8 +62,24 @@ jobs:
 
       - name: Validate repository contracts
         run: |
-          uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+          uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
           uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+          uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
+
+      - name: Run syntax and strict test contracts
+        run: |
+          python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
+          uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+
+      - name: Run model contracts and reproducibility audit
+        run: |
+          uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
+          uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
+
+      - name: Run source runtime hygiene
+        run: |
+          uv run --with 'ruff>=0.3.0' ruff check \
+            GEO-INFER-*/src --select F821,F823,E721,E722
 
       - name: Run unit tests
         run: |
@@ -76,6 +92,11 @@ jobs:
       - name: Run integration tests
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --category integration \
+            --timeout 600
+
+      - name: Run performance tests
+        run: |
+          uv run python GEO-INFER-TEST/run_unified_tests.py --category performance \
             --timeout 600
 
       - name: Run H3 contracts

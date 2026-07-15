@@ -74,7 +74,10 @@ class ModuleHealthChecker:
         # 4. Tests
         test_dir = module_dir / "tests"
         if test_dir.is_dir():
-            test_files = list(test_dir.rglob("test_*.py"))
+            test_files = {
+                *test_dir.rglob("test_*.py"),
+                *test_dir.rglob("*_test.py"),
+            }
             metrics.has_tests = len(test_files) > 0
             metrics.test_count = len(test_files)
         else:
@@ -108,12 +111,14 @@ class ModuleHealthChecker:
     def _assess_status(metrics: HealthMetrics) -> str:
         if not metrics.importable:
             return "unhealthy"
-        score = sum([
-            metrics.has_readme,
-            metrics.has_tests,
-            metrics.has_pyproject,
-            metrics.dependency_status == "ok",
-        ])
+        score = sum(
+            [
+                metrics.has_readme,
+                metrics.has_tests,
+                metrics.has_pyproject,
+                metrics.dependency_status == "ok",
+            ]
+        )
         if score >= 3:
             return "healthy"
         if score >= 2:
@@ -152,10 +157,12 @@ class SystemValidator:
             "platform": platform.platform(),
             "architecture": platform.machine(),
             "missing_packages": missing_packages,
-            "disk_free_gb": round(free / (1024 ** 3), 2),
+            "disk_free_gb": round(free / (1024**3), 2),
             "system_ok": py_ok and len(missing_packages) == 0,
         }
-        self.logger.info("System validation: %s", "OK" if report["system_ok"] else "ISSUES")
+        self.logger.info(
+            "System validation: %s", "OK" if report["system_ok"] else "ISSUES"
+        )
         return report
 
 
@@ -217,15 +224,19 @@ class DependencyChecker:
             raw_deps.extend(data["project"]["dependencies"])
         # Standard (optional deps)
         if "project" in data and "optional-dependencies" in data["project"]:
-             for group in data["project"]["optional-dependencies"].values():
-                 raw_deps.extend(group)
+            for group in data["project"]["optional-dependencies"].values():
+                raw_deps.extend(group)
         # Poetry
-        elif "tool" in data and "poetry" in data["tool"] and "dependencies" in data["tool"]["poetry"]:
+        elif (
+            "tool" in data
+            and "poetry" in data["tool"]
+            and "dependencies" in data["tool"]["poetry"]
+        ):
             raw_deps.extend(data["tool"]["poetry"]["dependencies"].keys())
         # Top-level (non-standard but supported by prior implementation)
         elif "dependencies" in data:
             raw_deps.extend(data["dependencies"])
-            
+
         cleaned = []
         for dep in raw_deps:
             if not isinstance(dep, str):

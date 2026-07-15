@@ -24,7 +24,9 @@ Use `env -u VIRTUAL_ENV` before `uv` when a different shell environment is activ
 
 ## Test taxonomy and fixtures
 
-Every test receives exactly one primary marker based on its canonical directory: `unit`, `integration`, `system`, or `performance`. Markers such as `api`, `core`, `geospatial`, `model`, `reporting`, `reproducibility`, `spatial`, and `artifact` are additive. `geo_infer_test.testing` provides deterministic RNG, local filesystem, localhost HTTP, SQLite, in-process service, finite-value, probability-vector, stochastic-matrix, model-contract, and artifact-manifest helpers.
+Every test receives exactly one primary marker based on its canonical directory: `unit`, `integration`, `system`, or `performance`. Markers such as `api`, `core`, `geospatial`, `model`, `reporting`, `reproducibility`, `spatial`, and `artifact` are additive. The unified runner discovers category tests from those canonical directories; a filename containing `performance` does not move a unit test into the performance gate. `geo_infer_test.testing` provides deterministic RNG, local filesystem, localhost HTTP, SQLite, in-process service, finite-value, probability-vector, stochastic-matrix, model-contract, and artifact-manifest helpers.
+
+Pytest test files may use either `test_*.py` or `*_test.py`; inventories, health checks, and runners count and execute both patterns.
 
 Required external behavior is represented by local fixtures. A test must not use `pytest.skip`, `skipif`, `importorskip`, `xfail`, or warning suppression. Missing dependencies and unavailable required backends are explicit failures.
 

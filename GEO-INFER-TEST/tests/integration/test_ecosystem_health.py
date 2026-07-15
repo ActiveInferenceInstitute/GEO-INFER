@@ -61,6 +61,11 @@ GEO_INFER_MODULES = [
 REPO_ROOT = Path(__file__).resolve().parents[3]  # GEO-INFER repo root
 
 
+def discover_test_files(tests_dir: Path) -> list[Path]:
+    """Return pytest files for both supported naming conventions."""
+    return sorted({*tests_dir.rglob("test_*.py"), *tests_dir.rglob("*_test.py")})
+
+
 # ============================================================================
 # Module structure tests
 # ============================================================================
@@ -89,7 +94,7 @@ class TestModuleDirectoryStructure:
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
             pytest.fail(f"No tests dir for {module}")
-        test_files = list(tests_dir.rglob("test_*.py"))
+        test_files = discover_test_files(tests_dir)
         assert len(test_files) > 0, f"No test files found in GEO-INFER-{module}/tests/"
 
 
@@ -107,7 +112,7 @@ class TestTestFileQuality:
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
             pytest.fail(f"No tests dir for {module}")
-        for test_file in tests_dir.rglob("test_*.py"):
+        for test_file in discover_test_files(tests_dir):
             try:
                 ast.parse(test_file.read_text())
             except SyntaxError as e:
@@ -120,7 +125,7 @@ class TestTestFileQuality:
         if not tests_dir.is_dir():
             pytest.fail(f"No tests dir for {module}")
         missing = []
-        for test_file in tests_dir.rglob("test_*.py"):
+        for test_file in discover_test_files(tests_dir):
             try:
                 tree = ast.parse(test_file.read_text())
                 docstring = ast.get_docstring(tree)
@@ -129,7 +134,7 @@ class TestTestFileQuality:
             except SyntaxError:
                 pass  # Already caught in parseable test
         # Allow up to 50% missing — this is a quality signal, not a gate
-        total = len(list(tests_dir.rglob("test_*.py")))
+        total = len(discover_test_files(tests_dir))
         if total > 0:
             coverage = 1 - (len(missing) / total)
             assert coverage >= 0.3, (
@@ -143,7 +148,7 @@ class TestTestFileQuality:
         tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
         if not tests_dir.is_dir():
             pytest.fail(f"No tests dir for {module}")
-        for test_file in tests_dir.rglob("test_*.py"):
+        for test_file in discover_test_files(tests_dir):
             try:
                 tree = ast.parse(test_file.read_text())
                 for node in ast.walk(tree):
@@ -183,7 +188,7 @@ class TestEcosystemStatistics:
         for module in GEO_INFER_MODULES:
             tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
             if tests_dir.is_dir():
-                count += len(list(tests_dir.rglob("test_*.py")))
+                count += len(discover_test_files(tests_dir))
         assert count >= 200, f"Expected >=200 test files, found {count}"
 
     def test_test_discoverer_finds_all_modules(self):
