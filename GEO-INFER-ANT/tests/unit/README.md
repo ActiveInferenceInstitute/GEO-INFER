@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-ANT`.
 - `test_analysis.py`
 - `test_applications.py`
 - `test_core.py`
+- `test_integration_contract.py`
 - `test_metrics.py`
 
 ## Public Interface

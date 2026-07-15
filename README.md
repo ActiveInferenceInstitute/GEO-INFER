@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 892 |
-| Python test files | 470 |
+| Python test files | 472 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -29,7 +29,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
 | `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
-| `GEO-INFER-ANT` | `geo_infer_ant` | 23 | 7 |
+| `GEO-INFER-ANT` | `geo_infer_ant` | 23 | 8 |
 | `GEO-INFER-API` | `geo_infer_api` | 13 | 9 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
@@ -63,7 +63,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 12 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 31 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 32 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 22 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
