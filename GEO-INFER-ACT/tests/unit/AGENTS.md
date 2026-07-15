@@ -33,6 +33,7 @@
 - `test_geospatial_runner_outputs.py`
 - `test_h3.py`
 - `test_h3_active_inference.py`
+- `test_inference_hardening.py`
 - `test_markov_decision_process.py`
 - `test_model_contracts.py`
 - `test_models.py`
@@ -44,7 +45,6 @@
 - `test_spatial_research_statistics.py`
 - `test_spatial_trace_diagnostics.py`
 - `test_utils.py`
-- `test_variational_inference.py`
 
 ## Validation
 
