@@ -546,7 +546,7 @@ class H3FlowAnalyzer:
                     if distance > 0:
                         efficiency = vector.magnitude / distance
                         total_efficiency += efficiency
-                except:
+                except Exception:
                     total_efficiency += vector.magnitude
             else:
                 total_efficiency += vector.magnitude

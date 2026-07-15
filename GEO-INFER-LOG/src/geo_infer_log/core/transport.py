@@ -61,7 +61,9 @@ class MultiModalPlanner:
             modes: List of modes available at this point
             transfer_time: Dict of (from_mode, to_mode) -> transfer time in minutes
         """
+        transfer_id = len(self.transfer_points)
         transfer_point = {
+            "id": transfer_id,
             "location": location,
             "name": name,
             "modes": modes,
@@ -90,7 +92,7 @@ class MultiModalPlanner:
                     network.add_edge(
                         nearest_node,
                         f"transfer_{transfer_id}_{mode}",
-                        weight=transfer_time,
+                        weight=min(transfer_time.values(), default=0),
                     )
     
     def plan_route(self,
@@ -755,4 +757,4 @@ class EmissionsCalculator:
                                       if not emissions_df.empty and emissions_df["distance"].sum() > 0 else 0),
             "emissions_by_vehicle": emissions_df.groupby("vehicle_id")["emissions"].sum().to_dict() 
                                   if not emissions_df.empty else {}
-        } 
+        }

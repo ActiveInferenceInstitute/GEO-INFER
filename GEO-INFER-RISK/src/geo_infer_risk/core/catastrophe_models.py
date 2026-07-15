@@ -1101,7 +1101,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
                     'gumbel_scale': scale,
                     'distribution': 'gumbel'
                 })
-            except:
+            except Exception:
                 self.model_parameters.update({
                     'mean_depth': np.mean(depths),
                     'std_depth': np.std(depths),

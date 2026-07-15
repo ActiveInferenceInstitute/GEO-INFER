@@ -245,7 +245,7 @@ class EconomicDataLoader:
             try:
                 gdf = gpd.GeoDataFrame(df_without_geometry,
                                      geometry=gpd.GeoSeries.from_wkt(geometry_data))
-            except:
+            except Exception:
                 # Try GeoJSON
                 import json
                 geometries = []
@@ -254,7 +254,7 @@ class EconomicDataLoader:
                         try:
                             geom_dict = json.loads(geom_str)
                             geometries.append(geom_dict)
-                        except:
+                        except Exception:
                             geometries.append(None)
                     else:
                         geometries.append(geom_str)

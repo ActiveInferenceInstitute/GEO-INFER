@@ -8,6 +8,7 @@ and distributed computing environments.
 
 from typing import Dict, List, Optional, Any
 import json
+import numpy as np
 
 from ..models.data_models import SPMData, SPMResult, ContrastResult
 from ..core.glm import fit_glm

@@ -31,6 +31,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
+uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ```
 
 ## Modular Hygiene Contract
@@ -45,3 +47,9 @@ uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 ## Documentation Contract
 
 Agent-facing documentation must be operational: current paths, commands, package names, public exports, test surfaces, and failure triage. Do not advertise planned APIs in AGENTS.md; use issues, roadmaps, or implementation status files for future work.
+
+## Documentation and Release Gate
+
+- Run `uv run python GEO-INFER-TEST/rewrite_readme_agents.py` after changing tracked module files, public exports, tests, or validation commands.
+- Treat the generated README/AGENTS diff as a review surface: it should reflect the intended source, test, dependency, and signpost changes only.
+- Before integrating to `main`, run the strict repository, test, model, skill, source-hygiene, unit, integration, performance, and H3 gates and record any environment-only setup warnings separately from repository failures.

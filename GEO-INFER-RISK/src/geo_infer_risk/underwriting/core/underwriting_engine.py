@@ -39,9 +39,9 @@ except ImportError:
 from ..models.policy_models import Policy, Coverage
 from ..models.claim_models import Claim, ClaimStatus
 from ..models.underwriting_models import UnderwritingCase, Decision
-from .risk_assessment import RiskAssessmentEngine
+from .risk_assessment import RiskAssessmentEngine, RiskAssessmentConfig
 from .policy_management import PolicyManager
-from .claims_processing import ClaimsProcessor
+from .claims_processing import ClaimsProcessor, ClaimsProcessingConfig
 from .portfolio_management import PortfolioManager
 from .underwriting_rules import UnderwritingRulesEngine
 from .pricing_engine import PricingEngine
@@ -178,12 +178,25 @@ class UnderwritingEngine:
         self.logger = self._setup_logging()
 
         # Initialize core components
-        self.risk_assessment = RiskAssessmentEngine(self.config)
-        self.policy_manager = PolicyManager(self.config)
-        self.claims_processor = ClaimsProcessor(self.config)
+        risk_config = RiskAssessmentConfig()
+        risk_config.assessment_method = self.config.risk_assessment_method
+        risk_config.include_climate_risk = self.config.include_climate_risk
+        risk_config.include_secondary_perils = self.config.include_secondary_perils
+        risk_config.confidence_level = self.config.confidence_level
+        risk_config.external_data_sources = list(self.config.external_data_sources)
+        self.risk_assessment = RiskAssessmentEngine(risk_config)
+
+        config_dict = vars(self.config)
+        self.policy_manager = PolicyManager(config_dict)
+
+        claims_config = ClaimsProcessingConfig()
+        claims_config.processing_mode = self.config.claims_processing_mode
+        claims_config.reserve_calculation_method = self.config.reserve_calculation_method
+        claims_config.payment_processing_days = self.config.payment_processing_days
+        self.claims_processor = ClaimsProcessor(claims_config)
         self.portfolio_manager = PortfolioManager(self.config)
-        self.rules_engine = UnderwritingRulesEngine(self.config)
-        self.pricing_engine = PricingEngine(self.config)
+        self.rules_engine = UnderwritingRulesEngine(config_dict)
+        self.pricing_engine = PricingEngine(config_dict)
 
         # Initialize external integrations
         self.data_integration = DataIntegrationManager(self.config.external_data_sources)
@@ -222,7 +235,8 @@ class UnderwritingEngine:
         # Console handler
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        if not any(isinstance(handler, logging.StreamHandler) for handler in logger.handlers):
+            logger.addHandler(console_handler)
 
         return logger
 
@@ -278,7 +292,8 @@ class UnderwritingEngine:
             premium_calculation = self.pricing_engine.calculate_premium(
                 application_data, risk_assessment, rule_evaluation
             )
-            case.premium = premium_calculation['total_premium']
+            premium_data = premium_calculation.to_dict()
+            case.premium = premium_data['total_premium']
 
             # Step 5: Make underwriting decision
             decision = self._make_underwriting_decision(
@@ -289,9 +304,10 @@ class UnderwritingEngine:
             # Step 6: Create policy if approved
             if decision.approved:
                 policy = self.policy_manager.create_policy(
-                    application_data, premium_calculation, decision
+                    application_data, premium_data, decision.to_dict()
                 )
                 case.policy = policy
+                self.portfolio_manager.add_policy(policy)
                 case.status = UnderwritingStatus.APPROVED
             else:
                 case.status = UnderwritingStatus.DECLINED

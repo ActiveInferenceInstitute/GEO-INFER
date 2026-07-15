@@ -194,7 +194,7 @@ class SpatioTemporalAnalyzer:
             try:
                 dist = self.h3.get_cell_distance(p1['cell'], p2['cell'])
                 return dist <= spatial_eps
-            except:
+            except Exception:
                 return p1['cell'] == p2['cell']
         
         def get_neighbors(point_idx):
@@ -564,7 +564,7 @@ class SpatioTemporalAnalyzer:
                     spatial_dist = self.h3.get_cell_distance(pi['cell'], pj['cell'])
                     if spatial_dist > spatial_lag:
                         continue
-                except:
+                except Exception:
                     if pi['cell'] != pj['cell']:
                         continue
                 
@@ -774,7 +774,7 @@ class SpatioTemporalAnalyzer:
                     spatial_dist = self.h3.get_cell_distance(target_cell, kp['cell'])
                     if spatial_dist > spatial_range:
                         continue
-                except:
+                except Exception:
                     if target_cell != kp['cell']:
                         continue
                     spatial_dist = 0
@@ -847,7 +847,7 @@ class SpatioTemporalAnalyzer:
         
         try:
             return datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
-        except:
+        except Exception:
             return None
 
     def _get_time_bin(self, timestamp: datetime, bin_size: str) -> str:

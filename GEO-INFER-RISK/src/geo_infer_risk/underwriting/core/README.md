@@ -6,6 +6,7 @@ Core workspace within `GEO-INFER-RISK`.
 
 - `claims_processing.py`
 - `policy_management.py`
+- `portfolio_management.py`
 - `pricing_engine.py`
 - `risk_assessment.py`
 - `underwriting_decisions.py`
@@ -33,7 +34,7 @@ Core workspace within `GEO-INFER-RISK`.
 - `policy_management.py:PolicyManager` (class)
 - `policy_management.py:create_policy_manager` (function)
 - `policy_management.py:create_sample_policy` (function)
-- `pricing_engine.py:PricingMethod` (class)
+- `portfolio_management.py:PortfolioManager` (class)
 
 ## Module Metadata
 

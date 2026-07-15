@@ -884,7 +884,7 @@ def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
         try:
             compacted = h3.compact_cells(h3_indices)
             compactness_ratio = len(compacted) / total_cells
-        except:
+        except Exception:
             compactness_ratio = 1.0  # No compaction possible
         
         # Bounding box
@@ -925,35 +925,6 @@ def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Failed to calculate grid statistics: {e}")
         return {'error': str(e)}
-    """
-    Convert H3 cell index to latitude/longitude coordinates.
-    
-    Args:
-        h3_index: H3 cell index string
-        
-    Returns:
-        Tuple of (latitude, longitude) in degrees
-        
-    Raises:
-        ImportError: If h3-py package not available
-        ValueError: If H3 index invalid
-        
-    Example:
-        >>> lat, lng = cell_to_coordinates('89283082e3fffff')
-        >>> print(f"({lat:.6f}, {lng:.6f})")
-        (37.774929, -122.419415)
-    """
-    if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
-    
-    if not h3.is_valid_cell(h3_index):
-        raise ValueError(f"Invalid H3 cell index: {h3_index}")
-    
-    try:
-        return h3.cell_to_latlng(h3_index)
-    except Exception as e:
-        logger.error(f"Failed to convert H3 cell {h3_index} to coordinates: {e}")
-        raise
 
 
 def cell_to_boundary(h3_index: str, geo_json_format: bool = False) -> Union[List[Tuple[float, float]], List[List[float]]]:

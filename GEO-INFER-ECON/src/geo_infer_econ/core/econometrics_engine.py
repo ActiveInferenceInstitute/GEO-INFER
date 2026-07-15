@@ -374,7 +374,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                       0.5 * (residuals.T @ residuals) / sigma2)
 
                 return -ll  # Return negative for minimization
-            except:
+            except Exception:
                 return 1e10
 
         # Initial parameter estimates
@@ -475,7 +475,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                       0.5 * (residuals.T @ Omega_inv @ residuals) / sigma2)
 
                 return -ll
-            except:
+            except Exception:
                 return 1e10
 
         # Initial estimates
@@ -739,7 +739,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                     beta = np.linalg.inv(XTW @ X_train) @ XTW @ y_train
                     y_pred = X[i] @ beta
                     cv_score += (y[i] - y_pred)**2
-                except:
+                except Exception:
                     cv_score += 1e10
 
             cv_scores.append(cv_score / n)

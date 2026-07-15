@@ -207,7 +207,7 @@ def _process_temporal_data(temporal_data: pd.Series) -> np.ndarray:
     if not pd.api.types.is_datetime64_any_dtype(temporal_data):
         try:
             temporal_data = pd.to_datetime(temporal_data)
-        except:
+        except Exception:
             # If conversion fails, assume it's already numerical
             pass
     

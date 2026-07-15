@@ -472,7 +472,7 @@ class EnhancedExposureModel:
                     try:
                         cell = self.spatial_interface.latlng_to_cell(lat, lon, self.spatial_resolution)
                         h3_cells.append(cell)
-                    except:
+                    except Exception:
                         h3_cells.append(None)
 
                 self.exposure_data['h3_cell'] = h3_cells

@@ -15,6 +15,7 @@ Underwriting workspace within `GEO-INFER-RISK`.
 - `__init__.py:process_claim` (function)
 - `__init__.py:assess_risk` (function)
 - `__init__.py:calculate_premium` (function)
+- `__init__.py:create_pricing_engine` (function)
 - `__init__.py:create_underwriting_engine` (function)
 - `__init__.py:create_risk_assessment` (function)
 - `__init__.py:create_policy_manager` (function)

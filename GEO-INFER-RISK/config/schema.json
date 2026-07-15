@@ -108,6 +108,30 @@
             "data_source": {
               "type": "string"
             },
+            "include_secondary_perils": {
+              "type": "boolean"
+            },
+            "secondary_perils": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "include_components": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "track_data_source": {
+              "type": "string"
+            },
+            "fuel_model": {
+              "type": "string"
+            },
+            "include_climate_factors": {
+              "type": "boolean"
+            },
             "include_climate_change": {
               "type": "boolean",
               "default": false
@@ -146,6 +170,21 @@
               "items": {
                 "type": "string"
               }
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "demographic_factors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "social_vulnerability_index": {
+              "type": "boolean"
             },
             "uncertainty_method": {
               "type": "string",
@@ -188,7 +227,7 @@
             },
             "aggregation_level": {
               "type": "string",
-              "enum": ["asset", "building", "block", "census_tract", "county", "state"]
+              "enum": ["asset", "building", "block", "census_block", "census_tract", "county", "state"]
             },
             "include_contents": {
               "type": "boolean",
@@ -199,6 +238,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "valuation_method": {
+              "type": "string"
             },
             "parameters": {
               "type": "object",

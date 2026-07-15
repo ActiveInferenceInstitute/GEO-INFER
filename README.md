@@ -7,8 +7,8 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | Metric | Value |
 | --- | ---: |
 | Modules | 44 |
-| Python source files | 891 |
-| Python test files | 466 |
+| Python source files | 892 |
+| Python test files | 470 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -17,7 +17,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 ```bash
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
 
@@ -49,7 +49,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-GIT` | `geo_infer_git` | 20 | 9 |
 | `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 9 |
 | `GEO-INFER-INTRA` | `geo_infer_intra` | 11 | 7 |
-| `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 8 |
+| `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 9 |
 | `GEO-INFER-LOG` | `geo_infer_log` | 19 | 9 |
 | `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 8 |
 | `GEO-INFER-MATH` | `geo_infer_math` | 66 | 16 |
@@ -60,10 +60,10 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-PEP` | `geo_infer_pep` | 33 | 9 |
 | `GEO-INFER-PLACE` | `geo_infer_place` | 29 | 14 |
 | `GEO-INFER-REQ` | `geo_infer_req` | 8 | 6 |
-| `GEO-INFER-RISK` | `geo_infer_risk` | 29 | 10 |
+| `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 12 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 30 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 31 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 22 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
@@ -90,6 +90,28 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
 - Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
+- Source runtime hygiene: `uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
+
+## Repo-wide Change Workflow
+
+1. Inspect the owning module and keep behavior in its `src/` package.
+2. Add or update a focused test in the owning module's `tests/` directory.
+3. Run the focused test, then compile and run the contract validators.
+4. Refresh generated signposts with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py`.
+5. Confirm generated documentation is stable with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check`.
+
+README.md and AGENTS.md files below the repository root are generated signposts.
+The generator derives their contents from tracked files, public symbols, module
+metadata, validation commands, and test inventories; update the generator when
+the documentation contract itself changes.
+
+## Failure Triage
+
+- `validate_repo_contracts.py`: source layout, language, dependency, logger, and documentation contract.
+- `validate_test_contracts.py`: test inventories, markers, fixtures, skips, and warning policy.
+- `run_unified_tests.py`: module behavior by unit, integration, performance, or H3 category.
+- `validate_model_contracts.py` and `run_model_audit.py`: deterministic model outputs and reproducibility artifacts.
+- `rewrite_readme_agents.py --check`: generated README/AGENTS drift; rerun the generator after intentional tracked-file changes.
 
 ## Zero-warning test policy
 
@@ -97,4 +119,4 @@ The shared pytest policy treats warnings as errors, requires strict markers/conf
 
 ## Documentation Policy
 
-README.md and AGENTS.md files describe current, discoverable repository state. Do not add aspirational APIs to these files unless the implementation, export path, and validation command exist in this checkout.
+README.md and AGENTS.md files describe current, discoverable repository state. Do not add aspirational APIs to these files unless the implementation, export path, and validation command exist in this checkout. Keep module-local public exports and test commands synchronized through the generator.

@@ -225,7 +225,7 @@ class PerformanceMonitor:
             process = psutil.Process()
             self.start_memory = process.memory_info().rss
             self.start_cpu = process.cpu_percent()
-        except:
+        except Exception:
             self.start_memory = 0
             self.start_cpu = 0
         

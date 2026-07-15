@@ -332,7 +332,7 @@ class AdvancedDashboard:
                     try:
                         h3_cell = h3.latlng_to_cell(lat, lon, 8)
                         h3_boundary = h3.cell_to_boundary(h3_cell)
-                    except: continue
+                    except Exception: continue
                     health = np.random.uniform(0.3, 0.9)
                     color = 'green' if health > 0.7 else 'orange' if health > 0.5 else 'red'
                     folium.Polygon(

@@ -195,7 +195,7 @@ class StreamingAPI:
             for websocket in list(self.sensor_subscriptions[sensor_id]):
                 try:
                     asyncio.create_task(websocket.send_text(json.dumps(message)))
-                except:
+                except Exception:
                     # Remove disconnected clients
                     self.sensor_subscriptions[sensor_id].discard(websocket)
 
@@ -211,7 +211,7 @@ class StreamingAPI:
             for websocket in list(self.spatial_subscriptions[h3_index]):
                 try:
                     asyncio.create_task(websocket.send_text(json.dumps(message)))
-                except:
+                except Exception:
                     # Remove disconnected clients
                     self.spatial_subscriptions[h3_index].discard(websocket)
 
@@ -228,7 +228,7 @@ class StreamingAPI:
         for websocket in self.active_connections:
             try:
                 asyncio.create_task(websocket.send_text(json.dumps(message)))
-            except:
+            except Exception:
                 disconnected.add(websocket)
 
         # Remove disconnected clients

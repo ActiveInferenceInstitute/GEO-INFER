@@ -366,6 +366,7 @@ class ModuleSimulations:
         trail_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
+            nonlocal pheromone_trails
             # Simulate ant movement and pheromone deposition
             for i in range(colony_size):
                 # Move toward food sources
@@ -2502,4 +2503,3 @@ class ModuleSimulations:
             "total_tutorials": sum(tutorial_creation),
             "simulation_results": results,
         }
-

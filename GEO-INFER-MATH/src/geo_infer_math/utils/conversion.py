@@ -420,10 +420,10 @@ def convert_data_types(data: Any, target_type: type) -> Any:
         else:
             try:
                 return np.array(data)
-            except:
+            except Exception:
                 raise ValueError(f"Cannot convert {type(data)} to numpy array")
 
-    elif target_type == list:
+    elif target_type is list:
         if isinstance(data, np.ndarray):
             return data.tolist()
         elif isinstance(data, (int, float)):

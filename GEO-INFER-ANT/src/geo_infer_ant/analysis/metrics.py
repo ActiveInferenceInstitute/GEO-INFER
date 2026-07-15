@@ -829,17 +829,6 @@ class SwarmPerformanceMetrics:
                                 'severity': 'high' if usage > 0.95 else 'medium'
                             })
 
-            # Identify most common bottlenecks
-            if bottlenecks:
-                bottleneck_counts = defaultdict(int)
-                for bottleneck in bottlenecks:
-                    key = f"{bottleneck['resource']}_{bottleneck['severity']}"
-                    bottleneck_counts[key] += 1
-
-                analysis['most_common_bottlenecks'] = [
-                    {'bottleneck': k, 'frequency': v} for k, v in bottleneck_counts.items()
-                ]
-
         except Exception as e:
             logger.warning(f"Bottleneck identification failed: {e}")
 

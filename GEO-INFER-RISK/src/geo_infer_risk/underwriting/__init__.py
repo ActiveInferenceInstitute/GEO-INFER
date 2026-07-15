@@ -17,10 +17,12 @@ This module provides enterprise-grade underwriting capabilities including:
 __version__ = "1.0.0"
 __author__ = "GEO-INFER-RISK Team"
 
+from typing import Any, Dict, Optional
+
 # Import main underwriting components
 from .core.underwriting_engine import UnderwritingEngine, UnderwritingConfig, UnderwritingMetrics
 from .core.risk_assessment import RiskAssessmentEngine, RiskAssessmentConfig, RiskMetrics
-from .core.policy_management import PolicyManager, PolicyLifecycle, Policy, Coverage, Endorsement, Exclusion
+from .core.policy_management import PolicyManager, PolicyLifecycle, Policy, Coverage, Endorsement
 from .core.claims_processing import ClaimsProcessor, ClaimsEngine, Claim, ClaimStatus, Payment, Reserve
 from .core.portfolio_management import PortfolioManager, PortfolioOptimizer
 from .core.underwriting_rules import UnderwritingRulesEngine, RuleEvaluator, UnderwritingRule, RuleCondition, RuleType
@@ -34,10 +36,10 @@ from .utils.compliance import ComplianceEngine, RegulatoryFramework, ComplianceS
 from .utils.reporting import UnderwritingReporter, ReportingEngine
 
 # Import models and data structures
-from .models.policy_models import Policy as PolicyModel, Coverage as CoverageModel, Endorsement as EndorsementModel, Exclusion as ExclusionModel
+from .models.policy_models import Policy as PolicyModel, Coverage as CoverageModel, Endorsement as EndorsementModel, Exclusion
 from .models.claim_models import Claim as ClaimModel, ClaimStatus as ClaimStatusModel, Payment as PaymentModel, Reserve as ReserveModel
-from .models.risk_models import RiskProfile as RiskProfileModel, ExposureProfile as ExposureProfileModel, VulnerabilityProfile as VulnerabilityProfileModel
-from .models.underwriting_models import UnderwritingCase as UnderwritingCaseModel, Decision as DecisionModel, Guideline as GuidelineModel
+from .models.risk_models import RiskProfile, ExposureProfile, VulnerabilityProfile
+from .models.underwriting_models import UnderwritingCase, Decision, Guideline
 
 # Import enums and types
 from .core.underwriting_engine import UnderwritingStatus
@@ -74,6 +76,11 @@ def calculate_premium(policy_data: Dict[str, Any],
     """Convenience function to calculate premium."""
     engine = create_pricing_engine()
     return engine.calculate_premium(policy_data, risk_assessment, rule_evaluation)
+
+def create_pricing_engine(config: Optional[Dict[str, Any]] = None) -> PricingEngine:
+    """Create a pricing engine for premium calculations."""
+    from .core.pricing_engine import PricingEngine
+    return PricingEngine(config)
 
 def create_underwriting_engine(config: Optional[UnderwritingConfig] = None) -> UnderwritingEngine:
     """Create a new underwriting engine."""
@@ -161,6 +168,7 @@ __all__ = [
     "create_risk_assessment",
     "create_policy_manager",
     "create_claims_processor",
+    "create_pricing_engine",
     "underwrite_policy",
     "process_claim",
     "assess_risk",

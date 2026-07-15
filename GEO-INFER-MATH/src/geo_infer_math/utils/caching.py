@@ -86,7 +86,7 @@ def _create_cache_key(args: tuple, kwargs: dict) -> str:
             return hashlib.md5(arg.tobytes()).hexdigest()
         try:
             return pickle.dumps(arg)
-        except:
+        except Exception:
             return str(arg)
     
     key_parts = [serialize_arg(arg) for arg in args]

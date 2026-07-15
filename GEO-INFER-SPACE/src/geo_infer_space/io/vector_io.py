@@ -204,10 +204,10 @@ class VectorReader:
                 # Try WKT first, then WKB
                 try:
                     geometries = df[geom_col].apply(wkt.loads)
-                except:
+                except Exception:
                     try:
                         geometries = df[geom_col].apply(wkb.loads)
-                    except:
+                    except Exception:
                         raise ValueError("Could not parse geometry column")
                 
                 df = df.drop(columns=[geom_col])

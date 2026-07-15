@@ -197,6 +197,7 @@ class ConfigurationLoader:
                 },
                 'hurricane': {
                     'enabled': False,
+                    'type': 'tropical_cyclone',
                     'include_components': ['wind', 'storm_surge', 'rainfall'],
                     'track_data_source': 'hurdat2',
                     'return_periods': [10, 25, 50, 100],
@@ -204,6 +205,7 @@ class ConfigurationLoader:
                 },
                 'wildfire': {
                     'enabled': False,
+                    'type': 'wildfire',
                     'fuel_model': 'standard',
                     'include_climate_factors': True,
                     'climate_scenario': 'rcp4.5',
@@ -227,6 +229,7 @@ class ConfigurationLoader:
                 },
                 'population': {
                     'enabled': True,
+                    'classification_scheme': 'custom',
                     'demographic_factors': ['age', 'income', 'mobility', 'housing_quality'],
                     'social_vulnerability_index': True,
                     'uncertainty_method': 'none',
@@ -244,12 +247,15 @@ class ConfigurationLoader:
                 'population': {
                     'enabled': True,
                     'data_sources': ['census', 'worldpop'],
+                    'value_type': 'custom',
                     'time_of_day_scenarios': ['day', 'night', 'commute'],
                     'aggregation_level': 'census_block'
                 },
                 'infrastructure': {
                     'enabled': True,
                     'data_sources': ['openstreetmap', 'custom_lifeline_db'],
+                    'value_type': 'replacement_cost',
+                    'aggregation_level': 'asset',
                     'types': ['transportation', 'utilities', 'communications'],
                     'valuation_method': 'replacement_cost'
                 }

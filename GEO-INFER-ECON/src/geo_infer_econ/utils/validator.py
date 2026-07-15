@@ -393,7 +393,7 @@ class ModelValidator:
                 'linear': p_value > 0.05,
                 'interpretation': 'Linearity assumption satisfied' if p_value > 0.05 else 'Nonlinearity detected'
             }
-        except:
+        except Exception:
             return {'error': 'RESET test failed'}
 
     def _test_homoscedasticity_assumption(self, residuals: np.ndarray, predictions: np.ndarray) -> Dict[str, Any]:
@@ -421,7 +421,7 @@ class ModelValidator:
                 'homoscedastic': p_value > 0.05,
                 'interpretation': 'Homoscedasticity assumption satisfied' if p_value > 0.05 else 'Heteroscedasticity detected'
             }
-        except:
+        except Exception:
             return {'error': 'Breusch-Pagan test failed'}
 
     def _test_normality_assumption(self, residuals: np.ndarray) -> Dict[str, Any]:

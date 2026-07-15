@@ -216,7 +216,7 @@ class SymbolicMath:
             try:
                 # This is a simplified approach - real implementation would need proper parsing
                 return self._engine.sympify(equation)
-            except:
+            except Exception:
                 return equation
         else:
             # Numpy backend

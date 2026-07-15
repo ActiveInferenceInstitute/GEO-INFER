@@ -19,6 +19,13 @@ except ImportError:
     NUMPY_AVAILABLE = False
     logger.warning("numpy not available. Some analytics will be limited.")
 
+try:
+    import h3
+    H3_AVAILABLE = True
+except ImportError:
+    H3_AVAILABLE = False
+    logger.warning("h3-py not available. H3 neighbor analytics will use fallbacks.")
+
 from .core import H3Grid, H3Cell
 
 
@@ -268,9 +275,9 @@ class H3SpatialAnalyzer:
                 try:
                     import h3
                     neighbors = h3.grid_disk(cell.index, 1)
-                except:
+                except Exception:
                     neighbors = [cell.index]  # Fallback
-            except:
+            except Exception:
                 neighbors = [cell.index]
             
             # Calculate local sum and count
@@ -350,7 +357,7 @@ class H3SpatialAnalyzer:
                 import h3
                 neighbors = h3.grid_disk(cell.index, 1)
                 neighbors = [n for n in neighbors if n != cell.index]  # Exclude self
-            except:
+            except Exception:
                 neighbors = []
             
             # Calculate local Moran's I
@@ -1281,7 +1288,7 @@ class H3DensityAnalyzer:
                 import h3
                 neighbors = h3.grid_disk(cell_index, 1)
                 neighbors = [n for n in neighbors if n != cell_index]
-        except:
+        except Exception:
             neighbors = []
         
         # Calculate average neighbor value

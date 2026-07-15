@@ -23,6 +23,7 @@
 
 - `test_data_ingestion.py`
 - `test_ingestion.py`
+- `test_performance_monitor.py`
 - `test_quality_control.py`
 - `test_radiation_monitoring.py`
 - `test_registry.py`

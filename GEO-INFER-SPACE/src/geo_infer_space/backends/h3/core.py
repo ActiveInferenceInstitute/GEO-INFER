@@ -848,7 +848,7 @@ class H3Visualizer:
         """
         self.grid = grid
     
-    def create_folium_map(self, **kwargs) -> 'folium.Map':
+    def create_folium_map(self, **kwargs) -> Any:
         """
         Create interactive Folium map of the H3 grid.
         

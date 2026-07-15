@@ -693,7 +693,7 @@ def render_root_readme(
     )
     return f"""# GEO-INFER Framework
 
-GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
+GEO-INFER is a {len(modules)}-module geospatial inference monorepo for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
 
 ## Current Repository Facts
 
@@ -710,7 +710,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 ```bash
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --skip-import-smoke
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
 
@@ -740,6 +740,28 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
 - Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
+- Source runtime hygiene: `uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
+
+## Repo-wide Change Workflow
+
+1. Inspect the owning module and keep behavior in its `src/` package.
+2. Add or update a focused test in the owning module's `tests/` directory.
+3. Run the focused test, then compile and run the contract validators.
+4. Refresh generated signposts with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py`.
+5. Confirm generated documentation is stable with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check`.
+
+README.md and AGENTS.md files below the repository root are generated signposts.
+The generator derives their contents from tracked files, public symbols, module
+metadata, validation commands, and test inventories; update the generator when
+the documentation contract itself changes.
+
+## Failure Triage
+
+- `validate_repo_contracts.py`: source layout, language, dependency, logger, and documentation contract.
+- `validate_test_contracts.py`: test inventories, markers, fixtures, skips, and warning policy.
+- `run_unified_tests.py`: module behavior by unit, integration, performance, or H3 category.
+- `validate_model_contracts.py` and `run_model_audit.py`: deterministic model outputs and reproducibility artifacts.
+- `rewrite_readme_agents.py --check`: generated README/AGENTS drift; rerun the generator after intentional tracked-file changes.
 
 ## Zero-warning test policy
 
@@ -747,7 +769,7 @@ The shared pytest policy treats warnings as errors, requires strict markers/conf
 
 ## Documentation Policy
 
-README.md and AGENTS.md files describe current, discoverable repository state. Do not add aspirational APIs to these files unless the implementation, export path, and validation command exist in this checkout.
+README.md and AGENTS.md files describe current, discoverable repository state. Do not add aspirational APIs to these files unless the implementation, export path, and validation command exist in this checkout. Keep module-local public exports and test commands synchronized through the generator.
 """
 
 
@@ -786,6 +808,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
+uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ```
 
 ## Modular Hygiene Contract
@@ -800,6 +824,12 @@ uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 ## Documentation Contract
 
 Agent-facing documentation must be operational: current paths, commands, package names, public exports, test surfaces, and failure triage. Do not advertise planned APIs in AGENTS.md; use issues, roadmaps, or implementation status files for future work.
+
+## Documentation and Release Gate
+
+- Run `uv run python GEO-INFER-TEST/rewrite_readme_agents.py` after changing tracked module files, public exports, tests, or validation commands.
+- Treat the generated README/AGENTS diff as a review surface: it should reflect the intended source, test, dependency, and signpost changes only.
+- Before integrating to `main`, run the strict repository, test, model, skill, source-hygiene, unit, integration, performance, and H3 gates and record any environment-only setup warnings separately from repository failures.
 """
 
 

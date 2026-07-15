@@ -294,7 +294,7 @@ class RouteOptimizer:
                 
                 total_distance += nx.shortest_path_length(self.network, current_node, dest_node, weight='distance')
                 total_time += nx.shortest_path_length(self.network, current_node, dest_node, weight='time')
-            except:
+            except Exception:
                 pass # path could not be completed
                 
             return full_path, total_distance, total_time
@@ -572,7 +572,7 @@ class TravelTimeEstimator:
                 return 1.2  # Evening
             else:
                 return 0.9  # Night (faster)
-        except:
+        except Exception:
             return 1.0
     
     def calculate_time_matrix(self,
