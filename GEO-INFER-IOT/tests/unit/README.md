@@ -10,6 +10,7 @@ Unit workspace within `GEO-INFER-IOT`.
 - `test_radiation_monitoring.py`
 - `test_registry.py`
 - `test_sensor_data.py`
+- `test_visualization.py`
 
 ## Public Interface
 

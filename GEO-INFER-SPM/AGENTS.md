@@ -39,6 +39,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
 ```
 
 
+## Visualization Guidance
+
+- Reject invalid contrast/statistic/coordinate inputs before map construction.
+- Keep diagnostic leverage calculations numerically stable and maintain one
+  canonical package-level interactive-map export.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

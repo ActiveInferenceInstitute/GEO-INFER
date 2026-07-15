@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 891 |
-| Python test files | 461 |
+| Python test files | 466 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -33,14 +33,14 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-API` | `geo_infer_api` | 13 | 9 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
-| `GEO-INFER-BAYES` | `geo_infer_bayes` | 32 | 13 |
+| `GEO-INFER-BAYES` | `geo_infer_bayes` | 32 | 14 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
-| `GEO-INFER-COG` | `geo_infer_cog` | 20 | 11 |
+| `GEO-INFER-COG` | `geo_infer_cog` | 20 | 12 |
 | `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 7 |
 | `GEO-INFER-DATA` | `geo_infer_data` | 23 | 19 |
-| `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 12 |
+| `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 13 |
 | `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 7 |
 | `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 7 |
 | `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 8 |
@@ -49,8 +49,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-GIT` | `geo_infer_git` | 20 | 9 |
 | `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 9 |
 | `GEO-INFER-INTRA` | `geo_infer_intra` | 11 | 7 |
-| `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 7 |
-| `GEO-INFER-LOG` | `geo_infer_log` | 19 | 8 |
+| `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 8 |
+| `GEO-INFER-LOG` | `geo_infer_log` | 19 | 9 |
 | `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 8 |
 | `GEO-INFER-MATH` | `geo_infer_math` | 66 | 16 |
 | `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 12 |

@@ -40,6 +40,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module APP
 ```
 
 
+## Visualization Contracts
+
+- Agent map features validate finite longitude/latitude values and geographic
+  bounds, and normalize metadata to JSON-safe values.
+- Active-inference prediction and reinforcement-learning reward series are
+  exposed in dashboard widgets when present in agent metadata.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

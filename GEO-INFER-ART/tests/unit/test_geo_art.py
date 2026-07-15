@@ -9,8 +9,6 @@ import unittest
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Polygon
-import matplotlib.pyplot as plt
-
 from geo_infer_art.core.visualization.geo_art import GeoArt
 from geo_infer_art.core.aesthetics.color_palette import ColorPalette
 
@@ -30,9 +28,9 @@ class TestGeoArt(unittest.TestCase):
             Polygon([(0, 1), (1, 1), (1, 2), (0, 2)]),
         ]
         self.test_data = gpd.GeoDataFrame(
-            {'name': ['Region A', 'Region B', 'Region C']},
+            {"name": ["Region A", "Region B", "Region C"]},
             geometry=geometries,
-            crs="EPSG:4326"
+            crs="EPSG:4326",
         )
 
         # Create a simple raster for testing
@@ -72,10 +70,7 @@ class TestGeoArt(unittest.TestCase):
         geo_art = GeoArt(data=self.test_data)
 
         # Create a custom palette
-        palette = ColorPalette(
-            name="custom",
-            colors=["#ff0000", "#00ff00", "#0000ff"]
-        )
+        palette = ColorPalette(name="custom", colors=["#ff0000", "#00ff00", "#0000ff"])
 
         # Apply style with the palette
         geo_art.apply_style(style="default", color_palette=palette)
@@ -98,6 +93,18 @@ class TestGeoArt(unittest.TestCase):
         # Should raise ValueError
         with self.assertRaises(ValueError):
             geo_art.apply_style()
+
+    def test_apply_style_validates_alpha(self):
+        geo_art = GeoArt(data=self.test_data)
+        with self.assertRaises(ValueError):
+            geo_art.apply_style(alpha=1.5)
+
+    def test_multi_scale_visualization_uses_safe_default_and_validates_scales(self):
+        geo_art = GeoArt(data=self.test_data)
+        visualizations = geo_art.create_multi_scale_visualization()
+        self.assertIn("global", visualizations)
+        with self.assertRaises(ValueError):
+            geo_art.create_multi_scale_visualization(scales=["unknown"])
 
     def test_save(self):
         """Test saving visualization to file."""

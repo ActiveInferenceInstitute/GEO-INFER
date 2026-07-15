@@ -2,12 +2,10 @@
 Map styling and theming components for advanced cartographic design.
 """
 
-import os
 from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+from matplotlib.colors import LinearSegmentedColormap
 
 from geo_infer_art.core.aesthetics import ColorPalette
 
@@ -34,7 +32,7 @@ class MapStyle:
             "font_family": "serif",
             "background": "#F5F5DC",
             "grid": True,
-            "grid_style": {"color": "#8B7355", "alpha": 0.3, "linestyle": "--"}
+            "grid_style": {"color": "#8B7355", "alpha": 0.3, "linestyle": "--"},
         },
         "modern": {
             "colors": ["#2C3E50", "#3498DB", "#E74C3C", "#2ECC71"],
@@ -56,7 +54,7 @@ class MapStyle:
             "font_family": "monospace",
             "background": "#000000",
             "grid": True,
-            "grid_style": {"color": "#00FFFF", "alpha": 0.5, "linestyle": ":"}
+            "grid_style": {"color": "#00FFFF", "alpha": 0.5, "linestyle": ":"},
         },
         "watercolor": {
             "colors": ["#FFB6C1", "#87CEEB", "#98FB98", "#F0E68C"],
@@ -71,7 +69,7 @@ class MapStyle:
             "font_family": "monospace",
             "background": "#072448",
             "grid": True,
-            "grid_style": {"color": "#1E88E5", "alpha": 0.4, "linestyle": "-"}
+            "grid_style": {"color": "#1E88E5", "alpha": 0.4, "linestyle": "-"},
         },
         "topographic": {
             "colors": ["#8B4513", "#A0522D", "#CD853F", "#DEB887", "#F5DEB3"],
@@ -79,7 +77,7 @@ class MapStyle:
             "font_family": "serif",
             "background": "#F5F5DC",
             "grid": True,
-            "grid_style": {"color": "#8B4513", "alpha": 0.3, "linestyle": "--"}
+            "grid_style": {"color": "#8B4513", "alpha": 0.3, "linestyle": "--"},
         },
         "art_nouveau": {
             "colors": ["#800080", "#FF69B4", "#00CED1", "#32CD32"],
@@ -87,14 +85,14 @@ class MapStyle:
             "font_family": "serif",
             "background": "#F0F8FF",
             "grid": False,
-        }
+        },
     }
 
     def __init__(
         self,
         name: str = "default",
         theme: Optional[str] = None,
-        parameters: Optional[Dict] = None
+        parameters: Optional[Dict] = None,
     ):
         """
         Initialize a MapStyle object.
@@ -128,7 +126,7 @@ class MapStyle:
             "font_family": "sans-serif",
             "background": "#ffffff",
             "grid": False,
-            **self.parameters
+            **self.parameters,
         }
 
     @classmethod
@@ -136,8 +134,8 @@ class MapStyle:
         cls,
         theme: str,
         color_palette: Optional[Union[str, ColorPalette]] = None,
-        **kwargs
-    ) -> 'MapStyle':
+        **kwargs,
+    ) -> "MapStyle":
         """
         Create a style based on a visual theme.
 
@@ -189,7 +187,7 @@ class MapStyle:
                 True,
                 color=grid_style.get("color", "#000000"),
                 alpha=grid_style.get("alpha", 0.3),
-                linestyle=grid_style.get("linestyle", "--")
+                linestyle=grid_style.get("linestyle", "--"),
             )
         else:
             ax.grid(False)
@@ -212,62 +210,62 @@ class MapStyle:
     def _apply_blueprint_style(self, ax: plt.Axes) -> None:
         """Apply blueprint-style formatting."""
         # Set blueprint colors
-        ax.spines['top'].set_color('#1E88E5')
-        ax.spines['bottom'].set_color('#1E88E5')
-        ax.spines['left'].set_color('#1E88E5')
-        ax.spines['right'].set_color('#1E88E5')
+        ax.spines["top"].set_color("#1E88E5")
+        ax.spines["bottom"].set_color("#1E88E5")
+        ax.spines["left"].set_color("#1E88E5")
+        ax.spines["right"].set_color("#1E88E5")
 
         # Set tick colors
-        ax.tick_params(axis='x', colors='#1E88E5')
-        ax.tick_params(axis='y', colors='#1E88E5')
+        ax.tick_params(axis="x", colors="#1E88E5")
+        ax.tick_params(axis="y", colors="#1E88E5")
 
         # Set label colors
-        ax.xaxis.label.set_color('#1E88E5')
-        ax.yaxis.label.set_color('#1E88E5')
+        ax.xaxis.label.set_color("#1E88E5")
+        ax.yaxis.label.set_color("#1E88E5")
 
     def _apply_watercolor_style(self, ax: plt.Axes) -> None:
         """Apply watercolor-style formatting."""
         # Softer, more artistic appearance
-        ax.spines['top'].set_alpha(0.3)
-        ax.spines['bottom'].set_alpha(0.3)
-        ax.spines['left'].set_alpha(0.3)
-        ax.spines['right'].set_alpha(0.3)
+        ax.spines["top"].set_alpha(0.3)
+        ax.spines["bottom"].set_alpha(0.3)
+        ax.spines["left"].set_alpha(0.3)
+        ax.spines["right"].set_alpha(0.3)
 
         # Lighter grid if present
-        if ax.grid:
-            ax.grid(True, alpha=0.2, color='#B0C4DE')
+        if self.parameters.get("grid", False):
+            ax.grid(True, alpha=0.2, color="#B0C4DE")
 
     def _apply_neon_style(self, ax: plt.Axes) -> None:
         """Apply neon-style formatting."""
         # Bright, glowing appearance
-        ax.spines['top'].set_color('#00FFFF')
-        ax.spines['bottom'].set_color('#00FFFF')
-        ax.spines['left'].set_color('#00FFFF')
-        ax.spines['right'].set_color('#00FFFF')
+        ax.spines["top"].set_color("#00FFFF")
+        ax.spines["bottom"].set_color("#00FFFF")
+        ax.spines["left"].set_color("#00FFFF")
+        ax.spines["right"].set_color("#00FFFF")
 
         # Set tick colors
-        ax.tick_params(axis='x', colors='#00FFFF')
-        ax.tick_params(axis='y', colors='#00FFFF')
+        ax.tick_params(axis="x", colors="#00FFFF")
+        ax.tick_params(axis="y", colors="#00FFFF")
 
         # Set label colors
-        ax.xaxis.label.set_color('#00FFFF')
-        ax.yaxis.label.set_color('#00FFFF')
+        ax.xaxis.label.set_color("#00FFFF")
+        ax.yaxis.label.set_color("#00FFFF")
 
     def _apply_classical_style(self, ax: plt.Axes) -> None:
         """Apply classical-style formatting."""
         # Traditional cartographic appearance
-        ax.spines['top'].set_color('#8B4513')
-        ax.spines['bottom'].set_color('#8B4513')
-        ax.spines['left'].set_color('#8B4513')
-        ax.spines['right'].set_color('#8B4513')
+        ax.spines["top"].set_color("#8B4513")
+        ax.spines["bottom"].set_color("#8B4513")
+        ax.spines["left"].set_color("#8B4513")
+        ax.spines["right"].set_color("#8B4513")
 
         # Set tick colors
-        ax.tick_params(axis='x', colors='#8B4513')
-        ax.tick_params(axis='y', colors='#8B4513')
+        ax.tick_params(axis="x", colors="#8B4513")
+        ax.tick_params(axis="y", colors="#8B4513")
 
         # Set label colors
-        ax.xaxis.label.set_color('#8B4513')
-        ax.yaxis.label.set_color('#8B4513')
+        ax.xaxis.label.set_color("#8B4513")
+        ax.yaxis.label.set_color("#8B4513")
 
     def get_colormap(self) -> LinearSegmentedColormap:
         """

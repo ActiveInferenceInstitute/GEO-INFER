@@ -51,6 +51,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
 
 
+## Visualization Contracts
+
+- Sensor and interpolation maps validate finite WGS84 coordinates and aligned
+  value arrays, and all HTML/image writers create nested output parents.
+- Saved Matplotlib figures are closed after writing to avoid leaking figure
+  state across monitoring cycles.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

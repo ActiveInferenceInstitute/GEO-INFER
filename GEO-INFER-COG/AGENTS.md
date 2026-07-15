@@ -38,6 +38,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
 ```
 
 
+## Visualization Guidance
+
+- Keep visualization IDs reproducible within a visualizer instance and validate
+  cognitive thresholds/color counts at construction.
+- Return meaningful grouping clusters and confidence metadata rather than
+  placeholder groups.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

@@ -153,6 +153,15 @@ class TestPlotForecast:
 
         plt.close(fig)
 
+    def test_forecast_validates_confidence_bounds(self, viz, sample_values):
+        forecast = list(np.linspace(sample_values[-1], sample_values[-1] + 20, 20))
+        with pytest.raises(ValueError, match="provided together"):
+            viz.plot_forecast(sample_values, forecast, confidence_lower=[0.0] * 20)
+        with pytest.raises(ValueError, match="match forecast length"):
+            viz.plot_forecast(
+                sample_values, forecast, confidence_lower=[0.0], confidence_upper=[1.0]
+            )
+
 
 class TestPlotAcfPacf:
     """Tests for ACF/PACF plotting."""
@@ -203,6 +212,10 @@ class TestPlotAnomalies:
         import matplotlib.pyplot as plt
 
         plt.close(fig)
+
+    def test_anomalies_reject_out_of_range_indices(self, viz, sample_values):
+        with pytest.raises(ValueError, match="valid integer"):
+            viz.plot_anomalies(sample_values, [len(sample_values)])
 
 
 class TestPlotRollingStatistics:

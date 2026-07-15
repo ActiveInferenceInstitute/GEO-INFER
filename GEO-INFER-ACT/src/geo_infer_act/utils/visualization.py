@@ -8,7 +8,6 @@ interpretability dashboards.
 
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Union
 from pathlib import Path
@@ -45,9 +44,36 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Set style for consistent, professional plots
-plt.style.use("seaborn-v0_8")  # Use updated seaborn style
-sns.set_palette("husl")
+
+def _belief_vector(payload: Any, name: str) -> np.ndarray:
+    """Extract and validate a finite non-negative belief vector."""
+    if isinstance(payload, dict):
+        for key in ("states", "mean", "beliefs"):
+            if key in payload:
+                payload = payload[key]
+                break
+        else:
+            if not payload:
+                raise ValueError(f"{name} must not be empty")
+            payload = next(iter(payload.values()))
+    values = np.asarray(payload, dtype=float).reshape(-1)
+    if values.size == 0:
+        raise ValueError(f"{name} must not be empty")
+    if not np.all(np.isfinite(values)) or np.any(values < 0):
+        raise ValueError(f"{name} must contain finite non-negative values")
+    if not np.any(values > 0):
+        raise ValueError(f"{name} must contain positive probability mass")
+    return values
+
+
+def _finite_series(values: Any, name: str) -> np.ndarray:
+    """Return a non-empty finite one-dimensional numeric series."""
+    series = np.asarray(values, dtype=float).reshape(-1)
+    if series.size == 0:
+        raise ValueError(f"{name} must not be empty")
+    if not np.all(np.isfinite(series)):
+        raise ValueError(f"{name} must contain only finite values")
+    return series
 
 
 def plot_belief_update(
@@ -70,19 +96,26 @@ def plot_belief_update(
     Returns:
         Matplotlib figure
     """
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-
-    # Extract belief arrays
-    if "states" in beliefs_before:
-        before = beliefs_before["states"]
-        after = beliefs_after["states"]
-    else:
-        before = list(beliefs_before.values())[0]
-        after = list(beliefs_after.values())[0]
+    before = _belief_vector(
+        beliefs_before.get("states", next(iter(beliefs_before.values()), None)),
+        "beliefs_before",
+    )
+    after = _belief_vector(
+        beliefs_after.get("states", next(iter(beliefs_after.values()), None)),
+        "beliefs_after",
+    )
+    if len(before) != len(after):
+        raise ValueError("beliefs_before and beliefs_after must have the same length")
 
     n_states = len(before)
     if state_labels is None:
         state_labels = [f"State {i}" for i in range(n_states)]
+    if len(state_labels) != n_states:
+        raise ValueError("state_labels must have one label per state")
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=figsize)
+
+    # Extracted belief arrays are validated above.
 
     x = np.arange(n_states)
     width = 0.35
@@ -172,8 +205,8 @@ def plot_belief_update(
         fontweight="bold",
     )
 
-    plt.suptitle(title, fontsize=16, fontweight="bold")
-    plt.tight_layout()
+    fig.suptitle(title, fontsize=16, fontweight="bold")
+    fig.tight_layout()
 
     return fig
 
@@ -196,7 +229,7 @@ def plot_free_energy(
     Returns:
         Matplotlib figure
     """
-    if not free_energy_history:
+    if len(free_energy_history) == 0:
         fig, ax = plt.subplots(figsize=figsize)
         ax.text(
             0.5,
@@ -210,9 +243,13 @@ def plot_free_energy(
 
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
 
-    fe_array = np.array(free_energy_history)
+    fe_array = _finite_series(free_energy_history, "free_energy_history")
     if iterations is None:
-        iterations = range(len(fe_array))
+        iterations = np.arange(len(fe_array))
+    else:
+        iterations = _finite_series(iterations, "iterations")
+        if len(iterations) != len(fe_array):
+            raise ValueError("iterations must have one value per free-energy sample")
 
     # Main free energy plot
     axes[0, 0].plot(
@@ -272,7 +309,7 @@ def plot_free_energy(
 
     # Distribution and statistics
     axes[1, 1].hist(
-        fe_array, bins=min(20, len(fe_array) // 2), alpha=0.7, color="orange"
+        fe_array, bins=max(1, min(20, len(fe_array) // 2)), alpha=0.7, color="orange"
     )
     axes[1, 1].axvline(
         np.mean(fe_array),
@@ -292,8 +329,8 @@ def plot_free_energy(
     axes[1, 1].legend()
     axes[1, 1].grid(True, alpha=0.3)
 
-    plt.suptitle(title, fontsize=16, fontweight="bold")
-    plt.tight_layout()
+    fig.suptitle(title, fontsize=16, fontweight="bold")
+    fig.tight_layout()
 
     return fig
 
@@ -318,6 +355,7 @@ def plot_policies(
     Returns:
         Matplotlib figure
     """
+    policy_probabilities = np.asarray(policy_probabilities, dtype=float)
     if policy_probabilities.size == 0:
         fig, ax = plt.subplots(figsize=figsize)
         ax.text(
@@ -330,6 +368,12 @@ def plot_policies(
         )
         return fig
 
+    if policy_probabilities.ndim not in (1, 2):
+        raise ValueError("policy_probabilities must be a one- or two-dimensional array")
+    if not np.all(np.isfinite(policy_probabilities)) or np.any(
+        policy_probabilities < 0
+    ):
+        raise ValueError("policy_probabilities must contain finite non-negative values")
     if policy_probabilities.ndim == 1:
         # Single time step
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
@@ -337,6 +381,16 @@ def plot_policies(
 
         if policy_labels is None:
             policy_labels = [f"Policy {i}" for i in range(n_policies)]
+        if len(policy_labels) != n_policies:
+            raise ValueError("policy_labels must have one label per policy")
+        if expected_free_energies is not None:
+            expected_free_energies = _finite_series(
+                expected_free_energies, "expected_free_energies"
+            )
+            if len(expected_free_energies) != n_policies:
+                raise ValueError(
+                    "expected_free_energies must have one value per policy"
+                )
 
         # Policy probabilities
         bars = axes[0].bar(
@@ -389,7 +443,7 @@ def plot_policies(
         # Policy entropy
         entropy = -np.sum(policy_probabilities * np.log(policy_probabilities + 1e-8))
         max_entropy = np.log(n_policies)
-        norm_entropy = entropy / max_entropy
+        norm_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
 
         # Create entropy gauge
         theta = np.linspace(0, np.pi, 100)
@@ -435,6 +489,12 @@ def plot_policies(
         n_timesteps, n_policies = policy_probabilities.shape
         if policy_labels is None:
             policy_labels = [f"Policy {i}" for i in range(n_policies)]
+        if n_timesteps == 0 or n_policies == 0:
+            raise ValueError(
+                "policy_probabilities must have at least one timestep and policy"
+            )
+        if len(policy_labels) != n_policies:
+            raise ValueError("policy_labels must have one label per policy")
 
         # Policy evolution
         for i in range(n_policies):
@@ -505,8 +565,8 @@ def plot_policies(
                 fontsize=9,
             )
 
-    plt.suptitle(title, fontsize=16, fontweight="bold")
-    plt.tight_layout()
+    fig.suptitle(title, fontsize=16, fontweight="bold")
+    fig.tight_layout()
 
     return fig
 
@@ -1486,13 +1546,17 @@ def _belief_payload_to_vector(belief_payload: Any) -> np.ndarray:
 
 def plot_hierarchical_beliefs(beliefs: Dict[str, np.ndarray]) -> plt.Figure:
     """Plot beliefs across hierarchical levels."""
+    if not beliefs:
+        raise ValueError("beliefs must contain at least one hierarchical level")
     fig, axs = plt.subplots(len(beliefs), 1, figsize=(8, 4 * len(beliefs)))
     axs = np.atleast_1d(axs)
     for i, (level, bel) in enumerate(beliefs.items()):
         vector = _belief_payload_to_vector(bel)
+        if vector.size == 0 or not np.all(np.isfinite(vector)) or np.any(vector < 0):
+            raise ValueError(f"beliefs[{level!r}] must be finite and non-negative")
         axs[i].bar(range(len(vector)), vector)
         axs[i].set_title(f"Level {level}")
-    plt.tight_layout()
+    fig.tight_layout()
     return fig
 
 
@@ -1715,7 +1779,10 @@ def plot_h3_grid_static(
         ax.set_title(title)
         return fig
 
-    min_val, max_val = min(values), max(values)
+    values = np.asarray(values, dtype=float)
+    if not np.all(np.isfinite(values)):
+        raise ValueError(f"{metric} values must be finite")
+    min_val, max_val = float(np.min(values)), float(np.max(values))
     value_range = max_val - min_val if max_val != min_val else 1
 
     # Plot each H3 cell
@@ -1756,7 +1823,10 @@ def plot_h3_grid_static(
 
     # Add colorbar
     sm = plt.cm.ScalarMappable(
-        cmap=plt.cm.viridis, norm=plt.Normalize(vmin=min_val, vmax=max_val)
+        cmap=plt.cm.viridis,
+        norm=plt.Normalize(
+            vmin=min_val, vmax=max_val if max_val > min_val else min_val + 1
+        ),
     )
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax, shrink=0.8)
@@ -1788,6 +1858,7 @@ def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str 
         return
 
     try:
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         images = []
 
         # Get global min/max values for consistent color scaling

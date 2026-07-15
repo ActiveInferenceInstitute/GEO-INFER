@@ -10,6 +10,7 @@ Unit workspace within `GEO-INFER-LOG`.
 - `test_optimization.py`
 - `test_supply_chain.py`
 - `test_transport.py`
+- `test_visualization.py`
 
 ## Public Interface
 

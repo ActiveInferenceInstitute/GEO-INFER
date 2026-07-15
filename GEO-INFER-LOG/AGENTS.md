@@ -38,6 +38,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG
 ```
 
 
+## Visualization Guidance
+
+- Validate route points, zoom bounds, and network highlight nodes at public
+  boundaries; draw route lines from the ordered input path, not its hull.
+- Guard optional basemap integrations when contextily is unavailable.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

@@ -54,6 +54,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
 ```
 
 
+## Visualization Contracts
+
+- Spatial prediction, uncertainty, posterior, and model-comparison plots
+  validate finite aligned numeric inputs and confidence levels.
+- Spatial prediction handles the single-panel case when uncertainty is omitted
+  and returns a valid figure for both single- and multi-panel layouts.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

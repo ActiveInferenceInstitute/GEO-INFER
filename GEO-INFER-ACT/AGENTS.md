@@ -93,6 +93,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 - Re-run `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
   after changing any H3 or nested spatial inference path.
 
+## Visualization Guidance
+
+- Keep plotting inputs finite and shape-aligned; use local figure styling so a
+  library call cannot mutate the caller's matplotlib or seaborn configuration.
+- H3 visualization writers must create output directories and handle constant
+  metric ranges without emitting invalid colorbar limits.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

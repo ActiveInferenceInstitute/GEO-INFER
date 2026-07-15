@@ -33,6 +33,7 @@
 - `test_priors.py`
 - `test_spatial_gp.py`
 - `test_variational.py`
+- `test_visualization_utils.py`
 
 ## Validation
 

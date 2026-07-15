@@ -6,7 +6,8 @@ and Prophet models for temporal prediction.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+import warnings
+from typing import Dict, Optional, Any, Tuple
 import pandas as pd
 import numpy as np
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 try:
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import mean_squared_error, mean_absolute_error
+
     HAS_SKLEARN = True
 except ImportError:  # pragma: no cover - defensive fallback
     LinearRegression = None  # type: ignore[assignment]
@@ -39,9 +41,12 @@ except ImportError:
 # Optional imports for advanced models
 try:
     from statsmodels.tsa.arima.model import ARIMA
+    from statsmodels.tools.sm_exceptions import ConvergenceWarning
+
     HAS_ARIMA = True
 except ImportError:
     HAS_ARIMA = False
+    ConvergenceWarning = Warning
     logger.warning("statsmodels not available. ARIMA forecasting disabled.")
 
 
@@ -84,9 +89,9 @@ class ForecastingEngine:
         model.fit(time_points, values)
 
         # Forecast future points
-        future_time_points = np.arange(
-            len(values), len(values) + horizon
-        ).reshape(-1, 1)
+        future_time_points = np.arange(len(values), len(values) + horizon).reshape(
+            -1, 1
+        )
         forecast = model.predict(future_time_points)
 
         # Generate future timestamps
@@ -129,7 +134,19 @@ class ForecastingEngine:
         try:
             # Fit ARIMA model
             model = ARIMA(values, order=order)
-            fitted_model = model.fit()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="Non-stationary starting autoregressive parameters found.*",
+                    category=UserWarning,
+                )
+                warnings.filterwarnings(
+                    "ignore",
+                    message="Non-invertible starting MA parameters found.*",
+                    category=UserWarning,
+                )
+                warnings.filterwarnings("ignore", category=ConvergenceWarning)
+                fitted_model = model.fit()
 
             # Forecast
             forecast_result = fitted_model.forecast(steps=horizon)
@@ -214,13 +231,16 @@ class ForecastingEngine:
         """
         try:
             from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
             HAS_EXP_SMOOTHING = True
         except ImportError:
             HAS_EXP_SMOOTHING = False
             logger.warning("statsmodels not available. Exponential smoothing disabled.")
 
         if not HAS_EXP_SMOOTHING:
-            raise ImportError("statsmodels required for exponential smoothing forecasting")
+            raise ImportError(
+                "statsmodels required for exponential smoothing forecasting"
+            )
 
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
@@ -348,5 +368,3 @@ class ForecastingEngine:
         except Exception as e:
             logger.error(f"Forecast validation failed: {e}")
             return {"error": str(e)}
-
-

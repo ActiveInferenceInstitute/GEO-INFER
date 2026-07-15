@@ -110,22 +110,20 @@ def validate_timeseries(ts: TimeSeries) -> Dict[str, Any]:
 
     # Gap detection
     gaps: List[Dict[str, Any]] = []
-    if row_count > 1:
-        diffs = pd.Series(index).diff().dropna()
-        median_diff = diffs.median()
-        threshold = median_diff * 1.5
-
-        gap_mask = diffs > threshold
-        gap_indices = gap_mask[gap_mask].index
-        for idx in gap_indices:
-            gap_start = index[idx - 1]
-            gap_end = index[idx]
-            gap_size = diffs.iloc[idx]
-            gaps.append({
-                "start": gap_start.isoformat(),
-                "end": gap_end.isoformat(),
-                "size": str(gap_size),
-            })
+    if row_count > 1 and is_monotonic:
+        diffs = pd.Series(index[1:] - index[:-1])
+        positive_diffs = diffs[diffs > pd.Timedelta(0)]
+        if not positive_diffs.empty:
+            threshold = positive_diffs.median() * 1.5
+            for position, gap_size in enumerate(diffs.to_numpy(), start=1):
+                if gap_size > threshold:
+                    gaps.append(
+                        {
+                            "start": index[position - 1].isoformat(),
+                            "end": index[position].isoformat(),
+                            "size": str(gap_size),
+                        }
+                    )
 
     if gaps:
         warnings.append(f"Detected {len(gaps)} gap(s) in time series.")
@@ -197,8 +195,8 @@ def detect_frequency(ts: TimeSeries) -> Optional[str]:
         (3600, "h"),
         (86400, "D"),
         (604800, "W"),
-        (2592000, "ME"),     # ~30 days
-        (31536000, "YE"),    # ~365 days
+        (2592000, "ME"),  # ~30 days
+        (31536000, "YE"),  # ~365 days
     ]
 
     best_alias: Optional[str] = None
@@ -218,7 +216,9 @@ def detect_frequency(ts: TimeSeries) -> Optional[str]:
         )
         return best_alias
 
-    logger.debug("Could not determine frequency (median interval: %.1fs)", median_seconds)
+    logger.debug(
+        "Could not determine frequency (median interval: %.1fs)", median_seconds
+    )
     return None
 
 
@@ -250,9 +250,7 @@ def align_timeseries(
     if method not in ("outer", "inner"):
         raise ValueError(f"method must be 'outer' or 'inner', got '{method}'.")
 
-    logger.info(
-        "Aligning %d time series using '%s' join", len(ts_list), method
-    )
+    logger.info("Aligning %d time series using '%s' join", len(ts_list), method)
 
     indices = [ts.timestamps for ts in ts_list]
 
@@ -377,16 +375,13 @@ def fill_gaps(
         freq = detect_frequency(ts)
         if freq is None:
             raise ValueError(
-                "Cannot determine frequency automatically. "
-                "Pass freq explicitly."
+                "Cannot determine frequency automatically. " "Pass freq explicitly."
             )
 
     logger.info("Filling gaps with method='%s', freq='%s'", method, freq)
 
     df = ts.to_dataframe()
-    regular_index = pd.date_range(
-        start=df.index.min(), end=df.index.max(), freq=freq
-    )
+    regular_index = pd.date_range(start=df.index.min(), end=df.index.max(), freq=freq)
     df = df.reindex(regular_index)
 
     if method == "ffill":

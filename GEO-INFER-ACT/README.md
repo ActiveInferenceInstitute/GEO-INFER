@@ -143,6 +143,14 @@ trace = agent.trace_over_nested_h3_grid(
 )
 ```
 
+## Visualization Contracts
+
+- Belief, policy, free-energy, hierarchical, and H3-grid plots validate finite
+  aligned inputs, preserve caller-supplied figure sizes, and avoid changing
+  process-wide matplotlib or seaborn state.
+- H3 static and animated outputs create their parent directories before writing;
+  constant-valued grids still receive a valid color scale.
+
 Nested validation command:
 
 ```bash

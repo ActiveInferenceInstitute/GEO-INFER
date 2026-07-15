@@ -393,6 +393,51 @@ class TestVisualizationDataStructures:
         except ImportError:
             pytest.fail("Matplotlib not available")
 
+    def test_negative_contrast_indices_are_rejected(self):
+        from geo_infer_spm.visualization.maps import create_statistical_map
+
+        coordinates = np.column_stack([np.arange(4), np.arange(4)])
+        spm_data = SPMData(data=np.ones(4), coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=np.ones((4, 1)), names=["intercept"])
+        result = SPMResult(
+            spm_data=spm_data,
+            design_matrix=design_matrix,
+            beta_coefficients=np.array([0.5]),
+            residuals=np.zeros(4),
+            model_diagnostics={},
+        )
+        with pytest.raises(ValueError, match="non-negative"):
+            create_statistical_map(result, contrast_idx=-1)
+
+    def test_diagnostic_dispatch_returns_cooks_distance_for_all_observations(self):
+        from geo_infer_spm.visualization.maps import plot_spm_results
+
+        coordinates = np.column_stack([np.arange(6), np.arange(6)])
+        design = np.column_stack([np.ones(6), np.arange(6)])
+        spm_data = SPMData(
+            data=np.arange(6.0), coordinates=coordinates, crs="EPSG:4326"
+        )
+        result = SPMResult(
+            spm_data=spm_data,
+            design_matrix=DesignMatrix(matrix=design, names=["intercept", "trend"]),
+            beta_coefficients=np.array([0.5, 0.2]),
+            residuals=np.linspace(-0.2, 0.2, 6),
+            model_diagnostics={},
+        )
+        diagnostics = plot_spm_results(result, plot_type="diagnostics")
+        assert diagnostics["diagnostic_stats"]["max_cooks_d"] >= 0
+        import matplotlib.pyplot as plt
+
+        plt.close(diagnostics["matplotlib_figure"])
+
+    def test_package_exports_interactive_map_once(self):
+        import inspect
+        from geo_infer_spm.visualization import create_interactive_map
+
+        assert inspect.getmodule(create_interactive_map).__name__.endswith(
+            "interactive"
+        )
+
 
 class TestVisualizationWithoutDependencies:
     """Test visualization behavior when dependencies are unavailable."""

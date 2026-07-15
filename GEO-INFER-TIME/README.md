@@ -47,6 +47,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME
 ```
 
 
+## Visualization Contracts
+
+- Temporal plotting helpers validate nonempty finite series, aligned timestamps,
+  confidence bounds, and anomaly indices before rendering.
+- Figure creation and saving remain scoped to each call, preserving reusable
+  style configuration without leaking global matplotlib state.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

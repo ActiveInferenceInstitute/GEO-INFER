@@ -44,6 +44,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES
 ```
 
 
+## Visualization Guidance
+
+- Validate finite aligned spatial arrays and confidence levels before plotting.
+- Normalize single-axis layouts before indexing axes so optional uncertainty
+  panels work for one and many spatial predictions.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

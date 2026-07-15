@@ -39,6 +39,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
 ```
 
 
+## Visualization Guidance
+
+- Validate finite nonempty chart inputs and use call-local figure saving; do not
+  mutate process-wide matplotlib/seaborn style from a visualizer constructor.
+- Keep dashboard output paths operational and format optional metrics safely.
+
 ## Integration Notes
 
 - Update this AGENTS.md and the sibling README.md when commands, exports, dependencies, or generated outputs change.

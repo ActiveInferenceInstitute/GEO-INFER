@@ -39,6 +39,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG
 ```
 
 
+## Visualization Contracts
+
+- Route plotting validates geographic coordinates and preserves the supplied
+  path geometry; network highlighting rejects unknown nodes.
+- Interactive map zoom and optional map basemaps are validated/guarded so
+  plotting remains usable without contextily network access.
+
 ## Documentation Notes
 
 This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

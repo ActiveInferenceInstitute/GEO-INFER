@@ -14,6 +14,7 @@ Unit workspace within `GEO-INFER-COG`.
 - `test_spatial_perception.py`
 - `test_spatial_reasoning.py`
 - `test_validation.py`
+- `test_visualization.py`
 
 ## Public Interface
 
