@@ -314,20 +314,22 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
 
                 # Update Active Inference observations
                 observations = self._extract_observations(processed_data)
-                self.active_inference_model.update_observations(observations)
-
-                # Update beliefs through Active Inference
-                beliefs = self.active_inference_model.update_beliefs()
-
-                # Store processed beliefs in sensory input
-                sensory_input.processed_data.update(
-                    {
-                        "active_inference_beliefs": beliefs,
-                        "free_energy": getattr(
-                            self.active_inference_model, "current_free_energy", 0.0
-                        ),
-                    }
+                beliefs = self._update_active_inference(observations)
+                sensory_input.processed_data["active_inference_observations"] = (
+                    observations
                 )
+                if beliefs is not None:
+                    # Store processed beliefs in sensory input.
+                    sensory_input.processed_data.update(
+                        {
+                            "active_inference_beliefs": beliefs,
+                            "free_energy": getattr(
+                                self.active_inference_model,
+                                "current_free_energy",
+                                0.0,
+                            ),
+                        }
+                    )
 
             except Exception as e:
                 logger.warning(f"Active Inference processing failed: {e}")
@@ -347,6 +349,47 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
 
         logger.debug(f"Agent {self.agent_id} processed sensory input")
         return sensory_input
+
+    def _update_active_inference(self, observations: Dict[str, Any]) -> Optional[Any]:
+        """Store observations and update beliefs when a model is configured.
+
+        GEO-INFER-ACT exposes ``update_observations`` for structured context and
+        ``perceive`` for numeric belief updates.  A newly-created ANT agent has
+        no generative model yet, so it must retain observations without calling
+        a belief API that cannot run.  The guarded path also keeps compatibility
+        with older injected models exposing a zero-argument ``update_beliefs``.
+        """
+        model = self.active_inference_model
+        if model is None:
+            return None
+
+        update_observations = getattr(model, "update_observations", None)
+        if callable(update_observations):
+            update_observations(observations)
+
+        if getattr(model, "generative_model", None) is not None:
+            perceive = getattr(model, "perceive", None)
+            if callable(perceive):
+                numeric_observations = self._numeric_observation_vector(observations)
+                if numeric_observations.size:
+                    return perceive(numeric_observations)
+
+        update_beliefs = getattr(model, "update_beliefs", None)
+        if callable(update_beliefs):
+            return update_beliefs()
+        return None
+
+    @staticmethod
+    def _numeric_observation_vector(observations: Dict[str, Any]) -> np.ndarray:
+        """Flatten finite numeric observations for configured ACT models."""
+        values: List[float] = []
+        for value in observations.values():
+            try:
+                array = np.asarray(value, dtype=float).reshape(-1)
+            except (TypeError, ValueError):
+                continue
+            values.extend(array[np.isfinite(array)].tolist())
+        return np.asarray(values, dtype=float)
 
     def _extract_observations(self, processed_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract observations for Active Inference model."""
