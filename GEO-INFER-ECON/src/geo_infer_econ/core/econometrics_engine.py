@@ -10,31 +10,32 @@ This module provides comprehensive spatial econometric analysis tools including:
 - Bayesian spatial econometric methods
 """
 
-from typing import Dict, Any, List, Optional, Tuple, Union, Callable
+from typing import Dict, Any, Optional
 import numpy as np
-import pandas as pd
 import geopandas as gpd
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import logging
 from scipy import stats, optimize
 from scipy.spatial.distance import pdist, squareform, cdist
 from sklearn.base import BaseEstimator, RegressorMixin
-from sklearn.model_selection import cross_val_score
 from sklearn.metrics import mean_squared_error, r2_score
 import warnings
-import itertools
+
 
 @dataclass
 class SpatialWeightsConfig:
     """Configuration for spatial weights matrix construction."""
+
     method: str  # 'contiguity', 'distance', 'knn', 'kernel', 'adaptive'
     parameters: Dict[str, Any]
-    standardization: str = 'row'  # 'row', 'col', 'none'
+    standardization: str = "row"  # 'row', 'col', 'none'
     threshold: Optional[float] = None  # Minimum weight threshold
-    
+
+
 @dataclass
 class EconometricResults:
     """Container for econometric estimation results."""
+
     coefficients: np.ndarray
     standard_errors: np.ndarray
     t_statistics: np.ndarray
@@ -48,6 +49,7 @@ class EconometricResults:
     residuals: Optional[np.ndarray] = None
     fitted_values: Optional[np.ndarray] = None
     convergence_info: Optional[Dict[str, Any]] = None
+
 
 class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
     """
@@ -80,18 +82,18 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         self.fitted_models = {}
 
         # Optimization settings
-        self.max_iter = self.config.get('max_iter', 1000)
-        self.tolerance = self.config.get('tolerance', 1e-6)
-        self.method = self.config.get('method', 'L-BFGS-B')
-        self.verbose = self.config.get('verbose', 0)
+        self.max_iter = self.config.get("max_iter", 1000)
+        self.tolerance = self.config.get("tolerance", 1e-6)
+        self.method = self.config.get("method", "L-BFGS-B")
+        self.verbose = self.config.get("verbose", 0)
 
         # Model settings
         self.model_type = None
         self.is_fitted = False
-        
-    def construct_spatial_weights(self,
-                                 gdf: gpd.GeoDataFrame,
-                                 config: SpatialWeightsConfig) -> np.ndarray:
+
+    def construct_spatial_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """
         Construct spatial weights matrix from geographic data.
 
@@ -115,15 +117,15 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         weights = np.zeros((n, n))
 
         try:
-            if config.method == 'contiguity':
+            if config.method == "contiguity":
                 weights = self._contiguity_weights(gdf, config)
-            elif config.method == 'distance':
+            elif config.method == "distance":
                 weights = self._distance_weights(gdf, config)
-            elif config.method == 'knn':
+            elif config.method == "knn":
                 weights = self._knn_weights(gdf, config)
-            elif config.method == 'kernel':
+            elif config.method == "kernel":
                 weights = self._kernel_weights(gdf, config)
-            elif config.method == 'adaptive':
+            elif config.method == "adaptive":
                 weights = self._adaptive_weights(gdf, config)
             else:
                 raise ValueError(f"Unknown weights method: {config.method}")
@@ -148,17 +150,19 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             self.logger.error(f"Error constructing spatial weights: {str(e)}")
             raise
 
-    def _contiguity_weights(self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig) -> np.ndarray:
+    def _contiguity_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """Construct contiguity-based weights matrix."""
         n = len(gdf)
         weights = np.zeros((n, n))
-        contiguity_type = config.parameters.get('type', 'queen')
+        contiguity_type = config.parameters.get("type", "queen")
 
         for i in range(n):
             for j in range(i + 1, n):
                 geom_i, geom_j = gdf.geometry.iloc[i], gdf.geometry.iloc[j]
 
-                if contiguity_type == 'queen':
+                if contiguity_type == "queen":
                     is_neighbor = geom_i.touches(geom_j) or geom_i.intersects(geom_j)
                 else:  # rook
                     shared_boundary = geom_i.boundary.intersection(geom_j.boundary)
@@ -170,82 +174,102 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         return weights
 
-    def _distance_weights(self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig) -> np.ndarray:
+    def _distance_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """Construct distance-based weights matrix."""
         n = len(gdf)
         weights = np.zeros((n, n))
 
         # Calculate centroids
-        centroids = np.array([[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry])
+        centroids = np.array(
+            [[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry]
+        )
 
         # Distance decay parameters
-        threshold = config.parameters.get('threshold', float('inf'))
-        decay_type = config.parameters.get('decay', 'binary')  # 'binary', 'exponential', 'power'
+        threshold = config.parameters.get("threshold", float("inf"))
+        decay_type = config.parameters.get(
+            "decay", "binary"
+        )  # 'binary', 'exponential', 'power'
 
         for i in range(n):
-            distances = cdist(centroids[i:i+1], centroids)[0]
+            distances = cdist(centroids[i : i + 1], centroids)[0]
 
-            if decay_type == 'binary':
+            if decay_type == "binary":
                 weights[i] = (distances <= threshold) & (distances > 0)
-            elif decay_type == 'exponential':
-                bandwidth = config.parameters.get('bandwidth', 1.0)
+            elif decay_type == "exponential":
+                bandwidth = config.parameters.get("bandwidth", 1.0)
                 weights[i] = np.exp(-distances / bandwidth) * (distances <= threshold)
-            elif decay_type == 'power':
-                power = config.parameters.get('power', -2.0)
-                weights[i] = np.power(distances + 1e-10, power) * (distances <= threshold)
+            elif decay_type == "power":
+                power = config.parameters.get("power", -2.0)
+                weights[i] = np.power(distances + 1e-10, power) * (
+                    distances <= threshold
+                )
 
         return weights
 
-    def _knn_weights(self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig) -> np.ndarray:
+    def _knn_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """Construct k-nearest neighbors weights matrix."""
         n = len(gdf)
         weights = np.zeros((n, n))
-        k = config.parameters.get('k', 5)
+        k = config.parameters.get("k", 5)
 
-        centroids = np.array([[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry])
+        centroids = np.array(
+            [[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry]
+        )
         distances = squareform(pdist(centroids))
 
         for i in range(n):
             # Find k nearest neighbors (excluding self)
-            nearest_indices = np.argsort(distances[i])[1:k+1]
+            nearest_indices = np.argsort(distances[i])[1 : k + 1]
             weights[i, nearest_indices] = 1
 
         return weights
 
-    def _kernel_weights(self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig) -> np.ndarray:
+    def _kernel_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """Construct kernel-based weights matrix."""
         n = len(gdf)
         weights = np.zeros((n, n))
 
-        centroids = np.array([[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry])
+        centroids = np.array(
+            [[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry]
+        )
         distances = squareform(pdist(centroids))
 
         # Kernel parameters
-        kernel_type = config.parameters.get('kernel', 'gaussian')
-        bandwidth = config.parameters.get('bandwidth', 1.0)
+        kernel_type = config.parameters.get("kernel", "gaussian")
+        bandwidth = config.parameters.get("bandwidth", 1.0)
 
         for i in range(n):
-            if kernel_type == 'gaussian':
-                weights[i] = np.exp(-distances[i]**2 / (2 * bandwidth**2))
-            elif kernel_type == 'epanechnikov':
+            if kernel_type == "gaussian":
+                weights[i] = np.exp(-distances[i] ** 2 / (2 * bandwidth**2))
+            elif kernel_type == "epanechnikov":
                 h = distances[i] / bandwidth
                 weights[i] = np.where(h <= 1, 0.75 * (1 - h**2), 0)
-            elif kernel_type == 'tricube':
+            elif kernel_type == "tricube":
                 h = distances[i] / bandwidth
-                weights[i] = np.where(h <= 1, (70/81) * (1 - h**3)**3, 0)
+                weights[i] = np.where(h <= 1, (70 / 81) * (1 - h**3) ** 3, 0)
 
         return weights
 
-    def _adaptive_weights(self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig) -> np.ndarray:
+    def _adaptive_weights(
+        self, gdf: gpd.GeoDataFrame, config: SpatialWeightsConfig
+    ) -> np.ndarray:
         """Construct adaptive bandwidth weights matrix."""
         n = len(gdf)
         weights = np.zeros((n, n))
 
-        centroids = np.array([[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry])
+        centroids = np.array(
+            [[geom.centroid.x, geom.centroid.y] for geom in gdf.geometry]
+        )
         distances = squareform(pdist(centroids))
 
         # Adaptive bandwidth based on k-th nearest neighbor
-        k = config.parameters.get('k', 10)
+        k = config.parameters.get("k", 10)
 
         for i in range(n):
             # Find k-th nearest neighbor distance
@@ -253,21 +277,21 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             adaptive_bandwidth = sorted_distances[k] if k < n else sorted_distances[-1]
 
             # Apply Gaussian kernel with adaptive bandwidth
-            weights[i] = np.exp(-distances[i]**2 / (2 * adaptive_bandwidth**2))
+            weights[i] = np.exp(-distances[i] ** 2 / (2 * adaptive_bandwidth**2))
 
         return weights
 
     def _standardize_weights(self, weights: np.ndarray, method: str) -> np.ndarray:
         """Standardize spatial weights matrix."""
-        if method == 'row':
+        if method == "row":
             row_sums = weights.sum(axis=1, keepdims=True)
             row_sums = np.where(row_sums == 0, 1, row_sums)  # Avoid division by zero
             return weights / row_sums
-        elif method == 'col':
+        elif method == "col":
             col_sums = weights.sum(axis=0, keepdims=True)
             col_sums = np.where(col_sums == 0, 1, col_sums)  # Avoid division by zero
             return weights / col_sums
-        elif method == 'none':
+        elif method == "none":
             return weights
         else:
             raise ValueError(f"Unknown standardization method: {method}")
@@ -276,9 +300,14 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         """Generate cache key for spatial weights."""
         params_str = str(sorted(config.parameters.items()))
         return f"{config.method}_{config.standardization}_{hash(params_str)}"
-        
-    def fit(self, X: np.ndarray, y: np.ndarray, W: Optional[np.ndarray] = None,
-            model_type: str = 'sar') -> 'SpatialEconometricsEngine':
+
+    def fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        W: Optional[np.ndarray] = None,
+        model_type: str = "sar",
+    ) -> "SpatialEconometricsEngine":
         """
         Fit spatial econometric model (sklearn-compatible interface).
 
@@ -301,13 +330,13 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             X = np.column_stack([np.ones(len(X)), X])
 
         # Fit the specified model
-        if model_type == 'sar':
+        if model_type == "sar":
             results = self._fit_sar_model(y, X, W)
-        elif model_type == 'sem':
+        elif model_type == "sem":
             results = self._fit_sem_model(y, X, W)
-        elif model_type == 'sdm':
+        elif model_type == "sdm":
             results = self._fit_sdm_model(y, X, W)
-        elif model_type == 'sac':
+        elif model_type == "sac":
             results = self._fit_sac_model(y, X, W)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
@@ -338,26 +367,28 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         if not np.allclose(X[:, 0], 1):
             X = np.column_stack([np.ones(len(X)), X])
 
-        if self.model_type == 'sar':
+        if self.model_type == "sar":
             return self._predict_sar(X, W)
-        elif self.model_type == 'sem':
+        elif self.model_type == "sem":
             return X @ self.coefficients_
-        elif self.model_type == 'sdm':
+        elif self.model_type == "sdm":
             return self._predict_sdm(X, W)
-        elif self.model_type == 'sac':
+        elif self.model_type == "sac":
             return self._predict_sac(X, W)
         else:
             return X @ self.coefficients_
 
-    def _fit_sar_model(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> EconometricResults:
+    def _fit_sar_model(
+        self, y: np.ndarray, X: np.ndarray, W: np.ndarray
+    ) -> EconometricResults:
         """Fit Spatial Autoregressive (SAR) model."""
         n, k = X.shape
 
         def sar_log_likelihood(params):
             """SAR model log-likelihood function."""
             rho = params[0]
-            beta = params[1:k+1]
-            sigma2 = params[k+1]
+            beta = params[1 : k + 1]
+            sigma2 = params[k + 1]
 
             # Avoid singular matrices
             if abs(rho) >= 1:
@@ -365,13 +396,14 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
             try:
                 S = np.eye(n) - rho * W
-                S_inv = np.linalg.inv(S)
                 residuals = S @ y - X @ beta
 
                 log_det_S = np.log(np.linalg.det(S))
-                ll = (-0.5 * n * np.log(2 * np.pi * sigma2) +
-                      log_det_S -
-                      0.5 * (residuals.T @ residuals) / sigma2)
+                ll = (
+                    -0.5 * n * np.log(2 * np.pi * sigma2)
+                    + log_det_S
+                    - 0.5 * (residuals.T @ residuals) / sigma2
+                )
 
                 return -ll  # Return negative for minimization
             except Exception:
@@ -388,9 +420,11 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         bounds = [(-0.999, 0.999)] + [(-np.inf, np.inf)] * k + [(1e-10, np.inf)]
 
         result = optimize.minimize(
-            sar_log_likelihood, initial_params,
-            method=self.method, bounds=bounds,
-            options={'maxiter': self.max_iter, 'ftol': self.tolerance}
+            sar_log_likelihood,
+            initial_params,
+            method=self.method,
+            bounds=bounds,
+            options={"maxiter": self.max_iter, "ftol": self.tolerance},
         )
 
         if not result.success:
@@ -398,11 +432,11 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             # Fall back to OLS
             rho, beta, sigma2 = 0.0, beta_ols, sigma2_ols
         else:
-            rho, beta, sigma2 = result.x[0], result.x[1:k+1], result.x[k+1]
+            rho, beta, sigma2 = result.x[0], result.x[1 : k + 1], result.x[k + 1]
 
         # Calculate fitted values and residuals
         S = np.eye(n) - rho * W
-        fitted_values = S_inv = np.linalg.solve(S, X @ beta)
+        fitted_values = np.linalg.solve(S, X @ beta)
         residuals = y - fitted_values
 
         # Calculate standard errors (simplified)
@@ -415,41 +449,48 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # R-squared
         y_mean = np.mean(y)
-        tss = np.sum((y - y_mean)**2)
+        tss = np.sum((y - y_mean) ** 2)
         rss = np.sum(residuals**2)
         r_squared = 1 - rss / tss if tss > 0 else 0
 
         # Information criteria
         aic = -2 * (-result.fun) + 2 * len(result.x) if result.success else np.nan
-        bic = -2 * (-result.fun) + len(result.x) * np.log(n) if result.success else np.nan
+        bic = (
+            -2 * (-result.fun) + len(result.x) * np.log(n) if result.success else np.nan
+        )
 
         # Spatial diagnostics
         wy_residuals = W @ residuals
-        morans_i = (n / np.sum(W)) * (residuals.T @ wy_residuals) / (residuals.T @ residuals)
-
+        morans_i = (
+            (n / np.sum(W)) * (residuals.T @ wy_residuals) / (residuals.T @ residuals)
+        )
         spatial_diagnostics = {
-            'morans_i_residuals': float(morans_i),
-            'spatial_rho': float(rho),
-            'converged': result.success
+            "morans_i_residuals": float(morans_i),
+            "spatial_rho": float(rho),
+            "converged": result.success,
         }
 
         return EconometricResults(
             coefficients=np.concatenate([[rho], beta]),
-            standard_errors=np.concatenate([[0.1], standard_errors]),  # Simplified SE for rho
-            t_statistics=np.concatenate([[rho/0.1], t_statistics]),
+            standard_errors=np.concatenate(
+                [[0.1], standard_errors]
+            ),  # Simplified SE for rho
+            t_statistics=np.concatenate([[rho / 0.1], t_statistics]),
             p_values=np.concatenate([[0.5], p_values]),
             r_squared=r_squared,
             log_likelihood=-result.fun if result.success else None,
             aic=aic,
             bic=bic,
             spatial_diagnostics=spatial_diagnostics,
-            model_type='sar',
+            model_type="sar",
             residuals=residuals,
             fitted_values=fitted_values,
-            convergence_info={'success': result.success, 'message': result.message}
+            convergence_info={"success": result.success, "message": result.message},
         )
 
-    def _fit_sem_model(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> EconometricResults:
+    def _fit_sem_model(
+        self, y: np.ndarray, X: np.ndarray, W: np.ndarray
+    ) -> EconometricResults:
         """Fit Spatial Error Model (SEM)."""
         n, k = X.shape
 
@@ -457,7 +498,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             """SEM model log-likelihood function."""
             beta = params[:k]
             lambda_param = params[k]  # Spatial error parameter
-            sigma2 = params[k+1]
+            sigma2 = params[k + 1]
 
             if abs(lambda_param) >= 1:
                 return 1e10
@@ -470,9 +511,11 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                 residuals = y - X @ beta
                 log_det_Omega = np.log(np.linalg.det(Omega))
 
-                ll = (-0.5 * n * np.log(2 * np.pi * sigma2) +
-                      0.5 * log_det_Omega -
-                      0.5 * (residuals.T @ Omega_inv @ residuals) / sigma2)
+                ll = (
+                    -0.5 * n * np.log(2 * np.pi * sigma2)
+                    + 0.5 * log_det_Omega
+                    - 0.5 * (residuals.T @ Omega_inv @ residuals) / sigma2
+                )
 
                 return -ll
             except Exception:
@@ -489,13 +532,15 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         bounds = [(-np.inf, np.inf)] * k + [(-0.999, 0.999), (1e-10, np.inf)]
 
         result = optimize.minimize(
-            sem_log_likelihood, initial_params,
-            method=self.method, bounds=bounds,
-            options={'maxiter': self.max_iter, 'ftol': self.tolerance}
+            sem_log_likelihood,
+            initial_params,
+            method=self.method,
+            bounds=bounds,
+            options={"maxiter": self.max_iter, "ftol": self.tolerance},
         )
 
         if result.success:
-            beta, lambda_param, sigma2 = result.x[:k], result.x[k], result.x[k+1]
+            beta, lambda_param, sigma2 = result.x[:k], result.x[k], result.x[k + 1]
             fitted_values = X @ beta
             residuals = y - fitted_values
         else:
@@ -513,28 +558,25 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # R-squared
         y_mean = np.mean(y)
-        tss = np.sum((y - y_mean)**2)
+        tss = np.sum((y - y_mean) ** 2)
         rss = np.sum(residuals**2)
         r_squared = 1 - rss / tss if tss > 0 else 0
-
-        spatial_diagnostics = {
-            'spatial_lambda': float(lambda_param),
-            'converged': result.success
-        }
 
         return EconometricResults(
             coefficients=np.concatenate([beta, [lambda_param]]),
             standard_errors=np.concatenate([standard_errors, [0.1]]),
-            t_statistics=np.concatenate([t_statistics, [lambda_param/0.1]]),
+            t_statistics=np.concatenate([t_statistics, [lambda_param / 0.1]]),
             p_values=np.concatenate([p_values, [0.5]]),
             r_squared=r_squared,
-            model_type='sem',
+            model_type="sem",
             residuals=residuals,
             fitted_values=fitted_values,
-            convergence_info={'success': result.success, 'message': result.message}
+            convergence_info={"success": result.success, "message": result.message},
         )
 
-    def _fit_sdm_model(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> EconometricResults:
+    def _fit_sdm_model(
+        self, y: np.ndarray, X: np.ndarray, W: np.ndarray
+    ) -> EconometricResults:
         """Fit Spatial Durbin Model (SDM)."""
         # SDM is SAR with spatially lagged X variables
         WX = W @ X
@@ -543,7 +585,9 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         # Fit as SAR model
         return self._fit_sar_model(y, X_sdm, W)
 
-    def _fit_sac_model(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> EconometricResults:
+    def _fit_sac_model(
+        self, y: np.ndarray, X: np.ndarray, W: np.ndarray
+    ) -> EconometricResults:
         """Fit Spatial Autoregressive Combined (SAC) model."""
         # Baseline for SAC implementation - combines SAR and SEM
         # This would require more complex optimization
@@ -570,9 +614,6 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # SDM coefficients: [rho, beta_X, beta_WX]
         rho = self.coefficients_[0]
-        beta_X = self.coefficients_[1:X.shape[1]]
-        beta_WX = self.coefficients_[X.shape[1]:]
-
         WX = W @ X
         X_sdm = np.column_stack([X, WX])
 
@@ -583,7 +624,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         """Make predictions for SAC model."""
         # Baseline for SAC prediction
         return self._predict_sar(X, W)
-        
+
     def _lm_lag_test(self, y: np.ndarray, X: np.ndarray, W: np.ndarray) -> float:
         """Lagrange Multiplier test for spatial lag dependence."""
         n = len(y)
@@ -596,7 +637,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         # Test statistic
         wy = W @ y
         m = wy - X @ np.linalg.lstsq(X, wy, rcond=None)[0]
-        lm_lag = (residuals.T @ m)**2 / (sigma2 * (m.T @ m))
+        lm_lag = (residuals.T @ m) ** 2 / (sigma2 * (m.T @ m))
 
         return float(lm_lag)
 
@@ -611,11 +652,13 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # Test statistic
         we = W @ residuals
-        lm_error = (residuals.T @ we)**2 / (sigma2 * np.trace(W.T @ W + W @ W))
+        lm_error = (residuals.T @ we) ** 2 / (sigma2 * np.trace(W.T @ W + W @ W))
 
         return float(lm_error)
 
-    def score(self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None) -> float:
+    def score(
+        self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None
+    ) -> float:
         """Return the coefficient of determination R^2 of the prediction (sklearn-compatible)."""
         y_pred = self.predict(X)
         return r2_score(y, y_pred, sample_weight=sample_weight)
@@ -623,14 +666,14 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
     def get_params(self, deep: bool = True) -> Dict[str, Any]:
         """Get parameters for this estimator (sklearn-compatible)."""
         return {
-            'config': self.config,
-            'max_iter': self.max_iter,
-            'tolerance': self.tolerance,
-            'method': self.method,
-            'verbose': self.verbose
+            "config": self.config,
+            "max_iter": self.max_iter,
+            "tolerance": self.tolerance,
+            "method": self.method,
+            "verbose": self.verbose,
         }
 
-    def set_params(self, **params) -> 'SpatialEconometricsEngine':
+    def set_params(self, **params) -> "SpatialEconometricsEngine":
         """Set parameters for this estimator (sklearn-compatible)."""
         for key, value in params.items():
             if hasattr(self, key):
@@ -640,12 +683,14 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             else:
                 raise ValueError(f"Unknown parameter: {key}")
         return self
-        
-    def geographically_weighted_regression(self,
-                                         y: np.ndarray,
-                                         X: np.ndarray,
-                                         coordinates: np.ndarray,
-                                         bandwidth: Optional[float] = None) -> Dict[str, np.ndarray]:
+
+    def geographically_weighted_regression(
+        self,
+        y: np.ndarray,
+        X: np.ndarray,
+        coordinates: np.ndarray,
+        bandwidth: Optional[float] = None,
+    ) -> Dict[str, np.ndarray]:
         """
         Perform Geographically Weighted Regression (GWR).
 
@@ -671,7 +716,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         for i in range(n):
             # Calculate weights for observation i
-            distances = np.sqrt(np.sum((coordinates - coordinates[i])**2, axis=1))
+            distances = np.sqrt(np.sum((coordinates - coordinates[i]) ** 2, axis=1))
             weights = np.exp(-(distances**2) / (bandwidth**2))
 
             # Weighted least squares
@@ -691,26 +736,25 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             weights_sum = np.sum(weights)
             y_weighted_mean = np.sum(weights * y) / weights_sum
 
-            tss = np.sum(weights * (y - y_weighted_mean)**2)
-            rss = np.sum(weights * (y - X @ beta_i)**2)
+            tss = np.sum(weights * (y - y_weighted_mean) ** 2)
+            rss = np.sum(weights * (y - X @ beta_i) ** 2)
             local_r_squared[i] = 1 - rss / tss if tss > 0 else 0
 
             # Store residuals for location i
             local_residuals[i] = residuals_i[i]
 
         return {
-            'local_coefficients': local_coefficients,
-            'local_standard_errors': local_standard_errors,
-            'local_r_squared': local_r_squared,
-            'local_residuals': local_residuals,
-            'bandwidth': bandwidth,
-            'coordinates': coordinates
+            "local_coefficients": local_coefficients,
+            "local_standard_errors": local_standard_errors,
+            "local_r_squared": local_r_squared,
+            "local_residuals": local_residuals,
+            "bandwidth": bandwidth,
+            "coordinates": coordinates,
         }
-        
-    def _select_gwr_bandwidth(self,
-                             y: np.ndarray,
-                             X: np.ndarray,
-                             coordinates: np.ndarray) -> float:
+
+    def _select_gwr_bandwidth(
+        self, y: np.ndarray, X: np.ndarray, coordinates: np.ndarray
+    ) -> float:
         """Select optimal bandwidth for GWR using cross-validation."""
         distances = pdist(coordinates)
         min_dist, max_dist = np.min(distances), np.max(distances)
@@ -730,7 +774,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                 coord_train = np.delete(coordinates, i, axis=0)
 
                 # Predict for observation i
-                distances = np.sqrt(np.sum((coord_train - coordinates[i])**2, axis=1))
+                distances = np.sqrt(np.sum((coord_train - coordinates[i]) ** 2, axis=1))
                 weights = np.exp(-(distances**2) / (bw**2))
 
                 W_diag = np.diag(weights)
@@ -738,7 +782,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                     XTW = X_train.T @ W_diag
                     beta = np.linalg.inv(XTW @ X_train) @ XTW @ y_train
                     y_pred = X[i] @ beta
-                    cv_score += (y[i] - y_pred)**2
+                    cv_score += (y[i] - y_pred) ** 2
                 except Exception:
                     cv_score += 1e10
 
@@ -747,7 +791,9 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         optimal_bandwidth = bandwidths[np.argmin(cv_scores)]
         return optimal_bandwidth
 
-    def spatial_diagnostics(self, residuals: np.ndarray, W: np.ndarray) -> Dict[str, float]:
+    def spatial_diagnostics(
+        self, residuals: np.ndarray, W: np.ndarray
+    ) -> Dict[str, float]:
         """
         Comprehensive spatial diagnostic tests.
 
@@ -762,13 +808,18 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # Moran's I for residuals
         wy_residuals = W @ residuals
-        morans_i = (n / np.sum(W)) * (residuals.T @ wy_residuals) / (residuals.T @ residuals)
+        morans_i = (
+            (n / np.sum(W)) * (residuals.T @ wy_residuals) / (residuals.T @ residuals)
+        )
 
         # Expected value and variance of Moran's I under null hypothesis
         expected_i = -1 / (n - 1)
-        b2 = np.sum(W**2)
-        variance_i = (n**2 - 3*n + 3) * np.sum(W**2) - n * np.trace(W @ W) + 3 * (np.sum(W))**2
-        variance_i = variance_i / ((n - 1) * (n - 2) * (n - 3) * (np.sum(W))**2)
+        variance_i = (
+            (n**2 - 3 * n + 3) * np.sum(W**2)
+            - n * np.trace(W @ W)
+            + 3 * (np.sum(W)) ** 2
+        )
+        variance_i = variance_i / ((n - 1) * (n - 2) * (n - 3) * (np.sum(W)) ** 2)
 
         # Z-score for Moran's I
         z_morans = (morans_i - expected_i) / np.sqrt(variance_i)
@@ -776,27 +827,33 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         # Additional diagnostics
         # Geary's C
-        geary_c = (n-1) * np.sum((residuals - np.roll(residuals, 1))**2) / (2 * np.sum(residuals**2))
+        geary_c = (
+            (n - 1)
+            * np.sum((residuals - np.roll(residuals, 1)) ** 2)
+            / (2 * np.sum(residuals**2))
+        )
 
         # Getis-Ord G* (simplified)
         g_stat = np.sum(wy_residuals) / np.sum(residuals)
 
         return {
-            'morans_i': float(morans_i),
-            'expected_morans_i': float(expected_i),
-            'z_morans': float(z_morans),
-            'p_value_morans': float(p_morans),
-            'significant_autocorr': p_morans < 0.05,
-            'geary_c': float(geary_c),
-            'getis_ord_g': float(g_stat)
+            "morans_i": float(morans_i),
+            "expected_morans_i": float(expected_i),
+            "z_morans": float(z_morans),
+            "p_value_morans": float(p_morans),
+            "significant_autocorr": p_morans < 0.05,
+            "geary_c": float(geary_c),
+            "getis_ord_g": float(g_stat),
         }
 
-    def cross_validate_spatial_model(self,
-                                   X: np.ndarray,
-                                   y: np.ndarray,
-                                   W: np.ndarray,
-                                   cv_folds: int = 5,
-                                   model_type: str = 'sar') -> Dict[str, Any]:
+    def cross_validate_spatial_model(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        W: np.ndarray,
+        cv_folds: int = 5,
+        model_type: str = "sar",
+    ) -> Dict[str, Any]:
         """
         Perform cross-validation for spatial models.
 
@@ -819,7 +876,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         for fold in range(cv_folds):
             # Create train/test split
-            test_indices = indices[fold * fold_size:(fold + 1) * fold_size]
+            test_indices = indices[fold * fold_size : (fold + 1) * fold_size]
             train_indices = np.setdiff1d(indices, test_indices)
 
             X_train, X_test = X[train_indices], X[test_indices]
@@ -840,9 +897,9 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             predictions[test_indices] = y_pred
 
         return {
-            'cv_scores': cv_scores,
-            'mean_cv_score': np.mean(cv_scores),
-            'std_cv_score': np.std(cv_scores),
-            'predictions': predictions,
-            'r_squared_cv': r2_score(y, predictions)
-        } 
+            "cv_scores": cv_scores,
+            "mean_cv_score": np.mean(cv_scores),
+            "std_cv_score": np.std(cv_scores),
+            "predictions": predictions,
+            "r_squared_cv": r2_score(y, predictions),
+        }

@@ -3,7 +3,11 @@ Unit tests for simulation engine.
 """
 
 import pytest
-from geo_infer_sim.core.simulation_engine import SimulationEngine, SimulationConfig, SimulationState
+from geo_infer_sim.core.simulation_engine import (
+    SimulationEngine,
+    SimulationConfig,
+    SimulationState,
+)
 from geo_infer_sim.module_simulations import ModuleSimulationConfig, ModuleSimulations
 
 
@@ -83,5 +87,3 @@ class TestSimulationEngine:
         assert result["module"] == "ANT"
         assert len(result["trail_history"]) == 1
         assert result["final_trails"].sum() > 0
-
-

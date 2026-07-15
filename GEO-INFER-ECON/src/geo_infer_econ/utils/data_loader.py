@@ -10,19 +10,16 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import requests
-import json
-import yaml
-from typing import Dict, List, Optional, Union, Tuple, Any, Callable
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 import logging
 from dataclasses import dataclass
-import warnings
-import re
-from urllib.parse import urlparse
+
 
 @dataclass
 class DataSourceConfig:
     """Configuration for data sources"""
+
     name: str
     source_type: str  # 'file', 'api', 'database', 'web_service'
     format: str  # 'csv', 'json', 'geojson', 'xlsx', 'api'
@@ -31,13 +28,16 @@ class DataSourceConfig:
     authentication: Dict[str, str] = None
     cache_settings: Dict[str, Any] = None
 
+
 @dataclass
 class DataValidationResult:
     """Results of data validation"""
+
     is_valid: bool
     errors: List[str]
     warnings: List[str]
     summary: Dict[str, Any]
+
 
 class EconomicDataLoader:
     """
@@ -65,21 +65,21 @@ class EconomicDataLoader:
 
     def _setup_default_configs(self):
         """Setup default configurations for data loading."""
-        self.default_cache_dir = Path(self.config.get('cache_dir', './cache'))
+        self.default_cache_dir = Path(self.config.get("cache_dir", "./cache"))
         self.default_cache_dir.mkdir(exist_ok=True)
 
         # Default validation rules
         self.validation_rules = {
-            'economic_indicators': {
-                'required_columns': ['region_id', 'year', 'value'],
-                'data_types': {'region_id': 'str', 'year': 'int', 'value': 'float'},
-                'value_ranges': {'year': (1900, 2100), 'value': (-1e12, 1e12)}
+            "economic_indicators": {
+                "required_columns": ["region_id", "year", "value"],
+                "data_types": {"region_id": "str", "year": "int", "value": "float"},
+                "value_ranges": {"year": (1900, 2100), "value": (-1e12, 1e12)},
             },
-            'regional_data': {
-                'required_columns': ['region_id', 'region_name'],
-                'geometry_required': True,
-                'crs_check': True
-            }
+            "regional_data": {
+                "required_columns": ["region_id", "region_name"],
+                "geometry_required": True,
+                "crs_check": True,
+            },
         }
 
     def register_data_source(self, config: DataSourceConfig) -> None:
@@ -92,10 +92,12 @@ class EconomicDataLoader:
         self.data_sources[config.name] = config
         self.logger.info(f"Registered data source: {config.name}")
 
-    def load_economic_data(self,
-                          source_name: str,
-                          filters: Optional[Dict[str, Any]] = None,
-                          validate: bool = True) -> pd.DataFrame:
+    def load_economic_data(
+        self,
+        source_name: str,
+        filters: Optional[Dict[str, Any]] = None,
+        validate: bool = True,
+    ) -> pd.DataFrame:
         """
         Load economic data from a registered source.
 
@@ -119,14 +121,16 @@ class EconomicDataLoader:
         if validate:
             validation_result = self.validate_economic_data(data, source_name)
             if not validation_result.is_valid:
-                self.logger.warning(f"Data validation failed for {source_name}: "
-                                  f"{validation_result.errors}")
+                self.logger.warning(
+                    f"Data validation failed for {source_name}: "
+                    f"{validation_result.errors}"
+                )
 
         return data
 
-    def load_regional_data(self,
-                          source_name: str,
-                          geometry_column: str = 'geometry') -> gpd.GeoDataFrame:
+    def load_regional_data(
+        self, source_name: str, geometry_column: str = "geometry"
+    ) -> gpd.GeoDataFrame:
         """
         Load regional/spatial economic data.
 
@@ -150,11 +154,11 @@ class EconomicDataLoader:
             return self.cache[cache_key]
 
         # Load based on source type
-        if config.source_type == 'file':
+        if config.source_type == "file":
             data = self._load_from_file(config)
-        elif config.source_type == 'api':
+        elif config.source_type == "api":
             data = self._load_from_api(config)
-        elif config.source_type == 'web_service':
+        elif config.source_type == "web_service":
             data = self._load_from_web_service(config)
         else:
             raise ValueError(f"Unsupported source type: {config.source_type}")
@@ -173,15 +177,15 @@ class EconomicDataLoader:
             raise FileNotFoundError(f"Data file not found: {file_path}")
 
         # Load based on file format
-        if config.format == 'csv':
+        if config.format == "csv":
             data = pd.read_csv(file_path, **config.parameters or {})
-        elif config.format == 'json':
+        elif config.format == "json":
             data = pd.read_json(file_path, **config.parameters or {})
-        elif config.format == 'xlsx':
+        elif config.format == "xlsx":
             data = pd.read_excel(file_path, **config.parameters or {})
-        elif config.format == 'geojson':
+        elif config.format == "geojson":
             gdf = gpd.read_file(file_path, **config.parameters or {})
-            return pd.DataFrame(gdf.drop(columns=['geometry']))
+            return pd.DataFrame(gdf.drop(columns=["geometry"]))
         else:
             raise ValueError(f"Unsupported file format: {config.format}")
 
@@ -197,7 +201,7 @@ class EconomicDataLoader:
         if response.status_code != 200:
             raise ConnectionError(f"API request failed: {response.status_code}")
 
-        if config.format == 'json':
+        if config.format == "json":
             data = pd.DataFrame(response.json())
         else:
             # Assume CSV format if not specified
@@ -210,27 +214,32 @@ class EconomicDataLoader:
         # Delegates to _load_from_api; extend for service-specific response parsing
         return self._load_from_api(config)
 
-    def _apply_filters(self, data: pd.DataFrame, filters: Dict[str, Any]) -> pd.DataFrame:
+    def _apply_filters(
+        self, data: pd.DataFrame, filters: Dict[str, Any]
+    ) -> pd.DataFrame:
         """Apply filters to the loaded data."""
         filtered_data = data.copy()
 
         for column, filter_value in filters.items():
             if column in filtered_data.columns:
                 if isinstance(filter_value, list):
-                    filtered_data = filtered_data[filtered_data[column].isin(filter_value)]
+                    filtered_data = filtered_data[
+                        filtered_data[column].isin(filter_value)
+                    ]
                 elif isinstance(filter_value, tuple):
                     # Range filter
                     filtered_data = filtered_data[
-                        (filtered_data[column] >= filter_value[0]) &
-                        (filtered_data[column] <= filter_value[1])
+                        (filtered_data[column] >= filter_value[0])
+                        & (filtered_data[column] <= filter_value[1])
                     ]
                 else:
                     filtered_data = filtered_data[filtered_data[column] == filter_value]
 
         return filtered_data
 
-    def _convert_to_geodataframe(self, data: pd.DataFrame,
-                               geometry_column: str) -> gpd.GeoDataFrame:
+    def _convert_to_geodataframe(
+        self, data: pd.DataFrame, geometry_column: str
+    ) -> gpd.GeoDataFrame:
         """Convert DataFrame to GeoDataFrame."""
         if geometry_column not in data.columns:
             raise ValueError(f"Geometry column '{geometry_column}' not found in data")
@@ -240,14 +249,16 @@ class EconomicDataLoader:
         df_without_geometry = data.drop(columns=[geometry_column])
 
         # Handle different geometry formats
-        if geometry_data.dtype == 'object':
+        if geometry_data.dtype == "object":
             # Assume WKT or GeoJSON format
             try:
-                gdf = gpd.GeoDataFrame(df_without_geometry,
-                                     geometry=gpd.GeoSeries.from_wkt(geometry_data))
+                gdf = gpd.GeoDataFrame(
+                    df_without_geometry, geometry=gpd.GeoSeries.from_wkt(geometry_data)
+                )
             except Exception:
                 # Try GeoJSON
                 import json
+
                 geometries = []
                 for geom_str in geometry_data:
                     if isinstance(geom_str, str):
@@ -272,7 +283,7 @@ class EconomicDataLoader:
             config.name,
             config.location,
             str(config.parameters),
-            str(config.format)
+            str(config.format),
         ]
         return "_".join(key_parts).replace("/", "_").replace("\\", "_")
 
@@ -282,19 +293,21 @@ class EconomicDataLoader:
             return False
 
         cache_settings = config.cache_settings or {}
-        max_age = cache_settings.get('max_age_hours', 24)
+        max_age = cache_settings.get("max_age_hours", 24)
 
         # Check if cache file exists and is recent enough
         cache_file = self.default_cache_dir / f"{cache_key}.pkl"
         if cache_file.exists():
             import time
+
             age_hours = (time.time() - cache_file.stat().st_mtime) / 3600
             return age_hours < max_age
 
         return False
 
-    def validate_economic_data(self, data: pd.DataFrame,
-                             source_name: str = 'unknown') -> DataValidationResult:
+    def validate_economic_data(
+        self, data: pd.DataFrame, source_name: str = "unknown"
+    ) -> DataValidationResult:
         """
         Validate economic data according to predefined rules.
 
@@ -314,61 +327,64 @@ class EconomicDataLoader:
             rules = self.validation_rules[source_name]
 
             # Required columns check
-            required_cols = rules.get('required_columns', [])
+            required_cols = rules.get("required_columns", [])
             missing_cols = [col for col in required_cols if col not in data.columns]
             if missing_cols:
                 errors.append(f"Missing required columns: {missing_cols}")
 
             # Data type checks
-            data_types = rules.get('data_types', {})
+            data_types = rules.get("data_types", {})
             for col, expected_type in data_types.items():
                 if col in data.columns:
                     actual_type = str(data[col].dtype)
-                    if not self._check_data_type_compatibility(actual_type, expected_type):
-                        warnings.append(f"Column '{col}' has type {actual_type}, expected {expected_type}")
+                    if not self._check_data_type_compatibility(
+                        actual_type, expected_type
+                    ):
+                        warnings.append(
+                            f"Column '{col}' has type {actual_type}, expected {expected_type}"
+                        )
 
             # Value range checks
-            value_ranges = rules.get('value_ranges', {})
+            value_ranges = rules.get("value_ranges", {})
             for col, (min_val, max_val) in value_ranges.items():
                 if col in data.columns:
-                    out_of_range = data[
-                        (data[col] < min_val) | (data[col] > max_val)
-                    ]
+                    out_of_range = data[(data[col] < min_val) | (data[col] > max_val)]
                     if not out_of_range.empty:
-                        warnings.append(f"Column '{col}' has {len(out_of_range)} values outside range [{min_val}, {max_val}]")
+                        warnings.append(
+                            f"Column '{col}' has {len(out_of_range)} values outside range [{min_val}, {max_val}]"
+                        )
 
         # General data quality checks
-        summary['total_rows'] = len(data)
-        summary['total_columns'] = len(data.columns)
-        summary['missing_values'] = data.isnull().sum().sum()
-        summary['duplicate_rows'] = data.duplicated().sum()
+        summary["total_rows"] = len(data)
+        summary["total_columns"] = len(data.columns)
+        summary["missing_values"] = data.isnull().sum().sum()
+        summary["duplicate_rows"] = data.duplicated().sum()
 
-        if summary['missing_values'] > 0:
+        if summary["missing_values"] > 0:
             warnings.append(f"Found {summary['missing_values']} missing values")
 
-        if summary['duplicate_rows'] > 0:
+        if summary["duplicate_rows"] > 0:
             warnings.append(f"Found {summary['duplicate_rows']} duplicate rows")
 
         # Check for common economic data issues
-        if 'gdp' in [str(c).lower() for c in data.columns]:
-            negative_gdp = (data['gdp'] < 0).sum()
+        if "gdp" in [str(c).lower() for c in data.columns]:
+            negative_gdp = (data["gdp"] < 0).sum()
             if negative_gdp > 0:
                 errors.append(f"Found {negative_gdp} negative GDP values")
 
         return DataValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings,
-            summary=summary
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings, summary=summary
         )
 
-    def _check_data_type_compatibility(self, actual_type: str, expected_type: str) -> bool:
+    def _check_data_type_compatibility(
+        self, actual_type: str, expected_type: str
+    ) -> bool:
         """Check if actual data type is compatible with expected type."""
         type_mapping = {
-            'int': ['int64', 'int32', 'int16', 'int8'],
-            'float': ['float64', 'float32'],
-            'str': ['object', 'string'],
-            'datetime': ['datetime64[ns]']
+            "int": ["int64", "int32", "int16", "int8"],
+            "float": ["float64", "float32"],
+            "str": ["object", "string"],
+            "datetime": ["datetime64[ns]"],
         }
 
         if expected_type in type_mapping:
@@ -376,8 +392,9 @@ class EconomicDataLoader:
 
         return actual_type == expected_type
 
-    def preprocess_economic_data(self, data: pd.DataFrame,
-                               preprocessing_steps: List[str] = None) -> pd.DataFrame:
+    def preprocess_economic_data(
+        self, data: pd.DataFrame, preprocessing_steps: List[str] = None
+    ) -> pd.DataFrame:
         """
         Preprocess economic data with common cleaning and transformation steps.
 
@@ -389,20 +406,24 @@ class EconomicDataLoader:
             Preprocessed DataFrame
         """
         if preprocessing_steps is None:
-            preprocessing_steps = ['remove_nulls', 'remove_duplicates', 'standardize_names']
+            preprocessing_steps = [
+                "remove_nulls",
+                "remove_duplicates",
+                "standardize_names",
+            ]
 
         processed_data = data.copy()
 
         for step in preprocessing_steps:
-            if step == 'remove_nulls':
+            if step == "remove_nulls":
                 processed_data = self._remove_null_values(processed_data)
-            elif step == 'remove_duplicates':
+            elif step == "remove_duplicates":
                 processed_data = processed_data.drop_duplicates()
-            elif step == 'standardize_names':
+            elif step == "standardize_names":
                 processed_data = self._standardize_column_names(processed_data)
-            elif step == 'handle_outliers':
+            elif step == "handle_outliers":
                 processed_data = self._handle_outliers(processed_data)
-            elif step == 'normalize_values':
+            elif step == "normalize_values":
                 processed_data = self._normalize_values(processed_data)
 
         return processed_data
@@ -415,16 +436,17 @@ class EconomicDataLoader:
 
     def _standardize_column_names(self, data: pd.DataFrame) -> pd.DataFrame:
         """Standardize column names to lowercase with underscores."""
-        data.columns = [col.lower().replace(' ', '_').replace('-', '_') for col in data.columns]
+        data.columns = [
+            col.lower().replace(" ", "_").replace("-", "_") for col in data.columns
+        ]
         return data
 
-    def _handle_outliers(self, data: pd.DataFrame,
-                        method: str = 'iqr') -> pd.DataFrame:
+    def _handle_outliers(self, data: pd.DataFrame, method: str = "iqr") -> pd.DataFrame:
         """Handle outliers in numeric columns."""
         numeric_columns = data.select_dtypes(include=[np.number]).columns
 
         for col in numeric_columns:
-            if method == 'iqr':
+            if method == "iqr":
                 Q1 = data[col].quantile(0.25)
                 Q3 = data[col].quantile(0.75)
                 IQR = Q3 - Q1
@@ -449,10 +471,9 @@ class EconomicDataLoader:
 
         return data
 
-    def merge_economic_datasets(self,
-                              datasets: List[pd.DataFrame],
-                              merge_keys: List[str],
-                              how: str = 'outer') -> pd.DataFrame:
+    def merge_economic_datasets(
+        self, datasets: List[pd.DataFrame], merge_keys: List[str], how: str = "outer"
+    ) -> pd.DataFrame:
         """
         Merge multiple economic datasets.
 
@@ -474,10 +495,9 @@ class EconomicDataLoader:
 
         return merged_data
 
-    def export_economic_data(self, data: pd.DataFrame,
-                           file_path: Path,
-                           format: str = 'csv',
-                           **kwargs) -> None:
+    def export_economic_data(
+        self, data: pd.DataFrame, file_path: Path, format: str = "csv", **kwargs
+    ) -> None:
         """
         Export economic data to various formats.
 
@@ -489,21 +509,22 @@ class EconomicDataLoader:
         """
         file_path = Path(file_path)
 
-        if format == 'csv':
+        if format == "csv":
             data.to_csv(file_path, index=False, **kwargs)
-        elif format == 'json':
+        elif format == "json":
             data.to_json(file_path, **kwargs)
-        elif format == 'xlsx':
+        elif format == "xlsx":
             data.to_excel(file_path, index=False, **kwargs)
-        elif format == 'geojson':
+        elif format == "geojson":
             if isinstance(data, gpd.GeoDataFrame):
-                data.to_file(file_path, driver='GeoJSON', **kwargs)
+                data.to_file(file_path, driver="GeoJSON", **kwargs)
             else:
                 raise ValueError("GeoJSON export requires GeoDataFrame")
         else:
             raise ValueError(f"Unsupported export format: {format}")
 
         self.logger.info(f"Exported data to {file_path}")
+
 
 # Example usage and testing functions
 def example_data_loading():
@@ -522,14 +543,14 @@ def example_data_loading():
             name="regional_gdp",
             source_type="file",
             format="csv",
-            location="data/regional_gdp.csv"
+            location="data/regional_gdp.csv",
         ),
         DataSourceConfig(
             name="employment_data",
             source_type="file",
             format="json",
-            location="data/employment.json"
-        )
+            location="data/employment.json",
+        ),
     ]
 
     for source in sources:
@@ -538,23 +559,33 @@ def example_data_loading():
     # Load and validate data
     try:
         gdp_data = loader.load_economic_data("regional_gdp")
-        _log.info("Loaded GDP data: %d rows, %d columns", len(gdp_data), len(gdp_data.columns))
+        _log.info(
+            "Loaded GDP data: %d rows, %d columns", len(gdp_data), len(gdp_data.columns)
+        )
 
         employment_data = loader.load_economic_data("employment_data")
-        _log.info("Loaded employment data: %d rows, %d columns", len(employment_data), len(employment_data.columns))
+        _log.info(
+            "Loaded employment data: %d rows, %d columns",
+            len(employment_data),
+            len(employment_data.columns),
+        )
 
         # Merge datasets
         merged_data = loader.merge_economic_datasets(
-            [gdp_data, employment_data],
-            merge_keys=['region_id', 'year']
+            [gdp_data, employment_data], merge_keys=["region_id", "year"]
         )
 
-        _log.info("Merged data: %d rows, %d columns", len(merged_data), len(merged_data.columns))
+        _log.info(
+            "Merged data: %d rows, %d columns",
+            len(merged_data),
+            len(merged_data.columns),
+        )
 
     except Exception as e:
         _log.error("Data loading example failed: %s", e)
 
     return loader
+
 
 if __name__ == "__main__":
     # Run example

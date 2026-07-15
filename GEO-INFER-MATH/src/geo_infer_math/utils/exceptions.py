@@ -9,6 +9,18 @@ class MathError(Exception):
     """Base exception for mathematical operations."""
 
 
+# Backwards-compatible names used by the original utility API.
+GeoInferMathError = MathError
+
+
+class ValidationError(MathError):
+    """Exception for invalid mathematical or geospatial inputs."""
+
+
+class MemoryError(MathError):
+    """Exception for memory-constrained mathematical operations."""
+
+
 class NumericalError(MathError):
     """Exception for numerical computation errors."""
 
@@ -47,4 +59,3 @@ class CoordinateError(SpatialError):
 
 class GeometryError(SpatialError):
     """Exception for geometric operation errors."""
-

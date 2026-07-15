@@ -8,21 +8,19 @@ processing, and portfolio management.
 
 import logging
 import time
-import json
-from typing import Dict, List, Optional, Any, Union, Tuple
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 import asyncio
-import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
-import pandas as pd
 
 # GEO-INFER module imports with error handling
 try:
     from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
+
     RISK_ENGINE_AVAILABLE = True
 except ImportError:
     RISK_ENGINE_AVAILABLE = False
@@ -30,13 +28,13 @@ except ImportError:
 
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
     SPACE_AVAILABLE = True
 except ImportError:
     SPACE_AVAILABLE = False
     SpatialIndexingInterface = None
 
 # Local imports
-from ..models.policy_models import Policy, Coverage
 from ..models.claim_models import Claim, ClaimStatus
 from ..models.underwriting_models import UnderwritingCase, Decision
 from .risk_assessment import RiskAssessmentEngine, RiskAssessmentConfig
@@ -50,8 +48,10 @@ from ..utils.data_integration import DataIntegrationManager
 
 logger = logging.getLogger(__name__)
 
+
 class UnderwritingStatus(Enum):
     """Underwriting case status enumeration."""
+
     PENDING = "pending"
     IN_REVIEW = "in_review"
     APPROVED = "approved"
@@ -60,9 +60,11 @@ class UnderwritingStatus(Enum):
     WITHDRAWN = "withdrawn"
     EXPIRED = "expired"
 
+
 @dataclass
 class UnderwritingConfig:
     """Configuration for underwriting operations."""
+
     # General settings
     processing_mode: str = "batch"  # batch, real_time, hybrid
     max_concurrent_cases: int = 10
@@ -84,11 +86,15 @@ class UnderwritingConfig:
 
     # Claims settings
     claims_processing_mode: str = "automated"  # automated, manual, hybrid
-    reserve_calculation_method: str = "expected_value"  # expected_value, percentile, conservative
+    reserve_calculation_method: str = (
+        "expected_value"  # expected_value, percentile, conservative
+    )
     payment_processing_days: int = 30
 
     # Integration settings
-    external_data_sources: List[str] = field(default_factory=lambda: ["credit_bureau", "property_database"])
+    external_data_sources: List[str] = field(
+        default_factory=lambda: ["credit_bureau", "property_database"]
+    )
     api_endpoints: Dict[str, str] = field(default_factory=dict)
     real_time_updates: bool = False
 
@@ -97,6 +103,7 @@ class UnderwritingConfig:
     cache_duration_hours: int = 24
     enable_parallel_processing: bool = True
     batch_size: int = 100
+
 
 class UnderwritingMetrics:
     """Metrics and KPIs for underwriting operations."""
@@ -140,18 +147,19 @@ class UnderwritingMetrics:
     def get_metrics_summary(self) -> Dict[str, Any]:
         """Get summary of underwriting metrics."""
         return {
-            'total_cases': self.total_cases_processed,
-            'approval_rate': self.approved_cases / max(1, self.total_cases_processed),
-            'decline_rate': self.declined_cases / max(1, self.total_cases_processed),
-            'referral_rate': self.referred_cases / max(1, self.total_cases_processed),
-            'average_processing_time_hours': self.average_processing_time,
-            'average_premium': self.average_premium,
-            'loss_ratio': self.loss_ratio,
-            'claims_frequency': self.claims_frequency,
-            'claims_severity': self.claims_severity,
-            'portfolio_concentration': self.portfolio_concentration,
-            'last_updated': datetime.now().isoformat()
+            "total_cases": self.total_cases_processed,
+            "approval_rate": self.approved_cases / max(1, self.total_cases_processed),
+            "decline_rate": self.declined_cases / max(1, self.total_cases_processed),
+            "referral_rate": self.referred_cases / max(1, self.total_cases_processed),
+            "average_processing_time_hours": self.average_processing_time,
+            "average_premium": self.average_premium,
+            "loss_ratio": self.loss_ratio,
+            "claims_frequency": self.claims_frequency,
+            "claims_severity": self.claims_severity,
+            "portfolio_concentration": self.portfolio_concentration,
+            "last_updated": datetime.now().isoformat(),
         }
+
 
 class UnderwritingEngine:
     """
@@ -191,7 +199,9 @@ class UnderwritingEngine:
 
         claims_config = ClaimsProcessingConfig()
         claims_config.processing_mode = self.config.claims_processing_mode
-        claims_config.reserve_calculation_method = self.config.reserve_calculation_method
+        claims_config.reserve_calculation_method = (
+            self.config.reserve_calculation_method
+        )
         claims_config.payment_processing_days = self.config.payment_processing_days
         self.claims_processor = ClaimsProcessor(claims_config)
         self.portfolio_manager = PortfolioManager(self.config)
@@ -199,7 +209,9 @@ class UnderwritingEngine:
         self.pricing_engine = PricingEngine(config_dict)
 
         # Initialize external integrations
-        self.data_integration = DataIntegrationManager(self.config.external_data_sources)
+        self.data_integration = DataIntegrationManager(
+            self.config.external_data_sources
+        )
         self.validator = UnderwritingValidator()
 
         # Initialize state management
@@ -220,7 +232,9 @@ class UnderwritingEngine:
         self.executor = ThreadPoolExecutor(max_workers=self.config.max_concurrent_cases)
         self.processing_queue = asyncio.Queue()
 
-        self.logger.info(f"UnderwritingEngine initialized with {self.config.processing_mode} mode")
+        self.logger.info(
+            f"UnderwritingEngine initialized with {self.config.processing_mode} mode"
+        )
 
     def _setup_logging(self) -> logging.Logger:
         """Set up logging for the underwriting engine."""
@@ -235,13 +249,16 @@ class UnderwritingEngine:
         # Console handler
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        if not any(isinstance(handler, logging.StreamHandler) for handler in logger.handlers):
+        if not any(
+            isinstance(handler, logging.StreamHandler) for handler in logger.handlers
+        ):
             logger.addHandler(console_handler)
 
         return logger
 
-    def underwrite_policy(self, application_data: Dict[str, Any],
-                         auto_decide: bool = True) -> UnderwritingCase:
+    def underwrite_policy(
+        self, application_data: Dict[str, Any], auto_decide: bool = True
+    ) -> UnderwritingCase:
         """
         Underwrite a new insurance policy application.
 
@@ -261,7 +278,7 @@ class UnderwritingEngine:
             case_id=case_id,
             application_data=application_data,
             status=UnderwritingStatus.PENDING,
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
 
         self.active_cases[case_id] = case
@@ -275,7 +292,7 @@ class UnderwritingEngine:
                     approved=False,
                     reason="Application validation failed",
                     confidence=1.0,
-                    conditions=validation_result.errors
+                    conditions=validation_result.errors,
                 )
                 case.completed_at = datetime.now()
                 return case
@@ -285,7 +302,9 @@ class UnderwritingEngine:
             case.risk_assessment = risk_assessment
 
             # Step 3: Evaluate underwriting rules
-            rule_evaluation = self.rules_engine.evaluate_rules(application_data, risk_assessment)
+            rule_evaluation = self.rules_engine.evaluate_rules(
+                application_data, risk_assessment
+            )
             case.rule_evaluation = rule_evaluation
 
             # Step 4: Calculate premium
@@ -293,7 +312,7 @@ class UnderwritingEngine:
                 application_data, risk_assessment, rule_evaluation
             )
             premium_data = premium_calculation.to_dict()
-            case.premium = premium_data['total_premium']
+            case.premium = premium_data["total_premium"]
 
             # Step 5: Make underwriting decision
             decision = self._make_underwriting_decision(
@@ -318,7 +337,9 @@ class UnderwritingEngine:
             processing_time = time.time() - start_time
             self.metrics.update_metrics(case, processing_time)
 
-            self.logger.info(f"Underwriting case {case_id} completed in {processing_time:.2f}s")
+            self.logger.info(
+                f"Underwriting case {case_id} completed in {processing_time:.2f}s"
+            )
             return case
 
         except Exception as e:
@@ -334,14 +355,18 @@ class UnderwritingEngine:
         timestamp = int(time.time())
         return f"UW_{timestamp}_{self.case_counter}"
 
-    def _perform_risk_assessment(self, application_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _perform_risk_assessment(
+        self, application_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Perform comprehensive risk assessment for underwriting."""
         try:
             # Use risk engine if available
             if self.risk_engine:
                 # Convert application data to risk analysis format
                 risk_data = self._convert_to_risk_format(application_data)
-                risk_results = self.risk_engine.run_enhanced_analysis("comprehensive", **risk_data)
+                risk_results = self.risk_engine.run_enhanced_analysis(
+                    "comprehensive", **risk_data
+                )
                 return risk_results
             else:
                 # Fallback to internal risk assessment
@@ -351,46 +376,52 @@ class UnderwritingEngine:
             self.logger.error(f"Risk assessment failed: {e}")
             # Return basic risk assessment
             return {
-                'risk_score': 0.5,
-                'risk_level': 'medium',
-                'confidence': 0.7,
-                'assessment_method': 'fallback'
+                "risk_score": 0.5,
+                "risk_level": "medium",
+                "confidence": 0.7,
+                "assessment_method": "fallback",
             }
 
-    def _convert_to_risk_format(self, application_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_to_risk_format(
+        self, application_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Convert underwriting application to risk analysis format."""
         # Extract property information
-        property_info = application_data.get('property', {})
+        property_info = application_data.get("property", {})
 
         # Create risk analysis input
         risk_input = {
-            'region': {
-                'bounds': {
-                    'min_lon': property_info.get('longitude', -74.1) - 0.1,
-                    'max_lon': property_info.get('longitude', -73.9) + 0.1,
-                    'min_lat': property_info.get('latitude', 40.7) - 0.1,
-                    'max_lat': property_info.get('latitude', 40.9) + 0.1
+            "region": {
+                "bounds": {
+                    "min_lon": property_info.get("longitude", -74.1) - 0.1,
+                    "max_lon": property_info.get("longitude", -73.9) + 0.1,
+                    "min_lat": property_info.get("latitude", 40.7) - 0.1,
+                    "max_lat": property_info.get("latitude", 40.9) + 0.1,
                 }
             },
-            'hazards': ['flood', 'earthquake', 'hurricane'],  # Default hazards
-            'exposure_types': ['property'],
-            'analysis_parameters': {
-                'confidence_level': self.config.confidence_level,
-                'time_horizon': self.config.default_policy_term // 12  # Convert months to years
-            }
+            "hazards": ["flood", "earthquake", "hurricane"],  # Default hazards
+            "exposure_types": ["property"],
+            "analysis_parameters": {
+                "confidence_level": self.config.confidence_level,
+                "time_horizon": self.config.default_policy_term
+                // 12,  # Convert months to years
+            },
         }
 
         return risk_input
 
-    def _make_underwriting_decision(self, application_data: Dict[str, Any],
-                                  risk_assessment: Dict[str, Any],
-                                  rule_evaluation: Dict[str, Any],
-                                  auto_decide: bool) -> Decision:
+    def _make_underwriting_decision(
+        self,
+        application_data: Dict[str, Any],
+        risk_assessment: Dict[str, Any],
+        rule_evaluation: Dict[str, Any],
+        auto_decide: bool,
+    ) -> Decision:
         """Make underwriting decision based on risk assessment and rules."""
         try:
             # Calculate decision confidence
-            risk_score = risk_assessment.get('risk_score', 0.5)
-            rule_score = rule_evaluation.get('compliance_score', 1.0)
+            risk_score = risk_assessment.get("risk_score", 0.5)
+            rule_score = rule_evaluation.get("compliance_score", 1.0)
 
             # Combine scores
             combined_score = (risk_score + rule_score) / 2.0
@@ -401,9 +432,15 @@ class UnderwritingEngine:
             if auto_decide and combined_score >= confidence_threshold:
                 # Auto-decision
                 approved = combined_score >= 0.6  # Threshold for approval
-                confidence = min(1.0, combined_score + 0.1)  # Add some confidence buffer
+                confidence = min(
+                    1.0, combined_score + 0.1
+                )  # Add some confidence buffer
 
-                reason = "Auto-approved based on risk assessment" if approved else "Auto-declined based on risk assessment"
+                reason = (
+                    "Auto-approved based on risk assessment"
+                    if approved
+                    else "Auto-declined based on risk assessment"
+                )
 
                 return Decision(
                     approved=approved,
@@ -411,8 +448,8 @@ class UnderwritingEngine:
                     confidence=confidence,
                     risk_score=risk_score,
                     rule_score=rule_score,
-                    conditions=rule_evaluation.get('conditions', []),
-                    requirements=rule_evaluation.get('requirements', [])
+                    conditions=rule_evaluation.get("conditions", []),
+                    requirements=rule_evaluation.get("requirements", []),
                 )
             else:
                 # Refer for manual review
@@ -422,8 +459,8 @@ class UnderwritingEngine:
                     confidence=0.8,
                     risk_score=risk_score,
                     rule_score=rule_score,
-                    conditions=['manual_review_required'],
-                    requirements=['human_underwriter_review']
+                    conditions=["manual_review_required"],
+                    requirements=["human_underwriter_review"],
                 )
 
         except Exception as e:
@@ -432,7 +469,7 @@ class UnderwritingEngine:
                 approved=False,
                 reason=f"Decision error: {str(e)}",
                 confidence=0.0,
-                conditions=['system_error']
+                conditions=["system_error"],
             )
 
     def process_claim(self, claim_data: Dict[str, Any]) -> Claim:
@@ -451,10 +488,10 @@ class UnderwritingEngine:
             if not validation_result.is_valid:
                 return Claim(
                     claim_id="INVALID",
-                    policy_id=claim_data.get('policy_id', 'UNKNOWN'),
+                    policy_id=claim_data.get("policy_id", "UNKNOWN"),
                     status=ClaimStatus.INVALID,
                     description="Claim validation failed",
-                    errors=validation_result.errors
+                    errors=validation_result.errors,
                 )
 
             # Process claim through claims engine
@@ -463,16 +500,18 @@ class UnderwritingEngine:
             # Update portfolio metrics
             self.portfolio_manager.update_portfolio_metrics(claim)
 
-            self.logger.info(f"Claim {claim.claim_id} processed with status {claim.status}")
+            self.logger.info(
+                f"Claim {claim.claim_id} processed with status {claim.status}"
+            )
             return claim
 
         except Exception as e:
             self.logger.error(f"Claim processing failed: {e}")
             return Claim(
                 claim_id="ERROR",
-                policy_id=claim_data.get('policy_id', 'UNKNOWN'),
+                policy_id=claim_data.get("policy_id", "UNKNOWN"),
                 status=ClaimStatus.ERROR,
-                description=f"Processing error: {str(e)}"
+                description=f"Processing error: {str(e)}",
             )
 
     def get_portfolio_summary(self, portfolio_id: str = None) -> Dict[str, Any]:
@@ -498,14 +537,18 @@ class UnderwritingEngine:
 
         case = self.active_cases[case_id]
         return {
-            'case_id': case.case_id,
-            'status': case.status.value,
-            'created_at': case.created_at.isoformat(),
-            'completed_at': case.completed_at.isoformat() if case.completed_at else None,
-            'premium': case.premium,
-            'risk_score': case.risk_assessment.get('risk_score') if case.risk_assessment else None,
-            'decision_confidence': case.decision.confidence if case.decision else None,
-            'error_message': case.error_message
+            "case_id": case.case_id,
+            "status": case.status.value,
+            "created_at": case.created_at.isoformat(),
+            "completed_at": (
+                case.completed_at.isoformat() if case.completed_at else None
+            ),
+            "premium": case.premium,
+            "risk_score": (
+                case.risk_assessment.get("risk_score") if case.risk_assessment else None
+            ),
+            "decision_confidence": case.decision.confidence if case.decision else None,
+            "error_message": case.error_message,
         }
 
     def cancel_case(self, case_id: str) -> bool:
@@ -525,10 +568,10 @@ class UnderwritingEngine:
         """Get list of all active underwriting cases."""
         return [
             {
-                'case_id': case.case_id,
-                'status': case.status.value,
-                'created_at': case.created_at.isoformat(),
-                'premium': case.premium
+                "case_id": case.case_id,
+                "status": case.status.value,
+                "created_at": case.created_at.isoformat(),
+                "premium": case.premium,
             }
             for case in self.active_cases.values()
             if case.status in [UnderwritingStatus.PENDING, UnderwritingStatus.IN_REVIEW]
@@ -550,56 +593,56 @@ class UnderwritingEngine:
     def health_check(self) -> Dict[str, Any]:
         """Perform health check on underwriting system."""
         health_status = {
-            'overall_status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'components': {}
+            "overall_status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "components": {},
         }
 
         # Check core components
         components_to_check = [
-            ('risk_assessment', self.risk_assessment),
-            ('policy_manager', self.policy_manager),
-            ('claims_processor', self.claims_processor),
-            ('portfolio_manager', self.portfolio_manager),
-            ('rules_engine', self.rules_engine),
-            ('pricing_engine', self.pricing_engine),
-            ('data_integration', self.data_integration),
-            ('validator', self.validator)
+            ("risk_assessment", self.risk_assessment),
+            ("policy_manager", self.policy_manager),
+            ("claims_processor", self.claims_processor),
+            ("portfolio_manager", self.portfolio_manager),
+            ("rules_engine", self.rules_engine),
+            ("pricing_engine", self.pricing_engine),
+            ("data_integration", self.data_integration),
+            ("validator", self.validator),
         ]
 
         all_healthy = True
         for component_name, component in components_to_check:
             try:
-                if hasattr(component, 'health_check'):
+                if hasattr(component, "health_check"):
                     component_health = component.health_check()
                 else:
-                    component_health = {'status': 'operational'}
+                    component_health = {"status": "operational"}
 
-                health_status['components'][component_name] = component_health
+                health_status["components"][component_name] = component_health
 
-                if component_health.get('status') != 'operational':
+                if component_health.get("status") != "operational":
                     all_healthy = False
 
             except Exception as e:
-                health_status['components'][component_name] = {
-                    'status': 'error',
-                    'error': str(e)
+                health_status["components"][component_name] = {
+                    "status": "error",
+                    "error": str(e),
                 }
                 all_healthy = False
 
         # Check external integrations
         integrations_status = {
-            'risk_engine': RISK_ENGINE_AVAILABLE,
-            'spatial_indexing': SPACE_AVAILABLE
+            "risk_engine": RISK_ENGINE_AVAILABLE,
+            "spatial_indexing": SPACE_AVAILABLE,
         }
 
-        health_status['integrations'] = integrations_status
+        health_status["integrations"] = integrations_status
 
         # Determine overall status
         if not all_healthy:
-            health_status['overall_status'] = 'degraded'
+            health_status["overall_status"] = "degraded"
         elif not all(integrations_status.values()):
-            health_status['overall_status'] = 'degraded'
+            health_status["overall_status"] = "degraded"
 
         return health_status
 
@@ -611,27 +654,38 @@ class UnderwritingEngine:
         self.executor.shutdown(wait=True)
 
         # Close any open connections
-        if hasattr(self.data_integration, 'close_connections'):
+        if hasattr(self.data_integration, "close_connections"):
             self.data_integration.close_connections()
 
         self.logger.info("Underwriting engine shutdown complete")
 
 
 # Convenience functions
-def create_underwriting_engine(config: Optional[UnderwritingConfig] = None) -> UnderwritingEngine:
+def create_underwriting_engine(
+    config: Optional[UnderwritingConfig] = None,
+) -> UnderwritingEngine:
     """Create a new underwriting engine instance."""
     return UnderwritingEngine(config)
 
-def create_risk_assessment(config: Optional[UnderwritingConfig] = None) -> RiskAssessmentEngine:
+
+def create_risk_assessment(
+    config: Optional[UnderwritingConfig] = None,
+) -> RiskAssessmentEngine:
     """Create a risk assessment engine."""
     return RiskAssessmentEngine(config or UnderwritingConfig())
+
 
 def create_policy_manager(config: Optional[UnderwritingConfig] = None) -> PolicyManager:
     """Create a policy manager."""
     from .policy_management import PolicyManager
+
     return PolicyManager(config or UnderwritingConfig())
 
-def create_claims_processor(config: Optional[UnderwritingConfig] = None) -> ClaimsProcessor:
+
+def create_claims_processor(
+    config: Optional[UnderwritingConfig] = None,
+) -> ClaimsProcessor:
     """Create a claims processor."""
     from .claims_processing import ClaimsProcessor
+
     return ClaimsProcessor(config or UnderwritingConfig())

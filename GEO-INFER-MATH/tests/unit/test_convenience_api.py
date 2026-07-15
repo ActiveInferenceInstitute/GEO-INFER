@@ -9,6 +9,7 @@ from geo_infer_math.api.convenience import (
     BayesianConvenience,
     AIConvenience,
 )
+from geo_infer_math.utils.conversion import format_coordinate_string
 
 
 def test_api_package_imports_without_web_stack():
@@ -45,3 +46,14 @@ def test_ai_convenience():
     initial = np.array([1.0, 2.0])
     gradient = conv.compute_gradient(objective, initial)
     assert len(gradient) == len(initial)
+
+
+def test_format_coordinate_string_preserves_coordinate_values():
+    """Coordinate formatting should render values, not format templates."""
+    assert format_coordinate_string(40.7128, -74.006, "decimal") == (
+        "40.712800, -74.006000"
+    )
+    assert format_coordinate_string(40.5, -74.0, "dms") == (
+        "40°30'00.0\"N, 74°00'00.0\"W"
+    )
+    assert format_coordinate_string(40.5, -74.0, "dm") == "40°30.00'N, 74°00.00'W"

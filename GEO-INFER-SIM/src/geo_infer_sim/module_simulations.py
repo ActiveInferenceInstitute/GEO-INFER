@@ -7,10 +7,9 @@ and workflows within the simulation framework.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import numpy as np
-import pandas as pd
 
 from geo_infer_sim.core.simulation_engine import SimulationEngine, SimulationConfig
 
@@ -32,7 +31,7 @@ class ModuleSimulationConfig:
 class ModuleSimulations:
     """
     Comprehensive simulation methods for all GEO-INFER modules.
-    
+
     Each method is exactly named after its corresponding GEO-INFER module,
     enabling direct simulation of module-specific behaviors and workflows.
     """
@@ -99,7 +98,9 @@ class ModuleSimulations:
             beliefs["state_belief"] = belief_update / belief_update.sum()
 
             # Calculate free energy (simplified)
-            free_energy = -np.sum(beliefs["state_belief"] * np.log(beliefs["state_belief"] + 1e-10))
+            free_energy = -np.sum(
+                beliefs["state_belief"] * np.log(beliefs["state_belief"] + 1e-10)
+            )
 
             belief_history.append(beliefs["state_belief"].copy())
             free_energy_history.append(free_energy)
@@ -224,7 +225,6 @@ class ModuleSimulations:
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate training step
             epoch = int(time)
-            batch = training_data[epoch % len(training_data)]
             loss = np.exp(-epoch * learning_rate) + np.random.normal(0, 0.1)
             accuracy = 1.0 - loss + np.random.normal(0, 0.05)
             accuracy = np.clip(accuracy, 0, 1)
@@ -380,7 +380,7 @@ class ModuleSimulations:
                     pheromone_trails[x, y] += 1.0
 
             # Decay pheromones
-            pheromone_trails *= (1 - pheromone_decay)
+            pheromone_trails *= 1 - pheromone_decay
 
             trail_history.append(pheromone_trails.copy())
 
@@ -439,7 +439,9 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate API requests
-            requests_this_step = int(np.random.poisson(request_rate * self.config.time_step))
+            requests_this_step = int(
+                np.random.poisson(request_rate * self.config.time_step)
+            )
             total_latency = 0.0
 
             for _ in range(requests_this_step):
@@ -585,10 +587,10 @@ class ModuleSimulations:
             # Simulate artistic generation
             pattern = np.random.choice(spatial_patterns)
             aesthetic_score = (
-                artistic_parameters["complexity"] * 0.3 +
-                artistic_parameters["harmony"] * 0.4 +
-                artistic_parameters["contrast"] * 0.3 +
-                np.random.normal(0, 0.1)
+                artistic_parameters["complexity"] * 0.3
+                + artistic_parameters["harmony"] * 0.4
+                + artistic_parameters["contrast"] * 0.3
+                + np.random.normal(0, 0.1)
             )
             aesthetic_score = np.clip(aesthetic_score, 0, 1)
 
@@ -608,7 +610,9 @@ class ModuleSimulations:
             "module": "ART",
             "aesthetic_scores": aesthetic_scores,
             "pattern_history": pattern_history,
-            "avg_aesthetic_score": np.mean(aesthetic_scores) if aesthetic_scores else 0.0,
+            "avg_aesthetic_score": (
+                np.mean(aesthetic_scores) if aesthetic_scores else 0.0
+            ),
             "simulation_results": results,
         }
 
@@ -660,7 +664,7 @@ class ModuleSimulations:
 
             # Bayesian update (simplified)
             posterior_mean = (prior_params["mean"] + sample_mean) / 2
-            posterior_std = np.sqrt((prior_params["std"]**2 + sample_std**2) / 2)
+            posterior_std = np.sqrt((prior_params["std"] ** 2 + sample_std**2) / 2)
 
             posterior_means.append(posterior_mean)
             posterior_stds.append(posterior_std)
@@ -818,7 +822,9 @@ class ModuleSimulations:
             "module": "CIV",
             "engagement_history": engagement_history,
             "participation_history": participation_history,
-            "avg_engagement": np.mean(engagement_history) if engagement_history else 0.0,
+            "avg_engagement": (
+                np.mean(engagement_history) if engagement_history else 0.0
+            ),
             "simulation_results": results,
         }
 
@@ -868,7 +874,9 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate cognitive processing
-            perception = spatial_perception_data[int(time) % len(spatial_perception_data)]
+            perception = spatial_perception_data[
+                int(time) % len(spatial_perception_data)
+            ]
             attention = np.mean(perception) * cognitive_models["attention_span"]
             memory = min(int(time), cognitive_models["memory_capacity"])
 
@@ -939,7 +947,9 @@ class ModuleSimulations:
             channel_messages = {}
 
             for channel in communication_channels:
-                messages = int(np.random.poisson(message_rates[channel] * self.config.time_step))
+                messages = int(
+                    np.random.poisson(message_rates[channel] * self.config.time_step)
+                )
                 message_history[channel].append(messages)
                 channel_messages[channel] = messages
                 total_messages += messages
@@ -1247,10 +1257,12 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({
-            "cases": health_data["initial_cases"],
-            "epidemiological_models": epidemiological_models,
-        })
+        engine.initialize(
+            {
+                "cases": health_data["initial_cases"],
+                "epidemiological_models": epidemiological_models,
+            }
+        )
         results = engine.run(step_func)
 
         return {
@@ -1374,7 +1386,9 @@ class ModuleSimulations:
             readings_by_network = {}
 
             for network in sensor_networks:
-                readings = int(np.random.poisson(sensor_rates[network] * self.config.time_step))
+                readings = int(
+                    np.random.poisson(sensor_rates[network] * self.config.time_step)
+                )
                 sensor_value = np.random.normal(20.0, 5.0)  # Example sensor reading
                 sensor_data_history[network].append(sensor_value)
                 readings_by_network[network] = readings
@@ -1425,7 +1439,12 @@ class ModuleSimulations:
         logger.info("Simulating MATH module: Mathematical computation processes")
 
         if mathematical_problems is None:
-            mathematical_problems = ["optimization", "statistics", "linear_algebra", "calculus"]
+            mathematical_problems = [
+                "optimization",
+                "statistics",
+                "linear_algebra",
+                "calculus",
+            ]
 
         if optimization_problems is None:
             optimization_problems = {
@@ -1541,7 +1560,9 @@ class ModuleSimulations:
             "module": "NORMS",
             "compliance_history": compliance_history,
             "norm_adherence": norm_adherence,
-            "avg_compliance": np.mean(compliance_history) if compliance_history else 0.0,
+            "avg_compliance": (
+                np.mean(compliance_history) if compliance_history else 0.0
+            ),
             "simulation_results": results,
         }
 
@@ -1590,14 +1611,28 @@ class ModuleSimulations:
             # Simulate system monitoring
             for metric_name, base_value in system_metrics.items():
                 value = base_value + np.random.normal(0, 0.1)
-                value = np.clip(value, 0, 1) if metric_name in ["cpu_usage", "memory_usage"] else max(0, value)
+                value = (
+                    np.clip(value, 0, 1)
+                    if metric_name in ["cpu_usage", "memory_usage"]
+                    else max(0, value)
+                )
                 metric_history[metric_name].append(value)
 
             # System health score
-            health = 1.0 - np.mean([
-                metric_history["cpu_usage"][-1] if metric_history["cpu_usage"] else 0.5,
-                metric_history["memory_usage"][-1] if metric_history["memory_usage"] else 0.5,
-            ])
+            health = 1.0 - np.mean(
+                [
+                    (
+                        metric_history["cpu_usage"][-1]
+                        if metric_history["cpu_usage"]
+                        else 0.5
+                    ),
+                    (
+                        metric_history["memory_usage"][-1]
+                        if metric_history["memory_usage"]
+                        else 0.5
+                    ),
+                ]
+            )
             health_scores.append(health)
 
             return {
@@ -1739,7 +1774,9 @@ class ModuleSimulations:
 
             return {
                 "satisfaction": satisfaction,
-                "skill_coverage": {k: v[-1] if v else 0 for k, v in skill_coverage.items()},
+                "skill_coverage": {
+                    k: v[-1] if v else 0 for k, v in skill_coverage.items()
+                },
                 "time": time,
             }
 
@@ -1750,7 +1787,9 @@ class ModuleSimulations:
             "module": "PEP",
             "satisfaction_history": satisfaction_history,
             "skill_coverage": skill_coverage,
-            "avg_satisfaction": np.mean(satisfaction_history) if satisfaction_history else 0.0,
+            "avg_satisfaction": (
+                np.mean(satisfaction_history) if satisfaction_history else 0.0
+            ),
             "simulation_results": results,
         }
 
@@ -1777,7 +1816,12 @@ class ModuleSimulations:
         logger.info("Simulating REQ module: Requirements engineering processes")
 
         if requirements_specs is None:
-            requirements_specs = ["functional", "non-functional", "performance", "security"]
+            requirements_specs = [
+                "functional",
+                "non-functional",
+                "performance",
+                "security",
+            ]
 
         if system_constraints is None:
             system_constraints = ["technical", "regulatory", "budget", "timeline"]
@@ -1814,7 +1858,9 @@ class ModuleSimulations:
             "validation_history": validation_history,
             "compliance_history": compliance_history,
             "total_validated": sum(validation_history),
-            "avg_compliance": np.mean(compliance_history) if compliance_history else 0.0,
+            "avg_compliance": (
+                np.mean(compliance_history) if compliance_history else 0.0
+            ),
             "simulation_results": results,
         }
 
@@ -1841,7 +1887,12 @@ class ModuleSimulations:
         logger.info("Simulating SEC module: Security processes")
 
         if security_requirements is None:
-            security_requirements = ["authentication", "encryption", "authorization", "audit"]
+            security_requirements = [
+                "authentication",
+                "encryption",
+                "authorization",
+                "audit",
+            ]
 
         if access_control_policies is None:
             access_control_policies = ["RBAC", "ABAC", "MAC", "DAC"]
@@ -2124,7 +2175,9 @@ class ModuleSimulations:
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate temporal analysis
             pattern = np.random.choice(temporal_patterns)
-            forecast = time_series_data[int(time) % len(time_series_data)] + np.random.normal(0, 0.5)
+            forecast = time_series_data[
+                int(time) % len(time_series_data)
+            ] + np.random.normal(0, 0.5)
 
             forecast_history.append(forecast)
             pattern_detection.append(pattern)
@@ -2190,9 +2243,9 @@ class ModuleSimulations:
             # Simulate risk assessment
             hazard = hazard_data[int(time) % len(hazard_data)]
             risk_score = (
-                risk_factors["probability"] * hazard[0] +
-                risk_factors["severity"] * hazard[1] +
-                risk_factors["exposure"] * hazard[2]
+                risk_factors["probability"] * hazard[0]
+                + risk_factors["severity"] * hazard[1]
+                + risk_factors["exposure"] * hazard[2]
             ) / 3.0
 
             exposure = risk_factors["exposure"] * hazard[0]
@@ -2336,11 +2389,13 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate place-based analysis
-            insight_score = np.mean([
-                np.mean(regional_datasets["demographics"]),
-                np.mean(regional_datasets["economics"]),
-                np.mean(regional_datasets["environment"]),
-            ])
+            insight_score = np.mean(
+                [
+                    np.mean(regional_datasets["demographics"]),
+                    np.mean(regional_datasets["economics"]),
+                    np.mean(regional_datasets["environment"]),
+                ]
+            )
 
             regional_score = 0.7 + np.random.normal(0, 0.1)
             regional_score = np.clip(regional_score, 0, 1)
@@ -2459,10 +2514,20 @@ class ModuleSimulations:
         logger.info("Simulating EXAMPLES module: Example generation processes")
 
         if integration_requirements is None:
-            integration_requirements = ["SPACE+TIME", "ACT+AGENT", "AI+SPACE", "DATA+API"]
+            integration_requirements = [
+                "SPACE+TIME",
+                "ACT+AGENT",
+                "AI+SPACE",
+                "DATA+API",
+            ]
 
         if tutorial_needs is None:
-            tutorial_needs = ["getting_started", "advanced", "integration", "best_practices"]
+            tutorial_needs = [
+                "getting_started",
+                "advanced",
+                "integration",
+                "best_practices",
+            ]
 
         config = SimulationConfig(
             time_step=self.config.time_step,
