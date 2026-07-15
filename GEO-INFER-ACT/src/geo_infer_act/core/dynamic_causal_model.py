@@ -32,10 +32,19 @@ class DynamicCausalModel:
             dt: Time step for integration
             random_seed: Optional seed for reproducible stochastic dynamics
         """
-        self.state_dim = state_dim
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.dt = dt
+        for name, value in (
+            ("state_dim", state_dim),
+            ("input_dim", input_dim),
+            ("output_dim", output_dim),
+        ):
+            if isinstance(value, bool) or int(value) != value or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        if not np.isfinite(dt) or dt <= 0:
+            raise ValueError("dt must be finite and strictly positive")
+        self.state_dim = int(state_dim)
+        self.input_dim = int(input_dim)
+        self.output_dim = int(output_dim)
+        self.dt = float(dt)
         self.rng = np.random.default_rng(random_seed)
 
         # Model parameters
@@ -64,6 +73,15 @@ class DynamicCausalModel:
         Returns:
             State derivative
         """
+        state = np.asarray(state, dtype=float)
+        inputs = np.asarray(inputs, dtype=float)
+        if state.shape != (self.state_dim,):
+            raise ValueError(f"state must have shape ({self.state_dim},)")
+        if inputs.shape != (self.input_dim,):
+            raise ValueError(f"inputs must have shape ({self.input_dim},)")
+        if not np.all(np.isfinite(state)) or not np.all(np.isfinite(inputs)):
+            raise ValueError("state and inputs must be finite")
+
         # Linear dynamics: dx/dt = A*x + B*u
         dxdt = self.A @ state + self.B @ inputs
 
@@ -79,6 +97,11 @@ class DynamicCausalModel:
         Returns:
             Observation vector
         """
+        state = np.asarray(state, dtype=float)
+        if state.shape != (self.state_dim,):
+            raise ValueError(f"state must have shape ({self.state_dim},)")
+        if not np.all(np.isfinite(state)):
+            raise ValueError("state must be finite")
         # Linear observation: y = C*x
         observation = self.C @ state
 
@@ -101,6 +124,20 @@ class DynamicCausalModel:
         Returns:
             State trajectory (n_timesteps x state_dim)
         """
+        initial_state = np.asarray(initial_state, dtype=float)
+        inputs = np.asarray(inputs, dtype=float)
+        time_points = np.asarray(time_points, dtype=float)
+        if initial_state.shape != (self.state_dim,):
+            raise ValueError(f"initial_state must have shape ({self.state_dim},)")
+        if inputs.ndim != 2 or inputs.shape[1] != self.input_dim:
+            raise ValueError(f"inputs must have shape (n, {self.input_dim})")
+        if time_points.ndim != 1 or time_points.size == 0:
+            raise ValueError("time_points must be a non-empty one-dimensional array")
+        if not np.all(np.isfinite(initial_state)) or not np.all(np.isfinite(inputs)):
+            raise ValueError("initial_state and inputs must be finite")
+        if not np.all(np.isfinite(time_points)) or np.any(np.diff(time_points) <= 0):
+            raise ValueError("time_points must be finite and strictly increasing")
+
         n_timesteps = len(time_points)
         state_trajectory = np.zeros((n_timesteps, self.state_dim))
 
@@ -191,7 +228,9 @@ class DynamicCausalModel:
         # Estimate A and B matrices from state dynamics
         X = estimated_states[:-1]  # Current states
         X_next = estimated_states[1:]  # Next states
-        U = inputs[: len(X)] if len(inputs) > 1 else np.zeros((len(X), self.input_dim))
+        if len(inputs) < len(X):
+            raise ValueError("inputs must contain at least n_observations - 1 rows")
+        U = inputs[: len(X)]
 
         # Solve: X_next = X*A.T + U*B.T
         if len(X) > 0:
@@ -259,27 +298,63 @@ class DynamicCausalModel:
             pred_state = current_state + dt * self.state_equation(
                 current_state, time_points[i - 1], current_input
             )
+            if dt <= 0:
+                raise ValueError("time_points must be strictly increasing")
             pred_cov = current_cov + self.Q * dt
 
             # Update step
             innovation = observations[i] - self.C @ pred_state
             innovation_cov = self.C @ pred_cov @ self.C.T + self.R
-            kalman_gain = pred_cov @ self.C.T @ np.linalg.inv(innovation_cov)
+            cross_cov = pred_cov @ self.C.T
+            kalman_gain = np.linalg.solve(innovation_cov.T, cross_cov.T).T
 
             current_state = pred_state + kalman_gain @ innovation
-            current_cov = (np.eye(self.state_dim) - kalman_gain @ self.C) @ pred_cov
+            residual_transform = np.eye(self.state_dim) - kalman_gain @ self.C
+            current_cov = (
+                residual_transform @ pred_cov @ residual_transform.T
+                + kalman_gain @ self.R @ kalman_gain.T
+            )
+            current_cov = (current_cov + current_cov.T) / 2.0
 
             states[i] = current_state
 
         return states
 
     def set_parameters(self, A: np.ndarray, B: np.ndarray, C: np.ndarray):
-        """Set model parameters."""
-        self.A = A
-        self.B = B
-        self.C = C
+        """Set model parameters after validating their matrix contracts."""
+        A = np.asarray(A, dtype=float)
+        B = np.asarray(B, dtype=float)
+        C = np.asarray(C, dtype=float)
+        expected = {
+            "A": ((self.state_dim, self.state_dim), A),
+            "B": ((self.state_dim, self.input_dim), B),
+            "C": ((self.output_dim, self.state_dim), C),
+        }
+        for name, (shape, matrix) in expected.items():
+            if matrix.shape != shape:
+                raise ValueError(f"{name} must have shape {shape}")
+            if not np.all(np.isfinite(matrix)):
+                raise ValueError(f"{name} must be finite")
+        self.A = A.copy()
+        self.B = B.copy()
+        self.C = C.copy()
 
     def set_noise_parameters(self, Q: np.ndarray, R: np.ndarray):
-        """Set noise parameters."""
-        self.Q = Q
-        self.R = R
+        """Set positive-definite process and observation noise covariances."""
+        Q = np.asarray(Q, dtype=float)
+        R = np.asarray(R, dtype=float)
+        expected = {
+            "Q": ((self.state_dim, self.state_dim), Q),
+            "R": ((self.output_dim, self.output_dim), R),
+        }
+        for name, (shape, matrix) in expected.items():
+            if matrix.shape != shape:
+                raise ValueError(f"{name} must have shape {shape}")
+            if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
+                raise ValueError(f"{name} must be finite and symmetric")
+            try:
+                np.linalg.cholesky(matrix)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(f"{name} must be positive definite") from exc
+        self.Q = Q.copy()
+        self.R = R.copy()

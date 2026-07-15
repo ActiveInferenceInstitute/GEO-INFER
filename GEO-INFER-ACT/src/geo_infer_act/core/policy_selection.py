@@ -11,7 +11,7 @@ import logging
 import numpy as np
 
 from geo_infer_act.core.types import FreeEnergyBreakdown, PolicyEvaluation
-from geo_infer_act.utils.math import softmax
+from geo_infer_act.utils.math import kl_divergence, softmax
 
 logger = logging.getLogger(__name__)
 EPSILON = 1e-12
@@ -19,6 +19,8 @@ EPSILON = 1e-12
 
 def _normalize_vector(values: Any, target_length: Optional[int] = None) -> np.ndarray:
     vector = np.asarray(values, dtype=float).reshape(-1)
+    if vector.size == 0:
+        raise ValueError("belief and preference vectors must not be empty")
     if target_length is not None and len(vector) != target_length:
         if len(vector) < target_length:
             vector = np.pad(vector, (0, target_length - len(vector)), mode="constant")
@@ -74,7 +76,9 @@ class PolicySelector:
                 ``deterministic`` for lowest expected free energy.
             random_seed: Optional seed for reproducible stochastic selection.
         """
-        self.temperature = temperature
+        if not np.isfinite(temperature) or temperature <= 0:
+            raise ValueError("temperature must be finite and strictly positive")
+        self.temperature = float(temperature)
         if selection_mode not in {"sample", "deterministic"}:
             raise ValueError("selection_mode must be 'sample' or 'deterministic'")
         self.selection_mode = selection_mode
@@ -190,7 +194,18 @@ class PolicySelector:
         entropy = float(
             -np.sum(predictive_beliefs * np.log(predictive_beliefs + EPSILON))
         )
-        epistemic_value = entropy
+        if "expected_posterior" in policy or "posterior_beliefs" in policy:
+            expected_posterior = _normalize_vector(
+                policy.get("expected_posterior", policy.get("posterior_beliefs")),
+                len(beliefs),
+            )
+            # Information gain is the KL divergence between the expected
+            # posterior and the predictive prior. Legacy policies retain the
+            # entropy-based exploration term below.
+            epistemic_value = kl_divergence(expected_posterior, predictive_beliefs)
+        else:
+            expected_posterior = None
+            epistemic_value = entropy
 
         if preferences is not None:
             preferences = _preferences_to_vector(preferences, len(predictive_beliefs))
@@ -231,6 +246,16 @@ class PolicySelector:
                 ambiguity=ambiguity,
                 metadata={
                     "predictive_beliefs": predictive_beliefs.copy(),
+                    "expected_posterior": (
+                        expected_posterior.copy()
+                        if expected_posterior is not None
+                        else None
+                    ),
+                    "epistemic_value_source": (
+                        "expected_posterior_kl"
+                        if expected_posterior is not None
+                        else "predictive_entropy"
+                    ),
                     "temporal_discount": temporal_discount,
                     "exploration_bonus": exploration_bonus,
                 },
@@ -251,6 +276,14 @@ class PolicySelector:
         Returns:
             Computed precision parameter
         """
+        expected_free_energies = np.asarray(expected_free_energies, dtype=float).reshape(-1)
+        if expected_free_energies.size == 0:
+            raise ValueError("expected_free_energies must not be empty")
+        if not np.all(np.isfinite(expected_free_energies)):
+            raise ValueError("expected_free_energies must be finite")
+        if not np.isfinite(baseline_precision) or baseline_precision <= 0:
+            raise ValueError("baseline_precision must be finite and positive")
+
         # Adaptive precision based on policy differentiation
         efe_range = np.max(expected_free_energies) - np.min(expected_free_energies)
 
@@ -280,6 +313,7 @@ class PolicySelector:
         Returns:
             Policy evaluation results
         """
+        beliefs = _normalize_vector(beliefs)
         if not policies:
             policies = self._create_default_policies(len(beliefs))
 
@@ -312,7 +346,7 @@ class PolicySelector:
         ambiguities = np.array(ambiguities)
 
         # Compute policy probabilities
-        policy_probs = softmax(-expected_free_energies / max(self.temperature, EPSILON))
+        policy_probs = softmax(-expected_free_energies, temperature=self.temperature)
         evaluations = [
             PolicyEvaluation(
                 policy=policy,

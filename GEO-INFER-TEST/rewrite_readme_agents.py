@@ -264,6 +264,14 @@ def module_readme_notes(path: Path, module: ModuleInfo | None) -> str:
   distributions and is not a valid H3 runtime contract.
 - Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
   `config["allow_dynamic_code"] = True` and execute in per-call namespaces.
+- Core inference utilities validate finite probability inputs, use local RNG
+  instances for reproducible categorical sampling, and apply solve-based
+  Joseph-form Gaussian updates. `PolicySelector` accepts
+  `expected_posterior`/`posterior_beliefs` for KL information gain.
+- `VariationalInference.structured_update` consumes explicit categorical factor
+  tables with `variables` and `potential`/`values`/`table` fields, and
+  `MultiAgentModel.step` runs a perception-action-resource cycle with optional
+  movement and harvest fields in action dictionaries.
 
 ```python
 import numpy as np
@@ -382,6 +390,9 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
 - Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
   `config["allow_dynamic_code"] = True` and execute in per-call namespaces;
   keep this opt-in boundary when adding integrations.
+- Preserve the finite-input, solve-based Gaussian, factor-table variational,
+  policy information-gain, and multi-agent perception/action contracts when
+  extending ACT core behavior.
 
 ## Failure Triage
 

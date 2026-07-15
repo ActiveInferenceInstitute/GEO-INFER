@@ -115,6 +115,14 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
   distributions and is not a valid H3 runtime contract.
 - Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
   `config["allow_dynamic_code"] = True` and execute in per-call namespaces.
+- Core inference utilities validate finite probability inputs, use local RNG
+  instances for reproducible categorical sampling, and apply solve-based
+  Joseph-form Gaussian updates. `PolicySelector` accepts
+  `expected_posterior`/`posterior_beliefs` for KL information gain.
+- `VariationalInference.structured_update` consumes explicit categorical factor
+  tables with `variables` and `potential`/`values`/`table` fields, and
+  `MultiAgentModel.step` runs a perception-action-resource cycle with optional
+  movement and harvest fields in action dictionaries.
 
 ```python
 import numpy as np

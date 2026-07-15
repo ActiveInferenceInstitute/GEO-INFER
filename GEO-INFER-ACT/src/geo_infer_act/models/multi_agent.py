@@ -34,10 +34,20 @@ class MultiAgentModel(ActiveInferenceModel):
             random_seed = config.get("random_seed")
         self.random_seed = random_seed
         self.rng = np.random.default_rng(random_seed)
-        self.n_agents = n_agents
-        self.n_resources = n_resources
-        self.n_locations = n_locations
-        self.planning_horizon = planning_horizon
+        for name, value in (
+            ("n_agents", n_agents),
+            ("n_resources", n_resources),
+            ("n_locations", n_locations),
+            ("planning_horizon", planning_horizon),
+        ):
+            if isinstance(value, bool) or int(value) != value or value < 0:
+                raise ValueError(f"{name} must be a non-negative integer")
+        if n_resources == 0 or n_locations == 0:
+            raise ValueError("n_resources and n_locations must be positive")
+        self.n_agents = int(n_agents)
+        self.n_resources = int(n_resources)
+        self.n_locations = int(n_locations)
+        self.planning_horizon = int(planning_horizon)
         self.environmental_engine = environmental_engine
 
         # Initialize agent models with enhanced active inference capabilities
@@ -60,6 +70,9 @@ class MultiAgentModel(ActiveInferenceModel):
         self.agent_preferences = self.rng.random((self.n_agents, self.n_resources))
         self._initial_resource_distribution = self.resource_distribution.copy()
         self._initial_agent_preferences = self.agent_preferences.copy()
+        self.agent_locations = np.zeros(self.n_agents, dtype=int)
+        self.step_count = 0
+        self.history: List[Dict[str, Any]] = []
 
         # H3 spatial properties
         self.spatial_mode = False
@@ -76,6 +89,11 @@ class MultiAgentModel(ActiveInferenceModel):
             reset = getattr(agent, "reset", None)
             if callable(reset):
                 reset()
+        self.agent_locations = np.zeros(len(self.agent_models), dtype=int)
+        self.step_count = 0
+        self.history = []
+        for agent in self.agent_models:
+            agent.location = 0
 
     def _create_environmental_observation_model(self) -> np.ndarray:
         """Create realistic environmental observation model for agents."""
@@ -115,17 +133,104 @@ class MultiAgentModel(ActiveInferenceModel):
     def step(
         self, actions: Optional[List[Dict[str, Any]]] = None
     ) -> Tuple[Dict[str, Any], bool]:
-        """Advance the multi-agent model and return observable state."""
-        agent_locations = []
-        for agent in self.agent_models:
-            if hasattr(agent, "location"):
-                agent_locations.append(agent.location)
-            else:
-                agent_locations.append(0)  # Default location
-        return {
+        """Run one multi-agent perception, action, and resource step.
+
+        Action dictionaries may contain ``agent_id``, ``location`` (or
+        ``move_to``), ``resource``, ``amount``/``harvest``, and an optional
+        four-element ``observation``.  Missing observations are derived from
+        the resource profile at the agent's current location.  The legacy
+        call with ``actions=None`` remains a read-compatible no-op on the
+        environment while still advancing agent beliefs and diagnostics.
+        """
+        if actions is not None and not isinstance(actions, (list, tuple)):
+            raise ValueError("actions must be a sequence of action mappings")
+        action_by_agent: Dict[int, Dict[str, Any]] = {}
+        for position, action in enumerate(actions or []):
+            if not isinstance(action, dict):
+                raise ValueError("each multi-agent action must be a mapping")
+            agent_id = int(action.get("agent_id", position))
+            if agent_id < 0 or agent_id >= len(self.agent_models):
+                raise ValueError(f"agent_id {agent_id} is outside the active agent range")
+            action_by_agent[agent_id] = dict(action)
+
+        harvest_yield = np.zeros_like(self.resource_distribution, dtype=float)
+        beliefs = []
+        free_energies = []
+        chosen_actions = []
+
+        for agent_id, agent in enumerate(self.agent_models):
+            current_location = int(self.agent_locations[agent_id])
+            action = action_by_agent.get(agent_id, {})
+            observation = action.get("observation")
+            if observation is None:
+                observation = self._observation_for_location(current_location)
+            observation = np.asarray(observation, dtype=float).reshape(-1)
+            if observation.shape != (agent.obs_dim,):
+                raise ValueError(
+                    f"agent {agent_id} observation must have shape ({agent.obs_dim},)"
+                )
+            updated = agent.update_beliefs(observation)
+            beliefs.append(updated.copy())
+            free_energies.append(float(agent.compute_free_energy()))
+
+            requested_location = action.get("location", action.get("move_to"))
+            if requested_location is not None:
+                requested_location = int(requested_location)
+                if not 0 <= requested_location < self.n_locations:
+                    raise ValueError(
+                        f"location {requested_location} is outside [0, {self.n_locations})"
+                    )
+                self.agent_locations[agent_id] = requested_location
+                current_location = requested_location
+            agent.location = current_location
+
+            resource = action.get("resource")
+            amount = action.get("amount", action.get("harvest", 0.0))
+            if resource is not None:
+                resource = int(resource)
+                amount = float(amount)
+                if not 0 <= resource < self.n_resources:
+                    raise ValueError(
+                        f"resource {resource} is outside [0, {self.n_resources})"
+                    )
+                if not np.isfinite(amount) or amount < 0:
+                    raise ValueError("harvest amount must be finite and non-negative")
+                yield_value = min(amount, self.resource_distribution[resource, current_location])
+                self.resource_distribution[resource, current_location] -= yield_value
+                harvest_yield[resource, current_location] = yield_value
+            chosen_actions.append(action.copy())
+
+        self.step_count += 1
+        state = {
             "resource_distribution": self.resource_distribution.copy(),
-            "agent_locations": agent_locations,
-        }, False
+            "agent_locations": self.agent_locations.tolist(),
+            "beliefs": [belief.tolist() for belief in beliefs],
+            "free_energy": free_energies,
+            "actions": chosen_actions,
+            "harvest_yield": harvest_yield,
+            "total_resources": float(np.sum(self.resource_distribution)),
+            "step": self.step_count,
+        }
+        self.history.append(state)
+        done = self.planning_horizon > 0 and self.step_count >= self.planning_horizon
+        return state, done
+
+    def _observation_for_location(self, location: int) -> np.ndarray:
+        """Build a normalized four-state observation from local resources."""
+        if not 0 <= location < self.resource_distribution.shape[1]:
+            return np.ones(4, dtype=float) / 4.0
+        resource_level = float(np.mean(self.resource_distribution[:, location]))
+        resource_level = float(np.clip(resource_level, 0.0, 1.0))
+        observation = np.array(
+            [
+                1.0 - resource_level,
+                0.5 + 0.5 * resource_level,
+                resource_level,
+                resource_level**2,
+            ],
+            dtype=float,
+        )
+        return normalize_belief_vector(observation)
 
     def enable_h3_spatial(self, resolution: int, boundary: Dict[str, Any]):
         """
@@ -205,6 +310,9 @@ class MultiAgentModel(ActiveInferenceModel):
 
                 # Create spatial coordination graph
                 self._create_spatial_coordination_graph()
+                self.agent_locations = np.zeros(len(self.agent_models), dtype=int)
+                for agent in self.agent_models:
+                    agent.location = 0
 
                 logger.info(
                     f"Enabled H3 spatial mode with {self.n_locations} cells and {len(self.agent_models)} agents"
@@ -257,7 +365,6 @@ class MultiAgentModel(ActiveInferenceModel):
         self.agent_models = []
         for i, cell in enumerate(self.h3_cells):
             agent = CategoricalModel(state_dim=4, obs_dim=4)
-            agent.cell_id = cell
             agent.spatial_index = i
             agent.set_likelihood_matrix(self._create_environmental_observation_model())
             agent.set_transition_matrix(self._create_environmental_transition_model())
@@ -272,6 +379,9 @@ class MultiAgentModel(ActiveInferenceModel):
                 agent.beliefs = np.ones(4) / 4
             self.agent_models.append(agent)
         self._create_spatial_coordination_graph()
+        self.agent_locations = np.zeros(len(self.agent_models), dtype=int)
+        for agent in self.agent_models:
+            agent.location = 0
         return hierarchy
 
     def _create_spatial_coordination_graph(self):
@@ -281,16 +391,17 @@ class MultiAgentModel(ActiveInferenceModel):
 
         adapter = get_h3_adapter()
         self.spatial_graph = {}
+        cell_indices = {cell: index for index, cell in enumerate(self.h3_cells)}
 
         for i, cell in enumerate(self.h3_cells):
             neighbors = []
             try:
                 h3_neighbors = adapter.grid_ring(cell, 1)
-                valid_neighbors = set(h3_neighbors) & set(self.h3_cells)
+                valid_neighbors = set(h3_neighbors) & set(cell_indices)
 
                 for neighbor_cell in valid_neighbors:
-                    if neighbor_cell in self.h3_cells:
-                        neighbor_idx = self.h3_cells.index(neighbor_cell)
+                    if neighbor_cell in cell_indices:
+                        neighbor_idx = cell_indices[neighbor_cell]
                         neighbors.append(neighbor_idx)
 
             except Exception as e:
@@ -318,6 +429,10 @@ class MultiAgentModel(ActiveInferenceModel):
         """
         if not self.spatial_mode:
             raise ValueError("Enable H3 spatial mode first")
+        if isinstance(timesteps, bool) or int(timesteps) != timesteps or timesteps < 0:
+            raise ValueError("timesteps must be a non-negative integer")
+        if not callable(obs_gen):
+            raise ValueError("obs_gen must be callable")
 
         history = []
 
@@ -327,10 +442,14 @@ class MultiAgentModel(ActiveInferenceModel):
             # Perception phase: each agent updates beliefs based on observations
             for i, (cell, agent) in enumerate(zip(self.h3_cells, self.agent_models)):
                 # Generate environmental observation for this cell
-                obs = obs_gen(cell)
+                obs = np.asarray(obs_gen(cell), dtype=float).reshape(-1)
+                if obs.size == 0 or not np.all(np.isfinite(obs)):
+                    raise ValueError(f"Observation generator returned invalid data for {cell}")
+                if np.any(obs < 0):
+                    raise ValueError(f"Observation generator returned negative values for {cell}")
 
                 # Ensure observation is properly formatted (4-dimensional for our model)
-                if len(obs) != 4:
+                if obs.size != 4:
                     # Convert to 4D observation vector
                     obs_4d = np.zeros(4)
                     for j in range(min(len(obs), 4)):

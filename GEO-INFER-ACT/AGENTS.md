@@ -80,6 +80,9 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 - Optional Python model-source integrations (Bayeux, PyMC, and Pyro) require
   `config["allow_dynamic_code"] = True` and execute in per-call namespaces;
   keep this opt-in boundary when adding integrations.
+- Preserve the finite-input, solve-based Gaussian, factor-table variational,
+  policy information-gain, and multi-agent perception/action contracts when
+  extending ACT core behavior.
 
 ## Failure Triage
 
