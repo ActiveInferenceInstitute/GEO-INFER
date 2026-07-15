@@ -84,9 +84,7 @@ def _kalman_posterior(
         + gain @ observation_covariance @ gain.T
     )
     posterior_covariance = (posterior_covariance + posterior_covariance.T) / 2.0
-    posterior_precision = np.linalg.solve(
-        posterior_covariance, np.eye(state_dim)
-    )
+    posterior_precision = np.linalg.solve(posterior_covariance, np.eye(state_dim))
     return posterior_mean, (posterior_precision + posterior_precision.T) / 2.0
 
 

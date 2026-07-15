@@ -150,7 +150,9 @@ class MultiAgentModel(ActiveInferenceModel):
                 raise ValueError("each multi-agent action must be a mapping")
             agent_id = int(action.get("agent_id", position))
             if agent_id < 0 or agent_id >= len(self.agent_models):
-                raise ValueError(f"agent_id {agent_id} is outside the active agent range")
+                raise ValueError(
+                    f"agent_id {agent_id} is outside the active agent range"
+                )
             action_by_agent[agent_id] = dict(action)
 
         harvest_yield = np.zeros_like(self.resource_distribution, dtype=float)
@@ -195,7 +197,9 @@ class MultiAgentModel(ActiveInferenceModel):
                     )
                 if not np.isfinite(amount) or amount < 0:
                     raise ValueError("harvest amount must be finite and non-negative")
-                yield_value = min(amount, self.resource_distribution[resource, current_location])
+                yield_value = min(
+                    amount, self.resource_distribution[resource, current_location]
+                )
                 self.resource_distribution[resource, current_location] -= yield_value
                 harvest_yield[resource, current_location] = yield_value
             chosen_actions.append(action.copy())
@@ -444,9 +448,13 @@ class MultiAgentModel(ActiveInferenceModel):
                 # Generate environmental observation for this cell
                 obs = np.asarray(obs_gen(cell), dtype=float).reshape(-1)
                 if obs.size == 0 or not np.all(np.isfinite(obs)):
-                    raise ValueError(f"Observation generator returned invalid data for {cell}")
+                    raise ValueError(
+                        f"Observation generator returned invalid data for {cell}"
+                    )
                 if np.any(obs < 0):
-                    raise ValueError(f"Observation generator returned negative values for {cell}")
+                    raise ValueError(
+                        f"Observation generator returned negative values for {cell}"
+                    )
 
                 # Ensure observation is properly formatted (4-dimensional for our model)
                 if obs.size != 4:

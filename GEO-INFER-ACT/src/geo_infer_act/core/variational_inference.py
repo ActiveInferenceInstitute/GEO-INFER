@@ -34,7 +34,11 @@ class VariationalInference:
             tolerance: Convergence tolerance
             random_seed: Optional seed for reproducible sampling updates
         """
-        if isinstance(max_iterations, bool) or int(max_iterations) != max_iterations or max_iterations <= 0:
+        if (
+            isinstance(max_iterations, bool)
+            or int(max_iterations) != max_iterations
+            or max_iterations <= 0
+        ):
             raise ValueError("max_iterations must be a positive integer")
         if not np.isfinite(tolerance) or tolerance <= 0:
             raise ValueError("tolerance must be finite and strictly positive")
@@ -69,7 +73,9 @@ class VariationalInference:
             # Dirichlet-categorical conjugate update
             concentration = np.asarray(prior["concentration"], dtype=float).reshape(-1)
             if concentration.shape != observations.shape:
-                raise ValueError("Dirichlet concentration and observations must have the same shape")
+                raise ValueError(
+                    "Dirichlet concentration and observations must have the same shape"
+                )
             if not np.all(np.isfinite(concentration)) or np.any(concentration <= 0):
                 raise ValueError("Dirichlet concentration must be finite and positive")
             if np.any(observations < 0):
@@ -90,15 +96,25 @@ class VariationalInference:
             prior_mean = np.asarray(prior["mean"], dtype=float).reshape(-1)
             prior_precision = np.asarray(prior["precision"], dtype=float)
             if prior_precision.shape != (prior_mean.size, prior_mean.size):
-                raise ValueError("prior precision must be square with one row per state")
+                raise ValueError(
+                    "prior precision must be square with one row per state"
+                )
 
             # Likelihood precision (assumed known)
             obs_precision = np.asarray(
                 likelihood.get("precision", np.eye(len(observations))), dtype=float
             )
-            if prior_mean.shape != observations.shape or obs_precision.shape != prior_precision.shape:
-                raise ValueError("Gaussian prior, likelihood, and observations must have matching dimensions")
-            for name, matrix in (("prior precision", prior_precision), ("observation precision", obs_precision)):
+            if (
+                prior_mean.shape != observations.shape
+                or obs_precision.shape != prior_precision.shape
+            ):
+                raise ValueError(
+                    "Gaussian prior, likelihood, and observations must have matching dimensions"
+                )
+            for name, matrix in (
+                ("prior precision", prior_precision),
+                ("observation precision", obs_precision),
+            ):
                 if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
                     raise ValueError(f"{name} must be finite and symmetric")
                 try:
@@ -203,7 +219,11 @@ class VariationalInference:
         unary = {}
         for var_name, dimension in dimensions.items():
             info = variables[var_name]
-            prior = info.get("prior", np.ones(dimension)) if isinstance(info, dict) else np.ones(dimension)
+            prior = (
+                info.get("prior", np.ones(dimension))
+                if isinstance(info, dict)
+                else np.ones(dimension)
+            )
             unary[var_name] = self._normalize_message(prior, dimension)
             if var_name in observations:
                 observed = np.asarray(observations[var_name], dtype=float).reshape(-1)
@@ -214,7 +234,9 @@ class VariationalInference:
         var_to_factor: Dict[tuple[str, str], np.ndarray] = {}
         for factor_name, factor_vars, _ in factors:
             for variable in factor_vars:
-                factor_to_var[(factor_name, variable)] = np.ones(dimensions[variable]) / dimensions[variable]
+                factor_to_var[(factor_name, variable)] = (
+                    np.ones(dimensions[variable]) / dimensions[variable]
+                )
                 var_to_factor[(variable, factor_name)] = clamped.get(
                     variable, unary[variable]
                 ).copy()
@@ -254,7 +276,10 @@ class VariationalInference:
                         continue
                     message = unary[variable].copy()
                     for other_factor_name, other_factor_vars, _ in factors:
-                        if variable in other_factor_vars and other_factor_name != factor_name:
+                        if (
+                            variable in other_factor_vars
+                            and other_factor_name != factor_name
+                        ):
                             message *= factor_to_var[(other_factor_name, variable)]
                     var_to_factor[(variable, factor_name)] = self._normalize_message(
                         message, dimension
@@ -264,15 +289,19 @@ class VariationalInference:
                 np.max(np.abs(beliefs[name] - old_beliefs[name])) <= self.tolerance
                 for name in beliefs
             ):
-                logger.debug("Belief propagation converged in %s iterations", iteration + 1)
+                logger.debug(
+                    "Belief propagation converged in %s iterations", iteration + 1
+                )
                 break
 
         # Preserve observed arrays exactly for the longstanding clamping API;
         # only latent-variable marginals are normalized outputs.
         return {
-            name: np.asarray(observations[name]).copy()
-            if name in observations
-            else beliefs[name]
+            name: (
+                np.asarray(observations[name]).copy()
+                if name in observations
+                else beliefs[name]
+            )
             for name in dimensions
         }
 
@@ -283,7 +312,9 @@ class VariationalInference:
             raise ValueError(f"variable '{name}' must be described by a mapping")
         dimension = info.get("dimension", 2)
         if isinstance(dimension, bool) or int(dimension) != dimension or dimension <= 0:
-            raise ValueError(f"variable '{name}' must have a positive integer dimension")
+            raise ValueError(
+                f"variable '{name}' must have a positive integer dimension"
+            )
         return int(dimension)
 
     @staticmethod
@@ -306,23 +337,37 @@ class VariationalInference:
         """Parse common categorical factor-table representations."""
         if factor_spec is None:
             return []
-        entries = list(factor_spec.items()) if isinstance(factor_spec, dict) else list(enumerate(factor_spec))
+        entries = (
+            list(factor_spec.items())
+            if isinstance(factor_spec, dict)
+            else list(enumerate(factor_spec))
+        )
         parsed = []
         for raw_name, raw_factor in entries:
             if not isinstance(raw_factor, dict):
-                raise ValueError("each factor must be a mapping with variables and potential")
+                raise ValueError(
+                    "each factor must be a mapping with variables and potential"
+                )
             factor_name = str(raw_name)
             factor_vars = raw_factor.get("variables", raw_factor.get("scope"))
             if not isinstance(factor_vars, (list, tuple)) or not factor_vars:
-                raise ValueError(f"factor '{factor_name}' must define a non-empty variables list")
+                raise ValueError(
+                    f"factor '{factor_name}' must define a non-empty variables list"
+                )
             factor_vars = [str(variable) for variable in factor_vars]
-            if len(set(factor_vars)) != len(factor_vars) or any(variable not in dimensions for variable in factor_vars):
-                raise ValueError(f"factor '{factor_name}' references an unknown or duplicate variable")
+            if len(set(factor_vars)) != len(factor_vars) or any(
+                variable not in dimensions for variable in factor_vars
+            ):
+                raise ValueError(
+                    f"factor '{factor_name}' references an unknown or duplicate variable"
+                )
             raw_potential = raw_factor.get(
                 "potential", raw_factor.get("values", raw_factor.get("table"))
             )
             if raw_potential is None:
-                raise ValueError(f"factor '{factor_name}' must define a potential table")
+                raise ValueError(
+                    f"factor '{factor_name}' must define a potential table"
+                )
             potential = np.asarray(raw_potential, dtype=float)
             expected_shape = tuple(dimensions[variable] for variable in factor_vars)
             if potential.shape != expected_shape:
@@ -395,7 +440,9 @@ class VariationalInference:
                     for axis, other in reversed(list(enumerate(factor_vars))):
                         if other == var_name:
                             continue
-                        other_q = self._normalize_message(q_params[other], dimensions[other])
+                        other_q = self._normalize_message(
+                            q_params[other], dimensions[other]
+                        )
                         shape = [1] * expected_log_potential.ndim
                         shape[axis] = dimensions[other]
                         expected_log_potential = np.sum(
@@ -404,14 +451,19 @@ class VariationalInference:
                     log_belief += expected_log_potential
                 shifted = log_belief - np.max(log_belief)
                 q_params[var_name] = np.exp(shifted)
-                q_params[var_name] = self._normalize_message(q_params[var_name], dimension)
+                q_params[var_name] = self._normalize_message(
+                    q_params[var_name], dimension
+                )
 
             # Check convergence
             converged = True
             for var_name in q_params:
                 if var_name in observations:
                     continue
-                if np.max(np.abs(q_params[var_name] - old_params[var_name])) > self.tolerance:
+                if (
+                    np.max(np.abs(q_params[var_name] - old_params[var_name]))
+                    > self.tolerance
+                ):
                     converged = False
                     break
 
