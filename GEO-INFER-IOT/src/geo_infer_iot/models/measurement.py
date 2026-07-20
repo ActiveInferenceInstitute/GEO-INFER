@@ -8,7 +8,7 @@ including batch processing, quality metadata, and temporal analysis.
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from pydantic.v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 import numpy as np
 import h3
 
@@ -89,7 +89,7 @@ class Measurement(BaseModel):
         None, description="Processing pipeline version"
     )
 
-    @validator("h3_index")
+    @field_validator("h3_index")
     def validate_h3_index(cls, v, values):
         """Validate H3 index format."""
         if v and not h3.h3_is_valid(v):
@@ -188,7 +188,7 @@ class MeasurementBatch(BaseModel):
         default_factory=dict, description="Quality summary for batch"
     )
 
-    @validator("measurements")
+    @field_validator("measurements")
     def validate_measurements(cls, v):
         """Validate measurements in batch."""
         if len(v) == 0:
@@ -439,7 +439,7 @@ class MeasurementValidation(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    @validator("action_on_failure")
+    @field_validator("action_on_failure")
     def validate_action(cls, v):
         """Validate action on failure."""
         valid_actions = ["flag", "reject", "correct", "notify"]

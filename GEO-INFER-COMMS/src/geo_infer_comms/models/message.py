@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Any, Literal
 from datetime import datetime, timezone
 from enum import Enum
 from dataclasses import dataclass, field
-from pydantic.v1 import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 import uuid
 
 from geo_infer_comms.models.spatial import GeospatialMetadata
@@ -159,7 +159,7 @@ class MessageRequest(BaseModel):
     """Request model for creating a new message."""
 
     content: str = Field(..., min_length=1, max_length=10000)
-    recipients: List[str] = Field(..., min_items=1)
+    recipients: List[str] = Field(..., min_length=1)
     channel_id: Optional[str] = None
     message_type: MessageType = MessageType.TEXT
     priority: MessagePriority = MessagePriority.NORMAL
@@ -167,14 +167,7 @@ class MessageRequest(BaseModel):
     geospatial_data: Optional[GeospatialMetadata] = None
     expires_at: Optional[datetime] = None
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            GeospatialMetadata: lambda v: v.to_dict(),
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class MessageResponse(BaseModel):
@@ -193,19 +186,11 @@ class MessageResponse(BaseModel):
     geospatial_data: Optional[GeospatialMetadata] = None
     delivery_stats: Dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            MessageMetadata: lambda v: v.to_dict(),
-            GeospatialMetadata: lambda v: v.to_dict() if v else None,
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert message to dictionary."""
-        data = self.dict()
+        data = self.model_dump()
         data["metadata"] = self.metadata.to_dict()
         if self.geospatial_data:
             data["geospatial_data"] = self.geospatial_data.to_dict()
@@ -295,7 +280,7 @@ class NotificationRequest(BaseModel):
 
     title: str = Field(..., min_length=1, max_length=200)
     content: str = Field(..., min_length=1, max_length=2000)
-    recipients: List[str] = Field(..., min_items=1)
+    recipients: List[str] = Field(..., min_length=1)
     notification_type: NotificationType = NotificationType.INFO
     priority: MessagePriority = MessagePriority.NORMAL
     delivery_method: List[Literal["in_app", "email", "sms", "push"]] = Field(
@@ -348,7 +333,7 @@ class EventPublishResponse(BaseModel):
 class EventSubscriptionRequest(BaseModel):
     """Request model for event subscriptions."""
 
-    event_types: List[str] = Field(..., min_items=1)
+    event_types: List[str] = Field(..., min_length=1)
     filter_criteria: Dict[str, Any] = Field(default_factory=dict)
     delivery_mode: Literal["real_time", "batched", "on_demand"] = "real_time"
     callback_url: Optional[str] = None
@@ -369,7 +354,7 @@ class CollaborationSessionRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
     session_type: CollaborationType = CollaborationType.MEETING
-    participants: List[str] = Field(..., min_items=1)
+    participants: List[str] = Field(..., min_length=1)
     duration: Optional[int] = Field(None, ge=1, le=480)  # minutes
     features: List[
         Literal["screen_share", "whiteboard", "file_share", "voice", "video"]

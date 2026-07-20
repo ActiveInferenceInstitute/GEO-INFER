@@ -8,7 +8,7 @@ patterns, and network management for IoT sensor deployments.
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from pydantic.v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 import networkx as nx
 import h3
@@ -366,13 +366,16 @@ class NetworkTopology(BaseModel):
 
             # Add nodes
             for node_id, node in self.nodes.items():
-                G.add_node(node_id, **node.dict())
+                G.add_node(node_id, **node.model_dump())
 
             # Add edges
             for link in self.links.values():
                 if link.status == "active":
                     G.add_edge(
-                        link.source_node, link.target_node, weight=1, **link.dict()
+                        link.source_node,
+                        link.target_node,
+                        weight=1,
+                        **link.model_dump(),
                     )
 
             if not nx.is_connected(G):
@@ -458,7 +461,7 @@ class NetworkEvent(BaseModel):
     network_id: Optional[str] = Field(None, description="Associated network ID")
     session_id: Optional[str] = Field(None, description="Associated session ID")
 
-    @validator("severity")
+    @field_validator("severity")
     def validate_severity(cls, v):
         """Validate event severity."""
         valid_severities = ["debug", "info", "warning", "error", "critical"]
@@ -512,7 +515,7 @@ class NetworkConfiguration(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    @validator("deployment_mode")
+    @field_validator("deployment_mode")
     def validate_deployment_mode(cls, v):
         """Validate deployment mode."""
         valid_modes = ["development", "staging", "production", "testing"]

@@ -8,7 +8,7 @@ and related metadata using Pydantic for validation and type safety.
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from pydantic.v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 import h3
 
 # Optional imports for enhanced functionality
@@ -52,7 +52,7 @@ class Location(BaseModel):
                 self.latitude, self.longitude, self.h3_resolution
             )
 
-    @validator("h3_index")
+    @field_validator("h3_index")
     def validate_h3_index(cls, v, values):
         """Validate H3 index format."""
         if v and not h3.h3_is_valid(v):
@@ -162,7 +162,7 @@ class Sensor(BaseModel):
         default_factory=datetime.now, description="Record last update timestamp"
     )
 
-    @validator("status")
+    @field_validator("status")
     def validate_status(cls, v):
         """Validate sensor status."""
         valid_statuses = [
@@ -305,7 +305,7 @@ class SensorNetwork(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    @validator("protocol")
+    @field_validator("protocol")
     def validate_protocol(cls, v):
         """Validate communication protocol."""
         valid_protocols = [
@@ -323,7 +323,7 @@ class SensorNetwork(BaseModel):
             )
         return v.upper()
 
-    @validator("topology")
+    @field_validator("topology")
     def validate_topology(cls, v):
         """Validate network topology."""
         valid_topologies = ["mesh", "star", "hierarchical", "bus", "ring"]
@@ -333,7 +333,7 @@ class SensorNetwork(BaseModel):
             )
         return v.lower()
 
-    @validator("spatial_bounds")
+    @field_validator("spatial_bounds")
     def validate_spatial_bounds(cls, v):
         """Validate spatial bounds."""
         required_keys = ["lat_min", "lat_max", "lon_min", "lon_max"]
@@ -430,7 +430,7 @@ class SensorDeployment(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    @validator("deployment_method")
+    @field_validator("deployment_method")
     def validate_deployment_method(cls, v):
         """Validate deployment method."""
         valid_methods = ["manual", "automated", "aerial", "vehicle", "stationary"]
@@ -440,7 +440,7 @@ class SensorDeployment(BaseModel):
             )
         return v
 
-    @validator("power_source")
+    @field_validator("power_source")
     def validate_power_source(cls, v):
         """Validate power source."""
         valid_sources = ["battery", "solar", "mains", "wind", "thermal"]

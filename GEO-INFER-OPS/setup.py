@@ -13,8 +13,8 @@ setup(
     package_dir={"": "src"},
     python_requires=">=3.11",
     install_requires=[
-        "fastapi>=0.68.0",
-        "pydantic>=1.8.0",
+        "fastapi>=0.100.0",
+        "pydantic>=2.0.0",
         "pytest>=6.0.0",
         "pytest-cov>=2.12.0",
         "pytest-timeout>=2.0.0",
@@ -36,4 +36,4 @@ setup(
             "pytest-asyncio",
         ],
     },
-) 
+)

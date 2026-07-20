@@ -21,9 +21,9 @@ Integration workspace within `GEO-INFER-API`.
 
 ## Dependencies
 
-- `fastapi>=0.95.0,<0.96.0`
+- `fastapi>=0.100.0`
 - `uvicorn>=0.21.0,<0.22.0`
-- `pydantic>=1.10.7,<2.0.0`
+- `pydantic>=2.0.0`
 - `pydantic-settings>=2.0.0,<3.0.0`
 - `python-dotenv>=1.0.0,<2.0.0`
 - `python-multipart>=0.0.6,<0.1.0`

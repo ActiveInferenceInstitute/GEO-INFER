@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
     "celery>=5.2.0",
     "elasticsearch>=8.0.0",
-    "fastapi>=0.95.0",
+    "fastapi>=0.100.0",
     "jsonschema>=4.0.0",
     "mkdocs>=1.4.0",
     "pydantic>=2.0.0",
@@ -99,7 +99,7 @@ line_length = 88
 known_first_party = ["geo_infer_intra"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

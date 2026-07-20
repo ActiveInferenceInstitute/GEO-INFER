@@ -9,7 +9,7 @@ validation and serialization capabilities.
 from typing import List, Dict, Any, Optional, Union, Tuple
 from datetime import datetime
 from enum import Enum
-from pydantic.v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 from geojson_pydantic import Feature, FeatureCollection, Point, Polygon, LineString
 
 
@@ -35,7 +35,7 @@ class CoordinateReferenceSystem(BaseModel):
     is_projected: bool = Field(False, description="Whether CRS is projected")
     units: Optional[str] = Field(None, description="Linear units")
 
-    @validator("epsg_code")
+    @field_validator("epsg_code")
     def validate_epsg_code(cls, v):
         if v is not None and (v < 1000 or v > 32767):
             raise ValueError("EPSG code must be between 1000 and 32767")
@@ -70,16 +70,16 @@ class SpatialBounds(BaseModel):
     minz: Optional[float] = Field(None, description="Minimum Z coordinate")
     maxz: Optional[float] = Field(None, description="Maximum Z coordinate")
 
-    @validator("maxx")
-    def validate_x_bounds(cls, v, values):
-        if "minx" in values and v <= values["minx"]:
-            raise ValueError("maxx must be greater than minx")
+    @field_validator("maxx")
+    def validate_x_bounds(cls, v, info: ValidationInfo):
+        if "minx" in info.data and v < info.data["minx"]:
+            raise ValueError("maxx must be greater than or equal to minx")
         return v
 
-    @validator("maxy")
-    def validate_y_bounds(cls, v, values):
-        if "miny" in values and v <= values["miny"]:
-            raise ValueError("maxy must be greater than miny")
+    @field_validator("maxy")
+    def validate_y_bounds(cls, v, info: ValidationInfo):
+        if "miny" in info.data and v < info.data["miny"]:
+            raise ValueError("maxy must be greater than or equal to miny")
         return v
 
     @property
@@ -110,7 +110,7 @@ class SpatialIndex(BaseModel):
     )
     num_features: int = Field(0, description="Number of indexed features")
 
-    @validator("index_type")
+    @field_validator("index_type")
     def validate_index_type(cls, v):
         valid_types = ["rtree", "quadtree", "h3", "geohash", "s2"]
         if v.lower() not in valid_types:
@@ -142,7 +142,7 @@ class SpatialMetadata(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Dataset tags")
     license: Optional[str] = Field(None, description="Data license")
 
-    @validator("num_features")
+    @field_validator("num_features")
     def validate_num_features(cls, v):
         if v < 0:
             raise ValueError("Number of features cannot be negative")
@@ -160,15 +160,16 @@ class SpatialDataset(BaseModel):
         None, description="Spatial index information"
     )
 
-    @validator("features")
-    def validate_features(cls, v, values):
+    @field_validator("features", mode="after")
+    def validate_features(cls, v, info: ValidationInfo):
         if isinstance(v, list):
             # Convert list of features to FeatureCollection
             v = FeatureCollection(features=v)
 
         # Update metadata with feature count
-        if "metadata" in values:
-            values["metadata"].num_features = len(v.features)
+        metadata = info.data.get("metadata")
+        if metadata is not None:
+            metadata.num_features = len(v.features)
 
         return v
 
@@ -181,7 +182,7 @@ class SpatialDataset(BaseModel):
         all_coords = []
         for feature in self.features.features:
             geom = feature.geometry
-            coords = self._extract_coordinates(geom.dict())
+            coords = self._extract_coordinates(geom.model_dump())
             all_coords.extend(coords)
 
         if not all_coords:
@@ -244,7 +245,7 @@ class AnalysisResult(BaseModel):
     )
     error_message: Optional[str] = Field(None, description="Error message if failed")
 
-    @validator("execution_time")
+    @field_validator("execution_time")
     def validate_execution_time(cls, v):
         if v is not None and v < 0:
             raise ValueError("Execution time cannot be negative")
@@ -268,20 +269,20 @@ class H3CellData(BaseModel):
         default_factory=dict, description="Cell properties"
     )
 
-    @validator("h3_index")
+    @field_validator("h3_index")
     def validate_h3_index(cls, v):
         # Basic H3 index validation (should be 15-character hex string for most resolutions)
         if not isinstance(v, str) or len(v) < 8 or len(v) > 16:
             raise ValueError("Invalid H3 index format")
         return v
 
-    @validator("center_lat")
+    @field_validator("center_lat")
     def validate_latitude(cls, v):
         if not -90 <= v <= 90:
             raise ValueError("Latitude must be between -90 and 90")
         return v
 
-    @validator("center_lng")
+    @field_validator("center_lng")
     def validate_longitude(cls, v):
         if not -180 <= v <= 180:
             raise ValueError("Longitude must be between -180 and 180")
@@ -301,7 +302,7 @@ class NetworkEdge(BaseModel):
         default_factory=dict, description="Edge attributes"
     )
 
-    @validator("geometry")
+    @field_validator("geometry")
     def validate_geometry_type(cls, v):
         if v.type != "LineString":
             raise ValueError("Network edge geometry must be LineString")
@@ -318,7 +319,7 @@ class NetworkNode(BaseModel):
         default_factory=dict, description="Node attributes"
     )
 
-    @validator("geometry")
+    @field_validator("geometry")
     def validate_geometry_type(cls, v):
         if v.type != "Point":
             raise ValueError("Network node geometry must be Point")

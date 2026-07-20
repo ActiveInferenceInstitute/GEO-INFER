@@ -537,13 +537,14 @@ class IoTSystem:
                 "configuration": self.config,
                 "status": self.get_system_status(),
                 "networks": {
-                    nid: network.dict()
+                    nid: network.model_dump()
                     for nid, network in self.registry.networks.items()
                 },
                 "sensors": {
-                    sid: sensor.dict() for sid, sensor in self.registry.sensors.items()
+                    sid: sensor.model_dump()
+                    for sid, sensor in self.registry.sensors.items()
                 },
-                "measurements": [m.dict() for m in self.ingestion.measurements],
+                "measurements": [m.model_dump() for m in self.ingestion.measurements],
                 "metrics": self.metrics,
                 "exported_at": datetime.now().isoformat(),
             }

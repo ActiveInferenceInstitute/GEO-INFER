@@ -31,7 +31,7 @@ Integration workspace within `GEO-INFER-BIO`.
 - `seaborn>=0.11.0`
 - `geopandas>=0.9.0`
 - `shapely>=1.8.0`
-- `fastapi>=0.68.0`
+- `fastapi>=0.100.0`
 - `uvicorn>=0.15.0`
 
 

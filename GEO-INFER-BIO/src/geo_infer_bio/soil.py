@@ -98,7 +98,7 @@ class SoilDataIntegrator:
         self,
         coordinates: List[Tuple[float, float]],
         properties: List[str],
-        depths: List[str] = ["0-5cm", "5-15cm"],
+        depths: Optional[List[str]] = None,
     ) -> "SoilDataset":
         """
         Load ISRIC SoilGrids data for specified coordinates.
@@ -111,6 +111,8 @@ class SoilDataIntegrator:
         Returns:
             SoilDataset object with soil data
         """
+        depths = list(depths) if depths is not None else ["0-5cm", "5-15cm"]
+
         logger.info(
             f"Loading SoilGrids data for {len(properties)} properties at {len(depths)} depths"
         )

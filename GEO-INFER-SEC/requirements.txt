@@ -10,5 +10,5 @@ pyproj>=3.0.0
 flask>=2.0.0
 sqlalchemy>=1.4.0
 bcrypt>=3.2.0
-pydantic>=1.9.0 
+pydantic>=2.0.0
 # Added from comprehensive review

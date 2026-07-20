@@ -23,7 +23,7 @@ Config workspace within `GEO-INFER-IOT`.
 - `aiocoap>=0.4.3`
 - `aiomqtt>=2.4.0`
 - `confluent-kafka>=1.8.0`
-- `fastapi>=0.68.0`
+- `fastapi>=0.100.0`
 - `folium>=0.12.0`
 - `geopandas>=0.10.0`
 - `h3>=4.5.0,<5`

@@ -21,7 +21,7 @@ folium>=0.14.0
 plotly>=5.0.0
 
 # Web framework for API (optional)
-fastapi>=0.68.0
+fastapi>=0.100.0
 uvicorn>=0.15.0
 
 # Time series and statistics
@@ -40,4 +40,4 @@ structlog>=21.0.0
 # pip install -e ../../../GEO-INFER-BAYES  
 # pip install -e ../../../GEO-INFER-SPACE
 # pip install -e ../../../GEO-INFER-LOG
-# pip install -e ../../../GEO-INFER-TEST 
+# pip install -e ../../../GEO-INFER-TEST
