@@ -43,6 +43,34 @@ class _SimpleVIModel(BayesianModel):
         return np.zeros((samples, 1))
 
 
+class _VectorVIModel(BayesianModel):
+    """Vector-valued Gaussian model for mean-field VI shape contracts."""
+
+    def _setup_model(self, **kwargs) -> None:
+        self.parameters = {
+            "weights": {
+                "prior": "normal",
+                "hyperparams": {"mu": np.zeros(2), "sigma": np.ones(2)},
+            }
+        }
+
+    def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
+        weights = np.asarray(theta["weights"], dtype=float)
+        observations = np.asarray(data, dtype=float)
+        return float(-0.5 * np.sum((observations - weights) ** 2))
+
+    def log_prior(self, theta: Dict[str, Any]) -> float:
+        weights = np.asarray(theta["weights"], dtype=float)
+        return float(-0.5 * np.sum((weights / 5.0) ** 2))
+
+    def predict(self, X_new, posterior=None, samples=100, return_std=False):
+        values = np.zeros(len(X_new))
+        return (values, np.ones(len(X_new))) if return_std else values
+
+    def posterior_predictive(self, posterior, X=None, samples=100):
+        return np.zeros((samples, 1))
+
+
 class TestVariationalInferenceInit:
 
     def test_default_init(self) -> None:
@@ -168,3 +196,55 @@ class TestVariationalInferenceRun:
         assert "mu" in samples
         assert samples["mu"].shape == (8,)
         assert np.all(np.isfinite(samples["mu"]))
+
+
+def test_variational_seed_does_not_mutate_global_rng() -> None:
+    np.random.seed(123)
+    before = np.random.random()
+    VariationalInference(_SimpleVIModel(name="test"), random_seed=7)
+    after = np.random.random()
+
+    np.random.seed(123)
+    np.testing.assert_allclose([before, after], np.random.random(2))
+
+
+def test_variational_update_uses_previous_samples_as_warm_start() -> None:
+    model = _SimpleVIModel(name="test")
+    vi = VariationalInference(
+        model,
+        n_iterations=1,
+        learning_rate=1e-12,
+        n_mc_samples=1,
+        random_seed=0,
+    )
+
+    samples = vi.update(
+        np.array([10.0, 10.0]),
+        {"mu": np.full(20, 10.0)},
+        progress_bar=False,
+        n_samples=20,
+    )
+
+    assert np.mean(samples["mu"]) > 9.9
+
+
+def test_variational_vector_parameters_preserve_shape_and_warm_start() -> None:
+    model = _VectorVIModel(name="vector")
+    vi = VariationalInference(
+        model,
+        n_iterations=2,
+        learning_rate=1e-12,
+        n_mc_samples=1,
+        random_seed=0,
+    )
+
+    samples = vi.update(
+        np.array([10.0, 10.0]),
+        {"weights": np.full((20, 2), 10.0)},
+        progress_bar=False,
+        n_samples=12,
+    )
+
+    assert samples["weights"].shape == (12, 2)
+    assert np.all(np.isfinite(samples["weights"]))
+    assert np.all(np.mean(samples["weights"], axis=0) > 9.9)

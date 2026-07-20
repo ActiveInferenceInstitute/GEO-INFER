@@ -6,9 +6,8 @@ both spatial and temporal dependencies in geospatial data.
 """
 
 import numpy as np
-import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union, Any
-from dataclasses import dataclass, field
+from typing import Dict, Optional, Tuple, Union, Any
+from dataclasses import dataclass
 import logging
 
 from .base import BayesianModel
@@ -37,6 +36,25 @@ class SpatioTemporalConfig:
     convergence_tolerance: float = 1e-6
     random_seed: Optional[int] = None
 
+    def __post_init__(self) -> None:
+        """Validate positive kernel and optimization parameters."""
+        positive_fields = (
+            "spatial_length_scale",
+            "spatial_variance",
+            "temporal_length_scale",
+            "temporal_variance",
+            "observation_noise",
+            "process_noise",
+        )
+        for field_name in positive_fields:
+            value = getattr(self, field_name)
+            if not np.isfinite(value) or value <= 0:
+                raise ValueError(f"{field_name} must be finite and positive")
+        if not isinstance(self.max_iterations, (int, np.integer)) or self.max_iterations < 1:
+            raise ValueError("max_iterations must be a positive integer")
+        if not np.isfinite(self.convergence_tolerance) or self.convergence_tolerance < 0:
+            raise ValueError("convergence_tolerance must be finite and non-negative")
+
 class SpatioTemporalGP(BayesianModel):
     """
     Spatio-temporal Gaussian Process model for geospatial applications.
@@ -56,7 +74,7 @@ class SpatioTemporalGP(BayesianModel):
         self.config = config or SpatioTemporalConfig()
 
         # Initialize spatial and temporal components
-        self.spatial_gp = SpatialGP()
+        self.spatial_gp = SpatialGP(noise=self.config.observation_noise)
         self.temporal_gp = None  # Will be initialized when needed
 
         # Model state
@@ -66,9 +84,7 @@ class SpatioTemporalGP(BayesianModel):
         self.temporal_coords = None
         self.observations = None
 
-        # Set random seed if provided
-        if self.config.random_seed is not None:
-            np.random.seed(self.config.random_seed)
+        self.rng = np.random.default_rng(self.config.random_seed)
     
     def fit(self, 
             spatial_coords: np.ndarray,
@@ -90,8 +106,23 @@ class SpatioTemporalGP(BayesianModel):
         logger.info("Fitting spatio-temporal Gaussian Process model...")
         
         # Validate inputs
-        if len(spatial_coords) != len(temporal_coords) or len(spatial_coords) != len(observations):
+        spatial_coords = np.asarray(spatial_coords, dtype=float)
+        temporal_coords = np.asarray(temporal_coords, dtype=float).reshape(-1)
+        observations = np.asarray(observations, dtype=float).reshape(-1)
+        if spatial_coords.ndim != 2 or spatial_coords.shape[1] != 2:
+            raise ValueError("spatial_coords must have shape (n_samples, 2)")
+        if (
+            len(spatial_coords) != len(temporal_coords)
+            or len(spatial_coords) != len(observations)
+        ):
             raise ValueError("All input arrays must have the same length")
+        if len(observations) == 0:
+            raise ValueError("At least one observation is required")
+        if not all(
+            np.all(np.isfinite(values))
+            for values in (spatial_coords, temporal_coords, observations)
+        ):
+            raise ValueError("All fit inputs must be finite")
         
         # Store training data
         self.spatial_coords = spatial_coords.copy()
@@ -102,7 +133,7 @@ class SpatioTemporalGP(BayesianModel):
         logger.info("Fitting spatial component...")
         self.spatial_gp.fit(spatial_coords, observations)
         
-        # Fit temporal component (simplified - could be enhanced)
+        # Fit the temporal trend component.
         logger.info("Fitting temporal component...")
         self._fit_temporal_component()
         
@@ -113,50 +144,19 @@ class SpatioTemporalGP(BayesianModel):
     
     def _fit_temporal_component(self):
         """Fit the temporal component of the model."""
-        # Simple temporal fitting - could be enhanced with more sophisticated methods
         temporal_residuals = self.observations - self.spatial_gp.predict(self.spatial_coords)
         
         # Fit a simple temporal trend
-        temporal_trend = np.polyfit(self.temporal_coords, temporal_residuals, 1)
+        if len(self.temporal_coords) < 2 or np.allclose(
+            self.temporal_coords, self.temporal_coords[0]
+        ):
+            temporal_trend = np.array([0.0, float(np.mean(temporal_residuals))])
+        else:
+            temporal_trend = np.polyfit(self.temporal_coords, temporal_residuals, 1)
         self.temporal_trend = temporal_trend
         
         # Calculate temporal variance
         self.temporal_variance = np.var(temporal_residuals)
-    
-    def predict(self, 
-                spatial_coords: np.ndarray,
-                temporal_coords: np.ndarray,
-                return_std: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-        """
-        Make predictions using the fitted spatio-temporal model.
-        
-        Args:
-            spatial_coords: Array of shape (n_samples, 2) with [lat, lon] coordinates
-            temporal_coords: Array of shape (n_samples,) with temporal coordinates
-            return_std: Whether to return standard deviations
-            
-        Returns:
-            Predictions and optionally standard deviations
-        """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before making predictions")
-        
-        # Spatial predictions
-        spatial_pred = self.spatial_gp.predict(spatial_coords, return_std=return_std)
-        
-        # Temporal predictions
-        temporal_pred = self._predict_temporal(temporal_coords)
-        
-        # Combine predictions
-        if return_std:
-            spatial_mean, spatial_std = spatial_pred
-            combined_mean = spatial_mean + temporal_pred
-            # Simple combination of uncertainties
-            combined_std = np.sqrt(spatial_std**2 + self.temporal_variance)
-            return combined_mean, combined_std
-        else:
-            combined_pred = spatial_pred + temporal_pred
-            return combined_pred
     
     def _predict_temporal(self, temporal_coords: np.ndarray) -> np.ndarray:
         """Make temporal predictions."""
@@ -189,7 +189,9 @@ class SpatioTemporalGP(BayesianModel):
         mean_pred, std_pred = self.predict(spatial_coords, temporal_coords, return_std=True)
         
         # Generate samples
-        samples = np.random.normal(mean_pred, std_pred, size=(n_samples, len(mean_pred)))
+        if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
+            raise ValueError("n_samples must be a positive integer")
+        samples = self.rng.normal(mean_pred, std_pred, size=(n_samples, len(mean_pred)))
         
         return samples
     
@@ -206,33 +208,6 @@ class SpatioTemporalGP(BayesianModel):
         }
         
         return params
-    
-    def log_likelihood(self, 
-                      spatial_coords: np.ndarray,
-                      temporal_coords: np.ndarray,
-                      observations: np.ndarray) -> float:
-        """
-        Calculate the log-likelihood of the data under the model.
-        
-        Args:
-            spatial_coords: Array of shape (n_samples, 2) with [lat, lon] coordinates
-            temporal_coords: Array of shape (n_samples,) with temporal coordinates
-            observations: Array of shape (n_samples,) with observed values
-            
-        Returns:
-            Log-likelihood value
-        """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before calculating likelihood")
-        
-        # Get predictions
-        predictions, std_pred = self.predict(spatial_coords, temporal_coords, return_std=True)
-        
-        # Calculate log-likelihood assuming Gaussian noise
-        residuals = observations - predictions
-        log_likelihood = -0.5 * np.sum(residuals**2 / std_pred**2 + np.log(2 * np.pi * std_pred**2))
-        
-        return log_likelihood
     
     def cross_validate(self, 
                       spatial_coords: np.ndarray,
@@ -273,7 +248,8 @@ class SpatioTemporalGP(BayesianModel):
             model_copy.fit(train_spatial, train_temporal, train_obs)
             
             # Predict on test data
-            test_pred = model_copy.predict(test_spatial, test_temporal)
+            test_X = np.column_stack((test_spatial, test_temporal))
+            test_pred = model_copy.predict(test_X)
             
             # Calculate metrics
             mse = np.mean((test_obs - test_pred)**2)
@@ -300,39 +276,50 @@ class SpatioTemporalGP(BayesianModel):
             'noise': {'prior': 'log_normal', 'hyperparams': {'mu': -2.0, 'sigma': 1.0}},
         }
 
-    def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
+    def log_likelihood(
+        self,
+        theta: Dict[str, Any],
+        data: Any,
+        observations: Optional[np.ndarray] = None,
+    ) -> float:
+        """Compute a Gaussian log-likelihood without mutating model state.
+
+        ``data`` is normally a mapping containing ``spatial_coords``,
+        ``temporal_coords``, and ``observations``.  For compatibility with the
+        original fitted-model convenience API, callers may instead pass
+        ``(spatial_coords, temporal_coords, observations)``.
         """
-        Compute the log-likelihood for the spatio-temporal model.
+        if observations is not None:
+            if not self.is_fitted:
+                raise ValueError("Model must be fitted before calculating likelihood")
+            spatial_coords = np.asarray(theta, dtype=float)
+            temporal_coords = np.asarray(data, dtype=float)
+            observed_values = np.asarray(observations, dtype=float)
+            predictions, std_pred = self._predict_components(
+                spatial_coords, temporal_coords, return_std=True
+            )
+            return self._gaussian_log_likelihood(
+                observed_values, predictions, std_pred
+            )
 
-        Parameters
-        ----------
-        theta : dict
-            Dictionary of parameter values
-        data : dict
-            Dictionary with 'spatial_coords', 'temporal_coords', and 'observations' keys
+        if not isinstance(theta, dict) or not isinstance(data, dict):
+            raise TypeError("theta must be a mapping and data must be a mapping")
+        required = {"spatial_coords", "temporal_coords", "observations"}
+        missing = required.difference(data)
+        if missing:
+            raise ValueError(f"data is missing required keys: {sorted(missing)}")
+        if not self.is_fitted:
+            raise ValueError("Model must be fitted before calculating likelihood")
 
-        Returns
-        -------
-        float
-            Log-likelihood value
-        """
-        spatial_coords = data['spatial_coords']
-        temporal_coords = data['temporal_coords']
-        observations = data['observations']
-
-        # Set parameters from theta
-        for param in ['spatial_lengthscale', 'spatial_variance', 'temporal_lengthscale', 'temporal_variance', 'noise']:
-            if param in theta:
-                setattr(self, param, theta[param])
-
-        # Compute predictions
-        predictions = self.predict(spatial_coords, temporal_coords)
-
-        # Compute log-likelihood assuming Gaussian noise
-        residuals = observations - predictions
-        log_likelihood = -0.5 * np.sum(residuals**2 / self.noise**2 + np.log(2 * np.pi * self.noise**2))
-
-        return log_likelihood
+        spatial_coords = np.asarray(data["spatial_coords"], dtype=float)
+        temporal_coords = np.asarray(data["temporal_coords"], dtype=float)
+        observed_values = np.asarray(data["observations"], dtype=float)
+        predictions = self._predict_components(
+            spatial_coords, temporal_coords, theta=theta, return_std=False
+        )
+        noise = self._positive_scalar(theta.get("noise", self.config.observation_noise), "noise")
+        std_pred = np.full(predictions.shape, np.sqrt(noise), dtype=float)
+        return self._gaussian_log_likelihood(observed_values, predictions, std_pred)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """
@@ -392,87 +379,198 @@ class SpatioTemporalGP(BayesianModel):
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """Predict from ``[x, y, time]`` rows or posterior parameter draws.
+
+        The supported composable interface is ``predict(X_new, posterior=None)``
+        where ``X_new`` has shape ``(n_points, 3)``. Calls using the
+        two-coordinate ``predict(spatial_coords, temporal_coords)`` form remain
+        accepted when the second argument is a one-dimensional coordinate array.
         """
-        Make predictions at new locations.
-
-        Parameters
-        ----------
-        X_new : array-like
-            New locations to predict at (should be [spatial_coords, temporal_coords])
-        posterior : PosteriorAnalysis, optional
-            Posterior analysis object. If None, use current parameters.
-        samples : int, default=100
-            Number of posterior samples to use
-        return_std : bool, default=False
-            Whether to return standard deviations
-
-        Returns
-        -------
-        y_pred : ndarray
-            Predictions
-        y_std : ndarray, optional
-            Standard deviations of predictions
-        """
-        if len(X_new.shape) == 1:
-            X_new = X_new.reshape(1, -1)
-
-        spatial_coords = X_new[:, :2]
-        temporal_coords = X_new[:, 2]
-
-        if posterior is not None:
-            # Use posterior samples
-            all_preds = []
-
-            for i in range(min(samples, len(posterior.samples))):
-                param_sample = {
-                    'spatial_lengthscale': posterior.samples['spatial_lengthscale'][i],
-                    'spatial_variance': posterior.samples['spatial_variance'][i],
-                    'temporal_lengthscale': posterior.samples['temporal_lengthscale'][i],
-                    'temporal_variance': posterior.samples['temporal_variance'][i],
-                    'noise': posterior.samples['noise'][i]
-                }
-
-                # Create a model with these parameters and predict
-                temp_model = SpatioTemporalGP(self.config)
-                for param, value in param_sample.items():
-                    setattr(temp_model, param, value)
-
-                temp_model.is_fitted = True
-                temp_model.spatial_coords = self.spatial_coords
-                temp_model.temporal_coords = self.temporal_coords
-                temp_model.observations = self.observations
-
-                pred = temp_model.predict(spatial_coords, temporal_coords)
-                all_preds.append(pred)
-
-            # Compute statistics across samples
-            all_preds = np.stack(all_preds)
-            mean_pred = np.mean(all_preds, axis=0)
-
-            if return_std:
-                std_pred = np.std(all_preds, axis=0)
-                return mean_pred, std_pred
-            else:
-                return mean_pred
+        split_coordinate_components = posterior is not None and self._is_coordinate_vector(posterior)
+        if split_coordinate_components:
+            temporal_coords = np.asarray(posterior, dtype=float)
+            if isinstance(samples, (bool, np.bool_)):
+                return_std = bool(samples)
+                samples = 100
+            posterior = None
+            spatial_coords = np.asarray(X_new, dtype=float)
         else:
-            # Use current parameters
-            if not self.is_fitted:
-                raise ValueError("Model must be fitted before making predictions")
+            spatial_coords, temporal_coords = self._split_prediction_input(X_new)
 
-            # Simple prediction combining spatial and temporal components
-            spatial_pred = self.spatial_gp.predict(spatial_coords)
-            temporal_pred = self._predict_temporal(temporal_coords)
+        if posterior is None:
+            return self._predict_components(
+                spatial_coords, temporal_coords, return_std=return_std
+            )
 
-            prediction = spatial_pred + temporal_pred
+        if not isinstance(samples, (int, np.integer)) or samples < 1:
+            raise ValueError("samples must be a positive integer")
+        n_draws = min(int(samples), self._posterior_draw_count(posterior))
+        if n_draws < 1:
+            raise ValueError("posterior must contain at least one draw")
+        all_preds = []
+        for index in range(n_draws):
+            theta = self._posterior_theta(posterior, index)
+            prediction = self._predict_components(
+                spatial_coords, temporal_coords, theta=theta, return_std=False
+            )
+            all_preds.append(prediction)
+        draws = np.stack(all_preds)
+        mean_prediction = np.mean(draws, axis=0)
+        if return_std:
+            return mean_prediction, np.std(draws, axis=0)
+        return mean_prediction
 
-            if return_std:
-                # Simple uncertainty estimate
-                std_pred = np.sqrt(self.config.observation_noise**2 + self.temporal_variance)
-                return prediction, std_pred
-            else:
-                return prediction
+    @staticmethod
+    def _is_coordinate_vector(value: Any) -> bool:
+        """Return whether a value can be a split temporal coordinate vector."""
+        if isinstance(value, (str, bytes, dict)):
+            return False
+        try:
+            array = np.asarray(value)
+        except (TypeError, ValueError):
+            return False
+        return array.ndim == 1 and np.issubdtype(array.dtype, np.number)
+
+    @staticmethod
+    def _split_prediction_input(X_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Validate and split the canonical three-column prediction matrix."""
+        values = np.asarray(X_new, dtype=float)
+        if values.ndim == 1:
+            values = values.reshape(1, -1)
+        if values.ndim != 2 or values.shape[1] != 3:
+            raise ValueError("X_new must have shape (n_points, 3): x, y, and time")
+        if not np.all(np.isfinite(values)):
+            raise ValueError("X_new must contain only finite values")
+        return values[:, :2], values[:, 2]
+
+    def _predict_components(
+        self,
+        spatial_coords: np.ndarray,
+        temporal_coords: np.ndarray,
+        *,
+        theta: Optional[Dict[str, Any]] = None,
+        return_std: bool = False,
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """Predict for split spatial/temporal coordinates with optional parameters."""
+        if not self.is_fitted:
+            raise ValueError("Model must be fitted before making predictions")
+        spatial_coords = np.asarray(spatial_coords, dtype=float)
+        temporal_coords = np.asarray(temporal_coords, dtype=float).reshape(-1)
+        if spatial_coords.ndim != 2 or spatial_coords.shape[1] != 2:
+            raise ValueError("spatial_coords must have shape (n_points, 2)")
+        if len(spatial_coords) != len(temporal_coords):
+            raise ValueError("spatial_coords and temporal_coords must have the same length")
+        if not np.all(np.isfinite(spatial_coords)) or not np.all(np.isfinite(temporal_coords)):
+            raise ValueError("Prediction coordinates must be finite")
+
+        if theta is None:
+            spatial_model = self.spatial_gp
+            temporal_variance = float(self.temporal_variance)
+        else:
+            spatial_model = self._fitted_spatial_model(theta)
+            temporal_variance = self._positive_scalar(
+                theta.get("temporal_variance", self.temporal_variance),
+                "temporal_variance",
+            )
+
+        if return_std:
+            spatial_mean, spatial_std = spatial_model.predict(
+                spatial_coords, return_std=True
+            )
+            mean = spatial_mean + self._predict_temporal(temporal_coords)
+            std = np.sqrt(np.maximum(np.square(spatial_std) + temporal_variance, 1e-12))
+            return mean, std
+        mean = spatial_model.predict(spatial_coords, return_std=False)
+        return mean + self._predict_temporal(temporal_coords)
+
+    def _fitted_spatial_model(self, theta: Dict[str, Any]) -> SpatialGP:
+        """Fit a spatial GP for one valid posterior parameter draw."""
+        lengthscale = self._positive_scalar(
+            theta.get("spatial_lengthscale", self.spatial_gp.lengthscale),
+            "spatial_lengthscale",
+        )
+        variance = self._positive_scalar(
+            theta.get("spatial_variance", self.spatial_gp.variance),
+            "spatial_variance",
+        )
+        noise = self._positive_scalar(
+            theta.get("noise", self.config.observation_noise), "noise"
+        )
+        model = SpatialGP(
+            kernel=self.spatial_gp.kernel_type,
+            lengthscale=lengthscale,
+            variance=variance,
+            noise=noise,
+            degree=self.spatial_gp.degree,
+            jitter=self.spatial_gp.jitter,
+        )
+        model.fit(self.spatial_coords, self.observations)
+        return model
+
+    @staticmethod
+    def _positive_scalar(value: Any, name: str) -> float:
+        """Convert a parameter value to a finite positive scalar."""
+        array = np.asarray(value, dtype=float)
+        if array.size != 1:
+            raise ValueError(f"{name} must be scalar")
+        scalar = float(array.reshape(-1)[0])
+        if not np.isfinite(scalar) or scalar <= 0:
+            raise ValueError(f"{name} must be finite and positive")
+        return scalar
+
+    @staticmethod
+    def _gaussian_log_likelihood(
+        observations: np.ndarray, predictions: np.ndarray, std: np.ndarray
+    ) -> float:
+        """Evaluate a Gaussian log-likelihood after validating aligned arrays."""
+        observed = np.asarray(observations, dtype=float).reshape(-1)
+        predicted = np.asarray(predictions, dtype=float).reshape(-1)
+        scale = np.asarray(std, dtype=float).reshape(-1)
+        if not (len(observed) == len(predicted) == len(scale)):
+            raise ValueError("observations, predictions, and uncertainty must align")
+        if not np.all(np.isfinite(observed)) or not np.all(np.isfinite(predicted)):
+            raise ValueError("observations and predictions must be finite")
+        if not np.all(np.isfinite(scale)) or np.any(scale <= 0):
+            raise ValueError("uncertainty must be finite and positive")
+        residual = observed - predicted
+        return float(-0.5 * np.sum(residual**2 / scale**2 + np.log(2 * np.pi * scale**2)))
+
+    @staticmethod
+    def _posterior_samples(posterior: Any) -> Any:
+        """Return a dict-like posterior sample container."""
+        samples = getattr(posterior, "samples", posterior)
+        if not isinstance(samples, dict) and not hasattr(samples, "__getitem__"):
+            raise TypeError("posterior must expose mapping-like samples")
+        return samples
+
+    def _posterior_draw_count(self, posterior: Any) -> int:
+        """Return the number of flattened posterior draws."""
+        samples = self._posterior_samples(posterior)
+        try:
+            first = next(iter(samples.values())) if isinstance(samples, dict) else next(iter(samples.data_vars.values()))
+        except (AttributeError, StopIteration) as exc:
+            raise ValueError("posterior must contain named parameter draws") from exc
+        values = np.asarray(getattr(first, "values", first))
+        if values.ndim == 0:
+            return 1
+        return int(values.shape[0])
+
+    def _posterior_theta(self, posterior: Any, index: int) -> Dict[str, float]:
+        """Extract and validate one scalar posterior parameter draw."""
+        samples = self._posterior_samples(posterior)
+        theta = {}
+        for name in self.parameters:
+            try:
+                value = samples[name]
+            except (KeyError, TypeError) as exc:
+                raise ValueError(f"posterior is missing parameter {name!r}") from exc
+            values = np.asarray(getattr(value, "values", value)).reshape(-1)
+            if index >= values.size:
+                raise ValueError(f"posterior parameter {name!r} has too few draws")
+            theta[name] = self._positive_scalar(values[index], name)
+        return theta
 
     def posterior_predictive(
         self,
@@ -498,38 +596,27 @@ class SpatioTemporalGP(BayesianModel):
             Posterior predictive samples
         """
         if X is None:
+            if not self.is_fitted:
+                raise ValueError("Model must be fitted before posterior prediction")
             spatial_coords = self.spatial_coords
             temporal_coords = self.temporal_coords
         else:
-            if len(X.shape) == 1:
-                X = X.reshape(1, -1)
-            spatial_coords = X[:, :2]
-            temporal_coords = X[:, 2]
+            spatial_coords, temporal_coords = self._split_prediction_input(X)
 
+        if not isinstance(samples, (int, np.integer)) or samples < 1:
+            raise ValueError("samples must be a positive integer")
+        n_draws = min(int(samples), self._posterior_draw_count(posterior))
+        if n_draws < 1:
+            raise ValueError("posterior must contain at least one draw")
         all_samples = []
 
-        for i in range(min(samples, len(posterior.samples))):
-            param_sample = {
-                'spatial_lengthscale': posterior.samples['spatial_lengthscale'][i],
-                'spatial_variance': posterior.samples['spatial_variance'][i],
-                'temporal_lengthscale': posterior.samples['temporal_lengthscale'][i],
-                'temporal_variance': posterior.samples['temporal_variance'][i],
-                'noise': posterior.samples['noise'][i]
-            }
-
-            # Create a model with these parameters
-            temp_model = SpatioTemporalGP(self.config)
-            for param, value in param_sample.items():
-                setattr(temp_model, param, value)
-
-            temp_model.is_fitted = True
-            temp_model.spatial_coords = self.spatial_coords
-            temp_model.temporal_coords = self.temporal_coords
-            temp_model.observations = self.observations
-
-            # Get predictions and add noise
-            pred = temp_model.predict(spatial_coords, temporal_coords)
-            noisy_sample = np.random.normal(pred, np.sqrt(param_sample['noise']))
+        for i in range(n_draws):
+            param_sample = self._posterior_theta(posterior, i)
+            pred = self._predict_components(
+                spatial_coords, temporal_coords, theta=param_sample
+            )
+            noise = self._positive_scalar(param_sample["noise"], "noise")
+            noisy_sample = self.rng.normal(pred, np.sqrt(noise))
             all_samples.append(noisy_sample)
 
         return np.stack(all_samples)
@@ -545,4 +632,4 @@ def create_spatiotemporal_gp(config: Optional[SpatioTemporalConfig] = None) -> S
     Returns:
         Configured SpatioTemporalGP instance
     """
-    return SpatioTemporalGP(config) 
+    return SpatioTemporalGP(config)

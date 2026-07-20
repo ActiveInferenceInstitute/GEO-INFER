@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from geo_infer_bayes.utils.data_processing import (
@@ -18,7 +19,6 @@ from geo_infer_bayes.utils.data_processing import (
     create_spatial_grid,
     sample_spatial_data,
     _detect_file_format,
-    _process_temporal_data,
 )
 from pathlib import Path
 

@@ -1,7 +1,6 @@
 """Tests for risk metrics utilities."""
 
 import numpy as np
-import pytest
 from geo_infer_risk.utils.risk_metrics import calculate_aal, calculate_ep_curve
 
 

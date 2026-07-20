@@ -51,14 +51,14 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.spatial_statistics import SpatialStatistics
-    from geo_infer_math.core.interpolation import InterpolationMethods
+    from geo_infer_math.core.spatial_statistics import MoranI
+    from geo_infer_math.core.interpolation import InterpolationManager
 
     MATH_AVAILABLE = True
 except ImportError:
     MATH_AVAILABLE = False
-    SpatialStatistics = None
-    InterpolationMethods = None
+    MoranI = None
+    InterpolationManager = None
 
 try:
     from geo_infer_bayes.core.inference import BayesianInference
@@ -136,6 +136,20 @@ class EnhancedRiskEngine:
             config = load_config_with_defaults()
 
         self.config = config
+        validation_result = validate_config(config)
+        if not validation_result.is_valid:
+            raise ValueError(f"Invalid configuration: {validation_result.errors}")
+
+        self.random_seed = config.get("risk_model", {}).get(
+            "random_seed", config.get("general", {}).get("random_seed")
+        )
+        if self.random_seed is not None and not isinstance(
+            self.random_seed, (int, np.integer)
+        ):
+            raise TypeError("random_seed must be an integer or None")
+        self.rng = np.random.default_rng(self.random_seed)
+        self._file_handler: Optional[logging.FileHandler] = None
+        self._closed = False
         # Logging needs the output directory before it creates its file handler.
         # Resolve and create it here so initialization is deterministic and the
         # first startup does not emit a misleading "output_dir" warning.
@@ -144,11 +158,6 @@ class EnhancedRiskEngine:
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)
         self.logger = self._setup_enhanced_logging()
-
-        # Validate the configuration
-        validation_result = validate_config(config)
-        if not validation_result.is_valid:
-            raise ValueError(f"Invalid configuration: {validation_result.errors}")
 
         # Initialize integration status
         self.integration_status = self._check_module_integrations()
@@ -183,6 +192,27 @@ class EnhancedRiskEngine:
             f"EnhancedRiskEngine initialized successfully with {len(self.integration_status.__dict__)} module integrations"
         )
 
+    def __enter__(self) -> "EnhancedRiskEngine":
+        """Return the engine as a context manager with deterministic cleanup."""
+        if self._closed:
+            raise RuntimeError("Cannot enter a closed EnhancedRiskEngine")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Shut down worker resources when leaving a context manager."""
+        self.close()
+
+    def close(self) -> None:
+        """Release worker and file-handler resources; safe to call repeatedly."""
+        if self._closed:
+            return
+        self.executor.shutdown(wait=True)
+        if self._file_handler is not None:
+            self.logger.removeHandler(self._file_handler)
+            self._file_handler.close()
+            self._file_handler = None
+        self._closed = True
+
     def _check_module_integrations(self) -> ModelIntegrationStatus:
         """Check availability of external module integrations."""
         status = ModelIntegrationStatus()
@@ -194,6 +224,8 @@ class EnhancedRiskEngine:
                 configure_backends(
                     {"default_backends": {"indexing": "h3", "analytics": "srai"}}
                 )
+                SpatialIndexingInterface()
+                SpatialAnalyticsInterface()
                 status.spatial_indexing_available = True
                 status.space_integration = True
             except Exception as e:
@@ -204,6 +236,7 @@ class EnhancedRiskEngine:
         if TIME_AVAILABLE:
             try:
                 # Try to initialize temporal analysis
+                TemporalAnalysisInterface()
                 status.temporal_analysis_available = True
                 status.time_integration = True
             except Exception as e:
@@ -213,7 +246,8 @@ class EnhancedRiskEngine:
         # Check MATH integration
         if MATH_AVAILABLE:
             try:
-                # Try to initialize spatial statistics
+                MoranI()
+                InterpolationManager()
                 status.advanced_statistics_available = True
                 status.math_integration = True
             except Exception as e:
@@ -223,8 +257,12 @@ class EnhancedRiskEngine:
         # Check BAYES integration
         if BAYES_AVAILABLE:
             try:
-                # Try to initialize Bayesian inference
-                status.bayesian_inference_available = True
+                status.bayesian_inference_available = all(
+                    callable(getattr(BayesianInference, method, None))
+                    for method in ("__init__", "run", "update")
+                )
+                if not status.bayesian_inference_available:
+                    raise TypeError("BayesianInference does not expose the required API")
                 status.bayes_integration = True
             except Exception as e:
                 self.logger.warning(f"BAYES integration check failed: {e}")
@@ -265,6 +303,11 @@ class EnhancedRiskEngine:
                 self.logger.error(f"Failed to initialize temporal interface: {e}")
                 self.temporal_interface = None
 
+    def _ensure_open(self) -> None:
+        """Reject work submitted after the engine has released its resources."""
+        if self._closed:
+            raise RuntimeError("EnhancedRiskEngine is closed")
+
     def _setup_enhanced_logging(self) -> logging.Logger:
         """Set up enhanced logging with structured output."""
         log_level = self.config.get("general", {}).get("log_level", "INFO")
@@ -298,6 +341,7 @@ class EnhancedRiskEngine:
                 file_handler.setLevel(level)
                 file_handler.setFormatter(formatter)
                 logger.addHandler(file_handler)
+                self._file_handler = file_handler
             except OSError as exc:
                 logger.warning("Could not create log file %s: %s", log_file, exc)
 
@@ -329,6 +373,7 @@ class EnhancedRiskEngine:
         Returns:
             Comprehensive risk analysis results
         """
+        self._ensure_open()
         self.logger.info(f"Starting enhanced {analysis_type} risk analysis")
 
         job_id = self._create_analysis_job(analysis_type, **kwargs)
@@ -676,43 +721,49 @@ class EnhancedRiskEngine:
         Returns:
             Calibration results and updated parameters
         """
+        self._ensure_open()
+        method = method.lower()
+        if method not in {"cross_validation", "maximum_likelihood", "bayesian"}:
+            raise ValueError(
+                "method must be 'cross_validation', 'maximum_likelihood', or 'bayesian'"
+            )
         self.logger.info(f"Starting model calibration using {method} method")
 
         # Use Bayesian inference if available
-        if (
-            self.integration_status.bayesian_inference_available
-            and method == "bayesian"
-        ):
+        if method == "bayesian":
             return self._calibrate_with_bayes(calibration_data)
-        else:
+        if method == "cross_validation":
             return self._calibrate_with_cross_validation(calibration_data)
+        raise ValueError(
+            "maximum_likelihood calibration requires a model-specific likelihood adapter"
+        )
 
     def _calibrate_with_bayes(self, calibration_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Calibrate models using Bayesian inference."""
+        """Reject underspecified Bayesian calibration rather than fabricating results."""
         if not self.integration_status.bayesian_inference_available:
             raise ValueError("Bayesian inference not available")
-
-        # Use available Bayesian interface for parameter estimation
-        params = {}
-        for name, model in self.hazard_models.items():
-            cfg = getattr(model, "params", {})
-            params[name] = {
-                k: float(v) if isinstance(v, (int, float)) else v
-                for k, v in cfg.items()
-            }
-        return {
-            "method": "bayesian",
-            "calibrated_parameters": params,
-            "validation_scores": {n: 0.0 for n in params},
-            "convergence_info": {"iterations": 0, "converged": False},
-        }
+        raise ValueError(
+            "Bayesian calibration requires a BayesianModel adapter with an explicit "
+            "likelihood and prior for each configured risk component"
+        )
 
     def _calibrate_with_cross_validation(
         self, calibration_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Calibrate models using cross-validation."""
         # K-fold cross-validation over calibration samples
+        if not isinstance(calibration_data, dict):
+            raise TypeError("calibration_data must be a mapping")
         samples = calibration_data.get("samples", [])
+        if len(samples) < 2:
+            raise ValueError("at least two calibration samples are required")
+        if not all(
+            isinstance(sample, dict)
+            and "loss" in sample
+            and np.isfinite(float(sample["loss"]))
+            for sample in samples
+        ):
+            raise ValueError("calibration samples must contain finite loss values")
         k = min(5, max(1, len(samples)))
         fold_scores = []
         for i in range(k):
@@ -744,6 +795,7 @@ class EnhancedRiskEngine:
         Returns:
             Monte Carlo analysis results with convergence information
         """
+        self._ensure_open()
         if num_iterations is None:
             num_iterations = self.config.get("risk_model", {}).get(
                 "monte_carlo_iterations", 1000
@@ -855,8 +907,8 @@ class EnhancedRiskEngine:
                 "Monte Carlo analysis requires at least one fitted hazard model"
             )
 
-        hazard_type, model = candidates[np.random.randint(len(candidates))]
-        row = model.historical_data.iloc[np.random.randint(len(model.historical_data))]
+        hazard_type, model = candidates[self.rng.integers(len(candidates))]
+        row = model.historical_data.iloc[self.rng.integers(len(model.historical_data))]
         event = row.to_dict()
         event["hazard_type"] = hazard_type
         if "magnitude" not in event:
@@ -912,7 +964,7 @@ class EnhancedRiskEngine:
             include_uncertainty=False,
         )
         return float(
-            base_exposure * damage["damage_ratio"] * np.random.lognormal(0, 0.3)
+            base_exposure * damage["damage_ratio"] * self.rng.lognormal(0, 0.3)
         )
 
     def save_enhanced_results(

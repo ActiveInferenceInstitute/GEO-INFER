@@ -1,6 +1,5 @@
 """Tests for risk validation utilities."""
 
-import pytest
 from geo_infer_risk.utils.validation import validate_config, ValidationResult
 
 

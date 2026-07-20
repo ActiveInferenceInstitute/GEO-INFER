@@ -8,8 +8,9 @@ including hazard identification, vulnerability assessment, and exposure calculat
 import numpy as np
 import geopandas as gpd
 import logging
+import inspect
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,25 @@ class RiskParameters:
     time_horizon: int = 50  # years
     spatial_resolution: float = 1.0  # km
     monte_carlo_iterations: int = 1000
+    random_seed: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        """Validate the numerical contract before a model uses it."""
+        if not np.isfinite(self.confidence_level) or not 0 < self.confidence_level < 1:
+            raise ValueError("confidence_level must be finite and in (0, 1)")
+        if not isinstance(self.time_horizon, (int, np.integer)) or self.time_horizon < 1:
+            raise ValueError("time_horizon must be a positive integer")
+        if not np.isfinite(self.spatial_resolution) or self.spatial_resolution <= 0:
+            raise ValueError("spatial_resolution must be finite and positive")
+        if (
+            not isinstance(self.monte_carlo_iterations, (int, np.integer))
+            or self.monte_carlo_iterations < 1
+        ):
+            raise ValueError("monte_carlo_iterations must be a positive integer")
+        if self.random_seed is not None and not isinstance(
+            self.random_seed, (int, np.integer)
+        ):
+            raise TypeError("random_seed must be an integer or None")
 
 
 class RiskModel:
@@ -35,6 +55,7 @@ class RiskModel:
             parameters: Model configuration parameters
         """
         self.parameters = parameters or RiskParameters()
+        self.rng = np.random.default_rng(self.parameters.random_seed)
         self.hazard = None
         self.vulnerability = None
         self.exposure = None
@@ -85,26 +106,44 @@ class RiskModel:
 
         logger.info("Calculating risk for %d geometries", len(geometry))
 
-        # Calculate risk components
+        # Calculate risk components and validate their shared spatial contract.
         hazard_data = self.hazard.calculate(geometry)
         vulnerability_data = self.vulnerability.calculate(geometry)
         exposure_data = self.exposure.calculate(geometry)
+        hazard = self._component_values(
+            hazard_data, geometry, "hazard_probability", "hazard"
+        )
+        vulnerability = self._component_values(
+            vulnerability_data, geometry, "vulnerability_index", "vulnerability"
+        )
+        exposure = self._component_values(
+            exposure_data, geometry, "exposure_value", "exposure"
+        )
 
         # Combine components to produce risk
         risk_data = hazard_data.copy()
-        risk_data["risk_score"] = (
-            hazard_data["hazard_probability"]
-            * vulnerability_data["vulnerability_index"]
-            * exposure_data["exposure_value"]
-        )
+        risk_data["risk_score"] = hazard * vulnerability * exposure
 
-        # Add uncertainty measures
-        risk_data["risk_lower_bound"] = (
-            risk_data["risk_score"] * 0.8
-        )  # Simplified example
-        risk_data["risk_upper_bound"] = (
-            risk_data["risk_score"] * 1.2
-        )  # Simplified example
+        lower_values = []
+        upper_values = []
+        has_component_bounds = False
+        for frame, column, label, point in (
+            (hazard_data, "hazard_probability", "hazard", hazard),
+            (vulnerability_data, "vulnerability_index", "vulnerability", vulnerability),
+            (exposure_data, "exposure_value", "exposure", exposure),
+        ):
+            lower, upper, has_bounds = self._component_bounds(
+                frame, column, label, point
+            )
+            lower_values.append(lower)
+            upper_values.append(upper)
+            has_component_bounds = has_component_bounds or has_bounds
+
+        risk_data["risk_lower_bound"] = np.prod(lower_values, axis=0)
+        risk_data["risk_upper_bound"] = np.prod(upper_values, axis=0)
+        risk_data["uncertainty_source"] = (
+            "component_bounds" if has_component_bounds else "point_estimate"
+        )
 
         logger.info("Risk calculated: mean=%.4f", risk_data["risk_score"].mean())
         return risk_data
@@ -118,15 +157,24 @@ class RiskModel:
         Returns:
             Dictionary with simulation results
         """
+        if geometry is None or len(geometry) == 0:
+            raise ValueError("geometry must contain at least one area")
+        if not all([self.hazard, self.vulnerability, self.exposure]):
+            raise ValueError("Hazard, vulnerability, and exposure models must be set")
+
+        # Ensure component sample sizes are aligned with the requested geometry.
+        self.calculate_risk(geometry)
         logger.info(
             "Running %d Monte Carlo iterations", self.parameters.monte_carlo_iterations
         )
         results = []
         for i in range(self.parameters.monte_carlo_iterations):
-            # Generate random variations in hazard, vulnerability and exposure
-            hazard_variation = self.hazard.sample()
-            vulnerability_variation = self.vulnerability.sample()
-            exposure_variation = self.exposure.sample()
+            # Generate random variations in hazard, vulnerability and exposure.
+            hazard_variation = self._sample_component(self.hazard, len(geometry))
+            vulnerability_variation = self._sample_component(
+                self.vulnerability, len(geometry)
+            )
+            exposure_variation = self._sample_component(self.exposure, len(geometry))
 
             # Calculate combined risk
             risk = hazard_variation * vulnerability_variation * exposure_variation
@@ -134,17 +182,98 @@ class RiskModel:
 
         # Process results
         results_array = np.array(results)
+        lower_percentile = 100 * (1 - self.parameters.confidence_level) / 2
+        upper_percentile = 100 - lower_percentile
         result = {
             "mean": np.mean(results_array, axis=0),
             "median": np.median(results_array, axis=0),
             "std_dev": np.std(results_array, axis=0),
+            "lower_bound": np.percentile(results_array, lower_percentile, axis=0),
+            "upper_bound": np.percentile(results_array, upper_percentile, axis=0),
+            # Preserve the established names while exposing the configured CI.
             "percentile_95": np.percentile(results_array, 95, axis=0),
             "percentile_5": np.percentile(results_array, 5, axis=0),
+            "confidence_level": self.parameters.confidence_level,
         }
         logger.info(
             "Monte Carlo complete: mean risk=%.4f", float(np.mean(result["mean"]))
         )
         return result
+
+    @staticmethod
+    def _component_values(
+        frame: gpd.GeoDataFrame,
+        geometry: Union[gpd.GeoDataFrame, gpd.GeoSeries],
+        column: str,
+        label: str,
+    ) -> np.ndarray:
+        """Validate and return one aligned, finite component vector."""
+        if column not in frame:
+            raise ValueError(f"{label} output must contain '{column}'")
+        if len(frame) != len(geometry) or not frame.index.equals(geometry.index):
+            raise ValueError(f"{label} output must preserve geometry length and index")
+        values = np.asarray(frame[column], dtype=float)
+        if not np.all(np.isfinite(values)) or np.any(values < 0):
+            raise ValueError(f"{label} values must be finite and non-negative")
+        if label == "hazard" and np.any(values > 1):
+            raise ValueError("hazard_probability values must be in [0, 1]")
+        if label == "vulnerability" and np.any(values > 1):
+            raise ValueError("vulnerability_index values must be in [0, 1]")
+        return values
+
+    @staticmethod
+    def _component_bounds(
+        frame: gpd.GeoDataFrame,
+        column: str,
+        label: str,
+        point: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, bool]:
+        """Read optional component bounds without inventing uncertainty."""
+        lower_name = f"{column}_lower_bound"
+        upper_name = f"{column}_upper_bound"
+        present = {lower_name in frame, upper_name in frame}
+        if present == {False}:
+            return point, point, False
+        if present != {True}:
+            raise ValueError(
+                f"{label} output must provide both {lower_name} and {upper_name}"
+            )
+        lower = np.asarray(frame[lower_name], dtype=float)
+        upper = np.asarray(frame[upper_name], dtype=float)
+        if (
+            not np.all(np.isfinite(lower))
+            or not np.all(np.isfinite(upper))
+            or np.any(lower < 0)
+            or np.any(upper < lower)
+            or lower.shape != point.shape
+            or upper.shape != point.shape
+            or np.any(point < lower)
+            or np.any(point > upper)
+        ):
+            raise ValueError(
+                f"{label} bounds must align with and contain the point estimate"
+            )
+        if label in {"hazard", "vulnerability"} and np.any(upper > 1):
+            raise ValueError(f"{label} upper bounds must be in [0, 1]")
+        return lower, upper, True
+
+    def _sample_component(self, component: Any, size: int) -> np.ndarray:
+        """Sample a component with the model RNG while retaining old call shapes."""
+        sample_method = component.sample
+        parameters = inspect.signature(sample_method).parameters
+        if "random_state" in parameters or any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD
+            for parameter in parameters.values()
+        ):
+            values = sample_method(random_state=self.rng)
+        else:
+            values = sample_method()
+        values = np.asarray(values, dtype=float).reshape(-1)
+        if values.size == 1 and size > 1:
+            values = np.repeat(values, size)
+        if values.size != size or not np.all(np.isfinite(values)) or np.any(values < 0):
+            raise ValueError("component samples must be finite, non-negative, and aligned")
+        return values
 
 
 class HazardModel(ABC):
@@ -180,7 +309,7 @@ class HazardModel(ABC):
         )
 
     @abstractmethod
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Generate a random sample from the hazard model for Monte Carlo simulation.
 
         Returns:
@@ -220,7 +349,7 @@ class VulnerabilityModel(ABC):
         )
 
     @abstractmethod
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Generate a random sample from the vulnerability model for Monte Carlo simulation.
 
         Returns:
@@ -258,7 +387,7 @@ class ExposureModel(ABC):
         )
 
     @abstractmethod
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Generate a random sample from the exposure model for Monte Carlo simulation.
 
         Returns:
@@ -310,8 +439,15 @@ class FloodHazardModel(HazardModel):
         # Annual exceedance probability
         annual_prob = 1.0 / self.return_period
 
-        # Simple elevation proxy: use centroid Y coordinate normalized
-        centroids = result.geometry.centroid
+        # Simple elevation proxy: use centroid Y coordinate normalized. GeoPandas
+        # intentionally warns when centroid is computed directly in geographic
+        # coordinates, so project geographic inputs before the planar operation.
+        geometry_series = result.geometry
+        if geometry_series.crs is not None and geometry_series.crs.is_geographic:
+            projected_crs = geometry_series.estimate_utm_crs()
+            if projected_crs is not None:
+                geometry_series = geometry_series.to_crs(projected_crs)
+        centroids = geometry_series.centroid
         y_vals = centroids.y.values
         y_range = max(y_vals.max() - y_vals.min(), 1e-6)
         # Lower elevation → higher flood probability
@@ -327,11 +463,12 @@ class FloodHazardModel(HazardModel):
         )
         return result
 
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample flood hazard values from Gumbel distribution."""
+        rng = random_state or np.random.default_rng()
         mu = 1.0 / self.return_period
         beta = mu * 0.3  # Scale parameter
-        return np.random.gumbel(loc=mu, scale=beta, size=self._n_samples).clip(0, 1)
+        return rng.gumbel(loc=mu, scale=beta, size=self._n_samples).clip(0, 1)
 
 
 class BuildingVulnerabilityModel(VulnerabilityModel):
@@ -407,9 +544,10 @@ class BuildingVulnerabilityModel(VulnerabilityModel):
         )
         return result
 
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample vulnerability values from Beta distribution."""
-        return np.random.beta(2, 5, size=self._n_samples)
+        rng = random_state or np.random.default_rng()
+        return rng.beta(2, 5, size=self._n_samples)
 
 
 class PopulationExposureModel(ExposureModel):
@@ -447,7 +585,7 @@ class PopulationExposureModel(ExposureModel):
         else:
             pop = np.full(n, 1000.0)
 
-        # Exposure = population × per-capita income (simplified)
+        # Exposure is the configured population times regional unit income.
         result["exposure_value"] = pop * self.income_per_capita
 
         # Normalize to 0-1 for multiplicative risk model
@@ -462,6 +600,7 @@ class PopulationExposureModel(ExposureModel):
         )
         return result
 
-    def sample(self) -> np.ndarray:
+    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample exposure values from log-normal distribution."""
-        return np.random.lognormal(mean=0, sigma=0.3, size=self._n_samples).clip(0, 1)
+        rng = random_state or np.random.default_rng()
+        return rng.lognormal(mean=0, sigma=0.3, size=self._n_samples).clip(0, 1)

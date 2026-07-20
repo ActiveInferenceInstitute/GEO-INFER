@@ -1,7 +1,5 @@
 """Tests for exposure model."""
 
-import numpy as np
-import pytest
 from geo_infer_risk.core.exposure_model import EnhancedExposureModel
 
 

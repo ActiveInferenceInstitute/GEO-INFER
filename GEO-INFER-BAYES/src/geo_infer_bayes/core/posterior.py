@@ -7,7 +7,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import arviz as az
 import pandas as pd
-from typing import Dict, Any, Optional, Union, List, Tuple, Callable
+from typing import Dict, Optional, Union, List, Tuple
 
 from ..models.base import BayesianModel
 
@@ -189,10 +189,19 @@ class PosteriorAnalysis:
         lower, upper : float, float
             Lower and upper bounds of the credible interval
         """
-        param_samples = self.arviz_data.posterior[parameter].values.flatten()
+        if not np.isscalar(alpha) or not np.isfinite(alpha) or not 0 < alpha < 1:
+            raise ValueError("alpha must be finite and strictly between zero and one")
+        try:
+            param_samples = np.asarray(
+                self.arviz_data.posterior[parameter].values, dtype=float
+            ).reshape(-1)
+        except (AttributeError, KeyError) as exc:
+            raise KeyError(f"posterior does not contain parameter {parameter!r}") from exc
+        if param_samples.size == 0 or not np.all(np.isfinite(param_samples)):
+            raise ValueError("posterior parameter samples must be non-empty and finite")
         lower = np.percentile(param_samples, 100 * alpha / 2)
         upper = np.percentile(param_samples, 100 * (1 - alpha / 2))
-        return lower, upper
+        return float(lower), float(upper)
     
     def posterior_predictive(
         self, 
@@ -218,4 +227,4 @@ class PosteriorAnalysis:
             posterior=self, 
             X=X, 
             samples=samples
-        ) 
+        )

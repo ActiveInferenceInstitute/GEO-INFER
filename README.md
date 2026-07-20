@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 892 |
-| Python test files | 474 |
+| Python test files | 478 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -70,7 +70,7 @@ the exact reproducible exception list.
 | `GEO-INFER-API` | `geo_infer_api` | 13 | 9 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
-| `GEO-INFER-BAYES` | `geo_infer_bayes` | 33 | 15 |
+| `GEO-INFER-BAYES` | `geo_infer_bayes` | 33 | 18 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
@@ -97,7 +97,7 @@ the exact reproducible exception list.
 | `GEO-INFER-PEP` | `geo_infer_pep` | 33 | 9 |
 | `GEO-INFER-PLACE` | `geo_infer_place` | 29 | 14 |
 | `GEO-INFER-REQ` | `geo_infer_req` | 8 | 6 |
-| `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 12 |
+| `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 13 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 82 | 32 |

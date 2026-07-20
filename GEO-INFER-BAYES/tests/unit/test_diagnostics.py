@@ -1,14 +1,14 @@
 """
 Unit tests for diagnostics in utils/diagnostics.py.
 
-Tests cover MCMC diagnostics (ESS, R-hat placeholders), convergence
+Tests cover MCMC diagnostics (ESS, R-hat), convergence
 metrics (Geweke Z-score, Monte Carlo standard error), and edge cases.
 """
 
 import numpy as np
-import pytest
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from geo_infer_bayes.utils.diagnostics import (
@@ -34,12 +34,16 @@ class TestMCMCDiagnostics:
         diag = mcmc_diagnostics(samples)
         assert diag['theta']['ess'] > 0
 
-    def test_r_hat_default(self) -> None:
-        """Single-chain R-hat should be 1.0 as a placeholder."""
+    def test_r_hat_is_undefined_without_multiple_chains(self) -> None:
+        """A single chain cannot identify between-chain scale differences."""
         rng = np.random.RandomState(2)
         samples = {'x': rng.randn(200)}
         diag = mcmc_diagnostics(samples)
-        assert diag['x']['r_hat'] == 1.0
+        assert np.isnan(diag['x']['r_hat'])
+
+    def test_r_hat_detects_multiple_chain_scale_difference(self) -> None:
+        samples = {'x': np.array([[0.0, 0.0, 0.0], [5.0, 5.0, 5.0]])}
+        assert mcmc_diagnostics(samples)['x']['r_hat'] > 1.0
 
     def test_multiple_parameters(self) -> None:
         rng = np.random.RandomState(3)

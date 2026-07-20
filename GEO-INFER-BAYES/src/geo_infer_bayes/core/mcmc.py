@@ -4,7 +4,7 @@ Markov Chain Monte Carlo implementation for Bayesian inference.
 
 import numpy as np
 import xarray as xr
-from typing import Dict, Any, Optional, Union, List, Tuple, Callable
+from typing import Dict, Any, Optional, Union, List, Tuple
 from tqdm import tqdm
 
 
@@ -38,16 +38,21 @@ class MCMC:
         step_size: float = 0.1,
         adapt_step_size: bool = True,
         max_steps: int = 1000,
-        random_seed: Optional[int] = None
+        random_seed: Optional[int] = None,
     ):
+        if not isinstance(n_chains, (int, np.integer)) or n_chains < 1:
+            raise ValueError("n_chains must be a positive integer")
+        if not np.isfinite(step_size) or step_size <= 0:
+            raise ValueError("step_size must be finite and strictly positive")
+        if not isinstance(max_steps, (int, np.integer)) or max_steps < 1:
+            raise ValueError("max_steps must be a positive integer")
         self.model = model
-        self.n_chains = n_chains
-        self.step_size = step_size
+        self.n_chains = int(n_chains)
+        self.step_size = float(step_size)
         self.adapt_step_size = adapt_step_size
-        self.max_steps = max_steps
-        
-        if random_seed is not None:
-            np.random.seed(random_seed)
+        self.max_steps = int(max_steps)
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
     
     def run(
         self,
@@ -84,12 +89,18 @@ class MCMC:
         dict or Dataset
             Posterior samples
         """
+        if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
+            raise ValueError("n_samples must be a positive integer")
+        if not isinstance(n_warmup, (int, np.integer)) or n_warmup < 0:
+            raise ValueError("n_warmup must be a non-negative integer")
+        if not isinstance(thin, (int, np.integer)) or thin < 1:
+            raise ValueError("thin must be a positive integer")
         # Initialize chains
         chains = self._initialize_chains(data, init_strategy, **kwargs)
+        self._set_parameter_layout(chains[0])
         
         # Prepare storage for samples
-        param_names = list(self.model.parameters.keys())
-        n_params = len(param_names)
+        n_params = self._parameter_dimension
         
         # Allocate sample storage - shape: (n_chains, n_samples, n_params)
         samples = np.zeros((self.n_chains, n_samples, n_params))
@@ -127,7 +138,7 @@ class MCMC:
                 log_accept_prob = proposed_log_prob - current_log_prob[c] + log_proposal_ratio
                 
                 # Accept or reject
-                if np.log(np.random.uniform()) < log_accept_prob:
+                if np.log(self.rng.random()) < log_accept_prob:
                     chains[c] = proposed_theta
                     current_log_prob[c] = proposed_log_prob
                     acceptance_rate[c] += 1
@@ -136,14 +147,13 @@ class MCMC:
             if i >= n_warmup and (i - n_warmup) % thin == 0:
                 sample_idx = (i - n_warmup) // thin
                 for c in range(self.n_chains):
-                    for p, param in enumerate(param_names):
-                        samples[c, sample_idx, p] = chains[c][param]
+                    samples[c, sample_idx, :] = self._flatten_theta(chains[c])
         
         # Combine chains and convert to dictionary
         combined_samples = {}
-        for p, param in enumerate(param_names):
-            # Reshape to (n_chains * n_samples,)
-            combined_samples[param] = samples[:, :, p].reshape(-1)
+        for param, start, end, shape in self._parameter_layout:
+            values = samples[:, :, start:end].reshape((-1,) + shape)
+            combined_samples[param] = values.reshape(-1) if shape == () else values
         
         # Report diagnostics
         if progress_bar:
@@ -185,7 +195,11 @@ class MCMC:
         # Get a random subset of previous samples to initialize chains
         if isinstance(previous_samples, dict):
             n_prev = len(previous_samples[param_names[0]])
-            indices = np.random.choice(n_prev, self.n_chains, replace=False)
+            if n_prev < 1:
+                raise ValueError("previous_samples must contain at least one sample")
+            indices = self.rng.choice(
+                n_prev, self.n_chains, replace=n_prev < self.n_chains
+            )
             chains = []
             for idx in indices:
                 chain = {}
@@ -195,7 +209,11 @@ class MCMC:
         else:
             # Handle xarray Dataset
             n_prev = len(previous_samples[param_names[0]])
-            indices = np.random.choice(n_prev, self.n_chains, replace=False)
+            if n_prev < 1:
+                raise ValueError("previous_samples must contain at least one sample")
+            indices = self.rng.choice(
+                n_prev, self.n_chains, replace=n_prev < self.n_chains
+            )
             chains = []
             for idx in indices:
                 chain = {}
@@ -224,7 +242,15 @@ class MCMC:
         chains = []
         
         if init_strategy == 'custom' and 'custom_init' in kwargs:
-            return kwargs['custom_init']
+            custom_init = kwargs['custom_init']
+            if len(custom_init) != self.n_chains:
+                raise ValueError("custom_init must contain one state per chain")
+            return [dict(chain) for chain in custom_init]
+
+        if init_strategy not in {'random', 'prior', 'map'}:
+            raise ValueError(
+                "init_strategy must be 'random', 'prior', 'map', or 'custom'"
+            )
         
         for c in range(self.n_chains):
             chain = {}
@@ -236,37 +262,36 @@ class MCMC:
                     if param_info['prior'] == 'log_normal':
                         mu = param_info['hyperparams']['mu']
                         sigma = param_info['hyperparams']['sigma']
-                        chain[param] = np.exp(np.random.normal(mu, sigma))
+                        chain[param] = np.exp(self.rng.normal(mu, sigma))
                     elif param_info['prior'] == 'normal':
                         mu = param_info['hyperparams']['mu']
                         sigma = param_info['hyperparams']['sigma']
-                        chain[param] = np.random.normal(mu, sigma)
+                        chain[param] = self.rng.normal(mu, sigma)
                     elif param_info['prior'] == 'uniform':
                         low = param_info['hyperparams']['low']
                         high = param_info['hyperparams']['high']
-                        chain[param] = np.random.uniform(low, high)
+                        chain[param] = self.rng.uniform(low, high)
                     else:
                         # Default to standard normal
-                        chain[param] = np.random.normal(0, 1)
+                        chain[param] = self.rng.normal(0, 1)
                 
                 elif init_strategy == 'prior':
                     # Sample directly from prior
                     if param_info['prior'] == 'log_normal':
                         mu = param_info['hyperparams']['mu']
                         sigma = param_info['hyperparams']['sigma']
-                        chain[param] = np.exp(np.random.normal(mu, sigma))
+                        chain[param] = np.exp(self.rng.normal(mu, sigma))
                     elif param_info['prior'] == 'normal':
                         mu = param_info['hyperparams']['mu']
                         sigma = param_info['hyperparams']['sigma']
-                        chain[param] = np.random.normal(mu, sigma)
+                        chain[param] = self.rng.normal(mu, sigma)
                     elif param_info['prior'] == 'uniform':
                         low = param_info['hyperparams']['low']
                         high = param_info['hyperparams']['high']
-                        chain[param] = np.random.uniform(low, high)
+                        chain[param] = self.rng.uniform(low, high)
                 
                 elif init_strategy == 'map':
-                    # Todo: implement MAP estimation for initialization
-                    # For now, fall back to prior-based initialization
+                    # Use the analytical prior mode as a stable initial point.
                     if param_info['prior'] == 'log_normal':
                         mu = param_info['hyperparams']['mu']
                         sigma = param_info['hyperparams']['sigma']
@@ -311,9 +336,16 @@ class MCMC:
             # Adjust proposal based on prior
             if param_info['prior'] == 'log_normal':
                 # For log-normal, propose in log space
-                log_param = np.log(value)
-                proposed_log = log_param + np.random.normal(0, self.step_size)
-                proposed_theta[param] = np.exp(proposed_log)
+                value_array = np.asarray(value, dtype=float)
+                if not np.all(np.isfinite(value_array)) or np.any(value_array <= 0):
+                    raise ValueError(f"log-normal parameter {param} must be positive")
+                proposed_log = np.log(value_array) + self.rng.normal(
+                    0, self.step_size, size=value_array.shape
+                )
+                proposed_value = np.exp(proposed_log)
+                proposed_theta[param] = (
+                    float(proposed_value) if value_array.shape == () else proposed_value
+                )
                 
                 # Proposal ratio is 1.0 (symmetric in log space)
                 
@@ -322,31 +354,52 @@ class MCMC:
                 low = param_info['hyperparams']['low']
                 high = param_info['hyperparams']['high']
                 
-                # Keep trying until we get a valid proposal
-                steps = 0
-                proposed_value = value
-                while (proposed_value <= low or proposed_value >= high) and steps < self.max_steps:
-                    proposed_value = value + np.random.normal(0, self.step_size)
-                    steps += 1
-                
-                # If still invalid, reflect off boundaries
-                if proposed_value <= low:
-                    proposed_value = low + (low - proposed_value)
-                elif proposed_value >= high:
-                    proposed_value = high - (proposed_value - high)
-                
-                # Cap at boundaries
-                proposed_value = max(low, min(high, proposed_value))
-                proposed_theta[param] = proposed_value
+                value_array = np.asarray(value, dtype=float)
+                proposed_value = value_array + self.rng.normal(
+                    0, self.step_size, size=value_array.shape
+                )
+                width = high - low
+                reflected = low + np.abs((proposed_value - low) % (2 * width))
+                reflected = np.where(reflected > high, 2 * high - reflected, reflected)
+                proposed_theta[param] = (
+                    float(reflected) if value_array.shape == () else reflected
+                )
                 
                 # Proposal ratio is 1.0 (symmetric)
                 
             else:
                 # Default to normal proposal
-                proposed_theta[param] = value + np.random.normal(0, self.step_size)
+                value_array = np.asarray(value, dtype=float)
+                proposed_value = value_array + self.rng.normal(
+                    0, self.step_size, size=value_array.shape
+                )
+                proposed_theta[param] = (
+                    float(proposed_value) if value_array.shape == () else proposed_value
+                )
                 # Proposal ratio is 1.0 (symmetric)
         
         return proposed_theta, log_proposal_ratio
+
+    def _set_parameter_layout(self, theta: Dict[str, Any]) -> None:
+        """Record flattening slices for scalar and array parameters."""
+        layout = []
+        offset = 0
+        for parameter in self.model.parameters:
+            value = np.asarray(theta[parameter], dtype=float)
+            shape = value.shape
+            size = int(value.size)
+            layout.append((parameter, offset, offset + size, shape))
+            offset += size
+        self._parameter_layout = layout
+        self._parameter_dimension = offset
+
+    def _flatten_theta(self, theta: Dict[str, Any]) -> np.ndarray:
+        return np.concatenate(
+            [
+                np.asarray(theta[param], dtype=float).reshape(-1)
+                for param, _, _, _ in self._parameter_layout
+            ]
+        )
     
     def _log_posterior(self, theta: Dict[str, float], data: Any) -> float:
         """Compute log posterior for a set of parameters."""

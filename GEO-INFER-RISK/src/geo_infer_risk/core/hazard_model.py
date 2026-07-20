@@ -40,12 +40,12 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.spatial_statistics import SpatialStatistics
+    from geo_infer_math.core.spatial_statistics import MoranI
 
     MATH_AVAILABLE = True
 except ImportError:
     MATH_AVAILABLE = False
-    SpatialStatistics = None
+    MoranI = None
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +71,43 @@ class EnhancedHazardModel:
             hazard_type: Type of hazard (flood, earthquake, hurricane, etc.)
             params: Model parameters and configuration
         """
-        self.hazard_type = hazard_type
-        self.params = params
+        if not isinstance(hazard_type, str) or not hazard_type.strip():
+            raise ValueError("hazard_type must be a non-empty string")
+        if not isinstance(params, dict):
+            raise TypeError("params must be a dictionary")
+        self.hazard_type = hazard_type.strip().lower()
+        self.params = dict(params)
         self.logger = logging.getLogger(f"{__name__}.{hazard_type}")
+
+        random_seed = self.params.get("random_seed")
+        if random_seed is not None and not isinstance(random_seed, (int, np.integer)):
+            raise TypeError("random_seed must be an integer or None")
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
+        reference_time = self.params.get("reference_time")
+        if reference_time is None:
+            reference_time = datetime(2000, 1, 1) if random_seed is not None else datetime.now()
+        if isinstance(reference_time, str):
+            reference_time = datetime.fromisoformat(reference_time)
+        if not isinstance(reference_time, datetime):
+            raise TypeError("reference_time must be a datetime, ISO string, or None")
+        self.reference_time = reference_time
 
         # Enhanced parameter handling
         self.return_periods = params.get("return_periods", [10, 25, 50, 100, 500])
+        if not self.return_periods or any(
+            not isinstance(period, (int, float, np.number))
+            or not np.isfinite(period)
+            or period <= 0
+            for period in self.return_periods
+        ):
+            raise ValueError("return_periods must contain positive finite values")
         self.data_source = params.get("data_source", "default")
         self.include_climate_change = params.get("include_climate_change", False)
         self.climate_scenario = params.get("climate_scenario", "rcp4.5")
         self.spatial_resolution = params.get("spatial_resolution", 9)  # H3 resolution
+        if not isinstance(self.spatial_resolution, (int, np.integer)) or not 0 <= self.spatial_resolution <= 15:
+            raise ValueError("spatial_resolution must be an integer in [0, 15]")
         self.temporal_resolution = params.get("temporal_resolution", "daily")
         self.include_seasonality = params.get("include_seasonality", True)
         self.uncertainty_method = params.get("uncertainty_method", "parametric")
@@ -106,7 +133,7 @@ class EnhancedHazardModel:
 
         if MATH_AVAILABLE:
             try:
-                self.math_interface = SpatialStatistics()
+                self.math_interface = MoranI()
                 self.logger.info("Math interface initialized")
             except Exception as e:
                 self.logger.warning(f"Failed to initialize math interface: {e}")
@@ -395,6 +422,16 @@ class EnhancedHazardModel:
         Returns:
             List of generated hazard events
         """
+        if not isinstance(num_events, (int, np.integer)) or num_events < 0:
+            raise ValueError("num_events must be a non-negative integer")
+        if time_period is not None:
+            if len(time_period) != 2 or not all(
+                isinstance(value, datetime) for value in time_period
+            ):
+                raise TypeError("time_period must contain two datetime values")
+            if time_period[1] <= time_period[0]:
+                raise ValueError("time_period end must be after its start")
+
         self.logger.info(f"Generating {num_events} {self.hazard_type} events")
 
         events = []
@@ -407,7 +444,7 @@ class EnhancedHazardModel:
         )
 
         # Generate events in batches for efficiency
-        batch_size = min(1000, num_events)
+        batch_size = min(1000, int(num_events))
         remaining_events = num_events
 
         while remaining_events > 0:
@@ -455,18 +492,22 @@ class EnhancedHazardModel:
     ) -> Dict[str, Any]:
         """Generate a single hazard event."""
         # Generate basic event properties
-        event_id = f"{self.hazard_type}_{np.random.randint(1000000)}"
+        event_id = f"{self.hazard_type}_{self.rng.integers(1000000)}"
 
         # Generate timestamp
         if time_period:
             start_time, end_time = time_period
             timestamp = start_time + timedelta(
-                seconds=np.random.randint(
-                    0, int((end_time - start_time).total_seconds())
+                seconds=int(
+                    self.rng.integers(
+                        0, int((end_time - start_time).total_seconds())
+                    )
                 )
             )
         else:
-            timestamp = datetime.now() + timedelta(days=np.random.randint(0, 365))
+            timestamp = self.reference_time + timedelta(
+                days=int(self.rng.integers(0, 365))
+            )
 
         # Generate location
         location = self._generate_event_location(region)
@@ -509,21 +550,21 @@ class EnhancedHazardModel:
                 min_lon = bounds.get("min_lon", -180)
                 max_lon = bounds.get("max_lon", 180)
 
-                lat = np.random.uniform(min_lat, max_lat)
-                lon = np.random.uniform(min_lon, max_lon)
+                lat = self.rng.uniform(min_lat, max_lat)
+                lon = self.rng.uniform(min_lon, max_lon)
             else:
                 # Generate globally
-                lat = np.random.uniform(-60, 60)
-                lon = np.random.uniform(-180, 180)
+                lat = self.rng.uniform(-60, 60)
+                lon = self.rng.uniform(-180, 180)
         else:
             # Generate globally with realistic distribution
-            lat = np.random.uniform(-60, 60)
-            lon = np.random.uniform(-180, 180)
+            lat = self.rng.uniform(-60, 60)
+            lon = self.rng.uniform(-180, 180)
 
         # Add depth for 3D hazards (earthquakes, etc.)
         depth = 0.0
         if self.hazard_type == "earthquake":
-            depth = np.random.exponential(15.0)  # Average earthquake depth
+            depth = self.rng.exponential(15.0)  # Average earthquake depth
 
         return {"latitude": lat, "longitude": lon, "depth": depth}
 
@@ -531,7 +572,7 @@ class EnhancedHazardModel:
         """Generate event intensity based on fitted parameters."""
         if not self.is_fitted or not self.model_parameters:
             # Use default distributions if not fitted
-            return np.random.exponential(1.0) * climate_multiplier
+            return self.rng.exponential(1.0) * climate_multiplier
 
         params = self.model_parameters
 
@@ -544,9 +585,9 @@ class EnhancedHazardModel:
         elif self.hazard_type == "flood":
             # Generate water depth
             if params.get("distribution") == "exponential":
-                depth = np.random.exponential(params.get("mean_depth", 2.0))
+                depth = self.rng.exponential(params.get("mean_depth", 2.0))
             else:
-                depth = np.random.normal(
+                depth = self.rng.normal(
                     params.get("mean_depth", 2.0), params.get("std_depth", 1.0)
                 )
 
@@ -556,14 +597,14 @@ class EnhancedHazardModel:
             # Generate wind speed using Weibull distribution
             shape = params.get("shape_parameter", 2.5)
             scale = params.get("scale_parameter", 20.0)
-            wind_speed = np.random.weibull(shape) * scale
+            wind_speed = self.rng.weibull(shape) * scale
             return max(0, wind_speed) * climate_multiplier
 
         else:
             # Generic intensity generation
             mean_intensity = params.get("mean_intensity", 1.0)
             std_intensity = params.get("std_intensity", 0.5)
-            intensity = np.random.normal(mean_intensity, std_intensity)
+            intensity = self.rng.normal(mean_intensity, std_intensity)
             return max(0, intensity) * climate_multiplier
 
     def _generate_earthquake_magnitude(self, params: Dict[str, Any]) -> float:
@@ -573,7 +614,7 @@ class EnhancedHazardModel:
         min_mag = params.get("min_magnitude", 4.0)
 
         # Generate uniform random variable
-        u = np.random.uniform(0, 1)
+        u = self.rng.uniform(0, 1)
 
         # Transform using Gutenberg-Richter relationship
         # N(M) ∝ 10^(-b*M), so M = (log10(1/u) - a) / (-b)
@@ -610,7 +651,7 @@ class EnhancedHazardModel:
                 {
                     "magnitude": self._intensity_to_magnitude(intensity),
                     "depth": location["depth"],
-                    "tectonic_region": np.random.choice(
+                    "tectonic_region": self.rng.choice(
                         ["active", "stable", "subduction"]
                     ),
                 }
@@ -619,8 +660,8 @@ class EnhancedHazardModel:
             properties.update(
                 {
                     "water_depth": intensity,
-                    "flood_type": np.random.choice(["riverine", "pluvial", "coastal"]),
-                    "duration": np.random.exponential(48.0),  # Hours
+                    "flood_type": self.rng.choice(["riverine", "pluvial", "coastal"]),
+                    "duration": self.rng.exponential(48.0),  # Hours
                 }
             )
         elif self.hazard_type == "hurricane":
@@ -630,14 +671,14 @@ class EnhancedHazardModel:
                     "category": self._get_hurricane_category(intensity),
                     "pressure": 1013.0
                     - (intensity - 30) * 2.0,  # Simplified pressure drop
-                    "radius_max_wind": np.random.normal(50, 15),  # km
+                    "radius_max_wind": self.rng.normal(50, 15),  # km
                 }
             )
         elif self.hazard_type == "wildfire":
             properties.update(
                 {
                     "fireline_intensity": intensity,
-                    "burned_area": np.random.exponential(1000.0),  # hectares
+                    "burned_area": self.rng.exponential(1000.0),  # hectares
                     "flame_length": min(10.0, intensity / 100.0),  # meters
                 }
             )
@@ -927,7 +968,7 @@ class EnhancedHazardModel:
         # In practice, this would use soil conditions, topography, etc.
 
         # Simple example: add some random variation to simulate site effects
-        site_variation = np.random.normal(1.0, 0.1)
+        site_variation = self.rng.normal(1.0, 0.1)
         return intensity * site_variation
 
     def get_return_period_map(
@@ -1003,17 +1044,42 @@ class EnhancedHazardModel:
         self, return_period: float, latitude: float, longitude: float
     ) -> float:
         """Get hazard intensity for a specific return period at a location."""
-        # Simplified implementation - in practice, this would use extreme value theory
         if not self.is_fitted:
-            return 0.0
+            raise ValueError(
+                "Hazard model must be fitted before return-period intensity is evaluated"
+            )
+        if not np.isfinite(return_period) or return_period <= 1:
+            raise ValueError("return_period must be finite and greater than one")
 
-        # Use Gumbel distribution for extreme values
-        mean_intensity = self.model_parameters.get("mean_intensity", 1.0)
-        std_intensity = self.model_parameters.get("std_intensity", 0.5)
+        # Use a Gumbel return-level approximation when a fitted model does not
+        # provide a hazard-specific extreme-value distribution.  The location
+        # and scale are calibrated from the fitted mean and standard deviation,
+        # rather than from arbitrary constants.
+        intensity_columns = {
+            "mean_intensity": "std_intensity",
+            "mean_depth": "std_depth",
+            "mean_magnitude": "std_magnitude",
+            "mean_wind_speed": "std_wind_speed",
+        }
+        mean_intensity = std_intensity = None
+        for mean_name, std_name in intensity_columns.items():
+            if mean_name in self.model_parameters and std_name in self.model_parameters:
+                mean_intensity = self.model_parameters[mean_name]
+                std_intensity = self.model_parameters[std_name]
+                break
+        if mean_intensity is None or std_intensity is None:
+            raise ValueError(
+                "Fitted hazard model does not expose a calibrated intensity mean and standard deviation"
+            )
+        if not np.isfinite(mean_intensity) or not np.isfinite(std_intensity):
+            raise ValueError("Fitted intensity parameters must be finite")
+        if std_intensity <= 0:
+            raise ValueError("Fitted intensity standard deviation must be positive")
 
-        # Gumbel parameters
-        location = mean_intensity
-        scale = std_intensity / np.sqrt(6) / np.pi  # Approximation
+        # For a Gumbel distribution, std = scale*pi/sqrt(6) and
+        # mean = location + EulerGamma*scale.
+        scale = std_intensity * np.sqrt(6) / np.pi
+        location = mean_intensity - 0.5772156649015329 * scale
 
         # Return level for given return period
         return_period_prob = 1.0 / return_period
@@ -1121,7 +1187,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
         try:
             shape, loc, scale = stats.genextreme.fit(depths)
             return {"shape": shape, "location": loc, "scale": scale}
-        except Exception:
+        except (ValueError, FloatingPointError, RuntimeError):
             # Fallback to Gumbel distribution
             loc, scale = stats.gumbel_r.fit(depths)
             return {
@@ -1144,16 +1210,16 @@ class EnhancedFloodModel(EnhancedHazardModel):
     def _generate_event_intensity(self, climate_multiplier: float = 1.0) -> float:
         """Generate flood event intensity with climate adjustment."""
         if not self.is_fitted:
-            return np.random.exponential(2.0) * climate_multiplier
+            return self.rng.exponential(2.0) * climate_multiplier
 
         params = self.model_parameters
 
         if params.get("distribution_type") == "gumbel":
             # Generate from Gumbel distribution
-            depth = np.random.gumbel(params["mean_depth"], params["std_depth"])
+            depth = self.rng.gumbel(params["mean_depth"], params["std_depth"])
         else:
             # Generate from exponential distribution
-            depth = np.random.exponential(params["mean_depth"])
+            depth = self.rng.exponential(params["mean_depth"])
 
         # Apply climate change adjustment
         return max(0, depth) * climate_multiplier
@@ -1165,9 +1231,9 @@ class EnhancedFloodModel(EnhancedHazardModel):
         return {
             "water_depth": intensity,
             "flood_type": self.flood_type,
-            "duration": np.random.exponential(72.0),  # Hours
-            "flow_velocity": np.random.uniform(0.5, 3.0),  # m/s
-            "affected_area": np.random.exponential(50.0),  # km²
+            "duration": self.rng.exponential(72.0),  # Hours
+            "flow_velocity": self.rng.uniform(0.5, 3.0),  # m/s
+            "affected_area": self.rng.exponential(50.0),  # km²
         }
 
 
@@ -1218,7 +1284,7 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
         max_mag = params.get("max_magnitude", 8.0)
 
         # Generate using inverse transform sampling
-        u = np.random.uniform(0, 1)
+        u = self.rng.uniform(0, 1)
 
         # Gutenberg-Richter: N(M) ∝ 10^(-b*M)
         # M = (log10(1/u) - a) / (-b) + M_min
@@ -1239,10 +1305,10 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
         properties = {
             "magnitude": magnitude,
             "depth": location["depth"],
-            "tectonic_region": np.random.choice(
+            "tectonic_region": self.rng.choice(
                 ["active_crustal", "subduction", "stable_crustal"]
             ),
-            "focal_mechanism": np.random.choice(
+            "focal_mechanism": self.rng.choice(
                 ["strike_slip", "normal", "reverse", "oblique"]
             ),
         }
@@ -1323,7 +1389,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
     def _generate_event_intensity(self, climate_multiplier: float = 1.0) -> float:
         """Generate hurricane wind speed intensity."""
         if not self.is_fitted:
-            return np.random.weibull(2.5) * 40 + 30  # Default hurricane wind speeds
+            return self.rng.weibull(2.5) * 40 + 30  # Default hurricane wind speeds
 
         params = self.model_parameters
 
@@ -1331,7 +1397,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
         shape = params.get("weibull_shape", 2.5)
         scale = params.get("weibull_scale", 30.0)
 
-        wind_speed = np.random.weibull(shape) * scale
+        wind_speed = self.rng.weibull(shape) * scale
 
         # Apply climate change adjustment
         return (
@@ -1346,8 +1412,8 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
             "wind_speed": intensity,
             "category": self._get_hurricane_category(intensity),
             "central_pressure": self._calculate_central_pressure(intensity),
-            "radius_max_wind": np.random.normal(50, 15),
-            "forward_speed": np.random.uniform(5, 15),  # km/h
+            "radius_max_wind": self.rng.normal(50, 15),
+            "forward_speed": self.rng.uniform(5, 15),  # km/h
             "storm_surge": self._calculate_storm_surge(intensity, location),
         }
 
@@ -1371,7 +1437,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
 
         # Add tidal effects
         tidal_factor = 1.0 + 0.3 * np.sin(
-            2 * np.pi * np.random.random()
+            2 * np.pi * self.rng.random()
         )  # ±30% tidal variation
 
         return max(0, base_surge * tidal_factor)
@@ -1380,7 +1446,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
         self, start_location: Dict[str, Any], intensity: float
     ) -> List[Dict[str, Any]]:
         """Generate simplified storm track."""
-        track_length = np.random.randint(5, 20)  # Number of track points
+        track_length = self.rng.integers(5, 20)  # Number of track points
         track = []
 
         current_lat, current_lon = (
@@ -1392,12 +1458,12 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
             # Storm movement (generally westward then northward)
             if i < track_length // 2:
                 # Initial westward movement
-                delta_lon = np.random.normal(-0.2, 0.1)  # degrees
-                delta_lat = np.random.normal(0.1, 0.1)
+                delta_lon = self.rng.normal(-0.2, 0.1)  # degrees
+                delta_lat = self.rng.normal(0.1, 0.1)
             else:
                 # Later northward movement
-                delta_lon = np.random.normal(0.1, 0.1)
-                delta_lat = np.random.normal(0.3, 0.1)
+                delta_lon = self.rng.normal(0.1, 0.1)
+                delta_lat = self.rng.normal(0.3, 0.1)
 
             current_lat += delta_lat
             current_lon += delta_lon
@@ -1445,7 +1511,7 @@ class EnhancedWildfireModel(EnhancedHazardModel):
         """Generate wildfire intensity with climate adjustment."""
         if not self.is_fitted:
             return (
-                np.random.lognormal(6.0, 1.0) * climate_multiplier
+                self.rng.lognormal(6.0, 1.0) * climate_multiplier
             )  # Default fire intensity
 
         params = self.model_parameters
@@ -1456,7 +1522,7 @@ class EnhancedWildfireModel(EnhancedHazardModel):
             "mean_intensity", 500.0
         )
 
-        intensity = np.random.lognormal(mean_log, std_log)
+        intensity = self.rng.lognormal(mean_log, std_log)
 
         # Apply climate change adjustment (drier conditions = higher intensity)
         return max(100, intensity) * climate_multiplier
@@ -1468,13 +1534,13 @@ class EnhancedWildfireModel(EnhancedHazardModel):
         return {
             "fireline_intensity": intensity,
             "flame_length": min(20.0, intensity / 100.0),  # meters
-            "burned_area": np.random.exponential(1000.0),  # hectares
-            "spread_rate": np.random.uniform(0.1, 2.0),  # km/hour
-            "fuel_type": np.random.choice(["grass", "shrub", "timber", "slash"]),
+            "burned_area": self.rng.exponential(1000.0),  # hectares
+            "spread_rate": self.rng.uniform(0.1, 2.0),  # km/hour
+            "fuel_type": self.rng.choice(["grass", "shrub", "timber", "slash"]),
             "weather_conditions": {
-                "temperature": np.random.normal(25, 8),  # Celsius
-                "humidity": np.random.uniform(10, 40),  # Percent
-                "wind_speed": np.random.uniform(5, 25),  # km/h
+                "temperature": self.rng.normal(25, 8),  # Celsius
+                "humidity": self.rng.uniform(10, 40),  # Percent
+                "wind_speed": self.rng.uniform(5, 25),  # km/h
             },
         }
 

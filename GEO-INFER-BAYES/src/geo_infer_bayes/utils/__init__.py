@@ -13,4 +13,20 @@ from .likelihoods import SpatialLikelihood, PoissonProcess, GaussianLikelihood
 from .diagnostics import mcmc_diagnostics, convergence_metrics
 
 # Visualization
-from .visualization import plot_posterior, plot_spatial_prediction, plot_uncertainty 
+from .visualization import plot_posterior, plot_spatial_prediction, plot_uncertainty
+
+__all__ = [
+    "prepare_spatial_data",
+    "load_geospatial_data",
+    "SpatialPrior",
+    "TemporalPrior",
+    "GaussianProcessPrior",
+    "SpatialLikelihood",
+    "PoissonProcess",
+    "GaussianLikelihood",
+    "mcmc_diagnostics",
+    "convergence_metrics",
+    "plot_posterior",
+    "plot_spatial_prediction",
+    "plot_uncertainty",
+]

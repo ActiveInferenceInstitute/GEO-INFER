@@ -192,6 +192,7 @@ class ConfigurationLoader:
                 "time_horizon": 50,
                 "spatial_resolution": 1.0,
                 "monte_carlo_iterations": 1000,
+                "random_seed": 42,
                 "include_secondary_perils": True,
                 "correlation_model": "spatial",
             },
@@ -433,9 +434,9 @@ class ConfigurationLoader:
 
     def _add_config_comments(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """Add explanatory comments to configuration."""
-        # This is a simplified implementation
-        # In a real implementation, this would use a more sophisticated approach
-        # to add comments to YAML output
+        # YAML serializers do not preserve comments reliably across mappings;
+        # emit explicit comment metadata keys so the generated file remains
+        # self-describing after round trips.
 
         commented_config = {
             "_comment_general": "General settings for logging, output, and processing",
