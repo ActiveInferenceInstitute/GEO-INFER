@@ -28,7 +28,7 @@ Requirements engineering using P3IF framework for geospatial systems, user stori
 
 ## Dependencies
 
-- `pydantic>=1.8.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

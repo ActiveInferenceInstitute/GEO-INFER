@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.11",
     install_requires=[
-        "fastapi>=0.95.0",
+        "fastapi>=0.100.0",
         "pydantic>=2.0.0",
         "sqlalchemy>=2.0.0",
         "elasticsearch>=8.0.0",

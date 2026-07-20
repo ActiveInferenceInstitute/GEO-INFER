@@ -26,10 +26,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastapi>=0.68.0",
+    "fastapi>=0.100.0",
     "prometheus-client>=0.12.0",
     "prometheus-fastapi-instrumentator>=5.7.0",
-    "pydantic>=1.8.0",
+    "pydantic>=2.0.0",
     "pytest>=6.0.0",
     "pytest-cov>=2.12.0",
     "pytest-timeout>=2.0.0",
@@ -103,7 +103,7 @@ line_length = 88
 known_first_party = ["geo_infer_ops"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

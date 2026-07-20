@@ -23,16 +23,16 @@ setup(
         "seaborn>=0.11.0",
         "geopandas>=0.9.0",
         "shapely>=1.8.0",
-        "fastapi>=0.68.0",
+        "fastapi>=0.100.0",
         "uvicorn>=0.15.0",
-        "pydantic>=1.8.0",
+        "pydantic>=2.0.0",
         "graphql-core>=3.1.0",
         "strawberry-graphql>=0.96.0",
     ],
     extras_require={
         "geo-infer": [
             "geo-infer-space>=0.1.0",
-            "geo-infer-time>=0.1.0", 
+            "geo-infer-time>=0.1.0",
             "geo-infer-ai>=0.1.0",
         ],
         "dev": [
@@ -72,4 +72,4 @@ setup(
         "Documentation": "https://geo-infer-bio.readthedocs.io/",
         "Source Code": "https://github.com/activeinferenceinstitute/GEO-INFER/tree/main/GEO-INFER-BIO",
     },
-) 
+)

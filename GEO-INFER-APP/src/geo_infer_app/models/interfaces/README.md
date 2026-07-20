@@ -21,9 +21,9 @@ Interfaces workspace within `GEO-INFER-APP`.
 
 ## Dependencies
 
-- `fastapi>=0.68.0`
+- `fastapi>=0.100.0`
 - `uvicorn>=0.15.0`
-- `pydantic>=1.8.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

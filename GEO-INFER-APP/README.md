@@ -28,9 +28,9 @@ Human-computer interaction layer providing accessible geospatial applications, d
 
 ## Dependencies
 
-- `fastapi>=0.68.0`
+- `fastapi>=0.100.0`
 - `uvicorn>=0.15.0`
-- `pydantic>=1.8.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

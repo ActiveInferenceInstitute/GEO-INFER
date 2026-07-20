@@ -27,9 +27,9 @@ setup(
         "asyncio-mqtt>=0.11.0",
         "websockets>=10.0",
         # API and web services
-        "fastapi>=0.68.0",
+        "fastapi>=0.100.0",
         "uvicorn>=0.15.0",
-        "pydantic>=1.8.0",
+        "pydantic>=2.0.0",
         # Configuration and utilities
         "pyyaml>=6.0",
         "python-dotenv>=0.19.0",

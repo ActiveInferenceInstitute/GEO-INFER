@@ -1,6 +1,7 @@
 """Tests for soil data integration."""
 
 import pytest
+import inspect
 from geo_infer_bio.soil import SoilDataIntegrator
 
 
@@ -23,3 +24,9 @@ class TestSoilDataIntegrator:
         integrator = SoilDataIntegrator()
         depths = integrator.soilgrids_config["depths"]
         assert "0-5cm" in depths
+
+    def test_soilgrids_depth_argument_is_not_mutable_default(self) -> None:
+        parameter = inspect.signature(
+            SoilDataIntegrator.load_soilgrids_data
+        ).parameters["depths"]
+        assert parameter.default is None

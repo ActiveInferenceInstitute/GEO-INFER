@@ -29,8 +29,8 @@ Communications infrastructure for geospatial systems enabling data exchange, mes
 
 ## Dependencies
 
-- `fastapi>=0.68.0`
-- `pydantic>=1.8.0`
+- `fastapi>=0.100.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

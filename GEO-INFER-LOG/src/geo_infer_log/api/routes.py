@@ -196,7 +196,7 @@ async def solve_vrp(
 
         # Solve VRP
         result = router.solve_vrp(
-            deliveries=[delivery.dict() for delivery in request.deliveries],
+            deliveries=[delivery.model_dump() for delivery in request.deliveries],
             depots=[request.depot.coordinates],
             constraints=request.constraints,
         )

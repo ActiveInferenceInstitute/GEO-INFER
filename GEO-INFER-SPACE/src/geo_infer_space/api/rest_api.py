@@ -73,7 +73,7 @@ async def general_exception_handler(request, exc):
             error="InternalServerError",
             message="An internal server error occurred",
             details={"exception": str(exc)},
-        ).dict(),
+        ).model_dump(),
     )
 
 
@@ -114,7 +114,7 @@ async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
     """
     try:
         # Convert GeoJSON to GeoDataFrame
-        gdf = geojson_to_gdf(request.data.dict(), request.crs)
+        gdf = geojson_to_gdf(request.data.model_dump(), request.crs)
 
         # Create buffers
         buffered_gdf = gdf.copy()
@@ -156,8 +156,8 @@ async def proximity_analysis_endpoint(request: ProximityAnalysisRequest):
     """
     try:
         # Convert GeoJSON to GeoDataFrames
-        source_gdf = geojson_to_gdf(request.source_data.dict(), request.crs)
-        target_gdf = geojson_to_gdf(request.target_data.dict(), request.crs)
+        source_gdf = geojson_to_gdf(request.source_data.model_dump(), request.crs)
+        target_gdf = geojson_to_gdf(request.target_data.model_dump(), request.crs)
 
         # Perform proximity analysis
         result_gdf = proximity_analysis(source_gdf, target_gdf, request.max_distance)
@@ -192,7 +192,7 @@ async def interpolation_endpoint(request: InterpolationRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.dict(), request.crs)
+        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
 
         # Validate value column exists
         if request.value_column not in points_gdf.columns:
@@ -242,7 +242,7 @@ async def clustering_endpoint(request: ClusteringRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.dict(), request.crs)
+        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
 
         # Perform clustering
         result_gdf = clustering_analysis(
@@ -289,7 +289,7 @@ async def hotspot_detection_endpoint(request: HotspotRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.dict(), request.crs)
+        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
 
         # Validate value column if provided
         if request.value_column and request.value_column not in points_gdf.columns:
@@ -346,7 +346,7 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
     """
     try:
         # Convert network to GeoDataFrame
-        network_gdf = geojson_to_gdf(request.network.dict(), request.crs)
+        network_gdf = geojson_to_gdf(request.network.model_dump(), request.crs)
 
         if request.analysis_type == "connectivity":
             # Network connectivity analysis
@@ -370,7 +370,7 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                     detail="Service area analysis requires origin points",
                 )
 
-            origins_gdf = geojson_to_gdf(request.origins.dict(), request.crs)
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
             center_point = origins_gdf.geometry.iloc[0]
 
             max_distance = request.parameters.get("max_distance", 1000)
@@ -416,7 +416,7 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
     try:
         if request.operation == "polygon_to_cells":
             # Convert geometry to H3 cells
-            geom_dict = request.geometry.dict()
+            geom_dict = request.geometry.model_dump()
 
             h3_cells = polygon_to_cells(geom_dict, request.resolution)
 

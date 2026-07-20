@@ -9,9 +9,10 @@ from .data_models import (
     SpatialDataset,
     GeometryModel,
     CoordinateReferenceSystem,
+    SpatialBounds,
     SpatialIndex,
     AnalysisResult,
-    SpatialMetadata
+    SpatialMetadata,
 )
 
 from .config_models import (
@@ -19,22 +20,22 @@ from .config_models import (
     AnalysisConfig,
     IndexingConfig,
     APIConfig,
-    DatabaseConfig
+    DatabaseConfig,
 )
 
 __all__ = [
     # Data models
-    'SpatialDataset',
-    'GeometryModel', 
-    'CoordinateReferenceSystem',
-    'SpatialIndex',
-    'AnalysisResult',
-    'SpatialMetadata',
-    
+    "SpatialDataset",
+    "GeometryModel",
+    "CoordinateReferenceSystem",
+    "SpatialBounds",
+    "SpatialIndex",
+    "AnalysisResult",
+    "SpatialMetadata",
     # Configuration models
-    'SpaceConfig',
-    'AnalysisConfig',
-    'IndexingConfig',
-    'APIConfig',
-    'DatabaseConfig'
+    "SpaceConfig",
+    "AnalysisConfig",
+    "IndexingConfig",
+    "APIConfig",
+    "DatabaseConfig",
 ]

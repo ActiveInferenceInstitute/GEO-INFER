@@ -225,7 +225,7 @@ async def optimize_deliveries(
         )
 
         # Convert route objects to dictionaries
-        return [route.dict() for route in routes]
+        return [route.model_dump() for route in routes]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -261,7 +261,7 @@ async def get_daily_schedule(
         routes = scheduler.get_daily_schedule(date_obj)
 
         # Convert route objects to dictionaries
-        return [route.dict() for route in routes]
+        return [route.model_dump() for route in routes]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -275,7 +275,7 @@ async def get_vehicle_schedule(
         routes = scheduler.get_vehicle_schedule(vehicle_id)
 
         # Convert route objects to dictionaries
-        return [route.dict() for route in routes]
+        return [route.model_dump() for route in routes]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -6,7 +6,7 @@ using Pydantic for automatic validation and documentation generation.
 """
 
 from typing import List, Dict, Any, Optional, Union
-from pydantic.v1 import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from geojson_pydantic import Feature, FeatureCollection, Polygon
 
 
@@ -18,7 +18,7 @@ class SpatialAnalysisRequest(BaseModel):
     )
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Analysis-specific parameters"
+        default_factory=dict, description="Analysis-specific parameters"
     )
 
 
@@ -31,7 +31,7 @@ class SpatialAnalysisResponse(BaseModel):
     )
     message: Optional[str] = Field(None, description="Status or error message")
     metadata: Optional[Dict[str, Any]] = Field(
-        {}, description="Additional metadata about the operation"
+        default_factory=dict, description="Additional metadata about the operation"
     )
 
 
@@ -70,8 +70,8 @@ class InterpolationRequest(BaseModel):
     )
     bounds: List[float] = Field(
         ...,
-        min_items=4,
-        max_items=4,
+        min_length=4,
+        max_length=4,
         description="Interpolation bounds [minx, miny, maxx, maxy]",
     )
     resolution: float = Field(
@@ -81,11 +81,11 @@ class InterpolationRequest(BaseModel):
         "idw", description="Interpolation method (idw, kriging, rbf, nearest)"
     )
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Method-specific parameters"
+        default_factory=dict, description="Method-specific parameters"
     )
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
-    @validator("method")
+    @field_validator("method")
     def validate_method(cls, v):
         valid_methods = ["idw", "kriging", "rbf", "nearest"]
         if v not in valid_methods:
@@ -101,11 +101,12 @@ class ClusteringRequest(BaseModel):
         "dbscan", description="Clustering method (dbscan, kmeans, hierarchical)"
     )
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Clustering parameters (eps, min_samples, n_clusters, etc.)"
+        default_factory=dict,
+        description="Clustering parameters (eps, min_samples, n_clusters, etc.)",
     )
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
-    @validator("method")
+    @field_validator("method")
     def validate_method(cls, v):
         valid_methods = ["dbscan", "kmeans", "hierarchical"]
         if v not in valid_methods:
@@ -124,11 +125,11 @@ class HotspotRequest(BaseModel):
     )
     method: str = Field("getis_ord", description="Hotspot detection method")
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Method-specific parameters"
+        default_factory=dict, description="Method-specific parameters"
     )
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
-    @validator("method")
+    @field_validator("method")
     def validate_method(cls, v):
         valid_methods = ["getis_ord", "local_moran", "kernel_density"]
         if v not in valid_methods:
@@ -150,11 +151,11 @@ class NetworkAnalysisRequest(BaseModel):
     )
     analysis_type: str = Field(..., description="Type of network analysis")
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Analysis-specific parameters"
+        default_factory=dict, description="Analysis-specific parameters"
     )
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
-    @validator("analysis_type")
+    @field_validator("analysis_type")
     def validate_analysis_type(cls, v):
         valid_types = [
             "shortest_path",
@@ -179,10 +180,10 @@ class TerrainAnalysisRequest(BaseModel):
         description="List of terrain analyses to perform",
     )
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Analysis-specific parameters"
+        default_factory=dict, description="Analysis-specific parameters"
     )
 
-    @validator("analyses")
+    @field_validator("analyses")
     def validate_analyses(cls, v):
         valid_analyses = ["slope", "aspect", "hillshade", "curvature", "tpi"]
         for analysis in v:
@@ -200,10 +201,10 @@ class H3AnalysisRequest(BaseModel):
     resolution: int = Field(..., ge=0, le=15, description="H3 resolution (0-15)")
     operation: str = Field("polygon_to_cells", description="H3 operation to perform")
     parameters: Optional[Dict[str, Any]] = Field(
-        {}, description="Operation-specific parameters"
+        default_factory=dict, description="Operation-specific parameters"
     )
 
-    @validator("operation")
+    @field_validator("operation")
     def validate_operation(cls, v):
         valid_ops = [
             "polygon_to_cells",

@@ -1,5 +1,5 @@
 # GEO-INFER-COMMS Requirements
-fastapi>=0.68.0
-pydantic>=1.8.0
+fastapi>=0.100.0
+pydantic>=2.0.0
 
 # Added from comprehensive review

@@ -35,7 +35,7 @@ Comprehensive project documentation, workflow management, and ontology systems f
 
 ## Dependencies
 
-- `fastapi>=0.95.0`
+- `fastapi>=0.100.0`
 - `pydantic>=2.0.0`
 - `sqlalchemy>=2.0.0`
 - `elasticsearch>=8.0.0`

@@ -26,9 +26,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastapi>=0.95.0",
+    "fastapi>=0.100.0",
     "httpx>=0.24.0",
-    "pydantic>=1.10.7",
+    "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
     "pytest>=7.3.1",
     "pytest-cov>=4.1.0",
@@ -98,7 +98,7 @@ line_length = 88
 known_first_party = ["geo_infer_api"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

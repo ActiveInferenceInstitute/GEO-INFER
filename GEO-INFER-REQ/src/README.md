@@ -20,7 +20,7 @@ Src workspace within `GEO-INFER-REQ`.
 
 ## Dependencies
 
-- `pydantic>=1.8.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation
