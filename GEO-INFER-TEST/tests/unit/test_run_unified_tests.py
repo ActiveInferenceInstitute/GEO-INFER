@@ -60,6 +60,46 @@ def test_subprocess_env_prepends_workspace_src_paths(tmp_path, monkeypatch):
     ]
 
 
+def test_module_discovery_ignores_non_test_files(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    module_path = tmp_path / "GEO-INFER-SAMPLE"
+    tests_path = module_path / "tests"
+    tests_path.mkdir(parents=True)
+    (tests_path / "conftest.py").write_text("# fixtures only\n")
+    (tests_path / "README.md").write_text("Not a test file.\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+
+    [module] = runner.discover_geo_infer_modules()
+
+    assert module.has_tests is False
+
+
+def test_unit_category_falls_back_to_root_test_files(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    module_path = make_test_module(tmp_path, "SAMPLE")
+    root_test = module_path / "tests" / "test_legacy_layout.py"
+    root_test.write_text("def test_legacy_layout():\n    assert True\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    module = runner.discover_geo_infer_modules()[0]
+
+    assert runner.category_test_paths(module, "unit") == [root_test]
+    assert runner.category_test_paths(module, "integration") == []
+
+
+def test_clean_results_dir_removes_nested_stale_artifacts(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    results_dir = tmp_path / "results"
+    stale_nested = results_dir / "old-run"
+    stale_nested.mkdir(parents=True)
+    (stale_nested / "summary.json").write_text("{}\n")
+    (results_dir / "stale.xml").write_text("<testsuites />\n")
+    monkeypatch.setattr(runner, "RESULTS_DIR", results_dir)
+
+    runner.ensure_results_dir(clean=True)
+
+    assert list(results_dir.iterdir()) == []
+
+
 def test_run_command_passes_workspace_env(tmp_path, monkeypatch):
     runner = load_runner_module()
     src_path = make_module(tmp_path, "A")

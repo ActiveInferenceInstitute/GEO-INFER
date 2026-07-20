@@ -1,4 +1,4 @@
-"""Shared helper for legacy script wrappers."""
+"""Shared helper for thin scenario entrypoints."""
 
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ from geo_infer_act.runners.cli import build_parser, config_from_args
 from geo_infer_act.runners.scenarios import run_all_scenarios, run_scenario
 
 
-def run_wrapper(
+def run_scenario_entrypoint(
     default_scenario: str,
     argv: Optional[Iterable[str]] = None,
     program: Optional[str] = None,
 ) -> int:
-    """Run a legacy wrapper with a package-owned scenario implementation."""
+    """Run a package-owned scenario implementation from an entrypoint."""
     args_list = list(argv) if argv is not None else sys.argv[1:]
     parser = build_parser(default_all=default_scenario == "all")
     parser.set_defaults(scenario=default_scenario)

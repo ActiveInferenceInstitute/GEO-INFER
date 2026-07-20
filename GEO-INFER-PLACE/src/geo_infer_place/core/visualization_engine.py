@@ -456,8 +456,7 @@ class InteractiveVisualizationEngine:
         """Extract forest monitoring sites from analysis data.
 
         Uses real plot data from forest health analysis when available.
-        Falls back to H3-grid-seeded sites with biome-appropriate defaults
-        derived from known Del Norte County forest parameters.
+        Returns no sites when the analysis contains no forest observations.
         """
         # Try to extract from real analysis results
         if forest_data:
@@ -499,33 +498,8 @@ class InteractiveVisualizationEngine:
                 logger.info(f"Extracted {len(sites)} forest sites from analysis data")
                 return sites
 
-        # Fallback: deterministic H3-grid-seeded sites using known county parameters
-        south = self.location_bounds.get("south", 41.5)
-        north = self.location_bounds.get("north", 42.0)
-        west = self.location_bounds.get("west", -124.4)
-        east = self.location_bounds.get("east", -123.5)
-        sites = []
-        lat_steps = np.linspace(south + 0.05, north - 0.05, 5)
-        lon_steps = np.linspace(west + 0.05, east - 0.05, 4)
-        for i, lat in enumerate(lat_steps):
-            for j, lon in enumerate(lon_steps):
-                idx = i * len(lon_steps) + j
-                # Coastal proximity lowers health slightly
-                coastal_factor = max(0.0, (lon - west) / (east - west))
-                health = 0.55 + 0.35 * coastal_factor
-                sites.append(
-                    {
-                        "site_id": f"FH_{idx+1:03d}",
-                        "lat": float(lat),
-                        "lon": float(lon),
-                        "health_index": round(health, 3),
-                        "ndvi": round(0.45 + 0.35 * coastal_factor, 3),
-                        "tree_density": int(300 + 200 * coastal_factor),
-                        "species_diversity": round(2.0 + coastal_factor, 2),
-                        "last_survey": datetime.now().strftime("%Y-%m-%d"),
-                    }
-                )
-        return sites
+        logger.info("No forest monitoring observations available for visualization")
+        return []
 
     def _generate_coastal_monitoring_sites(
         self, coastal_data: Optional[Dict[str, Any]] = None
@@ -533,8 +507,7 @@ class InteractiveVisualizationEngine:
         """Extract coastal monitoring sites from analysis data.
 
         Uses real coastal analysis data (tide stations, infrastructure) when
-        available.  Falls back to known Del Norte County coastal reference
-        points along the 45-mile Pacific coastline.
+        available.  Returns no sites when the analysis contains no observations.
         """
         if coastal_data:
             infra = (
@@ -566,102 +539,8 @@ class InteractiveVisualizationEngine:
                 logger.info(f"Extracted {len(sites)} coastal sites from analysis data")
                 return sites
 
-        # Fallback: known Del Norte County coastal reference points
-        # Real locations along the 45-mile coastline from Crescent City to Klamath
-        coastal_refs = [
-            {
-                "name": "Crescent City Harbor",
-                "lat": 41.7448,
-                "lon": -124.1837,
-                "vuln": 0.72,
-                "erosion": 1.2,
-                "exposure": "High",
-            },
-            {
-                "name": "Battery Point",
-                "lat": 41.7406,
-                "lon": -124.2028,
-                "vuln": 0.55,
-                "erosion": 0.3,
-                "exposure": "Moderate",
-            },
-            {
-                "name": "Pebble Beach",
-                "lat": 41.7250,
-                "lon": -124.2150,
-                "vuln": 0.48,
-                "erosion": 0.8,
-                "exposure": "Moderate",
-            },
-            {
-                "name": "Point St. George",
-                "lat": 41.7833,
-                "lon": -124.2567,
-                "vuln": 0.62,
-                "erosion": 1.5,
-                "exposure": "High",
-            },
-            {
-                "name": "Pelican Bay",
-                "lat": 41.8000,
-                "lon": -124.2200,
-                "vuln": 0.38,
-                "erosion": 0.4,
-                "exposure": "Low",
-            },
-            {
-                "name": "Smith River Mouth",
-                "lat": 41.9292,
-                "lon": -124.1972,
-                "vuln": 0.65,
-                "erosion": 1.8,
-                "exposure": "High",
-            },
-            {
-                "name": "Klamath River Mouth",
-                "lat": 41.5447,
-                "lon": -124.0800,
-                "vuln": 0.70,
-                "erosion": 2.0,
-                "exposure": "High",
-            },
-            {
-                "name": "Enderts Beach",
-                "lat": 41.6892,
-                "lon": -124.1556,
-                "vuln": 0.35,
-                "erosion": 0.2,
-                "exposure": "Low",
-            },
-            {
-                "name": "Wilson Creek Beach",
-                "lat": 41.6000,
-                "lon": -124.0900,
-                "vuln": 0.45,
-                "erosion": 0.6,
-                "exposure": "Moderate",
-            },
-            {
-                "name": "False Klamath Cove",
-                "lat": 41.6200,
-                "lon": -124.1100,
-                "vuln": 0.52,
-                "erosion": 0.9,
-                "exposure": "Moderate",
-            },
-        ]
-        return [
-            {
-                "site_id": f"CS_{i+1:03d}",
-                "lat": r["lat"],
-                "lon": r["lon"],
-                "vulnerability": r["vuln"],
-                "erosion_rate": r["erosion"],
-                "sea_level_trend": 2.1,  # mm/yr, Crescent City tide gauge measured rate
-                "storm_exposure": r["exposure"],
-            }
-            for i, r in enumerate(coastal_refs)
-        ]
+        logger.info("No coastal monitoring observations available for visualization")
+        return []
 
     def _generate_fire_monitoring_sites(
         self, fire_data: Optional[Dict[str, Any]] = None
@@ -669,8 +548,8 @@ class InteractiveVisualizationEngine:
         """Extract fire monitoring sites from analysis data.
 
         Uses real fire risk analysis data (weather stations, fuel moisture
-        measurements) when available.  Falls back to known Del Norte County
-        fire-relevant locations.
+        measurements) when available.  Returns no sites when the analysis
+        contains no observations.
         """
         if fire_data:
             ds = fire_data.get("data_acquisition", fire_data)
@@ -710,111 +589,8 @@ class InteractiveVisualizationEngine:
                 logger.info(f"Extracted {len(sites)} fire sites from analysis data")
                 return sites
 
-        # Fallback: known fire-relevant Del Norte County locations
-        fire_refs = [
-            {
-                "name": "Gasquet RAWS",
-                "lat": 41.8460,
-                "lon": -123.9700,
-                "risk": 0.55,
-                "fm": 14.0,
-                "fwi": 45,
-                "dist": 8.0,
-            },
-            {
-                "name": "Hiouchi",
-                "lat": 41.7940,
-                "lon": -123.9900,
-                "risk": 0.48,
-                "fm": 16.0,
-                "fwi": 38,
-                "dist": 5.0,
-            },
-            {
-                "name": "Siskiyou Wilderness Edge",
-                "lat": 41.9100,
-                "lon": -123.8200,
-                "risk": 0.72,
-                "fm": 10.0,
-                "fwi": 62,
-                "dist": 18.0,
-            },
-            {
-                "name": "Klamath Glen",
-                "lat": 41.5200,
-                "lon": -124.0300,
-                "risk": 0.42,
-                "fm": 18.0,
-                "fwi": 30,
-                "dist": 6.0,
-            },
-            {
-                "name": "Big Flat",
-                "lat": 41.5800,
-                "lon": -123.8900,
-                "risk": 0.65,
-                "fm": 12.0,
-                "fwi": 55,
-                "dist": 15.0,
-            },
-            {
-                "name": "Patrick Creek",
-                "lat": 41.8700,
-                "lon": -123.9200,
-                "risk": 0.50,
-                "fm": 15.0,
-                "fwi": 42,
-                "dist": 12.0,
-            },
-            {
-                "name": "Ship Mountain",
-                "lat": 41.8300,
-                "lon": -123.7800,
-                "risk": 0.68,
-                "fm": 11.0,
-                "fwi": 58,
-                "dist": 20.0,
-            },
-            {
-                "name": "Darlingtonia",
-                "lat": 41.7300,
-                "lon": -124.1100,
-                "risk": 0.35,
-                "fm": 20.0,
-                "fwi": 25,
-                "dist": 3.0,
-            },
-            {
-                "name": "Redwood NP HQ Area",
-                "lat": 41.6800,
-                "lon": -124.1000,
-                "risk": 0.30,
-                "fm": 22.0,
-                "fwi": 20,
-                "dist": 4.0,
-            },
-            {
-                "name": "Smith River NRA",
-                "lat": 41.8100,
-                "lon": -123.8600,
-                "risk": 0.58,
-                "fm": 13.0,
-                "fwi": 48,
-                "dist": 14.0,
-            },
-        ]
-        return [
-            {
-                "site_id": f"FR_{i+1:03d}",
-                "lat": r["lat"],
-                "lon": r["lon"],
-                "risk_level": r["risk"],
-                "fuel_moisture": r["fm"],
-                "fire_weather_index": r["fwi"],
-                "suppression_distance": r["dist"],
-            }
-            for i, r in enumerate(fire_refs)
-        ]
+        logger.info("No fire monitoring observations available for visualization")
+        return []
 
     def _generate_community_facilities(
         self, community_data: Optional[Dict[str, Any]] = None
@@ -915,8 +691,7 @@ class InteractiveVisualizationEngine:
 
         Aggregates domain scores from *integration_data* into H3 cells.  If
         pre-computed ``h3_cells`` are provided, those are returned directly.
-        Otherwise cells are generated from the study area bounds and scores
-        are derived from how many analysis domains have data for each cell.
+        Otherwise cells are derived only from domain spatial observations.
         """
         # Use pre-computed cells if available
         if "h3_cells" in integration_data:
@@ -949,22 +724,5 @@ class InteractiveVisualizationEngine:
                 }
             return h3_cells
 
-        # Fallback: cover study area with H3 cells (no domain data)
-        bbox = (
-            self.location_bounds.get("west", -124.4),
-            self.location_bounds.get("south", 41.5),
-            self.location_bounds.get("east", -123.5),
-            self.location_bounds.get("north", 42.0),
-        )
-        lat_points = np.linspace(bbox[1], bbox[3], 10)
-        lon_points = np.linspace(bbox[0], bbox[2], 10)
-        for lat in lat_points:
-            for lon in lon_points:
-                h3_cell = h3.latlng_to_cell(lat, lon, self.h3_resolution)
-                if h3_cell not in h3_cells:
-                    h3_cells[h3_cell] = {
-                        "integration_score": 0.0,
-                        "domain_count": 0,
-                        "risk_factors": 0,
-                    }
+        logger.info("No domain spatial observations available for H3 integration")
         return h3_cells

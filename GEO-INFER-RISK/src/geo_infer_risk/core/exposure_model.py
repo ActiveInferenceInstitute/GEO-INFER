@@ -72,7 +72,7 @@ class EnhancedExposureModel:
         self.logger = logging.getLogger(f"{__name__}.{exposure_type}")
 
         # Enhanced parameter handling
-        self.data_sources = params.get("data_sources", ["openstreetmap", "census"])
+        self.data_sources = params.get("data_sources", [])
         self.value_type = params.get("value_type", "replacement_cost")
         self.aggregation_level = params.get("aggregation_level", "building")
         self.include_contents = params.get("include_contents", False)
@@ -141,12 +141,15 @@ class EnhancedExposureModel:
                             self.exposure_data, data
                         )
 
-            # If no data loaded, generate synthetic data
+            # Keep the model explicitly uninitialized until a configured source
+            # provides data. Silent fabricated exposure would invalidate risk
+            # calculations.
             if self.exposure_data is None or self.exposure_data.empty:
-                self.logger.warning(
-                    f"No data loaded from sources {self.data_sources}, generating synthetic data"
+                self.logger.info(
+                    "No exposure data loaded from configured sources %s",
+                    self.data_sources,
                 )
-                self.exposure_data = self._generate_enhanced_synthetic_data()
+                return
 
             # Validate and clean data
             self._validate_and_clean_exposure_data()
@@ -163,134 +166,24 @@ class EnhancedExposureModel:
 
         except Exception as e:
             self.logger.error(f"Failed to initialize exposure data: {e}")
-            self.exposure_data = self._generate_enhanced_synthetic_data()
+            self.exposure_data = None
 
     def _load_data_from_source(self, source: str) -> Optional[pd.DataFrame]:
         """Load exposure data from a specific source."""
         try:
-            if source == "openstreetmap":
-                return self._load_openstreetmap_data()
-            elif source == "census":
-                return self._load_census_data()
-            elif source == "worldpop":
-                return self._load_worldpop_data()
-            elif source == "landscan":
-                return self._load_landscan_data()
-            elif source == "custom_property_db":
-                return self._load_custom_property_data()
-            elif source == "national_bridge_inventory":
-                return self._load_bridge_inventory_data()
-            elif source.startswith("file://"):
+            if source.startswith("file://"):
                 return self._load_from_file(source)
             elif source.startswith("api://"):
-                return self._load_from_api(source)
+                raise ValueError(
+                    "API exposure sources require a configured data connector; "
+                    "the model does not synthesize remote data"
+                )
             else:
-                self.logger.warning(f"Unknown data source: {source}")
-                return None
+                raise ValueError(f"Unsupported exposure data source: {source}")
 
         except Exception as e:
             self.logger.error(f"Failed to load data from source {source}: {e}")
             return None
-
-    def _load_openstreetmap_data(self) -> Optional[pd.DataFrame]:
-        """Load building/infrastructure data from OpenStreetMap."""
-        # Generate representative OSM-style building data (connect to Overpass API for live data)
-        self.logger.info("Loading OpenStreetMap-style building data")
-
-        # Generate sample OSM-like data
-        num_buildings = 5000
-        min_lon, max_lon = -74.1, -73.9
-        min_lat, max_lat = 40.7, 40.9
-
-        data = pd.DataFrame(
-            {
-                "id": [f"osm_building_{i}" for i in range(num_buildings)],
-                "longitude": np.random.uniform(min_lon, max_lon, num_buildings),
-                "latitude": np.random.uniform(min_lat, max_lat, num_buildings),
-                "type": np.random.choice(
-                    ["residential", "commercial", "industrial", "public"],
-                    num_buildings,
-                    p=[0.6, 0.25, 0.1, 0.05],
-                ),
-                "building_levels": np.random.randint(1, 20, num_buildings),
-                "building_material": np.random.choice(
-                    ["brick", "concrete", "wood", "steel"],
-                    num_buildings,
-                    p=[0.3, 0.3, 0.25, 0.15],
-                ),
-                "year_built": np.random.randint(1900, 2023, num_buildings),
-                "replacement_cost": np.random.lognormal(12, 1, num_buildings) * 1000,
-            }
-        )
-
-        return data
-
-    def _load_census_data(self) -> Optional[pd.DataFrame]:
-        """Load population data from census sources."""
-        # Generate representative census-style population data
-        self.logger.info("Loading census-style population data")
-
-        num_blocks = 2000
-        min_lon, max_lon = -74.1, -73.9
-        min_lat, max_lat = 40.7, 40.9
-
-        data = pd.DataFrame(
-            {
-                "id": [f"census_block_{i}" for i in range(num_blocks)],
-                "longitude": np.random.uniform(min_lon, max_lon, num_blocks),
-                "latitude": np.random.uniform(min_lat, max_lat, num_blocks),
-                "type": "population",
-                "population_count": np.random.poisson(500, num_blocks),
-                "median_age": np.random.normal(40, 15, num_blocks),
-                "median_income": np.random.lognormal(10.8, 0.5, num_blocks),
-                "social_vulnerability": np.random.beta(2, 5, num_blocks),
-            }
-        )
-
-        return data
-
-    def _load_worldpop_data(self) -> Optional[pd.DataFrame]:
-        """Load population data from WorldPop."""
-        # WorldPop uses a similar schema to census data
-        self.logger.info("Loading WorldPop-style population data")
-        return self._load_census_data()  # Similar structure
-
-    def _load_landscan_data(self) -> Optional[pd.DataFrame]:
-        """Load population data from LandScan."""
-        # LandScan uses a similar schema to census data
-        self.logger.info("Loading LandScan-style population data")
-        return self._load_census_data()  # Similar structure
-
-    def _load_custom_property_data(self) -> Optional[pd.DataFrame]:
-        """Load custom property database data."""
-        # Custom property DB uses a similar schema to OSM building data
-        self.logger.info("Loading custom property data")
-        return self._load_openstreetmap_data()  # Similar structure
-
-    def _load_bridge_inventory_data(self) -> Optional[pd.DataFrame]:
-        """Load bridge inventory data."""
-        # Generate representative bridge inventory data (connect to NBI for live data)
-        self.logger.info("Loading bridge inventory data")
-
-        num_bridges = 200
-        data = pd.DataFrame(
-            {
-                "id": [f"bridge_{i}" for i in range(num_bridges)],
-                "longitude": np.random.uniform(-74.1, -73.9, num_bridges),
-                "latitude": np.random.uniform(40.7, 40.9, num_bridges),
-                "type": "bridge",
-                "bridge_type": np.random.choice(["highway", "railway", "pedestrian"]),
-                "year_built": np.random.randint(1950, 2020, num_bridges),
-                "condition": np.random.choice(
-                    ["excellent", "good", "fair", "poor"],
-                    num_bridges,
-                    p=[0.1, 0.4, 0.3, 0.2],
-                ),
-                "replacement_cost": np.random.lognormal(14, 1, num_bridges) * 1000,
-            }
-        )
-
-        return data
 
     def _load_from_file(self, file_path: str) -> Optional[pd.DataFrame]:
         """Load exposure data from file."""
@@ -311,14 +204,6 @@ class EnhancedExposureModel:
         except Exception as e:
             self.logger.error(f"Failed to load file {file_path}: {e}")
             return None
-
-    def _load_from_api(self, api_source: str) -> Optional[pd.DataFrame]:
-        """Load exposure data from API."""
-        # API loading requires runtime configuration of endpoint credentials
-        self.logger.info(
-            f"API data source '{api_source}' not yet configured — skipping"
-        )
-        return None
 
     def _merge_exposure_data(
         self, existing_data: pd.DataFrame, new_data: pd.DataFrame
@@ -638,144 +523,6 @@ class EnhancedExposureModel:
         self.temporal_profiles["commute"] = base_value * 1.0
 
         self.logger.info("Generic temporal profiles initialized")
-
-    def _generate_enhanced_synthetic_data(self) -> pd.DataFrame:
-        """Generate enhanced synthetic exposure data."""
-        num_points = 1000
-
-        # Generate base coordinates
-        min_lon, max_lon = -74.1, -73.9
-        min_lat, max_lat = 40.7, 40.9
-
-        longitudes = np.random.uniform(min_lon, max_lon, num_points)
-        latitudes = np.random.uniform(min_lat, max_lat, num_points)
-
-        # Generate data based on exposure type
-        if self.exposure_type == "property":
-            return self._generate_property_data(longitudes, latitudes, num_points)
-        elif self.exposure_type == "population":
-            return self._generate_population_data(longitudes, latitudes, num_points)
-        elif self.exposure_type == "infrastructure":
-            return self._generate_infrastructure_data(longitudes, latitudes, num_points)
-        else:
-            return self._generate_generic_data(longitudes, latitudes, num_points)
-
-    def _generate_property_data(
-        self, longitudes: np.ndarray, latitudes: np.ndarray, num_points: int
-    ) -> pd.DataFrame:
-        """Generate synthetic property exposure data."""
-        asset_types = np.random.choice(
-            ["residential", "commercial", "industrial", "public"],
-            num_points,
-            p=[0.6, 0.25, 0.1, 0.05],
-        )
-
-        # Generate property values by type
-        base_values = {
-            "residential": np.random.lognormal(mean=6.0, sigma=0.5, size=num_points),
-            "commercial": np.random.lognormal(mean=7.0, sigma=0.7, size=num_points),
-            "industrial": np.random.lognormal(mean=7.5, sigma=0.8, size=num_points),
-            "public": np.random.lognormal(mean=6.5, sigma=0.6, size=num_points),
-        }
-
-        values = np.zeros(num_points)
-        for i, asset_type in enumerate(asset_types):
-            values[i] = base_values[asset_type][i]
-
-        # Convert to dollars and add variety
-        values = values * 1000 * np.random.uniform(0.8, 1.2, num_points)
-
-        return pd.DataFrame(
-            {
-                "id": [f"synth_prop_{i}" for i in range(num_points)],
-                "longitude": longitudes,
-                "latitude": latitudes,
-                "type": asset_types,
-                "value": values,
-                "building_levels": np.random.randint(1, 20, num_points),
-                "year_built": np.random.randint(1900, 2023, num_points),
-                "building_material": np.random.choice(
-                    ["brick", "concrete", "wood", "steel"], num_points
-                ),
-                "occupancy_type": asset_types,
-            }
-        )
-
-    def _generate_population_data(
-        self, longitudes: np.ndarray, latitudes: np.ndarray, num_points: int
-    ) -> pd.DataFrame:
-        """Generate synthetic population exposure data."""
-        population_counts = np.random.poisson(500, num_points)
-
-        return pd.DataFrame(
-            {
-                "id": [f"synth_pop_{i}" for i in range(num_points)],
-                "longitude": longitudes,
-                "latitude": latitudes,
-                "type": "population",
-                "population_count": population_counts,
-                "median_age": np.random.normal(40, 15, num_points),
-                "median_income": np.random.lognormal(10.8, 0.5, num_points),
-                "social_vulnerability": np.random.beta(2, 5, num_points),
-                "household_size": np.random.poisson(2.5, num_points) + 1,
-            }
-        )
-
-    def _generate_infrastructure_data(
-        self, longitudes: np.ndarray, latitudes: np.ndarray, num_points: int
-    ) -> pd.DataFrame:
-        """Generate synthetic infrastructure exposure data."""
-        infra_types = np.random.choice(
-            ["road", "bridge", "power_line", "water_pipe", "communication"],
-            num_points,
-            p=[0.4, 0.1, 0.2, 0.2, 0.1],
-        )
-
-        # Generate values by infrastructure type
-        base_values = {
-            "road": np.random.lognormal(mean=6.0, sigma=0.6, size=num_points),
-            "bridge": np.random.lognormal(mean=7.0, sigma=0.8, size=num_points),
-            "power_line": np.random.lognormal(mean=5.5, sigma=0.5, size=num_points),
-            "water_pipe": np.random.lognormal(mean=5.8, sigma=0.5, size=num_points),
-            "communication": np.random.lognormal(mean=5.5, sigma=0.6, size=num_points),
-        }
-
-        values = np.zeros(num_points)
-        for i, infra_type in enumerate(infra_types):
-            values[i] = base_values[infra_type][i]
-
-        values = values * 1000
-
-        return pd.DataFrame(
-            {
-                "id": [f"synth_infra_{i}" for i in range(num_points)],
-                "longitude": longitudes,
-                "latitude": latitudes,
-                "type": infra_types,
-                "value": values,
-                "year_built": np.random.randint(1950, 2023, num_points),
-                "condition": np.random.choice(
-                    ["excellent", "good", "fair", "poor"], num_points
-                ),
-                "criticality": np.random.choice(["high", "medium", "low"], num_points),
-            }
-        )
-
-    def _generate_generic_data(
-        self, longitudes: np.ndarray, latitudes: np.ndarray, num_points: int
-    ) -> pd.DataFrame:
-        """Generate generic synthetic exposure data."""
-        values = np.random.lognormal(mean=5.0, sigma=1.0, size=num_points) * 1000
-
-        return pd.DataFrame(
-            {
-                "id": [f"synth_generic_{i}" for i in range(num_points)],
-                "longitude": longitudes,
-                "latitude": latitudes,
-                "type": "generic",
-                "value": values,
-            }
-        )
 
     def get_exposure_at_location(
         self,
@@ -1472,7 +1219,3 @@ def create_enhanced_infrastructure_exposure_model(
 ) -> EnhancedInfrastructureExposureModel:
     """Create an enhanced infrastructure exposure model."""
     return EnhancedInfrastructureExposureModel(params)
-
-
-# Backward compatibility - create alias for existing code
-ExposureModel = EnhancedExposureModel

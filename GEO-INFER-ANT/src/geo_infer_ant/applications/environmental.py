@@ -34,6 +34,7 @@ try:
     from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
     from geo_infer_ant.algorithms.aco import AntColonyOptimization
     from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
+    from geo_infer_ant.utils.spatial import validate_bounds
 except ImportError as e:
     logging.warning(f"Integration modules not available: {e}")
     SwarmAgent = None
@@ -42,6 +43,7 @@ except ImportError as e:
     DigitalStigmergy = None
     AntColonyOptimization = None
     ParticleSwarmOptimization = None
+    validate_bounds = None
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +113,8 @@ class EnvironmentalMonitoringSwarm:
             real_time_processing: Whether to process data in real-time
             **kwargs: Additional configuration parameters
         """
+        if not isinstance(swarm_size, int) or swarm_size <= 0:
+            raise ValueError("swarm_size must be a positive integer")
         self.swarm_size = swarm_size
         self.monitoring_objectives = monitoring_objectives or [
             "air_quality",
@@ -123,9 +127,16 @@ class EnvironmentalMonitoringSwarm:
             "min_lng": -120,
             "max_lng": -115,
         }
+        if validate_bounds is not None:
+            self.spatial_coverage = validate_bounds(self.spatial_coverage)
         self.temporal_coverage = temporal_coverage
         self.adaptive_sampling = adaptive_sampling
         self.real_time_processing = real_time_processing
+        self.random_seed = kwargs.pop("random_seed", kwargs.pop("seed", None))
+        self.rng = np.random.default_rng(self.random_seed)
+        self.sensor_range = float(kwargs.pop("sensor_range", 0.005))
+        if not np.isfinite(self.sensor_range) or self.sensor_range <= 0:
+            raise ValueError("sensor_range must be finite and positive")
 
         # Monitoring system state
         self.monitoring_agents: List[SwarmAgent] = []
@@ -270,7 +281,8 @@ class EnvironmentalMonitoringSwarm:
                 agent_id, position, self.monitoring_objectives
             )
 
-            # Create agent (would use actual SwarmAgent when available)
+            # Keep the deployment record compatible with SwarmAgent creation;
+            # the application also remains usable when that optional adapter is absent.
             agent_info = {
                 "agent_id": agent_id,
                 "position": position,
@@ -298,75 +310,62 @@ class EnvironmentalMonitoringSwarm:
         logistical_constraints: Dict[str, Any],
     ) -> List[np.ndarray]:
         """Optimize initial positions for maximum coverage and priority alignment."""
-        if not self.coverage_optimizer:
-            # Fallback to simple grid distribution
-            return self._generate_grid_positions()
+        candidates = self._generate_grid_positions()
+        forbidden_regions = logistical_constraints.get("forbidden_regions", [])
+        if forbidden_regions:
+            candidates = [
+                candidate
+                for candidate in candidates
+                if not any(
+                    self._point_in_region(candidate, region)
+                    for region in forbidden_regions
+                )
+            ]
+        if not candidates:
+            raise ValueError("logistical constraints exclude every candidate position")
 
-        try:
-            # Define optimization objective for coverage
-            def coverage_objective(positions: np.ndarray) -> float:
-                if len(positions) == 0:
-                    return 0.0
+        # Greedy max-dispersion selection solves the multi-agent placement
+        # objective directly: PSO optimizes one point at a time, whereas this
+        # application must optimize a set of positions jointly.
+        selected: List[np.ndarray] = []
+        diagonal = np.hypot(
+            self.spatial_coverage["max_lat"] - self.spatial_coverage["min_lat"],
+            self.spatial_coverage["max_lng"] - self.spatial_coverage["min_lng"],
+        )
+        remaining = list(candidates)
+        while len(selected) < self.swarm_size:
 
-                # Calculate coverage quality (simplified)
-                coverage_score = 0.0
+            def candidate_score(candidate: np.ndarray) -> float:
+                priority = self._calculate_position_priority(
+                    candidate, environmental_priorities
+                )
+                separation = (
+                    min(np.linalg.norm(candidate - other) for other in selected)
+                    if selected
+                    else diagonal
+                )
+                return priority + min(1.0, separation / max(diagonal, 1e-12))
 
-                # Position diversity score
-                if len(positions) > 1:
-                    distances = []
-                    for i in range(len(positions)):
-                        for j in range(i + 1, len(positions)):
-                            dist = np.linalg.norm(positions[i] - positions[j])
-                            distances.append(dist)
-
-                    avg_distance = np.mean(distances)
-                    # Optimal distance for coverage (balance between overlap and gaps)
-                    optimal_distance = 0.01  # degrees (roughly 1km)
-                    coverage_score += 1.0 / (1.0 + abs(avg_distance - optimal_distance))
-
-                # Priority alignment score
-                priority_score = 0.0
-                for pos in positions:
-                    # Calculate priority score for this position (simplified)
-                    priority_score += self._calculate_position_priority(
-                        pos, environmental_priorities
-                    )
-
-                coverage_score += priority_score / len(positions)
-
-                return coverage_score
-
-            # Initialize positions randomly
-            initial_positions = np.array(
-                [
-                    [
-                        np.random.uniform(
-                            self.spatial_coverage["min_lat"],
-                            self.spatial_coverage["max_lat"],
-                        ),
-                        np.random.uniform(
-                            self.spatial_coverage["min_lng"],
-                            self.spatial_coverage["max_lng"],
-                        ),
-                    ]
-                    for _ in range(self.swarm_size)
-                ]
+            best_index = max(
+                range(len(remaining)),
+                key=lambda index: candidate_score(remaining[index]),
             )
+            selected.append(remaining.pop(best_index))
+            if not remaining:
+                remaining = list(candidates)
+        return [position.copy() for position in selected]
 
-            # Optimize positions
-            optimal_positions = self.coverage_optimizer.optimize(
-                coverage_objective, initial_positions
-            )
-
-            # Convert back to list of arrays, guarding against wrong optimizer output shape
-            optimal_positions = np.atleast_2d(optimal_positions)
-            if optimal_positions.shape != (self.swarm_size, 2):
-                return self._generate_grid_positions()
-            return [optimal_positions[i] for i in range(self.swarm_size)]
-
-        except Exception as e:
-            logger.warning(f"Position optimization failed: {e}")
-            return self._generate_grid_positions()
+    @staticmethod
+    def _point_in_region(point: np.ndarray, region: Dict[str, Any]) -> bool:
+        """Check a point against a rectangular or circular exclusion region."""
+        if "center" in region and "radius" in region:
+            center = np.asarray(region["center"], dtype=float)
+            return bool(np.linalg.norm(point - center) <= float(region["radius"]))
+        bounds = region.get("bounds", region)
+        return bool(
+            bounds.get("min_lat", -90) <= point[0] <= bounds.get("max_lat", 90)
+            and bounds.get("min_lng", -180) <= point[1] <= bounds.get("max_lng", 180)
+        )
 
     def _generate_grid_positions(self) -> List[np.ndarray]:
         """Generate grid-based initial positions."""
@@ -399,10 +398,10 @@ class EnvironmentalMonitoringSwarm:
         """Generate random position within coverage area."""
         return np.array(
             [
-                np.random.uniform(
+                self.rng.uniform(
                     self.spatial_coverage["min_lat"], self.spatial_coverage["max_lat"]
                 ),
-                np.random.uniform(
+                self.rng.uniform(
                     self.spatial_coverage["min_lng"], self.spatial_coverage["max_lng"]
                 ),
             ]
@@ -475,21 +474,50 @@ class EnvironmentalMonitoringSwarm:
         self, position: np.ndarray, priorities: Dict[str, float]
     ) -> float:
         """Calculate priority score for a position."""
-        # Simplified priority calculation
-        # In practice, would use actual priority maps and spatial analysis
-        priority_score = 0.0
+        if not priorities:
+            return 0.0
 
-        # Base priority from environmental priorities
-        for priority_type, weight in priorities.items():
-            # Distance to priority features (simplified)
-            if priority_type == "pollution_sources":
-                priority_score += weight * 0.8  # Assume high priority near sources
-            elif priority_type == "sensitive_areas":
-                priority_score += (
-                    weight * 0.9
-                )  # Assume high priority in sensitive areas
+        position = np.asarray(position, dtype=float)
+        if position.shape != (2,) or not np.all(np.isfinite(position)):
+            raise ValueError("position must be a finite [lat, lng] coordinate")
 
-        return min(1.0, priority_score)
+        diagonal = np.hypot(
+            self.spatial_coverage["max_lat"] - self.spatial_coverage["min_lat"],
+            self.spatial_coverage["max_lng"] - self.spatial_coverage["min_lng"],
+        )
+        score = 0.0
+        total_weight = 0.0
+        for priority_type, raw_weight in priorities.items():
+            if priority_type.endswith("_locations") or not isinstance(
+                raw_weight, (int, float)
+            ):
+                continue
+            weight = max(0.0, min(1.0, float(raw_weight)))
+            total_weight += weight
+            features = priorities.get(f"{priority_type}_locations", [])
+            if not features:
+                score += weight
+                continue
+            feature_scores = []
+            for feature in features:
+                if isinstance(feature, dict):
+                    location = feature.get("location", feature.get("center"))
+                    radius = float(feature.get("radius", self.sensor_range))
+                else:
+                    location = feature
+                    radius = self.sensor_range
+                if location is None or radius <= 0:
+                    continue
+                feature_location = np.asarray(location, dtype=float)
+                if feature_location.shape != (2,) or not np.all(
+                    np.isfinite(feature_location)
+                ):
+                    continue
+                distance = np.linalg.norm(position - feature_location)
+                feature_scores.append(np.exp(-distance / max(radius, diagonal * 1e-6)))
+            score += weight * (max(feature_scores) if feature_scores else 0.0)
+
+        return float(score / total_weight) if total_weight else 0.0
 
     def _calculate_deployment_coverage(
         self, deployed_agents: List[Dict[str, Any]]
@@ -498,25 +526,8 @@ class EnvironmentalMonitoringSwarm:
         if not deployed_agents:
             return 0.0
 
-        # Simplified coverage calculation
-        # In practice, would use spatial analysis and sensor range modeling
         positions = np.array([agent["position"] for agent in deployed_agents])
-
-        # Calculate spatial distribution quality
-        if len(positions) > 1:
-            distances = []
-            for i in range(len(positions)):
-                for j in range(i + 1, len(positions)):
-                    distances.append(np.linalg.norm(positions[i] - positions[j]))
-
-            avg_distance = np.mean(distances)
-            # Optimal distance for sensor coverage (assuming 500m range)
-            optimal_distance = 0.005  # degrees (roughly 500m)
-            coverage_quality = 1.0 / (1.0 + abs(avg_distance - optimal_distance))
-        else:
-            coverage_quality = 1.0
-
-        return min(1.0, coverage_quality)
+        return self._calculate_monitoring_coverage(positions.tolist())
 
     async def coordinate_monitoring(
         self,
@@ -596,19 +607,16 @@ class EnvironmentalMonitoringSwarm:
         }
 
         try:
-            # Divide area into sampling zones based on environmental variability
-            if self.spatial_analytics:
-                zones = self._create_sampling_zones(
-                    agent_positions, environmental_conditions
-                )
-                strategy["sampling_zones"] = zones
+            zones = self._create_sampling_zones(
+                agent_positions, environmental_conditions or {}
+            )
+            strategy["sampling_zones"] = zones
 
-                # Assign agents to zones
-                assignments = self._assign_agents_to_zones(agent_positions, zones)
-                strategy["agent_assignments"] = assignments
+            # Assign agents to zones
+            assignments = self._assign_agents_to_zones(agent_positions, zones)
+            strategy["agent_assignments"] = assignments
 
             # Set sampling frequencies based on priorities and conditions
-            _base_frequency = self._get_sampling_frequency()
             strategy["sampling_frequencies"] = self._calculate_sampling_frequencies(
                 data_priorities or {}, environmental_conditions or {}
             )
@@ -624,28 +632,44 @@ class EnvironmentalMonitoringSwarm:
         self, agent_positions: List[np.ndarray], conditions: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Create sampling zones based on environmental variability."""
-        # Simplified zone creation
-        # In practice, would use spatial clustering and environmental analysis
-        zones = {
-            "high_priority": {
-                "bounds": self.spatial_coverage,
-                "required_agents": max(1, len(agent_positions) // 3),
-                "sampling_frequency": "5_minutes",
-            },
-            "medium_priority": {
-                "bounds": self.spatial_coverage,
-                "required_agents": max(1, len(agent_positions) // 2),
-                "sampling_frequency": "15_minutes",
-            },
-            "low_priority": {
-                "bounds": self.spatial_coverage,
-                "required_agents": len(agent_positions)
-                - (len(agent_positions) // 3 + len(agent_positions) // 2),
-                "sampling_frequency": "1_hour",
-            },
-        }
+        custom_zones = conditions.get("sampling_zones", []) if conditions else []
+        if custom_zones:
+            zones = {}
+            for index, zone in enumerate(custom_zones):
+                bounds = validate_bounds(zone["bounds"])
+                zones[zone.get("zone_id", f"zone_{index + 1}")] = {
+                    "bounds": bounds,
+                    "required_agents": max(0, int(zone.get("required_agents", 0))),
+                    "sampling_frequency": zone.get("sampling_frequency", "15_minutes"),
+                }
+            return zones
 
-        return zones
+        # Build three non-overlapping latitude bands when no external priority
+        # map is supplied.  Required counts are proportional to band area and
+        # always sum to the available agents.
+        min_lat = self.spatial_coverage["min_lat"]
+        max_lat = self.spatial_coverage["max_lat"]
+        band_edges = np.linspace(min_lat, max_lat, 4)
+        counts = [
+            int(np.ceil(len(agent_positions) / 2)),
+            int(np.floor(len(agent_positions) / 3)),
+        ]
+        counts.append(max(0, len(agent_positions) - sum(counts)))
+        priorities = ["high_priority", "medium_priority", "low_priority"]
+        frequencies = ["5_minutes", "15_minutes", "1_hour"]
+        return {
+            name: {
+                "bounds": {
+                    "min_lat": float(band_edges[index]),
+                    "max_lat": float(band_edges[index + 1]),
+                    "min_lng": self.spatial_coverage["min_lng"],
+                    "max_lng": self.spatial_coverage["max_lng"],
+                },
+                "required_agents": count,
+                "sampling_frequency": frequencies[index],
+            }
+            for index, (name, count) in enumerate(zip(priorities, counts))
+        }
 
     def _assign_agents_to_zones(
         self, agent_positions: List[np.ndarray], zones: Dict[str, Any]
@@ -726,39 +750,46 @@ class EnvironmentalMonitoringSwarm:
         if not agent_positions:
             return 0.0
 
-        # Simplified coverage calculation
-        # In practice, would use spatial analysis of sensor ranges and overlaps
-        n_agents = len(agent_positions)
-
-        # Base coverage from agent count
-        base_coverage = min(
-            1.0, n_agents / 50
-        )  # Assume 50 agents needed for full coverage
-
-        # Spatial distribution factor
-        if n_agents > 1:
-            positions = np.array(agent_positions)
-            # Calculate area covered vs total area
-            area_covered = self._estimate_covered_area(positions)
-            total_area = self._calculate_total_area()
-            spatial_factor = min(1.0, area_covered / total_area)
-        else:
-            spatial_factor = 1.0
-
-        return base_coverage * spatial_factor
+        positions = np.asarray(agent_positions, dtype=float)
+        if positions.ndim != 2 or positions.shape[1] != 2:
+            raise ValueError("agent_positions must be an array of [lat, lng] points")
+        covered_area = self._estimate_covered_area(positions)
+        total_area = self._calculate_total_area()
+        return float(np.clip(covered_area / total_area, 0.0, 1.0))
 
     def _estimate_covered_area(self, positions: np.ndarray) -> float:
         """Estimate area covered by agent sensors."""
-        # Simplified calculation assuming circular sensor ranges
-        sensor_range = 0.005  # degrees (roughly 500m)
-        area_per_agent = np.pi * (sensor_range**2)
-
-        # Account for overlaps (simplified)
-        overlap_factor = 0.7  # Assume 30% overlap
-        n_agents = len(positions) if hasattr(positions, "__len__") else 1
-        effective_area = n_agents * area_per_agent * overlap_factor
-
-        return effective_area
+        if positions.size == 0:
+            return 0.0
+        inside = positions[
+            (positions[:, 0] >= self.spatial_coverage["min_lat"])
+            & (positions[:, 0] <= self.spatial_coverage["max_lat"])
+            & (positions[:, 1] >= self.spatial_coverage["min_lng"])
+            & (positions[:, 1] <= self.spatial_coverage["max_lng"])
+        ]
+        if inside.size == 0:
+            return 0.0
+        radius = self.sensor_range
+        covered_area = len(inside) * np.pi * radius**2
+        # Subtract pairwise overlap for equal-radius sensor footprints. This
+        # remains positive for sparse deployments where a raster would miss
+        # every small footprint, while accounting for co-located sensors.
+        for first in range(len(inside)):
+            for second in range(first + 1, len(inside)):
+                distance = np.linalg.norm(inside[first] - inside[second])
+                if distance >= 2.0 * radius:
+                    continue
+                if distance == 0.0:
+                    overlap = np.pi * radius**2
+                else:
+                    ratio = np.clip(distance / (2.0 * radius), -1.0, 1.0)
+                    overlap = 2.0 * radius**2 * np.arccos(
+                        ratio
+                    ) - 0.5 * distance * np.sqrt(
+                        max(0.0, 4.0 * radius**2 - distance**2)
+                    )
+                covered_area -= overlap
+        return float(np.clip(covered_area, 0.0, self._calculate_total_area()))
 
     def _calculate_total_area(self) -> float:
         """Calculate total area of monitoring region."""
@@ -940,9 +971,6 @@ class EnvironmentalMonitoringSwarm:
         self, measurements: List[SensorReading], interpolation_method: str
     ) -> Dict[str, Any]:
         """Perform spatial analysis and interpolation."""
-        if not self.spatial_analytics:
-            return {"status": "spatial_analytics_unavailable"}
-
         try:
             # Group measurements by type
             measurements_by_type = defaultdict(list)
@@ -952,16 +980,14 @@ class EnvironmentalMonitoringSwarm:
             spatial_results = {}
 
             for sensor_type, type_measurements in measurements_by_type.items():
-                if len(type_measurements) < 3:
-                    continue  # Need at least 3 points for interpolation
+                if len(type_measurements) < 2:
+                    continue
 
                 # Extract locations and values
                 locations = np.array([m.location for m in type_measurements])
                 values = np.array([m.value for m in type_measurements])
 
-                # Perform spatial interpolation (simplified)
                 if interpolation_method == "kriging":
-                    # Would use actual kriging implementation
                     interpolated_field = self._simple_kriging_interpolation(
                         locations, values
                     )
@@ -990,10 +1016,17 @@ class EnvironmentalMonitoringSwarm:
         self, locations: np.ndarray, values: np.ndarray
     ) -> Dict[str, Any]:
         """
-        Simple kriging interpolation using spherical variogram model.
+        Estimate the value at the sample centroid with an ordinary kriging system.
 
-        Implements ordinary kriging with spherical variogram for spatial interpolation.
+        The returned field is the estimate at the representative target point;
+        callers can use the weights and variogram parameters to reproduce the
+        estimate at other target points.
         """
+        locations = np.asarray(locations, dtype=float)
+        values = np.asarray(values, dtype=float)
+        finite = np.all(np.isfinite(locations), axis=1) & np.isfinite(values)
+        locations = locations[finite]
+        values = values[finite]
         if len(locations) < 2:
             return {
                 "method": "simple_kriging",
@@ -1010,14 +1043,18 @@ class EnvironmentalMonitoringSwarm:
 
         # Estimate variogram parameters
         # Use empirical variogram to estimate sill, range, and nugget
-        max_distance = np.max(distances[distances > 0])
-        sill = np.var(values)
-        range_param = max_distance * 0.3  # Range is typically 30% of max distance
-        nugget = sill * 0.1  # Nugget is typically 10% of sill
+        nonzero_distances = distances[distances > 0]
+        max_distance = (
+            float(np.max(nonzero_distances)) if nonzero_distances.size else 0.0
+        )
+        sill = max(float(np.var(values)), np.finfo(float).eps)
+        range_param = max(max_distance * 0.3, np.finfo(float).eps)
+        nugget = sill * 0.1
 
         # Spherical variogram function
         def spherical_variogram(h):
             """Spherical variogram model."""
+            h = np.asarray(h, dtype=float)
             result = np.zeros_like(h)
             mask = h <= range_param
             result[mask] = nugget + (sill - nugget) * (
@@ -1028,32 +1065,33 @@ class EnvironmentalMonitoringSwarm:
 
         # Calculate variogram matrix for known points
         variogram_matrix = spherical_variogram(distances)
-        variogram_matrix += (
-            np.eye(n_points) * 1e-10
-        )  # Add small value for numerical stability
+        np.fill_diagonal(variogram_matrix, 0.0)
+        kriging_matrix = np.empty((n_points + 1, n_points + 1), dtype=float)
+        kriging_matrix[:-1, :-1] = variogram_matrix
+        kriging_matrix[:-1, -1] = 1.0
+        kriging_matrix[-1, :-1] = 1.0
+        kriging_matrix[-1, -1] = 0.0
+        target = np.mean(locations, axis=0)
+        target_distances = np.linalg.norm(locations - target, axis=1)
+        rhs = np.concatenate((spherical_variogram(target_distances), [1.0]))
 
-        # Calculate mean value (for simple kriging)
-        mean_value = np.mean(values)
-        centered_values = values - mean_value
-
-        # Solve kriging system for weights
         try:
-            weights = np.linalg.solve(variogram_matrix, centered_values)
+            solution = np.linalg.solve(kriging_matrix, rhs)
+            weights = solution[:-1]
+            lagrange_multiplier = solution[-1]
         except np.linalg.LinAlgError:
-            # Fallback to inverse distance weighting if matrix is singular
-            weights = np.ones(n_points) / n_points
+            weights = np.ones(n_points, dtype=float) / n_points
+            lagrange_multiplier = 0.0
 
-        # Calculate kriging estimate
-        estimated_field = mean_value + np.sum(weights * centered_values)
-
-        # Calculate kriging variance (simplified)
-        # In full kriging, this would involve solving for Lagrange multiplier
-        kriging_variance = np.var(values) * (1.0 - np.sum(weights))
-        kriging_variance = max(0.0, kriging_variance)  # Ensure non-negative
+        estimated_field = float(np.dot(weights, values))
+        kriging_variance = max(
+            0.0, float(np.dot(weights, rhs[:-1]) + lagrange_multiplier)
+        )
 
         return {
-            "method": "simple_kriging",
-            "estimated_field": float(estimated_field),
+            "method": "ordinary_kriging",
+            "target": target.tolist(),
+            "estimated_field": estimated_field,
             "variance": float(kriging_variance),
             "variogram_params": {
                 "sill": float(sill),

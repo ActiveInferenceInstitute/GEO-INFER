@@ -10,13 +10,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import asyncio
 import logging
-import smtplib
 from email.mime.text import MimeText
 from email.mime.multipart import MimeMultipart
 from typing import Dict, List, Optional, Any
-import json
+import requests
 
-from geo_infer_comms.models.message import NotificationResponse
 from geo_infer_comms.models.spatial import GeospatialMetadata
 
 
@@ -54,7 +52,7 @@ class EmailProvider(ABC):
         subject: str,
         body: str,
         geospatial_context: Optional[GeospatialMetadata] = None,
-        attachments: Optional[List[Dict[str, Any]]] = None
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """
         Send an email with optional geospatial context.
@@ -69,13 +67,13 @@ class EmailProvider(ABC):
         Returns:
             True if email sent successfully
         """
-        raise NotImplementedError("Subclasses must implement send_email")
+        raise RuntimeError("Email provider subclasses must implement send_email")
 
     def format_email_with_geospatial_context(
         self,
         subject: str,
         body: str,
-        geospatial_context: Optional[GeospatialMetadata] = None
+        geospatial_context: Optional[GeospatialMetadata] = None,
     ) -> Dict[str, str]:
         """
         Format email content with geospatial context information.
@@ -106,40 +104,34 @@ Geospatial Context:
 """
             enhanced_body += location_info
 
-        return {
-            "subject": enhanced_subject,
-            "body": enhanced_body
-        }
+        return {"subject": enhanced_subject, "body": enhanced_body}
 
     def validate_email_address(self, email: str) -> bool:
         """Validate email address format."""
         import re
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return bool(re.match(pattern, email))
 
     def create_mime_message(
-        self,
-        to_email: str,
-        subject: str,
-        body: str,
-        html_body: Optional[str] = None
+        self, to_email: str, subject: str, body: str, html_body: Optional[str] = None
     ) -> MimeMultipart:
         """Create MIME message for email."""
-        msg = MimeMultipart('alternative')
+        msg = MimeMultipart("alternative")
 
         # Add text part
-        text_part = MimeText(body, 'plain')
+        text_part = MimeText(body, "plain")
         msg.attach(text_part)
 
         # Add HTML part if provided
         if html_body:
-            html_part = MimeText(html_body, 'html')
+            html_part = MimeText(html_body, "html")
             msg.attach(html_part)
 
         # Set headers
-        msg['Subject'] = subject
-        msg['From'] = f"{self.from_name} <{self.from_email}>"
-        msg['To'] = to_email
+        msg["Subject"] = subject
+        msg["From"] = f"{self.from_name} <{self.from_email}>"
+        msg["To"] = to_email
 
         return msg
 
@@ -151,7 +143,7 @@ Geospatial Context:
             "emails_failed": self.emails_failed,
             "success_rate": (
                 self.emails_sent / max(self.emails_sent + self.emails_failed, 1) * 100
-            )
+            ),
         }
 
 
@@ -163,7 +155,7 @@ class SendGridProvider(EmailProvider):
         self.api_url = "https://api.sendgrid.com/v3/mail/send"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     async def send_email(
@@ -172,7 +164,7 @@ class SendGridProvider(EmailProvider):
         subject: str,
         body: str,
         geospatial_context: Optional[GeospatialMetadata] = None,
-        attachments: Optional[List[Dict[str, Any]]] = None
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via SendGrid API."""
         try:
@@ -189,26 +181,25 @@ class SendGridProvider(EmailProvider):
             # Create SendGrid payload
             payload = {
                 "personalizations": [
-                    {
-                        "to": [{"email": to_email}],
-                        "subject": formatted["subject"]
-                    }
+                    {"to": [{"email": to_email}], "subject": formatted["subject"]}
                 ],
-                "from": {
-                    "email": self.from_email,
-                    "name": self.from_name
-                },
-                "content": [
-                    {
-                        "type": "text/plain",
-                        "value": formatted["body"]
-                    }
-                ]
+                "from": {"email": self.from_email, "name": self.from_name},
+                "content": [{"type": "text/plain", "value": formatted["body"]}],
             }
 
-            # In a real implementation, would make HTTP request to SendGrid API
-            # For now, simulate success
-            self.logger.info(f"SendGrid email sent to {to_email}: {formatted['subject']}")
+            if not self.api_key:
+                raise ValueError("SendGrid api_key is required")
+            response = await asyncio.to_thread(
+                requests.post,
+                self.api_url,
+                headers=self.headers,
+                json=payload,
+                timeout=30,
+            )
+            response.raise_for_status()
+            self.logger.info(
+                "SendGrid email sent to %s: %s", to_email, formatted["subject"]
+            )
             self.emails_sent += 1
 
             return True
@@ -234,7 +225,7 @@ class SESProvider(EmailProvider):
         subject: str,
         body: str,
         geospatial_context: Optional[GeospatialMetadata] = None,
-        attachments: Optional[List[Dict[str, Any]]] = None
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via Amazon SES."""
         try:
@@ -248,9 +239,28 @@ class SESProvider(EmailProvider):
                 subject, body, geospatial_context
             )
 
-            # In a real implementation, would use boto3 to send via SES
-            # For now, simulate success
-            self.logger.info(f"SES email sent to {to_email}: {formatted['subject']}")
+            if not self.aws_access_key or not self.aws_secret_key:
+                raise ValueError("AWS credentials are required for SES")
+            try:
+                import boto3
+            except ImportError as exc:
+                raise RuntimeError("boto3 is required for SES delivery") from exc
+            client = boto3.client(
+                "ses",
+                region_name=self.aws_region,
+                aws_access_key_id=self.aws_access_key,
+                aws_secret_access_key=self.aws_secret_key,
+            )
+            await asyncio.to_thread(
+                client.send_email,
+                Source=self.from_email,
+                Destination={"ToAddresses": [to_email]},
+                Message={
+                    "Subject": {"Data": formatted["subject"]},
+                    "Body": {"Text": {"Data": formatted["body"]}},
+                },
+            )
+            self.logger.info("SES email sent to %s: %s", to_email, formatted["subject"])
             self.emails_sent += 1
 
             return True
@@ -275,7 +285,7 @@ class MailgunProvider(EmailProvider):
         subject: str,
         body: str,
         geospatial_context: Optional[GeospatialMetadata] = None,
-        attachments: Optional[List[Dict[str, Any]]] = None
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via Mailgun API."""
         try:
@@ -289,9 +299,24 @@ class MailgunProvider(EmailProvider):
                 subject, body, geospatial_context
             )
 
-            # In a real implementation, would make HTTP request to Mailgun API
-            # For now, simulate success
-            self.logger.info(f"Mailgun email sent to {to_email}: {formatted['subject']}")
+            if not self.api_key:
+                raise ValueError("Mailgun api_key is required")
+            response = await asyncio.to_thread(
+                requests.post,
+                self.api_url,
+                auth=(self.api_username, self.api_key),
+                data={
+                    "from": f"{self.from_name} <{self.from_email}>",
+                    "to": [to_email],
+                    "subject": formatted["subject"],
+                    "text": formatted["body"],
+                },
+                timeout=30,
+            )
+            response.raise_for_status()
+            self.logger.info(
+                "Mailgun email sent to %s: %s", to_email, formatted["subject"]
+            )
             self.emails_sent += 1
 
             return True
@@ -323,7 +348,7 @@ class EmailProviderFactory:
         providers = {
             "sendgrid": SendGridProvider,
             "ses": SESProvider,
-            "mailgun": MailgunProvider
+            "mailgun": MailgunProvider,
         }
 
         provider_class = providers.get(provider_type.lower())

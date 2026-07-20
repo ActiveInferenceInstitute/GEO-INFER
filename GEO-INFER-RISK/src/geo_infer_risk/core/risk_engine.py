@@ -24,7 +24,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Optional, Any
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import numpy as np
 from scipy import stats
@@ -69,9 +69,9 @@ except ImportError:
     BayesianInference = None
 
 # Local imports
-from geo_infer_risk.core.hazard_model import HazardModel
-from geo_infer_risk.core.vulnerability_model import VulnerabilityModel
-from geo_infer_risk.core.exposure_model import ExposureModel
+from geo_infer_risk.core.hazard_model import EnhancedHazardModel
+from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel
+from geo_infer_risk.core.exposure_model import EnhancedExposureModel
 from geo_infer_risk.core.catastrophe_models import CatastropheModelManager
 from geo_infer_risk.core.insurance_models import InsuranceManager
 from geo_infer_risk.utils.validation import validate_config
@@ -361,7 +361,7 @@ class EnhancedRiskEngine:
     def _run_comprehensive_analysis(self, **kwargs) -> Dict[str, Any]:
         """Run comprehensive multi-hazard risk analysis."""
         # Load and validate models
-        self.load_models()
+        self._load_configured_models()
 
         # Run spatial analysis if available
         if self.spatial_interface:
@@ -375,8 +375,10 @@ class EnhancedRiskEngine:
         else:
             temporal_results = {}
 
-        # Run core risk analysis
-        core_results = self.run_analysis()
+        # Report the configured core models. Monte Carlo simulation is opt-in so
+        # an analysis without event and exposure data cannot present fabricated
+        # losses as measured risk.
+        core_results = self._run_core_analysis(**kwargs)
 
         # Combine results
         combined_results = {
@@ -388,6 +390,19 @@ class EnhancedRiskEngine:
         }
 
         return combined_results
+
+    def _run_core_analysis(self, **kwargs) -> Dict[str, Any]:
+        """Summarize configured models and optionally run their loss simulation."""
+        results: Dict[str, Any] = {
+            "analysis_type": "core",
+            "model_status": self.get_model_status(),
+        }
+        if kwargs.get("run_monte_carlo", False):
+            results["monte_carlo"] = self.run_monte_carlo_analysis(
+                num_iterations=kwargs.get("monte_carlo_iterations"),
+                convergence_threshold=kwargs.get("convergence_threshold", 0.01),
+            )
+        return results
 
     def _run_spatial_analysis(self, **kwargs) -> Dict[str, Any]:
         """Run advanced spatial analysis using GEO-INFER-SPACE."""
@@ -733,6 +748,10 @@ class EnhancedRiskEngine:
             num_iterations = self.config.get("risk_model", {}).get(
                 "monte_carlo_iterations", 1000
             )
+        if not isinstance(num_iterations, int) or num_iterations < 1:
+            raise ValueError("num_iterations must be a positive integer")
+        if convergence_threshold <= 0:
+            raise ValueError("convergence_threshold must be positive")
 
         self.logger.info(
             f"Running Monte Carlo analysis with {num_iterations} iterations"
@@ -744,7 +763,7 @@ class EnhancedRiskEngine:
         running_stds = []
 
         # Run Monte Carlo simulation in batches
-        batch_size = min(100, num_iterations // 10)
+        batch_size = max(1, min(100, num_iterations // 10))
 
         for i in range(0, num_iterations, batch_size):
             batch_iterations = min(batch_size, num_iterations - i)
@@ -763,7 +782,8 @@ class EnhancedRiskEngine:
             # Check convergence
             if len(running_means) > 10:
                 recent_means = running_means[-10:]
-                mean_change = abs(recent_means[-1] - recent_means[0]) / recent_means[0]
+                denominator = max(abs(recent_means[0]), np.finfo(float).eps)
+                mean_change = abs(recent_means[-1] - recent_means[0]) / denominator
 
                 if mean_change < convergence_threshold:
                     self.logger.info(
@@ -785,7 +805,8 @@ class EnhancedRiskEngine:
             "confidence_interval_95": confidence_interval,
             "convergence_info": {
                 "converged": len(running_means) > 10
-                and abs(running_means[-1] - running_means[-10]) / running_means[-10]
+                and abs(running_means[-1] - running_means[-10])
+                / max(abs(running_means[-10]), np.finfo(float).eps)
                 < convergence_threshold,
                 "threshold": convergence_threshold,
                 "running_means": running_means,
@@ -822,33 +843,77 @@ class EnhancedRiskEngine:
         }
 
     def _generate_random_event(self) -> Dict[str, Any]:
-        """Generate a random hazard event."""
-        # Sample from loaded hazard model catalogues when available
-        available_types = list(self.hazard_models.keys()) or [
-            "earthquake",
-            "flood",
-            "hurricane",
-            "wildfire",
+        """Sample an event from a configured historical hazard catalogue."""
+        candidates = [
+            (hazard_type, model)
+            for hazard_type, model in self.hazard_models.items()
+            if getattr(model, "historical_data", None) is not None
+            and not model.historical_data.empty
         ]
-        hazard_type = np.random.choice(available_types)
-        return {
-            "event_id": f"random_{np.random.randint(1000000)}",
-            "hazard_type": hazard_type,
-            "magnitude": np.random.exponential(5.0),
-            "location": {
-                "latitude": np.random.uniform(-90, 90),
-                "longitude": np.random.uniform(-180, 180),
-            },
-            "timestamp": datetime.now() + timedelta(days=np.random.randint(365)),
-        }
+        if not candidates:
+            raise ValueError(
+                "Monte Carlo analysis requires at least one fitted hazard model"
+            )
+
+        hazard_type, model = candidates[np.random.randint(len(candidates))]
+        row = model.historical_data.iloc[np.random.randint(len(model.historical_data))]
+        event = row.to_dict()
+        event["hazard_type"] = hazard_type
+        if "magnitude" not in event:
+            intensity_column = next(
+                (
+                    column
+                    for column in ("intensity", "water_depth", "wind_speed", "pga")
+                    if column in event
+                ),
+                None,
+            )
+            if intensity_column is None:
+                raise ValueError(
+                    f"Hazard catalogue for {hazard_type} has no usable intensity column"
+                )
+            event["magnitude"] = event[intensity_column]
+        return event
 
     def _calculate_event_loss(self, event: Dict[str, Any]) -> float:
-        """Calculate loss for a single event."""
-        # Loss = base_exposure * vulnerability_factor * magnitude_scaling
-        magnitude = event.get("magnitude", 1.0)
-        base_exposure = 1_000_000  # default exposure
-        vulnerability = 1 - np.exp(-0.3 * magnitude)  # vulnerability curve
-        return float(base_exposure * vulnerability * np.random.lognormal(0, 0.3))
+        """Calculate loss using configured exposure and vulnerability models."""
+        exposure_records = [
+            model.exposure_data
+            for model in self.exposure_models.values()
+            if getattr(model, "exposure_data", None) is not None
+            and not model.exposure_data.empty
+        ]
+        if not exposure_records:
+            raise ValueError("Monte Carlo analysis requires configured exposure data")
+
+        value_columns = ("value", "replacement_cost", "property_value")
+        exposure_values = [
+            frame[column].to_numpy(dtype=float)
+            for frame in exposure_records
+            for column in value_columns
+            if column in frame.columns
+        ]
+        if not exposure_values:
+            raise ValueError(
+                "Configured exposure data must contain a numeric value column"
+            )
+        base_exposure = float(np.concatenate(exposure_values).sum())
+
+        vulnerability_models = list(self.vulnerability_models.values())
+        if not vulnerability_models:
+            raise ValueError(
+                "Monte Carlo analysis requires a configured vulnerability model"
+            )
+        vulnerability_model = vulnerability_models[0]
+        damage = vulnerability_model.calculate_enhanced_damage(
+            event["hazard_type"],
+            float(event["magnitude"]),
+            {"asset_type": "building"},
+            include_uncertainty=False,
+        )
+        return float(
+            base_exposure * damage["damage_ratio"] * np.random.lognormal(0, 0.3)
+        )
 
     def save_enhanced_results(
         self, results: Dict[str, Any], filename: Optional[str] = None
@@ -912,9 +977,8 @@ class EnhancedRiskEngine:
             return obj.tolist()
         raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
-    # Legacy compatibility methods
-    def load_models(self):
-        """Load and initialize all models based on the configuration (legacy method)."""
+    def _load_configured_models(self) -> None:
+        """Load and initialize enabled models from the validated configuration."""
         self.logger.info("Loading risk models...")
 
         # Load hazard models
@@ -922,7 +986,7 @@ class EnhancedRiskEngine:
         for hazard_type, hazard_params in hazard_config.items():
             if hazard_params.get("enabled", False):
                 self.logger.info(f"Loading {hazard_type} hazard model")
-                self.hazard_models[hazard_type] = HazardModel(
+                self.hazard_models[hazard_type] = EnhancedHazardModel(
                     hazard_type=hazard_type, params=hazard_params
                 )
 
@@ -931,7 +995,7 @@ class EnhancedRiskEngine:
         for vuln_type, vuln_params in vuln_config.items():
             if vuln_params.get("enabled", False):
                 self.logger.info(f"Loading {vuln_type} vulnerability model")
-                self.vulnerability_models[vuln_type] = VulnerabilityModel(
+                self.vulnerability_models[vuln_type] = EnhancedVulnerabilityModel(
                     vulnerability_type=vuln_type, params=vuln_params
                 )
 
@@ -940,7 +1004,7 @@ class EnhancedRiskEngine:
         for exp_type, exp_params in exposure_config.items():
             if exp_params.get("enabled", False):
                 self.logger.info(f"Loading {exp_type} exposure model")
-                self.exposure_models[exp_type] = ExposureModel(
+                self.exposure_models[exp_type] = EnhancedExposureModel(
                     exposure_type=exp_type, params=exp_params
                 )
 
@@ -949,10 +1013,6 @@ class EnhancedRiskEngine:
             f"{len(self.vulnerability_models)} vulnerability, "
             f"{len(self.exposure_models)} exposure"
         )
-
-    def run_analysis(self):
-        """Execute the full risk analysis workflow (legacy method)."""
-        return self.run_enhanced_analysis("comprehensive")
 
     def _run_portfolio_analysis(self, **kwargs) -> Dict[str, Any]:
         """Run portfolio risk analysis."""
@@ -1005,7 +1065,9 @@ class EnhancedRiskEngine:
         severity_map = {"low": 1.5, "moderate": 2.0, "high": 3.0, "extreme": 5.0}
         severity = kwargs.get("severity_level", "moderate")
         multiplier = severity_map.get(severity, 2.0)
-        baseline_loss = np.random.exponential(1_000_000)
+        baseline_loss = kwargs.get("baseline_loss")
+        if baseline_loss is None or baseline_loss < 0:
+            raise ValueError("stress_test requires a non-negative baseline_loss")
         stressed_loss = baseline_loss * multiplier
         return {
             "scenario_type": kwargs.get("scenario_type", "historical"),
@@ -1017,27 +1079,3 @@ class EnhancedRiskEngine:
             },
             "impact_analysis": {"loss_increase_pct": (multiplier - 1) * 100},
         }
-
-    # Legacy RiskEngine compatibility
-    def __getattr__(self, name):
-        """Provide backward compatibility for legacy RiskEngine methods."""
-        # Map legacy method names to enhanced method names
-        method_mapping = {
-            "save_results": "save_enhanced_results",
-            "plot_results": "plot_enhanced_results",
-            "calculate_metrics": "calculate_enhanced_metrics",
-        }
-
-        if name in method_mapping:
-            enhanced_name = method_mapping[name]
-            if hasattr(self, enhanced_name):
-                return getattr(self, enhanced_name)
-
-        # For other attributes, raise AttributeError
-        raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{name}'"
-        )
-
-
-# Backward compatibility alias
-RiskEngine = EnhancedRiskEngine

@@ -24,107 +24,20 @@ from geo_infer_iot.core.registry import SensorRegistry
 
 logger = logging.getLogger(__name__)
 
-# Import additional modules if they exist
-try:
-    from geo_infer_iot.core.spatial_fusion import SpatialDataFusion
-    from geo_infer_iot.core.quality_control import QualityController
-    from geo_infer_iot.api.sensor_api import SensorAPI
-    from geo_infer_iot.api.streaming_api import StreamingAPI
-    from geo_infer_iot.api.inference_api import BayesianInferenceAPI
-    from geo_infer_iot.models.sensor import Sensor, SensorNetwork
-    from geo_infer_iot.models.measurement import Measurement, MeasurementBatch
-    from geo_infer_iot.models.network import NetworkTopology
-    from geo_infer_iot.utils.calibration import SensorCalibration
-    from geo_infer_iot.utils.interpolation import SpatialInterpolation
-    from geo_infer_iot.utils.visualization import IoTVisualization
-
-    _ALL_MODULES_AVAILABLE = True
-except ImportError:
-    # Create baseline classes for missing modules
-    _ALL_MODULES_AVAILABLE = False
-
-    class SpatialDataFusion:
-        """Baseline for spatial data fusion functionality."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class QualityController:
-        """Baseline for quality control functionality."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class SensorAPI:
-        """Baseline for sensor API functionality."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class StreamingAPI:
-        """Baseline for streaming API functionality."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class BayesianInferenceAPI:
-        """Baseline for Bayesian inference API functionality."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class Sensor:
-        """Baseline for sensor data model."""
-
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class SensorNetwork:
-        """Baseline for sensor network data model."""
-
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class Measurement:
-        """Baseline for measurement data model."""
-
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class MeasurementBatch:
-        """Baseline for measurement batch data model."""
-
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class NetworkTopology:
-        """Baseline for network topology data model."""
-
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class SensorCalibration:
-        """Baseline for sensor calibration utilities."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class SpatialInterpolation:
-        """Baseline for spatial interpolation utilities."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
-
-    class IoTVisualization:
-        """Baseline for IoT visualization utilities."""
-
-        def __init__(self, config=None):
-            self.config = config or {}
+# All public IoT components are required workspace modules. Import them directly
+# so a partial installation fails at import time instead of exposing data-less
+# stand-ins that appear usable but cannot process measurements.
+from geo_infer_iot.core.spatial_fusion import SpatialDataFusion
+from geo_infer_iot.core.quality_control import QualityController
+from geo_infer_iot.api.sensor_api import SensorAPI
+from geo_infer_iot.api.streaming_api import StreamingAPI
+from geo_infer_iot.api.inference_api import BayesianInferenceAPI
+from geo_infer_iot.models.sensor import Sensor, SensorNetwork
+from geo_infer_iot.models.measurement import Measurement, MeasurementBatch
+from geo_infer_iot.models.network import NetworkTopology
+from geo_infer_iot.utils.calibration import SensorCalibration
+from geo_infer_iot.utils.interpolation import SpatialInterpolation
+from geo_infer_iot.utils.visualization import IoTVisualization
 
 
 __version__ = "0.1.0"
@@ -1390,7 +1303,7 @@ class PredictiveMaintenance:
             # Lower drift = higher score
             return max(0.0, 1.0 - abs(value))
         else:
-            return 0.5  # Default score for unknown metrics
+            raise ValueError(f"Unsupported health metric: {metric}")
 
     def _determine_health_status(self, metric, value):
         """Determine health status for a metric."""

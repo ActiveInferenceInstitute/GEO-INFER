@@ -12,14 +12,14 @@ __license__ = "MIT"
 # Import core components for easier access
 try:
     from geo_infer_risk.core import (
-        RiskEngine,
+        EnhancedRiskEngine,
         RiskModel,
         HazardModel,
         VulnerabilityModel,
         ExposureModel,
     )
 except ImportError:
-    RiskEngine = None
+    EnhancedRiskEngine = None
     RiskModel = None
     HazardModel = None
     VulnerabilityModel = None
@@ -91,6 +91,7 @@ try:
         assess_risk,
         calculate_premium,
     )
+
     UNDERWRITING_AVAILABLE = True
 except ImportError:
     UNDERWRITING_AVAILABLE = False
@@ -104,6 +105,7 @@ try:
         EnhancedCatastropheModel,
         CatastropheConfig,
     )
+
     ENHANCED_CORE_AVAILABLE = True
 except ImportError:
     ENHANCED_CORE_AVAILABLE = False
@@ -123,19 +125,22 @@ def create_risk_analysis(config_path=None, **kwargs):
         **kwargs: Additional configuration parameters that override file settings.
 
     Returns:
-        RiskEngine: Configured risk analysis engine instance.
+        EnhancedRiskEngine: Configured risk analysis engine instance.
     """
-    from geo_infer_risk.utils.config_loader import load_config
+    from geo_infer_risk.utils.config_loader import (
+        load_config,
+        load_config_with_defaults,
+    )
 
     if config_path:
         config = load_config(config_path)
     else:
-        config = {}
+        config = load_config_with_defaults()
 
     for key, value in kwargs.items():
         config[key] = value
 
-    return RiskEngine(config)
+    return EnhancedRiskEngine(config)
 
 
 def create_underwriting_system(config=None):

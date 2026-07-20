@@ -29,13 +29,13 @@ H3 workspace within `GEO-INFER-SPACE`.
 - `datasets.py:H3Dataset` (class)
 - `datasets.py:H3DataLoader` (class)
 - `datasets.py:H3DataExporter` (class)
-- `datasets.py:create_sample_datasets` (function)
 - `h3_backend.py:H3Backend` (class)
 - `ml_integration.py:H3MLFeatureEngine` (class)
 - `ml_integration.py:H3DisasterResponse` (class)
 - `ml_integration.py:H3PerformanceOptimizer` (class)
 - `operations.py:get_resolution_info` (function)
 - `operations.py:find_optimal_resolution` (function)
+- `operations.py:create_h3_grid_for_bounds` (function)
 
 ## Module Metadata
 

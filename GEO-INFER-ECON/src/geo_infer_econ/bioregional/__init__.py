@@ -16,7 +16,7 @@ from .ecological_economics import (
     BiophysicalEquilibriumModels,
     ThermoeconomicModels,
     EcologicalFootprintAnalysis,
-    CarryingCapacityModels
+    CarryingCapacityModels,
 )
 
 from .bioregional_markets import (
@@ -25,16 +25,16 @@ from .bioregional_markets import (
     BiodiversityMarkets,
     CarbonMarkets,
     WaterMarkets,
-    LocalFoodSystems
+    LocalFoodSystems,
 )
 
-# Fallback modules (basic implementations - full implementation pending)
+# Additional implemented bioregional economics models
 from .natural_capital import (
     NaturalCapitalAccounting,
     EcosystemAssetsValuation,
     BiodiversityCredits,
     CarbonAccounting,
-    WaterResourceAccounting
+    WaterResourceAccounting,
 )
 
 from .ecosystem_services import (
@@ -43,7 +43,7 @@ from .ecosystem_services import (
     RegulatingServices,
     CulturalServices,
     SupportingServices,
-    ServiceFlowModeling
+    ServiceFlowModeling,
 )
 
 from .circular_economy import (
@@ -51,7 +51,7 @@ from .circular_economy import (
     MaterialFlowAnalysis,
     IndustrialEcologyModels,
     WasteToResourceSystems,
-    RegenerativeDesign
+    RegenerativeDesign,
 )
 
 from .bioregional_governance import (
@@ -59,7 +59,7 @@ from .bioregional_governance import (
     CommunityResourceManagement,
     AdaptiveManagementSystems,
     StakeholderEngagement,
-    CooperativeEconomics
+    CooperativeEconomics,
 )
 
 from .sustainability_metrics import (
@@ -67,7 +67,7 @@ from .sustainability_metrics import (
     ResilienceMetrics,
     RegenerativeMetrics,
     WellbeingIndicators,
-    PlanetaryBoundaries
+    PlanetaryBoundaries,
 )
 
 from .spatial_ecology import (
@@ -75,65 +75,58 @@ from .spatial_ecology import (
     HabitatConnectivity,
     EcosystemNetworkAnalysis,
     ConservationPrioritization,
-    RestorationEconomics
+    RestorationEconomics,
 )
 
 __all__ = [
     # Ecological Economics
-    'EcologicalEconomicsEngine',
-    'BiophysicalEquilibriumModels',
-    'ThermoeconomicModels',
-    'EcologicalFootprintAnalysis',
-    'CarryingCapacityModels',
-    
+    "EcologicalEconomicsEngine",
+    "BiophysicalEquilibriumModels",
+    "ThermoeconomicModels",
+    "EcologicalFootprintAnalysis",
+    "CarryingCapacityModels",
     # Natural Capital
-    'NaturalCapitalAccounting',
-    'EcosystemAssetsValuation',
-    'BiodiversityCredits',
-    'CarbonAccounting',
-    'WaterResourceAccounting',
-    
+    "NaturalCapitalAccounting",
+    "EcosystemAssetsValuation",
+    "BiodiversityCredits",
+    "CarbonAccounting",
+    "WaterResourceAccounting",
     # Bioregional Markets
-    'BioregionalMarketDesign',
-    'EcosystemServicesMarkets',
-    'BiodiversityMarkets',
-    'CarbonMarkets',
-    'WaterMarkets',
-    'LocalFoodSystems',
-    
+    "BioregionalMarketDesign",
+    "EcosystemServicesMarkets",
+    "BiodiversityMarkets",
+    "CarbonMarkets",
+    "WaterMarkets",
+    "LocalFoodSystems",
     # Ecosystem Services
-    'EcosystemServicesValuation',
-    'ProvisioningServices',
-    'RegulatingServices',
-    'CulturalServices',
-    'SupportingServices',
-    'ServiceFlowModeling',
-    
+    "EcosystemServicesValuation",
+    "ProvisioningServices",
+    "RegulatingServices",
+    "CulturalServices",
+    "SupportingServices",
+    "ServiceFlowModeling",
     # Circular Economy
-    'CircularEconomyModels',
-    'MaterialFlowAnalysis',
-    'IndustrialEcologyModels',
-    'WasteToResourceSystems',
-    'RegenerativeDesign',
-    
+    "CircularEconomyModels",
+    "MaterialFlowAnalysis",
+    "IndustrialEcologyModels",
+    "WasteToResourceSystems",
+    "RegenerativeDesign",
     # Bioregional Governance
-    'BioregionalGovernanceModels',
-    'CommunityResourceManagement',
-    'AdaptiveManagementSystems',
-    'StakeholderEngagement',
-    'CooperativeEconomics',
-    
+    "BioregionalGovernanceModels",
+    "CommunityResourceManagement",
+    "AdaptiveManagementSystems",
+    "StakeholderEngagement",
+    "CooperativeEconomics",
     # Sustainability Metrics
-    'SustainabilityIndicators',
-    'ResilienceMetrics',
-    'RegenerativeMetrics',
-    'WellbeingIndicators',
-    'PlanetaryBoundaries',
-    
+    "SustainabilityIndicators",
+    "ResilienceMetrics",
+    "RegenerativeMetrics",
+    "WellbeingIndicators",
+    "PlanetaryBoundaries",
     # Spatial Ecology
-    'LandscapeEconomics',
-    'HabitatConnectivity',
-    'EcosystemNetworkAnalysis',
-    'ConservationPrioritization',
-    'RestorationEconomics'
-] 
+    "LandscapeEconomics",
+    "HabitatConnectivity",
+    "EcosystemNetworkAnalysis",
+    "ConservationPrioritization",
+    "RestorationEconomics",
+]

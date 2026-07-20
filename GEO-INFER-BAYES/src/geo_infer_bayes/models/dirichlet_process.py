@@ -6,8 +6,15 @@ spatial clustering and density estimation.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import (
+    features_from,
+    log_prior_from_parameters,
+    observations_from,
+    posterior_vector,
+    predictive_samples,
+)
 
 
 class DirichletProcessMixture(BayesianModel):
@@ -35,98 +42,100 @@ class DirichletProcessMixture(BayesianModel):
         """Set up the Dirichlet Process mixture model."""
         # Define parameter distributions for inference
         self.parameters = {
-            'alpha': {'prior': 'gamma', 'hyperparams': {'shape': 1.0, 'scale': 1.0}},
-            'cluster_means': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
-            'cluster_variances': {'prior': 'inverse_gamma', 'hyperparams': {'alpha': 1.0, 'beta': 1.0}},
+            "alpha": {"prior": "gamma", "hyperparams": {"shape": 1.0, "scale": 1.0}},
+            "cluster_means": {
+                "prior": "normal",
+                "hyperparams": {"mu": 0.0, "sigma": 1.0},
+            },
+            "cluster_variances": {
+                "prior": "inverse_gamma",
+                "hyperparams": {"alpha": 1.0, "beta": 1.0},
+            },
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the DP mixture model."""
-        # Baseline implementation
-        observations = data.get('observations', np.array([]))
-        if len(observations) == 0:
-            return 0.0
+        observations = observations_from(data)
 
-        # Simple implementation - use a fixed number of clusters
-        n_clusters = min(self.max_clusters, len(observations) // 2)
-        if n_clusters <= 0:
-            return 0.0
+        n_clusters = max(1, min(self.max_clusters, observations.size))
+        means = np.asarray(
+            [
+                theta.get(
+                    f"cluster_means_{cluster}",
+                    np.quantile(observations, (cluster + 0.5) / n_clusters),
+                )
+                for cluster in range(n_clusters)
+            ],
+            dtype=float,
+        )
+        variances = np.asarray(
+            [
+                theta.get(
+                    f"cluster_variances_{cluster}",
+                    max(np.var(observations), np.finfo(float).eps),
+                )
+                for cluster in range(n_clusters)
+            ],
+            dtype=float,
+        )
+        if np.any(variances <= 0) or not np.all(np.isfinite(means)):
+            raise ValueError(
+                "Cluster means must be finite and variances must be positive"
+            )
 
-        # For simplicity, assume equal mixture weights
-        log_likelihood = 0.0
-        for obs in observations:
-            # Compute likelihood under each cluster
-            cluster_likelihoods = []
-            for cluster in range(n_clusters):
-                mean = theta.get(f'cluster_means_{cluster}', 0.0)
-                var = theta.get(f'cluster_variances_{cluster}', 1.0)
-                # Gaussian likelihood
-                ll = -0.5 * ((obs - mean) ** 2 / var + np.log(2 * np.pi * var))
-                cluster_likelihoods.append(ll)
-
-            # Mixture likelihood
-            max_ll = max(cluster_likelihoods)
-            log_sum_exp = max_ll + np.log(np.sum(np.exp(np.array(cluster_likelihoods) - max_ll)))
-            log_likelihood += log_sum_exp
-
-        return log_likelihood
+        component_ll = np.asarray(
+            [
+                -0.5
+                * (
+                    ((observations - mean) ** 2) / variance
+                    + np.log(2.0 * np.pi * variance)
+                )
+                for mean, variance in zip(means, variances)
+            ]
+        )
+        maximum = np.max(component_ll, axis=0)
+        return float(
+            np.sum(maximum + np.log(np.mean(np.exp(component_ll - maximum), axis=0)))
+        )
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """Compute the log-prior for the DP mixture model parameters."""
-        log_prior = 0.0
-
-        # Prior for alpha (DP concentration parameter)
-        if 'alpha' in theta:
-            shape = self.parameters['alpha']['hyperparams']['shape']
-            scale = self.parameters['alpha']['hyperparams']['scale']
-            log_prior += (shape - 1) * np.log(theta['alpha']) - theta['alpha'] / scale
-
-        return log_prior
+        if "alpha" in theta and float(np.asarray(theta["alpha"])) <= 0:
+            return -np.inf
+        return log_prior_from_parameters(self.parameters, theta)
 
     def predict(
         self,
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Make predictions at new locations."""
-        # Baseline implementation
-        if posterior is not None:
-            # Use posterior samples
-            n_samples = min(samples, len(posterior.samples.get('cluster_means_0', [0])))
-            if n_samples <= 0:
-                return np.zeros(len(X_new))
-
-            # Simple prediction - use first cluster mean
-            predictions = np.full((n_samples, len(X_new)), posterior.samples.get('cluster_means_0', [0.0])[:n_samples])
-            mean_pred = np.mean(predictions, axis=0)
-
-            if return_std:
-                std_pred = np.std(predictions, axis=0)
-                return mean_pred, std_pred
-            else:
-                return mean_pred
-        else:
-            # Use current parameters
-            return np.zeros(len(X_new))
+        signal = np.mean(features_from(X_new), axis=1)
+        means = posterior_vector(posterior, "cluster_means_0", samples)
+        variances = posterior_vector(posterior, "cluster_variances_0", samples)
+        if means.size == 0:
+            means = np.quantile(
+                signal, np.linspace(0.0, 1.0, min(self.max_clusters, signal.size))
+            )
+        if variances.size == 0:
+            variances = np.full(
+                means.size, max(float(np.var(signal)), np.finfo(float).eps)
+            )
+        nearest = np.argmin(np.abs(signal[:, None] - means[None, :]), axis=1)
+        prediction = means[nearest]
+        if return_std:
+            return prediction, np.sqrt(
+                np.maximum(variances[nearest], np.finfo(float).eps)
+            )
+        return prediction
 
     def posterior_predictive(
-        self,
-        posterior: Any,
-        X: Optional[np.ndarray] = None,
-        samples: int = 100
+        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
     ) -> np.ndarray:
         """Generate posterior predictive samples."""
-        # Get predictions
-        predictions, std = self.predict(X or np.array([]), posterior, samples=samples, return_std=True)
-
-        # Generate samples
-        n_samples = min(samples, len(posterior.samples.get('cluster_means_0', [0])))
-        all_samples = []
-
-        for i in range(n_samples):
-            sample = np.random.normal(predictions, std)
-            all_samples.append(sample)
-
-        return np.stack(all_samples)
+        if X is None:
+            raise ValueError("X is required to generate posterior predictive samples")
+        predictions, std = self.predict(X, posterior, samples=samples, return_std=True)
+        return predictive_samples(predictions, std, samples)

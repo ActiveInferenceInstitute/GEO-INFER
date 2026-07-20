@@ -17,6 +17,7 @@ Key Features:
 
 import numpy as np
 import logging
+from numbers import Real
 from typing import Dict, List, Any, Optional, Tuple, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -64,6 +65,26 @@ class PSOParameters:
             raise ValueError("Dimensions must be positive")
         if len(self.bounds) != self.dimensions:
             raise ValueError("Bounds must match number of dimensions")
+        if not np.isfinite(self.inertia_weight) or self.inertia_weight < 0:
+            raise ValueError("inertia_weight must be finite and non-negative")
+        for name, value in {
+            "cognitive_acceleration": self.cognitive_acceleration,
+            "social_acceleration": self.social_acceleration,
+            "convergence_threshold": self.convergence_threshold,
+        }.items():
+            if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be finite and non-negative")
+        if self.min_velocity > self.max_velocity:
+            raise ValueError("min_velocity must not exceed max_velocity")
+        if not isinstance(self.max_iterations, int) or self.max_iterations <= 0:
+            raise ValueError("max_iterations must be a positive integer")
+        for lower, upper in self.bounds:
+            if not np.isfinite(lower) or not np.isfinite(upper) or lower >= upper:
+                raise ValueError("Each bound must be finite and ordered (min < max)")
+        if self.neighborhood_topology not in {"global", "local", "adaptive"}:
+            raise ValueError("neighborhood_topology must be global, local, or adaptive")
+        if self.neighborhood_size <= 0:
+            raise ValueError("neighborhood_size must be positive")
 
 
 @dataclass
@@ -89,6 +110,10 @@ class Particle:
         cognitive_acceleration: float,
         social_acceleration: float,
         neighborhood_best_position: Optional[np.ndarray] = None,
+        rng: Optional[np.random.Generator] = None,
+        velocity_clamping: bool = True,
+        max_velocity: Optional[float] = None,
+        min_velocity: Optional[float] = None,
     ) -> None:
         """
         Update particle velocity using PSO formula.
@@ -101,8 +126,9 @@ class Particle:
             neighborhood_best_position: Best position in neighborhood (for local topology)
         """
         # Random coefficients
-        r1 = np.random.uniform(0, 1, self.position.shape)
-        r2 = np.random.uniform(0, 1, self.position.shape)
+        rng = rng or np.random.default_rng()
+        r1 = rng.uniform(0, 1, self.position.shape)
+        r2 = rng.uniform(0, 1, self.position.shape)
 
         # Cognitive component (personal best)
         cognitive_component = (
@@ -123,10 +149,14 @@ class Particle:
         )
 
         # Apply velocity clamping if enabled
-        if hasattr(self, "velocity_clamping") and self.velocity_clamping:
-            np.clip(
-                self.velocity, -self.max_velocity, self.max_velocity, out=self.velocity
+        if velocity_clamping:
+            upper = (
+                getattr(self, "max_velocity", np.inf)
+                if max_velocity is None
+                else max_velocity
             )
+            lower = -upper if min_velocity is None else min_velocity
+            np.clip(self.velocity, lower, upper, out=self.velocity)
 
     def update_position(self, bounds: List[Tuple[float, float]]) -> None:
         """Update particle position based on velocity."""
@@ -189,6 +219,10 @@ class ParticleSwarmOptimization:
         # Extract neighborhood parameters from kwargs before constructing PSOParameters
         neighborhood_topology = kwargs.pop("neighborhood_topology", "global")
         neighborhood_size = kwargs.pop("neighborhood_size", 5)
+        min_velocity = kwargs.pop("min_velocity", -max_velocity)
+        velocity_clamping = kwargs.pop("velocity_clamping", True)
+        adaptive_parameters = kwargs.pop("adaptive_parameters", False)
+        seed = kwargs.pop("random_seed", kwargs.pop("seed", None))
 
         self.parameters = PSOParameters(
             swarm_size=swarm_size,
@@ -198,12 +232,16 @@ class ParticleSwarmOptimization:
             cognitive_acceleration=cognitive_acceleration,
             social_acceleration=social_acceleration,
             max_velocity=max_velocity,
+            min_velocity=min_velocity,
             max_iterations=max_iterations,
+            velocity_clamping=velocity_clamping,
+            adaptive_parameters=adaptive_parameters,
             neighborhood_topology=neighborhood_topology,
             neighborhood_size=neighborhood_size,
         )
 
         self.spatial_constraints = spatial_constraints or {}
+        self.rng = np.random.default_rng(seed)
 
         # Swarm state
         self.swarm: List[Particle] = []
@@ -257,16 +295,25 @@ class ParticleSwarmOptimization:
             initial_positions: Initial positions for particles (random if None)
         """
         self.swarm = []
+        if initial_positions is not None:
+            positions = np.asarray(initial_positions, dtype=float)
+            expected = (self.parameters.swarm_size, self.parameters.dimensions)
+            if positions.shape != expected:
+                raise ValueError(f"initial_positions must have shape {expected}")
+            if not np.all(np.isfinite(positions)):
+                raise ValueError("initial_positions must contain finite values")
+        else:
+            positions = None
 
         for i in range(self.parameters.swarm_size):
-            if initial_positions is not None and i < len(initial_positions):
+            if positions is not None:
                 # Use provided initial position
                 position = initial_positions[i].copy()
             else:
                 # Generate random initial position within bounds
-                position = np.array(
+                position = np.asarray(
                     [
-                        np.random.uniform(min_bound, max_bound)
+                        self.rng.uniform(min_bound, max_bound)
                         for min_bound, max_bound in self.parameters.bounds
                     ]
                 )
@@ -274,7 +321,7 @@ class ParticleSwarmOptimization:
             # Generate random initial velocity
             velocity = np.array(
                 [
-                    np.random.uniform(
+                    self.rng.uniform(
                         self.parameters.min_velocity, self.parameters.max_velocity
                     )
                     for _ in range(self.parameters.dimensions)
@@ -342,12 +389,21 @@ class ParticleSwarmOptimization:
             f"Starting PSO optimization with {self.parameters.max_iterations} max iterations"
         )
 
+        if not callable(objective_function):
+            raise TypeError("objective_function must be callable")
         # Update velocity bounds if provided
         if velocity_bounds:
+            if len(velocity_bounds) != 2 or velocity_bounds[0] > velocity_bounds[1]:
+                raise ValueError("velocity_bounds must be an ordered (min, max) pair")
             self.parameters.min_velocity, self.parameters.max_velocity = velocity_bounds
 
         # Initialize swarm
         self.initialize_swarm(initial_positions)
+        self.convergence_history = []
+        self.diversity_history = []
+        self.parameter_history = []
+        self.iteration_times = []
+        self.function_evaluations = 0
 
         # Set convergence criteria
         if convergence_criteria:
@@ -373,12 +429,10 @@ class ParticleSwarmOptimization:
             self._update_swarm()
 
             # Check convergence
+            self._record_iteration_stats(iteration)
             if self._check_convergence(iteration):
                 logger.info(f"Convergence achieved at iteration {iteration}")
                 break
-
-            # Record iteration statistics
-            self._record_iteration_stats(iteration)
 
             # Adaptive parameter tuning
             if self.parameters.adaptive_parameters:
@@ -413,7 +467,11 @@ class ParticleSwarmOptimization:
             constrained_position = self._apply_spatial_constraints(particle.position)
 
             # Evaluate objective function
-            particle.fitness = objective_function(constrained_position)
+            particle.position = constrained_position
+            value = objective_function(constrained_position)
+            if not np.isscalar(value) or not np.isfinite(value):
+                raise ValueError("objective_function must return a finite scalar")
+            particle.fitness = float(value)
             particle.update_personal_best()
 
             self.function_evaluations += 1
@@ -440,9 +498,49 @@ class ParticleSwarmOptimization:
 
     def _avoid_obstacles(self, position: np.ndarray) -> np.ndarray:
         """Apply obstacle avoidance to particle position."""
-        # Simplified obstacle avoidance
-        # In practice, would use actual spatial data
-        return position
+        adjusted = position.copy()
+        obstacles = self.spatial_constraints.get("obstacles", [])
+        if isinstance(obstacles, dict):
+            obstacles = [obstacles]
+        for obstacle in obstacles:
+            if isinstance(obstacle, dict) and {"center", "radius"}.issubset(obstacle):
+                center = np.asarray(obstacle["center"], dtype=float)
+                radius = float(obstacle["radius"])
+                if center.shape != adjusted.shape or radius < 0:
+                    raise ValueError(
+                        "Circular obstacles require a matching center and non-negative radius"
+                    )
+                delta = adjusted - center
+                distance = float(np.linalg.norm(delta))
+                if distance < radius:
+                    direction = (
+                        delta / distance if distance > 1e-12 else np.zeros_like(delta)
+                    )
+                    if distance <= 1e-12:
+                        direction[0] = 1.0
+                    adjusted = center + direction * radius
+            elif isinstance(obstacle, dict) and {"min", "max"}.issubset(obstacle):
+                lower = np.asarray(obstacle["min"], dtype=float)
+                upper = np.asarray(obstacle["max"], dtype=float)
+                if (
+                    lower.shape != adjusted.shape
+                    or upper.shape != adjusted.shape
+                    or np.any(lower >= upper)
+                ):
+                    raise ValueError("Box obstacles require ordered min/max vectors")
+                if np.all((adjusted >= lower) & (adjusted <= upper)):
+                    distances = np.minimum(adjusted - lower, upper - adjusted)
+                    axis = int(np.argmin(distances))
+                    adjusted[axis] = (
+                        lower[axis]
+                        if adjusted[axis] - lower[axis] <= upper[axis] - adjusted[axis]
+                        else upper[axis]
+                    )
+            else:
+                raise ValueError(
+                    "Obstacles must use {'center', 'radius'} or {'min', 'max'}"
+                )
+        return adjusted
 
     def _update_bests(self) -> None:
         """Update personal and global best solutions."""
@@ -465,6 +563,10 @@ class ParticleSwarmOptimization:
                 cognitive_acceleration=self.parameters.cognitive_acceleration,
                 social_acceleration=self.parameters.social_acceleration,
                 neighborhood_best_position=neighborhood_best,
+                rng=self.rng,
+                velocity_clamping=self.parameters.velocity_clamping,
+                max_velocity=self.parameters.max_velocity,
+                min_velocity=self.parameters.min_velocity,
             )
 
             # Update position
@@ -497,7 +599,7 @@ class ParticleSwarmOptimization:
         recent_fitness = self.convergence_history[-10:]
         improvement = recent_fitness[0] - recent_fitness[-1]
 
-        if improvement < self.convergence_criteria.get("min_improvement", 1e-8):
+        if 0 <= improvement < self.convergence_criteria.get("min_improvement", 1e-8):
             return True
 
         # Check fitness stability
@@ -567,6 +669,7 @@ class ParticleSwarmOptimization:
         sub_swarms: List["ParticleSwarmOptimization"],
         communication_topology: str = "hierarchical",
         information_sharing: str = "best_positions",
+        objective_function: Optional[Callable[[np.ndarray], float]] = None,
     ) -> Dict[str, Any]:
         """
         Coordinate multiple PSO swarms for complex optimization.
@@ -579,6 +682,10 @@ class ParticleSwarmOptimization:
         Returns:
             Coordination results and combined optimization
         """
+        if communication_topology not in {"hierarchical", "ring", "complete"}:
+            raise ValueError("Unsupported communication topology")
+        if information_sharing not in {"best_positions", "all_particles"}:
+            raise ValueError("Unsupported information sharing mode")
         logger.info(f"Coordinating {len(sub_swarms)} PSO swarms")
 
         coordination_results = {
@@ -593,17 +700,17 @@ class ParticleSwarmOptimization:
         for i, sub_swarm in enumerate(sub_swarms):
             logger.info(f"Running sub-swarm {i+1}/{len(sub_swarms)}")
 
-            # Would need to set up the same objective function and parameters
-            # For now, assume each sub-swarm runs independently
-            # result = sub_swarm.solve()
-
-            # Baseline result
+            if objective_function is not None:
+                sub_swarm.optimize(objective_function)
+            solution = (
+                sub_swarm.global_best_position.copy()
+                if sub_swarm.global_best_position is not None
+                else None
+            )
             result = {
                 "sub_swarm_id": i,
-                "best_fitness": np.random.uniform(0, 1),
-                "best_solution": np.random.uniform(
-                    -10, 10, sub_swarm.parameters.dimensions
-                ),
+                "best_fitness": float(sub_swarm.global_best_fitness),
+                "best_solution": solution,
             }
 
             coordination_results["sub_swarm_results"].append(result)
@@ -614,6 +721,8 @@ class ParticleSwarmOptimization:
                 coordination_results["combined_best_solution"] = result["best_solution"]
 
         # Implement inter-swarm communication
+        if not sub_swarms:
+            return coordination_results
         if communication_topology == "hierarchical":
             self._hierarchical_communication(sub_swarms, coordination_results)
         elif communication_topology == "ring":
@@ -629,8 +738,13 @@ class ParticleSwarmOptimization:
     ) -> None:
         """Implement hierarchical communication between swarms."""
         # Find best sub-swarm
-        best_swarm_idx = np.argmin(
-            [r["best_fitness"] for r in results["sub_swarm_results"]]
+        valid_results = [
+            r for r in results["sub_swarm_results"] if r["best_solution"] is not None
+        ]
+        if not valid_results:
+            return
+        best_swarm_idx = int(
+            np.argmin([r["best_fitness"] for r in results["sub_swarm_results"]])
         )
 
         # Share best solution with all other swarms
@@ -648,6 +762,8 @@ class ParticleSwarmOptimization:
     ) -> None:
         """Implement ring topology communication between swarms."""
         n_swarms = len(sub_swarms)
+        if n_swarms == 0:
+            return
 
         for i in range(n_swarms):
             # Share information with neighbors in ring
@@ -904,7 +1020,9 @@ class ParticleSwarmOptimization:
             # Restore global best
             global_best = state["global_best"]
             self.global_best_position = (
-                np.array(global_best["position"]) if global_best["position"] else None
+                np.array(global_best["position"])
+                if global_best["position"] is not None
+                else None
             )
             self.global_best_fitness = global_best["fitness"]
 

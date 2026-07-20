@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def _normalise_timestamp(value: Optional[datetime]) -> datetime:
-    """Return a timezone-aware UTC timestamp for current and legacy entries."""
+    """Return a timezone-aware UTC timestamp for cache entries."""
     timestamp = value or datetime.now(timezone.utc)
     if timestamp.tzinfo is None:
         return timestamp.replace(tzinfo=timezone.utc)

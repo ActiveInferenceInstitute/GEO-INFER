@@ -374,13 +374,7 @@ class UnderwritingEngine:
 
         except Exception as e:
             self.logger.error(f"Risk assessment failed: {e}")
-            # Return basic risk assessment
-            return {
-                "risk_score": 0.5,
-                "risk_level": "medium",
-                "confidence": 0.7,
-                "assessment_method": "fallback",
-            }
+            raise RuntimeError("Underwriting risk assessment failed") from e
 
     def _convert_to_risk_format(
         self, application_data: Dict[str, Any]

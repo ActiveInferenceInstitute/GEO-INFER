@@ -24,69 +24,10 @@ from shapely.geometry import Polygon, MultiPolygon, mapping, shape as shapely_sh
 
 from ..utils.h3_operations import cell_to_latlng_boundary
 
-# --- GEO-INFER-SPACE Imports (optional) ---
-try:
-    from geo_infer_space import cell_to_latlng
-    from geo_infer_space.core.spatial_processor import SpatialProcessor
-    from geo_infer_space.core.data_integrator import DataIntegrator
-    from geo_infer_space.core.visualization_engine import (
-        InteractiveVisualizationEngine as SpaceVisualizationEngine,
-    )
-    from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
-    from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
-
-    SPACE_AVAILABLE = True
-except ImportError:
-    SPACE_AVAILABLE = False
-
-    # Minimal fallback bindings so the module can still load
-    DataIntegrator = None  # type: ignore[misc,assignment]
-    SpaceVisualizationEngine = None  # type: ignore[misc,assignment]
-
-    # Use local h3_operations as functional replacements
-    from ..utils.h3_operations import (
-        cell_to_latlng,
-    )
-
-    class _NumpyEncoder(json.JSONEncoder):
-        """Fallback JSON encoder for numpy types."""
-
-        def default(self, obj):
-            if isinstance(obj, np.integer):
-                return int(obj)
-            if isinstance(obj, np.floating):
-                return float(obj)
-            if isinstance(obj, np.ndarray):
-                return obj.tolist()
-            return super().default(obj)
-
-    NumpyEncoder = _NumpyEncoder  # type: ignore[misc,assignment]
-
-    class UnifiedH3Backend:
-        """Fallback parent class when geo_infer_space is unavailable."""
-
-        def __init__(self, **kwargs):
-            pass
-
-    class SpatialProcessor:
-        """Fallback spatial processor when geo_infer_space is unavailable."""
-
-        pass
-
-    class LocationConfigLoader:
-        """Fallback config loader when geo_infer_space is unavailable."""
-
-        def load_location_config(self, name: str):
-            return None
-
-    class LocationBounds:
-        """Fallback location bounds when geo_infer_space is unavailable."""
-
-        def __init__(self, north=0, south=0, east=0, west=0):
-            self.north = north
-            self.south = south
-            self.east = east
-            self.west = west
+# --- GEO-INFER-SPACE Imports ---
+from geo_infer_space import cell_to_latlng
+from geo_infer_space.core.spatial_processor import SpatialProcessor
+from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
 
 
 logger = logging.getLogger(__name__)
@@ -148,40 +89,23 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         self.osc_repo_dir = osc_repo_dir
         # Note: H3DataLoader from osc_geo has been removed from SPACE
         # Using native H3 library directly for spatial operations
-        logger.info(
-            "Using native H3 library for spatial indexing (osc_geo module deprecated)"
-        )
+        logger.info("Using native H3 library for spatial indexing")
 
         # Get target counties and generate hexagons with caching
-        county_geoms, all_hexagons = self._define_target_region_cached(target_counties)
+        _hexagons_by_state, all_hexagons = self._define_target_region_cached(
+            target_counties
+        )
 
-        # Initialize the parent UnifiedH3Backend if SPACE is available
-        if SPACE_AVAILABLE:
-            try:
-                # Convert county_geoms to the format expected by parent constructor
-                target_areas = {}
-                for state, counties in county_geoms.items():
-                    target_areas[state] = list(counties.keys())
-
-                super().__init__(
-                    modules=modules,
-                    resolution=resolution,
-                    target_region=bioregion,
-                    target_areas=target_areas,
-                    base_data_dir=base_data_dir,
-                    osc_repo_dir=osc_repo_dir,
-                )
-            except Exception as e:
-                logger.warning(f"Failed to initialize UnifiedH3Backend: {e}")
-                # Initialize basic attributes directly
-                self.modules = modules
-                self.target_hexagons = all_hexagons
-                self.unified_data = {}
-        else:
-            # Initialize basic attributes directly
-            self.modules = modules
-            self.target_hexagons = all_hexagons
-            self.unified_data = {}
+        # Convert county geometries to the format expected by the shared backend.
+        target_areas = target_counties or {"CA": ["all"], "OR": ["all"]}
+        super().__init__(
+            modules=modules,
+            resolution=resolution,
+            target_region=bioregion,
+            target_areas=target_areas,
+            base_data_dir=base_data_dir,
+            osc_repo_dir=osc_repo_dir,
+        )
 
         # Enhanced SPACE integration
         self.spatial_processor = SpatialProcessor()
@@ -214,46 +138,30 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         )
 
     def _load_cascadia_config(self) -> Dict[str, Any]:
-        """Load Cascadia-specific configuration with SPACE integration"""
-        try:
-            config_loader = LocationConfigLoader()
-            config = config_loader.load_location_config("cascadia")
-            if not config:
-                # Enhanced default configuration
-                config = {
-                    "bounds": LocationBounds(
-                        north=46.3,  # Northern Oregon
-                        south=32.5,  # Southern California
-                        east=-114.0,  # Eastern boundary
-                        west=-124.8,  # Western boundary
-                    ),
-                    "h3_resolution": self.resolution,
-                    "spatial_analysis": {
-                        "buffer_distance": 1000,  # meters
-                        "proximity_analysis": True,
-                        "multi_overlay": True,
-                        "correlation_analysis": True,
-                    },
-                    "visualization": {
-                        "base_map": "CartoDB positron",
-                        "default_zoom": 7,
-                        "center": [44.0, -120.5],  # Center of Oregon
-                        "layers": {
-                            "zoning": {"color": "#1f77b4", "opacity": 0.6},
-                            "current_use": {"color": "#2ca02c", "opacity": 0.6},
-                            "water": {"color": "#d62728", "opacity": 0.6},
-                            "ownership": {"color": "#ff7f0e", "opacity": 0.6},
-                            "redevelopment": {"color": "#9467bd", "opacity": 0.7},
-                        },
-                    },
-                }
-            logger.info("✅ Cascadia configuration loaded successfully")
-            return config
-        except Exception as e:
-            logger.warning(
-                f"⚠️ Failed to load Cascadia configuration: {e}. Using defaults."
+        """Load the tracked Cascadia configuration required by the backend."""
+        import yaml
+
+        config_path = (
+            Path(__file__).resolve().parents[3]
+            / "locations"
+            / "cascadia"
+            / "config"
+            / "cascadia_config.yaml"
+        )
+        if not config_path.exists():
+            raise FileNotFoundError(
+                f"Cascadia configuration is required: {config_path}"
             )
-            return {}
+
+        with config_path.open(encoding="utf-8") as config_file:
+            config = yaml.safe_load(config_file)
+        if not isinstance(config, dict) or not config:
+            raise ValueError(
+                f"Cascadia configuration is empty or invalid: {config_path}"
+            )
+
+        logger.info("Cascadia configuration loaded from %s", config_path)
+        return config
 
     def _get_cache_key(self, target_counties: Dict[str, List[str]]) -> str:
         """Generate a cache key based on target counties and resolution."""

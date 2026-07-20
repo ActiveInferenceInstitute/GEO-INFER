@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -30,6 +31,7 @@ MODULE_PREFIX = "GEO-INFER-"
 TEST_DIR_NAME = "tests"
 RESULTS_DIR = PROJECT_ROOT / ".geo-infer-test-results"
 PYTEST_NO_TESTS_EXIT_CODE = 5
+TEST_FILE_PATTERNS = ("test_*.py", "*_test.py")
 
 
 @dataclass
@@ -74,7 +76,7 @@ def discover_geo_infer_modules() -> list[Module]:
                 name=item.name.removeprefix(MODULE_PREFIX),
                 path=item,
                 test_path=test_path,
-                has_tests=test_path.exists() and any(test_path.iterdir()),
+                has_tests=has_test_files(test_path),
             )
         )
     return modules
@@ -85,8 +87,10 @@ def ensure_results_dir(clean: bool = False) -> None:
     if not clean:
         return
     for path in RESULTS_DIR.iterdir():
-        if path.is_file():
+        if path.is_symlink() or path.is_file():
             path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
 
 
 def workspace_src_paths() -> list[Path]:
@@ -221,13 +225,48 @@ def pytest_base_args() -> list[str]:
     ]
 
 
+def test_file_paths(path: Path, *, recursive: bool = True) -> list[Path]:
+    """Return deterministic pytest file paths below *path*.
+
+    Keeping file discovery in one helper prevents the module, category, and
+    performance runners from silently diverging as legacy test layouts are
+    migrated.
+    """
+    if not path.is_dir():
+        return []
+    glob = path.rglob if recursive else path.glob
+    return sorted(
+        {
+            candidate
+            for pattern in TEST_FILE_PATTERNS
+            for candidate in glob(pattern)
+            if candidate.is_file()
+        }
+    )
+
+
 def has_test_files(path: Path) -> bool:
     """Return true when a directory contains pytest-discoverable test files."""
-    return any(path.rglob("test_*.py")) or any(path.rglob("*_test.py"))
+    return bool(test_file_paths(path))
+
+
+def category_test_paths(module: Module, category: str) -> list[Path]:
+    """Resolve a module's test files for one canonical category.
+
+    Unit tests in older modules may live directly under ``tests/``.  Only the
+    unit category receives that compatibility fallback; integration and
+    performance remain bounded by their named directories.
+    """
+    category_path = module.test_path / category
+    paths = test_file_paths(category_path)
+    if paths or category != "unit":
+        return paths
+    return test_file_paths(module.test_path, recursive=False)
 
 
 def run_module_tests(module: Module, timeout: int) -> CommandResult:
-    if not module.has_tests:
+    test_files = test_file_paths(module.test_path)
+    if not test_files:
         return CommandResult(
             name=f"{module.name} tests",
             success=False,
@@ -238,7 +277,7 @@ def run_module_tests(module: Module, timeout: int) -> CommandResult:
     ensure_results_dir()
     command = [
         *pytest_base_args(),
-        str(module.test_path),
+        *map(str, test_files),
         f"--junitxml={RESULTS_DIR / f'{module.name}_results.xml'}",
     ]
     return run_command(command, f"{module.name} tests", timeout=timeout)
@@ -250,41 +289,10 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
     ensure_results_dir(clean=True)
     discovered = False
     for module in discover_geo_infer_modules():
-        category_path = module.test_path / category
-        if category_path.exists():
-            paths: list[Path] = [category_path]
-            if category == "unit" and not has_test_files(category_path):
-                # Several legacy modules keep unit tests directly under
-                # tests/ while retaining an empty tests/unit directory.
-                root_files = sorted(module.test_path.glob("test_*.py"))
-                root_files.extend(sorted(module.test_path.glob("*_test.py")))
-                paths = sorted(set(root_files))
-                if not paths:
-                    continue
-        elif category == "unit" and module.test_path.exists():
-            # Several legacy modules keep unit tests directly under tests/.
-            # Treat those files as unit tests instead of silently omitting them.
-            root_files = sorted(module.test_path.glob("test_*.py"))
-            root_files.extend(sorted(module.test_path.glob("*_test.py")))
-            paths = sorted(set(root_files))
-            if not paths:
-                continue
-        else:
+        paths = category_test_paths(module, category)
+        if not paths:
             continue
         discovered = True
-        if not any(
-            has_test_files(path) if path.is_dir() else path.is_file() for path in paths
-        ):
-            report.add(
-                CommandResult(
-                    name=f"{module.name} {category} tests",
-                    success=False,
-                    duration=0.0,
-                    command=[],
-                    stderr=f"No pytest files discovered in {category_path}.",
-                )
-            )
-            continue
         command = [
             *pytest_base_args(),
             *map(str, paths),
@@ -325,16 +333,7 @@ def run_performance_tests(timeout: int) -> SuiteReport:
         # legitimately contain "performance" in its filename while still
         # exercising a small utility in the unit suite; selecting by filename
         # made this command silently execute unit tests twice.
-        performance_files = (
-            sorted(
-                {
-                    *performance_dir.rglob("test_*.py"),
-                    *performance_dir.rglob("*_test.py"),
-                }
-            )
-            if performance_dir.exists()
-            else []
-        )
+        performance_files = test_file_paths(performance_dir)
         if not performance_files:
             continue
         discovered = True

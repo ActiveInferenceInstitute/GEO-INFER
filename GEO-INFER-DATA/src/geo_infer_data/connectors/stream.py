@@ -6,10 +6,8 @@ real-time geospatial data sources including MQTT, Kafka, and WebSocket streams.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, AsyncIterator
+from typing import Dict, Any, AsyncIterator
 import asyncio
-
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +39,7 @@ class StreamConnector:
         Returns:
             True if connection successful
         """
-        raise NotImplementedError("Subclasses must implement connect() method")
+        raise RuntimeError("Stream connector subclasses must implement connect()")
 
     async def stream_data(self, **kwargs) -> AsyncIterator[Dict[str, Any]]:
         """
@@ -53,7 +51,7 @@ class StreamConnector:
         Yields:
             Data records as they become available
         """
-        raise NotImplementedError("Subclasses must implement stream_data() method")
+        raise RuntimeError("Stream connector subclasses must implement stream_data()")
 
     async def disconnect(self):
         """Close streaming connection."""
@@ -72,9 +70,9 @@ class MQTTConnector(StreamConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.host = config.get('host', 'localhost')
-        self.port = config.get('port', 1883)
-        self.client_id = config.get('client_id', 'geo_infer_data')
+        self.host = config.get("host", "localhost")
+        self.port = config.get("port", 1883)
+        self.client_id = config.get("client_id", "geo_infer_data")
 
         logger.info(f"Initialized MQTTConnector for {self.host}:{self.port}")
 
@@ -106,10 +104,10 @@ class MQTTConnector(StreamConnector):
         # Simulate streaming data
         for i in range(10):
             yield {
-                'topic': topic,
-                'message_id': i,
-                'timestamp': asyncio.get_event_loop().time(),
-                'data': {'temperature': 20 + i, 'humidity': 60 + i}
+                "topic": topic,
+                "message_id": i,
+                "timestamp": asyncio.get_event_loop().time(),
+                "data": {"temperature": 20 + i, "humidity": 60 + i},
             }
             await asyncio.sleep(1)
 
@@ -128,8 +126,8 @@ class KafkaConnector(StreamConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.bootstrap_servers = config.get('bootstrap_servers', ['localhost:9092'])
-        self.group_id = config.get('group_id', 'geo_infer_data')
+        self.bootstrap_servers = config.get("bootstrap_servers", ["localhost:9092"])
+        self.group_id = config.get("group_id", "geo_infer_data")
 
         logger.info(f"Initialized KafkaConnector for {self.bootstrap_servers}")
 
@@ -160,11 +158,11 @@ class KafkaConnector(StreamConnector):
 
         for i in range(5):
             yield {
-                'topic': topic,
-                'partition': 0,
-                'offset': i,
-                'timestamp': asyncio.get_event_loop().time(),
-                'data': {'sensor_id': f'sensor_{i}', 'value': 100 + i}
+                "topic": topic,
+                "partition": 0,
+                "offset": i,
+                "timestamp": asyncio.get_event_loop().time(),
+                "data": {"sensor_id": f"sensor_{i}", "value": 100 + i},
             }
             await asyncio.sleep(0.5)
 
@@ -183,8 +181,8 @@ class WebSocketConnector(StreamConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.url = config.get('url', 'ws://localhost:8765')
-        self.reconnect_interval = config.get('reconnect_interval', 5)
+        self.url = config.get("url", "ws://localhost:8765")
+        self.reconnect_interval = config.get("reconnect_interval", 5)
 
         logger.info(f"Initialized WebSocketConnector for {self.url}")
 
@@ -214,14 +212,14 @@ class WebSocketConnector(StreamConnector):
 
         for i in range(8):
             yield {
-                'type': 'websocket_message',
-                'message_id': i,
-                'timestamp': asyncio.get_event_loop().time(),
-                'data': {
-                    'latitude': 37.7749 + i * 0.001,
-                    'longitude': -122.4194 + i * 0.001,
-                    'measurement': 25 + i
-                }
+                "type": "websocket_message",
+                "message_id": i,
+                "timestamp": asyncio.get_event_loop().time(),
+                "data": {
+                    "latitude": 37.7749 + i * 0.001,
+                    "longitude": -122.4194 + i * 0.001,
+                    "measurement": 25 + i,
+                },
             }
             await asyncio.sleep(0.8)
 

@@ -6,9 +6,7 @@ AWS S3, Google Cloud Storage, Azure Blob Storage, and other cloud platforms.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
-
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from typing import Dict, List, Any
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +38,7 @@ class CloudConnector:
         Returns:
             True if connection successful
         """
-        raise NotImplementedError("Subclasses must implement connect() method")
+        raise RuntimeError("Cloud connector subclasses must implement connect()")
 
     async def upload_file(self, local_path: str, remote_path: str) -> str:
         """
@@ -53,7 +51,7 @@ class CloudConnector:
         Returns:
             Remote path of uploaded file
         """
-        raise NotImplementedError("Subclasses must implement upload_file() method")
+        raise RuntimeError("Cloud connector subclasses must implement upload_file()")
 
     async def download_file(self, remote_path: str, local_path: str) -> str:
         """
@@ -66,9 +64,9 @@ class CloudConnector:
         Returns:
             Local path of downloaded file
         """
-        raise NotImplementedError("Subclasses must implement download_file() method")
+        raise RuntimeError("Cloud connector subclasses must implement download_file()")
 
-    async def list_files(self, prefix: str = '') -> List[str]:
+    async def list_files(self, prefix: str = "") -> List[str]:
         """
         List files in cloud storage.
 
@@ -78,7 +76,7 @@ class CloudConnector:
         Returns:
             List of file paths
         """
-        raise NotImplementedError("Subclasses must implement list_files() method")
+        raise RuntimeError("Cloud connector subclasses must implement list_files()")
 
     async def delete_file(self, remote_path: str) -> bool:
         """
@@ -90,7 +88,7 @@ class CloudConnector:
         Returns:
             True if deletion successful
         """
-        raise NotImplementedError("Subclasses must implement delete_file() method")
+        raise RuntimeError("Cloud connector subclasses must implement delete_file()")
 
     async def disconnect(self):
         """Close cloud storage connection."""
@@ -109,10 +107,10 @@ class S3Connector(CloudConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.bucket = config.get('bucket', 'geo-infer-data')
-        self.region = config.get('region', 'us-east-1')
-        self.access_key = config.get('access_key')
-        self.secret_key = config.get('secret_key')
+        self.bucket = config.get("bucket", "geo-infer-data")
+        self.region = config.get("region", "us-east-1")
+        self.access_key = config.get("access_key")
+        self.secret_key = config.get("secret_key")
 
         logger.info(f"Initialized S3Connector for bucket: {self.bucket}")
 
@@ -157,7 +155,7 @@ class S3Connector(CloudConnector):
         logger.info(f"Downloading s3://{self.bucket}/{remote_path} to {local_path}")
         return local_path
 
-    async def list_files(self, prefix: str = '') -> List[str]:
+    async def list_files(self, prefix: str = "") -> List[str]:
         """
         List files in S3 bucket.
 
@@ -200,8 +198,8 @@ class GCSConnector(CloudConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.bucket = config.get('bucket', 'geo-infer-data')
-        self.project = config.get('project', 'default-project')
+        self.bucket = config.get("bucket", "geo-infer-data")
+        self.project = config.get("project", "default-project")
 
         logger.info(f"Initialized GCSConnector for bucket: {self.bucket}")
 
@@ -220,7 +218,7 @@ class GCSConnector(CloudConnector):
         logger.info(f"Downloading gs://{self.bucket}/{remote_path} to {local_path}")
         return local_path
 
-    async def list_files(self, prefix: str = '') -> List[str]:
+    async def list_files(self, prefix: str = "") -> List[str]:
         """List files in GCS bucket."""
         logger.info(f"Listing files in gs://{self.bucket}/{prefix}")
         return [f"{prefix}gcs_file_{i}.tif" for i in range(3)]
@@ -245,8 +243,8 @@ class AzureConnector(CloudConnector):
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.container = config.get('container', 'geo-infer-data')
-        self.account_name = config.get('account_name')
+        self.container = config.get("container", "geo-infer-data")
+        self.account_name = config.get("account_name")
 
         logger.info(f"Initialized AzureConnector for container: {self.container}")
 
@@ -262,10 +260,12 @@ class AzureConnector(CloudConnector):
 
     async def download_file(self, remote_path: str, local_path: str) -> str:
         """Download file from Azure Blob Storage."""
-        logger.info(f"Downloading azure://{self.container}/{remote_path} to {local_path}")
+        logger.info(
+            f"Downloading azure://{self.container}/{remote_path} to {local_path}"
+        )
         return local_path
 
-    async def list_files(self, prefix: str = '') -> List[str]:
+    async def list_files(self, prefix: str = "") -> List[str]:
         """List files in Azure container."""
         logger.info(f"Listing files in azure://{self.container}/{prefix}")
         return [f"{prefix}azure_file_{i}.parquet" for i in range(4)]

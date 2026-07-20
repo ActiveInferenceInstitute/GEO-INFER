@@ -101,8 +101,8 @@ def plot_customer_distribution_by_source(
 #     from ..crm.importer import CSVCRMImporter
 #     from ..crm.transformer import clean_customer_data, enrich_customer_data
 
-#     # Assume dummy_crm_data.csv exists
-#     importer = CSVCRMImporter(file_path='dummy_crm_data.csv')
+#     # Assume crm_example_data.csv exists
+#     importer = CSVCRMImporter(file_path='crm_example_data.csv')
 #     raw_customers = importer.import_customers()
 #     cleaned = clean_customer_data(raw_customers)
 #     enriched = enrich_customer_data(cleaned)

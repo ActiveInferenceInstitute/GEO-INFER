@@ -215,6 +215,8 @@ def module_readme_notes(path: Path, module: ModuleInfo | None) -> str:
 - `validate_test_contracts.py --strict` validates every module inventory,
   primary marker, forbidden pytest control, syntax tree, and behavior-test
   docstring.
+- `validate_documentation.py --strict` validates the maintained documentation
+  hub's relative links and rejects known stale current-state claims.
 - `validate_model_contracts.py` checks representative ACT model contracts;
   `run_model_audit.py` emits finite statistics, a PNG visualization, SHA-256
   sidecars, and a deterministic manifest.
@@ -473,6 +475,8 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
 - Keep `validate_test_contracts.py`, `validate_model_contracts.py`, and
   `run_model_audit.py` synchronized with the documented commands and output
   schemas.
+- Keep `validate_documentation.py` synchronized with the maintained
+  authoritative documentation paths when the hub moves.
 """
     if module.name == "GEO-INFER-ACT":
         return """
@@ -716,8 +720,45 @@ GEO-INFER is a {len(modules)}-module geospatial inference monorepo for spatial a
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
+
+## Documentation Map
+
+- User documentation hub: [`GEO-INFER-INTRA/docs/index.md`](GEO-INFER-INTRA/docs/index.md)
+- Installation and first workflow: [`GEO-INFER-INTRA/docs/getting_started/index.md`](GEO-INFER-INTRA/docs/getting_started/index.md)
+- Framework architecture: [`GEO-INFER-INTRA/docs/overview.md`](GEO-INFER-INTRA/docs/overview.md)
+- Module catalog: [`GEO-INFER-INTRA/docs/modules/index.md`](GEO-INFER-INTRA/docs/modules/index.md)
+- Developer workflow: [`GEO-INFER-INTRA/docs/developer_guide/index.md`](GEO-INFER-INTRA/docs/developer_guide/index.md)
+- Test and release gates: [`GEO-INFER-TEST/docs/index.md`](GEO-INFER-TEST/docs/index.md)
+- Active Inference reference: [`GEO-INFER-INTRA/docs/active_inference_guide.md`](GEO-INFER-INTRA/docs/active_inference_guide.md)
+- Spatial/H3 reference: [`GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md`](GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md)
+- Contribution rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Security reporting: [`SECURITY.md`](SECURITY.md)
+- Release history: [`CHANGELOG.md`](CHANGELOG.md)
+
+The repository root and module-level `README.md`/`AGENTS.md` files are generated
+signposts. Conceptual tutorials, integration guidance, and policy live in the
+INTRA documentation hub; executable behavior and public exports remain owned by
+the module source and its tests.
+
+## Choose an Installation Profile
+
+The repository is a uv workspace. Use the full sync when working across module
+boundaries, or sync a single package when developing one module:
+
+```bash
+uv sync --all-packages --all-extras
+uv sync --package geo-infer-act
+uv sync --package geo-infer-space
+uv sync --package geo-infer-ant
+```
+
+`--all-extras` installs optional scientific, Bayesian, web, IoT, performance,
+quality, and documentation dependencies. CI intentionally omits native-only
+extras that cannot build on its CPU runner; see `.github/workflows/ci.yml` for
+the exact reproducible exception list.
 
 ## Module Index
 
@@ -736,6 +777,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ## Validation
 
 - Repository contracts: `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language`
+- Documentation links and current-state claims: `uv run python GEO-INFER-TEST/validate_documentation.py --strict`
 - Syntax gate: `python -m compileall GEO-INFER-*/src GEO-INFER-*/examples`
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
@@ -754,6 +796,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 3. Run the focused test, then compile and run the contract validators.
 4. Refresh generated signposts with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py`.
 5. Confirm generated documentation is stable with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check`.
+
+## Artifact and Output Hygiene
+
+- Test reports belong under `.geo-infer-test-results/`.
+- Model-audit artifacts are emitted under `.geo-infer-test-results/model-audit/`.
+- Scenario and visualization outputs must use an explicit output directory and
+  must not write to repository-root `output/`, `outputs/`, or `test_output/`.
+- Generated signposts must describe tracked files only; local caches and build
+  products are intentionally excluded.
 
 README.md and AGENTS.md files below the repository root are generated signposts.
 The generator derives their contents from tracked files, public symbols, module
@@ -805,6 +856,7 @@ Use this file as the repository-level operating contract for automated agents wo
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
@@ -829,6 +881,17 @@ uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ## Documentation Contract
 
 Agent-facing documentation must be operational: current paths, commands, package names, public exports, test surfaces, and failure triage. Do not advertise planned APIs in AGENTS.md; use issues, roadmaps, or implementation status files for future work.
+
+## Documentation Workflow
+
+- Put conceptual, cross-module, and user-facing guidance in
+  `GEO-INFER-INTRA/docs/`.
+- Keep module READMEs focused on the current filesystem, imports, dependencies,
+  and verification commands; they are generated from tracked repository facts.
+- Keep `SKILL.md` action-oriented and synchronized with real public APIs.
+- Validate relative documentation links and generated signposts before handoff.
+- Preserve existing work from other agents in a shared checkout; inspect the
+  diff before staging generated documentation.
 
 ## Documentation and Release Gate
 

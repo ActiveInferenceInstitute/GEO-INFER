@@ -19,8 +19,8 @@ zero-mass priors, and observations with no posterior support raise `ValueError`.
 all levels have the same state dimension. If no `B` is supplied, the categorical
 default is the identity transition, preserving state continuity.
 
-The legacy `CategoricalModel` retains its existing row-stochastic matrix
-orientation for compatibility: `transition_matrix[current_state, next_state]`.
+The categorical model retains its row-stochastic matrix orientation:
+`transition_matrix[current_state, next_state]`.
 It applies `transition_matrix.T @ beliefs` before each observation update.
 `BayesianBeliefUpdate.update_categorical` shares the same stable log-space
 normalization helper but remains a pure Bayes update over the prior supplied by

@@ -10,19 +10,18 @@ This example demonstrates:
 
 import sys
 import os
-import numpy as np
-import pandas as pd
 
 # Add src directory to path
 project_root = os.path.dirname(os.path.dirname(__file__))
-src_path = os.path.join(project_root, 'src')
+src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 try:
     import geopandas as gpd
     from shapely.geometry import Point, Polygon
-    from geo_infer_risk.core.risk_engine import RiskEngine
+    from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
+
     IMPORTS_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️  Some imports not available: {e}")
@@ -37,15 +36,15 @@ def create_sample_exposure_data():
         Point(-122.4094, 37.7849),  # Asset 2
         Point(-122.4294, 37.7649),  # Asset 3
     ]
-    
+
     data = {
-        'asset_id': ['asset_001', 'asset_002', 'asset_003'],
-        'asset_type': ['building', 'infrastructure', 'building'],
-        'value': [1000000, 5000000, 2000000],
-        'geometry': points
+        "asset_id": ["asset_001", "asset_002", "asset_003"],
+        "asset_type": ["building", "infrastructure", "building"],
+        "value": [1000000, 5000000, 2000000],
+        "geometry": points,
     }
-    
-    return gpd.GeoDataFrame(data, crs='EPSG:4326')
+
+    return gpd.GeoDataFrame(data, crs="EPSG:4326")
 
 
 def main():
@@ -53,27 +52,27 @@ def main():
     print("=" * 60)
     print("GEO-INFER-RISK: Basic Risk Assessment Example")
     print("=" * 60)
-    
+
     if not IMPORTS_AVAILABLE:
         print("\n⚠️  Some required modules are not available.")
         print("   This example requires full GEO-INFER-RISK installation.")
         return
-    
+
     # Step 1: Risk engine initialization
     print("\n⚙️  Step 1: Initializing risk engine...")
     try:
-        risk_engine = RiskEngine()
-        print(f"   ✅ Risk engine initialized")
-        print(f"   Available capabilities:")
-        print(f"      • Hazard modeling")
-        print(f"      • Vulnerability assessment")
-        print(f"      • Exposure analysis")
-        print(f"      • Risk calculation")
-        print(f"      • Uncertainty quantification")
+        risk_engine = EnhancedRiskEngine()
+        print("   ✅ Risk engine initialized")
+        print("   Available capabilities:")
+        print("      • Hazard modeling")
+        print("      • Vulnerability assessment")
+        print("      • Exposure analysis")
+        print("      • Risk calculation")
+        print("      • Uncertainty quantification")
     except Exception as e:
         print(f"   ⚠️  Risk engine initialization: {e}")
         risk_engine = None
-    
+
     # Step 2: Exposure data
     print("\n📊 Step 2: Preparing exposure data...")
     try:
@@ -84,35 +83,35 @@ def main():
     except Exception as e:
         print(f"   ⚠️  Exposure data: {e}")
         exposure_data = None
-    
+
     # Step 3: Risk assessment
     print("\n🔍 Step 3: Performing risk assessment...")
     try:
         if risk_engine is not None and exposure_data is not None:
-            print(f"   ✅ Risk assessment framework ready")
-            print(f"   Assessment components:")
-            print(f"      • Hazard identification")
-            print(f"      • Vulnerability modeling")
-            print(f"      • Exposure mapping")
-            print(f"      • Risk quantification")
-            print(f"      • Spatial risk visualization")
+            print("   ✅ Risk assessment framework ready")
+            print("   Assessment components:")
+            print("      • Hazard identification")
+            print("      • Vulnerability modeling")
+            print("      • Exposure mapping")
+            print("      • Risk quantification")
+            print("      • Spatial risk visualization")
     except Exception as e:
         print(f"   ⚠️  Risk assessment: {e}")
-    
+
     # Step 4: Integration capabilities
     print("\n🔗 Step 4: Integration capabilities...")
     try:
-        print(f"   ✅ GEO-INFER-RISK integrates with:")
-        print(f"      • SPACE: Spatial risk mapping")
-        print(f"      • TIME: Temporal risk dynamics")
-        print(f"      • AI: Machine learning risk models")
-        print(f"      • BAYES: Bayesian risk inference")
-        print(f"      • MATH: Statistical risk methods")
-        print(f"      • HEALTH: Health risk assessment")
-        print(f"      • ECON: Economic risk analysis")
+        print("   ✅ GEO-INFER-RISK integrates with:")
+        print("      • SPACE: Spatial risk mapping")
+        print("      • TIME: Temporal risk dynamics")
+        print("      • AI: Machine learning risk models")
+        print("      • BAYES: Bayesian risk inference")
+        print("      • MATH: Statistical risk methods")
+        print("      • HEALTH: Health risk assessment")
+        print("      • ECON: Economic risk analysis")
     except Exception as e:
         print(f"   ⚠️  Integration info: {e}")
-    
+
     # Summary
     print("\n" + "=" * 60)
     print("✅ Risk assessment example complete!")
@@ -131,4 +130,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

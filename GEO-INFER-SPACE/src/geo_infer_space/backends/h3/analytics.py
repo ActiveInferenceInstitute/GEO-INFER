@@ -5,10 +5,6 @@ This module provides specialized analytics classes for H3 hexagonal grids
 including clustering, density analysis, network analysis, and temporal analysis.
 """
 
-# The file contains legacy analyzer implementations retained for compatibility;
-# later class methods intentionally override earlier variants.
-# ruff: noqa: F811
-
 import importlib.util
 import logging
 from typing import List, Dict, Any
@@ -444,10 +440,10 @@ class H3SpatialAnalyzer:
         }
         """
         Analyze spatial autocorrelation for a value column.
-        
+
         Args:
             value_column: Column name to analyze
-            
+
         Returns:
             Dictionary with autocorrelation metrics
         """
@@ -958,7 +954,7 @@ class H3ClusterAnalyzer:
 
     """
     Clustering analysis for H3 grids.
-    
+
     Provides methods for identifying clusters and patterns
     in H3 hexagonal grid data.
     """
@@ -1426,7 +1422,7 @@ class H3DensityAnalyzer:
 
     """
     Density analysis for H3 grids.
-    
+
     Provides methods for analyzing density patterns and distributions
     within H3 hexagonal grids.
     """
@@ -1913,7 +1909,7 @@ class H3NetworkAnalyzer:
 
     """
     Network analysis for H3 grids.
-    
+
     Provides methods for analyzing network properties and connectivity
     patterns within H3 hexagonal grids.
     """
@@ -2561,7 +2557,7 @@ class H3TemporalAnalyzer:
 
     """
     Temporal analysis for H3 grids.
-    
+
     Provides methods for analyzing temporal patterns and changes
     in H3 hexagonal grid data over time.
     """

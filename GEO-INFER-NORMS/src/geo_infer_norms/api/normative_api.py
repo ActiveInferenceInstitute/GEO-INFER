@@ -7,10 +7,14 @@ to analyze, model, and predict the diffusion of social norms across geographies.
 
 from typing import Dict, List, Optional, Any
 import datetime
+import csv
+import json
+import uuid
+from pathlib import Path
 import numpy as np
 from fastapi import APIRouter, HTTPException, Query, Path
 from pydantic import BaseModel, Field
-from shapely.geometry import shape
+from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
 from geo_infer_norms.core.normative_inference import (
@@ -310,7 +314,7 @@ class NormativeAPI:
         """
         try:
             # Create norm object
-            norm_id = f"norm-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+            norm_id = f"norm-{uuid.uuid4().hex}"
             norm = {
                 "id": norm_id,
                 "name": norm_data.name,
@@ -326,6 +330,35 @@ class NormativeAPI:
 
             # Store norm
             self._social_norms[norm_id] = norm
+
+            # Register the same entities and norm with the diffusion engine so
+            # the simulation endpoint operates on the submitted jurisdiction
+            # set rather than constructing an unrelated response.
+            for jurisdiction_id in norm_data.jurisdiction_ids:
+                self.social_norm_diffusion.add_entity(
+                    jurisdiction_id,
+                    attributes={"jurisdiction_id": jurisdiction_id},
+                )
+            self.social_norm_diffusion.add_norm(
+                norm_id,
+                norm_data.name,
+                spatial_factor=(
+                    float(norm_data.factors.get("geographic_proximity", 0.0))
+                    if norm_data.factors
+                    else 0.0
+                ),
+                network_factor=(
+                    float(norm_data.factors.get("social_networks", 0.0))
+                    if norm_data.factors
+                    else 0.0
+                ),
+                content_factor=(
+                    float(norm_data.factors.get("content", 0.0))
+                    if norm_data.factors
+                    else 0.0
+                ),
+                attributes=norm_data.factors or {},
+            )
 
             return {
                 "status": "success",
@@ -432,54 +465,47 @@ class NormativeAPI:
                 )
 
             norm = self._social_norms[diffusion_request.norm_id]
+            initial_conditions = diffusion_request.initial_conditions or {}
+            seed_jurisdictions = initial_conditions.get("seed_jurisdictions", [])
+            if not seed_jurisdictions:
+                seed_jurisdictions = norm["jurisdiction_ids"][:1]
 
-            # This would be a real simulation in a production implementation
-            # For now, generate a deterministic response
-
-            # Generate synthetic time series data
-            time_series = []
-            initial_strength = norm["strength"]
-            diffusion_rate = (
-                diffusion_request.parameters.get("diffusion_rate", 0.1)
-                if diffusion_request.parameters
-                else 0.1
+            diffusion = self.social_norm_diffusion
+            for jurisdiction_id in norm["jurisdiction_ids"]:
+                if jurisdiction_id not in diffusion.entities:
+                    diffusion.add_entity(
+                        jurisdiction_id,
+                        attributes={"jurisdiction_id": jurisdiction_id},
+                    )
+            diffusion.add_norm(
+                diffusion_request.norm_id,
+                norm["name"],
+                initial_adopters=[
+                    jurisdiction_id
+                    for jurisdiction_id in seed_jurisdictions
+                    if jurisdiction_id in norm["jurisdiction_ids"]
+                ],
+                attributes=norm["factors"],
             )
-            decay_rate = (
-                diffusion_request.parameters.get("decay_rate", 0.02)
-                if diffusion_request.parameters
-                else 0.02
+            steps = diffusion.simulate(diffusion_request.time_steps)
+            history = diffusion.get_adoption_history().get(
+                diffusion_request.norm_id, []
             )
-
-            # Simple logistic growth model
-            for t in range(diffusion_request.time_steps + 1):
-                # Simple model: strength grows logistically but with some decay
-                strength = (
-                    initial_strength
-                    + (1 - initial_strength) * (1 - 1 / (1 + diffusion_rate * t))
-                    - decay_rate * t / diffusion_request.time_steps
-                )
-                strength = max(0, min(1, strength))  # Ensure bounds of [0, 1]
-
-                time_series.append(
-                    {
-                        "time_step": t,
-                        "strength": strength,
-                        "spread": initial_strength
-                        + (t / diffusion_request.time_steps)
-                        * (1 - initial_strength)
-                        * 0.8,  # Spread as % of jurisdictions
-                    }
-                )
-
-            # Generate synthetic spatial data
+            summary = diffusion.get_adoption_summary().get(
+                diffusion_request.norm_id, {}
+            )
+            time_series = [
+                {"time_step": index, "adoption_rate": rate}
+                for index, rate in enumerate(history)
+            ]
             jurisdictions = [
                 {
-                    "id": jid,
-                    "name": f"Jurisdiction {i+1}",
-                    "initial_strength": initial_strength
-                    * (0.8 + 0.4 * (i / len(norm["jurisdiction_ids"]))),
+                    "id": jurisdiction_id,
+                    "adopted": diffusion.adoption_state[diffusion_request.norm_id].get(
+                        jurisdiction_id, False
+                    ),
                 }
-                for i, jid in enumerate(norm["jurisdiction_ids"])
+                for jurisdiction_id in norm["jurisdiction_ids"]
             ]
 
             return {
@@ -491,8 +517,9 @@ class NormativeAPI:
                 "time_series": time_series,
                 "jurisdictions": jurisdictions,
                 "parameters": diffusion_request.parameters or {},
-                "final_strength": time_series[-1]["strength"],
-                "final_spread": time_series[-1]["spread"],
+                "steps": steps,
+                "final_adoption_rate": summary.get("adoption_rate", 0.0),
+                "adoption_summary": summary,
             }
         except HTTPException:
             raise
@@ -522,38 +549,10 @@ class NormativeAPI:
 
             norm = self._social_norms[norm_id]
 
-            # In a real implementation, this would analyze various factors
-            # For now, return factors from the norm plus some additional analysis
-
             norm_factors = norm["factors"] or {}
-
-            # Add some additional synthetic analysis
             factor_analysis = {
-                "geographic_proximity": {
-                    "importance": 0.85,
-                    "description": "The influence of geographic proximity on norm diffusion",
-                    "effect": "Strong positive effect on diffusion speed",
-                },
-                "social_networks": {
-                    "importance": 0.75,
-                    "description": "The influence of social networks on norm diffusion",
-                    "effect": "Moderate positive effect on diffusion breadth",
-                },
-                "institutional_support": {
-                    "importance": 0.65,
-                    "description": "The influence of institutional support on norm sustainability",
-                    "effect": "Strong positive effect on norm stability",
-                },
+                factor: {"importance": value} for factor, value in norm_factors.items()
             }
-
-            # Include original factors
-            for factor, value in norm_factors.items():
-                if factor not in factor_analysis:
-                    factor_analysis[factor] = {
-                        "importance": value,
-                        "description": f"User-defined factor: {factor}",
-                        "effect": "Effect undetermined",
-                    }
 
             return {
                 "status": "success",
@@ -561,7 +560,7 @@ class NormativeAPI:
                 "norm_name": norm["name"],
                 "factors": factor_analysis,
                 "overall_diffusion_potential": (
-                    sum(f["importance"] for f in factor_analysis.values())
+                    sum(float(f["importance"]) for f in factor_analysis.values())
                     / len(factor_analysis)
                     if factor_analysis
                     else 0
@@ -589,60 +588,75 @@ class NormativeAPI:
             Inference results
         """
         try:
-            # This would be a real inference in a production implementation
-            # For now, generate a deterministic response
-
-            # Generate synthetic inferred norms based on inference type
-            inferred_norms = []
-
-            if inference_request.inference_type == "bayesian":
-                # Synthetic Bayesian inference results
-                inferred_norms = [
-                    {
-                        "name": "Environmental Conservation",
-                        "inferred_strength": 0.72,
-                        "confidence": 0.85,
-                        "factors": {
-                            "education_level": 0.65,
-                            "income": 0.45,
-                            "age": -0.20,
-                        },
-                        "spatial_variation": "moderate",
-                    },
-                    {
-                        "name": "Public Health Compliance",
-                        "inferred_strength": 0.68,
-                        "confidence": 0.78,
-                        "factors": {
-                            "education_level": 0.70,
-                            "income": 0.30,
-                            "age": 0.25,
-                        },
-                        "spatial_variation": "low",
-                    },
-                ]
-            elif inference_request.inference_type == "frequentist":
-                # Synthetic frequentist inference results
-                inferred_norms = [
-                    {
-                        "name": "Community Participation",
-                        "inferred_strength": 0.54,
-                        "p_value": 0.01,
-                        "factors": {"population_density": 0.40, "community_age": 0.65},
-                        "spatial_variation": "high",
-                    }
-                ]
+            source_path = Path(inference_request.data_source)
+            if not source_path.is_file():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Inference data source not found: {source_path}",
+                )
+            if source_path.suffix.lower() == ".csv":
+                with source_path.open(newline="", encoding="utf-8") as handle:
+                    records = list(csv.DictReader(handle))
+            elif source_path.suffix.lower() in {".json", ".geojson"}:
+                payload = json.loads(source_path.read_text(encoding="utf-8"))
+                records = (
+                    payload.get("features", [])
+                    if payload.get("type") == "FeatureCollection"
+                    else payload
+                )
+                if isinstance(records, dict):
+                    records = [records]
             else:
-                # Generic deterministic inference
-                inferred_norms = [
-                    {
-                        "name": "Generic Social Norm",
-                        "inferred_strength": 0.60,
-                        "confidence": 0.70,
-                        "factors": {},
-                        "spatial_variation": "unknown",
-                    }
-                ]
+                raise HTTPException(
+                    status_code=415,
+                    detail="Inference data source must be CSV, JSON, or GeoJSON",
+                )
+
+            parameters = inference_request.parameters or {}
+            behavior = str(parameters.get("behavior", "value"))
+            value_field = str(parameters.get("value_field", behavior))
+            expected_value = parameters.get("expected_value")
+            norm_id = self.normative_inference.add_norm(
+                name=str(parameters.get("norm_name", inference_request.inference_type)),
+                condition=lambda observations: (
+                    observations.get(behavior) == expected_value
+                    if expected_value is not None
+                    else bool(observations.get(behavior))
+                ),
+                probability=float(parameters.get("prior_probability", 0.5)),
+                description="Norm inferred from the submitted observation source",
+            )
+            entity_ids = []
+            for index, record in enumerate(records):
+                properties = (
+                    record.get("properties", record) if isinstance(record, dict) else {}
+                )
+                entity_id = str(
+                    properties.get("entity_id", properties.get("id", index))
+                )
+                if value_field not in properties:
+                    continue
+                self.normative_inference.add_observation(
+                    entity_id,
+                    behavior,
+                    properties[value_field],
+                )
+                entity_ids.append(entity_id)
+            if not entity_ids:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"No records contained the configured value field '{value_field}'",
+                )
+            inferred_norms = [
+                {
+                    "entity_id": entity_id,
+                    "norm_id": norm_id,
+                    "compliance_probability": self.normative_inference.infer_compliance(
+                        entity_id, norm_id
+                    ),
+                }
+                for entity_id in entity_ids
+            ]
 
             return {
                 "status": "success",
@@ -654,6 +668,8 @@ class NormativeAPI:
                 "inferred_norms": inferred_norms,
                 "inference_id": f"infer-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             }
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=500,
@@ -673,36 +689,30 @@ class NormativeAPI:
             Spatial pattern analysis results
         """
         try:
-            # This would be a real spatial analysis in a production implementation
-            # For now, generate a deterministic response
-
-            # Generate synthetic spatial analysis
-
+            geometry = self._geometry_from_model(inference_request.spatial_extent)
+            locations = []
+            for entity_id, behaviors in self.normative_inference.observations.items():
+                for observations in behaviors.values():
+                    latest = max(observations, key=lambda item: item["timestamp"])
+                    location = latest.get("location")
+                    if location is not None and (
+                        geometry is None or geometry.contains(location)
+                    ):
+                        locations.append(
+                            {
+                                "entity_id": entity_id,
+                                "longitude": location.x,
+                                "latitude": location.y,
+                            }
+                        )
             return {
                 "status": "success",
                 "message": "Spatial pattern analysis completed",
                 "data_source": inference_request.data_source,
                 "spatial_patterns": [
-                    {
-                        "pattern_type": "cluster",
-                        "description": "High-strength norm clusters in urban areas",
-                        "spatial_autocorrelation": 0.65,
-                        "hotspots": [
-                            {"name": "Downtown Area", "strength": 0.82},
-                            {"name": "University District", "strength": 0.78},
-                        ],
-                        "coldspots": [
-                            {"name": "Industrial Zone", "strength": 0.32},
-                            {"name": "Rural Periphery", "strength": 0.45},
-                        ],
-                    },
-                    {
-                        "pattern_type": "gradient",
-                        "description": "Strength decreases with distance from city center",
-                        "gradient_direction": "center to periphery",
-                        "gradient_strength": 0.58,
-                    },
+                    {"pattern_type": "observations", "locations": locations}
                 ],
+                "observation_count": len(locations),
                 "analysis_id": f"spatial-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             }
         except Exception as e:
@@ -833,13 +843,12 @@ class NormativeAPI:
             List of applicable social norms
         """
         try:
-            # This would be implemented with spatial queries in a real implementation
-            # For now, return a subset of norms
-
-            # Deterministic local implementation - return all norms
-            norms = list(self._social_norms.values())
-
-            # In reality, we would filter by jurisdictions that contain the point
+            norms = [
+                norm
+                for norm in self._social_norms.values()
+                if norm.get("spatial_geometry") is not None
+                and norm["spatial_geometry"].contains(Point(point.lon, point.lat))
+            ]
             return [self._social_norm_to_dict(n) for n in norms]
         except Exception as e:
             raise HTTPException(
@@ -866,9 +875,6 @@ class NormativeAPI:
             GeoJSON data
         """
         try:
-            # This would create a proper GeoJSON with real jurisdictions in a production implementation
-            # For now, generate a deterministic response
-
             # Filter norms
             norms = list(self._social_norms.values())
 
@@ -878,31 +884,19 @@ class NormativeAPI:
             if min_strength is not None:
                 norms = [n for n in norms if n["strength"] >= min_strength]
 
-            # Create synthetic features for each jurisdiction with norm data
             features = []
 
             for norm in norms:
-                for i, jid in enumerate(norm["jurisdiction_ids"]):
-                    # Create a simple square as default geometry for each jurisdiction
-                    center_x = i * 0.2
-                    center_y = i * 0.2
-                    coords = [
-                        [
-                            [center_x - 0.1, center_y - 0.1],
-                            [center_x + 0.1, center_y - 0.1],
-                            [center_x + 0.1, center_y + 0.1],
-                            [center_x - 0.1, center_y + 0.1],
-                            [center_x - 0.1, center_y - 0.1],
-                        ]
-                    ]
-
+                geometry = norm.get("spatial_geometry")
+                if geometry is None:
+                    continue
+                for jid in norm["jurisdiction_ids"]:
                     features.append(
                         {
                             "type": "Feature",
-                            "geometry": {"type": "Polygon", "coordinates": coords},
+                            "geometry": geometry.__geo_interface__,
                             "properties": {
                                 "jurisdiction_id": jid,
-                                "jurisdiction_name": f"Jurisdiction {i+1}",
                                 "norm_id": norm["id"],
                                 "norm_name": norm["name"],
                                 "norm_strength": norm["strength"],

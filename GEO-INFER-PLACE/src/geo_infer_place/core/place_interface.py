@@ -26,40 +26,20 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-# Hardcoded fallback presets (used if YAML is unavailable)
-_FALLBACK_PRESETS: Dict[str, Any] = {
-    "del_norte": {
-        "name": "Del Norte County, California",
-        "bounds": {"west": -124.408, "south": 41.458, "east": -123.536, "north": 42.006},
-        "h3_resolution": 8,
-        "analyzers": ["forest_health", "coastal_resilience", "fire_risk", "seismic_hazard"],
-        "data_sources": ["calfire", "noaa", "usgs"],
-    },
-    "cascadia": {
-        "name": "Cascadia Bioregion (BC, WA, OR, CA)",
-        "bounds": {"west": -124.8, "south": 40.0, "east": -114.5, "north": 49.0},
-        "h3_resolution": 7,
-        "analyzers": [
-            "seismic_hazard", "forest_health", "salmon_habitat", "volcanic_hazard",
-        ],
-        "data_sources": ["usgs", "noaa", "calfire"],
-    },
-}
-
 
 def _load_presets() -> Dict[str, Any]:
-    """Load location presets from YAML config; fall back to hardcoded dict."""
+    """Load location presets from the tracked YAML configuration."""
     _cfg = Path(__file__).parent.parent / "config" / "location_presets.yaml"
-    if _cfg.exists():
-        try:
-            import yaml
-            with open(_cfg) as f:
-                data = yaml.safe_load(f)
-            if isinstance(data, dict) and data:
-                return data
-        except Exception as exc:
-            logger.warning("Failed to load location_presets.yaml: %s — using fallback", exc)
-    return _FALLBACK_PRESETS
+    if not _cfg.exists():
+        raise FileNotFoundError(f"Location preset configuration is required: {_cfg}")
+
+    import yaml
+
+    with open(_cfg, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    if not isinstance(data, dict) or not data:
+        raise ValueError(f"Location preset configuration is empty or invalid: {_cfg}")
+    return data
 
 
 LOCATION_PRESETS = _load_presets()
@@ -106,7 +86,12 @@ class PlaceInterface:
         }
 
         # Output directory
-        default_out = Path(__file__).resolve().parents[3] / "locations" / location.replace(" ", "_") / "output"
+        default_out = (
+            Path(__file__).resolve().parents[3]
+            / "locations"
+            / location.replace(" ", "_")
+            / "output"
+        )
         self.output_dir = Path(output_dir) if output_dir else default_out
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -128,6 +113,7 @@ class PlaceInterface:
         """Data integrator with CAL FIRE, NOAA, USGS wrappers."""
         if self._integrator is None:
             from ..utils.integration import DelNorteDataIntegrator
+
             self._integrator = DelNorteDataIntegrator()
         return self._integrator
 
@@ -136,6 +122,7 @@ class PlaceInterface:
         """Data quality and provenance manager (bridges GEO-INFER-DATA)."""
         if self._data_manager is None:
             from .module_bridge import PlaceDataManager
+
             self._data_manager = PlaceDataManager()
         return self._data_manager
 
@@ -144,6 +131,7 @@ class PlaceInterface:
         """Temporal analyzer (bridges GEO-INFER-TIME)."""
         if self._temporal is None:
             from .module_bridge import PlaceTemporalAnalyzer
+
             self._temporal = PlaceTemporalAnalyzer()
         return self._temporal
 
@@ -161,7 +149,7 @@ class PlaceInterface:
         - ``seismic_hazard``: SeismicHazardAnalyzer
 
         Returns:
-            Analyzer instance, or ``None`` if the analyzer is not implemented.
+            Analyzer instance, or ``None`` if the analyzer is unavailable.
         """
         if name not in self._analyzers:
             self._analyzers[name] = self._create_analyzer(name)
@@ -169,7 +157,10 @@ class PlaceInterface:
 
     def _create_analyzer(self, name: str) -> Any:
         if name == "forest_health":
-            from ..locations.del_norte_county.forest_health_monitor import ForestHealthMonitor
+            from ..locations.del_norte_county.forest_health_monitor import (
+                ForestHealthMonitor,
+            )
+
             return ForestHealthMonitor(
                 config=self.config,
                 data_integrator=self.integrator,
@@ -177,7 +168,10 @@ class PlaceInterface:
                 output_dir=self.output_dir,
             )
         elif name == "coastal_resilience":
-            from ..locations.del_norte_county.coastal_resilience_analyzer import CoastalResilienceAnalyzer
+            from ..locations.del_norte_county.coastal_resilience_analyzer import (
+                CoastalResilienceAnalyzer,
+            )
+
             return CoastalResilienceAnalyzer(
                 config=self.config,
                 data_integrator=self.integrator,
@@ -186,6 +180,7 @@ class PlaceInterface:
             )
         elif name == "fire_risk":
             from ..locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
+
             return FireRiskAssessor(
                 config=self.config,
                 data_integrator=self.integrator,
@@ -193,7 +188,10 @@ class PlaceInterface:
                 output_dir=self.output_dir,
             )
         elif name == "seismic_hazard":
-            from ..locations.del_norte_county.seismic_hazard_analyzer import SeismicHazardAnalyzer
+            from ..locations.del_norte_county.seismic_hazard_analyzer import (
+                SeismicHazardAnalyzer,
+            )
+
             return SeismicHazardAnalyzer(
                 config=self.config,
                 data_integrator=self.integrator,
@@ -202,7 +200,7 @@ class PlaceInterface:
             )
         else:
             logger.warning(
-                "Analyzer '%s' is not implemented for location '%s' — skipping",
+                "Analyzer '%s' is unavailable for location '%s' — skipping",
                 name,
                 self.location,
             )
@@ -230,7 +228,11 @@ class PlaceInterface:
         preset = LOCATION_PRESETS[self.location]
         analyzer_names = analyzers or preset["analyzers"]
 
-        logger.info("Starting full analysis for %s with analyzers: %s", self.location_name, analyzer_names)
+        logger.info(
+            "Starting full analysis for %s with analyzers: %s",
+            self.location_name,
+            analyzer_names,
+        )
 
         results: Dict[str, Any] = {
             "location": self.location_name,
@@ -257,7 +259,10 @@ class PlaceInterface:
             try:
                 analyzer = self.get_analyzer(name)
                 if analyzer is None:
-                    results["analyses"][name] = {"skipped": True, "reason": "not implemented"}
+                    results["analyses"][name] = {
+                        "skipped": True,
+                        "reason": "unavailable",
+                    }
                     continue
                 analysis_result = analyzer.run_analysis()
                 results["analyses"][name] = analysis_result
@@ -267,11 +272,14 @@ class PlaceInterface:
                 results["data_quality"][name] = quality
 
                 # Log provenance
-                self.data_manager.log_provenance(name, {
-                    "analyzer": name,
-                    "location": self.location,
-                    "data_quality": quality.get("completeness", 0),
-                })
+                self.data_manager.log_provenance(
+                    name,
+                    {
+                        "analyzer": name,
+                        "location": self.location,
+                        "data_quality": quality.get("completeness", 0),
+                    },
+                )
 
             except Exception as exc:
                 logger.error("Analyzer %s failed: %s", name, exc, exc_info=True)
@@ -279,7 +287,9 @@ class PlaceInterface:
 
         # Temporal analysis on applicable data
         if include_temporal:
-            results["temporal_analysis"] = self._run_temporal_analysis(results["analyses"])
+            results["temporal_analysis"] = self._run_temporal_analysis(
+                results["analyses"]
+            )
 
         # Attach provenance
         results["provenance"] = self.data_manager.get_provenance()
@@ -304,10 +314,15 @@ class PlaceInterface:
         try:
             tide_data = self.integrator.noaa_client.get_tide_gauge_data()
             if tide_data.get("series"):
-                temporal_results["tide_trends"] = self.temporal.analyze_tide_trends(tide_data)
-                self.data_manager.log_provenance("temporal_tide_analysis", {
-                    "method": "trend_and_anomaly_detection",
-                })
+                temporal_results["tide_trends"] = self.temporal.analyze_tide_trends(
+                    tide_data
+                )
+                self.data_manager.log_provenance(
+                    "temporal_tide_analysis",
+                    {
+                        "method": "trend_and_anomaly_detection",
+                    },
+                )
         except Exception as exc:
             logger.debug("Tide temporal analysis skipped: %s", exc)
 
@@ -316,10 +331,15 @@ class PlaceInterface:
         csz_data = seismic.get("cascadia_seismicity", {})
         if csz_data.get("events"):
             try:
-                temporal_results["seismic_rates"] = self.temporal.analyze_seismic_rates(csz_data)
-                self.data_manager.log_provenance("temporal_seismic_analysis", {
-                    "method": "daily_rate_trend",
-                })
+                temporal_results["seismic_rates"] = self.temporal.analyze_seismic_rates(
+                    csz_data
+                )
+                self.data_manager.log_provenance(
+                    "temporal_seismic_analysis",
+                    {
+                        "method": "daily_rate_trend",
+                    },
+                )
             except Exception as exc:
                 logger.debug("Seismic temporal analysis skipped: %s", exc)
 

@@ -120,7 +120,7 @@ DOCSTRING_TARGETS = [
     ("geo_infer_act.utils.geospatial_ai", "LevelSpatialGraph"),
     ("geo_infer_act.utils.spatial_diagnostics", "SpatialDiagnostics"),
     ("geo_infer_act.runners.scenarios", "_run_h3_scenario"),
-    ("geo_infer_act.runners.scenarios", "_plot_h3_summary"),
+    ("geo_infer_act.runners.scenarios", "_plot_h3_cell_metric_map"),
 ]
 
 
@@ -474,7 +474,9 @@ def validate_spatial_trace_outputs(
         child_rows = [row for row in cell_rows if row.get("parent_cell")]
         if not parent_rows or not child_rows:
             fail(f"{scenario} nested trace missing parent or child rows")
-        parent_child_path = output_dir / "data" / "nested_h3_parent_child_diagnostics.csv"
+        parent_child_path = (
+            output_dir / "data" / "nested_h3_parent_child_diagnostics.csv"
+        )
         level_path = output_dir / "data" / "nested_h3_level_diagnostics.csv"
         for path in (parent_child_path, level_path):
             if not path.exists() or path.stat().st_size <= 0:

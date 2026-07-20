@@ -7,9 +7,8 @@ and personalized content delivery.
 
 import logging
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
-import random
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LearnerProfile:
     """Learner profile with preferences and history."""
+
     learner_id: str
     learning_style: str = "visual"  # visual, auditory, kinesthetic, reading
     prior_knowledge: List[str] = field(default_factory=list)
@@ -30,6 +30,7 @@ class LearnerProfile:
 @dataclass
 class LearningResource:
     """Educational resource with metadata."""
+
     resource_id: str
     title: str
     resource_type: str  # video, tutorial, exercise, reading, interactive
@@ -44,6 +45,7 @@ class LearningResource:
 @dataclass
 class LearningPathway:
     """Personalized learning pathway."""
+
     pathway_id: str
     learner_id: str
     target_competencies: List[str]
@@ -58,16 +60,16 @@ class PersonalizedLearning:
     Provide personalized learning experiences through adaptive pathways,
     intelligent recommendations, and spaced repetition.
     """
-    
+
     def __init__(
         self,
         adaptation_method: str = "knowledge_tracing",
         recommendation_algorithm: str = "collaborative_filtering",
-        learning_styles: Optional[List[str]] = None
+        learning_styles: Optional[List[str]] = None,
     ):
         """
         Initialize personalized learning engine.
-        
+
         Args:
             adaptation_method: Method for adapting content
             recommendation_algorithm: Algorithm for recommendations
@@ -75,44 +77,62 @@ class PersonalizedLearning:
         """
         self.adaptation_method = adaptation_method
         self.recommendation_algorithm = recommendation_algorithm
-        self.learning_styles = learning_styles or ["visual", "auditory", "kinesthetic", "reading"]
+        self.learning_styles = learning_styles or [
+            "visual",
+            "auditory",
+            "kinesthetic",
+            "reading",
+        ]
         self._learner_profiles: Dict[str, LearnerProfile] = {}
         self._resource_library: Dict[str, LearningResource] = {}
         self._mastery_data: Dict[str, Dict[str, float]] = {}
-        logger.info(f"Initialized PersonalizedLearning with {adaptation_method} adaptation")
-    
+        logger.info(
+            f"Initialized PersonalizedLearning with {adaptation_method} adaptation"
+        )
+
+    def register_resource(
+        self, resource: LearningResource | Dict[str, Any]
+    ) -> LearningResource:
+        """Register a learning resource supplied by the content owner."""
+        if isinstance(resource, dict):
+            resource = LearningResource(**resource)
+        self._resource_library[resource.resource_id] = resource
+        return resource
+
     def register_learner(self, learner_profile: Dict[str, Any]) -> LearnerProfile:
         """Register a new learner with their profile."""
         profile = LearnerProfile(
-            learner_id=learner_profile.get("id", f"learner_{len(self._learner_profiles)}"),
+            learner_id=learner_profile.get(
+                "id", f"learner_{len(self._learner_profiles)}"
+            ),
             learning_style=learner_profile.get("learning_style", "visual"),
             prior_knowledge=learner_profile.get("prior_knowledge", []),
             interests=learner_profile.get("interests", []),
             preferred_pace=learner_profile.get("pace", "moderate"),
             available_time_hours_week=learner_profile.get("hours_per_week", 10),
             strengths=learner_profile.get("strengths", []),
-            challenges=learner_profile.get("challenges", [])
+            challenges=learner_profile.get("challenges", []),
         )
         self._learner_profiles[profile.learner_id] = profile
         self._mastery_data[profile.learner_id] = {}
         return profile
-    
+
     def create_pathway(
         self,
         learner_profile: Dict[str, Any],
         learning_goals: List[str],
         constraints: Dict[str, Any],
-        optimization: str = "mastery"
+        optimization: str = "mastery",
     ) -> LearningPathway:
         """
         Create personalized learning pathway.
-        
+
         Args:
             learner_profile: Learner background and assessment
             learning_goals: Target competencies
             constraints: Time and other constraints
             optimization: Optimization strategy ('mastery', 'speed', 'engagement')
-            
+
         Returns:
             Personalized LearningPathway
         """
@@ -121,94 +141,89 @@ class PersonalizedLearning:
             profile = self.register_learner(learner_profile)
         else:
             profile = learner_profile
-        
+
         # Parse constraints
         time_constraint = constraints.get("time", "20_hours")
         deadline = constraints.get("deadline")
-        total_hours = int(time_constraint.split("_")[0]) if isinstance(time_constraint, str) else time_constraint
-        
+        total_hours = (
+            int(time_constraint.split("_")[0])
+            if isinstance(time_constraint, str)
+            else time_constraint
+        )
+
         # Identify skill gaps
         current_skills = set(profile.prior_knowledge)
         target_skills = set(learning_goals)
         skill_gaps = list(target_skills - current_skills)
-        
+
         # Generate learning sequence
         sequence = []
         hours_per_skill = total_hours / len(skill_gaps) if skill_gaps else total_hours
-        
+
         for i, skill in enumerate(skill_gaps):
             # Find appropriate resources
             resources = self._find_resources_for_skill(skill, profile.learning_style)
-            
-            sequence.append({
-                "order": i + 1,
-                "skill": skill,
-                "estimated_hours": hours_per_skill,
-                "resources": resources,
-                "assessments": [f"assessment_{skill}"],
-                "prerequisites": list(target_skills.intersection(current_skills))
-            })
-        
+
+            sequence.append(
+                {
+                    "order": i + 1,
+                    "skill": skill,
+                    "estimated_hours": hours_per_skill,
+                    "resources": resources,
+                    "assessments": [f"assessment_{skill}"],
+                    "prerequisites": list(target_skills.intersection(current_skills)),
+                }
+            )
+
         # Calculate duration
         hours_per_week = profile.available_time_hours_week
         estimated_weeks = max(1, int(total_hours / hours_per_week))
-        
+
         pathway = LearningPathway(
             pathway_id=f"pathway_{profile.learner_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             learner_id=profile.learner_id,
             target_competencies=learning_goals,
             sequence=sequence,
             estimated_duration_weeks=estimated_weeks,
-            optimization_strategy=optimization
+            optimization_strategy=optimization,
         )
-        
-        logger.info(f"Created pathway for {profile.learner_id} with {len(sequence)} learning units")
+
+        logger.info(
+            f"Created pathway for {profile.learner_id} with {len(sequence)} learning units"
+        )
         return pathway
-    
+
     def _find_resources_for_skill(
-        self,
-        skill: str,
-        learning_style: str
+        self, skill: str, learning_style: str
     ) -> List[Dict[str, Any]]:
         """Find appropriate resources for a skill and learning style."""
-        # Generate synthetic resources if library is empty
-        style_formats = {
-            "visual": ["video", "infographic", "diagram"],
-            "auditory": ["podcast", "lecture", "discussion"],
-            "kinesthetic": ["interactive", "exercise", "simulation"],
-            "reading": ["article", "textbook", "documentation"]
-        }
-        
-        formats = style_formats.get(learning_style, ["video", "reading"])
-        
-        resources = []
-        for i, fmt in enumerate(formats[:3]):
-            resources.append({
-                "resource_id": f"resource_{skill}_{fmt}",
-                "title": f"{skill.replace('_', ' ').title()} - {fmt.title()}",
-                "type": fmt,
-                "estimated_minutes": 30 + (i * 15),
-                "difficulty": "appropriate"
-            })
-        
-        return resources
-    
+        preferred_formats = set(self._get_preferred_formats(learning_style))
+        return [
+            {
+                **asdict(resource),
+                "type": resource.resource_type,
+                "estimated_minutes": resource.duration_minutes,
+            }
+            for resource in self._resource_library.values()
+            if resource.topic == skill and resource.resource_type in preferred_formats
+        ]
+
     def recommend_resources(
         self,
         learner_id: str,
         current_topic: str,
         resource_types: Optional[List[str]] = None,
-        difficulty: str = "appropriate"
+        difficulty: str = "appropriate",
     ) -> List[Dict[str, Any]]:
         """
         Recommend learning resources for a learner.
-        
+
         Args:
             learner_id: Learner identifier
             current_topic: Current topic of study
             resource_types: Preferred resource types
             difficulty: Difficulty preference
-            
+
         Returns:
             List of recommended resources
         """
@@ -216,67 +231,72 @@ class PersonalizedLearning:
         if not profile:
             logger.warning(f"Learner {learner_id} not found")
             return []
-        
-        resource_types = resource_types or ["video", "tutorial", "exercise"]
-        
+
+        resource_types = set(resource_types or [])
+        preferred = set(self._get_preferred_formats(profile.learning_style))
         recommendations = []
-        for i, res_type in enumerate(resource_types):
-            # Personalize based on learning style
-            relevance_score = 0.9 if res_type in self._get_preferred_formats(profile.learning_style) else 0.7
-            
-            recommendations.append({
-                "resource_id": f"rec_{current_topic}_{res_type}_{i}",
-                "title": f"{current_topic.replace('_', ' ').title()} {res_type.title()}",
-                "type": res_type,
-                "topic": current_topic,
-                "difficulty": difficulty,
-                "relevance_score": relevance_score,
-                "estimated_time_minutes": 20 + (i * 10),
-                "matches_style": res_type in self._get_preferred_formats(profile.learning_style)
-            })
-        
+        for resource in self._resource_library.values():
+            if resource.topic != current_topic:
+                continue
+            if resource_types and resource.resource_type not in resource_types:
+                continue
+            if difficulty != "appropriate" and resource.difficulty != difficulty:
+                continue
+            matches_style = resource.resource_type in preferred
+            recommendations.append(
+                {
+                    **asdict(resource),
+                    "type": resource.resource_type,
+                    "relevance_score": 0.9 if matches_style else 0.7,
+                    "estimated_time_minutes": resource.duration_minutes,
+                    "matches_style": matches_style,
+                }
+            )
+
         # Sort by relevance
         recommendations.sort(key=lambda x: x["relevance_score"], reverse=True)
-        
-        logger.info(f"Generated {len(recommendations)} recommendations for {learner_id}")
+
+        logger.info(
+            f"Generated {len(recommendations)} recommendations for {learner_id}"
+        )
         return recommendations
-    
+
     def _get_preferred_formats(self, learning_style: str) -> List[str]:
         """Get preferred resource formats for learning style."""
         style_map = {
             "visual": ["video", "infographic", "diagram", "animation"],
             "auditory": ["podcast", "lecture", "audio", "discussion"],
             "kinesthetic": ["interactive", "simulation", "exercise", "lab"],
-            "reading": ["article", "textbook", "documentation", "tutorial"]
+            "reading": ["article", "textbook", "documentation", "tutorial"],
         }
         return style_map.get(learning_style, ["video", "tutorial"])
-    
+
     def deliver_adaptive_content(
         self,
         learner_id: str,
         topic: str,
         format_preference: Optional[str] = None,
-        mastery_level: Optional[float] = None
+        mastery_level: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Deliver content adapted to learner's current state.
-        
+
         Args:
             learner_id: Learner identifier
             topic: Topic to deliver
             format_preference: Preferred format
             mastery_level: Current mastery level (0-1)
-            
+
         Returns:
             Adaptive content package
         """
         profile = self._learner_profiles.get(learner_id)
         if not profile:
             return {"error": "Learner not found"}
-        
+
         # Determine appropriate difficulty
         mastery = mastery_level or self._mastery_data.get(learner_id, {}).get(topic, 0)
-        
+
         if mastery < 0.3:
             difficulty = "introductory"
             content_depth = "foundational"
@@ -289,10 +309,12 @@ class PersonalizedLearning:
         else:
             difficulty = "expert"
             content_depth = "specialized"
-        
+
         # Select format
-        format_to_use = format_preference or self._get_preferred_formats(profile.learning_style)[0]
-        
+        format_to_use = (
+            format_preference or self._get_preferred_formats(profile.learning_style)[0]
+        )
+
         content = {
             "learner_id": learner_id,
             "topic": topic,
@@ -301,29 +323,30 @@ class PersonalizedLearning:
             "difficulty": difficulty,
             "content_depth": content_depth,
             "estimated_time_minutes": self._estimate_time(difficulty),
-            "sections": self._generate_content_sections(topic, difficulty, content_depth),
+            "sections": self._generate_content_sections(
+                topic, difficulty, content_depth
+            ),
             "practice_exercises": self._generate_practice(topic, difficulty),
-            "next_steps": self._suggest_next_steps(topic, mastery)
+            "next_steps": self._suggest_next_steps(topic, mastery),
         }
-        
-        logger.info(f"Delivered adaptive content on {topic} ({difficulty}) to {learner_id}")
+
+        logger.info(
+            f"Delivered adaptive content on {topic} ({difficulty}) to {learner_id}"
+        )
         return content
-    
+
     def _estimate_time(self, difficulty: str) -> int:
         """Estimate time needed based on difficulty."""
         time_map = {
             "introductory": 15,
             "intermediate": 25,
             "advanced": 40,
-            "expert": 60
+            "expert": 60,
         }
         return time_map.get(difficulty, 30)
-    
+
     def _generate_content_sections(
-        self,
-        topic: str,
-        difficulty: str,
-        depth: str
+        self, topic: str, difficulty: str, depth: str
     ) -> List[Dict[str, Any]]:
         """Generate content sections for adaptive delivery."""
         sections = [
@@ -331,95 +354,97 @@ class PersonalizedLearning:
                 "section_id": "intro",
                 "title": "Introduction",
                 "type": "overview",
-                "content_summary": f"Introduction to {topic.replace('_', ' ')}"
+                "content_summary": f"Introduction to {topic.replace('_', ' ')}",
             },
             {
                 "section_id": "concepts",
                 "title": "Key Concepts",
                 "type": "conceptual",
-                "content_summary": f"Core concepts of {topic.replace('_', ' ')}"
+                "content_summary": f"Core concepts of {topic.replace('_', ' ')}",
             },
             {
                 "section_id": "examples",
                 "title": "Examples",
                 "type": "demonstration",
-                "content_summary": "Worked examples and demonstrations"
-            }
+                "content_summary": "Worked examples and demonstrations",
+            },
         ]
-        
+
         if difficulty in ["advanced", "expert"]:
-            sections.append({
-                "section_id": "advanced_topics",
-                "title": "Advanced Topics",
-                "type": "specialized",
-                "content_summary": "Advanced applications and edge cases"
-            })
-        
+            sections.append(
+                {
+                    "section_id": "advanced_topics",
+                    "title": "Advanced Topics",
+                    "type": "specialized",
+                    "content_summary": "Advanced applications and edge cases",
+                }
+            )
+
         return sections
-    
+
     def _generate_practice(self, topic: str, difficulty: str) -> List[Dict[str, Any]]:
         """Generate practice exercises."""
         num_exercises = 3 if difficulty in ["introductory", "intermediate"] else 5
-        
+
         return [
             {
                 "exercise_id": f"practice_{topic}_{i}",
                 "type": "practice",
                 "difficulty": difficulty,
-                "estimated_minutes": 5 + (i * 2)
+                "estimated_minutes": 5 + (i * 2),
             }
             for i in range(num_exercises)
         ]
-    
+
     def _suggest_next_steps(self, topic: str, mastery: float) -> List[str]:
         """Suggest next learning steps."""
         if mastery < 0.5:
             return [
                 "Review foundational concepts",
                 "Complete more practice exercises",
-                "Watch explanatory videos"
+                "Watch explanatory videos",
             ]
         elif mastery < 0.8:
             return [
                 "Attempt more challenging exercises",
                 "Explore related topics",
-                "Apply concepts to a project"
+                "Apply concepts to a project",
             ]
         else:
             return [
                 "Move to advanced topics",
                 "Help peers with this topic",
-                "Create your own examples"
+                "Create your own examples",
             ]
-    
+
     def schedule_review(
         self,
         learner_id: str,
         mastered_topics: List[str],
         retention_model: str = "forgetting_curve",
-        review_frequency: str = "optimal"
+        review_frequency: str = "optimal",
     ) -> List[Dict[str, Any]]:
         """
         Schedule spaced repetition reviews.
-        
+
         Args:
             learner_id: Learner identifier
             mastered_topics: Topics to schedule for review
             retention_model: Retention model to use
             review_frequency: Frequency strategy
-            
+
         Returns:
             Review schedule
         """
         schedule = []
         now = datetime.now()
-        
+
         # Spaced repetition intervals (days)
         intervals = [1, 3, 7, 14, 30, 60, 120]
-        
+
         for topic in mastered_topics:
             mastery = self._mastery_data.get(learner_id, {}).get(topic, 0.5)
-            
+
             # Adjust intervals based on mastery
             if mastery >= 0.9:
                 topic_intervals = intervals[2:]  # Skip early reviews
@@ -427,51 +452,56 @@ class PersonalizedLearning:
                 topic_intervals = intervals[1:]
             else:
                 topic_intervals = intervals
-            
-            for i, interval in enumerate(topic_intervals[:5]):  # Max 5 reviews scheduled
-                schedule.append({
-                    "topic": topic,
-                    "review_number": i + 1,
-                    "scheduled_date": (now + timedelta(days=interval)).isoformat(),
-                    "interval_days": interval,
-                    "estimated_minutes": 10,
-                    "review_type": "recall" if i < 2 else "application"
-                })
-        
+
+            for i, interval in enumerate(
+                topic_intervals[:5]
+            ):  # Max 5 reviews scheduled
+                schedule.append(
+                    {
+                        "topic": topic,
+                        "review_number": i + 1,
+                        "scheduled_date": (now + timedelta(days=interval)).isoformat(),
+                        "interval_days": interval,
+                        "estimated_minutes": 10,
+                        "review_type": "recall" if i < 2 else "application",
+                    }
+                )
+
         # Sort by date
         schedule.sort(key=lambda x: x["scheduled_date"])
-        
+
         logger.info(f"Scheduled {len(schedule)} reviews for {learner_id}")
         return schedule
-    
+
     def update_mastery(
-        self,
-        learner_id: str,
-        topic: str,
-        performance_score: float
+        self, learner_id: str, topic: str, performance_score: float
     ) -> float:
         """
         Update mastery level based on performance.
-        
+
         Args:
             learner_id: Learner identifier
             topic: Topic assessed
             performance_score: Score from 0 to 1
-            
+
         Returns:
             Updated mastery level
         """
         if learner_id not in self._mastery_data:
             self._mastery_data[learner_id] = {}
-        
+
         current_mastery = self._mastery_data[learner_id].get(topic, 0)
-        
+
         # Bayesian update with performance
         learning_rate = 0.3
-        new_mastery = current_mastery + learning_rate * (performance_score - current_mastery)
+        new_mastery = current_mastery + learning_rate * (
+            performance_score - current_mastery
+        )
         new_mastery = max(0, min(1, new_mastery))  # Clamp to [0, 1]
-        
+
         self._mastery_data[learner_id][topic] = new_mastery
-        
-        logger.info(f"Updated mastery for {learner_id} on {topic}: {current_mastery:.2f} -> {new_mastery:.2f}")
+
+        logger.info(
+            f"Updated mastery for {learner_id} on {topic}: {current_mastery:.2f} -> {new_mastery:.2f}"
+        )
         return new_mastery

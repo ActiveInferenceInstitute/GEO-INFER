@@ -6,10 +6,9 @@ operations. It serves as the main entry point for the PEP system and coordinates
 different modules and data flows.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime, date
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 import logging
-from pathlib import Path
 
 from ..models.hr_models import Employee, EmploymentStatus
 from ..models.crm_models import Customer
@@ -22,13 +21,12 @@ from ..methods import (
     generate_comprehensive_crm_dashboard,
     generate_comprehensive_talent_dashboard,
     process_employee_onboarding_workflow,
-    clear_all_data,
     get_all_employees,
     get_all_candidates,
-    get_all_customers
 )
 
 logger = logging.getLogger(__name__)
+
 
 class PEPDataManager:
     """
@@ -83,11 +81,21 @@ class PEPDataManager:
                     employees = [emp for emp in employees if getattr(emp, key) == value]
                 elif key in ["department", "status", "gender"]:  # Common filter fields
                     if key == "department":
-                        employees = [emp for emp in employees if emp.department == value]
+                        employees = [
+                            emp for emp in employees if emp.department == value
+                        ]
                     elif key == "status":
-                        employees = [emp for emp in employees if emp.employment_status.value == value]
+                        employees = [
+                            emp
+                            for emp in employees
+                            if emp.employment_status.value == value
+                        ]
                     elif key == "gender" and value:
-                        employees = [emp for emp in employees if emp.gender and emp.gender.value == value]
+                        employees = [
+                            emp
+                            for emp in employees
+                            if emp.gender and emp.gender.value == value
+                        ]
 
         return employees
 
@@ -98,38 +106,54 @@ class PEPDataManager:
         if filters:
             for key, value in filters.items():
                 if hasattr(Customer, key):
-                    customers = [cust for cust in customers if getattr(cust, key) == value]
+                    customers = [
+                        cust for cust in customers if getattr(cust, key) == value
+                    ]
                 elif key in ["status", "company"]:  # Common filter fields
                     if key == "status":
                         customers = [cust for cust in customers if cust.status == value]
                     elif key == "company":
-                        customers = [cust for cust in customers if cust.company == value]
+                        customers = [
+                            cust for cust in customers if cust.company == value
+                        ]
 
         return customers
 
-    def get_candidates(self, filters: Optional[Dict[str, Any]] = None) -> List[Candidate]:
+    def get_candidates(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[Candidate]:
         """Get candidates with optional filtering."""
         candidates = self._candidates.copy()
 
         if filters:
             for key, value in filters.items():
                 if hasattr(Candidate, key):
-                    candidates = [cand for cand in candidates if getattr(cand, key) == value]
+                    candidates = [
+                        cand for cand in candidates if getattr(cand, key) == value
+                    ]
                 elif key == "status":
-                    candidates = [cand for cand in candidates if cand.status.value == value]
+                    candidates = [
+                        cand for cand in candidates if cand.status.value == value
+                    ]
 
         return candidates
 
-    def get_requisitions(self, filters: Optional[Dict[str, Any]] = None) -> List[JobRequisition]:
+    def get_requisitions(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[JobRequisition]:
         """Get job requisitions with optional filtering."""
         requisitions = self._requisitions.copy()
 
         if filters:
             for key, value in filters.items():
                 if hasattr(JobRequisition, key):
-                    requisitions = [req for req in requisitions if getattr(req, key) == value]
+                    requisitions = [
+                        req for req in requisitions if getattr(req, key) == value
+                    ]
                 elif key == "status":
-                    requisitions = [req for req in requisitions if req.status.value == value]
+                    requisitions = [
+                        req for req in requisitions if req.status.value == value
+                    ]
 
         return requisitions
 
@@ -138,24 +162,40 @@ class PEPDataManager:
         return {
             "employees": {
                 "total": len(self._employees),
-                "active": len([e for e in self._employees if e.employment_status == EmploymentStatus.ACTIVE]),
-                "departments": len(set(e.department for e in self._employees))
+                "active": len(
+                    [
+                        e
+                        for e in self._employees
+                        if e.employment_status == EmploymentStatus.ACTIVE
+                    ]
+                ),
+                "departments": len(set(e.department for e in self._employees)),
             },
             "customers": {
                 "total": len(self._customers),
                 "active": len([c for c in self._customers if c.status == "active"]),
-                "companies": len(set(c.company for c in self._customers if c.company))
+                "companies": len(set(c.company for c in self._customers if c.company)),
             },
             "candidates": {
                 "total": len(self._candidates),
-                "offer_accepted": len([c for c in self._candidates if c.status.value == "offer_accepted"]),
-                "requisitions": len(set(c.job_requisition_id for c in self._candidates if c.job_requisition_id))
+                "offer_accepted": len(
+                    [c for c in self._candidates if c.status.value == "offer_accepted"]
+                ),
+                "requisitions": len(
+                    set(
+                        c.job_requisition_id
+                        for c in self._candidates
+                        if c.job_requisition_id
+                    )
+                ),
             },
             "requisitions": {
                 "total": len(self._requisitions),
-                "open": len([r for r in self._requisitions if r.status.value == "open"])
+                "open": len(
+                    [r for r in self._requisitions if r.status.value == "open"]
+                ),
             },
-            "last_updated": self._last_updated.isoformat()
+            "last_updated": self._last_updated.isoformat(),
         }
 
     def clear_all_data(self) -> bool:
@@ -167,6 +207,7 @@ class PEPDataManager:
         self._last_updated = datetime.now()
         logger.info("Cleared all data from PEP data store")
         return True
+
 
 class PEPEngine:
     """
@@ -183,7 +224,7 @@ class PEPEngine:
         # Setup logging
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
 
         logger.info("PEP Engine initialized")
@@ -195,7 +236,6 @@ class PEPEngine:
             return True
 
         try:
-            # Any initialization logic would go here
             self._initialized = True
             logger.info("PEP Engine successfully initialized")
             return True
@@ -213,15 +253,11 @@ class PEPEngine:
                 "success": True,
                 "records_imported": count,
                 "data_type": "employees",
-                "file_path": file_path
+                "file_path": file_path,
             }
         except Exception as e:
             logger.error(f"HR data import failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data_type": "employees"
-            }
+            return {"success": False, "error": str(e), "data_type": "employees"}
 
     def import_crm_data(self, file_path: str) -> Dict[str, Any]:
         """Import CRM data from CSV file."""
@@ -233,17 +269,15 @@ class PEPEngine:
                 "success": True,
                 "records_imported": count,
                 "data_type": "customers",
-                "file_path": file_path
+                "file_path": file_path,
             }
         except Exception as e:
             logger.error(f"CRM data import failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data_type": "customers"
-            }
+            return {"success": False, "error": str(e), "data_type": "customers"}
 
-    def import_talent_data(self, candidates_file: str, requisitions_file: str) -> Dict[str, Any]:
+    def import_talent_data(
+        self, candidates_file: str, requisitions_file: str
+    ) -> Dict[str, Any]:
         """Import talent data from CSV files."""
         try:
             result = import_talent_data_from_csv(candidates_file, requisitions_file)
@@ -260,24 +294,22 @@ class PEPEngine:
                     "success": True,
                     "candidates_imported": result.get("candidates", 0),
                     "requisitions_imported": result.get("requisitions", 0),
-                    "data_type": "talent"
+                    "data_type": "talent",
                 }
             else:
                 return {
                     "success": False,
                     "error": result.get("error", "Unknown error"),
-                    "data_type": "talent"
+                    "data_type": "talent",
                 }
 
         except Exception as e:
             logger.error(f"Talent data import failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data_type": "talent"
-            }
+            return {"success": False, "error": str(e), "data_type": "talent"}
 
-    def process_onboarding_workflow(self, employee_data: Dict[str, Any]) -> Dict[str, Any]:
+    def process_onboarding_workflow(
+        self, employee_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Process employee onboarding workflow."""
         try:
             success = process_employee_onboarding_workflow(employee_data)
@@ -290,74 +322,46 @@ class PEPEngine:
                 "success": success,
                 "workflow": "onboarding",
                 "candidate_id": employee_data.get("candidate_id"),
-                "employee_data": employee_data
+                "employee_data": employee_data,
             }
 
         except Exception as e:
             logger.error(f"Onboarding workflow failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "workflow": "onboarding"
-            }
+            return {"success": False, "error": str(e), "workflow": "onboarding"}
 
     def generate_hr_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive HR dashboard."""
         try:
             dashboard = generate_comprehensive_hr_dashboard()
-            return {
-                "success": True,
-                "dashboard_type": "hr",
-                "data": dashboard
-            }
+            return {"success": True, "dashboard_type": "hr", "data": dashboard}
         except Exception as e:
             logger.error(f"HR dashboard generation failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "dashboard_type": "hr"
-            }
+            return {"success": False, "error": str(e), "dashboard_type": "hr"}
 
     def generate_crm_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive CRM dashboard."""
         try:
             dashboard = generate_comprehensive_crm_dashboard()
-            return {
-                "success": True,
-                "dashboard_type": "crm",
-                "data": dashboard
-            }
+            return {"success": True, "dashboard_type": "crm", "data": dashboard}
         except Exception as e:
             logger.error(f"CRM dashboard generation failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "dashboard_type": "crm"
-            }
+            return {"success": False, "error": str(e), "dashboard_type": "crm"}
 
     def generate_talent_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive talent dashboard."""
         try:
             dashboard = generate_comprehensive_talent_dashboard()
-            return {
-                "success": True,
-                "dashboard_type": "talent",
-                "data": dashboard
-            }
+            return {"success": True, "dashboard_type": "talent", "data": dashboard}
         except Exception as e:
             logger.error(f"Talent dashboard generation failed: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "dashboard_type": "talent"
-            }
+            return {"success": False, "error": str(e), "dashboard_type": "talent"}
 
     def generate_all_dashboards(self) -> Dict[str, Any]:
         """Generate all dashboards and return combined results."""
         results = {
             "overall_success": True,
             "dashboards": {},
-            "generated_at": datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }
 
         # Generate each dashboard
@@ -370,13 +374,21 @@ class PEPEngine:
         results["dashboards"]["talent"] = talent_result
 
         # Check if any failed
-        if not all([hr_result["success"], crm_result["success"], talent_result["success"]]):
+        if not all(
+            [hr_result["success"], crm_result["success"], talent_result["success"]]
+        ):
             results["overall_success"] = False
             results["errors"] = []
 
-            for name, result in [("HR", hr_result), ("CRM", crm_result), ("Talent", talent_result)]:
+            for name, result in [
+                ("HR", hr_result),
+                ("CRM", crm_result),
+                ("Talent", talent_result),
+            ]:
                 if not result["success"]:
-                    results["errors"].append(f"{name}: {result.get('error', 'Unknown error')}")
+                    results["errors"].append(
+                        f"{name}: {result.get('error', 'Unknown error')}"
+                    )
 
         return results
 
@@ -389,7 +401,7 @@ class PEPEngine:
             "initialized": self._initialized,
             "data_summary": data_summary,
             "engine_version": "1.0.0",
-            "last_check": datetime.now().isoformat()
+            "last_check": datetime.now().isoformat(),
         }
 
     def run_health_check(self) -> Dict[str, Any]:
@@ -397,27 +409,28 @@ class PEPEngine:
         health_status = {
             "overall_health": "healthy",
             "checks": {},
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Check data integrity
         data_summary = self.data_manager.get_data_summary()
         health_status["checks"]["data_integrity"] = {
             "status": "healthy",
-            "details": f"Data store contains {data_summary['employees']['total']} employees, {data_summary['customers']['total']} customers, {data_summary['candidates']['total']} candidates"
+            "details": f"Data store contains {data_summary['employees']['total']} employees, {data_summary['customers']['total']} customers, {data_summary['candidates']['total']} candidates",
         }
 
         # Check module availability
         try:
             import pandas as pd
+
             health_status["checks"]["dependencies"] = {
                 "status": "healthy",
-                "details": "All required dependencies available"
+                "details": "All required dependencies available",
             }
         except ImportError as e:
             health_status["checks"]["dependencies"] = {
                 "status": "unhealthy",
-                "details": f"Missing dependency: {str(e)}"
+                "details": f"Missing dependency: {str(e)}",
             }
             health_status["overall_health"] = "unhealthy"
 
@@ -430,17 +443,17 @@ class PEPEngine:
                 email="test@example.com",
                 employment_status=EmploymentStatus.ACTIVE,
                 job_title="Test Role",
-                department="Test Dept"
+                department="Test Dept",
             )
             self.data_manager.add_employees([test_data])
             health_status["checks"]["data_processing"] = {
                 "status": "healthy",
-                "details": "Data processing functions operational"
+                "details": "Data processing functions operational",
             }
         except Exception as e:
             health_status["checks"]["data_processing"] = {
                 "status": "unhealthy",
-                "details": f"Data processing error: {str(e)}"
+                "details": f"Data processing error: {str(e)}",
             }
             health_status["overall_health"] = "unhealthy"
 

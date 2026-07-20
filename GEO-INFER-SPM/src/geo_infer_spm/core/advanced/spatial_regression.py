@@ -14,7 +14,7 @@ Implemented Methods:
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Any
 from scipy import linalg, sparse
 from scipy.optimize import minimize
 import warnings
@@ -51,12 +51,11 @@ class SpatialRegression:
 
     def _validate_model_type(self):
         """Validate model type."""
-        valid_types = ['sar', 'sem', 'sdm', 'gwr', 'spatial_filter', 'slx']
+        valid_types = ["sar", "sem", "sdm", "gwr", "spatial_filter", "slx"]
         if self.model_type not in valid_types:
             raise ValueError(f"Model type must be one of {valid_types}")
 
-    def fit(self, data: SPMData, design_matrix: DesignMatrix,
-            **kwargs) -> SPMResult:
+    def fit(self, data: SPMData, design_matrix: DesignMatrix, **kwargs) -> SPMResult:
         """
         Fit spatial regression model.
 
@@ -71,23 +70,29 @@ class SpatialRegression:
         y = self._extract_response(data)
         X = design_matrix.matrix
         W = self._create_spatial_weights_matrix(data.coordinates, **kwargs)
+        fit_kwargs = {**kwargs, "coordinates": data.coordinates}
 
         if self.model_type == "sar":
-            result = self._fit_sar(y, X, W, **kwargs)
+            result = self._fit_sar(y, X, W, **fit_kwargs)
         elif self.model_type == "sem":
-            result = self._fit_sem(y, X, W, **kwargs)
+            result = self._fit_sem(y, X, W, **fit_kwargs)
         elif self.model_type == "sdm":
-            result = self._fit_sdm(y, X, W, **kwargs)
+            result = self._fit_sdm(y, X, W, **fit_kwargs)
         elif self.model_type == "slx":
-            result = self._fit_slx(y, X, W, **kwargs)
+            result = self._fit_slx(y, X, W, **fit_kwargs)
         elif self.model_type == "gwr":
             result = self._fit_gwr(y, X, data.coordinates, **kwargs)
         elif self.model_type == "spatial_filter":
-            result = self._fit_spatial_filter(y, X, W, **kwargs)
+            result = self._fit_spatial_filter(y, X, W, **fit_kwargs)
         else:
             raise ValueError(f"Unknown model type: {self.model_type}")
 
+        # Preserve the caller's observed coordinates; fitting helpers only
+        # operate on response/design arrays and must not invent geometry.
+        result.spm_data = data
         self.fitted_model = result.model_diagnostics
+        self._fitted_coefficients = np.asarray(result.beta_coefficients, dtype=float)
+        self._fitted_predictors = X.shape[1]
         return result
 
     def _extract_response(self, data: SPMData) -> np.ndarray:
@@ -97,7 +102,9 @@ class SpatialRegression:
         else:
             raise TypeError("Spatial regression requires array data")
 
-    def _create_spatial_weights_matrix(self, coordinates: np.ndarray, **kwargs) -> sparse.csr_matrix:
+    def _create_spatial_weights_matrix(
+        self, coordinates: np.ndarray, **kwargs
+    ) -> sparse.csr_matrix:
         """
         Create spatial weights matrix from coordinates.
 
@@ -110,12 +117,14 @@ class SpatialRegression:
         """
         n_points = len(coordinates)
 
-        if self.spatial_weights is not None and isinstance(self.spatial_weights, sparse.csr_matrix):
+        if self.spatial_weights is not None and isinstance(
+            self.spatial_weights, sparse.csr_matrix
+        ):
             return self.spatial_weights
 
         # Create distance-based weights
-        bandwidth = kwargs.get('bandwidth', None)
-        k_neighbors = kwargs.get('k_neighbors', 5)
+        bandwidth = kwargs.get("bandwidth", None)
+        k_neighbors = kwargs.get("k_neighbors", 5)
 
         if bandwidth is None:
             # Adaptive bandwidth based on k nearest neighbors
@@ -123,7 +132,11 @@ class SpatialRegression:
             for i in range(n_points):
                 dists = np.linalg.norm(coordinates - coordinates[i], axis=1)
                 sorted_dists = np.sort(dists)
-                bandwidth = sorted_dists[k_neighbors] if k_neighbors < n_points else sorted_dists[-1]
+                bandwidth = (
+                    sorted_dists[k_neighbors]
+                    if k_neighbors < n_points
+                    else sorted_dists[-1]
+                )
 
         # Create sparse weights matrix
         rows, cols, weights = [], [], []
@@ -136,7 +149,7 @@ class SpatialRegression:
 
             if len(neighbors) > 0:
                 # Gaussian kernel weights
-                kernel_weights = np.exp(-0.5 * (dists[neighbors] / bandwidth)**2)
+                kernel_weights = np.exp(-0.5 * (dists[neighbors] / bandwidth) ** 2)
 
                 for j, w in zip(neighbors, kernel_weights):
                     rows.append(i)
@@ -152,7 +165,9 @@ class SpatialRegression:
 
         return W
 
-    def _fit_sar(self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs) -> SPMResult:
+    def _fit_sar(
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+    ) -> SPMResult:
         """
         Fit Spatial Autoregressive (SAR) model.
 
@@ -179,7 +194,9 @@ class SpatialRegression:
                 X_transformed = sparse.linalg.spsolve(A, X)
 
                 # OLS on transformed variables
-                beta_hat = linalg.pinv(X_transformed.T @ X_transformed) @ (X_transformed.T @ y_transformed)
+                beta_hat = linalg.pinv(X_transformed.T @ X_transformed) @ (
+                    X_transformed.T @ y_transformed
+                )
 
                 # Compute residuals
                 y_hat = X @ beta_hat
@@ -187,7 +204,9 @@ class SpatialRegression:
 
                 # Log-likelihood
                 sigma2 = np.sum(residuals**2) / n_points
-                loglik = -0.5 * n_points * np.log(2 * np.pi * sigma2) - np.sum(residuals**2) / (2 * sigma2)
+                loglik = -0.5 * n_points * np.log(2 * np.pi * sigma2) - np.sum(
+                    residuals**2
+                ) / (2 * sigma2)
 
                 return -loglik  # Negative for minimization
 
@@ -195,12 +214,18 @@ class SpatialRegression:
                 return np.inf
 
         # Initial parameter guesses
-        init_params = np.concatenate([[0.1], np.linalg.pinv(X) @ y])  # rho=0.1, OLS beta
+        init_params = np.concatenate(
+            [[0.1], np.linalg.pinv(X) @ y]
+        )  # rho=0.1, OLS beta
 
         # Optimize
         try:
-            result = minimize(sar_loglik, init_params, method='L-BFGS-B',
-                            bounds=[(-0.99, 0.99)] + [(None, None)] * n_predictors)
+            result = minimize(
+                sar_loglik,
+                init_params,
+                method="L-BFGS-B",
+                bounds=[(-0.99, 0.99)] + [(None, None)] * n_predictors,
+            )
 
             if result.success:
                 rho_hat = result.x[0]
@@ -212,7 +237,9 @@ class SpatialRegression:
                 A = I - rho_hat * W
                 y_transformed = sparse.linalg.spsolve(A, y)
                 X_transformed = sparse.linalg.spsolve(A, X)
-                beta_hat = linalg.pinv(X_transformed.T @ X_transformed) @ (X_transformed.T @ y_transformed)
+                beta_hat = linalg.pinv(X_transformed.T @ X_transformed) @ (
+                    X_transformed.T @ y_transformed
+                )
                 y_hat = X @ beta_hat
                 residuals = y - y_hat
 
@@ -236,27 +263,30 @@ class SpatialRegression:
         from ...models.data_models import SPMResult, DesignMatrix
 
         result_design = DesignMatrix(
-            matrix=X,
-            names=['intercept'] + [f'x{i}' for i in range(1, n_predictors)]
+            matrix=X, names=["intercept"] + [f"x{i}" for i in range(1, n_predictors)]
         )
 
         spm_result = SPMResult(
-            spm_data=SPMData(data=y, coordinates=np.random.rand(n_points, 2)),  # Baseline
+            spm_data=SPMData(data=y, coordinates=np.asarray(kwargs["coordinates"])),
             design_matrix=result_design,
             beta_coefficients=beta_hat,
             residuals=residuals,
             model_diagnostics={
-                'method': 'SAR',
-                'spatial_autoregressive_param': rho_hat,
-                'log_likelihood': loglik,
-                'aic': 2 * (n_predictors + 1) - 2 * loglik if loglik != -np.inf else np.inf,
-                'converged': result.success if 'result' in locals() else False
-            }
+                "method": "SAR",
+                "spatial_autoregressive_param": rho_hat,
+                "log_likelihood": loglik,
+                "aic": (
+                    2 * (n_predictors + 1) - 2 * loglik if loglik != -np.inf else np.inf
+                ),
+                "converged": result.success if "result" in locals() else False,
+            },
         )
 
         return spm_result
 
-    def _fit_sem(self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs) -> SPMResult:
+    def _fit_sem(
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+    ) -> SPMResult:
         """
         Fit Spatial Error Model (SEM).
 
@@ -286,7 +316,9 @@ class SpatialRegression:
 
                 # Log-likelihood
                 sigma2 = np.sum(filtered_residuals**2) / n_points
-                loglik = -0.5 * n_points * np.log(2 * np.pi * sigma2) - np.sum(filtered_residuals**2) / (2 * sigma2)
+                loglik = -0.5 * n_points * np.log(2 * np.pi * sigma2) - np.sum(
+                    filtered_residuals**2
+                ) / (2 * sigma2)
 
                 return -loglik
 
@@ -297,8 +329,12 @@ class SpatialRegression:
         init_params = np.concatenate([[0.1], np.linalg.pinv(X) @ y])
 
         try:
-            result = minimize(sem_loglik, init_params, method='L-BFGS-B',
-                            bounds=[(-0.99, 0.99)] + [(None, None)] * n_predictors)
+            result = minimize(
+                sem_loglik,
+                init_params,
+                method="L-BFGS-B",
+                bounds=[(-0.99, 0.99)] + [(None, None)] * n_predictors,
+            )
 
             if result.success:
                 lambda_hat = result.x[0]
@@ -311,7 +347,7 @@ class SpatialRegression:
                 loglik = -np.inf
                 converged = False
 
-        except Exception as e:
+        except Exception:
             lambda_hat = 0.0
             beta_hat = np.linalg.pinv(X) @ y
             loglik = -np.inf
@@ -323,26 +359,27 @@ class SpatialRegression:
         from ...models.data_models import SPMResult, DesignMatrix
 
         result_design = DesignMatrix(
-            matrix=X,
-            names=['intercept'] + [f'x{i}' for i in range(1, n_predictors)]
+            matrix=X, names=["intercept"] + [f"x{i}" for i in range(1, n_predictors)]
         )
 
         spm_result = SPMResult(
-            spm_data=SPMData(data=y, coordinates=np.random.rand(n_points, 2)),
+            spm_data=SPMData(data=y, coordinates=np.asarray(kwargs["coordinates"])),
             design_matrix=result_design,
             beta_coefficients=beta_hat,
             residuals=residuals,
             model_diagnostics={
-                'method': 'SEM',
-                'spatial_error_param': lambda_hat,
-                'log_likelihood': loglik,
-                'converged': converged
-            }
+                "method": "SEM",
+                "spatial_error_param": lambda_hat,
+                "log_likelihood": loglik,
+                "converged": converged,
+            },
         )
 
         return spm_result
 
-    def _fit_sdm(self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs) -> SPMResult:
+    def _fit_sdm(
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+    ) -> SPMResult:
         """
         Fit Spatial Durbin Model (SDM).
 
@@ -360,13 +397,15 @@ class SpatialRegression:
         sdm_result = self._fit_sar(y, X_sdm, W, **kwargs)
 
         # Update diagnostics
-        sdm_result.model_diagnostics['method'] = 'SDM'
-        sdm_result.model_diagnostics['n_direct_effects'] = X.shape[1]
-        sdm_result.model_diagnostics['n_indirect_effects'] = X.shape[1]
+        sdm_result.model_diagnostics["method"] = "SDM"
+        sdm_result.model_diagnostics["n_direct_effects"] = X.shape[1]
+        sdm_result.model_diagnostics["n_indirect_effects"] = X.shape[1]
 
         return sdm_result
 
-    def _fit_slx(self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs) -> SPMResult:
+    def _fit_slx(
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+    ) -> SPMResult:
         """
         Fit Spatial Lag of X (SLX) model.
 
@@ -387,7 +426,7 @@ class SpatialRegression:
 
         n_points, n_predictors = X_slx.shape
         ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
         r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
         # Create SPMResult
@@ -395,33 +434,35 @@ class SpatialRegression:
 
         result_design = DesignMatrix(
             matrix=X_slx,
-            names=['intercept'] + [f'x{i}' for i in range(1, n_predictors)]
+            names=["intercept"] + [f"x{i}" for i in range(1, n_predictors)],
         )
 
         spm_result = SPMResult(
-            spm_data=SPMData(data=y, coordinates=np.random.rand(n_points, 2)),
+            spm_data=SPMData(data=y, coordinates=np.asarray(kwargs["coordinates"])),
             design_matrix=result_design,
             beta_coefficients=beta_hat,
             residuals=residuals,
             model_diagnostics={
-                'method': 'SLX',
-                'r_squared': r_squared,
-                'n_direct_effects': X.shape[1],
-                'n_spatial_lag_effects': X.shape[1]
-            }
+                "method": "SLX",
+                "r_squared": r_squared,
+                "n_direct_effects": X.shape[1],
+                "n_spatial_lag_effects": X.shape[1],
+            },
         )
 
         return spm_result
 
-    def _fit_gwr(self, y: np.ndarray, X: np.ndarray, coordinates: np.ndarray, **kwargs) -> SPMResult:
+    def _fit_gwr(
+        self, y: np.ndarray, X: np.ndarray, coordinates: np.ndarray, **kwargs
+    ) -> SPMResult:
         """
         Fit Geographically Weighted Regression (GWR).
 
         GWR allows regression coefficients to vary spatially.
         """
-        bandwidth = kwargs.get('bandwidth', None)
+        bandwidth = kwargs.get("bandwidth", None)
         if bandwidth is None:
-            bandwidth = len(y) ** (-1/2)  # Rule of thumb
+            bandwidth = len(y) ** (-1 / 2)  # Rule of thumb
 
         n_points, n_predictors = X.shape
         local_coefficients = np.zeros((n_points, n_predictors))
@@ -430,7 +471,7 @@ class SpatialRegression:
         for i in range(n_points):
             # Compute spatial weights
             distances = np.linalg.norm(coordinates - coordinates[i], axis=1)
-            weights = np.exp(-0.5 * (distances / bandwidth)**2)
+            weights = np.exp(-0.5 * (distances / bandwidth) ** 2)
 
             # Weighted least squares
             W = np.diag(weights)
@@ -450,8 +491,7 @@ class SpatialRegression:
         from ...models.data_models import SPMResult, DesignMatrix
 
         result_design = DesignMatrix(
-            matrix=X,
-            names=['intercept'] + [f'x{i}' for i in range(1, n_predictors)]
+            matrix=X, names=["intercept"] + [f"x{i}" for i in range(1, n_predictors)]
         )
 
         spm_result = SPMResult(
@@ -460,16 +500,18 @@ class SpatialRegression:
             beta_coefficients=global_beta,  # Global coefficients
             residuals=residuals,
             model_diagnostics={
-                'method': 'GWR',
-                'bandwidth': bandwidth,
-                'local_coefficients': local_coefficients,
-                'coefficient_variation': np.std(local_coefficients, axis=0)
-            }
+                "method": "GWR",
+                "bandwidth": bandwidth,
+                "local_coefficients": local_coefficients,
+                "coefficient_variation": np.std(local_coefficients, axis=0),
+            },
         )
 
         return spm_result
 
-    def _fit_spatial_filter(self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs) -> SPMResult:
+    def _fit_spatial_filter(
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+    ) -> SPMResult:
         """
         Fit spatial filter model.
 
@@ -477,10 +519,10 @@ class SpatialRegression:
         """
         # Eigenvalue decomposition of spatial weights
         try:
-            eigenvals, eigenvecs = sparse.linalg.eigsh(W, k=min(20, len(y)-1))
+            eigenvals, eigenvecs = sparse.linalg.eigsh(W, k=min(20, len(y) - 1))
 
             # Select eigenvectors corresponding to large eigenvalues
-            threshold = kwargs.get('eigenvalue_threshold', 0.2)
+            threshold = kwargs.get("eigenvalue_threshold", 0.2)
             selected = np.abs(eigenvals) > threshold
 
             if np.any(selected):
@@ -506,19 +548,20 @@ class SpatialRegression:
         from ...models.data_models import SPMResult, DesignMatrix
 
         result_design = DesignMatrix(
-            matrix=X,
-            names=['intercept'] + [f'x{i}' for i in range(1, X.shape[1])]
+            matrix=X, names=["intercept"] + [f"x{i}" for i in range(1, X.shape[1])]
         )
 
         spm_result = SPMResult(
-            spm_data=SPMData(data=y, coordinates=np.random.rand(len(y), 2)),
+            spm_data=SPMData(data=y, coordinates=np.asarray(kwargs["coordinates"])),
             design_matrix=result_design,
-            beta_coefficients=beta_hat[:X.shape[1]],  # Only X coefficients
+            beta_coefficients=beta_hat[: X.shape[1]],  # Only X coefficients
             residuals=residuals,
             model_diagnostics={
-                'method': 'Spatial_Filter',
-                'n_spatial_filters': spatial_filters.shape[1] if 'spatial_filters' in locals() else 0
-            }
+                "method": "Spatial_Filter",
+                "n_spatial_filters": (
+                    spatial_filters.shape[1] if "spatial_filters" in locals() else 0
+                ),
+            },
         )
 
         return spm_result
@@ -536,8 +579,13 @@ class SpatialRegression:
         if self.fitted_model is None:
             raise ValueError("Model must be fitted before making predictions")
 
-        # Simplified prediction
-        return np.zeros(len(new_data.data))  # Baseline
+        values = np.asarray(new_data.data, dtype=float)
+        if values.ndim != 2 or values.shape[1] != self._fitted_predictors:
+            raise ValueError(
+                "new_data.data must be a two-dimensional design matrix with "
+                f"{self._fitted_predictors} predictors"
+            )
+        return values @ self._fitted_coefficients
 
     def get_spatial_effects(self) -> Dict[str, Any]:
         """
@@ -550,14 +598,15 @@ class SpatialRegression:
             return {}
 
         return {
-            'model_type': self.model_type,
-            'spatial_parameters': self.fitted_model.get('spatial_params', {}),
-            'spatial_autocorrelation': self.fitted_model.get('spatial_autocorr', 0)
+            "model_type": self.model_type,
+            "spatial_parameters": self.fitted_model.get("spatial_params", {}),
+            "spatial_autocorrelation": self.fitted_model.get("spatial_autocorr", 0),
         }
 
 
-def fit_spatial_model(data: SPMData, design_matrix: DesignMatrix,
-                     model_type: str = "sar", **kwargs) -> SPMResult:
+def fit_spatial_model(
+    data: SPMData, design_matrix: DesignMatrix, model_type: str = "sar", **kwargs
+) -> SPMResult:
     """
     Convenience function to fit spatial regression model.
 

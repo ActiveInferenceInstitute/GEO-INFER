@@ -4,8 +4,9 @@
 
 | Version | Supported |
 |---------|-----------|
-| 0.1.x   | ✅ Yes    |
-| < 0.1.0 | ❌ No     |
+| Main / unreleased | ✅ Yes — security fixes are evaluated against the current workspace |
+| 0.2.x | ✅ Yes — latest published beta line |
+| 0.1.x and earlier | ❌ No — upgrade before reporting a version-specific issue |
 
 ## Reporting a Vulnerability
 
@@ -36,7 +37,7 @@ We take security seriously. If you discover a security vulnerability, please rep
 
 When using GEO-INFER:
 
-1. **Keep dependencies updated** - Run `uv pip install --upgrade` regularly
+1. **Keep dependencies reproducible** - use `uv sync` and review lockfile changes
 2. **Use environment variables** for sensitive configuration
 3. **Validate inputs** when processing external data
 4. **Follow least privilege** when deploying services
@@ -65,4 +66,4 @@ When working with geospatial data:
 
 ---
 
-*Last Updated: 2026-02-24*
+*Last Updated: 2026-07-15*

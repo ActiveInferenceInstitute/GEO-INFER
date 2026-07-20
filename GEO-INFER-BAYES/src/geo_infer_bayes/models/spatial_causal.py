@@ -6,8 +6,17 @@ causal inference in geospatial contexts.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import (
+    features_from,
+    gaussian_log_likelihood,
+    log_prior_from_parameters,
+    observations_from,
+    posterior_vector,
+    predictive_samples,
+    scalar_parameter,
+)
 
 
 class SpatialCausalModel(BayesianModel):
@@ -25,33 +34,75 @@ class SpatialCausalModel(BayesianModel):
     def _setup_model(self, **kwargs) -> None:
         """Set up the spatial causal model."""
         self.parameters = {
-            'treatment_effect': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
-            'spatial_confounding': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
+            "treatment_effect": {
+                "prior": "normal",
+                "hyperparams": {"mu": 0.0, "sigma": 1.0},
+            },
+            "spatial_confounding": {
+                "prior": "normal",
+                "hyperparams": {"mu": 0.0, "sigma": 1.0},
+            },
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the spatial causal model."""
-        return 0.0
+        if not isinstance(data, dict) or "X" not in data:
+            raise ValueError("Spatial causal data must contain X and observations")
+        observations = observations_from(data)
+        design = features_from(data["X"])
+        if design.shape[0] != observations.size:
+            raise ValueError("X and observations must have the same length")
+        treatment = design[:, 0]
+        confounder = (
+            np.mean(design[:, 1:], axis=1)
+            if design.shape[1] > 1
+            else np.zeros(design.shape[0])
+        )
+        effect = scalar_parameter(theta, "treatment_effect", 0.0)
+        confounding = scalar_parameter(theta, "spatial_confounding", 0.0)
+        prediction = effect * treatment + confounding * confounder
+        return gaussian_log_likelihood(observations, prediction, 1.0)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """Compute the log-prior for the spatial causal model parameters."""
-        return 0.0
+        return log_prior_from_parameters(self.parameters, theta)
 
     def predict(
         self,
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Make predictions at new locations."""
-        return np.zeros(len(X_new))
+        design = features_from(X_new)
+        treatment = design[:, 0]
+        confounder = (
+            np.mean(design[:, 1:], axis=1)
+            if design.shape[1] > 1
+            else np.zeros(design.shape[0])
+        )
+        effects = posterior_vector(posterior, "treatment_effect", samples)
+        confounders = posterior_vector(posterior, "spatial_confounding", samples)
+        if posterior is None:
+            effects = np.array([0.0])
+            confounders = np.array([0.0])
+        predictions = np.asarray(
+            [
+                effect * treatment + confounding * confounder
+                for effect, confounding in zip(effects, confounders)
+            ]
+        )
+        mean_prediction = predictions.mean(axis=0)
+        if return_std:
+            return mean_prediction, np.std(predictions, axis=0) + np.finfo(float).eps
+        return mean_prediction
 
     def posterior_predictive(
-        self,
-        posterior: Any,
-        X: Optional[np.ndarray] = None,
-        samples: int = 100
+        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
     ) -> np.ndarray:
         """Generate posterior predictive samples."""
-        return np.zeros((samples, len(X or [])))
+        if X is None:
+            raise ValueError("X is required to generate posterior predictive samples")
+        mean, std = self.predict(X, posterior, samples=samples, return_std=True)
+        return predictive_samples(mean, std, samples)

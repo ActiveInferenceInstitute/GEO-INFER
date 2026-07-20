@@ -8,7 +8,6 @@ dependencies, and manages named test suites.
 import logging
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
 
@@ -230,7 +229,9 @@ class TestOrchestrator:
                 results[module] = mod_result
                 self.logger.info(
                     "Module %s: %s (%.2fs)",
-                    module, mod_result.get("status", "unknown"), mod_result["duration"],
+                    module,
+                    mod_result.get("status", "unknown"),
+                    mod_result["duration"],
                 )
             except Exception as exc:
                 results[module] = {
@@ -247,7 +248,9 @@ class TestOrchestrator:
             "total_modules": len(results),
             "total_duration": total_duration,
             "passed": sum(1 for r in results.values() if r.get("status") == "passed"),
-            "failed": sum(1 for r in results.values() if r.get("status") in ("failed", "error")),
+            "failed": sum(
+                1 for r in results.values() if r.get("status") in ("failed", "error")
+            ),
         }
         self._execution_log.append(execution_report)
         return execution_report

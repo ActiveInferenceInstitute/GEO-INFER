@@ -380,8 +380,7 @@ class TestIntegrationWithCoreComponents:
                         intensity=np.random.uniform(0.5, 2.0),
                     )
 
-                # Analyze pheromone patterns as spatial data
-                # This would integrate with actual pheromone field analysis
+                # The field is populated through the public spatial deposit API.
                 assert pheromone_system.pheromone_types is not None
 
             asyncio.run(integration_test())

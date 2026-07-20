@@ -6,7 +6,6 @@ Validates engine initialization, layer group creation,
 dashboard generation, and monitoring site data generation.
 """
 
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -74,14 +73,10 @@ class TestLayerGroups:
 class TestMonitoringSites:
     """Test data-driven monitoring site generators."""
 
-    def test_forest_sites_fallback(self, engine):
-        """Without analysis data, uses H3-grid fallback (5×4 = 20 sites)."""
+    def test_forest_sites_without_data(self, engine):
+        """Without observations, no forest sites are rendered."""
         sites = engine._generate_forest_monitoring_sites()
-        assert len(sites) == 20
-        for site in sites:
-            assert "site_id" in site
-            assert "health_index" in site
-            assert 0 <= site["health_index"] <= 1.0
+        assert sites == []
 
     def test_forest_sites_from_data(self, engine):
         """With forest analysis data, extracts real plots."""
@@ -90,8 +85,20 @@ class TestMonitoringSites:
                 "data_sources": {
                     "forest_inventory": {
                         "forest_plots": [
-                            {"plot_id": "P01", "lat": 41.75, "lon": -124.1, "canopy_cover_percent": 80, "health_rating": "Good"},
-                            {"plot_id": "P02", "lat": 41.80, "lon": -124.0, "ndvi": 0.72, "health_rating": "Excellent"},
+                            {
+                                "plot_id": "P01",
+                                "lat": 41.75,
+                                "lon": -124.1,
+                                "canopy_cover_percent": 80,
+                                "health_rating": "Good",
+                            },
+                            {
+                                "plot_id": "P02",
+                                "lat": 41.80,
+                                "lon": -124.0,
+                                "ndvi": 0.72,
+                                "health_rating": "Excellent",
+                            },
                         ]
                     }
                 }
@@ -102,19 +109,15 @@ class TestMonitoringSites:
         assert sites[0]["site_id"] == "P01"
         assert sites[1]["health_index"] == 0.9  # Excellent
 
-    def test_coastal_sites_fallback(self, engine):
-        """Without data, returns 10 real Del Norte coastal reference points."""
+    def test_coastal_sites_without_data(self, engine):
+        """Without observations, no coastal sites are rendered."""
         sites = engine._generate_coastal_monitoring_sites()
-        assert len(sites) == 10
-        for site in sites:
-            assert "vulnerability" in site
+        assert sites == []
 
-    def test_fire_sites_fallback(self, engine):
-        """Without data, returns 10 known fire-relevant locations."""
+    def test_fire_sites_without_data(self, engine):
+        """Without observations, no fire sites are rendered."""
         sites = engine._generate_fire_monitoring_sites()
-        assert len(sites) == 10
-        for site in sites:
-            assert "risk_level" in site
+        assert sites == []
 
     def test_community_facilities(self, engine):
         """Returns real verified Del Norte County facilities."""
@@ -127,13 +130,10 @@ class TestMonitoringSites:
         names = {f["name"] for f in facilities}
         assert "Sutter Coast Hospital" in names
 
-    def test_h3_integration_grid_fallback(self, engine):
-        """H3 grid without domain data produces zero-scored cells."""
+    def test_h3_integration_grid_without_domain_data(self, engine):
+        """H3 integration has no cells without domain observations."""
         grid = engine._generate_h3_integration_grid({})
-        assert len(grid) > 0
-        for cell_data in grid.values():
-            assert cell_data["integration_score"] == 0.0
-            assert cell_data["domain_count"] == 0
+        assert grid == {}
 
 
 class TestDashboardGeneration:

@@ -11,6 +11,7 @@ Examples workspace within `GEO-INFER-RISK`.
 
 - `basic_risk_assessment.py:create_sample_exposure_data` (function)
 - `basic_risk_assessment.py:main` (function)
+- `comprehensive_risk_assessment.py:build_parser` (function)
 - `comprehensive_risk_assessment.py:main` (function)
 
 ## Module Metadata

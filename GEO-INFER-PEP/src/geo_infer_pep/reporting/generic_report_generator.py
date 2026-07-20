@@ -1,27 +1,32 @@
 """Generic report generation utilities."""
-from typing import Dict, Any
 
-def create_quarterly_overview(hr_metrics: Dict, crm_metrics: Dict, talent_metrics: Dict) -> str:
-    """
-    Simulates the creation of a comprehensive quarterly overview report.
-    In a real scenario, this would compile data into a structured document (PDF, DOCX, etc.).
-    """
+import json
+import tempfile
+from pathlib import Path
+from typing import Dict, Optional
+
+
+def create_quarterly_overview(
+    hr_metrics: Dict,
+    crm_metrics: Dict,
+    talent_metrics: Dict,
+    output_path: Optional[str] = None,
+) -> str:
+    """Write a structured quarterly overview report to JSON."""
     report_content = {
         "title": "Quarterly People Operations Report",
         "hr_summary": hr_metrics,
         "crm_summary": crm_metrics,
-        "talent_summary": talent_metrics
+        "talent_summary": talent_metrics,
     }
-    # Simulate saving to a file path
-    # In a real app, you'd use a library like FPDF, python-docx, or reportlab
-    simulated_path = f"/tmp/simulated_quarterly_report_{hr_metrics.get('quarter', 'Qx')}_{hr_metrics.get('year', 'YYYY')}.txt"
-    try:
-        with open(simulated_path, 'w') as f:
-            import json
-            json.dump(report_content, f, indent=2)
-        print(f"Simulated quarterly overview report saved to: {simulated_path}")
-    except Exception as e:
-        print(f"Error saving simulated report: {e}")
-        return f"/tmp/error_report.txt"
-        
-    return simulated_path 
+    if output_path is None:
+        with tempfile.NamedTemporaryFile(
+            prefix="quarterly_people_report_", suffix=".json", delete=False
+        ) as report_file:
+            output_path = report_file.name
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as report_file:
+        json.dump(report_content, report_file, indent=2, default=str)
+    return str(path)

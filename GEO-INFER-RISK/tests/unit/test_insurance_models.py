@@ -1,10 +1,8 @@
 """Tests for insurance models."""
 
-import numpy as np
 import pandas as pd
 import pytest
 from geo_infer_risk.core.insurance_models import (
-    InsuranceConfig,
     PropertyInsuranceModel,
     LiabilityInsuranceModel,
     CatastropheInsuranceModel,
@@ -13,24 +11,28 @@ from geo_infer_risk.core.insurance_models import (
 
 
 def _make_property_data() -> pd.DataFrame:
-    return pd.DataFrame({
-        "property_type": ["residential", "commercial", "residential"],
-        "property_value": [200000, 500000, 300000],
-        "loss_amount": [4000, 15000, 6000],
-        "premium": [1000, 2500, 1500],
-        "location": ["medium_risk", "high_risk", "low_risk"],
-        "claim_frequency": [0.02, 0.05, 0.01],
-        "construction_type": ["frame", "ordinary", "fire_resistive"],
-    })
+    return pd.DataFrame(
+        {
+            "property_type": ["residential", "commercial", "residential"],
+            "property_value": [200000, 500000, 300000],
+            "loss_amount": [4000, 15000, 6000],
+            "premium": [1000, 2500, 1500],
+            "location": ["medium_risk", "high_risk", "low_risk"],
+            "claim_frequency": [0.02, 0.05, 0.01],
+            "construction_type": ["frame", "ordinary", "fire_resistive"],
+        }
+    )
 
 
 def _make_liability_data() -> pd.DataFrame:
-    return pd.DataFrame({
-        "business_type": ["general", "professional", "general"],
-        "claim_frequency": [0.01, 0.02, 0.015],
-        "claim_severity": [50000, 100000, 75000],
-        "premium": [500, 1000, 750],
-    })
+    return pd.DataFrame(
+        {
+            "business_type": ["general", "professional", "general"],
+            "claim_frequency": [0.01, 0.02, 0.015],
+            "claim_severity": [50000, 100000, 75000],
+            "premium": [500, 1000, 750],
+        }
+    )
 
 
 class TestPropertyInsuranceModel:
@@ -44,31 +46,39 @@ class TestPropertyInsuranceModel:
         assert self.model.is_fitted is True
 
     def test_calculate_premium_positive(self) -> None:
-        premium = self.model.calculate_premium({
-            "property_value": 250000,
-            "property_type": "residential",
-            "location": "medium_risk",
-        })
+        premium = self.model.calculate_premium(
+            {
+                "property_value": 250000,
+                "property_type": "residential",
+                "location": "medium_risk",
+            }
+        )
         assert premium > 0
 
     def test_estimate_losses_keys(self) -> None:
-        losses = self.model.estimate_losses({
-            "property_value": 250000,
-            "property_type": "residential",
-        })
+        losses = self.model.estimate_losses(
+            {
+                "property_value": 250000,
+                "property_type": "residential",
+            }
+        )
         assert "expected_loss" in losses
         assert "var_95" in losses
         assert "cvar_95" in losses
 
     def test_safety_features_reduce_premium(self) -> None:
-        p1 = self.model.calculate_premium({
-            "property_value": 200000,
-            "safety_features": [],
-        })
-        p2 = self.model.calculate_premium({
-            "property_value": 200000,
-            "safety_features": ["sprinkler_system", "alarm_system"],
-        })
+        p1 = self.model.calculate_premium(
+            {
+                "property_value": 200000,
+                "safety_features": [],
+            }
+        )
+        p2 = self.model.calculate_premium(
+            {
+                "property_value": 200000,
+                "safety_features": ["sprinkler_system", "alarm_system"],
+            }
+        )
         assert p2 < p1
 
     def test_unfitted_model_raises(self) -> None:
@@ -88,18 +98,22 @@ class TestLiabilityInsuranceModel:
         assert self.model.is_fitted is True
 
     def test_calculate_premium_positive(self) -> None:
-        premium = self.model.calculate_premium({
-            "liability_limit": 1000000,
-            "business_type": "general",
-            "annual_revenue": 500000,
-        })
+        premium = self.model.calculate_premium(
+            {
+                "liability_limit": 1000000,
+                "business_type": "general",
+                "annual_revenue": 500000,
+            }
+        )
         assert premium > 0
 
     def test_estimate_losses(self) -> None:
-        losses = self.model.estimate_losses({
-            "liability_limit": 1000000,
-            "business_type": "general",
-        })
+        losses = self.model.estimate_losses(
+            {
+                "liability_limit": 1000000,
+                "business_type": "general",
+            }
+        )
         assert losses["expected_loss"] >= 0
         assert losses["max_loss"] == 1000000
 
@@ -109,27 +123,33 @@ class TestCatastropheInsuranceModel:
 
     def setup_method(self) -> None:
         self.model = CatastropheInsuranceModel()
-        self.model.fit(pd.DataFrame({"dummy": [1]}))
+        self.model.fit(pd.DataFrame({"loss_amount": [1000.0], "peril": ["flood"]}))
 
     def test_calculate_premium_hurricane(self) -> None:
-        premium = self.model.calculate_premium({
-            "coverage_limit": 1000000,
-            "location": {"lat": 30, "lon": -80},
-            "catastrophe_types": ["hurricane"],
-        })
+        premium = self.model.calculate_premium(
+            {
+                "coverage_limit": 1000000,
+                "location": {"lat": 30, "lon": -80},
+                "catastrophe_types": ["hurricane"],
+            }
+        )
         assert premium > 0
 
     def test_multi_peril_premium(self) -> None:
-        p_single = self.model.calculate_premium({
-            "coverage_limit": 1000000,
-            "location": {"lat": 35, "lon": -90},
-            "catastrophe_types": ["earthquake"],
-        })
-        p_multi = self.model.calculate_premium({
-            "coverage_limit": 1000000,
-            "location": {"lat": 35, "lon": -90},
-            "catastrophe_types": ["earthquake", "flood"],
-        })
+        p_single = self.model.calculate_premium(
+            {
+                "coverage_limit": 1000000,
+                "location": {"lat": 35, "lon": -90},
+                "catastrophe_types": ["earthquake"],
+            }
+        )
+        p_multi = self.model.calculate_premium(
+            {
+                "coverage_limit": 1000000,
+                "location": {"lat": 35, "lon": -90},
+                "catastrophe_types": ["earthquake", "flood"],
+            }
+        )
         assert p_multi > p_single
 
 

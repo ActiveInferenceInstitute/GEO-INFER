@@ -115,14 +115,10 @@ class TestDataAPI:
         assert data["type"] == "vector"
 
     def test_get_dataset_endpoint(self, data_api):
-        """Test get dataset endpoint."""
+        """Unknown dataset requests return an explicit not-found response."""
         client = TestClient(data_api.app)
         response = client.get("/datasets/test_dataset_123")
-        assert response.status_code == 200
-
-        data = response.json()
-        assert "id" in data
-        assert "title" in data
+        assert response.status_code == 404
 
     def test_search_endpoint(self, data_api):
         """Test search datasets endpoint."""
@@ -194,27 +190,24 @@ class TestDatasetAPI:
 
     @pytest.mark.asyncio
     async def test_get_dataset(self, dataset_api):
-        """Test dataset retrieval."""
+        """Unknown datasets are not fabricated by the service."""
         dataset = await dataset_api.get_dataset("dataset_123")
-
-        assert dataset is not None
-        assert dataset.id == "dataset_123"
+        assert dataset is None
 
     @pytest.mark.asyncio
     async def test_update_dataset(self, dataset_api):
-        """Test dataset update."""
+        """Updating an unknown dataset reports that nothing changed."""
         updates = {"title": "Updated Dataset", "description": "Updated description"}
 
         result = await dataset_api.update_dataset("dataset_123", updates)
 
-        assert result is True
+        assert result is False
 
     @pytest.mark.asyncio
     async def test_delete_dataset(self, dataset_api):
-        """Test dataset deletion."""
+        """Deleting an unknown dataset reports that nothing changed."""
         result = await dataset_api.delete_dataset("dataset_123")
-
-        assert result is True
+        assert result is False
 
     @pytest.mark.asyncio
     async def test_get_dataset_quality(self, dataset_api):
@@ -286,11 +279,9 @@ class TestDataService:
 
     @pytest.mark.asyncio
     async def test_get_dataset(self, data_service):
-        """Test getting dataset."""
+        """Unknown datasets return no metadata."""
         dataset = await data_service.get_dataset("dataset_123")
-
-        assert dataset is not None
-        assert dataset.id == "dataset_123"
+        assert dataset is None
 
     @pytest.mark.asyncio
     async def test_create_dataset(self, data_service, test_metadata):
@@ -304,18 +295,17 @@ class TestDataService:
 
     @pytest.mark.asyncio
     async def test_get_dataset_data(self, data_service):
-        """Test getting dataset data."""
+        """Data access rejects an unregistered dataset."""
         # Mock storage query
         data_service.storage_service.adaptive_query = AsyncMock(
             return_value={"data": "mock"}
         )
 
-        data = await data_service.get_dataset_data(
-            "dataset_123", spatial_bounds=[-122.5, 37.7, -122.3, 37.9]
-        )
-
-        assert data is not None
-        data_service.storage_service.adaptive_query.assert_called_once()
+        with pytest.raises(KeyError, match="not registered"):
+            await data_service.get_dataset_data(
+                "dataset_123", spatial_bounds=[-122.5, 37.7, -122.3, 37.9]
+            )
+        data_service.storage_service.adaptive_query.assert_not_called()
 
     def test_bbox_intersection(self, data_service):
         """Test bounding box intersection."""

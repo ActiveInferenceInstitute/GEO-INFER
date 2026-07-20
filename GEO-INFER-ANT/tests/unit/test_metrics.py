@@ -299,7 +299,7 @@ class TestScalabilityAssessment:
         """Test analysis of scaling trends."""
         metrics = SwarmPerformanceMetrics()
 
-        # Create mock scaling results
+        # Create measured scaling-result fixtures
         scaling_results = {
             50: {
                 "simple": {"performance_score": 0.9, "meets_requirements": True},

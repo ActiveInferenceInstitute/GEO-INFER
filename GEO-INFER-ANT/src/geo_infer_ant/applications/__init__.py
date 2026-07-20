@@ -34,31 +34,28 @@ Example:
 """
 
 import logging
-from typing import Dict, List, Any, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Application imports (when implemented)
-try:
-    from .environmental import EnvironmentalMonitoringSwarm, MonitoringObjective, SensorReading
-    from .disaster import DisasterResponseSwarm, DisasterScenario
-    from .urban import UrbanTrafficSwarm, UrbanSystem
-except ImportError as e:
-    logger.warning(f"Application modules not yet implemented: {e}")
+from .environmental import (
+    EnvironmentalMonitoringSwarm,
+    MonitoringObjective,
+    SensorReading,
+)
+from .disaster import DisasterResponseSwarm, DisasterScenario
+from .urban import UrbanTrafficSwarm, UrbanSystem
 
 # Export main classes and functions
 __all__ = [
     # Environmental Monitoring
-    'EnvironmentalMonitoringSwarm',
-    'MonitoringObjective',
-    'SensorReading',
-
+    "EnvironmentalMonitoringSwarm",
+    "MonitoringObjective",
+    "SensorReading",
     # Disaster Response
-    'DisasterResponseSwarm',
-    'DisasterScenario',
-
+    "DisasterResponseSwarm",
+    "DisasterScenario",
     # Urban Optimization
-    'UrbanTrafficSwarm',
-    'UrbanSystem'
+    "UrbanTrafficSwarm",
+    "UrbanSystem",
 ]

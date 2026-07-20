@@ -6,8 +6,17 @@ modeling causal relationships in geospatial data.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import (
+    features_from,
+    gaussian_log_likelihood,
+    log_prior_from_parameters,
+    observations_from,
+    parameter_array,
+    posterior_vector,
+    predictive_samples,
+)
 
 
 class BayesianNetwork(BayesianModel):
@@ -25,33 +34,63 @@ class BayesianNetwork(BayesianModel):
     def _setup_model(self, **kwargs) -> None:
         """Set up the Bayesian network model."""
         self.parameters = {
-            'edge_weights': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
-            'node_biases': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
+            "edge_weights": {
+                "prior": "normal",
+                "hyperparams": {"mu": 0.0, "sigma": 1.0},
+            },
+            "node_biases": {
+                "prior": "normal",
+                "hyperparams": {"mu": 0.0, "sigma": 1.0},
+            },
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the Bayesian network model."""
-        return 0.0
+        if not isinstance(data, dict) or "X" not in data:
+            raise ValueError("Bayesian network data must contain X and observations")
+        observations = observations_from(data)
+        design = features_from(data["X"])
+        if design.shape[0] != observations.size:
+            raise ValueError("X and observations must have the same length")
+        edge_weights = parameter_array(theta, "edge_weights", np.ones(design.shape[1]))
+        node_biases = parameter_array(theta, "node_biases", [0.0])
+        prediction = np.dot(design, np.resize(edge_weights, design.shape[1])) + float(
+            np.mean(node_biases)
+        )
+        return gaussian_log_likelihood(observations, prediction, 1.0)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """Compute the log-prior for the Bayesian network model parameters."""
-        return 0.0
+        return log_prior_from_parameters(self.parameters, theta)
 
     def predict(
         self,
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Make predictions at new locations."""
-        return np.zeros(len(X_new))
+        design = features_from(X_new)
+        weights = posterior_vector(posterior, "edge_weights", samples)
+        biases = posterior_vector(posterior, "node_biases", samples)
+        if posterior is None:
+            weights = np.ones(1)
+            biases = np.zeros(1)
+        signal = np.mean(design, axis=1)
+        predictions = np.asarray(
+            [weight * signal + bias for weight, bias in zip(weights, biases)]
+        )
+        mean_prediction = predictions.mean(axis=0)
+        if return_std:
+            return mean_prediction, np.std(predictions, axis=0) + np.finfo(float).eps
+        return mean_prediction
 
     def posterior_predictive(
-        self,
-        posterior: Any,
-        X: Optional[np.ndarray] = None,
-        samples: int = 100
+        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
     ) -> np.ndarray:
         """Generate posterior predictive samples."""
-        return np.zeros((samples, len(X or [])))
+        if X is None:
+            raise ValueError("X is required to generate posterior predictive samples")
+        mean, std = self.predict(X, posterior, samples=samples, return_std=True)
+        return predictive_samples(mean, std, samples)

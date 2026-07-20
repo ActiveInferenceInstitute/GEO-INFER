@@ -6,8 +6,17 @@ temporal analysis of geospatial data.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import (
+    features_from,
+    gaussian_log_likelihood,
+    log_prior_from_parameters,
+    posterior_vector,
+    predictive_samples,
+    observations_from,
+    scalar_parameter,
+)
 
 
 class BayesianTimeSeriesModel(BayesianModel):
@@ -25,34 +34,77 @@ class BayesianTimeSeriesModel(BayesianModel):
     def _setup_model(self, **kwargs) -> None:
         """Set up the Bayesian time series model."""
         self.parameters = {
-            'trend': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
-            'seasonal': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
-            'noise': {'prior': 'half_normal', 'hyperparams': {'sigma': 1.0}},
+            "trend": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 1.0}},
+            "seasonal": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 1.0}},
+            "noise": {"prior": "half_normal", "hyperparams": {"sigma": 1.0}},
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         """Compute the log-likelihood for the time series model."""
-        return 0.0
+        observations = observations_from(data)
+        if isinstance(data, dict) and "time" in data:
+            time = features_from(data["time"])[:, 0]
+        else:
+            time = np.arange(observations.size, dtype=float)
+        if time.size != observations.size:
+            raise ValueError("time and observations must have the same length")
+        trend = scalar_parameter(theta, "trend", 0.0)
+        seasonal = scalar_parameter(theta, "seasonal", 0.0)
+        noise = scalar_parameter(theta, "noise", 1.0)
+        period = (
+            float(data.get("period", max(observations.size, 2)))
+            if isinstance(data, dict)
+            else max(observations.size, 2)
+        )
+        if period <= 0:
+            raise ValueError("period must be greater than zero")
+        prediction = trend * time + seasonal * np.sin(2.0 * np.pi * time / period)
+        return gaussian_log_likelihood(observations, prediction, noise)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """Compute the log-prior for the time series model parameters."""
-        return 0.0
+        return log_prior_from_parameters(self.parameters, theta)
 
     def predict(
         self,
         X_new: np.ndarray,
         posterior: Any = None,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Make predictions at new locations."""
-        return np.zeros(len(X_new))
+        time = features_from(X_new)[:, 0]
+        trend_samples = posterior_vector(posterior, "trend", samples)
+        seasonal_samples = posterior_vector(posterior, "seasonal", samples)
+        noise_samples = posterior_vector(posterior, "noise", samples)
+        if posterior is not None and (
+            trend_samples.size == 0 or seasonal_samples.size == 0
+        ):
+            raise ValueError("posterior must contain trend and seasonal samples")
+        if posterior is None:
+            trend_samples = np.array([0.0])
+            seasonal_samples = np.array([0.0])
+            noise_samples = np.array([1.0])
+        period = max(time.size, 2)
+        predictions = np.asarray(
+            [
+                trend * time + seasonal * np.sin(2.0 * np.pi * time / period)
+                for trend, seasonal in zip(trend_samples, seasonal_samples)
+            ]
+        )
+        mean_prediction = predictions.mean(axis=0)
+        if return_std:
+            scale = np.sqrt(np.maximum(noise_samples, np.finfo(float).eps))
+            return mean_prediction, np.sqrt(
+                np.var(predictions, axis=0) + np.mean(scale**2)
+            )
+        return mean_prediction
 
     def posterior_predictive(
-        self,
-        posterior: Any,
-        X: Optional[np.ndarray] = None,
-        samples: int = 100
+        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
     ) -> np.ndarray:
         """Generate posterior predictive samples."""
-        return np.zeros((samples, len(X or [])))
+        if X is None:
+            raise ValueError("X is required to generate posterior predictive samples")
+        mean, std = self.predict(X, posterior, samples=samples, return_std=True)
+        return predictive_samples(mean, std, samples)

@@ -16,7 +16,6 @@ Examples workspace within `GEO-INFER-PLACE`.
 - `del_norte_county_demo.py:demonstrate_api_connections` (function)
 - `del_norte_county_demo.py:run_comprehensive_demo` (function)
 - `del_norte_county_demo.py:demonstrate_h3_spatial_analysis` (function)
-- `del_norte_county_demo.py:run_simplified_demo` (function)
 - `del_norte_county_demo.py:run_advanced_demo` (function)
 - `del_norte_county_demo.py:main` (function)
 

@@ -29,18 +29,18 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_risk.core.risk_engine import RiskEngine
-from geo_infer_risk.core.catastrophe_models import CatastropheModel
-from geo_infer_risk.core.exposure_model import ExposureModel
-from geo_infer_risk.core.hazard_model import HazardModel
+from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
+from geo_infer_risk.core.catastrophe_models import EnhancedCatastropheModel
+from geo_infer_risk.core.exposure_model import EnhancedExposureModel
+from geo_infer_risk.core.hazard_model import EnhancedHazardModel
 ```
 
 ## Examples
 
 ```python
-from geo_infer_risk.core.risk_engine import RiskEngine
+from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
 
-engine = RiskEngine()
+engine = EnhancedRiskEngine()
 result = engine.assess(
     hazard_raster=flood_depth,
     exposure_data=building_footprints,
@@ -51,9 +51,9 @@ print(f"Loss exceedance (100yr): ${result.loss_at_return_period(100):,.0f}")
 ```
 
 ```python
-from geo_infer_risk.core.catastrophe_models import CatastropheModel
+from geo_infer_risk.core.catastrophe_models import EnhancedCatastropheModel
 
-cat_model = CatastropheModel(peril="earthquake", region="pacific_ring")
+cat_model = EnhancedCatastropheModel(peril="earthquake", region="pacific_ring")
 simulations = cat_model.run_monte_carlo(n_simulations=10_000)
 print(f"Mean annual loss: ${simulations.mean_annual_loss:,.0f}")
 print(f"99th percentile: ${simulations.percentile(99):,.0f}")
@@ -61,7 +61,7 @@ print(f"99th percentile: ${simulations.percentile(99):,.0f}")
 
 ## Guidelines
 
-- All 18 former placeholder references verified clean (0 remaining)
+- Production paths require configured data sources and do not fabricate risk inputs.
 - Spatial correlation uses Cholesky decomposition
 - Risk aggregation uses real Moran's I and Monte Carlo
 - Test: `uv run python -m pytest GEO-INFER-RISK/tests/ -v`

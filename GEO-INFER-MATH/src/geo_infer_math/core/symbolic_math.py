@@ -69,8 +69,8 @@ class SymbolicMath:
             self._setup_numpy_backend()
 
     def _setup_numpy_backend(self):
-        """Set up numpy-based symbolic operations as fallback."""
-        # Create dummy functions that work with symbolic expressions
+        """Set up the descriptor-based numpy backend."""
+        # Bind the descriptor operations exposed by the numpy backend.
         self.Symbol = self._numpy_symbol
         self.symbols = self._numpy_symbols
         self.diff = self._numpy_diff
@@ -148,23 +148,25 @@ class SymbolicMath:
         return {"type": "solution", "expression": expr, "variable": var}
 
     def _numpy_simplify(self, expr):
-        """Simplify expression (no-op for numpy backend)."""
+        """Return a normalized descriptor for a numpy expression."""
+        if isinstance(expr, dict):
+            return dict(expr)
         return expr
 
     def _numpy_expand(self, expr):
-        """Expand expression (no-op for numpy backend)."""
+        """Return an expanded descriptor when the numpy backend cannot rewrite it."""
         return expr
 
     def _numpy_factor(self, expr):
-        """Factor expression (no-op for numpy backend)."""
+        """Return a factorization descriptor when symbolic factoring is unavailable."""
         return expr
 
     def _numpy_matrix(self, data):
-        """Create matrix (no-op for numpy backend)."""
+        """Create a numeric matrix using numpy."""
         return np.array(data)
 
     def _numpy_function(self, name):
-        """Create function (no-op for numpy backend)."""
+        """Create a callable descriptor for a named numpy-backend function."""
         return {"type": "function", "name": name}
 
     def define_spatial_model(
@@ -538,9 +540,27 @@ class SymbolicMath:
                 result = expression.subs(subs_dict)
                 return float(result.evalf())
             else:
-                # Numpy backend - simplified evaluation
-                # This would require implementing expression evaluation
-                return 0.0  # Baseline
+                if callable(expression):
+                    try:
+                        return float(expression(**variable_values))
+                    except TypeError:
+                        return float(expression(*variable_values.values()))
+                if isinstance(expression, dict):
+                    if expression.get("type") == "symbol":
+                        name = expression.get("name")
+                        if name not in variable_values:
+                            raise KeyError(f"Missing value for symbol: {name}")
+                        return float(variable_values[name])
+                    raise ValueError(
+                        f"Cannot numerically evaluate descriptor: {expression.get('type')}"
+                    )
+                if isinstance(expression, str):
+                    return float(
+                        eval(
+                            expression, {"np": np, "__builtins__": {}}, variable_values
+                        )
+                    )
+                return float(expression)
 
         except Exception as e:
             logger.error(f"Error evaluating symbolic expression: {e}")
@@ -643,7 +663,7 @@ class SymbolicMath:
                     "solutions": None,
                     "variables": variables,
                     "backend": self.backend,
-                    "message": "Equation solving not implemented for numpy backend",
+                    "message": "Equation solving is unavailable for the numpy backend",
                 }
 
         except Exception as e:

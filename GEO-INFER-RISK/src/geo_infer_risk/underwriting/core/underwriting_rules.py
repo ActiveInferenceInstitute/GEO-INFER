@@ -830,38 +830,3 @@ def create_rules_engine(
 ) -> UnderwritingRulesEngine:
     """Create a new underwriting rules engine."""
     return UnderwritingRulesEngine(config)
-
-
-def create_sample_rules() -> List[UnderwritingRule]:
-    """Create sample underwriting rules for testing."""
-    rules = []
-
-    # Property value rule
-    rules.append(
-        UnderwritingRule(
-            rule_id="sample_prop_value",
-            name="Sample Property Value Check",
-            description="Property value must be reasonable",
-            rule_type=RuleType.ELIGIBILITY,
-            conditions=[
-                RuleCondition("property.value", RuleOperator.BETWEEN, [10000, 10000000])
-            ],
-            action="approve",
-        )
-    )
-
-    # Risk score rule
-    rules.append(
-        UnderwritingRule(
-            rule_id="sample_risk_score",
-            name="Sample Risk Score Check",
-            description="Risk score must be acceptable",
-            rule_type=RuleType.RISK_LIMIT,
-            conditions=[
-                RuleCondition("risk_assessment.risk_score", RuleOperator.LESS_THAN, 0.8)
-            ],
-            action="approve",
-        )
-    )
-
-    return rules

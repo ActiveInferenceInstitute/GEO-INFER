@@ -62,6 +62,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 - Keep `validate_test_contracts.py`, `validate_model_contracts.py`, and
   `run_model_audit.py` synchronized with the documented commands and output
   schemas.
+- Keep `validate_documentation.py` synchronized with the maintained
+  authoritative documentation paths when the hub moves.
 
 ## Integration Notes
 

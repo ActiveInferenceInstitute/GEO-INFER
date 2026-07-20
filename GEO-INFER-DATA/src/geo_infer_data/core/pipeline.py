@@ -190,44 +190,175 @@ class TransformationEngine:
     async def _clean_data(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Clean data."""
-        # Implementation for data cleaning
-        return data
+        """Clean tabular data using explicit, configurable operations."""
+        if not isinstance(data, pd.DataFrame):
+            raise TypeError("clean transformation requires a pandas DataFrame")
+
+        cleaned = data.copy()
+        if parameters.get("remove_duplicates", True):
+            cleaned = cleaned.drop_duplicates()
+
+        if parameters.get("remove_nulls", False):
+            cleaned = cleaned.dropna()
+        else:
+            fill_method = parameters.get("fill_method")
+            if fill_method == "interpolate":
+                numeric_columns = cleaned.select_dtypes(include=[np.number]).columns
+                cleaned[numeric_columns] = cleaned[numeric_columns].interpolate(
+                    limit_direction="both"
+                )
+            elif fill_method in {"forward", "ffill"}:
+                cleaned = cleaned.ffill()
+            elif fill_method in {"backward", "bfill"}:
+                cleaned = cleaned.bfill()
+            elif "fill_value" in parameters:
+                cleaned = cleaned.fillna(parameters["fill_value"])
+
+        if parameters.get("outlier_method") == "iqr":
+            numeric_columns = cleaned.select_dtypes(include=[np.number]).columns
+            for column in numeric_columns:
+                values = cleaned[column]
+                q1, q3 = values.quantile([0.25, 0.75])
+                spread = q3 - q1
+                lower = q1 - 1.5 * spread
+                upper = q3 + 1.5 * spread
+                cleaned = cleaned[cleaned[column].between(lower, upper)]
+
+        return cleaned.reset_index(drop=True)
 
     async def _spatial_join(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Perform spatial join."""
-        # Implementation for spatial join
-        return data
+        """Join a GeoDataFrame with a configured or contextual spatial layer."""
+        try:
+            import geopandas as gpd
+        except ImportError as exc:
+            raise RuntimeError("spatial_join requires geopandas") from exc
+
+        if not isinstance(data, gpd.GeoDataFrame):
+            raise TypeError("spatial_join transformation requires a GeoDataFrame")
+
+        right = context.get("layers", {}).get(parameters.get("target_layer"))
+        if right is None:
+            target_path = parameters.get("target_path")
+            if target_path:
+                right = gpd.read_file(target_path)
+        if not isinstance(right, gpd.GeoDataFrame):
+            raise ValueError(
+                "spatial_join requires a target GeoDataFrame or target_path"
+            )
+
+        join_kwargs = {
+            "how": parameters.get("how", "left"),
+            "predicate": parameters.get("predicate", "intersects"),
+        }
+        if parameters.get("join_type") == "nearest":
+            join_kwargs.pop("predicate")
+            join_kwargs["max_distance"] = parameters.get("max_distance")
+            if join_kwargs["max_distance"] is None:
+                join_kwargs.pop("max_distance")
+            return gpd.sjoin_nearest(data, right, **join_kwargs)
+        return gpd.sjoin(data, right, **join_kwargs)
 
     async def _temporal_aggregate(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Perform temporal aggregation."""
-        # Implementation for temporal aggregation
-        return data
+        """Aggregate records over a configured pandas time frequency."""
+        if not isinstance(data, pd.DataFrame):
+            raise TypeError("temporal_aggregate transformation requires a DataFrame")
+
+        time_column = parameters.get("time_column", "timestamp")
+        if time_column not in data.columns:
+            raise ValueError(f"Temporal column not found: {time_column}")
+        frequency = parameters.get("frequency", "1D")
+        aggregation = parameters.get(
+            "aggregation", parameters.get("aggregations", "mean")
+        )
+        frame = data.copy()
+        frame[time_column] = pd.to_datetime(frame[time_column], errors="raise")
+        group_by = parameters.get("group_by", [])
+        grouped = frame.set_index(time_column)
+        if group_by:
+            return (
+                grouped.groupby(group_by)
+                .resample(frequency)
+                .agg(aggregation)
+                .reset_index()
+            )
+        return grouped.resample(frequency).agg(aggregation).reset_index()
 
     async def _geocode_data(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Geocode data."""
-        # Implementation for geocoding
-        return data
+        """Create point geometries from configured latitude/longitude columns."""
+        if not isinstance(data, pd.DataFrame):
+            raise TypeError("geocode transformation requires a DataFrame")
+        latitude_column = parameters.get("latitude_column", "latitude")
+        longitude_column = parameters.get("longitude_column", "longitude")
+        missing = [
+            column
+            for column in (latitude_column, longitude_column)
+            if column not in data
+        ]
+        if missing:
+            raise ValueError(f"Geocoding columns not found: {missing}")
+        try:
+            import geopandas as gpd
+            from shapely.geometry import Point
+        except ImportError as exc:
+            raise RuntimeError(
+                "geocode transformation requires geopandas and shapely"
+            ) from exc
+        result = data.copy()
+        result["geometry"] = [
+            Point(float(lon), float(lat))
+            for lat, lon in zip(result[latitude_column], result[longitude_column])
+        ]
+        return gpd.GeoDataFrame(
+            result,
+            geometry="geometry",
+            crs=parameters.get("crs", "EPSG:4326"),
+        )
 
     async def _reproject_data(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Reproject spatial data."""
-        # Implementation for reprojection
-        return data
+        """Reproject a GeoDataFrame to the requested CRS."""
+        try:
+            import geopandas as gpd
+        except ImportError as exc:
+            raise RuntimeError("reproject transformation requires geopandas") from exc
+        if not isinstance(data, gpd.GeoDataFrame):
+            raise TypeError("reproject transformation requires a GeoDataFrame")
+        target_crs = parameters.get("target_crs") or parameters.get("crs")
+        if not target_crs:
+            raise ValueError("reproject requires target_crs")
+        return data.to_crs(target_crs)
 
     async def _clip_data(
         self, data: Any, parameters: Dict[str, Any], context: Dict[str, Any]
     ) -> Any:
-        """Clip data to spatial bounds."""
-        # Implementation for clipping
-        return data
+        """Clip a GeoDataFrame to a configured geometry or bounding box."""
+        try:
+            import geopandas as gpd
+        except ImportError as exc:
+            raise RuntimeError("clip transformation requires geopandas") from exc
+        if not isinstance(data, gpd.GeoDataFrame):
+            raise TypeError("clip transformation requires a GeoDataFrame")
+
+        mask = context.get("layers", {}).get(parameters.get("mask_layer"))
+        if mask is None and parameters.get("mask_path"):
+            mask = gpd.read_file(parameters["mask_path"])
+        if isinstance(mask, gpd.GeoDataFrame):
+            return gpd.clip(data, mask)
+        bounds = parameters.get("bounds")
+        if bounds is None:
+            raise ValueError("clip requires mask_layer, mask_path, or bounds")
+        if len(bounds) != 4:
+            raise ValueError("clip bounds must be [minx, miny, maxx, maxy]")
+        from shapely.geometry import box
+
+        return gpd.clip(data, gpd.GeoDataFrame(geometry=[box(*bounds)], crs=data.crs))
 
 
 class IntelligentETLPipeline:
@@ -582,21 +713,85 @@ class IntelligentETLPipeline:
     async def _extract_from_files(
         self, config: Dict[str, Any], source_data: Any
     ) -> Any:
-        """Extract data from file sources."""
-        # Implementation for file extraction
-        return source_data
+        """Read a configured file, using the supplied source data as an override."""
+        path = (
+            source_data if isinstance(source_data, (str, Path)) else config.get("path")
+        )
+        if path is None:
+            return source_data
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(path)
+        fmt = str(config.get("format", path.suffix.lstrip("."))).lower()
+        if fmt in {"csv", "tsv"}:
+            return pd.read_csv(path, sep="\t" if fmt == "tsv" else ",")
+        if fmt in {"json", "jsonl"}:
+            return pd.read_json(path, lines=fmt == "jsonl")
+        if fmt in {"parquet", "pq"}:
+            return pd.read_parquet(path)
+        if fmt in {"geojson", "gpkg", "shp", "geopackage"}:
+            try:
+                import geopandas as gpd
+            except ImportError as exc:
+                raise RuntimeError(
+                    "geospatial file extraction requires geopandas"
+                ) from exc
+            return gpd.read_file(path)
+        raise ValueError(f"Unsupported file format: {fmt}")
 
     async def _extract_from_database(
         self, config: Dict[str, Any], source_data: Any
     ) -> Any:
-        """Extract data from database sources."""
-        # Implementation for database extraction
-        return source_data
+        """Read a configured database query with SQLAlchemy."""
+        if source_data is not None and not isinstance(source_data, (str, Path, dict)):
+            return source_data
+        connection = config.get("connection_string") or config.get("url")
+        query = config.get("query")
+        table = config.get("table")
+        if not connection or not (query or table):
+            raise ValueError(
+                "database source requires connection_string and query or table"
+            )
+        try:
+            from sqlalchemy import create_engine
+        except ImportError as exc:
+            raise RuntimeError("database extraction requires sqlalchemy") from exc
+        engine = create_engine(connection)
+        try:
+            return (
+                pd.read_sql_query(query, engine)
+                if query
+                else pd.read_sql_table(table, engine)
+            )
+        finally:
+            engine.dispose()
 
     async def _extract_from_api(self, config: Dict[str, Any], source_data: Any) -> Any:
-        """Extract data from API sources."""
-        # Implementation for API extraction
-        return source_data
+        """Fetch JSON data from a configured HTTP API."""
+        if source_data is not None and not isinstance(source_data, (str, Path, dict)):
+            return source_data
+        endpoint = config.get("url") or config.get("endpoint")
+        if not endpoint:
+            raise ValueError("api source requires url or endpoint")
+        try:
+            import requests
+        except ImportError as exc:
+            raise RuntimeError("api extraction requires requests") from exc
+        headers = dict(config.get("headers", {}))
+        token = config.get("api_key") or config.get("token")
+        if token:
+            headers.setdefault("Authorization", f"Bearer {token}")
+        response = requests.get(
+            endpoint,
+            params=config.get("params"),
+            headers=headers,
+            timeout=float(config.get("timeout", 30)),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        return (
+            pd.json_normalize(payload) if isinstance(payload, (list, dict)) else payload
+        )
 
     async def _transform_data(
         self, extracted_data: Any, transformation_rules: Optional[Dict[str, Any]] = None
@@ -700,22 +895,95 @@ class IntelligentETLPipeline:
         transformed_data: Any,
         target_storage: Any,
     ) -> Any:
-        """Load data to configured destination."""
-        # Implementation for configured destination loading
-        return {
-            "records_loaded": (
-                len(transformed_data) if hasattr(transformed_data, "__len__") else 1
+        """Load data to a configured file, database, API, or in-memory destination."""
+        destination_type = destination_config.type.lower()
+        configuration = destination_config.configuration
+        if destination_type in {"dataset", "memory"}:
+            return await self._load_to_storage(transformed_data, target_storage)
+        if destination_type == "file":
+            path = configuration.get("path")
+            if not path:
+                raise ValueError("file destination requires path")
+            path = Path(path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fmt = str(configuration.get("format", path.suffix.lstrip("."))).lower()
+            if fmt == "csv":
+                transformed_data.to_csv(path, index=False)
+            elif fmt in {"json", "geojson"}:
+                if hasattr(transformed_data, "to_file") and fmt == "geojson":
+                    transformed_data.to_file(path, driver="GeoJSON")
+                else:
+                    transformed_data.to_json(path, orient="records", date_format="iso")
+            elif fmt in {"parquet", "pq"}:
+                transformed_data.to_parquet(path, index=False)
+            else:
+                raise ValueError(f"Unsupported file destination format: {fmt}")
+            return {"records_loaded": len(transformed_data), "destination": str(path)}
+        if destination_type == "database":
+            connection = configuration.get("connection_string") or configuration.get(
+                "url"
             )
-        }
+            table = configuration.get("table") or configuration.get("table_name")
+            if not connection or not table:
+                raise ValueError(
+                    "database destination requires connection_string and table"
+                )
+            try:
+                from sqlalchemy import create_engine
+            except ImportError as exc:
+                raise RuntimeError("database loading requires sqlalchemy") from exc
+            engine = create_engine(connection)
+            try:
+                transformed_data.to_sql(
+                    table,
+                    engine,
+                    if_exists=configuration.get("if_exists", "replace"),
+                    index=False,
+                )
+            finally:
+                engine.dispose()
+            return {"records_loaded": len(transformed_data), "destination": table}
+        if destination_type == "api":
+            endpoint = configuration.get("url") or configuration.get("endpoint")
+            if not endpoint:
+                raise ValueError("api destination requires url or endpoint")
+            try:
+                import requests
+            except ImportError as exc:
+                raise RuntimeError("api loading requires requests") from exc
+            response = requests.post(
+                endpoint,
+                json=(
+                    transformed_data.to_dict(orient="records")
+                    if isinstance(transformed_data, pd.DataFrame)
+                    else transformed_data
+                ),
+                headers=configuration.get("headers"),
+                timeout=float(configuration.get("timeout", 30)),
+            )
+            response.raise_for_status()
+            return {"records_loaded": len(transformed_data), "destination": endpoint}
+        raise ValueError(f"Unsupported destination type: {destination_config.type}")
 
     async def _load_to_storage(self, transformed_data: Any, target_storage: Any) -> Any:
-        """Load data directly to storage."""
-        # Implementation for direct storage loading
-        return {
-            "records_loaded": (
-                len(transformed_data) if hasattr(transformed_data, "__len__") else 1
-            )
-        }
+        """Store data in an injected storage object or report an explicit memory load."""
+        records = len(transformed_data) if hasattr(transformed_data, "__len__") else 1
+        if target_storage is None:
+            return {"records_loaded": records, "destination": "memory"}
+        if hasattr(target_storage, "store"):
+            result = target_storage.store(transformed_data)
+            if asyncio.iscoroutine(result):
+                result = await result
+            return {
+                "records_loaded": records,
+                "destination": "storage",
+                "storage_result": result,
+            }
+        if isinstance(target_storage, dict):
+            target_storage["data"] = transformed_data
+            target_storage["records_loaded"] = records
+            return {"records_loaded": records, "destination": "mapping"}
+        raise TypeError("target_storage must be None, a mapping, or expose store()")
 
     async def _handle_error(
         self, error: Exception, source_data: Any, target_storage: Any

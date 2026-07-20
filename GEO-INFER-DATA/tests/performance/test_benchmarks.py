@@ -371,6 +371,19 @@ class TestValidationBenchmarks:
             quality_manager = DataQualityManager(
                 validation_rules="comprehensive", quality_threshold=0.8
             )
+            metadata = DatasetMetadata(
+                title="Benchmark dataset",
+                spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
+                temporal=TemporalExtent(
+                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+                ),
+                lineage=DataLineage(
+                    source="benchmark", process="validation", created_by="pytest"
+                ),
+            )
+            quality_manager.register_dataset(
+                "benchmark_dataset", benchmark_validation_data, metadata
+            )
 
             start_time = time.time()
             report = await quality_manager.validate_dataset("benchmark_dataset")

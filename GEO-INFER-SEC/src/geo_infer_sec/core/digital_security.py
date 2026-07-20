@@ -577,9 +577,8 @@ class DigitalSecurityManager:
                 f = Fernet(key)
                 return f.encrypt(data)
             else:
-                # Implement other encryption algorithms as needed
                 self.logger.warning(
-                    f"Encryption algorithm {algorithm.value} not implemented"
+                    f"Encryption algorithm {algorithm.value} is unsupported"
                 )
                 return None
 
@@ -606,7 +605,7 @@ class DigitalSecurityManager:
                 return f.decrypt(encrypted_data)
             else:
                 self.logger.warning(
-                    f"Decryption algorithm {algorithm.value} not implemented"
+                    f"Decryption algorithm {algorithm.value} is unsupported"
                 )
                 return None
 
@@ -740,8 +739,16 @@ class DigitalSecurityManager:
         """Run a vulnerability scan on a target system."""
         scan_id = f"scan_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-        # Simulate vulnerability scanning (in real implementation, integrate with tools like Nessus, OpenVAS)
-        vulnerabilities = self._simulate_vulnerability_scan(target_system)
+        scanner = self.config.get("vulnerability_scanner")
+        if not callable(scanner):
+            raise RuntimeError(
+                "A callable vulnerability_scanner must be configured before scanning"
+            )
+        vulnerabilities = scanner(target_system)
+        if not isinstance(vulnerabilities, list):
+            raise TypeError(
+                "vulnerability_scanner must return a list of vulnerability records"
+            )
 
         # Calculate risk score
         risk_score = self._calculate_risk_score(vulnerabilities)
@@ -764,32 +771,6 @@ class DigitalSecurityManager:
 
         self.vulnerability_reports[scan_id] = report
         return report
-
-    def _simulate_vulnerability_scan(self, target_system: str) -> List[Dict[str, Any]]:
-        """Simulate vulnerability scanning results."""
-        # In a real implementation, this would interface with actual vulnerability scanners
-        sample_vulnerabilities = [
-            {
-                "cve_id": "CVE-2023-1234",
-                "severity": "HIGH",
-                "description": "Remote code execution vulnerability",
-                "affected_component": "web_server",
-                "cvss_score": 8.5,
-                "exploit_available": True,
-                "patch_available": True,
-            },
-            {
-                "cve_id": "CVE-2023-5678",
-                "severity": "MEDIUM",
-                "description": "Information disclosure vulnerability",
-                "affected_component": "database",
-                "cvss_score": 5.3,
-                "exploit_available": False,
-                "patch_available": True,
-            },
-        ]
-
-        return sample_vulnerabilities
 
     def _calculate_risk_score(self, vulnerabilities: List[Dict[str, Any]]) -> float:
         """Calculate overall risk score from vulnerabilities."""

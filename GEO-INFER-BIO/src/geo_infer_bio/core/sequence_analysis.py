@@ -7,34 +7,10 @@ import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment, PairwiseAligner
+from Bio.Align import MultipleSeqAlignment, PairwiseAligner, substitution_matrices
 from Bio.Data import CodonTable
 
-try:
-    from Bio.SubsMat import MatrixInfo as matlist
-except ImportError:
-    # Bio.SubsMat was removed in Biopython >= 1.83
-    # Use Bio.Align.substitution_matrices as fallback
-    matlist = None
-    try:
-        from Bio.Align import substitution_matrices as _sub_matrices
-
-        class _MatlistCompat:
-            """Compatibility shim for old Bio.SubsMat.MatrixInfo API."""
-
-            @property
-            def blosum62(self):
-                mat = _sub_matrices.load("BLOSUM62")
-                # Convert Array to dict of (a, b) -> score pairs
-                result = {}
-                for a in mat.alphabet:
-                    for b in mat.alphabet:
-                        result[(a, b)] = mat[a, b]
-                return result
-
-        matlist = _MatlistCompat()
-    except ImportError:
-        pass
+_BLOSUM62 = substitution_matrices.load("BLOSUM62")
 
 from ..utils.validation import DataValidator
 from ..utils.visualization import BioVisualizer
@@ -89,10 +65,8 @@ class SequenceAnalyzer:
         if algorithm not in {"global", "local"}:
             raise ValueError("algorithm must be 'global' or 'local'")
 
-        # PairwiseAligner is the supported Biopython replacement for the
-        # deprecated pairwise2 API.  The returned alignment is represented as
-        # a MultipleSeqAlignment for compatibility with the downstream BIO
-        # validators and visualizers.
+        # PairwiseAligner is the supported Biopython alignment implementation.
+        # The result remains a MultipleSeqAlignment for downstream BIO tools.
         aligner = PairwiseAligner()
         aligner.mode = algorithm
         aligner.match_score = 2
@@ -150,14 +124,14 @@ class SequenceAnalyzer:
         Returns:
             Similarity score
         """
-        matrix = matlist.blosum62
+        matrix = _BLOSUM62
 
         def _lookup(x, y):
             try:
-                return matrix[(x, y)]
+                return matrix[x, y]
             except KeyError:
                 try:
-                    return matrix[(y, x)]
+                    return matrix[y, x]
                 except KeyError:
                     return 0.0
 

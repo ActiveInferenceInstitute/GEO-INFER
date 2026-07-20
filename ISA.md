@@ -54,7 +54,7 @@ Ideal state criteria:
 - `pyproject.toml` is the canonical packaging surface; `setup.py` is compatibility only.
 - Existing `setup.py` files parse successfully.
 - Optional dependency failures degrade gracefully or are reported as warnings by contract checks.
-- Source-language debt involving mock/stub/fake/placeholder terms is tracked and driven down.
+- Source-language implementation debt is tracked and driven down.
 
 ## Modular Hygiene
 

@@ -8,7 +8,6 @@ generating coordinates, and other common SPM analysis tasks.
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
 from scipy import stats
-import warnings
 
 from ..models.data_models import SPMData, DesignMatrix
 
@@ -75,15 +74,9 @@ def create_design_matrix(
                         design_components.append(dummy_matrix[:, i])
                         names.append(f"{factor_name}_{level}")
                 else:
-                    # Create default factor coding
-                    warnings.warn(
-                        f"Factor '{factor_name}' not found in covariates, using equal groups"
+                    raise ValueError(
+                        f"Factor '{factor_name}' is not present in data.covariates"
                     )
-                    factor_values = np.random.choice(levels, n_points)
-                    dummy_matrix = _create_dummy_variables(factor_values, levels)
-                    for i, level in enumerate(levels[:-1]):
-                        design_components.append(dummy_matrix[:, i])
-                        names.append(f"{factor_name}_{level}")
 
         design_matrix = np.column_stack(design_components)
 

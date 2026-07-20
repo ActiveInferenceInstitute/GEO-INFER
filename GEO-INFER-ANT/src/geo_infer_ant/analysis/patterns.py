@@ -16,13 +16,11 @@ Key Features:
 """
 
 import numpy as np
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
-import math
 
 # Integration imports
 try:
@@ -41,10 +39,35 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AnalysisConfiguration:
     """Configuration for pattern analysis."""
-    analysis_types: List[str] = field(default_factory=lambda: ['spatial_patterns', 'temporal_patterns', 'interaction_networks'])
-    statistical_methods: List[str] = field(default_factory=lambda: ['cluster_analysis', 'network_analysis', 'information_theory'])
-    visualization_tools: List[str] = field(default_factory=lambda: ['trajectory_plots', 'interaction_graphs', 'phase_diagrams'])
-    complexity_measures: List[str] = field(default_factory=lambda: ['fractal_dimension', 'lyapunov_exponents', 'correlation_dimension'])
+
+    analysis_types: List[str] = field(
+        default_factory=lambda: [
+            "spatial_patterns",
+            "temporal_patterns",
+            "interaction_networks",
+        ]
+    )
+    statistical_methods: List[str] = field(
+        default_factory=lambda: [
+            "cluster_analysis",
+            "network_analysis",
+            "information_theory",
+        ]
+    )
+    visualization_tools: List[str] = field(
+        default_factory=lambda: [
+            "trajectory_plots",
+            "interaction_graphs",
+            "phase_diagrams",
+        ]
+    )
+    complexity_measures: List[str] = field(
+        default_factory=lambda: [
+            "fractal_dimension",
+            "lyapunov_exponents",
+            "correlation_dimension",
+        ]
+    )
 
     # Analysis parameters
     spatial_scale: float = 1000.0  # meters
@@ -54,7 +77,12 @@ class AnalysisConfiguration:
 
     def __post_init__(self):
         """Validate configuration after initialization."""
-        valid_analysis_types = ['spatial_patterns', 'temporal_patterns', 'interaction_networks', 'emergent_phenomena']
+        valid_analysis_types = [
+            "spatial_patterns",
+            "temporal_patterns",
+            "interaction_networks",
+            "emergent_phenomena",
+        ]
         for analysis_type in self.analysis_types:
             if analysis_type not in valid_analysis_types:
                 raise ValueError(f"Invalid analysis type: {analysis_type}")
@@ -79,8 +107,8 @@ class SwarmPatternAnalyzer:
         analysis_types: Optional[List[str]] = None,
         statistical_methods: Optional[List[str]] = None,
         visualization_tools: Optional[List[str]] = None,
-        spatial_backend: str = 'h3',
-        **kwargs
+        spatial_backend: str = "h3",
+        **kwargs,
     ):
         """
         Initialize pattern analyzer.
@@ -93,9 +121,12 @@ class SwarmPatternAnalyzer:
             **kwargs: Additional configuration parameters
         """
         self.config = AnalysisConfiguration(
-            analysis_types=analysis_types or ['spatial_patterns', 'temporal_patterns', 'interaction_networks'],
-            statistical_methods=statistical_methods or ['cluster_analysis', 'network_analysis', 'information_theory'],
-            visualization_tools=visualization_tools or ['trajectory_plots', 'interaction_graphs', 'phase_diagrams']
+            analysis_types=analysis_types
+            or ["spatial_patterns", "temporal_patterns", "interaction_networks"],
+            statistical_methods=statistical_methods
+            or ["cluster_analysis", "network_analysis", "information_theory"],
+            visualization_tools=visualization_tools
+            or ["trajectory_plots", "interaction_graphs", "phase_diagrams"],
         )
 
         # Analysis state
@@ -110,7 +141,9 @@ class SwarmPatternAnalyzer:
         # Initialize integrations
         self._initialize_integrations(spatial_backend)
 
-        logger.info(f"SwarmPatternAnalyzer initialized with {len(self.config.analysis_types)} analysis types")
+        logger.info(
+            f"SwarmPatternAnalyzer initialized with {len(self.config.analysis_types)} analysis types"
+        )
 
     def _initialize_integrations(self, backend: str) -> None:
         """Initialize integration with other GEO-INFER modules."""
@@ -140,7 +173,7 @@ class SwarmPatternAnalyzer:
         agent_trajectories: Union[List[np.ndarray], np.ndarray],
         pattern_types: Optional[List[str]] = None,
         spatial_scale: Optional[float] = None,
-        temporal_window: Optional[float] = None
+        temporal_window: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Analyze spatial patterns in agent trajectories.
@@ -154,14 +187,16 @@ class SwarmPatternAnalyzer:
         Returns:
             Analysis results for spatial patterns
         """
-        logger.info(f"Analyzing spatial patterns in {len(agent_trajectories)} trajectories")
+        logger.info(
+            f"Analyzing spatial patterns in {len(agent_trajectories)} trajectories"
+        )
 
         analysis_results = {
-            'analysis_type': 'spatial_patterns',
-            'analysis_time': datetime.now(),
-            'patterns_detected': {},
-            'statistical_measures': {},
-            'interpretation': {}
+            "analysis_type": "spatial_patterns",
+            "analysis_time": datetime.now(),
+            "patterns_detected": {},
+            "statistical_measures": {},
+            "interpretation": {},
         }
 
         try:
@@ -175,39 +210,47 @@ class SwarmPatternAnalyzer:
                 return analysis_results
 
             # Detect different types of spatial patterns
-            pattern_types = pattern_types or ['clustering', 'flocking', 'swarming', 'migration', 'dispersion']
+            pattern_types = pattern_types or [
+                "clustering",
+                "flocking",
+                "swarming",
+                "migration",
+                "dispersion",
+            ]
 
             for pattern_type in pattern_types:
-                if pattern_type == 'clustering':
+                if pattern_type == "clustering":
                     pattern_result = self._analyze_clustering_patterns(trajectories)
-                elif pattern_type == 'flocking':
+                elif pattern_type == "flocking":
                     pattern_result = self._analyze_flocking_patterns(trajectories)
-                elif pattern_type == 'migration':
+                elif pattern_type == "migration":
                     pattern_result = self._analyze_migration_patterns(trajectories)
-                elif pattern_type == 'dispersion':
+                elif pattern_type == "dispersion":
                     pattern_result = self._analyze_dispersion_patterns(trajectories)
                 else:
-                    pattern_result = {'status': 'insufficient_data'}
+                    pattern_result = {"status": "insufficient_data"}
 
-                analysis_results['patterns_detected'][pattern_type] = pattern_result
+                analysis_results["patterns_detected"][pattern_type] = pattern_result
 
             # Calculate statistical measures
             statistical_measures = self._calculate_spatial_statistics(trajectories)
-            analysis_results['statistical_measures'] = statistical_measures
+            analysis_results["statistical_measures"] = statistical_measures
 
             # Generate interpretation
             interpretation = self._interpret_spatial_patterns(analysis_results)
-            analysis_results['interpretation'] = interpretation
+            analysis_results["interpretation"] = interpretation
 
         except Exception as e:
             logger.error(f"Spatial pattern analysis failed: {e}")
-            analysis_results['error'] = str(e)
+            analysis_results["error"] = str(e)
 
         # Cache results
-        self.pattern_cache['spatial_patterns'] = analysis_results
+        self.pattern_cache["spatial_patterns"] = analysis_results
         self.analysis_history.append(analysis_results)
 
-        logger.info(f"Spatial pattern analysis completed: {len(analysis_results['patterns_detected'])} pattern types analyzed")
+        logger.info(
+            f"Spatial pattern analysis completed: {len(analysis_results['patterns_detected'])} pattern types analyzed"
+        )
         return analysis_results
 
     def _analyze_clustering_patterns(self, trajectories: np.ndarray) -> Dict[str, Any]:
@@ -217,27 +260,28 @@ class SwarmPatternAnalyzer:
                 # Use spatial analytics for clustering
                 clusters = self.spatial_analytics.analyze_clusters(
                     data=trajectories.reshape(-1, trajectories.shape[-1]),
-                    method='dbscan',
+                    method="dbscan",
                     eps=0.01,  # 1km clustering radius
-                    min_samples=3
+                    min_samples=3,
                 )
 
                 return {
-                    'method': 'spatial_analytics',
-                    'clusters': clusters,
-                    'n_clusters': len(clusters.get('clusters', [])),
-                    'cluster_sizes': [len(c.get('indices', [])) for c in clusters.get('clusters', [])]
+                    "method": "spatial_analytics",
+                    "clusters": clusters,
+                    "n_clusters": len(clusters.get("clusters", [])),
+                    "cluster_sizes": [
+                        len(c.get("indices", [])) for c in clusters.get("clusters", [])
+                    ],
                 }
             else:
-                # Fallback clustering analysis
-                return self._fallback_clustering_analysis(trajectories)
+                return self._distance_clustering_analysis(trajectories)
 
         except Exception as e:
             logger.warning(f"Clustering analysis failed: {e}")
-            return self._fallback_clustering_analysis(trajectories)
+            return self._distance_clustering_analysis(trajectories)
 
-    def _fallback_clustering_analysis(self, trajectories: np.ndarray) -> Dict[str, Any]:
-        """Fallback clustering analysis without spatial analytics."""
+    def _distance_clustering_analysis(self, trajectories: np.ndarray) -> Dict[str, Any]:
+        """Cluster trajectories using pairwise distance when indexing is unavailable."""
         # Simple distance-based clustering
         n_agents, n_steps, n_dims = trajectories.shape
 
@@ -260,7 +304,7 @@ class SwarmPatternAnalyzer:
                 cluster = [i]
                 visited.add(i)
 
-                for j in range(i+1, n_agents):
+                for j in range(i + 1, n_agents):
                     if distances[i, j] < distance_threshold:
                         cluster.append(j)
                         visited.add(j)
@@ -268,10 +312,10 @@ class SwarmPatternAnalyzer:
                 clusters.append(cluster)
 
         return {
-            'method': 'distance_based',
-            'n_clusters': len(clusters),
-            'cluster_sizes': [len(c) for c in clusters],
-            'distance_threshold': distance_threshold
+            "method": "distance_based",
+            "n_clusters": len(clusters),
+            "cluster_sizes": [len(c) for c in clusters],
+            "distance_threshold": distance_threshold,
         }
 
     def _analyze_flocking_patterns(self, trajectories: np.ndarray) -> Dict[str, Any]:
@@ -293,7 +337,8 @@ class SwarmPatternAnalyzer:
                         for agent_vel in step_velocities:
                             if np.linalg.norm(agent_vel) > 0:
                                 correlation = np.dot(agent_vel, avg_velocity) / (
-                                    np.linalg.norm(agent_vel) * np.linalg.norm(avg_velocity)
+                                    np.linalg.norm(agent_vel)
+                                    * np.linalg.norm(avg_velocity)
                                 )
                                 correlations.append(correlation)
 
@@ -304,7 +349,9 @@ class SwarmPatternAnalyzer:
             for step in range(trajectories.shape[1]):
                 positions = trajectories[:, step, :]
                 center = np.mean(positions, axis=0)
-                distances_to_center = [np.linalg.norm(pos - center) for pos in positions]
+                distances_to_center = [
+                    np.linalg.norm(pos - center) for pos in positions
+                ]
                 cohesion_scores.append(np.mean(distances_to_center))
 
             # Calculate separation (minimum distances between agents)
@@ -314,26 +361,35 @@ class SwarmPatternAnalyzer:
                 min_distances = []
 
                 for i in range(len(positions)):
-                    distances = [np.linalg.norm(positions[i] - positions[j])
-                               for j in range(len(positions)) if j != i]
+                    distances = [
+                        np.linalg.norm(positions[i] - positions[j])
+                        for j in range(len(positions))
+                        if j != i
+                    ]
                     min_distances.append(min(distances))
 
                 separation_scores.append(np.mean(min_distances))
 
             return {
-                'flocking_measures': {
-                    'alignment': np.mean(alignment_scores) if alignment_scores else 0.0,
-                    'cohesion': np.mean(cohesion_scores) if cohesion_scores else 0.0,
-                    'separation': np.mean(separation_scores) if separation_scores else 0.0
+                "flocking_measures": {
+                    "alignment": np.mean(alignment_scores) if alignment_scores else 0.0,
+                    "cohesion": np.mean(cohesion_scores) if cohesion_scores else 0.0,
+                    "separation": (
+                        np.mean(separation_scores) if separation_scores else 0.0
+                    ),
                 },
-                'flocking_detected': self._detect_flocking_behavior(alignment_scores, cohesion_scores, separation_scores)
+                "flocking_detected": self._detect_flocking_behavior(
+                    alignment_scores, cohesion_scores, separation_scores
+                ),
             }
 
         except Exception as e:
             logger.warning(f"Flocking analysis failed: {e}")
-            return {'status': 'flocking_analysis_failed', 'error': str(e)}
+            return {"status": "flocking_analysis_failed", "error": str(e)}
 
-    def _detect_flocking_behavior(self, alignment: List[float], cohesion: List[float], separation: List[float]) -> bool:
+    def _detect_flocking_behavior(
+        self, alignment: List[float], cohesion: List[float], separation: List[float]
+    ) -> bool:
         """Detect if flocking behavior is present."""
         if not alignment or not cohesion or not separation:
             return False
@@ -370,32 +426,44 @@ class SwarmPatternAnalyzer:
                 if len(positions) > 1:
                     # Calculate net displacement vector
                     displacement_vector = positions[-1] - positions[0]
-                    total_distance = np.sum([np.linalg.norm(positions[i+1] - positions[i])
-                                           for i in range(len(positions)-1)])
+                    total_distance = np.sum(
+                        [
+                            np.linalg.norm(positions[i + 1] - positions[i])
+                            for i in range(len(positions) - 1)
+                        ]
+                    )
 
                     if total_distance > 0:
-                        directionality = np.linalg.norm(displacement_vector) / total_distance
+                        directionality = (
+                            np.linalg.norm(displacement_vector) / total_distance
+                        )
                         directionality_scores.append(directionality)
 
-            avg_directionality = np.mean(directionality_scores) if directionality_scores else 0.0
+            avg_directionality = (
+                np.mean(directionality_scores) if directionality_scores else 0.0
+            )
 
             # Detect migration vs random movement
-            migration_detected = bool(avg_directionality > 0.3 and avg_displacement > 0.01)
+            migration_detected = bool(
+                avg_directionality > 0.3 and avg_displacement > 0.01
+            )
 
             return {
-                'migration_measures': {
-                    'avg_displacement': avg_displacement,
-                    'avg_directionality': avg_directionality,
-                    'max_displacement': np.max(displacements),
-                    'displacement_variance': np.var(displacements)
+                "migration_measures": {
+                    "avg_displacement": avg_displacement,
+                    "avg_directionality": avg_directionality,
+                    "max_displacement": np.max(displacements),
+                    "displacement_variance": np.var(displacements),
                 },
-                'migration_detected': migration_detected,
-                'movement_type': 'migration' if migration_detected else 'random_movement'
+                "migration_detected": migration_detected,
+                "movement_type": (
+                    "migration" if migration_detected else "random_movement"
+                ),
             }
 
         except Exception as e:
             logger.warning(f"Migration analysis failed: {e}")
-            return {'status': 'migration_analysis_failed', 'error': str(e)}
+            return {"status": "migration_analysis_failed", "error": str(e)}
 
     def _analyze_dispersion_patterns(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Analyze dispersion and spreading patterns."""
@@ -414,43 +482,53 @@ class SwarmPatternAnalyzer:
                     # Calculate standard deviation of positions
                     position_std = np.std(positions, axis=0)
 
-                    spread_measures.append({
-                        'bounding_area': bounding_area,
-                        'position_std': position_std,
-                        'spatial_extent': np.max(max_coords - min_coords)
-                    })
+                    spread_measures.append(
+                        {
+                            "bounding_area": bounding_area,
+                            "position_std": position_std,
+                            "spatial_extent": np.max(max_coords - min_coords),
+                        }
+                    )
 
             # Analyze dispersion trend
             if len(spread_measures) > 1:
-                initial_spread = spread_measures[0]['bounding_area']
-                final_spread = spread_measures[-1]['bounding_area']
+                initial_spread = spread_measures[0]["bounding_area"]
+                final_spread = spread_measures[-1]["bounding_area"]
 
                 if final_spread > initial_spread * 2:
-                    dispersion_trend = 'increasing'
+                    dispersion_trend = "increasing"
                 elif final_spread < initial_spread * 0.5:
-                    dispersion_trend = 'decreasing'
+                    dispersion_trend = "decreasing"
                 else:
-                    dispersion_trend = 'stable'
+                    dispersion_trend = "stable"
 
                 dispersion_rate = (final_spread - initial_spread) / len(spread_measures)
             else:
-                dispersion_trend = 'insufficient_data'
+                dispersion_trend = "insufficient_data"
                 dispersion_rate = 0.0
 
             return {
-                'dispersion_measures': {
-                    'initial_spread': spread_measures[0]['bounding_area'] if spread_measures else 0.0,
-                    'final_spread': spread_measures[-1]['bounding_area'] if spread_measures else 0.0,
-                    'max_spread': max([s['bounding_area'] for s in spread_measures]) if spread_measures else 0.0,
-                    'dispersion_trend': dispersion_trend,
-                    'dispersion_rate': dispersion_rate
+                "dispersion_measures": {
+                    "initial_spread": (
+                        spread_measures[0]["bounding_area"] if spread_measures else 0.0
+                    ),
+                    "final_spread": (
+                        spread_measures[-1]["bounding_area"] if spread_measures else 0.0
+                    ),
+                    "max_spread": (
+                        max([s["bounding_area"] for s in spread_measures])
+                        if spread_measures
+                        else 0.0
+                    ),
+                    "dispersion_trend": dispersion_trend,
+                    "dispersion_rate": dispersion_rate,
                 },
-                'dispersion_detected': dispersion_trend == 'increasing'
+                "dispersion_detected": dispersion_trend == "increasing",
             }
 
         except Exception as e:
             logger.warning(f"Dispersion analysis failed: {e}")
-            return {'status': 'dispersion_analysis_failed', 'error': str(e)}
+            return {"status": "dispersion_analysis_failed", "error": str(e)}
 
     def _calculate_spatial_statistics(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Calculate comprehensive spatial statistics."""
@@ -459,123 +537,163 @@ class SwarmPatternAnalyzer:
         try:
             # Basic spatial statistics
             all_positions = trajectories.reshape(-1, trajectories.shape[-1])
-            stats['overall'] = {
-                'total_positions': len(all_positions),
-                'spatial_bounds': {
-                    'min_lat': np.min(all_positions[:, 0]),
-                    'max_lat': np.max(all_positions[:, 0]),
-                    'min_lng': np.min(all_positions[:, 1]),
-                    'max_lng': np.max(all_positions[:, 1])
+            stats["overall"] = {
+                "total_positions": len(all_positions),
+                "spatial_bounds": {
+                    "min_lat": np.min(all_positions[:, 0]),
+                    "max_lat": np.max(all_positions[:, 0]),
+                    "min_lng": np.min(all_positions[:, 1]),
+                    "max_lng": np.max(all_positions[:, 1]),
                 },
-                'center_of_mass': np.mean(all_positions, axis=0).tolist(),
-                'spatial_extent': np.max(all_positions, axis=0) - np.min(all_positions, axis=0)
+                "center_of_mass": np.mean(all_positions, axis=0).tolist(),
+                "spatial_extent": np.max(all_positions, axis=0)
+                - np.min(all_positions, axis=0),
             }
 
             # Agent-specific statistics
-            stats['per_agent'] = []
+            stats["per_agent"] = []
             for agent in range(trajectories.shape[0]):
                 agent_positions = trajectories[agent, :, :]
                 agent_stats = {
-                    'agent_id': agent,
-                    'total_distance': np.sum([np.linalg.norm(agent_positions[i+1] - agent_positions[i])
-                                            for i in range(len(agent_positions)-1)]),
-                    'net_displacement': np.linalg.norm(agent_positions[-1] - agent_positions[0]),
-                    'activity_radius': np.max([np.linalg.norm(pos - agent_positions[0])
-                                             for pos in agent_positions]),
-                    'position_variance': np.var(agent_positions, axis=0).tolist()
+                    "agent_id": agent,
+                    "total_distance": np.sum(
+                        [
+                            np.linalg.norm(agent_positions[i + 1] - agent_positions[i])
+                            for i in range(len(agent_positions) - 1)
+                        ]
+                    ),
+                    "net_displacement": np.linalg.norm(
+                        agent_positions[-1] - agent_positions[0]
+                    ),
+                    "activity_radius": np.max(
+                        [
+                            np.linalg.norm(pos - agent_positions[0])
+                            for pos in agent_positions
+                        ]
+                    ),
+                    "position_variance": np.var(agent_positions, axis=0).tolist(),
                 }
-                stats['per_agent'].append(agent_stats)
+                stats["per_agent"].append(agent_stats)
 
             # Temporal evolution statistics
-            stats['temporal_evolution'] = []
+            stats["temporal_evolution"] = []
             for step in range(trajectories.shape[1]):
                 step_positions = trajectories[:, step, :]
                 step_stats = {
-                    'step': step,
-                    'center_of_mass': np.mean(step_positions, axis=0).tolist(),
-                    'spatial_spread': np.std(step_positions, axis=0).tolist(),
-                    'bounding_area': np.prod(np.max(step_positions, axis=0) - np.min(step_positions, axis=0))
+                    "step": step,
+                    "center_of_mass": np.mean(step_positions, axis=0).tolist(),
+                    "spatial_spread": np.std(step_positions, axis=0).tolist(),
+                    "bounding_area": np.prod(
+                        np.max(step_positions, axis=0) - np.min(step_positions, axis=0)
+                    ),
                 }
-                stats['temporal_evolution'].append(step_stats)
+                stats["temporal_evolution"].append(step_stats)
 
         except Exception as e:
             logger.warning(f"Spatial statistics calculation failed: {e}")
-            stats['error'] = str(e)
+            stats["error"] = str(e)
 
         return stats
 
-    def _interpret_spatial_patterns(self, analysis_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _interpret_spatial_patterns(
+        self, analysis_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Generate interpretation of spatial patterns."""
         interpretation = {
-            'pattern_summary': '',
-            'behavior_classification': '',
-            'key_insights': [],
-            'recommendations': []
+            "pattern_summary": "",
+            "behavior_classification": "",
+            "key_insights": [],
+            "recommendations": [],
         }
 
         try:
-            patterns = analysis_results.get('patterns_detected', {})
+            patterns = analysis_results.get("patterns_detected", {})
 
             # Generate pattern summary
-            detected_patterns = [p for p, result in patterns.items()
-                               if result.get('status') != 'pattern_type_not_implemented']
+            detected_patterns = [
+                p
+                for p, result in patterns.items()
+                if result.get("status") != "pattern_type_not_implemented"
+            ]
 
             if detected_patterns:
-                interpretation['pattern_summary'] = f"Detected {len(detected_patterns)} spatial pattern types: {', '.join(detected_patterns)}"
+                interpretation["pattern_summary"] = (
+                    f"Detected {len(detected_patterns)} spatial pattern types: {', '.join(detected_patterns)}"
+                )
             else:
-                interpretation['pattern_summary'] = "No clear spatial patterns detected"
+                interpretation["pattern_summary"] = "No clear spatial patterns detected"
 
             # Classify overall behavior
             behavior_scores = {}
 
-            if 'clustering' in patterns:
-                clustering_result = patterns['clustering']
-                if clustering_result.get('n_clusters', 0) > 1:
-                    behavior_scores['clustering'] = clustering_result.get('n_clusters', 0) / 10  # Normalize
+            if "clustering" in patterns:
+                clustering_result = patterns["clustering"]
+                if clustering_result.get("n_clusters", 0) > 1:
+                    behavior_scores["clustering"] = (
+                        clustering_result.get("n_clusters", 0) / 10
+                    )  # Normalize
 
-            if 'flocking' in patterns:
-                flocking_result = patterns['flocking']
-                if flocking_result.get('flocking_detected', False):
-                    flocking_measures = flocking_result.get('flocking_measures', {})
-                    behavior_scores['flocking'] = np.mean(list(flocking_measures.values()))
+            if "flocking" in patterns:
+                flocking_result = patterns["flocking"]
+                if flocking_result.get("flocking_detected", False):
+                    flocking_measures = flocking_result.get("flocking_measures", {})
+                    behavior_scores["flocking"] = np.mean(
+                        list(flocking_measures.values())
+                    )
 
-            if 'migration' in patterns:
-                migration_result = patterns['migration']
-                if migration_result.get('migration_detected', False):
-                    behavior_scores['migration'] = migration_result.get('migration_measures', {}).get('avg_directionality', 0)
+            if "migration" in patterns:
+                migration_result = patterns["migration"]
+                if migration_result.get("migration_detected", False):
+                    behavior_scores["migration"] = migration_result.get(
+                        "migration_measures", {}
+                    ).get("avg_directionality", 0)
 
             if behavior_scores:
                 dominant_behavior = max(behavior_scores, key=behavior_scores.get)
-                interpretation['behavior_classification'] = f"Dominant behavior: {dominant_behavior}"
-                interpretation['behavior_confidence'] = behavior_scores[dominant_behavior]
+                interpretation["behavior_classification"] = (
+                    f"Dominant behavior: {dominant_behavior}"
+                )
+                interpretation["behavior_confidence"] = behavior_scores[
+                    dominant_behavior
+                ]
 
             # Generate insights
             insights = []
 
             for pattern_name, pattern_result in patterns.items():
-                if pattern_result.get('status') == 'success':
-                    if pattern_name == 'clustering':
-                        n_clusters = pattern_result.get('n_clusters', 0)
+                if pattern_result.get("status") == "success":
+                    if pattern_name == "clustering":
+                        n_clusters = pattern_result.get("n_clusters", 0)
                         if n_clusters > 1:
-                            insights.append(f"Population shows {n_clusters} distinct spatial clusters")
+                            insights.append(
+                                f"Population shows {n_clusters} distinct spatial clusters"
+                            )
                         elif n_clusters == 1:
-                            insights.append("Population is spatially cohesive with minimal clustering")
+                            insights.append(
+                                "Population is spatially cohesive with minimal clustering"
+                            )
 
-                    elif pattern_name == 'flocking':
-                        if pattern_result.get('flocking_detected', False):
-                            measures = pattern_result.get('flocking_measures', {})
-                            insights.append(f"Flocking behavior detected with alignment score: {measures.get('alignment', 0):.3f}")
+                    elif pattern_name == "flocking":
+                        if pattern_result.get("flocking_detected", False):
+                            measures = pattern_result.get("flocking_measures", {})
+                            insights.append(
+                                f"Flocking behavior detected with alignment score: {measures.get('alignment', 0):.3f}"
+                            )
 
-                    elif pattern_name == 'migration':
-                        if pattern_result.get('migration_detected', False):
-                            displacement = pattern_result.get('migration_measures', {}).get('avg_displacement', 0)
-                            insights.append(f"Migration pattern detected with average displacement: {displacement:.4f} degrees")
+                    elif pattern_name == "migration":
+                        if pattern_result.get("migration_detected", False):
+                            displacement = pattern_result.get(
+                                "migration_measures", {}
+                            ).get("avg_displacement", 0)
+                            insights.append(
+                                f"Migration pattern detected with average displacement: {displacement:.4f} degrees"
+                            )
 
-            interpretation['key_insights'] = insights
+            interpretation["key_insights"] = insights
 
         except Exception as e:
             logger.warning(f"Pattern interpretation failed: {e}")
-            interpretation['error'] = str(e)
+            interpretation["error"] = str(e)
 
         return interpretation
 
@@ -584,7 +702,7 @@ class SwarmPatternAnalyzer:
         communication_data: Optional[List[Dict[str, Any]]] = None,
         proximity_data: Optional[np.ndarray] = None,
         influence_measures: Optional[Dict[str, Any]] = None,
-        network_metrics: Optional[List[str]] = None
+        network_metrics: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Analyze interaction networks and social dynamics.
@@ -601,94 +719,111 @@ class SwarmPatternAnalyzer:
         logger.info("Analyzing interaction networks")
 
         analysis_results = {
-            'analysis_type': 'interaction_networks',
-            'analysis_time': datetime.now(),
-            'network_structure': {},
-            'influence_analysis': {},
-            'communication_patterns': {},
-            'social_dynamics': {}
+            "analysis_type": "interaction_networks",
+            "analysis_time": datetime.now(),
+            "network_structure": {},
+            "influence_analysis": {},
+            "communication_patterns": {},
+            "social_dynamics": {},
         }
 
         try:
             # Analyze communication patterns
             if communication_data:
                 comm_analysis = self._analyze_communication_patterns(communication_data)
-                analysis_results['communication_patterns'] = comm_analysis
+                analysis_results["communication_patterns"] = comm_analysis
 
             # Analyze proximity networks
             if proximity_data is not None:
                 proximity_analysis = self._analyze_proximity_networks(proximity_data)
-                analysis_results['network_structure'] = proximity_analysis
+                analysis_results["network_structure"] = proximity_analysis
 
             # Analyze influence and leadership
             if influence_measures:
-                influence_analysis = self._analyze_influence_dynamics(influence_measures)
-                analysis_results['influence_analysis'] = influence_analysis
+                influence_analysis = self._analyze_influence_dynamics(
+                    influence_measures
+                )
+                analysis_results["influence_analysis"] = influence_analysis
 
             # Compute network metrics
-            network_metrics = network_metrics or ['centrality', 'clustering', 'modularity', 'density']
-            metrics_analysis = self._compute_network_metrics(analysis_results, network_metrics)
-            analysis_results['network_metrics'] = metrics_analysis
+            network_metrics = network_metrics or [
+                "centrality",
+                "clustering",
+                "modularity",
+                "density",
+            ]
+            metrics_analysis = self._compute_network_metrics(
+                analysis_results, network_metrics
+            )
+            analysis_results["network_metrics"] = metrics_analysis
 
             # Analyze social dynamics
             social_dynamics = self._analyze_social_dynamics(analysis_results)
-            analysis_results['social_dynamics'] = social_dynamics
+            analysis_results["social_dynamics"] = social_dynamics
 
         except Exception as e:
             logger.error(f"Interaction analysis failed: {e}")
-            analysis_results['error'] = str(e)
+            analysis_results["error"] = str(e)
 
         # Cache and record analysis
-        self.pattern_cache['interaction_networks'] = analysis_results
+        self.pattern_cache["interaction_networks"] = analysis_results
         self.analysis_history.append(analysis_results)
 
         logger.info("Interaction network analysis completed")
         return analysis_results
 
-    def _analyze_communication_patterns(self, communication_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_communication_patterns(
+        self, communication_data: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Analyze patterns in agent communication."""
         patterns = {
-            'communication_frequency': defaultdict(int),
-            'communication_types': defaultdict(int),
-            'temporal_patterns': defaultdict(list),
-            'spatial_patterns': defaultdict(list)
+            "communication_frequency": defaultdict(int),
+            "communication_types": defaultdict(int),
+            "temporal_patterns": defaultdict(list),
+            "spatial_patterns": defaultdict(list),
         }
 
         try:
             for comm in communication_data:
-                sender = comm.get('from', 'unknown')
-                receiver = comm.get('to', 'unknown')
-                comm_type = comm.get('type', 'unknown')
-                timestamp = comm.get('timestamp', datetime.now())
-                location = comm.get('location', None)
+                sender = comm.get("from", "unknown")
+                receiver = comm.get("to", "unknown")
+                comm_type = comm.get("type", "unknown")
+                timestamp = comm.get("timestamp", datetime.now())
+                location = comm.get("location", None)
 
                 # Communication frequency
-                patterns['communication_frequency'][f"{sender}->{receiver}"] += 1
-                patterns['communication_types'][comm_type] += 1
+                patterns["communication_frequency"][f"{sender}->{receiver}"] += 1
+                patterns["communication_types"][comm_type] += 1
 
                 # Temporal patterns
-                hour = timestamp.hour if hasattr(timestamp, 'hour') else 0
-                patterns['temporal_patterns'][hour].append(comm)
+                hour = timestamp.hour if hasattr(timestamp, "hour") else 0
+                patterns["temporal_patterns"][hour].append(comm)
 
                 # Spatial patterns
                 if location is not None:
-                    patterns['spatial_patterns'][tuple(location)].append(comm)
+                    patterns["spatial_patterns"][tuple(location)].append(comm)
 
             # Calculate communication statistics
             total_communications = len(communication_data)
-            unique_pairs = len(patterns['communication_frequency'])
-            communication_efficiency = unique_pairs / total_communications if total_communications > 0 else 0
+            unique_pairs = len(patterns["communication_frequency"])
+            communication_efficiency = (
+                unique_pairs / total_communications if total_communications > 0 else 0
+            )
 
-            patterns['statistics'] = {
-                'total_communications': total_communications,
-                'unique_communication_pairs': unique_pairs,
-                'communication_efficiency': communication_efficiency,
-                'most_common_type': max(patterns['communication_types'].items(), key=lambda x: x[1])[0] if patterns['communication_types'] else None
+            patterns["statistics"] = {
+                "total_communications": total_communications,
+                "unique_communication_pairs": unique_pairs,
+                "communication_efficiency": communication_efficiency,
+                "most_common_type": (
+                    max(patterns["communication_types"].items(), key=lambda x: x[1])[0]
+                    if patterns["communication_types"]
+                    else None
+                ),
             }
 
         except Exception as e:
             logger.warning(f"Communication pattern analysis failed: {e}")
-            patterns['error'] = str(e)
+            patterns["error"] = str(e)
 
         return patterns
 
@@ -702,248 +837,289 @@ class SwarmPatternAnalyzer:
             else:
                 avg_proximity = proximity_data
 
-            # Build adjacency matrix (threshold proximity)
-            threshold = np.percentile(avg_proximity[avg_proximity > 0], 50)  # Median of non-zero proximities
+            if (
+                avg_proximity.ndim != 2
+                or avg_proximity.shape[0] != avg_proximity.shape[1]
+            ):
+                raise ValueError("proximity_data must produce a square matrix")
+            n_agents = avg_proximity.shape[0]
+            if n_agents < 2:
+                return {
+                    "adjacency_matrix": avg_proximity.astype(int).tolist(),
+                    "network_properties": {
+                        "n_nodes": n_agents,
+                        "n_edges": 0,
+                        "density": 0.0,
+                    },
+                    "degree_distribution": [0] * n_agents,
+                    "proximity_threshold": 0.0,
+                }
+            positive_values = avg_proximity[avg_proximity > 0]
+            threshold = (
+                float(np.median(positive_values)) if positive_values.size else 0.0
+            )
             adjacency_matrix = (avg_proximity < threshold).astype(int)
+            np.fill_diagonal(adjacency_matrix, 0)
 
             # Calculate network properties
-            n_agents = adjacency_matrix.shape[0]
-
             # Node degrees
             degrees = np.sum(adjacency_matrix, axis=1)
 
             # Network density
             density = np.sum(adjacency_matrix) / (n_agents * (n_agents - 1))
 
-            # Clustering coefficient (simplified)
-            clustering = 0.0
-            for i in range(n_agents):
-                neighbors = np.where(adjacency_matrix[i, :] > 0)[0]
-                if len(neighbors) > 1:
-                    neighbor_connections = np.sum(adjacency_matrix[np.ix_(neighbors, neighbors)])
-                    possible_connections = len(neighbors) * (len(neighbors) - 1)
-                    if possible_connections > 0:
-                        clustering += neighbor_connections / possible_connections
+            import networkx as nx
 
-            clustering /= n_agents if n_agents > 0 else 1
+            graph = nx.from_numpy_array(adjacency_matrix)
+            clustering = float(nx.average_clustering(graph))
 
             return {
-                'adjacency_matrix': adjacency_matrix.tolist(),
-                'network_properties': {
-                    'n_nodes': n_agents,
-                    'n_edges': np.sum(adjacency_matrix),
-                    'density': density,
-                    'avg_degree': np.mean(degrees),
-                    'clustering_coefficient': clustering,
-                    'max_degree': np.max(degrees),
-                    'min_degree': np.min(degrees)
+                "adjacency_matrix": adjacency_matrix.tolist(),
+                "network_properties": {
+                    "n_nodes": n_agents,
+                    "n_edges": int(graph.number_of_edges()),
+                    "density": density,
+                    "avg_degree": np.mean(degrees),
+                    "clustering_coefficient": clustering,
+                    "max_degree": np.max(degrees),
+                    "min_degree": np.min(degrees),
                 },
-                'degree_distribution': degrees.tolist(),
-                'proximity_threshold': threshold
+                "degree_distribution": degrees.tolist(),
+                "proximity_threshold": threshold,
             }
 
         except Exception as e:
             logger.warning(f"Proximity network analysis failed: {e}")
-            return {'status': 'proximity_analysis_failed', 'error': str(e)}
+            return {"status": "proximity_analysis_failed", "error": str(e)}
 
-    def _analyze_influence_dynamics(self, influence_measures: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_influence_dynamics(
+        self, influence_measures: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Analyze influence and leadership dynamics."""
         try:
             analysis = {
-                'influence_ranking': [],
-                'leadership_structure': {},
-                'influence_network': {}
+                "influence_ranking": [],
+                "leadership_structure": {},
+                "influence_network": {},
             }
 
             # Rank agents by influence
-            if 'agent_influence' in influence_measures:
-                agent_influence = influence_measures['agent_influence']
-                sorted_influence = sorted(agent_influence.items(), key=lambda x: x[1], reverse=True)
-                analysis['influence_ranking'] = sorted_influence
+            if "agent_influence" in influence_measures:
+                agent_influence = influence_measures["agent_influence"]
+                sorted_influence = sorted(
+                    agent_influence.items(), key=lambda x: x[1], reverse=True
+                )
+                analysis["influence_ranking"] = sorted_influence
 
                 # Identify leaders (top 10%)
                 n_leaders = max(1, len(sorted_influence) // 10)
-                analysis['leadership_structure'] = {
-                    'leaders': [agent for agent, _ in sorted_influence[:n_leaders]],
-                    'followers': [agent for agent, _ in sorted_influence[n_leaders:]],
-                    'influence_gap': sorted_influence[0][1] - sorted_influence[n_leaders][1] if n_leaders < len(sorted_influence) else 0
+                analysis["leadership_structure"] = {
+                    "leaders": [agent for agent, _ in sorted_influence[:n_leaders]],
+                    "followers": [agent for agent, _ in sorted_influence[n_leaders:]],
+                    "influence_gap": (
+                        sorted_influence[0][1] - sorted_influence[n_leaders][1]
+                        if n_leaders < len(sorted_influence)
+                        else 0
+                    ),
                 }
 
             return analysis
 
         except Exception as e:
             logger.warning(f"Influence analysis failed: {e}")
-            return {'status': 'influence_analysis_failed', 'error': str(e)}
+            return {"status": "influence_analysis_failed", "error": str(e)}
 
-    def _compute_network_metrics(self, analysis_results: Dict[str, Any], metrics: List[str]) -> Dict[str, Any]:
+    def _compute_network_metrics(
+        self, analysis_results: Dict[str, Any], metrics: List[str]
+    ) -> Dict[str, Any]:
         """Compute specified network metrics."""
         metrics_results = {}
 
         try:
-            network_structure = analysis_results.get('network_structure', {})
+            network_structure = analysis_results.get("network_structure", {})
 
             for metric in metrics:
-                if metric == 'centrality':
-                    centrality_results = self._compute_centrality_measures(network_structure)
-                    metrics_results['centrality'] = centrality_results
+                if metric == "centrality":
+                    centrality_results = self._compute_centrality_measures(
+                        network_structure
+                    )
+                    metrics_results["centrality"] = centrality_results
 
-                elif metric == 'clustering':
-                    clustering_results = self._compute_clustering_measures(network_structure)
-                    metrics_results['clustering'] = clustering_results
+                elif metric == "clustering":
+                    clustering_results = self._compute_clustering_measures(
+                        network_structure
+                    )
+                    metrics_results["clustering"] = clustering_results
 
-                elif metric == 'modularity':
+                elif metric == "modularity":
                     modularity_results = self._compute_modularity(network_structure)
-                    metrics_results['modularity'] = modularity_results
+                    metrics_results["modularity"] = modularity_results
 
-                elif metric == 'density':
-                    density = network_structure.get('network_properties', {}).get('density', 0.0)
-                    metrics_results['density'] = density
+                elif metric == "density":
+                    density = network_structure.get("network_properties", {}).get(
+                        "density", 0.0
+                    )
+                    metrics_results["density"] = density
 
         except Exception as e:
             logger.warning(f"Network metrics computation failed: {e}")
-            metrics_results['error'] = str(e)
+            metrics_results["error"] = str(e)
 
         return metrics_results
 
-    def _compute_centrality_measures(self, network_structure: Dict[str, Any]) -> Dict[str, Any]:
+    def _compute_centrality_measures(
+        self, network_structure: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Compute centrality measures for the network."""
         try:
-            adjacency = np.array(network_structure.get('adjacency_matrix', []))
+            adjacency = np.array(network_structure.get("adjacency_matrix", []))
 
             if len(adjacency) == 0:
-                return {'status': 'no_adjacency_matrix'}
+                return {"status": "no_adjacency_matrix"}
 
-            n_nodes = adjacency.shape[0]
+            if adjacency.ndim != 2 or adjacency.shape[0] != adjacency.shape[1]:
+                raise ValueError("adjacency_matrix must be square")
+            import networkx as nx
 
-            # Degree centrality
-            degrees = np.sum(adjacency, axis=1)
-            degree_centrality = degrees / (n_nodes - 1)
-
-            # Betweenness centrality (simplified)
-            betweenness_centrality = np.zeros(n_nodes)
-            for i in range(n_nodes):
-                for j in range(n_nodes):
-                    if i != j:
-                        # Count shortest paths through node i
-                        paths_through_i = 0
-                        total_paths = 0
-
-                        # Simplified calculation - would use actual shortest path algorithm
-                        if adjacency[i, j] == 1:
-                            betweenness_centrality[i] += 1
-
-            betweenness_centrality /= np.max(betweenness_centrality) if np.max(betweenness_centrality) > 0 else 1
+            graph = nx.from_numpy_array(adjacency)
+            degree_centrality = np.array(list(nx.degree_centrality(graph).values()))
+            betweenness_centrality = np.array(
+                list(nx.betweenness_centrality(graph, normalized=True).values())
+            )
+            closeness_centrality = np.array(
+                list(nx.closeness_centrality(graph).values())
+            )
 
             return {
-                'degree_centrality': degree_centrality.tolist(),
-                'betweenness_centrality': betweenness_centrality.tolist(),
-                'max_degree_centrality': np.max(degree_centrality),
-                'centralization_index': np.max(degree_centrality) - np.mean(degree_centrality)
+                "degree_centrality": degree_centrality.tolist(),
+                "betweenness_centrality": betweenness_centrality.tolist(),
+                "closeness_centrality": closeness_centrality.tolist(),
+                "max_degree_centrality": np.max(degree_centrality),
+                "centralization_index": np.max(degree_centrality)
+                - np.mean(degree_centrality),
             }
 
         except Exception as e:
             logger.warning(f"Centrality computation failed: {e}")
-            return {'status': 'centrality_computation_failed', 'error': str(e)}
+            return {"status": "centrality_computation_failed", "error": str(e)}
 
-    def _compute_clustering_measures(self, network_structure: Dict[str, Any]) -> Dict[str, Any]:
+    def _compute_clustering_measures(
+        self, network_structure: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Compute clustering measures for the network."""
-        # Return pre-computed clustering if available
-        clustering_coeff = network_structure.get('network_properties', {}).get('clustering_coefficient', 0.0)
+        adjacency = np.asarray(
+            network_structure.get("adjacency_matrix", []), dtype=float
+        )
+        if adjacency.size == 0:
+            return {"status": "no_network"}
+        import networkx as nx
+
+        graph = nx.from_numpy_array(adjacency)
+        coefficients = nx.clustering(graph)
+        clustering_coeff = (
+            float(np.mean(list(coefficients.values()))) if coefficients else 0.0
+        )
 
         return {
-            'global_clustering_coefficient': clustering_coeff,
-            'method': 'precomputed'
+            "global_clustering_coefficient": clustering_coeff,
+            "node_clustering": coefficients,
+            "method": "networkx.average_clustering",
         }
 
     def _compute_modularity(self, network_structure: Dict[str, Any]) -> Dict[str, Any]:
         """Compute network modularity."""
-        # Simplified modularity calculation
-        adjacency = np.array(network_structure.get('adjacency_matrix', []))
+        adjacency = np.asarray(
+            network_structure.get("adjacency_matrix", []), dtype=float
+        )
         n_nodes = adjacency.shape[0]
 
         if n_nodes == 0:
-            return {'status': 'no_network'}
+            return {"status": "no_network"}
 
-        # Simple community detection (2 communities based on degree)
-        degrees = np.sum(adjacency, axis=1)
-        median_degree = np.median(degrees)
+        import networkx as nx
 
-        community1 = [i for i in range(n_nodes) if degrees[i] >= median_degree]
-        community2 = [i for i in range(n_nodes) if degrees[i] < median_degree]
+        graph = nx.from_numpy_array(adjacency)
+        if graph.number_of_edges() == 0:
+            return {"modularity": 0.0, "communities": 0, "community_sizes": []}
+        from networkx.algorithms import community
 
-        # Calculate modularity
-        m = np.sum(degrees) / 2  # Total edge weight
-
-        if m == 0:
-            return {'modularity': 0.0, 'communities': 2}
-
-        modularity = 0.0
-        for i in range(n_nodes):
-            for j in range(n_nodes):
-                if i != j:
-                    # Same community bonus
-                    same_community = (i in community1 and j in community1) or (i in community2 and j in community2)
-                    if same_community:
-                        modularity += (adjacency[i, j] - (degrees[i] * degrees[j]) / (2 * m)) / (2 * m)
+        try:
+            communities = list(community.louvain_communities(graph, seed=0))
+            method = "louvain"
+        except (AttributeError, ImportError):
+            communities = list(community.greedy_modularity_communities(graph))
+            method = "greedy_modularity"
+        modularity = float(community.modularity(graph, communities))
 
         return {
-            'modularity': modularity,
-            'communities': 2,
-            'community_sizes': [len(community1), len(community2)]
+            "modularity": modularity,
+            "communities": len(communities),
+            "community_sizes": [len(nodes) for nodes in communities],
+            "method": method,
         }
 
-    def _analyze_social_dynamics(self, analysis_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_social_dynamics(
+        self, analysis_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Analyze social dynamics and group behavior."""
         dynamics = {
-            'group_formation': {},
-            'leadership_emergence': {},
-            'information_flow': {},
-            'coordination_quality': 0.0
+            "group_formation": {},
+            "leadership_emergence": {},
+            "information_flow": {},
+            "coordination_quality": 0.0,
         }
 
         try:
             # Analyze group formation based on network structure
-            network_structure = analysis_results.get('network_structure', {})
-            network_props = network_structure.get('network_properties', {})
+            network_structure = analysis_results.get("network_structure", {})
+            network_props = network_structure.get("network_properties", {})
 
             if network_props:
-                density = network_props.get('density', 0.0)
-                clustering = network_props.get('clustering_coefficient', 0.0)
-                avg_degree = network_props.get('avg_degree', 0.0)
+                density = network_props.get("density", 0.0)
+                clustering = network_props.get("clustering_coefficient", 0.0)
+                avg_degree = network_props.get("avg_degree", 0.0)
 
-                dynamics['group_formation'] = {
-                    'network_density': density,
-                    'clustering_coefficient': clustering,
-                    'average_connections': avg_degree,
-                    'group_formation_strength': min(1.0, density * clustering * avg_degree)
+                dynamics["group_formation"] = {
+                    "network_density": density,
+                    "clustering_coefficient": clustering,
+                    "average_connections": avg_degree,
+                    "group_formation_strength": min(
+                        1.0, density * clustering * avg_degree
+                    ),
                 }
 
             # Analyze leadership emergence
-            influence_analysis = analysis_results.get('influence_analysis', {})
-            leadership = influence_analysis.get('leadership_structure', {})
+            influence_analysis = analysis_results.get("influence_analysis", {})
+            leadership = influence_analysis.get("leadership_structure", {})
 
             if leadership:
-                n_leaders = len(leadership.get('leaders', []))
-                influence_gap = leadership.get('influence_gap', 0.0)
+                n_leaders = len(leadership.get("leaders", []))
+                influence_gap = leadership.get("influence_gap", 0.0)
 
-                dynamics['leadership_emergence'] = {
-                    'number_of_leaders': n_leaders,
-                    'influence_gap': influence_gap,
-                    'leadership_clarity': min(1.0, influence_gap)
+                dynamics["leadership_emergence"] = {
+                    "number_of_leaders": n_leaders,
+                    "influence_gap": influence_gap,
+                    "leadership_clarity": min(1.0, influence_gap),
                 }
 
             # Calculate overall coordination quality
             coordination_factors = []
-            if 'group_formation' in dynamics:
-                coordination_factors.append(dynamics['group_formation'].get('group_formation_strength', 0.0))
-            if 'leadership_emergence' in dynamics:
-                coordination_factors.append(dynamics['leadership_emergence'].get('leadership_clarity', 0.0))
+            if "group_formation" in dynamics:
+                coordination_factors.append(
+                    dynamics["group_formation"].get("group_formation_strength", 0.0)
+                )
+            if "leadership_emergence" in dynamics:
+                coordination_factors.append(
+                    dynamics["leadership_emergence"].get("leadership_clarity", 0.0)
+                )
 
-            dynamics['coordination_quality'] = np.mean(coordination_factors) if coordination_factors else 0.0
+            dynamics["coordination_quality"] = (
+                np.mean(coordination_factors) if coordination_factors else 0.0
+            )
 
         except Exception as e:
             logger.warning(f"Social dynamics analysis failed: {e}")
-            dynamics['error'] = str(e)
+            dynamics["error"] = str(e)
 
         return dynamics
 
@@ -952,7 +1128,7 @@ class SwarmPatternAnalyzer:
         individual_behaviors: List[Dict[str, Any]],
         collective_outcomes: Dict[str, Any],
         information_measures: Optional[List[str]] = None,
-        complexity_measures: Optional[List[str]] = None
+        complexity_measures: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Detect emergent phenomena in swarm behavior.
@@ -969,71 +1145,101 @@ class SwarmPatternAnalyzer:
         logger.info("Detecting emergent phenomena")
 
         emergence_results = {
-            'analysis_type': 'emergent_phenomena',
-            'analysis_time': datetime.now(),
-            'emergence_detected': False,
-            'emergence_measures': {},
-            'information_theory': {},
-            'complexity_analysis': {},
-            'emergence_interpretation': {}
+            "analysis_type": "emergent_phenomena",
+            "analysis_time": datetime.now(),
+            "emergence_detected": False,
+            "emergence_measures": {},
+            "information_theory": {},
+            "complexity_analysis": {},
+            "emergence_interpretation": {},
         }
 
         try:
             # Calculate information theory measures
-            information_measures = information_measures or ['mutual_information', 'transfer_entropy']
+            information_measures = information_measures or [
+                "mutual_information",
+                "transfer_entropy",
+            ]
             for measure in information_measures:
-                if measure == 'mutual_information':
-                    mi_result = self._calculate_mutual_information(individual_behaviors, collective_outcomes)
-                    emergence_results['information_theory']['mutual_information'] = mi_result
+                if measure == "mutual_information":
+                    mi_result = self._calculate_mutual_information(
+                        individual_behaviors, collective_outcomes
+                    )
+                    emergence_results["information_theory"][
+                        "mutual_information"
+                    ] = mi_result
 
-                elif measure == 'transfer_entropy':
-                    te_result = self._calculate_transfer_entropy(individual_behaviors, collective_outcomes)
-                    emergence_results['information_theory']['transfer_entropy'] = te_result
+                elif measure == "transfer_entropy":
+                    te_result = self._calculate_transfer_entropy(
+                        individual_behaviors, collective_outcomes
+                    )
+                    emergence_results["information_theory"][
+                        "transfer_entropy"
+                    ] = te_result
 
             # Calculate complexity measures
-            complexity_measures = complexity_measures or ['fractal_dimension', 'lyapunov_exponents']
+            complexity_measures = complexity_measures or [
+                "fractal_dimension",
+                "lyapunov_exponents",
+            ]
             for measure in complexity_measures:
-                if measure == 'fractal_dimension':
+                if measure == "fractal_dimension":
                     fd_result = self._calculate_fractal_dimension(individual_behaviors)
-                    emergence_results['complexity_analysis']['fractal_dimension'] = fd_result
+                    emergence_results["complexity_analysis"][
+                        "fractal_dimension"
+                    ] = fd_result
 
-                elif measure == 'lyapunov_exponents':
+                elif measure == "lyapunov_exponents":
                     le_result = self._calculate_lyapunov_exponents(individual_behaviors)
-                    emergence_results['complexity_analysis']['lyapunov_exponents'] = le_result
+                    emergence_results["complexity_analysis"][
+                        "lyapunov_exponents"
+                    ] = le_result
 
             # Detect emergence based on measures
             emergence_detected = self._assess_emergence(emergence_results)
-            emergence_results['emergence_detected'] = emergence_detected
+            emergence_results["emergence_detected"] = emergence_detected
 
             # Generate interpretation
             interpretation = self._interpret_emergence(emergence_results)
-            emergence_results['emergence_interpretation'] = interpretation
+            emergence_results["emergence_interpretation"] = interpretation
 
         except Exception as e:
             logger.error(f"Emergence detection failed: {e}")
-            emergence_results['error'] = str(e)
+            emergence_results["error"] = str(e)
 
         # Cache and record analysis
-        self.pattern_cache['emergent_phenomena'] = emergence_results
+        self.pattern_cache["emergent_phenomena"] = emergence_results
         self.analysis_history.append(emergence_results)
 
-        logger.info(f"Emergence detection completed: emergence {'detected' if emergence_results['emergence_detected'] else 'not detected'}")
+        logger.info(
+            f"Emergence detection completed: emergence {'detected' if emergence_results['emergence_detected'] else 'not detected'}"
+        )
         return emergence_results
 
-    def _calculate_mutual_information(self, individual_behaviors: List[Dict[str, Any]], collective_outcomes: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_mutual_information(
+        self,
+        individual_behaviors: List[Dict[str, Any]],
+        collective_outcomes: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """Calculate mutual information between individual and collective behaviors."""
         try:
             # Extract behavior patterns as numerical values
             individual_values = []
             for behavior in individual_behaviors:
                 # Extract numerical features from behavior
-                if 'action_type' in behavior:
+                if "action_type" in behavior:
                     # Convert action type to numerical value
-                    action_type = behavior['action_type']
-                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
+                    action_type = behavior["action_type"]
+                    action_map = {
+                        "forage": 0,
+                        "explore": 1,
+                        "communicate": 2,
+                        "rest": 3,
+                        "defend": 4,
+                    }
                     individual_values.append(action_map.get(action_type, 0))
-                elif 'value' in behavior:
-                    individual_values.append(float(behavior['value']))
+                elif "value" in behavior:
+                    individual_values.append(float(behavior["value"]))
                 else:
                     individual_values.append(0.0)
 
@@ -1042,7 +1248,7 @@ class SwarmPatternAnalyzer:
             for outcome_type, outcome_data in collective_outcomes.items():
                 if isinstance(outcome_data, dict):
                     # Extract numerical value from outcome
-                    value = outcome_data.get('value', outcome_data.get('score', 0.0))
+                    value = outcome_data.get("value", outcome_data.get("score", 0.0))
                     collective_values.append(float(value))
                 elif isinstance(outcome_data, (int, float)):
                     collective_values.append(float(outcome_data))
@@ -1051,8 +1257,8 @@ class SwarmPatternAnalyzer:
 
             if len(individual_values) < 2 or len(collective_values) < 2:
                 return {
-                    'mutual_information_score': 0.0,
-                    'interpretation': 'insufficient_data'
+                    "mutual_information_score": 0.0,
+                    "interpretation": "insufficient_data",
                 }
 
             # Align lengths (take minimum)
@@ -1066,16 +1272,23 @@ class SwarmPatternAnalyzer:
             if n_bins < 2:
                 n_bins = 2
 
-            individual_binned = np.digitize(individual_values, np.linspace(
-                np.min(individual_values), np.max(individual_values), n_bins
-            ))
-            collective_binned = np.digitize(collective_values, np.linspace(
-                np.min(collective_values), np.max(collective_values), n_bins
-            ))
+            individual_binned = np.digitize(
+                individual_values,
+                np.linspace(
+                    np.min(individual_values), np.max(individual_values), n_bins
+                ),
+            )
+            collective_binned = np.digitize(
+                collective_values,
+                np.linspace(
+                    np.min(collective_values), np.max(collective_values), n_bins
+                ),
+            )
 
             # Calculate mutual information using scikit-learn
             try:
                 from sklearn.metrics import mutual_info_score
+
                 mi_score = mutual_info_score(individual_binned, collective_binned)
                 # Normalize by minimum entropy (normalized mutual information)
                 entropy_individual = self._calculate_entropy(individual_binned)
@@ -1085,61 +1298,81 @@ class SwarmPatternAnalyzer:
                 mi_score = min(1.0, normalized_mi)  # Normalize to [0, 1]
             except ImportError:
                 # Fallback: calculate MI manually
-                mi_score = self._calculate_mutual_information_manual(individual_binned, collective_binned)
+                mi_score = self._calculate_mutual_information_manual(
+                    individual_binned, collective_binned
+                )
 
             return {
-                'mutual_information_score': float(mi_score),
-                'interpretation': 'high' if mi_score > 0.7 else 'medium' if mi_score > 0.3 else 'low',
-                'entropy_individual': float(entropy_individual) if 'entropy_individual' in locals() else 0.0,
-                'entropy_collective': float(entropy_collective) if 'entropy_collective' in locals() else 0.0
+                "mutual_information_score": float(mi_score),
+                "interpretation": (
+                    "high" if mi_score > 0.7 else "medium" if mi_score > 0.3 else "low"
+                ),
+                "entropy_individual": (
+                    float(entropy_individual)
+                    if "entropy_individual" in locals()
+                    else 0.0
+                ),
+                "entropy_collective": (
+                    float(entropy_collective)
+                    if "entropy_collective" in locals()
+                    else 0.0
+                ),
             }
 
         except Exception as e:
             logger.warning(f"Mutual information calculation failed: {e}")
-            return {'status': 'calculation_failed', 'error': str(e)}
+            return {"status": "calculation_failed", "error": str(e)}
 
     def _calculate_entropy(self, values: np.ndarray) -> float:
         """Calculate Shannon entropy of discrete values."""
         if len(values) == 0:
             return 0.0
-        
+
         # Count frequencies
         unique, counts = np.unique(values, return_counts=True)
         probabilities = counts / len(values)
-        
+
         # Calculate entropy
         entropy = -np.sum(probabilities * np.log2(probabilities + 1e-10))
         return entropy
 
-    def _calculate_mutual_information_manual(self, x: np.ndarray, y: np.ndarray) -> float:
+    def _calculate_mutual_information_manual(
+        self, x: np.ndarray, y: np.ndarray
+    ) -> float:
         """Calculate mutual information manually."""
         # Create joint distribution
         unique_x, counts_x = np.unique(x, return_counts=True)
         unique_y, counts_y = np.unique(y, return_counts=True)
-        
+
         # Joint probability
         joint_counts = np.zeros((len(unique_x), len(unique_y)))
         for i, val_x in enumerate(unique_x):
             for j, val_y in enumerate(unique_y):
                 joint_counts[i, j] = np.sum((x == val_x) & (y == val_y))
-        
+
         joint_prob = joint_counts / len(x)
         prob_x = counts_x / len(x)
         prob_y = counts_y / len(y)
-        
+
         # Calculate MI
         mi = 0.0
         for i in range(len(unique_x)):
             for j in range(len(unique_y)):
                 if joint_prob[i, j] > 0 and prob_x[i] > 0 and prob_y[j] > 0:
-                    mi += joint_prob[i, j] * np.log2(joint_prob[i, j] / (prob_x[i] * prob_y[j]))
-        
+                    mi += joint_prob[i, j] * np.log2(
+                        joint_prob[i, j] / (prob_x[i] * prob_y[j])
+                    )
+
         return max(0.0, mi)
 
-    def _calculate_transfer_entropy(self, individual_behaviors: List[Dict[str, Any]], collective_outcomes: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_transfer_entropy(
+        self,
+        individual_behaviors: List[Dict[str, Any]],
+        collective_outcomes: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Calculate transfer entropy between behaviors and outcomes.
-        
+
         Transfer entropy measures the directed information flow from individual behaviors
         to collective outcomes, accounting for the history of both processes.
         """
@@ -1147,11 +1380,19 @@ class SwarmPatternAnalyzer:
             # Extract time series from behaviors
             behavior_series = []
             for behavior in individual_behaviors:
-                if 'value' in behavior:
-                    behavior_series.append(float(behavior['value']))
-                elif 'action_type' in behavior:
-                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
-                    behavior_series.append(float(action_map.get(behavior['action_type'], 0)))
+                if "value" in behavior:
+                    behavior_series.append(float(behavior["value"]))
+                elif "action_type" in behavior:
+                    action_map = {
+                        "forage": 0,
+                        "explore": 1,
+                        "communicate": 2,
+                        "rest": 3,
+                        "defend": 4,
+                    }
+                    behavior_series.append(
+                        float(action_map.get(behavior["action_type"], 0))
+                    )
                 else:
                     behavior_series.append(0.0)
 
@@ -1159,7 +1400,9 @@ class SwarmPatternAnalyzer:
             outcome_series = []
             for outcome_type, outcome_data in collective_outcomes.items():
                 if isinstance(outcome_data, dict):
-                    outcome_series.append(float(outcome_data.get('value', outcome_data.get('score', 0.0))))
+                    outcome_series.append(
+                        float(outcome_data.get("value", outcome_data.get("score", 0.0)))
+                    )
                 elif isinstance(outcome_data, (int, float)):
                     outcome_series.append(float(outcome_data))
                 else:
@@ -1167,8 +1410,8 @@ class SwarmPatternAnalyzer:
 
             if len(behavior_series) < 5 or len(outcome_series) < 5:
                 return {
-                    'transfer_entropy_score': 0.0,
-                    'interpretation': 'insufficient_data'
+                    "transfer_entropy_score": 0.0,
+                    "interpretation": "insufficient_data",
                 }
 
             # Align series
@@ -1181,16 +1424,20 @@ class SwarmPatternAnalyzer:
             if n_bins < 2:
                 n_bins = 2
 
-            behavior_binned = np.digitize(behavior_series, np.linspace(
-                np.min(behavior_series), np.max(behavior_series), n_bins
-            ))
-            outcome_binned = np.digitize(outcome_series, np.linspace(
-                np.min(outcome_series), np.max(outcome_series), n_bins
-            ))
+            behavior_binned = np.digitize(
+                behavior_series,
+                np.linspace(np.min(behavior_series), np.max(behavior_series), n_bins),
+            )
+            outcome_binned = np.digitize(
+                outcome_series,
+                np.linspace(np.min(outcome_series), np.max(outcome_series), n_bins),
+            )
 
             # Calculate transfer entropy with history length k=1
             k = 1  # History length
-            te_score = self._compute_transfer_entropy(behavior_binned, outcome_binned, k)
+            te_score = self._compute_transfer_entropy(
+                behavior_binned, outcome_binned, k
+            )
 
             # Normalize by outcome entropy
             outcome_entropy = self._calculate_entropy(outcome_binned)
@@ -1198,19 +1445,25 @@ class SwarmPatternAnalyzer:
             normalized_te = min(1.0, normalized_te)
 
             return {
-                'transfer_entropy_score': float(normalized_te),
-                'raw_transfer_entropy': float(te_score),
-                'interpretation': 'high' if normalized_te > 0.5 else 'medium' if normalized_te > 0.2 else 'low'
+                "transfer_entropy_score": float(normalized_te),
+                "raw_transfer_entropy": float(te_score),
+                "interpretation": (
+                    "high"
+                    if normalized_te > 0.5
+                    else "medium" if normalized_te > 0.2 else "low"
+                ),
             }
 
         except Exception as e:
             logger.warning(f"Transfer entropy calculation failed: {e}")
-            return {'status': 'calculation_failed', 'error': str(e)}
+            return {"status": "calculation_failed", "error": str(e)}
 
-    def _compute_transfer_entropy(self, x: np.ndarray, y: np.ndarray, k: int = 1) -> float:
+    def _compute_transfer_entropy(
+        self, x: np.ndarray, y: np.ndarray, k: int = 1
+    ) -> float:
         """
         Compute transfer entropy from X to Y.
-        
+
         TE(X->Y) = H(Y_t | Y_{t-k}) - H(Y_t | Y_{t-k}, X_{t-k})
         """
         if len(x) < k + 1 or len(y) < k + 1:
@@ -1218,8 +1471,12 @@ class SwarmPatternAnalyzer:
 
         # Create sequences with history
         y_future = y[k:]
-        y_past = y[:-k] if k == 1 else np.array([y[i:i+k] for i in range(len(y)-k)])
-        x_past = x[:-k] if k == 1 else np.array([x[i:i+k] for i in range(len(x)-k)])
+        y_past = (
+            y[:-k] if k == 1 else np.array([y[i : i + k] for i in range(len(y) - k)])
+        )
+        x_past = (
+            x[:-k] if k == 1 else np.array([x[i : i + k] for i in range(len(x) - k)])
+        )
 
         # Calculate conditional entropies
         # H(Y_t | Y_{t-k})
@@ -1231,7 +1488,7 @@ class SwarmPatternAnalyzer:
             combined_past = np.column_stack([y_past, x_past])
         else:
             combined_past = np.column_stack([y_past.flatten(), x_past.flatten()])
-        
+
         h_y_given_yx_past = self._conditional_entropy(y_future, combined_past)
 
         # Transfer entropy
@@ -1267,10 +1524,12 @@ class SwarmPatternAnalyzer:
 
         return conditional_entropy
 
-    def _calculate_fractal_dimension(self, individual_behaviors: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_fractal_dimension(
+        self, individual_behaviors: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Calculate fractal dimension of behavior patterns using box-counting method.
-        
+
         Implements the box-counting algorithm for estimating fractal dimension
         of spatial patterns in swarm behavior.
         """
@@ -1278,13 +1537,13 @@ class SwarmPatternAnalyzer:
             # Extract spatial positions from behaviors
             positions = []
             for behavior in individual_behaviors:
-                if 'position' in behavior:
-                    pos = behavior['position']
+                if "position" in behavior:
+                    pos = behavior["position"]
                     if isinstance(pos, (list, np.ndarray)) and len(pos) >= 2:
                         positions.append([float(pos[0]), float(pos[1])])
 
             if len(positions) < 3:
-                return {'status': 'insufficient_data'}
+                return {"status": "insufficient_data"}
 
             positions = np.array(positions)
 
@@ -1293,36 +1552,36 @@ class SwarmPatternAnalyzer:
             min_pos = np.min(positions, axis=0)
             max_pos = np.max(positions, axis=0)
             range_size = max(max_pos - min_pos)
-            
+
             if range_size == 0:
-                return {'fractal_dimension': 0.0, 'interpretation': 'degenerate'}
+                return {"fractal_dimension": 0.0, "interpretation": "degenerate"}
 
             # Box sizes (powers of 2)
             box_sizes = []
             box_counts = []
-            
+
             max_box_size = range_size
             min_box_size = range_size / 100.0  # At least 100 boxes
-            
+
             current_size = max_box_size
             while current_size >= min_box_size and len(box_sizes) < 10:
                 # Count boxes containing points
                 n_boxes_x = int(np.ceil((max_pos[0] - min_pos[0]) / current_size))
                 n_boxes_y = int(np.ceil((max_pos[1] - min_pos[1]) / current_size))
-                
+
                 if n_boxes_x == 0 or n_boxes_y == 0:
                     break
-                
+
                 # Create grid and count occupied boxes
                 occupied_boxes = set()
                 for pos in positions:
                     box_x = int((pos[0] - min_pos[0]) / current_size)
                     box_y = int((pos[1] - min_pos[1]) / current_size)
                     occupied_boxes.add((box_x, box_y))
-                
+
                 box_sizes.append(current_size)
                 box_counts.append(len(occupied_boxes))
-                
+
                 current_size /= 2.0
 
             if len(box_sizes) < 2:
@@ -1332,7 +1591,7 @@ class SwarmPatternAnalyzer:
                 # Fit log-log relationship: log(N) = -D * log(ε) + C
                 log_sizes = np.log(box_sizes)
                 log_counts = np.log(box_counts)
-                
+
                 # Linear regression
                 if len(log_sizes) > 1:
                     # Use numpy polyfit
@@ -1345,101 +1604,126 @@ class SwarmPatternAnalyzer:
             fractal_dim = max(0.0, min(2.0, fractal_dim))
 
             return {
-                'fractal_dimension': float(fractal_dim),
-                'interpretation': 'complex' if fractal_dim > 1.5 else 'moderate' if fractal_dim > 1.0 else 'simple',
-                'box_sizes': box_sizes,
-                'box_counts': box_counts
+                "fractal_dimension": float(fractal_dim),
+                "interpretation": (
+                    "complex"
+                    if fractal_dim > 1.5
+                    else "moderate" if fractal_dim > 1.0 else "simple"
+                ),
+                "box_sizes": box_sizes,
+                "box_counts": box_counts,
             }
 
         except Exception as e:
             logger.warning(f"Fractal dimension calculation failed: {e}")
-            return {'status': 'calculation_failed', 'error': str(e)}
+            return {"status": "calculation_failed", "error": str(e)}
 
-    def _calculate_lyapunov_exponents(self, individual_behaviors: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_lyapunov_exponents(
+        self, individual_behaviors: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Calculate Lyapunov exponents for chaos analysis.
-        
-        Uses a simplified approach to estimate the maximum Lyapunov exponent
-        from behavior time series data.
+
+        Estimates the maximum Lyapunov exponent from behavior time series data
+        using delay embedding and nearest-neighbor divergence.
         """
         try:
             # Extract temporal behavior sequences as numerical values
             behavior_values = []
             timestamps = []
-            
+
             for behavior in individual_behaviors:
-                if 'value' in behavior:
-                    behavior_values.append(float(behavior['value']))
-                    timestamps.append(behavior.get('timestamp', datetime.now()))
-                elif 'action_type' in behavior:
-                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
-                    behavior_values.append(float(action_map.get(behavior['action_type'], 0)))
-                    timestamps.append(behavior.get('timestamp', datetime.now()))
+                if "value" in behavior:
+                    behavior_values.append(float(behavior["value"]))
+                    timestamps.append(behavior.get("timestamp", datetime.now()))
+                elif "action_type" in behavior:
+                    action_map = {
+                        "forage": 0,
+                        "explore": 1,
+                        "communicate": 2,
+                        "rest": 3,
+                        "defend": 4,
+                    }
+                    behavior_values.append(
+                        float(action_map.get(behavior["action_type"], 0))
+                    )
+                    timestamps.append(behavior.get("timestamp", datetime.now()))
 
             if len(behavior_values) < 10:
-                return {'status': 'insufficient_data'}
+                return {"status": "insufficient_data"}
 
             behavior_values = np.array(behavior_values)
 
-            # Simplified Lyapunov exponent estimation
-            # Method: Track divergence of nearby trajectories
-            # For simplicity, use phase space reconstruction with delay embedding
-            
+            # Track divergence of nearby trajectories after phase-space
+            # reconstruction with delay embedding.
+
             # Create delay embedding (embedding dimension = 3, delay = 1)
             embedding_dim = 3
             delay = 1
-            
+
             if len(behavior_values) < embedding_dim + delay:
-                return {'status': 'insufficient_data'}
+                return {"status": "insufficient_data"}
 
             # Create phase space vectors
             phase_space = []
             for i in range(len(behavior_values) - (embedding_dim - 1) * delay):
                 vector = [behavior_values[i + j * delay] for j in range(embedding_dim)]
                 phase_space.append(vector)
-            
+
             phase_space = np.array(phase_space)
 
             if len(phase_space) < 5:
-                return {'status': 'insufficient_data'}
+                return {"status": "insufficient_data"}
 
             # Find nearest neighbors and track divergence
             divergences = []
             max_iterations = min(20, len(phase_space) - 1)
-            
+
             for i in range(min(10, len(phase_space) - max_iterations)):
                 # Find nearest neighbor
                 distances = np.linalg.norm(phase_space - phase_space[i], axis=1)
                 distances[i] = np.inf  # Exclude self
                 nearest_idx = np.argmin(distances)
-                
+
                 if nearest_idx >= len(phase_space) - 1:
                     continue
-                
+
                 # Track divergence over time
                 initial_distance = distances[nearest_idx]
                 if initial_distance < 1e-10:
                     continue
-                
-                for j in range(1, min(max_iterations, len(phase_space) - max(nearest_idx, i))):
+
+                for j in range(
+                    1, min(max_iterations, len(phase_space) - max(nearest_idx, i))
+                ):
                     if i + j >= len(phase_space) or nearest_idx + j >= len(phase_space):
                         break
-                    
-                    current_distance = np.linalg.norm(phase_space[i + j] - phase_space[nearest_idx + j])
-                    
+
+                    current_distance = np.linalg.norm(
+                        phase_space[i + j] - phase_space[nearest_idx + j]
+                    )
+
                     if current_distance > 0 and initial_distance > 0:
-                        divergence_rate = np.log(current_distance / initial_distance) / j
+                        divergence_rate = (
+                            np.log(current_distance / initial_distance) / j
+                        )
                         if np.isfinite(divergence_rate):
                             divergences.append(divergence_rate)
 
             if len(divergences) == 0:
                 # Fallback: estimate from variance growth
                 if len(behavior_values) > 5:
-                    first_half_var = np.var(behavior_values[:len(behavior_values)//2])
-                    second_half_var = np.var(behavior_values[len(behavior_values)//2:])
+                    first_half_var = np.var(
+                        behavior_values[: len(behavior_values) // 2]
+                    )
+                    second_half_var = np.var(
+                        behavior_values[len(behavior_values) // 2 :]
+                    )
                     if first_half_var > 0:
-                        growth_rate = np.log(second_half_var / first_half_var) / (len(behavior_values) / 2)
-                        lyapunov_exp = max(0.0, growth_rate / 2.0)  # Simplified estimate
+                        growth_rate = np.log(second_half_var / first_half_var) / (
+                            len(behavior_values) / 2
+                        )
+                        lyapunov_exp = max(0.0, growth_rate / 2.0)
                     else:
                         lyapunov_exp = 0.0
                 else:
@@ -1447,33 +1731,45 @@ class SwarmPatternAnalyzer:
             else:
                 # Average divergence rate
                 lyapunov_exp = np.mean(divergences)
-                lyapunov_exp = max(0.0, lyapunov_exp)  # Ensure non-negative for this simplified method
+                lyapunov_exp = max(0.0, lyapunov_exp)
 
             return {
-                'max_lyapunov_exponent': float(lyapunov_exp),
-                'chaos_detected': lyapunov_exp > 0.1,  # Threshold for chaos
-                'predictability': 'low' if lyapunov_exp > 0.1 else 'medium' if lyapunov_exp > 0.05 else 'high',
-                'divergence_samples': len(divergences)
+                "max_lyapunov_exponent": float(lyapunov_exp),
+                "chaos_detected": lyapunov_exp > 0.1,  # Threshold for chaos
+                "predictability": (
+                    "low"
+                    if lyapunov_exp > 0.1
+                    else "medium" if lyapunov_exp > 0.05 else "high"
+                ),
+                "divergence_samples": len(divergences),
             }
 
         except Exception as e:
             logger.warning(f"Lyapunov exponent calculation failed: {e}")
-            return {'status': 'calculation_failed', 'error': str(e)}
+            return {"status": "calculation_failed", "error": str(e)}
 
     def _assess_emergence(self, emergence_results: Dict[str, Any]) -> bool:
         """Assess whether emergence has been detected."""
         try:
             # Check information theory measures
-            info_measures = emergence_results.get('information_theory', {})
+            info_measures = emergence_results.get("information_theory", {})
 
-            mi_score = info_measures.get('mutual_information', {}).get('mutual_information_score', 0.0)
-            te_score = info_measures.get('transfer_entropy', {}).get('transfer_entropy_score', 0.0)
+            mi_score = info_measures.get("mutual_information", {}).get(
+                "mutual_information_score", 0.0
+            )
+            te_score = info_measures.get("transfer_entropy", {}).get(
+                "transfer_entropy_score", 0.0
+            )
 
             # Check complexity measures
-            complexity_measures = emergence_results.get('complexity_analysis', {})
+            complexity_measures = emergence_results.get("complexity_analysis", {})
 
-            fractal_dim = complexity_measures.get('fractal_dimension', {}).get('fractal_dimension', 0.0)
-            lyapunov_exp = complexity_measures.get('lyapunov_exponents', {}).get('max_lyapunov_exponent', 0.0)
+            fractal_dim = complexity_measures.get("fractal_dimension", {}).get(
+                "fractal_dimension", 0.0
+            )
+            lyapunov_exp = complexity_measures.get("lyapunov_exponents", {}).get(
+                "max_lyapunov_exponent", 0.0
+            )
 
             # Emergence criteria
             information_criterion = (mi_score > 0.3) or (te_score > 0.2)
@@ -1488,79 +1784,109 @@ class SwarmPatternAnalyzer:
     def _interpret_emergence(self, emergence_results: Dict[str, Any]) -> Dict[str, Any]:
         """Generate interpretation of emergence detection results."""
         interpretation = {
-            'emergence_level': 'none',
-            'key_characteristics': [],
-            'system_complexity': 'unknown',
-            'predictability': 'unknown',
-            'recommendations': []
+            "emergence_level": "none",
+            "key_characteristics": [],
+            "system_complexity": "unknown",
+            "predictability": "unknown",
+            "recommendations": [],
         }
 
         try:
-            emergence_detected = emergence_results.get('emergence_detected', False)
+            emergence_detected = emergence_results.get("emergence_detected", False)
 
             if emergence_detected:
-                interpretation['emergence_level'] = 'detected'
+                interpretation["emergence_level"] = "detected"
 
                 # Analyze characteristics
-                info_measures = emergence_results.get('information_theory', {})
-                complexity_measures = emergence_results.get('complexity_analysis', {})
+                info_measures = emergence_results.get("information_theory", {})
+                complexity_measures = emergence_results.get("complexity_analysis", {})
 
-                mi_score = info_measures.get('mutual_information', {}).get('mutual_information_score', 0.0)
+                mi_score = info_measures.get("mutual_information", {}).get(
+                    "mutual_information_score", 0.0
+                )
                 if mi_score > 0.5:
-                    interpretation['key_characteristics'].append('Strong information coupling between individuals and collective')
+                    interpretation["key_characteristics"].append(
+                        "Strong information coupling between individuals and collective"
+                    )
 
-                fractal_dim = complexity_measures.get('fractal_dimension', {}).get('fractal_dimension', 0.0)
+                fractal_dim = complexity_measures.get("fractal_dimension", {}).get(
+                    "fractal_dimension", 0.0
+                )
                 if fractal_dim > 1.5:
-                    interpretation['key_characteristics'].append('Complex spatial organization patterns')
+                    interpretation["key_characteristics"].append(
+                        "Complex spatial organization patterns"
+                    )
 
-                lyapunov_exp = complexity_measures.get('lyapunov_exponents', {}).get('max_lyapunov_exponent', 0.0)
+                lyapunov_exp = complexity_measures.get("lyapunov_exponents", {}).get(
+                    "max_lyapunov_exponent", 0.0
+                )
                 if lyapunov_exp > 0.1:
-                    interpretation['key_characteristics'].append('Chaotic dynamics with sensitive dependence on initial conditions')
-                    interpretation['predictability'] = 'low'
+                    interpretation["key_characteristics"].append(
+                        "Chaotic dynamics with sensitive dependence on initial conditions"
+                    )
+                    interpretation["predictability"] = "low"
                 else:
-                    interpretation['predictability'] = 'moderate'
+                    interpretation["predictability"] = "moderate"
 
-                interpretation['system_complexity'] = 'high' if fractal_dim > 1.5 else 'medium'
+                interpretation["system_complexity"] = (
+                    "high" if fractal_dim > 1.5 else "medium"
+                )
 
                 # Generate recommendations
                 if lyapunov_exp > 0.1:
-                    interpretation['recommendations'].append('Consider chaos control strategies to improve predictability')
+                    interpretation["recommendations"].append(
+                        "Consider chaos control strategies to improve predictability"
+                    )
 
                 if mi_score > 0.7:
-                    interpretation['recommendations'].append('Leverage strong information coupling for enhanced coordination')
+                    interpretation["recommendations"].append(
+                        "Leverage strong information coupling for enhanced coordination"
+                    )
 
             else:
-                interpretation['emergence_level'] = 'not_detected'
-                interpretation['key_characteristics'].append('Limited collective organization observed')
-                interpretation['system_complexity'] = 'low'
-                interpretation['predictability'] = 'high'
+                interpretation["emergence_level"] = "not_detected"
+                interpretation["key_characteristics"].append(
+                    "Limited collective organization observed"
+                )
+                interpretation["system_complexity"] = "low"
+                interpretation["predictability"] = "high"
 
         except Exception as e:
             logger.warning(f"Emergence interpretation failed: {e}")
-            interpretation['error'] = str(e)
+            interpretation["error"] = str(e)
 
         return interpretation
 
     def get_analysis_summary(self) -> Dict[str, Any]:
         """Get summary of all analysis results."""
         summary = {
-            'total_analyses': len(self.analysis_history),
-            'analysis_types_performed': list(set([a.get('analysis_type', 'unknown') for a in self.analysis_history])),
-            'pattern_cache_size': len(self.pattern_cache),
-            'last_analysis_time': self.analysis_history[-1]['analysis_time'].isoformat() if self.analysis_history else None
+            "total_analyses": len(self.analysis_history),
+            "analysis_types_performed": list(
+                set([a.get("analysis_type", "unknown") for a in self.analysis_history])
+            ),
+            "pattern_cache_size": len(self.pattern_cache),
+            "last_analysis_time": (
+                self.analysis_history[-1]["analysis_time"].isoformat()
+                if self.analysis_history
+                else None
+            ),
         }
 
         # Summarize cached results
         if self.pattern_cache:
-            summary['cached_analyses'] = list(self.pattern_cache.keys())
+            summary["cached_analyses"] = list(self.pattern_cache.keys())
 
         # Performance statistics
         if self.analysis_history:
-            analysis_times = [(datetime.now() - a['analysis_time']).total_seconds() for a in self.analysis_history]
-            summary['performance'] = {
-                'avg_analysis_time': np.mean(analysis_times),
-                'total_analysis_time': sum(analysis_times),
-                'analyses_per_hour': len(self.analysis_history) / max(1, sum(analysis_times) / 3600)
+            analysis_times = [
+                (datetime.now() - a["analysis_time"]).total_seconds()
+                for a in self.analysis_history
+            ]
+            summary["performance"] = {
+                "avg_analysis_time": np.mean(analysis_times),
+                "total_analysis_time": sum(analysis_times),
+                "analyses_per_hour": len(self.analysis_history)
+                / max(1, sum(analysis_times) / 3600),
             }
 
         return summary

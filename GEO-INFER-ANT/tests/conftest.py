@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-ANT tests.
 Provides distance matrices, pheromone grids on H3 cells,
 ant colony configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 
@@ -11,7 +12,7 @@ import numpy as np
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: marks tests as slow")
 
-import pandas as pd
+
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path
@@ -55,13 +56,15 @@ def distance_matrix() -> np.ndarray:
     Represents distances between 5 locations with realistic asymmetric
     travel costs. Diagonal is zero. All values are positive.
     """
-    return np.array([
-        [0.0, 2.0, 9.0, 10.0, 5.0],
-        [2.0, 0.0, 7.0, 8.0, 3.0],
-        [9.0, 7.0, 0.0, 4.0, 6.0],
-        [10.0, 8.0, 4.0, 0.0, 1.0],
-        [5.0, 3.0, 6.0, 1.0, 0.0],
-    ])
+    return np.array(
+        [
+            [0.0, 2.0, 9.0, 10.0, 5.0],
+            [2.0, 0.0, 7.0, 8.0, 3.0],
+            [9.0, 7.0, 0.0, 4.0, 6.0],
+            [10.0, 8.0, 4.0, 0.0, 1.0],
+            [5.0, 3.0, 6.0, 1.0, 0.0],
+        ]
+    )
 
 
 @pytest.fixture
@@ -75,8 +78,7 @@ def pheromone_grid() -> List[Dict[str, Any]]:
         import h3
 
         cells = [
-            h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9)
-            for i in range(5)
+            h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9) for i in range(5)
         ]
     except ImportError:
         # Fallback cell IDs for environments without h3

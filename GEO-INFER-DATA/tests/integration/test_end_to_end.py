@@ -8,6 +8,7 @@ together seamlessly.
 
 import pytest
 import asyncio
+import copy
 import pandas as pd
 import geopandas as gpd
 import numpy as np
@@ -19,12 +20,28 @@ from geo_infer_data import (
     AdaptiveDataStorage,
     DataQualityManager,
 )
+from geo_infer_data.core.ingestion import DataSourceConnector
 from geo_infer_data.models.schemas import (
     DatasetMetadata,
     SpatialExtent,
     TemporalExtent,
     DataLineage,
 )
+
+
+class PayloadConnector(DataSourceConnector):
+    """Deterministic in-memory connector for orchestration tests."""
+
+    def __init__(self, payload):
+        super().__init__({"source": "integration-fixture"})
+        self.payload = payload
+
+    async def connect(self) -> bool:
+        return True
+
+    async def fetch_data(self, query):
+        del query
+        return copy.deepcopy(self.payload)
 
 
 class TestEndToEndWorkflows:
@@ -84,13 +101,16 @@ class TestEndToEndWorkflows:
     ):
         """Test complete workflow from ingestion to storage."""
         # Initialize system
-        system = await initialize_data_system(
+        system = initialize_data_system(
             storage_backends=["local"], enable_validation=True
         )
 
         ingestion = system["ingestion"]
         storage = system["storage"]
         quality_manager = system["quality_manager"]
+        ingestion.connectors["sensors"] = PayloadConnector(
+            {"measurements": mock_environmental_data}
+        )
 
         # Step 1: Ingest data
         ingestion_result = await ingestion.ingest_multi_source(
@@ -147,6 +167,9 @@ class TestEndToEndWorkflows:
         assert len(query_results) > 0
 
         # Step 6: Validate stored dataset
+        quality_manager.register_dataset(
+            dataset_id, mock_environmental_data, mock_metadata
+        )
         stored_quality_report = await quality_manager.validate_dataset(dataset_id)
 
         # Verify validation
@@ -168,7 +191,7 @@ class TestEndToEndWorkflows:
             parallel_processing=True,
         )
 
-        # Mock data for different sources
+        # Use configured payloads so this orchestration test has no network dependency.
         satellite_data = {
             "bbox": [-122.5, 37.7, -122.3, 37.9],
             "date_range": "2023-01-01/2023-01-31",
@@ -184,6 +207,37 @@ class TestEndToEndWorkflows:
             "category": "environment",
             "time_range": "2023-01-01/2023-01-31",
         }
+
+        ingestion.connectors["satellite"] = PayloadConnector(
+            {
+                "imagery": np.ones((2, 2, 3)),
+                "metadata": {"source": "integration-fixture"},
+            }
+        )
+        ingestion.connectors["sensors"] = PayloadConnector(
+            {
+                "measurements": pd.DataFrame(
+                    {
+                        "timestamp": pd.date_range("2023-01-01", periods=2, freq="h"),
+                        "temperature": [20.0, 21.0],
+                        "latitude": [37.7, 37.71],
+                        "longitude": [-122.4, -122.41],
+                    }
+                )
+            }
+        )
+        ingestion.connectors["crowdsourced"] = PayloadConnector(
+            {
+                "reports": pd.DataFrame(
+                    {
+                        "timestamp": pd.date_range("2023-01-01", periods=2, freq="h"),
+                        "latitude": [37.7, 37.71],
+                        "longitude": [-122.4, -122.41],
+                        "category": ["environment", "environment"],
+                    }
+                )
+            }
+        )
 
         # Ingest from multiple sources
         result = await ingestion.ingest_multi_source(
@@ -267,7 +321,7 @@ class TestEndToEndWorkflows:
         completeness_check = await quality_manager.validator.validate_data(
             mock_environmental_data
         )
-        assert completeness_check.score >= 0.0
+        assert completeness_check.overall_score >= 0.0
 
         # Test coordinate validation
         coord_check = quality_manager.validator.validate_coordinates(
@@ -282,12 +336,15 @@ class TestEndToEndWorkflows:
         assert temporal_check.score >= 0.0
 
         # Test comprehensive validation
+        quality_manager.register_dataset(
+            "test_dataset", mock_environmental_data, mock_metadata
+        )
         comprehensive_report = await quality_manager.validate_dataset("test_dataset")
 
         # Verify comprehensive validation
         assert comprehensive_report.overall_score >= 0.0
         assert len(comprehensive_report.checks) > 0
-        assert "recommendations" in comprehensive_report
+        assert isinstance(comprehensive_report.recommendations, list)
 
         # Test trend analysis
         trends = quality_manager.get_quality_trends(days=7)
@@ -303,7 +360,7 @@ class TestEndToEndWorkflows:
         """Test error recovery across integrated components."""
         # Test with invalid configuration
         try:
-            await initialize_data_system(
+            initialize_data_system(
                 storage_backends=["invalid_backend"], enable_validation=True
             )
             assert False, "Should have raised an error"
@@ -311,8 +368,20 @@ class TestEndToEndWorkflows:
             pass  # Expected error
 
         # Test with valid configuration after error
-        system = await initialize_data_system(
+        system = initialize_data_system(
             storage_backends=["local"], enable_validation=True
+        )
+        system["ingestion"].connectors["sensors"] = PayloadConnector(
+            {
+                "measurements": pd.DataFrame(
+                    {
+                        "timestamp": pd.date_range("2023-01-01", periods=2, freq="h"),
+                        "temperature": [20.0, 21.0],
+                        "latitude": [37.7, 37.71],
+                        "longitude": [-122.4, -122.41],
+                    }
+                )
+            }
         )
 
         assert system["status"] == "initialized"
@@ -338,8 +407,11 @@ class TestEndToEndWorkflows:
     ):
         """Test performance characteristics across integrated components."""
         # Initialize system with performance monitoring
-        system = await initialize_data_system(
+        system = initialize_data_system(
             storage_backends=["local"], enable_validation=True
+        )
+        system["ingestion"].connectors["sensors"] = PayloadConnector(
+            {"measurements": mock_environmental_data}
         )
 
         # Test ingestion performance
@@ -358,6 +430,9 @@ class TestEndToEndWorkflows:
 
         dataset_id = await system["storage"].store_geospatial_data(
             mock_environmental_data, mock_metadata
+        )
+        system["quality_manager"].register_dataset(
+            dataset_id, mock_environmental_data, mock_metadata
         )
 
         storage_time = time.time() - start_time
@@ -425,6 +500,7 @@ class TestCrossComponentIntegration:
 
         # Test data flow
         # 1. Ingest data
+        ingestion.connectors["sensors"] = PayloadConnector({"measurements": test_data})
         result = await ingestion.ingest_multi_source(sensors={"test_data": test_data})
         assert "sensors" in result["ingested_data"]
 
@@ -472,6 +548,7 @@ class TestCrossComponentIntegration:
         )
 
         # Test quality assessment
+        quality_manager.register_dataset("test_dataset", data_with_issues, metadata)
         quality_report = await quality_manager.validate_dataset("test_dataset")
         assert quality_report.overall_score < 0.9  # Should detect issues
 
@@ -529,6 +606,16 @@ class TestCrossComponentIntegration:
         # Test quality assessment of ETL output
         processed_data = result.get("processed_data")
         if processed_data is not None:
+            quality_manager.register_dataset(
+                "processed_dataset",
+                processed_data,
+                DatasetMetadata(
+                    title="Processed dataset",
+                    lineage=DataLineage(
+                        source="etl", process="integration_test", created_by="test"
+                    ),
+                ),
+            )
             quality_report = await quality_manager.validate_dataset("processed_dataset")
             assert quality_report.overall_score >= 0.0
 
@@ -544,7 +631,9 @@ class TestDataFlowIntegration:
     async def test_geospatial_data_pipeline(self):
         """Test complete geospatial data pipeline."""
         # Initialize system
-        system = await initialize_data_system(["local"], True)
+        system = initialize_data_system(
+            storage_backends=["local"], enable_validation=True
+        )
 
         # Create geospatial data
         gdf = gpd.GeoDataFrame(
@@ -572,6 +661,7 @@ class TestDataFlowIntegration:
 
         # Test complete pipeline
         dataset_id = await system["storage"].store_geospatial_data(gdf, metadata)
+        system["quality_manager"].register_dataset(dataset_id, gdf, metadata)
 
         # Test spatial queries
         spatial_results = await system["storage"].adaptive_query(
@@ -593,7 +683,9 @@ class TestDataFlowIntegration:
     @pytest.mark.asyncio
     async def test_temporal_data_pipeline(self):
         """Test complete temporal data pipeline."""
-        system = await initialize_data_system(["local"], True)
+        system = initialize_data_system(
+            storage_backends=["local"], enable_validation=True
+        )
 
         # Create time series data
         ts_data = pd.DataFrame(
@@ -616,6 +708,7 @@ class TestDataFlowIntegration:
 
         # Test temporal pipeline
         dataset_id = await system["storage"].store_geospatial_data(ts_data, metadata)
+        system["quality_manager"].register_dataset(dataset_id, ts_data, metadata)
 
         # Test temporal queries
         temporal_results = await system["storage"].adaptive_query(
@@ -704,6 +797,14 @@ class TestPerformanceIntegration:
         async def concurrent_ingestion(source_name: str, data: dict):
             """Simulate concurrent ingestion."""
             ingestion = MultiSourceDataIngestion([source_name])
+            payloads = {
+                "sensors": {"measurements": test_data},
+                "satellite": {
+                    "imagery": np.ones((2, 2, 3)),
+                    "metadata": {"source": "integration-fixture"},
+                },
+            }
+            ingestion.connectors[source_name] = PayloadConnector(payloads[source_name])
             result = await ingestion.ingest_multi_source(**{source_name: data})
             return result
 

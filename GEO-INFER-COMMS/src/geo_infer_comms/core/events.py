@@ -9,8 +9,6 @@ coordination with geospatial context and filtering capabilities.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Callable, Any, Set
-import asyncio
-import json
 import logging
 import threading
 import time
@@ -20,17 +18,15 @@ import uuid
 import queue
 
 from geo_infer_comms.models.message import (
-    EventPublishRequest, EventPublishResponse, EventSubscriptionRequest,
-    EventSubscriptionResponse, EventType, MessagePriority
+    EventPublishRequest,
+    EventPublishResponse,
+    EventSubscriptionRequest,
+    EventSubscriptionResponse,
+    MessagePriority,
 )
-from geo_infer_comms.models.spatial import (
-    GeospatialMetadata, SpatialFilter, GeospatialPoint, SpatialIndex
-)
+from geo_infer_comms.models.spatial import GeospatialPoint, SpatialIndex
 from datetime import timedelta
-import time
-from geo_infer_comms.utils.validation import (
-    validate_event_type, validate_spatial_filter, validate_url
-)
+from geo_infer_comms.utils.validation import validate_event_type, validate_url
 
 
 class EventManager:
@@ -45,7 +41,7 @@ class EventManager:
         self,
         max_events: int = 10000,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
     ):
         self.max_events = max_events
         self.enable_persistence = enable_persistence
@@ -87,8 +83,7 @@ class EventManager:
 
             self._running = True
             self._processing_thread = threading.Thread(
-                target=self._process_events,
-                daemon=True
+                target=self._process_events, daemon=True
             )
             self._processing_thread.start()
             self.logger.info("Event manager started")
@@ -128,7 +123,7 @@ class EventManager:
             source=request.source,
             target_channels=request.target_channels,
             priority=request.priority,
-            geospatial_context=request.geospatial_context
+            geospatial_context=request.geospatial_context,
         )
 
         # Store event
@@ -143,7 +138,7 @@ class EventManager:
                     location_data = geo_data["location"]
                     location = GeospatialPoint(
                         longitude=location_data["longitude"],
-                        latitude=location_data["latitude"]
+                        latitude=location_data["latitude"],
                     )
                     self.spatial_index.insert(location, event.event_id)
 
@@ -159,7 +154,7 @@ class EventManager:
         self,
         subscriber_id: str,
         request: EventSubscriptionRequest,
-        callback: Callable[[EventPublishResponse], None]
+        callback: Callable[[EventPublishResponse], None],
     ) -> str:
         """
         Subscribe to events with filtering.
@@ -176,7 +171,7 @@ class EventManager:
             event_types=request.event_types,
             filter_criteria=request.filter_criteria,
             delivery_mode=request.delivery_mode,
-            callback_url=request.callback_url
+            callback_url=request.callback_url,
         )
 
         subscription_id = f"evt_sub_{uuid.uuid4().hex[:8]}"
@@ -195,7 +190,9 @@ class EventManager:
                     self.event_type_subscribers[event_type] = set()
                 self.event_type_subscribers[event_type].add(subscriber_id)
 
-        self.logger.info(f"Event subscription created: {subscription_id} for {subscriber_id}")
+        self.logger.info(
+            f"Event subscription created: {subscription_id} for {subscriber_id}"
+        )
         return subscription_id
 
     def unsubscribe_from_events(self, subscriber_id: str, subscription_id: str) -> bool:
@@ -234,7 +231,9 @@ class EventManager:
         self.logger.info(f"Event subscription removed: {subscription_id}")
         return True
 
-    def register_event_processor(self, event_type: str, processor: EventProcessor) -> None:
+    def register_event_processor(
+        self, event_type: str, processor: EventProcessor
+    ) -> None:
         """Register an event processor for a specific event type."""
         self.event_processors[event_type] = processor
         self.logger.info(f"Event processor registered for type: {event_type}")
@@ -245,7 +244,7 @@ class EventManager:
         source: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[EventPublishResponse]:
         """
         Get events with filtering.
@@ -287,14 +286,16 @@ class EventManager:
         with self._lock:
             event_type_counts = {}
             for event in self.events.values():
-                event_type_counts[event.event_type] = event_type_counts.get(event.event_type, 0) + 1
+                event_type_counts[event.event_type] = (
+                    event_type_counts.get(event.event_type, 0) + 1
+                )
 
             return {
                 "total_events": len(self.events),
                 "total_subscriptions": len(self.subscriptions),
                 "event_types": list(set(e.event_type for e in self.events.values())),
                 "event_type_counts": event_type_counts,
-                "metrics": self.metrics.to_dict()
+                "metrics": self.metrics.to_dict(),
             }
 
     def _process_events(self) -> None:
@@ -353,7 +354,9 @@ class EventManager:
                     # In a real implementation, would use threading or async
                     callback(event)
                 except Exception as e:
-                    self.logger.error(f"Error delivering event to subscriber {subscriber_id}: {e}")
+                    self.logger.error(
+                        f"Error delivering event to subscriber {subscriber_id}: {e}"
+                    )
 
     def _get_priority_value(self, priority: MessagePriority) -> int:
         """Convert priority to queue priority value (lower = higher priority)."""
@@ -361,19 +364,21 @@ class EventManager:
             MessagePriority.URGENT: 1,
             MessagePriority.HIGH: 2,
             MessagePriority.NORMAL: 3,
-            MessagePriority.LOW: 4
+            MessagePriority.LOW: 4,
         }
         return priority_map.get(priority, 3)
 
     def _register_default_processors(self) -> None:
         """Register default event processors."""
-        self.event_processors.update({
-            "data_update": DataUpdateProcessor(),
-            "system_alert": SystemAlertProcessor(),
-            "user_action": UserActionProcessor(),
-            "sensor_trigger": SensorTriggerProcessor(),
-            "geospatial_change": GeospatialChangeProcessor()
-        })
+        self.event_processors.update(
+            {
+                "data_update": DataUpdateProcessor(),
+                "system_alert": SystemAlertProcessor(),
+                "user_action": UserActionProcessor(),
+                "sensor_trigger": SensorTriggerProcessor(),
+                "geospatial_change": GeospatialChangeProcessor(),
+            }
+        )
 
 
 @dataclass
@@ -401,7 +406,7 @@ class EventMetrics:
             "processing_success_rate": (
                 self.events_processed / max(self.events_published, 1) * 100
             ),
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -426,7 +431,7 @@ class EventProcessor(ABC):
         Args:
             event: Event to process
         """
-        raise NotImplementedError("Subclasses must implement process_event")
+        raise RuntimeError("Event subclasses must implement process_event")
 
 
 class DataUpdateProcessor(EventProcessor):
@@ -439,7 +444,9 @@ class DataUpdateProcessor(EventProcessor):
         """Process data update events."""
         payload = event.payload
         # In a real implementation, would handle data updates
-        self.logger.info(f"Processing data update: {payload.get('dataset_id', 'unknown')}")
+        self.logger.info(
+            f"Processing data update: {payload.get('dataset_id', 'unknown')}"
+        )
 
 
 class SystemAlertProcessor(EventProcessor):
@@ -453,7 +460,9 @@ class SystemAlertProcessor(EventProcessor):
         payload = event.payload
         alert_level = payload.get("alert_level", "info")
         # In a real implementation, would handle system alerts
-        self.logger.info(f"Processing system alert ({alert_level}): {payload.get('message', '')}")
+        self.logger.info(
+            f"Processing system alert ({alert_level}): {payload.get('message', '')}"
+        )
 
 
 class UserActionProcessor(EventProcessor):
@@ -515,9 +524,7 @@ class EventFilter:
         self.logger.info(f"Registered custom filter: {filter_name}")
 
     def apply_filters(
-        self,
-        event: EventPublishResponse,
-        filters: List[Dict[str, Any]]
+        self, event: EventPublishResponse, filters: List[Dict[str, Any]]
     ) -> bool:
         """Apply multiple filters to an event."""
         for filter_config in filters:
@@ -525,7 +532,9 @@ class EventFilter:
                 return False
         return True
 
-    def _apply_single_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
+    def _apply_single_filter(
+        self, event: EventPublishResponse, filter_config: Dict[str, Any]
+    ) -> bool:
         """Apply a single filter to an event."""
         filter_type = filter_config.get("type", "basic")
 
@@ -541,7 +550,9 @@ class EventFilter:
             self.logger.warning(f"Unknown filter type: {filter_type}")
             return True
 
-    def _apply_basic_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
+    def _apply_basic_filter(
+        self, event: EventPublishResponse, filter_config: Dict[str, Any]
+    ) -> bool:
         """Apply basic event filters."""
         # Filter by event type
         allowed_types = filter_config.get("event_types", [])
@@ -563,7 +574,9 @@ class EventFilter:
 
         return True
 
-    def _apply_geospatial_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
+    def _apply_geospatial_filter(
+        self, event: EventPublishResponse, filter_config: Dict[str, Any]
+    ) -> bool:
         """Apply geospatial filters to events using bounding-box and radius checks.
 
         Supported filter_config keys:
@@ -575,8 +588,16 @@ class EventFilter:
             return not filter_config.get("require_location", False)
 
         ctx = event.geospatial_context
-        lat = getattr(ctx, 'latitude', None) or ctx.get('latitude') if isinstance(ctx, dict) else None
-        lon = getattr(ctx, 'longitude', None) or ctx.get('longitude') if isinstance(ctx, dict) else None
+        lat = (
+            getattr(ctx, "latitude", None) or ctx.get("latitude")
+            if isinstance(ctx, dict)
+            else None
+        )
+        lon = (
+            getattr(ctx, "longitude", None) or ctx.get("longitude")
+            if isinstance(ctx, dict)
+            else None
+        )
 
         if lat is None or lon is None:
             return filter_config.get("pass_on_missing_coords", True)
@@ -584,8 +605,10 @@ class EventFilter:
         # Bounding-box check
         bbox = filter_config.get("bbox")
         if bbox:
-            if not (bbox.get("min_lon", -180) <= lon <= bbox.get("max_lon", 180) and
-                    bbox.get("min_lat", -90) <= lat <= bbox.get("max_lat", 90)):
+            if not (
+                bbox.get("min_lon", -180) <= lon <= bbox.get("max_lon", 180)
+                and bbox.get("min_lat", -90) <= lat <= bbox.get("max_lat", 90)
+            ):
                 return False
 
         # Circular radius check (haversine approximation)
@@ -593,20 +616,25 @@ class EventFilter:
         center = filter_config.get("center")
         if radius_km is not None and center:
             import math
+
             R = 6371.0
             dlat = math.radians(lat - center["lat"])
             dlon = math.radians(lon - center["lon"])
-            a = (math.sin(dlat / 2) ** 2 +
-                 math.cos(math.radians(center["lat"])) * math.cos(math.radians(lat)) *
-                 math.sin(dlon / 2) ** 2)
+            a = (
+                math.sin(dlat / 2) ** 2
+                + math.cos(math.radians(center["lat"]))
+                * math.cos(math.radians(lat))
+                * math.sin(dlon / 2) ** 2
+            )
             dist_km = R * 2 * math.asin(math.sqrt(a))
             if dist_km > radius_km:
                 return False
 
         return True
 
-
-    def _apply_temporal_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
+    def _apply_temporal_filter(
+        self, event: EventPublishResponse, filter_config: Dict[str, Any]
+    ) -> bool:
         """Apply temporal filters to events."""
         # Filter by time range
         start_time = filter_config.get("start_time")
@@ -626,7 +654,9 @@ class EventFilter:
 
         return True
 
-    def _apply_custom_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
+    def _apply_custom_filter(
+        self, event: EventPublishResponse, filter_config: Dict[str, Any]
+    ) -> bool:
         """Apply custom filters."""
         filter_name = filter_config.get("filter_name")
         if filter_name in self.custom_filters:
@@ -661,8 +691,7 @@ class EventScheduler:
 
         self._running = True
         self._scheduler_thread = threading.Thread(
-            target=self._process_scheduled_events,
-            daemon=True
+            target=self._process_scheduled_events, daemon=True
         )
         self._scheduler_thread.start()
         self.logger.info("Event scheduler started")
@@ -678,7 +707,7 @@ class EventScheduler:
         self,
         event_request: EventPublishRequest,
         schedule_time: datetime,
-        schedule_id: Optional[str] = None
+        schedule_id: Optional[str] = None,
     ) -> str:
         """Schedule an event for future publication."""
         if schedule_id is None:
@@ -688,7 +717,7 @@ class EventScheduler:
             schedule_id=schedule_id,
             event_request=event_request,
             schedule_time=schedule_time,
-            status="scheduled"
+            status="scheduled",
         )
 
         self.scheduled_events[schedule_id] = scheduled_event
@@ -700,7 +729,7 @@ class EventScheduler:
         self,
         event_request: EventPublishRequest,
         schedule_config: Dict[str, Any],
-        recurring_id: Optional[str] = None
+        recurring_id: Optional[str] = None,
     ) -> str:
         """Schedule a recurring event."""
         if recurring_id is None:
@@ -710,7 +739,7 @@ class EventScheduler:
             recurring_id=recurring_id,
             event_request=event_request,
             schedule_config=schedule_config,
-            status="active"
+            status="active",
         )
 
         self.recurring_events[recurring_id] = recurring_event
@@ -742,25 +771,39 @@ class EventScheduler:
 
                 # Process scheduled events
                 for schedule_id, scheduled_event in list(self.scheduled_events.items()):
-                    if (scheduled_event.status == "scheduled" and
-                        scheduled_event.schedule_time <= current_time):
+                    if (
+                        scheduled_event.status == "scheduled"
+                        and scheduled_event.schedule_time <= current_time
+                    ):
 
                         try:
-                            self.event_manager.publish_event(scheduled_event.event_request)
+                            self.event_manager.publish_event(
+                                scheduled_event.event_request
+                            )
                             scheduled_event.status = "completed"
                         except Exception as e:
-                            self.logger.error(f"Failed to publish scheduled event {schedule_id}: {e}")
+                            self.logger.error(
+                                f"Failed to publish scheduled event {schedule_id}: {e}"
+                            )
                             scheduled_event.status = "failed"
 
                 # Process recurring events
-                for recurring_id, recurring_event in list(self.recurring_events.items()):
+                for recurring_id, recurring_event in list(
+                    self.recurring_events.items()
+                ):
                     if recurring_event.status == "active":
-                        if self._should_trigger_recurring(recurring_event, current_time):
+                        if self._should_trigger_recurring(
+                            recurring_event, current_time
+                        ):
                             try:
-                                self.event_manager.publish_event(recurring_event.event_request)
+                                self.event_manager.publish_event(
+                                    recurring_event.event_request
+                                )
                                 recurring_event.last_triggered = current_time
                             except Exception as e:
-                                self.logger.error(f"Failed to publish recurring event {recurring_id}: {e}")
+                                self.logger.error(
+                                    f"Failed to publish recurring event {recurring_id}: {e}"
+                                )
 
                 # Brief pause before next check
                 time.sleep(1.0)
@@ -826,11 +869,7 @@ class EventWebhookManager:
 
         self.logger = logging.getLogger(__name__)
 
-    def register_webhook(
-        self,
-        webhook_id: str,
-        config: WebhookConfig
-    ) -> bool:
+    def register_webhook(self, webhook_id: str, config: WebhookConfig) -> bool:
         """Register a webhook for event delivery."""
         if not validate_url(config.url):
             raise ValueError(f"Invalid webhook URL: {config.url}")
@@ -863,7 +902,7 @@ class EventWebhookManager:
                 webhook_id=webhook_id,
                 event_id=event.event_id,
                 status="delivered",
-                timestamp=datetime.now(timezone.utc)
+                timestamp=datetime.now(timezone.utc),
             )
 
             self.webhook_history.append(delivery)
@@ -879,7 +918,7 @@ class EventWebhookManager:
                 event_id=event.event_id,
                 status="failed",
                 error=str(e),
-                timestamp=datetime.now(timezone.utc)
+                timestamp=datetime.now(timezone.utc),
             )
 
             self.webhook_history.append(delivery)

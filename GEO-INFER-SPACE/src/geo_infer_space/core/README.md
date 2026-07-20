@@ -28,9 +28,6 @@ Core workspace within `GEO-INFER-SPACE`.
 - `api_clients.py:GeneralGeoDataFetcher` (class)
 - `base_module.py:BaseAnalysisModule` (class)
 - `data_integrator.py:DataIntegrator` (class)
-- `dispatcher.py:SpatialBackendInterface` (class)
-- `dispatcher.py:SpatialIndexingBackend` (class)
-- `dispatcher.py:SpatialAnalyticsBackend` (class)
 - `dispatcher.py:SpatialBackendDispatcher` (class)
 - `dispatcher.py:get_backend_dispatcher` (function)
 - `dispatcher.py:configure_backends` (function)
@@ -43,6 +40,9 @@ Core workspace within `GEO-INFER-SPACE`.
 - `interfaces.py:SRAIUnavailableError` (class)
 - `interfaces.py:BackendNotAvailableError` (class)
 - `place_analyzer.py:PlaceAnalyzer` (class)
+- `processor.py:SpatialProcessor` (class)
+- `spatial_indexing.py:SpatialIndexingInterface` (class)
+- `spatial_indexing.py:latlng_to_cell` (function)
 
 ## Module Metadata
 

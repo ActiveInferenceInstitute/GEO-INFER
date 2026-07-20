@@ -30,8 +30,11 @@ from .core.validators import (
     run_full_system_test,
 )
 
-# Import test runner
-from .core.test_runner import GeoInferTestRunner as TestRunner
+# Import the canonical test runner and its configuration.
+from .core.test_runner import (
+    GeoInferTestRunner,
+    TestConfiguration,
+)
 
 from .testing import (
     LocalService,
@@ -49,7 +52,8 @@ from .testing import (
 __version__ = "1.0.0"
 
 __all__ = [
-    "TestRunner",
+    "GeoInferTestRunner",
+    "TestConfiguration",
     "TestResult",
     "ValidationRule",
     "BaseValidator",

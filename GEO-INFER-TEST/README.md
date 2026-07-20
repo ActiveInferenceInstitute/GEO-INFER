@@ -90,6 +90,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 - `validate_test_contracts.py --strict` validates every module inventory,
   primary marker, forbidden pytest control, syntax tree, and behavior-test
   docstring.
+- `validate_documentation.py --strict` validates the maintained documentation
+  hub's relative links and rejects known stale current-state claims.
 - `validate_model_contracts.py` checks representative ACT model contracts;
   `run_model_audit.py` emits finite statistics, a PNG visualization, SHA-256
   sidecars, and a deterministic manifest.

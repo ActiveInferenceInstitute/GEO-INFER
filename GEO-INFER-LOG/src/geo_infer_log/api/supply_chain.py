@@ -7,7 +7,7 @@ resilience analysis, network optimization, and facility location.
 
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
 from geo_infer_log.models.schemas import SupplyChainNetwork
@@ -31,8 +31,8 @@ class NetworkRequest(BaseModel):
 
     network: SupplyChainNetwork
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "network": {
                     "id": "network-001",
@@ -68,6 +68,7 @@ class NetworkRequest(BaseModel):
                 }
             }
         }
+    )
 
 
 class FlowOptimizationRequest(BaseModel):
@@ -78,8 +79,8 @@ class FlowOptimizationRequest(BaseModel):
     supply_points: List[Dict]
     objective: str = "cost"
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "network_id": "network-001",
                 "demand_points": [
@@ -101,6 +102,7 @@ class FlowOptimizationRequest(BaseModel):
                 "objective": "cost",
             }
         }
+    )
 
 
 class DisruptionAnalysisRequest(BaseModel):
@@ -110,14 +112,15 @@ class DisruptionAnalysisRequest(BaseModel):
     disrupted_nodes: List[str] = Field(default_factory=list)
     disrupted_edges: List[Tuple[str, str]] = Field(default_factory=list)
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "network_id": "network-001",
                 "disrupted_nodes": ["wh-001"],
                 "disrupted_edges": [["dc-001", "wh-002"]],
             }
         }
+    )
 
 
 class FacilityLocationRequest(BaseModel):
@@ -128,8 +131,8 @@ class FacilityLocationRequest(BaseModel):
     num_facilities: int
     max_distance: Optional[float] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "candidates": [
                     {"id": "c1", "location": (13.4050, 52.5200), "cost": 10000},
@@ -143,6 +146,7 @@ class FacilityLocationRequest(BaseModel):
                 "max_distance": 500,
             }
         }
+    )
 
 
 class NetworkOptimizationRequest(BaseModel):
@@ -152,8 +156,8 @@ class NetworkOptimizationRequest(BaseModel):
     demand_points: List[Dict]
     constraints: Dict
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "locations": [
                     {"id": "loc1", "location": (13.4050, 52.5200), "cost": 10000},
@@ -170,6 +174,7 @@ class NetworkOptimizationRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 # Get a supply chain model instance

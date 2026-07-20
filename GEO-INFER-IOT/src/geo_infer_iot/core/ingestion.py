@@ -170,7 +170,7 @@ class IoTDataIngestion:
             self.protocol_handlers["mqtt"] = self._handle_mqtt
         if HAS_ASYNC_MQTT:
             self.protocol_handlers["async_mqtt"] = self._handle_async_mqtt
-        # Additional protocols (CoAP, LoRaWAN, etc.) would go here
+        # Protocol handlers are registered only when their dependencies are available.
 
     async def ingest_measurement(
         self, measurement: Union[Dict, SensorMeasurement]
@@ -764,72 +764,6 @@ class RadiationMonitoringSystem:
             },
         )
 
-    def generate_simulated_data(self, sensor_count: int = 100) -> List[Dict]:
-        """Generate simulated radiation sensor data for testing."""
-        import random
-
-        self.logger.info(
-            "Generating simulated radiation data",
-            extra={"sensor_count": sensor_count, "operation": "data_simulation"},
-        )
-
-        start_time = time.time()
-        measurements = []
-
-        # Global radiation monitoring networks
-        networks = ["safecast", "eurdep", "ctbto"]
-
-        # Simulate sensors across the globe
-        for i in range(sensor_count):
-            # Random global coordinates
-            lat = random.uniform(-85, 85)  # Avoid extreme polar regions
-            lon = random.uniform(-180, 180)
-
-            # Background radiation with noise
-            background = self.config.get("simulation", {}).get(
-                "background_radiation", 0.1
-            )
-            noise = self.config.get("simulation", {}).get("noise_level", 0.02)
-            radiation_level = max(0, random.gauss(background, noise))
-
-            # Add anomalies at specific locations
-            anomaly_locations = (
-                self.config.get("simulation", {})
-                .get("anomalies", {})
-                .get("locations", [])
-            )
-            for anomaly in anomaly_locations:
-                distance = (
-                    (lat - anomaly["lat"]) ** 2 + (lon - anomaly["lon"]) ** 2
-                ) ** 0.5
-                if distance < 1.0:  # Within ~111km
-                    radiation_level *= anomaly["intensity"]
-
-            measurement = {
-                "sensor_id": f"sensor_{i:06d}",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "variable": "gamma_radiation",
-                "value": radiation_level,
-                "unit": "μSv/h",
-                "latitude": lat,
-                "longitude": lon,
-                "network": random.choice(networks),
-                "quality_flag": "ok" if radiation_level < 10.0 else "high_radiation",
-            }
-            measurements.append(measurement)
-
-        generation_time = time.time() - start_time
-        self.logger.info(
-            "Simulated data generation complete",
-            extra={
-                "measurements_generated": len(measurements),
-                "generation_time_seconds": generation_time,
-                "operation": "data_simulation",
-            },
-        )
-
-        return measurements
-
     async def process_measurements(self, measurements: List[Dict]) -> Dict:
         """Process a batch of measurements with full logging."""
         self.logger.info(
@@ -957,9 +891,19 @@ class RadiationMonitoringSystem:
         """Simple anomaly detection based on statistical thresholds."""
         anomaly_config = self.config.get("anomaly_detection", {}).get("statistical", {})
 
-        # Get background radiation level
-        background = self.config.get("simulation", {}).get("background_radiation", 0.1)
-        noise = self.config.get("simulation", {}).get("noise_level", 0.02)
+        # Get the configured empirical baseline for anomaly detection.
+        baseline_config = self.config.get("radiation_baseline", {})
+        if (
+            "background_radiation" not in baseline_config
+            or "noise_level" not in baseline_config
+        ):
+            raise ValueError(
+                "radiation_baseline must define background_radiation and noise_level"
+            )
+        background = baseline_config["background_radiation"]
+        noise = baseline_config["noise_level"]
+        if noise <= 0:
+            raise ValueError("radiation_baseline.noise_level must be greater than zero")
 
         # Calculate z-score
         z_score = abs(measurement.value - background) / noise
@@ -1106,15 +1050,23 @@ class GlobalMonitoringSystem:
         self.logger = logger or logging.getLogger(__name__)
         self.radiation_system = RadiationMonitoringSystem(config, logger)
 
-    async def run_monitoring_cycle(self) -> Dict:
+    async def run_monitoring_cycle(
+        self, measurements: Optional[List[Dict]] = None
+    ) -> Dict:
         """Run a complete monitoring cycle."""
         self.logger.info(
             "Starting global monitoring cycle", extra={"operation": "monitoring_cycle"}
         )
 
-        # Generate simulated data
-        sensor_count = self.config.get("simulation", {}).get("sensor_count", 1500)
-        measurements = self.radiation_system.generate_simulated_data(sensor_count)
+        if measurements is None:
+            source = self.config.get("measurement_source")
+            if not callable(source):
+                raise RuntimeError(
+                    "run_monitoring_cycle requires measurements or a callable measurement_source"
+                )
+            measurements = source()
+        if not isinstance(measurements, list) or not measurements:
+            raise ValueError("measurements must be a non-empty list")
 
         # Setup spatial inference
         self.radiation_system.setup_spatial_inference()

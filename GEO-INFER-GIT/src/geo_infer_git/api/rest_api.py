@@ -12,6 +12,7 @@ import time
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime, timezone
 
+import git
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
@@ -45,6 +46,7 @@ repo_manager = None
 github_api = None
 config_loader = None
 logger = None
+repository_records: Dict[str, Dict[str, Any]] = {}
 
 
 # Pydantic models for request/response
@@ -373,6 +375,7 @@ async def add_repository(
 
         # Create repository entry
         repo_id = f"{request.platform}_{request.name or 'unknown'}"
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         repo_data = {
             "id": repo_id,
             "name": request.name or "unknown",
@@ -382,16 +385,28 @@ async def add_repository(
             "description": request.description,
             "platform": request.platform,
             "clone_url": request.clone_url,
+            "ssh_url": None,
+            "default_branch": manager.config.get("repositories", {}).get(
+                "default_branch", "main"
+            ),
+            "language": None,
+            "size": 0,
+            "branch_count": 0,
+            "commit_count": 0,
             "status": "pending",
-            "created_at": datetime.now(timezone.utc).replace(tzinfo=None),
-            "updated_at": datetime.now(timezone.utc).replace(tzinfo=None),
+            "last_sync": None,
+            "created_at": now,
+            "updated_at": now,
         }
+        repository_records[repo_id] = repo_data
 
         # Start clone operation in background
         background_tasks.add_task(clone_repository_background, repo_data, request)
 
         return RepositoryResponse(**repo_data)
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error adding repository: {str(e)}"
@@ -406,8 +421,12 @@ async def get_repository(
 ):
     """Get detailed information about a specific repository."""
     try:
-        # This would need more sophisticated repository tracking
-        raise HTTPException(status_code=404, detail=f"Repository {repo_id} not found")
+        record = repository_records.get(repo_id)
+        if record is None:
+            raise HTTPException(
+                status_code=404, detail=f"Repository {repo_id} not found"
+            )
+        return RepositoryResponse(**record)
 
     except HTTPException:
         raise
@@ -428,6 +447,10 @@ async def clone_repository(
 ):
     """Clone a repository."""
     try:
+        if repo_id not in repository_records:
+            raise HTTPException(
+                status_code=404, detail=f"Repository {repo_id} not found"
+            )
         # Generate job ID
         job_id = f"clone_{repo_id}_{int(time.time())}"
 
@@ -441,6 +464,8 @@ async def clone_repository(
             estimated_completion=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error starting clone: {str(e)}")
 
@@ -456,6 +481,10 @@ async def sync_repository(
 ):
     """Synchronize a repository."""
     try:
+        if repo_id not in repository_records:
+            raise HTTPException(
+                status_code=404, detail=f"Repository {repo_id} not found"
+            )
         # Generate job ID
         job_id = f"sync_{repo_id}_{int(time.time())}"
 
@@ -469,6 +498,8 @@ async def sync_repository(
             started_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error starting sync: {str(e)}")
 
@@ -484,9 +515,27 @@ async def list_branches(
 ):
     """List branches for a repository."""
     try:
-        # This would need integration with actual Git repositories
-        return {"branches": [], "total": 0}
+        branches = manager.list_branches(repo_id)
+        if protected is not None:
+            branches = [
+                branch
+                for branch in branches
+                if branch.get("protected", False) == protected
+            ]
+        if status_filter:
+            if status_filter not in {"active", "protected"}:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported branch status: {status_filter}",
+                )
+            if status_filter == "protected":
+                branches = [
+                    branch for branch in branches if branch.get("protected", False)
+                ]
+        return {"branches": branches, "total": len(branches)}
 
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing branches: {str(e)}")
 
@@ -501,11 +550,17 @@ async def create_branch(
 ):
     """Create a new branch."""
     try:
-        # This would need integration with actual Git repositories
-        raise HTTPException(
-            status_code=501, detail="Branch creation not yet implemented"
+        branch = manager.create_branch_for_repository(
+            repo_id, request.name, request.base, protected=request.protected
         )
-
+        branch["repository_id"] = repo_id
+        return BranchResponse(**branch)
+    except FileExistsError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except HTTPException:
         raise
     except Exception as e:
@@ -525,13 +580,22 @@ async def merge_branch(
 ):
     """Merge a branch."""
     try:
-        # This would need integration with actual Git repositories
-        raise HTTPException(
-            status_code=501, detail="Branch merging not yet implemented"
+        return MergeResponse(
+            **manager.merge_branch(
+                repo_id,
+                branch_name,
+                request.target_branch,
+                strategy=request.strategy,
+                message=request.message,
+                delete_source=request.delete_source,
+            )
         )
-
-    except HTTPException:
-        raise
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error merging branch: {str(e)}")
 
@@ -542,12 +606,16 @@ async def get_system_status():
     try:
         import git
 
+        records = repo_manager.check_repo_status() if repo_manager else {}
+        active_repositories = sum(
+            1 for value in records.values() if "error" not in value
+        )
         return SystemStatusResponse(
             version="1.0.0",
-            uptime=int(time.time()),  # Would need proper uptime tracking
-            repository_count=0,  # Would need repository tracking
-            active_workflows=0,  # Would need workflow tracking
-            storage_usage={},  # Would need storage tracking
+            uptime=0,
+            repository_count=active_repositories,
+            active_workflows=0,
+            storage_usage={"tracked_records": len(repository_records)},
             git_version=git.__version__,
         )
 
@@ -559,25 +627,75 @@ async def get_system_status():
 
 # Background task functions
 async def clone_repository_background(
-    repo_id: str, clone_request: Union[RepositoryRequest, CloneRequest]
+    repo_id: Union[str, Dict[str, Any]],
+    clone_request: Union[RepositoryRequest, CloneRequest],
 ):
     """Background task for repository cloning."""
     try:
-        # This would implement actual cloning logic
-        logger.info(f"Starting background clone for {repo_id}")
-        # Implementation would use RepoManager and RepoCloner
+        if repo_manager is None:
+            raise RuntimeError("Repository manager is not initialized")
+        if isinstance(repo_id, dict):
+            record = repo_id
+            identifier = record["id"]
+            clone_config = {
+                "url": record["clone_url"],
+                "name": record["name"],
+                "branch": getattr(clone_request, "branch", None),
+                "depth": getattr(clone_request, "depth", None),
+            }
+        else:
+            record = repository_records.get(repo_id)
+            if record is None:
+                raise FileNotFoundError(f"Repository not found: {repo_id}")
+            identifier = repo_id
+            clone_config = {
+                "url": record["clone_url"],
+                "name": record["name"],
+                "branch": getattr(clone_request, "branch", None),
+                "depth": getattr(clone_request, "depth", None),
+            }
+        logger.info("Starting background clone for %s", identifier)
+        result = repo_manager.clone_repositories([clone_config], parallel=False)
+        success = bool(result.get(clone_config["name"]))
+        record = repository_records.get(identifier)
+        if record is not None:
+            record["status"] = "active" if success else "error"
+            record["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+            if success:
+                branches = repo_manager.list_branches(clone_config["name"])
+                record["branch_count"] = len(branches)
+                record["commit_count"] = sum(
+                    1
+                    for _ in git.Repo(
+                        repo_manager._resolve_repo_path(clone_config["name"])
+                    ).iter_commits()
+                )
     except Exception as e:
-        logger.error(f"Background clone failed for {repo_id}: {e}")
+        if isinstance(repo_id, str) and repo_id in repository_records:
+            repository_records[repo_id]["status"] = "error"
+        logger.error("Background clone failed for %s: %s", repo_id, e)
 
 
 async def sync_repository_background(repo_id: str, sync_request: SyncRequest):
     """Background task for repository synchronization."""
     try:
-        # This would implement actual sync logic
-        logger.info(f"Starting background sync for {repo_id}")
-        # Implementation would use RepoManager
+        if repo_manager is None:
+            raise RuntimeError("Repository manager is not initialized")
+        record = repository_records.get(repo_id)
+        if record is None:
+            raise FileNotFoundError(f"Repository not found: {repo_id}")
+        logger.info("Starting background sync for %s", repo_id)
+        repo_name = record["name"]
+        result = repo_manager.sync_repositories([repo_name])
+        success = bool(result.get(repo_name))
+        record["status"] = "active" if success else "error"
+        record["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+        if success:
+            record["last_sync"] = record["updated_at"]
     except Exception as e:
-        logger.error(f"Background sync failed for {repo_id}: {e}")
+        if repo_id in repository_records:
+            repository_records[repo_id]["status"] = "error"
+        logger.error("Background sync failed for %s: %s", repo_id, e)
 
 
 # Initialization function

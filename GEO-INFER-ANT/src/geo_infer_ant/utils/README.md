@@ -25,6 +25,9 @@ Utils workspace within `GEO-INFER-ANT`.
 - `config.py:update_config` (function)
 - `integration.py:IntegrationManager` (class)
 - `logging.py:setup_logging` (function)
+- `spatial.py:parse_h3_resolution` (function)
+- `spatial.py:validate_bounds` (function)
+- `spatial.py:validate_numeric_matrix` (function)
 
 ## Module Metadata
 

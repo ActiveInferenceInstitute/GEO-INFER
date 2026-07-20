@@ -138,9 +138,9 @@ class MultiAgentModel(ActiveInferenceModel):
         Action dictionaries may contain ``agent_id``, ``location`` (or
         ``move_to``), ``resource``, ``amount``/``harvest``, and an optional
         four-element ``observation``.  Missing observations are derived from
-        the resource profile at the agent's current location.  The legacy
-        call with ``actions=None`` remains a read-compatible no-op on the
-        environment while still advancing agent beliefs and diagnostics.
+        the resource profile at the agent's current location. When no explicit
+        actions are supplied, agents advance using those local observations
+        without changing resources or locations.
         """
         if actions is not None and not isinstance(actions, (list, tuple)):
             raise ValueError("actions must be a sequence of action mappings")

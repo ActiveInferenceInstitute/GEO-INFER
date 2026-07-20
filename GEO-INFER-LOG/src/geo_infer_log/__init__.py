@@ -39,7 +39,6 @@ __all__ = [
     "PerformanceMetrics",
     "LogAnalyzer",
     "SpatialLogContext",
-    "GeoInferLogger",
     "get_logger",
     # Logistics API (lazy-loaded from core/)
     "LastMileRouter",
@@ -586,7 +585,3 @@ class LogAnalyzer:
 def get_logger(name: str, config: Optional[Dict] = None) -> EnhancedLogger:
     """Get an enhanced logger instance."""
     return EnhancedLogger(name, config)
-
-
-# Legacy compatibility
-GeoInferLogger = EnhancedLogger

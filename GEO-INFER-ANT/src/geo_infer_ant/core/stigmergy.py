@@ -15,13 +15,13 @@ Key Features:
 """
 
 import numpy as np
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from collections import defaultdict
 import math
+
+from geo_infer_ant.utils.spatial import parse_h3_resolution, validate_bounds
 
 # Integration imports
 try:
@@ -38,18 +38,19 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PheromoneType:
     """Configuration for a specific pheromone type."""
+
     name: str
     evaporation_rate: float = 0.1  # Rate of pheromone decay per time unit
-    diffusion_rate: float = 0.05   # Rate of spatial diffusion
+    diffusion_rate: float = 0.05  # Rate of spatial diffusion
     deposition_amount: float = 1.0  # Amount deposited by agents
     persistence_time: float = 300.0  # Maximum persistence time (seconds)
-    max_intensity: float = 2.0      # Maximum allowed intensity
-    min_intensity: float = 0.01     # Minimum detectable intensity
+    max_intensity: float = 2.0  # Maximum allowed intensity
+    min_intensity: float = 0.01  # Minimum detectable intensity
 
     # Environmental sensitivity
-    wind_sensitivity: float = 0.5   # How much wind affects diffusion
+    wind_sensitivity: float = 0.5  # How much wind affects diffusion
     temperature_sensitivity: float = 0.3  # Temperature effect on evaporation
-    humidity_sensitivity: float = 0.2     # Humidity effect on persistence
+    humidity_sensitivity: float = 0.2  # Humidity effect on persistence
 
     def __post_init__(self):
         """Validate pheromone type configuration."""
@@ -62,6 +63,7 @@ class PheromoneType:
 @dataclass
 class PheromoneDeposit:
     """Record of a pheromone deposit by an agent."""
+
     agent_id: str
     pheromone_type: str
     intensity: float
@@ -78,12 +80,15 @@ class PheromoneDeposit:
 @dataclass
 class PheromoneField:
     """Spatial field representing pheromone concentrations."""
+
     pheromone_type: str
     spatial_resolution: str  # H3 resolution (e.g., 'h3_r8')
     bounds: Dict[str, float]  # Spatial bounds
 
     # Pheromone concentration data
-    concentrations: Dict[str, float] = field(default_factory=dict)  # h3_cell_id -> concentration
+    concentrations: Dict[str, float] = field(
+        default_factory=dict
+    )  # h3_cell_id -> concentration
     deposits: List[PheromoneDeposit] = field(default_factory=list)
 
     # Field metadata
@@ -97,19 +102,20 @@ class PheromoneField:
     def get_concentration(self, location: np.ndarray) -> float:
         """Get pheromone concentration at specific location."""
         if not self.spatial_indexer:
-            # Fallback: simple distance-based calculation
-            return self._calculate_fallback_concentration(location)
+            return self._calculate_concentration_from_deposits(location)
 
         try:
             # Use spatial indexing to find relevant cells
-            cell_id = self.spatial_indexer.latlng_to_cell(location[0], location[1], self.spatial_resolution)
+            cell_id = self.spatial_indexer.latlng_to_cell(
+                location[0], location[1], parse_h3_resolution(self.spatial_resolution)
+            )
             return self.concentrations.get(cell_id, 0.0)
         except Exception as e:
             logger.warning(f"Failed to get concentration via spatial indexing: {e}")
-            return self._calculate_fallback_concentration(location)
+            return self._calculate_concentration_from_deposits(location)
 
-    def _calculate_fallback_concentration(self, location: np.ndarray) -> float:
-        """Fallback concentration calculation without spatial indexing."""
+    def _calculate_concentration_from_deposits(self, location: np.ndarray) -> float:
+        """Calculate concentration directly from recorded deposits."""
         if not self.deposits:
             return 0.0
 
@@ -135,13 +141,17 @@ class PheromoneField:
     def _calculate_time_decay(self, deposit_time: datetime) -> float:
         """Calculate time-based decay factor for a deposit."""
         time_elapsed = (datetime.now() - deposit_time).total_seconds()
-        pheromone_type = next((pt for pt in self.pheromone_types if pt.name == self.pheromone_type), None)
+        pheromone_type = next(
+            (pt for pt in self.pheromone_types if pt.name == self.pheromone_type), None
+        )
 
         if not pheromone_type:
             return 1.0
 
         # Exponential decay based on evaporation rate
-        decay_factor = math.exp(-pheromone_type.evaporation_rate * time_elapsed / 60.0)  # per minute
+        decay_factor = math.exp(
+            -pheromone_type.evaporation_rate * time_elapsed / 60.0
+        )  # per minute
         return max(decay_factor, 0.01)  # Minimum 1% of original intensity
 
 
@@ -165,12 +175,12 @@ class PheromoneSystem:
 
     def __init__(
         self,
-        spatial_resolution: str = 'h3_r8',
+        spatial_resolution: str = "h3_r8",
         pheromone_types: Optional[List[str]] = None,
         bounds: Optional[Dict[str, float]] = None,
         environmental_factors: Optional[Dict[str, Any]] = None,
-        spatial_backend: str = 'h3',
-        evaporation_rate: Optional[float] = None
+        spatial_backend: str = "h3",
+        evaporation_rate: Optional[float] = None,
     ):
         """
         Initialize pheromone communication system.
@@ -183,12 +193,17 @@ class PheromoneSystem:
             spatial_backend: Backend for spatial operations ('h3', 'srai', 'geopandas')
         """
         self.spatial_resolution = spatial_resolution
-        self.bounds = bounds or {'min_lat': -90, 'max_lat': 90, 'min_lng': -180, 'max_lng': 180}
+        self.h3_resolution = parse_h3_resolution(spatial_resolution)
+        self.bounds = validate_bounds(
+            bounds or {"min_lat": -90, "max_lat": 90, "min_lng": -180, "max_lng": 180}
+        )
         self.environmental_factors = environmental_factors or {}
         self._evaporation_rate = evaporation_rate
 
         # Configure pheromone types
-        self.pheromone_types = self._initialize_pheromone_types(pheromone_types or ['trail', 'food', 'alarm', 'nest'])
+        self.pheromone_types = self._initialize_pheromone_types(
+            pheromone_types or ["trail", "food", "alarm", "nest"]
+        )
 
         # Pheromone fields for each type
         self.pheromone_fields: Dict[str, PheromoneField] = {}
@@ -199,10 +214,10 @@ class PheromoneSystem:
 
         # Performance tracking
         self.performance_stats = {
-            'deposits_total': 0,
-            'updates_total': 0,
-            'queries_total': 0,
-            'avg_response_time': 0.0
+            "deposits_total": 0,
+            "updates_total": 0,
+            "queries_total": 0,
+            "avg_response_time": 0.0,
         }
 
         # Initialize spatial integration
@@ -211,60 +226,64 @@ class PheromoneSystem:
         # Initialize pheromone fields
         self._initialize_pheromone_fields()
 
-        logger.info(f"PheromoneSystem initialized with {len(self.pheromone_types)} pheromone types")
+        logger.info(
+            f"PheromoneSystem initialized with {len(self.pheromone_types)} pheromone types"
+        )
 
-    def _initialize_pheromone_types(self, pheromone_type_names: List[str]) -> List[PheromoneType]:
+    def _initialize_pheromone_types(
+        self, pheromone_type_names: List[str]
+    ) -> List[PheromoneType]:
         """Initialize pheromone type configurations."""
         types = []
 
         # Default configurations for common pheromone types
         default_configs = {
-            'trail': {
-                'evaporation_rate': 0.1,
-                'diffusion_rate': 0.05,
-                'deposition_amount': 1.0,
-                'persistence_time': 300.0,
-                'max_intensity': 2.0,
-                'wind_sensitivity': 0.5,
-                'temperature_sensitivity': 0.3,
-                'humidity_sensitivity': 0.2
+            "trail": {
+                "evaporation_rate": 0.1,
+                "diffusion_rate": 0.05,
+                "deposition_amount": 1.0,
+                "persistence_time": 300.0,
+                "max_intensity": 2.0,
+                "wind_sensitivity": 0.5,
+                "temperature_sensitivity": 0.3,
+                "humidity_sensitivity": 0.2,
             },
-            'food': {
-                'evaporation_rate': 0.05,
-                'diffusion_rate': 0.1,
-                'deposition_amount': 2.0,
-                'persistence_time': 600.0,
-                'max_intensity': 1.5,
-                'wind_sensitivity': 0.3,
-                'temperature_sensitivity': 0.2,
-                'humidity_sensitivity': 0.4
+            "food": {
+                "evaporation_rate": 0.05,
+                "diffusion_rate": 0.1,
+                "deposition_amount": 2.0,
+                "persistence_time": 600.0,
+                "max_intensity": 1.5,
+                "wind_sensitivity": 0.3,
+                "temperature_sensitivity": 0.2,
+                "humidity_sensitivity": 0.4,
             },
-            'alarm': {
-                'evaporation_rate': 0.2,
-                'diffusion_rate': 0.2,
-                'deposition_amount': 3.0,
-                'persistence_time': 120.0,
-                'max_intensity': 3.0,
-                'wind_sensitivity': 0.7,
-                'temperature_sensitivity': 0.5,
-                'humidity_sensitivity': 0.1
+            "alarm": {
+                "evaporation_rate": 0.2,
+                "diffusion_rate": 0.2,
+                "deposition_amount": 3.0,
+                "persistence_time": 120.0,
+                "max_intensity": 3.0,
+                "wind_sensitivity": 0.7,
+                "temperature_sensitivity": 0.5,
+                "humidity_sensitivity": 0.1,
             },
-            'nest': {
-                'evaporation_rate': 0.02,
-                'diffusion_rate': 0.02,
-                'deposition_amount': 1.5,
-                'persistence_time': 3600.0,
-                'max_intensity': 2.5,
-                'wind_sensitivity': 0.1,
-                'temperature_sensitivity': 0.1,
-                'humidity_sensitivity': 0.3
-            }
+            "nest": {
+                "evaporation_rate": 0.02,
+                "diffusion_rate": 0.02,
+                "deposition_amount": 1.5,
+                "persistence_time": 3600.0,
+                "max_intensity": 2.5,
+                "wind_sensitivity": 0.1,
+                "temperature_sensitivity": 0.1,
+                "humidity_sensitivity": 0.3,
+            },
         }
 
         for name in pheromone_type_names:
-            config = default_configs.get(name, default_configs['trail']).copy()
+            config = default_configs.get(name, default_configs["trail"]).copy()
             if self._evaporation_rate is not None:
-                config['evaporation_rate'] = self._evaporation_rate
+                config["evaporation_rate"] = self._evaporation_rate
             types.append(PheromoneType(name=name, **config))
 
         return types
@@ -293,7 +312,7 @@ class PheromoneSystem:
             f = PheromoneField(
                 pheromone_type=pheromone_type.name,
                 spatial_resolution=self.spatial_resolution,
-                bounds=self.bounds
+                bounds=self.bounds,
             )
             # Provide references needed by PheromoneField methods
             f.spatial_indexer = self.spatial_indexer
@@ -306,7 +325,7 @@ class PheromoneSystem:
         pheromone_type: str,
         location: np.ndarray,
         intensity: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Deposit pheromone at specified location.
@@ -330,7 +349,9 @@ class PheromoneSystem:
                 return False
 
             # Get pheromone type configuration
-            phero_type = next((pt for pt in self.pheromone_types if pt.name == pheromone_type), None)
+            phero_type = next(
+                (pt for pt in self.pheromone_types if pt.name == pheromone_type), None
+            )
             if not phero_type:
                 return False
 
@@ -339,9 +360,16 @@ class PheromoneSystem:
                 intensity = phero_type.deposition_amount
 
             # Validate intensity bounds
-            if intensity <= 0 or intensity > phero_type.max_intensity:
-                logger.warning(f"Pheromone intensity {intensity} out of bounds for type {pheromone_type}")
-                intensity = max(0.01, min(intensity, phero_type.max_intensity))
+            if not np.isfinite(intensity) or intensity <= 0:
+                logger.warning(
+                    f"Pheromone intensity {intensity} out of bounds for type {pheromone_type}"
+                )
+                return False
+            if intensity > phero_type.max_intensity:
+                logger.warning(
+                    f"Pheromone intensity {intensity} capped for type {pheromone_type}"
+                )
+                intensity = phero_type.max_intensity
 
             # Create deposit record
             deposit = PheromoneDeposit(
@@ -350,7 +378,7 @@ class PheromoneSystem:
                 intensity=intensity,
                 location=location.copy(),
                 timestamp=datetime.now(),
-                metadata=metadata or {}
+                metadata=metadata or {},
             )
 
             # Update pheromone field
@@ -360,38 +388,40 @@ class PheromoneSystem:
             if self.spatial_indexer:
                 try:
                     cell_id = self.spatial_indexer.latlng_to_cell(
-                        location[0], location[1], self.spatial_resolution
+                        location[0], location[1], self.h3_resolution
                     )
 
                     # Add to field concentration
                     current_concentration = field.concentrations.get(cell_id, 0.0)
                     new_concentration = min(
-                        current_concentration + intensity,
-                        phero_type.max_intensity
+                        current_concentration + intensity, phero_type.max_intensity
                     )
                     field.concentrations[cell_id] = new_concentration
 
                 except Exception as e:
                     logger.warning(f"Spatial indexing failed for deposit: {e}")
-                    # Fallback: add to deposits list
-                    field.deposits.append(deposit)
-            else:
-                # Fallback: add to deposits list
-                field.deposits.append(deposit)
+                    logger.warning(
+                        "Spatial indexing failed; using deposit records for queries"
+                    )
+            # Deposit records are the canonical audit trail and fallback query
+            # source even when indexed concentrations are available.
+            field.deposits.append(deposit)
 
             # Update field metadata
             field.last_update = datetime.now()
             field.update_count += 1
 
             # Update performance stats
-            self.performance_stats['deposits_total'] += 1
+            self.performance_stats["deposits_total"] += 1
 
             response_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['avg_response_time'] = (
-                self.performance_stats['avg_response_time'] + response_time
+            self.performance_stats["avg_response_time"] = (
+                self.performance_stats["avg_response_time"] + response_time
             ) / 2
 
-            logger.debug(f"Pheromone {pheromone_type} deposited by {agent_id} at {location}")
+            logger.debug(
+                f"Pheromone {pheromone_type} deposited by {agent_id} at {location}"
+            )
             return True
 
         except Exception as e:
@@ -403,7 +433,7 @@ class PheromoneSystem:
         location: np.ndarray,
         sensory_range: float,
         pheromone_types: Optional[List[str]] = None,
-        sensitivity_threshold: float = 0.01
+        sensitivity_threshold: float = 0.01,
     ) -> Dict[str, float]:
         """
         Sense pheromone concentrations around a location.
@@ -424,7 +454,9 @@ class PheromoneSystem:
             if pheromone_types is None:
                 types_to_sense = list(self.pheromone_fields.keys())
             else:
-                types_to_sense = [pt for pt in pheromone_types if pt in self.pheromone_fields]
+                types_to_sense = [
+                    pt for pt in pheromone_types if pt in self.pheromone_fields
+                ]
 
             if not types_to_sense:
                 return {}
@@ -451,9 +483,9 @@ class PheromoneSystem:
 
             # Update performance stats
             response_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['queries_total'] += 1
-            self.performance_stats['avg_response_time'] = (
-                self.performance_stats['avg_response_time'] + response_time
+            self.performance_stats["queries_total"] += 1
+            self.performance_stats["avg_response_time"] = (
+                self.performance_stats["avg_response_time"] + response_time
             ) / 2
 
             return sensed_pheromones
@@ -463,35 +495,36 @@ class PheromoneSystem:
             return {}
 
     def _apply_environmental_modifications(
-        self,
-        concentration: float,
-        pheromone_type: str,
-        location: np.ndarray
+        self, concentration: float, pheromone_type: str, location: np.ndarray
     ) -> float:
         """Apply environmental factors to pheromone concentration."""
         modified_concentration = concentration
 
         # Get pheromone type configuration
-        phero_type = next((pt for pt in self.pheromone_types if pt.name == pheromone_type), None)
+        phero_type = next(
+            (pt for pt in self.pheromone_types if pt.name == pheromone_type), None
+        )
         if not phero_type:
             return modified_concentration
 
         # Apply wind effects (directional diffusion)
-        wind_effect = self.environmental_factors.get('wind_speed', 0.0)
+        wind_effect = self.environmental_factors.get("wind_speed", 0.0)
         if wind_effect > 0:
-            wind_direction = self.environmental_factors.get('wind_direction', 0.0)  # degrees
-            # Simplified wind effect - would need more sophisticated modeling
             wind_factor = 1.0 + (wind_effect / 10.0) * phero_type.wind_sensitivity
             modified_concentration *= wind_factor
 
         # Apply temperature effects (evaporation rate)
-        temperature = self.environmental_factors.get('temperature', 20.0)
-        temp_factor = 1.0 + ((temperature - 20.0) / 20.0) * phero_type.temperature_sensitivity
+        temperature = self.environmental_factors.get("temperature", 20.0)
+        temp_factor = (
+            1.0 + ((temperature - 20.0) / 20.0) * phero_type.temperature_sensitivity
+        )
         modified_concentration *= temp_factor
 
         # Apply humidity effects (persistence)
-        humidity = self.environmental_factors.get('humidity', 50.0)
-        humidity_factor = 1.0 + ((humidity - 50.0) / 50.0) * phero_type.humidity_sensitivity
+        humidity = self.environmental_factors.get("humidity", 50.0)
+        humidity_factor = (
+            1.0 + ((humidity - 50.0) / 50.0) * phero_type.humidity_sensitivity
+        )
         modified_concentration *= humidity_factor
 
         return max(modified_concentration, 0.0)
@@ -500,7 +533,7 @@ class PheromoneSystem:
         self,
         time_step: float,
         environmental_conditions: Optional[Dict[str, Any]] = None,
-        spatial_barriers: Optional[Dict[str, Any]] = None
+        spatial_barriers: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Dict[str, Any]]:
         """
         Update pheromone diffusion and evaporation across all fields.
@@ -515,6 +548,8 @@ class PheromoneSystem:
         """
         start_time = datetime.now()
 
+        if not np.isfinite(time_step) or time_step < 0:
+            raise ValueError("time_step must be a finite non-negative number")
         try:
             # Update environmental factors
             if environmental_conditions:
@@ -531,7 +566,9 @@ class PheromoneSystem:
 
                 # Apply diffusion if rate > 0
                 if phero_type.diffusion_rate > 0:
-                    await self._apply_diffusion(field, phero_type, time_step, spatial_barriers)
+                    await self._apply_diffusion(
+                        field, phero_type, time_step, spatial_barriers
+                    )
 
                 # Update field metadata
                 field.last_update = datetime.now()
@@ -539,28 +576,40 @@ class PheromoneSystem:
 
                 # Record summary
                 diffusion_summary[phero_type.name] = {
-                    'cells_updated': len(field.concentrations),
-                    'total_deposits': len(field.deposits),
-                    'max_concentration': max(field.concentrations.values()) if field.concentrations else 0.0,
-                    'avg_concentration': np.mean(list(field.concentrations.values())) if field.concentrations else 0.0
+                    "cells_updated": len(field.concentrations),
+                    "total_deposits": len(field.deposits),
+                    "max_concentration": (
+                        max(field.concentrations.values())
+                        if field.concentrations
+                        else 0.0
+                    ),
+                    "avg_concentration": (
+                        np.mean(list(field.concentrations.values()))
+                        if field.concentrations
+                        else 0.0
+                    ),
                 }
 
             # Update performance stats
-            self.performance_stats['updates_total'] += 1
+            self.performance_stats["updates_total"] += 1
 
             response_time = (datetime.now() - start_time).total_seconds()
-            self.performance_stats['avg_response_time'] = (
-                self.performance_stats['avg_response_time'] + response_time
+            self.performance_stats["avg_response_time"] = (
+                self.performance_stats["avg_response_time"] + response_time
             ) / 2
 
-            logger.debug(f"Pheromone diffusion completed for {len(self.pheromone_types)} types")
+            logger.debug(
+                f"Pheromone diffusion completed for {len(self.pheromone_types)} types"
+            )
             return diffusion_summary
 
         except Exception as e:
             logger.error(f"Failed to diffuse pheromones: {e}")
             return {}
 
-    async def _apply_evaporation(self, field: PheromoneField, phero_type: PheromoneType, time_step: float) -> None:
+    async def _apply_evaporation(
+        self, field: PheromoneField, phero_type: PheromoneType, time_step: float
+    ) -> None:
         """Apply evaporation to pheromone field."""
         # Update concentrations using spatial indexing
         if self.spatial_indexer and field.concentrations:
@@ -569,10 +618,14 @@ class PheromoneSystem:
 
                 for cell_id, concentration in field.concentrations.items():
                     # Calculate evaporation
-                    evaporation = concentration * phero_type.evaporation_rate * (time_step / 60.0)  # per minute
+                    evaporation = (
+                        concentration * phero_type.evaporation_rate * (time_step / 60.0)
+                    )  # per minute
 
                     # Apply environmental modifications
-                    env_factor = self._calculate_environmental_evaporation_factor(phero_type)
+                    env_factor = self._calculate_environmental_evaporation_factor(
+                        phero_type
+                    )
                     evaporation *= env_factor
 
                     # Update concentration
@@ -583,51 +636,71 @@ class PheromoneSystem:
                     else:
                         field.concentrations[cell_id] = new_concentration
 
+                # Keep the deposit audit trail in sync with indexed fields.
+                self._evaporate_deposits(field, phero_type, time_step)
+
                 # Remove depleted cells
                 for cell_id in cells_to_remove:
                     del field.concentrations[cell_id]
 
             except Exception as e:
                 logger.warning(f"Spatial evaporation failed: {e}")
-                # Fallback: evaporate deposits
+                # Apply the deposit-based evaporation path.
                 self._evaporate_deposits(field, phero_type, time_step)
         else:
-            # Fallback: evaporate deposits
+            # Apply the deposit-based evaporation path.
             self._evaporate_deposits(field, phero_type, time_step)
 
-    def _evaporate_deposits(self, field: PheromoneField, phero_type: PheromoneType, time_step: float) -> None:
-        """Evaporate pheromone deposits (fallback method)."""
+    def _evaporate_deposits(
+        self, field: PheromoneField, phero_type: PheromoneType, time_step: float
+    ) -> None:
+        """Evaporate pheromone deposits."""
         if not field.deposits:
             return
 
         env_factor = self._calculate_environmental_evaporation_factor(phero_type)
+        decay = math.exp(-phero_type.evaporation_rate * env_factor * (time_step / 60.0))
 
         # Remove old deposits beyond persistence time
         current_time = datetime.now()
         max_age = timedelta(seconds=phero_type.persistence_time)
 
-        field.deposits = [
-            deposit for deposit in field.deposits
-            if (current_time - deposit.timestamp) <= max_age
-        ]
+        retained = []
+        for deposit in field.deposits:
+            deposit.intensity *= decay
+            if (
+                current_time - deposit.timestamp
+            ) <= max_age and deposit.intensity >= phero_type.min_intensity:
+                retained.append(deposit)
+        field.deposits = retained
 
-    def _calculate_environmental_evaporation_factor(self, phero_type: PheromoneType) -> float:
+    def _calculate_environmental_evaporation_factor(
+        self, phero_type: PheromoneType
+    ) -> float:
         """Calculate environmental factor for evaporation."""
         factor = 1.0
 
         # Temperature effect
-        temperature = self.environmental_factors.get('temperature', 20.0)
+        temperature = self.environmental_factors.get("temperature", 20.0)
         if temperature > 25:
-            factor *= 1.0 + ((temperature - 25) / 25.0) * phero_type.temperature_sensitivity
+            factor *= (
+                1.0 + ((temperature - 25) / 25.0) * phero_type.temperature_sensitivity
+            )
 
         # Humidity effect
-        humidity = self.environmental_factors.get('humidity', 50.0)
+        humidity = self.environmental_factors.get("humidity", 50.0)
         if humidity < 40:
             factor *= 1.0 + ((40 - humidity) / 40.0) * phero_type.humidity_sensitivity
 
         return factor
 
-    async def _apply_diffusion(self, field: PheromoneField, phero_type: PheromoneType, time_step: float, barriers: Optional[Dict[str, Any]] = None) -> None:
+    async def _apply_diffusion(
+        self,
+        field: PheromoneField,
+        phero_type: PheromoneType,
+        time_step: float,
+        barriers: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Apply spatial diffusion to pheromone field."""
         if not self.spatial_indexer or not field.concentrations:
             return
@@ -635,14 +708,16 @@ class PheromoneSystem:
         try:
             # Get all cells with pheromone
             active_cells = list(field.concentrations.keys())
+            if not active_cells:
+                return
 
-            if len(active_cells) < 2:
-                return  # Need at least 2 cells for diffusion
-
-            # For each cell, diffuse to neighbors
-            diffusion_updates = {}
+            # Transfer mass out of each source and distribute it to neighbors.
+            next_concentrations = dict(field.concentrations)
+            blocked_cells = set((barriers or {}).get("blocked_cells", []))
 
             for cell_id in active_cells:
+                if cell_id in blocked_cells:
+                    continue
                 concentration = field.concentrations[cell_id]
 
                 # Get neighboring cells
@@ -651,30 +726,38 @@ class PheromoneSystem:
                 if not neighbors:
                     continue
 
-                # Calculate diffusion to each neighbor
-                diffusion_amount = concentration * phero_type.diffusion_rate * (time_step / 60.0)
-
-                for neighbor_id in neighbors:
-                    if neighbor_id not in diffusion_updates:
-                        diffusion_updates[neighbor_id] = 0.0
-
-                    diffusion_updates[neighbor_id] += diffusion_amount / len(neighbors)
-
-            # Apply diffusion updates
-            for cell_id, diffusion_amount in diffusion_updates.items():
-                current_concentration = field.concentrations.get(cell_id, 0.0)
-                new_concentration = min(
-                    current_concentration + diffusion_amount,
-                    phero_type.max_intensity
+                neighbors = [
+                    neighbor for neighbor in neighbors if neighbor not in blocked_cells
+                ]
+                if not neighbors:
+                    continue
+                diffusion_amount = min(
+                    concentration,
+                    concentration * phero_type.diffusion_rate * (time_step / 60.0),
+                )
+                next_concentrations[cell_id] = max(
+                    0.0, next_concentrations[cell_id] - diffusion_amount
                 )
 
-                if new_concentration >= phero_type.min_intensity:
-                    field.concentrations[cell_id] = new_concentration
+                for neighbor_id in neighbors:
+                    current = next_concentrations.get(neighbor_id, 0.0)
+                    next_concentrations[neighbor_id] = min(
+                        current + diffusion_amount / len(neighbors),
+                        phero_type.max_intensity,
+                    )
+
+            field.concentrations = {
+                cell_id: concentration
+                for cell_id, concentration in next_concentrations.items()
+                if concentration >= phero_type.min_intensity
+            }
 
         except Exception as e:
             logger.warning(f"Spatial diffusion failed: {e}")
 
-    def get_pheromone_intensity(self, location: np.ndarray, pheromone_type: str) -> float:
+    def get_pheromone_intensity(
+        self, location: np.ndarray, pheromone_type: str
+    ) -> float:
         """
         Get pheromone intensity at specific location.
 
@@ -691,7 +774,9 @@ class PheromoneSystem:
         field = self.pheromone_fields[pheromone_type]
         return field.get_concentration(location)
 
-    def get_pheromone_gradient(self, location: np.ndarray, pheromone_type: str, radius: float = 100.0) -> Tuple[float, np.ndarray]:
+    def get_pheromone_gradient(
+        self, location: np.ndarray, pheromone_type: str, radius: float = 100.0
+    ) -> Tuple[float, np.ndarray]:
         """
         Get pheromone gradient (intensity and direction) at location.
 
@@ -709,15 +794,19 @@ class PheromoneSystem:
         try:
             # Sample multiple points around location
             n_samples = 8
-            angles = np.linspace(0, 2*np.pi, n_samples, endpoint=False)
+            angles = np.linspace(0, 2 * np.pi, n_samples, endpoint=False)
 
             gradients = []
             for angle in angles:
                 # Sample point at radius distance
-                sample_location = location + radius * np.array([np.cos(angle), np.sin(angle)])
+                sample_location = location + radius * np.array(
+                    [np.cos(angle), np.sin(angle)]
+                )
 
                 # Get intensity at sample point
-                intensity = self.get_pheromone_intensity(sample_location, pheromone_type)
+                intensity = self.get_pheromone_intensity(
+                    sample_location, pheromone_type
+                )
                 gradients.append(intensity)
 
             # Calculate gradient magnitude
@@ -735,7 +824,12 @@ class PheromoneSystem:
             logger.warning(f"Failed to calculate pheromone gradient: {e}")
             return 0.0, np.array([0.0, 0.0])
 
-    def find_strongest_trail(self, start_location: np.ndarray, pheromone_type: str = 'trail', search_radius: float = 1000.0) -> Optional[Dict[str, Any]]:
+    def find_strongest_trail(
+        self,
+        start_location: np.ndarray,
+        pheromone_type: str = "trail",
+        search_radius: float = 1000.0,
+    ) -> Optional[Dict[str, Any]]:
         """
         Find the strongest pheromone trail within search radius.
 
@@ -760,20 +854,23 @@ class PheromoneSystem:
                     hotspots = self.spatial_analytics.find_hotspots(
                         concentration_field=field.concentrations,
                         min_intensity=0.1,
-                        max_results=5
+                        max_results=5,
                     )
 
                     if hotspots:
                         # Return closest hotspot
-                        closest_hotspot = min(hotspots, key=lambda h: np.linalg.norm(
-                            np.array(h['center']) - start_location
-                        ))
+                        closest_hotspot = min(
+                            hotspots,
+                            key=lambda h: np.linalg.norm(
+                                np.array(h["center"]) - start_location
+                            ),
+                        )
                         return closest_hotspot
 
                 except Exception as e:
                     logger.warning(f"Spatial analytics search failed: {e}")
 
-            # Fallback: search through deposits
+            # Search recorded deposits when no indexed cell is available.
             if field.deposits:
                 # Find deposits within range
                 nearby_deposits = []
@@ -784,13 +881,15 @@ class PheromoneSystem:
 
                 if nearby_deposits:
                     # Return strongest nearby deposit
-                    strongest_deposit, distance = max(nearby_deposits, key=lambda x: x[0].intensity)
+                    strongest_deposit, distance = max(
+                        nearby_deposits, key=lambda x: x[0].intensity
+                    )
                     return {
-                        'location': strongest_deposit.location,
-                        'intensity': strongest_deposit.intensity,
-                        'distance': distance,
-                        'timestamp': strongest_deposit.timestamp,
-                        'agent_id': strongest_deposit.agent_id
+                        "location": strongest_deposit.location,
+                        "intensity": strongest_deposit.intensity,
+                        "distance": distance,
+                        "timestamp": strongest_deposit.timestamp,
+                        "agent_id": strongest_deposit.agent_id,
                     }
 
             return None
@@ -815,38 +914,44 @@ class PheromoneSystem:
         field = self.pheromone_fields[pheromone_type]
 
         stats = {
-            'pheromone_type': pheromone_type,
-            'total_deposits': len(field.deposits),
-            'active_cells': len(field.concentrations) or len(field.deposits),
-            'last_update': field.last_update.isoformat(),
-            'update_count': field.update_count
+            "pheromone_type": pheromone_type,
+            "total_deposits": len(field.deposits),
+            "active_cells": len(field.concentrations) or len(field.deposits),
+            "last_update": field.last_update.isoformat(),
+            "update_count": field.update_count,
         }
 
         if field.concentrations:
             concentrations = list(field.concentrations.values())
-            stats.update({
-                'max_concentration': np.max(concentrations),
-                'min_concentration': np.min(concentrations),
-                'avg_concentration': np.mean(concentrations),
-                'std_concentration': np.std(concentrations)
-            })
+            stats.update(
+                {
+                    "max_concentration": np.max(concentrations),
+                    "min_concentration": np.min(concentrations),
+                    "avg_concentration": np.mean(concentrations),
+                    "std_concentration": np.std(concentrations),
+                }
+            )
         elif field.deposits:
             # No spatial indexing available — derive concentration stats from raw deposits
             intensities = [d.intensity for d in field.deposits]
-            stats.update({
-                'max_concentration': np.max(intensities),
-                'min_concentration': np.min(intensities),
-                'avg_concentration': np.mean(intensities),
-                'std_concentration': np.std(intensities)
-            })
+            stats.update(
+                {
+                    "max_concentration": np.max(intensities),
+                    "min_concentration": np.min(intensities),
+                    "avg_concentration": np.mean(intensities),
+                    "std_concentration": np.std(intensities),
+                }
+            )
 
         if field.deposits:
             intensities = [d.intensity for d in field.deposits]
-            stats.update({
-                'max_deposit': np.max(intensities),
-                'min_deposit': np.min(intensities),
-                'avg_deposit': np.mean(intensities)
-            })
+            stats.update(
+                {
+                    "max_deposit": np.max(intensities),
+                    "min_deposit": np.min(intensities),
+                    "avg_deposit": np.mean(intensities),
+                }
+            )
 
         return stats
 
@@ -882,31 +987,31 @@ class PheromoneSystem:
             import json
 
             data = {
-                'pheromone_types': [pt.name for pt in self.pheromone_types],
-                'spatial_resolution': self.spatial_resolution,
-                'bounds': self.bounds,
-                'environmental_factors': self.environmental_factors,
-                'fields': {}
+                "pheromone_types": [pt.name for pt in self.pheromone_types],
+                "spatial_resolution": self.spatial_resolution,
+                "bounds": self.bounds,
+                "environmental_factors": self.environmental_factors,
+                "fields": {},
             }
 
             for phero_type, field in self.pheromone_fields.items():
-                data['fields'][phero_type] = {
-                    'concentrations': field.concentrations,
-                    'deposits': [
+                data["fields"][phero_type] = {
+                    "concentrations": field.concentrations,
+                    "deposits": [
                         {
-                            'agent_id': d.agent_id,
-                            'intensity': d.intensity,
-                            'location': d.location.tolist(),
-                            'timestamp': d.timestamp.isoformat(),
-                            'metadata': d.metadata
+                            "agent_id": d.agent_id,
+                            "intensity": d.intensity,
+                            "location": d.location.tolist(),
+                            "timestamp": d.timestamp.isoformat(),
+                            "metadata": d.metadata,
                         }
                         for d in field.deposits
                     ],
-                    'last_update': field.last_update.isoformat(),
-                    'update_count': field.update_count
+                    "last_update": field.last_update.isoformat(),
+                    "update_count": field.update_count,
                 }
 
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(data, f, indent=2)
 
             logger.info(f"Pheromone fields saved to {filepath}")
@@ -921,33 +1026,35 @@ class PheromoneSystem:
         try:
             import json
 
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 data = json.load(f)
 
             # Restore pheromone fields
-            for phero_type, field_data in data['fields'].items():
+            for phero_type, field_data in data["fields"].items():
                 if phero_type in self.pheromone_fields:
                     field = self.pheromone_fields[phero_type]
 
                     # Restore concentrations
-                    field.concentrations = field_data['concentrations']
+                    field.concentrations = field_data["concentrations"]
 
                     # Restore deposits
                     field.deposits = [
                         PheromoneDeposit(
-                            agent_id=d['agent_id'],
+                            agent_id=d["agent_id"],
                             pheromone_type=phero_type,
-                            intensity=d['intensity'],
-                            location=np.array(d['location']),
-                            timestamp=datetime.fromisoformat(d['timestamp']),
-                            metadata=d['metadata']
+                            intensity=d["intensity"],
+                            location=np.array(d["location"]),
+                            timestamp=datetime.fromisoformat(d["timestamp"]),
+                            metadata=d["metadata"],
                         )
-                        for d in field_data['deposits']
+                        for d in field_data["deposits"]
                     ]
 
                     # Restore metadata
-                    field.last_update = datetime.fromisoformat(field_data['last_update'])
-                    field.update_count = field_data['update_count']
+                    field.last_update = datetime.fromisoformat(
+                        field_data["last_update"]
+                    )
+                    field.update_count = field_data["update_count"]
 
             logger.info(f"Pheromone fields loaded from {filepath}")
             return True

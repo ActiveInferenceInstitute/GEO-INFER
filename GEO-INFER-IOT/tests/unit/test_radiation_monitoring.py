@@ -1,6 +1,7 @@
 """Tests for the RadiationMonitoringSystem."""
+
 import pytest
-import asyncio
+from datetime import datetime, timezone
 
 from geo_infer_iot.core.ingestion import RadiationMonitoringSystem
 
@@ -8,11 +9,9 @@ from geo_infer_iot.core.ingestion import RadiationMonitoringSystem
 @pytest.fixture
 def rad_config():
     return {
-        "simulation": {
-            "sensor_count": 20,
+        "radiation_baseline": {
             "background_radiation": 0.1,
             "noise_level": 0.02,
-            "anomalies": {"locations": [{"lat": 37.0, "lon": 140.0, "intensity": 50.0}]},
         },
         "quality_control": {
             "sensor_validation": {
@@ -20,12 +19,14 @@ def rad_config():
                 "max_radiation": 100.0,
             }
         },
-        "anomaly_detection": {
-            "statistical": {"threshold_mild": 2.0}
-        },
+        "anomaly_detection": {"statistical": {"threshold_mild": 2.0}},
         "spatial": {"h3_resolution": 5},
         "bayesian_inference": {
-            "covariance": {"function": "matern_52", "length_scale": 50000, "noise_variance": 0.01},
+            "covariance": {
+                "function": "matern_52",
+                "length_scale": 50000,
+                "noise_variance": 0.01,
+            },
             "confidence_levels": [0.68, 0.95],
         },
     }
@@ -36,9 +37,21 @@ class TestRadiationMonitoringSystem:
         system = RadiationMonitoringSystem(rad_config)
         assert system.metrics["measurements_processed"] == 0
 
-    def test_generate_simulated_data(self, rad_config):
+    def test_process_empirical_measurements(self, rad_config):
         system = RadiationMonitoringSystem(rad_config)
-        data = system.generate_simulated_data(sensor_count=10)
+        timestamp = datetime.now(timezone.utc).isoformat()
+        data = [
+            {
+                "sensor_id": f"s-{index:03d}",
+                "timestamp": timestamp,
+                "variable": "gamma_radiation",
+                "value": 0.1 + index * 0.001,
+                "unit": "uSv/h",
+                "latitude": 37.7 + index * 0.001,
+                "longitude": -122.4 - index * 0.001,
+            }
+            for index in range(10)
+        ]
         assert len(data) == 10
         for m in data:
             assert "sensor_id" in m

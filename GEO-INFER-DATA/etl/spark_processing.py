@@ -6,9 +6,10 @@ geospatial data processing and distributed ETL operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
-
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+import asyncio
+import time
+from pathlib import Path
+from typing import Dict, List, Optional, Any
 
 
 logger = logging.getLogger(__name__)
@@ -43,8 +44,8 @@ class SparkETLProcessor:
     def __init__(
         self,
         spark_config: Optional[Dict[str, Any]] = None,
-        master: str = 'local[*]',
-        app_name: str = 'geo_infer_data_etl'
+        master: str = "local[*]",
+        app_name: str = "geo_infer_data_etl",
     ):
         self.spark_config = spark_config or {}
         self.master = master
@@ -59,19 +60,20 @@ class SparkETLProcessor:
     def _initialize_spark(self):
         """Initialize Spark session."""
         try:
-            # Mock implementation - would use pyspark
-            logger.info(f"Initializing Spark session: {self.app_name}")
-            logger.info(f"Spark master: {self.master}")
-            logger.info(f"Spark config: {self.spark_config}")
-        except Exception as e:
-            logger.error(f"Failed to initialize Spark: {e}")
+            from pyspark.sql import SparkSession
+        except ImportError as exc:
+            raise RuntimeError(
+                "SparkETLProcessor requires pyspark; install the Spark extra before use"
+            ) from exc
+
+        builder = SparkSession.builder.master(self.master).appName(self.app_name)
+        for key, value in self.spark_config.items():
+            builder = builder.config(key, value)
+        self.spark_session = builder.getOrCreate()
+        logger.info(f"Initialized Spark session: {self.app_name}")
 
     async def process_large_dataset(
-        self,
-        input_path: str,
-        transformations: List[str],
-        output_path: str,
-        **kwargs
+        self, input_path: str, transformations: List[str], output_path: str, **kwargs
     ) -> Dict[str, Any]:
         """
         Process large dataset using Apache Spark.
@@ -85,18 +87,63 @@ class SparkETLProcessor:
         Returns:
             Processing results and metrics
         """
-        logger.info(f"Processing large dataset: {input_path}")
+        if not transformations:
+            raise ValueError("transformations must contain at least one operation")
+        started = time.perf_counter()
 
-        # Mock implementation
+        def process() -> Dict[str, Any]:
+            suffix = Path(input_path).suffix.lower()
+            reader = self.spark_session.read
+            if suffix == ".csv":
+                frame = (
+                    reader.option("header", True)
+                    .option("inferSchema", True)
+                    .csv(input_path)
+                )
+            elif suffix in {".json", ".geojson"}:
+                frame = reader.json(input_path)
+            elif suffix == ".parquet":
+                frame = reader.parquet(input_path)
+            else:
+                raise ValueError(
+                    f"Unsupported Spark input format: {suffix or input_path}"
+                )
+
+            for transformation in transformations:
+                if transformation == "clean":
+                    frame = frame.dropna()
+                elif transformation == "deduplicate":
+                    frame = frame.dropDuplicates()
+                elif transformation == "aggregate":
+                    group_by = kwargs.get("group_by")
+                    aggregations = kwargs.get("aggregations")
+                    if not group_by or not aggregations:
+                        raise ValueError("aggregate requires group_by and aggregations")
+                    frame = frame.groupBy(*group_by).agg(*aggregations)
+                elif transformation == "spatial_join":
+                    raise RuntimeError(
+                        "spatial_join requires an explicit Spark geospatial extension"
+                    )
+                else:
+                    raise ValueError(
+                        f"Unsupported Spark transformation: {transformation}"
+                    )
+
+            frame.write.mode(kwargs.get("write_mode", "overwrite")).parquet(output_path)
+            return {"records_processed": frame.count(), "columns": frame.columns}
+
+        metrics = await asyncio.to_thread(process)
         result = {
-            'input_path': input_path,
-            'output_path': output_path,
-            'transformations_applied': transformations,
-            'records_processed': 1000000,
-            'processing_time': 120.5,
-            'optimization_applied': True,
-            'status': 'completed'
+            "input_path": input_path,
+            "output_path": output_path,
+            "transformations_applied": transformations,
+            **metrics,
+            "processing_time": time.perf_counter() - started,
+            "optimization_applied": bool(self.spark_config),
+            "status": "completed",
         }
 
-        logger.info(f"Dataset processing completed: {result['records_processed']} records")
+        logger.info(
+            f"Dataset processing completed: {result['records_processed']} records"
+        )
         return result

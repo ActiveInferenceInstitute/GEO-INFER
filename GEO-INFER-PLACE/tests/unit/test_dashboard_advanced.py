@@ -19,44 +19,60 @@ except ImportError:
 
 
 class TestClimateAnalyzer:
+    @staticmethod
+    def _data():
+        return {
+            "historical": {"years": [2020], "temperature": [12.0]},
+            "projections": {"scenario": {"years": [2050], "temperature": [13.0]}},
+            "risk_indicators": {"fire_weather_risk": 0.4},
+        }
+
     def test_init(self, temp_output_dir):
-        analyzer = ClimateAnalyzer()
+        analyzer = ClimateAnalyzer(data=self._data())
         assert analyzer is not None
 
     def test_run_analysis_returns_dict(self, temp_output_dir):
-        analyzer = ClimateAnalyzer()
+        analyzer = ClimateAnalyzer(data=self._data())
         result = analyzer.run_analysis()
         assert isinstance(result, dict)
 
     def test_climate_zones_present(self, temp_output_dir):
-        analyzer = ClimateAnalyzer()
+        analyzer = ClimateAnalyzer(data=self._data())
         result = analyzer.run_analysis()
-        assert "climate_zones" in result or isinstance(result, dict)
+        assert "risk_indicators" in result
 
 
 class TestZoningAnalyzer:
+    @staticmethod
+    def _data():
+        return {"zoning_breakdown": {"forest": {"acres": 100, "color": "green"}}}
+
     def test_init(self, temp_output_dir):
-        analyzer = ZoningAnalyzer()
+        analyzer = ZoningAnalyzer(data=self._data())
         assert analyzer is not None
 
     def test_run_analysis_returns_dict(self, temp_output_dir):
-        analyzer = ZoningAnalyzer()
+        analyzer = ZoningAnalyzer(data=self._data())
         result = analyzer.run_analysis()
         assert isinstance(result, dict)
 
     def test_zone_breakdown_present(self, temp_output_dir):
-        analyzer = ZoningAnalyzer()
+        analyzer = ZoningAnalyzer(data=self._data())
         result = analyzer.run_analysis()
-        assert "zone_breakdown" in result or isinstance(result, dict)
+        assert "zone_breakdown" in result
 
 
 class TestAgroEconomicAnalyzer:
+    @staticmethod
+    def _data():
+        return {"sector_analysis": {"forestry": {"employment": 10, "revenue": 100}}}
+
     def test_init(self, temp_output_dir):
-        analyzer = AgroEconomicAnalyzer()
+        analyzer = AgroEconomicAnalyzer(data=self._data())
         assert analyzer is not None
 
     def test_run_analysis_returns_dict(self, temp_output_dir):
-        analyzer = AgroEconomicAnalyzer()
+        analyzer = AgroEconomicAnalyzer(data=self._data())
         result = analyzer.run_analysis()
         assert isinstance(result, dict)
 

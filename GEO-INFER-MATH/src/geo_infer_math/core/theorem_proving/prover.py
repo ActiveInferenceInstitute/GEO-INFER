@@ -70,31 +70,16 @@ class TheoremProver:
                 self._prover = None
 
         elif self.backend == "isabelle":
-            try:
-                # Isabelle integration would go here
-                logger.warning("Isabelle backend not yet implemented, using numpy")
-                self.backend = "numpy"
-                self._prover = None
-            except Exception as e:
-                logger.warning(f"Isabelle backend failed: {e}, using numpy")
-                self.backend = "numpy"
-                self._prover = None
+            raise ValueError("The Isabelle backend is unavailable; select z3 or numpy")
 
         elif self.backend == "lean":
-            try:
-                # Lean integration would go here
-                logger.warning("Lean backend not yet implemented, using numpy")
-                self.backend = "numpy"
-                self._prover = None
-            except Exception as e:
-                logger.warning(f"Lean backend failed: {e}, using numpy")
-                self.backend = "numpy"
-                self._prover = None
+            raise ValueError("The Lean backend is unavailable; select z3 or numpy")
 
-        else:
-            # Numpy backend (fallback)
+        elif self.backend == "numpy":
             self._prover = None
             logger.info("Using numpy-based theorem prover (limited capabilities)")
+        else:
+            raise ValueError(f"Unsupported theorem prover backend: {self.backend}")
 
     def prove(
         self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs

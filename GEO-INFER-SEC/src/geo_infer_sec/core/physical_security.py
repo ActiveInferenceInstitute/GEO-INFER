@@ -306,7 +306,8 @@ class PhysicalSecurityManager:
             else:  # Crosses midnight
                 return current_time_only >= start_time or current_time_only <= end_time
         except Exception:
-            return True  # Default to allow if configuration is invalid
+            self.logger.error("Access-hours configuration is invalid; denying access")
+            return False
 
     # Surveillance Management
     def add_surveillance_device(self, device: SurveillanceDevice) -> bool:

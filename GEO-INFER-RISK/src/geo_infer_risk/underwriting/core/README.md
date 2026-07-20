@@ -24,7 +24,6 @@ Core workspace within `GEO-INFER-RISK`.
 - `claims_processing.py:ClaimsProcessor` (class)
 - `claims_processing.py:ClaimsEngine` (class)
 - `claims_processing.py:create_claims_processor` (function)
-- `claims_processing.py:create_sample_claim` (function)
 - `policy_management.py:PolicyStatus` (class)
 - `policy_management.py:CoverageType` (class)
 - `policy_management.py:Coverage` (class)
@@ -33,8 +32,9 @@ Core workspace within `GEO-INFER-RISK`.
 - `policy_management.py:PolicyLifecycle` (class)
 - `policy_management.py:PolicyManager` (class)
 - `policy_management.py:create_policy_manager` (function)
-- `policy_management.py:create_sample_policy` (function)
 - `portfolio_management.py:PortfolioManager` (class)
+- `portfolio_management.py:PortfolioOptimizer` (class)
+- `pricing_engine.py:PricingMethod` (class)
 
 ## Module Metadata
 

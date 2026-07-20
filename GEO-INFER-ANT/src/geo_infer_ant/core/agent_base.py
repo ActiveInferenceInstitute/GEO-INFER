@@ -11,22 +11,12 @@ import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from dataclasses import dataclass, field
-from abc import ABC
 
-# Integration imports
-try:
-    from geo_infer_act.core.active_inference import ActiveInferenceModel
-    from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-    from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-    from geo_infer_agent.core.agent_base import BaseAgent, AgentState
-except ImportError as e:
-    logging.warning(f"Integration modules not available: {e}")
-    # Fallback for standalone operation
-    ActiveInferenceModel = None
-    SpatialIndexingInterface = None
-    SpatialAnalyticsInterface = None
-    BaseAgent = object
-    AgentState = object
+# Integration components are required workspace dependencies.
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+from geo_infer_agent.core.agent_base import BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +135,7 @@ class ActionDecision:
         }
 
 
-class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
+class SwarmAgent(BaseAgent):
     """
     Base class for swarm intelligence agents.
 
@@ -185,19 +175,16 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         """
         # Validate inputs
         position_arr = np.array(position, dtype=np.float64)
-        if position_arr.size == 0:
-            raise ValueError("Agent position cannot be empty")
-        if sensory_range < 0:
+        if position_arr.shape != (2,) or not np.all(np.isfinite(position_arr)):
+            raise ValueError(
+                "Agent position must be a finite [latitude, longitude] pair"
+            )
+        if sensory_range < 0 or not np.isfinite(sensory_range):
             raise ValueError("sensory_range must be non-negative")
+        if movement_speed < 0 or not np.isfinite(movement_speed):
+            raise ValueError("movement_speed must be finite and non-negative")
 
-        # Initialize base agent (fallback if BaseAgent not available)
-        if BaseAgent is not object:
-            super().__init__(agent_id, kwargs)
-        else:
-            self.agent_id = agent_id
-            self.config = kwargs
-            self.state = AgentState()
-            self.running = False
+        super().__init__(agent_id, kwargs)
 
         # Swarm-specific attributes
         self.position = position_arr
@@ -211,9 +198,13 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         self.spatial_analytics = None
 
         # Agent state
-        self.energy_level = min(
-            1.0, kwargs.get("initial_energy", 1.0)
-        )  # Ensure energy <= 1.0
+        self.energy_level = max(0.0, float(kwargs.get("initial_energy", 1.0)))
+        self.rng = np.random.default_rng(kwargs.get("random_seed", kwargs.get("seed")))
+        self.spatial_bounds = kwargs.get(
+            "spatial_bounds",
+            {"min_lat": -90.0, "max_lat": 90.0, "min_lng": -180.0, "max_lng": 180.0},
+        )
+        self.pheromone_system = kwargs.get("pheromone_system")
         self.task_memory: List[Dict[str, Any]] = []
         self.social_signals: Dict[str, Any] = {}
 
@@ -471,13 +462,13 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
 
             except Exception as e:
                 logger.warning(f"Active Inference decision making failed: {e}")
-                decision = self._fallback_decision_making(
+                decision = self._rule_based_decision_making(
                     processed_data, internal_motivations, behavioral_rules
                 )
 
         else:
-            # Fallback to rule-based decision making
-            decision = self._fallback_decision_making(
+            # Use the explicit rule-based policy when Active Inference is disabled.
+            decision = self._rule_based_decision_making(
                 processed_data, internal_motivations, behavioral_rules
             )
 
@@ -571,13 +562,13 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
 
         return actions
 
-    def _fallback_decision_making(
+    def _rule_based_decision_making(
         self,
         processed_data: Dict[str, Any],
         internal_motivations: Dict[str, float],
         behavioral_rules: Optional[Dict[str, Any]] = None,
     ) -> ActionDecision:
-        """Fallback decision making when Active Inference is not available."""
+        """Select an action with the configured rule-based policy."""
         # Simple priority-based decision making
         current_energy = processed_data.get("energy_level", self.energy_level)
 
@@ -650,9 +641,23 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
             # Route to appropriate action handler
             if decision.action_type == "move_toward_resource":
                 result = await self._execute_movement_action(decision)
+            elif decision.action_type in {
+                "move_away_from_threat",
+                "explore_unknown",
+                "explore",
+            }:
+                result = await self._execute_movement_action(decision)
             elif decision.action_type == "deposit_pheromone":
                 result = await self._execute_stigmergic_action(decision)
+            elif decision.action_type == "follow_pheromone":
+                result = await self._execute_follow_pheromone_action(decision)
             elif decision.action_type == "communicate_status":
+                result = await self._execute_communication_action(decision)
+            elif decision.action_type in {
+                "communicate",
+                "request_assistance",
+                "coordinate_with_swarm",
+            }:
                 result = await self._execute_communication_action(decision)
             elif decision.action_type == "forage":
                 result = await self._execute_foraging_action(decision)
@@ -665,7 +670,7 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
 
             # Update execution result
             execution_result.update(result)
-            execution_result["success"] = True
+            execution_result["success"] = bool(result.get("success", True))
 
             # Update agent state based on execution
             self._update_agent_state(decision, execution_result)
@@ -705,25 +710,40 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         params = decision.parameters
         target = params.get("target", "default")
 
-        # Calculate new position (simplified)
-        if target == "nearest_resource":
-            # Find nearest resource and move toward it
-            new_position = self.position + np.random.normal(0, 10, 2)
-        elif target == "safe_area":
-            # Move to predefined safe area
-            new_position = self.position + np.array([10, 10])
-        elif target == "unknown_area":
-            # Move to area with high uncertainty
-            new_position = self.position + np.random.uniform(-20, 20, 2)
+        if isinstance(target, (list, tuple, np.ndarray)):
+            target_position = np.asarray(target, dtype=float)
+            if target_position.shape != self.position.shape or not np.all(
+                np.isfinite(target_position)
+            ):
+                raise ValueError("movement target must be a finite coordinate pair")
+            direction = target_position - self.position
+            norm = np.linalg.norm(direction)
+            displacement = (
+                direction / norm * min(norm, self.movement_speed)
+                if norm > 1e-12
+                else np.zeros(2)
+            )
         else:
-            # Random movement
-            new_position = self.position + np.random.normal(0, 5, 2)
+            # A named target without a supplied map target is an exploration
+            # request.  Use the private RNG and a bounded step so simulations
+            # remain reproducible and physically scaled by movement_speed.
+            direction = self.rng.normal(size=2)
+            direction /= max(np.linalg.norm(direction), 1e-12)
+            if target == "safe_area":
+                direction = np.ones(2) / np.sqrt(2)
+            elif target == "unknown_area":
+                direction = self.rng.normal(size=2)
+                direction /= max(np.linalg.norm(direction), 1e-12)
+            displacement = direction * self.movement_speed
+        new_position = self.position + displacement
 
         # Update position
         old_position = self.position.copy()
         self.position = np.clip(
-            new_position, [-180, -90], [180, 90]
-        )  # Keep within valid bounds
+            new_position,
+            [self.spatial_bounds["min_lat"], self.spatial_bounds["min_lng"]],
+            [self.spatial_bounds["max_lat"], self.spatial_bounds["max_lng"]],
+        )
 
         return {
             "old_position": old_position,
@@ -741,7 +761,19 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         pheromone_type = params.get("pheromone_type", "trail")
         intensity = params.get("intensity", 1.0)
 
-        # Record pheromone deposition (would integrate with actual pheromone system)
+        if self.pheromone_system is None:
+            return {
+                "success": False,
+                "error": "No pheromone_system is attached to this agent",
+                "energy_cost": 0.0,
+                "actual_outcome": {"pheromone_deposited": False},
+            }
+        deposited = await self.pheromone_system.deposit_pheromone(
+            agent_id=self.agent_id,
+            pheromone_type=pheromone_type,
+            location=self.position.copy(),
+            intensity=float(intensity),
+        )
         stigmergic_event = {
             "pheromone_type": pheromone_type,
             "intensity": intensity,
@@ -752,7 +784,45 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         return {
             "stigmergic_event": stigmergic_event,
             "energy_cost": 0.05,
-            "actual_outcome": {"pheromone_deposited": True},
+            "success": bool(deposited),
+            "actual_outcome": {"pheromone_deposited": bool(deposited)},
+        }
+
+    async def _execute_follow_pheromone_action(
+        self, decision: ActionDecision
+    ) -> Dict[str, Any]:
+        """Move along the strongest local pheromone gradient."""
+        if self.pheromone_system is None:
+            return {
+                "success": False,
+                "error": "No pheromone_system is attached to this agent",
+            }
+        pheromone_type = decision.parameters.get("pheromone_type", "trail")
+        magnitude, direction = self.pheromone_system.get_pheromone_gradient(
+            self.position,
+            pheromone_type,
+            radius=float(decision.parameters.get("radius", 1.0)),
+        )
+        if magnitude <= 0:
+            return {
+                "success": False,
+                "pheromone_type": pheromone_type,
+                "actual_outcome": {"gradient_found": False},
+            }
+        old_position = self.position.copy()
+        self.position = np.clip(
+            self.position + np.asarray(direction) * self.movement_speed,
+            [self.spatial_bounds["min_lat"], self.spatial_bounds["min_lng"]],
+            [self.spatial_bounds["max_lat"], self.spatial_bounds["max_lng"]],
+        )
+        return {
+            "success": True,
+            "old_position": old_position,
+            "new_position": self.position.copy(),
+            "distance_moved": float(np.linalg.norm(self.position - old_position)),
+            "pheromone_type": pheromone_type,
+            "energy_cost": 0.05,
+            "actual_outcome": {"gradient_found": True},
         }
 
     async def _execute_communication_action(
@@ -788,9 +858,10 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         params = decision.parameters
         target_type = params.get("target_type", "food")
 
-        # Simulate foraging success
-        success_probability = 0.7
-        success = np.random.random() < success_probability
+        success_probability = float(params.get("success_probability", 0.7))
+        if not 0 <= success_probability <= 1:
+            raise ValueError("success_probability must be between 0 and 1")
+        success = bool(self.rng.random() < success_probability)
 
         energy_gain = 0.3 if success else 0.0
         self.energy_level = min(1.0, self.energy_level + energy_gain)
@@ -832,11 +903,11 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         readings = {}
         for sensor in sensor_types:
             if sensor == "temperature":
-                readings["temperature"] = np.random.normal(20, 5)
+                readings["temperature"] = self.rng.normal(20, 5)
             elif sensor == "humidity":
-                readings["humidity"] = np.random.uniform(30, 80)
+                readings["humidity"] = self.rng.uniform(30, 80)
             elif sensor == "general":
-                readings["environmental_quality"] = np.random.uniform(0.5, 1.0)
+                readings["environmental_quality"] = self.rng.uniform(0.5, 1.0)
 
         return {
             "sensor_types": sensor_types,
@@ -847,12 +918,14 @@ class SwarmAgent(BaseAgent if BaseAgent is not object else ABC):
         }
 
     async def _execute_generic_action(self, decision: ActionDecision) -> Dict[str, Any]:
-        """Execute generic actions."""
+        """Reject actions without a registered handler."""
         return {
             "action_type": decision.action_type,
             "parameters": decision.parameters,
-            "energy_cost": 0.1,
-            "actual_outcome": {"generic_action_completed": True},
+            "success": False,
+            "energy_cost": 0.0,
+            "error": f"Unsupported action type: {decision.action_type}",
+            "actual_outcome": {"generic_action_completed": False},
         }
 
     def _update_agent_state(

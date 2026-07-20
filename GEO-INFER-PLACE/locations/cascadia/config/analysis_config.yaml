@@ -26,7 +26,7 @@ analysis_settings:
       - "King"
       - "Snohomish"
       - "Whatcom"
-  
+
   active_modules:
     - zoning
     - current_use
@@ -38,13 +38,13 @@ analysis_settings:
     - power_source
     - mortgage_debt
     - ecology
-  
+
   h3_resolution: 8
   enable_spatial_analysis: true
   fusion_mode: geom_intersect  # options: geom_intersect, key_join
   enable_visualization: true
   enable_dashboard: true
-  
+
   # Enhanced logging for empirical data assessment
   logging:
     level: "INFO"
@@ -68,14 +68,13 @@ visualization:
     current_use: false
     ownership: false
     improvements: false
-  
+
   # Enhanced visualization settings for empirical data
   empirical_data_visualization:
     show_data_sources: true
     show_data_quality_indicators: true
     show_spatial_variability: true
     color_by_data_source: true
-    highlight_empirical_vs_synthetic: true
 
 spatial_analysis:
   enable_correlation_analysis: true
@@ -90,7 +89,7 @@ ecological_analysis:
   climate_zones_data: "config/cascadia_climate_zones.yaml"
   old_growth_analysis: true
   spotted_owl_critical_habitat: true
-  
+
   # Empirical data analysis settings
   empirical_analysis:
     assess_data_coverage: true
@@ -109,7 +108,7 @@ zoning:
       geometry_type: "Polygon"
   or_dlcd_service_url: "https://maps.oregon.gov/arcgis/rest/services/LandUsePlanning/Statewide_Zoning/FeatureServer/0"
   wa_king_county_service_url: "https://gisdata.kingcounty.gov/arcgis/rest/services/Planning/KingCo_Zoning/MapServer/0"
-  
+
   # Zoning classification system
   classification_mapping:
     agricultural_prime: ["PRIME_FARMLAND", "AG_PRIME", "EXCLUSIVE_FARM_USE"]
@@ -121,7 +120,7 @@ zoning:
 ownership:
   ca_parcels_service_url: "https://services.gis.ca.gov/arcgis/rest/services/Boundaries/CA_Parcels/FeatureServer/0"
   data_urls_config: "./config/data_urls.json"
-  
+
   # Ownership analysis
   analysis_settings:
     concentration_threshold: 0.7  # HHI threshold for high concentration
@@ -140,13 +139,13 @@ surface_water:
 current_use:
   nass_cdl_api_url: "https://nassgeodata.gmu.edu/CropScape/nass_data_service.php"
   land_iq_api_url: "https://www.landiq.com/api/v1/parcels"
-  
+
   # Crop analysis
   crop_categories:
     high_value: ["GRAPES", "ALMONDS", "CITRUS", "BERRIES"]
     field_crops: ["WHEAT", "CORN", "SOYBEANS", "ALFALFA"]
     specialty: ["HOPS", "LAVENDER", "HEMP", "ORGANIC"]
-  
+
   water_intensity_mapping:
     high: ["RICE", "ALFALFA", "CITRUS"]
     medium: ["WHEAT", "CORN", "VEGETABLES"]
@@ -164,7 +163,7 @@ ground_water:
 water_rights:
   ca_ewrims_csv_url: "https://data.ca.gov/datastore/dump/e87a4933-2125-4676-928d-294b22c6b44a"
   or_wrd_url: "https://apps.wrd.state.or.us/apps/wr/wrinfo/"
-  
+
   # Water rights analysis configuration
   priority_categories:
     senior: "Pre-1914 rights"
@@ -176,7 +175,7 @@ improvements:
   data_sources:
     building_footprints: "https://github.com/microsoft/BuildingFootprints"
     nass_structures: "https://www.nass.usda.gov/Research_and_Science/Cropland/sarsfaqs2.php"
-  
+
   # Infrastructure analysis
   improvement_categories:
     agricultural: ["BARN", "SILO", "GREENHOUSE", "EQUIPMENT_SHED"]
@@ -187,21 +186,21 @@ improvements:
 # SPACE integration settings
 space_integration:
 
-  
+
   spatial_processor:
     enabled: true
     buffer_distances: [500, 1000, 2000]  # meters
     correlation_threshold: 0.3
     clustering_algorithm: "DBSCAN"
     cluster_min_samples: 5
-  
+
   data_integrator:
     enabled: true
     cache_dir: "./cache"
     max_file_size_mb: 100
     compression_enabled: true
     format_validation: true
-  
+
   visualization_engine:
     enabled: true
     interactive_features: true
@@ -228,7 +227,7 @@ county_boundaries:
         format: "geojson"
         priority: 2
     geometry_file: "ca_lassen_boundary.geojson"
-    
+
     # County-specific settings
     agricultural_focus_areas:
       - "Honey Lake Valley"
@@ -260,7 +259,7 @@ county_boundaries:
         format: "geojson"
         priority: 2
     geometry_file: "ca_del_norte_boundary.geojson"
-    
+
     # County-specific settings
     agricultural_focus_areas:
       - "Smith River Valley"
@@ -282,13 +281,13 @@ quality_assurance:
     attribute_completeness: 0.8  # Minimum 80% completeness
     coordinate_system_validation: true
     outlier_detection: true
-  
+
   analysis_validation:
     cross_validation: true
     sensitivity_analysis: false
     uncertainty_quantification: false
-  
+
   reporting:
     generate_qa_report: true
     include_data_lineage: true
-    validation_metrics: true 
+    validation_metrics: true

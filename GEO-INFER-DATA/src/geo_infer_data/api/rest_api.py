@@ -21,14 +21,12 @@ from ..models.schemas import (
     DatasetSummary,
     DataQualityReport,
     HealthStatus,
-    SpatialExtent,
-    TemporalExtent,
-    DataLineage,
 )
 from ..core.ingestion import MultiSourceDataIngestion
 from ..core.storage import AdaptiveDataStorage
 from ..core.validation import DataQualityManager
 from ..core.pipeline import IntelligentETLPipeline
+from .service import DataService
 
 
 logger = logging.getLogger(__name__)
@@ -88,6 +86,7 @@ class DataAPI:
         self.pipeline_service = IntelligentETLPipeline(
             workflow_config=None, error_recovery="intelligent_retry"
         )
+        self.data_service = DataService(self.storage_service, self.quality_service)
 
         # Initialize FastAPI app
         self.app = FastAPI(
@@ -139,54 +138,46 @@ class DataAPI:
             bbox: Optional[str] = Query(None),
         ):
             """List available datasets."""
-            # Deterministic local implementation - would query actual datasets
-            datasets = []
-
-            # Calculate pagination
-            total = 100  # Synthetic total
-            start_idx = (page - 1) * limit
-            end_idx = start_idx + limit
-
-            for i in range(start_idx, min(end_idx, total)):
-                dataset = DatasetSummary(
-                    id=f"dataset_{i}",
-                    title=f"Dataset {i}",
-                    type="vector",
-                    format="geojson",
-                    bbox=[-122.5, 37.7, -122.3, 37.9],
-                    created_at=datetime.now(timezone.utc),
+            filters: Dict[str, Any] = {}
+            if data_type:
+                filters["type"] = data_type
+            if bbox:
+                filters["bbox"] = [float(value) for value in bbox.split(",")]
+            records = await self.data_service.list_datasets(
+                filters=filters, limit=limit, offset=(page - 1) * limit
+            )
+            return [
+                DatasetSummary(
+                    id=record.id,
+                    title=record.title,
+                    description=record.description,
+                    type=record.type,
+                    format=record.format,
+                    bbox=(
+                        record.metadata.spatial.bbox if record.metadata.spatial else []
+                    ),
+                    temporal_extent=record.metadata.temporal,
+                    created_at=record.created_at,
+                    updated_at=record.updated_at,
+                    tags=record.tags,
                 )
-                datasets.append(dataset)
-
-            return datasets
+                for record in records
+            ]
 
         @self.app.post("/datasets", response_model=Dataset, status_code=201)
         async def create_dataset(dataset: Dataset):
-            """Create a new dataset."""
-            # Implementation for dataset creation
-            logger.info(f"Creating dataset: {dataset.title}")
+            """Register dataset metadata that has already been stored."""
+            logger.info(f"Registering dataset: {dataset.title}")
+            self.data_service.datasets[dataset.id] = dataset
             return dataset
 
         @self.app.get("/datasets/{dataset_id}", response_model=Dataset)
         async def get_dataset(dataset_id: str = PathParam(...)):
             """Get dataset details."""
-            # Deterministic local implementation
-            return Dataset(
-                id=dataset_id,
-                title=f"Dataset {dataset_id}",
-                type="vector",
-                format="geojson",
-                metadata=DatasetMetadata(
-                    title=f"Dataset {dataset_id}",
-                    spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-                    temporal=TemporalExtent(
-                        start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-                    ),
-                    lineage=DataLineage(
-                        source="api", process="lookup", created_by="geo-infer-data"
-                    ),
-                ),
-            )
+            dataset = self.data_service.datasets.get(dataset_id)
+            if dataset is None:
+                raise HTTPException(status_code=404, detail="Dataset not found")
+            return dataset
 
         @self.app.get("/datasets/{dataset_id}/data")
         async def get_dataset_data(
@@ -195,21 +186,14 @@ class DataAPI:
             bbox: Optional[List[float]] = Query(None),
         ):
             """Get dataset data."""
-            if format == "geojson":
-                data: Any = {
-                    "type": "FeatureCollection",
-                    "features": [],
-                    "bbox": bbox,
-                }
-            elif format == "csv":
-                data = "id,geometry\n"
-            else:
-                data = {
-                    "driver": "GTiff",
-                    "bands": [],
-                    "bbox": bbox,
-                    "message": "No raster bands are stored for this dataset.",
-                }
+            if dataset_id not in self.data_service.datasets:
+                raise HTTPException(status_code=404, detail="Dataset not found")
+            try:
+                data = await self.data_service.get_dataset_data(
+                    dataset_id, spatial_bounds=bbox, format=format
+                )
+            except (KeyError, ValueError) as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
             return {"dataset_id": dataset_id, "format": format, "data": data}
 
         @self.app.post("/datasets/{dataset_id}/data")
@@ -219,23 +203,21 @@ class DataAPI:
             overwrite: bool = False,
         ):
             """Upload data to dataset."""
-            # Implementation for data upload
-            return {"dataset_id": dataset_id, "uploaded": True}
+            raise HTTPException(
+                status_code=501,
+                detail=(
+                    "Upload requires a storage-backed ingestion workflow; "
+                    "use POST /data/ingest/multi-source"
+                ),
+            )
 
         @self.app.get("/datasets/{dataset_id}/metadata", response_model=DatasetMetadata)
         async def get_dataset_metadata(dataset_id: str = PathParam(...)):
             """Get dataset metadata."""
-            # Deterministic local implementation
-            return DatasetMetadata(
-                title=f"Dataset {dataset_id}",
-                spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-                temporal=TemporalExtent(
-                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-                ),
-                lineage=DataLineage(
-                    source="api", process="metadata_lookup", created_by="geo-infer-data"
-                ),
-            )
+            dataset = self.data_service.datasets.get(dataset_id)
+            if dataset is None:
+                raise HTTPException(status_code=404, detail="Dataset not found")
+            return dataset.metadata
 
         @self.app.post("/data/ingest/multi-source")
         async def ingest_multi_source(request: Dict[str, Any]):
@@ -280,8 +262,27 @@ class DataAPI:
             tags: List[str] = Query([]),
         ):
             """Search datasets."""
-            # Implementation for dataset search
-            return {"query": q, "results": [], "total": 0}
+            records = await self.data_service.list_datasets(limit=1000)
+            if q:
+                query = q.casefold()
+                records = [
+                    record
+                    for record in records
+                    if query in record.title.casefold()
+                    or query in (record.description or "").casefold()
+                    or any(query in tag.casefold() for tag in record.tags)
+                ]
+            if data_type:
+                records = [record for record in records if record.type == data_type]
+            if tags:
+                records = [
+                    record for record in records if set(tags).issubset(record.tags)
+                ]
+            return {
+                "query": q,
+                "results": [record.model_dump(mode="json") for record in records],
+                "total": len(records),
+            }
 
         @self.app.get("/storage/backends")
         async def list_storage_backends():
@@ -292,12 +293,8 @@ class DataAPI:
         @self.app.get("/metrics")
         async def get_metrics():
             """Get API metrics."""
-            return {
-                "uptime": "1h 30m",
-                "requests_total": 1250,
-                "errors_total": 5,
-                "response_time_avg": 0.125,
-            }
+            stats = self.storage_service.get_storage_stats()
+            return {"storage": stats, "datasets": len(self.data_service.datasets)}
 
     def start(self, reload: bool = False):
         """Start the API server."""
@@ -338,6 +335,7 @@ class DatasetAPI:
     ):
         self.storage_service = storage_service
         self.quality_service = quality_service
+        self.datasets: Dict[str, Dataset] = {}
 
         logger.info("Initialized DatasetAPI")
 
@@ -365,6 +363,16 @@ class DatasetAPI:
         # Store data
         dataset_id = await self.storage_service.store_geospatial_data(data, metadata)
 
+        self.datasets[dataset_id] = Dataset(
+            id=dataset_id,
+            title=metadata.title,
+            description=metadata.description,
+            type="vector",
+            format="geojson",
+            metadata=metadata,
+        )
+        self.quality_service.register_dataset(dataset_id, data, metadata)
+
         logger.info(f"Dataset created successfully: {dataset_id}")
         return dataset_id
 
@@ -378,23 +386,7 @@ class DatasetAPI:
         Returns:
             Dataset information
         """
-        # Deterministic local implementation
-        return Dataset(
-            id=dataset_id,
-            title=f"Dataset {dataset_id}",
-            type="vector",
-            format="geojson",
-            metadata=DatasetMetadata(
-                title=f"Dataset {dataset_id}",
-                spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-                temporal=TemporalExtent(
-                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-                ),
-                lineage=DataLineage(
-                    source="api", process="lookup", created_by="geo-infer-data"
-                ),
-            ),
-        )
+        return self.datasets.get(dataset_id)
 
     async def update_dataset(self, dataset_id: str, updates: Dict[str, Any]) -> bool:
         """
@@ -409,7 +401,12 @@ class DatasetAPI:
         """
         logger.info(f"Updating dataset {dataset_id}: {updates}")
 
-        # Implementation for dataset updates
+        dataset = self.datasets.get(dataset_id)
+        if dataset is None:
+            return False
+        for field, value in updates.items():
+            if hasattr(dataset, field):
+                setattr(dataset, field, value)
         return True
 
     async def delete_dataset(self, dataset_id: str) -> bool:
@@ -424,8 +421,7 @@ class DatasetAPI:
         """
         logger.info(f"Deleting dataset: {dataset_id}")
 
-        # Implementation for dataset deletion
-        return True
+        return self.datasets.pop(dataset_id, None) is not None
 
     async def get_dataset_quality(self, dataset_id: str) -> DataQualityReport:
         """

@@ -319,12 +319,6 @@ class DataQualityReport(BaseModel):
 
     @computed_field
     @property
-    def score(self) -> float:
-        """Backward-compatible alias for the overall quality score."""
-        return self.overall_score
-
-    @computed_field
-    @property
     def status(self) -> QualityStatus:
         """Overall pass/warning/fail status derived from the quality score."""
         if self.overall_score >= 0.8:
@@ -338,10 +332,6 @@ class DataQualityReport(BaseModel):
     def issues(self) -> List[Dict[str, Any]]:
         """Flattened issues across all quality checks."""
         return [issue for check in self.checks.values() for issue in check.issues]
-
-    def __contains__(self, item: str) -> bool:
-        """Allow dictionary-style membership checks for legacy callers."""
-        return hasattr(self, item)
 
     model_config = ConfigDict(validate_assignment=True)
 

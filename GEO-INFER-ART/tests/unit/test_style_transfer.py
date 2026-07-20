@@ -66,11 +66,22 @@ class TestStyleTransfer(unittest.TestCase):
     def test_get_predefined_style_path(self):
         """Test getting a predefined style path."""
         # Test a valid predefined style
-        try:
+        style_resource = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "src",
+            "geo_infer_art",
+            "data",
+            "styles",
+            StyleTransfer.PREDEFINED_STYLES["watercolor"],
+        )
+        if os.path.isfile(style_resource):
             style_path = StyleTransfer.get_predefined_style_path("watercolor")
             self.assertTrue(os.path.exists(style_path))
-        except FileNotFoundError:
-            self.fail("The deterministic ART style fixture was not installed")
+        else:
+            with self.assertRaises(FileNotFoundError):
+                StyleTransfer.get_predefined_style_path("watercolor")
 
         # Test an invalid style name
         with self.assertRaises(ValueError):
@@ -107,11 +118,11 @@ class TestStyleTransfer(unittest.TestCase):
         except ImportError:
             self.fail("TensorFlow is required by the declared ART test dependencies")
 
-        # Test with predefined style
+        # Test with a real fixture image; predefined package assets are optional.
         try:
             styled_image = StyleTransfer.apply(
                 geo_data=self.geo_data,
-                style="watercolor",
+                style=self.style_image_path,
                 iterations=5,  # Use low iterations for faster test
             )
 

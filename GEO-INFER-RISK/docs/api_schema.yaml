@@ -425,12 +425,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/DataUploadResponse'
 
-  # Legacy endpoints (for backward compatibility)
+  # Compatibility endpoints retained for existing clients
   /assessments:
     get:
       tags: [analysis]
       summary: List risk assessments
-      description: Retrieve list of risk assessments (legacy endpoint)
+      description: Retrieve list of risk assessments through the compatibility route
       parameters:
         - name: project_id
           in: query
@@ -457,7 +457,7 @@ paths:
     post:
       tags: [analysis]
       summary: Create risk assessment
-      description: Create a new risk assessment (legacy endpoint)
+      description: Create a new risk assessment through the compatibility route
       requestBody:
         required: true
         content:
@@ -476,7 +476,7 @@ paths:
     get:
       tags: [analysis]
       summary: Get assessment details
-      description: Retrieve detailed information about a specific risk assessment (legacy endpoint)
+      description: Retrieve detailed information about a risk assessment through the compatibility route
       parameters:
         - name: assessment_id
           in: path
@@ -1451,7 +1451,7 @@ components:
           items:
             type: string
 
-    # Legacy schemas (for backward compatibility)
+    # Compatibility schemas retained for existing clients
     AssessmentRequest:
       type: object
       required: [name, scope, methodology]
@@ -1784,7 +1784,7 @@ components:
         request_id:
           type: string
 
-    # Legacy schemas (for backward compatibility)
+    # Compatibility schemas retained for existing clients
     AssessmentResponse:
       type: object
       properties:
@@ -2142,4 +2142,3 @@ components:
           type: string
         message:
           type: string
-

@@ -1,15 +1,15 @@
 """Unit tests for PlaceInterface and create_analyzer factory."""
-import pytest
-from pathlib import Path
-from typing import Any
 
-from geo_infer_place.core.place_interface import PlaceInterface, LOCATION_PRESETS
+import pytest
+
+from geo_infer_place.core.place_interface import PlaceInterface
 from geo_infer_place import create_analyzer, get_supported_locations
 
 
 # ---------------------------------------------------------------------------
 # PlaceInterface initialisation
 # ---------------------------------------------------------------------------
+
 
 class TestPlaceInterfaceInit:
     def test_valid_location_del_norte(self, temp_output_dir):
@@ -35,13 +35,16 @@ class TestPlaceInterfaceInit:
         assert "Del Norte" in pi.location_name
 
     def test_custom_config_applied(self, temp_output_dir, minimal_config):
-        pi = PlaceInterface("del_norte", config=minimal_config, output_dir=str(temp_output_dir))
+        pi = PlaceInterface(
+            "del_norte", config=minimal_config, output_dir=str(temp_output_dir)
+        )
         assert pi.config is minimal_config
 
 
 # ---------------------------------------------------------------------------
 # Component accessors (lazy init)
 # ---------------------------------------------------------------------------
+
 
 class TestPlaceInterfaceComponents:
     def test_integrator_lazy_init(self, temp_output_dir):
@@ -102,18 +105,30 @@ class TestPlaceInterfaceComponents:
 # Full analysis pipeline
 # ---------------------------------------------------------------------------
 
+
 class TestPlaceInterfaceRunAnalysis:
     def test_returns_dict_with_required_keys(self, temp_output_dir):
         pi = PlaceInterface("del_norte", output_dir=str(temp_output_dir))
-        results = pi.run_full_analysis(analyzers=["seismic_hazard"], include_temporal=False)
+        results = pi.run_full_analysis(
+            analyzers=["seismic_hazard"], include_temporal=False
+        )
         assert isinstance(results, dict)
-        for key in ("location", "timestamp", "config", "analyses", "temporal_analysis",
-                    "data_quality", "provenance"):
+        for key in (
+            "location",
+            "timestamp",
+            "config",
+            "analyses",
+            "temporal_analysis",
+            "data_quality",
+            "provenance",
+        ):
             assert key in results, f"Missing key: {key}"
 
     def test_analyses_dict_has_requested_analyzer(self, temp_output_dir):
         pi = PlaceInterface("del_norte", output_dir=str(temp_output_dir))
-        results = pi.run_full_analysis(analyzers=["seismic_hazard"], include_temporal=False)
+        results = pi.run_full_analysis(
+            analyzers=["seismic_hazard"], include_temporal=False
+        )
         assert "seismic_hazard" in results["analyses"]
 
     def test_subset_analyzers(self, temp_output_dir):
@@ -132,28 +147,37 @@ class TestPlaceInterfaceRunAnalysis:
         json_files = list(temp_output_dir.glob("*.json"))
         assert len(json_files) >= 1
 
-    def test_analyzer_failure_does_not_crash_pipeline(self, temp_output_dir, monkeypatch):
+    def test_analyzer_failure_does_not_crash_pipeline(
+        self, temp_output_dir, monkeypatch
+    ):
         """If one analyzer raises, pipeline continues and records error."""
         pi = PlaceInterface("del_norte", output_dir=str(temp_output_dir))
 
         def _bad_create(name):
             if name == "seismic_hazard":
                 raise RuntimeError("injected failure")
-            return pi._create_analyzer.__wrapped__(pi, name) if hasattr(
-                pi._create_analyzer, "__wrapped__"
-            ) else None
+            return (
+                pi._create_analyzer.__wrapped__(pi, name)
+                if hasattr(pi._create_analyzer, "__wrapped__")
+                else None
+            )
 
         monkeypatch.setattr(pi, "_create_analyzer", _bad_create)
         results = pi.run_full_analysis(
             analyzers=["seismic_hazard"], include_temporal=False
         )
         analysis = results["analyses"].get("seismic_hazard", {})
-        assert "error" in analysis or analysis.get("success") is False or analysis.get("skipped")
+        assert (
+            "error" in analysis
+            or analysis.get("success") is False
+            or analysis.get("skipped")
+        )
 
 
 # ---------------------------------------------------------------------------
 # Convenience methods
 # ---------------------------------------------------------------------------
+
 
 class TestPlaceInterfaceConvenience:
     def test_status_keys(self, temp_output_dir):
@@ -171,10 +195,12 @@ class TestPlaceInterfaceConvenience:
         result = pi.get_earthquakes()
         assert isinstance(result, dict)
 
-    def test_get_fire_perimeters_returns_dict(self, temp_output_dir):
+    def test_get_fire_perimeters_rejects_unauthenticated_remote_response(
+        self, temp_output_dir
+    ):
         pi = PlaceInterface("del_norte", output_dir=str(temp_output_dir))
-        result = pi.get_fire_perimeters()
-        assert isinstance(result, dict)
+        with pytest.raises(RuntimeError, match="no usable data|acquisition failed"):
+            pi.get_fire_perimeters()
 
     def test_get_weather_returns_dict(self, temp_output_dir):
         pi = PlaceInterface("del_norte", output_dir=str(temp_output_dir))
@@ -185,6 +211,7 @@ class TestPlaceInterfaceConvenience:
 # ---------------------------------------------------------------------------
 # create_analyzer factory
 # ---------------------------------------------------------------------------
+
 
 class TestCreateAnalyzerFactory:
     def test_del_norte_returns_place_interface(self, temp_output_dir):

@@ -29,7 +29,7 @@ def test_h3_active_inference_example_smoke_uses_temp_output_only():
     module = _load_example_module()
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        result = module.run_basic_h3_active_inference(
+        result = module.run_h3_active_inference(
             output_dir=Path(tmpdir),
             h3_resolution=7,
             timesteps=2,

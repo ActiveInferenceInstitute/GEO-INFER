@@ -6,9 +6,9 @@ access pattern analysis, index optimization, and cost management.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
-
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List, Optional, Any
 
 
 logger = logging.getLogger(__name__)
@@ -51,17 +51,42 @@ class StorageOptimizer:
         """
         logger.info(f"Analyzing {len(datasets)} datasets for optimization")
 
-        # Mock implementation
+        if not datasets:
+            return {
+                "datasets_analyzed": 0,
+                "recommendations": [],
+                "estimated_savings": None,
+                "performance_improvement": None,
+                "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+        paths = [Path(dataset) for dataset in datasets]
+        existing = [path for path in paths if path.is_file()]
+        total_bytes = sum(path.stat().st_size for path in existing)
+        recommendations = []
+        if total_bytes >= self.optimization_config.get(
+            "compression_threshold_bytes", 100_000_000
+        ):
+            recommendations.append("Compress large datasets before archival")
+        if any(
+            path.suffix.lower() in {".csv", ".json", ".geojson"} for path in existing
+        ):
+            recommendations.append(
+                "Convert repeated analytical inputs to a columnar format"
+            )
+        if self.optimization_config.get("spatial_index_required"):
+            recommendations.append("Create spatial indexes for geospatial queries")
+
         optimizations = {
-            'datasets_analyzed': len(datasets),
-            'recommendations': [
-                'Move frequently accessed data to faster storage',
-                'Implement data compression for large datasets',
-                'Create spatial indexes for geospatial queries'
-            ],
-            'estimated_savings': 0.25,
-            'performance_improvement': 0.4,
-            'analysis_timestamp': '2023-01-01T00:00:00Z'
+            "datasets_analyzed": len(datasets),
+            "existing_files": len(existing),
+            "total_bytes": total_bytes,
+            "recommendations": recommendations,
+            "estimated_savings": self.optimization_config.get("estimated_savings"),
+            "performance_improvement": self.optimization_config.get(
+                "performance_improvement"
+            ),
+            "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         return optimizations
@@ -76,14 +101,21 @@ class StorageOptimizer:
         Returns:
             Cost analysis by dataset
         """
-        # Mock implementation
         costs = {}
+        rate = self.optimization_config.get("cost_per_gb_month")
+        if rate is None:
+            raise ValueError("cost_per_gb_month is required to calculate storage costs")
         for dataset in datasets:
-            costs[dataset] = 10.50  # Mock cost per month
+            path = Path(dataset)
+            if not path.is_file():
+                raise FileNotFoundError(path)
+            costs[dataset] = path.stat().st_size / (1024**3) * float(rate)
 
         return costs
 
-    def recommend_indexing_strategy(self, dataset: str, access_patterns: Dict[str, Any]) -> str:
+    def recommend_indexing_strategy(
+        self, dataset: str, access_patterns: Dict[str, Any]
+    ) -> str:
         """
         Recommend indexing strategy for dataset.
 
@@ -94,10 +126,19 @@ class StorageOptimizer:
         Returns:
             Recommended indexing strategy
         """
-        # Mock implementation
-        return 'spatial_index'
+        if not dataset:
+            raise ValueError("dataset must not be empty")
+        if access_patterns.get("spatial_queries"):
+            return "spatial_index"
+        if access_patterns.get("temporal_queries"):
+            return "temporal_index"
+        if access_patterns.get("key_lookups"):
+            return "key_index"
+        return "no_additional_index"
 
-    def optimize_partitioning(self, dataset: str, data_characteristics: Dict[str, Any]) -> Dict[str, Any]:
+    def optimize_partitioning(
+        self, dataset: str, data_characteristics: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Optimize data partitioning for dataset.
 
@@ -108,5 +149,19 @@ class StorageOptimizer:
         Returns:
             Partitioning optimization recommendations
         """
-        # Mock implementation
-        return {'partition_strategy': 'time_based', 'partition_size': 1000000}
+        if not dataset:
+            raise ValueError("dataset must not be empty")
+        if not data_characteristics:
+            raise ValueError("data_characteristics are required")
+        if data_characteristics.get("temporal_column"):
+            strategy = "time_based"
+        elif data_characteristics.get("spatial_column"):
+            strategy = "spatial_based"
+        else:
+            strategy = "size_based"
+        return {
+            "partition_strategy": strategy,
+            "partition_size": data_characteristics.get("recommended_partition_size"),
+            "partition_column": data_characteristics.get("temporal_column")
+            or data_characteristics.get("spatial_column"),
+        }

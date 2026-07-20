@@ -5,11 +5,10 @@ This module provides local file system storage for development,
 testing, and small-scale geospatial data management.
 """
 
+import json
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Any
 from pathlib import Path
-
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
 
 
 logger = logging.getLogger(__name__)
@@ -37,8 +36,8 @@ class FileSystemStorage:
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.base_path = Path(config.get('base_path', '/tmp/geo_infer_data'))
-        self.create_dirs = config.get('create_dirs', True)
+        self.base_path = Path(config.get("base_path", "/tmp/geo_infer_data"))
+        self.create_dirs = config.get("create_dirs", True)
 
         # Create base directory if needed
         if self.create_dirs:
@@ -57,11 +56,18 @@ class FileSystemStorage:
         Returns:
             Absolute file path
         """
-        # Mock implementation
-        full_path = self.base_path / file_path
+        full_path = self._resolve_path(file_path)
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"Storing data to {full_path}")
+        if isinstance(data, (bytes, bytearray, memoryview)):
+            full_path.write_bytes(bytes(data))
+        elif isinstance(data, str):
+            full_path.write_text(data, encoding="utf-8")
+        else:
+            full_path.write_text(
+                json.dumps(data, indent=2, default=str), encoding="utf-8"
+            )
         return str(full_path)
 
     async def retrieve_file(self, file_path: str) -> Any:
@@ -74,13 +80,16 @@ class FileSystemStorage:
         Returns:
             Retrieved data
         """
-        # Mock implementation
-        full_path = self.base_path / file_path
+        full_path = self._resolve_path(file_path)
+        if not full_path.is_file():
+            raise FileNotFoundError(full_path)
 
         logger.info(f"Retrieving data from {full_path}")
-        return None
+        if full_path.suffix.lower() in {".json", ".geojson"}:
+            return json.loads(full_path.read_text(encoding="utf-8"))
+        return full_path.read_bytes()
 
-    async def list_files(self, pattern: str = '*') -> List[str]:
+    async def list_files(self, pattern: str = "*") -> List[str]:
         """
         List files in storage.
 
@@ -90,9 +99,12 @@ class FileSystemStorage:
         Returns:
             List of file paths
         """
-        # Mock implementation
         logger.info(f"Listing files with pattern: {pattern}")
-        return [f"file_{i}.geojson" for i in range(5)]
+        return [
+            str(path.relative_to(self.base_path))
+            for path in self.base_path.glob(pattern)
+            if path.is_file()
+        ]
 
     async def delete_file(self, file_path: str) -> bool:
         """
@@ -104,6 +116,17 @@ class FileSystemStorage:
         Returns:
             True if successful
         """
-        # Mock implementation
-        logger.info(f"Deleting file: {file_path}")
+        full_path = self._resolve_path(file_path)
+        logger.info(f"Deleting file: {full_path}")
+        if not full_path.is_file():
+            return False
+        full_path.unlink()
         return True
+
+    def _resolve_path(self, file_path: str) -> Path:
+        """Resolve a storage-relative path without allowing path traversal."""
+        candidate = (self.base_path / file_path).resolve()
+        base = self.base_path.resolve()
+        if candidate != base and base not in candidate.parents:
+            raise ValueError(f"file_path escapes storage base path: {file_path}")
+        return candidate

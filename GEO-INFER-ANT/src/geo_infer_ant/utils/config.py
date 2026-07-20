@@ -16,10 +16,12 @@ import os
 import json
 import yaml
 import logging
-from typing import Dict, List, Any, Optional, Union, Type
+from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 from dataclasses import dataclass, field, asdict
-from jsonschema import validate, ValidationError, Draft7Validator
+from jsonschema import validate, ValidationError
+
+from .spatial import parse_h3_resolution
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +37,14 @@ CONFIG_SCHEMA = {
                 "agent_types": {"type": "array", "items": {"type": "string"}},
                 "spatial_distribution": {
                     "type": "string",
-                    "enum": ["random", "clustered", "uniform", "custom"]
+                    "enum": ["random", "clustered", "uniform", "custom"],
                 },
                 "behavioral_heterogeneity": {
                     "type": "string",
-                    "enum": ["stochastic", "deterministic", "adaptive"]
-                }
+                    "enum": ["stochastic", "deterministic", "adaptive"],
+                },
             },
-            "required": ["population_size", "agent_types"]
+            "required": ["population_size", "agent_types"],
         },
         "algorithms": {
             "type": "object",
@@ -51,11 +53,15 @@ CONFIG_SCHEMA = {
                     "type": "object",
                     "properties": {
                         "number_of_ants": {"type": "integer", "minimum": 1},
-                        "pheromone_evaporation_rate": {"type": "number", "minimum": 0, "maximum": 1},
+                        "pheromone_evaporation_rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                        },
                         "alpha": {"type": "number", "minimum": 0},
                         "beta": {"type": "number", "minimum": 0},
-                        "max_iterations": {"type": "integer", "minimum": 1}
-                    }
+                        "max_iterations": {"type": "integer", "minimum": 1},
+                    },
                 },
                 "pso": {
                     "type": "object",
@@ -64,8 +70,8 @@ CONFIG_SCHEMA = {
                         "inertia_weight": {"type": "number"},
                         "cognitive_coefficient": {"type": "number", "minimum": 0},
                         "social_coefficient": {"type": "number", "minimum": 0},
-                        "max_iterations": {"type": "integer", "minimum": 1}
-                    }
+                        "max_iterations": {"type": "integer", "minimum": 1},
+                    },
                 },
                 "abc": {
                     "type": "object",
@@ -74,19 +80,23 @@ CONFIG_SCHEMA = {
                         "employed_bees": {"type": "integer", "minimum": 1},
                         "onlooker_bees": {"type": "integer", "minimum": 1},
                         "scout_bees": {"type": "integer", "minimum": 1},
-                        "max_iterations": {"type": "integer", "minimum": 1}
-                    }
-                }
-            }
+                        "max_iterations": {"type": "integer", "minimum": 1},
+                    },
+                },
+            },
         },
         "stigmergy": {
             "type": "object",
             "properties": {
-                "pheromone_evaporation_rate": {"type": "number", "minimum": 0, "maximum": 1},
+                "pheromone_evaporation_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                },
                 "pheromone_deposition_amount": {"type": "number", "minimum": 0},
                 "diffusion_rate": {"type": "number", "minimum": 0},
-                "pheromone_types": {"type": "array", "items": {"type": "string"}}
-            }
+                "pheromone_types": {"type": "array", "items": {"type": "string"}},
+            },
         },
         "spatial": {
             "type": "object",
@@ -97,45 +107,48 @@ CONFIG_SCHEMA = {
                         "min_lat": {"type": "number"},
                         "max_lat": {"type": "number"},
                         "min_lng": {"type": "number"},
-                        "max_lng": {"type": "number"}
-                    }
+                        "max_lng": {"type": "number"},
+                    },
                 },
                 "resolution": {"type": "number", "minimum": 0},
-                "coordinate_system": {"type": "string"}
-            }
+                "coordinate_system": {"type": "string"},
+            },
         },
         "performance": {
             "type": "object",
             "properties": {
                 "evaluation_criteria": {"type": "array", "items": {"type": "string"}},
                 "benchmark_datasets": {"type": "array", "items": {"type": "string"}},
-                "statistical_analysis": {"type": "array", "items": {"type": "string"}}
-            }
+                "statistical_analysis": {"type": "array", "items": {"type": "string"}},
+            },
         },
         "logging": {
             "type": "object",
             "properties": {
                 "level": {
                     "type": "string",
-                    "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+                    "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                 },
                 "format": {"type": "string"},
                 "file": {"type": "string"},
-                "console": {"type": "boolean"}
-            }
-        }
+                "console": {"type": "boolean"},
+            },
+        },
     },
-    "required": ["swarm"]
+    "required": ["swarm"],
 }
 
 
 @dataclass
 class SwarmConfig:
     """Swarm configuration dataclass."""
+
     population_size: int = 1000
-    agent_types: List[str] = field(default_factory=lambda: ['worker', 'scout', 'soldier'])
-    spatial_distribution: str = 'random'
-    behavioral_heterogeneity: str = 'stochastic'
+    agent_types: List[str] = field(
+        default_factory=lambda: ["worker", "scout", "soldier"]
+    )
+    spatial_distribution: str = "random"
+    behavioral_heterogeneity: str = "stochastic"
     spatial_bounds: Optional[Dict[str, float]] = None
     clustering_centers: Optional[List[Any]] = None
     clustering_radius: float = 50.0
@@ -144,6 +157,7 @@ class SwarmConfig:
 @dataclass
 class AlgorithmConfig:
     """Algorithm configuration dataclass."""
+
     aco: Optional[Dict[str, Any]] = None
     pso: Optional[Dict[str, Any]] = None
     abc: Optional[Dict[str, Any]] = None
@@ -152,33 +166,43 @@ class AlgorithmConfig:
 @dataclass
 class StigmergyConfig:
     """Stigmergy configuration dataclass."""
+
     pheromone_evaporation_rate: float = 0.1
     pheromone_deposition_amount: float = 1.0
     diffusion_rate: float = 0.5
-    pheromone_types: List[str] = field(default_factory=lambda: ['trail', 'alarm', 'food', 'nest'])
+    pheromone_types: List[str] = field(
+        default_factory=lambda: ["trail", "alarm", "food", "nest"]
+    )
 
 
 @dataclass
 class SpatialConfig:
     """Spatial configuration dataclass."""
+
     bounds: Optional[Dict[str, float]] = None
     resolution: float = 1.0
-    coordinate_system: str = 'EPSG:4326'
+    coordinate_system: str = "EPSG:4326"
 
 
 @dataclass
 class PerformanceConfig:
     """Performance configuration dataclass."""
-    evaluation_criteria: List[str] = field(default_factory=lambda: ['efficiency', 'robustness', 'adaptability'])
+
+    evaluation_criteria: List[str] = field(
+        default_factory=lambda: ["efficiency", "robustness", "adaptability"]
+    )
     benchmark_datasets: List[str] = field(default_factory=list)
-    statistical_analysis: List[str] = field(default_factory=lambda: ['hypothesis_testing', 'confidence_intervals'])
+    statistical_analysis: List[str] = field(
+        default_factory=lambda: ["hypothesis_testing", "confidence_intervals"]
+    )
 
 
 @dataclass
 class LoggingConfig:
     """Logging configuration dataclass."""
-    level: str = 'INFO'
-    format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+    level: str = "INFO"
+    format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     file: Optional[str] = None
     console: bool = True
 
@@ -186,6 +210,7 @@ class LoggingConfig:
 @dataclass
 class AntModuleConfig:
     """Complete ANT module configuration."""
+
     swarm: SwarmConfig = field(default_factory=SwarmConfig)
     algorithms: AlgorithmConfig = field(default_factory=AlgorithmConfig)
     stigmergy: StigmergyConfig = field(default_factory=StigmergyConfig)
@@ -197,7 +222,7 @@ class AntModuleConfig:
 def load_config(
     config_path: Optional[Union[str, Path]] = None,
     config_dict: Optional[Dict[str, Any]] = None,
-    validate_schema: bool = True
+    validate_schema: bool = True,
 ) -> AntModuleConfig:
     """
     Load configuration from file or dictionary.
@@ -223,18 +248,20 @@ def load_config(
         if not config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-        with open(config_path, 'r') as f:
-            if config_path.suffix.lower() in ['.yaml', '.yml']:
+        with open(config_path, "r") as f:
+            if config_path.suffix.lower() in [".yaml", ".yml"]:
                 config_data = yaml.safe_load(f) or {}
-            elif config_path.suffix.lower() == '.json':
+            elif config_path.suffix.lower() == ".json":
                 config_data = json.load(f)
             else:
-                raise ValueError(f"Unsupported configuration file format: {config_path.suffix}")
+                raise ValueError(
+                    f"Unsupported configuration file format: {config_path.suffix}"
+                )
 
         logger.info(f"Loaded configuration from {config_path}")
 
     # Load from dictionary if provided
-    elif config_dict:
+    elif config_dict is not None:
         config_data = config_dict.copy()
         logger.info("Loaded configuration from dictionary")
 
@@ -242,6 +269,11 @@ def load_config(
     else:
         config_data = _load_from_environment()
         logger.info("Loaded configuration from environment variables")
+
+    # Normalize the detailed simulation document used by
+    # ``config/example_config.yaml`` into the runtime dataclass contract.
+    if "swarm" not in config_data and "agents" in config_data:
+        config_data = _normalize_simulation_config(config_data)
 
     # Merge with defaults
     config_data = _merge_with_defaults(config_data)
@@ -272,6 +304,8 @@ def validate_config(config: Union[Dict[str, Any], AntModuleConfig]) -> bool:
         config_dict = _config_to_dict(config)
     else:
         config_dict = config
+    if "swarm" not in config_dict and "agents" in config_dict:
+        config_dict = _normalize_simulation_config(config_dict)
 
     try:
         validate(instance=config_dict, schema=CONFIG_SCHEMA)
@@ -279,7 +313,9 @@ def validate_config(config: Union[Dict[str, Any], AntModuleConfig]) -> bool:
         return True
     except ValidationError as e:
         logger.error(f"Configuration validation failed: {e.message}")
-        raise ValidationError(f"Invalid configuration: {e.message}", e.instance, e.schema_path)
+        raise ValidationError(
+            f"Invalid configuration: {e.message}", e.instance, e.schema_path
+        )
 
 
 def _load_from_environment() -> Dict[str, Any]:
@@ -287,82 +323,164 @@ def _load_from_environment() -> Dict[str, Any]:
     config = {}
 
     # Swarm configuration
-    if os.getenv('ANT_POPULATION_SIZE'):
-        config.setdefault('swarm', {})['population_size'] = int(os.getenv('ANT_POPULATION_SIZE'))
-    if os.getenv('ANT_AGENT_TYPES'):
-        config.setdefault('swarm', {})['agent_types'] = os.getenv('ANT_AGENT_TYPES').split(',')
+    if os.getenv("ANT_POPULATION_SIZE"):
+        config.setdefault("swarm", {})["population_size"] = int(
+            os.getenv("ANT_POPULATION_SIZE")
+        )
+    if os.getenv("ANT_AGENT_TYPES"):
+        config.setdefault("swarm", {})["agent_types"] = os.getenv(
+            "ANT_AGENT_TYPES"
+        ).split(",")
 
     # Algorithm configuration
-    if os.getenv('ANT_ACO_ANTS'):
-        config.setdefault('algorithms', {}).setdefault('aco', {})['number_of_ants'] = int(os.getenv('ANT_ACO_ANTS'))
+    if os.getenv("ANT_ACO_ANTS"):
+        config.setdefault("algorithms", {}).setdefault("aco", {})["number_of_ants"] = (
+            int(os.getenv("ANT_ACO_ANTS"))
+        )
 
     # Stigmergy configuration
-    if os.getenv('ANT_PHEROMONE_EVAPORATION'):
-        config.setdefault('stigmergy', {})['pheromone_evaporation_rate'] = float(os.getenv('ANT_PHEROMONE_EVAPORATION'))
+    if os.getenv("ANT_PHEROMONE_EVAPORATION"):
+        config.setdefault("stigmergy", {})["pheromone_evaporation_rate"] = float(
+            os.getenv("ANT_PHEROMONE_EVAPORATION")
+        )
 
     # Logging configuration
-    if os.getenv('ANT_LOG_LEVEL'):
-        config.setdefault('logging', {})['level'] = os.getenv('ANT_LOG_LEVEL')
+    if os.getenv("ANT_LOG_LEVEL"):
+        config.setdefault("logging", {})["level"] = os.getenv("ANT_LOG_LEVEL")
 
     return config
+
+
+def _normalize_simulation_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize the detailed simulation document to ``AntModuleConfig``."""
+    agents = config.get("agents", {})
+    agent_types = agents.get("agent_types", ["worker", "scout", "soldier"])
+    if agent_types and isinstance(agent_types[0], dict):
+        agent_types = [item["name"] for item in agent_types]
+
+    environment = config.get("environment", {})
+    spatial = environment.get("spatial", {})
+    stigmergy = config.get("stigmergy", {})
+    pheromone_types = stigmergy.get(
+        "pheromone_types", ["trail", "food", "alarm", "nest"]
+    )
+    if pheromone_types and isinstance(pheromone_types[0], dict):
+        pheromone_types = [item["name"] for item in pheromone_types]
+
+    algorithms = config.get("algorithms", {})
+    aco = algorithms.get("ant_colony_optimization", {}).get("parameters", {})
+    pso = algorithms.get("particle_swarm_optimization", {}).get("parameters", {})
+    abc = algorithms.get("artificial_bee_colony", {}).get("parameters", {})
+
+    resolution = spatial.get("resolution", 8)
+    if isinstance(resolution, str):
+        resolution = parse_h3_resolution(resolution)
+    detailed_performance = config.get("performance", {})
+    detailed_logging = config.get("output", {}).get("logging", {})
+    normalized = {
+        "swarm": {
+            "population_size": agents.get("population_size", 1000),
+            "agent_types": agent_types,
+            "spatial_distribution": "random",
+            "behavioral_heterogeneity": "stochastic",
+        },
+        "algorithms": {
+            "aco": {
+                **aco,
+                "pheromone_evaporation_rate": aco.get(
+                    "evaporation_rate", aco.get("pheromone_evaporation_rate", 0.1)
+                ),
+            },
+            "pso": pso,
+            "abc": abc,
+        },
+        "stigmergy": {
+            "pheromone_types": pheromone_types,
+            "pheromone_evaporation_rate": stigmergy.get("evaporation_rate", 0.1),
+            "pheromone_deposition_amount": stigmergy.get("deposition_amount", 1.0),
+            "diffusion_rate": stigmergy.get("diffusion_rate", 0.5),
+        },
+        "spatial": {
+            "bounds": spatial.get("bounds"),
+            "resolution": resolution,
+            "coordinate_system": spatial.get("coordinate_system", "WGS84"),
+        },
+        "performance": {
+            "evaluation_criteria": detailed_performance.get(
+                "evaluation_criteria", ["efficiency", "robustness", "adaptability"]
+            ),
+            "benchmark_datasets": detailed_performance.get("benchmark_datasets", []),
+            "statistical_analysis": detailed_performance.get(
+                "statistical_analysis", ["hypothesis_testing", "confidence_intervals"]
+            ),
+        },
+        "logging": {
+            "level": detailed_logging.get("level", "INFO"),
+            "file": detailed_logging.get("file", detailed_logging.get("file_path")),
+            "console": detailed_logging.get(
+                "console", detailed_logging.get("console_output", True)
+            ),
+        },
+    }
+    return normalized
 
 
 def _merge_with_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
     """Merge configuration with default values."""
     defaults = {
-        'swarm': {
-            'population_size': 1000,
-            'agent_types': ['worker', 'scout', 'soldier'],
-            'spatial_distribution': 'random',
-            'behavioral_heterogeneity': 'stochastic'
+        "swarm": {
+            "population_size": 1000,
+            "agent_types": ["worker", "scout", "soldier"],
+            "spatial_distribution": "random",
+            "behavioral_heterogeneity": "stochastic",
         },
-        'algorithms': {
-            'aco': {
-                'number_of_ants': 50,
-                'pheromone_evaporation_rate': 0.1,
-                'alpha': 1.0,
-                'beta': 2.0,
-                'max_iterations': 100
+        "algorithms": {
+            "aco": {
+                "number_of_ants": 50,
+                "pheromone_evaporation_rate": 0.1,
+                "alpha": 1.0,
+                "beta": 2.0,
+                "max_iterations": 100,
             },
-            'pso': {
-                'swarm_size': 30,
-                'inertia_weight': 0.9,
-                'cognitive_coefficient': 2.0,
-                'social_coefficient': 2.0,
-                'max_iterations': 100
+            "pso": {
+                "swarm_size": 30,
+                "inertia_weight": 0.9,
+                "cognitive_coefficient": 2.0,
+                "social_coefficient": 2.0,
+                "max_iterations": 100,
             },
-            'abc': {
-                'colony_size': 50,
-                'employed_bees': 25,
-                'onlooker_bees': 25,
-                'scout_bees': 5,
-                'max_iterations': 100
-            }
+            "abc": {
+                "colony_size": 50,
+                "employed_bees": 25,
+                "onlooker_bees": 25,
+                "scout_bees": 5,
+                "max_iterations": 100,
+            },
         },
-        'stigmergy': {
-            'pheromone_evaporation_rate': 0.1,
-            'pheromone_deposition_amount': 1.0,
-            'diffusion_rate': 0.5,
-            'pheromone_types': ['trail', 'alarm', 'food', 'nest']
+        "stigmergy": {
+            "pheromone_evaporation_rate": 0.1,
+            "pheromone_deposition_amount": 1.0,
+            "diffusion_rate": 0.5,
+            "pheromone_types": ["trail", "alarm", "food", "nest"],
         },
-        'spatial': {
-            'resolution': 1.0,
-            'coordinate_system': 'EPSG:4326'
+        "spatial": {"resolution": 1.0, "coordinate_system": "EPSG:4326"},
+        "performance": {
+            "evaluation_criteria": ["efficiency", "robustness", "adaptability"],
+            "benchmark_datasets": [],
+            "statistical_analysis": ["hypothesis_testing", "confidence_intervals"],
         },
-        'performance': {
-            'evaluation_criteria': ['efficiency', 'robustness', 'adaptability'],
-            'benchmark_datasets': [],
-            'statistical_analysis': ['hypothesis_testing', 'confidence_intervals']
+        "logging": {
+            "level": "INFO",
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "console": True,
         },
-        'logging': {
-            'level': 'INFO',
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            'console': True
-        }
     }
 
     # Deep merge
-    merged = defaults.copy()
+    merged = {
+        key: value.copy() if isinstance(value, dict) else value
+        for key, value in defaults.items()
+    }
     for key, value in config.items():
         if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
             merged[key] = {**merged[key], **value}
@@ -375,28 +493,30 @@ def _merge_with_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
 def _dict_to_config(config_dict: Dict[str, Any]) -> AntModuleConfig:
     """Convert dictionary to AntModuleConfig dataclass."""
     return AntModuleConfig(
-        swarm=SwarmConfig(**config_dict.get('swarm', {})),
-        algorithms=AlgorithmConfig(**config_dict.get('algorithms', {})),
-        stigmergy=StigmergyConfig(**config_dict.get('stigmergy', {})),
-        spatial=SpatialConfig(**config_dict.get('spatial', {})),
-        performance=PerformanceConfig(**config_dict.get('performance', {})),
-        logging=LoggingConfig(**config_dict.get('logging', {}))
+        swarm=SwarmConfig(**config_dict.get("swarm", {})),
+        algorithms=AlgorithmConfig(**config_dict.get("algorithms", {})),
+        stigmergy=StigmergyConfig(**config_dict.get("stigmergy", {})),
+        spatial=SpatialConfig(**config_dict.get("spatial", {})),
+        performance=PerformanceConfig(**config_dict.get("performance", {})),
+        logging=LoggingConfig(**config_dict.get("logging", {})),
     )
 
 
 def _config_to_dict(config: AntModuleConfig) -> Dict[str, Any]:
     """Convert AntModuleConfig dataclass to dictionary."""
     return {
-        'swarm': asdict(config.swarm),
-        'algorithms': asdict(config.algorithms),
-        'stigmergy': asdict(config.stigmergy),
-        'spatial': asdict(config.spatial),
-        'performance': asdict(config.performance),
-        'logging': asdict(config.logging)
+        "swarm": asdict(config.swarm),
+        "algorithms": asdict(config.algorithms),
+        "stigmergy": asdict(config.stigmergy),
+        "spatial": asdict(config.spatial),
+        "performance": asdict(config.performance),
+        "logging": asdict(config.logging),
     }
 
 
-def save_config(config: AntModuleConfig, config_path: Union[str, Path], format: str = 'yaml') -> None:
+def save_config(
+    config: AntModuleConfig, config_path: Union[str, Path], format: str = "yaml"
+) -> None:
     """
     Save configuration to file.
 
@@ -408,10 +528,10 @@ def save_config(config: AntModuleConfig, config_path: Union[str, Path], format: 
     config_path = Path(config_path)
     config_dict = _config_to_dict(config)
 
-    with open(config_path, 'w') as f:
-        if format.lower() == 'yaml':
+    with open(config_path, "w") as f:
+        if format.lower() == "yaml":
             yaml.dump(config_dict, f, default_flow_style=False, sort_keys=False)
-        elif format.lower() == 'json':
+        elif format.lower() == "json":
             json.dump(config_dict, f, indent=2, sort_keys=False)
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -439,7 +559,11 @@ def update_config(config: AntModuleConfig, updates: Dict[str, Any]) -> AntModule
 
     # Deep update
     for key, value in updates.items():
-        if key in config_dict and isinstance(config_dict[key], dict) and isinstance(value, dict):
+        if (
+            key in config_dict
+            and isinstance(config_dict[key], dict)
+            and isinstance(value, dict)
+        ):
             config_dict[key].update(value)
         else:
             config_dict[key] = value
@@ -447,4 +571,3 @@ def update_config(config: AntModuleConfig, updates: Dict[str, Any]) -> AntModule
     # Validate and convert back
     validate_config(config_dict)
     return _dict_to_config(config_dict)
-

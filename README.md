@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 892 |
-| Python test files | 472 |
+| Python test files | 474 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -18,8 +18,45 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
+
+## Documentation Map
+
+- User documentation hub: [`GEO-INFER-INTRA/docs/index.md`](GEO-INFER-INTRA/docs/index.md)
+- Installation and first workflow: [`GEO-INFER-INTRA/docs/getting_started/index.md`](GEO-INFER-INTRA/docs/getting_started/index.md)
+- Framework architecture: [`GEO-INFER-INTRA/docs/overview.md`](GEO-INFER-INTRA/docs/overview.md)
+- Module catalog: [`GEO-INFER-INTRA/docs/modules/index.md`](GEO-INFER-INTRA/docs/modules/index.md)
+- Developer workflow: [`GEO-INFER-INTRA/docs/developer_guide/index.md`](GEO-INFER-INTRA/docs/developer_guide/index.md)
+- Test and release gates: [`GEO-INFER-TEST/docs/index.md`](GEO-INFER-TEST/docs/index.md)
+- Active Inference reference: [`GEO-INFER-INTRA/docs/active_inference_guide.md`](GEO-INFER-INTRA/docs/active_inference_guide.md)
+- Spatial/H3 reference: [`GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md`](GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md)
+- Contribution rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Security reporting: [`SECURITY.md`](SECURITY.md)
+- Release history: [`CHANGELOG.md`](CHANGELOG.md)
+
+The repository root and module-level `README.md`/`AGENTS.md` files are generated
+signposts. Conceptual tutorials, integration guidance, and policy live in the
+INTRA documentation hub; executable behavior and public exports remain owned by
+the module source and its tests.
+
+## Choose an Installation Profile
+
+The repository is a uv workspace. Use the full sync when working across module
+boundaries, or sync a single package when developing one module:
+
+```bash
+uv sync --all-packages --all-extras
+uv sync --package geo-infer-act
+uv sync --package geo-infer-space
+uv sync --package geo-infer-ant
+```
+
+`--all-extras` installs optional scientific, Bayesian, web, IoT, performance,
+quality, and documentation dependencies. CI intentionally omits native-only
+extras that cannot build on its CPU runner; see `.github/workflows/ci.yml` for
+the exact reproducible exception list.
 
 ## Module Index
 
@@ -27,13 +64,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | --- | --- | ---: | ---: |
 | `GEO-INFER-ACT` | `geo_infer_act` | 42 | 30 |
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
-| `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 13 |
+| `GEO-INFER-AGENT` | `geo_infer_agent` | 25 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
-| `GEO-INFER-ANT` | `geo_infer_ant` | 23 | 8 |
+| `GEO-INFER-ANT` | `geo_infer_ant` | 24 | 9 |
 | `GEO-INFER-API` | `geo_infer_api` | 13 | 9 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
-| `GEO-INFER-BAYES` | `geo_infer_bayes` | 32 | 14 |
+| `GEO-INFER-BAYES` | `geo_infer_bayes` | 33 | 15 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
@@ -63,7 +100,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 | `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 12 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 32 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 82 | 32 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 22 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
@@ -81,6 +118,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ## Validation
 
 - Repository contracts: `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language`
+- Documentation links and current-state claims: `uv run python GEO-INFER-TEST/validate_documentation.py --strict`
 - Syntax gate: `python -m compileall GEO-INFER-*/src GEO-INFER-*/examples`
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
@@ -99,6 +137,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 3. Run the focused test, then compile and run the contract validators.
 4. Refresh generated signposts with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py`.
 5. Confirm generated documentation is stable with `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check`.
+
+## Artifact and Output Hygiene
+
+- Test reports belong under `.geo-infer-test-results/`.
+- Model-audit artifacts are emitted under `.geo-infer-test-results/model-audit/`.
+- Scenario and visualization outputs must use an explicit output directory and
+  must not write to repository-root `output/`, `outputs/`, or `test_output/`.
+- Generated signposts must describe tracked files only; local caches and build
+  products are intentionally excluded.
 
 README.md and AGENTS.md files below the repository root are generated signposts.
 The generator derives their contents from tracked files, public symbols, module

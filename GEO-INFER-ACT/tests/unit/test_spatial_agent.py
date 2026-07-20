@@ -18,6 +18,19 @@ from pathlib import Path
 
 from geo_infer_act import H3GridInferenceResult
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
+from geo_infer_act.utils.h3_adapter import get_h3_adapter
+
+
+def _cells(count: int) -> list[str]:
+    """Return real H3 cells for spatial-agent tests."""
+    adapter = get_h3_adapter()
+    center = adapter.latlng_to_cell(37.7749, -122.4194, 9)
+    candidates = [center, *adapter.grid_disk(center, 2)]
+    return list(dict.fromkeys(candidates))[:count]
+
+
+def _cell(index: int) -> str:
+    return _cells(index + 1)[index]
 
 
 class TestSpatialActiveInferenceAgentInit:
@@ -45,7 +58,7 @@ class TestSpatialActiveInferenceAgentInit:
 
     def test_initialization_from_cells(self):
         """Test initialization from explicit cell list."""
-        cells = ["cell_0", "cell_1", "cell_2", "cell_3"]
+        cells = _cells(4)
         agent = SpatialActiveInferenceAgent(initial_cells=cells)
 
         assert len(agent.cells) == 4
@@ -75,7 +88,7 @@ class TestSpatialPerception:
 
     def test_basic_perception(self):
         """Test basic perception updates beliefs."""
-        cells = ["cell_0", "cell_1", "cell_2"]
+        cells = _cells(3)
         agent = SpatialActiveInferenceAgent(
             initial_cells=cells,
             state_dim=4,
@@ -86,8 +99,8 @@ class TestSpatialPerception:
         initial_beliefs = agent.beliefs.copy()
 
         observations = {
-            "cell_0": np.array([1.0, 0.0, 0.0, 0.0]),
-            "cell_1": np.array([0.0, 1.0, 0.0, 0.0]),
+            _cell(0): np.array([1.0, 0.0, 0.0, 0.0]),
+            _cell(1): np.array([0.0, 1.0, 0.0, 0.0]),
         }
 
         agent.spatial_perception(observations, propagate_beliefs=False)
@@ -99,13 +112,13 @@ class TestSpatialPerception:
 
     def test_perception_with_propagation(self):
         """Test perception with neighbor propagation."""
-        cells = ["cell_0", "cell_1", "cell_2"]
+        cells = _cells(3)
         agent = SpatialActiveInferenceAgent(
             initial_cells=cells, state_dim=3, obs_dim=3, diffusion_rate=0.3
         )
 
         # Update only first cell
-        observations = {"cell_0": np.array([1.0, 0.0, 0.0])}
+        observations = {_cell(0): np.array([1.0, 0.0, 0.0])}
 
         updated = agent.spatial_perception(observations, propagate_beliefs=True)
 
@@ -115,9 +128,9 @@ class TestSpatialPerception:
 
     def test_observation_history_recorded(self):
         """Test observations are recorded in history."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
-        obs = {"cell_0": np.array([0.5, 0.5, 0.0, 0.0])}
+        obs = {_cell(0): np.array([0.5, 0.5, 0.0, 0.0])}
         agent.spatial_perception(obs)
 
         assert len(agent.observation_history) == 1
@@ -130,11 +143,11 @@ class TestSpatialAction:
     def test_action_selection(self):
         """Test action selection returns valid result."""
         agent = SpatialActiveInferenceAgent(
-            initial_cells=["cell_0", "cell_1"], state_dim=4, obs_dim=4
+            initial_cells=_cells(2), state_dim=4, obs_dim=4
         )
 
         # First do perception
-        agent.spatial_perception({"cell_0": np.array([1.0, 0.0, 0.0, 0.0])})
+        agent.spatial_perception({_cell(0): np.array([1.0, 0.0, 0.0, 0.0])})
 
         result = agent.spatial_action()
 
@@ -147,18 +160,18 @@ class TestSpatialAction:
 
     def test_action_history_recorded(self):
         """Test actions are recorded in history."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(1))
 
-        agent.spatial_perception({"cell_0": np.array([1.0, 0.0, 0.0, 0.0])})
+        agent.spatial_perception({_cell(0): np.array([1.0, 0.0, 0.0, 0.0])})
         agent.spatial_action()
 
         assert len(agent.action_history) == 1
 
     def test_policy_distribution_sums_to_one(self):
         """Test policy distribution is valid probability."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
-        agent.spatial_perception({"cell_0": np.array([0.5, 0.5, 0.0, 0.0])})
+        agent.spatial_perception({_cell(0): np.array([0.5, 0.5, 0.0, 0.0])})
         result = agent.spatial_action()
 
         pi = result["policy_distribution"]
@@ -170,9 +183,9 @@ class TestStepFunction:
 
     def test_step_returns_all_components(self):
         """Test step returns beliefs, action, and free energy."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
-        result = agent.step({"cell_0": np.array([1.0, 0.0, 0.0, 0.0])})
+        result = agent.step({_cell(0): np.array([1.0, 0.0, 0.0, 0.0])})
 
         assert "beliefs" in result
         assert "action" in result
@@ -181,10 +194,10 @@ class TestStepFunction:
 
     def test_step_can_return_typed_h3_result(self):
         """Test step can return typed H3 diagnostics."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
         result = agent.step(
-            {"cell_0": np.array([1.0, 0.0, 0.0, 0.0])}, return_result=True
+            {_cell(0): np.array([1.0, 0.0, 0.0, 0.0])}, return_result=True
         )
 
         assert isinstance(result, H3GridInferenceResult)
@@ -197,10 +210,10 @@ class TestStepFunction:
 
     def test_multiple_steps(self):
         """Test multiple steps accumulate history."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
         for i in range(5):
-            obs = {"cell_0": np.random.rand(4)}
+            obs = {_cell(0): np.random.rand(4)}
             agent.step(obs)
 
         assert agent.step_count == 5
@@ -213,13 +226,11 @@ class TestDiagnostics:
 
     def test_get_diagnostics(self):
         """Test diagnostics returns expected structure."""
-        agent = SpatialActiveInferenceAgent(
-            initial_cells=["cell_0", "cell_1", "cell_2"]
-        )
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(3))
 
         # Run a few steps
         for _ in range(3):
-            agent.step({"cell_0": np.random.rand(4)})
+            agent.step({_cell(0): np.random.rand(4)})
 
         diag = agent.get_diagnostics()
 
@@ -232,10 +243,10 @@ class TestDiagnostics:
 
     def test_export_results_json(self):
         """Test export to JSON file."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
-        agent.step({"cell_0": np.array([1.0, 0.0, 0.0, 0.0])})
-        agent.step({"cell_0": np.array([0.0, 1.0, 0.0, 0.0])})
+        agent.step({_cell(0): np.array([1.0, 0.0, 0.0, 0.0])})
+        agent.step({_cell(0): np.array([0.0, 1.0, 0.0, 0.0])})
 
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = Path(tmpdir) / "results.json"
@@ -257,20 +268,20 @@ class TestPreferencesAndModels:
     def test_set_preferences(self):
         """Test setting preferences per cell."""
         agent = SpatialActiveInferenceAgent(
-            initial_cells=["cell_0", "cell_1"], state_dim=3, obs_dim=3
+            initial_cells=_cells(2), state_dim=3, obs_dim=3
         )
 
-        preferences = {"cell_0": np.array([0.8, 0.1, 0.1])}
+        preferences = {_cell(0): np.array([0.8, 0.1, 0.1])}
         agent.set_preferences(preferences)
 
         np.testing.assert_array_almost_equal(agent.preferences[0], [0.8, 0.1, 0.1])
 
     def test_update_precision(self):
         """Test updating precision for a cell."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
         initial_precision = agent.precision[0, 0]
-        agent.update_precision("cell_0", 2.5)
+        agent.update_precision(_cell(0), 2.5)
 
         assert agent.precision[0, 0] == 2.5
         assert agent.precision[0, 0] != initial_precision
@@ -281,11 +292,11 @@ class TestReset:
 
     def test_reset_clears_history(self):
         """Test reset clears all history."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0", "cell_1"])
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(2))
 
         # Run some steps
         for _ in range(3):
-            agent.step({"cell_0": np.random.rand(4)})
+            agent.step({_cell(0): np.random.rand(4)})
 
         assert agent.step_count > 0
 
@@ -298,10 +309,10 @@ class TestReset:
 
     def test_reset_restores_uniform_beliefs(self):
         """Test reset restores uniform beliefs."""
-        agent = SpatialActiveInferenceAgent(initial_cells=["cell_0"], state_dim=4)
+        agent = SpatialActiveInferenceAgent(initial_cells=_cells(1), state_dim=4)
 
         # Change beliefs
-        agent.step({"cell_0": np.array([1.0, 0.0, 0.0, 0.0])})
+        agent.step({_cell(0): np.array([1.0, 0.0, 0.0, 0.0])})
 
         agent.reset()
 
@@ -317,14 +328,14 @@ class TestFreeEnergyComputation:
     def test_free_energy_decreases_with_learning(self):
         """Test free energy trend during learning."""
         agent = SpatialActiveInferenceAgent(
-            initial_cells=["cell_0", "cell_1"],
+            initial_cells=_cells(2),
             state_dim=4,
             obs_dim=4,
             diffusion_rate=0.1,
         )
 
         # Consistent observations should reduce free energy
-        consistent_obs = {"cell_0": np.array([1.0, 0.0, 0.0, 0.0])}
+        consistent_obs = {_cell(0): np.array([1.0, 0.0, 0.0, 0.0])}
 
         for _ in range(10):
             agent.step(consistent_obs)

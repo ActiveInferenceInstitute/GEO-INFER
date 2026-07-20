@@ -17,9 +17,6 @@ from ..models.schemas import (
     Dataset,
     DatasetMetadata,
     DataQualityReport,
-    SpatialExtent,
-    TemporalExtent,
-    DataLineage,
 )
 from ..core.storage import AdaptiveDataStorage
 from ..core.validation import DataQualityManager
@@ -93,29 +90,8 @@ class DataService:
         """
         logger.debug(f"Listing datasets with filters: {filters}")
 
-        # Deterministic local implementation - would query actual dataset catalog
         datasets = []
-
-        for i in range(offset, min(offset + limit, 100)):  # Synthetic 100 datasets
-            dataset = Dataset(
-                id=f"dataset_{i}",
-                title=f"Dataset {i}",
-                description=f"Sample dataset {i}",
-                type="vector",
-                format="geojson",
-                metadata=DatasetMetadata(
-                    title=f"Dataset {i}",
-                    description=f"Sample dataset {i}",
-                    spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-                    temporal=TemporalExtent(
-                        start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-                    ),
-                    lineage=DataLineage(
-                        source="service", process="list", created_by="geo-infer-data"
-                    ),
-                ),
-            )
-
+        for dataset in list(self.datasets.values())[offset : offset + limit]:
             # Apply filters
             if filters:
                 if "type" in filters and dataset.type != filters["type"]:
@@ -162,29 +138,7 @@ class DataService:
         if dataset_id in self.datasets:
             return self.datasets[dataset_id]
 
-        # Query storage service
-        # Deterministic local implementation
-        dataset = Dataset(
-            id=dataset_id,
-            title=f"Dataset {dataset_id}",
-            type="vector",
-            format="geojson",
-            metadata=DatasetMetadata(
-                title=f"Dataset {dataset_id}",
-                spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-                temporal=TemporalExtent(
-                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-                ),
-                lineage=DataLineage(
-                    source="service", process="lookup", created_by="geo-infer-data"
-                ),
-            ),
-        )
-
-        # Cache result
-        self.datasets[dataset_id] = dataset
-
-        return dataset
+        return self.datasets.get(dataset_id)
 
     async def get_dataset_data(
         self,
@@ -207,6 +161,9 @@ class DataService:
         """
         logger.debug(f"Getting data for dataset {dataset_id} with format {format}")
 
+        if dataset_id not in self.datasets:
+            raise KeyError(f"Dataset {dataset_id!r} is not registered")
+
         # Log access
         self.access_log.append(
             {
@@ -218,18 +175,11 @@ class DataService:
             }
         )
 
-        # Query storage service
-        query_params = {}
-        if spatial_bounds:
-            query_params["spatial"] = spatial_bounds
-        if temporal_range:
-            query_params["temporal"] = temporal_range
-
         try:
-            data = await self.storage_service.adaptive_query(
+            data = await self.storage_service.retrieve_geospatial_data(
+                dataset_id,
                 spatial_bounds=spatial_bounds,
                 temporal_range=temporal_range,
-                optimization_hints={"format": format},
             )
 
             # Convert format if needed
@@ -297,6 +247,7 @@ class DataService:
         )
 
         self.datasets[dataset_id] = dataset
+        self.quality_service.register_dataset(dataset_id, data, metadata)
 
         logger.info(f"Dataset created successfully: {dataset_id}")
         return dataset_id
@@ -341,10 +292,10 @@ class DataService:
         """
         logger.info(f"Updating dataset {dataset_id}: {updates}")
 
-        if dataset_id not in self.datasets:
-            self.datasets[dataset_id] = await self.get_dataset(dataset_id)
-
-        dataset = self.datasets[dataset_id]
+        dataset = self.datasets.get(dataset_id)
+        if dataset is None:
+            logger.warning("Cannot update unknown dataset %s", dataset_id)
+            return False
 
         # Apply updates
         for key, value in updates.items():
@@ -369,12 +320,11 @@ class DataService:
         """
         logger.info(f"Deleting dataset: {dataset_id}")
 
-        if dataset_id in self.datasets:
-            del self.datasets[dataset_id]
+        if dataset_id not in self.datasets:
+            logger.warning("Cannot delete unknown dataset %s", dataset_id)
+            return False
 
-        # Delete from storage
-        # Implementation would delete from storage service
-
+        del self.datasets[dataset_id]
         return True
 
     async def get_dataset_quality(self, dataset_id: str) -> DataQualityReport:
