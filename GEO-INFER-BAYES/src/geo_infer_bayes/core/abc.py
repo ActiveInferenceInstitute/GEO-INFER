@@ -7,6 +7,9 @@ Bayesian inference when likelihood functions are intractable.
 
 import numpy as np
 from typing import Dict, Any, Optional, Union, List, Callable
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ApproximateBayesianComputation:
@@ -35,19 +38,28 @@ class ApproximateBayesianComputation:
             n_samples: Number of ABC samples to generate
             random_seed: Random seed for reproducibility
         """
+        valid_metrics = {"euclidean", "manhattan", "mahalanobis"}
+        if distance_metric.lower() not in valid_metrics:
+            raise ValueError(
+                f"distance_metric must be one of {sorted(valid_metrics)}"
+            )
+        if not np.isfinite(tolerance) or tolerance <= 0:
+            raise ValueError("tolerance must be finite and strictly positive")
+        if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
+            raise ValueError("n_samples must be a positive integer")
         self.model = model
         self.distance_metric = distance_metric.lower()
-        self.tolerance = tolerance
-        self.n_samples = n_samples
-
-        if random_seed is not None:
-            np.random.seed(random_seed)
+        self.tolerance = float(tolerance)
+        self.n_samples = int(n_samples)
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
 
     def run(
         self,
         observed_data: Any,
         simulator: Optional[Callable] = None,
         progress_bar: bool = True,
+        prior_samples: Optional[Union[Dict[str, np.ndarray], Any]] = None,
         **kwargs,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
@@ -76,7 +88,7 @@ class ApproximateBayesianComputation:
 
         while accepted_count < self.n_samples and total_attempts < max_attempts:
             # Sample from prior
-            theta = self._sample_from_prior()
+            theta = self._sample_from_prior(prior_samples)
 
             # Simulate data
             simulated_data = simulator(theta)
@@ -92,52 +104,99 @@ class ApproximateBayesianComputation:
             total_attempts += 1
 
         if accepted_count < self.n_samples:
-            print(
-                f"Warning: Only {accepted_count} samples accepted out of {self.n_samples} requested"
+            logger.warning(
+                "Only %d samples accepted out of %d requested",
+                accepted_count,
+                self.n_samples,
             )
 
         # Convert to the expected format
         return self._convert_samples_to_dict(samples)
 
-    def _sample_from_prior(self) -> Dict[str, float]:
+    def _sample_from_prior(
+        self, prior_samples: Optional[Union[Dict[str, np.ndarray], Any]] = None
+    ) -> Dict[str, float]:
         """Sample parameter values from the prior distribution."""
+        if prior_samples is not None:
+            if isinstance(prior_samples, dict):
+                if not prior_samples:
+                    raise ValueError("prior_samples must not be empty")
+                lengths = {
+                    len(np.asarray(values)) for values in prior_samples.values()
+                }
+                if len(lengths) != 1:
+                    raise ValueError("prior_samples parameters must have equal lengths")
+                n_previous = next(iter(lengths))
+                if n_previous == 0:
+                    raise ValueError("prior_samples must contain at least one draw")
+                index = int(self.rng.integers(n_previous))
+                sampled = {}
+                for parameter, values in prior_samples.items():
+                    value = np.asarray(values)[index]
+                    sampled[parameter] = (
+                        value.item() if np.asarray(value).shape == () else value.copy()
+                    )
+                return sampled
+            if hasattr(prior_samples, "data_vars"):
+                return self._sample_from_prior(
+                    {
+                        parameter: values.values
+                        for parameter, values in prior_samples.data_vars.items()
+                    }
+                )
+            raise TypeError("prior_samples must be a mapping or xarray Dataset")
+
         theta = {}
 
         for param, param_info in self.model.parameters.items():
             if param_info["prior"] == "log_normal":
                 mu = param_info["hyperparams"]["mu"]
                 sigma = param_info["hyperparams"]["sigma"]
-                theta[param] = np.exp(np.random.normal(mu, sigma))
+                theta[param] = np.exp(self.rng.normal(mu, sigma))
             elif param_info["prior"] == "normal":
                 mu = param_info["hyperparams"]["mu"]
                 sigma = param_info["hyperparams"]["sigma"]
-                theta[param] = np.random.normal(mu, sigma)
+                theta[param] = self.rng.normal(mu, sigma)
             elif param_info["prior"] == "uniform":
                 low = param_info["hyperparams"]["low"]
                 high = param_info["hyperparams"]["high"]
-                theta[param] = np.random.uniform(low, high)
+                theta[param] = self.rng.uniform(low, high)
             else:
-                theta[param] = np.random.normal(0, 1)
+                theta[param] = self.rng.normal(0, 1)
 
         return theta
 
     def _compute_distance(self, simulated: np.ndarray, observed: np.ndarray) -> float:
-        """Compute distance between simulated and observed data."""
+        """Compute a validated distance between simulated and observed data."""
+        simulated = np.asarray(simulated, dtype=float).reshape(-1)
+        observed = np.asarray(observed, dtype=float).reshape(-1)
+        if simulated.shape != observed.shape:
+            raise ValueError("simulated and observed data must have the same shape")
+        if not np.all(np.isfinite(simulated)) or not np.all(np.isfinite(observed)):
+            raise ValueError("simulated and observed data must be finite")
         if self.distance_metric == "euclidean":
-            return np.sqrt(np.sum((simulated - observed) ** 2))
+            distance = np.linalg.norm(simulated - observed)
         elif self.distance_metric == "manhattan":
-            return np.sum(np.abs(simulated - observed))
+            distance = np.sum(np.abs(simulated - observed))
         elif self.distance_metric == "mahalanobis":
-            # Simplified Mahalanobis distance
             diff = simulated - observed
-            cov = np.cov(np.column_stack([simulated, observed]))
-            if cov.shape[0] >= 2:
-                inv_cov = np.linalg.inv(cov)
-                return np.sqrt(diff.T @ inv_cov @ diff)
-            else:
-                return np.sqrt(np.sum(diff**2))
+            # Two draws cannot produce a full-rank covariance in general, so
+            # use a regularized pseudoinverse as the explicit ABC approximation.
+            covariance = np.atleast_2d(
+                np.cov(np.vstack((simulated, observed)), rowvar=False)
+            )
+            scale = max(
+                float(np.trace(covariance)) / max(covariance.shape[0], 1), 1.0
+            )
+            covariance += np.eye(covariance.shape[0]) * (scale * 1e-8)
+            distance = np.sqrt(
+                max(float(diff @ np.linalg.pinv(covariance) @ diff), 0.0)
+            )
         else:
             raise ValueError(f"Unknown distance metric: {self.distance_metric}")
+        if not np.isfinite(distance):
+            raise ValueError("distance calculation produced a non-finite value")
+        return float(distance)
 
     def _convert_samples_to_dict(
         self, samples: List[Dict[str, float]]
@@ -172,6 +231,6 @@ class ApproximateBayesianComputation:
         Returns:
             Updated samples
         """
-        # For ABC, we can run the algorithm again with the new data
-        # and potentially use previous samples to inform the prior
-        return self.run(new_data, **kwargs)
+        if previous_samples is None:
+            raise ValueError("previous_samples are required for an ABC update")
+        return self.run(new_data, prior_samples=previous_samples, **kwargs)

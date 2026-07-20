@@ -38,12 +38,16 @@ class TestPerformanceScaling:
         spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
         design_matrix = DesignMatrix(matrix=X, names=["int", "x1", "x2"])
 
-        # Time the operation
-        start_time = time.time()
+        # Warm up the linear-algebra path so one-time BLAS/library setup does
+        # not turn a scaling contract into a host-dependent import benchmark.
         result = fit_glm(spm_data, design_matrix)
-        end_time = time.time()
+        timings = []
+        for _ in range(3):
+            start_time = time.perf_counter()
+            result = fit_glm(spm_data, design_matrix)
+            timings.append(time.perf_counter() - start_time)
 
-        execution_time = end_time - start_time
+        execution_time = float(np.median(timings))
 
         # GLM should scale roughly as O(n*k^2) where n=data points, k=parameters
         # Allow reasonable time limits

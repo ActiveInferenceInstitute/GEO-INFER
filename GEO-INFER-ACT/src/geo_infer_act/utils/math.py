@@ -952,6 +952,13 @@ def assess_convergence(
     }
 
 
-def sample_dirichlet(alpha: np.ndarray) -> np.ndarray:
-    """Sample from Dirichlet distribution."""
-    return np.random.dirichlet(alpha)
+def sample_dirichlet(
+    alpha: np.ndarray, random_state: Optional[Union[int, np.random.Generator]] = None
+) -> np.ndarray:
+    """Sample from a Dirichlet distribution using an isolated RNG stream."""
+    rng = (
+        random_state
+        if isinstance(random_state, np.random.Generator)
+        else np.random.default_rng(random_state)
+    )
+    return rng.dirichlet(alpha)

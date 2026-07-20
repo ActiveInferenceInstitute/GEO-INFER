@@ -44,15 +44,22 @@ class VariationalInference:
         vi_method: str = "meanfield",
         random_seed: Optional[int] = None,
     ):
+        if not np.isfinite(learning_rate) or learning_rate <= 0:
+            raise ValueError("learning_rate must be finite and strictly positive")
+        if not isinstance(n_iterations, (int, np.integer)) or n_iterations < 1:
+            raise ValueError("n_iterations must be a positive integer")
+        if not np.isfinite(convergence_tol) or convergence_tol < 0:
+            raise ValueError("convergence_tol must be finite and non-negative")
+        if not isinstance(n_mc_samples, (int, np.integer)) or n_mc_samples < 1:
+            raise ValueError("n_mc_samples must be a positive integer")
         self.model = model
-        self.learning_rate = learning_rate
-        self.n_iterations = n_iterations
-        self.convergence_tol = convergence_tol
-        self.n_mc_samples = n_mc_samples
+        self.learning_rate = float(learning_rate)
+        self.n_iterations = int(n_iterations)
+        self.convergence_tol = float(convergence_tol)
+        self.n_mc_samples = int(n_mc_samples)
         self.vi_method = vi_method.lower()
-
-        if random_seed is not None:
-            np.random.seed(random_seed)
+        self.random_seed = random_seed
+        self.rng = np.random.default_rng(random_seed)
 
         if self.vi_method not in ["meanfield", "fullrank"]:
             raise ValueError(
@@ -61,7 +68,13 @@ class VariationalInference:
             )
 
     def run(
-        self, data: Any, progress_bar: bool = True, **kwargs
+        self,
+        data: Any,
+        progress_bar: bool = True,
+        *,
+        initial_var_params: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
+        n_samples: int = 1000,
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Run variational inference for the model.
@@ -80,10 +93,17 @@ class VariationalInference:
         dict or Dataset
             Approximate posterior samples
         """
+        if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
+            raise ValueError("n_samples must be a positive integer")
         param_names = list(self.model.parameters.keys())
 
         # Initialize variational parameters
-        var_params = self._initialize_variational_parameters(param_names)
+        if initial_var_params is None:
+            var_params = self._initialize_variational_parameters(param_names)
+        else:
+            if set(initial_var_params) != set(param_names):
+                raise ValueError("initial_var_params must match model parameters")
+            var_params = copy.deepcopy(initial_var_params)
 
         # Set up progress bar
         iterator = range(self.n_iterations)
@@ -126,7 +146,7 @@ class VariationalInference:
 
         # Generate samples from the approximate posterior
         samples = self._generate_samples(
-            best_params, n_samples=kwargs.get("n_samples", 1000)
+            best_params, n_samples=n_samples
         )
 
         return samples
@@ -152,29 +172,29 @@ class VariationalInference:
                 mu = param_info["hyperparams"]["mu"]
                 sigma = param_info["hyperparams"]["sigma"]
                 # Initialize in log space
-                var_params[param]["mean"] = mu
+                var_params[param]["mean"] = np.asarray(mu, dtype=float)
             elif param_info["prior"] == "normal":
                 mu = param_info["hyperparams"]["mu"]
-                var_params[param]["mean"] = mu
+                var_params[param]["mean"] = np.asarray(mu, dtype=float)
             elif param_info["prior"] == "uniform":
                 low = param_info["hyperparams"]["low"]
                 high = param_info["hyperparams"]["high"]
-                var_params[param]["mean"] = (low + high) / 2
+                var_params[param]["mean"] = np.asarray((low + high) / 2, dtype=float)
             else:
-                var_params[param]["mean"] = 0.0
+                var_params[param]["mean"] = np.asarray(0.0, dtype=float)
 
             # Initialize log-std based on prior
             if param_info["prior"] == "log_normal" or param_info["prior"] == "normal":
                 sigma = param_info["hyperparams"].get("sigma", 1.0)
-                var_params[param]["log_std"] = np.log(sigma)
+                var_params[param]["log_std"] = np.log(np.asarray(sigma, dtype=float))
             else:
-                var_params[param]["log_std"] = 0.0  # log(1.0)
+                var_params[param]["log_std"] = np.asarray(0.0, dtype=float)
 
             # Full-rank approximation: initialise a lower-triangular Cholesky
             # factor L such that Sigma = L @ L.T approximates the prior covariance.
             # Use a small near-identity initialisation for numerical stability.
             sigma_init = param_info["hyperparams"].get("sigma", 1.0)
-            var_params[param]["cov_factor"] = np.eye(1) * sigma_init  # L in R^{1×1}
+            var_params[param]["cov_factor"] = np.eye(1) * float(np.asarray(sigma_init).reshape(-1)[0])
 
         return var_params
 
@@ -190,7 +210,13 @@ class VariationalInference:
         param_names = list(var_params.keys())
 
         # Initialize gradients
-        grads = {param: {"mean": 0.0, "log_std": 0.0} for param in param_names}
+        grads = {
+            param: {
+                "mean": np.zeros_like(var_params[param]["mean"], dtype=float),
+                "log_std": np.zeros_like(var_params[param]["log_std"], dtype=float),
+            }
+            for param in param_names
+        }
         if self.vi_method == "fullrank":
             for param in param_names:
                 grads[param]["cov_factor"] = np.zeros_like(
@@ -210,7 +236,7 @@ class VariationalInference:
             log_prob_q = self._log_prob_variational(sample, var_params)
 
             # Accumulate ELBO
-            elbo += log_prob_model - log_prob_q
+            elbo += float(log_prob_model - log_prob_q)
 
             # Compute gradients using score function estimator (REINFORCE)
             # or reparameterization trick (preferred for continuous parameters)
@@ -242,7 +268,7 @@ class VariationalInference:
 
     def _sample_variational_distribution(
         self, var_params: Dict[str, Dict[str, np.ndarray]]
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Sample from the variational distribution.
 
@@ -256,7 +282,7 @@ class VariationalInference:
             std = self._effective_std(param_dist)
 
             # Sample from a standard normal and then transform
-            z = np.random.normal(0, 1)
+            z = self.rng.normal(0, 1, size=np.shape(mean))
             sample[param] = mean + z * std
 
             # Handle constraints for different parameter types
@@ -291,20 +317,20 @@ class VariationalInference:
                 # Convert to log space
                 log_value = np.log(value)
                 # Gaussian log-pdf
-                log_prob += (
+                log_prob += float(np.sum(
                     -0.5 * ((log_value - mean) / std) ** 2
                     - np.log(std)
                     - 0.5 * np.log(2 * np.pi)
-                )
+                ))
                 # Jacobian adjustment for log transform
-                log_prob += -np.log(value)
+                log_prob += float(-np.sum(np.log(value)))
             else:
                 # Regular Gaussian log-pdf
-                log_prob += (
+                log_prob += float(np.sum(
                     -0.5 * ((value - mean) / std) ** 2
                     - np.log(std)
                     - 0.5 * np.log(2 * np.pi)
-                )
+                ))
 
         return log_prob
 
@@ -313,7 +339,7 @@ class VariationalInference:
         sample: Dict[str, float],
         var_params: Dict[str, Dict[str, np.ndarray]],
         param: str,
-    ) -> float:
+    ) -> np.ndarray:
         """
         Compute the gradient of the log density with respect to the mean parameter.
         """
@@ -331,13 +357,13 @@ class VariationalInference:
         sample: Dict[str, float],
         var_params: Dict[str, Dict[str, np.ndarray]],
         param: str,
-    ) -> float:
+    ) -> np.ndarray:
         """
         Compute the gradient of the log density with respect to log standard deviation.
         """
         mean = var_params[param]["mean"]
         if self.vi_method == "fullrank":
-            return 0.0
+            return np.zeros_like(var_params[param]["log_std"], dtype=float)
         std = self._effective_std(var_params[param])
 
         # For log-normal parameters, handle in log space
@@ -416,15 +442,21 @@ class VariationalInference:
             var_params[param]["log_std"] += self.learning_rate * grads[param]["log_std"]
 
             # Constrain log_std for numerical stability
-            var_params[param]["log_std"] = np.clip(var_params[param]["log_std"], -10, 2)
+            var_params[param]["log_std"] = np.clip(
+                var_params[param]["log_std"], -10, 2
+            )
 
-    def _effective_std(self, param_dist: Dict[str, np.ndarray]) -> float:
+    def _effective_std(self, param_dist: Dict[str, np.ndarray]) -> np.ndarray:
         """Return the positive scalar standard deviation for the VI family."""
         if self.vi_method == "fullrank" and "cov_factor" in param_dist:
             cov_factor = np.asarray(param_dist["cov_factor"], dtype=float)
             if cov_factor.size:
-                return float(max(abs(cov_factor.reshape(-1)[0]), 1e-6))
-        return float(max(np.exp(param_dist["log_std"]), 1e-6))
+                if cov_factor.size != 1:
+                    raise ValueError(
+                        "fullrank variational covariance currently supports scalar parameters only"
+                    )
+                return np.asarray(max(abs(cov_factor.reshape(-1)[0]), 1e-6))
+        return np.maximum(np.exp(np.asarray(param_dist["log_std"], dtype=float)), 1e-6)
 
     def _generate_samples(
         self, var_params: Dict[str, Dict[str, np.ndarray]], n_samples: int = 1000
@@ -432,7 +464,12 @@ class VariationalInference:
         """
         Generate samples from the approximate posterior for inference.
         """
-        samples = {param: np.zeros(n_samples) for param in var_params}
+        if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
+            raise ValueError("n_samples must be a positive integer")
+        samples = {
+            param: np.zeros((n_samples,) + np.shape(dist["mean"]))
+            for param, dist in var_params.items()
+        }
 
         for i in range(n_samples):
             sample = self._sample_variational_distribution(var_params)
@@ -478,12 +515,32 @@ class VariationalInference:
             # Use samples to initialize variational parameters
             if self.model.parameters[param]["prior"] == "log_normal":
                 # For log-normal, work in log space
+                samples = np.asarray(samples, dtype=float)
+                if not np.all(np.isfinite(samples)) or np.any(samples <= 0):
+                    raise ValueError(
+                        f"previous samples for log_normal parameter {param} must be positive and finite"
+                    )
                 log_samples = np.log(samples)
                 var_params[param]["mean"] = np.mean(log_samples)
                 var_params[param]["log_std"] = np.log(np.std(log_samples) + 1e-10)
             else:
-                var_params[param]["mean"] = np.mean(samples)
-                var_params[param]["log_std"] = np.log(np.std(samples) + 1e-10)
+                samples = np.asarray(samples, dtype=float)
+                if samples.ndim == 0:
+                    raise ValueError(
+                        f"previous samples for parameter {param} must include a sample axis"
+                    )
+                if samples.shape[0] < 1 or not np.all(np.isfinite(samples)):
+                    raise ValueError(
+                        f"previous samples for parameter {param} must be non-empty and finite"
+                    )
+                var_params[param]["mean"] = np.mean(samples, axis=0)
+                var_params[param]["log_std"] = np.log(
+                    np.std(samples, axis=0) + 1e-10
+                )
 
-        # Run inference with the new data and warm-started parameters
-        return self.run(data=new_data, **kwargs)
+        # Run inference with the new data and warm-started parameters.
+        return self.run(
+            data=new_data,
+            initial_var_params=var_params,
+            **kwargs,
+        )

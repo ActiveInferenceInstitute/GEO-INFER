@@ -22,6 +22,7 @@ the source and validator as authoritative and open a documentation issue.
 - [Installation](getting_started/installation_guide.md) — reproducible uv setup.
 - [First analysis](getting_started/first_analysis.md) — a runnable H3 plus Active Inference workflow.
 - [Active Inference basics](getting_started/active_inference_basics.md) — categorical beliefs, free energy, and policy selection.
+- [Research-grade inference contracts](research_grade_inference_contracts.md) — executable ACT, BAYES, and RISK behavior, uncertainty, and verification.
 - [H3 v4 guide](geospatial/data_formats/h3/index.md) — current H3 naming and hierarchy contracts.
 
 ## Choose a path

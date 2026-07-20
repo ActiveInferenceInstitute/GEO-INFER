@@ -6,7 +6,6 @@ inference in geospatial applications.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
 
 
 class SpatialPrior:

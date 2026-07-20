@@ -18,4 +18,17 @@ from .dynamic_spatial import DynamicSpatialModel
 
 # Causal models
 from .bayesian_network import BayesianNetwork
-from .spatial_causal import SpatialCausalModel 
+from .spatial_causal import SpatialCausalModel
+
+__all__ = [
+    "SpatialGP",
+    "SpatioTemporalGP",
+    "HierarchicalBayesianModel",
+    "MultilevelModel",
+    "DirichletProcessMixture",
+    "SpatialClusteringModel",
+    "BayesianTimeSeriesModel",
+    "DynamicSpatialModel",
+    "BayesianNetwork",
+    "SpatialCausalModel",
+]

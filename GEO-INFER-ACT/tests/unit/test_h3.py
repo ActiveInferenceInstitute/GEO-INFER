@@ -6,6 +6,7 @@ belief updating, multi-agent coordination, and visualization capabilities.
 """
 
 import unittest
+import copy
 import numpy as np
 import os
 import tempfile
@@ -149,6 +150,9 @@ class TestH3Methods(unittest.TestCase):
         gen.enable_h3_spatial(8, self.simple_boundary)
         aim.set_generative_model(gen)
         original_model_beliefs = np.array(gen.beliefs["states"], copy=True)
+        original_policy_rng_state = copy.deepcopy(
+            aim.policy_selector.rng.bit_generator.state
+        )
 
         # Create grid observations
         grid_observations = {}
@@ -162,6 +166,9 @@ class TestH3Methods(unittest.TestCase):
         typed = aim.infer_over_h3_grid(grid_observations, return_result=True)
 
         np.testing.assert_allclose(gen.beliefs["states"], original_model_beliefs)
+        self.assertEqual(
+            aim.policy_selector.rng.bit_generator.state, original_policy_rng_state
+        )
 
         # Verify results structure
         self.assertEqual(len(results), len(grid_observations))

@@ -2,7 +2,6 @@
 Integration tests for GEO-INFER-RISK.
 """
 
-import pytest
 
 
 class TestRiskIntegration:

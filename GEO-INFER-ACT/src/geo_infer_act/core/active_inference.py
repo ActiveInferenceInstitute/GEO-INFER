@@ -214,10 +214,19 @@ class ActiveInferenceModel:
 
         # Local expected-free-energy implementation.
 
+        # A failed optional backend attempt must not leave diagnostics from a
+        # previous backend-backed step attached to the local result.
+        self.latest_pymdp_result = None
+
         # Generate default actions if none provided
         if available_actions is None:
             available_actions = list(
-                range(getattr(self.generative_model, "num_controls", [3])[0])
+                range(
+                    _coerce_action_count(
+                        getattr(self.generative_model, "num_controls", None),
+                        default=3,
+                    )
+                )
             )
 
         belief_vector = self._extract_belief_vector(self.current_beliefs)
@@ -557,6 +566,9 @@ class ActiveInferenceModel:
         original_policy_evaluation = self.latest_policy_evaluation
         original_policy_selection = self.latest_policy_selection
         original_pymdp_result = self.latest_pymdp_result
+        original_policy_rng_state = copy.deepcopy(
+            self.policy_selector.rng.bit_generator.state
+        )
         original_model_beliefs = (
             copy.deepcopy(getattr(self.generative_model, "beliefs", None))
             if self.generative_model is not None
@@ -589,6 +601,7 @@ class ActiveInferenceModel:
             self.latest_policy_evaluation = original_policy_evaluation
             self.latest_policy_selection = original_policy_selection
             self.latest_pymdp_result = original_pymdp_result
+            self.policy_selector.rng.bit_generator.state = original_policy_rng_state
             if self.generative_model is not None:
                 self.generative_model.beliefs = original_model_beliefs
             if len(self.history) > history_len:

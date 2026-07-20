@@ -516,7 +516,14 @@ def integrate_rxinfer(
     """
 
     model_spec = model_params.get("model_specification", default_model)
-    data = model_params.get("data", {"observations": np.random.randn(10)})
+    data = model_params.get(
+        "data",
+        {
+            "observations": np.random.default_rng(
+                config.get("random_seed", 0)
+            ).normal(size=10)
+        },
+    )
 
     return integration_hub.create_rxinfer_model(model_spec, data)
 

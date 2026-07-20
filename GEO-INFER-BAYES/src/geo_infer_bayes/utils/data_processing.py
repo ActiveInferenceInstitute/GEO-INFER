@@ -221,9 +221,16 @@ def _process_temporal_data(temporal_data: pd.Series) -> np.ndarray:
     if not pd.api.types.is_datetime64_any_dtype(temporal_data):
         try:
             temporal_data = pd.to_datetime(temporal_data)
-        except Exception:
-            # If conversion fails, assume it's already numerical
-            pass
+        except (TypeError, ValueError):
+            try:
+                temporal_data = pd.Series(
+                    pd.to_numeric(temporal_data, errors="raise"),
+                    index=temporal_data.index,
+                )
+            except (TypeError, ValueError) as numeric_error:
+                raise ValueError(
+                    "temporal_data must be datetime-like or numeric"
+                ) from numeric_error
 
     # Convert to numerical representation
     if pd.api.types.is_datetime64_any_dtype(temporal_data):

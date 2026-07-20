@@ -69,6 +69,10 @@
           "maximum": 100000,
           "default": 1000
         },
+        "random_seed": {
+          "type": ["integer", "null"],
+          "default": 42
+        },
         "include_secondary_perils": {
           "type": "boolean",
           "default": true

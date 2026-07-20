@@ -1,95 +1,115 @@
-"""
-Diagnostics for Bayesian inference.
+"""Convergence and efficiency diagnostics for Bayesian samples."""
 
-This module provides diagnostic tools for assessing
-convergence and quality of Bayesian inference.
-"""
+from typing import Any, Dict
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+
+
+def _as_chains(values: np.ndarray) -> np.ndarray:
+    """Normalize one parameter to ``(chains, draws)`` without hiding empties."""
+    array = np.asarray(values, dtype=float)
+    if array.size == 0:
+        raise ValueError("posterior samples must not be empty")
+    if not np.all(np.isfinite(array)):
+        raise ValueError("posterior samples must be finite")
+    if array.ndim == 1:
+        return array.reshape(1, -1)
+    if array.ndim == 2:
+        return array
+    return array.reshape(array.shape[0], -1)
+
+
+def _effective_sample_size(chains: np.ndarray) -> float:
+    """Estimate ESS using the initial-positive-sequence autocorrelation sum."""
+    n_chains, n_draws = chains.shape
+    if n_draws < 2:
+        return float(n_chains * n_draws)
+
+    autocorrelations = []
+    for chain in chains:
+        centered = chain - np.mean(chain)
+        variance = float(np.dot(centered, centered) / n_draws)
+        if variance == 0:
+            autocorrelations.append(np.zeros(n_draws - 1))
+            continue
+        correlations = np.correlate(centered, centered, mode="full")[
+            n_draws - 1 :
+        ]
+        autocorrelations.append(correlations[1:] / (n_draws * variance))
+
+    mean_autocorrelation = np.mean(autocorrelations, axis=0)
+    positive_sum = 0.0
+    for correlation in mean_autocorrelation:
+        if correlation <= 0:
+            break
+        positive_sum += float(correlation)
+    total_draws = n_chains * n_draws
+    return float(total_draws / max(1.0, 1.0 + 2.0 * positive_sum))
+
+
+def _r_hat(chains: np.ndarray) -> float:
+    """Return split-chain R-hat, or NaN when multiple chains are unavailable."""
+    n_chains, n_draws = chains.shape
+    if n_chains < 2 or n_draws < 2:
+        return float("nan")
+    within_chain = np.mean(np.var(chains, axis=1, ddof=1))
+    if within_chain == 0:
+        return 1.0 if np.allclose(np.mean(chains, axis=1), np.mean(chains)) else float("inf")
+    between_chain = n_draws * np.var(np.mean(chains, axis=1), ddof=1)
+    variance_hat = ((n_draws - 1) / n_draws) * within_chain + (
+        between_chain / n_draws
+    )
+    return float(np.sqrt(max(variance_hat / within_chain, 0.0)))
 
 
 def mcmc_diagnostics(samples: Dict[str, np.ndarray]) -> Dict[str, Any]:
+    """Compute posterior summaries, effective sample size, and R-hat.
+
+    One-dimensional arrays are treated as a single chain.  Pass a two-
+    dimensional ``(chain, draw)`` array when a meaningful R-hat is required.
     """
-    Compute MCMC diagnostics for posterior samples.
-
-    Args:
-        samples: Dictionary of parameter samples
-
-    Returns:
-        Dictionary of diagnostic metrics
-    """
-    diagnostics = {}
-
-    for param, param_samples in samples.items():
-        # Reshape if needed
-        if param_samples.ndim > 1:
-            param_samples = param_samples.flatten()
-
-        # Basic statistics
-        diagnostics[param] = {
-            'mean': np.mean(param_samples),
-            'std': np.std(param_samples),
-            'median': np.median(param_samples),
-            'q25': np.percentile(param_samples, 25),
-            'q75': np.percentile(param_samples, 75),
-            'min': np.min(param_samples),
-            'max': np.max(param_samples),
+    diagnostics: Dict[str, Any] = {}
+    for parameter, values in samples.items():
+        chains = _as_chains(values)
+        flattened = chains.reshape(-1)
+        diagnostics[parameter] = {
+            "mean": float(np.mean(flattened)),
+            "std": float(np.std(flattened)),
+            "median": float(np.median(flattened)),
+            "q25": float(np.percentile(flattened, 25)),
+            "q75": float(np.percentile(flattened, 75)),
+            "min": float(np.min(flattened)),
+            "max": float(np.max(flattened)),
+            "ess": _effective_sample_size(chains),
+            "r_hat": _r_hat(chains),
         }
-
-        # Effective sample size (simplified)
-        n_samples = len(param_samples)
-        autocorr = np.corrcoef(param_samples[:-1], param_samples[1:])[0, 1]
-        if autocorr > 0:
-            diagnostics[param]['ess'] = n_samples / (1 + 2 * np.sum([autocorr**k for k in range(1, min(100, n_samples//2))]))
-        else:
-            diagnostics[param]['ess'] = n_samples
-
-        # R-hat (simplified for single chain)
-        diagnostics[param]['r_hat'] = 1.0  # Would need multiple chains for proper R-hat
-
     return diagnostics
 
 
 def convergence_metrics(samples: Dict[str, np.ndarray]) -> Dict[str, Any]:
-    """
-    Compute convergence metrics for MCMC samples.
-
-    Args:
-        samples: Dictionary of parameter samples
-
-    Returns:
-        Dictionary of convergence metrics
-    """
-    metrics = {}
-
-    for param, param_samples in samples.items():
-        # Reshape if needed
-        if param_samples.ndim > 1:
-            param_samples = param_samples.flatten()
-
-        # Gelman-Rubin statistic (simplified)
-        # In practice, this would compare multiple chains
-        metrics[param] = {
-            'potential_scale_reduction': 1.0,  # Baseline
-            'monte_carlo_se': np.std(param_samples) / np.sqrt(len(param_samples)),
+    """Compute R-hat, Monte Carlo standard error, and Geweke statistics."""
+    metrics: Dict[str, Any] = {}
+    for parameter, values in samples.items():
+        chains = _as_chains(values)
+        flattened = chains.reshape(-1)
+        n = len(flattened)
+        split = max(1, n // 2)
+        first = flattened[:split]
+        last = flattened[split:]
+        var_first = float(np.var(first, ddof=1)) if len(first) > 1 else 0.0
+        var_last = float(np.var(last, ddof=1)) if len(last) > 1 else 0.0
+        denominator = np.sqrt(
+            var_first / max(len(first), 1) + var_last / max(len(last), 1)
+        )
+        geweke_z = (
+            float((np.mean(first) - np.mean(last)) / denominator)
+            if denominator > 0
+            else 0.0
+        )
+        ess = _effective_sample_size(chains)
+        metrics[parameter] = {
+            "potential_scale_reduction": _r_hat(chains),
+            "monte_carlo_se": float(np.std(flattened) / np.sqrt(max(ess, 1.0))),
+            "geweke_z": geweke_z,
         }
-
-        # Geweke diagnostic (simplified)
-        n = len(param_samples)
-        n1 = n // 2
-        n2 = n - n1
-
-        mean1 = np.mean(param_samples[:n1])
-        mean2 = np.mean(param_samples[n1:])
-
-        var1 = np.var(param_samples[:n1])
-        var2 = np.var(param_samples[n1:])
-
-        if var1 > 0 and var2 > 0:
-            geweke_z = (mean1 - mean2) / np.sqrt(var1/n1 + var2/n2)
-            metrics[param]['geweke_z'] = geweke_z
-        else:
-            metrics[param]['geweke_z'] = 0.0
-
     return metrics

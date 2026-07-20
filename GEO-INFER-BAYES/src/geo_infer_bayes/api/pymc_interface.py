@@ -3,10 +3,9 @@ Interface to PyMC for Bayesian computation.
 """
 
 import numpy as np
-import xarray as xr
 import pymc as pm
 import arviz as az
-from typing import Dict, Any, Optional, Union, List, Tuple, Callable
+from typing import Dict, Any, Optional, Union, Tuple
 
 
 class PyMCInterface:
@@ -81,12 +80,7 @@ class PyMCInterface:
             if kernel_type == 'rbf':
                 cov_func = pm.gp.cov.ExpQuad(X.shape[1], ls=lengthscale) * variance
             elif kernel_type == 'matern':
-                # For Matern, we need a prior on the degree
-                degree = pm.Uniform(
-                    'degree',
-                    lower=kwargs.get('degree_lower', 0.5),
-                    upper=kwargs.get('degree_upper', 3.0)
-                )
+                # PyMC's Matern52 kernel provides the supported fixed degree.
                 cov_func = pm.gp.cov.Matern52(X.shape[1], ls=lengthscale) * variance
             elif kernel_type == 'exponential':
                 cov_func = pm.gp.cov.Exponential(X.shape[1], ls=lengthscale) * variance
@@ -100,7 +94,7 @@ class PyMCInterface:
             gp = pm.gp.Marginal(mean_func=mean_func, cov_func=cov_func)
             
             # Add observations
-            y_obs = gp.marginal_likelihood('y_obs', X=X, y=y, noise=noise)
+            gp.marginal_likelihood('y_obs', X=X, y=y, noise=noise)
 
         self.pymc_model = model
         self.gp = gp
@@ -160,7 +154,7 @@ class PyMCInterface:
             mu = alpha[groups] + pm.math.dot(X, beta[groups].T)
             
             # Likelihood
-            y_obs = pm.Normal('y_obs', mu=mu, sigma=sigma, observed=y)
+            pm.Normal('y_obs', mu=mu, sigma=sigma, observed=y)
 
         self.pymc_model = model
         self._model_type = 'hierarchical'
@@ -381,4 +375,4 @@ class PyMCInterface:
                 # Flatten multi-dimensional parameters
                 samples[var_name] = samples[var_name].reshape(samples[var_name].shape[0], -1)
                 
-        return samples 
+        return samples

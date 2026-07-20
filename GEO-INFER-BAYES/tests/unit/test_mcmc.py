@@ -7,10 +7,10 @@ simple Gaussian model.
 """
 
 import numpy as np
-import pytest
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from geo_infer_bayes.core.mcmc import MCMC
@@ -38,6 +38,34 @@ class _GaussianModel(BayesianModel):
     def predict(self, X_new, posterior=None, samples=100, return_std=False):
         m = np.zeros(len(X_new))
         return (m, np.ones(len(X_new))) if return_std else m
+
+    def posterior_predictive(self, posterior, X=None, samples=100):
+        return np.zeros((samples, 1))
+
+
+class _VectorGaussianModel(BayesianModel):
+    """Two-dimensional Gaussian model for parameter-layout regression tests."""
+
+    def _setup_model(self, **kwargs) -> None:
+        self.parameters = {
+            "weights": {
+                "prior": "normal",
+                "hyperparams": {"mu": np.zeros(2), "sigma": np.ones(2)},
+            }
+        }
+
+    def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
+        weights = np.asarray(theta["weights"], dtype=float)
+        observations = np.asarray(data, dtype=float)
+        return float(-0.5 * np.sum((observations - weights) ** 2))
+
+    def log_prior(self, theta: Dict[str, Any]) -> float:
+        weights = np.asarray(theta["weights"], dtype=float)
+        return float(-0.5 * np.sum((weights / 5.0) ** 2))
+
+    def predict(self, X_new, posterior=None, samples=100, return_std=False):
+        values = np.zeros(len(X_new))
+        return (values, np.ones(len(X_new))) if return_std else values
 
     def posterior_predictive(self, posterior, X=None, samples=100):
         return np.zeros((samples, 1))
@@ -152,3 +180,44 @@ class TestMCMCLogPosterior:
         assert result == -np.inf
 
         model.log_posterior = original
+
+
+def test_mcmc_random_seed_does_not_mutate_global_rng() -> None:
+    """Sampler reproducibility must be isolated from NumPy's global RNG."""
+    np.random.seed(123)
+    before = np.random.random()
+    MCMC(_GaussianModel(name="test"), random_seed=7)
+    after = np.random.random()
+
+    np.random.seed(123)
+    np.testing.assert_allclose([before, after], np.random.random(2))
+
+
+def test_mcmc_update_supports_fewer_previous_samples_than_chains() -> None:
+    model = _GaussianModel(name="test")
+    sampler = MCMC(model, n_chains=3, random_seed=0)
+    previous = {"mu": np.array([2.0])}
+
+    samples = sampler.update(
+        np.array([2.0, 2.5]),
+        previous,
+        n_samples=4,
+        progress_bar=False,
+    )
+
+    assert samples["mu"].shape == (12,)
+
+
+def test_mcmc_restores_vector_parameter_shapes() -> None:
+    sampler = MCMC(_VectorGaussianModel(name="vector"), n_chains=1, random_seed=4)
+    samples = sampler.run(
+        np.array([1.0, -1.0]),
+        n_samples=12,
+        n_warmup=5,
+        init_strategy="custom",
+        custom_init=[{"weights": np.zeros(2)}],
+        progress_bar=False,
+    )
+
+    assert samples["weights"].shape == (12, 2)
+    assert np.all(np.isfinite(samples["weights"]))

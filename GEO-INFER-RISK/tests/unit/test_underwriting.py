@@ -1,6 +1,5 @@
 """Tests for underwriting models."""
 
-import pytest
 from geo_infer_risk.underwriting.models.underwriting_models import (
     Decision,
     DecisionStatus,

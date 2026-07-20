@@ -41,12 +41,12 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.spatial_statistics import SpatialStatistics
+    from geo_infer_math.core.spatial_statistics import MoranI
 
     MATH_AVAILABLE = True
 except ImportError:
     MATH_AVAILABLE = False
-    SpatialStatistics = None
+    MoranI = None
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ class EnhancedCatastropheModel:
 
         if MATH_AVAILABLE:
             try:
-                self.math_interface = SpatialStatistics()
+                self.math_interface = MoranI()
                 self.logger.info("Math interface initialized")
             except Exception as e:
                 self.logger.warning(f"Failed to initialize math interface: {e}")

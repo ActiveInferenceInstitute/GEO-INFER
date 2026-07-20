@@ -219,6 +219,10 @@ class GenerativeModel:
         self.model_type = model_type
         self.parameters = parameters
         self.prior_precision = parameters.get("prior_precision", 1.0)
+        random_seed = parameters.get("random_seed")
+        if random_seed is not None and not isinstance(random_seed, (int, np.integer)):
+            raise TypeError("random_seed must be an integer or None")
+        self.rng = np.random.default_rng(random_seed)
 
         # Basic dimensions
         self.state_dim = parameters.get("state_dim", 1)
@@ -330,7 +334,7 @@ class GenerativeModel:
         y = np.arange(0, field_size[1], spatial_resolution)
         self.spatial_grid = np.meshgrid(x, y)
 
-        # Initialize connectivity kernel (Gaussian for simplicity)
+        # Initialize a finite-support normalized Gaussian connectivity kernel.
         sigma = self.parameters.get("connectivity_sigma", 1.0)
         self.connectivity_kernel = self._create_gaussian_kernel(sigma)
 
@@ -338,7 +342,6 @@ class GenerativeModel:
 
     def _create_gaussian_kernel(self, sigma: float) -> np.ndarray:
         """Create Gaussian connectivity kernel for neural field."""
-        # Simplified implementation
         kernel_size = int(6 * sigma) // 2 * 2 + 1  # Ensure odd size
         kernel = np.zeros((kernel_size, kernel_size))
         center = kernel_size // 2
@@ -1093,9 +1096,9 @@ class GenerativeModel:
 
     def _initialize_spatial_observation_model(self) -> Any:
         """Initialize observation model for spatial navigation."""
-        # Observation is distance to target (simplified)
-        # In practice, would be more sophisticated
-        return np.eye(self.state_dim)  # Identity for simplicity
+        # The spatial navigation contract observes one state coordinate per
+        # location; callers can provide a richer observation model through A.
+        return np.eye(self.state_dim)
 
     def integrate_rxinfer(
         self, model_specification: str, data: Dict[str, Any]
@@ -1106,6 +1109,9 @@ class GenerativeModel:
         a structured 'not_available' response when Julia or RxInfer is not installed
         rather than reporting success without a real backend.
         """
+        if not isinstance(model_specification, str) or not model_specification.strip():
+            raise ValueError("model_specification must be a non-empty Julia program")
+
         try:
             import subprocess
             import json as _json
@@ -1124,32 +1130,40 @@ class GenerativeModel:
                 tf.write(data_json)
                 data_path = tf.name
 
-            # Build a minimal Julia snippet to call RxInfer
+            # Execute the supplied Julia program and require it to publish a
+            # non-empty `posterior_marginals` mapping. The previous path printed
+            # a hard-coded success payload without running a model.
             julia_script = f"""
             using RxInfer, JSON
             data = JSON.parsefile(\"{data_path}\")
-            # {model_specification}
-            println(JSON.json(Dict("status" => "success", "posterior_marginals" => Dict(), "iterations" => 100)))
+            {model_specification}
+            if !isdefined(Main, :posterior_marginals)
+                error(\"model_specification must define posterior_marginals\")
+            end
+            if !(posterior_marginals isa AbstractDict) || isempty(posterior_marginals)
+                error(\"posterior_marginals must be a non-empty mapping\")
+            end
+            println(JSON.json(Dict(\"status\" => \"success\", \"posterior_marginals\" => posterior_marginals)))
             """
-            result_proc = subprocess.run(
-                ["julia", "-e", julia_script],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            os.unlink(data_path)
-
-            if result_proc.returncode == 0 and result_proc.stdout.strip():
-                result = _json.loads(result_proc.stdout.strip())
-                logger.info("RxInfer integration completed via Julia subprocess")
-                result.setdefault("backend", "rxinfer")
-                return result
-            else:
-                logger.info(
-                    "Julia/RxInfer unavailable; using deterministic local inference"
+            try:
+                result_proc = subprocess.run(
+                    ["julia", "-e", julia_script],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
                 )
-                return self._deterministic_rxinfer_result(data)
-        except FileNotFoundError:
+                if result_proc.returncode == 0 and result_proc.stdout.strip():
+                    result = _json.loads(result_proc.stdout.strip().splitlines()[-1])
+                    logger.info("RxInfer integration completed via Julia subprocess")
+                    result.setdefault("backend", "rxinfer")
+                    return result
+                raise RuntimeError(
+                    "Julia/RxInfer did not return a valid posterior_marginals mapping"
+                )
+            finally:
+                if os.path.exists(data_path):
+                    os.unlink(data_path)
+        except (FileNotFoundError, RuntimeError):
             return self._deterministic_rxinfer_result(data)
         except Exception as e:
             logger.info(
@@ -1183,6 +1197,17 @@ class GenerativeModel:
         Uses a NumPy random-walk Metropolis sampler when bayeux/JAX is not
         installed, so the caller still gets real posterior samples.
         """
+        if not callable(log_density_fn):
+            raise TypeError("log_density_fn must be callable")
+        if not isinstance(test_point, Mapping) or not test_point:
+            raise ValueError("test_point must be a non-empty parameter mapping")
+        test_point = {
+            key: np.asarray(value, dtype=float).copy()
+            for key, value in test_point.items()
+        }
+        if not all(np.all(np.isfinite(value)) for value in test_point.values()):
+            raise ValueError("test_point values must be finite")
+
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", DeprecationWarning)
@@ -1192,7 +1217,8 @@ class GenerativeModel:
                 model = bx.Model(log_density=log_density_fn, test_point=test_point)
                 # Use NUTS sampler by default
                 results = model.mcmc.numpyro_nuts(
-                    seed=jax.random.PRNGKey(0), num_samples=1000
+                    seed=jax.random.PRNGKey(int(self.parameters.get("random_seed", 0))),
+                    num_samples=1000,
                 )
             posterior_samples = {k: np.array(v) for k, v in results.items()}
             logger.info("Bayeux/JAX NUTS sampling completed")
@@ -1215,19 +1241,19 @@ class GenerativeModel:
             samples: Dict[str, list] = {k: [] for k in current}
             try:
                 current_log_p = float(log_density_fn(**current))
-            except Exception:
-                current_log_p = -1e10
+            except Exception as exc:
+                raise ValueError("log_density_fn failed at test_point") from exc
             step_size = 0.1
             for _ in range(n_samples):
                 proposal = {
-                    k: v + np.random.randn(*v.shape) * step_size
+                    k: v + self.rng.standard_normal(size=v.shape) * step_size
                     for k, v in current.items()
                 }
                 try:
                     proposal_log_p = float(log_density_fn(**proposal))
                 except Exception:
-                    proposal_log_p = -1e10
-                if np.log(np.random.rand()) < (proposal_log_p - current_log_p):
+                    proposal_log_p = -np.inf
+                if np.log(self.rng.random()) < (proposal_log_p - current_log_p):
                     current = proposal
                     current_log_p = proposal_log_p
                 for k in samples:

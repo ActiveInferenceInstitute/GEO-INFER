@@ -7,9 +7,10 @@ routes to the right sampler, and that run() produces sample dictionaries.
 
 import numpy as np
 import pytest
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from geo_infer_bayes.models.base import BayesianModel
