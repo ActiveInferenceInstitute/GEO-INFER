@@ -86,7 +86,9 @@ class EnhancedHazardModel:
         self.rng = np.random.default_rng(random_seed)
         reference_time = self.params.get("reference_time")
         if reference_time is None:
-            reference_time = datetime(2000, 1, 1) if random_seed is not None else datetime.now()
+            reference_time = (
+                datetime(2000, 1, 1) if random_seed is not None else datetime.now()
+            )
         if isinstance(reference_time, str):
             reference_time = datetime.fromisoformat(reference_time)
         if not isinstance(reference_time, datetime):
@@ -106,7 +108,10 @@ class EnhancedHazardModel:
         self.include_climate_change = params.get("include_climate_change", False)
         self.climate_scenario = params.get("climate_scenario", "rcp4.5")
         self.spatial_resolution = params.get("spatial_resolution", 9)  # H3 resolution
-        if not isinstance(self.spatial_resolution, (int, np.integer)) or not 0 <= self.spatial_resolution <= 15:
+        if (
+            not isinstance(self.spatial_resolution, (int, np.integer))
+            or not 0 <= self.spatial_resolution <= 15
+        ):
             raise ValueError("spatial_resolution must be an integer in [0, 15]")
         self.temporal_resolution = params.get("temporal_resolution", "daily")
         self.include_seasonality = params.get("include_seasonality", True)
@@ -499,9 +504,7 @@ class EnhancedHazardModel:
             start_time, end_time = time_period
             timestamp = start_time + timedelta(
                 seconds=int(
-                    self.rng.integers(
-                        0, int((end_time - start_time).total_seconds())
-                    )
+                    self.rng.integers(0, int((end_time - start_time).total_seconds()))
                 )
             )
         else:

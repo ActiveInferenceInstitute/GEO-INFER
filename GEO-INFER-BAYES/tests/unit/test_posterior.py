@@ -12,15 +12,16 @@ from geo_infer_bayes.models.bayesian_timeseries import BayesianTimeSeriesModel
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 
 def _make_posterior_samples():
     """Create deterministic posterior draws for summary-statistic tests."""
     rng = np.random.RandomState(0)
     samples = {
-        'mu': rng.normal(2.0, 0.5, size=500),
-        'sigma': np.abs(rng.normal(1.0, 0.3, size=500)),
+        "mu": rng.normal(2.0, 0.5, size=500),
+        "sigma": np.abs(rng.normal(1.0, 0.3, size=500)),
     }
     return samples
 
@@ -30,7 +31,7 @@ class TestPosteriorCredibleInterval:
 
     def test_95_credible_interval(self) -> None:
         samples = _make_posterior_samples()
-        mu_samples = samples['mu']
+        mu_samples = samples["mu"]
         lower = np.percentile(mu_samples, 2.5)
         upper = np.percentile(mu_samples, 97.5)
         assert lower < 2.0 < upper
@@ -38,7 +39,7 @@ class TestPosteriorCredibleInterval:
 
     def test_50_credible_interval_narrower_than_95(self) -> None:
         samples = _make_posterior_samples()
-        mu_samples = samples['mu']
+        mu_samples = samples["mu"]
         ci95 = (np.percentile(mu_samples, 2.5), np.percentile(mu_samples, 97.5))
         ci50 = (np.percentile(mu_samples, 25), np.percentile(mu_samples, 75))
         assert (ci95[1] - ci95[0]) > (ci50[1] - ci50[0])
@@ -47,7 +48,7 @@ class TestPosteriorCredibleInterval:
         """The 99% CI should almost certainly contain the true mean (2.0)
         given 500 samples from N(2.0, 0.5)."""
         samples = _make_posterior_samples()
-        mu_samples = samples['mu']
+        mu_samples = samples["mu"]
         lower = np.percentile(mu_samples, 0.5)
         upper = np.percentile(mu_samples, 99.5)
         assert lower < 2.0 < upper
@@ -58,23 +59,23 @@ class TestPosteriorSummaryStatistics:
 
     def test_mean_close_to_true_value(self) -> None:
         samples = _make_posterior_samples()
-        mu_mean = np.mean(samples['mu'])
+        mu_mean = np.mean(samples["mu"])
         np.testing.assert_allclose(mu_mean, 2.0, atol=0.15)
 
     def test_std_reasonable(self) -> None:
         samples = _make_posterior_samples()
-        mu_std = np.std(samples['mu'])
+        mu_std = np.std(samples["mu"])
         assert 0.1 < mu_std < 1.5
 
     def test_median_close_to_mean_for_symmetric(self) -> None:
         samples = _make_posterior_samples()
-        mu_median = np.median(samples['mu'])
-        mu_mean = np.mean(samples['mu'])
+        mu_median = np.median(samples["mu"])
+        mu_mean = np.mean(samples["mu"])
         np.testing.assert_allclose(mu_median, mu_mean, atol=0.15)
 
     def test_sigma_samples_positive(self) -> None:
         samples = _make_posterior_samples()
-        assert np.all(samples['sigma'] > 0)
+        assert np.all(samples["sigma"] > 0)
 
 
 class TestPosteriorPredictive:
@@ -87,9 +88,9 @@ class TestPosteriorPredictive:
         rng = np.random.RandomState(1)
         pred_samples = np.zeros((n_pred, n_new))
         for i in range(n_pred):
-            idx = rng.randint(0, len(samples['mu']))
-            mu = samples['mu'][idx]
-            sigma = samples['sigma'][idx]
+            idx = rng.randint(0, len(samples["mu"]))
+            mu = samples["mu"][idx]
+            sigma = samples["sigma"][idx]
             pred_samples[i] = rng.normal(mu, sigma, size=n_new)
         assert pred_samples.shape == (n_pred, n_new)
 
@@ -99,8 +100,8 @@ class TestPosteriorPredictive:
         rng = np.random.RandomState(2)
         preds = []
         for _ in range(200):
-            idx = rng.randint(0, len(samples['mu']))
-            preds.append(rng.normal(samples['mu'][idx], samples['sigma'][idx]))
+            idx = rng.randint(0, len(samples["mu"]))
+            preds.append(rng.normal(samples["mu"][idx], samples["sigma"][idx]))
         preds = np.array(preds)
         # Most predictions should fall within [-2, 6] given mu~2, sigma~1
         in_range = np.sum((preds > -2) & (preds < 6)) / len(preds)

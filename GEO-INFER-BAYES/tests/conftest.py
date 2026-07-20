@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-BAYES tests.
 Provides GP kernel configurations, MCMC posterior samples,
 prior parameter dicts, synthetic spatial data, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import geopandas as gpd
@@ -70,11 +71,13 @@ def mcmc_samples() -> np.ndarray:
     """
     rng = np.random.default_rng(seed=42)
     mean = np.array([2.0, 0.5, 0.1])
-    cov = np.array([
-        [0.04, 0.002, 0.0],
-        [0.002, 0.01, 0.0],
-        [0.0, 0.0, 0.001],
-    ])
+    cov = np.array(
+        [
+            [0.04, 0.002, 0.0],
+            [0.002, 0.01, 0.0],
+            [0.0, 0.0, 0.001],
+        ]
+    )
     samples = rng.multivariate_normal(mean, cov, size=1000)
     # Ensure noise variance is positive
     samples[:, 2] = np.abs(samples[:, 2])

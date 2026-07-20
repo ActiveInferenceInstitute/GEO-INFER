@@ -32,9 +32,7 @@ def _effective_sample_size(chains: np.ndarray) -> float:
         if variance == 0:
             autocorrelations.append(np.zeros(n_draws - 1))
             continue
-        correlations = np.correlate(centered, centered, mode="full")[
-            n_draws - 1 :
-        ]
+        correlations = np.correlate(centered, centered, mode="full")[n_draws - 1 :]
         autocorrelations.append(correlations[1:] / (n_draws * variance))
 
     mean_autocorrelation = np.mean(autocorrelations, axis=0)
@@ -54,11 +52,13 @@ def _r_hat(chains: np.ndarray) -> float:
         return float("nan")
     within_chain = np.mean(np.var(chains, axis=1, ddof=1))
     if within_chain == 0:
-        return 1.0 if np.allclose(np.mean(chains, axis=1), np.mean(chains)) else float("inf")
+        return (
+            1.0
+            if np.allclose(np.mean(chains, axis=1), np.mean(chains))
+            else float("inf")
+        )
     between_chain = n_draws * np.var(np.mean(chains, axis=1), ddof=1)
-    variance_hat = ((n_draws - 1) / n_draws) * within_chain + (
-        between_chain / n_draws
-    )
+    variance_hat = ((n_draws - 1) / n_draws) * within_chain + (between_chain / n_draws)
     return float(np.sqrt(max(variance_hat / within_chain, 0.0)))
 
 

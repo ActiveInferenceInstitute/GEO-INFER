@@ -11,16 +11,16 @@ from typing import Dict, Any, Optional, Union, Tuple
 class PyMCInterface:
     """
     Interface to PyMC for Bayesian computation.
-    
+
     This class provides a bridge between GEO-INFER-BAYES models
     and PyMC's Bayesian computation capabilities.
-    
+
     Parameters
     ----------
     model_config : dict, optional
         Configuration parameters for the PyMC model
     """
-    
+
     def __init__(self, model_config: Optional[Dict[str, Any]] = None):
         self.model_config = model_config or {}
         self.pymc_model = None
@@ -29,17 +29,13 @@ class PyMCInterface:
         self.gp: Optional[pm.gp.Marginal] = None
         self.X_train: Optional[np.ndarray] = None
         self.y_train: Optional[np.ndarray] = None
-        
+
     def create_spatial_gp_model(
-        self, 
-        X: np.ndarray, 
-        y: np.ndarray,
-        kernel_type: str = 'matern',
-        **kwargs
+        self, X: np.ndarray, y: np.ndarray, kernel_type: str = "matern", **kwargs
     ) -> pm.Model:
         """
         Create a PyMC Gaussian Process model for spatial data.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
@@ -50,7 +46,7 @@ class PyMCInterface:
             Type of kernel: 'matern', 'rbf', 'exponential'
         **kwargs : dict
             Additional parameters for the GP model
-            
+
         Returns
         -------
         pm.Model
@@ -59,60 +55,56 @@ class PyMCInterface:
         with pm.Model() as model:
             # Priors for the parameters
             lengthscale = pm.LogNormal(
-                'lengthscale', 
-                mu=kwargs.get('lengthscale_mu', 0.0),
-                sigma=kwargs.get('lengthscale_sigma', 1.0)
+                "lengthscale",
+                mu=kwargs.get("lengthscale_mu", 0.0),
+                sigma=kwargs.get("lengthscale_sigma", 1.0),
             )
-            
+
             variance = pm.LogNormal(
-                'variance', 
-                mu=kwargs.get('variance_mu', 0.0),
-                sigma=kwargs.get('variance_sigma', 1.0)
+                "variance",
+                mu=kwargs.get("variance_mu", 0.0),
+                sigma=kwargs.get("variance_sigma", 1.0),
             )
-            
+
             noise = pm.LogNormal(
-                'noise', 
-                mu=kwargs.get('noise_mu', -2.0),
-                sigma=kwargs.get('noise_sigma', 1.0)
+                "noise",
+                mu=kwargs.get("noise_mu", -2.0),
+                sigma=kwargs.get("noise_sigma", 1.0),
             )
-            
+
             # Define kernel based on type
-            if kernel_type == 'rbf':
+            if kernel_type == "rbf":
                 cov_func = pm.gp.cov.ExpQuad(X.shape[1], ls=lengthscale) * variance
-            elif kernel_type == 'matern':
+            elif kernel_type == "matern":
                 # PyMC's Matern52 kernel provides the supported fixed degree.
                 cov_func = pm.gp.cov.Matern52(X.shape[1], ls=lengthscale) * variance
-            elif kernel_type == 'exponential':
+            elif kernel_type == "exponential":
                 cov_func = pm.gp.cov.Exponential(X.shape[1], ls=lengthscale) * variance
             else:
                 raise ValueError(f"Unknown kernel type: {kernel_type}")
-            
+
             # Mean function (default to zero)
             mean_func = pm.gp.mean.Zero()
-            
+
             # Create GP and add white noise
             gp = pm.gp.Marginal(mean_func=mean_func, cov_func=cov_func)
-            
+
             # Add observations
-            gp.marginal_likelihood('y_obs', X=X, y=y, noise=noise)
+            gp.marginal_likelihood("y_obs", X=X, y=y, noise=noise)
 
         self.pymc_model = model
         self.gp = gp
         self.X_train = X
         self.y_train = y
-        self._model_type = 'gp'
+        self._model_type = "gp"
         return model
-    
+
     def create_hierarchical_model(
-        self, 
-        X: np.ndarray, 
-        y: np.ndarray,
-        groups: np.ndarray,
-        **kwargs
+        self, X: np.ndarray, y: np.ndarray, groups: np.ndarray, **kwargs
     ) -> pm.Model:
         """
         Create a PyMC hierarchical Bayesian model.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
@@ -123,7 +115,7 @@ class PyMCInterface:
             Group indicators
         **kwargs : dict
             Additional parameters for the hierarchical model
-            
+
         Returns
         -------
         pm.Model
@@ -132,46 +124,48 @@ class PyMCInterface:
         unique_groups = np.unique(groups)
         n_groups = len(unique_groups)
         n_features = X.shape[1]
-        
+
         with pm.Model() as model:
             # Priors for global parameters
-            mu_alpha = pm.Normal('mu_alpha', mu=0, sigma=10)
-            sigma_alpha = pm.HalfNormal('sigma_alpha', sigma=1)
-            
-            mu_beta = pm.Normal('mu_beta', mu=0, sigma=10, shape=n_features)
-            sigma_beta = pm.HalfNormal('sigma_beta', sigma=1, shape=n_features)
-            
+            mu_alpha = pm.Normal("mu_alpha", mu=0, sigma=10)
+            sigma_alpha = pm.HalfNormal("sigma_alpha", sigma=1)
+
+            mu_beta = pm.Normal("mu_beta", mu=0, sigma=10, shape=n_features)
+            sigma_beta = pm.HalfNormal("sigma_beta", sigma=1, shape=n_features)
+
             # Varying intercepts
-            alpha = pm.Normal('alpha', mu=mu_alpha, sigma=sigma_alpha, shape=n_groups)
-            
+            alpha = pm.Normal("alpha", mu=mu_alpha, sigma=sigma_alpha, shape=n_groups)
+
             # Varying slopes
-            beta = pm.Normal('beta', mu=mu_beta, sigma=sigma_beta, shape=(n_groups, n_features))
-            
+            beta = pm.Normal(
+                "beta", mu=mu_beta, sigma=sigma_beta, shape=(n_groups, n_features)
+            )
+
             # Observation noise
-            sigma = pm.HalfNormal('sigma', sigma=1)
-            
+            sigma = pm.HalfNormal("sigma", sigma=1)
+
             # Expected value
             mu = alpha[groups] + pm.math.dot(X, beta[groups].T)
-            
+
             # Likelihood
-            pm.Normal('y_obs', mu=mu, sigma=sigma, observed=y)
+            pm.Normal("y_obs", mu=mu, sigma=sigma, observed=y)
 
         self.pymc_model = model
-        self._model_type = 'hierarchical'
+        self._model_type = "hierarchical"
         return model
-    
+
     def sample(
-        self, 
+        self,
         n_samples: int = 1000,
         n_warmup: int = 500,
         chains: int = 4,
         cores: int = None,
-        sampler: str = 'nuts',
-        **kwargs
+        sampler: str = "nuts",
+        **kwargs,
     ) -> az.InferenceData:
         """
         Sample from the PyMC model.
-        
+
         Parameters
         ----------
         n_samples : int, default=1000
@@ -186,7 +180,7 @@ class PyMCInterface:
             Sampler to use: 'nuts', 'metropolis'
         **kwargs : dict
             Additional parameters for the sampler
-            
+
         Returns
         -------
         InferenceData
@@ -194,30 +188,26 @@ class PyMCInterface:
         """
         if self.pymc_model is None:
             raise ValueError("No PyMC model defined. Call create_*_model first.")
-        
+
         with self.pymc_model:
-            if sampler == 'nuts':
+            if sampler == "nuts":
                 self.trace = pm.sample(
-                    draws=n_samples,
-                    tune=n_warmup,
-                    chains=chains,
-                    cores=cores,
-                    **kwargs
+                    draws=n_samples, tune=n_warmup, chains=chains, cores=cores, **kwargs
                 )
-            elif sampler == 'metropolis':
+            elif sampler == "metropolis":
                 self.trace = pm.sample(
                     draws=n_samples,
                     tune=n_warmup,
                     chains=chains,
                     cores=cores,
                     step=pm.Metropolis(),
-                    **kwargs
+                    **kwargs,
                 )
             else:
                 raise ValueError(f"Unknown sampler: {sampler}")
-                
+
         return self.trace
-    
+
     def predict(
         self,
         X_new: np.ndarray,
@@ -252,9 +242,9 @@ class PyMCInterface:
         if self.pymc_model is None:
             raise ValueError("No model defined. Call create_*_model first.")
 
-        if self._model_type == 'gp':
+        if self._model_type == "gp":
             return self._predict_gp(X_new, samples=samples, return_std=return_std)
-        elif self._model_type == 'hierarchical':
+        elif self._model_type == "hierarchical":
             return self._predict_hierarchical(
                 X_new, samples=samples, return_std=return_std, groups_new=groups_new
             )
@@ -272,7 +262,9 @@ class PyMCInterface:
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """GP posterior predictive via gp.conditional + sample_posterior_predictive."""
         if self.gp is None:
-            raise ValueError("GP object not stored. Re-create the model via create_spatial_gp_model().")
+            raise ValueError(
+                "GP object not stored. Re-create the model via create_spatial_gp_model()."
+            )
 
         # Add the conditional variable for new locations inside the existing model.
         # Use a unique name to avoid collisions on repeated calls.
@@ -309,53 +301,56 @@ class PyMCInterface:
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Hierarchical model posterior predictive via linear combination of posterior draws."""
         post = self.trace.posterior
-        alpha_samples = post["alpha"].values   # (chains, draws, n_groups)
-        beta_samples = post["beta"].values     # (chains, draws, n_groups, n_features)
-        sigma_samples = post["sigma"].values   # (chains, draws)
+        alpha_samples = post["alpha"].values  # (chains, draws, n_groups)
+        beta_samples = post["beta"].values  # (chains, draws, n_groups, n_features)
+        sigma_samples = post["sigma"].values  # (chains, draws)
 
         n_chains, n_draws, n_groups = alpha_samples.shape
 
         # Flatten chains and draws
-        alpha_flat = alpha_samples.reshape(-1, n_groups)          # (total, n_groups)
-        beta_flat = beta_samples.reshape(-1, n_groups, X_new.shape[1])  # (total, n_groups, n_feat)
-        sigma_flat = sigma_samples.reshape(-1)                    # (total,)
+        alpha_flat = alpha_samples.reshape(-1, n_groups)  # (total, n_groups)
+        beta_flat = beta_samples.reshape(
+            -1, n_groups, X_new.shape[1]
+        )  # (total, n_groups, n_feat)
+        sigma_flat = sigma_samples.reshape(-1)  # (total,)
 
         total = alpha_flat.shape[0]
         draw_idx = np.random.choice(total, size=min(samples, total), replace=False)
 
         all_preds = []
         for i in draw_idx:
-            alpha_i = alpha_flat[i]   # (n_groups,)
-            beta_i = beta_flat[i]     # (n_groups, n_features)
-            sigma_i = sigma_flat[i]   # scalar
+            alpha_i = alpha_flat[i]  # (n_groups,)
+            beta_i = beta_flat[i]  # (n_groups, n_features)
+            sigma_i = sigma_flat[i]  # scalar
 
             if groups_new is not None:
                 valid_groups = np.clip(groups_new, 0, n_groups - 1)
-                mu = alpha_i[valid_groups] + np.einsum("ij,ij->i", X_new, beta_i[valid_groups])
+                mu = alpha_i[valid_groups] + np.einsum(
+                    "ij,ij->i", X_new, beta_i[valid_groups]
+                )
             else:
                 # Marginalize: use population-level mean coefficients
                 mu = np.mean(alpha_i) + X_new @ np.mean(beta_i, axis=0)
 
             all_preds.append(np.random.normal(mu, sigma_i))
 
-        all_preds_arr = np.stack(all_preds)   # (samples, n_new)
+        all_preds_arr = np.stack(all_preds)  # (samples, n_new)
         mean_pred = all_preds_arr.mean(axis=0)
         if return_std:
             return mean_pred, all_preds_arr.std(axis=0)
         return mean_pred
-    
+
     def convert_to_geo_infer_format(
-        self, 
-        trace: Optional[az.InferenceData] = None
+        self, trace: Optional[az.InferenceData] = None
     ) -> Dict[str, np.ndarray]:
         """
         Convert PyMC trace to GEO-INFER-BAYES format.
-        
+
         Parameters
         ----------
         trace : InferenceData, optional
             PyMC trace. If None, use self.trace
-            
+
         Returns
         -------
         dict
@@ -363,16 +358,20 @@ class PyMCInterface:
         """
         if trace is None:
             trace = self.trace
-            
+
         if trace is None:
             raise ValueError("No trace available")
-            
+
         samples = {}
         for var_name in trace.posterior.data_vars:
             # Flatten chain and draw dimensions
-            samples[var_name] = trace.posterior[var_name].values.reshape(-1, *trace.posterior[var_name].shape[2:])
+            samples[var_name] = trace.posterior[var_name].values.reshape(
+                -1, *trace.posterior[var_name].shape[2:]
+            )
             if samples[var_name].ndim > 1:
                 # Flatten multi-dimensional parameters
-                samples[var_name] = samples[var_name].reshape(samples[var_name].shape[0], -1)
-                
+                samples[var_name] = samples[var_name].reshape(
+                    samples[var_name].shape[0], -1
+                )
+
         return samples

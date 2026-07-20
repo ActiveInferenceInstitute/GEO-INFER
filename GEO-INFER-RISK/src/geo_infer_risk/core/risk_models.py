@@ -30,7 +30,10 @@ class RiskParameters:
         """Validate the numerical contract before a model uses it."""
         if not np.isfinite(self.confidence_level) or not 0 < self.confidence_level < 1:
             raise ValueError("confidence_level must be finite and in (0, 1)")
-        if not isinstance(self.time_horizon, (int, np.integer)) or self.time_horizon < 1:
+        if (
+            not isinstance(self.time_horizon, (int, np.integer))
+            or self.time_horizon < 1
+        ):
             raise ValueError("time_horizon must be a positive integer")
         if not np.isfinite(self.spatial_resolution) or self.spatial_resolution <= 0:
             raise ValueError("spatial_resolution must be finite and positive")
@@ -272,7 +275,9 @@ class RiskModel:
         if values.size == 1 and size > 1:
             values = np.repeat(values, size)
         if values.size != size or not np.all(np.isfinite(values)) or np.any(values < 0):
-            raise ValueError("component samples must be finite, non-negative, and aligned")
+            raise ValueError(
+                "component samples must be finite, non-negative, and aligned"
+            )
         return values
 
 

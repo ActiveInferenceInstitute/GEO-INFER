@@ -10,7 +10,8 @@ import numpy as np
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 
 class TestGaussianProcessEndToEnd:
@@ -25,7 +26,7 @@ class TestGaussianProcessEndToEnd:
         y_train = np.sin(X_train).ravel() + 0.05 * rng.randn(30)
 
         gp = GaussianProcess(
-            kernel_type='rbf',
+            kernel_type="rbf",
             length_scale=1.0,
             signal_variance=1.0,
             noise_variance=0.01,
@@ -52,7 +53,7 @@ class TestGaussianProcessEndToEnd:
         y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + 0.1 * rng.randn(n)
 
         gp = GaussianProcess(
-            kernel_type='rbf',
+            kernel_type="rbf",
             length_scale=1.5,
             noise_variance=0.02,
         )
@@ -88,9 +89,7 @@ class TestSpatialGPEndToEnd:
         X = rng.rand(25, 2)
         y = np.sin(3 * X[:, 0]) * np.cos(3 * X[:, 1]) + 0.05 * rng.randn(25)
 
-        model = SpatialGP(
-            kernel='rbf', lengthscale=0.3, variance=1.0, noise=0.05
-        )
+        model = SpatialGP(kernel="rbf", lengthscale=0.3, variance=1.0, noise=0.05)
         model.fit(X, y)
 
         X_new = rng.rand(10, 2)
@@ -106,11 +105,11 @@ class TestSpatialGPEndToEnd:
         X = rng.rand(20, 2)
         y = X[:, 0] + 0.1 * rng.randn(20)
 
-        model = SpatialGP(kernel='rbf', lengthscale=0.5, variance=1.0, noise=0.1)
+        model = SpatialGP(kernel="rbf", lengthscale=0.5, variance=1.0, noise=0.1)
         model.fit(X, y)
 
-        theta = {'lengthscale': 0.5, 'variance': 1.0, 'noise': 0.1}
-        data = {'X': X, 'y': y}
+        theta = {"lengthscale": 0.5, "variance": 1.0, "noise": 0.1}
+        data = {"X": X, "y": y}
         ll = model.log_likelihood(theta, data)
         assert np.isfinite(ll)
 
@@ -126,25 +125,27 @@ class TestDataProcessingWorkflow:
             create_spatial_grid,
         )
 
-        df = pd.DataFrame({
-            'lat': np.random.uniform(30, 40, 50),
-            'lon': np.random.uniform(-80, -70, 50),
-            'measurement': np.random.randn(50),
-        })
+        df = pd.DataFrame(
+            {
+                "lat": np.random.uniform(30, 40, 50),
+                "lon": np.random.uniform(-80, -70, 50),
+                "measurement": np.random.randn(50),
+            }
+        )
 
         coords, values, temporal, metadata = prepare_spatial_data(
-            df, value_col='measurement'
+            df, value_col="measurement"
         )
         assert coords.shape == (50, 2)
 
         validation = validate_spatial_data(coords, values)
-        assert validation['is_valid'] is True
+        assert validation["is_valid"] is True
 
         grid, grid_meta = create_spatial_grid(
-            metadata['spatial_bounds'], resolution=1.0
+            metadata["spatial_bounds"], resolution=1.0
         )
         assert grid.shape[1] == 2
-        assert grid_meta['n_points'] > 0
+        assert grid_meta["n_points"] > 0
 
 
 class TestModelComparisonWorkflow:
@@ -156,22 +157,22 @@ class TestModelComparisonWorkflow:
 
         rng = np.random.RandomState(0)
 
-        model_rbf = SpatialGP(kernel='rbf', lengthscale=0.5)
-        model_rbf.name = 'SpatialGP_RBF'
-        model_exp = SpatialGP(kernel='exponential', lengthscale=0.5)
-        model_exp.name = 'SpatialGP_Exp'
+        model_rbf = SpatialGP(kernel="rbf", lengthscale=0.5)
+        model_rbf.name = "SpatialGP_RBF"
+        model_exp = SpatialGP(kernel="exponential", lengthscale=0.5)
+        model_exp.name = "SpatialGP_Exp"
 
         # Use pre-computed log-likelihood matrix for speed
         ll_matrix = rng.normal(-2.0, 0.3, size=(30, 15))
         data = {
-            'observations': rng.randn(15),
-            'log_likelihood_matrix': ll_matrix,
+            "observations": rng.randn(15),
+            "log_likelihood_matrix": ll_matrix,
         }
 
         mc = ModelComparison(models=[model_rbf, model_exp])
-        results = mc.compare_models(data, method='waic')
-        assert 'ranking' in results
-        assert len(results['ranking']) == 2
+        results = mc.compare_models(data, method="waic")
+        assert "ranking" in results
+        assert len(results["ranking"]) == 2
 
     def test_aic_bic_comparison(self) -> None:
         from geo_infer_bayes.core.model_comparison import ModelComparison

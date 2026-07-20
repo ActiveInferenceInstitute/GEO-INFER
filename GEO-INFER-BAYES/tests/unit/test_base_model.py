@@ -11,7 +11,8 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_bayes.models.base import BayesianModel
 
@@ -21,31 +22,29 @@ class SimpleBayesianModel(BayesianModel):
 
     def _setup_model(self, **kwargs) -> None:
         self.parameters = {
-            'mu': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 10.0}},
-            'sigma': {'prior': 'log_normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
+            "mu": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 10.0}},
+            "sigma": {"prior": "log_normal", "hyperparams": {"mu": 0.0, "sigma": 1.0}},
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
-        mu = theta['mu']
-        sigma = max(theta['sigma'], 1e-10)
+        mu = theta["mu"]
+        sigma = max(theta["sigma"], 1e-10)
         observations = np.asarray(data)
         residuals = observations - mu
         n = len(observations)
-        return -0.5 * np.sum(residuals ** 2 / sigma ** 2) - n * np.log(
+        return -0.5 * np.sum(residuals**2 / sigma**2) - n * np.log(
             sigma * np.sqrt(2 * np.pi)
         )
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
-        mu = theta['mu']
-        sigma = theta['sigma']
+        mu = theta["mu"]
+        sigma = theta["sigma"]
         # Normal(0, 10) prior on mu
         lp = -0.5 * (mu / 10.0) ** 2 - np.log(10.0 * np.sqrt(2 * np.pi))
         # Log-normal(0, 1) prior on sigma
         if sigma <= 0:
             return -np.inf
-        lp += -0.5 * np.log(sigma) ** 2 - np.log(
-            sigma * np.sqrt(2 * np.pi)
-        )
+        lp += -0.5 * np.log(sigma) ** 2 - np.log(sigma * np.sqrt(2 * np.pi))
         return lp
 
     def predict(
@@ -80,13 +79,13 @@ class TestBayesianModelInterface:
     def test_concrete_subclass_instantiation(self) -> None:
         model = SimpleBayesianModel(name="test_model")
         assert model.name == "test_model"
-        assert 'mu' in model.parameters
-        assert 'sigma' in model.parameters
+        assert "mu" in model.parameters
+        assert "sigma" in model.parameters
 
     def test_log_posterior_combines_likelihood_and_prior(self) -> None:
         model = SimpleBayesianModel(name="test")
         data = np.array([1.0, 2.0, 3.0])
-        theta = {'mu': 2.0, 'sigma': 1.0}
+        theta = {"mu": 2.0, "sigma": 1.0}
 
         ll = model.log_likelihood(theta, data)
         lp = model.log_prior(theta)
@@ -97,19 +96,19 @@ class TestBayesianModelInterface:
     def test_log_likelihood_finite(self) -> None:
         model = SimpleBayesianModel(name="test")
         data = np.array([0.0, 0.5, 1.0])
-        theta = {'mu': 0.5, 'sigma': 1.0}
+        theta = {"mu": 0.5, "sigma": 1.0}
         ll = model.log_likelihood(theta, data)
         assert np.isfinite(ll)
 
     def test_log_prior_finite_for_valid_params(self) -> None:
         model = SimpleBayesianModel(name="test")
-        theta = {'mu': 0.0, 'sigma': 1.0}
+        theta = {"mu": 0.0, "sigma": 1.0}
         lp = model.log_prior(theta)
         assert np.isfinite(lp)
 
     def test_log_prior_negative_inf_for_invalid_sigma(self) -> None:
         model = SimpleBayesianModel(name="test")
-        theta = {'mu': 0.0, 'sigma': -1.0}
+        theta = {"mu": 0.0, "sigma": -1.0}
         lp = model.log_prior(theta)
         assert lp == -np.inf
 

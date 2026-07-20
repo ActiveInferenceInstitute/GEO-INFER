@@ -40,9 +40,7 @@ class ApproximateBayesianComputation:
         """
         valid_metrics = {"euclidean", "manhattan", "mahalanobis"}
         if distance_metric.lower() not in valid_metrics:
-            raise ValueError(
-                f"distance_metric must be one of {sorted(valid_metrics)}"
-            )
+            raise ValueError(f"distance_metric must be one of {sorted(valid_metrics)}")
         if not np.isfinite(tolerance) or tolerance <= 0:
             raise ValueError("tolerance must be finite and strictly positive")
         if not isinstance(n_samples, (int, np.integer)) or n_samples < 1:
@@ -121,9 +119,7 @@ class ApproximateBayesianComputation:
             if isinstance(prior_samples, dict):
                 if not prior_samples:
                     raise ValueError("prior_samples must not be empty")
-                lengths = {
-                    len(np.asarray(values)) for values in prior_samples.values()
-                }
+                lengths = {len(np.asarray(values)) for values in prior_samples.values()}
                 if len(lengths) != 1:
                     raise ValueError("prior_samples parameters must have equal lengths")
                 n_previous = next(iter(lengths))
@@ -185,9 +181,7 @@ class ApproximateBayesianComputation:
             covariance = np.atleast_2d(
                 np.cov(np.vstack((simulated, observed)), rowvar=False)
             )
-            scale = max(
-                float(np.trace(covariance)) / max(covariance.shape[0], 1), 1.0
-            )
+            scale = max(float(np.trace(covariance)) / max(covariance.shape[0], 1), 1.0)
             covariance += np.eye(covariance.shape[0]) * (scale * 1e-8)
             distance = np.sqrt(
                 max(float(diff @ np.linalg.pinv(covariance) @ diff), 0.0)

@@ -10,7 +10,8 @@ import pytest
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_bayes.utils.likelihoods import (
     SpatialLikelihood,
@@ -22,7 +23,7 @@ from geo_infer_bayes.utils.likelihoods import (
 class TestSpatialLikelihoodGaussian:
 
     def test_gaussian_perfect_prediction(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='gaussian', sigma=1.0)
+        ll = SpatialLikelihood(likelihood_type="gaussian", sigma=1.0)
         obs = np.array([1.0, 2.0, 3.0])
         pred = np.array([1.0, 2.0, 3.0])
         result = ll.log_likelihood(pred, obs)
@@ -31,14 +32,14 @@ class TestSpatialLikelihoodGaussian:
         np.testing.assert_allclose(result, expected, atol=1e-10)
 
     def test_gaussian_worse_prediction_lower_ll(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='gaussian', sigma=1.0)
+        ll = SpatialLikelihood(likelihood_type="gaussian", sigma=1.0)
         obs = np.array([0.0, 0.0, 0.0])
         pred_good = np.array([0.0, 0.0, 0.0])
         pred_bad = np.array([5.0, 5.0, 5.0])
         assert ll.log_likelihood(pred_good, obs) > ll.log_likelihood(pred_bad, obs)
 
     def test_gaussian_with_weights(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='gaussian', sigma=1.0)
+        ll = SpatialLikelihood(likelihood_type="gaussian", sigma=1.0)
         obs = np.array([1.0, 2.0])
         pred = np.array([1.5, 2.5])
         weights = np.array([1.0, 1.0])
@@ -48,15 +49,15 @@ class TestSpatialLikelihoodGaussian:
     def test_smaller_sigma_penalises_more(self) -> None:
         obs = np.array([0.0])
         pred = np.array([1.0])
-        ll_wide = SpatialLikelihood(likelihood_type='gaussian', sigma=10.0)
-        ll_narrow = SpatialLikelihood(likelihood_type='gaussian', sigma=0.1)
+        ll_wide = SpatialLikelihood(likelihood_type="gaussian", sigma=10.0)
+        ll_narrow = SpatialLikelihood(likelihood_type="gaussian", sigma=0.1)
         assert ll_wide.log_likelihood(pred, obs) > ll_narrow.log_likelihood(pred, obs)
 
 
 class TestSpatialLikelihoodPoisson:
 
     def test_poisson_returns_finite(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='poisson')
+        ll = SpatialLikelihood(likelihood_type="poisson")
         obs = np.array([2, 3, 5], dtype=float)
         pred = np.array([2.5, 3.0, 4.5])
         result = ll.log_likelihood(pred, obs)
@@ -66,14 +67,14 @@ class TestSpatialLikelihoodPoisson:
 class TestSpatialLikelihoodBinomial:
 
     def test_binomial_returns_finite(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='binomial', n=1)
+        ll = SpatialLikelihood(likelihood_type="binomial", n=1)
         obs = np.array([1, 0, 1], dtype=float)
         pred = np.array([2.0, -2.0, 1.0])  # logit scale
         result = ll.log_likelihood(pred, obs)
         assert np.isfinite(result)
 
     def test_unknown_type_raises(self) -> None:
-        ll = SpatialLikelihood(likelihood_type='unknown_type')
+        ll = SpatialLikelihood(likelihood_type="unknown_type")
         with pytest.raises(ValueError, match="Unknown likelihood"):
             ll.log_likelihood(np.zeros(1), np.zeros(1))
 
@@ -84,14 +85,14 @@ class TestPoissonProcess:
         pp = PoissonProcess()
         intensity = np.array([2.0, 3.0, 4.0])
         points = np.array([[0.1, 0.2], [0.5, 0.5]])
-        window = {'xmin': 0.0, 'xmax': 1.0, 'ymin': 0.0, 'ymax': 1.0}
+        window = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0}
         result = pp.log_likelihood(intensity, points, window)
         assert np.isfinite(result)
 
     def test_integrate_intensity(self) -> None:
         pp = PoissonProcess()
         intensity = np.array([5.0, 5.0, 5.0])
-        window = {'xmin': 0.0, 'xmax': 2.0, 'ymin': 0.0, 'ymax': 3.0}
+        window = {"xmin": 0.0, "xmax": 2.0, "ymin": 0.0, "ymax": 3.0}
         integral = pp._integrate_intensity(intensity, window)
         # Area = 2*3 = 6, mean intensity = 5, integral = 30
         np.testing.assert_allclose(integral, 30.0)

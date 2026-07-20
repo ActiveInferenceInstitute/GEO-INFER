@@ -16,4 +16,6 @@ class TestRiskMetrics:
     def test_calculate_ep_curve(self) -> None:
         losses = np.array([1000.0, 2000.0, 500.0, 3000.0, 1500.0])
         ep_curve = calculate_ep_curve(losses)
-        assert isinstance(ep_curve, dict) or isinstance(ep_curve, (list, np.ndarray, tuple))
+        assert isinstance(ep_curve, dict) or isinstance(
+            ep_curve, (list, np.ndarray, tuple)
+        )

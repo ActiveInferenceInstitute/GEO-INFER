@@ -10,7 +10,8 @@ import pytest
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_bayes.core.model_comparison import ModelComparison
 
@@ -22,17 +23,17 @@ class _DummyModel:
         self.name = name
         self.bias = bias
         self.parameters = {
-            'mu': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 1.0}},
+            "mu": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 1.0}},
         }
 
     def log_likelihood(self, theta, data) -> float:
         observations = np.asarray(data)
-        mu = theta.get('mu', 0.0) + self.bias
+        mu = theta.get("mu", 0.0) + self.bias
         return float(-0.5 * np.sum((observations - mu) ** 2))
 
     def log_prior(self, theta) -> float:
-        mu = theta.get('mu', 0.0)
-        return float(-0.5 * mu ** 2)
+        mu = theta.get("mu", 0.0)
+        return float(-0.5 * mu**2)
 
 
 class TestModelComparisonInit:
@@ -98,56 +99,56 @@ class TestCompareModels:
         ll_matrix_A = rng.normal(-1.0, 0.1, size=(50, 20))
         ll_matrix_B = rng.normal(-3.0, 0.1, size=(50, 20))
         return {
-            'observations': rng.randn(20),
-            'log_likelihood_matrix': ll_matrix_A,
+            "observations": rng.randn(20),
+            "log_likelihood_matrix": ll_matrix_A,
         }, {
-            'observations': rng.randn(20),
-            'log_likelihood_matrix': ll_matrix_B,
+            "observations": rng.randn(20),
+            "log_likelihood_matrix": ll_matrix_B,
         }
 
     def test_compare_loo(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
         rng = np.random.RandomState(0)
         data = {
-            'observations': rng.randn(15),
-            'log_likelihood_matrix': rng.normal(-1, 0.2, size=(40, 15)),
+            "observations": rng.randn(15),
+            "log_likelihood_matrix": rng.normal(-1, 0.2, size=(40, 15)),
         }
-        results = mc.compare_models(data, method='loo')
-        assert 'ranking' in results
-        assert 'ModelA' in results
-        assert 'elpd_loo' in results['ModelA']
+        results = mc.compare_models(data, method="loo")
+        assert "ranking" in results
+        assert "ModelA" in results
+        assert "elpd_loo" in results["ModelA"]
 
     def test_compare_waic(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
         rng = np.random.RandomState(1)
         data = {
-            'observations': rng.randn(10),
-            'log_likelihood_matrix': rng.normal(-2, 0.3, size=(30, 10)),
+            "observations": rng.randn(10),
+            "log_likelihood_matrix": rng.normal(-2, 0.3, size=(30, 10)),
         }
-        results = mc.compare_models(data, method='waic')
-        assert 'ranking' in results
-        assert 'waic' in results['ModelA']
+        results = mc.compare_models(data, method="waic")
+        assert "ranking" in results
+        assert "waic" in results["ModelA"]
 
     def test_compare_dic(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
         rng = np.random.RandomState(2)
         data = {
-            'observations': rng.randn(10),
-            'log_likelihood_matrix': rng.normal(-1.5, 0.2, size=(30, 10)),
+            "observations": rng.randn(10),
+            "log_likelihood_matrix": rng.normal(-1.5, 0.2, size=(30, 10)),
         }
-        results = mc.compare_models(data, method='dic')
-        assert 'ranking' in results
-        assert 'dic' in results['ModelA']
+        results = mc.compare_models(data, method="dic")
+        assert "ranking" in results
+        assert "dic" in results["ModelA"]
 
     def test_invalid_method_raises(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
         with pytest.raises(ValueError, match="Unknown comparison method"):
-            mc.compare_models({}, method='unknown')
+            mc.compare_models({}, method="unknown")
 
     def test_no_models_raises(self) -> None:
         mc = ModelComparison()
         with pytest.raises(ValueError, match="No models"):
-            mc.compare_models({}, method='loo')
+            mc.compare_models({}, method="loo")
 
     def test_get_best_model_before_comparison_raises(self) -> None:
         mc = ModelComparison(models=[_DummyModel("A")])
@@ -158,32 +159,34 @@ class TestCompareModels:
         mc = ModelComparison(models=two_models)
         rng = np.random.RandomState(5)
         data = {
-            'observations': rng.randn(10),
-            'log_likelihood_matrix': rng.normal(-1, 0.1, size=(30, 10)),
+            "observations": rng.randn(10),
+            "log_likelihood_matrix": rng.normal(-1, 0.1, size=(30, 10)),
         }
-        mc.compare_models(data, method='loo')
-        best = mc.get_best_model(criterion='loo')
+        mc.compare_models(data, method="loo")
+        best = mc.get_best_model(criterion="loo")
         assert best is not None
-        assert hasattr(best, 'name')
+        assert hasattr(best, "name")
 
 
 class TestPlotComparison:
 
     def test_plot_comparison_returns_figure(self) -> None:
         import matplotlib
-        matplotlib.use('Agg')
+
+        matplotlib.use("Agg")
 
         models = [_DummyModel("A"), _DummyModel("B")]
         mc = ModelComparison(models=models)
         rng = np.random.RandomState(10)
         data = {
-            'observations': rng.randn(10),
-            'log_likelihood_matrix': rng.normal(-1, 0.2, size=(20, 10)),
+            "observations": rng.randn(10),
+            "log_likelihood_matrix": rng.normal(-1, 0.2, size=(20, 10)),
         }
-        mc.compare_models(data, method='loo')
+        mc.compare_models(data, method="loo")
         fig, ax = mc.plot_comparison()
         assert fig is not None
         import matplotlib.pyplot as plt
+
         plt.close(fig)
 
     def test_plot_without_results_raises(self) -> None:

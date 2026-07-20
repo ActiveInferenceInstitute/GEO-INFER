@@ -8,7 +8,8 @@ WAIC) and leave-one-out cross-validation.
 
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple, Any
 
@@ -37,7 +38,7 @@ class ModelComparison:
     # Public API
     # ------------------------------------------------------------------
 
-    def compare_models(self, data: Any, method: str = 'loo') -> Dict[str, Any]:
+    def compare_models(self, data: Any, method: str = "loo") -> Dict[str, Any]:
         """
         Compare models using specified method.
 
@@ -58,34 +59,34 @@ class ModelComparison:
         results: Dict[str, Any] = {}
 
         for i, model in enumerate(self.models):
-            model_name = getattr(model, 'name', f'Model_{i}')
+            model_name = getattr(model, "name", f"Model_{i}")
 
-            if method == 'loo':
+            if method == "loo":
                 results[model_name] = self._loo_comparison(model, data)
-            elif method == 'waic':
+            elif method == "waic":
                 results[model_name] = self._waic_comparison(model, data)
-            elif method == 'dic':
+            elif method == "dic":
                 results[model_name] = self._dic_comparison(model, data)
             else:
                 raise ValueError(f"Unknown comparison method: {method}")
 
         # Rank models -- higher elpd_loo is better; lower WAIC / DIC is better
-        model_items = [(n, v) for n, v in results.items() if n != 'ranking']
-        if method == 'loo':
-            ranked = sorted(model_items, key=lambda x: x[1]['elpd_loo'], reverse=True)
-        elif method == 'waic':
-            ranked = sorted(model_items, key=lambda x: x[1]['waic'])
-        elif method == 'dic':
-            ranked = sorted(model_items, key=lambda x: x[1]['dic'])
+        model_items = [(n, v) for n, v in results.items() if n != "ranking"]
+        if method == "loo":
+            ranked = sorted(model_items, key=lambda x: x[1]["elpd_loo"], reverse=True)
+        elif method == "waic":
+            ranked = sorted(model_items, key=lambda x: x[1]["waic"])
+        elif method == "dic":
+            ranked = sorted(model_items, key=lambda x: x[1]["dic"])
         else:
             ranked = model_items
 
-        results['ranking'] = [name for name, _ in ranked]
+        results["ranking"] = [name for name, _ in ranked]
 
         self.comparison_results = results
         return results
 
-    def get_best_model(self, criterion: str = 'loo') -> Optional[Any]:
+    def get_best_model(self, criterion: str = "loo") -> Optional[Any]:
         """
         Get the best model according to the specified criterion.
 
@@ -96,16 +97,18 @@ class ModelComparison:
             Best model according to the criterion, or None if not found.
         """
         if not self.comparison_results:
-            raise ValueError("No comparison results available. Run compare_models first.")
+            raise ValueError(
+                "No comparison results available. Run compare_models first."
+            )
 
-        ranking = self.comparison_results.get('ranking', [])
+        ranking = self.comparison_results.get("ranking", [])
         if not ranking:
             return None
 
         best_model_name = ranking[0]
 
         for model in self.models:
-            model_name = getattr(model, 'name', None)
+            model_name = getattr(model, "name", None)
             if model_name == best_model_name:
                 return model
 
@@ -180,39 +183,39 @@ class ModelComparison:
         ax : matplotlib.axes.Axes
         """
         if not self.comparison_results:
-            raise ValueError("No comparison results available. Run compare_models first.")
+            raise ValueError(
+                "No comparison results available. Run compare_models first."
+            )
 
-        model_names = [
-            k for k in self.comparison_results if k != 'ranking'
-        ]
+        model_names = [k for k in self.comparison_results if k != "ranking"]
         if not model_names:
             raise ValueError("No model results to plot.")
 
         # Determine which metric to plot based on available keys
         sample_result = self.comparison_results[model_names[0]]
-        if 'elpd_loo' in sample_result:
-            metric_key = 'elpd_loo'
-            ylabel = 'ELPD LOO'
-        elif 'waic' in sample_result:
-            metric_key = 'waic'
-            ylabel = 'WAIC'
-        elif 'dic' in sample_result:
-            metric_key = 'dic'
-            ylabel = 'DIC'
+        if "elpd_loo" in sample_result:
+            metric_key = "elpd_loo"
+            ylabel = "ELPD LOO"
+        elif "waic" in sample_result:
+            metric_key = "waic"
+            ylabel = "WAIC"
+        elif "dic" in sample_result:
+            metric_key = "dic"
+            ylabel = "DIC"
         else:
             metric_key = list(sample_result.keys())[0]
             ylabel = metric_key
 
         values = [self.comparison_results[m][metric_key] for m in model_names]
-        se_values = [self.comparison_results[m].get('se', 0.0) for m in model_names]
+        se_values = [self.comparison_results[m].get("se", 0.0) for m in model_names]
 
         fig, ax = plt.subplots(figsize=(8, 5))
         x = np.arange(len(model_names))
-        ax.bar(x, values, yerr=se_values, capsize=4, color='steelblue', alpha=0.8)
+        ax.bar(x, values, yerr=se_values, capsize=4, color="steelblue", alpha=0.8)
         ax.set_xticks(x)
-        ax.set_xticklabels(model_names, rotation=30, ha='right')
+        ax.set_xticklabels(model_names, rotation=30, ha="right")
         ax.set_ylabel(ylabel)
-        ax.set_title('Model Comparison')
+        ax.set_title("Model Comparison")
         fig.tight_layout()
 
         return fig, ax
@@ -236,12 +239,12 @@ class ModelComparison:
         -------
         ll_matrix : ndarray of shape (n_posterior_samples, n_obs)
         """
-        if isinstance(data, dict) and 'log_likelihood_matrix' in data:
-            return np.asarray(data['log_likelihood_matrix'])
+        if isinstance(data, dict) and "log_likelihood_matrix" in data:
+            return np.asarray(data["log_likelihood_matrix"])
 
         # Fallback: evaluate model log-likelihood for many parameter draws
-        if isinstance(data, dict) and 'observations' in data:
-            observations = np.asarray(data['observations'])
+        if isinstance(data, dict) and "observations" in data:
+            observations = np.asarray(data["observations"])
         elif isinstance(data, np.ndarray):
             observations = data
         else:
@@ -250,28 +253,26 @@ class ModelComparison:
         n_obs = len(observations)
         ll_matrix = np.zeros((n_posterior_samples, n_obs))
 
-        params = getattr(model, 'parameters', {})
+        params = getattr(model, "parameters", {})
         for s in range(n_posterior_samples):
             theta = {}
             for pname, pinfo in params.items():
-                hp = pinfo.get('hyperparams', {})
-                prior = pinfo.get('prior', 'normal')
-                if prior == 'normal':
+                hp = pinfo.get("hyperparams", {})
+                prior = pinfo.get("prior", "normal")
+                if prior == "normal":
                     theta[pname] = np.random.normal(
-                        hp.get('mu', 0.0), hp.get('sigma', 1.0)
+                        hp.get("mu", 0.0), hp.get("sigma", 1.0)
                     )
-                elif prior == 'log_normal':
+                elif prior == "log_normal":
                     theta[pname] = np.exp(
-                        np.random.normal(hp.get('mu', 0.0), hp.get('sigma', 1.0))
+                        np.random.normal(hp.get("mu", 0.0), hp.get("sigma", 1.0))
                     )
-                elif prior == 'uniform':
+                elif prior == "uniform":
                     theta[pname] = np.random.uniform(
-                        hp.get('low', 0.0), hp.get('high', 1.0)
+                        hp.get("low", 0.0), hp.get("high", 1.0)
                     )
-                elif prior == 'half_normal':
-                    theta[pname] = abs(
-                        np.random.normal(0.0, hp.get('sigma', 1.0))
-                    )
+                elif prior == "half_normal":
+                    theta[pname] = abs(np.random.normal(0.0, hp.get("sigma", 1.0)))
                 else:
                     theta[pname] = np.random.normal(0.0, 1.0)
 
@@ -300,18 +301,16 @@ class ModelComparison:
         for j in range(n_obs):
             # log mean exp of log-likelihoods across posterior samples
             max_ll = np.max(ll_matrix[:, j])
-            elpd_i[j] = max_ll + np.log(
-                np.mean(np.exp(ll_matrix[:, j] - max_ll))
-            )
+            elpd_i[j] = max_ll + np.log(np.mean(np.exp(ll_matrix[:, j] - max_ll)))
 
         elpd_loo = float(np.sum(elpd_i))
         se = float(np.sqrt(n_obs * np.var(elpd_i)))
         p_loo = float(np.sum(np.var(ll_matrix, axis=0)))
 
         return {
-            'elpd_loo': elpd_loo,
-            'p_loo': p_loo,
-            'se': se,
+            "elpd_loo": elpd_loo,
+            "p_loo": p_loo,
+            "se": se,
         }
 
     def _waic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
@@ -326,9 +325,7 @@ class ModelComparison:
         lppd_i = np.zeros(n_obs)
         for j in range(n_obs):
             max_ll = np.max(ll_matrix[:, j])
-            lppd_i[j] = max_ll + np.log(
-                np.mean(np.exp(ll_matrix[:, j] - max_ll))
-            )
+            lppd_i[j] = max_ll + np.log(np.mean(np.exp(ll_matrix[:, j] - max_ll)))
 
         lppd = float(np.sum(lppd_i))
 
@@ -342,10 +339,10 @@ class ModelComparison:
         se = float(np.sqrt(n_obs * np.var(waic_i)))
 
         return {
-            'waic': waic,
-            'p_waic': p_waic,
-            'lppd': lppd,
-            'se': se,
+            "waic": waic,
+            "p_waic": p_waic,
+            "lppd": lppd,
+            "se": se,
         }
 
     def _dic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
@@ -373,7 +370,7 @@ class ModelComparison:
         dic = d_bar + p_d
 
         return {
-            'dic': dic,
-            'p_d': p_d,
-            'deviance': d_bar,
+            "dic": dic,
+            "p_d": p_d,
+            "deviance": d_bar,
         }

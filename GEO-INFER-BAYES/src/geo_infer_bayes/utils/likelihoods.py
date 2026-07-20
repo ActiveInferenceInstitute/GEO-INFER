@@ -17,7 +17,7 @@ class SpatialLikelihood:
     spatial structure in the data.
     """
 
-    def __init__(self, likelihood_type: str = 'gaussian', **kwargs):
+    def __init__(self, likelihood_type: str = "gaussian", **kwargs):
         """
         Initialize the spatial likelihood.
 
@@ -28,8 +28,12 @@ class SpatialLikelihood:
         self.likelihood_type = likelihood_type.lower()
         self.parameters = kwargs
 
-    def log_likelihood(self, predictions: np.ndarray, observations: np.ndarray,
-                      spatial_weights: Optional[np.ndarray] = None) -> float:
+    def log_likelihood(
+        self,
+        predictions: np.ndarray,
+        observations: np.ndarray,
+        spatial_weights: Optional[np.ndarray] = None,
+    ) -> float:
         """
         Compute the log likelihood for spatial data.
 
@@ -41,28 +45,29 @@ class SpatialLikelihood:
         Returns:
             Log likelihood value
         """
-        if self.likelihood_type == 'gaussian':
+        if self.likelihood_type == "gaussian":
             return self._gaussian_likelihood(predictions, observations, spatial_weights)
-        elif self.likelihood_type == 'poisson':
+        elif self.likelihood_type == "poisson":
             return self._poisson_likelihood(predictions, observations)
-        elif self.likelihood_type == 'binomial':
+        elif self.likelihood_type == "binomial":
             return self._binomial_likelihood(predictions, observations)
         else:
             raise ValueError(f"Unknown likelihood type: {self.likelihood_type}")
 
-    def _gaussian_likelihood(self, pred: np.ndarray, obs: np.ndarray,
-                           weights: Optional[np.ndarray] = None) -> float:
+    def _gaussian_likelihood(
+        self, pred: np.ndarray, obs: np.ndarray, weights: Optional[np.ndarray] = None
+    ) -> float:
         """Gaussian likelihood for continuous spatial data."""
         if weights is not None:
             # Weighted likelihood
             residuals = obs - pred
             weighted_residuals = residuals * weights
-            sigma = self.parameters.get('sigma', 1.0)
+            sigma = self.parameters.get("sigma", 1.0)
             log_likelihood = -0.5 * np.sum(weighted_residuals**2 / sigma**2)
             log_likelihood -= len(obs) * np.log(sigma * np.sqrt(2 * np.pi))
         else:
             # Standard Gaussian likelihood
-            sigma = self.parameters.get('sigma', 1.0)
+            sigma = self.parameters.get("sigma", 1.0)
             residuals = obs - pred
             log_likelihood = -0.5 * np.sum(residuals**2 / sigma**2)
             log_likelihood -= len(obs) * np.log(sigma * np.sqrt(2 * np.pi))
@@ -75,13 +80,15 @@ class SpatialLikelihood:
         pred = np.maximum(pred, 1e-10)
 
         # Poisson log-likelihood
-        log_likelihood = np.sum(obs * np.log(pred) - pred - np.log(np.arange(1, int(np.max(obs)) + 1)).sum())
+        log_likelihood = np.sum(
+            obs * np.log(pred) - pred - np.log(np.arange(1, int(np.max(obs)) + 1)).sum()
+        )
 
         return log_likelihood
 
     def _binomial_likelihood(self, pred: np.ndarray, obs: np.ndarray) -> float:
         """Binomial likelihood for binary spatial data."""
-        n = self.parameters.get('n', 1)  # Number of trials
+        n = self.parameters.get("n", 1)  # Number of trials
 
         # Convert predictions to probabilities
         prob = 1 / (1 + np.exp(-pred))
@@ -103,8 +110,9 @@ class PoissonProcess:
         """Initialize the Poisson process likelihood."""
         self.parameters = kwargs
 
-    def log_likelihood(self, intensity: np.ndarray, points: np.ndarray,
-                      window: Dict[str, float]) -> float:
+    def log_likelihood(
+        self, intensity: np.ndarray, points: np.ndarray, window: Dict[str, float]
+    ) -> float:
         """
         Compute the log likelihood for a spatial Poisson process.
 
@@ -127,10 +135,12 @@ class PoissonProcess:
 
         return log_likelihood
 
-    def _integrate_intensity(self, intensity: np.ndarray, window: Dict[str, float]) -> float:
+    def _integrate_intensity(
+        self, intensity: np.ndarray, window: Dict[str, float]
+    ) -> float:
         """Integrate the intensity function over the observation window."""
         # Simple rectangular integration
-        area = (window['xmax'] - window['xmin']) * (window['ymax'] - window['ymin'])
+        area = (window["xmax"] - window["xmin"]) * (window["ymax"] - window["ymin"])
         mean_intensity = np.mean(intensity)
 
         return area * mean_intensity
@@ -147,7 +157,9 @@ class GaussianLikelihood:
         """Initialize the Gaussian likelihood."""
         self.parameters = kwargs
 
-    def log_likelihood(self, predictions: np.ndarray, observations: np.ndarray) -> float:
+    def log_likelihood(
+        self, predictions: np.ndarray, observations: np.ndarray
+    ) -> float:
         """
         Compute the Gaussian log likelihood.
 
@@ -158,7 +170,7 @@ class GaussianLikelihood:
         Returns:
             Log likelihood value
         """
-        sigma = self.parameters.get('sigma', 1.0)
+        sigma = self.parameters.get("sigma", 1.0)
         residuals = observations - predictions
 
         log_likelihood = -0.5 * np.sum(residuals**2 / sigma**2)
