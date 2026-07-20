@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `generate_research_artifacts.py`
 - `00_abstract.md`
 - `01_introduction.md`
 - `02_system_context.md`

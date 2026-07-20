@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-TEST`.
 
 - `test_data_domains.py`
 - `test_log_integration.py`
+- `test_manuscript_research.py`
 - `test_module_health.py`
 - `test_performance_monitor.py`
 - `test_run_unified_tests.py`
