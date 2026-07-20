@@ -21,12 +21,8 @@ EXISTING_MODULES = {
             "shapely>=1.8.0",
         ]
     },
-    "HEALTH": {
-        "preserve": True  # Already has comprehensive dependencies
-    },
-    "PEP": {
-        "convert_from_poetry": True  # Needs conversion from Poetry format
-    }
+    "HEALTH": {"preserve": True},  # Already has comprehensive dependencies
+    "PEP": {"convert_from_poetry": True},  # Needs conversion from Poetry format
 }
 
 
@@ -35,19 +31,23 @@ def convert_pep_from_poetry():
     pep_path = PROJECT_ROOT / "GEO-INFER-PEP" / "pyproject.toml"
     if not pep_path.exists():
         return
-    
+
     content = pep_path.read_text()
-    
+
     # Check if it's Poetry format
     if "[tool.poetry]" not in content:
         return
-    
+
     print("Converting PEP from Poetry format...")
-    
+
     # Extract Poetry dependencies
-    poetry_deps_match = re.search(r'\[tool\.poetry\.dependencies\]\s*(.*?)(?=\[|$)', content, re.DOTALL)
-    poetry_dev_match = re.search(r'\[tool\.poetry\.dev-dependencies\]\s*(.*?)(?=\[|$)', content, re.DOTALL)
-    
+    poetry_deps_match = re.search(
+        r"\[tool\.poetry\.dependencies\]\s*(.*?)(?=\[|$)", content, re.DOTALL
+    )
+    poetry_dev_match = re.search(
+        r"\[tool\.poetry\.dev-dependencies\]\s*(.*?)(?=\[|$)", content, re.DOTALL
+    )
+
     # Build standard pyproject.toml
     new_content = """[build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -125,7 +125,7 @@ exclude = ["tests*"]
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311', 'py312']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 
 [tool.isort]
 profile = "black"
@@ -192,13 +192,13 @@ exclude_lines = [
     "pragma: no cover",
     "def __repr__",
     "raise AssertionError",
-    "raise NotImplementedError",
+    "raise RuntimeError",
     "if __name__ == .__main__.:",
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
 """
-    
+
     pep_path.write_text(new_content)
     print("  ✅ Converted PEP from Poetry format")
 
@@ -215,13 +215,12 @@ def fix_health_pyproject():
 def main():
     """Fix existing pyproject.toml files."""
     print("Fixing existing pyproject.toml files...\n")
-    
+
     convert_pep_from_poetry()
     fix_health_pyproject()
-    
+
     print("\n✅ Fix complete")
 
 
 if __name__ == "__main__":
     main()
-

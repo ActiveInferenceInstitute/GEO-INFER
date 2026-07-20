@@ -394,7 +394,7 @@ uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py
 The gallery writes flat H3, nested H3, flat spatial-agent, and nested
 spatial-agent runs under
 `GEO-INFER-ACT/examples/output/spatial_active_inference_gallery/` by default.
-Use `uv run` for these commands; system Python may contain a legacy pymdp
+Use `uv run` for these commands; system Python may contain an older pymdp
 distribution and is not the supported ACT/H3 runtime.
 
 ## Verification

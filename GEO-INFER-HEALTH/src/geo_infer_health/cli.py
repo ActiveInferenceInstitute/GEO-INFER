@@ -7,10 +7,9 @@ and API server management.
 """
 
 import argparse
+import json
 import sys
-import os
 from pathlib import Path
-from typing import Optional
 
 import uvicorn
 from loguru import logger
@@ -22,7 +21,6 @@ from geo_infer_health.api import router
 from geo_infer_health.core import (
     DiseaseHotspotAnalyzer,
     HealthcareAccessibilityAnalyzer,
-    EnvironmentalHealthAnalyzer
 )
 from geo_infer_health.utils.config import load_config
 from geo_infer_health.utils.logging import setup_logging
@@ -46,74 +44,117 @@ Examples:
 
   # Process environmental health data
   geo-infer-health analyze environment --air-quality pm25.tif --population census.geojson
-        """
+        """,
     )
 
     parser.add_argument(
-        '--config',
+        "--config",
         type=str,
-        default='config/health_config.yaml',
-        help='Path to configuration file'
+        default="config/health_config.yaml",
+        help="Path to configuration file",
     )
 
     parser.add_argument(
-        '--log-level',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        default='INFO',
-        help='Set logging level'
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Set logging level",
     )
 
     parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose output'
+        "--verbose", "-v", action="store_true", help="Enable verbose output"
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Serve command
-    serve_parser = subparsers.add_parser('serve', help='Start the API server')
-    serve_parser.add_argument('--host', default='127.0.0.1', help='Host to bind to')
-    serve_parser.add_argument('--port', type=int, default=8000, help='Port to bind to')
-    serve_parser.add_argument('--workers', type=int, default=1, help='Number of workers')
-    serve_parser.add_argument('--reload', action='store_true', help='Enable auto-reload')
+    serve_parser = subparsers.add_parser("serve", help="Start the API server")
+    serve_parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
+    serve_parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    serve_parser.add_argument(
+        "--workers", type=int, default=1, help="Number of workers"
+    )
+    serve_parser.add_argument(
+        "--reload", action="store_true", help="Enable auto-reload"
+    )
 
     # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Run health analysis')
-    analyze_subparsers = analyze_parser.add_subparsers(dest='analysis_type', help='Analysis type')
+    analyze_parser = subparsers.add_parser("analyze", help="Run health analysis")
+    analyze_subparsers = analyze_parser.add_subparsers(
+        dest="analysis_type", help="Analysis type"
+    )
 
     # Disease hotspots
-    hotspots_parser = analyze_subparsers.add_parser('hotspots', help='Disease hotspot analysis')
-    hotspots_parser.add_argument('--input', required=True, help='Input disease reports file')
-    hotspots_parser.add_argument('--population', help='Population data file')
-    hotspots_parser.add_argument('--output', default='hotspots.geojson', help='Output file')
-    hotspots_parser.add_argument('--threshold', type=int, default=5, help='Case threshold for hotspots')
-    hotspots_parser.add_argument('--radius', type=float, default=1.0, help='Analysis radius in km')
+    hotspots_parser = analyze_subparsers.add_parser(
+        "hotspots", help="Disease hotspot analysis"
+    )
+    hotspots_parser.add_argument(
+        "--input", required=True, help="Input disease reports file"
+    )
+    hotspots_parser.add_argument("--population", help="Population data file")
+    hotspots_parser.add_argument(
+        "--output", default="hotspots.geojson", help="Output file"
+    )
+    hotspots_parser.add_argument(
+        "--threshold", type=int, default=5, help="Case threshold for hotspots"
+    )
+    hotspots_parser.add_argument(
+        "--radius", type=float, default=1.0, help="Analysis radius in km"
+    )
 
     # Healthcare accessibility
-    accessibility_parser = analyze_subparsers.add_parser('accessibility', help='Healthcare accessibility analysis')
-    accessibility_parser.add_argument('--facilities', required=True, help='Healthcare facilities file')
-    accessibility_parser.add_argument('--population', required=True, help='Population data file')
-    accessibility_parser.add_argument('--output', default='accessibility.geojson', help='Output file')
-    accessibility_parser.add_argument('--method', choices=['distance', 'gravity', '2sfca'], default='distance', help='Accessibility method')
+    accessibility_parser = analyze_subparsers.add_parser(
+        "accessibility", help="Healthcare accessibility analysis"
+    )
+    accessibility_parser.add_argument(
+        "--facilities", required=True, help="Healthcare facilities file"
+    )
+    accessibility_parser.add_argument(
+        "--population", required=True, help="Population data file"
+    )
+    accessibility_parser.add_argument(
+        "--output", default="accessibility.geojson", help="Output file"
+    )
+    accessibility_parser.add_argument(
+        "--method",
+        choices=["distance", "gravity", "2sfca"],
+        default="distance",
+        help="Accessibility method",
+    )
 
     # Environmental health
-    environment_parser = analyze_subparsers.add_parser('environment', help='Environmental health analysis')
-    environment_parser.add_argument('--air-quality', help='Air quality data file')
-    environment_parser.add_argument('--water-quality', help='Water quality data file')
-    environment_parser.add_argument('--population', required=True, help='Population data file')
-    environment_parser.add_argument('--output', default='env_health.geojson', help='Output file')
+    environment_parser = analyze_subparsers.add_parser(
+        "environment", help="Environmental health analysis"
+    )
+    environment_parser.add_argument("--air-quality", help="Air quality data file")
+    environment_parser.add_argument("--water-quality", help="Water quality data file")
+    environment_parser.add_argument(
+        "--population", required=True, help="Population data file"
+    )
+    environment_parser.add_argument(
+        "--output", default="env_health.geojson", help="Output file"
+    )
 
     # Batch processing
-    batch_parser = subparsers.add_parser('batch', help='Batch processing of multiple files')
-    batch_parser.add_argument('--config', required=True, help='Batch processing configuration file')
-    batch_parser.add_argument('--output-dir', default='output', help='Output directory')
+    batch_parser = subparsers.add_parser(
+        "batch", help="Batch processing of multiple files"
+    )
+    batch_parser.add_argument(
+        "--config", required=True, help="Batch processing configuration file"
+    )
+    batch_parser.add_argument("--output-dir", default="output", help="Output directory")
 
     # Validate command
-    validate_parser = subparsers.add_parser('validate', help='Validate data files')
-    validate_parser.add_argument('--input', required=True, help='Input file to validate')
-    validate_parser.add_argument('--schema', help='Schema file for validation')
-    validate_parser.add_argument('--type', choices=['disease', 'facility', 'population', 'environment'], help='Data type')
+    validate_parser = subparsers.add_parser("validate", help="Validate data files")
+    validate_parser.add_argument(
+        "--input", required=True, help="Input file to validate"
+    )
+    validate_parser.add_argument("--schema", help="Schema file for validation")
+    validate_parser.add_argument(
+        "--type",
+        choices=["disease", "facility", "population", "environment"],
+        help="Data type",
+    )
 
     return parser
 
@@ -136,13 +177,13 @@ def main():
         logger.info(f"Loaded configuration from {args.config}")
 
         # Execute command
-        if args.command == 'serve':
+        if args.command == "serve":
             run_server(args, config)
-        elif args.command == 'analyze':
+        elif args.command == "analyze":
             run_analysis(args, config)
-        elif args.command == 'batch':
+        elif args.command == "batch":
             run_batch_processing(args, config)
-        elif args.command == 'validate':
+        elif args.command == "validate":
             run_validation(args, config)
         else:
             logger.error(f"Unknown command: {args.command}")
@@ -152,6 +193,7 @@ def main():
         logger.error(f"Error: {e}")
         if args.verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
@@ -167,7 +209,7 @@ def run_server(args, config):
     app = FastAPI(
         title="GEO-INFER-HEALTH API",
         description="Spatial Health Analytics and Epidemiological Intelligence",
-        version="1.0.0"
+        version="1.0.0",
     )
 
     app.add_middleware(
@@ -190,7 +232,7 @@ def run_server(args, config):
         port=args.port,
         workers=args.workers,
         reload=args.reload,
-        log_level=args.log_level.lower()
+        log_level=args.log_level.lower(),
     )
 
 
@@ -198,11 +240,11 @@ def run_analysis(args, config):
     """Run health analysis."""
     logger.info(f"Running {args.analysis_type} analysis")
 
-    if args.analysis_type == 'hotspots':
+    if args.analysis_type == "hotspots":
         run_hotspot_analysis(args, config)
-    elif args.analysis_type == 'accessibility':
+    elif args.analysis_type == "accessibility":
         run_accessibility_analysis(args, config)
-    elif args.analysis_type == 'environment':
+    elif args.analysis_type == "environment":
         run_environment_analysis(args, config)
     else:
         logger.error(f"Unknown analysis type: {args.analysis_type}")
@@ -213,23 +255,22 @@ def run_hotspot_analysis(args, config):
     try:
         # Load disease reports
         import geopandas as gpd
+
         reports_gdf = gpd.read_file(args.input)
         logger.info(f"Loaded {len(reports_gdf)} disease reports")
 
         # Convert to internal format
         from geo_infer_health.models import DiseaseReport, Location
+
         reports = []
         for _, row in reports_gdf.iterrows():
-            location = Location(
-                latitude=row.geometry.y,
-                longitude=row.geometry.x
-            )
+            location = Location(latitude=row.geometry.y, longitude=row.geometry.x)
             report = DiseaseReport(
-                report_id=str(row.get('report_id', f"report_{len(reports)}")),
-                disease_code=row.get('disease_code', 'UNKNOWN'),
+                report_id=str(row.get("report_id", f"report_{len(reports)}")),
+                disease_code=row.get("disease_code", "UNKNOWN"),
                 location=location,
-                report_date=row.get('report_date', None),
-                case_count=int(row.get('case_count', 1))
+                report_date=row.get("report_date", None),
+                case_count=int(row.get("case_count", 1)),
             )
             reports.append(report)
 
@@ -238,25 +279,28 @@ def run_hotspot_analysis(args, config):
         if args.population:
             pop_gdf = gpd.read_file(args.population)
             from geo_infer_health.models import PopulationData
+
             population_data = []
             for _, row in pop_gdf.iterrows():
                 pop_data = PopulationData(
-                    area_id=str(row.get('area_id', f"area_{len(population_data)}")),
-                    population_count=int(row.get('population', 0))
+                    area_id=str(row.get("area_id", f"area_{len(population_data)}")),
+                    population_count=int(row.get("population", 0)),
                 )
                 population_data.append(pop_data)
             logger.info(f"Loaded {len(population_data)} population areas")
 
         # Run analysis
-        analyzer = DiseaseHotspotAnalyzer(reports=reports, population_data=population_data)
+        analyzer = DiseaseHotspotAnalyzer(
+            reports=reports, population_data=population_data
+        )
         hotspots = analyzer.identify_simple_hotspots(
-            threshold_case_count=args.threshold,
-            scan_radius_km=args.radius
+            threshold_case_count=args.threshold, scan_radius_km=args.radius
         )
 
         # Save results
         import json
-        with open(args.output, 'w') as f:
+
+        with open(args.output, "w") as f:
             json.dump(hotspots, f, indent=2)
 
         logger.info(f"Found {len(hotspots)} hotspots, saved to {args.output}")
@@ -283,45 +327,47 @@ def run_accessibility_analysis(args, config):
 
         facilities = []
         for _, row in facilities_gdf.iterrows():
-            location = Location(
-                latitude=row.geometry.y,
-                longitude=row.geometry.x
-            )
+            location = Location(latitude=row.geometry.y, longitude=row.geometry.x)
             facility = HealthFacility(
-                facility_id=str(row.get('facility_id', f"facility_{len(facilities)}")),
-                name=row.get('name', 'Unknown'),
-                facility_type=row.get('facility_type', 'Unknown'),
+                facility_id=str(row.get("facility_id", f"facility_{len(facilities)}")),
+                name=row.get("name", "Unknown"),
+                facility_type=row.get("facility_type", "Unknown"),
                 location=location,
-                capacity=int(row.get('capacity', 0)) if row.get('capacity') else None
+                capacity=int(row.get("capacity", 0)) if row.get("capacity") else None,
             )
             facilities.append(facility)
 
         population_data = []
         for _, row in population_gdf.iterrows():
             pop_data = PopulationData(
-                area_id=str(row.get('area_id', f"area_{len(population_data)}")),
-                population_count=int(row.get('population', 0))
+                area_id=str(row.get("area_id", f"area_{len(population_data)}")),
+                population_count=int(row.get("population", 0)),
             )
             population_data.append(pop_data)
 
         # Run analysis
-        analyzer = HealthcareAccessibilityAnalyzer(facilities=facilities, population_data=population_data)
+        analyzer = HealthcareAccessibilityAnalyzer(
+            facilities=facilities, population_data=population_data
+        )
 
         # For now, just calculate basic statistics
         total_facilities = len(facilities)
         total_population = sum(p.population_count for p in population_data)
-        ratio = total_facilities / total_population * 1000 if total_population > 0 else 0
+        ratio = (
+            total_facilities / total_population * 1000 if total_population > 0 else 0
+        )
 
         results = {
             "total_facilities": total_facilities,
             "total_population": total_population,
             "facility_ratio_per_1000": ratio,
-            "method": args.method
+            "method": args.method,
         }
 
         # Save results
         import json
-        with open(args.output, 'w') as f:
+
+        with open(args.output, "w") as f:
             json.dump(results, f, indent=2)
 
         logger.info(f"Accessibility analysis completed, saved to {args.output}")
@@ -342,18 +388,19 @@ def run_environment_analysis(args, config):
 
         # Convert population data
         from geo_infer_health.models import PopulationData
+
         population_data = []
         for _, row in population_gdf.iterrows():
             pop_data = PopulationData(
-                area_id=str(row.get('area_id', f"area_{len(population_data)}")),
-                population_count=int(row.get('population', 0))
+                area_id=str(row.get("area_id", f"area_{len(population_data)}")),
+                population_count=int(row.get("population", 0)),
             )
             population_data.append(pop_data)
 
         results = {
             "analysis_type": "environmental_health",
             "population_areas": len(population_data),
-            "total_population": sum(p.population_count for p in population_data)
+            "total_population": sum(p.population_count for p in population_data),
         }
 
         # Add air quality analysis if provided
@@ -368,7 +415,8 @@ def run_environment_analysis(args, config):
 
         # Save results
         import json
-        with open(args.output, 'w') as f:
+
+        with open(args.output, "w") as f:
             json.dump(results, f, indent=2)
 
         logger.info(f"Environmental health analysis completed, saved to {args.output}")
@@ -381,8 +429,52 @@ def run_environment_analysis(args, config):
 def run_batch_processing(args, config):
     """Run batch processing of multiple files."""
     logger.info(f"Running batch processing with config: {args.config}")
-    # Implementation would go here
-    logger.warning("Batch processing not yet implemented")
+    jobs = config.get("jobs", config.get("batch", {}).get("jobs", []))
+    if not isinstance(jobs, list) or not jobs:
+        raise ValueError("Batch configuration must contain a non-empty jobs list")
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    completed = []
+    for index, job in enumerate(jobs, start=1):
+        if not isinstance(job, dict):
+            raise ValueError(f"Batch job {index} must be a mapping")
+        job_type = job.get("analysis_type", job.get("type"))
+        job_args = argparse.Namespace(**job)
+        if job_type == "hotspots":
+            job_args.output = str(
+                output_dir / job.get("output", f"hotspots_{index}.json")
+            )
+            run_hotspot_analysis(job_args, config)
+        elif job_type == "accessibility":
+            job_args.output = str(
+                output_dir / job.get("output", f"accessibility_{index}.json")
+            )
+            run_accessibility_analysis(job_args, config)
+        elif job_type == "environment":
+            job_args.output = str(
+                output_dir / job.get("output", f"environment_{index}.json")
+            )
+            run_environment_analysis(job_args, config)
+        else:
+            raise ValueError(
+                f"Batch job {index} has unsupported analysis_type: {job_type!r}"
+            )
+        completed.append(
+            {
+                "index": index,
+                "analysis_type": job_type,
+                "output": job_args.output,
+                "status": "completed",
+            }
+        )
+
+    manifest = output_dir / "batch_manifest.json"
+    manifest.write_text(json.dumps({"jobs": completed}, indent=2), encoding="utf-8")
+    logger.info(
+        "Completed %d batch jobs; manifest saved to %s", len(completed), manifest
+    )
+    return completed
 
 
 def run_validation(args, config):
@@ -390,6 +482,7 @@ def run_validation(args, config):
     logger.info(f"Validating file: {args.input}")
     try:
         import geopandas as gpd
+
         gdf = gpd.read_file(args.input)
 
         # Basic validation

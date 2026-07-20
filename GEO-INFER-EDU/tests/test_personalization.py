@@ -1,6 +1,5 @@
 """Tests for personalized learning module."""
 
-import pytest
 from geo_infer_edu.core.personalization import (
     PersonalizedLearning,
     LearnerProfile,
@@ -52,14 +51,16 @@ class TestPersonalizedLearningInit:
 
     def test_register_learner(self) -> None:
         pl = PersonalizedLearning()
-        profile = pl.register_learner({
-            "id": "l1",
-            "learning_style": "kinesthetic",
-            "prior_knowledge": ["python"],
-            "interests": ["remote_sensing"],
-            "pace": "fast",
-            "hours_per_week": 15,
-        })
+        profile = pl.register_learner(
+            {
+                "id": "l1",
+                "learning_style": "kinesthetic",
+                "prior_knowledge": ["python"],
+                "interests": ["remote_sensing"],
+                "pace": "fast",
+                "hours_per_week": 15,
+            }
+        )
         assert profile.learner_id == "l1"
         assert profile.learning_style == "kinesthetic"
         assert profile.available_time_hours_week == 15
@@ -106,6 +107,28 @@ class TestRecommendations:
     def test_recommend_resources(self) -> None:
         pl = PersonalizedLearning()
         pl.register_learner({"id": "l1", "learning_style": "visual"})
+        pl.register_resource(
+            LearningResource(
+                resource_id="gis-video",
+                title="GIS analysis video",
+                resource_type="video",
+                topic="spatial_analysis",
+                difficulty="appropriate",
+                duration_minutes=30,
+                format="mp4",
+            )
+        )
+        pl.register_resource(
+            LearningResource(
+                resource_id="gis-reading",
+                title="GIS analysis reading",
+                resource_type="reading",
+                topic="spatial_analysis",
+                difficulty="appropriate",
+                duration_minutes=20,
+                format="html",
+            )
+        )
         recs = pl.recommend_resources(
             learner_id="l1",
             current_topic="spatial_analysis",

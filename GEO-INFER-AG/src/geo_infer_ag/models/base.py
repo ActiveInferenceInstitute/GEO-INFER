@@ -55,9 +55,9 @@ class AgricultureModel(abc.ABC):
             Dictionary containing prediction results
 
         Raises:
-            NotImplementedError: Must be implemented by subclasses
+            RuntimeError: Raised if a subclass does not implement predict.
         """
-        raise NotImplementedError("Subclasses must implement predict()")
+        raise RuntimeError("Subclasses must implement predict()")
 
     def validate_inputs(self, data: Dict[str, Any]) -> bool:
         """

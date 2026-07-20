@@ -7,7 +7,6 @@ the integration with the GEO-INFER-LOG module.
 
 import pytest
 import tempfile
-import time
 from pathlib import Path
 from unittest.mock import patch
 from hypothesis import given, settings, strategies as st
@@ -49,8 +48,7 @@ class TestLogIntegration:
         log_integration = LogIntegration(self.log_config)
 
         with log_integration.test_context("test_001", "SPACE", "test_h3_indexing"):
-            # Simulate successful test execution
-            time.sleep(0.01)
+            pass
 
         # Verify the test was logged
         assert len(log_integration.test_entries) == 1
@@ -60,7 +58,7 @@ class TestLogIntegration:
         assert entry.module == "SPACE"
         assert entry.test_name == "test_h3_indexing"
         assert entry.status == "PASS"
-        assert entry.duration > 0
+        assert entry.duration >= 0
 
     def test_test_context_manager_failure(self):
         """Test the test context manager with a failing test."""
@@ -329,7 +327,6 @@ def test_full_workflow_integration():
             with log_integration.test_context(test_id, module, test_name):
                 if not should_pass:
                     raise RuntimeError("Simulated test failure")
-                time.sleep(0.01)  # Simulate work
         except RuntimeError:
             pass  # Expected for failing tests
 

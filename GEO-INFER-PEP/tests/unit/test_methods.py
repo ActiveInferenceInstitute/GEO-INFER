@@ -3,6 +3,7 @@ from geo_infer_pep.methods import (
     generate_quarterly_people_report,
     clear_all_data,
 )
+
 # Import the candidate DB so we can populate it directly
 import geo_infer_pep.methods as methods_module
 
@@ -26,8 +27,8 @@ def _make_candidate(candidate_id="cand123_workflow", status="offer_accepted"):
         offer=Offer(
             offer_id="offer123",
             offered_at=datetime.now().date(),
-            accepted_at=datetime.now().date()
-        )
+            accepted_at=datetime.now().date(),
+        ),
     )
     return candidate
 
@@ -67,7 +68,7 @@ def test_generate_quarterly_people_report_success(capsys):
 
     report_path = generate_quarterly_people_report(quarter, year)
 
-    assert report_path.endswith(f"simulated_quarterly_report_{quarter}_{year}.txt")
+    assert report_path.endswith(".json")
 
     captured = capsys.readouterr()
     assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
@@ -83,7 +84,7 @@ def test_generate_quarterly_report_no_data(capsys):
 
     report_path = generate_quarterly_people_report(quarter, year)
 
-    assert report_path.endswith(f"simulated_quarterly_report_{quarter}_{year}.txt")
+    assert report_path.endswith(".json")
 
     captured = capsys.readouterr()
     assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
@@ -97,8 +98,10 @@ def test_generate_quarterly_report_normalizes_numeric_quarter(capsys):
 
     report_path = generate_quarterly_people_report(quarter, year)
 
-    assert report_path.endswith(f"simulated_quarterly_report_Q{quarter}_{year}.txt")
+    assert report_path.endswith(".json")
 
     captured = capsys.readouterr()
-    assert f"Generating quarterly people report for Q{quarter} {year}..." in captured.out
+    assert (
+        f"Generating quarterly people report for Q{quarter} {year}..." in captured.out
+    )
     assert "QQ3" not in captured.out

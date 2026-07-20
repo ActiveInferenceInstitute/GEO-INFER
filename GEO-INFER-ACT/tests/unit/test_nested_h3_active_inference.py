@@ -111,6 +111,28 @@ def test_spatial_agent_and_multi_agent_nested_h3_paths() -> None:
 def test_nested_h3_runner_outputs_are_manifested_and_temp_scoped(
     tmp_path: Path,
 ) -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+
+    def scoped_status() -> str:
+        status = subprocess.run(
+            [
+                "git",
+                "status",
+                "--short",
+                "--",
+                "test_output",
+                "output",
+                "outputs",
+                "visualizations_output",
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return status.stdout
+
+    status_before = scoped_status()
     result = run_scenario(
         RunConfig(
             scenario="h3",
@@ -152,21 +174,4 @@ def test_nested_h3_runner_outputs_are_manifested_and_temp_scoped(
     assert result.metrics["pymdp_version"] == "1.0.3"
     assert result.metrics["h3_version"] == "4.5.0"
 
-    repo_root = Path(__file__).resolve().parents[3]
-    status = subprocess.run(
-        [
-            "git",
-            "status",
-            "--short",
-            "--",
-            "test_output",
-            "output",
-            "outputs",
-            "visualizations_output",
-        ],
-        cwd=repo_root,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    assert status.stdout.strip() == ""
+    assert scoped_status() == status_before

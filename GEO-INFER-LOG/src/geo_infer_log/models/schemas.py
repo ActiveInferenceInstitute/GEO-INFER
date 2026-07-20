@@ -8,7 +8,7 @@ supply chain optimization components.
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
 
@@ -72,8 +72,8 @@ class Vehicle(BaseModel):
         default=True, description="Whether vehicle is available for assignments"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "truck-001",
                 "type": "truck",
@@ -90,6 +90,7 @@ class Vehicle(BaseModel):
                 "available": True,
             }
         }
+    )
 
 
 class Location(BaseModel):
@@ -112,8 +113,8 @@ class Location(BaseModel):
         default=None, description="Priority of this location (lower is higher priority)"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Customer A",
                 "coordinates": (13.4050, 52.5200),
@@ -127,6 +128,7 @@ class Location(BaseModel):
                 "priority": 1,
             }
         }
+    )
 
 
 class Shipment(BaseModel):
@@ -143,8 +145,8 @@ class Shipment(BaseModel):
     special_requirements: Optional[List[str]] = None
     assigned_vehicle: Optional[str] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "shipment-123",
                 "origin": {
@@ -166,6 +168,7 @@ class Shipment(BaseModel):
                 "assigned_vehicle": None,
             }
         }
+    )
 
 
 class Route(BaseModel):
@@ -184,8 +187,8 @@ class Route(BaseModel):
         default=None, description="GeoJSON representation of route geometry"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "route-456",
                 "vehicle_id": "truck-001",
@@ -228,6 +231,7 @@ class Route(BaseModel):
                 },
             }
         }
+    )
 
 
 class RoutingParameters(BaseModel):
@@ -253,8 +257,8 @@ class RoutingParameters(BaseModel):
         default=None, description="Maximum route distance in km"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "weight_factor": "time",
                 "avoid_highways": False,
@@ -267,6 +271,7 @@ class RoutingParameters(BaseModel):
                 "max_route_distance": 300,
             }
         }
+    )
 
 
 class FacilityLocation(BaseModel):
@@ -286,8 +291,8 @@ class FacilityLocation(BaseModel):
         default=None, description="GeoJSON representation of service area"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "dc-001",
                 "name": "Berlin Distribution Center",
@@ -311,6 +316,7 @@ class FacilityLocation(BaseModel):
                 },
             }
         }
+    )
 
 
 class SupplyChainNetwork(BaseModel):
@@ -325,8 +331,8 @@ class SupplyChainNetwork(BaseModel):
     demand_points: Optional[List[Dict]] = None
     supply_points: Optional[List[Dict]] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "network-001",
                 "name": "European Distribution Network",
@@ -376,3 +382,4 @@ class SupplyChainNetwork(BaseModel):
                 ],
             }
         }
+    )

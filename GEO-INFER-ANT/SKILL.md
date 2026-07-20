@@ -15,41 +15,87 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ## Instructions
 
-### Core Capabilities
+### Core capabilities
 
-- **ACO**: Ant Colony Optimization for spatial routing and TSP
-- **PSO**: Particle Swarm Optimization for continuous spatial problems
-- **ABC**: Artificial Bee Colony for facility location optimization
-- **Stigmergy**: Pheromone-based coordination on spatial grids
-- **Colony convergence**: Iteration tracking, solution quality metrics
+- **ACO**: seeded Ant System, Ant Colony System, and Max-Min Ant System for
+  matrix-backed routing, VRP-style constraints, and multi-objective paths.
+- **PSO**: bounded continuous optimization with obstacle handling, local or
+  global neighborhoods, adaptive parameters, and swarm coordination.
+- **ABC**: employed, onlooker, and scout phases for bounded continuous search.
+- **Stigmergy**: H3-indexed pheromone fields, diffusion, evaporation, deposit
+  auditing, and digital trace coordination.
+- **Applications**: environmental monitoring, disaster response, and urban
+  traffic routing consume real supplied observations and graph/network inputs.
+- **Analysis**: spatial patterns, interaction networks, emergence measures, and
+  performance statistics are available from importable package APIs.
 
-### Key Imports
+### Key imports
 
 ```python
-from geo_infer_ant.core.aco import AntColonyOptimizer
-from geo_infer_ant.core.pso import ParticleSwarmOptimizer
-from geo_infer_ant.core.abc import ArtificialBeeColony
-from geo_infer_ant.core.pheromone import PheromoneGrid
+import numpy as np
+
+from geo_infer_ant.algorithms import (
+    AntColonyOptimization,
+    ParticleSwarmOptimization,
+    ArtificialBeeColony,
+)
+from geo_infer_ant.core import PheromoneSystem, SwarmAgent, AgentPopulation
 ```
 
 ## Examples
 
-```python
-from geo_infer_ant.core.aco import AntColonyOptimizer
+### Matrix-backed ACO
 
-optimizer = AntColonyOptimizer(
-    n_ants=50, alpha=1.0, beta=2.0, rho=0.5
+```python
+distance_matrix = np.array([
+    [0.0, 1.0, 2.0],
+    [1.0, 0.0, 1.0],
+    [2.0, 1.0, 0.0],
+])
+optimizer = AntColonyOptimization(
+    number_of_ants=20,
+    max_iterations=50,
+    variant="ACS",
+    random_seed=42,
 )
-best_route = optimizer.solve(distance_matrix, n_iterations=100)
-print(f"Best route cost: {best_route.cost}")
+optimizer.initialize_problem(
+    nodes=np.arange(3),
+    distance_matrix=distance_matrix,
+)
+result = optimizer.solve()
+print(result.best_solution, result.best_fitness)
 ```
 
 ## Guidelines
 
-- Tests have long runtime (~213s) due to convergence iterations
-- Convergence verification in development (Alpha)
+Use explicit bounds and finite numeric objective functions. Seed every
+optimization or application run when reproducibility matters, and initialize
+ACO with its problem matrices before solving. Treat empty observations or an
+absent graph as an input condition and inspect the returned status rather than
+assuming an improvement.
+
+### Validation
+
+Run the module gate from the repository root:
+
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+```
+
+For focused development, run the affected tests first:
+
+```bash
+uv run python -m pytest -c pyproject.toml -W error \
+  GEO-INFER-ANT/tests/unit/test_deep_contracts.py
+```
+
+All optimizers accept `random_seed`/`seed` for reproducible local validation.
+State serialization is JSON-compatible, H3 resolutions accept integer or
+`h3_rN` forms, and malformed spatial bounds or matrices fail at the boundary.
 
 ### Integrations
 
-- Integrates with AGENT for multi-agent swarm coordination
-- Test: `uv run python -m pytest GEO-INFER-ANT/tests/ -v`
+ANT integrates with GEO-INFER-SPACE when installed and keeps deterministic
+local behavior available when optional spatial adapters are absent. Population
+agents can share a PheromoneSystem and can receive an injected Active Inference
+model from GEO-INFER-ACT.

@@ -54,7 +54,7 @@ PlaceInterface("del_norte")
 - `PlaceInterface` uses lazy initialization for all components -- analyzers, data managers, and API clients are created only when first accessed.
 - Location presets are loaded from `config/location_presets.yaml` with a hardcoded fallback dictionary.
 - All API clients include retry logic and response caching via `CachedAPIWrapper`.
-- H3 v4 API is used throughout (`latlng_to_cell`, `cell_to_latlng`, not legacy functions).
+- H3 v4 API is used throughout (`latlng_to_cell`, `cell_to_latlng`) without deprecated v3 aliases.
 - The module re-exports H3 utility functions for convenience (18 functions from `utils.h3_operations`).
 - Results are serialized to timestamped JSON files in the output directory.
 

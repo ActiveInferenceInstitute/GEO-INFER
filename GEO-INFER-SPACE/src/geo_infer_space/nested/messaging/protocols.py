@@ -117,7 +117,9 @@ class MessageProtocol(ABC):
         Returns:
             Message or session ID
         """
-        pass
+        raise RuntimeError(
+            "MessageProtocol.send_message requires a concrete protocol implementation"
+        )
 
     @abstractmethod
     def handle_message(self, message, **kwargs) -> Any:
@@ -131,7 +133,9 @@ class MessageProtocol(ABC):
         Returns:
             Protocol-specific result
         """
-        pass
+        raise RuntimeError(
+            "MessageProtocol.handle_message requires a concrete protocol implementation"
+        )
 
     def create_session(
         self, session_id: str, participants: List[str], **kwargs

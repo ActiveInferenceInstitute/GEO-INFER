@@ -1388,13 +1388,6 @@ def create_enhanced_flood_model(
     return EnhancedFloodModel(config)
 
 
-# Backward compatibility
-CatastropheModel = EnhancedCatastropheModel
-EarthquakeModel = EnhancedEarthquakeModel
-HurricaneModel = EnhancedHurricaneModel
-FloodModel = EnhancedFloodModel
-
-
 class CatastropheModelManager:
     """Manages a registry of catastrophe models for use in risk analysis.
 

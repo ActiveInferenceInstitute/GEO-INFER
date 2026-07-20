@@ -358,9 +358,7 @@ class TestEmergentBehavior:
             for step in range(n_steps):
                 # Movement with attraction to center
                 noise = np.random.normal(0, 0.5, 2)
-                attraction = -0.1 * (
-                    np.random.uniform(-10, 10, 2) - center
-                )  # Simplified
+                attraction = -0.1 * (np.random.uniform(-10, 10, 2) - center)
                 position = center + noise + attraction
                 agent_trajectory.append(position)
 

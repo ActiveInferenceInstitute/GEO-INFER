@@ -17,9 +17,13 @@ Key Features:
 
 import numpy as np
 import logging
+import ast
+from numbers import Real
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from dataclasses import dataclass, field
+
+from geo_infer_ant.utils.spatial import validate_numeric_matrix
 
 # Integration imports
 try:
@@ -61,6 +65,27 @@ class ACOParameters:
             raise ValueError("Evaporation rate must be between 0 and 1")
         if self.alpha <= 0 or self.beta <= 0:
             raise ValueError("Alpha and beta must be positive")
+        numeric_nonnegative = {
+            "pheromone_deposition_amount": self.pheromone_deposition_amount,
+            "initial_pheromone": self.initial_pheromone,
+            "convergence_threshold": self.convergence_threshold,
+            "exploration_rate": self.exploration_rate,
+        }
+        for name, value in numeric_nonnegative.items():
+            if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be a finite non-negative number")
+        if not isinstance(self.max_iterations, int) or self.max_iterations <= 0:
+            raise ValueError("max_iterations must be a positive integer")
+        if not 0 <= self.exploration_rate <= 1:
+            raise ValueError("exploration_rate must be between 0 and 1")
+        if self.elitist_ants < 0:
+            raise ValueError("elitist_ants must be non-negative")
+        if not 0 <= self.pheromone_persistence <= 1:
+            raise ValueError("pheromone_persistence must be between 0 and 1")
+        if self.min_pheromone <= 0 or self.max_pheromone < self.min_pheromone:
+            raise ValueError(
+                "pheromone bounds must satisfy 0 < min_pheromone <= max_pheromone"
+            )
 
 
 @dataclass
@@ -145,14 +170,20 @@ class AntColonyOptimization:
             convergence_threshold=convergence_threshold,
         )
 
-        self.variant = variant
+        self.variant = str(variant).upper()
+        if self.variant not in {"AS", "ACS", "MMAS"}:
+            raise ValueError("variant must be one of 'AS', 'ACS', or 'MMAS'")
         self.spatial_graph = spatial_graph
+        seed = kwargs.pop("random_seed", kwargs.pop("seed", None))
+        self.rng = np.random.default_rng(seed)
 
         # Algorithm state
         self.pheromone_matrix: Dict[Tuple[Any, Any], float] = {}
         self.heuristic_matrix: Dict[Tuple[Any, Any], float] = {}
         self.problem_size: int = 0
         self.nodes: List[Any] = []
+        self.distance_matrix: Optional[np.ndarray] = None
+        self.constraints: Dict[str, Any] = {}
 
         # Optimization state
         self.best_solution: Optional[List[Any]] = None
@@ -224,9 +255,32 @@ class AntColonyOptimization:
             heuristic_matrix: Matrix of heuristic values (if different from distances)
             constraints: Problem constraints
         """
-        self.nodes = nodes
+        if nodes is None or len(nodes) == 0:
+            raise ValueError("nodes must contain at least two nodes")
+        if len(nodes) < 2:
+            raise ValueError("ACO requires at least two nodes")
+        self.nodes = list(nodes)
         self.problem_size = len(nodes)
         self.constraints = constraints or {}
+        self.distance_matrix = None
+
+        if distance_matrix is not None:
+            self.distance_matrix = validate_numeric_matrix(
+                distance_matrix, self.problem_size, "distance_matrix"
+            )
+        if heuristic_matrix is not None:
+            heuristic_matrix = validate_numeric_matrix(
+                heuristic_matrix, self.problem_size, "heuristic_matrix"
+            )
+        for name in ("max_path_length",):
+            if name in self.constraints:
+                value = self.constraints[name]
+                if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+                    raise ValueError(f"{name} must be a finite non-negative number")
+        if "required_nodes" in self.constraints:
+            required_nodes = set(self.constraints["required_nodes"])
+            if not required_nodes.issubset(set(range(self.problem_size))):
+                raise ValueError("required_nodes must contain valid node indices")
 
         # Initialize pheromone matrix
         self.pheromone_matrix = {}
@@ -253,11 +307,12 @@ class AntColonyOptimization:
                         else:
                             self.heuristic_matrix[(i, j)] = 0.0
         else:
-            # Default heuristic (random)
+            # A deterministic neutral heuristic is preferable to hidden global
+            # RNG state when the caller does not provide distances.
             for i in range(self.problem_size):
                 for j in range(self.problem_size):
                     if i != j:
-                        self.heuristic_matrix[(i, j)] = np.random.uniform(0.1, 1.0)
+                        self.heuristic_matrix[(i, j)] = 1.0
 
         logger.info(f"ACO problem initialized with {self.problem_size} nodes")
 
@@ -280,6 +335,12 @@ class AntColonyOptimization:
         Returns:
             List of optimized paths with metadata
         """
+        if len(start_locations) != len(end_locations):
+            raise ValueError(
+                "start_locations and end_locations must have equal lengths"
+            )
+        if objective_function != "minimize_total_distance":
+            raise ValueError(f"Unsupported path objective: {objective_function}")
         logger.info(
             f"Optimizing {len(start_locations)} paths from start to end locations"
         )
@@ -291,7 +352,7 @@ class AntColonyOptimization:
             path_nodes = [start, end]
 
             # Add intermediate nodes if spatial graph available
-            if self.spatial_graph:
+            if self.spatial_graph is not None:
                 try:
                     # Find intermediate nodes between start and end
                     intermediate_nodes = self._find_intermediate_nodes(start, end)
@@ -328,13 +389,45 @@ class AntColonyOptimization:
         self, start: np.ndarray, end: np.ndarray
     ) -> List[np.ndarray]:
         """Find intermediate nodes between start and end locations."""
-        if not self.spatial_analytics:
+        if self.spatial_graph is None:
             return []
 
         try:
-            # Use spatial analytics to find intermediate points
-            # This would integrate with actual spatial graph data
-            return []
+            import networkx as nx
+
+            if not isinstance(
+                self.spatial_graph,
+                (nx.Graph, nx.DiGraph, nx.MultiGraph, nx.MultiDiGraph),
+            ):
+                return []
+            graph = self.spatial_graph
+            graph_nodes = list(graph.nodes)
+            if not graph_nodes:
+                return []
+
+            def nearest(point: np.ndarray) -> Any:
+                point_array = np.asarray(point, dtype=float)
+                return min(
+                    graph_nodes,
+                    key=lambda candidate: np.linalg.norm(
+                        np.asarray(candidate, dtype=float) - point_array
+                    ),
+                )
+
+            start_node = (
+                tuple(np.asarray(start).tolist())
+                if np.asarray(start).ndim == 1
+                else start
+            )
+            end_node = (
+                tuple(np.asarray(end).tolist()) if np.asarray(end).ndim == 1 else end
+            )
+            if start_node not in graph:
+                start_node = nearest(start)
+            if end_node not in graph:
+                end_node = nearest(end)
+            route = nx.shortest_path(graph, start_node, end_node, weight="weight")
+            return [np.asarray(node, dtype=float) for node in route[1:-1]]
         except Exception as e:
             logger.warning(f"Failed to find intermediate nodes: {e}")
             return []
@@ -361,6 +454,10 @@ class AntColonyOptimization:
         Returns:
             Optimization result with best solution and metadata
         """
+        if self.problem_size < 2 or not self.nodes:
+            raise RuntimeError(
+                "Call initialize_problem with at least two nodes before solve"
+            )
         start_time = datetime.now()
 
         logger.info(
@@ -371,6 +468,7 @@ class AntColonyOptimization:
         self._initialize_algorithm_state()
 
         # Main optimization loop
+        convergence_achieved = False
         for iteration in range(self.parameters.max_iterations):
             iteration_start = datetime.now()
 
@@ -384,12 +482,11 @@ class AntColonyOptimization:
             self._update_best_solution(solutions)
 
             # Check convergence
+            self._record_iteration_stats(iteration)
             if self._check_convergence(iteration):
+                convergence_achieved = True
                 logger.info(f"Convergence achieved at iteration {iteration}")
                 break
-
-            # Record iteration statistics
-            self._record_iteration_stats(iteration)
 
             iteration_time = (datetime.now() - iteration_start).total_seconds()
             self.iteration_times.append(iteration_time)
@@ -404,9 +501,7 @@ class AntColonyOptimization:
             pheromone_history=self.pheromone_history.copy(),
             computation_time=computation_time,
             iterations_completed=len(self.convergence_history),
-            convergence_achieved=self._check_convergence(
-                self.parameters.max_iterations - 1
-            ),
+            convergence_achieved=convergence_achieved,
         )
 
         logger.info(f"ACO optimization completed: best fitness = {result.best_fitness}")
@@ -419,9 +514,7 @@ class AntColonyOptimization:
         self.convergence_history = []
         self.pheromone_history = []
         self.iteration_times = []
-
-        # Record initial state
-        self._record_iteration_stats(0)
+        self.function_evaluations = 0
 
     def _construct_solutions(self) -> List[Dict[str, Any]]:
         """Construct solutions using artificial ants."""
@@ -443,8 +536,9 @@ class AntColonyOptimization:
         solution = []
         visited = set()
 
-        # Start from random node (or node 0 for TSP-like problems)
-        current_node = 0
+        # Random starts improve exploration while remaining reproducible under
+        # the optimizer's private generator.
+        current_node = int(self.rng.integers(0, self.problem_size))
         solution.append(current_node)
         visited.add(current_node)
 
@@ -488,15 +582,18 @@ class AntColonyOptimization:
 
         # Select node using roulette wheel selection
         total_probability = sum(prob for _, prob in candidates)
-        if total_probability <= 0:
+        if (
+            total_probability <= 0
+            or self.rng.random() < self.parameters.exploration_rate
+        ):
             # Random selection if all probabilities are zero
-            return np.random.choice([node for node, _ in candidates])
+            return int(self.rng.choice([node for node, _ in candidates]))
 
         # Normalize probabilities
         probabilities = [prob / total_probability for _, prob in candidates]
 
         # Select node
-        selected_idx = np.random.choice(len(candidates), p=probabilities)
+        selected_idx = self.rng.choice(len(candidates), p=probabilities)
         return candidates[selected_idx][0]
 
     def _evaluate_solution(self, solution: List[int]) -> float:
@@ -512,7 +609,7 @@ class AntColonyOptimization:
             node2 = solution[i + 1]
 
             # Get distance between nodes
-            if hasattr(self, "distance_matrix") and self.distance_matrix is not None:
+            if self.distance_matrix is not None:
                 distance = self.distance_matrix[node1, node2]
             else:
                 # Calculate Euclidean distance if positions available
@@ -521,7 +618,7 @@ class AntColonyOptimization:
                     pos2 = np.array(self.nodes[node2])
                     distance = np.linalg.norm(pos2 - pos1)
                 else:
-                    distance = 1.0  # Default distance
+                    return float("inf")
 
             total_distance += distance
 
@@ -592,6 +689,8 @@ class AntColonyOptimization:
 
     def _update_pheromones_acs(self, solutions: List[Dict[str, Any]]) -> None:
         """Update pheromones using Ant Colony System (ACS) variant."""
+        if not solutions:
+            return
         # Deposit pheromones only on best solution edges
         best_solution_info = min(solutions, key=lambda x: x["fitness"])
         best_solution = best_solution_info["solution"]
@@ -621,6 +720,8 @@ class AntColonyOptimization:
 
     def _update_pheromones_mmas(self, solutions: List[Dict[str, Any]]) -> None:
         """Update pheromones using Max-Min Ant System (MMAS) variant."""
+        if not solutions:
+            return
         # Find best and worst solutions
         best_solution_info = min(solutions, key=lambda x: x["fitness"])
         worst_solution_info = max(solutions, key=lambda x: x["fitness"])
@@ -729,6 +830,26 @@ class AntColonyOptimization:
 
         if not objectives:
             raise ValueError("At least one objective must be specified")
+        objective_aliases = {
+            "minimize_cost": "minimize_total_distance",
+            "minimize_time": "minimize_total_distance",
+            "maximize_service": "maximize_pheromone_coverage",
+        }
+        unsupported = set(objectives) - {
+            "minimize_total_distance",
+            "maximize_pheromone_coverage",
+            *objective_aliases,
+        }
+        if unsupported:
+            raise ValueError(f"Unsupported objectives: {sorted(unsupported)}")
+        if self.problem_size < 2:
+            raise RuntimeError(
+                "Call initialize_problem before multi-objective optimization"
+            )
+        if population_size <= 0 or generations <= 0:
+            raise ValueError("population_size and generations must be positive")
+        if spatial_constraints is not None:
+            self.constraints = dict(spatial_constraints)
 
         # Weighted-sum scalarisation over multiple objectives.
         # Each solution is evaluated independently per objective, then combined
@@ -752,15 +873,13 @@ class AntColonyOptimization:
                 sol = sol_info["solution"]
                 obj_vals = []
                 for obj_name in objectives:
-                    if obj_name == "minimize_total_distance":
+                    canonical_name = objective_aliases.get(obj_name, obj_name)
+                    if canonical_name == "minimize_total_distance":
                         obj_vals.append(self._evaluate_solution(sol))
-                    elif obj_name == "maximize_pheromone_coverage":
+                    elif canonical_name == "maximize_pheromone_coverage":
                         covered = {(sol[i], sol[i + 1]) for i in range(len(sol) - 1)}
                         max_edges = max(1, self.problem_size * (self.problem_size - 1))
                         obj_vals.append(-len(covered) / max_edges)  # negate to minimise
-                    else:
-                        # Unknown objective: penalise path length as fallback
-                        obj_vals.append(self._evaluate_solution(sol))
                 obj_values_per_solution.append(obj_vals)
 
             # Normalise objectives across solutions in this generation
@@ -989,18 +1108,30 @@ class AntColonyOptimization:
                     "max_iterations": self.parameters.max_iterations,
                 },
                 "problem_state": {
-                    "nodes": self.nodes,
+                    "nodes": [
+                        (
+                            np.asarray(node).tolist()
+                            if isinstance(node, np.ndarray)
+                            else node
+                        )
+                        for node in self.nodes
+                    ],
                     "problem_size": self.problem_size,
                     "constraints": self.constraints,
+                    "distance_matrix": (
+                        self.distance_matrix.tolist()
+                        if self.distance_matrix is not None
+                        else None
+                    ),
                 },
-                "pheromone_matrix": {
-                    str(edge): pheromone
+                "pheromone_matrix": [
+                    {"from": edge[0], "to": edge[1], "value": pheromone}
                     for edge, pheromone in self.pheromone_matrix.items()
-                },
-                "heuristic_matrix": {
-                    str(edge): heuristic
+                ],
+                "heuristic_matrix": [
+                    {"from": edge[0], "to": edge[1], "value": heuristic}
                     for edge, heuristic in self.heuristic_matrix.items()
-                },
+                ],
                 "optimization_results": {
                     "best_solution": self.best_solution,
                     "best_fitness": self.best_fitness,
@@ -1011,6 +1142,7 @@ class AntColonyOptimization:
                     "convergence_history": self.convergence_history,
                     "pheromone_history": self.pheromone_history,
                     "iteration_times": self.iteration_times,
+                    "function_evaluations": self.function_evaluations,
                 },
             }
 
@@ -1041,19 +1173,35 @@ class AntColonyOptimization:
 
             # Restore problem state
             problem = state["problem_state"]
-            self.nodes = problem["nodes"]
+            self.nodes = [
+                np.asarray(node) if isinstance(node, list) else node
+                for node in problem["nodes"]
+            ]
             self.problem_size = problem["problem_size"]
             self.constraints = problem["constraints"]
+            distance_matrix = problem.get("distance_matrix")
+            self.distance_matrix = (
+                np.asarray(distance_matrix, dtype=float)
+                if distance_matrix is not None
+                else None
+            )
 
             # Restore pheromone and heuristic matrices
-            self.pheromone_matrix = {
-                tuple(eval(edge)): pheromone
-                for edge, pheromone in state["pheromone_matrix"].items()
-            }
-            self.heuristic_matrix = {
-                tuple(eval(edge)): heuristic
-                for edge, heuristic in state["heuristic_matrix"].items()
-            }
+            def restore_matrix(raw: Any) -> Dict[Tuple[int, int], float]:
+                if isinstance(raw, list):
+                    return {
+                        (int(item["from"]), int(item["to"])): float(item["value"])
+                        for item in raw
+                    }
+                # Read states produced by older ANT versions without using eval.
+                restored = {}
+                for edge, value in raw.items():
+                    parsed = ast.literal_eval(edge)
+                    restored[tuple(parsed)] = float(value)
+                return restored
+
+            self.pheromone_matrix = restore_matrix(state["pheromone_matrix"])
+            self.heuristic_matrix = restore_matrix(state["heuristic_matrix"])
 
             # Restore optimization results
             results = state["optimization_results"]
@@ -1067,6 +1215,7 @@ class AntColonyOptimization:
             self.convergence_history = history["convergence_history"]
             self.pheromone_history = history["pheromone_history"]
             self.iteration_times = history["iteration_times"]
+            self.function_evaluations = history.get("function_evaluations", 0)
 
             logger.info(f"ACO state loaded from {filepath}")
             return True

@@ -70,11 +70,6 @@ def build_parser(default_all: bool = False) -> argparse.ArgumentParser:
         action="store_true",
         help="Run a compact simple+spatial suite when scenario is all.",
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Accepted for legacy example-script compatibility.",
-    )
     return parser
 
 

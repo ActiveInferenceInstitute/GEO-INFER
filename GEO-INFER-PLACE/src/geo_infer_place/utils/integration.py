@@ -14,8 +14,8 @@ Wrappers inherit shared caching from ``CachedAPIWrapper``.
 
 from __future__ import annotations
 
-import h3
 import logging
+import h3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -30,10 +30,13 @@ logger = logging.getLogger(__name__)
 # CAL FIRE wrapper
 # ---------------------------------------------------------------------------
 
+
 class _CALFIREWrapper(CachedAPIWrapper):
     """Wrapper exposing analyzer-facing methods for CAL FIRE data."""
 
-    def __init__(self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None) -> None:
+    def __init__(
+        self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None
+    ) -> None:
         super().__init__(cache_dir=cache_dir, cache_ttl=timedelta(hours=24))
         self._client = api_manager.calfire
 
@@ -53,19 +56,21 @@ class _CALFIREWrapper(CachedAPIWrapper):
         Returns:
             GeoJSON FeatureCollection dict.
         """
-        cache_key = self._cache_key("get_fire_perimeters", bbox=bbox, start_year=start_year)
+        cache_key = self._cache_key(
+            "get_fire_perimeters", bbox=bbox, start_year=start_year
+        )
         cached = self._read_cache(cache_key)
         if cached is not None:
             return cached
 
         try:
             geojson = self._client.fetch_perimeters(year=start_year, county="Del Norte")
-            if isinstance(geojson, dict) and "error" in geojson:
-                logger.warning("API error fetching perimeters: %s", geojson.get("error"))
-                geojson = self._generate_synthetic_fire_perimeters(bbox, start_year)
         except Exception as exc:
-            logger.warning("Failed to fetch fire perimeters from API: %s", exc)
-            geojson = self._generate_synthetic_fire_perimeters(bbox, start_year)
+            raise RuntimeError("CAL FIRE perimeter acquisition failed") from exc
+        if not isinstance(geojson, dict) or "error" in geojson:
+            raise RuntimeError(
+                f"CAL FIRE perimeter acquisition returned no usable data: {geojson!r}"
+            )
 
         self._write_cache(cache_key, geojson)
 
@@ -108,17 +113,21 @@ class _CALFIREWrapper(CachedAPIWrapper):
             del_norte_incidents = []
             if isinstance(incidents, list):
                 for incident in incidents:
-                    if "Counties" in incident and "Del Norte" in incident.get("Counties", ""):
-                        del_norte_incidents.append({
-                            "name": incident.get("Name", "Unknown"),
-                            "location": incident.get("Location", ""),
-                            "acres": incident.get("AcresBurned", 0),
-                            "contained": incident.get("PercentContained", 0),
-                            "lat": incident.get("Latitude", 0),
-                            "lon": incident.get("Longitude", 0),
-                            "start_date": incident.get("Started", ""),
-                            "status": incident.get("Status", "Unknown"),
-                        })
+                    if "Counties" in incident and "Del Norte" in incident.get(
+                        "Counties", ""
+                    ):
+                        del_norte_incidents.append(
+                            {
+                                "name": incident.get("Name", "Unknown"),
+                                "location": incident.get("Location", ""),
+                                "acres": incident.get("AcresBurned", 0),
+                                "contained": incident.get("PercentContained", 0),
+                                "lat": incident.get("Latitude", 0),
+                                "lon": incident.get("Longitude", 0),
+                                "start_date": incident.get("Started", ""),
+                                "status": incident.get("Status", "Unknown"),
+                            }
+                        )
             result = {"incidents": del_norte_incidents, "success": True}
             self._write_cache(cache_key, result)
             return result
@@ -126,152 +135,38 @@ class _CALFIREWrapper(CachedAPIWrapper):
             logger.warning("Failed to fetch active incidents: %s", exc)
             return {"incidents": [], "success": False, "error": str(exc)}
 
-    # -- synthetic fallback --------------------------------------------------
-
-    def _generate_synthetic_fire_perimeters(
-        self,
-        bbox: Optional[Tuple[float, float, float, float]] = None,
-        start_year: Optional[int] = None,
-    ) -> Dict[str, Any]:
-        """Generate realistic synthetic fire perimeters for Del Norte County."""
-        import numpy as np
-
-        if not bbox:
-            bbox = (-124.5, 41.7, -124.0, 42.0)
-        west, south, east, north = bbox
-
-        features = []
-        num_fires = np.random.randint(3, 8)
-
-        for i in range(num_fires):
-            center_lon = np.random.uniform(west, east)
-            center_lat = np.random.uniform(south, north)
-            acres = np.random.uniform(100, 50000)
-            offset = np.sqrt(acres) / 111000
-            coords = [
-                [
-                    [center_lon - offset, center_lat - offset],
-                    [center_lon + offset, center_lat - offset],
-                    [center_lon + offset, center_lat + offset],
-                    [center_lon - offset, center_lat + offset],
-                    [center_lon - offset, center_lat - offset],
-                ]
-            ]
-            fire_year = start_year if start_year else datetime.now().year - np.random.randint(0, 5)
-            features.append({
-                "type": "Feature",
-                "geometry": {"type": "Polygon", "coordinates": coords},
-                "properties": {
-                    "fire_id": f"FIRE_{i + 1:04d}",
-                    "fire_name": f"Del Norte Fire {i + 1}",
-                    "acres_burned": float(acres),
-                    "fire_year": fire_year,
-                    "county": "Del Norte",
-                    "incident_id": f"INC_{i + 1:06d}",
-                    "alarm_date": (datetime.now() - timedelta(days=np.random.randint(0, 365))).strftime("%Y-%m-%d"),
-                    "h3_cell": h3.latlng_to_cell(center_lat, center_lon, 8),
-                    "data_quality": "synthetic",
-                },
-            })
-
-        return {"type": "FeatureCollection", "features": features}
-
     def get_timber_operations(
         self,
         bbox: Optional[Tuple[float, float, float, float]] = None,
         time_range: Optional[Tuple[str, str]] = None,
     ) -> Dict[str, Any]:
-        """Fetch timber harvest operations data (synthetic fallback)."""
-        import numpy as np
-
-        operations = []
-        n_operations = np.random.randint(5, 15)
-
-        for i in range(n_operations):
-            if bbox:
-                west, south, east, north = bbox
-            else:
-                west, south, east, north = (-124.408, 41.458, -123.536, 42.006)
-
-            lat = np.random.uniform(south, north)
-            lon = np.random.uniform(west, east)
-            operation_types = ["Clearcut", "Selection", "Shelterwood", "Group Selection"]
-            operation_type = np.random.choice(operation_types)
-            size_ranges = {"Clearcut": (10, 100), "Selection": (5, 50), "Group Selection": (5, 50), "Shelterwood": (15, 80)}
-            acres = np.random.uniform(*size_ranges[operation_type])
-            operations.append({
-                "operation_id": f"THP_{i + 1:04d}",
-                "operation_type": operation_type,
-                "acres": acres,
-                "lat": lat,
-                "lon": lon,
-                "status": np.random.choice(["Approved", "Pending", "Completed"], p=[0.4, 0.3, 0.3]),
-                "approval_date": datetime.now().strftime("%Y-%m-%d"),
-                "landowner_type": np.random.choice(["Private", "Federal", "State", "Tribal"], p=[0.5, 0.2, 0.2, 0.1]),
-                "forest_type": np.random.choice(["Redwood", "Douglas Fir", "Mixed Conifer"]),
-                "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-            })
-        return {
-            "data_source": "CAL FIRE Timber Harvesting Plans (synthetic)",
-            "operations": operations,
-            "total_operations": len(operations),
-            "bbox": bbox,
-            "time_range": time_range,
-        }
+        """Report that no timber-plan client is configured."""
+        raise RuntimeError(
+            "CAL FIRE timber harvest plan data requires a configured source client"
+        )
 
     def get_tree_mortality_data(
         self,
         bbox: Optional[Tuple[float, float, float, float]] = None,
         time_range: Optional[Tuple[str, str]] = None,
     ) -> Dict[str, Any]:
-        """Fetch tree mortality survey data (synthetic fallback)."""
-        import numpy as np
-
-        mortality_causes = {"drought_stress": 0.35, "bark_beetle": 0.30, "disease": 0.15, "fire_damage": 0.10, "other": 0.10}
-        mortality_events = []
-        n_surveys = np.random.randint(20, 50)
-
-        for i in range(n_surveys):
-            if bbox:
-                west, south, east, north = bbox
-            else:
-                west, south, east, north = (-124.408, 41.458, -123.536, 42.006)
-            lat = np.random.uniform(south, north)
-            lon = np.random.uniform(west, east)
-            severity = np.random.beta(2, 5)
-            cause = np.random.choice(list(mortality_causes.keys()), p=list(mortality_causes.values()))
-            species_options = ["Redwood", "Douglas Fir", "True Fir", "Pine", "Oak"]
-            affected_species = np.random.choice(species_options)
-            mortality_events.append({
-                "survey_id": f"MORT_{i + 1:04d}",
-                "lat": lat,
-                "lon": lon,
-                "mortality_severity": severity,
-                "mortality_cause": cause,
-                "affected_species": affected_species,
-                "estimated_trees_affected": int(np.random.uniform(10, 500)),
-                "survey_date": (datetime.now() - timedelta(days=np.random.randint(0, 365))).strftime("%Y-%m-%d"),
-                "confidence_level": np.random.choice(["High", "Medium", "Low"], p=[0.5, 0.3, 0.2]),
-                "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-            })
-        return {
-            "data_source": "CAL FIRE Tree Mortality Survey (synthetic)",
-            "mortality_events": mortality_events,
-            "total_events": len(mortality_events),
-            "mortality_causes": mortality_causes,
-            "bbox": bbox,
-            "time_range": time_range,
-        }
+        """Report that no mortality-survey client is configured."""
+        raise RuntimeError(
+            "Tree mortality survey data requires a configured source client"
+        )
 
 
 # ---------------------------------------------------------------------------
 # NOAA wrapper
 # ---------------------------------------------------------------------------
 
+
 class _NOAAWrapper(CachedAPIWrapper):
     """Wrapper exposing analyzer-facing methods for NOAA tides and currents."""
 
-    def __init__(self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None) -> None:
+    def __init__(
+        self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None
+    ) -> None:
         super().__init__(cache_dir=cache_dir, cache_ttl=timedelta(hours=6))
         self._client = api_manager.noaa
 
@@ -323,7 +218,9 @@ class _NOAAWrapper(CachedAPIWrapper):
         if not stations:
             stations = ["9419750"]  # Crescent City
 
-        cache_key = self._cache_key("get_tide_gauge_data", stations=stations, time_range=time_range)
+        cache_key = self._cache_key(
+            "get_tide_gauge_data", stations=stations, time_range=time_range
+        )
         cached = self._read_cache(cache_key)
         if cached is not None:
             return cached
@@ -335,30 +232,36 @@ class _NOAAWrapper(CachedAPIWrapper):
                 end_date = datetime.strptime(end, "%Y-%m-%d").strftime("%Y%m%d")
             else:
                 end_date = datetime.now(timezone.utc).strftime("%Y%m%d")
-                begin_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y%m%d")
+                begin_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime(
+                    "%Y%m%d"
+                )
 
             series: Dict[str, Any] = {}
             for station in stations:
                 try:
                     data = self._client.fetch_tide_data(
-                        station=station, begin_date=begin_date, end_date=end_date, product="water_level"
+                        station=station,
+                        begin_date=begin_date,
+                        end_date=end_date,
+                        product="water_level",
                     )
                     if isinstance(data, dict) and "error" not in data:
                         series[station] = data
                     else:
-                        logger.warning("Invalid tide data for station %s, using synthetic", station)
-                        series[station] = self._generate_synthetic_tide_data(station)
+                        raise RuntimeError(
+                            f"NOAA returned no usable tide data for station {station}"
+                        )
                 except Exception as exc:
-                    logger.warning("Tide fetch failed for station %s: %s", station, exc)
-                    series[station] = self._generate_synthetic_tide_data(station)
+                    raise RuntimeError(
+                        f"NOAA tide acquisition failed for station {station}"
+                    ) from exc
 
             result = {"stations": stations, "series": series}
             self._write_cache(cache_key, result)
             return result
 
         except Exception as exc:
-            logger.warning("Tide gauge batch fetch failed: %s", exc)
-            return self._generate_synthetic_tide_response(stations)
+            raise RuntimeError("NOAA tide gauge acquisition failed") from exc
 
     def get_current_data(
         self,
@@ -366,83 +269,29 @@ class _NOAAWrapper(CachedAPIWrapper):
         time_range: Optional[Tuple[str, str]] = None,
     ) -> Dict[str, Any]:
         """Fetch ocean current data for the Del Norte coastal area."""
-        cache_key = self._cache_key("get_current_data", bbox=bbox, time_range=time_range)
+        cache_key = self._cache_key(
+            "get_current_data", bbox=bbox, time_range=time_range
+        )
         cached = self._read_cache(cache_key)
         if cached is not None:
             return cached
 
-        result = self._generate_synthetic_current_data(bbox, time_range)
-        self._write_cache(cache_key, result)
-        return result
-
-    # -- synthetic fallbacks -------------------------------------------------
-
-    def _generate_synthetic_tide_response(self, stations: List[str]) -> Dict[str, Any]:
-        series = {s: self._generate_synthetic_tide_data(s) for s in stations}
-        return {"stations": stations, "series": series}
-
-    def _generate_synthetic_tide_data(self, station_id: str) -> Dict[str, Any]:
-        import numpy as np
-
-        station_names = {
-            "9419750": "Crescent City, California",
-            "9414290": "Point Arena, California",
-            "9418199": "Humboldt Bay North Spit, California",
-        }
-        now = datetime.now(timezone.utc)
-        measurements = []
-        for i in range(48):
-            ts = now - timedelta(hours=48 - i)
-            height = 1.2 + 1.5 * np.sin(2 * np.pi * i / 12.42) + np.random.normal(0, 0.05)
-            measurements.append({"time": ts.isoformat() + "Z", "water_level": float(height), "sigma": 0.05})
-        return {
-            "station_id": station_id,
-            "station_name": station_names.get(station_id, f"Station {station_id}"),
-            "product": "water_level",
-            "measurements": measurements,
-            "data_quality": "synthetic",
-        }
-
-    def _generate_synthetic_current_data(
-        self,
-        bbox: Optional[Tuple[float, float, float, float]] = None,
-        time_range: Optional[Tuple[str, str]] = None,
-    ) -> Dict[str, Any]:
-        import numpy as np
-
-        if not bbox:
-            bbox = (-124.5, 41.7, -124.0, 42.0)
-        west, south, east, north = bbox
-        measurements = []
-        for _ in range(10):
-            lon = np.random.uniform(west, east)
-            lat = np.random.uniform(south, north)
-            measurements.append({
-                "latitude": float(lat),
-                "longitude": float(lon),
-                "current_speed_ms": float(np.random.uniform(0.1, 0.5)),
-                "current_direction_degrees": float(np.random.uniform(150, 210)),
-                "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
-        return {
-            "data_source": "NOAA Current Measurements (synthetic fallback)",
-            "bbox": bbox,
-            "measurements": measurements,
-            "region": "Del Norte County, California",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data_quality": "synthetic",
-        }
+        raise RuntimeError(
+            "NOAA current observations require a configured current-data source"
+        )
 
 
 # ---------------------------------------------------------------------------
 # USGS Earthquake wrapper
 # ---------------------------------------------------------------------------
 
+
 class _USGSWrapper(CachedAPIWrapper):
     """Wrapper for USGS earthquake data with Cascadia subduction zone focus."""
 
-    def __init__(self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None) -> None:
+    def __init__(
+        self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None
+    ) -> None:
         super().__init__(cache_dir=cache_dir, cache_ttl=timedelta(minutes=60))
         self._client = api_manager.usgs_eq
 
@@ -474,16 +323,22 @@ class _USGSWrapper(CachedAPIWrapper):
                         lon, lat = coords[0], coords[1]
                         if west <= lon <= east and south <= lat <= north:
                             props = feature.get("properties", {})
-                            local_earthquakes.append({
-                                "magnitude": props.get("mag"),
-                                "place": props.get("place"),
-                                "time": props.get("time"),
-                                "lat": lat,
-                                "lon": lon,
-                                "depth": coords[2] if len(coords) > 2 else None,
-                                "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-                            })
-            result = {"earthquakes": local_earthquakes, "success": True, "data_quality": "empirical"}
+                            local_earthquakes.append(
+                                {
+                                    "magnitude": props.get("mag"),
+                                    "place": props.get("place"),
+                                    "time": props.get("time"),
+                                    "lat": lat,
+                                    "lon": lon,
+                                    "depth": coords[2] if len(coords) > 2 else None,
+                                    "h3_cell": h3.latlng_to_cell(lat, lon, 8),
+                                }
+                            )
+            result = {
+                "earthquakes": local_earthquakes,
+                "success": True,
+                "data_quality": "empirical",
+            }
             self._write_cache(cache_key, result)
             return result
         except Exception as exc:
@@ -524,21 +379,32 @@ class _USGSWrapper(CachedAPIWrapper):
                         if west <= lon <= east and south <= lat <= north:
                             props = feature.get("properties", {})
                             depth = coords[2] if len(coords) > 2 else None
-                            csz_events.append({
-                                "magnitude": props.get("mag"),
-                                "place": props.get("place"),
-                                "time": props.get("time"),
-                                "lat": lat,
-                                "lon": lon,
-                                "depth": depth,
-                                "is_subduction_depth": depth is not None and 10 <= depth <= 60,
-                                "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-                            })
+                            csz_events.append(
+                                {
+                                    "magnitude": props.get("mag"),
+                                    "place": props.get("place"),
+                                    "time": props.get("time"),
+                                    "lat": lat,
+                                    "lon": lon,
+                                    "depth": depth,
+                                    "is_subduction_depth": depth is not None
+                                    and 10 <= depth <= 60,
+                                    "h3_cell": h3.latlng_to_cell(lat, lon, 8),
+                                }
+                            )
 
             # Classify by depth zones
-            shallow = [e for e in csz_events if e.get("depth") is not None and e["depth"] < 20]
-            intermediate = [e for e in csz_events if e.get("depth") is not None and 20 <= e["depth"] < 70]
-            deep = [e for e in csz_events if e.get("depth") is not None and e["depth"] >= 70]
+            shallow = [
+                e for e in csz_events if e.get("depth") is not None and e["depth"] < 20
+            ]
+            intermediate = [
+                e
+                for e in csz_events
+                if e.get("depth") is not None and 20 <= e["depth"] < 70
+            ]
+            deep = [
+                e for e in csz_events if e.get("depth") is not None and e["depth"] >= 70
+            ]
 
             result = {
                 "total_events": len(csz_events),
@@ -557,12 +423,18 @@ class _USGSWrapper(CachedAPIWrapper):
             return result
         except Exception as exc:
             logger.warning("Failed to fetch Cascadia seismicity: %s", exc)
-            return {"total_events": 0, "events": [], "success": False, "error": str(exc)}
+            return {
+                "total_events": 0,
+                "events": [],
+                "success": False,
+                "error": str(exc),
+            }
 
 
 # ---------------------------------------------------------------------------
 # Unified integrator
 # ---------------------------------------------------------------------------
+
 
 class DelNorteDataIntegrator:
     """Integrator that aggregates API wrappers for analyzers.

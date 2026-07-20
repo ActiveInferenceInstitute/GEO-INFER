@@ -15,6 +15,7 @@ import asyncio
 import json
 import pickle
 import uuid
+from io import BytesIO
 
 import geopandas as gpd
 import pandas as pd
@@ -194,13 +195,35 @@ class PostgreSQLBackend:
     async def _retrieve_dataframe(
         self, data_id: str, query: Dict[str, Any]
     ) -> pd.DataFrame:
-        """Retrieve tabular data from PostgreSQL.
+        """Retrieve a stored table from PostgreSQL/PostGIS."""
+        from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text
 
-        The concrete deployment path uses SQLAlchemy/PostGIS. In local unit
-        and contract tests this method is patched, while the default returns a
-        finite empty DataFrame instead of attempting an undeclared live service.
-        """
-        return pd.DataFrame()
+        table_name = f"dataset_{data_id.replace('-', '_')}"
+        engine = create_engine(self.connection_string)
+        try:
+            if not sqlalchemy_inspect(engine).has_table(table_name):
+                raise FileNotFoundError(f"PostgreSQL dataset {data_id!r} was not found")
+            if query.get("spatial"):
+                min_lon, min_lat, max_lon, max_lat = query["spatial"]
+                sql = text(
+                    f"SELECT * FROM {table_name} "
+                    "WHERE ST_Intersects(geometry, ST_MakeEnvelope(:min_lon, :min_lat, "
+                    ":max_lon, :max_lat, 4326))"
+                )
+                return gpd.read_postgis(
+                    sql,
+                    engine,
+                    params={
+                        "min_lon": min_lon,
+                        "min_lat": min_lat,
+                        "max_lon": max_lon,
+                        "max_lat": max_lat,
+                    },
+                    geom_col="geometry",
+                )
+            return pd.read_sql_table(table_name, engine)
+        finally:
+            engine.dispose()
 
     async def _store_generic(self, data: Any, data_id: str, metadata: DatasetMetadata):
         """Store generic data by serialising to JSON in a metadata table.
@@ -237,15 +260,13 @@ class PostgreSQLBackend:
         }
 
         try:
-            if hasattr(self, "connection_string"):
-                from sqlalchemy import create_engine, text as sa_text
+            from sqlalchemy import create_engine, text as sa_text
 
-                engine = create_engine(self.connection_string)
-                with engine.connect() as conn:
-                    conn.execute(sa_text(create_stmt))
-                    conn.execute(sa_text(insert_stmt), params)
-                    conn.commit()
-                engine.dispose()
+            engine = create_engine(self.connection_string)
+            with engine.begin() as conn:
+                conn.execute(sa_text(create_stmt))
+                conn.execute(sa_text(insert_stmt), params)
+            engine.dispose()
             logger.info("Stored generic data %s in %s", data_id, table_name)
         except Exception as e:
             logger.error("Failed to store generic data %s: %s", data_id, e)
@@ -257,8 +278,18 @@ class PostgreSQLBackend:
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from PostgreSQL."""
-        # Implementation for PostgreSQL deletion
-        return True
+        from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text
+
+        table_name = f"dataset_{data_id.replace('-', '_')}"
+        engine = create_engine(self.connection_string)
+        try:
+            if not sqlalchemy_inspect(engine).has_table(table_name):
+                return False
+            with engine.begin() as conn:
+                conn.execute(text(f"DROP TABLE {table_name}"))
+            return True
+        finally:
+            engine.dispose()
 
 
 class MinIOBackend:
@@ -274,7 +305,7 @@ class MinIOBackend:
 
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in MinIO."""
-        data_id = f"minio_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        data_id = f"minio_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}_{uuid.uuid4().hex[:8]}"
 
         stored_id = await _maybe_await(self._store_to_minio(data, data_id, metadata))
         return stored_id if isinstance(stored_id, str) else data_id
@@ -284,28 +315,82 @@ class MinIOBackend:
     ) -> str:
         """Store an object in MinIO/S3-compatible storage.
 
-        A production deployment wires this to MinIO or S3 credentials. The
-        package-level contract keeps the serialisation path real and side
-        effect-free when no object store is configured.
+        Data is serialized and written to the configured object store.
         """
-        if hasattr(data, "to_json"):
-            serialized_data = data.to_json()
-        else:
-            serialized_data = pickle.dumps(data)
+        if not all((self.endpoint, self.access_key, self.secret_key, self.bucket)):
+            raise ValueError(
+                "MinIO requires endpoint, access_key, secret_key, and bucket"
+            )
+        from minio import Minio
 
-        if self.compressor.is_enabled():
-            self.compressor.compress(serialized_data)
+        serialized_data = (
+            self.compressor.compress_data(data)
+            if self.compressor.is_enabled()
+            else pickle.dumps(data)
+        )
+        client = Minio(
+            self.endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key,
+            secure=bool(self.config.get("secure", False)),
+        )
+        if not client.bucket_exists(self.bucket):
+            client.make_bucket(self.bucket)
+        client.put_object(
+            self.bucket,
+            f"{data_id}.bin",
+            BytesIO(serialized_data),
+            length=len(serialized_data),
+            content_type="application/octet-stream",
+        )
 
         return data_id
 
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from MinIO."""
-        # Implementation for MinIO retrieval
-        return pd.DataFrame()  # Deterministic local implementation
+        if not all((self.endpoint, self.access_key, self.secret_key, self.bucket)):
+            raise ValueError(
+                "MinIO requires endpoint, access_key, secret_key, and bucket"
+            )
+        from minio import Minio
+
+        client = Minio(
+            self.endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key,
+            secure=bool(self.config.get("secure", False)),
+        )
+        response = client.get_object(self.bucket, f"{data_id}.bin")
+        try:
+            payload = response.read()
+        finally:
+            response.close()
+            response.release_conn()
+        return (
+            self.compressor.decompress_data(payload)
+            if self.compressor.is_enabled()
+            else pickle.loads(payload)
+        )
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from MinIO."""
-        # Implementation for MinIO deletion
+        if not all((self.endpoint, self.access_key, self.secret_key, self.bucket)):
+            raise ValueError(
+                "MinIO requires endpoint, access_key, secret_key, and bucket"
+            )
+        from minio import Minio
+
+        client = Minio(
+            self.endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key,
+            secure=bool(self.config.get("secure", False)),
+        )
+        try:
+            client.stat_object(self.bucket, f"{data_id}.bin")
+        except Exception:
+            return False
+        client.remove_object(self.bucket, f"{data_id}.bin")
         return True
 
 
@@ -317,27 +402,30 @@ class RedisBackend:
         self.host = config.get("host", "localhost")
         self.port = config.get("port", 6379)
         self.db = config.get("db", 0)
+        from redis import Redis
+
+        self.client = Redis(host=self.host, port=self.port, db=self.db)
 
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in Redis."""
-        # Implementation for Redis storage
-        data_id = f"redis_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-
-        # Serialize and store
-        pickle.dumps(data)
-        # Implementation would use redis-py
-
+        data_id = f"redis_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}_{uuid.uuid4().hex[:8]}"
+        payload = pickle.dumps(
+            {"data": data, "metadata": metadata.model_dump()},
+            protocol=pickle.HIGHEST_PROTOCOL,
+        )
+        await asyncio.to_thread(self.client.set, data_id, payload)
         return data_id
 
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from Redis."""
-        # Implementation for Redis retrieval
-        return {}
+        payload = await asyncio.to_thread(self.client.get, data_id)
+        if payload is None:
+            raise FileNotFoundError(f"Redis dataset {data_id!r} was not found")
+        return pickle.loads(payload)["data"]
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from Redis."""
-        # Implementation for Redis deletion
-        return True
+        return bool(await asyncio.to_thread(self.client.delete, data_id))
 
 
 class LocalFileBackend:
@@ -706,6 +794,41 @@ class AdaptiveDataStorage:
         logger.info(f"Successfully stored data with ID: {data_id}")
         return data_id
 
+    async def retrieve_geospatial_data(
+        self,
+        data_id: str,
+        spatial_bounds: Optional[List[float]] = None,
+        temporal_range: Optional[Tuple[datetime, datetime]] = None,
+    ) -> Any:
+        """Retrieve one stored dataset by its identifier.
+
+        Data written during this process is returned directly. Other
+        identifiers are delegated to the configured backend; missing data is
+        reported rather than replaced with an unrelated query result.
+        """
+        if data_id in self._stored_data:
+            data = self._stored_data[data_id]
+            if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
+                if spatial_bounds and isinstance(data, gpd.GeoDataFrame):
+                    min_lon, min_lat, max_lon, max_lat = spatial_bounds
+                    data = data.cx[min_lon:max_lon, min_lat:max_lat]
+                if temporal_range and "timestamp" in data.columns:
+                    start, end = temporal_range
+                    timestamps = pd.to_datetime(data["timestamp"], errors="coerce")
+                    data = data.loc[(timestamps >= start) & (timestamps <= end)]
+            return data
+
+        query: Dict[str, Any] = {}
+        if spatial_bounds:
+            query["spatial"] = spatial_bounds
+        if temporal_range:
+            query["temporal"] = temporal_range
+        backend = self._select_backend_for_query(query, None)
+        try:
+            return await self.backend_manager.retrieve_data(data_id, query, backend)
+        except ValueError as exc:
+            raise KeyError(f"Dataset {data_id!r} is not stored") from exc
+
     async def adaptive_query(
         self,
         spatial_bounds: Optional[List[float]] = None,
@@ -824,7 +947,12 @@ class AdaptiveDataStorage:
 
         # Execute query
         if self._stored_data:
-            results = next(reversed(self._stored_data.values()))
+            data_id = next(reversed(self._stored_data))
+            results = await self.retrieve_geospatial_data(
+                data_id,
+                spatial_bounds=spatial_bounds,
+                temporal_range=temporal_range,
+            )
         else:
             results = await self.backend_manager.retrieve_data(
                 "all", query, optimal_backend

@@ -13,7 +13,7 @@ This module provides sophisticated policy management capabilities including:
 import logging
 import time
 import uuid
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
@@ -24,8 +24,10 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+
 class PolicyStatus(Enum):
     """Insurance policy status enumeration."""
+
     QUOTED = "quoted"
     BOUND = "bound"
     ACTIVE = "active"
@@ -35,8 +37,10 @@ class PolicyStatus(Enum):
     SUSPENDED = "suspended"
     PENDING_CANCELLATION = "pending_cancellation"
 
+
 class CoverageType(Enum):
     """Insurance coverage type enumeration."""
+
     PROPERTY = "property"
     LIABILITY = "liability"
     BUSINESS_INTERRUPTION = "business_interruption"
@@ -46,9 +50,11 @@ class CoverageType(Enum):
     ALL_RISK = "all_risk"
     NAMED_PERILS = "named_perils"
 
+
 @dataclass
 class Coverage:
     """Insurance coverage configuration."""
+
     coverage_type: CoverageType
     limit: float
     deductible: float
@@ -59,9 +65,11 @@ class Coverage:
     conditions: List[str] = field(default_factory=list)
     exclusions: List[str] = field(default_factory=list)
 
+
 @dataclass
 class Endorsement:
     """Policy endorsement or amendment."""
+
     endorsement_id: str
     endorsement_type: str
     effective_date: datetime
@@ -70,9 +78,11 @@ class Endorsement:
     coverage_changes: Dict[str, Any] = field(default_factory=dict)
     conditions: List[str] = field(default_factory=list)
 
+
 @dataclass
 class Policy:
     """Insurance policy data structure."""
+
     policy_id: str
     policy_number: str
     status: PolicyStatus
@@ -131,16 +141,22 @@ class Policy:
     def _update_premium(self) -> None:
         """Update total premium based on coverages and endorsements."""
         base_premium = sum(coverage.premium for coverage in self.coverages)
-        endorsement_adjustment = sum(endorsement.premium_change for endorsement in self.endorsements)
+        endorsement_adjustment = sum(
+            endorsement.premium_change for endorsement in self.endorsements
+        )
 
-        self.total_premium = base_premium + endorsement_adjustment + self.fees + self.taxes
+        self.total_premium = (
+            base_premium + endorsement_adjustment + self.fees + self.taxes
+        )
         self.updated_at = datetime.now()
 
     def is_active(self) -> bool:
         """Check if policy is currently active."""
         now = datetime.now()
-        return (self.status == PolicyStatus.ACTIVE and
-                self.effective_date <= now <= self.expiration_date)
+        return (
+            self.status == PolicyStatus.ACTIVE
+            and self.effective_date <= now <= self.expiration_date
+        )
 
     def days_to_expiration(self) -> int:
         """Calculate days until policy expiration."""
@@ -152,52 +168,57 @@ class Policy:
     def to_dict(self) -> Dict[str, Any]:
         """Convert policy to dictionary for serialization."""
         return {
-            'policy_id': self.policy_id,
-            'policy_number': self.policy_number,
-            'status': self.status.value,
-            'policyholder_id': self.policyholder_id,
-            'property_id': self.property_id,
-            'coverages': [
+            "policy_id": self.policy_id,
+            "policy_number": self.policy_number,
+            "status": self.status.value,
+            "policyholder_id": self.policyholder_id,
+            "property_id": self.property_id,
+            "coverages": [
                 {
-                    'coverage_type': coverage.coverage_type.value,
-                    'limit': coverage.limit,
-                    'deductible': coverage.deductible,
-                    'premium': coverage.premium,
-                    'coinsurance': coverage.coinsurance,
-                    'waiting_period_days': coverage.waiting_period_days,
-                    'retroactive_date': coverage.retroactive_date.isoformat() if coverage.retroactive_date else None,
-                    'conditions': coverage.conditions,
-                    'exclusions': coverage.exclusions
+                    "coverage_type": coverage.coverage_type.value,
+                    "limit": coverage.limit,
+                    "deductible": coverage.deductible,
+                    "premium": coverage.premium,
+                    "coinsurance": coverage.coinsurance,
+                    "waiting_period_days": coverage.waiting_period_days,
+                    "retroactive_date": (
+                        coverage.retroactive_date.isoformat()
+                        if coverage.retroactive_date
+                        else None
+                    ),
+                    "conditions": coverage.conditions,
+                    "exclusions": coverage.exclusions,
                 }
                 for coverage in self.coverages
             ],
-            'effective_date': self.effective_date.isoformat(),
-            'expiration_date': self.expiration_date.isoformat(),
-            'term_months': self.term_months,
-            'total_premium': self.total_premium,
-            'base_premium': self.base_premium,
-            'fees': self.fees,
-            'taxes': self.taxes,
-            'risk_score': self.risk_score,
-            'risk_tier': self.risk_tier,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'created_by': self.created_by,
-            'underwriter_id': self.underwriter_id,
-            'endorsements': [
+            "effective_date": self.effective_date.isoformat(),
+            "expiration_date": self.expiration_date.isoformat(),
+            "term_months": self.term_months,
+            "total_premium": self.total_premium,
+            "base_premium": self.base_premium,
+            "fees": self.fees,
+            "taxes": self.taxes,
+            "risk_score": self.risk_score,
+            "risk_tier": self.risk_tier,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "created_by": self.created_by,
+            "underwriter_id": self.underwriter_id,
+            "endorsements": [
                 {
-                    'endorsement_id': endorsement.endorsement_id,
-                    'endorsement_type': endorsement.endorsement_type,
-                    'effective_date': endorsement.effective_date.isoformat(),
-                    'description': endorsement.description,
-                    'premium_change': endorsement.premium_change,
-                    'coverage_changes': endorsement.coverage_changes,
-                    'conditions': endorsement.conditions
+                    "endorsement_id": endorsement.endorsement_id,
+                    "endorsement_type": endorsement.endorsement_type,
+                    "effective_date": endorsement.effective_date.isoformat(),
+                    "description": endorsement.description,
+                    "premium_change": endorsement.premium_change,
+                    "coverage_changes": endorsement.coverage_changes,
+                    "conditions": endorsement.conditions,
                 }
                 for endorsement in self.endorsements
             ],
-            'metadata': self.metadata
+            "metadata": self.metadata,
         }
+
 
 class PolicyLifecycle:
     """Manages the complete lifecycle of insurance policies."""
@@ -211,11 +232,12 @@ class PolicyLifecycle:
             PolicyStatus.CANCELLED: self._handle_cancelled,
             PolicyStatus.EXPIRED: self._handle_expired,
             PolicyStatus.SUSPENDED: self._handle_suspended,
-            PolicyStatus.PENDING_CANCELLATION: self._handle_pending_cancellation
+            PolicyStatus.PENDING_CANCELLATION: self._handle_pending_cancellation,
         }
 
-    def transition_policy(self, policy: Policy, new_status: PolicyStatus,
-                         reason: str = "", **kwargs) -> bool:
+    def transition_policy(
+        self, policy: Policy, new_status: PolicyStatus, reason: str = "", **kwargs
+    ) -> bool:
         """
         Transition policy to new status.
 
@@ -241,7 +263,9 @@ class PolicyLifecycle:
                 policy.updated_at = datetime.now()
 
                 # Log transition
-                logger.info(f"Policy {policy.policy_id} transitioned to {new_status.value}: {reason}")
+                logger.info(
+                    f"Policy {policy.policy_id} transitioned to {new_status.value}: {reason}"
+                )
 
             return success
 
@@ -266,7 +290,7 @@ class PolicyLifecycle:
             return False
 
         # Set effective date
-        policy.effective_date = kwargs.get('effective_date', datetime.now())
+        policy.effective_date = kwargs.get("effective_date", datetime.now())
 
         return True
 
@@ -283,43 +307,50 @@ class PolicyLifecycle:
     def _handle_renewed(self, policy: Policy, reason: str, **kwargs) -> bool:
         """Handle policy renewal."""
         # Extend expiration date
-        renewal_term = kwargs.get('renewal_term_months', policy.term_months)
-        policy.expiration_date = policy.expiration_date + timedelta(days=renewal_term * 30)
+        renewal_term = kwargs.get("renewal_term_months", policy.term_months)
+        policy.expiration_date = policy.expiration_date + timedelta(
+            days=renewal_term * 30
+        )
 
         return True
 
     def _handle_cancelled(self, policy: Policy, reason: str, **kwargs) -> bool:
         """Handle policy cancellation."""
         # Calculate refund if applicable
-        cancellation_date = kwargs.get('cancellation_date', datetime.now())
+        cancellation_date = kwargs.get("cancellation_date", datetime.now())
         days_remaining = (policy.expiration_date - cancellation_date).days
 
         if days_remaining > 0:
             daily_premium = policy.total_premium / (policy.term_months * 30)
             refund_amount = daily_premium * days_remaining
-            policy.metadata['cancellation_refund'] = refund_amount
+            policy.metadata["cancellation_refund"] = refund_amount
 
         return True
 
     def _handle_expired(self, policy: Policy, reason: str, **kwargs) -> bool:
         """Handle policy expiration."""
         # Mark as expired
-        policy.metadata['expired_at'] = datetime.now().isoformat()
+        policy.metadata["expired_at"] = datetime.now().isoformat()
         return True
 
     def _handle_suspended(self, policy: Policy, reason: str, **kwargs) -> bool:
         """Handle policy suspension."""
         # Record suspension reason
-        policy.metadata['suspension_reason'] = reason
-        policy.metadata['suspended_at'] = datetime.now().isoformat()
+        policy.metadata["suspension_reason"] = reason
+        policy.metadata["suspended_at"] = datetime.now().isoformat()
         return True
 
-    def _handle_pending_cancellation(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_pending_cancellation(
+        self, policy: Policy, reason: str, **kwargs
+    ) -> bool:
         """Handle pending cancellation status."""
         # Set cancellation effective date
-        cancellation_date = kwargs.get('cancellation_date', datetime.now() + timedelta(days=30))
-        policy.metadata['pending_cancellation_date'] = cancellation_date.isoformat()
+        cancellation_date = kwargs.get(
+            "cancellation_date", datetime.now() + timedelta(days=30)
+        )
+        policy.metadata["pending_cancellation_date"] = cancellation_date.isoformat()
         return True
+
 
 class PolicyManager:
     """
@@ -352,19 +383,22 @@ class PolicyManager:
 
         # Performance tracking
         self.performance_metrics = {
-            'total_policies': 0,
-            'active_policies': 0,
-            'total_premium': 0.0,
-            'average_premium': 0.0,
-            'policies_by_status': {},
-            'policies_by_risk_tier': {}
+            "total_policies": 0,
+            "active_policies": 0,
+            "total_premium": 0.0,
+            "average_premium": 0.0,
+            "policies_by_status": {},
+            "policies_by_risk_tier": {},
         }
 
         self.logger.info("Policy manager initialized")
 
-    def create_policy(self, application_data: Dict[str, Any],
-                     premium_calculation: Dict[str, Any],
-                     decision: Dict[str, Any]) -> Policy:
+    def create_policy(
+        self,
+        application_data: Dict[str, Any],
+        premium_calculation: Dict[str, Any],
+        decision: Dict[str, Any],
+    ) -> Policy:
         """
         Create a new insurance policy from application data.
 
@@ -381,12 +415,12 @@ class PolicyManager:
         policy_number = self._generate_policy_number()
 
         # Extract policyholder and property information
-        policyholder_id = application_data.get('policyholder_id', 'unknown')
-        property_id = application_data.get('property_id', 'unknown')
+        policyholder_id = application_data.get("policyholder_id", "unknown")
+        property_id = application_data.get("property_id", "unknown")
 
         # Set policy term
-        effective_date = application_data.get('effective_date', datetime.now())
-        term_months = application_data.get('term_months', 12)
+        effective_date = application_data.get("effective_date", datetime.now())
+        term_months = application_data.get("term_months", 12)
         expiration_date = effective_date + timedelta(days=term_months * 30)
 
         # Create policy
@@ -399,15 +433,17 @@ class PolicyManager:
             effective_date=effective_date,
             expiration_date=expiration_date,
             term_months=term_months,
-            total_premium=premium_calculation.get('total_premium', 0),
-            base_premium=premium_calculation.get('base_premium', 0),
-            risk_score=decision.get('risk_score', 0.5),
-            risk_tier=self._determine_risk_tier(decision.get('risk_score', 0.5)),
-            created_by="underwriting_system"
+            total_premium=premium_calculation.get("total_premium", 0),
+            base_premium=premium_calculation.get("base_premium", 0),
+            risk_score=decision.get("risk_score", 0.5),
+            risk_tier=self._determine_risk_tier(decision.get("risk_score", 0.5)),
+            created_by="underwriting_system",
         )
 
         # Add coverages based on application
-        coverages = self._create_coverages_from_application(application_data, premium_calculation)
+        coverages = self._create_coverages_from_application(
+            application_data, premium_calculation
+        )
         for coverage in coverages:
             policy.add_coverage(coverage)
 
@@ -438,19 +474,22 @@ class PolicyManager:
         else:
             return "decline"
 
-    def _create_coverages_from_application(self, application_data: Dict[str, Any],
-                                         premium_calculation: Dict[str, Any]) -> List[Coverage]:
+    def _create_coverages_from_application(
+        self, application_data: Dict[str, Any], premium_calculation: Dict[str, Any]
+    ) -> List[Coverage]:
         """Create coverages from application data."""
         coverages = []
-        coverage_requests = application_data.get('coverage_requests', [])
+        coverage_requests = application_data.get("coverage_requests", [])
 
         for coverage_request in coverage_requests:
-            coverage_type = CoverageType(coverage_request.get('coverage_type', 'property'))
-            limit = coverage_request.get('limit', 100000)
-            deductible = coverage_request.get('deductible', 0.02 * limit)
+            coverage_type = CoverageType(
+                coverage_request.get("coverage_type", "property")
+            )
+            limit = coverage_request.get("limit", 100000)
+            deductible = coverage_request.get("deductible", 0.02 * limit)
 
             # Get premium for this coverage
-            coverage_premium = premium_calculation.get('coverage_breakdown', {}).get(
+            coverage_premium = premium_calculation.get("coverage_breakdown", {}).get(
                 coverage_type.value, 0
             )
 
@@ -459,8 +498,8 @@ class PolicyManager:
                 limit=limit,
                 deductible=deductible,
                 premium=coverage_premium,
-                conditions=coverage_request.get('conditions', []),
-                exclusions=coverage_request.get('exclusions', [])
+                conditions=coverage_request.get("conditions", []),
+                exclusions=coverage_request.get("exclusions", []),
             )
 
             coverages.append(coverage)
@@ -492,7 +531,7 @@ class PolicyManager:
                     if policy_value != value:
                         matches = False
                         break
-                elif key == 'status' and policy.status != PolicyStatus(value):
+                elif key == "status" and policy.status != PolicyStatus(value):
                     matches = False
                     break
 
@@ -522,7 +561,7 @@ class PolicyManager:
             for key, value in updates.items():
                 if hasattr(policy, key):
                     setattr(policy, key, value)
-                elif key == 'status':
+                elif key == "status":
                     policy.status = PolicyStatus(value)
 
             policy.updated_at = datetime.now()
@@ -560,10 +599,14 @@ class PolicyManager:
         # Update index
         self._update_policy_index(policy)
 
-        self.logger.info(f"Endorsement {endorsement.endorsement_id} added to policy {policy_id}")
+        self.logger.info(
+            f"Endorsement {endorsement.endorsement_id} added to policy {policy_id}"
+        )
         return True
 
-    def bind_policy(self, policy_id: str, effective_date: Optional[datetime] = None) -> bool:
+    def bind_policy(
+        self, policy_id: str, effective_date: Optional[datetime] = None
+    ) -> bool:
         """
         Bind quoted policy.
 
@@ -585,9 +628,10 @@ class PolicyManager:
 
         # Transition to bound status
         success = self.lifecycle.transition_policy(
-            policy, PolicyStatus.BOUND,
+            policy,
+            PolicyStatus.BOUND,
             reason="Policy bound by underwriter",
-            effective_date=effective_date or datetime.now()
+            effective_date=effective_date or datetime.now(),
         )
 
         if success:
@@ -617,8 +661,7 @@ class PolicyManager:
 
         # Transition to active status
         success = self.lifecycle.transition_policy(
-            policy, PolicyStatus.ACTIVE,
-            reason="Policy activated"
+            policy, PolicyStatus.ACTIVE, reason="Policy activated"
         )
 
         if success:
@@ -627,7 +670,9 @@ class PolicyManager:
 
         return success
 
-    def renew_policy(self, policy_id: str, renewal_term_months: Optional[int] = None) -> Optional[Policy]:
+    def renew_policy(
+        self, policy_id: str, renewal_term_months: Optional[int] = None
+    ) -> Optional[Policy]:
         """
         Renew existing policy.
 
@@ -644,7 +689,9 @@ class PolicyManager:
         original_policy = self.policies[policy_id]
 
         if original_policy.status != PolicyStatus.ACTIVE:
-            self.logger.error(f"Cannot renew policy in status: {original_policy.status}")
+            self.logger.error(
+                f"Cannot renew policy in status: {original_policy.status}"
+            )
             return None
 
         # Create renewal policy
@@ -655,13 +702,15 @@ class PolicyManager:
             policyholder_id=original_policy.policyholder_id,
             property_id=original_policy.property_id,
             effective_date=original_policy.expiration_date + timedelta(days=1),
-            expiration_date=original_policy.expiration_date + timedelta(days=(renewal_term_months or original_policy.term_months) * 30),
+            expiration_date=original_policy.expiration_date
+            + timedelta(days=(renewal_term_months or original_policy.term_months) * 30),
             term_months=renewal_term_months or original_policy.term_months,
             coverages=original_policy.coverages.copy(),  # Copy coverages
-            total_premium=original_policy.total_premium * 0.95,  # Small renewal discount
+            total_premium=original_policy.total_premium
+            * 0.95,  # Small renewal discount
             risk_score=original_policy.risk_score,
             risk_tier=original_policy.risk_tier,
-            created_by="renewal_system"
+            created_by="renewal_system",
         )
 
         # Store renewal policy
@@ -670,14 +719,16 @@ class PolicyManager:
 
         # Mark original as renewed
         original_policy.status = PolicyStatus.RENEWED
-        original_policy.metadata['renewed_to'] = renewal_policy.policy_id
+        original_policy.metadata["renewed_to"] = renewal_policy.policy_id
 
         self._update_performance_metrics()
 
         self.logger.info(f"Policy {policy_id} renewed to {renewal_policy.policy_id}")
         return renewal_policy
 
-    def cancel_policy(self, policy_id: str, reason: str, cancellation_date: Optional[datetime] = None) -> bool:
+    def cancel_policy(
+        self, policy_id: str, reason: str, cancellation_date: Optional[datetime] = None
+    ) -> bool:
         """
         Cancel existing policy.
 
@@ -700,9 +751,10 @@ class PolicyManager:
 
         # Transition to cancelled status
         success = self.lifecycle.transition_policy(
-            policy, PolicyStatus.CANCELLED,
+            policy,
+            PolicyStatus.CANCELLED,
             reason=reason,
-            cancellation_date=cancellation_date or datetime.now()
+            cancellation_date=cancellation_date or datetime.now(),
         )
 
         if success:
@@ -711,7 +763,9 @@ class PolicyManager:
 
         return success
 
-    def get_portfolio_summary(self, portfolio_criteria: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get_portfolio_summary(
+        self, portfolio_criteria: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get portfolio summary and performance metrics.
 
@@ -745,14 +799,14 @@ class PolicyManager:
             status_counts[status] = status_counts.get(status, 0) + 1
 
         return {
-            'total_policies': len(policies),
-            'active_policies': len(active_policies),
-            'total_premium': total_premium,
-            'average_premium': average_premium,
-            'risk_tier_distribution': risk_tiers,
-            'status_distribution': status_counts,
-            'policies_expiring_soon': self._get_expiring_policies(30),  # Next 30 days
-            'last_updated': datetime.now().isoformat()
+            "total_policies": len(policies),
+            "active_policies": len(active_policies),
+            "total_premium": total_premium,
+            "average_premium": average_premium,
+            "risk_tier_distribution": risk_tiers,
+            "status_distribution": status_counts,
+            "policies_expiring_soon": self._get_expiring_policies(30),  # Next 30 days
+            "last_updated": datetime.now().isoformat(),
         }
 
     def _get_expiring_policies(self, days_ahead: int) -> List[str]:
@@ -762,7 +816,10 @@ class PolicyManager:
 
         expiring_policies = []
         for policy in self.policies.values():
-            if policy.expiration_date <= threshold_date and policy.status == PolicyStatus.ACTIVE:
+            if (
+                policy.expiration_date <= threshold_date
+                and policy.status == PolicyStatus.ACTIVE
+            ):
                 expiring_policies.append(policy.policy_number)
 
         return expiring_policies
@@ -787,11 +844,15 @@ class PolicyManager:
         """Update performance metrics."""
         policies = list(self.policies.values())
 
-        self.performance_metrics['total_policies'] = len(policies)
-        self.performance_metrics['active_policies'] = len([p for p in policies if p.is_active()])
-        self.performance_metrics['total_premium'] = sum(p.total_premium for p in policies)
-        self.performance_metrics['average_premium'] = (
-            self.performance_metrics['total_premium'] / len(policies) if policies else 0
+        self.performance_metrics["total_policies"] = len(policies)
+        self.performance_metrics["active_policies"] = len(
+            [p for p in policies if p.is_active()]
+        )
+        self.performance_metrics["total_premium"] = sum(
+            p.total_premium for p in policies
+        )
+        self.performance_metrics["average_premium"] = (
+            self.performance_metrics["total_premium"] / len(policies) if policies else 0
         )
 
         # Update status distribution
@@ -799,16 +860,18 @@ class PolicyManager:
         for policy in policies:
             status = policy.status.value
             status_counts[status] = status_counts.get(status, 0) + 1
-        self.performance_metrics['policies_by_status'] = status_counts
+        self.performance_metrics["policies_by_status"] = status_counts
 
         # Update risk tier distribution
         tier_counts = {}
         for policy in policies:
             tier = policy.risk_tier
             tier_counts[tier] = tier_counts.get(tier, 0) + 1
-        self.performance_metrics['policies_by_risk_tier'] = tier_counts
+        self.performance_metrics["policies_by_risk_tier"] = tier_counts
 
-    def export_portfolio(self, format: str = "csv", filename: Optional[str] = None) -> str:
+    def export_portfolio(
+        self, format: str = "csv", filename: Optional[str] = None
+    ) -> str:
         """
         Export portfolio data to file.
 
@@ -828,7 +891,7 @@ class PolicyManager:
             df.to_csv(filename, index=False)
         elif format == "json":
             data = [policy.to_dict() for policy in self.policies.values()]
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 json.dump(data, f, indent=2, default=str)
         elif format == "excel":
             df = pd.DataFrame([policy.to_dict() for policy in self.policies.values()])
@@ -847,27 +910,27 @@ class PolicyManager:
         policy = self.policies[policy_id]
 
         return {
-            'policy_id': policy_id,
-            'policy_number': policy.policy_number,
-            'status': policy.status.value,
-            'premium': policy.total_premium,
-            'risk_score': policy.risk_score,
-            'risk_tier': policy.risk_tier,
-            'days_to_expiration': policy.days_to_expiration(),
-            'is_active': policy.is_active(),
-            'coverage_count': len(policy.coverages),
-            'endorsement_count': len(policy.endorsements),
-            'last_updated': policy.updated_at.isoformat()
+            "policy_id": policy_id,
+            "policy_number": policy.policy_number,
+            "status": policy.status.value,
+            "premium": policy.total_premium,
+            "risk_score": policy.risk_score,
+            "risk_tier": policy.risk_tier,
+            "days_to_expiration": policy.days_to_expiration(),
+            "is_active": policy.is_active(),
+            "coverage_count": len(policy.coverages),
+            "endorsement_count": len(policy.endorsements),
+            "last_updated": policy.updated_at.isoformat(),
         }
 
     def health_check(self) -> Dict[str, Any]:
         """Perform health check on policy management system."""
         return {
-            'status': 'operational',
-            'total_policies': len(self.policies),
-            'active_policies': self.performance_metrics['active_policies'],
-            'total_premium': self.performance_metrics['total_premium'],
-            'timestamp': datetime.now().isoformat()
+            "status": "operational",
+            "total_policies": len(self.policies),
+            "active_policies": self.performance_metrics["active_policies"],
+            "total_premium": self.performance_metrics["total_premium"],
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -875,30 +938,3 @@ class PolicyManager:
 def create_policy_manager(config: Optional[Dict[str, Any]] = None) -> PolicyManager:
     """Create a new policy manager."""
     return PolicyManager(config)
-
-def create_sample_policy() -> Policy:
-    """Create a sample policy for testing."""
-    policy = Policy(
-        policy_id=str(uuid.uuid4()),
-        policy_number="SAMPLE001",
-        status=PolicyStatus.ACTIVE,
-        policyholder_id="sample_holder",
-        property_id="sample_property",
-        effective_date=datetime.now() - timedelta(days=30),
-        expiration_date=datetime.now() + timedelta(days=335),  # 11 months
-        term_months=12,
-        total_premium=2500.0,
-        risk_score=0.4,
-        risk_tier="preferred"
-    )
-
-    # Add sample coverage
-    coverage = Coverage(
-        coverage_type=CoverageType.PROPERTY,
-        limit=500000,
-        deductible=10000,
-        premium=2000.0
-    )
-    policy.add_coverage(coverage)
-
-    return policy

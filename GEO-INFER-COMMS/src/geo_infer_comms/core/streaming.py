@@ -7,23 +7,20 @@ and live event streaming with geospatial filtering and optimization.
 """
 
 from __future__ import annotations
-import asyncio
 import json
 import logging
 import threading
 import time
 import queue
-from typing import Dict, List, Optional, Callable, Any, Set, Union
+from typing import Dict, List, Optional, Any, Set
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
-import uuid
 
-from geo_infer_comms.models.message import (
-    StreamRequest, StreamResponse, StreamType
-)
+from geo_infer_comms.models.message import StreamRequest, StreamResponse, StreamType
 from geo_infer_comms.models.spatial import (
-    GeospatialMetadata, GeospatialPoint, GeospatialBounds,
-    SpatialFilter, SpatialIndex
+    GeospatialMetadata,
+    GeospatialPoint,
+    SpatialFilter,
 )
 from geo_infer_comms.utils.validation import validate_stream_config
 
@@ -41,7 +38,7 @@ class DataStream:
         stream_id: str,
         config: StreamRequest,
         buffer_size: int = 1000,
-        enable_compression: bool = True
+        enable_compression: bool = True,
     ):
         self.stream_id = stream_id
         self.config = config
@@ -65,7 +62,9 @@ class DataStream:
 
         self.logger = logging.getLogger(__name__)
 
-    def add_data_point(self, data: Any, geospatial_context: Optional[GeospatialMetadata] = None) -> bool:
+    def add_data_point(
+        self, data: Any, geospatial_context: Optional[GeospatialMetadata] = None
+    ) -> bool:
         """Add a data point to the stream."""
         if not self.is_active:
             return False
@@ -79,8 +78,10 @@ class DataStream:
         data_point = {
             "data": data,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "geospatial_context": geospatial_context.to_dict() if geospatial_context else None,
-            "stream_id": self.stream_id
+            "geospatial_context": (
+                geospatial_context.to_dict() if geospatial_context else None
+            ),
+            "stream_id": self.stream_id,
         }
 
         try:
@@ -89,7 +90,7 @@ class DataStream:
 
             # Update metrics
             self.data_points_sent += 1
-            self.bytes_transferred += len(json.dumps(data_point).encode('utf-8'))
+            self.bytes_transferred += len(json.dumps(data_point).encode("utf-8"))
 
             return True
 
@@ -97,7 +98,9 @@ class DataStream:
             self.logger.warning(f"Stream buffer full for {self.stream_id}")
             return False
 
-    def get_data_points(self, count: int = 1, timeout: float = 1.0) -> List[Dict[str, Any]]:
+    def get_data_points(
+        self, count: int = 1, timeout: float = 1.0
+    ) -> List[Dict[str, Any]]:
         """Get data points from the stream buffer."""
         data_points = []
 
@@ -121,7 +124,9 @@ class DataStream:
             "bytes_transferred": self.bytes_transferred,
             "created_at": self.created_at.isoformat(),
             "stream_type": self.config.stream_type,
-            "geospatial_filter": self.spatial_filter.to_dict() if self.spatial_filter else None
+            "geospatial_filter": (
+                self.spatial_filter.to_dict() if self.spatial_filter else None
+            ),
         }
 
 
@@ -138,7 +143,7 @@ class StreamManager:
         max_streams: int = 1000,
         default_buffer_size: int = 1000,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
     ):
         self.max_streams = max_streams
         self.default_buffer_size = default_buffer_size
@@ -170,8 +175,7 @@ class StreamManager:
 
             self._running = True
             self._streaming_thread = threading.Thread(
-                target=self._process_streams,
-                daemon=True
+                target=self._process_streams, daemon=True
             )
             self._streaming_thread.start()
 
@@ -199,14 +203,14 @@ class StreamManager:
         stream = StreamResponse(
             name=request.name,
             stream_type=request.stream_type,
-            geospatial_filter=request.geospatial_filter
+            geospatial_filter=request.geospatial_filter,
         )
 
         # Create data stream
         data_stream = DataStream(
             stream_id=stream.stream_id,
             config=request,
-            buffer_size=self.default_buffer_size
+            buffer_size=self.default_buffer_size,
         )
 
         with self._lock:
@@ -215,7 +219,9 @@ class StreamManager:
 
             # Add to spatial index if geospatial filter exists
             if request.geospatial_filter:
-                self._add_stream_to_spatial_index(stream.stream_id, request.geospatial_filter)
+                self._add_stream_to_spatial_index(
+                    stream.stream_id, request.geospatial_filter
+                )
 
         self.metrics.streams_created += 1
         self.logger.info(f"Stream created: {stream.stream_id} by {creator_id}")
@@ -227,9 +233,7 @@ class StreamManager:
             return self.streams.get(stream_id)
 
     def get_streams(
-        self,
-        stream_type: Optional[StreamType] = None,
-        limit: int = 100
+        self, stream_type: Optional[StreamType] = None, limit: int = 100
     ) -> List[DataStream]:
         """Get streams with optional filtering."""
         with self._lock:
@@ -265,14 +269,16 @@ class StreamManager:
                 if stream_id in self.streams:
                     self.streams[stream_id].subscribers.discard(subscriber_id)
 
-        self.logger.info(f"Subscriber {subscriber_id} unsubscribed from stream {stream_id}")
+        self.logger.info(
+            f"Subscriber {subscriber_id} unsubscribed from stream {stream_id}"
+        )
         return True
 
     def publish_to_stream(
         self,
         stream_id: str,
         data: Any,
-        geospatial_context: Optional[GeospatialMetadata] = None
+        geospatial_context: Optional[GeospatialMetadata] = None,
     ) -> bool:
         """Publish data to a stream."""
         stream = self.streams.get(stream_id)
@@ -282,9 +288,7 @@ class StreamManager:
         return stream.add_data_point(data, geospatial_context)
 
     def get_streams_by_location(
-        self,
-        location: GeospatialPoint,
-        radius_km: float = 1.0
+        self, location: GeospatialPoint, radius_km: float = 1.0
     ) -> List[DataStream]:
         """Get streams near a specific location."""
         nearby_streams = []
@@ -309,14 +313,16 @@ class StreamManager:
         """Get comprehensive stream statistics."""
         with self._lock:
             active_streams = len([s for s in self.streams.values() if s.is_active])
-            total_subscribers = sum(len(subs) for subs in self.stream_subscribers.values())
+            total_subscribers = sum(
+                len(subs) for subs in self.stream_subscribers.values()
+            )
 
             return {
                 "total_streams": len(self.streams),
                 "active_streams": active_streams,
                 "total_subscribers": total_subscribers,
                 "spatial_index_size": len(self.spatial_streams),
-                "metrics": self.metrics.to_dict()
+                "metrics": self.metrics.to_dict(),
             }
 
     def _process_streams(self) -> None:
@@ -354,14 +360,20 @@ class StreamManager:
         except Exception as e:
             self.logger.error(f"Error delivering stream data for {stream_id}: {e}")
 
-    def _add_stream_to_spatial_index(self, stream_id: str, geospatial_filter: Dict[str, Any]) -> None:
+    def _add_stream_to_spatial_index(
+        self, stream_id: str, geospatial_filter: Dict[str, Any]
+    ) -> None:
         """Add stream to spatial index."""
         # Extract location from geospatial filter (simplified)
         if geospatial_filter.get("filter_type") == "bounds":
             bounds_data = geospatial_filter.get("parameters", {}).get("bounds", {})
             if bounds_data:
-                center_lon = (bounds_data["min_longitude"] + bounds_data["max_longitude"]) / 2
-                center_lat = (bounds_data["min_latitude"] + bounds_data["max_latitude"]) / 2
+                center_lon = (
+                    bounds_data["min_longitude"] + bounds_data["max_longitude"]
+                ) / 2
+                center_lat = (
+                    bounds_data["min_latitude"] + bounds_data["max_latitude"]
+                ) / 2
                 location_key = f"{center_lon:.3f},{center_lat:.3f}"
 
                 if location_key not in self.spatial_streams:
@@ -394,7 +406,7 @@ class StreamMetrics:
             ),
             "bytes_transferred": self.bytes_transferred,
             "subscribers_connected": self.subscribers_connected,
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -420,7 +432,7 @@ class GeospatialDataStream:
         self,
         stream_id: str,
         geospatial_config: Dict[str, Any],
-        spatial_resolution: float = 0.001  # degrees
+        spatial_resolution: float = 0.001,  # degrees
     ):
         self.stream_id = stream_id
         self.geospatial_config = geospatial_config
@@ -428,8 +440,12 @@ class GeospatialDataStream:
 
         # Spatial data structures
         self.spatial_data: Dict[str, Dict[str, Any]] = {}  # location_key -> data
-        self.temporal_data: Dict[str, List[Dict[str, Any]]] = {}  # location_key -> time_series
-        self.spatial_aggregations: Dict[str, Dict[str, Any]] = {}  # aggregation_type -> results
+        self.temporal_data: Dict[str, List[Dict[str, Any]]] = (
+            {}
+        )  # location_key -> time_series
+        self.spatial_aggregations: Dict[str, Dict[str, Any]] = (
+            {}
+        )  # aggregation_type -> results
 
         # Real-time analysis
         self.hotspots: List[Dict[str, Any]] = []
@@ -439,10 +455,7 @@ class GeospatialDataStream:
         self.logger = logging.getLogger(__name__)
 
     def add_geospatial_data(
-        self,
-        location: GeospatialPoint,
-        data: Any,
-        timestamp: Optional[datetime] = None
+        self, location: GeospatialPoint, data: Any, timestamp: Optional[datetime] = None
     ) -> None:
         """Add geospatial data point to the stream."""
         if timestamp is None:
@@ -455,9 +468,12 @@ class GeospatialDataStream:
             self.spatial_data[location_key] = {}
 
         data_point = {
-            "location": {"longitude": location.longitude, "latitude": location.latitude},
+            "location": {
+                "longitude": location.longitude,
+                "latitude": location.latitude,
+            },
             "data": data,
-            "timestamp": timestamp.isoformat()
+            "timestamp": timestamp.isoformat(),
         }
 
         self.spatial_data[location_key] = data_point
@@ -479,9 +495,7 @@ class GeospatialDataStream:
         self._detect_spatial_patterns()
 
     def get_data_at_location(
-        self,
-        location: GeospatialPoint,
-        radius_km: float = 0.1
+        self, location: GeospatialPoint, radius_km: float = 0.1
     ) -> List[Dict[str, Any]]:
         """Get data points near a location."""
         nearby_data = []
@@ -499,9 +513,7 @@ class GeospatialDataStream:
         return nearby_data
 
     def get_temporal_series(
-        self,
-        location: GeospatialPoint,
-        time_window: Optional[timedelta] = None
+        self, location: GeospatialPoint, time_window: Optional[timedelta] = None
     ) -> List[Dict[str, Any]]:
         """Get temporal data series for a location."""
         location_key = self._generate_location_key(location)
@@ -510,7 +522,8 @@ class GeospatialDataStream:
         if time_window:
             cutoff_time = datetime.now(timezone.utc) - time_window
             series = [
-                point for point in series
+                point
+                for point in series
                 if datetime.fromisoformat(point["timestamp"]) >= cutoff_time
             ]
 
@@ -519,11 +532,18 @@ class GeospatialDataStream:
     def _generate_location_key(self, location: GeospatialPoint) -> str:
         """Generate location key for spatial indexing."""
         # Round to spatial resolution for grouping nearby points
-        lon_rounded = round(location.longitude / self.spatial_resolution) * self.spatial_resolution
-        lat_rounded = round(location.latitude / self.spatial_resolution) * self.spatial_resolution
+        lon_rounded = (
+            round(location.longitude / self.spatial_resolution)
+            * self.spatial_resolution
+        )
+        lat_rounded = (
+            round(location.latitude / self.spatial_resolution) * self.spatial_resolution
+        )
         return f"{lon_rounded:.6f},{lat_rounded:.6f}"
 
-    def _update_aggregations(self, location_key: str, data_point: Dict[str, Any]) -> None:
+    def _update_aggregations(
+        self, location_key: str, data_point: Dict[str, Any]
+    ) -> None:
         """Update spatial aggregations."""
         # Simple aggregation - in production would be more sophisticated
         data_value = data_point.get("data", 0)
@@ -532,9 +552,9 @@ class GeospatialDataStream:
             self.spatial_aggregations[location_key] = {
                 "count": 0,
                 "sum": 0.0,
-                "min": float('inf'),
-                "max": float('-inf'),
-                "avg": 0.0
+                "min": float("inf"),
+                "max": float("-inf"),
+                "avg": 0.0,
             }
 
         agg = self.spatial_aggregations[location_key]
@@ -552,7 +572,9 @@ class GeospatialDataStream:
             # Parse location
             try:
                 lon, lat = map(float, location_key.split(","))
-                location_counts[location_key] = len(self.temporal_data.get(location_key, []))
+                location_counts[location_key] = len(
+                    self.temporal_data.get(location_key, [])
+                )
             except (ValueError, IndexError):
                 continue
 
@@ -572,13 +594,19 @@ class GeospatialDataStream:
                 current_value = self.spatial_data[location_key].get("data", 0)
 
                 # Simple anomaly detection (values > 2 standard deviations)
-                if abs(current_value - avg_value) > (avg_value * 0.5):  # 50% deviation threshold
-                    anomalies.append({
-                        "location_key": location_key,
-                        "current_value": current_value,
-                        "average": avg_value,
-                        "deviation": abs(current_value - avg_value) / avg_value * 100
-                    })
+                if abs(current_value - avg_value) > (
+                    avg_value * 0.5
+                ):  # 50% deviation threshold
+                    anomalies.append(
+                        {
+                            "location_key": location_key,
+                            "current_value": current_value,
+                            "average": avg_value,
+                            "deviation": abs(current_value - avg_value)
+                            / avg_value
+                            * 100,
+                        }
+                    )
 
         self.anomalies = anomalies[:10]  # Keep top 10 anomalies
 
@@ -625,11 +653,11 @@ class StreamingProtocol:
 
     async def start_streaming(self, stream_id: str) -> bool:
         """Start streaming for a stream."""
-        raise NotImplementedError("Subclasses must implement start_streaming")
+        raise RuntimeError("Streaming subclasses must implement start_streaming")
 
     async def stop_streaming(self, stream_id: str) -> bool:
         """Stop streaming for a stream."""
-        raise NotImplementedError("Subclasses must implement stop_streaming")
+        raise RuntimeError("Streaming subclasses must implement stop_streaming")
 
     def get_protocol_stats(self) -> Dict[str, Any]:
         """Get protocol-specific statistics."""
@@ -674,7 +702,9 @@ class MQTTStreamingProtocol(StreamingProtocol):
         self.mqtt_topics[stream_id] = topic
 
         # In a real implementation, would connect to MQTT broker
-        self.logger.info(f"MQTT streaming started for stream: {stream_id} on topic: {topic}")
+        self.logger.info(
+            f"MQTT streaming started for stream: {stream_id} on topic: {topic}"
+        )
         return True
 
     async def stop_streaming(self, stream_id: str) -> bool:
@@ -726,17 +756,14 @@ class StreamingAnalytics:
         self.logger = logging.getLogger(__name__)
 
     def record_streaming_event(
-        self,
-        stream_id: str,
-        event_type: str,
-        details: Optional[Dict[str, Any]] = None
+        self, stream_id: str, event_type: str, details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Record a streaming event for analytics."""
         event = {
             "stream_id": stream_id,
             "event_type": event_type,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "details": details or {}
+            "details": details or {},
         }
 
         self.streaming_history.append(event)
@@ -748,8 +775,7 @@ class StreamingAnalytics:
     def get_streaming_analytics(self, stream_id: str) -> Dict[str, Any]:
         """Get analytics for a specific stream."""
         stream_events = [
-            event for event in self.streaming_history
-            if event["stream_id"] == stream_id
+            event for event in self.streaming_history if event["stream_id"] == stream_id
         ]
 
         if not stream_events:
@@ -767,8 +793,8 @@ class StreamingAnalytics:
             "event_types": event_types,
             "time_range": {
                 "start": min(e["timestamp"] for e in stream_events),
-                "end": max(e["timestamp"] for e in stream_events)
-            }
+                "end": max(e["timestamp"] for e in stream_events),
+            },
         }
 
     def get_system_streaming_analytics(self) -> Dict[str, Any]:
@@ -785,11 +811,13 @@ class StreamingAnalytics:
         return {
             "total_streaming_events": len(self.streaming_history),
             "active_streams": len(set(e["stream_id"] for e in self.streaming_history)),
-            "most_active_streams": sorted(stream_activity.items(), key=lambda x: x[1], reverse=True)[:10],
+            "most_active_streams": sorted(
+                stream_activity.items(), key=lambda x: x[1], reverse=True
+            )[:10],
             "time_range": {
                 "start": min(e["timestamp"] for e in self.streaming_history),
-                "end": max(e["timestamp"] for e in self.streaming_history)
-            }
+                "end": max(e["timestamp"] for e in self.streaming_history),
+            },
         }
 
 
@@ -810,14 +838,11 @@ class StreamingOrchestrator:
         self.logger = logging.getLogger(__name__)
 
     def create_geospatial_stream(
-        self,
-        stream_id: str,
-        geospatial_config: Dict[str, Any]
+        self, stream_id: str, geospatial_config: Dict[str, Any]
     ) -> GeospatialDataStream:
         """Create a specialized geospatial data stream."""
         geospatial_stream = GeospatialDataStream(
-            stream_id=stream_id,
-            geospatial_config=geospatial_config
+            stream_id=stream_id, geospatial_config=geospatial_config
         )
 
         self.geospatial_streams[stream_id] = geospatial_stream
@@ -829,7 +854,7 @@ class StreamingOrchestrator:
         stream_id: str,
         location: GeospatialPoint,
         data: Any,
-        protocol: str = "websocket"
+        protocol: str = "websocket",
     ) -> bool:
         """Stream geospatial data through specified protocol."""
         # Add to geospatial stream if exists
@@ -840,10 +865,17 @@ class StreamingOrchestrator:
         protocol_impl = self.protocol_manager.get_protocol(protocol)
         if protocol_impl:
             # In a real implementation, would stream through the protocol
-            self.analytics.record_streaming_event(stream_id, "data_streamed", {
-                "protocol": protocol,
-                "location": {"longitude": location.longitude, "latitude": location.latitude}
-            })
+            self.analytics.record_streaming_event(
+                stream_id,
+                "data_streamed",
+                {
+                    "protocol": protocol,
+                    "location": {
+                        "longitude": location.longitude,
+                        "latitude": location.latitude,
+                    },
+                },
+            )
 
         return True
 
@@ -856,5 +888,5 @@ class StreamingOrchestrator:
                 for name, protocol in self.protocol_manager.protocols.items()
             },
             "geospatial_stream_count": len(self.geospatial_streams),
-            "analytics": self.analytics.get_system_streaming_analytics()
+            "analytics": self.analytics.get_system_streaming_analytics(),
         }

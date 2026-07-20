@@ -8,9 +8,8 @@ Covers:
 - SeismicHazardAnalyzer      (initialization, full run_analysis pipeline, CSZ scenario)
 - AdvancedDashboard          (initialization, map creation, panel generation)
 
-All tests use the real classes with real ``DelNorteDataIntegrator`` instances (no
-mocks).  Network calls inside the analysers are handled by try/except so
-tests pass whether or not external APIs are reachable.
+All tests use the real classes with real ``DelNorteDataIntegrator`` instances
+and assert that missing provider data is reported instead of fabricated.
 """
 
 import os
@@ -122,10 +121,11 @@ class TestCoastalResilienceAnalyzer(unittest.TestCase):
         self.assertIn("erosion_analysis", results)
 
     def test_run_analysis_saves_file(self):
-        """run_analysis should persist a JSON file to output_dir."""
-        self.analyzer.run_analysis()
+        """No output is written when empirical coastal sources are absent."""
+        results = self.analyzer.run_analysis()
         json_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json")]
-        self.assertGreater(len(json_files), 0, "No JSON output file saved")
+        self.assertEqual(results["status"], "error")
+        self.assertEqual(json_files, [])
 
 
 # ---------------------------------------------------------------------------
@@ -193,20 +193,24 @@ class TestFireRiskAssessor(unittest.TestCase):
 
     def test_run_analysis_has_weather_section(self):
         results = self.analyzer.run_analysis()
-        self.assertIn("fire_weather_analysis", results)
+        self.assertEqual(results["status"], "error")
+        self.assertIn("source", results["error_message"])
 
     def test_run_analysis_has_historical_section(self):
         results = self.analyzer.run_analysis()
-        self.assertIn("historical_fire_analysis", results)
+        self.assertEqual(results["status"], "error")
+        self.assertIn("source", results["error_message"])
 
     def test_run_analysis_has_fuel_section(self):
         results = self.analyzer.run_analysis()
-        self.assertIn("fuel_analysis", results)
+        self.assertEqual(results["status"], "error")
+        self.assertIn("source", results["error_message"])
 
     def test_run_analysis_saves_file(self):
-        self.analyzer.run_analysis()
+        results = self.analyzer.run_analysis()
         json_files = [f for f in os.listdir(self.tmpdir) if f.endswith(".json")]
-        self.assertGreater(len(json_files), 0, "No JSON output file saved")
+        self.assertEqual(results["status"], "error")
+        self.assertEqual(json_files, [])
 
 
 # ---------------------------------------------------------------------------

@@ -358,6 +358,7 @@ class SpatialAnalyzer:
 
         # Compute spatial weights for each point
         local_coefficients = np.zeros((n_points, X.shape[1]))
+        predictions = np.zeros(n_points)
 
         for i in range(n_points):
             # Gaussian kernel weights
@@ -369,11 +370,9 @@ class SpatialAnalyzer:
             XtW = X.T @ W
             beta_i = np.linalg.pinv(XtW @ X) @ (XtW @ y)
             local_coefficients[i, :] = beta_i
+            predictions[i] = X[i] @ beta_i
 
-        # This is a simplified GWR implementation
-        # Full implementation would include proper diagnostics and inference
-
-        # Create synthetic SPMResult (simplified)
+        # Build the result from the fitted local coefficients and predictions.
         from ..models.data_models import DesignMatrix
 
         design = DesignMatrix(matrix=X, names=names)
@@ -382,7 +381,7 @@ class SpatialAnalyzer:
             spm_data=data,
             design_matrix=design,
             beta_coefficients=local_coefficients.T,  # Transpose for compatibility
-            residuals=np.zeros_like(y),  # Simplified
+            residuals=y - predictions,
             model_diagnostics={
                 "method": "GWR",
                 "bandwidth": bandwidth,

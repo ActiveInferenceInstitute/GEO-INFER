@@ -7,10 +7,10 @@
 
 ## Prerequisites
 
-Before starting, ensure you have GEO-INFER-SPACE installed:
+From the repository root, sync the workspace before starting:
 
 ```bash
-uv pip install -e ./GEO-INFER-SPACE
+uv sync --package geo-infer-space
 ```
 
 You also need these Python packages (installed as GEO-INFER-SPACE dependencies):

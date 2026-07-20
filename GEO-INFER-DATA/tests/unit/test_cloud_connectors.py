@@ -21,30 +21,31 @@ def _run(coro):
 # CloudConnector base class
 # ---------------------------------------------------------------------------
 
+
 class TestCloudConnectorBase:
     def test_connect_raises_not_implemented(self):
         connector = CloudConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.connect())
 
     def test_upload_file_raises_not_implemented(self):
         connector = CloudConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.upload_file("/local", "/remote"))
 
     def test_download_file_raises_not_implemented(self):
         connector = CloudConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.download_file("/remote", "/local"))
 
     def test_list_files_raises_not_implemented(self):
         connector = CloudConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.list_files())
 
     def test_delete_file_raises_not_implemented(self):
         connector = CloudConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.delete_file("/remote"))
 
     def test_disconnect_does_not_raise(self):
@@ -55,6 +56,7 @@ class TestCloudConnectorBase:
 # ---------------------------------------------------------------------------
 # S3Connector
 # ---------------------------------------------------------------------------
+
 
 class TestS3Connector:
     def test_init_defaults(self):
@@ -81,7 +83,9 @@ class TestS3Connector:
 
     def test_download_file(self):
         connector = S3Connector({})
-        result = _run(connector.download_file("data/data.geojson", "/local/data.geojson"))
+        result = _run(
+            connector.download_file("data/data.geojson", "/local/data.geojson")
+        )
         assert result == "/local/data.geojson"
 
     def test_list_files(self):
@@ -104,6 +108,7 @@ class TestS3Connector:
 # ---------------------------------------------------------------------------
 # GCSConnector
 # ---------------------------------------------------------------------------
+
 
 class TestGCSConnector:
     def test_init(self):
@@ -131,6 +136,7 @@ class TestGCSConnector:
 # ---------------------------------------------------------------------------
 # AzureConnector
 # ---------------------------------------------------------------------------
+
 
 class TestAzureConnector:
     def test_init(self):

@@ -1,7 +1,11 @@
 """CRM Reporting functions."""
-from typing import List, Dict, Any
+
+from typing import List, Dict, Any, Optional
 from ..models.crm_models import Customer
-from ..crm.transformer import convert_customers_to_dataframe # Assuming this function exists
+from ..crm.transformer import (
+    convert_customers_to_dataframe,
+)  # Assuming this function exists
+
 
 def generate_customer_segmentation_report(customers: List[Customer]) -> Dict[str, Any]:
     """
@@ -17,30 +21,33 @@ def generate_customer_segmentation_report(customers: List[Customer]) -> Dict[str
 
     report = {}
 
-    if 'status' in df.columns:
-        report['customers_by_status'] = df['status'].value_counts().to_dict()
-    
-    if 'source' in df.columns:
-        report['customers_by_source'] = df['source'].value_counts().to_dict()
-    
+    if "status" in df.columns:
+        report["customers_by_status"] = df["status"].value_counts().to_dict()
+
+    if "source" in df.columns:
+        report["customers_by_source"] = df["source"].value_counts().to_dict()
+
     # Example: Segmentation by a common tag like 'VIP_CUSTOMER' (created during enrichment)
-    if 'tags' in df.columns:
+    if "tags" in df.columns:
         # Explode tags if they are lists, then count
         # This assumes 'tags' column contains lists of strings
         try:
-            all_tags = df['tags'].explode()
-            report['customers_by_tag'] = all_tags.value_counts().to_dict()
-            if 'VIP_CUSTOMER' in all_tags.values:
-                report['vip_customer_count'] = int(all_tags[all_tags == 'VIP_CUSTOMER'].count())
+            all_tags = df["tags"].explode()
+            report["customers_by_tag"] = all_tags.value_counts().to_dict()
+            if "VIP_CUSTOMER" in all_tags.values:
+                report["vip_customer_count"] = int(
+                    all_tags[all_tags == "VIP_CUSTOMER"].count()
+                )
             else:
-                report['vip_customer_count'] = 0
+                report["vip_customer_count"] = 0
         except Exception as e:
             print(f"Could not process tags for reporting: {e}")
-            report['tags_processing_error'] = str(e)
+            report["tags_processing_error"] = str(e)
 
-    report['total_customers'] = len(df)
+    report["total_customers"] = len(df)
     print("Generated customer segmentation report.")
     return report
+
 
 def generate_lead_conversion_report(customers: List[Customer]) -> Dict[str, Any]:
     """
@@ -56,34 +63,69 @@ def generate_lead_conversion_report(customers: List[Customer]) -> Dict[str, Any]
         return {"message": "Customer data is empty after conversion to DataFrame."}
 
     report = {}
-    if 'status' not in df.columns:
-        return {"message": "'status' column missing, cannot generate lead conversion report."}
+    if "status" not in df.columns:
+        return {
+            "message": "'status' column missing, cannot generate lead conversion report."
+        }
 
-    total_leads = df[df['status'] == 'lead'].shape[0]
-    converted_customers = df[df['status'] == 'active_customer'].shape[0] # Simplified definition of "converted"
-    
-    report['total_identified_leads'] = total_leads
-    report['total_converted_customers'] = converted_customers
-    
+    total_leads = df[df["status"] == "lead"].shape[0]
+    converted_customers = df[df["status"] == "active_customer"].shape[
+        0
+    ]  # Simplified definition of "converted"
+
+    report["total_identified_leads"] = total_leads
+    report["total_converted_customers"] = converted_customers
+
     if total_leads > 0:
-        report['lead_to_customer_conversion_rate'] = (converted_customers / total_leads) * 100
+        report["lead_to_customer_conversion_rate"] = (
+            converted_customers / total_leads
+        ) * 100
     else:
-        report['lead_to_customer_conversion_rate'] = 0.0
-        
+        report["lead_to_customer_conversion_rate"] = 0.0
+
     print("Generated lead conversion report.")
     return report
 
-def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
-    """Simulates fetching CRM quarterly metrics."""
-    print(f"Fetching CRM quarterly metrics for {quarter} {year} (simulated).")
+
+def get_quarterly_metrics(
+    quarter: str, year: int, customers: Optional[List[Customer]] = None
+) -> Dict[str, Any]:
+    """Calculate CRM quarterly metrics from customer records."""
+    if not customers:
+        return {
+            "quarter": quarter,
+            "year": year,
+            "message": "No customer data available for metrics calculation",
+            "new_leads_acquired": 0,
+            "customers_converted": 0,
+            "churned_customers": 0,
+            "conversion_rate_percent": None,
+        }
+
+    customer_df = convert_customers_to_dataframe(customers)
+    if customer_df.empty or "status" not in customer_df:
+        return {
+            "quarter": quarter,
+            "year": year,
+            "message": "Customer data has no usable status records",
+            "new_leads_acquired": 0,
+            "customers_converted": 0,
+            "churned_customers": 0,
+            "conversion_rate_percent": None,
+        }
+
+    leads = int((customer_df["status"] == "lead").sum())
+    converted = int((customer_df["status"] == "active_customer").sum())
+    churned = int((customer_df["status"] == "churned").sum())
     return {
         "quarter": quarter,
         "year": year,
-        "new_leads_acquired": 150, # Simulated
-        "customers_converted": 30, # Simulated
-        "avg_customer_satisfaction_score": 4.2, # Simulated
-        "churn_rate_percent": 1.5 # Simulated
+        "new_leads_acquired": leads,
+        "customers_converted": converted,
+        "churned_customers": churned,
+        "conversion_rate_percent": (converted / leads * 100) if leads else None,
     }
+
 
 # Add more CRM-specific reporting functions here, e.g.:
 # - Sales pipeline analysis
@@ -95,8 +137,8 @@ def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
 #     from ..crm.importer import CSVCRMImporter
 #     from ..crm.transformer import clean_customer_data, enrich_customer_data
 
-#     # Assume dummy_crm_data.csv exists
-#     importer = CSVCRMImporter(file_path='dummy_crm_data.csv')
+#     # Assume crm_example_data.csv exists
+#     importer = CSVCRMImporter(file_path='crm_example_data.csv')
 #     raw_customers = importer.import_customers()
 #     cleaned = clean_customer_data(raw_customers)
 #     enriched = enrich_customer_data(cleaned)

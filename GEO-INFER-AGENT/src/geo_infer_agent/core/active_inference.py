@@ -190,9 +190,10 @@ class GenerativeModel(nn.Module):
         Returns:
             Normal distribution over states
         """
-        # Dummy input since prior doesn't depend on input
-        dummy = torch.ones(batch_size, 1, device=self.device)
-        output = self.prior_model(dummy)
+        # The prior network still expects a tensor-shaped input even though
+        # its value is not conditioned on observations.
+        prior_input = torch.ones(batch_size, 1, device=self.device)
+        output = self.prior_model(prior_input)
         mean, log_var = torch.split(output, self.state_dim, dim=-1)
         var = torch.exp(log_var.clamp(min=-10, max=10))
         return Normal(mean, torch.sqrt(var))

@@ -67,11 +67,12 @@ class TestCascadianBackendH3Operations:
 
 
 class TestCascadianBackendSPACEIntegration:
-    def test_imports_without_space(self):
-        """Backend loads even when geo_infer_space is unavailable."""
-        from geo_infer_place.core.unified_backend import SPACE_AVAILABLE
+    def test_uses_shared_space_backend(self):
+        """Backend uses the shared GEO-INFER-SPACE implementation."""
+        from geo_infer_space.core.unified_backend import UnifiedH3Backend
+        from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
 
-        assert isinstance(SPACE_AVAILABLE, bool)
+        assert issubclass(CascadianAgriculturalH3Backend, UnifiedH3Backend)
 
     def test_cell_to_boundary_returns_polygon(self, backend):
         import h3

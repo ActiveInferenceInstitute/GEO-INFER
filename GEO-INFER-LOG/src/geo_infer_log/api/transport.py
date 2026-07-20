@@ -7,7 +7,7 @@ transportation network analysis, and emissions calculation.
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Dict, Optional, Tuple
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
 from geo_infer_log.models.schemas import Vehicle, Route
@@ -38,8 +38,8 @@ class RouteRequest(BaseModel):
     )
     preferences: Optional[Dict] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "origin": (13.404954, 52.520008),  # Berlin
                 "destination": (11.576124, 48.137154),  # Munich
@@ -52,6 +52,7 @@ class RouteRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 class CompareRoutesRequest(BaseModel):
@@ -65,14 +66,15 @@ class CompareRoutesRequest(BaseModel):
         ..., description="List of mode combinations to compare"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "origin": (13.404954, 52.520008),  # Berlin
                 "destination": (11.576124, 48.137154),  # Munich
                 "mode_combinations": [["car"], ["train"], ["car", "train"]],
             }
         }
+    )
 
 
 class NetworkMetricsRequest(BaseModel):
@@ -80,8 +82,9 @@ class NetworkMetricsRequest(BaseModel):
 
     network_id: str
 
-    class Config:
-        schema_extra = {"example": {"network_id": "transport-network-001"}}
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"network_id": "transport-network-001"}}
+    )
 
 
 class TrafficSimulationRequest(BaseModel):
@@ -91,14 +94,15 @@ class TrafficSimulationRequest(BaseModel):
     destination: str
     departure_time: str
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "origin": "node-001",
                 "destination": "node-045",
                 "departure_time": "morning_peak",
             }
         }
+    )
 
 
 class EmissionsCalculationRequest(BaseModel):
@@ -109,8 +113,8 @@ class EmissionsCalculationRequest(BaseModel):
     load_factor: float = 1.0
     terrain_factor: float = 1.0
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "vehicle": {
                     "id": "truck-001",
@@ -128,6 +132,7 @@ class EmissionsCalculationRequest(BaseModel):
                 "terrain_factor": 1.2,
             }
         }
+    )
 
 
 class EmissionsComparisonRequest(BaseModel):
@@ -136,8 +141,8 @@ class EmissionsComparisonRequest(BaseModel):
     route: Dict
     vehicle_options: List[Vehicle]
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "route": {
                     "distance": 150,
@@ -170,6 +175,7 @@ class EmissionsComparisonRequest(BaseModel):
                 ],
             }
         }
+    )
 
 
 # Get a multimodal planner instance

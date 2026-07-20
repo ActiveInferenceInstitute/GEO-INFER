@@ -114,11 +114,9 @@ class StyleTransfer:
         if style_resource.is_file():
             return os.fspath(style_resource)
 
-        # Optional image assets are not present in every distribution.  Keep a
-        # deterministic synthetic fallback without emitting a compatibility
-        # warning during normal library or test execution.
-        logger.info("Using synthetic style asset for %s", style_name)
-        return cls._generate_synthetic_style(style_name)
+        raise FileNotFoundError(
+            f"Predefined style asset is not installed: {style_resource}"
+        )
 
     def load_style_image(
         self, style_image: Union[str, np.ndarray, Image.Image]
@@ -708,60 +706,3 @@ class StyleTransfer:
         return recommendations.get(
             style_name, {"style_weight": 1e-2, "content_weight": 1e4, "iterations": 100}
         )
-
-    @staticmethod
-    def _generate_synthetic_style(style_name: str) -> str:
-        """
-        Generate a synthetic style image for testing when real style files are not available.
-
-        Args:
-            style_name: Name of the style to generate
-
-        Returns:
-            Path to a temporary synthetic style file
-        """
-        import tempfile
-
-        # Generate a synthetic image based on the style name
-        width, height = 224, 224
-        synthetic_image = np.zeros((height, width, 3), dtype=np.uint8)
-
-        # Create different patterns based on style name
-        if "watercolor" in style_name:
-            # Soft, blended colors for watercolor
-            for i in range(3):
-                layer = np.random.randint(
-                    100, 200, (height // 4, width // 4, 3), dtype=np.uint8
-                )
-                layer = np.repeat(np.repeat(layer, 4, axis=0), 4, axis=1)
-                synthetic_image += layer // 3
-        elif "oil" in style_name:
-            # Rich, saturated colors for oil painting
-            synthetic_image = np.random.randint(
-                50, 200, (height, width, 3), dtype=np.uint8
-            )
-        elif "sketch" in style_name:
-            # High contrast for sketch
-            synthetic_image = np.random.randint(
-                0, 100, (height, width, 3), dtype=np.uint8
-            )
-        elif "abstract" in style_name:
-            # Geometric patterns for abstract
-            for i in range(0, width, 20):
-                for j in range(0, height, 20):
-                    color = np.random.randint(0, 255, 3, dtype=np.uint8)
-                    synthetic_image[j : j + 20, i : i + 20] = color
-        else:
-            # Default colorful pattern
-            synthetic_image = np.random.randint(
-                50, 200, (height, width, 3), dtype=np.uint8
-            )
-
-        # Ensure values are in valid range
-        synthetic_image = np.clip(synthetic_image, 0, 255).astype(np.uint8)
-
-        # Save to temporary file
-        temp_file = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-        Image.fromarray(synthetic_image).save(temp_file.name)
-
-        return temp_file.name

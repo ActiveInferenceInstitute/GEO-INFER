@@ -1,7 +1,9 @@
 """CRM Data Transformers."""
+
 from typing import List
 import pandas as pd
 from ..models.crm_models import Customer
+
 
 def clean_customer_data(customers: List[Customer]) -> List[Customer]:
     """
@@ -43,7 +45,9 @@ def clean_customer_data(customers: List[Customer]) -> List[Customer]:
 
             # Clean phone numbers - keep only digits and +
             if cust_copy.phone_number:
-                cleaned_phone = ''.join(c for c in cust_copy.phone_number if c.isdigit() or c == '+')
+                cleaned_phone = "".join(
+                    c for c in cust_copy.phone_number if c.isdigit() or c == "+"
+                )
                 cust_copy.phone_number = cleaned_phone
 
             # Clean names - title case
@@ -61,24 +65,33 @@ def clean_customer_data(customers: List[Customer]) -> List[Customer]:
                 if cust_copy.address.state:
                     cust_copy.address.state = cust_copy.address.state.strip().upper()
                 if cust_copy.address.country:
-                    cust_copy.address.country = cust_copy.address.country.strip().title()
+                    cust_copy.address.country = (
+                        cust_copy.address.country.strip().title()
+                    )
 
             # Clean website URL - ensure it starts with http:// or https://
             if cust_copy.website:
                 website = cust_copy.website.strip()
-                if website and not website.startswith(('http://', 'https://')):
-                    website = 'https://' + website
+                if website and not website.startswith(("http://", "https://")):
+                    website = "https://" + website
                 cust_copy.website = website
 
             # Clean LinkedIn profile URL
             if cust_copy.linkedin_profile:
                 linkedin = cust_copy.linkedin_profile.strip()
-                if linkedin and not linkedin.startswith(('http://', 'https://')):
-                    linkedin = 'https://' + linkedin
+                if linkedin and not linkedin.startswith(("http://", "https://")):
+                    linkedin = "https://" + linkedin
                 cust_copy.linkedin_profile = linkedin
 
             # Standardize status values
-            valid_statuses = ["active", "inactive", "lead", "prospect", "customer", "churned"]
+            valid_statuses = [
+                "active",
+                "inactive",
+                "lead",
+                "prospect",
+                "customer",
+                "churned",
+            ]
             if cust_copy.status and cust_copy.status.lower() not in valid_statuses:
                 if cust_copy.status.lower() in ["new", "potential"]:
                     cust_copy.status = "lead"
@@ -95,7 +108,10 @@ def clean_customer_data(customers: List[Customer]) -> List[Customer]:
     print(f"Successfully cleaned {len(cleaned_customers)} customer records")
     return cleaned_customers
 
-def enrich_customer_data(customers: List[Customer], external_data_sources: dict = None) -> List[Customer]:
+
+def enrich_customer_data(
+    customers: List[Customer], external_data_sources: dict = None
+) -> List[Customer]:
     """
     Enriches customer data with calculated fields and organizational context.
 
@@ -125,14 +141,16 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
             # Calculate account age in days and years
             if cust_copy.created_at:
                 from datetime import datetime
+
                 age_days = (datetime.now() - cust_copy.created_at).days
                 age_years = age_days / 365.25  # Account for leap years
 
                 # Add interaction log for account age
                 from ..models.crm_models import InteractionLog
+
                 age_log = InteractionLog(
                     summary=f"Account age: {age_days} days ({age_years:.1f} years)",
-                    channel="system_calculation"
+                    channel="system_calculation",
                 )
                 cust_copy.interaction_history.append(age_log)
 
@@ -143,15 +161,18 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
 
             # Calculate interaction statistics
             total_interactions = len(cust_copy.interaction_history)
-            recent_interactions = len([
-                i for i in cust_copy.interaction_history
-                if (datetime.now() - i.timestamp).days <= 30
-            ])
+            recent_interactions = len(
+                [
+                    i
+                    for i in cust_copy.interaction_history
+                    if (datetime.now() - i.timestamp).days <= 30
+                ]
+            )
 
             # Add interaction summary
             interaction_summary = InteractionLog(
                 summary=f"Total interactions: {total_interactions}, Recent (30 days): {recent_interactions}",
-                channel="analytics_enrichment"
+                channel="analytics_enrichment",
             )
             cust_copy.interaction_history.append(interaction_summary)
 
@@ -169,13 +190,15 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
 
             engagement_log = InteractionLog(
                 summary=f"Engagement Level: {engagement_level}",
-                channel="engagement_analysis"
+                channel="engagement_analysis",
             )
             cust_copy.interaction_history.append(engagement_log)
 
             # Add VIP flagging based on tags and engagement
             is_vip = False
-            if "vip" in [tag.lower() for tag in cust_copy.tags] or "high-priority" in [tag.lower() for tag in cust_copy.tags]:
+            if "vip" in [tag.lower() for tag in cust_copy.tags] or "high-priority" in [
+                tag.lower() for tag in cust_copy.tags
+            ]:
                 is_vip = True
             elif engagement_level == "Highly Engaged" and total_interactions >= 10:
                 is_vip = True
@@ -188,16 +211,21 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
             # Add company size estimation based on company name patterns
             if cust_copy.company:
                 company_name = cust_copy.company.lower()
-                if any(keyword in company_name for keyword in ["corp", "corporation", "inc", "ltd", "limited"]):
+                if any(
+                    keyword in company_name
+                    for keyword in ["corp", "corporation", "inc", "ltd", "limited"]
+                ):
                     company_size = "Enterprise"
-                elif any(keyword in company_name for keyword in ["llc", "partners", "group"]):
+                elif any(
+                    keyword in company_name for keyword in ["llc", "partners", "group"]
+                ):
                     company_size = "Mid-Market"
                 else:
                     company_size = "Small Business"
 
                 size_log = InteractionLog(
                     summary=f"Estimated Company Size: {company_size}",
-                    channel="company_analysis"
+                    channel="company_analysis",
                 )
                 cust_copy.interaction_history.append(size_log)
 
@@ -207,19 +235,28 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
                     cust_copy.tags.append(size_tag)
 
             # Validate geographic information
-            if cust_copy.address and cust_copy.address.city and cust_copy.address.country:
+            if (
+                cust_copy.address
+                and cust_copy.address.city
+                and cust_copy.address.country
+            ):
                 geo_log = InteractionLog(
                     summary=f"Geographic Location: {cust_copy.address.city}, {cust_copy.address.country}",
-                    channel="geographic_validation"
+                    channel="geographic_validation",
                 )
                 cust_copy.interaction_history.append(geo_log)
 
             # Add customer segment based on status and engagement
             if cust_copy.status == "lead" and engagement_level == "New":
                 segment = "New Lead"
-            elif cust_copy.status == "customer" and engagement_level in ["Highly Engaged", "Moderately Engaged"]:
+            elif cust_copy.status == "customer" and engagement_level in [
+                "Highly Engaged",
+                "Moderately Engaged",
+            ]:
                 segment = "Active Customer"
-            elif cust_copy.status == "customer" and engagement_level == "Low Engagement":
+            elif (
+                cust_copy.status == "customer" and engagement_level == "Low Engagement"
+            ):
                 segment = "At-Risk Customer"
             elif cust_copy.status == "churned":
                 segment = "Former Customer"
@@ -227,8 +264,7 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
                 segment = "Other"
 
             segment_log = InteractionLog(
-                summary=f"Customer Segment: {segment}",
-                channel="segmentation_analysis"
+                summary=f"Customer Segment: {segment}", channel="segmentation_analysis"
             )
             cust_copy.interaction_history.append(segment_log)
 
@@ -247,6 +283,7 @@ def enrich_customer_data(customers: List[Customer], external_data_sources: dict 
     print(f"Successfully enriched {len(enriched_customers)} customer records")
     return enriched_customers
 
+
 def convert_customers_to_dataframe(customers: List[Customer]) -> pd.DataFrame:
     """
     Converts a list of Customer Pydantic models to a Pandas DataFrame
@@ -254,34 +291,35 @@ def convert_customers_to_dataframe(customers: List[Customer]) -> pd.DataFrame:
     """
     if not customers:
         return pd.DataFrame()
-    
+
     # model_dump() is used for Pydantic v2 models
     customer_dicts = [customer.model_dump() for customer in customers]
     df = pd.DataFrame(customer_dicts)
-    
+
     # Potentially flatten nested structures like 'address' or 'interaction_history' if needed
     # For example, to flatten address:
     # if 'address' in df.columns:
     #     address_df = pd.json_normalize(df['address'])
     #     address_df = address_df.add_prefix('address.')
     #     df = pd.concat([df.drop(columns=['address']), address_df], axis=1)
-        
+
     print(f"Converted {len(df)} customer records to DataFrame.")
     return df
+
 
 # Example usage (conceptual)
 # if __name__ == '__main__':
 #     from .importer import CSVCRMImporter
-#     # Assume dummy_crm_data.csv exists from importer.py example
-#     importer = CSVCRMImporter(file_path='dummy_crm_data.csv')
+#     # Assume crm_example_data.csv exists from importer.py example
+#     importer = CSVCRMImporter(file_path='crm_example_data.csv')
 #     raw_customers = importer.import_customers()
-#     
+#
 #     cleaned = clean_customer_data(raw_customers)
 #     enriched = enrich_customer_data(cleaned)
-#     
+#
 #     customer_df = convert_customers_to_dataframe(enriched)
 #     if not customer_df.empty:
 #         print("\nCustomer DataFrame head:")
 #         print(customer_df.head())
 #         print("\nCustomer DataFrame info:")
-#         customer_df.info() 
+#         customer_df.info()

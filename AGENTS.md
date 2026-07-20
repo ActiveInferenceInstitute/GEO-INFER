@@ -23,6 +23,7 @@ Use this file as the repository-level operating contract for automated agents wo
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
@@ -47,6 +48,17 @@ uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ## Documentation Contract
 
 Agent-facing documentation must be operational: current paths, commands, package names, public exports, test surfaces, and failure triage. Do not advertise planned APIs in AGENTS.md; use issues, roadmaps, or implementation status files for future work.
+
+## Documentation Workflow
+
+- Put conceptual, cross-module, and user-facing guidance in
+  `GEO-INFER-INTRA/docs/`.
+- Keep module READMEs focused on the current filesystem, imports, dependencies,
+  and verification commands; they are generated from tracked repository facts.
+- Keep `SKILL.md` action-oriented and synchronized with real public APIs.
+- Validate relative documentation links and generated signposts before handoff.
+- Preserve existing work from other agents in a shared checkout; inspect the
+  diff before staging generated documentation.
 
 ## Documentation and Release Gate
 

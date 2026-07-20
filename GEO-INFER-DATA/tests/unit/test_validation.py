@@ -88,7 +88,7 @@ class TestGeospatialValidator:
         """Test validation of complete, valid data."""
         result = await validator.validate_data(valid_geodataframe)
 
-        assert result.score >= 0.8
+        assert result.overall_score >= 0.8
         assert result.status == QualityStatus.PASS
         assert len(result.issues) == 0
 
@@ -104,7 +104,7 @@ class TestGeospatialValidator:
 
         result = await validator.validate_data(incomplete_data)
 
-        assert result.score < 0.8
+        assert result.overall_score < 0.8
         assert result.status in [QualityStatus.WARNING, QualityStatus.FAIL]
         assert any("missing" in issue["type"] for issue in result.issues)
 
@@ -113,7 +113,7 @@ class TestGeospatialValidator:
         """Test validation of invalid coordinates."""
         result = await validator.validate_data(invalid_geodataframe)
 
-        assert result.score < 0.8
+        assert result.overall_score < 0.8
         assert result.status == QualityStatus.FAIL
         assert any("invalid" in issue["type"] for issue in result.issues)
 
@@ -193,8 +193,8 @@ class TestDataQualityManager:
         )
 
     @pytest.fixture
-    def mock_metadata(self):
-        """Create mock metadata."""
+    def test_metadata(self):
+        """Create metadata for validation tests."""
         return DatasetMetadata(
             title="Test Dataset",
             description="Test dataset for quality validation",
@@ -208,26 +208,19 @@ class TestDataQualityManager:
         )
 
     @pytest.mark.asyncio
-    async def test_validate_dataset(self, quality_manager):
+    async def test_validate_dataset(self, quality_manager, test_metadata):
         """Test dataset validation."""
         dataset_id = "test_dataset_123"
 
-        # Mock the data loading methods
-        quality_manager._load_mock_dataset = lambda x: pd.DataFrame(
+        data = pd.DataFrame(
             {
                 "temperature": np.random.normal(20, 5, 1000),
                 "humidity": np.random.normal(60, 10, 1000),
+                "latitude": np.random.normal(37.7, 0.1, 1000),
+                "longitude": np.random.normal(-122.4, 0.1, 1000),
             }
         )
-
-        quality_manager._load_mock_metadata = lambda x: DatasetMetadata(
-            title=f"Dataset {x}",
-            spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-            temporal=TemporalExtent(
-                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-            ),
-            lineage=DataLineage(source="mock", process="mock", created_by="test"),
-        )
+        quality_manager.register_dataset(dataset_id, data, test_metadata)
 
         report = await quality_manager.validate_dataset(dataset_id)
 

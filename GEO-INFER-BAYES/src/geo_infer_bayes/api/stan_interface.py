@@ -3,7 +3,7 @@ Interface to Stan for Bayesian computation.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional
 
 
 class StanInterface:
@@ -36,7 +36,6 @@ class StanInterface:
         str
             Stan model code
         """
-        # Baseline Stan model code
         stan_code = """
         data {
             int<lower=1> N;
@@ -65,7 +64,9 @@ class StanInterface:
         """
         return stan_code
 
-    def sample(self, n_samples: int = 1000, n_warmup: int = 500, **kwargs) -> Dict[str, np.ndarray]:
+    def sample(
+        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs
+    ) -> Dict[str, np.ndarray]:
         """
         Sample from the Stan model.
 
@@ -83,9 +84,7 @@ class StanInterface:
         dict
             Dictionary with parameter samples
         """
-        # Baseline implementation
-        return {
-            'lengthscale': np.random.lognormal(0, 1, n_samples),
-            'variance': np.random.lognormal(0, 1, n_samples),
-            'noise': np.random.lognormal(-2, 1, n_samples)
-        }
+        raise RuntimeError(
+            "Stan sampling requires a compiled Stan backend; use create_spatial_gp_model "
+            "to obtain the model code and configure a Stan runtime before sampling"
+        )

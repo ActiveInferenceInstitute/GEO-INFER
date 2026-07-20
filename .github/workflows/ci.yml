@@ -5,30 +5,50 @@ on:
     branches: ["main", "develop"]
   pull_request:
     branches: ["main", "develop"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geo-infer-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Set up uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: py${{ matrix.python-version }}
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+            .python-version
+
+      - name: Install locked dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install uv
           # CuPy requires a CUDA toolchain when no compatible wheel is
           # available; the hosted CPU runners do not provide one. Keep the
           # performance extra available to developers while excluding it from
@@ -38,7 +58,7 @@ jobs:
           # requires that optional backend.
           # Vaex is an optional Python <3.12 performance extra whose C++
           # extension does not build against the hosted runner toolchain.
-          uv sync --python "$(command -v python)" --all-packages --all-extras \
+          uv sync --locked --python "$(command -v python)" --all-packages --all-extras \
             --no-install-package cupy --no-install-package mayavi \
             --no-install-package vaex --no-install-package vaex-core
 
@@ -47,7 +67,14 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.sha }}
         run: |
-          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- '*.py')"
+          base_sha="$BASE_SHA"
+          if [[ "$base_sha" =~ ^0+$ ]]; then
+            base_sha="$(git rev-list --max-parents=0 "$HEAD_SHA")"
+          fi
+
+          # Exclude deleted paths: formatters and linters can only inspect
+          # files that exist in the checked-out tree.
+          changed_files="$(git diff --name-only --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py')"
           if [ -z "$changed_files" ]; then
             echo "No Python files changed; skipping code quality checks."
             exit 0
@@ -55,14 +82,19 @@ jobs:
 
           echo "Checking changed Python files:"
           printf '%s\n' "$changed_files"
-          git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" -- '*.py' | \
-            xargs -0 uv run --with 'ruff>=0.3.0' --with 'black>=21.9.0' ruff check
-          git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" -- '*.py' | \
+          # Keep this gate focused on runtime-invalid constructs. The full
+          # source hygiene contract below owns the repository-wide critical
+          # rules, while Black provides the deterministic formatting gate.
+          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
+            xargs -0 uv run --with 'ruff>=0.3.0' ruff check \
+              --select F821,F823,E721,E722
+          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.3.0' --with 'black>=21.9.0' black --check
 
       - name: Validate repository contracts
         run: |
           uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+          uv run python GEO-INFER-TEST/validate_documentation.py --strict
           uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
           uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 
@@ -102,3 +134,18 @@ jobs:
       - name: Run H3 contracts
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        continue-on-error: true
+        with:
+          name: geo-infer-test-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Prune uv cache
+        if: always()
+        continue-on-error: true
+        run: uv cache prune --ci

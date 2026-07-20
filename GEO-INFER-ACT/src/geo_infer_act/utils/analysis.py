@@ -161,7 +161,7 @@ class ActiveInferenceAnalyzer:
 
     @property
     def step_history(self) -> List[Dict[str, Any]]:
-        """Return a list of step dictionaries for backward compatibility and easy iteration."""
+        """Return a list of recorded step dictionaries for iteration."""
         history = []
         for i in range(len(self.traces["timestamps"])):
             step = {
@@ -174,9 +174,6 @@ class ActiveInferenceAnalyzer:
                 "metrics": self.traces["metrics"][i],
                 "timestamp": self.traces["timestamps"][i],
             }
-            # For compatibility with code expecting 'step_data'
-            if self.traces["metrics"][i]:
-                step["step_data"] = self.traces["metrics"][i]
             history.append(step)
         return history
 

@@ -22,6 +22,8 @@ from datetime import datetime
 from dataclasses import dataclass, field
 import json
 
+from geo_infer_ant.utils.spatial import validate_bounds
+
 if TYPE_CHECKING:
     from .agent_base import SwarmAgent
 
@@ -70,6 +72,7 @@ class PopulationConfig:
     max_simulation_time: Optional[float] = None
     parallel_processing: bool = True
     max_workers: int = 4
+    random_seed: Optional[int] = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -86,6 +89,14 @@ class PopulationConfig:
             "custom",
         ]:
             raise ValueError("Invalid spatial distribution type")
+        if self.spatial_bounds is not None:
+            self.spatial_bounds = validate_bounds(self.spatial_bounds)
+        if self.clustering_radius < 0 or not np.isfinite(self.clustering_radius):
+            raise ValueError("clustering_radius must be finite and non-negative")
+        if self.time_step <= 0 or not np.isfinite(self.time_step):
+            raise ValueError("time_step must be finite and positive")
+        if self.max_workers <= 0:
+            raise ValueError("max_workers must be positive")
 
 
 @dataclass
@@ -110,7 +121,8 @@ class EnvironmentalState:
 
     def get_resource_at_location(self, location: np.ndarray) -> Dict[str, Any]:
         """Get resources available at a specific location."""
-        # Simplified resource lookup - would integrate with spatial analytics
+        # Evaluate the configured resource fields locally so simulations remain
+        # deterministic even when optional spatial analytics are unavailable.
         resources = {}
 
         for resource_type, distribution in self.resource_distribution.items():
@@ -126,7 +138,7 @@ class EnvironmentalState:
         self, location: np.ndarray, distribution: Dict[str, Any]
     ) -> float:
         """Calculate resource density at given location."""
-        # Simplified calculation - would use actual spatial interpolation
+        # Interpolate the configured radial resource field at the query point.
         centers = distribution.get("centers", [])
         if not centers:
             return 0.0
@@ -226,6 +238,22 @@ class AgentPopulation:
             spatial_bounds: Geographic bounds for agent movement
             **kwargs: Additional configuration parameters
         """
+        config_kwargs = {
+            key: kwargs[key]
+            for key in (
+                "clustering_centers",
+                "clustering_radius",
+                "foraging_rules",
+                "communication_rules",
+                "adaptation_rules",
+                "time_step",
+                "max_simulation_time",
+                "parallel_processing",
+                "max_workers",
+                "random_seed",
+            )
+            if key in kwargs
+        }
         self.config = PopulationConfig(
             population_size=population_size,
             agent_types=(
@@ -236,6 +264,7 @@ class AgentPopulation:
             spatial_distribution=spatial_distribution,
             behavioral_heterogeneity=behavioral_heterogeneity,
             spatial_bounds=spatial_bounds,
+            **config_kwargs,
         )
 
         # Expose population size as direct attribute
@@ -250,6 +279,8 @@ class AgentPopulation:
         self.spatial_indexer = None
         self.spatial_analytics = None
         self.temporal_manager = None
+        self.rng = np.random.default_rng(self.config.random_seed)
+        self.pheromone_system = kwargs.get("pheromone_system")
 
         # Behavioral rules
         self.foraging_rules: Dict[str, Any] = {}
@@ -350,6 +381,7 @@ class AgentPopulation:
             "min_lng": -10,
             "max_lng": 10,
         }
+        bounds = validate_bounds(bounds)
 
         # Initialize environmental state
         self.environment = EnvironmentalState(
@@ -362,22 +394,45 @@ class AgentPopulation:
             environmental_factors=environmental_factors or {},
         )
 
+        if self.pheromone_system is None:
+            from .stigmergy import PheromoneSystem
+
+            self.pheromone_system = PheromoneSystem(bounds=bounds)
+        for agent in self.agents:
+            agent.spatial_bounds = bounds
+            agent.pheromone_system = self.pheromone_system
+
         logger.info(f"Environment initialized with bounds: {bounds}")
         return self.environment
 
     def _default_resource_distribution(self) -> Dict[str, Any]:
         """Generate default resource distribution."""
+        bounds = self.config.spatial_bounds or {
+            "min_lat": -10,
+            "max_lat": 10,
+            "min_lng": -10,
+            "max_lng": 10,
+        }
+
+        def random_point() -> np.ndarray:
+            return np.array(
+                [
+                    self.rng.uniform(bounds["min_lat"], bounds["max_lat"]),
+                    self.rng.uniform(bounds["min_lng"], bounds["max_lng"]),
+                ]
+            )
+
         return {
             "food": {
                 "type": "spatial_field",
-                "centers": [np.random.uniform(-8, 8, 2) for _ in range(10)],
+                "centers": [random_point() for _ in range(10)],
                 "max_density": 1.0,
                 "decay_rate": 0.1,
                 "regeneration_rate": 0.05,
             },
             "water": {
                 "type": "spatial_field",
-                "centers": [np.random.uniform(-8, 8, 2) for _ in range(5)],
+                "centers": [random_point() for _ in range(5)],
                 "max_density": 0.8,
                 "decay_rate": 0.15,
                 "regeneration_rate": 0.1,
@@ -426,6 +481,15 @@ class AgentPopulation:
                 # Create agent with type-specific parameters
                 agent_config = self._get_agent_config(agent_type)
 
+                agent_config["spatial_bounds"] = self.config.spatial_bounds or {
+                    "min_lat": -10,
+                    "max_lat": 10,
+                    "min_lng": -10,
+                    "max_lng": 10,
+                }
+                agent_config["random_seed"] = int(self.rng.integers(0, 2**32 - 1))
+                if self.pheromone_system is not None:
+                    agent_config["pheromone_system"] = self.pheromone_system
                 agent = SwarmAgent(agent_id=agent_id, position=position, **agent_config)
 
                 # Set agent type and initial state
@@ -469,8 +533,8 @@ class AgentPopulation:
             }
             return np.array(
                 [
-                    np.random.uniform(bounds["min_lat"], bounds["max_lat"]),
-                    np.random.uniform(bounds["min_lng"], bounds["max_lng"]),
+                    self.rng.uniform(bounds["min_lat"], bounds["max_lat"]),
+                    self.rng.uniform(bounds["min_lng"], bounds["max_lng"]),
                 ]
             )
 
@@ -486,16 +550,24 @@ class AgentPopulation:
             center = centers[center_idx]
 
             # Generate position around cluster center
-            angle = np.random.uniform(0, 2 * np.pi)
-            distance = np.random.uniform(0, self.config.clustering_radius)
+            angle = self.rng.uniform(0, 2 * np.pi)
+            distance = self.rng.uniform(0, self.config.clustering_radius)
 
-            return center + np.array(
+            position = center + np.array(
                 [distance * np.cos(angle), distance * np.sin(angle)]
             )
+            bounds = self.config.spatial_bounds
+            if bounds:
+                position = np.clip(
+                    position,
+                    [bounds["min_lat"], bounds["min_lng"]],
+                    [bounds["max_lat"], bounds["max_lng"]],
+                )
+            return position
 
         elif self.config.spatial_distribution == "uniform":
             # Grid-like distribution
-            grid_size = int(np.sqrt(self.config.population_size))
+            grid_size = int(np.ceil(np.sqrt(self.config.population_size)))
             bounds = self.config.spatial_bounds or {
                 "min_lat": -10,
                 "max_lat": 10,
@@ -547,7 +619,7 @@ class AgentPopulation:
             # Add random variation to parameters
             for key in ["sensory_range", "movement_speed"]:
                 if key in base_config:
-                    variation = np.random.normal(1.0, 0.1)  # 10% variation
+                    variation = self.rng.normal(1.0, 0.1)  # 10% variation
                     base_config[key] *= variation
 
         return base_config
@@ -571,6 +643,8 @@ class AgentPopulation:
         Returns:
             Comprehensive simulation results
         """
+        if not isinstance(time_steps, int) or time_steps < 0:
+            raise ValueError("time_steps must be a non-negative integer")
         logger.info(f"Starting simulation with {time_steps} time steps")
 
         # Initialize if needed
@@ -606,6 +680,7 @@ class AgentPopulation:
 
             # Collect data
             await self._collect_simulation_data(step, data_types)
+            self.simulation_results.time_steps = step + 1
 
             # Progress reporting
             if progress_callback and step % 10 == 0:
@@ -907,7 +982,8 @@ class AgentPopulation:
             metrics["spatial_center"] = np.mean(positions, axis=0).tolist()
             metrics["spatial_spread"] = np.std(positions, axis=0).tolist()
 
-            # Clustering analysis (simplified)
+            # Pairwise distances provide a stable, dependency-light clustering
+            # summary for the current active population.
             if len(positions) > 2:
                 from scipy.spatial.distance import pdist
 

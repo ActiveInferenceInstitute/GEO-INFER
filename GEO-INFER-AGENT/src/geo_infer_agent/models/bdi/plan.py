@@ -8,7 +8,7 @@ Plans represent procedural knowledge about how to achieve goals. This module pro
 - Plan library management for reusable plans
 """
 
-from typing import Dict, Any, List, Optional, Set, Callable, Union, Tuple
+from typing import Dict, Any, List, Optional
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
@@ -16,12 +16,14 @@ from enum import Enum
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 class PlanStatus(Enum):
     """Enumeration of possible statuses for a plan."""
-    PENDING = "pending"       # The plan has not been started
-    RUNNING = "running"       # The plan is currently running
-    SUCCEEDED = "succeeded"   # The plan has succeeded
-    FAILED = "failed"         # The plan has failed
+
+    PENDING = "pending"  # The plan has not been started
+    RUNNING = "running"  # The plan is currently running
+    SUCCEEDED = "succeeded"  # The plan has succeeded
+    FAILED = "failed"  # The plan has failed
 
 
 @dataclass
@@ -34,7 +36,7 @@ class Plan:
         description: Human-readable description of the plan
         goal: The name of the desire/goal this plan aims to achieve (also aliased as desire_name)
         context_condition: Condition that must be true for the plan to be applicable
-        context_conditions: Alias for context_condition (for backward compatibility)
+        context_conditions: Additional context predicates used for applicability
         precondition: Condition that must be true for the plan to start
         postcondition: Condition that indicates the plan has succeeded
         failure_condition: Condition that indicates the plan has failed
@@ -47,6 +49,7 @@ class Plan:
         successful: Whether the plan succeeded (None if not complete)
         action_results: Results from executed actions
     """
+
     name: str
     description: str = ""
     goal: str = ""
@@ -77,113 +80,119 @@ class Plan:
             self.context_condition = self.context_conditions
         elif self.context_condition and not self.context_conditions:
             self.context_conditions = self.context_condition
-    
+
     def is_applicable(self, belief_values: Dict[str, Any]) -> bool:
         """
         Check if this plan is applicable in the current context.
-        
+
         Args:
             belief_values: Dictionary of belief values to check against
-            
+
         Returns:
             True if the plan is applicable, False otherwise
         """
         for key, value in self.context_condition.items():
             if key not in belief_values or belief_values[key] != value:
                 return False
-                
+
         return True
-    
+
     def can_start(self, belief_values: Dict[str, Any]) -> bool:
         """
         Check if this plan can start based on its precondition.
-        
+
         Args:
             belief_values: Dictionary of belief values to check against
-            
+
         Returns:
             True if the plan can start, False otherwise
         """
         if self.status != PlanStatus.PENDING:
             return False
-            
+
         for key, value in self.precondition.items():
             if key not in belief_values or belief_values[key] != value:
                 return False
-                
+
         return True
-    
+
     def has_succeeded(self, belief_values: Dict[str, Any]) -> bool:
         """
         Check if this plan has succeeded based on its postcondition.
-        
+
         Args:
             belief_values: Dictionary of belief values to check against
-            
+
         Returns:
             True if the plan has succeeded, False otherwise
         """
         for key, value in self.postcondition.items():
             if key not in belief_values or belief_values[key] != value:
                 return False
-                
+
         return True
-    
+
     def has_failed(self, belief_values: Dict[str, Any]) -> bool:
         """
         Check if this plan has failed based on its failure condition.
-        
+
         Args:
             belief_values: Dictionary of belief values to check against
-            
+
         Returns:
             True if the plan has failed, False otherwise
         """
         for key, value in self.failure_condition.items():
             if key in belief_values and belief_values[key] == value:
                 return True
-                
+
         return False
-    
+
     def start(self) -> None:
         """
         Start executing this plan.
-        
+
         Raises:
             ValueError: If the plan is not in the PENDING status
         """
         if self.status != PlanStatus.PENDING:
-            raise ValueError(f"Cannot start plan '{self.name}' with status '{self.status.value}'")
-            
+            raise ValueError(
+                f"Cannot start plan '{self.name}' with status '{self.status.value}'"
+            )
+
         self.status = PlanStatus.RUNNING
         logger.debug(f"Started plan: {self.name}")
-    
+
     def succeed(self) -> None:
         """
         Mark this plan as succeeded.
-        
+
         Raises:
             ValueError: If the plan is not in the RUNNING status
         """
         if self.status != PlanStatus.RUNNING:
-            raise ValueError(f"Cannot succeed plan '{self.name}' with status '{self.status.value}'")
-            
+            raise ValueError(
+                f"Cannot succeed plan '{self.name}' with status '{self.status.value}'"
+            )
+
         self.status = PlanStatus.SUCCEEDED
         logger.debug(f"Plan succeeded: {self.name}")
-    
+
     def fail(self) -> None:
         """
         Mark this plan as failed.
-        
+
         Raises:
             ValueError: If the plan is not in the RUNNING status
         """
         if self.status != PlanStatus.RUNNING:
-            raise ValueError(f"Cannot fail plan '{self.name}' with status '{self.status.value}'")
-            
+            raise ValueError(
+                f"Cannot fail plan '{self.name}' with status '{self.status.value}'"
+            )
+
         self.status = PlanStatus.FAILED
         logger.debug(f"Plan failed: {self.name}")
-    
+
     def reset(self) -> None:
         """Reset this plan to the PENDING status."""
         self.status = PlanStatus.PENDING
@@ -219,8 +228,9 @@ class Plan:
         self.successful = successful
         self.status = PlanStatus.SUCCEEDED if successful else PlanStatus.FAILED
 
-    def record_action_result(self, action_index: int, result: Dict[str, Any],
-                             success: bool) -> None:
+    def record_action_result(
+        self, action_index: int, result: Dict[str, Any], success: bool
+    ) -> None:
         """
         Record the result of an executed action.
 
@@ -229,11 +239,13 @@ class Plan:
             result: Result dictionary from the action execution
             success: Whether the action succeeded
         """
-        self.action_results.append({
-            "action_index": action_index,
-            "result": result,
-            "success": success,
-        })
+        self.action_results.append(
+            {
+                "action_index": action_index,
+                "result": result,
+                "success": success,
+            }
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -263,7 +275,7 @@ class Plan:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Plan':
+    def from_dict(cls, data: Dict[str, Any]) -> "Plan":
         """
         Create a Plan instance from a dictionary.
 
@@ -281,11 +293,23 @@ class Plan:
 
         # Drop extra keys not in the dataclass
         known_fields = {
-            "name", "description", "goal", "desire_name",
-            "context_condition", "context_conditions",
-            "precondition", "postcondition", "failure_condition",
-            "actions", "status", "priority", "metadata",
-            "current_action_index", "complete", "successful", "action_results",
+            "name",
+            "description",
+            "goal",
+            "desire_name",
+            "context_condition",
+            "context_conditions",
+            "precondition",
+            "postcondition",
+            "failure_condition",
+            "actions",
+            "status",
+            "priority",
+            "metadata",
+            "current_action_index",
+            "complete",
+            "successful",
+            "action_results",
         }
         filtered = {k: v for k, v in d.items() if k in known_fields}
 
@@ -295,186 +319,188 @@ class Plan:
 class PlanLibrary:
     """
     A collection of plans maintained by an agent.
-    
+
     This class handles:
     - Adding, updating, and removing plans
     - Querying plans by various criteria
     - Plan selection based on goals and context
     """
-    
+
     def __init__(self):
         """Initialize an empty plan library."""
         self._plans: Dict[str, Plan] = {}
-    
+
     def add(self, plan: Plan) -> None:
         """
         Add a new plan to the plan library.
-        
+
         Args:
             plan: Plan to add
-            
+
         Raises:
             ValueError: If a plan with the same name already exists
         """
         if plan.name in self._plans:
             raise ValueError(f"Plan with name '{plan.name}' already exists")
-            
+
         self._plans[plan.name] = plan
         logger.debug(f"Added plan: {plan.name}")
-    
+
     def get(self, name: str) -> Plan:
         """
         Get a plan by name.
-        
+
         Args:
             name: Name of the plan to get
-            
+
         Returns:
             The plan with the given name
-            
+
         Raises:
             KeyError: If no plan with the given name exists
         """
         if name not in self._plans:
             raise KeyError(f"No plan with name '{name}' exists")
-            
+
         return self._plans[name]
-    
+
     def remove(self, name: str) -> None:
         """
         Remove a plan from the plan library.
-        
+
         Args:
             name: Name of the plan to remove
-            
+
         Raises:
             KeyError: If no plan with the given name exists
         """
         if name not in self._plans:
             raise KeyError(f"No plan with name '{name}' exists")
-            
+
         del self._plans[name]
         logger.debug(f"Removed plan: {name}")
-    
+
     def has_plan(self, name: str) -> bool:
         """
         Check if a plan with the given name exists.
-        
+
         Args:
             name: Name of the plan to check for
-            
+
         Returns:
             True if a plan with the given name exists, False otherwise
         """
         return name in self._plans
-    
+
     def get_all(self) -> Dict[str, Plan]:
         """
         Get all plans in the plan library.
-        
+
         Returns:
             Dictionary mapping plan names to Plan objects
         """
         return dict(self._plans)
-    
+
     def get_by_goal(self, goal: str) -> List[Plan]:
         """
         Get all plans for a specific goal.
-        
+
         Args:
             goal: Name of the goal to get plans for
-            
+
         Returns:
             List of plans for the given goal
         """
         return [plan for plan in self._plans.values() if plan.goal == goal]
-    
+
     def select_plan(self, goal: str, belief_values: Dict[str, Any]) -> Optional[Plan]:
         """
         Select the most appropriate plan for a given goal in the current context.
-        
+
         Args:
             goal: Name of the goal to select a plan for
             belief_values: Dictionary of belief values to check against
-            
+
         Returns:
             The most appropriate applicable plan, or None if no applicable plan exists
         """
         # Get all plans for this goal
         candidate_plans = self.get_by_goal(goal)
-        
+
         # Filter out non-applicable plans
-        applicable_plans = [plan for plan in candidate_plans if plan.is_applicable(belief_values)]
-        
+        applicable_plans = [
+            plan for plan in candidate_plans if plan.is_applicable(belief_values)
+        ]
+
         # If no applicable plans, return None
         if not applicable_plans:
             return None
-            
+
         # Sort by priority (highest first)
         applicable_plans.sort(key=lambda p: p.priority, reverse=True)
-        
+
         # Return the highest priority applicable plan
         return applicable_plans[0]
-    
-    def create_plan_instance(self, template_name: str, instance_name: str = None) -> Plan:
+
+    def create_plan_instance(
+        self, template_name: str, instance_name: str = None
+    ) -> Plan:
         """
         Create a new instance of a plan from a template.
-        
+
         Args:
             template_name: Name of the template plan
             instance_name: Name for the new plan instance (generated if None)
-            
+
         Returns:
             A new instance of the template plan
-            
+
         Raises:
             KeyError: If no template plan with the given name exists
         """
         # Get the template plan
         template = self.get(template_name)
-        
+
         # Create a copy of the template
         template_dict = template.to_dict()
-        
+
         # Reset the status to PENDING
         template_dict["status"] = PlanStatus.PENDING.value
-        
+
         # Generate a unique name if none provided
         if instance_name is None:
             instance_name = f"{template_name}_instance_{id(template_dict)}"
-            
+
         template_dict["name"] = instance_name
-        
+
         # Create a new plan from the template
         return Plan.from_dict(template_dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the plan library to a dictionary representation.
-        
+
         Returns:
             Dictionary representation of the plan library
         """
-        return {
-            "plans": {name: plan.to_dict() for name, plan in self._plans.items()}
-        }
-    
+        return {"plans": {name: plan.to_dict() for name, plan in self._plans.items()}}
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'PlanLibrary':
+    def from_dict(cls, data: Dict[str, Any]) -> "PlanLibrary":
         """
         Create a PlanLibrary instance from a dictionary.
-        
+
         Args:
             data: Dictionary representation of a plan library
-            
+
         Returns:
             PlanLibrary instance
         """
         plan_library = cls()
-        
+
         # Add plans
         for name, plan_data in data.get("plans", {}).items():
             plan = Plan.from_dict(plan_data)
             plan_library._plans[name] = plan
-            
-        return plan_library 
+
+        return plan_library

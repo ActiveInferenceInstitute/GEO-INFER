@@ -9,16 +9,16 @@ for the GEO-INFER-GIT repository management system.
 """
 
 import os
-import sys
 import yaml
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 import jsonschema
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class CloneConfig:
@@ -29,7 +29,9 @@ class CloneConfig:
     base_dir: str = "./repos"
 
     # GitHub API settings
-    github_token: str = field(default_factory=lambda: os.environ.get('GITHUB_TOKEN', ''))
+    github_token: str = field(
+        default_factory=lambda: os.environ.get("GITHUB_TOKEN", "")
+    )
     github_api_url: str = "https://api.github.com"
     github_wait_on_rate_limit: bool = True
     github_max_retries: int = 3
@@ -62,8 +64,11 @@ class CloneConfig:
             logger.warning("GitHub token not provided but auth_method is 'token'")
 
         if self.max_workers < 1:
-            logger.warning(f"Invalid max_workers value {self.max_workers}, setting to 1")
+            logger.warning(
+                f"Invalid max_workers value {self.max_workers}, setting to 1"
+            )
             self.max_workers = 1
+
 
 @dataclass
 class TargetRepository:
@@ -84,6 +89,7 @@ class TargetRepository:
         if self.clone_depth < 0:
             raise ValueError("Clone depth must be non-negative")
 
+
 @dataclass
 class TargetUser:
     """Configuration for repositories from a specific user."""
@@ -103,6 +109,7 @@ class TargetUser:
         if self.max_repos < 1:
             logger.warning(f"Invalid max_repos value {self.max_repos}, setting to 1")
             self.max_repos = 1
+
 
 class ConfigLoader:
     """
@@ -136,15 +143,15 @@ class ConfigLoader:
         schemas = {}
 
         # Define schemas for each configuration type
-        schemas['clone_config'] = {
+        schemas["clone_config"] = {
             "type": "object",
             "properties": {
                 "general": {
                     "type": "object",
                     "properties": {
                         "output_dir": {"type": "string"},
-                        "base_dir": {"type": "string"}
-                    }
+                        "base_dir": {"type": "string"},
+                    },
                 },
                 "github": {
                     "type": "object",
@@ -153,28 +160,34 @@ class ConfigLoader:
                         "api_url": {"type": "string"},
                         "wait_on_rate_limit": {"type": "boolean"},
                         "max_retries": {"type": "integer", "minimum": 1},
-                        "retry_delay": {"type": "number", "minimum": 0}
-                    }
+                        "retry_delay": {"type": "number", "minimum": 0},
+                    },
                 },
                 "concurrency": {
                     "type": "object",
                     "properties": {
                         "enabled": {"type": "boolean"},
-                        "max_workers": {"type": "integer", "minimum": 1}
-                    }
+                        "max_workers": {"type": "integer", "minimum": 1},
+                    },
                 },
                 "logging": {
                     "type": "object",
                     "properties": {
-                        "log_level": {"type": "string", "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]},
+                        "log_level": {
+                            "type": "string",
+                            "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+                        },
                         "log_format": {"type": "string", "enum": ["json", "text"]},
-                        "report_format": {"type": "string", "enum": ["markdown", "html", "json"]}
-                    }
-                }
-            }
+                        "report_format": {
+                            "type": "string",
+                            "enum": ["markdown", "html", "json"],
+                        },
+                    },
+                },
+            },
         }
 
-        schemas['target_repos'] = {
+        schemas["target_repos"] = {
             "type": "object",
             "properties": {
                 "repositories": {
@@ -187,15 +200,15 @@ class ConfigLoader:
                             "branch": {"type": "string"},
                             "tags": {"type": "array", "items": {"type": "string"}},
                             "clone_depth": {"type": "integer", "minimum": 0},
-                            "enabled": {"type": "boolean"}
+                            "enabled": {"type": "boolean"},
                         },
-                        "required": ["owner", "repo"]
-                    }
+                        "required": ["owner", "repo"],
+                    },
                 }
-            }
+            },
         }
 
-        schemas['target_users'] = {
+        schemas["target_users"] = {
             "type": "object",
             "properties": {
                 "users": {
@@ -204,16 +217,22 @@ class ConfigLoader:
                         "type": "object",
                         "properties": {
                             "username": {"type": "string"},
-                            "include_repos": {"type": "array", "items": {"type": "string"}},
-                            "exclude_repos": {"type": "array", "items": {"type": "string"}},
+                            "include_repos": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                            "exclude_repos": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
                             "max_repos": {"type": "integer", "minimum": 1},
                             "tags": {"type": "array", "items": {"type": "string"}},
-                            "enabled": {"type": "boolean"}
+                            "enabled": {"type": "boolean"},
                         },
-                        "required": ["username"]
-                    }
+                        "required": ["username"],
+                    },
                 }
-            }
+            },
         }
 
         return schemas
@@ -243,14 +262,14 @@ class ConfigLoader:
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config = yaml.safe_load(f)
 
             if config is None:
                 config = {}
 
             # Validate against schema if available
-            schema_key = filename.replace('.yaml', '').replace('.yml', '')
+            schema_key = filename.replace(".yaml", "").replace(".yml", "")
             if schema_key in self.schemas:
                 jsonschema.validate(config, self.schemas[schema_key])
 
@@ -285,7 +304,7 @@ class ConfigLoader:
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
 
             self.config_cache[cache_key] = config
@@ -313,7 +332,7 @@ class ConfigLoader:
         try:
             # Try to load from example.yaml first
             try:
-                config_data = self.load_yaml_config('example.yaml')
+                config_data = self.load_yaml_config("example.yaml")
             except FileNotFoundError:
                 # Fall back to default configuration
                 config_data = {}
@@ -322,41 +341,43 @@ class ConfigLoader:
             clone_config = CloneConfig()
 
             # Update from loaded configuration
-            if 'general' in config_data:
-                general = config_data['general']
-                if 'output_dir' in general:
-                    clone_config.output_dir = general['output_dir']
-                if 'base_dir' in general:
-                    clone_config.base_dir = general['base_dir']
+            if "general" in config_data:
+                general = config_data["general"]
+                if "output_dir" in general:
+                    clone_config.output_dir = general["output_dir"]
+                if "base_dir" in general:
+                    clone_config.base_dir = general["base_dir"]
 
-            if 'github' in config_data:
-                github = config_data['github']
-                if 'token' in github:
-                    clone_config.github_token = github['token']
-                if 'api_url' in github:
-                    clone_config.github_api_url = github['api_url']
-                if 'wait_on_rate_limit' in github:
-                    clone_config.github_wait_on_rate_limit = github['wait_on_rate_limit']
-                if 'max_retries' in github:
-                    clone_config.github_max_retries = github['max_retries']
-                if 'retry_delay' in github:
-                    clone_config.github_retry_delay = github['retry_delay']
+            if "github" in config_data:
+                github = config_data["github"]
+                if "token" in github:
+                    clone_config.github_token = github["token"]
+                if "api_url" in github:
+                    clone_config.github_api_url = github["api_url"]
+                if "wait_on_rate_limit" in github:
+                    clone_config.github_wait_on_rate_limit = github[
+                        "wait_on_rate_limit"
+                    ]
+                if "max_retries" in github:
+                    clone_config.github_max_retries = github["max_retries"]
+                if "retry_delay" in github:
+                    clone_config.github_retry_delay = github["retry_delay"]
 
-            if 'concurrency' in config_data:
-                concurrency = config_data['concurrency']
-                if 'enabled' in concurrency:
-                    clone_config.concurrency_enabled = concurrency['enabled']
-                if 'max_workers' in concurrency:
-                    clone_config.max_workers = concurrency['max_workers']
+            if "concurrency" in config_data:
+                concurrency = config_data["concurrency"]
+                if "enabled" in concurrency:
+                    clone_config.concurrency_enabled = concurrency["enabled"]
+                if "max_workers" in concurrency:
+                    clone_config.max_workers = concurrency["max_workers"]
 
-            if 'logging' in config_data:
-                logging_config = config_data['logging']
-                if 'log_level' in logging_config:
-                    clone_config.log_level = logging_config['log_level']
-                if 'log_format' in logging_config:
-                    clone_config.log_format = logging_config['log_format']
-                if 'report_format' in logging_config:
-                    clone_config.report_format = logging_config['report_format']
+            if "logging" in config_data:
+                logging_config = config_data["logging"]
+                if "log_level" in logging_config:
+                    clone_config.log_level = logging_config["log_level"]
+                if "log_format" in logging_config:
+                    clone_config.log_format = logging_config["log_format"]
+                if "report_format" in logging_config:
+                    clone_config.report_format = logging_config["report_format"]
 
             return clone_config
 
@@ -364,7 +385,9 @@ class ConfigLoader:
             if config_dir:
                 self.config_dir = old_dir
 
-    def load_target_repos_config(self, config_dir: Optional[str] = None) -> List[TargetRepository]:
+    def load_target_repos_config(
+        self, config_dir: Optional[str] = None
+    ) -> List[TargetRepository]:
         """
         Load target repositories configuration.
 
@@ -380,12 +403,12 @@ class ConfigLoader:
 
         try:
             try:
-                config_data = self.load_yaml_config('target_repos.yaml')
+                config_data = self.load_yaml_config("target_repos.yaml")
             except FileNotFoundError:
                 return []
 
             repositories = []
-            for repo_data in config_data.get('repositories', []):
+            for repo_data in config_data.get("repositories", []):
                 try:
                     repo = TargetRepository(**repo_data)
                     if repo.enabled:
@@ -400,7 +423,9 @@ class ConfigLoader:
             if config_dir:
                 self.config_dir = old_dir
 
-    def load_target_users_config(self, config_dir: Optional[str] = None) -> List[TargetUser]:
+    def load_target_users_config(
+        self, config_dir: Optional[str] = None
+    ) -> List[TargetUser]:
         """
         Load target users configuration.
 
@@ -416,12 +441,12 @@ class ConfigLoader:
 
         try:
             try:
-                config_data = self.load_yaml_config('target_users.yaml')
+                config_data = self.load_yaml_config("target_users.yaml")
             except FileNotFoundError:
                 return []
 
             users = []
-            for user_data in config_data.get('users', []):
+            for user_data in config_data.get("users", []):
                 try:
                     user = TargetUser(**user_data)
                     if user.enabled:
@@ -450,8 +475,8 @@ class ConfigLoader:
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
         try:
-            with open(config_path, 'w', encoding='utf-8') as f:
-                if filename.endswith('.json'):
+            with open(config_path, "w", encoding="utf-8") as f:
+                if filename.endswith(".json"):
                     json.dump(config, f, indent=2)
                 else:
                     yaml.dump(config, f, default_flow_style=False, indent=2)
@@ -495,16 +520,21 @@ class ConfigLoader:
         self.config_cache.clear()
         logger.debug("Configuration cache cleared")
 
-# Convenience functions for backward compatibility
+
+# Convenience constructors for the public configuration API
 def load_clone_config(config_dir: Optional[str] = None) -> CloneConfig:
     """Load clone configuration."""
     loader = ConfigLoader(config_dir)
     return loader.load_clone_config(config_dir)
 
-def load_target_repos_config(config_dir: Optional[str] = None) -> List[TargetRepository]:
+
+def load_target_repos_config(
+    config_dir: Optional[str] = None,
+) -> List[TargetRepository]:
     """Load target repositories configuration."""
     loader = ConfigLoader(config_dir)
     return loader.load_target_repos_config(config_dir)
+
 
 def load_target_users_config(config_dir: Optional[str] = None) -> List[TargetUser]:
     """Load target users configuration."""

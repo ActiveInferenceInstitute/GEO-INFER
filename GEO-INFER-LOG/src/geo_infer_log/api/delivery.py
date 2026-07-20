@@ -7,7 +7,7 @@ service area analysis, and delivery scheduling.
 
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 from datetime import datetime
 
@@ -34,8 +34,8 @@ class DeliveryOptimizationRequest(BaseModel):
     vehicles: List[Vehicle]
     constraints: Dict = Field(default_factory=dict)
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
@@ -73,6 +73,7 @@ class DeliveryOptimizationRequest(BaseModel):
                 "constraints": {"max_route_duration": 480, "max_stops_per_route": 20},
             }
         }
+    )
 
 
 class ScheduleRequest(BaseModel):
@@ -85,8 +86,8 @@ class ScheduleRequest(BaseModel):
     end_date: datetime
     max_deliveries_per_day: int = 50
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
@@ -118,6 +119,7 @@ class ScheduleRequest(BaseModel):
                 "max_deliveries_per_day": 30,
             }
         }
+    )
 
 
 class ServiceAreaRequest(BaseModel):
@@ -128,8 +130,8 @@ class ServiceAreaRequest(BaseModel):
     max_time: Optional[int] = None
     max_distance: Optional[float] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "depot_id": "depot-001",
                 "depot_location": (13.404954, 52.520008),
@@ -137,6 +139,7 @@ class ServiceAreaRequest(BaseModel):
                 "max_distance": 30,  # km
             }
         }
+    )
 
 
 class CoverageAnalysisRequest(BaseModel):
@@ -145,8 +148,8 @@ class CoverageAnalysisRequest(BaseModel):
     service_areas: Dict[str, Dict]
     demand_points: List[Dict]
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "service_areas": {
                     "depot-001": {
@@ -168,6 +171,7 @@ class CoverageAnalysisRequest(BaseModel):
                 ],
             }
         }
+    )
 
 
 class RescheduleRequest(BaseModel):
@@ -177,14 +181,15 @@ class RescheduleRequest(BaseModel):
     delivery_idx: int
     new_date: datetime
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "route_id": "route-001",
                 "delivery_idx": 2,
                 "new_date": "2023-01-02T14:00:00",
             }
         }
+    )
 
 
 # Get a last-mile router instance

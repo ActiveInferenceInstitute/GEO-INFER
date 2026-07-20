@@ -493,7 +493,7 @@ def integrate_rxinfer(
         # Define priors
         μ ~ NormalMeanVariance(0.0, 1.0)
         τ ~ Gamma(1.0, 1.0)
-        
+
         # State transitions with spatial structure
         x = Vector{Random.Variable}(undef, n_states)
         for i in 1:n_states
@@ -503,7 +503,7 @@ def integrate_rxinfer(
                 x[i] ~ NormalMeanPrecision(x[i-1], τ)  # Spatial continuity
             end
         end
-        
+
         # Observations
         y = Vector{Random.Variable}(undef, n_obs)
         for i in 1:n_obs
@@ -511,7 +511,7 @@ def integrate_rxinfer(
             y[i] ~ NormalMeanPrecision(x[state_idx], 1.0)
         end
     end
-    
+
     model = spatial_active_inference
     """
 
@@ -531,15 +531,15 @@ def integrate_bayeux(
     default_log_density = """
 def log_density(params):
     import jax.numpy as jnp
-    
+
     # Spatial prior
     spatial_prior = -0.5 * jnp.sum(params['location']**2)
-    
+
     # Observation likelihood
     observations = jnp.array([1.0, 2.0, 1.5])
     predicted = params['location'][0] + params['scale'] * jnp.array([0, 1, 0.5])
     likelihood = -0.5 * jnp.sum((observations - predicted)**2)
-    
+
     return spatial_prior + likelihood
 """
 
@@ -1035,7 +1035,7 @@ class IntegrationUtils:
         return coordinate_multi_agent_system(agent_configs)
 
 
-# Export integration functions for backward compatibility
+# Export integration functions from the canonical integration module.
 __all__ = [
     "IntegrationUtils",
     "ModernToolsIntegration",

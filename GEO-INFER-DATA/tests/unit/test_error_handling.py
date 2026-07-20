@@ -230,6 +230,19 @@ class TestStorageErrorHandling:
 class TestValidationErrorHandling:
     """Error handling tests for data validation."""
 
+    @staticmethod
+    def _metadata(title: str) -> DatasetMetadata:
+        return DatasetMetadata(
+            title=title,
+            spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+            ),
+            lineage=DataLineage(
+                source="validation_test", process="test", created_by="pytest"
+            ),
+        )
+
     def test_invalid_validation_rules(self):
         """Test error handling for invalid validation rules."""
         with pytest.raises(ValueError):
@@ -240,14 +253,16 @@ class TestValidationErrorHandling:
         """Test validation of corrupted data."""
         quality_manager = DataQualityManager(validation_rules="comprehensive")
 
-        # Create corrupted data
-        pd.DataFrame(
+        data = pd.DataFrame(
             {
                 "id": [1, 2, 3],
                 "temperature": [np.inf, -np.inf, np.nan],  # Invalid values
                 "latitude": [None, None, None],  # All missing
                 "longitude": [np.nan, np.nan, np.nan],  # All NaN
             }
+        )
+        quality_manager.register_dataset(
+            "corrupted_dataset", data, self._metadata("Corrupted dataset")
         )
 
         # Should handle corrupted data gracefully
@@ -261,7 +276,9 @@ class TestValidationErrorHandling:
         quality_manager = DataQualityManager(validation_rules="comprehensive")
 
         # Test with empty DataFrame
-        pd.DataFrame()
+        quality_manager.register_dataset(
+            "empty_dataset", pd.DataFrame(), self._metadata("Empty dataset")
+        )
 
         report = await quality_manager.validate_dataset("empty_dataset")
         assert report.overall_score == 0.0
@@ -276,11 +293,8 @@ class TestValidationErrorHandling:
         """Test validation with invalid metadata."""
         quality_manager = DataQualityManager()
 
-        # Test with None metadata
-        pd.DataFrame({"temperature": [20, 21, 22]})
-
-        report = await quality_manager.validate_dataset("test_dataset")
-        assert isinstance(report, object)  # Should not crash
+        with pytest.raises(KeyError, match="has not been registered"):
+            await quality_manager.validate_dataset("test_dataset")
 
     @pytest.mark.asyncio
     async def test_validation_timeout_handling(self):
@@ -288,7 +302,10 @@ class TestValidationErrorHandling:
         quality_manager = DataQualityManager(validation_rules="comprehensive")
 
         # Create bounded data that exercises wide strings without exhausting memory.
-        pd.DataFrame({"id": range(1000), "data": ["x" * 1000] * 1000})
+        data = pd.DataFrame({"id": range(1000), "data": ["x" * 1000] * 1000})
+        quality_manager.register_dataset(
+            "problematic_dataset", data, self._metadata("Problematic dataset")
+        )
 
         # Should complete within reasonable time
         import time
@@ -310,19 +327,21 @@ class TestIntegrationErrorHandling:
         """Test error handling during system initialization."""
         # Test with invalid storage backends
         try:
-            await initialize_data_system(storage_backends=["invalid_backend"])
+            initialize_data_system(storage_backends=["invalid_backend"])
             assert False, "Should have raised an error"
         except Exception:
             pass  # Expected
 
         # Test with valid backends after error
-        system = await initialize_data_system(storage_backends=["local"])
+        system = initialize_data_system(storage_backends=["local"])
         assert system["status"] == "initialized"
 
     @pytest.mark.asyncio
     async def test_partial_system_failure_recovery(self):
         """Test recovery from partial system failures."""
-        system = await initialize_data_system(["local"], True)
+        system = initialize_data_system(
+            storage_backends=["local"], enable_validation=True
+        )
 
         # Test ingestion failure
         try:
@@ -551,6 +570,7 @@ class TestEdgeCaseHandling:
         )
 
         quality_manager = DataQualityManager(validation_rules="comprehensive")
+        quality_manager.register_dataset("mixed_types_dataset", data, metadata)
 
         # Should detect mixed types
         report = await quality_manager.validate_dataset("mixed_types_dataset")

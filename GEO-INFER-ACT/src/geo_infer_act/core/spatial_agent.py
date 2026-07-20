@@ -197,16 +197,16 @@ class SpatialActiveInferenceAgent:
             )
             cells = [center_cell] + list(adapter.grid_ring(center_cell, 1))
             return cells
-        except RuntimeError:
-            logger.warning("H3 not available, using explicit synthetic cell IDs")
-            return [f"cell_{i}" for i in range(7)]
+        except RuntimeError as exc:
+            raise RuntimeError(
+                "SpatialActiveInferenceAgent requires GEO-INFER-SPACE or h3-py"
+            ) from exc
 
     def _initialize_from_cells(self, cells: List[str]) -> None:
         """Initialize agent from list of H3 cells."""
         self.cells = [str(cell) for cell in cells]
-        if not all(cell.startswith("cell_") for cell in self.cells):
-            adapter = get_h3_adapter()
-            self.cells = adapter.validate_cells(self.cells)
+        adapter = get_h3_adapter()
+        self.cells = adapter.validate_cells(self.cells)
         self.cell_to_idx = {cell: idx for idx, cell in enumerate(self.cells)}
         self._build_neighbor_map()
 
@@ -232,10 +232,6 @@ class SpatialActiveInferenceAgent:
             self.neighbor_map = {}
             return
 
-        if all(cell.startswith("cell_") for cell in self.cells):
-            self._build_sequential_neighbors()
-            return
-
         adapter = get_h3_adapter()
         adapter.validate_cells(self.cells)
         for cell in self.cells:
@@ -243,16 +239,6 @@ class SpatialActiveInferenceAgent:
             self.neighbor_map[cell] = [
                 neighbor for neighbor in neighbors if neighbor in self.cell_to_idx
             ]
-
-    def _build_sequential_neighbors(self) -> None:
-        """Connect synthetic cell IDs sequentially for non-H3 tests."""
-        for i, cell in enumerate(self.cells):
-            neighbors = []
-            if i > 0:
-                neighbors.append(self.cells[i - 1])
-            if i < len(self.cells) - 1:
-                neighbors.append(self.cells[i + 1])
-            self.neighbor_map[cell] = neighbors
 
     def _initialize_observation_model(self) -> np.ndarray:
         """Initialize observation likelihood model P(o|s)."""

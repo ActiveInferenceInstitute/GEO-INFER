@@ -19,6 +19,16 @@ Models workspace within `GEO-INFER-BAYES`.
 
 ## Public Interface
 
+- `_model_utils.py:observations_from` (function)
+- `_model_utils.py:features_from` (function)
+- `_model_utils.py:signal_from` (function)
+- `_model_utils.py:posterior_values` (function)
+- `_model_utils.py:posterior_vector` (function)
+- `_model_utils.py:scalar_parameter` (function)
+- `_model_utils.py:parameter_array` (function)
+- `_model_utils.py:gaussian_log_likelihood` (function)
+- `_model_utils.py:log_prior_from_parameters` (function)
+- `_model_utils.py:predictive_samples` (function)
 - `base.py:BayesianModel` (class)
 - `bayesian_network.py:BayesianNetwork` (class)
 - `bayesian_timeseries.py:BayesianTimeSeriesModel` (class)
@@ -29,9 +39,6 @@ Models workspace within `GEO-INFER-BAYES`.
 - `spatial_causal.py:SpatialCausalModel` (class)
 - `spatial_clustering.py:SpatialClusteringModel` (class)
 - `spatial_gp.py:SpatialGP` (class)
-- `spatiotemporal_gp.py:SpatioTemporalConfig` (class)
-- `spatiotemporal_gp.py:SpatioTemporalGP` (class)
-- `spatiotemporal_gp.py:create_spatiotemporal_gp` (function)
 
 ## Module Metadata
 

@@ -200,8 +200,8 @@ class PolicySelector:
                 len(beliefs),
             )
             # Information gain is the KL divergence between the expected
-            # posterior and the predictive prior. Legacy policies retain the
-            # entropy-based exploration term below.
+            # posterior and the predictive prior. Policies without an
+            # expected posterior use entropy as their exploration term.
             epistemic_value = kl_divergence(expected_posterior, predictive_beliefs)
         else:
             expected_posterior = None

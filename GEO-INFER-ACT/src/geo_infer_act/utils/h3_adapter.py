@@ -13,7 +13,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 class H3Adapter:
-    """Small compatibility layer over SPACE H3 indexing and direct H3 v4."""
+    """Adapter over SPACE H3 indexing and direct H3 v4."""
 
     def __init__(self, prefer_space: bool = True):
         """Initialize SPACE-backed and direct H3 access."""
@@ -158,17 +158,10 @@ class H3Adapter:
         except Exception:
             return False
 
-    def validate_cells(
-        self, cells: Iterable[str], allow_synthetic: bool = False
-    ) -> List[str]:
+    def validate_cells(self, cells: Iterable[str]) -> List[str]:
         """Validate and normalize H3 cell identifiers."""
         normalized = [str(cell) for cell in cells]
-        invalid = [
-            cell
-            for cell in normalized
-            if not (allow_synthetic and cell.startswith("cell_"))
-            and not self.is_valid_cell(cell)
-        ]
+        invalid = [cell for cell in normalized if not self.is_valid_cell(cell)]
         if invalid:
             raise ValueError(f"Invalid H3 cell identifiers: {invalid[:5]}")
         return normalized

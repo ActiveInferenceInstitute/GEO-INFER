@@ -144,6 +144,12 @@ class TestAntColonyOptimization:
     def test_aco_multi_objective_optimization(self):
         """Test ACO multi-objective optimization."""
         aco = AntColonyOptimization(number_of_ants=20, max_iterations=30)
+        aco.initialize_problem(
+            nodes=[[0, 0], [1, 0], [1, 1]],
+            distance_matrix=np.array(
+                [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
+            ),
+        )
 
         objectives = ["minimize_cost", "minimize_time", "maximize_service"]
         result = aco.multi_objective_optimization(

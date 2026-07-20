@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Documentation hub refresh covering installation, first spatial inference,
+  architecture, module selection, H3 v4 usage, developer workflow, testing,
+  and contribution guidance.
+- Root documentation map linking conceptual INTRA guides to source-backed
+  module README/SKILL files and executable GEO-INFER-TEST gates.
+
 - Unified test runner `GEO-INFER-TEST/run_unified_tests.py` with `--module`, `--category`, and `--h3-migration` flags
 - Cross-module integration tests covering SPACE↔TIME, AGENT↔ACT, and DATA↔API interactions
 - `WATER` module WQI calculation and 2D Gaussian pollution plume modeling
@@ -26,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Documentation drift: README, CLAUDE.md, AGENTS.md and module-level docs updated to reflect completed lowercase normalization.
+- Replaced stale INTRA navigation and examples that referenced nonexistent
+  API, deployment, workflow, and package paths with current repository links.
 
 ---
 

@@ -1,120 +1,93 @@
-# GEO-INFER-TEST Documentation
+# GEO-INFER-TEST
 
-GEO-INFER-TEST provides the unified testing infrastructure for the entire GEO-INFER framework. It supports automated test execution across all 44 modules, data quality validation, performance benchmarking, spatial data verification, and cross-module integration testing.
+GEO-INFER-TEST is the repository-wide validation module. It provides the
+unified pytest runner, strict test-contract checks, model reproducibility
+checks, documentation parity, source hygiene, and H3/Active Inference
+contract validators.
 
-## Module Architecture
+## Install and run
 
-The module serves as the central testing hub for the framework:
+`bash
+uv sync --all-packages --all-extras
+uv run python GEO-INFER-TEST/run_unified_tests.py --list-modules
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
+`
 
-| Component | Class | Purpose |
-|-----------|-------|---------|
-| Test Runner | `GeoInferTestRunner` | Unified test execution across modules |
-| Test Discoverer | `TestDiscoverer` | Dynamic discovery of test files across 44 modules |
-| Validators | `DataQualityValidator`, `SpatialValidator`, `PerformanceValidator` | Domain-specific validation |
-| Quality Controller | `QualityController` | Aggregated quality scoring |
-| Performance Monitor | `BenchmarkRunner`, `LoadTester` | Performance testing and regression detection |
-| Module Health | `ModuleHealthChecker`, `DependencyChecker` | Module status and dependency validation |
-| IoT/Bayesian | `IoTValidator`, `BayesianValidator` | Specialized validation for sensor data and probabilistic models |
+Use `uv run` so the command uses the shared workspace interpreter.
 
-## Two Execution Paths
+## Canonical command matrix
 
-GEO-INFER-TEST provides two ways to run tests:
+| Command | Purpose |
+| --- | --- |
+| `run_unified_tests.py --module NAME` | Run all discoverable tests for one module. |
+| `run_unified_tests.py --category unit` | Run unit tests module by module. |
+| `run_unified_tests.py --category integration` | Run integration tests module by module. |
+| `run_unified_tests.py --category performance` | Run performance directories only. |
+| `run_unified_tests.py --category coverage` | Run the coverage analysis path. |
+| `run_unified_tests.py --h3-migration` | Run ACT/SPACE H3 contract validators. |
+| `validate_repo_contracts.py --strict-source-language` | Check repository structure, source hygiene, and signposting. |
+| `validate_test_contracts.py --strict` | Check test inventories, markers, skips, and warnings. |
+| `validate_model_contracts.py --strict --seed 42` | Check finite model outputs and typed contracts. |
+| `run_model_audit.py --seed 42 --reproducible` | Emit deterministic model statistics and visual artifacts. |
+| `rewrite_readme_agents.py --check` | Fail if generated README/AGENTS files drift. |
+| `validate_documentation.py --strict` | Check authoritative documentation links and stale claims. |
+| `validate_skills.py --check-xrefs` | Check SKILL metadata and referenced paths. |
 
-### 1. Unified Test Runner Script
+All report-producing commands write under `.geo-infer-test-results/` unless an
+explicit output directory is part of the command contract.
 
-The `run_unified_tests.py` script at the module root dynamically discovers and runs tests across all GEO-INFER modules:
+## Test categories and strict policy
 
-```bash
-# Run all tests
-uv run python GEO-INFER-TEST/run_unified_tests.py
+Tests are discovered from `test_*.py` and `*_test.py` files under each
+module's `tests/`. The strict repository policy rejects:
 
-# Run tests for a specific module
-uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+- warnings emitted during tests;
+- skipped, xfailed, or xpassed tests;
+- missing dependencies, fixtures, or markers;
+- pytest collection failures;
+- empty selections and exit code 5;
+- root-level generated output artifacts;
+- non-finite model statistics and stale generated documentation.
 
-# Run by category
-uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
-```
+Modules retain their local test layouts, but each module must keep at least four
+pytest files and a generated `tests/README.md` inventory.
 
-### 2. Python API
+## Programmatic API
 
-The `GeoInferTestRunner` class provides programmatic test execution:
+`python
+from geo_infer_test import GeoInferTestRunner, TestConfiguration
 
-```python
-from geo_infer_test import TestRunner
+config = TestConfiguration(
+    modules_to_test=["ACT"],
+    test_types=["unit"],
+    parallel_execution=False,
+)
+runner = GeoInferTestRunner(config)
+discovered = runner.discover_tests()
+report = runner.run_all_tests()
+print(discovered)
+print(report)
+`
 
-runner = TestRunner()
-results = runner.run_module("MATH")
-```
+For lower-level reusable assertions, import from `geo_infer_test.testing` or
+the package exports: finite arrays, normalized probabilities, stochastic
+matrices, model contracts, seed replay, and visualization manifests.
 
-## Test Categories
+## Results and triage
 
-Tests are organized by pytest markers:
+- `.geo-infer-test-results/summary.json` contains command-level status,
+  durations, and output tails.
+- Module JUnit reports are written beside the summary.
+- Model-audit images and sidecars are under
+  `.geo-infer-test-results/model-audit/`.
+- GitHub Actions uploads this directory as a per-Python-version artifact on
+  every CI outcome when reports exist; use it to inspect failures without
+  rerunning the full matrix locally.
+- A module failure should be reproduced with the module command first, then the
+  relevant contract validator.
+- A docs failure should be checked with
+  `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check` and
+  `git diff --check`.
 
-| Marker | Description | Typical Runtime |
-|--------|-------------|-----------------|
-| `unit` | Isolated function/class tests | < 1s each |
-| `integration` | Cross-component tests | 1-10s each |
-| `system` | Full pipeline tests | 10-60s each |
-| `performance` | Benchmarks and load tests | Variable |
-| `geospatial` | Spatial data operations | 1-30s each |
-| `api` | REST API endpoint tests | 1-5s each |
-| `slow` | Long-running tests | > 60s each |
-| `fast` | Quick verification tests | < 0.5s each |
-
-## Module Standard
-
-Every GEO-INFER module contains at minimum 4 test files organized as:
-
-```
-GEO-INFER-MODULE/tests/
-  unit/
-    test_core.py         # Core functionality tests
-    test_models.py       # Data model tests
-  integration/
-    test_pipeline.py     # End-to-end pipeline tests
-    test_api.py          # API integration tests
-```
-
-## Integration with Other Modules
-
-- **All 44 modules**: GEO-INFER-TEST discovers and runs tests from every module.
-- **GEO-INFER-OPS**: Test results feed into CI/CD pipelines and quality dashboards.
-- **GEO-INFER-LOG**: Test execution logging and reporting integration.
-- **GEO-INFER-DATA**: Data quality validators use GEO-INFER-DATA schema definitions.
-
-## Quick Links
-
-- [Getting Started](getting_started.md) -- installation, running tests, understanding output
-- [API Reference](api_reference.md) -- test runner, validators, benchmarks, configuration
-- [Basic Example: Running Tests](examples/basic_example.md) -- all common invocations
-- [Advanced Example: Writing Tests](examples/advanced_example.md) -- adding tests to a new module
-
-## Package Structure
-
-```
-GEO-INFER-TEST/
-  run_unified_tests.py       # CLI test runner script
-  validate_skills.py         # SKILL.md validation tool
-  src/geo_infer_test/
-    __init__.py              # Exports TestRunner, validators, models
-    core/
-      test_runner.py         # GeoInferTestRunner, TestConfiguration
-      test_discoverer.py     # TestDiscoverer
-      test_orchestrator.py   # TestOrchestrator, TestSuiteManager
-      validators.py          # All validator classes + QualityController
-      log_integration.py     # LogIntegration, TestLogger
-      module_health.py       # ModuleHealthChecker, DependencyChecker
-      performance_monitor.py # BenchmarkRunner, LoadTester
-    models/
-      types.py               # TestResult, ValidationRule
-    api/                     # REST API for test management
-    utils/                   # Shared test utilities
-  tests/
-    unit/
-    integration/
-  docs/                      # This documentation
-```
-
-## Version
-
-Current version: `1.0.0`
+See the [API reference](api_reference.md) and the repository
+[testing guide](../../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md).

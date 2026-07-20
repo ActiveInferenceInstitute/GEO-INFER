@@ -8,10 +8,11 @@ the GEO-INFER-MATH library, including caching, validation, timing, and logging.
 import functools
 import time
 import logging
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
 
 def memoize(func: Callable) -> Callable:
     """
@@ -37,9 +38,10 @@ def memoize(func: Callable) -> Callable:
 
     # Add cache clearing method
     memoized_func.clear_cache = lambda: cache.clear()
-    memoized_func.cache_info = lambda: {'size': len(cache), 'keys': list(cache.keys())}
+    memoized_func.cache_info = lambda: {"size": len(cache), "keys": list(cache.keys())}
 
     return memoized_func
+
 
 def memoize_with_expiry(expiry_seconds: float) -> Callable:
     """
@@ -51,6 +53,7 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
     Returns:
         Memoization decorator
     """
+
     def decorator(func: Callable) -> Callable:
         cache = {}
         timestamps = {}
@@ -84,12 +87,13 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
 
         def cache_info():
             current_time = time.time()
-            valid_entries = sum(1 for t in timestamps.values()
-                              if current_time - t < expiry_seconds)
+            valid_entries = sum(
+                1 for t in timestamps.values() if current_time - t < expiry_seconds
+            )
             return {
-                'size': len(cache),
-                'valid_entries': valid_entries,
-                'expired_entries': len(cache) - valid_entries
+                "size": len(cache),
+                "valid_entries": valid_entries,
+                "expired_entries": len(cache) - valid_entries,
             }
 
         memoized_func.clear_cache = clear_cache
@@ -98,6 +102,7 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
         return memoized_func
 
     return decorator
+
 
 def validate_input(**validators) -> Callable:
     """
@@ -109,6 +114,7 @@ def validate_input(**validators) -> Callable:
     Returns:
         Validation decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def validated_func(*args, **kwargs):
@@ -124,13 +130,16 @@ def validate_input(**validators) -> Callable:
                     try:
                         validator(value)
                     except Exception as e:
-                        raise ValueError(f"Validation failed for parameter '{param_name}': {e}") from e
+                        raise ValueError(
+                            f"Validation failed for parameter '{param_name}': {e}"
+                        ) from e
 
             return func(*args, **kwargs)
 
         return validated_func
 
     return decorator
+
 
 def log_execution(level: int = logging.INFO) -> Callable:
     """
@@ -142,6 +151,7 @@ def log_execution(level: int = logging.INFO) -> Callable:
     Returns:
         Logging decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def logged_func(*args, **kwargs):
@@ -162,6 +172,7 @@ def log_execution(level: int = logging.INFO) -> Callable:
 
     return decorator
 
+
 def time_execution(func: Callable) -> Callable:
     """
     Timing decorator for measuring function execution time.
@@ -172,6 +183,7 @@ def time_execution(func: Callable) -> Callable:
     Returns:
         Timed function
     """
+
     @functools.wraps(func)
     def timed_func(*args, **kwargs):
         start_time = time.time()
@@ -185,6 +197,7 @@ def time_execution(func: Callable) -> Callable:
 
     return timed_func
 
+
 def requires_positive_values(*param_names: str) -> Callable:
     """
     Decorator to ensure specified parameters contain only positive values.
@@ -195,6 +208,7 @@ def requires_positive_values(*param_names: str) -> Callable:
     Returns:
         Validation decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def validated_func(*args, **kwargs):
@@ -208,19 +222,26 @@ def requires_positive_values(*param_names: str) -> Callable:
 
                     if isinstance(value, (int, float)):
                         if value <= 0:
-                            raise ValueError(f"Parameter '{param_name}' must be positive, got {value}")
+                            raise ValueError(
+                                f"Parameter '{param_name}' must be positive, got {value}"
+                            )
                     elif isinstance(value, np.ndarray):
                         if np.any(value <= 0):
-                            raise ValueError(f"All values in parameter '{param_name}' must be positive")
+                            raise ValueError(
+                                f"All values in parameter '{param_name}' must be positive"
+                            )
                     elif isinstance(value, (list, tuple)):
                         if any(v <= 0 for v in value):
-                            raise ValueError(f"All values in parameter '{param_name}' must be positive")
+                            raise ValueError(
+                                f"All values in parameter '{param_name}' must be positive"
+                            )
 
             return func(*args, **kwargs)
 
         return validated_func
 
     return decorator
+
 
 def requires_finite_values(*param_names: str) -> Callable:
     """
@@ -232,6 +253,7 @@ def requires_finite_values(*param_names: str) -> Callable:
     Returns:
         Validation decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def validated_func(*args, **kwargs):
@@ -245,19 +267,26 @@ def requires_finite_values(*param_names: str) -> Callable:
 
                     if isinstance(value, (int, float)):
                         if not np.isfinite(value):
-                            raise ValueError(f"Parameter '{param_name}' must be finite, got {value}")
+                            raise ValueError(
+                                f"Parameter '{param_name}' must be finite, got {value}"
+                            )
                     elif isinstance(value, np.ndarray):
                         if not np.all(np.isfinite(value)):
-                            raise ValueError(f"All values in parameter '{param_name}' must be finite")
+                            raise ValueError(
+                                f"All values in parameter '{param_name}' must be finite"
+                            )
                     elif isinstance(value, (list, tuple)):
                         if not all(np.isfinite(v) for v in value):
-                            raise ValueError(f"All values in parameter '{param_name}' must be finite")
+                            raise ValueError(
+                                f"All values in parameter '{param_name}' must be finite"
+                            )
 
             return func(*args, **kwargs)
 
         return validated_func
 
     return decorator
+
 
 def handle_exceptions(return_value: Any = None) -> Callable:
     """
@@ -269,6 +298,7 @@ def handle_exceptions(return_value: Any = None) -> Callable:
     Returns:
         Exception handling decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def exception_handled_func(*args, **kwargs):
@@ -282,26 +312,6 @@ def handle_exceptions(return_value: Any = None) -> Callable:
 
     return decorator
 
-def deprecated(message: str = "This function is deprecated") -> Callable:
-    """
-    Deprecation decorator.
-
-    Args:
-        message: Deprecation message
-
-    Returns:
-        Deprecation decorator
-    """
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        def deprecated_func(*args, **kwargs):
-            import warnings
-            warnings.warn(message, DeprecationWarning, stacklevel=2)
-            return func(*args, **kwargs)
-
-        return deprecated_func
-
-    return decorator
 
 def requires_numpy_arrays(*param_names: str) -> Callable:
     """
@@ -313,6 +323,7 @@ def requires_numpy_arrays(*param_names: str) -> Callable:
     Returns:
         Conversion decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def array_func(*args, **kwargs):
@@ -329,13 +340,16 @@ def requires_numpy_arrays(*param_names: str) -> Callable:
                         try:
                             bound_args.arguments[param_name] = np.array(value)
                         except Exception as e:
-                            raise ValueError(f"Cannot convert parameter '{param_name}' to numpy array: {e}")
+                            raise ValueError(
+                                f"Cannot convert parameter '{param_name}' to numpy array: {e}"
+                            )
 
             return func(*bound_args.args, **bound_args.kwargs)
 
         return array_func
 
     return decorator
+
 
 def cache_results(cache_dict: Optional[Dict] = None) -> Callable:
     """
@@ -375,6 +389,7 @@ def cache_results(cache_dict: Optional[Dict] = None) -> Callable:
 
     return decorator
 
+
 def validate_output(output_validator: Callable) -> Callable:
     """
     Output validation decorator.
@@ -385,6 +400,7 @@ def validate_output(output_validator: Callable) -> Callable:
     Returns:
         Output validation decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def validated_output_func(*args, **kwargs):
@@ -401,9 +417,10 @@ def validate_output(output_validator: Callable) -> Callable:
 
     return decorator
 
-def retry_on_failure(max_retries: int = 3,
-                    exceptions: tuple = (Exception,),
-                    delay: float = 0.1) -> Callable:
+
+def retry_on_failure(
+    max_retries: int = 3, exceptions: tuple = (Exception,), delay: float = 0.1
+) -> Callable:
     """
     Retry decorator for handling transient failures.
 
@@ -415,6 +432,7 @@ def retry_on_failure(max_retries: int = 3,
     Returns:
         Retry decorator
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def retry_func(*args, **kwargs):
@@ -437,6 +455,7 @@ def retry_on_failure(max_retries: int = 3,
 
     return decorator
 
+
 __all__ = [
     "memoize",
     "memoize_with_expiry",
@@ -446,9 +465,8 @@ __all__ = [
     "requires_positive_values",
     "requires_finite_values",
     "handle_exceptions",
-    "deprecated",
     "requires_numpy_arrays",
     "cache_results",
     "validate_output",
-    "retry_on_failure"
+    "retry_on_failure",
 ]

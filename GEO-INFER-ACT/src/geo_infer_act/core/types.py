@@ -131,7 +131,7 @@ class H3SpatialConsistency:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Return the legacy dictionary shape used by existing callers."""
+        """Return the serialized spatial consistency record."""
         return {
             "global_coherence": self.global_coherence,
             "neighbor_correlations": self.neighbor_correlations,
@@ -152,7 +152,7 @@ class H3BeliefUpdateResult:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Return the legacy dictionary shape used by existing callers."""
+        """Return the serialized belief-update record."""
         return {
             "h3_beliefs": self.h3_beliefs,
             "average": self.average,
@@ -322,15 +322,9 @@ class SpatialInferenceTrace:
         return {
             "scenario": self.scenario,
             "timesteps": [int(value) for value in self.timesteps],
-            "cell_diagnostics": [
-                item.to_dict() for item in self.cell_diagnostics
-            ],
-            "edge_diagnostics": [
-                item.to_dict() for item in self.edge_diagnostics
-            ],
-            "level_diagnostics": [
-                item.to_dict() for item in self.level_diagnostics
-            ],
+            "cell_diagnostics": [item.to_dict() for item in self.cell_diagnostics],
+            "edge_diagnostics": [item.to_dict() for item in self.edge_diagnostics],
+            "level_diagnostics": [item.to_dict() for item in self.level_diagnostics],
             "hierarchy_metadata": _to_jsonable(self.hierarchy_metadata),
             "backend_metadata": _to_jsonable(self.backend_metadata),
             **_to_jsonable(self.metadata),

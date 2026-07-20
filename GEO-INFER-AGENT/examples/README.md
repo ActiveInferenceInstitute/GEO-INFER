@@ -13,7 +13,7 @@ Examples workspace within `GEO-INFER-AGENT`.
 - `active_inference_geospatial.py:GeospatialEnvironment` (class)
 - `active_inference_geospatial.py:GeospatialActiveInferenceAgent` (class)
 - `active_inference_geospatial.py:main` (function)
-- `agent_examples.py:MockSensor` (class)
+- `agent_examples.py:RecordedSensor` (class)
 - `agent_examples.py:run_bdi_agent_example` (function)
 - `agent_examples.py:run_active_inference_agent_example` (function)
 - `agent_examples.py:run_rl_agent_example` (function)

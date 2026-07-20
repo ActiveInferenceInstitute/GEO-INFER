@@ -6,10 +6,10 @@ including trend analysis, quality metrics, and improvement tracking.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 
-from ..models.schemas import DataQualityReport, QualityCheck, QualityStatus
+from ..models.schemas import DataQualityReport, DatasetMetadata, QualityStatus
 
 
 logger = logging.getLogger(__name__)
@@ -40,9 +40,9 @@ class ValidationReporter:
 
     def __init__(
         self,
-        report_format: str = 'json',
+        report_format: str = "json",
         include_trends: bool = True,
-        retention_days: int = 90
+        retention_days: int = 90,
     ):
         self.report_format = report_format
         self.include_trends = include_trends
@@ -53,9 +53,7 @@ class ValidationReporter:
         logger.info(f"Initialized ValidationReporter with format={report_format}")
 
     async def generate_comprehensive_report(
-        self,
-        data: Any,
-        metadata: Optional[DatasetMetadata] = None
+        self, data: Any, metadata: Optional[DatasetMetadata] = None
     ) -> Dict[str, Any]:
         """
         Generate comprehensive validation report.
@@ -69,28 +67,18 @@ class ValidationReporter:
         """
         logger.info("Generating comprehensive validation report")
 
-        # Mock implementation
-        report = {
-            'dataset_id': metadata.title if metadata else 'unknown',
-            'overall_score': 0.87,
-            'quality_dimensions': {
-                'completeness': {'score': 0.92, 'status': 'pass'},
-                'accuracy': {'score': 0.85, 'status': 'pass'},
-                'consistency': {'score': 0.88, 'status': 'pass'},
-                'validity': {'score': 0.83, 'status': 'warning'}
-            },
-            'recommendations': [
-                'Review data validation rules',
-                'Consider outlier removal',
-                'Update data collection procedures'
-            ],
-            'generated_at': datetime.utcnow(),
-            'report_format': self.report_format
-        }
+        from geo_infer_data.core.validation import GeospatialValidator, ValidationConfig
 
+        validator = GeospatialValidator(ValidationConfig())
+        quality_report = await validator.validate_data(data, metadata)
+        self.reports.append(quality_report)
+        report = quality_report.model_dump(mode="json")
+        report["report_format"] = self.report_format
         return report
 
-    def analyze_quality_trends(self, datasets: List[str], days: int = 30) -> Dict[str, Any]:
+    def analyze_quality_trends(
+        self, datasets: List[str], days: int = 30
+    ) -> Dict[str, Any]:
         """
         Analyze quality trends across datasets.
 
@@ -101,27 +89,42 @@ class ValidationReporter:
         Returns:
             Quality trend analysis
         """
-        logger.info(f"Analyzing quality trends for {len(datasets)} datasets over {days} days")
-
-        # Mock implementation
-        trends = {
-            'period_days': days,
-            'datasets_analyzed': len(datasets),
-            'overall_trend': 'improving',
-            'average_improvement': 0.05,
-            'best_performing': datasets[0] if datasets else None,
-            'needs_attention': [],
-            'quality_distribution': {
-                'excellent': 0.4,
-                'good': 0.3,
-                'fair': 0.2,
-                'poor': 0.1
-            }
+        if days < 0:
+            raise ValueError("days must not be negative")
+        logger.info(
+            f"Analyzing quality trends for {len(datasets)} datasets over {days} days"
+        )
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        selected = [
+            report
+            for report in self.reports
+            if report.dataset_id in datasets
+            and report.generated_at.replace(tzinfo=None) >= cutoff
+        ]
+        scores = [report.overall_score for report in selected]
+        distribution = {
+            "excellent": sum(score >= 0.9 for score in scores),
+            "good": sum(0.8 <= score < 0.9 for score in scores),
+            "fair": sum(0.5 <= score < 0.8 for score in scores),
+            "poor": sum(score < 0.5 for score in scores),
+        }
+        best = max(selected, key=lambda report: report.overall_score, default=None)
+        return {
+            "period_days": days,
+            "datasets_analyzed": len({report.dataset_id for report in selected}),
+            "reports_analyzed": len(selected),
+            "overall_trend": self._trend(scores),
+            "average_score": sum(scores) / len(scores) if scores else None,
+            "best_performing": best.dataset_id if best else None,
+            "needs_attention": [
+                report.dataset_id for report in selected if report.overall_score < 0.8
+            ],
+            "quality_distribution": distribution,
         }
 
-        return trends
-
-    def generate_improvement_plan(self, reports: List[DataQualityReport]) -> Dict[str, Any]:
+    def generate_improvement_plan(
+        self, reports: List[DataQualityReport]
+    ) -> Dict[str, Any]:
         """
         Generate improvement plan based on validation reports.
 
@@ -132,22 +135,37 @@ class ValidationReporter:
             Improvement plan and recommendations
         """
         logger.info(f"Generating improvement plan for {len(reports)} reports")
+        if not reports:
+            return {
+                "priority_actions": [],
+                "estimated_improvement": None,
+                "reports_analyzed": 0,
+                "success_metrics": [],
+            }
 
-        # Mock implementation
-        plan = {
-            'priority_actions': [
-                'Implement automated data cleaning',
-                'Review validation thresholds',
-                'Update data collection protocols'
-            ],
-            'estimated_improvement': 0.15,
-            'implementation_timeline': '3 months',
-            'required_resources': ['data_engineer', 'domain_expert'],
-            'success_metrics': [
-                'Quality score improvement > 0.1',
-                'Reduction in validation errors > 50%',
-                'Improved data consistency'
-            ]
+        actions = []
+        for report in reports:
+            actions.extend(report.recommendations)
+            for check_name, check in report.checks.items():
+                if check.status != QualityStatus.PASS:
+                    actions.append(f"Resolve {check_name} quality issues")
+        unique_actions = list(dict.fromkeys(actions))
+        average_score = sum(report.overall_score for report in reports) / len(reports)
+        return {
+            "priority_actions": unique_actions,
+            "estimated_improvement": max(0.0, 1.0 - average_score),
+            "reports_analyzed": len(reports),
+            "average_score": average_score,
+            "success_metrics": ["Overall quality score reaches 0.8 or higher"],
         }
 
-        return plan
+    @staticmethod
+    def _trend(scores: List[float]) -> Optional[str]:
+        """Classify score direction from chronological report scores."""
+        if len(scores) < 2:
+            return None
+        if scores[-1] > scores[0]:
+            return "improving"
+        if scores[-1] < scores[0]:
+            return "declining"
+        return "stable"

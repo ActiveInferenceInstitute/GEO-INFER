@@ -860,15 +860,6 @@ class GenerativeModel:
             )
         return float(np.sum(log_terms))
 
-    def _compute_likelihood(self, observation: np.ndarray, state_idx: int) -> float:
-        """Compute likelihood of observation given state.
-
-        The public update path uses :meth:`_compute_log_likelihood` through
-        ``categorical_posterior``.  This compatibility method returns the
-        scalar likelihood when callers explicitly request it.
-        """
-        return float(np.exp(self._compute_log_likelihood(observation, state_idx)))
-
     def compute_free_energy(self) -> float:
         """Compute variational free energy."""
         if self.hierarchical:

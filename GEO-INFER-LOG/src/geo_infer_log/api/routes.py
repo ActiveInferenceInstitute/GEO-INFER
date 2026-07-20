@@ -6,7 +6,7 @@ This module provides FastAPI endpoints for route optimization functionality.
 
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
 from geo_infer_log.models.schemas import Vehicle, Location, RoutingParameters
@@ -33,8 +33,8 @@ class RouteRequest(BaseModel):
     parameters: Optional[RoutingParameters] = None
     vehicle_id: Optional[str] = None
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "origin": (13.404954, 52.520008),  # Berlin
                 "destination": (11.576124, 48.137154),  # Munich
@@ -50,6 +50,7 @@ class RouteRequest(BaseModel):
                 "vehicle_id": "truck-001",
             }
         }
+    )
 
 
 class VehicleRegistration(BaseModel):
@@ -57,8 +58,8 @@ class VehicleRegistration(BaseModel):
 
     vehicle: Vehicle
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "vehicle": {
                     "id": "truck-001",
@@ -75,6 +76,7 @@ class VehicleRegistration(BaseModel):
                 }
             }
         }
+    )
 
 
 class VRPRequest(BaseModel):
@@ -85,8 +87,8 @@ class VRPRequest(BaseModel):
     vehicles: List[Vehicle]
     constraints: Dict = Field(default_factory=dict)
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
@@ -122,6 +124,7 @@ class VRPRequest(BaseModel):
                 "constraints": {"max_route_duration": 480, "max_stops_per_route": 20},
             }
         }
+    )
 
 
 # Get a route optimizer instance

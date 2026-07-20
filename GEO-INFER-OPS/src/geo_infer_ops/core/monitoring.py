@@ -69,16 +69,13 @@ def record_request(module: str, endpoint: str, status: int, duration: float) -> 
     REQUEST_LATENCY.labels(**labels).observe(duration)
 
 
-def record_error(module: str, error_type: str, endpoint: Optional[str] = None) -> None:
+def record_error(module: str, error_type: str) -> None:
     """Record an error metric.
 
     Args:
         module: Module or service name raising the error
         error_type: Type of error
-        endpoint: Deprecated endpoint argument accepted for caller compatibility
     """
-    if endpoint is not None:
-        error_type = endpoint
     ERROR_COUNT.labels(module=module, error_type=error_type).inc()
 
 

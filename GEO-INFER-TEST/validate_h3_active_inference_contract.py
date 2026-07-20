@@ -51,7 +51,7 @@ H3_V3_API_CALLS = [
     "h3.h3_to_geo_boundary(",
     "h3.h3_set_to_multi_polygon(",
 ]
-LEGACY_PYMDP_RUNTIME_IMPORTS = [
+OBSOLETE_PYMDP_RUNTIME_IMPORTS = [
     "pymdp.control",
     "pymdp.inference",
 ]
@@ -110,16 +110,18 @@ def _validate_no_inert_h3_methods() -> None:
     assert not offenders, "Inert H3 method bodies found:\n" + "\n".join(offenders)
 
 
-def _validate_no_legacy_pymdp_runtime_imports() -> None:
+def _validate_no_obsolete_pymdp_runtime_imports() -> None:
     offenders: list[str] = []
     for path in sorted(ACT_PACKAGE.rglob("*.py")):
         if path.name.startswith("test_"):
             continue
         text = path.read_text()
-        for pattern in LEGACY_PYMDP_RUNTIME_IMPORTS:
+        for pattern in OBSOLETE_PYMDP_RUNTIME_IMPORTS:
             if pattern in text:
                 offenders.append(f"{path.relative_to(REPO_ROOT)}: {pattern}")
-    assert not offenders, "Legacy pymdp runtime imports found:\n" + "\n".join(offenders)
+    assert not offenders, "Obsolete pymdp runtime imports found:\n" + "\n".join(
+        offenders
+    )
 
 
 def _validate_public_h3_docstrings() -> None:
@@ -610,7 +612,7 @@ def main() -> int:
 
     _validate_no_h3_v3_calls()
     _validate_no_inert_h3_methods()
-    _validate_no_legacy_pymdp_runtime_imports()
+    _validate_no_obsolete_pymdp_runtime_imports()
     _validate_public_h3_docstrings()
     cells = _validate_space_indexing_contract()
     _validate_act_h3_runtime(cells)

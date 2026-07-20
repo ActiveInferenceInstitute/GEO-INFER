@@ -1,7 +1,7 @@
 """Unit tests for _CALFIREWrapper, _NOAAWrapper, _USGSWrapper, DelNorteDataIntegrator."""
+
 import pytest
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from geo_infer_place.utils.integration import (
     _CALFIREWrapper,
@@ -14,8 +14,22 @@ from geo_infer_place.core.api_clients import CaliforniaAPIManager
 
 @pytest.fixture
 def api_manager():
-    """Minimal CaliforniaAPIManager for testing."""
-    return CaliforniaAPIManager()
+    """Configured client responses for deterministic wrapper tests."""
+    manager = CaliforniaAPIManager()
+    manager.calfire.fetch_perimeters = MagicMock(
+        return_value={"type": "FeatureCollection", "features": []}
+    )
+    manager.calfire.fetch_incidents = MagicMock(return_value=[])
+    manager.noaa.fetch_weather_observations = MagicMock(
+        return_value={"properties": {"temperature": {"value": 12.0}}}
+    )
+    manager.noaa.fetch_tide_data = MagicMock(
+        return_value={"data": [{"t": "2024-01-01 00:00", "v": "1.2"}]}
+    )
+    manager.usgs_eq.fetch_earthquakes = MagicMock(
+        return_value={"type": "FeatureCollection", "features": []}
+    )
+    return manager
 
 
 @pytest.fixture
@@ -37,6 +51,7 @@ def usgs_wrapper(api_manager, tmp_path):
 # CAL FIRE wrapper
 # ---------------------------------------------------------------------------
 
+
 class TestCALFIREWrapper:
     def test_get_fire_perimeters_returns_dict(self, calfire_wrapper):
         result = calfire_wrapper.get_fire_perimeters()
@@ -46,12 +61,10 @@ class TestCALFIREWrapper:
         result = calfire_wrapper.get_fire_perimeters()
         assert "features" in result
 
-    def test_synthetic_fallback_valid_geojson(self, calfire_wrapper):
-        synthetic = calfire_wrapper._generate_synthetic_fire_perimeters()
-        assert synthetic.get("type") == "FeatureCollection"
-        assert "features" in synthetic
-        assert isinstance(synthetic["features"], list)
-        assert len(synthetic["features"]) > 0
+    def test_api_failure_is_explicit(self, calfire_wrapper):
+        calfire_wrapper._client.fetch_perimeters.side_effect = OSError("service down")
+        with pytest.raises(RuntimeError, match="perimeter acquisition failed"):
+            calfire_wrapper.get_fire_perimeters()
 
     def test_bbox_filter_applied(self, calfire_wrapper):
         bbox = (-124.408, 41.458, -123.536, 42.006)
@@ -69,6 +82,7 @@ class TestCALFIREWrapper:
 # NOAA wrapper
 # ---------------------------------------------------------------------------
 
+
 class TestNOAAWrapper:
     def test_get_weather_data_returns_dict(self, noaa_wrapper):
         result = noaa_wrapper.get_weather_data()
@@ -81,7 +95,12 @@ class TestNOAAWrapper:
     def test_tide_gauge_has_series_key(self, noaa_wrapper):
         result = noaa_wrapper.get_tide_gauge_data()
         # Key may be present but empty if API unavailable
-        assert "series" in result or "data" in result or "stations" in result or isinstance(result, dict)
+        assert (
+            "series" in result
+            or "data" in result
+            or "stations" in result
+            or isinstance(result, dict)
+        )
 
     def test_weather_has_station_key_or_error(self, noaa_wrapper):
         result = noaa_wrapper.get_weather_data(station_id="KCEC")
@@ -91,6 +110,7 @@ class TestNOAAWrapper:
 # ---------------------------------------------------------------------------
 # USGS wrapper
 # ---------------------------------------------------------------------------
+
 
 class TestUSGSWrapper:
     def test_get_earthquakes_returns_dict(self, usgs_wrapper):
@@ -109,6 +129,7 @@ class TestUSGSWrapper:
 # ---------------------------------------------------------------------------
 # DelNorteDataIntegrator
 # ---------------------------------------------------------------------------
+
 
 class TestDelNorteDataIntegrator:
     def test_init_creates_integrator(self):

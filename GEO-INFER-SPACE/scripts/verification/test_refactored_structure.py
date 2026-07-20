@@ -7,7 +7,6 @@ with proper dispatch to H3 and SRAI backends.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add src to path for testing
@@ -20,10 +19,6 @@ def test_core_imports():
 
     try:
         # Test generic spatial interfaces
-        from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-        from geo_infer_space.core.geometric_operations import GeometricOperationsInterface
-        from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-        from geo_infer_space.core.dispatcher import get_backend_dispatcher, configure_backends
 
         print("✅ Core spatial interfaces imported successfully")
         return True
@@ -38,7 +33,10 @@ def test_backend_dispatcher():
     print("\n🧪 Testing backend dispatcher...")
 
     try:
-        from geo_infer_space.core.dispatcher import get_backend_dispatcher, configure_backends
+        from geo_infer_space.core.dispatcher import (
+            get_backend_dispatcher,
+            configure_backends,
+        )
 
         # Get dispatcher
         dispatcher = get_backend_dispatcher()
@@ -52,12 +50,9 @@ def test_backend_dispatcher():
         print(f"✅ Backend info retrieved for {len(info)} backends")
 
         # Test configuration
-        configure_backends({
-            'default_backends': {
-                'indexing': 'h3',
-                'analytics': 'srai'
-            }
-        })
+        configure_backends(
+            {"default_backends": {"indexing": "h3", "analytics": "srai"}}
+        )
         print("✅ Backend configuration applied")
 
         return True
@@ -72,7 +67,10 @@ def test_spatial_indexing_interface():
     print("\n🧪 Testing spatial indexing interface...")
 
     try:
-        from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface, latlng_to_cell
+        from geo_infer_space.core.spatial_indexing import (
+            SpatialIndexingInterface,
+            latlng_to_cell,
+        )
 
         # Test with default backend
         indexer = SpatialIndexingInterface()
@@ -86,7 +84,7 @@ def test_spatial_indexing_interface():
         print(f"✅ Convenience function latlng_to_cell: {cell2}")
 
         # Test with specific backend
-        indexer_h3 = SpatialIndexingInterface(backend='h3')
+        indexer_h3 = SpatialIndexingInterface(backend="h3")
         cell_h3 = indexer_h3.latlng_to_cell(37.7749, -122.4194, 9)
         print(f"✅ H3 backend latlng_to_cell: {cell_h3}")
 
@@ -125,28 +123,21 @@ def test_backend_implementations():
         return False
 
 
-def test_backward_compatibility():
-    """Test that legacy imports still work."""
-    print("\n🧪 Testing backward compatibility...")
+def test_public_spatial_helpers():
+    """Test the current public spatial helper exports."""
+    print("\n🧪 Testing public spatial helpers...")
 
     try:
         import geo_infer_space
 
-        # Test that old function names still exist (even if they're mocks)
-        if hasattr(geo_infer_space, 'latlng_to_cell'):
-            print("✅ Legacy latlng_to_cell function available")
-        else:
-            print("❌ Legacy latlng_to_cell function missing")
-
-        if hasattr(geo_infer_space, 'cell_to_latlng'):
-            print("✅ Legacy cell_to_latlng function available")
-        else:
-            print("❌ Legacy cell_to_latlng function missing")
+        assert callable(geo_infer_space.latlng_to_cell)
+        assert callable(geo_infer_space.cell_to_latlng)
+        print("✅ Public latlng_to_cell and cell_to_latlng helpers available")
 
         return True
 
     except Exception as e:
-        print(f"❌ Backward compatibility test failed: {e}")
+        print(f"❌ Public spatial helper test failed: {e}")
         return False
 
 
@@ -179,7 +170,7 @@ def test_directory_structure():
         "src/geo_infer_space/backends/h3/__init__.py",
         "src/geo_infer_space/backends/h3/h3_backend.py",
         "src/geo_infer_space/backends/srai/__init__.py",
-        "src/geo_infer_space/backends/srai/srai_backend.py"
+        "src/geo_infer_space/backends/srai/srai_backend.py",
     ]
 
     for file_path in key_files:
@@ -204,7 +195,7 @@ def main():
         ("Backend Dispatcher", test_backend_dispatcher),
         ("Spatial Indexing Interface", test_spatial_indexing_interface),
         ("Backend Implementations", test_backend_implementations),
-        ("Backward Compatibility", test_backward_compatibility)
+        ("Public Spatial Helpers", test_public_spatial_helpers),
     ]
 
     passed = 0

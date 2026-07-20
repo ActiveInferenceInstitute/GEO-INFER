@@ -10,9 +10,7 @@ Src workspace within `GEO-INFER-SPACE`.
 
 ## Public Interface
 
-- `h3_v3_to_v4_upgrade.py:scan_file` (function)
-- `h3_v3_to_v4_upgrade.py:scan_repo` (function)
-- `h3_v3_to_v4_upgrade.py:main` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 

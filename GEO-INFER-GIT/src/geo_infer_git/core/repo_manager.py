@@ -9,20 +9,18 @@ including cloning, synchronizing, and monitoring repository status.
 """
 
 import os
-import sys
-import time
 import yaml
 import logging
 import concurrent.futures
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Dict, List, Optional
 from pathlib import Path
-import subprocess
 import shutil
 import git
 from tqdm import tqdm
 
 # Configure logger
 logger = logging.getLogger("geo_infer_git.repo_manager")
+
 
 class RepoManager:
     """
@@ -45,6 +43,7 @@ class RepoManager:
         self.config = self._load_config(config_path)
         self.base_dir = self._get_base_dir()
         self.repos = {}  # Will store repo name -> repo object mappings
+        self._protected_branches: Dict[str, set[str]] = {}
 
     def _load_config(self, config_path: Optional[str] = None) -> Dict:
         """
@@ -61,14 +60,9 @@ class RepoManager:
                 "base_directory": "./repos",
                 "default_branch": "main",
                 "clone_depth": 1,
-                "auth_method": "https"
+                "auth_method": "https",
             },
-            "operations": {
-                "clone": {
-                    "parallel": True,
-                    "max_workers": 4
-                }
-            }
+            "operations": {"clone": {"parallel": True, "max_workers": 4}},
         }
 
         if not config_path:
@@ -76,7 +70,7 @@ class RepoManager:
             return default_config
 
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
                 logger.info(f"Loaded configuration from {config_path}")
                 return config
@@ -92,7 +86,9 @@ class RepoManager:
         Returns:
             Path object for the base directory
         """
-        base_dir = Path(self.config.get('repositories', {}).get('base_directory', './repos'))
+        base_dir = Path(
+            self.config.get("repositories", {}).get("base_directory", "./repos")
+        )
 
         # Create directory if it doesn't exist
         if not base_dir.exists():
@@ -120,23 +116,33 @@ class RepoManager:
             Dictionary mapping repository names to success status
         """
         if parallel is None:
-            parallel = self.config.get('operations', {}).get('clone', {}).get('parallel', True)
+            parallel = (
+                self.config.get("operations", {}).get("clone", {}).get("parallel", True)
+            )
 
-        max_workers = self.config.get('operations', {}).get('clone', {}).get('max_workers', 4)
+        max_workers = (
+            self.config.get("operations", {}).get("clone", {}).get("max_workers", 4)
+        )
         results = {}
 
         if parallel and len(repo_list) > 1:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max_workers
+            ) as executor:
                 future_to_repo = {
                     executor.submit(self._clone_single_repo, repo): repo
                     for repo in repo_list
                 }
 
-                for future in tqdm(concurrent.futures.as_completed(future_to_repo),
-                                  total=len(repo_list),
-                                  desc="Cloning repositories"):
+                for future in tqdm(
+                    concurrent.futures.as_completed(future_to_repo),
+                    total=len(repo_list),
+                    desc="Cloning repositories",
+                ):
                     repo = future_to_repo[future]
-                    repo_name = repo.get('name') or self._get_repo_name_from_url(repo['url'])
+                    repo_name = repo.get("name") or self._get_repo_name_from_url(
+                        repo["url"]
+                    )
                     try:
                         success = future.result()
                         results[repo_name] = success
@@ -145,7 +151,9 @@ class RepoManager:
                         results[repo_name] = False
         else:
             for repo in tqdm(repo_list, desc="Cloning repositories"):
-                repo_name = repo.get('name') or self._get_repo_name_from_url(repo['url'])
+                repo_name = repo.get("name") or self._get_repo_name_from_url(
+                    repo["url"]
+                )
                 try:
                     success = self._clone_single_repo(repo)
                     results[repo_name] = success
@@ -165,10 +173,14 @@ class RepoManager:
         Returns:
             True if successful, False otherwise
         """
-        url = repo_config['url']
-        repo_name = repo_config.get('name') or self._get_repo_name_from_url(url)
-        branch = repo_config.get('branch') or self.config.get('repositories', {}).get('default_branch', 'main')
-        depth = repo_config.get('depth') or self.config.get('repositories', {}).get('clone_depth', 1)
+        url = repo_config["url"]
+        repo_name = repo_config.get("name") or self._get_repo_name_from_url(url)
+        branch = repo_config.get("branch") or self.config.get("repositories", {}).get(
+            "default_branch", "main"
+        )
+        depth = repo_config.get("depth") or self.config.get("repositories", {}).get(
+            "clone_depth", 1
+        )
 
         target_dir = self.base_dir / repo_name
 
@@ -181,24 +193,28 @@ class RepoManager:
             logger.info(f"Cloning {url} to {target_dir}")
 
             # Determine authentication method
-            auth_method = repo_config.get('auth_method') or self.config.get('repositories', {}).get('auth_method', 'https')
+            auth_method = repo_config.get("auth_method") or self.config.get(
+                "repositories", {}
+            ).get("auth_method", "https")
 
             # Clone options
             clone_opts = {
-                'branch': branch,
-                'depth': depth,
+                "branch": branch,
+                "depth": depth,
             }
 
-            if auth_method == 'ssh':
+            if auth_method == "ssh":
                 # For SSH auth, we rely on SSH agent or keys in ~/.ssh
-                clone_opts['env'] = os.environ.copy()
-                logger.debug("Using SSH authentication from local SSH agent/key configuration")
-            elif auth_method == 'https_token':
+                clone_opts["env"] = os.environ.copy()
+                logger.debug(
+                    "Using SSH authentication from local SSH agent/key configuration"
+                )
+            elif auth_method == "https_token":
                 # For HTTPS with token
-                token = os.environ.get('GIT_TOKEN')
-                if token and 'github.com' in url:
+                token = os.environ.get("GIT_TOKEN")
+                if token and "github.com" in url:
                     # Modify URL to include token for GitHub
-                    url = url.replace('https://', f'https://{token}@')
+                    url = url.replace("https://", f"https://{token}@")
 
             # Perform the clone
             repo = git.Repo.clone_from(url, target_dir, **clone_opts)
@@ -229,11 +245,11 @@ class RepoManager:
             Repository name
         """
         # Remove .git extension if present
-        if url.endswith('.git'):
+        if url.endswith(".git"):
             url = url[:-4]
 
         # Get the last part of the URL
-        return url.split('/')[-1]
+        return url.split("/")[-1]
 
     def sync_repositories(self, repo_names: Optional[List[str]] = None) -> Dict:
         """
@@ -271,7 +287,7 @@ class RepoManager:
 
                 # Pull
                 logger.info(f"Pulling updates for {name} on branch {current_branch}")
-                repo.git.pull('origin', current_branch)
+                repo.git.pull("origin", current_branch)
                 results[name] = True
             except git.GitCommandError as e:
                 logger.error(f"Git error while syncing {name}: {e}")
@@ -291,7 +307,7 @@ class RepoManager:
         """
         repos = {}
         for item in self.base_dir.iterdir():
-            if item.is_dir() and (item / '.git').exists():
+            if item.is_dir() and (item / ".git").exists():
                 repos[item.name] = item
 
         return repos
@@ -329,7 +345,7 @@ class RepoManager:
                     "untracked_files": repo.untracked_files,
                     "commits_behind": 0,
                     "commits_ahead": 0,
-                    "remotes": [r.name for r in repo.remotes]
+                    "remotes": [r.name for r in repo.remotes],
                 }
 
                 # Check commits ahead/behind
@@ -337,10 +353,20 @@ class RepoManager:
                     try:
                         remote = repo.remotes.origin
                         remote.fetch()
-                        commits_behind = len(list(repo.iter_commits(
-                            f"{repo.active_branch.name}..origin/{repo.active_branch.name}")))
-                        commits_ahead = len(list(repo.iter_commits(
-                            f"origin/{repo.active_branch.name}..{repo.active_branch.name}")))
+                        commits_behind = len(
+                            list(
+                                repo.iter_commits(
+                                    f"{repo.active_branch.name}..origin/{repo.active_branch.name}"
+                                )
+                            )
+                        )
+                        commits_ahead = len(
+                            list(
+                                repo.iter_commits(
+                                    f"origin/{repo.active_branch.name}..{repo.active_branch.name}"
+                                )
+                            )
+                        )
 
                         status["commits_behind"] = commits_behind
                         status["commits_ahead"] = commits_ahead
@@ -355,7 +381,140 @@ class RepoManager:
 
         return results
 
-    def create_branch(self, branch_name: str, repo_names: Optional[List[str]] = None) -> Dict:
+    def _resolve_repo_path(self, repo_name: str) -> Path:
+        """Resolve an API repository identifier to a managed Git worktree."""
+        repositories = self._get_all_repo_paths()
+        candidates = [repo_name]
+        if "_" in repo_name:
+            candidates.append(repo_name.split("_", 1)[1])
+        for candidate in candidates:
+            if candidate in repositories:
+                return repositories[candidate]
+        raise FileNotFoundError(f"Repository not found: {repo_name}")
+
+    def _branch_info(self, repo: git.Repo, branch: git.Head) -> Dict[str, object]:
+        """Return stable metadata for a local branch."""
+        default_name = self.config.get("repositories", {}).get("default_branch", "main")
+        ahead = behind = 0
+        if default_name in repo.heads and branch.name != default_name:
+            try:
+                behind, ahead = [
+                    int(value)
+                    for value in repo.git.rev_list(
+                        "--left-right", "--count", f"{default_name}...{branch.name}"
+                    ).split()
+                ]
+            except (git.GitCommandError, ValueError):
+                logger.debug(
+                    "Unable to calculate branch divergence for %s", branch.name
+                )
+        commit = branch.commit
+        return {
+            "name": branch.name,
+            "commit_sha": commit.hexsha,
+            "commit_message": commit.message.strip(),
+            "author": getattr(commit.author, "name", str(commit.author)),
+            "created_at": commit.committed_datetime,
+            "updated_at": commit.committed_datetime,
+            "ahead": ahead,
+            "behind": behind,
+            "protected": branch.name
+            in self._protected_branches.get(Path(repo.working_tree_dir).name, set()),
+        }
+
+    def list_branches(self, repo_name: str) -> List[Dict[str, object]]:
+        """List local branches and their commit metadata for one repository."""
+        repo = git.Repo(self._resolve_repo_path(repo_name))
+        return [self._branch_info(repo, branch) for branch in repo.heads]
+
+    def create_branch_for_repository(
+        self,
+        repo_name: str,
+        branch_name: str,
+        base_branch: Optional[str] = None,
+        protected: bool = False,
+    ) -> Dict[str, object]:
+        """Create a local branch from a named base branch."""
+        repo = git.Repo(self._resolve_repo_path(repo_name))
+        if branch_name in repo.heads:
+            raise FileExistsError(f"Branch already exists: {branch_name}")
+        base = base_branch or self.config.get("repositories", {}).get(
+            "default_branch", "main"
+        )
+        if base not in repo.heads:
+            raise FileNotFoundError(f"Base branch not found: {base}")
+        branch = repo.create_head(branch_name, repo.heads[base].commit)
+        if protected:
+            self._protected_branches.setdefault(
+                Path(repo.working_tree_dir).name, set()
+            ).add(branch_name)
+        return self._branch_info(repo, branch)
+
+    def merge_branch(
+        self,
+        repo_name: str,
+        source_branch: str,
+        target_branch: str,
+        strategy: str = "merge",
+        message: Optional[str] = None,
+        delete_source: bool = False,
+    ) -> Dict[str, object]:
+        """Merge a local source branch into a target branch."""
+        repo = git.Repo(self._resolve_repo_path(repo_name))
+        if repo.is_dirty(untracked_files=True):
+            raise RuntimeError("Cannot merge a repository with uncommitted changes")
+        if source_branch not in repo.heads:
+            raise FileNotFoundError(f"Source branch not found: {source_branch}")
+        if target_branch not in repo.heads:
+            raise FileNotFoundError(f"Target branch not found: {target_branch}")
+        if strategy not in {"merge", "fast_forward", "ff_only", "squash"}:
+            raise ValueError(f"Unsupported merge strategy: {strategy}")
+        if source_branch == target_branch:
+            raise ValueError("Source and target branches must differ")
+
+        original_branch = repo.active_branch.name
+        repo.git.checkout(target_branch)
+        try:
+            if strategy == "squash":
+                repo.git.merge("--squash", source_branch)
+                repo.index.commit(
+                    message or f"Merge {source_branch} into {target_branch}"
+                )
+            else:
+                merge_args = (
+                    ["--ff-only"]
+                    if strategy in {"fast_forward", "ff_only"}
+                    else ["--no-ff"]
+                )
+                merge_args.extend([source_branch])
+                if message and strategy == "merge":
+                    merge_args.extend(["-m", message])
+                repo.git.merge(*merge_args)
+            merge_commit = repo.head.commit
+            if delete_source:
+                repo.delete_head(source_branch, force=True)
+            return {
+                "merge_commit_sha": merge_commit.hexsha,
+                "merged": True,
+                "message": merge_commit.message.strip(),
+                "conflicts": [],
+            }
+        except git.GitCommandError as exc:
+            try:
+                repo.git.merge("--abort")
+            except git.GitCommandError:
+                logger.debug("Merge abort did not find an active merge")
+            raise RuntimeError(f"Merge conflict or rejected merge: {exc}") from exc
+        finally:
+            if (
+                original_branch in repo.heads
+                and repo.active_branch.name != original_branch
+            ):
+                repo.git.checkout(original_branch)
+
+    def create_branch(
+        self, branch_name: str, repo_names: Optional[List[str]] = None
+    ) -> Dict:
         """
         Create a new branch in repositories.
 
@@ -400,7 +559,9 @@ class RepoManager:
 
         return results
 
-    def checkout_branch(self, branch_name: str, repo_names: Optional[List[str]] = None) -> Dict:
+    def checkout_branch(
+        self, branch_name: str, repo_names: Optional[List[str]] = None
+    ) -> Dict:
         """
         Checkout a branch in repositories.
 
@@ -425,13 +586,17 @@ class RepoManager:
         else:
             repos_for_checkout = list(all_repos.items())
 
-        for name, path in tqdm(repos_for_checkout, desc=f"Checking out branch {branch_name}"):
+        for name, path in tqdm(
+            repos_for_checkout, desc=f"Checking out branch {branch_name}"
+        ):
             try:
                 repo = git.Repo(path)
 
                 # Check if working tree is clean
                 if repo.is_dirty():
-                    logger.warning(f"Repository {name} has uncommitted changes, skipping checkout")
+                    logger.warning(
+                        f"Repository {name} has uncommitted changes, skipping checkout"
+                    )
                     results[name] = False
                     continue
 
@@ -443,12 +608,16 @@ class RepoManager:
                         remote_branch = f"{remote.name}/{branch_name}"
                         if remote_branch in [ref.name for ref in repo.references]:
                             # Create local branch tracking remote
-                            repo.git.checkout('-b', branch_name, remote_branch)
-                            logger.info(f"Created and checked out branch {branch_name} from {remote_branch} in {name}")
+                            repo.git.checkout("-b", branch_name, remote_branch)
+                            logger.info(
+                                f"Created and checked out branch {branch_name} from {remote_branch} in {name}"
+                            )
                             results[name] = True
                             break
                     else:
-                        logger.warning(f"Branch {branch_name} does not exist in {name}, skipping")
+                        logger.warning(
+                            f"Branch {branch_name} does not exist in {name}, skipping"
+                        )
                         results[name] = False
                         continue
                 else:
@@ -499,7 +668,7 @@ if __name__ == "__main__":
     # Example repositories to clone
     repos = [
         {"url": "https://github.com/user/repo1", "name": "repo1"},
-        {"url": "https://github.com/user/repo2", "name": "repo2"}
+        {"url": "https://github.com/user/repo2", "name": "repo2"},
     ]
 
     # Clone repositories

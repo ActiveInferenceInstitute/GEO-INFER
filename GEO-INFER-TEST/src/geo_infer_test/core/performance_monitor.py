@@ -11,7 +11,7 @@ import statistics
 import time
 import tracemalloc
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Optional
 @dataclass
 class _TimingRecord:
     """Internal timing snapshot."""
+
     label: str
     start_time: float
     end_time: float = 0.0
@@ -68,7 +69,9 @@ class PerformanceMonitor:
         }
         self.logger.info(
             "⏱ Stop: %s – %.4fs, %.1f KB",
-            rec.label, rec.duration, rec.peak_memory_bytes / 1024,
+            rec.label,
+            rec.duration,
+            rec.peak_memory_bytes / 1024,
         )
         return metrics
 
@@ -136,7 +139,10 @@ class BenchmarkRunner:
         }
         self.logger.info(
             "Benchmark '%s': mean=%.4fs, stdev=%.4fs (%d iters)",
-            label, result["mean_s"], result["stdev_s"], self.iterations,
+            label,
+            result["mean_s"],
+            result["stdev_s"],
+            self.iterations,
         )
         return result
 
@@ -190,7 +196,9 @@ class LoadTester:
             "total_requests": self.total_requests,
             "completed": len(durations),
             "errors": len(errors),
-            "error_rate": len(errors) / self.total_requests if self.total_requests else 0.0,
+            "error_rate": (
+                len(errors) / self.total_requests if self.total_requests else 0.0
+            ),
             "total_duration_s": total_time,
             "throughput_rps": self.total_requests / total_time if total_time else 0.0,
             "avg_latency_s": statistics.mean(durations) if durations else 0.0,
@@ -198,14 +206,15 @@ class LoadTester:
         }
         self.logger.info(
             "Load test '%s': %d requests, %.1f rps, %.1f%% errors",
-            label, self.total_requests, result["throughput_rps"], result["error_rate"] * 100,
+            label,
+            self.total_requests,
+            result["throughput_rps"],
+            result["error_rate"] * 100,
         )
         return result
 
     @staticmethod
-    def _timed_call(
-        func: Callable, args: tuple, kwargs: dict
-    ) -> tuple:
+    def _timed_call(func: Callable, args: tuple, kwargs: dict) -> tuple:
         start = time.perf_counter()
         error: Optional[str] = None
         try:
@@ -247,9 +256,7 @@ class MetricsCollector:
         if not self._entries:
             return {"total_entries": 0}
 
-        durations = [
-            e.get("duration_s", e.get("mean_s", 0.0)) for e in self._entries
-        ]
+        durations = [e.get("duration_s", e.get("mean_s", 0.0)) for e in self._entries]
         return {
             "total_entries": len(self._entries),
             "duration_min": min(durations) if durations else 0.0,
@@ -320,9 +327,7 @@ class PerformanceAnalyzer:
         if len(entries) < 2:
             return {"trend": "insufficient_data", "count": len(entries)}
 
-        durations = [
-            e.get("duration_s", e.get("mean_s", 0.0)) for e in entries
-        ]
+        durations = [e.get("duration_s", e.get("mean_s", 0.0)) for e in entries]
         first_half = durations[: len(durations) // 2]
         second_half = durations[len(durations) // 2 :]
 

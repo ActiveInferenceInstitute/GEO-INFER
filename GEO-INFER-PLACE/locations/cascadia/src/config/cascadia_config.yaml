@@ -17,7 +17,6 @@ data:
   cache_enabled: true
   data_quality_threshold: 0.8
   export_format: geojson
-  fallback_to_synthetic: true
   keep_recent_runs: 3
   output_dir: output
   real_data_priority: true

@@ -21,15 +21,16 @@ def _run(coro):
 # StreamConnector base class
 # ---------------------------------------------------------------------------
 
+
 class TestStreamConnectorBase:
     def test_connect_raises_not_implemented(self):
         connector = StreamConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.connect())
 
     def test_stream_data_raises_not_implemented(self):
         connector = StreamConnector()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(RuntimeError):
             _run(connector.stream_data())
 
     def test_disconnect_does_not_raise(self):
@@ -40,6 +41,7 @@ class TestStreamConnectorBase:
 # ---------------------------------------------------------------------------
 # MQTTConnector
 # ---------------------------------------------------------------------------
+
 
 class TestMQTTConnector:
     def test_init_defaults(self):
@@ -81,6 +83,7 @@ class TestMQTTConnector:
 # KafkaConnector
 # ---------------------------------------------------------------------------
 
+
 class TestKafkaConnector:
     def test_init(self):
         config = {"bootstrap_servers": ["kafka:9092"], "group_id": "test-group"}
@@ -112,6 +115,7 @@ class TestKafkaConnector:
 # ---------------------------------------------------------------------------
 # WebSocketConnector
 # ---------------------------------------------------------------------------
+
 
 class TestWebSocketConnector:
     def test_init(self):

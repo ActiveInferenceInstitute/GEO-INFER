@@ -36,32 +36,20 @@ Example:
     ... )
 """
 
-import logging
-from typing import Dict, List, Any, Optional
-
-# Set up logging
-logger = logging.getLogger(__name__)
-
-# Core imports (when implemented)
-try:
-    from .agent_base import SwarmAgent, SensoryInput, ActionDecision
-    from .population import AgentPopulation
-    from .stigmergy import PheromoneSystem
-    from .digital_stigmergy import DigitalStigmergy
-except ImportError as e:
-    logger.warning(f"Core components not yet implemented: {e}")
+from .agent_base import SwarmAgent, SensoryInput, ActionDecision
+from .population import AgentPopulation
+from .stigmergy import PheromoneSystem
+from .digital_stigmergy import DigitalStigmergy
 
 # Export main classes and functions
 __all__ = [
     # Agent classes
-    'SwarmAgent',
-    'SensoryInput',
-    'ActionDecision',
-
+    "SwarmAgent",
+    "SensoryInput",
+    "ActionDecision",
     # Population management
-    'AgentPopulation',
-
+    "AgentPopulation",
     # Communication systems
-    'PheromoneSystem',
-    'DigitalStigmergy'
+    "PheromoneSystem",
+    "DigitalStigmergy",
 ]

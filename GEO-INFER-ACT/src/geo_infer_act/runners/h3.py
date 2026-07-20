@@ -1,4 +1,4 @@
-"""H3 Active Inference runner utilities and compatibility functions."""
+"""H3 Active Inference runner utilities."""
 
 from __future__ import annotations
 
@@ -147,14 +147,14 @@ def create_h3_model(cells: List[str]) -> tuple[GenerativeModel, ActiveInferenceM
     return generative_model, active_model
 
 
-def run_basic_h3_active_inference(
+def run_h3_active_inference(
     output_dir: Path,
     h3_resolution: int = 8,
     timesteps: int = 10,
     n_agents: int = 3,
     spatial_seed: Optional[int] = 42,
 ) -> Dict[str, Any]:
-    """Run a deterministic H3 Active Inference compatibility simulation."""
+    """Run a deterministic H3 Active Inference simulation."""
     start_time = time.perf_counter()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -254,6 +254,6 @@ def run_basic_h3_active_inference(
         "environmental_observations": environmental_history,
         "agent_coordination_history": coordination_history,
     }
-    write_json(output_dir / "data" / "h3_compatibility_results.json", results)
-    write_csv(output_dir / "data" / "h3_compatibility_step_metrics.csv", step_rows)
+    write_json(output_dir / "data" / "h3_results.json", results)
+    write_csv(output_dir / "data" / "h3_step_metrics.csv", step_rows)
     return results

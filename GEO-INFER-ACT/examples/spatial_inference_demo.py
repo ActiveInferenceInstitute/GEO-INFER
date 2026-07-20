@@ -10,13 +10,13 @@ from pathlib import Path
 ACT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ACT_ROOT / "src"))
 
-from geo_infer_act.runners.wrapper import run_wrapper  # noqa: E402
+from geo_infer_act.runners.wrapper import run_scenario_entrypoint  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
     """Run the package-owned spatial scenario."""
     _: type[argparse.ArgumentParser] = argparse.ArgumentParser
-    return run_wrapper("spatial", argv, program="spatial_inference_demo.py")
+    return run_scenario_entrypoint("spatial", argv, program="spatial_inference_demo.py")
 
 
 if __name__ == "__main__":

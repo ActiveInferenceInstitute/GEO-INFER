@@ -1,1 +1,91 @@
-# Contributing to GEO-INFER Thank you for your interest in contributing to the GEO-INFER framework! This guide provides instructions on how to contribute effectively to the project while maintaining our high standards for code quality, documentation, and testing. ## Code of Conduct All contributors are expected to adhere to our [Code of Conduct](../code_of_conduct.md). By participating, you are expected to uphold this code. ## Getting Started ### Set Up Your Development Environment 1. **Fork the Repository**: - Visit the GEO-INFER repository on GitHub and click "Fork" in the upper right corner. 2. **Clone Your Fork**: ```bash git clone https://github.com/YOUR-USERNAME/geo-infer.git cd geo-infer ``` 3. **Add the Upstream Remote**: ```bash git remote add upstream https://github.com/geo-infer/geo-infer.git ``` 4. **Create a Virtual Environment**: ```bash python -m venv venv source venv/bin/activate # On Windows: venv\Scripts\activate ``` 5. **Install Development Dependencies**: ```bash uv pip install -e ".[dev]" ``` 6. **Install Pre-commit Hooks**: ```bash pre-commit install ``` ## Workflow ### Branch Naming Convention All branches should follow the pattern `{type}/{description}` where: - `{type}` is one of: - `feat`: feature - `fix`: Bug fix - `docs`: Documentation only changes - `style`: Changes that do not affect the meaning of the code - `refactor`: Code change that neither fixes a bug nor adds a feature - `perf`: Code change that improves performance - `test`: Adding missing tests or correcting existing tests - `build`: Changes that affect the build system or external dependencies - `ci`: Changes to CI configuration files and scripts - `chore`: Other changes that don't modify src or test files - `{description}` is a brief, hyphenated description of the change: - Use lowercase letters - Use hyphens as separators - Be concise but descriptive Examples: - `feat/h3-spatial-index` - `fix/coordinate-bounds-validation` - `docs/improve-installation-guide` ### Development Workflow 1. **Sync with Upstream**: ```bash git checkout main git pull upstream main git push origin main ``` 2. **Create a Feature Branch**: ```bash git checkout -b feat/your-feature-name ``` 3. **Make Your Changes**: - Follow the coding standards - Write tests for your changes - Update documentation as needed 4. **Commit Your Changes**: - Use the conventional commits format: ``` type(scope): short description Longer explanation if necessary Refs #123 ``` - Example: `feat(space): add H3 spatial indexing` 5. **Push to Your Fork**: ```bash git push origin feat/your-feature-name ``` 6. **Create a Pull Request**: - Go to your fork on GitHub - Click "Pull Request" - Select the appropriate branches - Fill out the PR template ## Coding Standards ### Python Code Style - Follow [PEP 8](https://pep8.org/) style guide - Use [Black](https://black.readthedocs.io/) for code formatting with line length 88 - Use Google-style docstrings - Sort imports according to the standard: - Standard library imports - Third-party imports - First-party imports - Local imports Example: ```python """Module docstring with a brief description. More description if needed. """ import os import sys from typing import Dict, List, Optional, Union import numpy as np import pandas as pd import geopandas as gpd from geo_infer.core import utils from geo_infer.space import indexing from .local_module import local_function def function_name(param1: type, param2: Optional[type] = None) -> return_type: """Short description of function. More description if needed. Args: param1: Description of first parameter param2: Description of second parameter. Default is None. Returns: Description of the return value Raises: ExceptionType: When and why this exception might be raised Examples: >>> function_name(1, "test") Expected output """ # Implementation return result ``` ### Type Hints - Use type hints for all function parameters and return values - Use the typing module for complex types - For geospatial types, use clearly defined types that document the coordinate system expectations Example: ```python from typing import List, Tuple, Union from shapely.geometry import Point, Polygon def buffer_points( points: List[Tuple[float, float]], distance: float, crs: str = "EPSG:4326" ) -> List[Polygon]: """Buffer points to create polygons.""" # Implementation ``` ### Geospatial Conventions - Always specify coordinate reference systems in function signatures - Prefer the order (latitude, longitude) in documentation and variable names - Use consistent units and document them (meters, degrees, etc.) - Handle edge cases like the antimeridian and polar regions ## Testing ### Test Requirements - Maintain at least 95% code coverage - Write tests for all features and bug fixes - Test edge cases and error conditions ### Test Organization - Place unit tests in `tests/unit/` - Place integration tests in `tests/integration/` - Place performance tests in `tests/performance/` - Geospatial test data should be stored in `tests/data/geospatial/` ### Running Tests ```bash # Run all tests pytest # Run tests with coverage pytest --cov=geo_infer # Run specific test category pytest tests/unit/ # Run tests matching a pattern pytest -k "spatial" ``` ### Geospatial Testing - Mock coordinate systems where appropriate - Use small, representative datasets for testing - Test with real-world geospatial data for edge cases - Verify results with known geospatial libraries ## Documentation ### Requirements All contributions should include appropriate documentation: - **Code Documentation**: Docstrings for all public classes, methods, and functions - **Module Documentation**: Module-level docstrings explaining purpose and usage - **Examples**: Code examples for non-trivial functionality - **API Documentation**: Updates to API reference if public interfaces change - **Tutorials**: Consider adding or updating tutorials for significant features ### Standards - Follow the [GEO-INFER Documentation Guide](../documentation_guide.md) - Use Markdown for all documentation files - Use Mermaid for diagrams - Include links to related documentation ## Pull Request Process 1. **Create a Pull Request**: - Ensure your PR has a descriptive title following the conventional commits format - Fill out the PR template completely - Link to any related issues 2. **CI Checks**: - Ensure all CI checks pass - Address any linting, formatting, or test failures 3. **Code Review**: - Address reviewer comments and suggestions - Keep the PR focused on a single change or feature 4. **Approval and Merge**: - Once approved, a maintainer will merge your PR - In some cases, you may be asked to rebase before merging ## Release Process Our release process follows semantic versioning: - **Major Releases (X.0.0)**: Breaking changes - **Minor Releases (0.X.0)**: features, non-breaking - **Patch Releases (0.0.X)**: Bug fixes, non-breaking Contributors don't need to manage releases, but should be aware of how changes impact versioning. ## Common Tasks ### Adding a Module 1. Use the module template: ```bash python -m geo_infer.tools.create_module --name new_module_name ``` 2. Follow the structure in the template 3. Update cross-module references ### Adding Geospatial Algorithms 1. Place implementation in the appropriate module 2. Include docstrings with: - Mathematical basis - Coordinate system handling - Performance characteristics - Edge case behavior 3. Provide visualization examples where appropriate ### Updating Dependencies 1. Update `setup.py` and `requirements.txt` 2. Document the change and rationale 3. Test with the dependency versions ## Getting Help - **Developer Chat**: Join our [Slack channel](https://geo-infer-community.slack.com) - **Mailing List**: Subscribe to our [development mailing list](https://lists.geo-infer.org/dev) - **Office Hours**: Join our biweekly developer office hours ## Special Cases ### Large Data Contributions For contributions that include large datasets: 1. Contact the maintainers first 2. Provide samples rather than datasets in the PR 3. Include data processing scripts if applicable ### Experimental Features For experimental or research-oriented features: 1. Use the `experimental/` namespace 2. Clearly document the experimental status 3. Provide research references and validation ## Acknowledgments By contributing to GEO-INFER, you agree that your contributions will be licensed under the project's license. All contributors will be acknowledged in our documentation. Thank you for your contributions to making GEO-INFER better! 
+# Contributing to GEO-INFER
+
+Thank you for improving GEO-INFER. This repository values small, source-backed
+changes with explicit tests, reproducible commands, and documentation that
+describes the current checkout.
+
+## Before you start
+
+Read:
+
+- [Code of Conduct](../../../CODE_OF_CONDUCT.md)
+- [Security policy](../../../SECURITY.md)
+- [Repository architecture](../architecture/index.md)
+- [Testing guide](testing_guide.md)
+- [Documentation guide](../documentation_guide.md)
+
+Use an issue for planned work and keep implementation claims out of generated
+signposts until the code and tests exist.
+
+## Development setup
+
+```bash
+git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
+cd GEO-INFER
+uv sync --all-packages --all-extras
+```
+
+Check the working tree before editing. In a shared checkout, preserve unrelated
+changes and avoid destructive Git commands.
+
+## Implement a change
+
+1. Identify the owning `GEO-INFER-*` module.
+2. Inspect its public exports, tests, `pyproject.toml`, README, and SKILL.
+3. Add behavior under `src/`; keep examples and scripts as orchestration.
+4. Add a focused behavior test and update the module test inventory if needed.
+5. Update conceptual docs when the workflow, contract, or architecture changes.
+6. Refresh generated signposts with:
+   `uv run python GEO-INFER-TEST/rewrite_readme_agents.py`.
+7. Inspect the diff and run the strict checks.
+
+## Validation checklist
+
+```bash
+uv run python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MODULE
+git diff --check
+```
+
+For cross-module or release work, run the unit, integration, performance, model,
+source-hygiene, and H3 gates listed in the root README and CI workflow.
+
+## Code conventions
+
+- Python target: 3.11+; use the shared uv workspace.
+- Package imports are lowercase `geo_infer_<module>`.
+- Use type hints and Google-style docstrings for public behavior.
+- Validate finite numeric inputs, coordinate bounds, CRS, units, and output paths
+  at public boundaries.
+- Use module loggers; configure handlers only in CLI entrypoints.
+- Keep random state local and seedable.
+- Do not add legacy H3 v3 calls or fake/mock/stub/placeholder behavior.
+
+## Documentation conventions
+
+- Prefer links to real repository files over invented services or endpoints.
+- Mark code blocks with their language and make examples executable.
+- State the working directory, install command, coordinate order, CRS, units,
+  optional dependencies, output files, and validation command.
+- Put future work in an issue or root TODO, not in current-state README claims.
+- Run generated-doc parity checks after changes to source, exports, tests, or
+  commands.
+
+## Pull requests
+
+Use a focused branch and describe:
+
+- what changed and why;
+- the owning module and public imports;
+- tests and validation commands with outcomes;
+- documentation and generated-signpost changes;
+- any optional dependency or artifact implications.
+
+Never claim that an issue is addressed on GitHub until the fix is committed,
+pushed, and merged. The local worktree and the remote main branch are separate
+states.

@@ -101,9 +101,9 @@ class DataSourceConnector(ABC):
 
         Raises:
             ConnectionError: If connection fails
-            NotImplementedError: If not implemented in subclass
+            RuntimeError: If the subclass does not provide a connector
         """
-        raise NotImplementedError("Subclasses must implement connect() method")
+        raise RuntimeError("Data ingestion subclasses must implement connect()")
 
     @abstractmethod
     async def fetch_data(self, query: Dict[str, Any]) -> Any:
@@ -121,9 +121,9 @@ class DataSourceConnector(ABC):
 
         Raises:
             DataFetchError: If data fetching fails
-            NotImplementedError: If not implemented in subclass
+            RuntimeError: If the subclass does not provide a connector
         """
-        raise NotImplementedError("Subclasses must implement fetch_data() method")
+        raise RuntimeError("Data ingestion subclasses must implement fetch_data()")
 
     async def validate_data(self, data: Any) -> QualityCheck:
         """
@@ -168,8 +168,8 @@ class SatelliteDataConnector(DataSourceConnector):
 
     async def connect(self) -> bool:
         """Connect to satellite API."""
-        if self.api_key in {None, "", "your_api_key"} or "example.com" in self.base_url:
-            return True
+        if self.api_key in {None, "", "your_api_key"}:
+            return False
         try:
             response = requests.get(
                 f"{self.base_url}/health",
@@ -183,31 +183,21 @@ class SatelliteDataConnector(DataSourceConnector):
 
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch satellite imagery data."""
-        # Implementation for satellite data fetching
-        # This would integrate with actual satellite APIs like Planet, Maxar, etc.
-
-        query.get("bbox")
-        query.get("date_range")
-        bands = query.get("bands", ["red", "green", "blue", "nir"])
-
-        # Deterministic synthetic implementation
-        n_bands = len(bands)
-        # Build a deterministic gradient image: each band has a fixed offset
-        base = np.linspace(0.1, 0.9, 100 * 100).reshape(100, 100)
-        imagery = np.stack(
-            [np.clip(base + 0.05 * b, 0.0, 1.0) for b in range(n_bands)], axis=-1
+        if not self.api_key:
+            raise RuntimeError("Satellite API credentials are required")
+        response = requests.get(
+            f"{self.base_url.rstrip('/')}/imagery",
+            params=query,
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            timeout=30,
         )
-        local_data = {
-            "imagery": imagery,
-            "metadata": {
-                "satellite": "Landsat-8",
-                "acquisition_date": datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                "bands": bands,
-                "resolution": 30.0,
-            },
-        }
-
-        return local_data
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, dict) or not {"imagery", "metadata"}.issubset(
+            payload
+        ):
+            raise ValueError("Satellite response must contain imagery and metadata")
+        return payload
 
 
 class SensorDataConnector(DataSourceConnector):
@@ -221,33 +211,22 @@ class SensorDataConnector(DataSourceConnector):
 
     async def connect(self) -> bool:
         """Connect to sensor network."""
-        # MQTT connection implementation
-        return True
+        return bool(self.host and self.port and self.topic)
 
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch sensor data."""
-        # Deterministic synthetic sensor data using sinusoidal signals
-        n = 1000
-        # Build sinusoidal temperature/humidity signals to mimic realistic variation
-        t = np.arange(n)
-        temperature = 20.0 + 5.0 * np.sin(2 * np.pi * t / 24)  # 24-hour cycle
-        humidity = 60.0 + 10.0 * np.cos(2 * np.pi * t / 24)
-        lat_offsets = np.linspace(-0.05, 0.05, n)
-        lon_offsets = np.linspace(-0.05, 0.05, n)
-        local_data = {
-            "measurements": pd.DataFrame(
-                {
-                    "timestamp": pd.date_range("2023-01-01", periods=n, freq="h"),
-                    "temperature": temperature,
-                    "humidity": humidity,
-                    "latitude": 37.7 + lat_offsets,
-                    "longitude": -122.4 + lon_offsets,
-                }
-            ),
-            "sensor_ids": [f"sensor_{i}" for i in range(100)],
-        }
-
-        return local_data
+        endpoint = self.config.get("data_url")
+        if not endpoint:
+            raise RuntimeError(
+                "Sensor data requires a configured data_url or an MQTT adapter"
+            )
+        response = requests.get(endpoint, params=query, timeout=30)
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, dict) or "measurements" not in payload:
+            raise ValueError("Sensor response must contain measurements")
+        payload["measurements"] = pd.DataFrame(payload["measurements"])
+        return payload
 
 
 class CrowdsourcedDataConnector(DataSourceConnector):
@@ -260,12 +239,8 @@ class CrowdsourcedDataConnector(DataSourceConnector):
 
     async def connect(self) -> bool:
         """Connect to crowdsourcing platform."""
-        if (
-            self.api_key in {None, "", "your_key"}
-            or not self.api_endpoint
-            or "crowdsourcing.com" in self.api_endpoint
-        ):
-            return True
+        if self.api_key in {None, "", "your_key"} or not self.api_endpoint:
+            return False
         try:
             response = requests.get(
                 f"{self.api_endpoint}/health",
@@ -279,43 +254,66 @@ class CrowdsourcedDataConnector(DataSourceConnector):
 
     async def fetch_data(self, query: Dict[str, Any]) -> Dict[str, Any]:
         """Fetch crowdsourced data."""
-        # Deterministic synthetic crowdsourced data
-        n = 500
-        categories = ["traffic", "weather", "environment"]
-        # Evenly cycle through categories for determinism
-        category_values = [categories[i % len(categories)] for i in range(n)]
-        lat_offsets = np.linspace(-0.1, 0.1, n)
-        lon_offsets = np.linspace(-0.1, 0.1, n)
-        local_data = {
-            "reports": pd.DataFrame(
-                {
-                    "timestamp": pd.date_range("2023-01-01", periods=n, freq="15min"),
-                    "latitude": 37.7 + lat_offsets,
-                    "longitude": -122.4 + lon_offsets,
-                    "category": category_values,
-                    "description": ["Sample report"] * n,
-                    "user_id": [f"user_{i}" for i in range(n)],
-                }
-            )
-        }
-
-        return local_data
+        if not self.api_endpoint or not self.api_key:
+            raise RuntimeError("Crowdsourced API endpoint and credentials are required")
+        response = requests.get(
+            f"{self.api_endpoint.rstrip('/')}/reports",
+            params=query,
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, dict) or "reports" not in payload:
+            raise ValueError("Crowdsourced response must contain reports")
+        payload["reports"] = pd.DataFrame(payload["reports"])
+        return payload
 
 
 class GenericDataSourceConnector(DataSourceConnector):
     """Generic connector for data sources without a dedicated connector class."""
 
+    def __init__(self, config: Dict[str, Any]):
+        super().__init__(config)
+        self.base_url = config.get("base_url") or config.get("api_endpoint")
+        self.api_key = config.get("api_key")
+
     async def connect(self) -> bool:
-        """Attempt connection using config parameters."""
-        logger.info("GenericDataSourceConnector: connect called")
-        return True
+        """Check a configured generic HTTP endpoint."""
+        if not self.base_url:
+            return False
+        try:
+            response = requests.get(
+                f"{self.base_url.rstrip('/')}/health",
+                headers=self._headers(),
+                timeout=10,
+            )
+            return response.ok
+        except requests.RequestException as exc:
+            logger.warning("Generic data source connection failed: %s", exc)
+            return False
 
     async def fetch_data(self, query: Dict[str, Any]) -> Any:
-        """Fetch data using generic HTTP-based retrieval."""
-        logger.info(
-            "GenericDataSourceConnector: fetch_data called with query=%s", query
+        """Fetch a JSON payload from the configured generic HTTP endpoint."""
+        if not self.base_url:
+            raise RuntimeError("A generic data source requires an endpoint")
+        response = requests.get(
+            self.base_url,
+            params=query,
+            headers=self._headers(),
+            timeout=30,
         )
-        return {"data": None, "source": "generic", "query": query}
+        response.raise_for_status()
+        payload = response.json()
+        if payload is None:
+            raise ValueError("Generic data source returned an empty payload")
+        return payload
+
+    def _headers(self) -> Dict[str, str]:
+        """Build request headers from configured credentials."""
+        if self.api_key:
+            return {"Authorization": f"Bearer {self.api_key}"}
+        return {}
 
 
 class MultiSourceDataIngestion:
@@ -546,8 +544,11 @@ class MultiSourceDataIngestion:
                     f"Data source '{source}' not supported. Available: {self.config.data_sources}"
                 )
 
-        # Connect to all data sources
-        connection_results = await self._connect_all_sources()
+        # Connect only to sources requested for this operation. A configured
+        # source that is not part of this request must not make an otherwise
+        # valid ingestion fail.
+        requested_sources = list(data_sources)
+        connection_results = await self._connect_all_sources(requested_sources)
         if not all(connection_results.values()):
             failed_sources = [
                 s for s, connected in connection_results.items() if not connected
@@ -612,10 +613,14 @@ class MultiSourceDataIngestion:
         logger.info(f"Multi-source ingestion completed for {len(data_sources)} sources")
         return ingestion_report
 
-    async def _connect_all_sources(self) -> Dict[str, bool]:
-        """Connect to all configured data sources."""
+    async def _connect_all_sources(
+        self, source_names: List[str] | None = None
+    ) -> Dict[str, bool]:
+        """Connect to the configured sources selected for one operation."""
+        source_names = list(source_names or self.connectors)
         results = {}
-        for source_name, connector in self.connectors.items():
+        for source_name in source_names:
+            connector = self.connectors[source_name]
             connected = False
             for attempt in range(1, self.config.retry_attempts + 1):
                 try:

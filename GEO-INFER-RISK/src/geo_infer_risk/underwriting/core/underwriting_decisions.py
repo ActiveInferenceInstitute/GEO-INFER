@@ -465,20 +465,3 @@ def create_decision_engine(
 ) -> UnderwritingDecisionEngine:
     """Create a new underwriting decision engine."""
     return UnderwritingDecisionEngine(config)
-
-
-def make_sample_decision() -> Dict[str, Any]:
-    """Make a sample underwriting decision for testing."""
-    engine = UnderwritingDecisionEngine()
-
-    sample_data = {
-        "risk_score": 0.6,
-        "premium_adequacy": 1.1,
-        "coverage_adequacy": 1.0,
-        "loss_ratio": 0.05,
-        "financial_stability": 0.8,
-        "compliance_score": 0.95,
-        "market_competitiveness": 0.85,
-    }
-
-    return engine.make_decision(sample_data)

@@ -5,7 +5,7 @@ Provides sustainability indicators, resilience metrics, regenerative metrics,
 wellbeing indicators, and planetary boundaries assessment.
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 import numpy as np
 import pandas as pd
 import logging
@@ -15,15 +15,60 @@ logger = logging.getLogger(__name__)
 
 # Planetary boundary definitions (Rockström et al. 2009, updated Steffen et al. 2015)
 PLANETARY_BOUNDARIES = {
-    "climate_change": {"indicator": "CO2 concentration (ppm)", "boundary": 350, "current_global": 421, "unit": "ppm"},
-    "biodiversity_loss": {"indicator": "Extinction rate (E/MSY)", "boundary": 10, "current_global": 100, "unit": "E/MSY"},
-    "nitrogen_cycle": {"indicator": "N fixation (Tg N/yr)", "boundary": 62, "current_global": 150, "unit": "Tg N/yr"},
-    "phosphorus_cycle": {"indicator": "P flow to oceans (Tg P/yr)", "boundary": 11, "current_global": 22, "unit": "Tg P/yr"},
-    "ozone_depletion": {"indicator": "Ozone (DU)", "boundary": 276, "current_global": 283, "unit": "DU"},
-    "ocean_acidification": {"indicator": "Aragonite saturation", "boundary": 2.75, "current_global": 2.90, "unit": "Ω"},
-    "freshwater_use": {"indicator": "Freshwater consumption (km³/yr)", "boundary": 4000, "current_global": 2600, "unit": "km³/yr"},
-    "land_use_change": {"indicator": "Cropland (% ice-free)", "boundary": 15, "current_global": 12, "unit": "%"},
-    "aerosol_loading": {"indicator": "AOD", "boundary": 0.25, "current_global": 0.30, "unit": "AOD"},
+    "climate_change": {
+        "indicator": "CO2 concentration (ppm)",
+        "boundary": 350,
+        "current_global": 421,
+        "unit": "ppm",
+    },
+    "biodiversity_loss": {
+        "indicator": "Extinction rate (E/MSY)",
+        "boundary": 10,
+        "current_global": 100,
+        "unit": "E/MSY",
+    },
+    "nitrogen_cycle": {
+        "indicator": "N fixation (Tg N/yr)",
+        "boundary": 62,
+        "current_global": 150,
+        "unit": "Tg N/yr",
+    },
+    "phosphorus_cycle": {
+        "indicator": "P flow to oceans (Tg P/yr)",
+        "boundary": 11,
+        "current_global": 22,
+        "unit": "Tg P/yr",
+    },
+    "ozone_depletion": {
+        "indicator": "Ozone (DU)",
+        "boundary": 276,
+        "current_global": 283,
+        "unit": "DU",
+    },
+    "ocean_acidification": {
+        "indicator": "Aragonite saturation",
+        "boundary": 2.75,
+        "current_global": 2.90,
+        "unit": "Ω",
+    },
+    "freshwater_use": {
+        "indicator": "Freshwater consumption (km³/yr)",
+        "boundary": 4000,
+        "current_global": 2600,
+        "unit": "km³/yr",
+    },
+    "land_use_change": {
+        "indicator": "Cropland (% ice-free)",
+        "boundary": 15,
+        "current_global": 12,
+        "unit": "%",
+    },
+    "aerosol_loading": {
+        "indicator": "AOD",
+        "boundary": 0.25,
+        "current_global": 0.30,
+        "unit": "AOD",
+    },
 }
 
 
@@ -36,15 +81,36 @@ class SustainabilityIndicators:
     """
 
     SDG_DIMENSIONS = {
-        "environmental": ["clean_water", "clean_energy", "climate_action", "life_on_land", "life_below_water"],
-        "social": ["no_poverty", "zero_hunger", "health", "education", "gender_equality", "reduced_inequalities"],
-        "economic": ["decent_work", "innovation", "responsible_production", "partnerships"],
+        "environmental": [
+            "clean_water",
+            "clean_energy",
+            "climate_action",
+            "life_on_land",
+            "life_below_water",
+        ],
+        "social": [
+            "no_poverty",
+            "zero_hunger",
+            "health",
+            "education",
+            "gender_equality",
+            "reduced_inequalities",
+        ],
+        "economic": [
+            "decent_work",
+            "innovation",
+            "responsible_production",
+            "partnerships",
+        ],
     }
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize sustainability indicators."""
         self.config = config or {}
-        self.weights = self.config.get("dimension_weights", {"environmental": 0.4, "social": 0.35, "economic": 0.25})
+        self.weights = self.config.get(
+            "dimension_weights",
+            {"environmental": 0.4, "social": 0.35, "economic": 0.25},
+        )
         logger.info("SustainabilityIndicators initialized")
 
     def calculate_indicators(self, data: Dict[str, Any]) -> pd.DataFrame:
@@ -75,32 +141,36 @@ class SustainabilityIndicators:
                 gap = target - value
                 score = min(value / target, 1.0) * 100
 
-                rows.append({
-                    "region_id": region_id,
-                    "dimension": dimension,
-                    "indicator": ind,
-                    "value": round(value, 2),
-                    "score": round(score, 2),
-                    "target": target,
-                    "gap": round(gap, 2),
-                    "on_track": value >= target * 0.75,
-                })
+                rows.append(
+                    {
+                        "region_id": region_id,
+                        "dimension": dimension,
+                        "indicator": ind,
+                        "value": round(value, 2),
+                        "score": round(score, 2),
+                        "target": target,
+                        "gap": round(gap, 2),
+                        "on_track": value >= target * 0.75,
+                    }
+                )
                 dim_values.append(score)
 
             dimension_scores[dimension] = np.mean(dim_values) if dim_values else 0
 
         # Add composite index row
         composite = sum(dimension_scores.get(d, 0) * w for d, w in self.weights.items())
-        rows.append({
-            "region_id": region_id,
-            "dimension": "composite",
-            "indicator": "sustainability_index",
-            "value": round(composite, 2),
-            "score": round(composite, 2),
-            "target": 80.0,
-            "gap": round(80.0 - composite, 2),
-            "on_track": composite >= 60.0,
-        })
+        rows.append(
+            {
+                "region_id": region_id,
+                "dimension": "composite",
+                "indicator": "sustainability_index",
+                "value": round(composite, 2),
+                "score": round(composite, 2),
+                "target": 80.0,
+                "gap": round(80.0 - composite, 2),
+                "on_track": composite >= 60.0,
+            }
+        )
 
         df = pd.DataFrame(rows)
         logger.info("Sustainability index for %s: %.2f", region_id, composite)
@@ -164,13 +234,19 @@ class ResilienceMetrics:
 
         weights = [0.20, 0.15, 0.15, 0.20, 0.15, 0.15]
         values = list(components.values())
-        composite = float(np.exp(sum(w * np.log(max(v, 1e-6)) for w, v in zip(weights, values))))
+        composite = float(
+            np.exp(sum(w * np.log(max(v, 1e-6)) for w, v in zip(weights, values)))
+        )
 
         result = {**{k: round(v, 4) for k, v in components.items()}}
         result["composite_resilience"] = round(composite, 4)
-        result["resilience_grade"] = "high" if composite > 0.7 else "medium" if composite > 0.4 else "low"
+        result["resilience_grade"] = (
+            "high" if composite > 0.7 else "medium" if composite > 0.4 else "low"
+        )
 
-        logger.info("Composite resilience: %.4f (%s)", composite, result["resilience_grade"])
+        logger.info(
+            "Composite resilience: %.4f (%s)", composite, result["resilience_grade"]
+        )
         return result
 
 
@@ -224,9 +300,15 @@ class RegenerativeMetrics:
         composite = float(np.mean(list(components.values())))
         components["regenerative_index"] = round(composite, 4)
         components["is_regenerative"] = composite > 0.6
-        components["trajectory"] = "regenerating" if composite > 0.6 else "degrading" if composite < 0.3 else "stable"
+        components["trajectory"] = (
+            "regenerating"
+            if composite > 0.6
+            else "degrading" if composite < 0.3 else "stable"
+        )
 
-        logger.info("Regenerative index: %.4f (%s)", composite, components["trajectory"])
+        logger.info(
+            "Regenerative index: %.4f (%s)", composite, components["trajectory"]
+        )
         return components
 
 
@@ -284,10 +366,19 @@ class WellbeingIndicators:
         eco_score = min(biocap / max(footprint, 0.1), 1.0)
         satisfaction_norm = satisfaction / 10.0
 
-        composite = float(np.mean([
-            income_score, health_score, equality_score,
-            edu, eco_score, social, satisfaction_norm,
-        ]))
+        composite = float(
+            np.mean(
+                [
+                    income_score,
+                    health_score,
+                    equality_score,
+                    edu,
+                    eco_score,
+                    social,
+                    satisfaction_norm,
+                ]
+            )
+        )
 
         result = {
             "gdp_per_capita": gdp_pc,
@@ -308,7 +399,12 @@ class WellbeingIndicators:
             },
         }
 
-        logger.info("Composite wellbeing: %.4f (GPI: %.2f, HPI: %.2f)", composite, gpi_per_capita, hpi)
+        logger.info(
+            "Composite wellbeing: %.4f (GPI: %.2f, HPI: %.2f)",
+            composite,
+            gpi_per_capita,
+            hpi,
+        )
         return result
 
 
@@ -318,7 +414,9 @@ class PlanetaryBoundaries:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.boundaries = self.config.get("boundaries", PLANETARY_BOUNDARIES)
-        logger.info("PlanetaryBoundaries initialized with %d boundaries", len(self.boundaries))
+        logger.info(
+            "PlanetaryBoundaries initialized with %d boundaries", len(self.boundaries)
+        )
 
     def assess_boundaries(self, boundary_data: Dict[str, Any]) -> Dict[str, Any]:
         """Assess regional or global status relative to planetary boundaries.
@@ -336,7 +434,12 @@ class PlanetaryBoundaries:
         scale = boundary_data.get("scale", "regional")
         region_id = boundary_data.get("region_id", "global")
 
-        logger.info("Assessing %d planetary boundaries for %s (%s scale)", len(measurements), region_id, scale)
+        logger.info(
+            "Assessing %d planetary boundaries for %s (%s scale)",
+            len(measurements),
+            region_id,
+            scale,
+        )
 
         assessments = {}
         transgressed = []
@@ -344,7 +447,11 @@ class PlanetaryBoundaries:
 
         for boundary_name, boundary_def in self.boundaries.items():
             limit = float(boundary_def["boundary"])
-            current = float(measurements.get(boundary_name, boundary_def.get("current_global", limit)))
+            current = float(
+                measurements.get(
+                    boundary_name, boundary_def.get("current_global", limit)
+                )
+            )
 
             # For some boundaries, exceeding is bad; for others (ozone, aragonite), going below is bad
             invert = boundary_name in ("ozone_depletion", "ocean_acidification")
@@ -381,16 +488,16 @@ class PlanetaryBoundaries:
             "safe_boundaries": safe,
             "transgression_count": len(transgressed),
             "safe_operating_fraction": round(len(safe) / max(n_total, 1), 3),
-            "overall_status": "within_safe_space" if not transgressed else "boundaries_transgressed",
+            "overall_status": (
+                "within_safe_space" if not transgressed else "boundaries_transgressed"
+            ),
             "timestamp": datetime.utcnow().isoformat(),
         }
 
         logger.info(
             "Planetary boundaries: %d/%d transgressed for %s",
-            len(transgressed), n_total, region_id,
+            len(transgressed),
+            n_total,
+            region_id,
         )
         return result
-
-
-# Alias for backward compatibility
-SustainabilityMetrics = SustainabilityIndicators

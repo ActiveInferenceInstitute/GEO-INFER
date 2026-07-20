@@ -9,7 +9,6 @@ import folium.plugins
 import h3
 import json
 import logging
-import numpy as np
 import yaml
 from datetime import datetime
 from pathlib import Path
@@ -206,17 +205,32 @@ class AdvancedDashboard:
         panels = {}
 
         # Climate Analysis Panel
-        climate_data = self.climate_analyzer.generate_climate_projections()
-        climate_risks = self.climate_analyzer.calculate_climate_risks()
-        panels["climate"] = self._create_climate_panel(climate_data, climate_risks)
+        try:
+            climate_data = self.climate_analyzer.generate_climate_projections()
+            climate_risks = self.climate_analyzer.calculate_climate_risks()
+            panels["climate"] = self._create_climate_panel(climate_data, climate_risks)
+        except (RuntimeError, ValueError) as exc:
+            panels["climate"] = (
+                f"<div class='data-unavailable'>Climate data unavailable: {exc}</div>"
+            )
 
         # Zoning Analysis Panel
-        zoning_data = self.zoning_analyzer.generate_zoning_analysis()
-        panels["zoning"] = self._create_zoning_panel(zoning_data)
+        try:
+            zoning_data = self.zoning_analyzer.generate_zoning_analysis()
+            panels["zoning"] = self._create_zoning_panel(zoning_data)
+        except (RuntimeError, ValueError) as exc:
+            panels["zoning"] = (
+                f"<div class='data-unavailable'>Zoning data unavailable: {exc}</div>"
+            )
 
         # Economic Analysis Panel
-        economic_data = self.agro_economic_analyzer.generate_economic_analysis()
-        panels["economic"] = self._create_economic_panel(economic_data)
+        try:
+            economic_data = self.agro_economic_analyzer.generate_economic_analysis()
+            panels["economic"] = self._create_economic_panel(economic_data)
+        except (RuntimeError, ValueError) as exc:
+            panels["economic"] = (
+                f"<div class='data-unavailable'>Economic data unavailable: {exc}</div>"
+            )
 
         return panels
 
@@ -393,17 +407,8 @@ class AdvancedDashboard:
         tide = self.dashboard_data.get("tide_levels", {})
         latest = tide.get("latest")
         if latest:
-            # Handle both synthetic (dict) and real (maybe dict?) structure
-            level = (
-                latest.get("v")
-                if isinstance(latest, dict)
-                else latest.get("water_level") if isinstance(latest, dict) else "N/A"
-            )
-            ts = (
-                latest.get("t")
-                if isinstance(latest, dict)
-                else latest.get("time") if isinstance(latest, dict) else "N/A"
-            )
+            level = latest.get("v", latest.get("water_level"))
+            ts = latest.get("t", latest.get("time"))
             folium.Marker(
                 location=[41.7450, -124.2370],
                 popup=f"<b>Tide Gauge</b><br>Level: {level} m<br>Time: {ts}",
@@ -411,29 +416,25 @@ class AdvancedDashboard:
             ).add_to(self.layer_groups["tides"])
 
     def _add_h3_forest_health_layer(self, m: folium.Map):
-        center_lat, center_lon = self.county_center
-        for i in range(-3, 4):
-            for j in range(-3, 4):
-                lat = center_lat + i * 0.05
-                lon = center_lon + j * 0.05
-                if self.county_bounds["south"] <= lat <= self.county_bounds["north"]:
-                    try:
-                        h3_cell = h3.latlng_to_cell(lat, lon, 8)
-                        h3_boundary = h3.cell_to_boundary(h3_cell)
-                    except Exception:
-                        continue
-                    health = np.random.uniform(0.3, 0.9)
-                    color = (
-                        "green" if health > 0.7 else "orange" if health > 0.5 else "red"
-                    )
-                    folium.Polygon(
-                        locations=[[x, y] for y, x in h3_boundary],
-                        popup=f"H3: {h3_cell}<br>Health: {health:.2f}",
-                        color=color,
-                        fill=True,
-                        fillColor=color,
-                        fillOpacity=0.4,
-                    ).add_to(self.layer_groups["forest"])
+        forest_data = self.dashboard_data.get("forest_health", {})
+        cells = forest_data.get("spatial_data", {}).get("h3_cells", {})
+        for h3_cell, cell_data in cells.items():
+            if not isinstance(cell_data, dict) or "health_index" not in cell_data:
+                continue
+            try:
+                h3_boundary = h3.cell_to_boundary(h3_cell)
+                health = float(cell_data["health_index"])
+            except (TypeError, ValueError, KeyError):
+                continue
+            color = "green" if health > 0.7 else "orange" if health > 0.5 else "red"
+            folium.Polygon(
+                locations=[[lat, lon] for lat, lon in h3_boundary],
+                popup=f"H3: {h3_cell}<br>Health: {health:.2f}",
+                color=color,
+                fill=True,
+                fillColor=color,
+                fillOpacity=0.4,
+            ).add_to(self.layer_groups["forest"])
 
     def _add_climate_risk_zones(self, m: folium.Map):
         zones = [

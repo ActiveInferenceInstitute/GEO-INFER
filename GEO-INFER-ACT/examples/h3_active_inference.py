@@ -12,14 +12,14 @@ sys.path.insert(0, str(ACT_ROOT / "src"))
 
 from geo_infer_act.runners.h3 import (  # noqa: E402
     generate_realistic_environmental_observations,
-    run_basic_h3_active_inference,
+    run_h3_active_inference,
     setup_san_francisco_boundary,
 )
-from geo_infer_act.runners.wrapper import run_wrapper  # noqa: E402
+from geo_infer_act.runners.wrapper import run_scenario_entrypoint  # noqa: E402
 
 __all__ = [
     "generate_realistic_environmental_observations",
-    "run_basic_h3_active_inference",
+    "run_h3_active_inference",
     "setup_san_francisco_boundary",
     "main",
 ]
@@ -28,7 +28,7 @@ __all__ = [
 def main(argv: list[str] | None = None) -> int:
     """Run the package-owned H3 scenario."""
     _: type[argparse.ArgumentParser] = argparse.ArgumentParser
-    return run_wrapper("h3", argv, program="h3_active_inference.py")
+    return run_scenario_entrypoint("h3", argv, program="h3_active_inference.py")
 
 
 if __name__ == "__main__":

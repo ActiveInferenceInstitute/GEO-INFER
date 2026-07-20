@@ -193,10 +193,9 @@ class EnhancedHazardModel:
                 self.is_fitted = True
                 self.logger.info("Hazard model data loaded and validated successfully")
             else:
-                self.historical_data = self._generate_synthetic_historical_data()
-                self._fit_model_parameters()
+                self.historical_data = None
                 self.logger.info(
-                    "Hazard model initialized with synthetic data (not fitted)"
+                    "No historical hazard data configured; model remains unfitted"
                 )
 
         except Exception as e:
@@ -217,207 +216,12 @@ class EnhancedHazardModel:
                     data = json.load(f)
                 return pd.DataFrame(data)
         elif data_source.startswith("api://"):
-            # Load from API (requires runtime endpoint configuration)
-            self.logger.info(f"API data loading not implemented for {data_source}")
-            return pd.DataFrame()
+            raise ValueError(
+                "API hazard sources require a configured data connector; "
+                "the model does not synthesize remote data"
+            )
         else:
-            # Try to load from common data sources
-            return self._load_from_common_sources(data_source)
-
-    def _load_from_common_sources(self, source: str) -> pd.DataFrame:
-        """Load data from common hazard data sources."""
-        # Baseline implementations for common data sources
-        if source == "usgs":
-            return self._load_usgs_data()
-        elif source == "noaa":
-            return self._load_noaa_data()
-        elif source == "fema":
-            return self._load_fema_data()
-        else:
-            return pd.DataFrame()
-
-    def _load_usgs_data(self) -> pd.DataFrame:
-        """Load earthquake data from USGS."""
-        # Baseline - in real implementation, this would query USGS API
-        return pd.DataFrame(
-            {
-                "event_id": ["usgs_001", "usgs_002"],
-                "magnitude": [6.5, 7.2],
-                "latitude": [37.7749, 34.0522],
-                "longitude": [-122.4194, -118.2437],
-                "depth": [10.0, 15.0],
-                "timestamp": [
-                    datetime.now() - timedelta(days=365),
-                    datetime.now() - timedelta(days=180),
-                ],
-            }
-        )
-
-    def _load_noaa_data(self) -> pd.DataFrame:
-        """Load weather/climate data from NOAA."""
-        # Baseline implementation
-        return pd.DataFrame(
-            {
-                "event_id": ["noaa_001", "noaa_002"],
-                "event_type": ["hurricane", "flood"],
-                "intensity": [120.0, 2.5],
-                "latitude": [25.7617, 40.7128],
-                "longitude": [-80.1918, -74.0060],
-                "timestamp": [
-                    datetime.now() - timedelta(days=300),
-                    datetime.now() - timedelta(days=150),
-                ],
-            }
-        )
-
-    def _load_fema_data(self) -> pd.DataFrame:
-        """Load flood data from FEMA."""
-        # Baseline implementation
-        return pd.DataFrame(
-            {
-                "event_id": ["fema_001", "fema_002"],
-                "flood_type": ["riverine", "coastal"],
-                "water_depth": [3.2, 1.8],
-                "latitude": [29.7604, 32.7767],
-                "longitude": [-95.3698, -96.7970],
-                "timestamp": [
-                    datetime.now() - timedelta(days=200),
-                    datetime.now() - timedelta(days=100),
-                ],
-            }
-        )
-
-    def _generate_synthetic_historical_data(self) -> pd.DataFrame:
-        """Generate synthetic historical data for testing."""
-        num_events = 100
-
-        # Generate synthetic events based on hazard type
-        if self.hazard_type == "earthquake":
-            return self._generate_synthetic_earthquake_data(num_events)
-        elif self.hazard_type == "flood":
-            return self._generate_synthetic_flood_data(num_events)
-        elif self.hazard_type == "hurricane":
-            return self._generate_synthetic_hurricane_data(num_events)
-        else:
-            return self._generate_generic_synthetic_data(num_events)
-
-    def _generate_synthetic_earthquake_data(self, num_events: int) -> pd.DataFrame:
-        """Generate synthetic earthquake data."""
-        # Generate earthquake events following Gutenberg-Richter law
-        magnitudes = self._generate_magnitudes_gutenberg_richter(num_events)
-
-        # Generate locations (global distribution)
-        latitudes = np.random.uniform(-60, 60, num_events)
-        longitudes = np.random.uniform(-180, 180, num_events)
-        depths = np.random.exponential(15.0, num_events)  # Average depth ~15km
-
-        # Generate timestamps over past 50 years
-        start_date = datetime.now() - timedelta(days=50 * 365)
-        timestamps = [
-            start_date + timedelta(days=np.random.randint(0, 50 * 365))
-            for _ in range(num_events)
-        ]
-
-        return pd.DataFrame(
-            {
-                "event_id": [f"synth_eq_{i}" for i in range(num_events)],
-                "magnitude": magnitudes,
-                "latitude": latitudes,
-                "longitude": longitudes,
-                "depth": depths,
-                "timestamp": timestamps,
-            }
-        )
-
-    def _generate_synthetic_flood_data(self, num_events: int) -> pd.DataFrame:
-        """Generate synthetic flood data."""
-        # Generate flood events
-        water_depths = np.random.exponential(2.0, num_events)
-        latitudes = np.random.uniform(-60, 60, num_events)
-        longitudes = np.random.uniform(-180, 180, num_events)
-
-        timestamps = [
-            datetime.now() - timedelta(days=np.random.randint(0, 10 * 365))
-            for _ in range(num_events)
-        ]
-
-        return pd.DataFrame(
-            {
-                "event_id": [f"synth_flood_{i}" for i in range(num_events)],
-                "water_depth": water_depths,
-                "latitude": latitudes,
-                "longitude": longitudes,
-                "timestamp": timestamps,
-            }
-        )
-
-    def _generate_synthetic_hurricane_data(self, num_events: int) -> pd.DataFrame:
-        """Generate synthetic hurricane data."""
-        # Generate hurricane events in tropical regions
-        latitudes = np.random.uniform(10, 30, num_events)  # Tropical latitudes
-        longitudes = np.random.uniform(-100, -30, num_events)  # Atlantic basin
-        wind_speeds = (
-            np.random.weibull(2.5, num_events) * 40 + 30
-        )  # Hurricane wind speeds
-
-        timestamps = [
-            datetime.now() - timedelta(days=np.random.randint(0, 20 * 365))
-            for _ in range(num_events)
-        ]
-
-        return pd.DataFrame(
-            {
-                "event_id": [f"synth_hur_{i}" for i in range(num_events)],
-                "wind_speed": wind_speeds,
-                "latitude": latitudes,
-                "longitude": longitudes,
-                "timestamp": timestamps,
-            }
-        )
-
-    def _generate_generic_synthetic_data(self, num_events: int) -> pd.DataFrame:
-        """Generate generic synthetic hazard data."""
-        intensities = np.random.exponential(1.0, num_events)
-        latitudes = np.random.uniform(-60, 60, num_events)
-        longitudes = np.random.uniform(-180, 180, num_events)
-
-        timestamps = [
-            datetime.now() - timedelta(days=np.random.randint(0, 5 * 365))
-            for _ in range(num_events)
-        ]
-
-        return pd.DataFrame(
-            {
-                "event_id": [
-                    f"synth_{self.hazard_type}_{i}" for i in range(num_events)
-                ],
-                "intensity": intensities,
-                "latitude": latitudes,
-                "longitude": longitudes,
-                "timestamp": timestamps,
-            }
-        )
-
-    def _generate_magnitudes_gutenberg_richter(
-        self, num_events: int, b_value: float = 1.0
-    ) -> np.ndarray:
-        """Generate earthquake magnitudes following Gutenberg-Richter law."""
-        # Gutenberg-Richter: log10(N) = a - b*M
-        # Generate magnitudes between 4.0 and 8.0
-        min_mag, max_mag = 4.0, 8.0
-
-        # Generate uniform random values and transform to magnitude distribution
-        u = np.random.uniform(0, 1, num_events)
-
-        # Inverse transform sampling for Gutenberg-Richter
-        # N(M) = 10^(a - b*M), so M = (a - log10(N))/b
-        a = 6.0  # Example value
-        magnitudes = (a - np.log10(1 / u)) / b_value
-
-        # Clip to realistic range
-        magnitudes = np.clip(magnitudes, min_mag, max_mag)
-
-        return magnitudes
+            raise ValueError(f"Unsupported hazard data source: {data_source}")
 
     def _validate_historical_data(self) -> None:
         """Validate historical data quality and completeness."""
@@ -1694,7 +1498,3 @@ def create_enhanced_hurricane_model(params: Dict[str, Any]) -> EnhancedHurricane
 def create_enhanced_wildfire_model(params: Dict[str, Any]) -> EnhancedWildfireModel:
     """Create an enhanced wildfire hazard model."""
     return EnhancedWildfireModel(params)
-
-
-# Backward compatibility - create alias for existing code
-HazardModel = EnhancedHazardModel

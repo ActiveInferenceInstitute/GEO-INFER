@@ -8,7 +8,6 @@ Use ``initialize_data_system()`` to set up all components in one call.
 """
 
 from typing import Any, Dict, List, Optional
-from pathlib import Path
 import logging
 
 from .core.ingestion import MultiSourceDataIngestion
@@ -68,18 +67,7 @@ __all__ = [
 ]
 
 
-class _InitializedDataSystem(dict):
-    """Dictionary result that also supports legacy ``await initialize_data_system(...)``."""
-
-    def __await__(self):
-        async def _return_self():
-            return self
-
-        return _return_self().__await__()
-
-
 def initialize_data_system(
-    config_path: Optional[Path] = None,
     storage_backends: Optional[List[str]] = None,
     enable_validation: bool = True,
 ) -> Dict[str, Any]:
@@ -92,27 +80,14 @@ def initialize_data_system(
     ``'quality_manager'``, and ``'status'``.
 
     Args:
-        config_path: Reserved for future YAML/JSON config loading; currently unused.
         storage_backends: Storage backends to pass to ``AdaptiveDataStorage``
             (default: ``['local']``).
         enable_validation: Enable data validation in the ingestion component.
 
     Returns:
-        ``_InitializedDataSystem`` dict of the four components plus ``'status': 'initialized'``.
+        Dictionary of the four components plus ``'status': 'initialized'``.
     """
     logger.info("Initializing GEO-INFER-DATA system")
-
-    if isinstance(config_path, list):
-        # Legacy positional form: initialize_data_system(['local'], True)
-        legacy_backends = config_path
-        legacy_validation = (
-            storage_backends
-            if isinstance(storage_backends, bool)
-            else enable_validation
-        )
-        config_path = None
-        storage_backends = legacy_backends
-        enable_validation = legacy_validation
 
     if storage_backends is None:
         storage_backends = ["local"]
@@ -142,15 +117,13 @@ def initialize_data_system(
         real_time_monitoring=True,
     )
 
-    system_components = _InitializedDataSystem(
-        {
-            "ingestion": ingestion,
-            "storage": storage,
-            "pipeline": pipeline,
-            "quality_manager": quality_manager,
-            "status": "initialized",
-        }
-    )
+    system_components = {
+        "ingestion": ingestion,
+        "storage": storage,
+        "pipeline": pipeline,
+        "quality_manager": quality_manager,
+        "status": "initialized",
+    }
 
     logger.info(
         f"GEO-INFER-DATA system initialized with {len(system_components)} components"

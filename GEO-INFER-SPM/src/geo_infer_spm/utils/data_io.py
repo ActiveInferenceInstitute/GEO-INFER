@@ -638,7 +638,3 @@ def _save_spm_csv(spm_result: SPMResult, file_path: str, **kwargs) -> None:
 
     df = pd.DataFrame(df_data)
     df.to_csv(file_path, index=False)
-
-
-# Alias for backward compatibility
-load_geospatial_data = load_data

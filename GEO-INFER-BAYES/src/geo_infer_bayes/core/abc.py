@@ -6,7 +6,7 @@ Bayesian inference when likelihood functions are intractable.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional, Union, List, Tuple, Callable
+from typing import Dict, Any, Optional, Union, List, Callable
 
 
 class ApproximateBayesianComputation:
@@ -20,10 +20,10 @@ class ApproximateBayesianComputation:
     def __init__(
         self,
         model,
-        distance_metric: str = 'euclidean',
+        distance_metric: str = "euclidean",
         tolerance: float = 0.1,
         n_samples: int = 10000,
-        random_seed: Optional[int] = None
+        random_seed: Optional[int] = None,
     ):
         """
         Initialize the ABC sampler.
@@ -48,14 +48,14 @@ class ApproximateBayesianComputation:
         observed_data: Any,
         simulator: Optional[Callable] = None,
         progress_bar: bool = True,
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Run ABC sampling for the model.
 
         Args:
             observed_data: Observed data for inference
-            simulator: Function to simulate data from the model
+            simulator: Function that produces model data for a parameter draw
             progress_bar: Whether to show progress
             **kwargs: Additional arguments
 
@@ -63,7 +63,9 @@ class ApproximateBayesianComputation:
             Posterior samples
         """
         if simulator is None:
-            simulator = self._default_simulator
+            raise ValueError(
+                "ABC requires an explicit simulator callable for the configured model"
+            )
 
         samples = []
         accepted_count = 0
@@ -90,7 +92,9 @@ class ApproximateBayesianComputation:
             total_attempts += 1
 
         if accepted_count < self.n_samples:
-            print(f"Warning: Only {accepted_count} samples accepted out of {self.n_samples} requested")
+            print(
+                f"Warning: Only {accepted_count} samples accepted out of {self.n_samples} requested"
+            )
 
         # Convert to the expected format
         return self._convert_samples_to_dict(samples)
@@ -100,37 +104,30 @@ class ApproximateBayesianComputation:
         theta = {}
 
         for param, param_info in self.model.parameters.items():
-            if param_info['prior'] == 'log_normal':
-                mu = param_info['hyperparams']['mu']
-                sigma = param_info['hyperparams']['sigma']
+            if param_info["prior"] == "log_normal":
+                mu = param_info["hyperparams"]["mu"]
+                sigma = param_info["hyperparams"]["sigma"]
                 theta[param] = np.exp(np.random.normal(mu, sigma))
-            elif param_info['prior'] == 'normal':
-                mu = param_info['hyperparams']['mu']
-                sigma = param_info['hyperparams']['sigma']
+            elif param_info["prior"] == "normal":
+                mu = param_info["hyperparams"]["mu"]
+                sigma = param_info["hyperparams"]["sigma"]
                 theta[param] = np.random.normal(mu, sigma)
-            elif param_info['prior'] == 'uniform':
-                low = param_info['hyperparams']['low']
-                high = param_info['hyperparams']['high']
+            elif param_info["prior"] == "uniform":
+                low = param_info["hyperparams"]["low"]
+                high = param_info["hyperparams"]["high"]
                 theta[param] = np.random.uniform(low, high)
             else:
                 theta[param] = np.random.normal(0, 1)
 
         return theta
 
-    def _default_simulator(self, theta: Dict[str, float]) -> np.ndarray:
-        """Default simulator function."""
-        # This would need to be implemented based on the specific model
-        # For now, return a simple simulated dataset
-        n_obs = 100
-        return np.random.normal(theta.get('mean', 0), theta.get('std', 1), n_obs)
-
     def _compute_distance(self, simulated: np.ndarray, observed: np.ndarray) -> float:
         """Compute distance between simulated and observed data."""
-        if self.distance_metric == 'euclidean':
-            return np.sqrt(np.sum((simulated - observed)**2))
-        elif self.distance_metric == 'manhattan':
+        if self.distance_metric == "euclidean":
+            return np.sqrt(np.sum((simulated - observed) ** 2))
+        elif self.distance_metric == "manhattan":
             return np.sum(np.abs(simulated - observed))
-        elif self.distance_metric == 'mahalanobis':
+        elif self.distance_metric == "mahalanobis":
             # Simplified Mahalanobis distance
             diff = simulated - observed
             cov = np.cov(np.column_stack([simulated, observed]))
@@ -142,7 +139,9 @@ class ApproximateBayesianComputation:
         else:
             raise ValueError(f"Unknown distance metric: {self.distance_metric}")
 
-    def _convert_samples_to_dict(self, samples: List[Dict[str, float]]) -> Dict[str, np.ndarray]:
+    def _convert_samples_to_dict(
+        self, samples: List[Dict[str, float]]
+    ) -> Dict[str, np.ndarray]:
         """Convert list of parameter dictionaries to the expected format."""
         if not samples:
             return {}
@@ -160,7 +159,7 @@ class ApproximateBayesianComputation:
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], Any],
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Update ABC samples with new data.

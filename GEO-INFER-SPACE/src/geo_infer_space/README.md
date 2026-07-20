@@ -20,12 +20,6 @@ Geo Infer Space workspace within `GEO-INFER-SPACE`.
 
 ## Public Interface
 
-- `__init__.py:cell_to_latlng_boundary` (function)
-- `__init__.py:geo_to_cells` (function)
-- `__init__.py:grid_disk` (function)
-- `__init__.py:grid_distance` (function)
-- `__init__.py:compact_cells` (function)
-- `__init__.py:uncompact_cells` (function)
 - `place_analyzer.py:PlaceAnalyzer` (class)
 - `spatial_utils.py:SpatialUtils` (class)
 

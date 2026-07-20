@@ -24,7 +24,7 @@ def temporary_config(config_dict: Dict[str, Any]) -> Generator[Config, None, Non
         config_dict: Configuration dictionary
 
     Yields:
-        Config: Mocked configuration
+        Config: Temporarily updated configuration
     """
     # Store original config
     original_config = get_config()

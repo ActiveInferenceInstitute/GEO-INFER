@@ -42,25 +42,19 @@ Example:
 """
 
 import logging
-from typing import Dict, List, Any, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Analysis imports (when implemented)
-try:
-    from .patterns import SwarmPatternAnalyzer, AnalysisConfiguration
-    from .metrics import SwarmPerformanceMetrics, PerformanceConfiguration
-except ImportError as e:
-    logger.warning(f"Analysis modules not yet implemented: {e}")
+from .patterns import SwarmPatternAnalyzer, AnalysisConfiguration
+from .metrics import SwarmPerformanceMetrics, PerformanceConfiguration
 
 # Export main classes and functions
 __all__ = [
     # Pattern Analysis
-    'SwarmPatternAnalyzer',
-    'AnalysisConfiguration',
-
+    "SwarmPatternAnalyzer",
+    "AnalysisConfiguration",
     # Performance Metrics
-    'SwarmPerformanceMetrics',
-    'PerformanceConfiguration'
+    "SwarmPerformanceMetrics",
+    "PerformanceConfiguration",
 ]

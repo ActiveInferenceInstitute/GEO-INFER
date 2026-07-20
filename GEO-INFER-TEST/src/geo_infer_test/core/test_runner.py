@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 
 from .log_integration import LogIntegration
+from .test_discoverer import ALL_MODULES
 
 
 @dataclass
@@ -52,41 +53,8 @@ class GeoInferTestRunner:
     with integration to GEO-INFER-LOG for detailed monitoring and reporting.
     """
 
-    # All available GEO-INFER modules
-    AVAILABLE_MODULES = [
-        "ACT",
-        "AG",
-        "AI",
-        "AGENT",
-        "ANT",
-        "API",
-        "APP",
-        "ART",
-        "BAYES",
-        "BIO",
-        "CIV",
-        "COG",
-        "COMMS",
-        "DATA",
-        "ECON",
-        "GIT",
-        "HEALTH",
-        "INTRA",
-        "LOG",
-        "MATH",
-        "NORMS",
-        "OPS",
-        "ORG",
-        "PEP",
-        "REQ",
-        "RISK",
-        "SEC",
-        "SIM",
-        "SPACE",
-        "SPM",
-        "TEST",
-        "TIME",
-    ]
+    # Keep the programmatic runner aligned with the canonical discoverer.
+    AVAILABLE_MODULES = tuple(ALL_MODULES)
 
     def __init__(self, config: TestConfiguration):
         """Initialize the test runner."""
@@ -99,13 +67,10 @@ class GeoInferTestRunner:
         self._setup_test_environment()
 
     def _setup_test_environment(self):
-        """Set up the testing environment."""
-        # Ensure test directories exist
-        test_dirs = ["unit", "integration", "performance", "load"]
-        for test_dir in test_dirs:
-            Path(f"tests/{test_dir}").mkdir(parents=True, exist_ok=True)
-
-        # Setup logging if enabled
+        """Validate runner prerequisites without mutating the checkout."""
+        # Test discovery is intentionally read-only.  Creating a ``tests/``
+        # tree here hides missing module fixtures and dirties the caller's
+        # working directory before the first test is executed.
         if self.log_integration:
             self.log_integration.logger.info("GeoInferTestRunner initialized")
 
@@ -150,12 +115,13 @@ class GeoInferTestRunner:
             if test_type_dir.exists():
                 test_files = sorted(
                     {
-                        *test_type_dir.glob("test_*.py"),
-                        *test_type_dir.glob("*_test.py"),
+                        *test_type_dir.rglob("test_*.py"),
+                        *test_type_dir.rglob("*_test.py"),
                     }
                 )
                 for test_file in test_files:
-                    tests.append(f"{module}::{test_type}::{test_file.stem}")
+                    relative_path = test_file.relative_to(test_type_dir).with_suffix("")
+                    tests.append(f"{module}::{test_type}::{relative_path.as_posix()}")
 
         return tests
 
@@ -307,9 +273,7 @@ class GeoInferTestRunner:
             return False
 
         # Run pytest programmatically
-        exit_code = pytest.main(
-            [str(test_path), "-v", "--tb=short", "--disable-warnings"]
-        )
+        exit_code = pytest.main([str(test_path), "-v", "--tb=short"])
 
         return exit_code == 0
 

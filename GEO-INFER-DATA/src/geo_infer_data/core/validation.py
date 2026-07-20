@@ -7,7 +7,7 @@ quality assessment.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any, Tuple
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from enum import Enum
@@ -21,9 +21,6 @@ from ..models.schemas import (
     QualityStatus,
     DataQualityReport,
     DatasetMetadata,
-    SpatialExtent,
-    TemporalExtent,
-    DataLineage,
 )
 
 
@@ -890,8 +887,7 @@ class DataQualityManager:
         validate_dataset(): Validate a specific dataset with comprehensive assessment
         get_improvement_recommendations(): Generate improvement recommendations
         get_quality_trends(): Analyze quality trends over time
-        _load_validation_dataset(): Load deterministic dataset for validation.
-        _load_validation_metadata(): Load deterministic metadata for validation.
+        register_dataset(): Register data and metadata for validation.
 
     Args:
         validation_rules: Validation rules to apply. Can be a string specifying
@@ -954,6 +950,7 @@ class DataQualityManager:
 
         self.validator = GeospatialValidator(self.config)
         self.quality_history: List[DataQualityReport] = []
+        self._datasets: Dict[str, Tuple[Any, DatasetMetadata]] = {}
         self.monitoring_enabled = real_time_monitoring
 
         logger.info(
@@ -986,6 +983,16 @@ class DataQualityManager:
         if unknown:
             raise ValueError(f"Unknown validation rule(s): {', '.join(unknown)}")
         return rules
+
+    def register_dataset(
+        self, dataset_id: str, data: Any, metadata: DatasetMetadata
+    ) -> None:
+        """Register a stored dataset as the source for quality validation."""
+        if not dataset_id:
+            raise ValueError("dataset_id must not be empty")
+        if not isinstance(metadata, DatasetMetadata):
+            raise TypeError("metadata must be a DatasetMetadata instance")
+        self._datasets[dataset_id] = (data, metadata)
 
     async def validate_dataset(self, dataset_id: str) -> DataQualityReport:
         """
@@ -1066,10 +1073,12 @@ class DataQualityManager:
         """
         logger.info(f"Validating dataset: {dataset_id}")
 
-        # This would typically load the dataset from storage
-        # For now, using synthetic fixture data
-        validation_data = self._load_validation_dataset(dataset_id)
-        validation_metadata = self._load_validation_metadata(dataset_id)
+        try:
+            validation_data, validation_metadata = self._datasets[dataset_id]
+        except KeyError as exc:
+            raise KeyError(
+                f"Dataset {dataset_id!r} has not been registered for validation"
+            ) from exc
 
         # Perform validation
         quality_report = await self.validator.validate_data(
@@ -1082,61 +1091,6 @@ class DataQualityManager:
 
         logger.info(f"Dataset validation completed: {quality_report.overall_score:.2f}")
         return quality_report
-
-    def _load_validation_dataset(self, dataset_id: str) -> Any:
-        """Load synthetic fixture dataset for validation."""
-        # Deterministic local implementation - would load actual dataset
-        if "empty" in dataset_id:
-            return pd.DataFrame()
-        if "corrupted" in dataset_id:
-            return pd.DataFrame(
-                {
-                    "temperature": [np.inf, -np.inf, np.nan],
-                    "latitude": [None, None, None],
-                    "longitude": [np.nan, np.nan, np.nan],
-                }
-            )
-        if "mixed" in dataset_id:
-            return pd.DataFrame(
-                {
-                    "mixed_column": [1, "text", 3.14, True, None],
-                    "temperature": [20.1, 20.2, 20.3, 20.4, 20.5],
-                }
-            )
-        if "quality" in dataset_id or dataset_id.startswith("test_dataset"):
-            return pd.DataFrame(
-                {
-                    "temperature": [100 if i < 10 else 20 for i in range(100)],
-                    "latitude": [200 if i < 5 else 37.7 for i in range(100)],
-                    "longitude": [-300 if i < 5 else -122.4 for i in range(100)],
-                }
-            )
-        return pd.DataFrame(
-            {
-                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
-                "temperature": np.random.normal(20, 5, 1000),
-                "humidity": np.random.normal(60, 10, 1000),
-                "latitude": np.random.normal(37.7, 0.1, 1000),
-                "longitude": np.random.normal(-122.4, 0.1, 1000),
-            }
-        )
-
-    def _load_validation_metadata(self, dataset_id: str) -> DatasetMetadata:
-        """Load synthetic metadata for validation."""
-        # Deterministic local implementation - would load actual metadata
-        return DatasetMetadata(
-            title=f"Dataset {dataset_id}",
-            description="Synthetic fixture dataset for validation",
-            spatial=SpatialExtent(bbox=[-122.5, 37.6, -122.3, 37.8], crs="EPSG:4326"),
-            temporal=TemporalExtent(
-                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-            ),
-            lineage=DataLineage(
-                source="validation_fixture",
-                process="validation_fixture_generation",
-                created_by="validation_system",
-            ),
-        )
 
     def get_improvement_recommendations(self, report: DataQualityReport) -> List[str]:
         """Get improvement recommendations based on quality report."""

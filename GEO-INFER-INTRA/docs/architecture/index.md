@@ -1,1 +1,81 @@
-# Architecture This section provides documentation of the GEO-INFER-INTRA system architecture, including component diagrams, data flows, and integration points. ## Contents - [Architecture Overview](overview.md) - [Component Diagram](component_diagram.md) - [Data Flow](data_flow.md) - [Module Structure](module_structure.md) - [Integration Points](integration_points.md) - [Deployment Architecture](deployment.md) - [Security Architecture](security.md) - [Performance Considerations](performance.md) ## System Components GEO-INFER-INTRA is composed of the following primary components: 1. **Documentation System** - Manages and serves documentation content 2. **Ontology Manager** - Maintains geospatial ontologies and terminologies 3. **Workflow Engine** - Executes and monitors geospatial workflows 4. **Knowledge Base** - Stores and retrieves knowledge articles 5. **API Layer** - Provides programmatic access to all components 6. **User Interface** - Delivers interactive user interfaces for all components 7. **Integration Services** - Connects with other GEO-INFER modules ## Component Interactions The components interact through well-defined interfaces: - **Documentation System** ↔ **Knowledge Base**: Documentation content is stored and retrieved from the Knowledge Base - **Ontology Manager** ↔ **Knowledge Base**: Ontology definitions are stored in the Knowledge Base - **Workflow Engine** ↔ **API Layer**: Workflows are defined and executed through the API - **User Interface** ↔ **API Layer**: User interactions are processed through the API - **Integration Services** ↔ **Other Modules**: External services are accessed through integration points ## Technical Stack GEO-INFER-INTRA is built on the following technologies: - **Backend**: Python with FastAPI for API services - **Documentation**: Markdown with MkDocs for documentation generation - **Ontology**: OWL/RDF with RDFLib for ontology management - **Workflow**: Custom workflow engine with Celery for task execution - **Knowledge Base**: Elasticsearch for full-text search - **User Interface**: React with TypeScript for web interfaces - **Integration**: Protocol Buffers and gRPC for inter-module communication ## Deployment Options GEO-INFER-INTRA supports multiple deployment options: 1. **Single-Node Deployment** - All components on a single server 2. **Microservices Deployment** - Components distributed across multiple services 3. **Containerized Deployment** - Docker containers orchestrated with Kubernetes 4. **Serverless Deployment** - Selected components deployed as serverless functions See [Deployment Architecture](deployment.md) for deployment configurations and recommendations. 
+# GEO-INFER Architecture
+
+GEO-INFER is a 44-module Python workspace. Modules are independently owned
+packages connected through explicit imports, shared data conventions, and
+contract validators. The categories below describe responsibility; they are not
+an assertion that every module has a strict one-way dependency.
+
+## Layered view
+
+```mermaid
+flowchart TB
+    DATA["Inputs: files, sensors, APIs, observations"]
+    FOUNDATION["Foundation: MATH, SPACE, TIME, DATA"]
+    INFERENCE["Inference: ACT, BAYES, AI, COG, SPM"]
+    AGENTS["Decision and simulation: AGENT, ANT, SIM"]
+    DOMAINS["Domains: AG, BIO, CLIMATE, ECON, ENERGY, FOREST, HEALTH, LOG, MARINE, RISK, WATER, TRANSPORT, CIV, EDU, PEP, ORG"]
+    SURFACES["Surfaces: API, APP, ART, COMMS, IOT, PLACE"]
+    GOVERNANCE["Governance and operations: SEC, NORMS, REQ, METAGOV, OPS, GIT, INTRA, TEST, EXAMPLES"]
+    DATA --> FOUNDATION --> INFERENCE --> AGENTS --> DOMAINS --> SURFACES
+    GOVERNANCE -. "cross-cutting contracts" .-> FOUNDATION
+    GOVERNANCE -. "validation and delivery" .-> SURFACES
+```
+
+## Repository boundaries
+
+- `GEO-INFER-*/src/` owns importable behavior.
+- `GEO-INFER-*/tests/` owns focused behavioral, integration, and performance
+  verification.
+- `GEO-INFER-*/examples/` demonstrates orchestration and should remain thin.
+- `GEO-INFER-INTRA/docs/` owns cross-module concepts, tutorials, and workflow
+  guidance.
+- `GEO-INFER-TEST/` owns repository-wide test execution and executable
+  contracts.
+- The root `pyproject.toml`, `uv.lock`, and `.python-version` define the
+  shared environment contract.
+
+## Canonical data flow
+
+```text
+source data
+  -> DATA ingestion/validation
+  -> SPACE indexing and geometry + TIME alignment
+  -> MATH/SPM/BAYES estimation or ACT belief updates
+  -> AGENT/ANT/SIM decisions and scenario evaluation
+  -> domain module result
+  -> API/APP/ART visualization or persisted artifact
+```
+
+Every boundary should make its coordinate system, units, missing-value policy,
+randomness, and output schema explicit. H3-based workflows use real H3 v4
+cells and should validate resolution and cell-count budgets before expansion.
+
+## Core contracts
+
+### Active Inference
+
+`GEO-INFER-ACT` is the canonical implementation for typed free-energy,
+categorical belief updates, expected-free-energy policy evaluation, and spatial
+or nested-H3 diagnostics. BAYES and MATH may provide supporting mathematics;
+they should not introduce incompatible Active Inference result shapes.
+
+### Spatial indexing
+
+`GEO-INFER-SPACE` owns backend dispatch and H3 v4 convenience functions. Use
+`latlng_to_cell`, `cell_to_latlng`, `grid_disk`, and related v4 names. Nested
+H3 closure and aggregation are owned by `NestedH3Grid` and are opt-in.
+
+### Validation
+
+`GEO-INFER-TEST` enforces repository structure, documentation freshness, test
+inventories, no-skips/no-warnings policy, model finiteness and reproducibility,
+and H3/Active Inference contracts. A local green module test is not equivalent
+to a green repository gate.
+
+## Further reading
+
+- [Module catalog](../modules/index.md)
+- [Integration patterns](../integration/index.md)
+- [Testing guide](../developer_guide/testing_guide.md)
+- [Active Inference guide](../active_inference_guide.md)
+- [H3 v4 guide](../geospatial/data_formats/h3/index.md)

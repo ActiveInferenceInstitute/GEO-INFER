@@ -1,69 +1,52 @@
-# Implementation Status
+# GEO-INFER-ANT implementation status
 
-## Overview
+Updated: 2026-07-15
 
-This document tracks the implementation status of GEO-INFER-ANT module features.
+GEO-INFER-ANT is an importable swarm-intelligence module with deterministic
+local validation, spatial boundary checks, and application-level consumers for
+the three supported domain workflows.
 
-## Feature Status
+## Implemented runtime surfaces
 
-### Core Features
+| Surface | Current behavior |
+| --- | --- |
+| ACO | Ant System, Ant Colony System, and Max-Min Ant System; seeded RNG; validated distance and heuristic matrices; convergence history; JSON state round trips; graph-aware intermediate paths; multi-objective aliases. |
+| PSO | Bounded continuous optimization; seeded RNG; velocity bounds; obstacle constraints; global/local/adaptive neighborhoods; multi-swarm coordination from actual optimizer state. |
+| ABC | Employed, onlooker, and scout phases; bounded search; configurable ratios and iterations; seeded RNG; finite objective validation; recruitment and abandonment tracking. |
+| PheromoneSystem | Validated geographic bounds; H3 normalization; indexed and audit-trail deposits; evaporation; mass-conserving diffusion; barriers; environmental factors. |
+| DigitalStigmergy | H3-aware traces; exact spatial bounds; temporal windows; access-control filtering; credibility and information-quality metrics; anomaly and trend queries. |
+| SwarmAgent / AgentPopulation | Validated coordinates and bounds; seeded movement; shared pheromone injection; explicit action handlers; deterministic population initialization; async simulation and result persistence. |
+| Environmental monitoring | Seeded deployment; sensor-range coverage; priority-feature scoring; adaptive zones; IDW and ordinary kriging; anomaly detection; uncertainty and recommendations. |
+| Disaster response | Validated scenarios; input-derived resource gaps and priority zones; single-use resource assignment; coordination metrics; elapsed response-window status. |
+| Urban traffic | NetworkX graph routing with congestion-aware costs; observed flow and delay improvements; deterministic trend predictions; input-derived emission fields and status composition. |
+| Analysis | Spatial pattern statistics, interaction networks, emergence measures, performance confidence intervals, robustness analysis, and resource-aware scaling estimates. |
 
-| Feature | Status | Version | Notes |
-|---------|--------|---------|-------|
-| Ant Colony Optimization | ✅ Implemented | 0.1.0 | TSP, VRP support |
-| Pheromone Mapping | ✅ Implemented | 0.1.0 | Decay, reinforcement |
-| Swarm Coordination | ✅ Implemented | 0.1.0 | Basic coordination |
-| Collective Decision | 🔄 In Progress | 0.2.0 | Quorum sensing |
+## Public validation
 
-### ACO Algorithms
+Run from the repository root:
 
-| Algorithm | Status | Notes |
-|-----------|--------|-------|
-| Ant System (AS) | ✅ Done | Classic implementation |
-| Ant Colony System (ACS) | ✅ Done | Improved convergence |
-| Max-Min Ant System | ✅ Done | Bounded pheromones |
-| Rank-Based Ant System | 🔄 WIP | Ranked depositing |
+```bash
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT
+uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+```
 
-### Problem Types
+The focused regression suite is:
 
-| Problem | Status |
-|---------|--------|
-| TSP | ✅ Supported |
-| VRP | ✅ Supported |
-| Multi-TSP | ✅ Supported |
-| Time-Window VRP | 🔄 In Progress |
-| Pickup-Delivery | 📋 Planned |
+```bash
+uv run python -m pytest -c pyproject.toml -W error \
+  GEO-INFER-ANT/tests/unit/test_deep_contracts.py
+```
 
-### Integration
+## Operational notes
 
-| Module | Integration Status |
-|--------|-------------------|
-| GEO-INFER-SPACE | ✅ Integrated |
-| GEO-INFER-LOG | ✅ Integrated |
-| GEO-INFER-AGENT | 🔄 In Progress |
-| GEO-INFER-SIM | 📋 Planned |
-
-## Roadmap
-
-### v0.2.0 (Planned)
-
-- [ ] Collective decision making
-- [ ] Particle Swarm Optimization
-- [ ] Multi-colony systems
-
-### v0.3.0 (Future)
-
-- [ ] Hybrid ACO-genetic algorithms
-- [ ] Dynamic problem adaptation
-- [ ] Real-time optimization
-
-## Known Issues
-
-| Issue | Severity | Status |
-|-------|----------|--------|
-| Large TSP memory usage | Medium | Investigating |
-| Slow convergence on sparse graphs | Low | Documented |
-
----
-
-**Last Updated**: 2026-02-24
+- Use `random_seed` or `seed` on optimizers and applications when comparing
+  runs or debugging convergence.
+- ACO requires `initialize_problem` before `solve`; PSO and ABC initialize from
+  their constructor bounds and dimensions.
+- Application methods report zero or an empty result when the caller supplies
+  no observations, graph, or measurements; they do not manufacture route,
+  coverage, or improvement measurements.
+- Optional GEO-INFER-SPACE adapters are used when available. Core ANT behavior
+  remains importable and deterministic without those adapters.

@@ -50,47 +50,27 @@ logger = logging.getLogger(__name__)
 # Version information
 __version__ = "1.0.0"
 __author__ = "GEO-INFER Development Team"
-__description__ = "Swarm Intelligence and Complex Adaptive Systems for Geospatial Analysis"
+__description__ = (
+    "Swarm Intelligence and Complex Adaptive Systems for Geospatial Analysis"
+)
 
-# Core imports (will be available when implemented)
-try:
-    from .core.agent_base import SwarmAgent
-    from .core.population import AgentPopulation
-    from .core.stigmergy import PheromoneSystem
-    from .core.digital_stigmergy import DigitalStigmergy
-except ImportError as e:
-    logger.warning(f"Core modules not yet implemented: {e}")
+# Public components are required package dependencies and are imported directly.
+from .core.agent_base import SwarmAgent
+from .core.population import AgentPopulation
+from .core.stigmergy import PheromoneSystem
+from .core.digital_stigmergy import DigitalStigmergy
+from .algorithms.aco import AntColonyOptimization
+from .algorithms.pso import ParticleSwarmOptimization
+from .algorithms.abc import ArtificialBeeColony
+from .applications.environmental import EnvironmentalMonitoringSwarm
+from .applications.disaster import DisasterResponseSwarm
+from .applications.urban import UrbanTrafficSwarm
+from .analysis.patterns import SwarmPatternAnalyzer
+from .analysis.metrics import SwarmPerformanceMetrics
+from .utils.config import load_config, validate_config
+from .utils.logging import setup_logging
+from .utils.integration import IntegrationManager
 
-# Algorithm imports
-try:
-    from .algorithms.aco import AntColonyOptimization
-    from .algorithms.pso import ParticleSwarmOptimization
-    from .algorithms.abc import ArtificialBeeColony
-except ImportError as e:
-    logger.warning(f"Algorithm modules not yet implemented: {e}")
-
-# Application imports
-try:
-    from .applications.environmental import EnvironmentalMonitoringSwarm
-    from .applications.disaster import DisasterResponseSwarm
-    from .applications.urban import UrbanTrafficSwarm
-except ImportError as e:
-    logger.warning(f"Application modules not yet implemented: {e}")
-
-# Analysis imports
-try:
-    from .analysis.patterns import SwarmPatternAnalyzer
-    from .analysis.metrics import SwarmPerformanceMetrics
-except ImportError as e:
-    logger.warning(f"Analysis modules not yet implemented: {e}")
-
-# Utility imports
-try:
-    from .utils.config import load_config, validate_config
-    from .utils.logging import setup_logging
-    from .utils.integration import IntegrationManager
-except ImportError as e:
-    logger.warning(f"Utility modules not yet implemented: {e}")
 
 # Configuration and setup
 def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
@@ -118,9 +98,10 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
 
     # Set up integrations
     integration_manager = IntegrationManager()
-    integration_manager.setup_integrations(config.get('integrations', {}))
+    integration_manager.setup_integrations(config.get("integrations", {}))
 
     return config
+
 
 def get_available_components() -> Dict[str, List[str]]:
     """
@@ -130,73 +111,66 @@ def get_available_components() -> Dict[str, List[str]]:
         Dictionary with component availability information
     """
     components = {
-        'core': [],
-        'algorithms': [],
-        'applications': [],
-        'analysis': [],
-        'utils': []
+        "core": [],
+        "algorithms": [],
+        "applications": [],
+        "analysis": [],
+        "utils": [],
     }
 
-    # Check core components
-    try:
-        import geo_infer_ant.core
-        components['core'] = ['SwarmAgent', 'AgentPopulation', 'PheromoneSystem']
-    except ImportError:
-        pass
-
-    # Check algorithms
-    try:
-        import geo_infer_ant.algorithms
-        components['algorithms'] = ['AntColonyOptimization', 'ParticleSwarmOptimization', 'ArtificialBeeColony']
-    except ImportError:
-        pass
-
-    # Check applications
-    try:
-        import geo_infer_ant.applications
-        components['applications'] = ['EnvironmentalMonitoringSwarm', 'DisasterResponseSwarm', 'UrbanTrafficSwarm']
-    except ImportError:
-        pass
-
-    # Check analysis tools
-    try:
-        import geo_infer_ant.analysis
-        components['analysis'] = ['SwarmPatternAnalyzer', 'SwarmPerformanceMetrics']
-    except ImportError:
-        pass
+    components["core"] = [
+        "SwarmAgent",
+        "AgentPopulation",
+        "PheromoneSystem",
+        "DigitalStigmergy",
+    ]
+    components["algorithms"] = [
+        "AntColonyOptimization",
+        "ParticleSwarmOptimization",
+        "ArtificialBeeColony",
+    ]
+    components["applications"] = [
+        "EnvironmentalMonitoringSwarm",
+        "DisasterResponseSwarm",
+        "UrbanTrafficSwarm",
+    ]
+    components["analysis"] = ["SwarmPatternAnalyzer", "SwarmPerformanceMetrics"]
+    components["utils"] = [
+        "load_config",
+        "validate_config",
+        "setup_logging",
+        "IntegrationManager",
+    ]
 
     return components
+
 
 # Export main classes and functions
 __all__ = [
     # Core classes
-    'SwarmAgent',
-    'AgentPopulation',
-    'PheromoneSystem',
-    'DigitalStigmergy',
-
+    "SwarmAgent",
+    "AgentPopulation",
+    "PheromoneSystem",
+    "DigitalStigmergy",
     # Algorithms
-    'AntColonyOptimization',
-    'ParticleSwarmOptimization',
-    'ArtificialBeeColony',
-
+    "AntColonyOptimization",
+    "ParticleSwarmOptimization",
+    "ArtificialBeeColony",
     # Applications
-    'EnvironmentalMonitoringSwarm',
-    'DisasterResponseSwarm',
-    'UrbanTrafficSwarm',
-
+    "EnvironmentalMonitoringSwarm",
+    "DisasterResponseSwarm",
+    "UrbanTrafficSwarm",
     # Analysis
-    'SwarmPatternAnalyzer',
-    'SwarmPerformanceMetrics',
-
+    "SwarmPatternAnalyzer",
+    "SwarmPerformanceMetrics",
     # Utilities
-    'setup_ant_module',
-    'get_available_components',
-    'load_config',
-    'validate_config',
-
+    "setup_ant_module",
+    "get_available_components",
+    "load_config",
+    "validate_config",
+    "setup_logging",
     # Module metadata
-    '__version__',
-    '__author__',
-    '__description__'
+    "__version__",
+    "__author__",
+    "__description__",
 ]

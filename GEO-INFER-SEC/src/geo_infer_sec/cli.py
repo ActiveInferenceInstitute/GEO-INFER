@@ -492,10 +492,15 @@ def command_check_compliance(args: argparse.Namespace) -> None:
     try:
         # Convert to GeoDataFrame if needed
         if not isinstance(df, gpd.GeoDataFrame) and isinstance(df, pd.DataFrame):
-            # Create a dummy GeoDataFrame
             from shapely.geometry import Point
 
-            geometry = [Point(0, 0)] * len(df)
+            if not {"latitude", "longitude"}.issubset(df.columns):
+                raise ValueError(
+                    "tabular compliance input must contain latitude and longitude columns"
+                )
+            geometry = [
+                Point(lon, lat) for lat, lon in zip(df["latitude"], df["longitude"])
+            ]
             gdf = gpd.GeoDataFrame(df, geometry=geometry)
         else:
             gdf = df
