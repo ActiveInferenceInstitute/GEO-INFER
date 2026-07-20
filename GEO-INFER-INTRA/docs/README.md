@@ -40,6 +40,7 @@ Docs workspace within `GEO-INFER-INTRA`.
 - `installation.md`
 - `module_readme_template.md`
 - `overview.md`
+- `research_grade_inference_contracts.md`
 - `temporal_analysis_guide.md`
 - `terminology.md`
 
