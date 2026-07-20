@@ -4,10 +4,12 @@ Unit workspace within `GEO-INFER-BAYES`.
 
 ## Contents
 
+- `test_abc_smc.py`
 - `test_base_model.py`
 - `test_data_processing.py`
 - `test_diagnostics.py`
 - `test_gaussian_process.py`
+- `test_hmc.py`
 - `test_inference.py`
 - `test_likelihoods.py`
 - `test_mcmc.py`
@@ -16,6 +18,7 @@ Unit workspace within `GEO-INFER-BAYES`.
 - `test_posterior.py`
 - `test_priors.py`
 - `test_spatial_gp.py`
+- `test_spatiotemporal_gp.py`
 - `test_variational.py`
 - `test_visualization_utils.py`
 
