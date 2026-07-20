@@ -721,6 +721,7 @@ uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
+uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
 
@@ -732,6 +733,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Module catalog: [`GEO-INFER-INTRA/docs/modules/index.md`](GEO-INFER-INTRA/docs/modules/index.md)
 - Developer workflow: [`GEO-INFER-INTRA/docs/developer_guide/index.md`](GEO-INFER-INTRA/docs/developer_guide/index.md)
 - Test and release gates: [`GEO-INFER-TEST/docs/index.md`](GEO-INFER-TEST/docs/index.md)
+- Manuscript generation and evidence: [`manuscript/README.md`](manuscript/README.md)
 - Active Inference reference: [`GEO-INFER-INTRA/docs/active_inference_guide.md`](GEO-INFER-INTRA/docs/active_inference_guide.md)
 - Spatial/H3 reference: [`GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md`](GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md)
 - Contribution rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
@@ -788,6 +790,7 @@ the exact reproducible exception list.
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
 - Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
 - Source runtime hygiene: `uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
+- Manuscript variables, figures, captions, and resolved copies: `uv run python manuscript/generate_research_artifacts.py`
 
 ## Repo-wide Change Workflow
 
@@ -801,8 +804,9 @@ the exact reproducible exception list.
 
 - Test reports belong under `.geo-infer-test-results/`.
 - Model-audit artifacts are emitted under `.geo-infer-test-results/model-audit/`.
-- Scenario and visualization outputs must use an explicit output directory and
-  must not write to repository-root `output/`, `outputs/`, or `test_output/`.
+- The manuscript pipeline is the only approved writer to ignored repository-root
+  `output/`; scenario and other visualization outputs must use an explicit
+  output directory and must not write there.
 - Generated signposts must describe tracked files only; local caches and build
   products are intentionally excluded.
 
@@ -858,6 +862,7 @@ python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
@@ -874,6 +879,7 @@ uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 - Use root `pyproject.toml`, `uv.lock`, and `.python-version` as the shared uv environment contract.
 - Sync the shared workspace with `uv sync --all-packages --all-extras`.
 - Keep module behavior in the owning `GEO-INFER-*` package under `src/`; keep scripts and examples as orchestration surfaces.
+- Treat `manuscript/generate_research_artifacts.py` as the only producer of manuscript variables, figure captions, figure registries, and resolved manuscript copies; never hand-edit ignored `output/`.
 - Keep every module's local test inventory above the minimum release gate of four pytest files.
 - Put planned work in root `TODO.md` or a tracked issue; do not leave task markers in module source or tests.
 - Use module loggers in libraries and configure handlers only from CLI entrypoints.

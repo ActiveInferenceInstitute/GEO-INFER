@@ -23,12 +23,20 @@ Use Pandoc citation syntax only, for example `[@real_key]`. Every key must exist
 
 ## Figures
 
-Generated figures should live under `../output/figures/` and be referenced with labels such as:
+Generated figures are produced by `generate_research_artifacts.py`, registered
+with dynamic captions, and live under `../output/figures/` in the authored
+manuscript source. They are referenced with labels such as:
 
 ```markdown
-![Caption text.](../output/figures/example.png){#fig:example width=80%}
+![Generated caption text.](../output/figures/example.png){#fig:example width=80%}
 ```
+
+The generator rewrites the relative figure path for resolved copies under
+`output/manuscript/`, and rejects unresolved uppercase variable tokens.
 
 ## Claims
 
-This scaffold intentionally avoids quantitative and publication claims. Add those only after a source file, test, generated artifact, or citation supports them.
+Changing quantitative claims must be represented by `{{TOKENS}}` in authored
+sections and computed by the manuscript generator. Publication claims require
+source-backed artifacts, passing verification, and resolved bibliography
+entries.
