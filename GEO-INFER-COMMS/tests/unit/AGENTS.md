@@ -25,6 +25,7 @@
 - `test_core.py`
 - `test_message_models.py`
 - `test_protocol_handling.py`
+- `test_rest_api.py`
 - `test_spatial_models.py`
 - `test_validation.py`
 
