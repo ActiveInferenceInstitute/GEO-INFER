@@ -501,8 +501,11 @@ class TestArtificialBeeColony:
 
     def test_abc_employed_bee_phase(self):
         """Test ABC employed bee phase."""
-        np.random.seed(1)
-        abc = ArtificialBeeColony(colony_size=6, dimensions=2)
+        # Seed the algorithm's generator directly.  ``np.random.seed`` does
+        # not control the isolated ``default_rng`` used by ABC and made this
+        # assertion intermittently fail when every sampled neighbour was
+        # worse than its source.
+        abc = ArtificialBeeColony(colony_size=6, dimensions=2, random_seed=0)
         abc._initialize_food_sources()
 
         def test_function(x):
