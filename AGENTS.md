@@ -25,6 +25,7 @@ python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
@@ -41,6 +42,7 @@ uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 - Use root `pyproject.toml`, `uv.lock`, and `.python-version` as the shared uv environment contract.
 - Sync the shared workspace with `uv sync --all-packages --all-extras`.
 - Keep module behavior in the owning `GEO-INFER-*` package under `src/`; keep scripts and examples as orchestration surfaces.
+- Treat `manuscript/generate_research_artifacts.py` as the only producer of manuscript variables, figure captions, figure registries, and resolved manuscript copies; never hand-edit ignored `output/`.
 - Keep every module's local test inventory above the minimum release gate of four pytest files.
 - Put planned work in root `TODO.md` or a tracked issue; do not leave task markers in module source or tests.
 - Use module loggers in libraries and configure handlers only from CLI entrypoints.

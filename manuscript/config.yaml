@@ -1,11 +1,10 @@
-# Template-format manuscript configuration for GEO-INFER.
-# Scaffolded from the project README/AGENTS context; update before publication.
+# Repository-derived manuscript configuration for GEO-INFER.
 
 paper:
   title: "GEO-INFER: Geospatial Inference Framework"
-  subtitle: "A manuscript scaffold for a 44-module spatial inference monorepo"
-  version: "0.2.0"
-  date: ""
+  subtitle: "An evidence-backed manuscript for a {{MODULE_COUNT}}-module spatial inference monorepo"
+  version: "{{PROJECT_VERSION}}"
+  date: "{{RESEARCH_COMMIT_DATE}}"
 
 authors:
   - name: "Daniel Ari Friedman"
@@ -19,7 +18,7 @@ publication:
   version_doi: ""
   version_record: ""
   github_repository: "ActiveInferenceInstitute/GEO-INFER"
-  year: "2026"
+  year: "{{RESEARCH_YEAR}}"
   transmission_bookends:
     enabled: false
     max_prior_releases: 5
@@ -33,7 +32,7 @@ keywords:
   - "ecological modeling"
 
 metadata:
-  license: "TBD"
+  license: "{{PROJECT_LICENSE}}"
   language: "en"
 
 manuscript_dir: "manuscript"

@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 892 |
-| Python test files | 480 |
+| Python test files | 481 |
 | Tracked README.md files | 829 |
 | Tracked AGENTS.md files | 828 |
 
@@ -19,6 +19,7 @@ uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
+uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 ```
 
@@ -30,6 +31,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 - Module catalog: [`GEO-INFER-INTRA/docs/modules/index.md`](GEO-INFER-INTRA/docs/modules/index.md)
 - Developer workflow: [`GEO-INFER-INTRA/docs/developer_guide/index.md`](GEO-INFER-INTRA/docs/developer_guide/index.md)
 - Test and release gates: [`GEO-INFER-TEST/docs/index.md`](GEO-INFER-TEST/docs/index.md)
+- Manuscript generation and evidence: [`manuscript/README.md`](manuscript/README.md)
 - Active Inference reference: [`GEO-INFER-INTRA/docs/active_inference_guide.md`](GEO-INFER-INTRA/docs/active_inference_guide.md)
 - Spatial/H3 reference: [`GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md`](GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md)
 - Contribution rules: [`CONTRIBUTING.md`](CONTRIBUTING.md)
@@ -102,7 +104,7 @@ the exact reproducible exception list.
 | `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 82 | 33 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
-| `GEO-INFER-TEST` | `geo_infer_test` | 14 | 22 |
+| `GEO-INFER-TEST` | `geo_infer_test` | 14 | 23 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 7 |
 | `GEO-INFER-WATER` | `geo_infer_water` | 11 | 7 |
@@ -129,6 +131,7 @@ the exact reproducible exception list.
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
 - Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
 - Source runtime hygiene: `uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
+- Manuscript variables, figures, captions, and resolved copies: `uv run python manuscript/generate_research_artifacts.py`
 
 ## Repo-wide Change Workflow
 
@@ -142,8 +145,9 @@ the exact reproducible exception list.
 
 - Test reports belong under `.geo-infer-test-results/`.
 - Model-audit artifacts are emitted under `.geo-infer-test-results/model-audit/`.
-- Scenario and visualization outputs must use an explicit output directory and
-  must not write to repository-root `output/`, `outputs/`, or `test_output/`.
+- The manuscript pipeline is the only approved writer to ignored repository-root
+  `output/`; scenario and other visualization outputs must use an explicit
+  output directory and must not write there.
 - Generated signposts must describe tracked files only; local caches and build
   products are intentionally excluded.
 

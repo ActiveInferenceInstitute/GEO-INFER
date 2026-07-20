@@ -8,6 +8,7 @@ __pycache__/
 .pytest_cache/
 /.geo-infer-test-results/
 /outputs/
+/output/
 /logs/
 
 # Build artifacts
