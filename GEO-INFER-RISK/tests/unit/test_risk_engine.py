@@ -41,7 +41,9 @@ def test_engine_context_closes_executor_and_rejects_new_work(tmp_path: Path) -> 
         engine.run_monte_carlo_analysis(num_iterations=1)
 
 
-def test_engine_event_sampling_is_reproducible_without_global_rng(tmp_path: Path) -> None:
+def test_engine_event_sampling_is_reproducible_without_global_rng(
+    tmp_path: Path,
+) -> None:
     first_engine = EnhancedRiskEngine(engine_config(tmp_path / "first"))
     second_engine = EnhancedRiskEngine(engine_config(tmp_path / "second"))
     try:
@@ -62,4 +64,6 @@ def test_engine_rejects_underspecified_calibration(tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="at least two"):
             engine.calibrate_models({"samples": []})
         with pytest.raises(ValueError, match="BayesianModel adapter"):
-            engine.calibrate_models({"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian")
+            engine.calibrate_models(
+                {"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian"
+            )

@@ -11,7 +11,8 @@ from typing import Any, Dict
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_bayes.core.mcmc import MCMC
 from geo_infer_bayes.models.base import BayesianModel
@@ -22,16 +23,16 @@ class _GaussianModel(BayesianModel):
 
     def _setup_model(self, **kwargs) -> None:
         self.parameters = {
-            'mu': {'prior': 'normal', 'hyperparams': {'mu': 0.0, 'sigma': 10.0}},
+            "mu": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 10.0}},
         }
 
     def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
         obs = np.asarray(data)
-        mu = theta['mu']
+        mu = theta["mu"]
         return float(-0.5 * np.sum((obs - mu) ** 2))
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
-        mu = theta['mu']
+        mu = theta["mu"]
         sigma_prior = 10.0
         return float(-0.5 * (mu / sigma_prior) ** 2)
 
@@ -90,11 +91,11 @@ class TestMCMCInitialization:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, n_chains=3, random_seed=0)
         data = np.array([1.0, 2.0])
-        chains = mcmc._initialize_chains(data, 'random')
+        chains = mcmc._initialize_chains(data, "random")
         assert len(chains) == 3
         for chain in chains:
-            assert 'mu' in chain
-            assert isinstance(chain['mu'], (float, np.floating))
+            assert "mu" in chain
+            assert isinstance(chain["mu"], (float, np.floating))
 
 
 class TestMCMCProposal:
@@ -102,18 +103,18 @@ class TestMCMCProposal:
     def test_propose_returns_new_theta(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, random_seed=0)
-        current = {'mu': 1.0}
+        current = {"mu": 1.0}
         proposed, log_ratio = mcmc._propose(current)
-        assert 'mu' in proposed
+        assert "mu" in proposed
         # With step_size > 0, proposed should differ from current
         # (statistically almost certain)
-        assert proposed['mu'] != current['mu'] or True  # non-deterministic
+        assert proposed["mu"] != current["mu"] or True  # non-deterministic
 
     def test_log_proposal_ratio_is_zero_for_symmetric(self) -> None:
         """Normal proposals are symmetric, so log ratio should be 0."""
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, random_seed=1)
-        current = {'mu': 0.0}
+        current = {"mu": 0.0}
         _, log_ratio = mcmc._propose(current)
         np.testing.assert_allclose(log_ratio, 0.0)
 
@@ -124,11 +125,9 @@ class TestMCMCSampling:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, n_chains=1, random_seed=42)
         data = np.array([2.0, 2.5, 3.0, 2.0, 2.5])
-        samples = mcmc.run(
-            data, n_samples=100, n_warmup=50, progress_bar=False
-        )
-        assert 'mu' in samples
-        assert len(samples['mu']) == 100  # 1 chain * 100 samples
+        samples = mcmc.run(data, n_samples=100, n_warmup=50, progress_bar=False)
+        assert "mu" in samples
+        assert len(samples["mu"]) == 100  # 1 chain * 100 samples
 
     def test_posterior_mean_near_data_mean(self) -> None:
         """For a Gaussian likelihood with flat prior, the posterior mean
@@ -137,10 +136,8 @@ class TestMCMCSampling:
         mcmc = MCMC(model, n_chains=2, step_size=0.5, random_seed=0)
         rng = np.random.RandomState(0)
         data = rng.normal(5.0, 1.0, size=20)
-        samples = mcmc.run(
-            data, n_samples=500, n_warmup=200, progress_bar=False
-        )
-        posterior_mean = np.mean(samples['mu'])
+        samples = mcmc.run(data, n_samples=500, n_warmup=200, progress_bar=False)
+        posterior_mean = np.mean(samples["mu"])
         # With 20 data points from N(5,1) and broad prior, posterior
         # mean should be near 5.0
         np.testing.assert_allclose(posterior_mean, np.mean(data), atol=1.5)
@@ -149,10 +146,8 @@ class TestMCMCSampling:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, n_chains=1, random_seed=10)
         data = np.array([1.0, 2.0, 3.0])
-        samples = mcmc.run(
-            data, n_samples=50, n_warmup=20, thin=2, progress_bar=False
-        )
-        assert len(samples['mu']) == 50
+        samples = mcmc.run(data, n_samples=50, n_warmup=20, thin=2, progress_bar=False)
+        assert len(samples["mu"]) == 50
 
 
 class TestMCMCLogPosterior:
@@ -160,7 +155,7 @@ class TestMCMCLogPosterior:
     def test_log_posterior_finite(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model)
-        theta = {'mu': 1.0}
+        theta = {"mu": 1.0}
         data = np.array([1.0, 2.0])
         lp = mcmc._log_posterior(theta, data)
         assert np.isfinite(lp)
@@ -171,12 +166,14 @@ class TestMCMCLogPosterior:
 
         # Monkey-patch to raise
         original = model.log_posterior
+
         def bad_log_post(theta, data):
             raise ValueError("bad")
+
         model.log_posterior = bad_log_post
 
         mcmc = MCMC(model)
-        result = mcmc._log_posterior({'mu': 0.0}, np.array([1.0]))
+        result = mcmc._log_posterior({"mu": 0.0}, np.array([1.0]))
         assert result == -np.inf
 
         model.log_posterior = original

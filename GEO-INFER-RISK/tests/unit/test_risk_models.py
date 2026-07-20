@@ -43,9 +43,7 @@ class TestRiskModels:
 
     @staticmethod
     def _configured_model(seed: int = 7) -> RiskModel:
-        model = RiskModel(
-            RiskParameters(monte_carlo_iterations=8, random_seed=seed)
-        )
+        model = RiskModel(RiskParameters(monte_carlo_iterations=8, random_seed=seed))
         model.set_hazard(FloodHazardModel())
         model.set_vulnerability(BuildingVulnerabilityModel())
         model.set_exposure(PopulationExposureModel())

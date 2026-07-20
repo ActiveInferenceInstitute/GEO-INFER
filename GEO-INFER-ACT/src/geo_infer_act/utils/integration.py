@@ -519,9 +519,9 @@ def integrate_rxinfer(
     data = model_params.get(
         "data",
         {
-            "observations": np.random.default_rng(
-                config.get("random_seed", 0)
-            ).normal(size=10)
+            "observations": np.random.default_rng(config.get("random_seed", 0)).normal(
+                size=10
+            )
         },
     )
 

@@ -11,10 +11,10 @@ from tqdm import tqdm
 class HMC:
     """
     Hamiltonian Monte Carlo (HMC) for Bayesian inference.
-    
+
     This class implements HMC sampling for Bayesian models with enhanced
     efficiency for high-dimensional parameter spaces.
-    
+
     Parameters
     ----------
     model : BayesianModel
@@ -34,7 +34,7 @@ class HMC:
     random_seed : int, optional
         Random seed for reproducibility
     """
-    
+
     def __init__(
         self,
         model,
@@ -66,21 +66,21 @@ class HMC:
         self.random_seed = random_seed
         self.rng = np.random.default_rng(random_seed)
         self._parameter_layout = None
-    
+
     def run(
         self,
         data: Any,
         n_samples: int = 1000,
         n_warmup: int = 500,
         thin: int = 1,
-        init_strategy: str = 'random',
+        init_strategy: str = "random",
         use_nuts: bool = True,
         progress_bar: bool = True,
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Run HMC sampling for the model.
-        
+
         Parameters
         ----------
         data : any
@@ -99,7 +99,7 @@ class HMC:
             Whether to show a progress bar
         **kwargs : dict
             Additional arguments for sampling
-            
+
         Returns
         -------
         dict or Dataset
@@ -114,38 +114,40 @@ class HMC:
         # Initialize chains
         chains = self._initialize_chains(data, init_strategy, **kwargs)
         self._set_parameter_layout(chains[0])
-        
+
         # Prepare storage for samples
         n_params = self._parameter_dimension
-        
+
         # Allocate sample storage - shape: (n_chains, n_samples, n_params)
         samples = np.zeros((self.n_chains, n_samples, n_params))
-        
+
         # Acceptance tracking
         acceptance_rate = np.zeros(self.n_chains)
-        
+
         # Current log probabilities and parameters for each chain
         current_params = chains
         current_log_prob = np.zeros(self.n_chains)
         current_grad = [None] * self.n_chains
-        
+
         for c in range(self.n_chains):
             theta = current_params[c]
-            current_log_prob[c], current_grad[c] = self._compute_log_posterior_grad(theta, data)
-        
+            current_log_prob[c], current_grad[c] = self._compute_log_posterior_grad(
+                theta, data
+            )
+
         # Momentum distribution - standard normal
         def momentum_dist(size: int) -> np.ndarray:
             return self.rng.normal(0, 1, size=size)
-        
+
         # Adapt step size during warmup
         step_sizes = [self.step_size] * self.n_chains
-        
+
         # Run sampling
         total_iterations = n_warmup + n_samples * thin
         iterator = range(total_iterations)
         if progress_bar:
             iterator = tqdm(iterator, desc="HMC sampling")
-            
+
         for i in iterator:
             # Adapt step size during warmup
             if i < n_warmup and self.adapt_step_size and i % 50 == 0 and i > 0:
@@ -155,56 +157,66 @@ class HMC:
                         step_sizes[c] *= 0.9
                     elif accept_rate > self.target_accept + 0.1:
                         step_sizes[c] *= 1.1
-            
+
             # Update each chain
             for c in range(self.n_chains):
                 # Get current state
                 theta = current_params[c]
                 log_prob = current_log_prob[c]
                 grad = current_grad[c]
-                
+
                 # Initialize momentum
                 momentum = momentum_dist(n_params)
                 # Leapfrog integration
                 if use_nuts:
                     # No-U-Turn Sampler (NUTS)
-                    new_theta, new_momentum, new_log_prob, new_grad, accepted = self._nuts_step(
-                        theta, momentum, log_prob, grad, 
-                        step_sizes[c], data
+                    new_theta, new_momentum, new_log_prob, new_grad, accepted = (
+                        self._nuts_step(
+                            theta, momentum, log_prob, grad, step_sizes[c], data
+                        )
                     )
                 else:
                     # Standard HMC with fixed trajectory
-                    new_theta, new_momentum, new_log_prob, new_grad, accepted = self._hmc_step(
-                        theta, momentum, log_prob, grad,
-                        step_sizes[c], self.n_steps, data
+                    new_theta, new_momentum, new_log_prob, new_grad, accepted = (
+                        self._hmc_step(
+                            theta,
+                            momentum,
+                            log_prob,
+                            grad,
+                            step_sizes[c],
+                            self.n_steps,
+                            data,
+                        )
                     )
-                
+
                 # Update state if accepted
                 if accepted:
                     current_params[c] = new_theta
                     current_log_prob[c] = new_log_prob
                     current_grad[c] = new_grad
                     acceptance_rate[c] += 1
-            
+
             # Store samples after warmup, respecting thinning
             if i >= n_warmup and (i - n_warmup) % thin == 0:
                 sample_idx = (i - n_warmup) // thin
                 for c in range(self.n_chains):
                     samples[c, sample_idx, :] = self._flatten_theta(current_params[c])
-        
+
         # Combine chains and convert to dictionary
         combined_samples = {}
         for param, start, end, shape in self._parameter_layout:
             values = samples[:, :, start:end].reshape((-1,) + shape)
             combined_samples[param] = values.reshape(-1) if shape == () else values
-        
+
         # Report diagnostics
         if progress_bar:
             for c in range(self.n_chains):
-                print(f"Chain {c+1} acceptance rate: {acceptance_rate[c] / total_iterations:.2f}")
-        
+                print(
+                    f"Chain {c+1} acceptance rate: {acceptance_rate[c] / total_iterations:.2f}"
+                )
+
         return combined_samples
-    
+
     def _hmc_step(
         self,
         theta: Dict[str, float],
@@ -213,7 +225,7 @@ class HMC:
         grad: np.ndarray,
         step_size: float,
         n_steps: int,
-        data: Any
+        data: Any,
     ) -> Tuple[Dict[str, float], np.ndarray, float, np.ndarray, bool]:
         """Perform a single HMC step with leapfrog integration."""
         # Make a copy of the initial state
@@ -221,44 +233,46 @@ class HMC:
         current_momentum = momentum.copy()
         current_log_prob = log_prob
         current_grad = grad.copy()
-        
+
         # Half step for momentum
         current_momentum += step_size * current_grad / 2
-        
+
         # Full steps for position and momentum
         for _ in range(n_steps):
             # Full step for position
             self._update_position(current_theta, current_momentum, step_size)
-            
+
             # Recompute gradient at new position
-            current_log_prob, current_grad = self._compute_log_posterior_grad(current_theta, data)
-            
+            current_log_prob, current_grad = self._compute_log_posterior_grad(
+                current_theta, data
+            )
+
             # Full step for momentum
             current_momentum += step_size * current_grad
-        
+
         # Half step for momentum
         current_momentum += step_size * current_grad / 2
-        
+
         # Negate momentum for reversibility
         current_momentum = -current_momentum
-        
+
         # Compute Hamiltonian (energy)
         current_K = 0.5 * np.sum(current_momentum**2)
         initial_K = 0.5 * np.sum(momentum**2)
-        
+
         initial_U = -log_prob
         current_U = -current_log_prob
-        
+
         # Compute acceptance probability
         delta_H = current_U + current_K - (initial_U + initial_K)
         accept_prob = min(1.0, float(np.exp(min(0.0, -delta_H))))
-        
+
         # Accept or reject
         if self.rng.random() < accept_prob:
             return current_theta, current_momentum, current_log_prob, current_grad, True
         else:
             return theta, momentum, log_prob, grad, False
-    
+
     def _nuts_step(
         self,
         theta: Dict[str, float],
@@ -266,7 +280,7 @@ class HMC:
         log_prob: float,
         grad: np.ndarray,
         step_size: float,
-        data: Any
+        data: Any,
     ) -> Tuple[Dict[str, float], np.ndarray, float, np.ndarray, bool]:
         """Perform one slice-sampled No-U-Turn transition.
 
@@ -489,7 +503,11 @@ class HMC:
                 )
 
             combined_count = count + second_count
-            if second_valid and second_count > 0 and self.rng.random() < second_count / max(combined_count, 1):
+            if (
+                second_valid
+                and second_count > 0
+                and self.rng.random() < second_count / max(combined_count, 1)
+            ):
                 candidate_theta = second_candidate
                 candidate_log_prob = second_log_prob
                 candidate_grad = second_grad
@@ -537,17 +555,16 @@ class HMC:
         left_momentum: np.ndarray,
         right_momentum: np.ndarray,
     ) -> bool:
-        displacement = self._flatten_theta(right_theta) - self._flatten_theta(left_theta)
+        displacement = self._flatten_theta(right_theta) - self._flatten_theta(
+            left_theta
+        )
         return bool(
             np.dot(displacement, left_momentum) >= 0
             and np.dot(displacement, right_momentum) >= 0
         )
-    
+
     def _update_position(
-        self,
-        theta: Dict[str, float],
-        momentum: np.ndarray,
-        step_size: float
+        self, theta: Dict[str, float], momentum: np.ndarray, step_size: float
     ) -> None:
         """Update position (parameters) using momentum."""
         self._ensure_parameter_layout(theta)
@@ -582,15 +599,13 @@ class HMC:
                 for param, _, _, _ in self._parameter_layout
             ]
         )
-    
+
     def _compute_log_posterior_grad(
-        self,
-        theta: Dict[str, float],
-        data: Any
+        self, theta: Dict[str, float], data: Any
     ) -> Tuple[float, np.ndarray]:
         """
         Compute log posterior and its gradient.
-        
+
         For simplicity, we'll use numerical differentiation.
         In practice, analytical gradients should be provided by the model
         for efficiency.
@@ -617,97 +632,96 @@ class HMC:
                 )
                 log_posterior_plus = float(self.model.log_posterior(theta_plus, data))
                 log_posterior_minus = float(self.model.log_posterior(theta_minus, data))
-                grad[start + index] = (log_posterior_plus - log_posterior_minus) / (2 * h)
+                grad[start + index] = (log_posterior_plus - log_posterior_minus) / (
+                    2 * h
+                )
 
         return log_posterior, grad
-    
+
     def _initialize_chains(
-        self,
-        data: Any,
-        init_strategy: str,
-        **kwargs
+        self, data: Any, init_strategy: str, **kwargs
     ) -> List[Dict[str, float]]:
         """Initialize the Markov chains."""
         param_names = list(self.model.parameters.keys())
         chains = []
-        
-        if init_strategy == 'custom' and 'custom_init' in kwargs:
-            custom_init = kwargs['custom_init']
+
+        if init_strategy == "custom" and "custom_init" in kwargs:
+            custom_init = kwargs["custom_init"]
             if len(custom_init) != self.n_chains:
                 raise ValueError("custom_init must contain one state per chain")
             return [dict(chain) for chain in custom_init]
 
-        if init_strategy not in {'random', 'prior', 'map'}:
+        if init_strategy not in {"random", "prior", "map"}:
             raise ValueError(
                 "init_strategy must be 'random', 'prior', 'map', or 'custom'"
             )
-        
+
         for c in range(self.n_chains):
             chain = {}
             for param in param_names:
                 param_info = self.model.parameters[param]
-                
-                if init_strategy == 'random':
+
+                if init_strategy == "random":
                     # Random initialization based on prior type
-                    if param_info['prior'] == 'log_normal':
-                        mu = param_info['hyperparams']['mu']
-                        sigma = param_info['hyperparams']['sigma']
+                    if param_info["prior"] == "log_normal":
+                        mu = param_info["hyperparams"]["mu"]
+                        sigma = param_info["hyperparams"]["sigma"]
                         chain[param] = np.exp(self.rng.normal(mu, sigma))
-                    elif param_info['prior'] == 'normal':
-                        mu = param_info['hyperparams']['mu']
-                        sigma = param_info['hyperparams']['sigma']
+                    elif param_info["prior"] == "normal":
+                        mu = param_info["hyperparams"]["mu"]
+                        sigma = param_info["hyperparams"]["sigma"]
                         chain[param] = self.rng.normal(mu, sigma)
-                    elif param_info['prior'] == 'uniform':
-                        low = param_info['hyperparams']['low']
-                        high = param_info['hyperparams']['high']
+                    elif param_info["prior"] == "uniform":
+                        low = param_info["hyperparams"]["low"]
+                        high = param_info["hyperparams"]["high"]
                         chain[param] = self.rng.uniform(low, high)
                     else:
                         # Default to standard normal
                         chain[param] = self.rng.normal(0, 1)
-                
-                elif init_strategy == 'prior':
+
+                elif init_strategy == "prior":
                     # Sample directly from prior
-                    if param_info['prior'] == 'log_normal':
-                        mu = param_info['hyperparams']['mu']
-                        sigma = param_info['hyperparams']['sigma']
+                    if param_info["prior"] == "log_normal":
+                        mu = param_info["hyperparams"]["mu"]
+                        sigma = param_info["hyperparams"]["sigma"]
                         chain[param] = np.exp(self.rng.normal(mu, sigma))
-                    elif param_info['prior'] == 'normal':
-                        mu = param_info['hyperparams']['mu']
-                        sigma = param_info['hyperparams']['sigma']
+                    elif param_info["prior"] == "normal":
+                        mu = param_info["hyperparams"]["mu"]
+                        sigma = param_info["hyperparams"]["sigma"]
                         chain[param] = self.rng.normal(mu, sigma)
-                    elif param_info['prior'] == 'uniform':
-                        low = param_info['hyperparams']['low']
-                        high = param_info['hyperparams']['high']
+                    elif param_info["prior"] == "uniform":
+                        low = param_info["hyperparams"]["low"]
+                        high = param_info["hyperparams"]["high"]
                         chain[param] = self.rng.uniform(low, high)
-                
-                elif init_strategy == 'map':
+
+                elif init_strategy == "map":
                     # Use the analytical prior mode as a stable initial point.
-                    if param_info['prior'] == 'log_normal':
-                        mu = param_info['hyperparams']['mu']
-                        sigma = param_info['hyperparams']['sigma']
+                    if param_info["prior"] == "log_normal":
+                        mu = param_info["hyperparams"]["mu"]
+                        sigma = param_info["hyperparams"]["sigma"]
                         chain[param] = np.exp(mu)  # Mode of log-normal
-                    elif param_info['prior'] == 'normal':
-                        mu = param_info['hyperparams']['mu']
+                    elif param_info["prior"] == "normal":
+                        mu = param_info["hyperparams"]["mu"]
                         chain[param] = mu  # Mode of normal
-                    elif param_info['prior'] == 'uniform':
-                        low = param_info['hyperparams']['low']
-                        high = param_info['hyperparams']['high']
+                    elif param_info["prior"] == "uniform":
+                        low = param_info["hyperparams"]["low"]
+                        high = param_info["hyperparams"]["high"]
                         chain[param] = (low + high) / 2  # Center of uniform
-            
+
             chains.append(chain)
-        
+
         return chains
-    
+
     def update(
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], xr.Dataset],
         n_samples: int = 500,
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Update previous samples with new data.
-        
+
         Parameters
         ----------
         new_data : any
@@ -718,7 +732,7 @@ class HMC:
             Number of new samples to generate
         **kwargs : dict
             Additional arguments for sampling
-            
+
         Returns
         -------
         dict or Dataset
@@ -726,7 +740,7 @@ class HMC:
         """
         # Convert previous samples to initialization points for chains
         param_names = list(self.model.parameters.keys())
-        
+
         # Get a random subset of previous samples to initialize chains
         if isinstance(previous_samples, dict):
             n_prev = len(previous_samples[param_names[0]])
@@ -755,13 +769,13 @@ class HMC:
                 for param in param_names:
                     chain[param] = previous_samples[param].values[idx]
                 chains.append(chain)
-        
+
         # Run sampling with new data, using previous samples as initialization
         return self.run(
             data=new_data,
             n_samples=n_samples,
             n_warmup=n_samples // 2,  # Shorter warmup for updates
-            init_strategy='custom',
+            init_strategy="custom",
             custom_init=chains,
-            **kwargs
+            **kwargs,
         )

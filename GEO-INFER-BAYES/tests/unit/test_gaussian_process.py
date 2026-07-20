@@ -11,7 +11,8 @@ from numpy.testing import assert_allclose
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_bayes import GaussianProcess
 
@@ -21,7 +22,7 @@ class TestGaussianProcessInit:
 
     def test_default_construction(self) -> None:
         gp = GaussianProcess()
-        assert gp.kernel_type == 'rbf'
+        assert gp.kernel_type == "rbf"
         assert gp.length_scale == 1.0
         assert gp.signal_variance == 1.0
         assert gp.noise_variance == 1e-2
@@ -30,17 +31,17 @@ class TestGaussianProcessInit:
 
     def test_custom_construction(self) -> None:
         gp = GaussianProcess(
-            kernel_type='matern32',
+            kernel_type="matern32",
             length_scale=0.5,
             signal_variance=2.0,
             noise_variance=0.05,
         )
-        assert gp.kernel_type == 'matern32'
+        assert gp.kernel_type == "matern32"
         assert gp.length_scale == 0.5
         assert gp.signal_variance == 2.0
 
     def test_unsupported_kernel_raises(self) -> None:
-        gp = GaussianProcess(kernel_type='invalid_kernel')
+        gp = GaussianProcess(kernel_type="invalid_kernel")
         X = np.array([[0.0], [1.0]])
         with pytest.raises(ValueError, match="Unsupported kernel"):
             gp._compute_kernel(X, X)
@@ -50,27 +51,29 @@ class TestGaussianProcessKernels:
     """Tests for kernel matrix computations."""
 
     def test_rbf_kernel_symmetric(self) -> None:
-        gp = GaussianProcess(kernel_type='rbf', length_scale=1.0, signal_variance=1.0)
+        gp = GaussianProcess(kernel_type="rbf", length_scale=1.0, signal_variance=1.0)
         X = np.random.RandomState(42).randn(10, 2)
         K = gp._compute_kernel(X, X)
         assert K.shape == (10, 10)
         assert_allclose(K, K.T, atol=1e-12)
 
     def test_rbf_kernel_diagonal(self) -> None:
-        gp = GaussianProcess(kernel_type='rbf', signal_variance=3.0)
+        gp = GaussianProcess(kernel_type="rbf", signal_variance=3.0)
         X = np.random.RandomState(7).randn(5, 1)
         K = gp._compute_kernel(X, X)
         assert_allclose(np.diag(K), 3.0 * np.ones(5), atol=1e-12)
 
     def test_matern32_kernel_positive_definite(self) -> None:
-        gp = GaussianProcess(kernel_type='matern32', length_scale=0.5)
+        gp = GaussianProcess(kernel_type="matern32", length_scale=0.5)
         X = np.random.RandomState(99).randn(8, 2)
         K = gp._compute_kernel(X, X) + 1e-8 * np.eye(8)
         eigvals = np.linalg.eigvalsh(K)
         assert np.all(eigvals > 0)
 
     def test_exponential_kernel(self) -> None:
-        gp = GaussianProcess(kernel_type='exponential', length_scale=2.0, signal_variance=1.5)
+        gp = GaussianProcess(
+            kernel_type="exponential", length_scale=2.0, signal_variance=1.5
+        )
         X = np.array([[0.0], [1.0], [2.0]])
         K = gp._compute_kernel(X, X)
         assert K.shape == (3, 3)

@@ -145,9 +145,7 @@ class VariationalInference:
                 iterator.set_postfix(ELBO=elbo)
 
         # Generate samples from the approximate posterior
-        samples = self._generate_samples(
-            best_params, n_samples=n_samples
-        )
+        samples = self._generate_samples(best_params, n_samples=n_samples)
 
         return samples
 
@@ -194,7 +192,9 @@ class VariationalInference:
             # factor L such that Sigma = L @ L.T approximates the prior covariance.
             # Use a small near-identity initialisation for numerical stability.
             sigma_init = param_info["hyperparams"].get("sigma", 1.0)
-            var_params[param]["cov_factor"] = np.eye(1) * float(np.asarray(sigma_init).reshape(-1)[0])
+            var_params[param]["cov_factor"] = np.eye(1) * float(
+                np.asarray(sigma_init).reshape(-1)[0]
+            )
 
         return var_params
 
@@ -317,20 +317,24 @@ class VariationalInference:
                 # Convert to log space
                 log_value = np.log(value)
                 # Gaussian log-pdf
-                log_prob += float(np.sum(
-                    -0.5 * ((log_value - mean) / std) ** 2
-                    - np.log(std)
-                    - 0.5 * np.log(2 * np.pi)
-                ))
+                log_prob += float(
+                    np.sum(
+                        -0.5 * ((log_value - mean) / std) ** 2
+                        - np.log(std)
+                        - 0.5 * np.log(2 * np.pi)
+                    )
+                )
                 # Jacobian adjustment for log transform
                 log_prob += float(-np.sum(np.log(value)))
             else:
                 # Regular Gaussian log-pdf
-                log_prob += float(np.sum(
-                    -0.5 * ((value - mean) / std) ** 2
-                    - np.log(std)
-                    - 0.5 * np.log(2 * np.pi)
-                ))
+                log_prob += float(
+                    np.sum(
+                        -0.5 * ((value - mean) / std) ** 2
+                        - np.log(std)
+                        - 0.5 * np.log(2 * np.pi)
+                    )
+                )
 
         return log_prob
 
@@ -442,9 +446,7 @@ class VariationalInference:
             var_params[param]["log_std"] += self.learning_rate * grads[param]["log_std"]
 
             # Constrain log_std for numerical stability
-            var_params[param]["log_std"] = np.clip(
-                var_params[param]["log_std"], -10, 2
-            )
+            var_params[param]["log_std"] = np.clip(var_params[param]["log_std"], -10, 2)
 
     def _effective_std(self, param_dist: Dict[str, np.ndarray]) -> np.ndarray:
         """Return the positive scalar standard deviation for the VI family."""
@@ -534,9 +536,7 @@ class VariationalInference:
                         f"previous samples for parameter {param} must be non-empty and finite"
                     )
                 var_params[param]["mean"] = np.mean(samples, axis=0)
-                var_params[param]["log_std"] = np.log(
-                    np.std(samples, axis=0) + 1e-10
-                )
+                var_params[param]["log_std"] = np.log(np.std(samples, axis=0) + 1e-10)
 
         # Run inference with the new data and warm-started parameters.
         return self.run(

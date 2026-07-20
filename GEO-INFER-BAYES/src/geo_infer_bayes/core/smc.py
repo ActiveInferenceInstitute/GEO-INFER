@@ -44,11 +44,7 @@ class SequentialMonteCarlo:
         self.rng = np.random.default_rng(random_seed)
 
     def run(
-        self,
-        data: Any,
-        n_steps: int = 100,
-        progress_bar: bool = True,
-        **kwargs
+        self, data: Any, n_steps: int = 100, progress_bar: bool = True, **kwargs
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Run SMC sampling for the model.
@@ -74,7 +70,10 @@ class SequentialMonteCarlo:
         # Run SMC steps
         for step in range(n_steps):
             # Resample if effective sample size is too low
-            if self._effective_sample_size(particles) < self.resampling_threshold * self.n_particles:
+            if (
+                self._effective_sample_size(particles)
+                < self.resampling_threshold * self.n_particles
+            ):
                 particles = self._resample_particles(particles)
 
             # Move particles
@@ -93,17 +92,17 @@ class SequentialMonteCarlo:
             particle = {}
 
             for param, param_info in self.model.parameters.items():
-                if param_info['prior'] == 'log_normal':
-                    mu = param_info['hyperparams']['mu']
-                    sigma = param_info['hyperparams']['sigma']
+                if param_info["prior"] == "log_normal":
+                    mu = param_info["hyperparams"]["mu"]
+                    sigma = param_info["hyperparams"]["sigma"]
                     particle[param] = np.exp(self.rng.normal(mu, sigma))
-                elif param_info['prior'] == 'normal':
-                    mu = param_info['hyperparams']['mu']
-                    sigma = param_info['hyperparams']['sigma']
+                elif param_info["prior"] == "normal":
+                    mu = param_info["hyperparams"]["mu"]
+                    sigma = param_info["hyperparams"]["sigma"]
                     particle[param] = self.rng.normal(mu, sigma)
-                elif param_info['prior'] == 'uniform':
-                    low = param_info['hyperparams']['low']
-                    high = param_info['hyperparams']['high']
+                elif param_info["prior"] == "uniform":
+                    low = param_info["hyperparams"]["low"]
+                    high = param_info["hyperparams"]["high"]
                     particle[param] = self.rng.uniform(low, high)
                 else:
                     particle[param] = self.rng.normal(0, 1)
@@ -127,7 +126,9 @@ class SequentialMonteCarlo:
 
         return 1.0 / np.sum(weights**2)
 
-    def _resample_particles(self, particles: List[Dict[str, float]]) -> List[Dict[str, float]]:
+    def _resample_particles(
+        self, particles: List[Dict[str, float]]
+    ) -> List[Dict[str, float]]:
         """Resample particles based on their weights."""
         weights = np.asarray([p.get("weight", 1.0) for p in particles], dtype=float)
         if (
@@ -148,16 +149,15 @@ class SequentialMonteCarlo:
         new_particles = []
         for idx in indices:
             new_particle = particles[idx].copy()
-            new_particle['weight'] = 1.0 / len(particles)  # Equal weights after resampling
+            new_particle["weight"] = 1.0 / len(
+                particles
+            )  # Equal weights after resampling
             new_particles.append(new_particle)
 
         return new_particles
 
     def _move_particles(
-        self,
-        particles: List[Dict[str, float]],
-        data: Any,
-        step: int
+        self, particles: List[Dict[str, float]], data: Any, step: int
     ) -> List[Dict[str, float]]:
         """Move particles using MCMC steps."""
         new_particles = []
@@ -167,7 +167,9 @@ class SequentialMonteCarlo:
             proposed = self._propose_particle(particle)
 
             # Compute acceptance probability
-            log_accept_prob = self._compute_acceptance_probability(particle, proposed, data)
+            log_accept_prob = self._compute_acceptance_probability(
+                particle, proposed, data
+            )
 
             # Accept or reject
             if np.log(self.rng.random()) < log_accept_prob:
@@ -198,10 +200,7 @@ class SequentialMonteCarlo:
         return proposed
 
     def _compute_acceptance_probability(
-        self,
-        current: Dict[str, float],
-        proposed: Dict[str, float],
-        data: Any
+        self, current: Dict[str, float], proposed: Dict[str, float], data: Any
     ) -> float:
         """Compute acceptance probability for particle move."""
         # Compute log posterior for current and proposed
@@ -218,7 +217,9 @@ class SequentialMonteCarlo:
 
         return float(min(0, log_accept_prob))  # Metropolis acceptance
 
-    def _extract_samples(self, particles: List[Dict[str, float]]) -> Dict[str, np.ndarray]:
+    def _extract_samples(
+        self, particles: List[Dict[str, float]]
+    ) -> Dict[str, np.ndarray]:
         """Extract samples from final particles."""
         samples = {}
 
@@ -234,7 +235,7 @@ class SequentialMonteCarlo:
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], Any],
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Update particles with new data.
@@ -268,7 +269,7 @@ class SequentialMonteCarlo:
             particle = {}
             for param, values in parameter_samples.items():
                 particle[param] = np.asarray(values)[index]
-            particle['weight'] = 1.0 / self.n_particles
+            particle["weight"] = 1.0 / self.n_particles
             particles.append(particle)
 
         # Run SMC on new data

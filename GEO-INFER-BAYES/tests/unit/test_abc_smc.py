@@ -29,6 +29,7 @@ def test_abc_sampling_is_reproducible_and_does_not_touch_global_rng() -> None:
         "noise": np.ones(10),
     }
     observed = np.array([0.0])
+
     def simulator(theta):
         return np.array([theta["trend"]])
 

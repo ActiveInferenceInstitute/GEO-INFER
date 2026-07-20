@@ -262,7 +262,9 @@ class EnhancedRiskEngine:
                     for method in ("__init__", "run", "update")
                 )
                 if not status.bayesian_inference_available:
-                    raise TypeError("BayesianInference does not expose the required API")
+                    raise TypeError(
+                        "BayesianInference does not expose the required API"
+                    )
                 status.bayes_integration = True
             except Exception as e:
                 self.logger.warning(f"BAYES integration check failed: {e}")

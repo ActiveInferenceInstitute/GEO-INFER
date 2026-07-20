@@ -16,7 +16,7 @@ class SpatialPrior:
     that account for spatial structure in the data.
     """
 
-    def __init__(self, prior_type: str = 'icar', **kwargs):
+    def __init__(self, prior_type: str = "icar", **kwargs):
         """
         Initialize the spatial prior.
 
@@ -27,7 +27,9 @@ class SpatialPrior:
         self.prior_type = prior_type.lower()
         self.parameters = kwargs
 
-    def log_prior(self, spatial_field: np.ndarray, adjacency_matrix: np.ndarray) -> float:
+    def log_prior(
+        self, spatial_field: np.ndarray, adjacency_matrix: np.ndarray
+    ) -> float:
         """
         Compute the log prior for a spatial field.
 
@@ -38,11 +40,11 @@ class SpatialPrior:
         Returns:
             Log prior value
         """
-        if self.prior_type == 'icar':
+        if self.prior_type == "icar":
             return self._icar_prior(spatial_field, adjacency_matrix)
-        elif self.prior_type == 'bym':
+        elif self.prior_type == "bym":
             return self._bym_prior(spatial_field, adjacency_matrix)
-        elif self.prior_type == 'leroux':
+        elif self.prior_type == "leroux":
             return self._leroux_prior(spatial_field, adjacency_matrix)
         else:
             raise ValueError(f"Unknown spatial prior type: {self.prior_type}")
@@ -58,7 +60,7 @@ class SpatialPrior:
         Reference: Besag (1974), Rue & Held (2005) Gaussian Markov Random Fields.
         """
         n = len(phi)
-        tau = self.parameters.get('tau', 1.0)
+        tau = self.parameters.get("tau", 1.0)
 
         # Compute the precision matrix
         Q = tau * (np.diag(W @ np.ones(n)) - W)
@@ -77,8 +79,8 @@ class SpatialPrior:
 
         Reference: Besag, York & Mollié (1991).
         """
-        alpha = self.parameters.get('alpha', 0.5)
-        tau = self.parameters.get('tau', 1.0)
+        alpha = self.parameters.get("alpha", 0.5)
+        tau = self.parameters.get("tau", 1.0)
 
         n = len(phi)
         Q_icar = tau * (np.diag(W @ np.ones(n)) - W)
@@ -99,8 +101,8 @@ class SpatialPrior:
 
         Reference: Leroux, Lei & Breslow (1999).
         """
-        rho = self.parameters.get('rho', 0.5)
-        tau = self.parameters.get('tau', 1.0)
+        rho = self.parameters.get("rho", 0.5)
+        tau = self.parameters.get("tau", 1.0)
 
         n = len(phi)
         D = np.diag(W @ np.ones(n))
@@ -119,7 +121,7 @@ class TemporalPrior:
     for time series and spatio-temporal models.
     """
 
-    def __init__(self, prior_type: str = 'ar1', **kwargs):
+    def __init__(self, prior_type: str = "ar1", **kwargs):
         """
         Initialize the temporal prior.
 
@@ -140,19 +142,19 @@ class TemporalPrior:
         Returns:
             Log prior value
         """
-        if self.prior_type == 'ar1':
+        if self.prior_type == "ar1":
             return self._ar1_prior(temporal_field)
-        elif self.prior_type == 'rw1':
+        elif self.prior_type == "rw1":
             return self._rw1_prior(temporal_field)
-        elif self.prior_type == 'rw2':
+        elif self.prior_type == "rw2":
             return self._rw2_prior(temporal_field)
         else:
             raise ValueError(f"Unknown temporal prior type: {self.prior_type}")
 
     def _ar1_prior(self, x: np.ndarray) -> float:
         """First-order autoregressive (AR(1)) prior."""
-        phi = self.parameters.get('phi', 0.5)
-        tau = self.parameters.get('tau', 1.0)
+        phi = self.parameters.get("phi", 0.5)
+        tau = self.parameters.get("tau", 1.0)
 
         # Compute differences
         diffs = x[1:] - phi * x[:-1]
@@ -164,7 +166,7 @@ class TemporalPrior:
 
     def _rw1_prior(self, x: np.ndarray) -> float:
         """Random walk of order 1 (RW1) prior."""
-        tau = self.parameters.get('tau', 1.0)
+        tau = self.parameters.get("tau", 1.0)
 
         # Compute first differences
         diffs = x[1:] - x[:-1]
@@ -176,7 +178,7 @@ class TemporalPrior:
 
     def _rw2_prior(self, x: np.ndarray) -> float:
         """Random walk of order 2 (RW2) prior."""
-        tau = self.parameters.get('tau', 1.0)
+        tau = self.parameters.get("tau", 1.0)
 
         # Compute second differences
         diffs = x[2:] - 2 * x[1:-1] + x[:-2]
@@ -194,7 +196,7 @@ class GaussianProcessPrior:
     This class provides GP priors for spatial and spatio-temporal models.
     """
 
-    def __init__(self, kernel: str = 'matern', **kwargs):
+    def __init__(self, kernel: str = "matern", **kwargs):
         """
         Initialize the Gaussian Process prior.
 
@@ -217,10 +219,10 @@ class GaussianProcessPrior:
             Log prior value
         """
         # Log-normal priors for positive parameters
-        ls_mu = self.parameters.get('lengthscale_mu', 0.0)
-        ls_sigma = self.parameters.get('lengthscale_sigma', 1.0)
-        var_mu = self.parameters.get('variance_mu', 0.0)
-        var_sigma = self.parameters.get('variance_sigma', 1.0)
+        ls_mu = self.parameters.get("lengthscale_mu", 0.0)
+        ls_sigma = self.parameters.get("lengthscale_sigma", 1.0)
+        var_mu = self.parameters.get("variance_mu", 0.0)
+        var_sigma = self.parameters.get("variance_sigma", 1.0)
 
         log_prior = 0.0
 
