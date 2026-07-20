@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-SPACE`.
 
 - `test_analytics_comprehensive.py`
 - `test_analytics_context_contract.py`
+- `test_api_schemas.py`
 - `test_backends_comprehensive.py`
 - `test_base_module.py`
 - `test_core.py`
