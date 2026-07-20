@@ -23,7 +23,6 @@
 
 - `examples/`
 - `geo_infer_space/`
-- `h3_v3_to_v4_upgrade.py`
 
 ## Validation
 

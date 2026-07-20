@@ -8,6 +8,7 @@ Utils workspace within `GEO-INFER-ANT`.
 - `config.py`
 - `integration.py`
 - `logging.py`
+- `spatial.py`
 
 ## Public Interface
 

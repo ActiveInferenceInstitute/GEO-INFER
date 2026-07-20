@@ -33,6 +33,7 @@
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
+- `validate_documentation.py`
 - `validate_h3_active_inference_contract.py`
 - `validate_model_contracts.py`
 - `validate_repo_contracts.py`

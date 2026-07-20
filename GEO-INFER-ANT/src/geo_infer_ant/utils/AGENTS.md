@@ -25,6 +25,7 @@
 - `config.py`
 - `integration.py`
 - `logging.py`
+- `spatial.py`
 
 ## Validation
 

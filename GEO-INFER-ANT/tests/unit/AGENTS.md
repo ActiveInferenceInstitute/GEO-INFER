@@ -25,6 +25,7 @@
 - `test_analysis.py`
 - `test_applications.py`
 - `test_core.py`
+- `test_deep_contracts.py`
 - `test_integration_contract.py`
 - `test_metrics.py`
 

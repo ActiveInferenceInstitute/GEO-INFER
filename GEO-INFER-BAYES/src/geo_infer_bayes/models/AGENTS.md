@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `_model_utils.py`
 - `base.py`
 - `bayesian_network.py`
 - `bayesian_timeseries.py`

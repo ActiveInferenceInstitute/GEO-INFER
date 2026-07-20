@@ -6,7 +6,6 @@ Src workspace within `GEO-INFER-SPACE`.
 
 - `examples/`
 - `geo_infer_space/`
-- `h3_v3_to_v4_upgrade.py`
 
 ## Public Interface
 
