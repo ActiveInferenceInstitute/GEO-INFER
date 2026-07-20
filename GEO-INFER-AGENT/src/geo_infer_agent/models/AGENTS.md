@@ -25,7 +25,6 @@
 - `schemas/`
 - `__init__.py`
 - `active_inference.py`
-- `bdi.py`
 - `hybrid.py`
 - `rl.py`
 - `rule_based.py`

@@ -29,6 +29,7 @@
 - `test_likelihoods.py`
 - `test_mcmc.py`
 - `test_model_comparison.py`
+- `test_model_contracts.py`
 - `test_posterior.py`
 - `test_priors.py`
 - `test_spatial_gp.py`
