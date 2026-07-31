@@ -626,7 +626,7 @@ class TestGenerativeModel(unittest.TestCase):
         model.enable_h3_spatial(8, boundary)
         if hasattr(model, "spatial_config"):
             self.assertTrue(model.spatial_mode)
-            self.assertGreater(model.state_dim, 1)
+            self.assertTrue(len(model.h3_cells) > 0)
 
     def test_update_h3_beliefs(self):
         model = GenerativeModel("categorical", {"state_dim": 2})
