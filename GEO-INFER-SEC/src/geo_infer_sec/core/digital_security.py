@@ -27,7 +27,7 @@ import jwt
 import yaml
 
 from ..utils.security_utils import SecurityUtils
-from ..models.security_models import SecurityEvent, ThreatLevel, SecurityAlert
+from ..models.security_models import SecurityEvent, ThreatLevel, SecurityAlert, SecurityEventCategory
 
 
 class ThreatType(Enum):
@@ -462,11 +462,10 @@ class DigitalSecurityManager:
         """Trigger security alerts for detected threats."""
         alert = SecurityAlert(
             alert_id=f"alert_{threat.threat_id}",
-            threat_id=threat.threat_id,
+            title=threat.threat_type.name if hasattr(threat.threat_type, 'name') else str(threat.threat_type),
+            description=threat.description or f"Digital threat detected: {threat.threat_type.value}",
             severity=threat.severity,
-            message=threat.description,
-            timestamp=datetime.now(),
-            metadata=threat.metadata,
+            category=SecurityEventCategory.NETWORK_ACTIVITY,
         )
 
         # Execute alert callbacks

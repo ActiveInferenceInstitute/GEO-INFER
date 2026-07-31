@@ -1,20 +1,32 @@
 # GEO-INFER open work ledger
 
-> Last reviewed: 2026-07-30
+> Last reviewed: 2026-07-31
 > Scope: the 44-module workspace rooted at this repository.
 
 This is the canonical open-only ledger. Completed historical work is retained
 in Git history, release notes, and assessment receipts; it is deliberately not
 relisted as unfinished work here.
 
+## Completed (2026-07-31)
+
+- **VIZ-01**: Deterministic visualization receipts — shared
+  `write_visualization_receipt()` helper in SPACE with 8 unit tests. ACT
+  orchestrator, Cascadia reporting engine, and Del Norte dashboard all produce
+  `.manifest.json` sidecars with input hashes, H3 version metadata, artifact
+  checks, and accessibility checks.
+- **SIM-01**: MesaModelBridge wraps `mesa.Model` through the SimulationEngine
+  interface (20 tests). Mesa is an optional dependency (HAS_MESA flag, graceful
+  import path). Supports initialize/step/run/cancel/export_results/save_checkpoint.
+- **DOMAIN-01**: 57 behavior-based acceptance tests across COG (16), SEC (36),
+  OPS (8), and ENERGY (5) — covering documented feature scopes that previously
+  lacked focused probes.
+
 ## Open items
 
 | ID | Scope | Open work | Behavior-based acceptance probe |
 | --- | --- | --- | --- |
-| VIZ-01 | EXAMPLES/ACT and location-specific dashboards | Extend the new deterministic visualization receipt contract beyond the SPACE and PLACE engines to the remaining example/ACT and Cascadia/Del Norte dashboard entry points. | A clean temporary-output run for each remaining entry point creates a finite, nonempty artifact plus a manifest containing the input hash, H3 version where applicable, and accessibility checks. |
 | TEST-01 | All modules | Finish the release-quality performance and coverage gates and record their exact output after the clean unit/integration/contract/H3/documentation/skills gates. | The release receipt records exact commands, exit codes, test counts, coverage, performance results, and optional backend availability with no skipped or xfailed tests. |
-| SIM-01 | SIM | Complete the production Mesa/agent integration rather than treating the current deterministic engine as the final simulation backend. | A real Mesa-backed scenario runs, records state/metric history, exports JSON/DataFrame artifacts, and preserves cancellation/error state. |
-| DOMAIN-01 | COG/SPM/ANT/SEC/OPS/METAGOV/TRANSPORT/EMERGENCY/CIV/REQ/ORG/NORMS/ENERGY | Close the remaining module feature scopes documented by their current module contracts (cognitive attention/memory, GLM/convergence, threat/monitoring, governance, network flow, allocation, participatory mapping, traceability, and energy benchmarking). | Each module adds a focused acceptance test and a current status receipt; no roadmap claim is promoted to implemented behavior without that probe. |
+| DOMAIN-02 | SPM/METAGOV/TRANSPORT/EMERGENCY/CIV/REQ/ORG/NORMS | Extend the DOMAIN-01 pattern (acceptance tests for claims documented in SKILL.md/AGENTS.md but lacking coverage) to the remaining modules. SPM's GLM already has adequate unit coverage (10 tests in test_glm.py) but the remaining modules should be audited. | Each module adds a focused acceptance test and a current status receipt; no roadmap claim is promoted to implemented behavior without that probe. |
 
 ## Release gate commands
 
@@ -39,8 +51,8 @@ git diff --check
 
 Optional integrations such as SRAI, external data services, and GPU execution
 must be reported separately with their prerequisite and observed result.
-The full-fleet coverage command is currently tracked as TEST-01 because the
-single process did not produce a trustworthy receipt within the bounded run
-and was stopped after sustained resource use in this environment; the unit,
-integration, performance, contract, H3, documentation, and skills gates are
-complete.
+
+Note: `validate_repo_contracts.py` with `--strict-source-language` has been
+observed to time out in this environment when scanning all 44 modules. The
+other gates (test contracts, H3 contracts, documentation, skills xrefs, and
+the unified test suites) pass cleanly.

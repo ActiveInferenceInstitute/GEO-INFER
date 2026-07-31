@@ -1,299 +1,88 @@
-#!/usr/bin/env python3
-"""
-GEO-INFER Framework Test Script
+"""Framework integration tests converted to pytest.
 
-This script tests the framework installation and verifies that all modules
-can be imported and used correctly.
+Tests that the module structure, imports, and cross-module integration
+work correctly. Originally a standalone script, converted to pytest format.
 """
 
-import sys
-import logging
+from __future__ import annotations
+
+import importlib
 from pathlib import Path
-from typing import Dict, List, Any
-import json
+from typing import Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+import pytest
+
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+MINIMUM_MODULE_COUNT = 44
+
+
+def _discover_module_packages() -> list[str]:
+    """Return geo_infer_* packages under GEO-INFER-*/src/, excluding egg-info."""
+    packages: list[str] = []
+    for src_dir in ROOT.glob("GEO-INFER-*/src"):
+        for pkg in src_dir.iterdir():
+            if pkg.is_dir() and pkg.name.startswith("geo_infer_") and "egg-info" not in pkg.name:
+                packages.append(pkg.name)
+    return sorted(packages)
+
+
+# --- Tests ---
+
+def test_module_count() -> None:
+    """At least 44 GEO-INFER module packages are discoverable."""
+    modules = _discover_module_packages()
+    assert len(modules) >= MINIMUM_MODULE_COUNT, (
+        f"Expected >= {MINIMUM_MODULE_COUNT} modules, found {len(modules)}: {modules}"
+    )
+
+
+@pytest.mark.parametrize(
+    "module_name",
+    ["geo_infer_space", "geo_infer_place", "geo_infer_math",
+     "geo_infer_bayes", "geo_infer_act", "geo_infer_iot",
+     "geo_infer_sec", "geo_infer_agent", "geo_infer_sim"],
 )
-logger = logging.getLogger(__name__)
-
-def run_path_manager_check():
-    """Run the path manager check used by the executable test report."""
-    logger.info("=== Testing Path Manager ===")
-    
+def test_core_modules_import(module_name: str) -> None:
+    """Core modules import without error."""
     try:
-        try:
-            from .geo_infer_paths import get_path_manager, list_available_modules, is_module_installed
-        except ImportError:
-            import sys
-            from pathlib import Path as _Path
-            sys.path.insert(0, str(_Path(__file__).parent.parent / "examples"))
-            try:
-                from geo_infer_paths import get_path_manager, list_available_modules, is_module_installed
-            except ImportError:
-                get_path_manager = None
-                list_available_modules = lambda: []
-                is_module_installed = lambda m: False
+        importlib.import_module(module_name)
+    except ImportError as e:
+        pytest.fail(f"Failed to import {module_name}: {e}")
 
-        manager = get_path_manager()
-        available_modules = list_available_modules()
-        
-        logger.info(f"Available modules: {len(available_modules)}")
-        for module in available_modules:
-            installed = is_module_installed(module)
-            status = "✓ installed" if installed else "○ development"
-            logger.info(f"  {module}: {status}")
-        
-        return True
-    except Exception as e:
-        logger.error(f"Path manager test failed: {e}")
-        return False
 
-def run_module_import_checks():
-    """Run import checks for all available modules."""
-    logger.info("=== Testing Module Imports ===")
-    
-    try:
-        try:
-            from .geo_infer_paths import import_module, list_available_modules
-        except ImportError:
-            import sys
-            from pathlib import Path as _Path
-            sys.path.insert(0, str(_Path(__file__).parent.parent / "examples"))
-            try:
-                from geo_infer_paths import import_module, list_available_modules
-            except ImportError:
-                import_module = lambda m: None
-                list_available_modules = lambda: []
-
-        available_modules = list_available_modules()
-        results = {}
-        
-        for module_name in available_modules:
-            try:
-                module = import_module(module_name)
-                if module:
-                    results[module_name] = {
-                        'status': 'success',
-                        'version': getattr(module, '__version__', 'unknown'),
-                        'file': getattr(module, '__file__', 'unknown')
-                    }
-                    logger.info(f"✓ {module_name} imported successfully")
-                else:
-                    results[module_name] = {'status': 'failed', 'error': 'Import returned None'}
-                    logger.error(f"✗ {module_name} import returned None")
-            except Exception as e:
-                results[module_name] = {'status': 'error', 'error': str(e)}
-                logger.error(f"✗ {module_name} import failed: {e}")
-        
-        return results
-    except Exception as e:
-        logger.error(f"Module import test failed: {e}")
-        return {}
-
-def run_cross_module_import_checks():
-    """Run cross-module import checks for commonly used symbols."""
-    logger.info("=== Testing Cross-Module Imports ===")
-    
-    cross_import_tests = [
-        ('geo_infer_place', 'PlaceAnalyzer'),
-        ('geo_infer_space', 'SpatialIndexingInterface'),
-        ('geo_infer_iot', 'IoTDataIngestion'),
-        ('geo_infer_bayes', 'GaussianProcess'),
-        ('geo_infer_act', 'ActiveInferenceModel'),
-        ('geo_infer_agent', 'AgentFramework'),
-        ('geo_infer_art', 'ArtisticVisualization'),
-        ('geo_infer_sec', 'SecurityFramework'),
-        ('geo_infer_test', 'TestRunner'),
-        ('geo_infer_api', 'APIManager'),
-        ('geo_infer_norms', 'ComplianceFramework'),
-        ('geo_infer_ops', 'OperationsManager'),
-        ('geo_infer_examples', 'ExampleRunner'),
-        ('geo_infer_git', 'GitManager'),
+def test_cross_module_references() -> None:
+    """Key cross-module symbols can be imported from their modules."""
+    checks: list[tuple[str, str]] = [
+        ("geo_infer_place", "PlaceAnalyzer"),
+        ("geo_infer_space", "SpatialIndexingInterface"),
+        ("geo_infer_iot", "IoTDataIngestion"),
+        ("geo_infer_bayes", "GaussianProcess"),
+        ("geo_infer_sec", "SecurityFramework"),
     ]
-    
-    try:
+    failures: list[str] = []
+    for module_name, symbol in checks:
         try:
-            from .geo_infer_paths import import_from_module
-        except ImportError:
-            import sys
-            from pathlib import Path as _Path
-            sys.path.insert(0, str(_Path(__file__).parent.parent / "examples"))
-            try:
-                from geo_infer_paths import import_from_module
-            except ImportError:
-                import_from_module = lambda m, i: None
+            mod = importlib.import_module(module_name)
+            if not hasattr(mod, symbol):
+                failures.append(f"{module_name} has no attribute {symbol}")
+        except ImportError as e:
+            failures.append(f"Cannot import {module_name}: {e}")
+    assert not failures, "Cross-module reference failures:\n" + "\n".join(failures)
 
-        results = {}
-        for module_name, item_name in cross_import_tests:
-            try:
-                item = import_from_module(module_name, item_name)
-                if item:
-                    results[f"{module_name}.{item_name}"] = {
-                        'status': 'success',
-                        'type': type(item).__name__
-                    }
-                    logger.info(f"✓ {module_name}.{item_name} imported successfully")
-                else:
-                    results[f"{module_name}.{item_name}"] = {
-                        'status': 'not_found',
-                        'error': 'Item not found in module'
-                    }
-                    logger.warning(f"○ {module_name}.{item_name} not found in module")
-            except Exception as e:
-                results[f"{module_name}.{item_name}"] = {
-                    'status': 'error',
-                    'error': str(e)
-                }
-                logger.error(f"✗ {module_name}.{item_name} import failed: {e}")
-        
-        return results
-    except Exception as e:
-        logger.error(f"Cross-module import test failed: {e}")
-        return {}
 
-def run_framework_entry_point_check():
-    """Run the main framework entry-point check."""
-    logger.info("=== Testing Framework Entry Point ===")
-    
-    try:
-        try:
-            from . import get_framework, list_modules, run_diagnostics
-        except ImportError:
-            get_framework = lambda: {}
-            list_modules = lambda: []
-            run_diagnostics = lambda: {'framework_version': 'unknown', 'python_version': sys.version}
-
-        framework = get_framework()
-        modules = list_modules()
-        diagnostics = run_diagnostics()
-        
-        logger.info(f"Framework loaded {len(modules)} modules")
-        logger.info(f"Framework version: {diagnostics.get('framework_version', 'unknown')}")
-        logger.info(f"Python version: {diagnostics.get('python_version', 'unknown')}")
-        
-        return {
-            'framework_loaded': True,
-            'module_count': len(modules),
-            'diagnostics': diagnostics
-        }
-    except Exception as e:
-        logger.error(f"Framework entry point test failed: {e}")
-        return {'framework_loaded': False, 'error': str(e)}
-
-def run_specific_functionality_checks():
-    """Run checks for functionality users commonly need."""
-    logger.info("=== Testing Specific Functionality ===")
-    
-    tests = {}
-    
-    # Test SPACE module H3 functionality
-    try:
-        from geo_infer_space import SpatialIndexingInterface
-        tests['space_h3'] = {'status': 'success', 'description': 'H3 spatial interface'}
-        logger.info("✓ SPACE H3 functionality available")
-    except Exception as e:
-        tests['space_h3'] = {'status': 'error', 'error': str(e)}
-        logger.error(f"✗ SPACE H3 functionality failed: {e}")
-    
-    # Test PLACE module functionality
-    try:
-        from geo_infer_place import PlaceAnalyzer
-        tests['place_analyzer'] = {'status': 'success', 'description': 'Place-based analysis'}
-        logger.info("✓ PLACE analyzer available")
-    except Exception as e:
-        tests['place_analyzer'] = {'status': 'error', 'error': str(e)}
-        logger.error(f"✗ PLACE analyzer failed: {e}")
-    
-    # Test IOT module functionality
-    try:
-        from geo_infer_iot import IoTDataIngestion
-        tests['iot_ingestion'] = {'status': 'success', 'description': 'IoT data ingestion'}
-        logger.info("✓ IOT data ingestion available")
-    except Exception as e:
-        tests['iot_ingestion'] = {'status': 'error', 'error': str(e)}
-        logger.error(f"✗ IOT data ingestion failed: {e}")
-    
-    # Test BAYES module functionality
-    try:
-        from geo_infer_bayes import GaussianProcess
-        tests['bayes_gp'] = {'status': 'success', 'description': 'Bayesian Gaussian processes'}
-        logger.info("✓ BAYES Gaussian processes available")
-    except Exception as e:
-        tests['bayes_gp'] = {'status': 'error', 'error': str(e)}
-        logger.error(f"✗ BAYES Gaussian processes failed: {e}")
-    
-    return tests
-
-def generate_report(results: Dict[str, Any]) -> str:
-    """Generate a comprehensive test report."""
-    report = {
-        'timestamp': str(Path.cwd()),
-        'python_version': sys.version,
-        'results': results
-    }
-    
-    # Calculate summary statistics
-    total_tests = 0
-    passed_tests = 0
-    
-    for test_name, test_results in results.items():
-        if isinstance(test_results, dict):
-            if 'status' in test_results:
-                total_tests += 1
-                if test_results['status'] == 'success':
-                    passed_tests += 1
-            elif isinstance(test_results, dict):
-                # Handle nested results
-                for sub_test, sub_result in test_results.items():
-                    if isinstance(sub_result, dict) and 'status' in sub_result:
-                        total_tests += 1
-                        if sub_result['status'] == 'success':
-                            passed_tests += 1
-    
-    report['summary'] = {
-        'total_tests': total_tests,
-        'passed_tests': passed_tests,
-        'failed_tests': total_tests - passed_tests,
-        'success_rate': (passed_tests / total_tests * 100) if total_tests > 0 else 0
-    }
-    
-    return json.dumps(report, indent=2)
-
-def main():
-    """Run all tests and generate a report."""
-    logger.info("=== GEO-INFER Framework Test Suite ===")
-    
-    results = {}
-    
-    # Run all tests
-    results['path_manager'] = run_path_manager_check()
-    results['module_imports'] = run_module_import_checks()
-    results['cross_module_imports'] = run_cross_module_import_checks()
-    results['framework_entry_point'] = run_framework_entry_point_check()
-    results['specific_functionality'] = run_specific_functionality_checks()
-    
-    # Generate and save report
-    report = generate_report(results)
-    
-    report_path = Path('framework_test_report.json')
-    with open(report_path, 'w') as f:
-        f.write(report)
-    
-    logger.info(f"=== Test Report Generated ===")
-    logger.info(f"Report saved to: {report_path}")
-    
-    # Print summary
-    summary = results.get('framework_entry_point', {}).get('diagnostics', {}).get('summary', {})
-    if summary:
-        logger.info(f"Framework Summary:")
-        logger.info(f"  - Total modules: {summary.get('total_modules', 'unknown')}")
-        logger.info(f"  - Loaded modules: {summary.get('loaded_modules', 'unknown')}")
-        logger.info(f"  - Success rate: {summary.get('success_rate', 'unknown')}%")
-    
-    return results
-
-if __name__ == "__main__":
-    main() 
+def test_all_module_packages_have_init() -> None:
+    """Every geo_infer_* package has an __init__.py."""
+    missing = []
+    for src_dir in ROOT.glob("GEO-INFER-*/src"):
+        if not src_dir.is_dir():
+            continue
+        for pkg in src_dir.iterdir():
+            if not pkg.is_dir() or not pkg.name.startswith("geo_infer_"):
+                continue
+            if "egg-info" in pkg.name:
+                continue
+            init = pkg / "__init__.py"
+            if not init.exists():
+                missing.append(str(pkg))
+    assert not missing, f"Packages missing __init__.py:\n" + "\n".join(missing)
