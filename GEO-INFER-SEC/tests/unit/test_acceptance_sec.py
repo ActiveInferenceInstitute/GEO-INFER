@@ -107,21 +107,31 @@ class TestDigitalThreatDetection:
         assert result is None
 
     def test_detect_threat_stores_in_active_threats(self, manager):
-        """detect_threat stores detected threats in active_threats dict.
+        """detect_threat stores detected threats and fires an alert.
 
-        Note: _trigger_alert has a known bug (SecurityAlert init mismatch),
-        but the threat IS stored before the alert fires. We verify storage.
+        The SecurityAlert constructor mismatch in _trigger_alert was fixed
+        (alert_id/title/description/category, no invalid threat_id/message).
         """
-        try:
-            manager.detect_threat({
-                "event_type": "login_failure",
-                "source_ip": "10.0.0.99",
-            })
-        except TypeError:
-            pass  # _trigger_alert bug — threat is still stored
+        alert_callback_calls = []
+
+        def on_alert(alert):
+            alert_callback_calls.append(alert)
+
+        manager.alert_callbacks.append(on_alert)
+        threat = manager.detect_threat({
+            "event_type": "login_failure",
+            "source_ip": "10.0.0.99",
+        })
         assert len(manager.active_threats) >= 1
         stored = list(manager.active_threats.values())[0]
         assert stored.threat_type == ThreatType.UNAUTHORIZED_ACCESS
+        # The alert callback fires with a properly constructed SecurityAlert.
+        assert len(alert_callback_calls) == 1
+        alert = alert_callback_calls[0]
+        assert alert.alert_id == f"alert_{threat.threat_id}"
+        assert alert.title
+        assert alert.description
+        assert alert.severity == stored.severity
 
 
 # ---------------------------------------------------------------------------

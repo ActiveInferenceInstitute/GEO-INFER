@@ -46,3 +46,20 @@ try:
     )
 except ImportError:
     RequirementValidator = None
+
+__all__ = [
+    "RequirementsAnalyzer",
+    "Requirement",
+    "RequirementType",
+    "RequirementStatus",
+    "PriorityLevel",
+    "DependencyGraph",
+    "CompletenessReport",
+    "TraceabilityManager",
+    "TraceLink",
+    "ArtifactType",
+    "TraceMatrixEntry",
+    "CoverageReport",
+    "ImpactReport",
+    "RequirementValidator",
+]
