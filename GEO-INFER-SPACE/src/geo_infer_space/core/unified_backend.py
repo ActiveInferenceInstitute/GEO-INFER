@@ -74,6 +74,7 @@ class UnifiedH3Backend:
         target_areas: Optional[Dict[str, List[str]]] = None,
         base_data_dir: Optional[Path] = None,
         osc_repo_dir: Optional[str] = None,
+        geojson_path: Optional[Path] = None,
     ):
         """
         Initialize the unified backend with H3 spatial indexing.
@@ -85,6 +86,9 @@ class UnifiedH3Backend:
             target_areas: A dict specifying areas to run, e.g., {'CA': ['all']}.
             base_data_dir: The root directory for data caching.
             osc_repo_dir: The root directory of the cloned OS-Climate repositories.
+            geojson_path: Explicit path to the target-areas GeoJSON file. When
+                omitted, the legacy CWD-relative default of
+                ``config/target_areas.geojson`` is used.
         """
         self.modules = modules
         self.resolution = resolution
@@ -93,6 +97,9 @@ class UnifiedH3Backend:
             self.base_data_dir = Path(base_data_dir)
         else:
             self.base_data_dir = Path("./data")
+        self.geojson_path = (
+            Path(geojson_path) if geojson_path else Path("config/target_areas.geojson")
+        )
         self.unified_data: Dict[str, Dict] = {}
         self.analysis_scores: Dict[str, Dict] = {}
 
@@ -271,9 +278,7 @@ class UnifiedH3Backend:
         if not target_areas:
             return {}
 
-        geojson_path = Path(
-            "config/target_areas.geojson"
-        )  # Assume this file exists or create it
+        geojson_path = self.geojson_path
         if not geojson_path.exists():
             logger.error(f"GeoJSON file not found: {geojson_path}")
             return {}
