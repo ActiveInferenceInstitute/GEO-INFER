@@ -331,6 +331,7 @@ class TestHotspotAnalysisIntegration:
 class TestPerformance:
     """Test performance characteristics of disease surveillance functions."""
 
+    @pytest.mark.slow
     def test_large_dataset_performance(self):
         """Test performance with larger dataset."""
         import time

@@ -40,7 +40,7 @@ class TestSpaceImportSafety:
 
         result = create_h3_spatial_model(
             config={},
-            h3_resolution=4,
+            h3_resolution=8,  # r=4 produces 0 cells for a ~100 km² polygon
             boundary={
                 "coordinates": [
                     [
