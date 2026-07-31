@@ -45,6 +45,27 @@
 - `geo-infer-git.md`
 - `geo-infer-health.md`
 - `geo-infer-intra.md`
+- `geo-infer-iot.md`
+- `geo-infer-log.md`
+- `geo-infer-marine.md`
+- `geo-infer-math.md`
+- `geo-infer-metagov.md`
+- `geo-infer-norms.md`
+- `geo-infer-ops.md`
+- `geo-infer-org.md`
+- `geo-infer-pep.md`
+- `geo-infer-place.md`
+- `geo-infer-req.md`
+- `geo-infer-risk.md`
+- `geo-infer-sec.md`
+- `geo-infer-sim.md`
+- `geo-infer-space.md`
+- `geo-infer-spm.md`
+- `geo-infer-test.md`
+- `geo-infer-time.md`
+- `geo-infer-transport.md`
+- `geo-infer-water.md`
+- `index.md`
 
 ## Validation
 

@@ -1,4 +1,5 @@
 import unittest
+import json
 from unittest.mock import Mock, patch
 import numpy as np
 from geo_infer_act.api.interface import ActiveInferenceInterface
@@ -43,6 +44,7 @@ class TestActiveInferenceInterface(unittest.TestCase):
         self.assertIn("probability", result)
         self.assertIn("expected_free_energy", result["policy"])
         self.assertTrue(np.allclose(np.sum(result["all_probabilities"]), 1.0))
+        json.dumps(result)
 
     def test_set_preferences(self):
         """Test setting preferences."""

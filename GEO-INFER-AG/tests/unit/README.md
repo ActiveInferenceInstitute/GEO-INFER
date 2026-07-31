@@ -17,7 +17,7 @@ Unit workspace within `GEO-INFER-AG`.
 - Package: `geo_infer_ag`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-AG`
-- Tests: `uv run python -m pytest GEO-INFER-AG/tests/unit`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AG`
 
 ## Dependencies
 
@@ -32,7 +32,7 @@ Unit workspace within `GEO-INFER-AG`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-AG/tests/unit
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AG
 ```
 
 

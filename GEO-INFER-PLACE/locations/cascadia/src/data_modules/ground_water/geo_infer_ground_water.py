@@ -81,7 +81,9 @@ class GeoInferGroundWater:
         results = {}
         for h3_index in target_hexagons:
             try:
-                hex_poly = Polygon(cell_to_latlng_boundary(h3_index))
+                hex_poly = Polygon(
+                    [(lng, lat) for lat, lng in cell_to_latlng_boundary(h3_index)]
+                )
                 
                 # Find wells that intersect with the hexagon's bounding box first
                 possible_matches_index = list(wells_sindex.intersection(hex_poly.bounds))
@@ -111,4 +113,4 @@ class GeoInferGroundWater:
                 continue
 
         logger.info(f"Completed groundwater analysis. Found data for {len(results)} hexagons.")
-        return results 
+        return results

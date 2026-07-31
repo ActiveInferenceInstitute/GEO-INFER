@@ -26,6 +26,7 @@ Models workspace within `GEO-INFER-TEST`.
 - `factory-boy>=3.2.0`
 - `faker>=18.0.0`
 - `geopandas>=0.10.0`
+- `h3>=4.5.0,<5`
 - `hypothesis>=6.0.0`
 - `jinja2>=3.1.0`
 - `jsonschema>=4.0.0`
@@ -33,7 +34,6 @@ Models workspace within `GEO-INFER-TEST`.
 - `matplotlib>=3.5.0`
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 
 
 ## Validation

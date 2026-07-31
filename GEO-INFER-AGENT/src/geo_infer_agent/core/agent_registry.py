@@ -54,11 +54,6 @@ class AgentRegistry:
         self.agent_types = {
             "default": "geo_infer_agent.core.agent_base.ExampleAgent",
             "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
-            "analyzer": "geo_infer_agent.agents.analyzer.AnalyzerAgent",
-            "monitor": "geo_infer_agent.agents.monitor.MonitorAgent",
-            "decision": "geo_infer_agent.agents.decision.DecisionAgent",
-            "coordinator": "geo_infer_agent.agents.coordinator.CoordinatorAgent",
-            "learner": "geo_infer_agent.agents.learner.LearnerAgent",
             "bdi": "geo_infer_agent.models.bdi.BDIAgent",
             "active_inference": "geo_infer_agent.models.active_inference.ActiveInferenceAgent",
             "reinforcement_learning": "geo_infer_agent.models.rl.RLAgent",
@@ -283,7 +278,7 @@ class AgentRegistry:
             "agent_id": agent.agent_id,
             "agent_type": agent.__class__.__name__,
             "is_running": agent_id in self.running_agents,
-            "created_at": agent.created_at.isoformat(),
+            "created_at": agent.state.creation_time.isoformat(),
             "config": agent.config
         }
     
@@ -426,4 +421,4 @@ class AgentRegistry:
 
 
 # Global instance
-agent_registry = AgentRegistry() 
+agent_registry = AgentRegistry()

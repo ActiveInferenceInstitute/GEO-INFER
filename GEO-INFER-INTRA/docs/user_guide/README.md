@@ -25,6 +25,7 @@ User Guide workspace within `GEO-INFER-INTRA`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
+- `h3>=4.5.0,<5`
 - `pydantic>=2.0.0`
 - `sqlalchemy>=2.0.0`
 - `elasticsearch>=8.0.0`
@@ -35,7 +36,6 @@ User Guide workspace within `GEO-INFER-INTRA`.
 - `jsonschema>=4.0.0`
 - `typer>=0.7.0`
 - `rich>=12.0.0`
-- `uvicorn>=0.20.0`
 
 
 ## Validation

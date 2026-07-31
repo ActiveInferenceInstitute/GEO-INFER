@@ -108,7 +108,12 @@ class GeoInferZoning(BaseAnalysisModule):
         for hex_id, properties in h3_data.items():
             try:
                 # Get hexagon boundary
-                hex_polygon = Polygon(cell_to_latlng_boundary(hex_id))
+                hex_polygon = Polygon(
+                    [
+                        (lng, lat)
+                        for lat, lng in cell_to_latlng_boundary(hex_id)
+                    ]
+                )
 
                 # Find intersecting zoning features using real spatial analysis
                 intersecting_features = zoning_gdf[zoning_gdf.intersects(hex_polygon)]

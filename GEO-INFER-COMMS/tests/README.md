@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-COMMS`.
 - Package: `geo_infer_comms`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-COMMS`
-- Tests: `uv run python -m pytest GEO-INFER-COMMS/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS`
 
 ## Dependencies
 
@@ -47,7 +47,7 @@ Tests workspace within `GEO-INFER-COMMS`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-COMMS/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS
 ```
 
 

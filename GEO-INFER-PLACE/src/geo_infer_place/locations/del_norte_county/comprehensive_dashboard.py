@@ -19,9 +19,15 @@ from folium.plugins import MarkerCluster
 # Import GEO-INFER modules (optional)
 try:
     from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
+    from geo_infer_space.core.visualization_receipt import write_visualization_receipt
 except ImportError:
     LocationConfigLoader = None  # type: ignore[misc,assignment]
     LocationBounds = None  # type: ignore[misc,assignment]
+
+    def write_visualization_receipt(*args, **kwargs):  # type: ignore[no-redef]
+        """Fallback no-op when SPACE core is unavailable."""
+        return None
+
 from ...utils.data_sources import CaliforniaDataSources
 from ...core.api_clients import CaliforniaAPIManager
 from ...core.visualization_engine import InteractiveVisualizationEngine
@@ -355,6 +361,19 @@ class DelNorteComprehensiveDashboard:
         # Save the map
         m.save(str(dashboard_path))
 
+        # Write a deterministic visualization receipt alongside the dashboard so
+        # the HTML artifact is auditable (input hash, H3 version, accessibility).
+        try:
+            write_visualization_receipt(
+                artifact_path=dashboard_path,
+                input_payload=self.analysis_results,
+                schema_version="geo-infer-place-del-norte-visualization/v1",
+                title_marker="Del Norte County Comprehensive Dashboard",
+                extra={"location": "Del Norte County, CA"},
+            )
+        except Exception as receipt_err:
+            logger.warning(f"Could not write dashboard receipt: {receipt_err}")
+
         logger.info(f"Comprehensive dashboard generated: {dashboard_path}")
         return str(dashboard_path)
 
@@ -417,7 +436,7 @@ class DelNorteComprehensiveDashboard:
                 """
 
                 folium.Polygon(
-                    locations=[[lat, lon] for lon, lat in h3_boundary],
+                    locations=[[lat, lng] for lat, lng in h3_boundary],
                     popup=folium.Popup(popup_html, max_width=300),
                     tooltip=f"Integration Score: {integration_score:.3f}",
                     color="black",
@@ -868,6 +887,17 @@ class DelNorteComprehensiveDashboard:
 
         with open(results_path, "w") as f:
             json.dump(export_data, f, indent=2, default=str)
+
+        # Write a deterministic visualization receipt alongside the JSON export
+        # so the artifact is auditable (input hash, H3 version, accessibility).
+        try:
+            write_visualization_receipt(
+                artifact_path=results_path,
+                input_payload=export_data,
+                schema_version="geo-infer-place-del-norte-export/v1",
+            )
+        except Exception as receipt_err:
+            logger.warning(f"Could not write export receipt: {receipt_err}")
 
         logger.info(f"Analysis results exported to: {results_path}")
         return str(results_path)

@@ -16,14 +16,14 @@ from geo_infer_ops.core.logging import (
 def test_get_logger():
     """Test logger creation."""
     logger = get_logger("test")
-    assert isinstance(logger, structlog.stdlib.BoundLogger)
+    assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
 
 
 def test_setup_logging_defaults():
     """Test logging setup with default configuration."""
     setup_logging()
     logger = get_logger("test")
-    assert isinstance(logger, structlog.stdlib.BoundLogger)
+    assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
 
 
 def test_setup_logging_custom_config():
@@ -32,7 +32,7 @@ def test_setup_logging_custom_config():
     setup_logging(log_level="DEBUG", json_format=True, log_file=log_file)
 
     logger = get_logger("test")
-    assert isinstance(logger, structlog.stdlib.BoundLogger)
+    assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
 
 
 def test_configure_stdlib_logging():

@@ -197,7 +197,10 @@ class CascadianOwnershipDataSources:
             return gpd.GeoDataFrame()
 
         # 1. Calculate the total bounding box for the H3 hexagons
-        hex_polygons = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
+        hex_polygons = [
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
+            for h in target_hexagons
+        ]
         min_lon = min(p.bounds[0] for p in hex_polygons)
         min_lat = min(p.bounds[1] for p in hex_polygons)
         max_lon = max(p.bounds[2] for p in hex_polygons)

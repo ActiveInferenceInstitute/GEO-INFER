@@ -68,6 +68,7 @@ class SimulationEngine:
         self.config = config or SimulationConfig()
         self.state = SimulationState.INITIALIZED
         self.current_time = 0.0
+        self._current_state: Dict[str, Any] = {}
         self.state_history: List[Dict[str, Any]] = []
         self.metrics: Dict[str, List[float]] = {}
         self.events: List[Dict[str, Any]] = []
@@ -87,6 +88,7 @@ class SimulationEngine:
 
         self.current_time = 0.0
         self.state = SimulationState.INITIALIZED
+        self._current_state = initial_state.copy()
         self.state_history = []
         self.metrics = {}
         self.events = []
@@ -121,11 +123,14 @@ class SimulationEngine:
             self.state = SimulationState.RUNNING
 
         # Get current state
-        current_state = self.state_history[-1]["state"] if self.state_history else {}
+        current_state = self._current_state.copy()
 
         # Execute step function
         try:
             new_state = step_func(self.current_time, current_state)
+            if not isinstance(new_state, dict):
+                raise TypeError("step_func must return a state dictionary")
+            self._current_state = new_state.copy()
 
             # Update time
             self.current_time += self.config.time_step
@@ -173,7 +178,8 @@ class SimulationEngine:
 
                 self.step(step_func)
 
-            self.state = SimulationState.COMPLETED
+            if self.state != SimulationState.CANCELLED:
+                self.state = SimulationState.COMPLETED
             end_time = datetime.now(timezone.utc).replace(tzinfo=None)
             duration = (end_time - start_time).total_seconds()
 
@@ -345,7 +351,7 @@ class SimulationEngine:
                 default=str,
             )
 
-        else:  # dict
+        elif format == "dict":
             return {
                 "state_history": self.state_history,
                 "metrics": self.metrics,
@@ -353,6 +359,11 @@ class SimulationEngine:
                 "current_time": self.current_time,
                 "status": self.state.value,
             }
+
+        raise ValueError(
+            f"Unsupported export format: {format!r}; expected 'dataframe', "
+            "'dict', or 'json'"
+        )
 
     def get_metric_statistics(self, metric_name: str) -> Dict[str, float]:
         """

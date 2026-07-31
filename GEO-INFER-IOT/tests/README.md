@@ -25,7 +25,7 @@ Tests workspace within `GEO-INFER-IOT`.
 - Package: `geo_infer_iot`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-IOT`
-- Tests: `uv run python -m pytest GEO-INFER-IOT/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
 
 ## Dependencies
 
@@ -64,7 +64,7 @@ Tests workspace within `GEO-INFER-IOT`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-IOT/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT
 ```
 
 

@@ -7,7 +7,7 @@ using Pydantic for automatic validation and documentation generation.
 
 from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field, field_validator
-from geojson_pydantic import Feature, FeatureCollection, Polygon
+from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
 
 
 class SpatialAnalysisRequest(BaseModel):
@@ -195,10 +195,12 @@ class TerrainAnalysisRequest(BaseModel):
 class H3AnalysisRequest(BaseModel):
     """Request model for H3 hexagonal grid operations."""
 
-    geometry: Union[Feature, FeatureCollection, Polygon] = Field(
-        ..., description="Geometry to convert to H3 cells"
+    geometry: Optional[
+        Union[Feature, FeatureCollection, Polygon, MultiPolygon]
+    ] = Field(
+        None, description="Polygon geometry for polygon_to_cells"
     )
-    resolution: int = Field(..., ge=0, le=15, description="H3 resolution (0-15)")
+    resolution: int = Field(9, ge=0, le=15, description="H3 resolution (0-15)")
     operation: str = Field("polygon_to_cells", description="H3 operation to perform")
     parameters: Optional[Dict[str, Any]] = Field(
         default_factory=dict, description="Operation-specific parameters"

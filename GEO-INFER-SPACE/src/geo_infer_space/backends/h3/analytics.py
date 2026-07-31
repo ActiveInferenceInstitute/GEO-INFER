@@ -5,7 +5,6 @@ This module provides specialized analytics classes for H3 hexagonal grids
 including clustering, density analysis, network analysis, and temporal analysis.
 """
 
-import importlib.util
 import logging
 from typing import List, Dict, Any
 import math
@@ -21,9 +20,29 @@ except ImportError:
     NUMPY_AVAILABLE = False
     logger.warning("numpy not available. Some analytics will be limited.")
 
-H3_AVAILABLE = importlib.util.find_spec("h3") is not None
+MIN_H3_VERSION = (4, 5, 0)
+try:
+    import h3
+except ImportError:
+    H3_AVAILABLE = False
+else:
+    try:
+        _h3_version = tuple(
+            int(part.split("+")[0].split("-")[0])
+            for part in h3.__version__.lstrip("v").split(".")[:3]
+        )
+    except (AttributeError, TypeError, ValueError):
+        _h3_version = None
+    H3_AVAILABLE = bool(
+        _h3_version is not None
+        and _h3_version >= MIN_H3_VERSION
+        and _h3_version[0] < 5
+    )
 if not H3_AVAILABLE:
-    logger.warning("h3-py not available. H3 neighbor analytics will use fallbacks.")
+    logger.error(
+        "H3 neighbor analytics requires h3-py >=4.5.0,<5; "
+        "H3-backed operations are unavailable."
+    )
 
 
 class H3SpatialAnalyzer:
@@ -1154,19 +1173,13 @@ class H3DensityAnalyzer:
         Returns:
             List of neighbor cell indices
         """
-        neighbors = []
-
+        if not H3_AVAILABLE:
+            raise RuntimeError("H3 neighbor analytics requires h3-py >=4.5.0,<5")
         try:
-            if H3_AVAILABLE:
-                import h3
-
-                neighbor_set = h3.grid_disk(cell_index, rings)
-                neighbors = list(neighbor_set)
+            neighbor_set = h3.grid_disk(cell_index, rings)
+            return sorted(neighbor_set)
         except Exception as e:
-            logger.warning(f"Failed to get neighbors for {cell_index}: {e}")
-            neighbors = [cell_index]  # Fallback to self
-
-        return neighbors
+            raise ValueError(f"Failed to get H3 neighbors for {cell_index}: {e}") from e
 
     def _calculate_kernel_value(
         self,
@@ -1802,15 +1815,17 @@ class H3NetworkAnalyzer:
         Returns:
             List of cell indices at the specified ring distance
         """
+        if not H3_AVAILABLE:
+            raise RuntimeError("H3 ring analytics requires h3-py >=4.5.0,<5")
+        if not isinstance(ring_distance, int) or ring_distance < 1:
+            raise ValueError("ring_distance must be a positive integer")
         try:
-            if H3_AVAILABLE:
-                import h3
-
-                return list(h3.grid_ring(center_index, ring_distance))
+            return sorted(
+                set(h3.grid_disk(center_index, ring_distance))
+                - set(h3.grid_disk(center_index, ring_distance - 1))
+            )
         except Exception as e:
-            logger.warning(f"Failed to get ring cells: {e}")
-
-        return []  # Fallback
+            raise ValueError(f"Failed to get H3 ring cells: {e}") from e
 
     def detect_network_communities(self, flow_threshold: float = 0.1) -> Dict[str, Any]:
         """

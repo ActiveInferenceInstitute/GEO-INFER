@@ -471,11 +471,14 @@ class UnifiedH3Backend:
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
             boundary = h3.cell_to_boundary(hex_id)
+            ring = [[lng, lat] for lat, lng in boundary]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
 
             features.append(
                 {
                     "type": "Feature",
-                    "geometry": {"type": "Polygon", "coordinates": [boundary]},
+                    "geometry": {"type": "Polygon", "coordinates": [ring]},
                     "properties": properties,
                 }
             )

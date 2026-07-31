@@ -16,7 +16,7 @@ Fixtures workspace within `GEO-INFER-DATA`.
 - Package: `geo_infer_data`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-DATA`
-- Tests: `uv run python -m pytest GEO-INFER-DATA/tests/fixtures`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
 ## Dependencies
 
@@ -37,7 +37,7 @@ Fixtures workspace within `GEO-INFER-DATA`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-DATA/tests/fixtures
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
 

@@ -116,6 +116,7 @@ class SpatialBackendDispatcher:
             "cell_to_latlng": "cell_to_latlng",
             "polygon_to_cells": "polygon_to_cells",
             "get_neighbors": "get_cell_neighbors",
+            "get_cells_within_radius": "get_cells_within_radius",
             "get_distance": "get_cell_distance",
             "compact_cells": "compact_cells",
             "uncompact_cells": "uncompact_cells",
@@ -133,8 +134,47 @@ class SpatialBackendDispatcher:
             raise ValueError(f"Unknown indexing operation: {operation}")
 
         method_name = operation_map[operation]
-        method = getattr(backend_instance, method_name)
+        method = getattr(backend_instance, method_name, None)
+        if method is None:
+            raise ValueError(
+                f"Backend '{backend_name}' does not implement indexing operation "
+                f"'{operation}'"
+            )
 
+        return method(*args, **kwargs)
+
+    def dispatch_geometric_operation(
+        self, operation: str, *args, backend: Optional[str] = None, **kwargs
+    ) -> Any:
+        """Dispatch a geometry operation to a backend that implements it."""
+        backend_name = backend or self.get_default_backend("geometric")
+
+        if backend_name not in self.backends:
+            raise ValueError(f"Backend '{backend_name}' is not available")
+
+        operation_map = {
+            "buffer_geometry": "buffer_geometry",
+            "calculate_area": "calculate_area",
+            "calculate_perimeter": "calculate_perimeter",
+            "calculate_centroid": "calculate_centroid",
+            "calculate_distance": "calculate_distance",
+            "union_geometries": "union_geometries",
+            "intersection_geometries": "intersection_geometries",
+            "difference_geometries": "difference_geometries",
+            "contains_geometry": "contains_geometry",
+            "intersects_geometry": "intersects_geometry",
+            "transform_geometry": "transform_geometry",
+        }
+        if operation not in operation_map:
+            raise ValueError(f"Unknown geometric operation: {operation}")
+
+        method_name = operation_map[operation]
+        method = getattr(self.backends[backend_name], method_name, None)
+        if method is None:
+            raise ValueError(
+                f"Backend '{backend_name}' does not implement geometric operation "
+                f"'{operation}'"
+            )
         return method(*args, **kwargs)
 
     def dispatch_analytics_operation(
@@ -148,27 +188,28 @@ class SpatialBackendDispatcher:
 
         backend_instance = self.backends[backend_name]
 
-        # Check backend supports analytics (duck typing)
-        if not hasattr(backend_instance, "analyze_hotspots"):
-            raise ValueError(
-                f"Backend '{backend_name}' does not support analytics operations"
-            )
-
         # Map operation names to backend methods
         operation_map = {
             "analyze_hotspots": "analyze_hotspots",
+            "find_hotspots": "analyze_hotspots",
             "compute_proximity": "compute_proximity",
             "find_clusters": "find_clusters",
             "calculate_density": "calculate_density",
             "spatial_join": "spatial_join",
             "interpolate_values": "interpolate_values",
+            "cluster_points": "cluster_points",
         }
 
         if operation not in operation_map:
             raise ValueError(f"Unknown analytics operation: {operation}")
 
         method_name = operation_map[operation]
-        method = getattr(backend_instance, method_name)
+        method = getattr(backend_instance, method_name, None)
+        if method is None:
+            raise ValueError(
+                f"Backend '{backend_name}' does not implement analytics operation "
+                f"'{operation}'"
+            )
 
         return method(*args, **kwargs)
 

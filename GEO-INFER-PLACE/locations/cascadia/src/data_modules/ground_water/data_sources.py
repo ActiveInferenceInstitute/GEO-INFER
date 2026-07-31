@@ -163,4 +163,4 @@ class CascadianGroundWaterDataSources:
         final_gdf = final_gdf.drop_duplicates(subset=['site_code', 'datetime'])
         
         logger.info(f"Successfully fetched and parsed {len(final_gdf)} unique groundwater level records from {final_gdf['site_code'].nunique()} sites across all batches.")
-        return final_gdf 
+        return final_gdf

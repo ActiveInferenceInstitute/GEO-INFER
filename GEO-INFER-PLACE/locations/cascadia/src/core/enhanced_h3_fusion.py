@@ -44,7 +44,8 @@ except ImportError:
     latlng_to_cell = h3.latlng_to_cell
     cell_to_latlng = h3.cell_to_latlng
     cell_to_latlng_boundary = h3.cell_to_boundary
-    polygon_to_cells = h3.polygon_to_cells
+    def polygon_to_cells(geojson, res):
+        return list(h3.geo_to_cells(geojson, res))
     grid_disk = h3.grid_disk
     grid_distance = h3.grid_distance
     cell_area = h3.cell_area
@@ -52,7 +53,7 @@ except ImportError:
     is_valid_cell = h3.is_valid_cell
     are_neighbor_cells = h3.are_neighbor_cells
     def geo_to_cells(geojson, res):
-        return h3.geo_to_cells(h3.geo_to_h3shape(geojson), res)
+        return list(h3.geo_to_cells(geojson, res))
     SPACE_H3_AVAILABLE = False
 
 logger = logging.getLogger(__name__)

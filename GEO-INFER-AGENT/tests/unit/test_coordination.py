@@ -99,11 +99,7 @@ class TestAgentRegistry(unittest.TestCase):
             self.registry.remove_agent("ghost")
 
     def test_list_agents(self) -> None:
-        """list_agents returns info for all registered agents.
-
-        Note: get_agent_info accesses agent.created_at which ExampleAgent
-        doesn't expose.  We verify the agents dict directly instead.
-        """
+        """list_agents returns JSON-safe info for all registered agents."""
         self._run(
             self.registry.create_agent(
                 agent_type="default", config={}, agent_id="a1"
@@ -114,10 +110,9 @@ class TestAgentRegistry(unittest.TestCase):
                 agent_type="default", config={}, agent_id="a2"
             )
         )
-        # Verify agents are registered
-        self.assertEqual(len(self.registry.agents), 2)
-        self.assertIn("a1", self.registry.agents)
-        self.assertIn("a2", self.registry.agents)
+        listed = self.registry.list_agents()
+        self.assertEqual({item["agent_id"] for item in listed}, {"a1", "a2"})
+        self.assertTrue(all(item["created_at"] for item in listed))
 
     def test_list_agent_types(self) -> None:
         """list_agent_types returns the available type mappings."""

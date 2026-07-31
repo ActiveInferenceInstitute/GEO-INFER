@@ -16,7 +16,7 @@ Visualizations workspace within `GEO-INFER-SPACE`.
 - Package: `geo_infer_space`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-SPACE`
-- Tests: `uv run python -m pytest GEO-INFER-SPACE/tests/reports/visualizations`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
 
 ## Dependencies
 
@@ -37,7 +37,7 @@ Visualizations workspace within `GEO-INFER-SPACE`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-SPACE/tests/reports/visualizations
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 ```
 
 

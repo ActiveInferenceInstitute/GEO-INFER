@@ -34,6 +34,7 @@ AUTHORITATIVE_DOCS = (
     "GEO-INFER-INTRA/docs/architecture/index.md",
     "GEO-INFER-INTRA/docs/modules/index.md",
     "GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md",
+    "GEO-INFER-INTRA/docs/geospatial/visualization/index.md",
     "GEO-INFER-INTRA/docs/api/index.md",
     "GEO-INFER-INTRA/docs/api/reference.md",
     "GEO-INFER-INTRA/docs/integration/index.md",

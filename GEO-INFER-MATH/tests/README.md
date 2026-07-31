@@ -24,7 +24,7 @@ Tests workspace within `GEO-INFER-MATH`.
 - Package: `geo_infer_math`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-MATH`
-- Tests: `uv run python -m pytest GEO-INFER-MATH/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
 
 ## Dependencies
 
@@ -57,7 +57,7 @@ Tests workspace within `GEO-INFER-MATH`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-MATH/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 ```
 
 

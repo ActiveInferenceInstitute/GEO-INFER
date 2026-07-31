@@ -153,7 +153,10 @@ class GeoInferMortgageDebt:
                 return {}
             
         # 4. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
+        hex_geometries = [
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
+            for h in target_hexagons
+        ]
         # Ensure a valid CRS is provided (WGS84) for hexagon polygons, then align to census tract CRS
         hex_gdf = gpd.GeoDataFrame({'hex_id': target_hexagons}, geometry=hex_geometries, crs="EPSG:4326")
         

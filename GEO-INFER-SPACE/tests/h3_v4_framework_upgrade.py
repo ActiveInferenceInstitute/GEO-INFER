@@ -33,8 +33,8 @@ class H3V4FrameworkUpgrader:
             "h3.grid_distance": "h3.grid_distance",
             "h3.grid_disk": "h3.grid_disk",
             "h3.grid_disk": "h3.grid_disk",
-            "h3.grid_disk_distances": "h3.grid_ring_unsafe",
-            "h3.grid_ring_unsafe": "h3.grid_ring_unsafe",
+            "h3.grid_disk_distances": "h3.grid_disk_distances",
+            "h3.grid_ring_unsafe": "h3.grid_ring",
             "h3.grid_path_cells": "h3.grid_path_cells",
             "h3.get_resolution": "h3.get_resolution",
             "h3.get_base_cell_number": "h3.get_base_cell_number",
@@ -42,8 +42,8 @@ class H3V4FrameworkUpgrader:
             "h3.is_res_class_iii": "h3.is_res_class_iii",
             "h3.is_pentagon": "h3.is_pentagon",
             "h3.get_icosahedron_faces": "h3.get_icosahedron_faces",
-            "h3.compact_cells": "h3.compact_cells_cells_cells",
-            "h3.uncompact_cells": "h3.uncompact_cells_cells_cells_cells",
+            "h3.compact_cells": "h3.compact_cells",
+            "h3.uncompact_cells": "h3.uncompact_cells",
             "h3.cell_to_parent": "h3.cell_to_parent",
             "h3.cell_to_children": "h3.cell_to_children",
             "h3.cell_to_center_child": "h3.cell_to_center_child",
@@ -63,8 +63,8 @@ class H3V4FrameworkUpgrader:
             "grid_disk": "grid_disk",
             "get_resolution": "get_resolution",
             "grid_distance": "grid_distance",
-            "compact_cells": "compact_cells_cells",
-            "uncompact_cells_cells": "uncompact_cells_cells_cells",
+            "compact_cells": "compact_cells",
+            "uncompact_cells_cells": "uncompact_cells",
         }
 
     def upgrade_requirements_files(self) -> None:

@@ -119,6 +119,10 @@ class IndexingBackendProtocol(SpatialBackendProtocol, Protocol):
         """
         ...
 
+    def get_cells_within_radius(self, cell: str, k: int = 1) -> List[str]:
+        """Return all cells within ``k`` grid rings, excluding the center."""
+        ...
+
     def get_cell_distance(self, cell1: str, cell2: str) -> int:
         """
         Calculate the grid distance between two spatial index cells.
@@ -490,3 +494,14 @@ class BackendNotAvailableError(RuntimeError):
         )
         self.backend_name = backend_name
         self.available_backends = available_backends
+
+
+class UnsupportedSpatialOperationError(ValueError):
+    """Raised when a public spatial facade operation has no backend support."""
+
+    def __init__(self, operation: str, backend: str):
+        super().__init__(
+            f"Spatial operation '{operation}' is not supported by backend '{backend}'"
+        )
+        self.operation = operation
+        self.backend = backend

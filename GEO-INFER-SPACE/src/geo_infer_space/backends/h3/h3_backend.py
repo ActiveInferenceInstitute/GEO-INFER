@@ -7,25 +7,39 @@ require the H3 library to be installed - no simulated implementations.
 """
 
 import logging
+from functools import wraps
 from typing import Dict, Any, List, Tuple
 
 from ...core.interfaces import H3UnavailableError
 
 logger = logging.getLogger(__name__)
 
+MIN_H3_VERSION = (4, 5, 0)
+MAX_H3_MAJOR = 5
+
+
+def _version_tuple(version: str) -> Tuple[int, int, int] | None:
+    """Parse a semantic H3 version without accepting a legacy major release."""
+    try:
+        parts = version.lstrip("v").split(".")
+        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
+            0,
+        ) * max(0, 3 - len(parts))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
 
 def _require_h3(operation: str):
     """Decorator to require H3 library for an operation."""
 
     def decorator(func):
+        @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self._available:
                 logger.error(f"H3 library required for {operation}")
                 raise H3UnavailableError(operation)
             return func(self, *args, **kwargs)
 
-        wrapper.__name__ = func.__name__
-        wrapper.__doc__ = func.__doc__
         return wrapper
 
     return decorator
@@ -52,9 +66,24 @@ class H3Backend:
             import h3
 
             self.h3 = h3
+            version = getattr(h3, "__version__", None)
+            parsed_version = _version_tuple(version)
+            if (
+                parsed_version is None
+                or parsed_version < MIN_H3_VERSION
+                or parsed_version[0] >= MAX_H3_MAJOR
+            ):
+                self._available = False
+                logger.error(
+                    "Unsupported H3 version %r; GEO-INFER requires "
+                    "h3-py >=4.5.0,<5",
+                    version,
+                )
+                return
+
             self._available = True
             logger.info(
-                f"H3 library v{getattr(h3, '__version__', 'unknown')} loaded successfully"
+                "H3 library v%s loaded successfully", version
             )
         except ImportError:
             self.h3 = None
@@ -85,6 +114,7 @@ class H3Backend:
                 "cell_to_latlng": self._available,
                 "polygon_to_cells": self._available,
                 "get_neighbors": self._available,
+                "get_cells_within_radius": self._available,
                 "get_distance": self._available,
                 "compact_cells": self._available,
                 "uncompact_cells": self._available,
@@ -111,9 +141,15 @@ class H3Backend:
                 "union_geometries": self._available,
                 "intersection_geometries": self._available,
                 "difference_geometries": self._available,
+                "calculate_distance": self._available,
+                "contains_geometry": self._available,
+                "intersects_geometry": self._available,
+                "transform_geometry": self._available,
             },
             "supported_resolutions": list(range(16)),  # H3 supports resolutions 0-15
             "coordinate_system": "WGS84",
+            "version": self.version,
+            "minimum_version": "4.5.0",
             "available": self._available,
         }
 
@@ -172,61 +208,51 @@ class H3Backend:
             H3UnavailableError: If H3 library is not installed
             ValueError: If polygon format is invalid
         """
-        coords = polygon.get("coordinates", [])
-        if not coords:
+        if hasattr(polygon, "__geo_interface__"):
+            geometry = polygon.__geo_interface__
+        elif isinstance(polygon, dict):
+            geometry = polygon.get("geometry", polygon)
+        else:
+            raise ValueError(
+                "polygon must be a GeoJSON geometry, Feature, or object "
+                "implementing __geo_interface__"
+            )
+
+        if not isinstance(geometry, dict):
+            raise ValueError("polygon must be a GeoJSON object")
+
+        if geometry.get("type") == "FeatureCollection":
+            features = geometry.get("features", [])
+            cells: set[str] = set()
+            for feature in features:
+                if not isinstance(feature, dict) or feature.get("type") != "Feature":
+                    raise ValueError("FeatureCollection contains an invalid feature")
+                feature_geometry = feature.get("geometry")
+                if not feature_geometry:
+                    continue
+                cells.update(self.h3.geo_to_cells(feature_geometry, resolution))
+            return sorted(cells)
+
+        if geometry.get("type") not in {"Polygon", "MultiPolygon"}:
+            raise ValueError("polygon must contain a Polygon or MultiPolygon geometry")
+
+        if not geometry.get("coordinates"):
             logger.warning("Empty polygon coordinates provided")
             return []
 
-        def _is_coordinate_pair(value: Any) -> bool:
-            return (
-                isinstance(value, (list, tuple))
-                and len(value) >= 2
-                and isinstance(value[0], (int, float))
-                and isinstance(value[1], (int, float))
-            )
-
-        def _extract_first_ring(value: Any) -> List[Any]:
-            if not isinstance(value, (list, tuple)) or not value:
-                return []
-            if _is_coordinate_pair(value[0]):
-                return list(value)
-            for child in value:
-                ring_values = _extract_first_ring(child)
-                if ring_values:
-                    return ring_values
-            return []
-
-        # Convert GeoJSON [lng, lat] to H3 (lat, lng) format for LatLngPoly
-        outer_ring = _extract_first_ring(coords)
-        if not outer_ring:
-            logger.warning("Polygon coordinates did not include a valid outer ring")
-            return []
-        h3_coords = [
-            (point[1], point[0]) for point in outer_ring
-        ]  # swap from [lng, lat] to (lat, lng)
-
         try:
-            from h3 import LatLngPoly
-
             logger.debug(
-                f"Converting polygon with {len(h3_coords)} vertices to H3 cells at resolution {resolution}"
+                "Converting %s geometry to H3 cells at resolution %s",
+                geometry["type"],
+                resolution,
             )
-            h3_polygon = LatLngPoly(h3_coords)
-            cells = list(self.h3.polygon_to_cells(h3_polygon, resolution))
+            # GeoJSON is [longitude, latitude]. geo_to_cells performs the
+            # official H3Shape conversion and preserves holes/multipolygons.
+            cells = sorted(self.h3.geo_to_cells(geometry, resolution))
             logger.debug(f"Generated {len(cells)} H3 cells from polygon")
             return cells
         except Exception as e:
-            logger.warning(f"H3 polygon conversion failed: {e}")
-            logger.debug("Retrying H3 coverage with boundary vertex cells")
-
-            cells = set()
-            for lng, lat in outer_ring:
-                try:
-                    cell = self.h3.latlng_to_cell(lat, lng, resolution)
-                    cells.add(cell)
-                except Exception:
-                    continue
-            return list(cells)
+            raise ValueError(f"H3 polygon conversion failed: {e}") from e
 
     @_require_h3("get_cell_neighbors")
     def get_cell_neighbors(self, cell: str, k: int = 1) -> List[str]:
@@ -245,14 +271,20 @@ class H3Backend:
             ValueError: If cell identifier is invalid
         """
         logger.debug(f"Getting k={k} neighbors for cell {cell}")
-        if k == 1:
-            # For k=1, use grid_ring for efficiency
-            return list(self.h3.grid_ring(cell, 1))
-        else:
-            # For k>1, use grid_disk and remove inner rings
-            disk = set(self.h3.grid_disk(cell, k))
-            inner_disk = set(self.h3.grid_disk(cell, k - 1)) if k > 1 else {cell}
-            return list(disk - inner_disk)
+        if not isinstance(k, int) or k < 1:
+            raise ValueError("k must be a positive integer")
+        # grid_disk is defined for pentagons, while grid_ring can raise for
+        # them. Removing the inner disk gives the same exact-ring semantics.
+        disk = set(self.h3.grid_disk(cell, k))
+        inner_disk = set(self.h3.grid_disk(cell, k - 1))
+        return sorted(disk - inner_disk)
+
+    @_require_h3("get_cells_within_radius")
+    def get_cells_within_radius(self, cell: str, k: int = 1) -> List[str]:
+        """Return every cell within ``k`` H3 grid rings, excluding ``cell``."""
+        if not isinstance(k, int) or k < 0:
+            raise ValueError("k must be a non-negative integer")
+        return sorted(set(self.h3.grid_disk(cell, k)) - {cell})
 
     @_require_h3("get_cell_distance")
     def get_cell_distance(self, cell1: str, cell2: str) -> int:
@@ -617,19 +649,133 @@ class H3Backend:
             return {"type": "MultiPolygon", "coordinates": []}
 
         try:
-            polygons = []
-            for cell in cells:
-                # Get boundary for each cell
-                boundary = self.h3.cell_to_boundary(cell)
-                # Convert to GeoJSON format [lng, lat] and close the ring
-                ring = [[lng, lat] for lat, lng in boundary]
-                ring.append(ring[0])  # Close the ring
-                polygons.append([ring])
+            # Use H3's native union/topology conversion. Building one polygon
+            # per cell leaves internal edges in the result and is not a true
+            # coverage geometry for adjacent cells.
+            geometry = self.h3.cells_to_geo(set(cells))
+            geometry_type = geometry.get("type")
+            coordinates = geometry.get("coordinates")
+            if geometry_type == "Polygon":
+                polygons = [[list(ring) for ring in coordinates]]
+            elif geometry_type == "MultiPolygon":
+                polygons = [
+                    [list(ring) for ring in polygon] for polygon in coordinates
+                ]
+            else:
+                raise ValueError(
+                    f"H3 cells_to_geo returned unsupported geometry type: {geometry_type!r}"
+                )
 
-            logger.info(f"Created MultiPolygon with {len(polygons)} polygons")
+            logger.info("Created MultiPolygon with %s polygon parts", len(polygons))
             return {"type": "MultiPolygon", "coordinates": polygons}
         except Exception as e:
             raise ValueError(f"Invalid H3 cell identifiers: {e}") from e
+
+    def _geometry(self, geometry: Dict[str, Any]):
+        """Convert GeoJSON, Feature, or ``__geo_interface__`` to Shapely."""
+        from shapely.geometry import shape
+
+        if hasattr(geometry, "__geo_interface__"):
+            geometry = geometry.__geo_interface__
+        if not isinstance(geometry, dict):
+            raise TypeError("geometry must be GeoJSON-like or implement __geo_interface__")
+        if geometry.get("type") == "Feature":
+            geometry = geometry.get("geometry")
+        if not geometry:
+            raise ValueError("geometry is empty")
+        return shape(geometry)
+
+    @staticmethod
+    def _geojson(geometry) -> Dict[str, Any]:
+        from shapely.geometry import mapping
+
+        return dict(mapping(geometry))
+
+    @_require_h3("buffer_geometry")
+    def buffer_geometry(
+        self, geometry: Dict[str, Any], distance: float, **kwargs
+    ) -> Dict[str, Any]:
+        """Buffer a GeoJSON geometry in its coordinate units."""
+        if distance <= 0:
+            raise ValueError("distance must be positive")
+        return self._geojson(self._geometry(geometry).buffer(distance, **kwargs))
+
+    @_require_h3("calculate_area")
+    def calculate_area(self, geometry: Dict[str, Any]) -> float:
+        """Return the planar area of a GeoJSON geometry."""
+        return float(self._geometry(geometry).area)
+
+    @_require_h3("calculate_perimeter")
+    def calculate_perimeter(self, geometry: Dict[str, Any]) -> float:
+        """Return the planar perimeter/length of a GeoJSON geometry."""
+        return float(self._geometry(geometry).length)
+
+    @_require_h3("calculate_centroid")
+    def calculate_centroid(self, geometry: Dict[str, Any]) -> Tuple[float, float]:
+        """Return the centroid as a ``(latitude, longitude)`` pair."""
+        centroid = self._geometry(geometry).centroid
+        return float(centroid.y), float(centroid.x)
+
+    @_require_h3("calculate_distance")
+    def calculate_distance(
+        self, geometry_a: Dict[str, Any], geometry_b: Dict[str, Any]
+    ) -> float:
+        """Return the planar distance between two GeoJSON geometries."""
+        return float(self._geometry(geometry_a).distance(self._geometry(geometry_b)))
+
+    @_require_h3("union_geometries")
+    def union_geometries(self, geometries: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Return the unary union of GeoJSON geometries."""
+        from shapely.ops import unary_union
+
+        if not geometries:
+            raise ValueError("geometries must not be empty")
+        return self._geojson(unary_union([self._geometry(g) for g in geometries]))
+
+    @_require_h3("intersection_geometries")
+    def intersection_geometries(
+        self, geometry_a: Dict[str, Any], geometry_b: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Return the intersection of two GeoJSON geometries."""
+        return self._geojson(
+            self._geometry(geometry_a).intersection(self._geometry(geometry_b))
+        )
+
+    @_require_h3("difference_geometries")
+    def difference_geometries(
+        self, geometry_a: Dict[str, Any], geometry_b: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Return ``geometry_a - geometry_b`` as GeoJSON."""
+        return self._geojson(
+            self._geometry(geometry_a).difference(self._geometry(geometry_b))
+        )
+
+    @_require_h3("contains_geometry")
+    def contains_geometry(
+        self, container: Dict[str, Any], contained: Dict[str, Any]
+    ) -> bool:
+        """Return whether one GeoJSON geometry contains another."""
+        return bool(self._geometry(container).contains(self._geometry(contained)))
+
+    @_require_h3("intersects_geometry")
+    def intersects_geometry(
+        self, geometry_a: Dict[str, Any], geometry_b: Dict[str, Any]
+    ) -> bool:
+        """Return whether two GeoJSON geometries intersect."""
+        return bool(self._geometry(geometry_a).intersects(self._geometry(geometry_b)))
+
+    @_require_h3("transform_geometry")
+    def transform_geometry(
+        self, geometry: Dict[str, Any], from_crs: str, to_crs: str
+    ) -> Dict[str, Any]:
+        """Transform a GeoJSON geometry between CRS definitions."""
+        from pyproj import Transformer
+        from shapely.ops import transform
+
+        transformer = Transformer.from_crs(from_crs, to_crs, always_xy=True)
+        return self._geojson(
+            transform(transformer.transform, self._geometry(geometry))
+        )
 
     @_require_h3("find_clusters")
     def find_clusters(
@@ -735,6 +881,38 @@ class H3Backend:
                 "distance_threshold": distance_threshold,
             },
         }
+
+    @_require_h3("cluster_points")
+    def cluster_points(
+        self,
+        points: List[Tuple[float, float]],
+        values: List[float] | None = None,
+        method: str = "dbscan",
+        resolution: int = 9,
+        min_cluster_size: int = 3,
+        distance_threshold: int = 1,
+    ) -> Dict[str, Any]:
+        """Cluster coordinate points after indexing them with native H3."""
+        if method != "dbscan":
+            raise ValueError("H3 point clustering supports method='dbscan' only")
+        if not points:
+            return self.find_clusters([], [], min_cluster_size, distance_threshold)
+        if values is not None and len(values) != len(points):
+            raise ValueError("values must have the same length as points")
+        values = values or [1.0] * len(points)
+
+        grouped: Dict[str, List[float]] = {}
+        for (lat, lng), value in zip(points, values):
+            cell = self.h3.latlng_to_cell(float(lat), float(lng), resolution)
+            grouped.setdefault(cell, []).append(float(value))
+        cells = sorted(grouped)
+        cell_values = [sum(grouped[cell]) / len(grouped[cell]) for cell in cells]
+        return self.find_clusters(
+            cells,
+            cell_values,
+            min_cluster_size=min_cluster_size,
+            distance_threshold=distance_threshold,
+        )
 
     @_require_h3("calculate_density")
     def calculate_density(

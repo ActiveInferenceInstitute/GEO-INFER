@@ -92,7 +92,7 @@ class Measurement(BaseModel):
     @field_validator("h3_index")
     def validate_h3_index(cls, v, values):
         """Validate H3 index format."""
-        if v and not h3.h3_is_valid(v):
+        if v and not h3.is_valid_cell(v):
             raise ValueError(f"Invalid H3 index: {v}")
         return v
 

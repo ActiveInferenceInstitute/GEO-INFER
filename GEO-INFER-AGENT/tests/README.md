@@ -6,10 +6,11 @@ Tests workspace within `GEO-INFER-AGENT`.
 
 - `integration/`
 - `unit/`
+- `conftest.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `conftest.py:fresh_event_loop` (function)
 
 ## Module Metadata
 
@@ -17,7 +18,7 @@ Tests workspace within `GEO-INFER-AGENT`.
 - Package: `geo_infer_agent`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-AGENT`
-- Tests: `uv run python -m pytest GEO-INFER-AGENT/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
 
 ## Dependencies
 
@@ -56,7 +57,7 @@ Tests workspace within `GEO-INFER-AGENT`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-AGENT/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT
 ```
 
 

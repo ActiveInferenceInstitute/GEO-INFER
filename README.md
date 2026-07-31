@@ -7,10 +7,10 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | Metric | Value |
 | --- | ---: |
 | Modules | 44 |
-| Python source files | 892 |
-| Python test files | 481 |
-| Tracked README.md files | 829 |
-| Tracked AGENTS.md files | 828 |
+| Python source files | 894 |
+| Python test files | 485 |
+| Repository README.md files | 849 |
+| Repository AGENTS.md files | 848 |
 
 ## Quick Start
 
@@ -64,7 +64,7 @@ the exact reproducible exception list.
 
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
-| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 30 |
+| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 31 |
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
 | `GEO-INFER-AGENT` | `geo_infer_agent` | 25 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
@@ -76,7 +76,7 @@ the exact reproducible exception list.
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
-| `GEO-INFER-COG` | `geo_infer_cog` | 20 | 12 |
+| `GEO-INFER-COG` | `geo_infer_cog` | 20 | 13 |
 | `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 8 |
 | `GEO-INFER-DATA` | `geo_infer_data` | 23 | 19 |
 | `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 13 |
@@ -101,8 +101,8 @@ the exact reproducible exception list.
 | `GEO-INFER-REQ` | `geo_infer_req` | 8 | 6 |
 | `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 13 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 9 |
-| `GEO-INFER-SIM` | `geo_infer_sim` | 14 | 4 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 82 | 33 |
+| `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 33 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 23 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
@@ -125,7 +125,9 @@ the exact reproducible exception list.
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
+- System tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category system`
 - Performance tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category performance`
+- Coverage gate: `uv run python GEO-INFER-TEST/run_unified_tests.py --category coverage --timeout 900`
 - H3 contracts: `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
 - Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`

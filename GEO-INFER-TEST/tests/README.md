@@ -37,7 +37,7 @@ Tests workspace within `GEO-INFER-TEST`.
 - Package: `geo_infer_test`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-TEST`
-- Tests: `uv run python -m pytest GEO-INFER-TEST/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST`
 
 ## Dependencies
 
@@ -45,6 +45,7 @@ Tests workspace within `GEO-INFER-TEST`.
 - `factory-boy>=3.2.0`
 - `faker>=18.0.0`
 - `geopandas>=0.10.0`
+- `h3>=4.5.0,<5`
 - `hypothesis>=6.0.0`
 - `jinja2>=3.1.0`
 - `jsonschema>=4.0.0`
@@ -52,7 +53,6 @@ Tests workspace within `GEO-INFER-TEST`.
 - `matplotlib>=3.5.0`
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 
 
 ## Strict Test Inventory
@@ -77,7 +77,7 @@ Tests workspace within `GEO-INFER-TEST`.
 
 ```bash
 uv sync --all-packages --all-extras
-uv run python -m pytest GEO-INFER-TEST/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
 

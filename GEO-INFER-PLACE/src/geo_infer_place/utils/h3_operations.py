@@ -20,6 +20,27 @@ import h3
 
 logger = logging.getLogger(__name__)
 
+MIN_H3_VERSION = (4, 5, 0)
+
+
+def _version_tuple(version: str) -> Tuple[int, int, int] | None:
+    """Parse an H3 semantic version for the supported v4 API surface."""
+    try:
+        parts = version.lstrip("v").split(".")
+        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
+            0,
+        ) * max(0, 3 - len(parts))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+_h3_version = _version_tuple(getattr(h3, "__version__", None))
+if _h3_version is None or _h3_version < MIN_H3_VERSION or _h3_version[0] >= 5:
+    raise RuntimeError(
+        "GEO-INFER-PLACE requires h3-py >=4.5.0,<5; "
+        f"found {getattr(h3, '__version__', 'unknown')!r}"
+    )
+
 # ============================================================================
 # Core H3 v4 Operations
 # ============================================================================
@@ -77,7 +98,20 @@ def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
     Returns:
         List of H3 cell indices
     """
-    return list(h3.geo_to_cells(geojson, resolution))
+    if hasattr(geojson, "__geo_interface__"):
+        geojson = geojson.__geo_interface__
+    if geojson.get("type") == "Feature":
+        geojson = geojson.get("geometry")
+    if geojson.get("type") == "FeatureCollection":
+        cells: set[str] = set()
+        for feature in geojson.get("features", []):
+            geometry = feature.get("geometry")
+            if geometry:
+                cells.update(h3.geo_to_cells(geometry, resolution))
+        return sorted(cells)
+    if geojson.get("type") not in {"Polygon", "MultiPolygon"}:
+        raise ValueError("geojson must contain a Polygon or MultiPolygon geometry")
+    return sorted(h3.geo_to_cells(geojson, resolution))
 
 
 def polygon_to_cells(polygon: Any, resolution: int) -> List[str]:
@@ -98,7 +132,7 @@ def polygon_to_cells(polygon: Any, resolution: int) -> List[str]:
     else:
         raise ValueError(f"Unsupported polygon type: {type(polygon)}")
 
-    return list(h3.geo_to_cells(geojson, resolution))
+    return geo_to_cells(geojson, resolution)
 
 
 # ============================================================================
@@ -145,7 +179,9 @@ def grid_ring(cell: str, k: int) -> List[str]:
     Returns:
         List of H3 cell indices in the ring
     """
-    return list(h3.grid_ring(cell, k))
+    if not isinstance(k, int) or k < 1:
+        raise ValueError("k must be a positive integer")
+    return sorted(set(h3.grid_disk(cell, k)) - set(h3.grid_disk(cell, k - 1)))
 
 
 # ============================================================================

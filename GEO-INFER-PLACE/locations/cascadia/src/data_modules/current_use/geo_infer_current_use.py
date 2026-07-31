@@ -101,7 +101,9 @@ class GeoInferCurrentUse(BaseAnalysisModule):
             try:
                 # Get hexagon boundary using real H3 v4 methods
                 hex_boundary = h3.cell_to_boundary(h3_index)
-                hex_polygon = Polygon(hex_boundary)
+                hex_polygon = Polygon(
+                    [(lng, lat) for lat, lng in hex_boundary]
+                )
 
                 # Find intersecting current use features
                 intersecting_features = current_use_gdf[

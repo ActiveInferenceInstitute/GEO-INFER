@@ -16,11 +16,12 @@ Utils workspace within `GEO-INFER-INTRA`.
 - Package: `geo_infer_intra`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-INTRA`
-- Tests: `uv run python -m pytest GEO-INFER-INTRA/tests/utils`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA`
 
 ## Dependencies
 
 - `fastapi>=0.100.0`
+- `h3>=4.5.0,<5`
 - `pydantic>=2.0.0`
 - `sqlalchemy>=2.0.0`
 - `elasticsearch>=8.0.0`
@@ -31,13 +32,12 @@ Utils workspace within `GEO-INFER-INTRA`.
 - `jsonschema>=4.0.0`
 - `typer>=0.7.0`
 - `rich>=12.0.0`
-- `uvicorn>=0.20.0`
 
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-INTRA/tests/utils
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA
 ```
 
 

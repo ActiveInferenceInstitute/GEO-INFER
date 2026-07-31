@@ -20,7 +20,7 @@ Tests workspace within `GEO-INFER-API`.
 - Package: `geo_infer_api`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-API`
-- Tests: `uv run python -m pytest GEO-INFER-API/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module API`
 
 ## Dependencies
 
@@ -57,7 +57,7 @@ Tests workspace within `GEO-INFER-API`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-API/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module API
 ```
 
 

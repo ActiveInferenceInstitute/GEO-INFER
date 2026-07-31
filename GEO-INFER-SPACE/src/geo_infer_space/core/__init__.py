@@ -12,6 +12,7 @@ from .spatial_indexing import SpatialIndexingInterface
 from .geometric_operations import GeometricOperationsInterface
 from .analytics import SpatialAnalyticsInterface
 from .statistics import SpatialStatistics
+from .interfaces import UnsupportedSpatialOperationError
 
 __all__ = [
     'SpatialBackendDispatcher',
@@ -20,4 +21,5 @@ __all__ = [
     'GeometricOperationsInterface',
     'SpatialAnalyticsInterface',
     'SpatialStatistics',
+    'UnsupportedSpatialOperationError',
 ]

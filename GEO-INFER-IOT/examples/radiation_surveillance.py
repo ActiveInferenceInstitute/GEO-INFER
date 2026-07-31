@@ -283,12 +283,15 @@ class RadiationSurveillanceSystem:
         for h3_index, stats in self.inference_results["cell_statistics"].items():
             # Get H3 cell boundary
             boundary = h3.cell_to_boundary(h3_index)
+            ring = [[lng, lat] for lat, lng in boundary]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
             
             feature = {
                 "type": "Feature",
                 "geometry": {
                     "type": "Polygon",
-                    "coordinates": [boundary]
+                    "coordinates": [ring]
                 },
                 "properties": {
                     "h3_index": h3_index,
@@ -417,4 +420,4 @@ async def main():
     logger.info("Radiation surveillance example completed")
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

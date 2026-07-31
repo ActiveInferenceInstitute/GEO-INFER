@@ -36,7 +36,7 @@ class GeometricOperationsInterface:
         Returns:
             Buffered geometry
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'buffer_geometry', geometry, distance, backend=self.backend, **kwargs
         )
 
@@ -50,7 +50,7 @@ class GeometricOperationsInterface:
         Returns:
             Area of the geometry
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'calculate_area', geometry, backend=self.backend
         )
 
@@ -64,7 +64,7 @@ class GeometricOperationsInterface:
         Returns:
             Perimeter of the geometry
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'calculate_perimeter', geometry, backend=self.backend
         )
 
@@ -78,7 +78,7 @@ class GeometricOperationsInterface:
         Returns:
             Centroid coordinates as (lat, lng)
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'calculate_centroid', geometry, backend=self.backend
         )
 
@@ -93,7 +93,7 @@ class GeometricOperationsInterface:
         Returns:
             Distance between geometries
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'calculate_distance', geom1, geom2, backend=self.backend
         )
 
@@ -107,7 +107,7 @@ class GeometricOperationsInterface:
         Returns:
             Union of all input geometries
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'union_geometries', geometries, backend=self.backend
         )
 
@@ -122,7 +122,7 @@ class GeometricOperationsInterface:
         Returns:
             Intersection of the two geometries
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'intersection_geometries', geom1, geom2, backend=self.backend
         )
 
@@ -137,7 +137,7 @@ class GeometricOperationsInterface:
         Returns:
             Difference of the two geometries
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'difference_geometries', geom1, geom2, backend=self.backend
         )
 
@@ -152,7 +152,7 @@ class GeometricOperationsInterface:
         Returns:
             True if contained is within container
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'contains_geometry', container, contained, backend=self.backend
         )
 
@@ -167,7 +167,7 @@ class GeometricOperationsInterface:
         Returns:
             True if geometries intersect
         """
-        return self.dispatcher.dispatch_indexing_operation(
+        return self.dispatcher.dispatch_geometric_operation(
             'intersects_geometry', geom1, geom2, backend=self.backend
         )
 

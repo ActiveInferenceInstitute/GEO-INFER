@@ -16,6 +16,7 @@ import numpy as np
 # Import the necessary components
 try:
     from geo_infer_space.core.spatial_processor import SpatialProcessor
+    from geo_infer_space.core.visualization_receipt import write_visualization_receipt
 
     SPACE_CORE_AVAILABLE = True
 except ImportError:
@@ -36,6 +37,10 @@ except ImportError:
                 return correlation if not np.isnan(correlation) else 0.0
             except Exception:
                 return 0.0
+
+    def write_visualization_receipt(*args, **kwargs):  # type: ignore[no-redef]
+        """Fallback no-op when SPACE core is unavailable."""
+        return None
 
 
 def generate_spatial_analysis_report(backend, output_dir: Path) -> str:
@@ -114,6 +119,19 @@ def generate_spatial_analysis_report(backend, output_dir: Path) -> str:
             )
 
         logger.info(f"✅ Spatial analysis report generated: {report_path}")
+
+        # Write a deterministic visualization receipt alongside the report so the
+        # markdown artifact is auditable (input hash, H3 version, accessibility).
+        try:
+            write_visualization_receipt(
+                artifact_path=report_path,
+                input_payload=spatial_analysis,
+                schema_version="geo-infer-cascadia-spatial-report/v1",
+                title_marker="Cascadia Spatial Analysis Report",
+            )
+        except Exception as receipt_err:
+            logger.warning(f"Could not write spatial report receipt: {receipt_err}")
+
         return str(report_path)
 
     except Exception as e:
@@ -328,6 +346,18 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         )
 
     logger.info(f"✅ Analysis report generated: {output_path}")
+
+    # Write a deterministic visualization receipt alongside the report so the
+    # markdown artifact is auditable (input hash, H3 version, accessibility).
+    try:
+        write_visualization_receipt(
+            artifact_path=output_path,
+            input_payload=summary,
+            schema_version="geo-infer-cascadia-analysis-report/v1",
+            title_marker=f"{bioregion} Agricultural Land Analysis Report",
+        )
+    except Exception as receipt_err:
+        logger.warning(f"Could not write analysis report receipt: {receipt_err}")
 
 
 def export_data_provenance(provenance: Dict[str, Any], output_dir: Path) -> Path:

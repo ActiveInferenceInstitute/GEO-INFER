@@ -97,7 +97,10 @@ class GeoInferPowerSource:
             return {hex_id: {'transmission_line_km': 0, 'avg_voltage_kv': 0} for hex_id in target_hexagons}
 
         # 2. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
+        hex_geometries = [
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
+            for h in target_hexagons
+        ]
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
             geometry=hex_geometries, 

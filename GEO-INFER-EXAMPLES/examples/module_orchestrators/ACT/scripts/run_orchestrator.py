@@ -10,9 +10,11 @@ not detailed module implementations.
 import sys
 import time
 import json
+import hashlib
 import logging
 from pathlib import Path
 from datetime import datetime
+from typing import Any, Optional
 import numpy as np
 
 # Add parent directories to path for imports
@@ -50,8 +52,15 @@ class ACTOrchestrator:
             self.logger.warning(f"Config file not found: {config_path}, using defaults")
             return {'operations': {'sample_size': 10}}
     
-    def run_orchestrator(self):
-        """Run the complete ACT module demonstration."""
+    def run_orchestrator(self, output_dir: Optional[Any] = None):
+        """Run the complete ACT module demonstration.
+
+        Args:
+            output_dir: Optional override for the results output directory.
+                Accepts a path-like object. When omitted, results are written
+                to the bundled ``output/`` directory next to this script so
+                tests can redirect to a clean temporary location.
+        """
         self.logger.info("🚀 Starting ACT Module Orchestrator (Thin)")
         self.logger.info("Demonstrating: Active Inference")
         
@@ -103,7 +112,7 @@ class ACTOrchestrator:
             }
             
             self._display_summary(results, execution_time)
-            self._save_results(results)
+            self._save_results(results, output_dir=output_dir)
             
             return results
             
@@ -113,7 +122,7 @@ class ACTOrchestrator:
                 'status': 'error',
                 'error': str(e)
             }
-            self._save_results(results)
+            self._save_results(results, output_dir=output_dir)
             raise
     
     def _demonstrate_initialization(self):
@@ -201,18 +210,79 @@ class ACTOrchestrator:
         print("🚀 For detailed implementations, see module-specific examples")
         print("="*70)
     
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
+    def _save_results(self, results, output_dir: Optional[Any] = None):
+        """Save results to JSON file and write a deterministic manifest receipt.
+
+        The manifest follows the GEO-INFER deterministic visualization receipt
+        pattern (input hash, H3 version metadata, artifact checks, accessibility
+        checks) so the orchestrator output is auditable alongside SPACE/PLACE
+        dashboards.
+
+        Args:
+            results: Results dictionary to serialize.
+            output_dir: Optional output directory override (path-like). Defaults
+                to the bundled ``output/`` directory next to this script.
+        """
+        if output_dir is None:
+            output_dir = Path(__file__).parent.parent / 'output'
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = output_dir / f'act_orchestrator_results_{timestamp}.json'
         
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2, default=str)
-        
+
+        self._write_manifest_receipt(output_file, results)
         self.logger.info(f"📁 Results saved to: {output_file.name}")
+
+    @staticmethod
+    def _write_manifest_receipt(artifact_path: Path, input_payload: dict) -> Path:
+        """Write a deterministic manifest JSON next to ``artifact_path``.
+
+        Mirrors the SPACE ``InteractiveVisualizationEngine`` receipt schema so
+        ACT outputs are auditable in the same way as geospatial dashboards.
+        Records the input hash, installed H3 version (environment metadata),
+        artifact checks, and JSON accessibility checks.
+        """
+        try:
+            import h3 as _h3
+            h3_version = _h3.__version__
+        except Exception:
+            h3_version = None
+
+        input_digest = hashlib.sha256(
+            json.dumps(input_payload, sort_keys=True, default=str).encode('utf-8')
+        ).hexdigest()
+
+        try:
+            json.loads(artifact_path.read_text(encoding='utf-8'))
+            valid_json = True
+        except Exception:
+            valid_json = False
+
+        manifest = {
+            'schema_version': 'geo-infer-act-orchestrator/v1',
+            'generated_at': datetime.now().isoformat(),
+            'input_sha256': input_digest,
+            'h3_version': h3_version,
+            'artifacts': [
+                {
+                    'path': artifact_path.name,
+                    'bytes': artifact_path.stat().st_size,
+                }
+            ],
+            'accessibility': {
+                'nonempty': artifact_path.stat().st_size > 0,
+                'valid_json': valid_json,
+            },
+        }
+        manifest_path = artifact_path.with_suffix('.manifest.json')
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2) + '\n', encoding='utf-8'
+        )
+        return manifest_path
 
 def main():
     """Main function."""

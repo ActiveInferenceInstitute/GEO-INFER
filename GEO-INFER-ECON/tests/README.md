@@ -23,7 +23,7 @@ Tests workspace within `GEO-INFER-ECON`.
 - Package: `geo_infer_econ`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-ECON`
-- Tests: `uv run python -m pytest GEO-INFER-ECON/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
 
 ## Dependencies
 
@@ -36,6 +36,7 @@ Tests workspace within `GEO-INFER-ECON`.
 - `matplotlib>=3.5.0`
 - `seaborn>=0.12.0`
 - `networkx>=2.8.0`
+- `h3>=4.5.0,<5`
 - `pyyaml>=6.0`
 - `requests>=2.28.0`
 
@@ -61,7 +62,7 @@ Tests workspace within `GEO-INFER-ECON`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-ECON/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON
 ```
 
 

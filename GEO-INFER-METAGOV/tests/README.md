@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-METAGOV`.
 - Package: `geo_infer_metagov`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-METAGOV`
-- Tests: `uv run python -m pytest GEO-INFER-METAGOV/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
 
 ## Dependencies
 
@@ -48,7 +48,7 @@ Tests workspace within `GEO-INFER-METAGOV`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-METAGOV/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV
 ```
 
 

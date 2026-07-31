@@ -28,7 +28,7 @@
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-MATH/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 ```
 
 

@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_acceptance_energy.py`
 - `test_carbon_footprint.py`
 - `test_energy_demand.py`
 - `test_energy_grid.py`

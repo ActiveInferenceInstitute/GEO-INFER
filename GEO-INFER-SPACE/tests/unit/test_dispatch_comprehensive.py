@@ -14,6 +14,9 @@ from geo_infer_space.core.dispatcher import (
     reset_dispatcher,
 )
 from geo_infer_space.backends.h3.h3_backend import H3Backend
+from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+from geo_infer_space.core.geometric_operations import GeometricOperationsInterface
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
 
 
 @pytest.fixture(autouse=True)
@@ -348,6 +351,47 @@ class TestAnalyticsOperationDispatch:
         """Test dispatching an unknown analytics operation."""
         with pytest.raises(ValueError, match="Unknown analytics operation"):
             dispatcher.dispatch_analytics_operation('unknown_analytics', 'arg1')
+
+
+class TestPublicInterfaces:
+    """Exercise the public facades against the real H3 backend."""
+
+    def test_spatial_indexing_radius_adapter_returns_a_disk(self):
+        interface = SpatialIndexingInterface(backend="h3")
+        center = interface.latlng_to_cell(37.7749, -122.4194, 9)
+        neighbors = interface.get_neighbors((37.7749, -122.4194), 500, resolution=9)
+
+        assert neighbors
+        assert center not in neighbors
+        assert all(interface.dispatcher.get_backend("h3").is_valid_cell(cell) for cell in neighbors)
+
+    def test_geometric_facade_dispatches_to_native_shapely_operations(self):
+        interface = GeometricOperationsInterface(backend="h3")
+        square = {
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],
+        }
+
+        assert interface.calculate_area(square) == 4.0
+        assert interface.calculate_centroid(square) == (1.0, 1.0)
+        buffered = interface.buffer_geometry(square, 0.1)
+        assert buffered["type"] == "Polygon"
+
+    def test_analytics_facade_adapts_points_and_aliases(self):
+        indexer = SpatialIndexingInterface(backend="h3")
+        center = indexer.latlng_to_cell(37.7749, -122.4194, 9)
+        analytics = SpatialAnalyticsInterface(backend="h3")
+
+        hotspots = analytics.find_hotspots(
+            {"cells": [center], "values": [2.0], "threshold": 1.0}
+        )
+        assert hotspots["hotspot_count"] == 1
+
+        interpolation = analytics.interpolate_values(
+            [(37.7749, -122.4194, 4.0)],
+            target_points=[(37.7749, -122.4194)],
+        )
+        assert interpolation["interpolated"][center] == 4.0
 
 
 class TestBackendSwitching:

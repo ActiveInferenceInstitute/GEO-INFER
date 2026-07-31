@@ -371,7 +371,10 @@ class InteractiveH3Visualization:
             import h3
 
             boundary = h3.cell_to_boundary(hex_id)
-            return [[lat, lng] for lng, lat in boundary]
+            coords = [[lat, lng] for lat, lng in boundary]
+            if coords and coords[0] != coords[-1]:
+                coords.append(coords[0])
+            return coords
         except Exception as e:
             logger.error(f"Failed to get boundary for hexagon {hex_id}: {e}")
             return None

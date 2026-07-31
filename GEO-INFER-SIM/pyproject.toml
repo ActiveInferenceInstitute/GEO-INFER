@@ -45,6 +45,12 @@ docs = [
     "nbsphinx>=0.8.0",
     "myst-parser>=0.15.0",
 ]
+# Optional Mesa backend for agent-based scenarios. When absent the
+# MesaModelBridge raises a clear ImportError on construction rather than
+# at import time, and the rest of geo_infer_sim remains importable.
+mesa = [
+    "mesa>=0.8.9",
+]
 
 
 [project.urls]

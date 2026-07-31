@@ -243,12 +243,19 @@ class TestTemporalTrendDetection:
 
         analyzer = TemporalAnalyzer(self.time, data)
 
-        # This should either work or raise ImportError for ruptures
+        # The optional dependency has an explicit, tested unavailable path.
+        try:
+            import ruptures  # noqa: F401
+        except ImportError:
+            with pytest.raises(ImportError, match="ruptures"):
+                analyzer.change_point_detection(data)
+            return
+
         try:
             result = analyzer.change_point_detection(data)
             assert "change_points" in result
         except ImportError:
-            pytest.fail("Change point detection requires ruptures library")
+            pytest.fail("ruptures was importable but change point detection failed")
 
 
 class TestTemporalBasisFunctions:

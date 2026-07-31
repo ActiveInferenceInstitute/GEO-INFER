@@ -9,6 +9,7 @@ Core workspace within `GEO-INFER-SIM`.
 
 ## Public Interface
 
+- `mesa_bridge.py:MesaModelBridge` (class)
 - `simulation_engine.py:SimulationState` (class)
 - `simulation_engine.py:SimulationConfig` (class)
 - `simulation_engine.py:SimulationEngine` (class)

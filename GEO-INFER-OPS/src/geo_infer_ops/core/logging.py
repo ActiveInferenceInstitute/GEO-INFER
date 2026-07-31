@@ -66,7 +66,7 @@ def setup_logging(
     )
 
 
-def get_logger(name: str) -> structlog.stdlib.BoundLogger:
+def get_logger(name: str) -> structlog.stdlib.BoundLoggerBase:
     """Get a structured logger instance.
 
     Args:

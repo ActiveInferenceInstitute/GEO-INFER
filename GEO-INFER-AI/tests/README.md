@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-AI`.
 - Package: `geo_infer_ai`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-AI`
-- Tests: `uv run python -m pytest GEO-INFER-AI/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
 
 ## Dependencies
 
@@ -50,7 +50,7 @@ Tests workspace within `GEO-INFER-AI`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-AI/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module AI
 ```
 
 

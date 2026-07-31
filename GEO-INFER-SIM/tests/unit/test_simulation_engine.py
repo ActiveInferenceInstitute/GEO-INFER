@@ -70,6 +70,35 @@ class TestSimulationEngine:
 
         assert engine.state == SimulationState.RUNNING
 
+    def test_no_history_still_propagates_current_state(self) -> None:
+        """The engine passes state forward when history persistence is off."""
+        engine = SimulationEngine(
+            SimulationConfig(time_step=1.0, max_time=2.0, save_state_history=False)
+        )
+        engine.initialize({"value": 0})
+        engine.run(lambda _time, state: {"value": state["value"] + 1})
+        assert engine._current_state == {"value": 2}
+        assert engine.state_history == []
+
+    def test_cancelled_run_preserves_cancelled_status(self) -> None:
+        """Cancellation is not overwritten by a completed status."""
+        engine = SimulationEngine(SimulationConfig(time_step=1.0, max_time=10.0))
+        engine.initialize({"value": 0})
+
+        def cancel_on_first_step(_time, state):
+            engine.cancel()
+            return {"value": state["value"] + 1}
+
+        result = engine.run(cancel_on_first_step)
+        assert result["status"] == SimulationState.CANCELLED.value
+
+    def test_unsupported_export_format_is_rejected(
+        self, engine: SimulationEngine
+    ) -> None:
+        """Export rejects formats that are not part of the public contract."""
+        with pytest.raises(ValueError, match="Unsupported export format"):
+            engine.export_results(format="csv")
+
     def test_record_metric(self, engine: SimulationEngine) -> None:
         """Test metric recording."""
         engine.record_metric("test_metric", 42.0)

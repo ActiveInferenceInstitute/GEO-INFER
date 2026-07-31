@@ -189,6 +189,31 @@ class TestMessagingService(unittest.TestCase):
         )
         self.assertIn("cb-agent", self.service.message_callbacks)
 
+    def test_successful_callback_consumes_message_once(self) -> None:
+        """A successful callback receives a queued message exactly once."""
+        received = []
+        self.service.register_agent("cb-agent")
+        self.service.register_message_callback(
+            "cb-agent", lambda msg: received.append(msg.message_id)
+        )
+        message = Message("sender", "cb-agent", {"value": 1})
+        self._run(self.service.send_message(message))
+
+        async def process_once() -> None:
+            self.service.running = True
+            task = asyncio.create_task(self.service._process_messages())
+            await asyncio.sleep(0.15)
+            self.service.running = False
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+
+        self._run(process_once())
+        self.assertEqual(received, [message.message_id])
+        self.assertEqual(self.service.message_queues["cb-agent"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

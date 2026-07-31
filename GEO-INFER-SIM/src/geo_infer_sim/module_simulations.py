@@ -79,7 +79,18 @@ class ModuleSimulations:
 
         # Initialize observations if not provided
         if observations is None:
-            observations = np.random.choice([0, 1], size=(10, 2))
+            observations = np.random.choice(
+                [0, 1], size=(10, len(np.asarray(beliefs["state_belief"])))
+            )
+        observations = np.asarray(observations)
+        if observations.ndim == 1:
+            observations = observations.reshape(1, -1)
+        state_dimension = len(np.asarray(beliefs["state_belief"]))
+        if observations.ndim != 2 or observations.shape[1] != state_dimension:
+            raise ValueError(
+                "observations must be a 2-D array whose feature dimension "
+                f"matches state_belief ({state_dimension})"
+            )
 
         # Simulate belief updating process
         config = SimulationConfig(

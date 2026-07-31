@@ -30,7 +30,7 @@
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-DATA/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA
 ```
 
 

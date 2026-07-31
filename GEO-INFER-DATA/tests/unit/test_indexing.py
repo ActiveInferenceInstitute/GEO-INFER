@@ -6,6 +6,8 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import pytest
+import h3
+from pyproj import Transformer
 from shapely.geometry import Point
 
 from geo_infer_data.utils.indexing import SpatialIndexer, TemporalIndexer
@@ -60,12 +62,47 @@ class TestSpatialIndexer:
         assert index_id in indexer.indexes
         assert indexer.indexes[index_id]["type"] in ("rtree", "rtree_mock")
 
-    def test_create_h3_index_fallback(self):
+    def test_create_h3_index_uses_native_h3(self):
         indexer = SpatialIndexer()
         gdf = _make_gdf()
         index_id = indexer.create_spatial_index(gdf, strategy="h3")
         assert index_id in indexer.indexes
-        assert indexer.indexes[index_id]["type"] in ("h3", "h3_mock")
+        assert indexer.indexes[index_id]["type"] == "h3"
+        assert all(
+            h3.is_valid_cell(cell)
+            for cell in indexer.indexes[index_id]["indexes"].values()
+        )
+
+    def test_create_h3_index_reprojects_projected_crs(self):
+        indexer = SpatialIndexer()
+        longitude, latitude = -122.4194, 37.7749
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        projected_x, projected_y = transformer.transform(longitude, latitude)
+        geographic = gpd.GeoDataFrame(
+            {"name": ["point"]},
+            geometry=[Point(longitude, latitude)],
+            crs="EPSG:4326",
+        )
+        projected = gpd.GeoDataFrame(
+            {"name": ["point"]},
+            geometry=[Point(projected_x, projected_y)],
+            crs="EPSG:3857",
+        )
+
+        geographic_id = indexer.create_spatial_index(geographic, strategy="h3")
+        projected_id = indexer.create_spatial_index(projected, strategy="h3")
+
+        assert indexer.indexes[projected_id]["crs"] == "EPSG:4326"
+        assert indexer.indexes[projected_id]["indexes"] == indexer.indexes[
+            geographic_id
+        ]["indexes"]
+
+    def test_create_h3_index_requires_crs(self):
+        indexer = SpatialIndexer()
+        unreferenced = _make_gdf(1).set_crs(None, allow_override=True)
+
+        with pytest.raises(ValueError, match="declared CRS"):
+            indexer.create_spatial_index(unreferenced, strategy="h3")
 
     def test_unknown_strategy_raises(self):
         indexer = SpatialIndexer()

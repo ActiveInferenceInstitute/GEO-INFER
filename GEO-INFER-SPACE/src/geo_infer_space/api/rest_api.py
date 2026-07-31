@@ -7,12 +7,13 @@ with automatic documentation, validation, and error handling.
 
 import logging
 from typing import Dict, Any
+import math
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import geopandas as gpd
 import json
-from shapely.geometry import shape
+from shapely.geometry import shape, mapping
 
 from .schemas import (
     SpatialAnalysisResponse,
@@ -33,9 +34,18 @@ from ..analytics import (
     hotspot_detection,
     service_area,
     network_connectivity,
+    shortest_path,
+    routing_analysis,
+    accessibility_analysis,
 )
 
-from ..utils.h3_utils import polygon_to_cells, grid_disk
+from ..utils.h3_utils import (
+    compact_cells,
+    grid_disk,
+    get_resolution,
+    is_valid_cell,
+    polygon_to_cells,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +114,94 @@ def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         )
 
 
+def _records_to_json(frame) -> list[Dict[str, Any]]:
+    """Convert tabular network results to JSON-safe records."""
+    records = frame.to_dict(orient="records")
+    for record in records:
+        for key, value in list(record.items()):
+            if isinstance(value, float) and not math.isfinite(value):
+                record[key] = None
+    return records
+
+
+def _reproject_geometry_series(series, source_crs, target_crs):
+    """Reproject a geometry series without NumPy scalar warnings.
+
+    The installed GeoPandas/pyproj combination passes one-element NumPy
+    arrays into ``Transformer.transform``. Recent NumPy versions warn on the
+    scalar conversion performed by that older path. Supplying ordinary Python
+    lists keeps the transformation vectorized and warning-free.
+    """
+    from pyproj import Transformer
+    from shapely.ops import transform as shapely_transform
+
+    transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
+
+    def transform_coordinates(x, y, z=None):
+        try:
+            x_values = [float(value) for value in x]
+            y_values = [float(value) for value in y]
+        except TypeError:
+            return transformer.transform(float(x), float(y))
+
+        transformed_x, transformed_y = transformer.transform(x_values, y_values)
+        return transformed_x, transformed_y
+
+    return series.map(
+        lambda geometry: shapely_transform(transform_coordinates, geometry)
+    ).set_crs(target_crs)
+
+
+def _buffer_geometry(gdf: gpd.GeoDataFrame, distance: float):
+    """Buffer safely, using meters for geographic input CRS values.
+
+    Shapely buffers coordinates in a planar coordinate system. Calling it
+    directly on longitude/latitude raises a warning (and the repository test
+    contract promotes that warning to an error), while also producing a
+    misleading result. Project geographic input to a local UTM CRS, buffer in
+    meters, and transform the result back to the request CRS.
+    """
+    if gdf.crs is None or not gdf.crs.is_geographic:
+        return gdf.geometry.buffer(distance), {
+            "buffer_crs": str(gdf.crs) if gdf.crs is not None else None,
+            "distance_units": "crs units",
+        }
+
+    # Derive the local projection from bounds instead of GeoPandas'
+    # ``estimate_utm_crs`` helper. Older GeoPandas releases implement that
+    # helper through a NumPy scalar conversion that is now a warning/error
+    # under the repository's strict warning policy.
+    wgs84_geometry = _reproject_geometry_series(
+        gdf.geometry, gdf.crs, "EPSG:4326"
+    )
+    minx, miny, maxx, maxy = wgs84_geometry.total_bounds
+    longitude = float((minx + maxx) / 2.0)
+    latitude = float((miny + maxy) / 2.0)
+    if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+        raise ValueError("Geographic geometries have invalid bounds")
+
+    if -80 <= latitude <= 84:
+        zone = min(60, max(1, int((longitude + 180) // 6) + 1))
+        epsg = (32600 if latitude >= 0 else 32700) + zone
+        metric_crs = f"EPSG:{epsg}"
+    else:
+        # UTM does not cover the polar regions; a local azimuthal equidistant
+        # projection keeps the buffer distance metric there as well.
+        metric_crs = (
+            f"+proj=aeqd +lat_0={latitude} +lon_0={longitude} "
+            "+datum=WGS84 +units=m +no_defs"
+        )
+
+    projected_geometry = _reproject_geometry_series(
+        gdf.geometry, gdf.crs, metric_crs
+    )
+    buffered = projected_geometry.buffer(distance)
+    return _reproject_geometry_series(buffered, metric_crs, gdf.crs), {
+        "buffer_crs": str(metric_crs),
+        "distance_units": "meters",
+    }
+
+
 @router.post("/buffer", response_model=SpatialAnalysisResponse)
 async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
     """
@@ -116,9 +214,12 @@ async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
         # Convert GeoJSON to GeoDataFrame
         gdf = geojson_to_gdf(request.data.model_dump(), request.crs)
 
-        # Create buffers
+        # Project geographic input locally so that buffers are metric and
+        # accurate instead of operating directly on longitude/latitude.
         buffered_gdf = gdf.copy()
-        buffered_gdf["geometry"] = gdf.geometry.buffer(request.buffer_distance)
+        buffered_gdf["geometry"], buffer_metadata = _buffer_geometry(
+            gdf, request.buffer_distance
+        )
 
         # Dissolve if requested
         if request.dissolve:
@@ -138,9 +239,12 @@ async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
                 "buffer_distance": request.buffer_distance,
                 "dissolved": request.dissolve,
                 "num_features": len(buffered_gdf),
+                **buffer_metadata,
             },
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Buffer analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -177,6 +281,8 @@ async def proximity_analysis_endpoint(request: ProximityAnalysisRequest):
             },
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Proximity analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -208,7 +314,7 @@ async def interpolation_endpoint(request: InterpolationRequest):
             grid_bounds=tuple(request.bounds),
             grid_resolution=request.resolution,
             method=request.method,
-            **request.parameters,
+            **(request.parameters or {}),
         )
 
         # Convert to GeoJSON
@@ -227,6 +333,8 @@ async def interpolation_endpoint(request: InterpolationRequest):
             },
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Interpolation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -246,7 +354,9 @@ async def clustering_endpoint(request: ClusteringRequest):
 
         # Perform clustering
         result_gdf = clustering_analysis(
-            points_gdf=points_gdf, method=request.method, **request.parameters
+            points_gdf=points_gdf,
+            method=request.method,
+            **(request.parameters or {}),
         )
 
         # Convert to GeoJSON
@@ -274,6 +384,8 @@ async def clustering_endpoint(request: ClusteringRequest):
             },
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Clustering analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -303,7 +415,7 @@ async def hotspot_detection_endpoint(request: HotspotRequest):
             points_gdf=points_gdf,
             value_column=request.value_column,
             method=request.method,
-            **request.parameters,
+            **(request.parameters or {}),
         )
 
         # Convert to GeoJSON
@@ -331,6 +443,8 @@ async def hotspot_detection_endpoint(request: HotspotRequest):
             },
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Hotspot detection failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -347,10 +461,11 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
     try:
         # Convert network to GeoDataFrame
         network_gdf = geojson_to_gdf(request.network.model_dump(), request.crs)
+        parameters = request.parameters or {}
 
         if request.analysis_type == "connectivity":
             # Network connectivity analysis
-            result = network_connectivity(network_gdf=network_gdf, **request.parameters)
+            result = network_connectivity(network_gdf=network_gdf, **parameters)
 
             return SpatialAnalysisResponse(
                 success=True,
@@ -373,12 +488,14 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
             origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
             center_point = origins_gdf.geometry.iloc[0]
 
-            max_distance = request.parameters.get("max_distance", 1000)
+            max_distance = parameters.get("max_distance", 1000)
+            weight_column = parameters.get("weight_column", "length")
 
             result_gdf = service_area(
                 network_gdf=network_gdf,
                 center_point=center_point,
                 max_distance=max_distance,
+                weight_column=weight_column,
             )
 
             result_geojson = gdf_to_geojson(result_gdf)
@@ -394,12 +511,105 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                 },
             )
 
+        elif request.analysis_type == "shortest_path":
+            if not request.origins or not request.destinations:
+                raise HTTPException(
+                    status_code=400,
+                    detail="shortest_path requires origins and destinations",
+                )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            destinations_gdf = geojson_to_gdf(
+                request.destinations.model_dump(), request.crs
+            )
+            if origins_gdf.empty or destinations_gdf.empty:
+                raise HTTPException(
+                    status_code=400,
+                    detail="shortest_path requires at least one origin and destination",
+                )
+            weight_column = parameters.get("weight_column", "length")
+            result = shortest_path(
+                network_gdf=network_gdf,
+                start_point=origins_gdf.geometry.iloc[0],
+                end_point=destinations_gdf.geometry.iloc[0],
+                weight_column=weight_column,
+                impedance_factor=parameters.get("impedance_factor", 1.0),
+            )
+            if result.get("path_geometry") is not None:
+                result["path_geometry"] = mapping(result["path_geometry"])
+            return SpatialAnalysisResponse(
+                success=True,
+                result=result,
+                message="Shortest path analysis completed",
+                metadata={
+                    "analysis_type": request.analysis_type,
+                    "weight_column": weight_column,
+                },
+            )
+
+        elif request.analysis_type == "routing":
+            if not request.origins or not request.destinations:
+                raise HTTPException(
+                    status_code=400,
+                    detail="routing requires origins and destinations",
+                )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            destinations_gdf = geojson_to_gdf(
+                request.destinations.model_dump(), request.crs
+            )
+            weight_column = parameters.get("weight_column", "length")
+            result = routing_analysis(
+                network_gdf=network_gdf,
+                origins=list(origins_gdf.geometry),
+                destinations=list(destinations_gdf.geometry),
+                weight_column=weight_column,
+            )
+            return SpatialAnalysisResponse(
+                success=True,
+                result={"records": _records_to_json(result)},
+                message="Routing analysis completed",
+                metadata={
+                    "analysis_type": request.analysis_type,
+                    "weight_column": weight_column,
+                },
+            )
+
+        elif request.analysis_type == "accessibility":
+            if not request.origins or not request.destinations:
+                raise HTTPException(
+                    status_code=400,
+                    detail="accessibility requires origins and destinations",
+                )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            destinations_gdf = geojson_to_gdf(
+                request.destinations.model_dump(), request.crs
+            )
+            weight_column = parameters.get("weight_column", "length")
+            result = accessibility_analysis(
+                network_gdf=network_gdf,
+                origins=list(origins_gdf.geometry),
+                destinations=list(destinations_gdf.geometry),
+                max_distance=parameters.get("max_distance", 1000),
+                weight_column=weight_column,
+            )
+            return SpatialAnalysisResponse(
+                success=True,
+                result={"records": _records_to_json(result)},
+                message="Accessibility analysis completed",
+                metadata={
+                    "analysis_type": request.analysis_type,
+                    "max_distance": parameters.get("max_distance", 1000),
+                    "weight_column": weight_column,
+                },
+            )
+
         else:
             raise HTTPException(
                 status_code=400,
                 detail=f"Analysis type '{request.analysis_type}' is unsupported",
             )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Network analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -414,8 +624,14 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
     and provides H3-based spatial indexing capabilities.
     """
     try:
+        parameters = request.parameters or {}
         if request.operation == "polygon_to_cells":
             # Convert geometry to H3 cells
+            if request.geometry is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="polygon_to_cells requires a polygon geometry",
+                )
             geom_dict = request.geometry.model_dump()
 
             h3_cells = polygon_to_cells(geom_dict, request.resolution)
@@ -426,8 +642,11 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
             features = []
             for cell in h3_cells:
                 boundary = cell_to_latlng_boundary(cell)
-                # Convert to proper coordinate format for GeoJSON
-                coords = [[list(coord) for coord in boundary]]
+                # H3 returns (lat, lng); GeoJSON uses closed [lng, lat] rings.
+                ring = [[lng, lat] for lat, lng in boundary]
+                if ring and ring[0] != ring[-1]:
+                    ring.append(ring[0])
+                coords = [ring]
 
                 feature = {
                     "type": "Feature",
@@ -451,14 +670,18 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
 
         elif request.operation == "grid_disk":
             # Grid disk operation requires center cell
-            center_cell = request.parameters.get("center_cell")
-            k = request.parameters.get("k", 1)
+            center_cell = parameters.get("center_cell")
+            k = parameters.get("k", 1)
 
             if not center_cell:
                 raise HTTPException(
                     status_code=400,
                     detail="Grid disk operation requires 'center_cell' parameter",
                 )
+            if not is_valid_cell(center_cell):
+                raise HTTPException(status_code=400, detail="center_cell is not a valid H3 cell")
+            if isinstance(k, bool) or not isinstance(k, int) or k < 0:
+                raise HTTPException(status_code=400, detail="k must be a non-negative integer")
 
             disk_cells = grid_disk(center_cell, k)
 
@@ -474,12 +697,75 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
                 },
             )
 
+        elif request.operation == "compact_cells":
+            cells = parameters.get("cells")
+            if not isinstance(cells, list) or not cells:
+                raise HTTPException(
+                    status_code=400,
+                    detail="compact_cells requires a non-empty 'cells' list",
+                )
+            invalid = [cell for cell in cells if not isinstance(cell, str) or not is_valid_cell(cell)]
+            if invalid:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"cells contains invalid H3 indexes: {invalid[:3]}",
+                )
+            resolutions = {get_resolution(cell) for cell in cells}
+            if len(resolutions) != 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="compact_cells requires cells at one common resolution",
+                )
+            try:
+                compacted = compact_cells(cells)
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"compact_cells could not compact the supplied cells: {exc}",
+                ) from exc
+            return SpatialAnalysisResponse(
+                success=True,
+                result={"cells": compacted},
+                message="H3 cell compaction completed",
+                metadata={
+                    "operation": request.operation,
+                    "input_count": len(cells),
+                    "num_cells": len(compacted),
+                },
+            )
+
+        elif request.operation == "cell_to_boundary":
+            center_cell = parameters.get("center_cell")
+            if not isinstance(center_cell, str) or not is_valid_cell(center_cell):
+                raise HTTPException(
+                    status_code=400,
+                    detail="cell_to_boundary requires a valid 'center_cell' H3 index",
+                )
+            from ..utils.h3_utils import cell_to_latlng_boundary
+
+            ring = [
+                [lng, lat] for lat, lng in cell_to_latlng_boundary(center_cell)
+            ]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
+            return SpatialAnalysisResponse(
+                success=True,
+                result={
+                    "cell": center_cell,
+                    "geometry": {"type": "Polygon", "coordinates": [ring]},
+                },
+                message="H3 cell boundary completed",
+                metadata={"operation": request.operation, "cell": center_cell},
+            )
+
         else:
             raise HTTPException(
                 status_code=400,
                 detail=f"H3 operation '{request.operation}' is unsupported",
             )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"H3 analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))

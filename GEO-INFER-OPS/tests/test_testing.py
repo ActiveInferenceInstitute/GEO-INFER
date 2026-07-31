@@ -24,7 +24,7 @@ from geo_infer_ops.core.config import (
     Config,
     LoggingConfig,
     MonitoringConfig,
-    TestingConfig,
+    TestingConfig as OpsTestingConfig,
 )
 
 
@@ -81,7 +81,7 @@ def test_setup_testing_defaults(mock_config_dict):
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="INFO"),
             monitoring=MonitoringConfig(enabled=True),
-            testing=TestingConfig(coverage_threshold=95, parallel=False, timeout=60),
+            testing=OpsTestingConfig(coverage_threshold=95, parallel=False, timeout=60),
         )
 
         exit_code = setup_testing()
@@ -103,7 +103,7 @@ def test_setup_testing_custom_config(mock_config_dict):
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="DEBUG"),
             monitoring=MonitoringConfig(enabled=True),
-            testing=TestingConfig(coverage_threshold=95, parallel=False, timeout=60),
+            testing=OpsTestingConfig(coverage_threshold=95, parallel=False, timeout=60),
         )
 
         exit_code = setup_testing(
@@ -133,7 +133,7 @@ def test_setup_testing_failure():
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="INFO"),
             monitoring=MonitoringConfig(enabled=True),
-            testing=TestingConfig(coverage_threshold=95, parallel=False, timeout=60),
+            testing=OpsTestingConfig(coverage_threshold=95, parallel=False, timeout=60),
         )
 
         # Test without exit_on_failure
