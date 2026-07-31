@@ -33,3 +33,16 @@ try:
 except ImportError as e:
     import logging
     logging.warning(f"NORMS models submodules not available: {e}") 
+
+__all__ = [
+    "legal_frameworks",
+    "zoning_analysis",
+    "compliance_tracking",
+    "policy_impact",
+    "normative_inference",
+    "legal_entity",
+    "regulation",
+    "compliance_status",
+    "zoning",
+    "policy",
+]
