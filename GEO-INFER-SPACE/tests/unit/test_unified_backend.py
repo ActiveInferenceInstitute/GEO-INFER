@@ -8,6 +8,7 @@ import tempfile
 import shutil
 import json
 import pytest
+import os
 
 class MockModule(BaseAnalysisModule):
     def acquire_raw_data(self) -> Path:
@@ -22,9 +23,10 @@ class MockModule(BaseAnalysisModule):
 @pytest.mark.core
 class TestUnifiedH3Backend(unittest.TestCase):
     def setUp(self):
-        self.temp_config_dir = Path('config')
-        self.temp_config_dir.mkdir(exist_ok=True)
-        config_path = self.temp_config_dir / 'target_areas.geojson'
+        # The backend reads config/target_areas.geojson relative to CWD
+        self._config_dir = Path.cwd() / 'config'
+        self._config_dir.mkdir(exist_ok=True)
+        config_path = self._config_dir / 'target_areas.geojson'
         sample_geojson = {
             'type': 'FeatureCollection',
             'features': [{
@@ -47,28 +49,17 @@ class TestUnifiedH3Backend(unittest.TestCase):
         )
 
     def tearDown(self):
-        shutil.rmtree(self.temp_config_dir)
+        if self._config_dir.exists():
+            shutil.rmtree(self._config_dir)
 
     def test_define_target_region(self):
         """Test target region definition with small real geometry."""
         # Pass a valid GeoJSON dict with [lat, lon] coordinates
         geojson_polygon = {
             "type": "Polygon",
-            "coordinates": [
-                [
-                    [0.0, 0.0],
-                    [0.0, 1.0],
-                    [1.0, 1.0],
-                    [1.0, 0.0],
-                    [0.0, 0.0]
-                ]
-            ]
+            "coordinates": [[[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]]
         }
-        test_geom = {
-            'TestArea': {
-                'all': geojson_polygon
-            }
-        }
+        test_geom = {'TestArea': {'all': geojson_polygon}}
         test_backend = UnifiedH3Backend.__new__(UnifiedH3Backend)
         test_backend.resolution = 8
         test_backend.target_region = 'TestArea'
@@ -79,16 +70,12 @@ class TestUnifiedH3Backend(unittest.TestCase):
         def mock_get_geometries(target_areas):
             return test_geom
         test_backend._get_geometries = mock_get_geometries
-        print(f"DEBUG: geom type: {type(test_geom['TestArea']['all'])}")
         hex_by_area, all_hex = test_backend._define_target_region({'TestArea': ['all']})
-        print(f"Generated hexes: {all_hex}")
         self.assertGreater(len(all_hex), 0)
 
     def test_run_comprehensive_analysis(self):
         """Test full analysis with small real data."""
-        # Set small target hexagons
         self.backend.target_hexagons = ['mock_hex']
-        # Simulate module run
         self.backend.modules['mock'].run_analysis = lambda: {'mock_hex': {'value': 42}}
         self.backend.run_comprehensive_analysis()
         self.assertIn('mock', self.backend.unified_data.get('mock_hex', {}))
@@ -118,4 +105,4 @@ class TestUnifiedH3Backend(unittest.TestCase):
         temp_html = Path(tempfile.NamedTemporaryFile(suffix='.html', delete=False).name)
         self.backend.generate_interactive_dashboard(str(temp_html))
         self.assertTrue(temp_html.exists())
-        temp_html.unlink() 
+        temp_html.unlink()
