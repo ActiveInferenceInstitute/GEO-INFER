@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import tempfile
 import json
+import pytest
 
 # Add project root to path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -80,6 +81,7 @@ class TestH3ActiveInference(unittest.TestCase):
                     msg=f"Seed reproducibility failed for {var} in cell {cell}",
                 )
 
+    @pytest.mark.slow
     def test_advanced_h3_active_inference(self):
         """Test comprehensive H3 active inference simulation."""
         # Create a temporary output directory
