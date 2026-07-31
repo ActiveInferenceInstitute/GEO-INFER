@@ -17,25 +17,16 @@ The acceptance criteria covered here (from TODO.md):
 
 import json
 
+import mesa
 import pytest
 
 from geo_infer_sim.core.mesa_bridge import HAS_MESA, MesaModelBridge
 from geo_infer_sim.core.simulation_engine import SimulationConfig, SimulationState
 
 
-# Skip the entire module when Mesa is unavailable. The bridge itself raises a
-# clear ImportError on construction; these tests need a real Mesa model.
-pytestmark = pytest.mark.skipif(
-    not HAS_MESA,
-    reason="optional 'mesa' dependency not installed (uv sync --extra mesa)",
-)
-
-
 # ---------------------------------------------------------------------------
 # Mesa model fixtures
 # ---------------------------------------------------------------------------
-import mesa  # noqa: E402  (import after the skip guard so it is never evaluated
-#                                   when mesa is absent)
 
 
 class WealthAgent(mesa.Agent):

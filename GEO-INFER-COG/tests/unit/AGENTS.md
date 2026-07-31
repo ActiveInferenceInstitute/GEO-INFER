@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `test_acceptance_cog.py`
 - `test_attention.py`
 - `test_cognitive_engine.py`
 - `test_cognitive_models.py`
