@@ -276,7 +276,10 @@ class CascadianImprovementsDataSources:
             logger.warning("Cannot fetch improvements data without target hexagons.")
             return gpd.GeoDataFrame()
 
-        hex_boundaries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
+        hex_boundaries = [
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
+            for h in target_hexagons
+        ]
         minx = min(p.bounds[0] for p in hex_boundaries)
         miny = min(p.bounds[1] for p in hex_boundaries)
         maxx = max(p.bounds[2] for p in hex_boundaries)

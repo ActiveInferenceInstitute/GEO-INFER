@@ -26,7 +26,7 @@ Tests workspace within `GEO-INFER-ART`.
 - Package: `geo_infer_art`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-ART`
-- Tests: `uv run python -m pytest GEO-INFER-ART/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
 
 ## Dependencies
 
@@ -65,7 +65,7 @@ Tests workspace within `GEO-INFER-ART`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-ART/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
 ```
 
 

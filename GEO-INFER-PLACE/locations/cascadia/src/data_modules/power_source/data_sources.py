@@ -57,7 +57,10 @@ class CascadianPowerSourceDataSources:
         self, hexagons: List[str]
     ) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
-        boundaries = [Polygon(cell_to_latlng_boundary(h)) for h in hexagons]
+        boundaries = [
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
+            for h in hexagons
+        ]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
         max_lon = max(b.bounds[2] for b in boundaries)

@@ -165,15 +165,12 @@ Combine GEO-INFER-ACT with GEO-INFER-SPACE for spatially-aware Active Inference.
 
 ```python
 from geo_infer_act.core.active_inference import ActiveInferenceAgent
-from geo_infer_space.core.h3_backend import H3Backend
+from geo_infer_space.backends.h3.h3_backend import H3Backend
 import numpy as np
 
 # Initialize spatial backend (GEO-INFER-SPACE)
 h3_backend = H3Backend()
-region_cells = h3_backend.polyfill_polygon(
-    polygon_geojson=region_boundary,
-    resolution=7,
-)
+region_cells = h3_backend.polygon_to_cells(region_boundary, resolution=7)
 
 # Build a generative model over the spatial region (GEO-INFER-ACT)
 agent = ActiveInferenceAgent(
@@ -195,13 +192,13 @@ for timestep in range(100):
 A complete agricultural analysis combining four modules:
 
 ```python
-from geo_infer_space.core.h3_backend import H3Backend
+from geo_infer_space.backends.h3.h3_backend import H3Backend
 from geo_infer_math.core.spatial_statistics import SpatialStatistics
 from geo_infer_bayes.core.model_comparison import ModelComparison
 
 # Step 1: Spatial indexing (SPACE)
 h3 = H3Backend()
-field_cells = h3.polyfill_polygon(field_boundary, resolution=9)
+field_cells = h3.polygon_to_cells(field_boundary, resolution=9)
 
 # Step 2: Aggregate sensor data per cell (SPACE + DATA)
 cell_data = {}
@@ -309,7 +306,7 @@ The simplest pattern. One module imports classes from another.
 
 ```python
 from geo_infer_math.core.transforms import CoordinateTransform
-from geo_infer_space.core.h3_backend import H3Backend
+from geo_infer_space.backends.h3.h3_backend import H3Backend
 ```
 
 Use when: both modules are installed in the same environment and latency must be minimal.

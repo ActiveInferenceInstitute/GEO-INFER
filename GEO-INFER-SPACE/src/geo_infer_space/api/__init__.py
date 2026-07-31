@@ -15,6 +15,7 @@ from .schemas import (
     ClusteringRequest,
     HotspotRequest,
     NetworkAnalysisRequest,
+    H3AnalysisRequest,
     ErrorResponse
 )
 
@@ -29,5 +30,6 @@ __all__ = [
     'ClusteringRequest',
     'HotspotRequest',
     'NetworkAnalysisRequest',
+    'H3AnalysisRequest',
     'ErrorResponse'
 ]

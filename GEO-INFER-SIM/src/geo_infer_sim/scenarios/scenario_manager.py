@@ -135,15 +135,15 @@ class ScenarioManager:
 
         scenario = self.scenarios[scenario_id]
 
-        if name:
+        if name is not None:
             scenario.name = name
-        if description:
+        if description is not None:
             scenario.description = description
-        if parameters:
+        if parameters is not None:
             scenario.parameters.update(parameters)
-        if initial_conditions:
+        if initial_conditions is not None:
             scenario.initial_conditions.update(initial_conditions)
-        if interventions:
+        if interventions is not None:
             scenario.interventions = interventions
 
         logger.info(f"Updated scenario: {scenario_id}")
@@ -351,10 +351,12 @@ class ScenarioManager:
         # Aggregate metrics
         for metric_name in all_metrics:
             metric_values = []
+            metric_scenarios = []
             for scenario_id in scenario_ids:
                 result = self.scenario_results.get(scenario_id, {})
                 if "metrics" in result and metric_name in result["metrics"]:
                     metric_values.append(result["metrics"][metric_name])
+                    metric_scenarios.append(scenario_id)
 
             if metric_values:
                 analysis["metrics_summary"][metric_name] = {
@@ -368,15 +370,14 @@ class ScenarioManager:
                 # Find best scenario for each metric
                 best_idx = np.argmax(metric_values) if metric_values else None
                 if best_idx is not None:
-                    best_scenario_id = scenario_ids[best_idx]
+                    best_scenario_id = metric_scenarios[best_idx]
+                    best_scenario = self.scenarios.get(best_scenario_id)
                     analysis["best_scenarios"][metric_name] = {
                         "scenario_id": best_scenario_id,
                         "value": float(metric_values[best_idx]),
-                        "scenario_name": (
-                            self.scenarios.get(best_scenario_id, {}).name
-                            if best_scenario_id in self.scenarios
-                            else "Unknown"
-                        ),
+                        "scenario_name": best_scenario.name
+                        if best_scenario is not None
+                        else "Unknown",
                     }
 
         return analysis

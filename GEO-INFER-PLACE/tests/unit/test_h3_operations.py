@@ -8,6 +8,7 @@ grid_disk, is_valid_cell, and GeoDataFrame conversion.
 
 import pytest
 import numpy as np
+import h3
 
 from geo_infer_place.utils.h3_operations import (
     latlng_to_cell,
@@ -91,6 +92,22 @@ class TestPolygonToCells:
         }
         cells = geo_to_cells(geojson, 6)
         assert len(cells) > 0
+
+    def test_polygon_to_cells_accepts_feature_wrappers(self):
+        """Feature input must normalize through the native GeoJSON wrapper."""
+        geometry = {
+            "type": "Polygon",
+            "coordinates": [[
+                [-124.25, 41.70],
+                [-124.15, 41.70],
+                [-124.15, 41.80],
+                [-124.25, 41.80],
+                [-124.25, 41.70],
+            ]],
+        }
+        feature = {"type": "Feature", "properties": {}, "geometry": geometry}
+
+        assert set(polygon_to_cells(feature, 8)) == set(h3.geo_to_cells(geometry, 8))
 
 
 # -- grid operations ------------------------------------------------------

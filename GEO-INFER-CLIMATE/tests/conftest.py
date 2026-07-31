@@ -8,6 +8,7 @@ import pytest
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+import h3
 from shapely.geometry import Point
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
@@ -73,12 +74,7 @@ def climate_grid() -> gpd.GeoDataFrame:
     lats = 45.0 + np.linspace(0, 3, n)
     lngs = -123.0 + np.linspace(0, 2, n)
 
-    try:
-        import h3
-
-        cells = [h3.latlng_to_cell(lat, lng, 5) for lat, lng in zip(lats, lngs)]
-    except ImportError:
-        cells = [f"850000_{i}" for i in range(n)]
+    cells = [h3.latlng_to_cell(lat, lng, 5) for lat, lng in zip(lats, lngs)]
 
     return gpd.GeoDataFrame(
         {

@@ -45,6 +45,16 @@
 - `NORMS/`
 - `OPS/`
 - `ORG/`
+- `PEP/`
+- `PLACE/`
+- `REQ/`
+- `RISK/`
+- `SEC/`
+- `SIM/`
+- `SPACE/`
+- `SPM/`
+- `TEST/`
+- `TIME/`
 - `generate_orchestrators.py`
 - `update_to_thin_orchestrators.py`
 

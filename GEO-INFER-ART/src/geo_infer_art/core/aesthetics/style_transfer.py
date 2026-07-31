@@ -81,6 +81,13 @@ class StyleTransfer:
         self.style_image = None
         self.content_image = None
         self.model = None
+        requested_device = os.environ.get("GEO_INFER_ART_TF_DEVICE", "CPU").upper()
+        if requested_device not in {"CPU", "GPU"}:
+            raise ValueError("GEO_INFER_ART_TF_DEVICE must be CPU or GPU")
+        # CPU is the reliable default for optional TensorFlow workloads.  Some
+        # hosts expose a CUDA device whose driver cannot execute the installed
+        # TensorFlow kernels; callers can opt into GPU execution explicitly.
+        self._tf_device = f"/{requested_device}:0"
 
         if style_image is not None:
             self.load_style_image(style_image)
@@ -252,17 +259,18 @@ class StyleTransfer:
             "block5_conv1",
         ]
 
-        # Load the VGG19 model without the top classification layer
-        vgg = vgg19.VGG19(include_top=False, weights="imagenet")
-        vgg.trainable = False
+        with tf.device(self._tf_device):
+            # Load the VGG19 model without the top classification layer
+            vgg = vgg19.VGG19(include_top=False, weights="imagenet")
+            vgg.trainable = False
 
-        # Get the outputs of the content and style layers
-        style_outputs = [vgg.get_layer(name).output for name in style_layers]
-        content_outputs = [vgg.get_layer(name).output for name in content_layers]
+            # Get the outputs of the content and style layers
+            style_outputs = [vgg.get_layer(name).output for name in style_layers]
+            content_outputs = [vgg.get_layer(name).output for name in content_layers]
 
-        # Combine them into a single model
-        model_outputs = style_outputs + content_outputs
-        self.model = tf.keras.Model(vgg.input, model_outputs)
+            # Combine them into a single model
+            model_outputs = style_outputs + content_outputs
+            self.model = tf.keras.Model(vgg.input, model_outputs)
 
     @staticmethod
     def apply(
@@ -382,67 +390,69 @@ class StyleTransfer:
         if self.model is None:
             self._build_model()
 
-        # Get the feature representations of the content and style images
-        style_features = self.model(self.style_image)
-        content_features = self.model(self.content_image)
+        with tf.device(self._tf_device):
+            # Get the feature representations of the content and style images
+            style_features = self.model(self.style_image)
+            content_features = self.model(self.content_image)
 
-        # Split into style and content features
-        num_style_layers = 5  # Defined in _build_model
-        style_features = style_features[:num_style_layers]
-        content_features = content_features[num_style_layers:]
+            # Split into style and content features
+            num_style_layers = 5  # Defined in _build_model
+            style_features = style_features[:num_style_layers]
+            content_features = content_features[num_style_layers:]
 
-        # Create a variable to optimize (initialize with content image)
-        input_image = tf.Variable(self.content_image)
+            # Create a variable to optimize (initialize with content image)
+            input_image = tf.Variable(self.content_image)
 
-        # Optimizer for the image
-        optimizer = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
-
-        # Define the loss function
-        def style_content_loss():
-            # Process the input image through the model
-            outputs = self.model(input_image)
-            style_outputs = outputs[:num_style_layers]
-            content_outputs = outputs[num_style_layers:]
-
-            # Calculate style loss
-            style_loss = tf.add_n(
-                [
-                    tf.reduce_mean((style_outputs[i] - style_features[i]) ** 2)
-                    for i in range(num_style_layers)
-                ]
+            # Optimizer for the image
+            optimizer = tf.optimizers.Adam(
+                learning_rate=0.02, beta_1=0.99, epsilon=1e-1
             )
-            style_loss *= style_weight / num_style_layers
 
-            # Calculate content loss
-            content_loss = tf.add_n(
-                [
-                    tf.reduce_mean((content_outputs[i] - content_features[i]) ** 2)
-                    for i in range(len(content_outputs))
-                ]
-            )
-            content_loss *= content_weight / len(content_outputs)
+            # Define the loss function
+            def style_content_loss():
+                # Process the input image through the model
+                outputs = self.model(input_image)
+                style_outputs = outputs[:num_style_layers]
+                content_outputs = outputs[num_style_layers:]
 
-            # Total loss
-            total_loss = style_loss + content_loss
-            return total_loss
+                # Calculate style loss
+                style_loss = tf.add_n(
+                    [
+                        tf.reduce_mean((style_outputs[i] - style_features[i]) ** 2)
+                        for i in range(num_style_layers)
+                    ]
+                )
+                style_loss *= style_weight / num_style_layers
 
-        # Optimization loop
-        for i in range(iterations):
-            with tf.GradientTape() as tape:
-                loss = style_content_loss()
+                # Calculate content loss
+                content_loss = tf.add_n(
+                    [
+                        tf.reduce_mean((content_outputs[i] - content_features[i]) ** 2)
+                        for i in range(len(content_outputs))
+                    ]
+                )
+                content_loss *= content_weight / len(content_outputs)
 
-            # Get the gradients and apply them to the input image
-            gradients = tape.gradient(loss, input_image)
-            optimizer.apply_gradients([(gradients, input_image)])
+                # Total loss
+                return style_loss + content_loss
 
-            # Clip the pixel values to be between 0 and 255
-            input_image.assign(tf.clip_by_value(input_image, 0.0, 255.0))
+            # Optimization loop
+            for i in range(iterations):
+                with tf.GradientTape() as tape:
+                    loss = style_content_loss()
 
-            if i % 10 == 0:
-                print(f"Iteration {i}: Loss = {loss.numpy()}")
+                # Get the gradients and apply them to the input image
+                gradients = tape.gradient(loss, input_image)
+                optimizer.apply_gradients([(gradients, input_image)])
 
-        # Convert the result back to a PIL image
-        result = input_image.numpy()
+                # Clip the pixel values to be between 0 and 255
+                input_image.assign(tf.clip_by_value(input_image, 0.0, 255.0))
+
+                if i % 10 == 0:
+                    logger.info("Style-transfer iteration %s: loss=%s", i, loss.numpy())
+
+            # Convert the result back to a PIL image
+            result = input_image.numpy()
         result = result.reshape(result.shape[1:])
         result = np.clip(result, 0, 255).astype("uint8")
 

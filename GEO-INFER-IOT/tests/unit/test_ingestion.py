@@ -24,6 +24,8 @@ from geo_infer_iot.core.ingestion import (
     SpatialInferenceConfig,
 )
 from geo_infer_iot.core.registry import SensorRegistry
+from geo_infer_iot.models.measurement import Measurement
+from geo_infer_iot.models.sensor import Location, Sensor, SensorCapabilities
 
 
 def build_radiation_measurements(count: int) -> list[dict]:
@@ -102,6 +104,49 @@ class TestSensorMeasurement(unittest.TestCase):
         # Test value validation
         self.assertIsInstance(valid_measurement.value, (int, float))
         self.assertFalse(np.isnan(valid_measurement.value))
+
+
+class TestPydanticH3Models(unittest.TestCase):
+    """Ensure public Pydantic models use the H3 v4 validation API."""
+
+    def test_measurement_generates_and_validates_h3_cell(self):
+        measurement = Measurement(
+            measurement_id="measurement-1",
+            sensor_id="sensor-1",
+            variable="temperature",
+            value=21.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060,
+        )
+        self.assertTrue(h3.is_valid_cell(measurement.h3_index))
+
+        with self.assertRaises(ValueError):
+            Measurement(
+                measurement_id="measurement-2",
+                sensor_id="sensor-1",
+                variable="temperature",
+                value=21.5,
+                unit="celsius",
+                h3_index="not-a-cell",
+            )
+
+    def test_sensor_location_validates_h3_cell(self):
+        location = Location(latitude=40.7128, longitude=-74.0060)
+        self.assertTrue(h3.is_valid_cell(location.h3_index))
+
+        with self.assertRaises(ValueError):
+            Sensor(
+                sensor_id="sensor-1",
+                network_id="network-1",
+                sensor_type="temperature",
+                location=Location(
+                    latitude=40.7128,
+                    longitude=-74.0060,
+                    h3_index="not-a-cell",
+                ),
+                capabilities=SensorCapabilities(measured_variables=["temperature"]),
+            )
 
 
 class TestIoTDataIngestion(unittest.TestCase):

@@ -5,8 +5,8 @@ This module defines the generic interface for spatial indexing operations
 that can be implemented by different backends (H3, SRAI, etc.).
 """
 
-from typing import Dict, Any, List, Optional, Protocol, Union
-from abc import ABC, abstractmethod
+from typing import Dict, Any, List, Optional
+import math
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,19 +55,48 @@ class SpatialIndexingInterface:
             'cell_to_latlng', cell, backend=self.backend
         )
 
-    def get_neighbors(self, position: tuple[float, float], radius: float) -> List[str]:
+    def get_neighbors(
+        self,
+        position: tuple[float, float],
+        radius: float,
+        resolution: int = 9,
+    ) -> List[str]:
         """
         Get neighboring spatial cells within a radius.
 
         Args:
             position: Center position (lat, lng)
-            radius: Search radius in meters
+            radius: Search radius in meters. The result contains all cells in
+                the H3 grid disk whose ring distance is covered by this radius.
+            resolution: H3 resolution used to discretize ``position``.
 
         Returns:
             List of neighboring cell identifiers
         """
+        if len(position) != 2:
+            raise ValueError("position must be a (latitude, longitude) pair")
+        if radius <= 0:
+            raise ValueError("radius must be positive")
+        if not 0 <= resolution <= 15:
+            raise ValueError("resolution must be between 0 and 15")
+
+        cell = self.latlng_to_cell(position[0], position[1], resolution)
+        backend_name = self.backend or self.dispatcher.get_default_backend("indexing")
+        backend_instance = self.dispatcher.get_backend(backend_name)
+        edge_length = getattr(backend_instance, "average_edge_length", None)
+        if edge_length is None:
+            raise ValueError(
+                f"Backend '{backend_name}' cannot convert a metric radius to cells"
+            )
+        edge_m = float(edge_length(resolution, unit="m"))
+        if not math.isfinite(edge_m) or edge_m <= 0:
+            raise ValueError("backend returned an invalid average cell edge length")
+        ring_distance = max(1, math.ceil(radius / edge_m))
         return self.dispatcher.dispatch_indexing_operation(
-            'get_neighbors', position, radius, backend=self.backend
+            "get_cells_within_radius",
+            cell,
+            ring_distance,
+            backend=self.backend,
         )
 
     def get_cell_neighbors(self, cell: str, k: int = 1) -> List[str]:
@@ -220,7 +249,7 @@ class SpatialIndexingInterface:
     def get_cell_area(self, cell: str, unit: str = 'km^2') -> float:
         """Get area of a cell."""
         return self.dispatcher.dispatch_indexing_operation(
-            'get_cell_area', cell, unit, backend=self.backend
+            'get_cell_area', cell, unit=unit, backend=self.backend
         )
 
     def cells_to_multipolygon(self, cells: List[str]) -> Dict[str, Any]:

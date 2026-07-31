@@ -27,6 +27,7 @@ Api workspace within `GEO-INFER-ENERGY`.
 - `xarray>=0.19.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.0.0`
+- `h3>=4.5.0,<5`
 
 
 ## Validation

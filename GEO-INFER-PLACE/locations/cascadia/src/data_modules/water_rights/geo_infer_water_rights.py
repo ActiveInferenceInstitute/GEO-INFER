@@ -81,7 +81,15 @@ class GeoInferWaterRights:
 
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
-            geometry=[Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons], 
+            geometry=[
+                Polygon(
+                    [
+                        (lng, lat)
+                        for lat, lng in cell_to_latlng_boundary(h)
+                    ]
+                )
+                for h in target_hexagons
+            ],
             crs="EPSG:4326"
         )
         
@@ -145,4 +153,4 @@ class GeoInferWaterRights:
                 }
 
         logger.info(f"Completed water rights analysis. Processed {len(h3_water_rights)} hexagons.")
-        return h3_water_rights 
+        return h3_water_rights

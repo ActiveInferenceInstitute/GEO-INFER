@@ -18,8 +18,11 @@ from .h3_utils import (
     cell_area,
     get_resolution,
     is_valid_cell,
-    are_neighbor_cells
+    are_neighbor_cells,
+    cell_to_latlngjson,
+    geojson_to_h3,
 )
+from ..backends.h3.operations import grid_ring
 
 __all__ = [
     'latlng_to_cell',
@@ -34,5 +37,8 @@ __all__ = [
     'cell_area',
     'get_resolution',
     'is_valid_cell',
-    'are_neighbor_cells'
+    'are_neighbor_cells',
+    'cell_to_latlngjson',
+    'geojson_to_h3',
+    'grid_ring',
 ]

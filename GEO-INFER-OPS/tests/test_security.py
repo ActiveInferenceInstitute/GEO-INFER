@@ -13,6 +13,8 @@ from cryptography.x509.oid import NameOID
 from geo_infer_ops.core.security import SecurityManager
 from geo_infer_ops.core.config import Config, SecurityConfig, TLSConfig, AuthConfig
 
+TEST_JWT_SECRET = "test-secret-for-pyjwt-hs256-tests-32-bytes"
+
 
 @pytest.fixture
 def mock_config():
@@ -22,7 +24,9 @@ def mock_config():
             tls=TLSConfig(
                 enabled=True, cert_file="/tmp/test.crt", key_file="/tmp/test.key"
             ),
-            auth=AuthConfig(enabled=True, jwt_secret="test-secret", token_expiry=3600),
+            auth=AuthConfig(
+                enabled=True, jwt_secret=TEST_JWT_SECRET, token_expiry=3600
+            ),
         )
     )
 
@@ -69,7 +73,7 @@ def test_generate_jwt_token(security_manager):
     )
 
     assert isinstance(token, str)
-    payload = jwt.decode(token, "test-secret", algorithms=["HS256"])
+    payload = jwt.decode(token, TEST_JWT_SECRET, algorithms=["HS256"])
     assert payload["user_id"] == "test-user"
     assert payload["roles"] == ["admin"]
     assert "exp" in payload
@@ -94,7 +98,7 @@ def test_verify_jwt_token_expired(security_manager):
         "roles": ["admin"],
         "exp": datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1),
     }
-    token = jwt.encode(payload, "test-secret", algorithm="HS256")
+    token = jwt.encode(payload, TEST_JWT_SECRET, algorithm="HS256")
 
     # Verify token
     with pytest.raises(jwt.ExpiredSignatureError):

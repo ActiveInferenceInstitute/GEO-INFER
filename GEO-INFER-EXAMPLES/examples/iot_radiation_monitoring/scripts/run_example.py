@@ -524,7 +524,10 @@ def save_results(sensor_data: pd.DataFrame, spatial_results: dict,
     for i, h3_cell in enumerate(prediction_cells):
         # Get H3 cell boundary
         try:
-            boundary = h3.cell_to_boundary(h3_cell, geo_json=True)
+            boundary = h3.cell_to_boundary(h3_cell)
+            ring = [[lng, lat] for lat, lng in boundary]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
         except Exception as e:
             logger.warning("h3_boundary_error", {"h3_cell": h3_cell, "error": str(e)}, "MAIN")
             continue
@@ -533,7 +536,7 @@ def save_results(sensor_data: pd.DataFrame, spatial_results: dict,
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [boundary]
+                "coordinates": [ring]
             },
             "properties": {
                 "h3_index": h3_cell,
@@ -769,4 +772,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

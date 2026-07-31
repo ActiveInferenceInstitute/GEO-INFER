@@ -24,7 +24,14 @@ SPACE_SRC = REPO_ROOT / "GEO-INFER-SPACE" / "src"
 ACT_PACKAGE = ACT_SRC / "geo_infer_act"
 SPACE_PACKAGE = SPACE_SRC / "geo_infer_space"
 
-RUNTIME_SOURCE_ROOTS = [ACT_PACKAGE, SPACE_PACKAGE]
+# The H3 contract applies to every shipped module and example, not only the
+# original ACT/SPACE integration. Scan module trees while excluding tests and
+# migration tooling in ``_is_runtime_file`` below.
+RUNTIME_SOURCE_ROOTS = [
+    module_dir
+    for module_dir in sorted(REPO_ROOT.glob("GEO-INFER-*"))
+    if module_dir.is_dir()
+]
 TARGETED_H3_FILES = [
     ACT_PACKAGE / "core" / "active_inference.py",
     ACT_PACKAGE / "core" / "generative_model.py",
@@ -35,11 +42,24 @@ TARGETED_H3_FILES = [
     SPACE_PACKAGE / "backends" / "h3" / "h3_backend.py",
     SPACE_PACKAGE / "backends" / "h3" / "operations.py",
 ]
-DOC_FILES = [
-    REPO_ROOT / "GEO-INFER-ACT" / "README.md",
-    REPO_ROOT / "GEO-INFER-ACT" / "SKILL.md",
-    REPO_ROOT / "GEO-INFER-ACT" / "docs" / "mathematical_framework.md",
-]
+DOC_FILES = sorted(
+    (REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "geospatial" / "data_formats" / "h3").glob("*.md")
+)
+DOC_FILES.extend(
+    sorted(
+        path
+        for path in (REPO_ROOT / "GEO-INFER-SPACE" / "docs").glob("*.md")
+        if "h3" in path.name.lower()
+        or path.name in {"CLI_TOOLS.md", "H3_MODULE_CONFIGURATION_GUIDE.md"}
+    )
+)
+DOC_FILES.extend(
+    [
+        REPO_ROOT / "GEO-INFER-ACT" / "README.md",
+        REPO_ROOT / "GEO-INFER-ACT" / "SKILL.md",
+        REPO_ROOT / "GEO-INFER-ACT" / "docs" / "mathematical_framework.md",
+    ]
+)
 H3_V3_API_CALLS = [
     "h3.geo_to_h3(",
     "h3.h3_to_geo(",
@@ -50,6 +70,9 @@ H3_V3_API_CALLS = [
     "h3.h3_to_children(",
     "h3.h3_to_geo_boundary(",
     "h3.h3_set_to_multi_polygon(",
+    "h3.h3_is_valid(",
+    "h3.hex_area(",
+    "h3.grid_ring_unsafe(",
 ]
 OBSOLETE_PYMDP_RUNTIME_IMPORTS = [
     "pymdp.control",
@@ -67,9 +90,13 @@ def _ensure_import_path() -> None:
 
 def _is_runtime_file(path: Path) -> bool:
     parts = set(path.parts)
-    if "tools" in parts:
+    if {"tests", "tools", "__pycache__"} & parts:
         return False
-    if path.name == "h3_v3_to_v4_upgrade.py":
+    if path.name in {
+        "h3_v3_to_v4_upgrade.py",
+        "h3_v4_framework_upgrade.py",
+        "validate_h3_active_inference_contract.py",
+    }:
         return False
     return path.suffix == ".py"
 
@@ -84,6 +111,26 @@ def _validate_no_h3_v3_calls() -> None:
             for pattern in H3_V3_API_CALLS:
                 if pattern in text:
                     offenders.append(f"{path.relative_to(REPO_ROOT)}: {pattern}")
+            try:
+                tree = ast.parse(text, filename=str(path))
+            except SyntaxError as exc:
+                offenders.append(
+                    f"{path.relative_to(REPO_ROOT)}:{exc.lineno}: syntax error: {exc.msg}"
+                )
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                if not (
+                    isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "cell_to_boundary"
+                ):
+                    continue
+                if any(keyword.arg == "geo_json" for keyword in node.keywords):
+                    offenders.append(
+                        f"{path.relative_to(REPO_ROOT)}:{node.lineno}: "
+                        "cell_to_boundary does not accept geo_json in H3 v4"
+                    )
     for path in DOC_FILES:
         if not path.exists():
             continue
@@ -255,6 +302,7 @@ def _validate_space_indexing_contract() -> list[str]:
     assert -123.5 < lng < -121.5
 
     boundary = {
+        "type": "Polygon",
         "coordinates": [
             [
                 [-122.42, 37.77],
@@ -317,6 +365,7 @@ def _validate_act_h3_runtime(cells: list[str]) -> None:
     assert validate_pymdp_version() == REQUIRED_PYMDP_VERSION
 
     boundary = {
+        "type": "Polygon",
         "coordinates": [
             [
                 [-122.42, 37.77],

@@ -253,15 +253,19 @@ def has_test_files(path: Path) -> bool:
 def category_test_paths(module: Module, category: str) -> list[Path]:
     """Resolve a module's test files for one canonical category.
 
-    Unit tests in older modules may live directly under ``tests/``.  Only the
-    unit category receives that compatibility fallback; integration and
-    performance remain bounded by their named directories.
+    Unit tests in older modules may live directly under ``tests/`` or under
+    the legacy ``tests/tools/`` directory. Include those files alongside the
+    canonical unit directory so the category cannot silently omit behavior
+    tests. Integration, system, and performance remain bounded by their named
+    directories.
     """
     category_path = module.test_path / category
     paths = test_file_paths(category_path)
-    if paths or category != "unit":
+    if category != "unit":
         return paths
-    return test_file_paths(module.test_path, recursive=False)
+    paths.extend(test_file_paths(module.test_path, recursive=False))
+    paths.extend(test_file_paths(module.test_path / "tools"))
+    return sorted(set(paths))
 
 
 def run_module_tests(module: Module, timeout: int) -> CommandResult:
@@ -321,6 +325,10 @@ def run_unit_tests(timeout: int) -> SuiteReport:
 
 def run_integration_tests(timeout: int) -> SuiteReport:
     return run_module_category_tests("integration", timeout=timeout)
+
+
+def run_system_tests(timeout: int) -> SuiteReport:
+    return run_module_category_tests("system", timeout=timeout)
 
 
 def run_performance_tests(timeout: int) -> SuiteReport:
@@ -454,7 +462,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--module", help="Run tests for one GEO-INFER module.")
     parser.add_argument(
         "--category",
-        choices=["unit", "integration", "performance", "coverage", "all"],
+        choices=[
+            "unit",
+            "integration",
+            "system",
+            "performance",
+            "coverage",
+            "all",
+        ],
         help="Run a focused test category.",
     )
     parser.add_argument(
@@ -494,6 +509,8 @@ def main() -> int:
         report = run_unit_tests(timeout=args.timeout)
     elif args.category == "integration":
         report = run_integration_tests(timeout=args.timeout)
+    elif args.category == "system":
+        report = run_system_tests(timeout=args.timeout)
     elif args.category == "performance":
         report = run_performance_tests(timeout=args.timeout)
     elif args.category == "coverage":

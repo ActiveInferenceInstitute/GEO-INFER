@@ -482,22 +482,11 @@ def demonstrate_h3_spatial_analysis():
     # Generate H3 cells at different resolutions
     resolutions = [6, 7, 8, 9]
     for resolution in resolutions:
-        # Use correct H3 function name based on version
-        try:
-            h3_cell = h3.latlng_to_cell(center_lat, center_lon, resolution)
-        except AttributeError:
-            h3_cell = h3.latlng_to_cell(center_lat, center_lon, resolution)
-
-        try:
-            cell_area = h3.cell_area(h3_cell, unit="km^2")
-        except (AttributeError, TypeError, ValueError):
-            cell_area = h3.hex_area(resolution, unit="km^2")
+        h3_cell = h3.latlng_to_cell(center_lat, center_lon, resolution)
+        cell_area = h3.cell_area(h3_cell, unit="km^2")
 
         # Get neighboring cells
-        try:
-            neighbors = h3.grid_ring(h3_cell, 1)
-        except AttributeError:
-            neighbors = h3.grid_ring_unsafe(h3_cell, 1)
+        neighbors = sorted(set(h3.grid_disk(h3_cell, 1)) - {h3_cell})
 
         logger.info(f"Resolution {resolution}:")
         logger.info(f"  - Cell: {h3_cell}")
@@ -518,16 +507,10 @@ def demonstrate_h3_spatial_analysis():
     h3_cells = set()
     for lat in lat_points:
         for lon in lon_points:
-            try:
-                cell = h3.latlng_to_cell(lat, lon, 8)
-            except AttributeError:
-                cell = h3.latlng_to_cell(lat, lon, 8)
+            cell = h3.latlng_to_cell(lat, lon, 8)
             h3_cells.add(cell)
 
-    try:
-        total_area = sum(h3.cell_area(cell, unit="km^2") for cell in h3_cells)
-    except (AttributeError, TypeError, ValueError):
-        total_area = len(h3_cells) * h3.hex_area(8, unit="km^2")
+    total_area = sum(h3.cell_area(cell, unit="km^2") for cell in h3_cells)
 
     logger.info(f"Generated {len(h3_cells)} H3 cells covering {total_area:.2f} km²")
 

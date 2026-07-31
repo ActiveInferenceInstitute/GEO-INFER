@@ -3,6 +3,7 @@ coverage[toml]>=7.0.0
 factory-boy>=3.2.0
 faker>=18.0.0
 geopandas>=0.10.0
+h3>=4.5.0,<5
 hypothesis>=6.0.0
 jinja2>=3.1.0
 jsonschema>=4.0.0

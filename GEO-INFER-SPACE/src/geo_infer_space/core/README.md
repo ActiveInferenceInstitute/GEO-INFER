@@ -39,10 +39,10 @@ Core workspace within `GEO-INFER-SPACE`.
 - `interfaces.py:H3UnavailableError` (class)
 - `interfaces.py:SRAIUnavailableError` (class)
 - `interfaces.py:BackendNotAvailableError` (class)
+- `interfaces.py:UnsupportedSpatialOperationError` (class)
 - `place_analyzer.py:PlaceAnalyzer` (class)
 - `processor.py:SpatialProcessor` (class)
 - `spatial_indexing.py:SpatialIndexingInterface` (class)
-- `spatial_indexing.py:latlng_to_cell` (function)
 
 ## Module Metadata
 

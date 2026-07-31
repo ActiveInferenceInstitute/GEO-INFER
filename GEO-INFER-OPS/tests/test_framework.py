@@ -19,8 +19,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def test_path_manager():
-    """Test the path manager functionality."""
+def run_path_manager_check():
+    """Run the path manager check used by the executable test report."""
     logger.info("=== Testing Path Manager ===")
     
     try:
@@ -51,8 +51,8 @@ def test_path_manager():
         logger.error(f"Path manager test failed: {e}")
         return False
 
-def test_module_imports():
-    """Test importing all available modules."""
+def run_module_import_checks():
+    """Run import checks for all available modules."""
     logger.info("=== Testing Module Imports ===")
     
     try:
@@ -93,8 +93,8 @@ def test_module_imports():
         logger.error(f"Module import test failed: {e}")
         return {}
 
-def test_cross_module_imports():
-    """Test cross-module imports that are commonly used."""
+def run_cross_module_import_checks():
+    """Run cross-module import checks for commonly used symbols."""
     logger.info("=== Testing Cross-Module Imports ===")
     
     cross_import_tests = [
@@ -154,8 +154,8 @@ def test_cross_module_imports():
         logger.error(f"Cross-module import test failed: {e}")
         return {}
 
-def test_framework_entry_point():
-    """Test the main framework entry point."""
+def run_framework_entry_point_check():
+    """Run the main framework entry-point check."""
     logger.info("=== Testing Framework Entry Point ===")
     
     try:
@@ -183,8 +183,8 @@ def test_framework_entry_point():
         logger.error(f"Framework entry point test failed: {e}")
         return {'framework_loaded': False, 'error': str(e)}
 
-def test_specific_functionality():
-    """Test specific functionality that users commonly need."""
+def run_specific_functionality_checks():
+    """Run checks for functionality users commonly need."""
     logger.info("=== Testing Specific Functionality ===")
     
     tests = {}
@@ -269,11 +269,11 @@ def main():
     results = {}
     
     # Run all tests
-    results['path_manager'] = test_path_manager()
-    results['module_imports'] = test_module_imports()
-    results['cross_module_imports'] = test_cross_module_imports()
-    results['framework_entry_point'] = test_framework_entry_point()
-    results['specific_functionality'] = test_specific_functionality()
+    results['path_manager'] = run_path_manager_check()
+    results['module_imports'] = run_module_import_checks()
+    results['cross_module_imports'] = run_cross_module_import_checks()
+    results['framework_entry_point'] = run_framework_entry_point_check()
+    results['specific_functionality'] = run_specific_functionality_checks()
     
     # Generate and save report
     report = generate_report(results)

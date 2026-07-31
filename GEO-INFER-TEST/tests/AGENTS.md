@@ -29,7 +29,7 @@
 
 ```bash
 uv sync --all-packages --all-extras
-uv run python -m pytest GEO-INFER-TEST/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
 

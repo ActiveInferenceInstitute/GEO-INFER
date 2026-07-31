@@ -1,1 +1,40 @@
-# Geospatial Visualization This section provides information about geospatial visualization techniques, best practices, and tools for effectively communicating spatial information through maps, charts, and interactive displays. ## Contents - [Thematic Mapping](thematic_mapping.md) - Techniques for visualizing attribute data - [Web Mapping](web_mapping.md) - Creating interactive maps for web applications - [3D Visualization](3d_visualization.md) - Three-dimensional representation of spatial data - [Temporal Visualization](temporal_visualization.md) - Visualizing time-series geospatial data - [Cartographic Design](cartographic_design.md) - Principles of map design and composition - [Data Dashboards](data_dashboards.md) - Creating integrated displays of spatial information - [Infographics](infographics.md) - Combining maps with other visual elements - [Accessibility](accessibility.md) - Making geospatial visualizations accessible to all users ## Visualization Types ### Thematic Maps Maps that display a particular theme or subject matter: - **Choropleth Maps** - Areas colored or shaded by a statistical variable - **Dot Density Maps** - Dots representing the presence of a feature - **Proportional Symbol Maps** - Symbols sized according to a variable - **Isopleth/Contour Maps** - Lines connecting points of equal value - **Heat Maps** - Density or intensity visualization ### Interactive Visualizations Dynamic representations with user interaction: - **Web Maps** - Browser-based maps with pan, zoom, and layer control - **Story Maps** - Narrative-based visualization combining maps with text and media - **Data Dashboards** - Integrated displays of maps, charts, and statistics - **Animated Maps** - Visualizations showing change over time ### Visualization Complex visualization techniques: - **3D Terrain Models** - Three-dimensional representation of topography - **Virtual Reality (VR)** - Immersive visualizations of spatial environments - **Augmented Reality (AR)** - Overlaying spatial data on real-world views - **Space-Time Cubes** - Three-dimensional visualization of space and time ## Design Principles Guidelines for effective geospatial visualization: - **Visual Hierarchy** - Emphasizing important information through visual prominence - **Color Theory** - Using color effectively for data representation - **Typography** - Text placement, size, and style for map elements - **Simplification** - Generalizing and focusing on essential information - **User Experience** - Designing for intuitive interaction and understanding ## Tools and Technologies Common technologies for geospatial visualization: - **Desktop GIS** - QGIS, ArcGIS, GRASS GIS - **Web Mapping Libraries** - Leaflet, OpenLayers, Mapbox GL - **Visualization Frameworks** - D3.js, Plotly, Tableau - **3D Platforms** - CesiumJS, ArcGIS Scene, Unity ## Best Practices Recommendations for creating effective visualizations: - Design for your audience and purpose - Choose appropriate visualization types for your data - Maintain visual clarity and reduce clutter - Provide context and supporting information - Consider accessibility for all users - Test visualizations with representative users ## Related Resources - [Cartographic Design Guidelines](cartographic_design.md) - [Web Mapping Technologies](web_mapping.md) - [Visualization in the GEO-INFER Framework](../../architecture/visualization_services.md) 
+# Geospatial Visualization
+
+This hub documents the visualization contracts that are implemented in the
+repository. The runnable visualization surface is currently centered on the
+SPACE and PLACE modules, with native H3 boundaries converted to GeoJSON order
+(``[longitude, latitude]``) and Folium order (``[latitude, longitude]``) at the
+client boundary.
+
+## Current guides
+
+- [H3 visualization techniques](../data_formats/h3/h3_visualization_techniques.md)
+- [First map](../../getting_started/first_map.md)
+- [Coordinate systems](../concepts/coordinate_systems.md)
+- [Spatial data models](../concepts/spatial_data_models.md)
+
+## Implemented visualization entry points
+
+- `geo_infer_space.core.visualization_engine.VisualizationEngine`
+- `geo_infer_space.backends.h3.visualization.H3Visualization`
+- `geo_infer_place.core.visualization_engine.InteractiveVisualizationEngine`
+- `geo_infer_place.core.unified_backend.CascadianAgriculturalH3Backend`
+
+Generated HTML, PNG, and dashboard artifacts belong in a caller-provided
+output directory. The repository's validation suites check finite metrics,
+closed GeoJSON rings, H3 cell metadata, and output isolation; they do not claim
+that a historical image in `GEO-INFER-SPACE/reports/visualizations/status/` is
+a current assessment.
+
+## Coordinate-order contract
+
+H3's `cell_to_boundary` returns native `(latitude, longitude)` pairs. Convert
+explicitly at the output boundary:
+
+```python
+ring = [[lng, lat] for lat, lng in h3.cell_to_boundary(cell)]
+ring.append(ring[0])
+```
+
+Use `[lat, lng]` only when passing coordinates to Folium. Never pass the
+removed H3 v3 `geo_json=` argument to `cell_to_boundary`.

@@ -9,8 +9,11 @@ Scripts workspace within `GEO-INFER-EXAMPLES`.
 
 ## Public Interface
 
-- `comprehensive_assessment.py:ExampleAssessment` (class)
-- `comprehensive_assessment.py:IntegrationAssessor` (class)
+- `comprehensive_assessment.py:discover_examples` (function)
+- `comprehensive_assessment.py:assess_example` (function)
+- `comprehensive_assessment.py:build_report` (function)
+- `comprehensive_assessment.py:markdown` (function)
+- `comprehensive_assessment.py:save_report` (function)
 - `comprehensive_assessment.py:main` (function)
 - `run_all_examples.py:ExampleResult` (class)
 - `run_all_examples.py:AssessmentReport` (class)
@@ -31,6 +34,7 @@ Scripts workspace within `GEO-INFER-EXAMPLES`.
 - `matplotlib>=3.5.0`
 - `pandas>=1.4.0`
 - `pyyaml>=6.0`
+- `h3>=4.5.0,<5`
 - `requests>=2.28.0`
 - `rich>=12.0.0`
 - `typer>=0.7.0`

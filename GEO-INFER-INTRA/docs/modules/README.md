@@ -28,6 +28,27 @@ Modules workspace within `GEO-INFER-INTRA`.
 - `geo-infer-git.md`
 - `geo-infer-health.md`
 - `geo-infer-intra.md`
+- `geo-infer-iot.md`
+- `geo-infer-log.md`
+- `geo-infer-marine.md`
+- `geo-infer-math.md`
+- `geo-infer-metagov.md`
+- `geo-infer-norms.md`
+- `geo-infer-ops.md`
+- `geo-infer-org.md`
+- `geo-infer-pep.md`
+- `geo-infer-place.md`
+- `geo-infer-req.md`
+- `geo-infer-risk.md`
+- `geo-infer-sec.md`
+- `geo-infer-sim.md`
+- `geo-infer-space.md`
+- `geo-infer-spm.md`
+- `geo-infer-test.md`
+- `geo-infer-time.md`
+- `geo-infer-transport.md`
+- `geo-infer-water.md`
+- `index.md`
 
 ## Public Interface
 
@@ -44,6 +65,7 @@ Modules workspace within `GEO-INFER-INTRA`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
+- `h3>=4.5.0,<5`
 - `pydantic>=2.0.0`
 - `sqlalchemy>=2.0.0`
 - `elasticsearch>=8.0.0`
@@ -54,7 +76,6 @@ Modules workspace within `GEO-INFER-INTRA`.
 - `jsonschema>=4.0.0`
 - `typer>=0.7.0`
 - `rich>=12.0.0`
-- `uvicorn>=0.20.0`
 
 
 ## Validation

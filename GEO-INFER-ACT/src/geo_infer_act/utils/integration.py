@@ -13,7 +13,7 @@ import numpy as np
 from geo_infer_act.utils.config import get_config_value
 
 try:
-    from geo_infer_space import h3 as space_h3
+    import geo_infer_space as space_h3
 except ImportError:
     space_h3 = None
 
@@ -783,9 +783,9 @@ def create_h3_spatial_model(
         config: Configuration dictionary
         h3_resolution: H3 hexagonal grid resolution
         boundary: GeoJSON boundary specification. Accepts:
-            - {"coordinates": [[[lng, lat], ...]]}          (Polygon)
-            - {"coordinates": [[[[lng, lat], ...]]]}        (MultiPolygon)
-            - {"type": "Polygon", "coordinates": [[[lng, lat], ...]]}
+            - GeoJSON Polygon or MultiPolygon geometries
+            - GeoJSON Feature or FeatureCollection containing those geometries
+            - Legacy coordinate-only Polygon dictionaries
 
     Returns:
         H3 spatial model configuration
@@ -799,63 +799,38 @@ def create_h3_spatial_model(
 
         adapter = get_h3_adapter()
 
-        boundary_cells = set()
-        if "coordinates" in boundary:
-            # ---- Robust coordinate extraction ----
-            # Descend into nested lists until we find a list of [lng, lat] pairs.
-            # A coordinate pair is identified as a list/tuple of exactly 2 numbers.
-            raw = boundary["coordinates"]
+        if not 0 <= h3_resolution <= 15:
+            raise ValueError("h3_resolution must be between 0 and 15")
+        if hasattr(boundary, "__geo_interface__"):
+            boundary = boundary.__geo_interface__
+        if not isinstance(boundary, dict):
+            raise ValueError("boundary must be a GeoJSON-like mapping")
 
-            def _is_coord_pair(item):
-                """Check if item is a [number, number] coordinate pair."""
-                return (
-                    isinstance(item, (list, tuple))
-                    and len(item) >= 2
-                    and isinstance(item[0], (int, float))
-                    and isinstance(item[1], (int, float))
-                )
+        # Preserve the historical coordinate-only Polygon form, but normalize
+        # every accepted boundary through the same native H3 adapter. Invalid,
+        # empty, point, or malformed inputs must fail closed rather than
+        # silently generating an unrelated San Francisco grid.
+        boundary_type = boundary.get("type")
+        if boundary_type is None and "coordinates" in boundary:
+            boundary = {"type": "Polygon", "coordinates": boundary["coordinates"]}
+            boundary_type = "Polygon"
+        if boundary_type not in {
+            "Polygon",
+            "MultiPolygon",
+            "Feature",
+            "FeatureCollection",
+        }:
+            raise ValueError(
+                "boundary must be a Polygon, MultiPolygon, Feature, or "
+                "FeatureCollection"
+            )
 
-            def _extract_rings(data):
-                """Recursively find all coordinate rings (lists of coord pairs)."""
-                if not isinstance(data, (list, tuple)) or len(data) == 0:
-                    return []
-                # If data[0] is a coord pair, then data is a ring
-                if _is_coord_pair(data[0]):
-                    return [data]
-                # Otherwise recurse
-                rings = []
-                for sub in data:
-                    rings.extend(_extract_rings(sub))
-                return rings
-
-            coordinate_rings = _extract_rings(raw)
-
-            for coordinate_ring in coordinate_rings:
-                for coord in coordinate_ring:
-                    if _is_coord_pair(coord):
-                        # coord is [lng, lat] in GeoJSON format
-                        cell = adapter.latlng_to_cell(coord[1], coord[0], h3_resolution)
-                        boundary_cells.add(cell)
-
-            # If we have boundary cells, use polygon filling for complete coverage.
-            if boundary_cells and coordinate_rings:
-                try:
-                    boundary_cells.update(
-                        adapter.polygon_to_cells(boundary, h3_resolution)
-                    )
-                except Exception as poly_e:
-                    logger.warning(
-                        "Polygon fill failed: %s; using boundary vertices only",
-                        poly_e,
-                    )
-
-        # If no boundary cells were found, create a small San Francisco grid.
+        try:
+            boundary_cells = set(adapter.polygon_to_cells(boundary, h3_resolution))
+        except Exception as poly_error:
+            raise ValueError(f"H3 boundary conversion failed: {poly_error}") from poly_error
         if not boundary_cells:
-            center_lat, center_lng = 37.76, -122.43
-            center_cell = adapter.latlng_to_cell(center_lat, center_lng, h3_resolution)
-            boundary_cells = set([center_cell])
-            neighbors = adapter.grid_disk(center_cell, 2)
-            boundary_cells.update(neighbors)
+            raise ValueError("H3 boundary produced no cells at the requested resolution")
 
         num_cells = len(boundary_cells)
         if num_cells > max_cells:

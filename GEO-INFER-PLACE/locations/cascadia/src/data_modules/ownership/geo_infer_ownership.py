@@ -120,7 +120,9 @@ class GeoInferOwnership(BaseAnalysisModule):
             try:
                 # Get hexagon boundary using real H3 v4 methods
                 hex_boundary = h3.cell_to_boundary(h3_id)
-                hex_polygon = Polygon(hex_boundary)
+                hex_polygon = Polygon(
+                    [(lng, lat) for lat, lng in hex_boundary]
+                )
 
                 # Find intersecting ownership features using real spatial analysis
                 intersecting_features = ownership_gdf[

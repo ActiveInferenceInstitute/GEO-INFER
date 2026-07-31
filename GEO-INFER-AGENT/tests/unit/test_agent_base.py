@@ -12,6 +12,8 @@ import tempfile
 import unittest
 from datetime import datetime
 
+import numpy as np
+
 from geo_infer_agent.core.agent_base import AgentState, BaseAgent, ExampleAgent
 
 
@@ -49,6 +51,15 @@ class TestAgentState(unittest.TestCase):
         state.update_belief("key", "value")
         # No new memory entry because value did not change
         self.assertEqual(len(state.memory), mem_count)
+
+    def test_update_array_belief_uses_elementwise_equality(self) -> None:
+        """Array-valued beliefs do not trigger ambiguous truth-value errors."""
+        state = AgentState()
+        state.update_belief("vector", np.array([1.0, 2.0]))
+        state.update_belief("vector", np.array([1.0, 2.0]))
+
+        updates = [item for item in state.memory if item["key"] == "vector"]
+        self.assertEqual(len(updates), 1)
 
     def test_add_desire_requires_keys(self) -> None:
         """add_desire raises ValueError if priority or description is missing."""

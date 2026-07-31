@@ -1,1 +1,25 @@
-### H3 v4 Migration Guide (SPACE) This guide summarizes the migration from H3 v3 to v4 within the SPACE module. #### Key API Changes - geo_to_h3 → latlng_to_cell - h3_to_geo → cell_to_latlng - h3_to_geo_boundary → cell_to_boundary - k_ring / hex_ring / hex_range → grid_disk / grid_ring / grid_disks_unsafe - h3_distance → grid_distance - compact / uncompact → compact_cells / uncompact_cells - polyfill → polygon_to_cells Refer to the official migration notes for details. #### Migration Tools Run the automated migration and verification: ```bash gis-fix-h3-v4 gis-verify-h3-v4 ``` #### Notes - Ensure h3>=4 is installed. - Review any remaining warnings produced by the verifier for manual fixes. 
+# H3 v4.5 migration guide
+
+GEO-INFER-SPACE supports the `h3-py` range `>=4.5.0,<5`; the workspace lock
+currently resolves `4.5.0`. The migration is complete for runtime surfaces.
+
+## Required calls
+
+- `latlng_to_cell` converts latitude/longitude to a cell.
+- `cell_to_latlng` returns a cell center.
+- `cell_to_boundary` returns native `(latitude, longitude)` vertices.
+- `grid_disk` and `grid_ring` replace older neighborhood spellings.
+- `cell_to_parent`, `cell_to_children`, `compact_cells`, and
+  `uncompact_cells` provide hierarchy operations.
+- `geo_to_cells` consumes GeoJSON `[longitude, latitude]` geometry.
+
+Do not pass removed boundary-format keywords. Convert explicitly at the
+GeoJSON or visualization boundary and close polygon rings.
+
+```bash
+uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
+uv run pytest GEO-INFER-SPACE/tests/unit/test_h3_operations_runtime.py -q --no-cov
+```
+
+The historical migration utility is not a test and must not be run against the
+whole checkout; it can rewrite source and documentation files.

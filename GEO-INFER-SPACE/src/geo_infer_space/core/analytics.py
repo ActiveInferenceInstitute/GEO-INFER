@@ -9,6 +9,8 @@ from typing import Dict, Any, List, Optional, Tuple
 import logging
 import numpy as np
 
+from .interfaces import UnsupportedSpatialOperationError
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,7 +82,7 @@ class SpatialAnalyticsInterface:
         return result
 
     def analyze_clusters(
-        self, data: np.ndarray, method: str = "kmeans", **kwargs
+        self, data: np.ndarray, method: str = "dbscan", **kwargs
     ) -> Dict[str, Any]:
         """
         Analyze spatial clustering patterns in data.
@@ -93,8 +95,14 @@ class SpatialAnalyticsInterface:
         Returns:
             Clustering analysis results
         """
-        return self.dispatcher.dispatch_analytics_operation(
-            "analyze_clusters", data, method=method, backend=self.backend, **kwargs
+        points = np.asarray(data, dtype=float)
+        if points.ndim != 2 or points.shape[1] != 2:
+            raise ValueError("data must be an (n, 2) array of latitude/longitude points")
+        if method != "dbscan":
+            raise ValueError("H3-backed clustering currently supports method='dbscan'")
+        return self.cluster_points(
+            [tuple(point) for point in points],
+            **kwargs,
         )
 
     def find_hotspots(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
@@ -147,7 +155,11 @@ class SpatialAnalyticsInterface:
         )
 
     def interpolate_values(
-        self, points: List[Tuple[float, float, float]], **kwargs
+        self,
+        points: List[Tuple[float, float, float]],
+        target_points: Optional[List[Tuple[float, float]]] = None,
+        resolution: int = 9,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Interpolate values across a spatial surface.
@@ -159,8 +171,45 @@ class SpatialAnalyticsInterface:
         Returns:
             Interpolated surface data
         """
+        backend_name = self.backend or self.dispatcher.get_default_backend("analytics")
+        if backend_name != "h3":
+            raise ValueError(
+                "interpolate_values currently requires the H3 backend and native "
+                "H3 cell inputs"
+            )
+        if not points:
+            raise ValueError("points must contain at least one (lat, lng, value) tuple")
+        if not 0 <= resolution <= 15:
+            raise ValueError("resolution must be between 0 and 15")
+        source_cells = []
+        values = []
+        for point in points:
+            if len(point) != 3:
+                raise ValueError("each source point must be (latitude, longitude, value)")
+            lat, lng, value = point
+            source_cells.append(
+                self.dispatcher.dispatch_indexing_operation(
+                    "latlng_to_cell", float(lat), float(lng), resolution, backend=self.backend
+                )
+            )
+            values.append(float(value))
+
+        target_cells = kwargs.pop("target_cells", None)
+        if target_cells is None:
+            target_points = target_points or [(p[0], p[1]) for p in points]
+            target_cells = [
+                self.dispatcher.dispatch_indexing_operation(
+                    "latlng_to_cell", float(lat), float(lng), resolution, backend=self.backend
+                )
+                for lat, lng in target_points
+            ]
         return self.dispatcher.dispatch_analytics_operation(
-            "interpolate_values", points, backend=self.backend, **kwargs
+            "interpolate_values",
+            source_cells,
+            values,
+            list(target_cells),
+            backend=self.backend,
+            **kwargs,
         )
 
     def analyze_network(
@@ -176,9 +225,8 @@ class SpatialAnalyticsInterface:
         Returns:
             Network analysis results (centrality, connectivity, etc.)
         """
-        return self.dispatcher.dispatch_analytics_operation(
-            "analyze_network", edges, backend=self.backend, **kwargs
-        )
+        backend = self.backend or self.dispatcher.get_default_backend("analytics")
+        raise UnsupportedSpatialOperationError("analyze_network", backend)
 
     def detect_patterns(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """
@@ -191,9 +239,8 @@ class SpatialAnalyticsInterface:
         Returns:
             Pattern detection results
         """
-        return self.dispatcher.dispatch_analytics_operation(
-            "detect_patterns", data, backend=self.backend, **kwargs
-        )
+        backend = self.backend or self.dispatcher.get_default_backend("analytics")
+        raise UnsupportedSpatialOperationError("detect_patterns", backend)
 
     def compute_density(
         self, points: List[Tuple[float, float]], **kwargs
@@ -208,9 +255,8 @@ class SpatialAnalyticsInterface:
         Returns:
             Density analysis results
         """
-        return self.dispatcher.dispatch_analytics_operation(
-            "compute_density", points, backend=self.backend, **kwargs
-        )
+        backend = self.backend or self.dispatcher.get_default_backend("analytics")
+        raise UnsupportedSpatialOperationError("compute_density", backend)
 
     def analyze_accessibility(
         self,
@@ -229,10 +275,5 @@ class SpatialAnalyticsInterface:
         Returns:
             Accessibility analysis results
         """
-        return self.dispatcher.dispatch_analytics_operation(
-            "analyze_accessibility",
-            origins,
-            destinations,
-            backend=self.backend,
-            **kwargs,
-        )
+        backend = self.backend or self.dispatcher.get_default_backend("analytics")
+        raise UnsupportedSpatialOperationError("analyze_accessibility", backend)

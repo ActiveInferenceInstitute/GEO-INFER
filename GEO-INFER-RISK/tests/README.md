@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-RISK`.
 - Package: `geo_infer_risk`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-RISK`
-- Tests: `uv run python -m pytest GEO-INFER-RISK/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK`
 
 ## Dependencies
 
@@ -48,7 +48,7 @@ Tests workspace within `GEO-INFER-RISK`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-RISK/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
 ```
 
 

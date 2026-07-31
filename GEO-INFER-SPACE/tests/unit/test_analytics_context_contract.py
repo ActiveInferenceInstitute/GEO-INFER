@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+from geo_infer_space.core.interfaces import UnsupportedSpatialOperationError
 
 
 def test_analyze_context_resolves_h3_cell():
@@ -24,3 +25,20 @@ def test_analyze_context_rejects_non_mapping_input():
 
     with pytest.raises(TypeError, match="context must be a dictionary"):
         analytics.analyze_context([37.7749, -122.4194])
+
+
+def test_unsupported_facade_operations_use_a_typed_error():
+    """Unimplemented public operations have a stable, inspectable error type."""
+    analytics = SpatialAnalyticsInterface(backend="h3")
+
+    calls = {
+        "analyze_network": ([],),
+        "detect_patterns": ({},),
+        "compute_density": ([],),
+        "analyze_accessibility": ([], []),
+    }
+    for operation, args in calls.items():
+        with pytest.raises(UnsupportedSpatialOperationError) as error:
+            getattr(analytics, operation)(*args)
+        assert error.value.operation == operation
+        assert error.value.backend == "h3"

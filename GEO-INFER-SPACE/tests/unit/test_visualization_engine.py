@@ -1,4 +1,5 @@
 import unittest
+import json
 from pathlib import Path
 import tempfile
 import pytest
@@ -26,3 +27,25 @@ class TestInteractiveVisualizationEngine(unittest.TestCase):
         dashboard_path = self.engine.create_comprehensive_dashboard(analysis_results)
         self.assertTrue(Path(dashboard_path).exists())
         self.assertTrue(Path(dashboard_path).is_relative_to(self.output_dir))
+        self.assertNotIn("FOREST-", Path(dashboard_path).read_text(encoding="utf-8"))
+        manifest_path = Path(dashboard_path).with_suffix(".manifest.json")
+        self.assertTrue(manifest_path.exists())
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        self.assertEqual(manifest["h3_version"], "4.5.0")
+        self.assertTrue(manifest["accessibility"]["nonempty_html"])
+
+    def test_deterministic_output_name_and_manifest(self):
+        """Explicit run metadata produces a stable, auditable artifact pair."""
+        path = Path(
+            self.engine.create_comprehensive_dashboard(
+                {"domain_results": {}},
+                {
+                    "output_name": "deterministic.html",
+                    "generated_at": "2026-07-30T00:00:00Z",
+                },
+            )
+        )
+        manifest = json.loads(path.with_suffix(".manifest.json").read_text())
+        self.assertEqual(path.name, "deterministic.html")
+        self.assertEqual(manifest["generated_at"], "2026-07-30T00:00:00Z")
+        self.assertEqual(manifest["artifacts"][0]["path"], "deterministic.html")

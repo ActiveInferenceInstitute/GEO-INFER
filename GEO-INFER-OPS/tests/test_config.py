@@ -11,7 +11,7 @@ from geo_infer_ops.core.config import (
     Config,
     LoggingConfig,
     MonitoringConfig,
-    TestingConfig,
+    TestingConfig as OpsTestingConfig,
     SecurityConfig,
     TLSConfig,
     AuthConfig,
@@ -77,12 +77,12 @@ def test_monitoring_config():
 
 def test_testing_config():
     """Test TestingConfig creation and defaults."""
-    config = TestingConfig()
+    config = OpsTestingConfig()
     assert config.coverage_threshold == 95.0
     assert config.parallel is True
     assert config.timeout == 300
 
-    config = TestingConfig(coverage_threshold=90.0, parallel=False, timeout=60)
+    config = OpsTestingConfig(coverage_threshold=90.0, parallel=False, timeout=60)
     assert config.coverage_threshold == 90.0
     assert config.parallel is False
     assert config.timeout == 60
@@ -135,10 +135,10 @@ def test_config_validation():
         MonitoringConfig(metrics_port=-1)
     
     with pytest.raises(ValueError):
-        TestingConfig(coverage_threshold=-1)
+        OpsTestingConfig(coverage_threshold=-1)
     
     with pytest.raises(ValueError):
-        TestingConfig(timeout=-1)
+        OpsTestingConfig(timeout=-1)
 
 def test_config_defaults():
     """Test default configuration values."""
@@ -153,7 +153,7 @@ def test_config_defaults():
     assert config.monitoring.enabled is True
     assert config.monitoring.metrics_port == 9090
     
-    assert isinstance(config.testing, TestingConfig)
+    assert isinstance(config.testing, OpsTestingConfig)
     assert config.testing.coverage_threshold == 95.0
     assert config.testing.parallel is False
     assert config.testing.timeout == 300
@@ -215,7 +215,7 @@ def test_security_config():
             },
             "auth": {
                 "enabled": True,
-                "jwt_secret": "test-secret",
+                "jwt_secret": "test-secret-for-pyjwt-hs256-tests-32-bytes",
                 "jwt_algorithm": "HS256"
             }
         }
@@ -224,4 +224,7 @@ def test_security_config():
     assert config.security.tls.enabled is True
     assert config.security.tls.cert_file == "/path/to/cert.pem"
     assert config.security.auth.enabled is True
-    assert config.security.auth.jwt_secret == "test-secret" 
+    assert (
+        config.security.auth.jwt_secret
+        == "test-secret-for-pyjwt-hs256-tests-32-bytes"
+    )

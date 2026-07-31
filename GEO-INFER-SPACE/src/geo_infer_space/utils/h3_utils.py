@@ -11,6 +11,32 @@ from typing import Dict, List, Union, Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
+MIN_H3_VERSION = (4, 5, 0)
+
+
+def _version_tuple(version: str) -> Tuple[int, int, int] | None:
+    """Parse an H3 semantic version for the supported v4 API surface."""
+    try:
+        parts = version.lstrip("v").split(".")
+        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
+            0,
+        ) * max(0, 3 - len(parts))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+try:
+    import h3 as _h3
+except ImportError:
+    _h3 = None
+else:
+    _h3_version = _version_tuple(getattr(_h3, "__version__", None))
+    if _h3_version is None or _h3_version < MIN_H3_VERSION or _h3_version[0] >= 5:
+        raise RuntimeError(
+            "GEO-INFER-SPACE requires h3-py >=4.5.0,<5; "
+            f"found {getattr(_h3, '__version__', 'unknown')!r}"
+        )
+
 
 def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     """
@@ -106,10 +132,13 @@ def polygon_to_cells(
         # For GeoJSON Geometry objects
         elif polygon.get("type") in ("Polygon", "MultiPolygon"):
             # Ensure coordinates are properly nested for H3 v4
-            if polygon.get("type") == "Polygon" and polygon.get("coordinates"):
-                if not isinstance(polygon["coordinates"][0][0], (list, tuple)):
-                    polygon["coordinates"] = [polygon["coordinates"]]
-            return list(h3.geo_to_cells(polygon, resolution))
+            normalized_polygon = dict(polygon)
+            coordinates = normalized_polygon.get("coordinates")
+            if normalized_polygon.get("type") == "Polygon" and coordinates:
+                if not isinstance(coordinates[0][0], (list, tuple)):
+                    normalized_polygon["coordinates"] = [coordinates]
+            # Do not mutate a caller-owned GeoJSON object while normalizing it.
+            return list(h3.geo_to_cells(normalized_polygon, resolution))
         # For GeoJSON FeatureCollection
         elif polygon.get("type") == "FeatureCollection":
             all_cells = set()
@@ -117,7 +146,7 @@ def polygon_to_cells(
                 if "geometry" in feature:
                     cells = h3.geo_to_cells(feature["geometry"], resolution)
                     all_cells.update(cells)
-            return list(all_cells)
+            return sorted(all_cells)
         else:
             raise ValueError(f"Unsupported GeoJSON type: {polygon.get('type')}")
     elif isinstance(polygon, list):
@@ -152,8 +181,10 @@ def cell_to_latlngjson(
     features = []
 
     for h3_index in h3_indices:
-        # Get the hexagon boundary as a GeoJSON polygon
-        boundary = list(h3.cell_to_boundary(h3_index))
+        # H3 returns (lat, lng); GeoJSON requires [lng, lat].
+        boundary = [
+            [lng, lat] for lat, lng in h3.cell_to_boundary(h3_index)
+        ]
 
         # Add closing point to the polygon if needed
         if boundary[0] != boundary[-1]:
@@ -163,7 +194,9 @@ def cell_to_latlngjson(
         polygon_geometry = {"type": "Polygon", "coordinates": [boundary]}
 
         # Get properties for this H3 index
-        feature_properties = properties.get(h3_index, {}) if properties else {}
+        feature_properties = (
+            dict(properties.get(h3_index, {})) if properties else {}
+        )
         feature_properties["h3_index"] = h3_index
 
         # Create the feature

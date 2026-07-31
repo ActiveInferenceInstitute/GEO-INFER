@@ -36,6 +36,15 @@ class H3Adapter:
             import h3  # noqa: PLC0415
 
             self.h3 = h3
+            version = tuple(
+                int(part.split("+")[0].split("-")[0])
+                for part in h3.__version__.lstrip("v").split(".")[:3]
+            )
+            if version < (4, 5, 0) or version >= (5, 0, 0):
+                raise RuntimeError(
+                    f"Unsupported h3-py version {h3.__version__}; "
+                    "GEO-INFER requires h3-py>=4.5.0,<5"
+                )
         except ImportError:
             self.h3 = None
 
@@ -79,34 +88,22 @@ class H3Adapter:
         if self.h3 is None:
             return []
 
-        coordinates = polygon.get("coordinates", [])
-        if not coordinates:
-            return []
+        if hasattr(polygon, "__geo_interface__"):
+            polygon = polygon.__geo_interface__
+        if not isinstance(polygon, dict):
+            raise ValueError("polygon must be GeoJSON-like")
 
-        def _is_pair(value: Any) -> bool:
-            return (
-                isinstance(value, (list, tuple))
-                and len(value) >= 2
-                and isinstance(value[0], (int, float))
-                and isinstance(value[1], (int, float))
-            )
-
-        def _extract_first_ring(value: Any) -> List[Any]:
-            if not isinstance(value, (list, tuple)) or not value:
-                return []
-            if _is_pair(value[0]):
-                return list(value)
-            for child in value:
-                ring_values = _extract_first_ring(child)
-                if ring_values:
-                    return ring_values
-            return []
-
-        ring = _extract_first_ring(coordinates)
-        if not ring:
-            return []
-        h3_polygon = self.h3.LatLngPoly([(lat, lng) for lng, lat in ring])
-        return list(self.h3.h3shape_to_cells(h3_polygon, resolution))
+        geometry = polygon.get("geometry", polygon)
+        if geometry.get("type") == "FeatureCollection":
+            cells: set[str] = set()
+            for feature in geometry.get("features", []):
+                feature_geometry = feature.get("geometry")
+                if feature_geometry:
+                    cells.update(self.h3.geo_to_cells(feature_geometry, resolution))
+            return sorted(cells)
+        if geometry.get("type") not in {"Polygon", "MultiPolygon"}:
+            raise ValueError("polygon must contain a Polygon or MultiPolygon")
+        return sorted(self.h3.geo_to_cells(geometry, resolution))
 
     def grid_disk(self, cell: str, k: int = 1) -> List[str]:
         """Return H3 cells within k grid steps of a cell."""
@@ -121,8 +118,13 @@ class H3Adapter:
 
     def grid_ring(self, cell: str, k: int = 1) -> List[str]:
         """Return H3 cells exactly k grid steps from a cell."""
+        if not isinstance(k, int) or k < 1:
+            raise ValueError("k must be a positive integer")
         if self.h3 is not None:
-            return list(self.h3.grid_ring(cell, k))
+            return sorted(
+                set(self.h3.grid_disk(cell, k))
+                - set(self.h3.grid_disk(cell, k - 1))
+            )
         if self.space_indexer is not None:
             return list(self.space_indexer.get_cell_neighbors(cell, k))
         return []

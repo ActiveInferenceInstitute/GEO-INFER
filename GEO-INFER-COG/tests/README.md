@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-COG`.
 - Package: `geo_infer_cog`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-COG`
-- Tests: `uv run python -m pytest GEO-INFER-COG/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
 
 ## Dependencies
 
@@ -47,7 +47,7 @@ Tests workspace within `GEO-INFER-COG`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-COG/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module COG
 ```
 
 

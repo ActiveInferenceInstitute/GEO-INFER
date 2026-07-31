@@ -18,6 +18,7 @@ from .core.spatial_indexing import (
 from .core.geometric_operations import GeometricOperationsInterface
 from .core.analytics import SpatialAnalyticsInterface
 from .core.dispatcher import get_backend_dispatcher, configure_backends
+from .core.interfaces import UnsupportedSpatialOperationError
 
 # Import additional components with error handling
 try:
@@ -46,6 +47,7 @@ __all__ = [
     "SpatialAnalyticsInterface",
     "get_backend_dispatcher",
     "configure_backends",
+    "UnsupportedSpatialOperationError",
     # Convenience functions
     "latlng_to_cell",
     "cell_to_latlng",

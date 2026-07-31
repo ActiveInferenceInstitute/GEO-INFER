@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-PLACE`.
 - Package: `geo_infer_place`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-PLACE`
-- Tests: `uv run python -m pytest GEO-INFER-PLACE/locations/cascadia/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
 
 ## Dependencies
 
@@ -57,7 +57,7 @@ Tests workspace within `GEO-INFER-PLACE`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-PLACE/locations/cascadia/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE
 ```
 
 

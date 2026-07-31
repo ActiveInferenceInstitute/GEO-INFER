@@ -7,6 +7,8 @@ and dashboard generation adapted from the climate integration example.
 """
 
 import logging
+import hashlib
+import json
 import folium
 import h3
 from datetime import datetime
@@ -115,6 +117,15 @@ class InteractiveVisualizationEngine:
         tiles = dashboard_config.get("tiles", "CartoDB positron")
         if not isinstance(tiles, str) or not tiles:
             raise ValueError("dashboard_config.tiles must be a non-empty string")
+        generated_at = dashboard_config.get("generated_at")
+        if generated_at is not None and not isinstance(generated_at, str):
+            raise ValueError("dashboard_config.generated_at must be a string")
+        output_name = dashboard_config.get("output_name")
+        if output_name is not None:
+            if not isinstance(output_name, str) or not output_name.endswith(".html"):
+                raise ValueError("dashboard_config.output_name must be an .html filename")
+            if Path(output_name).name != output_name:
+                raise ValueError("dashboard_config.output_name must not contain directories")
         logger.info("🎨 Creating comprehensive interactive dashboard...")
 
         # Create base map with professional styling
@@ -126,7 +137,7 @@ class InteractiveVisualizationEngine:
         )
 
         # Add title
-        title_html = self._create_dashboard_title()
+        title_html = self._create_dashboard_title(generated_at=generated_at)
         m.get_root().html.add_child(folium.Element(title_html))
 
         # Create layer groups for different analysis domains
@@ -163,17 +174,43 @@ class InteractiveVisualizationEngine:
             group.add_to(m)
         folium.LayerControl().add_to(m)
 
-        # Save dashboard
+        # Save dashboard. Explicit names and timestamps make receipts
+        # reproducible for publication and validation runs.
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        dashboard_path = self.output_dir / f"comprehensive_dashboard_{timestamp}.html"
+        dashboard_path = self.output_dir / (
+            output_name or f"comprehensive_dashboard_{timestamp}.html"
+        )
         m.save(str(dashboard_path))
+
+        if dashboard_config.get("write_manifest", True):
+            input_digest = hashlib.sha256(
+                json.dumps(analysis_results, sort_keys=True, default=str).encode()
+            ).hexdigest()
+            html = dashboard_path.read_text(encoding="utf-8")
+            manifest = {
+                "schema_version": "geo-infer-place-visualization/v1",
+                "generated_at": generated_at or datetime.now().isoformat(),
+                "input_sha256": input_digest,
+                "h3_version": h3.__version__,
+                "artifacts": [
+                    {"path": dashboard_path.name, "bytes": dashboard_path.stat().st_size}
+                ],
+                "accessibility": {
+                    "nonempty_html": bool(html.strip()),
+                    "has_title": "GEO-INFER Place-Based Analysis" in html,
+                },
+            }
+            dashboard_path.with_suffix(".manifest.json").write_text(
+                json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+            )
 
         logger.info(f"✅ Comprehensive dashboard saved to: {dashboard_path}")
         return str(dashboard_path)
 
-    def _create_dashboard_title(self) -> str:
+    def _create_dashboard_title(self, generated_at: Optional[str] = None) -> str:
         """Create professional dashboard title."""
         location_name = self.location_config.get("location", {}).get("name", "Location")
+        rendered_at = generated_at or datetime.now().strftime("%Y-%m-%d %H:%M")
 
         title_html = f"""
         <div style="position: fixed; 
@@ -188,7 +225,7 @@ class InteractiveVisualizationEngine:
                 📍 {location_name}
             </div>
             <div style="font-size: 11px; color: #666; margin-top: 5px;">
-                Interactive Geospatial Dashboard • {datetime.now().strftime('%Y-%m-%d %H:%M')}
+                Interactive Geospatial Dashboard • {rendered_at}
             </div>
         </div>
         """
@@ -440,7 +477,7 @@ class InteractiveVisualizationEngine:
             """
 
             folium.Polygon(
-                locations=[[lat, lon] for lon, lat in h3_boundary],
+                locations=[[lat, lng] for lat, lng in h3_boundary],
                 popup=folium.Popup(popup_html, max_width=250),
                 tooltip=f"Integration Score: {integration_score:.3f}",
                 color="black",
@@ -694,24 +731,48 @@ class InteractiveVisualizationEngine:
         Otherwise cells are derived only from domain spatial observations.
         """
         # Use pre-computed cells if available
-        if "h3_cells" in integration_data:
-            return integration_data["h3_cells"]
+        if not isinstance(integration_data, dict):
+            return {}
+        if isinstance(integration_data.get("h3_cells"), dict):
+            return {
+                cell_id: cell_data
+                for cell_id, cell_data in integration_data["h3_cells"].items()
+                if isinstance(cell_id, str)
+                and h3.is_valid_cell(cell_id)
+                and isinstance(cell_data, dict)
+            }
 
         h3_cells: Dict[str, Dict] = {}
 
         # Collect H3 cells from each domain's spatial data
         domain_datasets = integration_data.get("domain_spatial", {})
+        if not isinstance(domain_datasets, dict):
+            return h3_cells
         cell_domains: Dict[str, set] = {}
         cell_scores: Dict[str, List[float]] = {}
 
         for domain_name, domain_spatial in domain_datasets.items():
+            if not isinstance(domain_spatial, dict):
+                continue
             for cell_id, cell_info in domain_spatial.get("h3_cells", {}).items():
-                cell_domains.setdefault(cell_id, set()).add(domain_name)
+                if (
+                    not isinstance(cell_id, str)
+                    or not h3.is_valid_cell(cell_id)
+                    or not isinstance(cell_info, dict)
+                ):
+                    continue
                 score = cell_info.get(
                     "forest_health_score",
                     cell_info.get("vulnerability", cell_info.get("risk_level", 0.5)),
                 )
-                cell_scores.setdefault(cell_id, []).append(float(score))
+                try:
+                    numeric_score = float(score)
+                except (TypeError, ValueError):
+                    continue
+                if not np.isfinite(numeric_score):
+                    continue
+                cell_domains.setdefault(cell_id, set()).add(domain_name)
+                cell_scores.setdefault(cell_id, []).append(numeric_score)
 
         if cell_domains:
             for cell_id in cell_domains:

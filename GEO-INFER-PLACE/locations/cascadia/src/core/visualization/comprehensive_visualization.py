@@ -1196,6 +1196,8 @@ class ComprehensiveVisualizationEngine:
 
                 boundary = h3.cell_to_boundary(hex_id)
                 coordinates = [[lng, lat] for (lat, lng) in boundary]
+                if coordinates and coordinates[0] != coordinates[-1]:
+                    coordinates.append(coordinates[0])
 
                 feature = {
                     "type": "Feature",

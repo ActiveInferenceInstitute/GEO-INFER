@@ -6,14 +6,39 @@ queries including H3, quadtree, and R-tree indexing strategies.
 """
 
 import logging
+import math
 from typing import Dict, List, Union, Any, Tuple
 
 import geopandas as gpd
 import pandas as pd
+from pyproj import Transformer
 from shapely.geometry import Polygon
+from shapely.ops import transform as transform_geometry
 
 
 logger = logging.getLogger(__name__)
+
+
+def _require_h3():
+    """Load the supported native H3 runtime or fail explicitly."""
+    try:
+        import h3
+    except ImportError as exc:
+        raise ImportError(
+            "H3 indexing requires h3-py>=4.5.0,<5; install the GEO-INFER "
+            "workspace dependencies"
+        ) from exc
+
+    version = tuple(
+        int(part.split("+")[0].split("-")[0])
+        for part in h3.__version__.lstrip("v").split(".")[:3]
+    )
+    if version < (4, 5, 0) or version >= (5, 0, 0):
+        raise RuntimeError(
+            f"Unsupported h3-py version {h3.__version__}; "
+            "GEO-INFER requires h3-py>=4.5.0,<5"
+        )
+    return h3
 
 
 class SpatialIndexer:
@@ -69,26 +94,63 @@ class SpatialIndexer:
 
     def _create_h3_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create H3 spatial index."""
+        h3 = _require_h3()
+
+        if data.crs is None:
+            raise ValueError(
+                "H3 indexing requires a declared CRS; provide EPSG:4326 or a "
+                "projected CRS that can be transformed to WGS84"
+            )
         try:
-            import h3
-        except ImportError:
-            logger.warning("H3 not available, using deterministic local implementation")
-            return {"type": "local_h3", "data": data}
+            if data.crs.to_string().upper() == "EPSG:4326":
+                indexed_data = data
+            else:
+                transformer = Transformer.from_crs(
+                    data.crs, "EPSG:4326", always_xy=True
+                )
+                indexed_data = data.copy()
+                indexed_data["geometry"] = indexed_data.geometry.map(
+                    lambda geometry: (
+                        transform_geometry(transformer.transform, geometry)
+                        if geometry is not None and not geometry.is_empty
+                        else geometry
+                    )
+                )
+                indexed_data = indexed_data.set_crs(
+                    "EPSG:4326", allow_override=True
+                )
+        except Exception as exc:
+            raise ValueError(
+                f"H3 indexing could not transform data CRS {data.crs!s} to EPSG:4326"
+            ) from exc
 
         h3_indexes = {}
 
-        for idx, row in data.iterrows():
+        for idx, row in indexed_data.iterrows():
             geom = row.geometry
-            if geom and geom.is_valid:
+            if geom is not None and not geom.is_empty and geom.is_valid:
                 # Get centroid
                 centroid = geom.centroid
                 lat, lon = centroid.y, centroid.x
+                if not (
+                    math.isfinite(lat)
+                    and math.isfinite(lon)
+                    and -90 <= lat <= 90
+                    and -180 <= lon <= 180
+                ):
+                    continue
 
                 # Create H3 index at resolution 9 (city level)
                 h3_index = h3.latlng_to_cell(lat, lon, 9)
                 h3_indexes[str(idx)] = h3_index
 
-        return {"type": "h3", "resolution": 9, "indexes": h3_indexes, "data": data}
+        return {
+            "type": "h3",
+            "resolution": 9,
+            "crs": "EPSG:4326",
+            "indexes": h3_indexes,
+            "data": data,
+        }
 
     def _create_quadtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create quadtree spatial index."""
@@ -149,10 +211,7 @@ class SpatialIndexer:
         self, index_data: Dict[str, Any], bbox: List[float]
     ) -> gpd.GeoDataFrame:
         """Query H3 index by bounds."""
-        try:
-            import h3
-        except ImportError:
-            return index_data["data"]
+        h3 = _require_h3()
 
         # Get H3 cells that intersect with bbox
         min_lon, min_lat, max_lon, max_lat = bbox
@@ -205,13 +264,7 @@ class SpatialIndexer:
         Returns:
             H3 cell index
         """
-        try:
-            import h3
-
-            return h3.latlng_to_cell(lat, lng, resolution)
-        except ImportError:
-            logger.warning("H3 not available for latlng_to_cell")
-            return f"local_h3_{resolution}_{lat:.6f}_{lng:.6f}"
+        return _require_h3().latlng_to_cell(lat, lng, resolution)
 
     def cell_to_latlng(self, cell: str) -> Tuple[float, float]:
         """
@@ -223,17 +276,7 @@ class SpatialIndexer:
         Returns:
             Tuple of (latitude, longitude)
         """
-        try:
-            import h3
-
-            lat, lng = h3.cell_to_latlng(cell)
-            return lat, lng
-        except ImportError:
-            logger.warning("H3 not available for cell_to_latlng")
-            if cell.startswith("local_h3_"):
-                _, _, _, lat, lng = cell.split("_", 4)
-                return float(lat), float(lng)
-            raise ValueError("Cannot decode non-local H3 cell without the h3 package")
+        return _require_h3().cell_to_latlng(cell)
 
 
 class TemporalIndexer:

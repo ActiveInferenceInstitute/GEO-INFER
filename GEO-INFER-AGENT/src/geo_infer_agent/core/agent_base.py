@@ -60,7 +60,7 @@ class AgentState:
         self.last_update = datetime.now()
 
         # Add to memory
-        if old_value != value:
+        if not self._values_equal(old_value, value):
             self.add_to_memory(
                 {
                     "type": "belief_update",
@@ -70,6 +70,30 @@ class AgentState:
                     "timestamp": self.last_update.isoformat(),
                 }
             )
+
+    @staticmethod
+    def _values_equal(left: Any, right: Any) -> bool:
+        """Compare scalar, container, and array-like beliefs safely."""
+        if left is right:
+            return True
+        if isinstance(left, dict) and isinstance(right, dict):
+            return left.keys() == right.keys() and all(
+                AgentState._values_equal(left[key], right[key]) for key in left
+            )
+        if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+            return len(left) == len(right) and all(
+                AgentState._values_equal(a, b) for a, b in zip(left, right)
+            )
+        try:
+            result = left == right
+        except (TypeError, ValueError):
+            return False
+        if isinstance(result, bool):
+            return result
+        try:
+            return bool(result.all())
+        except (AttributeError, TypeError, ValueError):
+            return False
 
     def add_desire(self, desire: Dict[str, Any]) -> None:
         """

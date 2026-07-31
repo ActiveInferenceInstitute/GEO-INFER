@@ -79,11 +79,20 @@ def test_unit_category_falls_back_to_root_test_files(tmp_path, monkeypatch):
     module_path = make_test_module(tmp_path, "SAMPLE")
     root_test = module_path / "tests" / "test_legacy_layout.py"
     root_test.write_text("def test_legacy_layout():\n    assert True\n")
+    unit_test = module_path / "tests" / "unit" / "test_unit_layout.py"
+    unit_test.write_text("def test_unit_layout():\n    assert True\n")
+    tools_dir = module_path / "tests" / "tools"
+    tools_dir.mkdir()
+    tool_test = tools_dir / "test_tool_layout.py"
+    tool_test.write_text("def test_tool_layout():\n    assert True\n")
     monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
     module = runner.discover_geo_infer_modules()[0]
 
-    assert runner.category_test_paths(module, "unit") == [root_test]
+    assert runner.category_test_paths(module, "unit") == sorted(
+        [root_test, unit_test, tool_test]
+    )
     assert runner.category_test_paths(module, "integration") == []
+    assert runner.category_test_paths(module, "system") == []
 
 
 def test_clean_results_dir_removes_nested_stale_artifacts(tmp_path, monkeypatch):

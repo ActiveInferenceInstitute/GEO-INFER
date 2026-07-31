@@ -103,21 +103,22 @@ class SraiBackend:
         
         capabilities = {
             'indexing': {
-                'latlng_to_cell': True,
-                'cell_to_latlng': True,
-                'polygon_to_cells': True,
-                'get_neighbors': True,
-                'get_distance': True,
-                'get_resolution': True,
-                'get_boundary': True,
-                'get_area': True,
-                'cells_to_multipolygon': True,
+                'latlng_to_cell': self._available,
+                'cell_to_latlng': self._available,
+                'polygon_to_cells': self._available,
+                'get_neighbors': self._available,
+                'get_cells_within_radius': self._available,
+                'get_distance': self._available,
+                'get_resolution': self._available,
+                'get_boundary': self._available,
+                'get_area': self._available,
+                'cells_to_multipolygon': self._available,
             },
             'analytics': {
-                'analyze_hotspots': True,
-                'compute_proximity': True,
-                'cluster_points': True,
-                'interpolate_values': True,
+                'analyze_hotspots': self._available,
+                'compute_proximity': self._available,
+                'cluster_points': False,
+                'interpolate_values': False,
             },
             'regionalizers': [
                 'h3', 's2', 'administrative', 'slippy_map', 'voronoi'
@@ -255,14 +256,27 @@ class SraiBackend:
         
         if self.default_regionalizer == 'h3':
             import h3
-            neighbors = list(h3.grid_disk(cell, k))
-            # Remove the center cell
-            if cell in neighbors:
-                neighbors.remove(cell)
+            if not isinstance(k, int) or k < 1:
+                raise ValueError("k must be a positive integer")
+            neighbors = set(h3.grid_disk(cell, k))
+            neighbors.difference_update(h3.grid_disk(cell, k - 1))
             logger.debug(f"Found {len(neighbors)} neighbors")
-            return neighbors
+            return sorted(neighbors)
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_neighbors")
+
+    @_require_srai("get_cells_within_radius")
+    def get_cells_within_radius(self, cell: str, k: int = 1) -> List[str]:
+        """Return all H3 cells within ``k`` rings, excluding the center."""
+        if self.default_regionalizer == 'h3':
+            import h3
+            if not isinstance(k, int) or k < 0:
+                raise ValueError("k must be a non-negative integer")
+            return sorted(set(h3.grid_disk(cell, k)) - {cell})
+        raise ValueError(
+            f"Regionalizer '{self.default_regionalizer}' is not supported for "
+            "get_cells_within_radius"
+        )
 
     @_require_srai("get_cell_distance")
     def get_cell_distance(self, cell1: str, cell2: str) -> int:
@@ -481,7 +495,7 @@ class SraiBackend:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_boundary")
 
     @_require_srai("get_cell_area")
-    def get_cell_area(self, cell: str) -> float:
+    def get_cell_area(self, cell: str, unit: str = "km^2") -> float:
         """
         Get the area of a cell in square kilometers.
         
@@ -498,11 +512,22 @@ class SraiBackend:
         
         if self.default_regionalizer == 'h3':
             import h3
-            area = h3.cell_area(cell, unit='km^2')
-            logger.debug(f"Cell {cell} has area {area:.6f} km²")
+            area = h3.cell_area(cell, unit=unit)
+            logger.debug(f"Cell {cell} has area {area:.6f} {unit}")
             return area
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_area")
+
+    @_require_srai("average_edge_length")
+    def average_edge_length(self, resolution: int, unit: str = "m") -> float:
+        """Return the native H3 average edge length for a resolution."""
+        if self.default_regionalizer == "h3":
+            import h3
+            return float(h3.average_hexagon_edge_length(resolution, unit=unit))
+        raise ValueError(
+            f"Regionalizer '{self.default_regionalizer}' is not supported for "
+            "average_edge_length"
+        )
 
     @_require_srai("cells_to_multipolygon")
     def cells_to_multipolygon(self, cells: List[str]) -> Dict[str, Any]:

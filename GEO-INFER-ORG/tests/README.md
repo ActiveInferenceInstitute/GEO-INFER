@@ -18,7 +18,7 @@ Tests workspace within `GEO-INFER-ORG`.
 - Package: `geo_infer_org`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-ORG`
-- Tests: `uv run python -m pytest GEO-INFER-ORG/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG`
 
 ## Dependencies
 
@@ -46,7 +46,7 @@ Tests workspace within `GEO-INFER-ORG`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-ORG/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG
 ```
 
 

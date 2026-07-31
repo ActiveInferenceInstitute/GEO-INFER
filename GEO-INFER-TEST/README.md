@@ -37,7 +37,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:requirement_lines` (function)
 - `rewrite_readme_agents.py:discover_modules` (function)
 - `rewrite_readme_agents.py:module_for` (function)
-- `rewrite_readme_agents.py:tracked_doc_files` (function)
+- `rewrite_readme_agents.py:repository_doc_files` (function)
 - `rewrite_readme_agents.py:direct_contents` (function)
 - `rewrite_readme_agents.py:public_symbols` (function)
 - `rewrite_readme_agents.py:purpose_for` (function)
@@ -65,6 +65,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `factory-boy>=3.2.0`
 - `faker>=18.0.0`
 - `geopandas>=0.10.0`
+- `h3>=4.5.0,<5`
 - `hypothesis>=6.0.0`
 - `jinja2>=3.1.0`
 - `jsonschema>=4.0.0`
@@ -72,7 +73,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `matplotlib>=3.5.0`
 - `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 
 
 ## Validation

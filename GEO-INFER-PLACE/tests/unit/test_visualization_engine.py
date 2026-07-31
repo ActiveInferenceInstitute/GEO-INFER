@@ -153,6 +153,27 @@ class TestDashboardGeneration:
         assert path.endswith(".html")
         # File should have real content
         assert Path(path).stat().st_size > 1000
+        manifest = Path(path).with_suffix(".manifest.json")
+        assert manifest.exists()
+        receipt = manifest.read_text(encoding="utf-8")
+        assert '"h3_version": "4.5.0"' in receipt
+        assert '"nonempty_html": true' in receipt
+
+    def test_dashboard_receipt_is_deterministic_with_explicit_metadata(self, engine):
+        """Explicit run metadata produces a stable, auditable artifact pair."""
+        path = Path(
+            engine.create_comprehensive_dashboard(
+                {"domain_results": {}},
+                {
+                    "output_name": "deterministic.html",
+                    "generated_at": "2026-07-30T00:00:00Z",
+                },
+            )
+        )
+        receipt = path.with_suffix(".manifest.json").read_text(encoding="utf-8")
+        assert path.name == "deterministic.html"
+        assert '"generated_at": "2026-07-30T00:00:00Z"' in receipt
+        assert '"path": "deterministic.html"' in receipt
 
 
 if __name__ == "__main__":

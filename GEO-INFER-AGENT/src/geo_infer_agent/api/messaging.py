@@ -332,13 +332,21 @@ class MessagingService:
         while self.running:
             try:
                 # Process message callbacks
-                for agent_id, callback in self.message_callbacks.items():
+                for agent_id, callback in list(self.message_callbacks.items()):
                     if agent_id in self.message_queues and self.message_queues[agent_id]:
                         messages = await self.get_messages(agent_id, mark_as_read=False)
                         for message in messages:
                             try:
                                 callback(message)
                                 message.delivered = True
+                                # Callback delivery is at-least-once: retain a
+                                # message when the callback fails so it can be
+                                # retried, but consume it after success.
+                                self.message_queues[agent_id] = [
+                                    queued
+                                    for queued in self.message_queues[agent_id]
+                                    if queued.message_id != message.message_id
+                                ]
                             except Exception as e:
                                 logger.error(f"Error processing message callback for agent {agent_id}: {str(e)}")
                 
@@ -357,4 +365,4 @@ class MessagingService:
 
 
 # Global instance
-messaging_service = MessagingService() 
+messaging_service = MessagingService()

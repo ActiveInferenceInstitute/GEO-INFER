@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rewrite tracked README.md and AGENTS.md files from repository facts.
+"""Rewrite repository README.md and AGENTS.md files from repository facts.
 
 The generated files are intentionally compact and operational. They avoid
 roadmap language and only describe the current filesystem, package metadata,
@@ -113,8 +113,37 @@ def module_for(path: Path, modules: dict[str, ModuleInfo]) -> ModuleInfo | None:
     return modules.get(relative.parts[0])
 
 
-def tracked_doc_files() -> tuple[list[Path], list[Path]]:
-    files = git_ls_files()
+def repository_doc_files() -> tuple[list[Path], list[Path]]:
+    """Return tracked and newly added repository signposts.
+
+    New directory-level signposts are intentionally visible before a commit so
+    the generator can render and validate them in the same working tree. Other
+    untracked files remain excluded from the generated inventories.
+    """
+    result = subprocess.run(
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "--",
+            "README.md",
+            "**/README.md",
+            "AGENTS.md",
+            "**/AGENTS.md",
+        ],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    files = {
+        REPO_ROOT / line
+        for line in result.stdout.splitlines()
+        if Path(line).name in {"README.md", "AGENTS.md"}
+    }
+
     readmes = sorted(path for path in files if path.name == "README.md")
     agents = sorted(path for path in files if path.name == "AGENTS.md")
     return readmes, agents
@@ -141,7 +170,10 @@ def direct_contents(directory: Path) -> tuple[list[str], list[str], list[str]]:
         and path.name not in {"README.md", "AGENTS.md"}
         and path.suffix != ".py"
     )
-    return dirs[:24], py_files[:24], other_files[:24]
+    # Signposts are generated from the complete tracked directory contents.
+    # Truncating this inventory made valid files disappear from AGENTS.md and
+    # README.md while the freshness check still passed.
+    return dirs, py_files, other_files
 
 
 def public_symbols(directory: Path) -> list[str]:
@@ -185,6 +217,18 @@ def test_command(path: Path, module: ModuleInfo | None) -> str:
     if module and path.parent == module.path:
         return f"uv run python GEO-INFER-TEST/run_unified_tests.py --module {module.name.removeprefix(MODULE_PREFIX)}"
     if "tests" in path.parent.parts:
+        test_files = [
+            candidate
+            for candidate in tracked_files()
+            if candidate.parent == path.parent
+            and candidate.suffix == ".py"
+            and (candidate.name.startswith("test_") or candidate.name.endswith("_test.py"))
+        ]
+        if not test_files and module:
+            return (
+                "uv run python GEO-INFER-TEST/run_unified_tests.py --module "
+                f"{module.name.removeprefix(MODULE_PREFIX)}"
+            )
         rel = path.parent.relative_to(REPO_ROOT)
         return f"uv run python -m pytest {rel}"
     if module:
@@ -711,8 +755,8 @@ GEO-INFER is a {len(modules)}-module geospatial inference monorepo for spatial a
 | Modules | {len(modules)} |
 | Python source files | {source_files} |
 | Python test files | {test_files} |
-| Tracked README.md files | {readme_count} |
-| Tracked AGENTS.md files | {agents_count} |
+| Repository README.md files | {readme_count} |
+| Repository AGENTS.md files | {agents_count} |
 
 ## Quick Start
 
@@ -784,7 +828,9 @@ the exact reproducible exception list.
 - Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
+- System tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category system`
 - Performance tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category performance`
+- Coverage gate: `uv run python GEO-INFER-TEST/run_unified_tests.py --category coverage --timeout 900`
 - H3 contracts: `uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration`
 - Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
@@ -910,7 +956,7 @@ Agent-facing documentation must be operational: current paths, commands, package
 def render_readme(path: Path, module: ModuleInfo | None) -> str:
     if path.parent == REPO_ROOT:
         modules = discover_modules()
-        readmes, agents = tracked_doc_files()
+        readmes, agents = repository_doc_files()
         return render_root_readme(modules, len(readmes), len(agents))
 
     rel = path.parent.relative_to(REPO_ROOT)
@@ -1048,7 +1094,7 @@ def render_agents(path: Path, module: ModuleInfo | None) -> str:
 def expected_doc_files() -> list[tuple[Path, str]]:
     """Return tracked documentation files and their generated contents."""
     modules = discover_modules()
-    readmes, agents = tracked_doc_files()
+    readmes, agents = repository_doc_files()
     expected: list[tuple[Path, str]] = []
 
     for readme in readmes:

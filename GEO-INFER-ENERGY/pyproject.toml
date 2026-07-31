@@ -19,6 +19,7 @@ dependencies = [
     "xarray>=0.19.0",
     "pyyaml>=6.0",
     "scikit-learn>=1.0.0",
+    "h3>=4.5.0,<5",
 ]
 
 [tool.setuptools]
@@ -30,3 +31,6 @@ exclude = ["tests*"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: tests spanning multiple energy-analysis components",
+]

@@ -23,7 +23,7 @@ Tests workspace within `GEO-INFER-GIT`.
 - Package: `geo_infer_git`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-GIT`
-- Tests: `uv run python -m pytest GEO-INFER-GIT/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
 
 ## Dependencies
 
@@ -62,7 +62,7 @@ Tests workspace within `GEO-INFER-GIT`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-GIT/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT
 ```
 
 

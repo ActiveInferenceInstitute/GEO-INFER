@@ -177,7 +177,7 @@ class ActiveInferenceInterface:
                 if hasattr(all_free_energies, "tolist")
                 else all_free_energies
             ),
-            "evaluation": evaluation,
+            "evaluation": evaluation.to_dict() if evaluation is not None else None,
         }
 
     def set_preferences(self, model_id: str, preferences: Dict[str, Any]) -> None:

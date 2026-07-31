@@ -55,7 +55,7 @@ def mock_config_dict() -> Dict[str, Any]:
             },
             "auth": {
                 "enabled": True,
-                "jwt_secret": "test-secret",
+                "jwt_secret": "test-secret-for-pyjwt-hs256-tests-32-bytes",
                 "jwt_algorithm": "HS256"
             }
         }

@@ -39,6 +39,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 - `matplotlib>=3.5.0`
 - `pandas>=1.4.0`
 - `pyyaml>=6.0`
+- `h3>=4.5.0,<5`
 - `requests>=2.28.0`
 - `rich>=12.0.0`
 - `typer>=0.7.0`

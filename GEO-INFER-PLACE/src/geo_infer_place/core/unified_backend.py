@@ -329,7 +329,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 )
                 logger.debug(f"Geometry type: {type(geom)}, Geometry: {geom}")
                 try:
-                    # Use direct H3 library for polygon_to_cells (more reliable than SPACE polygon_to_cells)
+                    # Use direct H3 library for polygon_to_cells(more reliable than SPACE polygon_to_cells)
                     if isinstance(geom, (Polygon, MultiPolygon)):
                         # Convert to GeoJSON format for H3 polygon_to_cells
                         geojson_geom = mapping(geom)
@@ -960,7 +960,10 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 if hex_data.get("boundary"):
                     # Create polygon from H3 boundary
                     boundary_coords = hex_data["boundary"]
-                    polygon = Polygon(boundary_coords)
+                    # H3 returns (lat, lng); Shapely uses (x, y) = (lng, lat).
+                    polygon = Polygon(
+                        [(lng, lat) for lat, lng in boundary_coords]
+                    )
 
                     # Add properties
                     properties = {
@@ -1410,11 +1413,14 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
             boundary = h3.cell_to_boundary(hex_id)
+            ring = [[lng, lat] for lat, lng in boundary]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
 
             features.append(
                 {
                     "type": "Feature",
-                    "geometry": {"type": "Polygon", "coordinates": [boundary]},
+                    "geometry": {"type": "Polygon", "coordinates": [ring]},
                     "properties": properties,
                 }
             )
@@ -1458,7 +1464,10 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         else:
             # Calculate the centroid of the entire target region for the map center
             all_boundaries = [
-                Polygon(h3.cell_to_boundary(h)) for h in self.target_hexagons
+                Polygon(
+                    [(lng, lat) for lat, lng in h3.cell_to_boundary(h)]
+                )
+                for h in self.target_hexagons
             ]
             gdf_all = gpd.GeoDataFrame({"geometry": all_boundaries}, crs="EPSG:4326")
             unified_geom = gdf_all.unary_union

@@ -13,7 +13,28 @@ logger = logging.getLogger(__name__)
 try:
     import h3
 
-    H3_AVAILABLE = True
+    MIN_H3_VERSION = (4, 5, 0)
+
+    def _version_tuple(version: str) -> Tuple[int, int, int] | None:
+        try:
+            parts = version.lstrip("v").split(".")
+            return tuple(
+                int(part.split("+")[0].split("-")[0]) for part in parts[:3]
+            ) + (0,) * max(0, 3 - len(parts))
+        except (AttributeError, TypeError, ValueError):
+            return None
+
+    _h3_version = _version_tuple(getattr(h3, "__version__", None))
+    H3_AVAILABLE = bool(
+        _h3_version is not None
+        and MIN_H3_VERSION <= _h3_version
+        and _h3_version[0] < 5
+    )
+    if not H3_AVAILABLE:
+        logger.error(
+            "Unsupported h3-py version %r; GEO-INFER requires >=4.5.0,<5",
+            getattr(h3, "__version__", None),
+        )
 except ImportError:
     H3_AVAILABLE = False
     logger.warning("h3-py package not available. Install with 'uv pip install h3'")
@@ -278,7 +299,13 @@ def cell_to_boundary(
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.cell_to_boundary(h3_index, geo_json=geo_json)
+        # H3-py v4 removed the ``geo_json`` keyword from ``cell_to_boundary``.
+        # Its native result is always ``(latitude, longitude)``; convert only
+        # when this compatibility flag explicitly requests GeoJSON order.
+        boundary = h3.cell_to_boundary(h3_index)
+        if geo_json:
+            return [(lng, lat) for lat, lng in boundary]
+        return [(lat, lng) for lat, lng in boundary]
     except Exception as e:
         logger.error(f"Failed to get boundary for H3 index {h3_index}: {e}")
         raise ValueError(f"Invalid H3 index: {h3_index}")
@@ -313,10 +340,13 @@ def cells_to_geojson(
     for h3_index in h3_indices:
         try:
             # Get boundary coordinates
-            boundary = h3.cell_to_boundary(h3_index, geo_json=True)
+            boundary = cell_to_boundary(h3_index, geo_json=True)
 
             # Create polygon coordinates (close the ring)
-            coordinates = [list(boundary) + [boundary[0]]]
+            ring = [list(point) for point in boundary]
+            if ring and ring[0] != ring[-1]:
+                ring.append(ring[0])
+            coordinates = [ring]
 
             # Create feature
             feature = {
@@ -591,25 +621,31 @@ def polygon_to_cells(
     https://gis.utah.gov/blog/2022-10-26-using-h3-hexes/
 
     Args:
-        polygon_coords: List of (lat, lng) or (lng, lat) coordinate tuples
+        polygon_coords: List of (lat, lng) coordinate tuples. This low-level
+            helper uses H3's native ``LatLngPoly`` coordinate order; callers
+            with GeoJSON ``[lng, lat]`` data should use ``geo_to_cells``.
         resolution: H3 resolution for the cells
-        geo_json_conformant: If True, coordinates are (lng, lat); if False, (lat, lng)
 
     Returns:
         Set of H3 cell indices covering the polygon
 
     Example:
         >>> coords = [(37.7749, -122.4194), (37.7849, -122.4194), (37.7849, -122.4094), (37.7749, -122.4094)]
-        >>> cells = polygon_to_cells(coords, 9, geo_json_conformant=False)
+        >>> cells = polygon_to_cells(coords, 9)
         >>> print(f"Polygon covered by {len(cells)} H3 cells")
     """
     if not H3_AVAILABLE:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        # Use H3's polygon_to_cells function
-        # H3 expects coordinates as (lat, lng)
-        return list(h3.polygon_to_cells(polygon_coords, resolution))
+        # H3-py v4 expects an H3Shape (normally LatLngPoly), not the raw
+        # nested coordinate list accepted by older releases.
+        from h3 import LatLngPoly
+
+        ring = list(polygon_coords)
+        if ring and ring[0] == ring[-1]:
+            ring = ring[:-1]
+        return list(h3.polygon_to_cells(LatLngPoly(ring), resolution))
     except Exception as e:
         logger.error(f"Failed to convert polygon to H3 cells: {e}")
         raise
@@ -634,7 +670,14 @@ def cells_to_polygon(h3_indices: Set[str]) -> List[Tuple[float, float]]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.cells_to_polygon(h3_indices, geo_json=False)
+        geometry = h3.cells_to_geo(h3_indices)
+        if geometry.get("type") != "Polygon":
+            raise ValueError(
+                "cells_to_polygon requires cells whose H3 coverage forms one "
+                "GeoJSON Polygon; use cells_to_geo for disconnected coverage"
+            )
+        ring = geometry.get("coordinates", [[]])[0]
+        return [(lat, lng) for lng, lat in ring]
     except Exception as e:
         logger.error(f"Failed to convert cells to polygon: {e}")
         raise
