@@ -43,3 +43,4 @@ GEO-INFER-PLACE/locations/cascadia/data/improvements/tl_2023_us_zcta520/tl_2023_
 # Audit output
 scripts/audit_results.txt
 /.hypothesis
+config/
