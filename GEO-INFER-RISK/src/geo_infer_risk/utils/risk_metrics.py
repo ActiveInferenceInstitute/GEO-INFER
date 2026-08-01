@@ -12,9 +12,15 @@ This module provides utility functions for calculating risk metrics such as:
 from typing import Dict, List, Any, Union, Optional
 import numpy as np
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-def calculate_aal(event_loss_table: Union[pd.DataFrame, np.ndarray]) -> Union[float, Dict[str, Any]]:
+def calculate_aal(
+    event_loss_table: Union[pd.DataFrame, np.ndarray],
+    exposure_years: Optional[float] = None,
+) -> Union[float, Dict[str, Any]]:
     """
     Calculate the Average Annual Loss (AAL) from an event loss table or loss array.
 
@@ -23,6 +29,11 @@ def calculate_aal(event_loss_table: Union[pd.DataFrame, np.ndarray]) -> Union[fl
     Args:
         event_loss_table: Either a DataFrame containing event losses with columns
             'event_id', 'hazard_type', and 'loss', or a numpy array of loss values.
+        exposure_years: The number of exposure years the loss table spans. When
+            provided, AAL = total loss / exposure_years (correct annualization).
+            When omitted, the legacy event-count semantics are used
+            (total loss / number of distinct events), which over-estimates AAL
+            whenever multiple events occur per year — a warning is logged.
 
     Returns:
         If input is a numpy array, returns float (mean loss).
@@ -45,15 +56,32 @@ def calculate_aal(event_loss_table: Union[pd.DataFrame, np.ndarray]) -> Union[fl
     total_loss = event_loss_table['loss'].sum()
     num_events = len(event_loss_table['event_id'].unique())
 
-    # Simple AAL calculation: total loss / number of events
-    total_aal = total_loss / num_events if num_events > 0 else 0
+    if exposure_years is not None:
+        if exposure_years <= 0:
+            raise ValueError("exposure_years must be positive")
+        denominator = float(exposure_years)
+    else:
+        denominator = float(num_events) if num_events > 0 else 1.0
+        logger.warning(
+            "calculate_aal called without exposure_years; using legacy "
+            "event-count semantics (total / %d events). Pass exposure_years "
+            "for a true average annual loss.",
+            num_events,
+        )
+
+    total_aal = total_loss / denominator if total_loss else 0.0
 
     # Calculate AAL by hazard type
     hazard_aal = {}
     for hazard_type, group in event_loss_table.groupby('hazard_type'):
         hazard_loss = group['loss'].sum()
         hazard_events = len(group['event_id'].unique())
-        hazard_aal[hazard_type] = hazard_loss / hazard_events if hazard_events > 0 else 0
+        if exposure_years is not None:
+            hazard_aal[hazard_type] = hazard_loss / float(exposure_years)
+        else:
+            hazard_aal[hazard_type] = (
+                hazard_loss / hazard_events if hazard_events > 0 else 0
+            )
 
     return {
         'total': total_aal,
