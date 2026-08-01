@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 894 |
-| Python test files | 502 |
+| Python test files | 503 |
 | Repository README.md files | 849 |
 | Repository AGENTS.md files | 848 |
 
@@ -103,7 +103,7 @@ the exact reproducible exception list.
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 10 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 35 |
-| `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 17 |
+| `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 18 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 23 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 8 |

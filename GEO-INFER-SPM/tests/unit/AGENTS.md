@@ -30,6 +30,7 @@
 - `test_helpers.py`
 - `test_preprocessing.py`
 - `test_rft.py`
+- `test_rft_fwe_contract.py`
 - `test_spatial_analysis.py`
 - `test_temporal_analysis.py`
 - `test_validation.py`
