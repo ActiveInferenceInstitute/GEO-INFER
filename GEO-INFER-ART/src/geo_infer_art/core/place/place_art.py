@@ -3,6 +3,8 @@ PlaceArt module for creating art based on specific locations and places.
 """
 
 import os
+import hashlib
+import random
 from typing import Dict, List, Optional, Union
 
 import geopandas as gpd
@@ -80,7 +82,10 @@ class PlaceArt:
         else:
             import random
 
-            random.seed(hash(place_name))
+            # Deterministic across processes: Python's hash() is randomized
+            # per interpreter (PYTHONHASHSEED), so it must not seed RNGs.
+            seed = int(hashlib.md5(place_name.encode("utf-8")).hexdigest(), 16) % (2**32)
+            random.seed(seed)
             lat = random.uniform(-80, 80)
             lon = random.uniform(-179, 179)
             country = "Unknown"

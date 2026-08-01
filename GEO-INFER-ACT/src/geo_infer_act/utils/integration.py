@@ -382,6 +382,7 @@ class ModernToolsIntegration:
                     chains=4,
                     return_inferencedata=True,
                     progressbar=False,
+                    random_seed=self.config.get("random_seed", 42),
                 )
 
             # Compute diagnostics

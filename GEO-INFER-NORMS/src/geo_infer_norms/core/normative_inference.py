@@ -496,8 +496,13 @@ class NormativeInference:
                                         }
                                     )
                                     continue
-                            except Exception:
-                                pass
+                            except Exception as exc:
+                                logger.warning(
+                                    "Norm condition raised during increase probe "
+                                    "for behavior %s: %s",
+                                    behavior,
+                                    exc,
+                                )
 
                             # Test decrease
                             test_observations[behavior] = (
@@ -516,8 +521,13 @@ class NormativeInference:
                                             "impact": "potentially increases compliance",
                                         }
                                     )
-                            except Exception:
-                                pass
+                            except Exception as exc:
+                                logger.warning(
+                                    "Norm condition raised during decrease probe "
+                                    "for behavior %s: %s",
+                                    behavior,
+                                    exc,
+                                )
 
                 # Build a human-readable recommendation string from identified behaviors
                 if relevant_behaviors:

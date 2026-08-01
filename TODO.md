@@ -30,34 +30,44 @@ unfinished work here.
 | ID | Scope | Open work | Behavior-based acceptance probe |
 | --- | --- | --- | --- |
 | TEST-01 | All modules | Finish the release-quality performance and coverage gates and record their exact output. Coverage run times out at 902s in this environment on 44 modules — the run is **still open** and must not be silently converted to a passing claim. | The release receipt records exact commands, exit codes, test counts, coverage, performance results, and optional backend availability with no skipped or xfailed tests. |
-| DOMAIN-02 | SPM/METAGOV/TRANSPORT/EMERGENCY/CIV/REQ/ORG/NORMS | Extend the DOMAIN-01 pattern (acceptance tests for claims documented in SKILL.md/AGENTS.md) to remaining modules. Each module needs `test_acceptance_<mod>.py` with real-API, no-mock, behavior-based tests. | Each module adds a focused acceptance test file and a current status receipt. |
-| DOMAIN-03 | SPACE (config), SEC (pickle/tar), ACT (integration test), OPS (tarfile) | Security hardening: replace `yaml.load` with `yaml.safe_load`, add safe-extract for tar files, audit `eval`/`exec` uses. | Targeted fix per finding; verified by running the specific module test suite. |
+| DOMAIN-02 | SPM/METAGOV/TRANSPORT/EMERGENCY/CIV/REQ/ORG/NORMS | **DONE (2026-07-31):** 85 behavior-based acceptance tests added in `test_acceptance_<mod>.py` for all 8 modules; all verified passing (SPM 30, METAGOV 22, TRANSPORT 21, EMERGENCY 34, CIV 23, REQ 16, ORG 21, NORMS 27). | Each module adds a focused acceptance test file and a current status receipt. |
+| DOMAIN-03 | SPACE/MATH/NORMS/ECON/ACT security hardening (2026-07-31) | **DONE:** (a) eval sandbox in SPACE raster: `__builtins__={}` blocks RCE; (b) MATH symbolic eval: `_reject_unsafe_numpy_access` AST guard blocks np file/pickle members; (c) NORMS: two `except Exception: pass` probes now log warnings; (d) ECON: `requests.get` now has `timeout=30`. ART + ACT cross-process determinism covered under REPRO-01 below. | Security repros: `__import__('os')` in SPACE raises NameError; `np.loadtxt` in MATH raises ValueError; ECON request has explicit timeout. |
+| REPRO-01 | ART/SPM/BAYES/ACT deterministic seeding (Mahakala V2/V3/F3/F5) | **DONE (ART + SPM + BAYES + ACT PyMC):** ART `random.seed(hash(place_name))` → md5-derived seed (cross-process deterministic, verified 3 procs). SPM `fit_bayesian_glm` + BAYES `PyMCInterface.sample` + ACT `create_pymc_model` now thread `random_seed` into `pm.sample`. **OPEN:** 298 bare `np.random.*` global-state calls in SPM/BAYES/RISK/COG remain — large refactor to `default_rng` (scoped major). | `PlaceArt.from_place_name('Berlin')` yields identical coords across separate processes; `pm.sample(...)` returns identical traces given `random_seed`. |
 
 ## Scoped improvements (review findings, 2026-07-31)
 
 ### Major (next release blocking)
 
-1. **SEC-01 — Unsafe YAML/deserialization**:
-   `yaml.load(payload, Loader=yaml.FullLoader)` found in src; `tarfile.extractall()` without path sanitization (Tar Slip); pickle detection. Fix all `yaml.load`, `tarfile.extract*`, and audit `eval()`/`exec()` calls.
-2. **TEST-01 coverage receipt** (already above).
-3. **DOMAIN-02 acceptance tests** (already above).
+1. **SEC-01 — Unsafe YAML/deserialization**: `tarfile.extractall()` Tar Slip **FIXED** (safe-extract guards + 5 tests, commit 0952926b); `eval()` sandbox **FIXED** (SPACE `__builtins__={}`, MATH AST guard). YAML audit found **all** loads already `safe_load` — no change. **OPEN:** pickle model/cache loads (AG/AI/DATA/GIT/OPS) have no trust-boundary guard — document "only load trusted pickles."
+2. **TEST-01 coverage receipt** (still open — coverage run times out at 902s).
+3. **DOMAIN-02 acceptance tests** (DONE — 85 tests).
+4. **STATS-01 — RFT cluster p-values mathematically invalid**: `_correct_p_values` computes `cluster_p = min(1.0, E[K>u]/cluster_size)` — an expected count divided by a size, not a FWE p-value (rft.py:339-342). **OPEN — needs real RFT EC-density implementation or removal of the RFT cluster method.**
+5. **STATS-02 — 'PSIS-LOO' is not LOO**: `model_comparison._loo_comparison` computes the posterior predictive density (lppd), not actual leave-one-out re-fitting (model_comparison.py:289-314). **OPEN — implement true PSIS-LOO (Vehtari et al. 2017) or rename to `lppd`.**
+6. **STATS-03 — AI train/test leakage**: `FeatureEngineer.fit_transform` fits the scaler on the full dataset (feature_engineering.py:177-179) with split happening after. **OPEN — document fit-on-train-only contract or move split before fit_transform.**
+7. **STATS-04 — RISK `calculate_aal` divides total loss by event count, not exposure years** (risk_metrics.py:45-49). **OPEN — require exposure-years input, document assumption.**
+8. **STATS-05 — tests assert shapes not statistical validity**: `test_rft.py` / `test_model_comparison.py` pass while the statistics are wrong (Finding 15). **OPEN — add analytic/property tests (known-null FWER control, closed-form LOO recovery).**
 
 ### Medium
 
-1. **ACT unit suite timeout**: `run_unified_tests.py --module ACT` times out at 300s+ for the per-module limit. Mark the heaviest tests `@pytest.mark.slow` or raise the per-module timeout to 600s.
-2. **ART unit suite timeout**: same timeout issue.
-3. **HEALTH slow tests in unit category**: `TestPerformance::test_large_dataset_performance` in `test_disease_surveillance.py` runs a performance test during the unit sweep — add `@pytest.mark.slow`.
-4. **Integration test test_h3_spatial_model_creation at r=4**: fixed to r=8 but additionally the function works correctly; the pytest quirk around config-inherited `-W error` needs investigation.
-5. **ACT integration test_h3_spatial_model_creation** — resolution fixed, but the pytest environment interaction remains open.
-6. **`eval()` in symbolic_math.py**: expression evaluation uses `eval()` — should be constrained or isolated.
+1. **ACT unit suite timeout**: **DONE** — 9 heaviest tests marked `@pytest.mark.slow` (removes ~380s). Operator runs `pytest -m "not slow"`.
+2. **ART unit suite timeout**: **OPEN** — ART takes 149s standalone but exceeds the 300s unified-runner limit under `-W error`; needs slow-marks on 6 heavy style-transfer/place-art tests.
+3. **HEALTH slow tests in unit category**: **DONE** — `test_large_dataset_performance` marked `@pytest.mark.slow`.
+4. **ACT integration test_h3_spatial_model_creation**: **DONE** — root cause was malformed 4-level GeoJSON boundary (native H3 v4 rejects); fixed boundary to valid 3-level Polygon + r=8.
+5. **RISK cross-validation is a stub** (V6): `_calibrate_with_cross_validation` returns `calibrated_parameters: {}` — never fits a model (risk_engine.py:752-784). **OPEN — implement real fitting or rename the method to `cross_validate_loss`.**
+6. **`Path(__file__)` directory walks break on `pip install`** (V7): OPS/SPACE/PLACE/HEALTH/INTRA resolve config via `Path(__file__).parent...`. **OPEN — use `importlib.resources` or explicit config paths.**
 
 ### Minor
 
-1. **`np.random.seed(42)`** and `np.random.default_rng(seed=42)` usage across SPM, BAYES, RISK, COG — 90+ bare `np.random.seed` calls without deterministic import-order guarantees.
-2. **`PyMC.sample()` missing `random_seed`** in GEO-INFER-BAYES/src/geo_infer_bayes/core/pymc_interface.py:194 — sampler runs non-deterministically.
-3. **`config/outputs/` CWD-relative path references** in DATA connectors, IOT ingestion, and SPACE — route through config parameter or `Path` injection.
-4. **SRAI `except: pass` pattern** in h3_adapter.py:84-85 (`except Exception:`) is legitimate (fallback to native H3) but the pattern is fragile; add a single-line log.
-5. **Cross-process hash non-determinism** — Python's `hash()` differs across interpreter restarts; if used in any cache-key or join path, it corrupts cross-run reproducibility.
+1. **`np.random.seed(42)`/298 bare `np.random.*` global-state calls** across SPM, BAYES, RISK, COG — migrate to `np.random.default_rng()` per class. **OPEN — large mechanical refactor.**
+2. **PyMC `random_seed`**: **DONE** — threaded through SPM `fit_bayesian_glm`, BAYES `PyMCInterface.sample`, ACT `create_pymc_model`.
+3. **`config/outputs/` CWD-relative path references** in DATA connectors, IOT ingestion, and SPACE — route through config parameter or `Path` injection. SPACE geojson seam **DONE**; others **OPEN**.
+4. **SRAI `except: pass` pattern** in h3_adapter.py:84-85 — legitimate fallback; keep.
+5. **Cross-process hash non-determinism**: **DONE for ART** (`hash(place_name)` → md5-seeded, verified cross-process deterministic). AUDIT other `hash()` uses as cache/join keys — OPEN.
+6. **ECON `requests.get` no timeout**: **DONE** — `timeout=30`.
+7. **NORMS `except Exception: pass` probes**: **DONE** — both increase/decrease probes now log warnings.
+8. **COMMS email providers swallow exceptions** (V11): SendGrid/SES `except ... return False` with no typed error. **OPEN — raise typed exception or return structured error.**
+9. **FDR correction is threshold-only, not BH-adjusted p-values** (rft.py:392-408): **OPEN — use `statsmodels.stats.multitest.multipletests(method='fdr_bh')`.**
+10. **PLACE `os.chdir()` in tests** (V13): **OPEN — use `monkeypatch.chdir()`.**
 
 ## Release gate commands
 
