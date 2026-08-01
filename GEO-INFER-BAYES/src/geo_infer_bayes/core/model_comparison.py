@@ -287,11 +287,14 @@ class ModelComparison:
         return ll_matrix
 
     def _loo_comparison(self, model: Any, data: Any) -> Dict[str, float]:
-        """Leave-one-out cross-validation via Pareto-smoothed importance
-        sampling (PSIS-LOO). Falls back to a direct LOO when a full
-        log-likelihood matrix is unavailable.
+        """Naive leave-one-out cross-validation over pointwise log-likelihoods.
 
-        The computation uses the log-sum-exp trick for numerical stability.
+        This computes the (approximate) LOO via log-mean-exp of the posterior
+        predictive log-likelihood matrix — **not** Pareto-smoothed importance
+        sampling (PSIS-LOO). Do not present these values as PSIS-LOO k-hat
+        diagnostics; treating them as such would overstate the method.
+
+        Uses the log-sum-exp trick for numerical stability.
         """
         ll_matrix = self._pointwise_log_likelihoods(model, data)
         n_samples, n_obs = ll_matrix.shape

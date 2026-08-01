@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import secrets
 import base64
+import os
 from typing import Dict, List, Optional, Union, Any, Tuple
 from dataclasses import dataclass
 import logging
@@ -26,12 +27,18 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SecurityConfig:
     """Configuration for security utilities."""
-    
+
     # Encryption parameters
     key_length: int = 32
     salt_length: int = 16
     iterations: int = 100000
-    
+
+    # Token signing secret. A stable secret is required so that
+    # generate_secure_token() and validate_token() agree on the HMAC key.
+    # When unset it falls back to GEO_INFER_TOKEN_SECRET, then to a
+    # per-process random key (valid only within one process lifetime).
+    token_secret: Optional[str] = None
+
     # Privacy parameters
     k_anonymity: int = 5
     l_diversity: int = 3
@@ -63,6 +70,17 @@ class SecurityUtils:
         self.config = config or SecurityConfig()
         self.failed_attempts = {}
         self.audit_log = []
+        # Stable HMAC key for token sign/verify. Prefer an explicit secret,
+        # then the env var, then a per-process random key.
+        secret = self.config.token_secret or os.getenv("GEO_INFER_TOKEN_SECRET")
+        if secret:
+            self._token_key = hashlib.sha256(secret.encode("utf-8")).digest()
+        else:
+            self._token_key = secrets.token_bytes(self.config.key_length)
+            logger.warning(
+                "No token_secret configured (SecurityConfig.token_secret or "
+                "GEO_INFER_TOKEN_SECRET); tokens are only valid within this process."
+            )
     
     def generate_secure_key(self, length: Optional[int] = None) -> bytes:
         """
@@ -441,14 +459,17 @@ class SecurityUtils:
         payload_bytes = payload_str.encode('utf-8')
         
         # Create signature
-        key = self.generate_secure_key()
+        key = self._token_key
         signature = hmac.new(key, payload_bytes, hashlib.sha256).digest()
-        
-        # Combine payload and signature
-        token_data = payload_bytes + b'.' + signature
-        token = base64.urlsafe_b64encode(token_data).decode('utf-8')
-        
-        return token
+
+        # Base64 each part separately (urlsafe alphabet has no '.'), so the
+        # '.' separator can never collide with payload or signature bytes.
+        token = (
+            base64.urlsafe_b64encode(payload_bytes)
+            + b"."
+            + base64.urlsafe_b64encode(signature)
+        )
+        return token.decode("utf-8")
     
     def validate_token(self, token: str) -> Optional[str]:
         """
@@ -461,12 +482,13 @@ class SecurityUtils:
             User ID if token is valid, None otherwise
         """
         try:
-            # Decode token
-            token_data = base64.urlsafe_b64decode(token.encode('utf-8'))
-            payload_str, signature = token_data.split(b'.', 1)
-            
-            # Verify signature (simplified - in practice, use proper key management)
-            key = self.generate_secure_key()
+            # Decode token: <urlsafe_b64(payload)>.<urlsafe_b64(signature)>
+            p_b64, sig_b64 = token.encode("utf-8").split(b".", 1)
+            payload_str = base64.urlsafe_b64decode(p_b64)
+            signature = base64.urlsafe_b64decode(sig_b64)
+
+            # Verify signature
+            key = self._token_key
             expected_signature = hmac.new(key, payload_str, hashlib.sha256).digest()
             
             if not hmac.compare_digest(signature, expected_signature):

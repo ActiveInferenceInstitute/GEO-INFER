@@ -487,18 +487,22 @@ class TestAdvancedModelsIntegration:
         """Test comparison of different spatial models."""
         models = []
 
-        for model_type in ['sar', 'sem', 'slx']:
+        for model_type in ["sar", "sem", "slx"]:
             try:
                 result = fit_spatial_model(self.spm_data, self.design_matrix, model_type)
                 models.append(result)
-            except:
-                continue  # Skip if model fails
+            except Exception:
+                continue  # Skip a model that fails to fit
 
-        if len(models) >= 2:
-            validator = ModelValidator()
-            comparison = validator.compare_models(models, method="bic")
+        # The test must exercise the comparison against real fits; a vacuous
+        # pass with <2 models hides broken spatial-model implementations.
+        assert len(models) >= 2, (
+            f"Expected at least 2 spatial models to fit, only {len(models)} succeeded"
+        )
+        validator = ModelValidator()
+        comparison = validator.compare_models(models, method="bic")
 
-            assert len(comparison['scores']) == len(models)
+        assert len(comparison['scores']) == len(models)
 
     def test_cross_validation_comparison(self):
         """Test cross-validation across different model types."""

@@ -51,7 +51,7 @@ final_state = results.get_snapshot(t=200)
 
 ## Guidelines
 
-- Mesa integration in development (Alpha)
+- Mesa integration (complete; MesaModelBridge wraps `mesa.Model` with 20 tests)
 
 ### Integrations
 

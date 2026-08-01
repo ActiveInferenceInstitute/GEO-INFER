@@ -9,6 +9,9 @@ from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import ast
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Canonical list of all GEO-INFER ecosystem modules
@@ -230,9 +233,10 @@ class TestDiscoverer:
             # Detect testing framework
             metadata["framework"] = self._detect_framework(metadata["imports"])
 
-        except Exception:
-            # If we can't parse the file, that's okay
-            pass
+        except Exception as exc:
+            # A parse failure means this test file is NOT being discovered;
+            # surface it instead of silently dropping the file from runs.
+            logger.warning("Could not parse test file %s: %s", file_path, exc)
 
         return metadata
 
