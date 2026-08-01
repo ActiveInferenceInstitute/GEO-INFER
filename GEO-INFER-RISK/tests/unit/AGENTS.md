@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_aal_exposure_years.py`
 - `test_config_loader.py`
 - `test_core.py`
 - `test_exposure_model.py`
