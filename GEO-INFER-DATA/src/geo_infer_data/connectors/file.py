@@ -33,6 +33,37 @@ HAS_FIONA = importlib.util.find_spec("fiona") is not None
 logger = logging.getLogger(__name__)
 
 
+def _safe_extract_zip(archive: zipfile.ZipFile, extract_to: Path) -> None:
+    """Extract a zip archive while rejecting path-traversal member names.
+
+    Raises:
+        ValueError: If any member path escapes the target directory.
+    """
+    target = extract_to.resolve()
+    for member in archive.infolist():
+        member_path = (extract_to / member.filename).resolve()
+        if not member_path.is_relative_to(target):
+            raise ValueError(f"Unsafe archive member path: {member.filename!r}")
+    archive.extractall(extract_to)
+
+
+def _safe_extract_tar(archive: tarfile.TarFile, extract_to: Path) -> None:
+    """Extract a tar archive while rejecting path-traversal members.
+
+    Uses Python 3.12+'s ``filter="data"`` (PEP 706) and additionally validates
+    every member path against the target directory.
+
+    Raises:
+        ValueError: If any member path escapes the target directory.
+    """
+    target = extract_to.resolve()
+    for member in archive.getmembers():
+        member_path = (extract_to / member.name).resolve()
+        if not member_path.is_relative_to(target):
+            raise ValueError(f"Unsafe archive member path: {member.name!r}")
+    archive.extractall(extract_to, filter="data")
+
+
 class FileConnector:
     """
     Universal file connector for geospatial data formats.
@@ -498,14 +529,14 @@ class FileConnector:
         try:
             if archive_path.suffix.lower() == ".zip":
                 with zipfile.ZipFile(archive_path, "r") as archive:
-                    archive.extractall(extract_to)
+                    _safe_extract_zip(archive, extract_to)
                     extracted_files = [
                         str(extract_to / name) for name in archive.namelist()
                     ]
 
             elif archive_path.suffix.lower() in [".tar", ".gz", ".bz2", ".xz"]:
                 with tarfile.open(archive_path, "r") as archive:
-                    archive.extractall(extract_to)
+                    _safe_extract_tar(archive, extract_to)
                     extracted_files = [
                         str(extract_to / member.name) for member in archive.getmembers()
                     ]

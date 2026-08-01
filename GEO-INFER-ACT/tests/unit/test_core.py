@@ -5,6 +5,7 @@ Tests for GEO-INFER-ACT core functionality.
 import os
 import sys
 import unittest
+import pytest
 import numpy as np
 
 # Add parent directory to path
@@ -568,6 +569,7 @@ class TestGenerativeModel(unittest.TestCase):
         self.assertTrue(np.allclose(np.sum(parent.beliefs["states"]), 1.0))
         self.assertTrue(np.allclose(np.sum(child.beliefs["states"]), 1.0))
 
+    @pytest.mark.slow
     def test_integrate_rxinfer(self):
         """Test RxInfer integration with a deterministic local backend."""
         model_spec = """ # Julia code for model """

@@ -16,6 +16,7 @@ from geo_infer_act.runners import (
 )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("scenario", SCENARIO_NAMES)
 def test_each_scenario_writes_manifest_schema_data_and_visualization(
     scenario: str, tmp_path: Path
