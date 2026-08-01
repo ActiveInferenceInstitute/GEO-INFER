@@ -6,6 +6,7 @@ Unit tests for the PlaceArt class in geo_infer_art.core.place.place_art.
 import os
 import tempfile
 import unittest
+import pytest
 from unittest.mock import patch
 
 from geo_infer_art.core.place.place_art import PlaceArt
@@ -70,6 +71,7 @@ class TestPlaceArt(unittest.TestCase):
         self.assertIsNotNone(place_art.image)
 
     @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_place_data")
+    @pytest.mark.slow
     def test_from_place_name(self, mock_fetch):
         """Test creating PlaceArt from a place name."""
         # Mock the data fetching
@@ -144,6 +146,7 @@ class TestPlaceArt(unittest.TestCase):
         except Exception as e:
             self.fail(f"show() method raised an error: {str(e)}")
 
+    @pytest.mark.slow
     def test_different_styles(self):
         """Test creating place art with different styles."""
         styles = ["abstract", "topographic", "cultural", "mixed_media"]

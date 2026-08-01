@@ -7,6 +7,7 @@ import os
 import tempfile
 import unittest
 import numpy as np
+import pytest
 
 from geo_infer_art.core.generation.generative_map import GenerativeMap
 
@@ -98,6 +99,7 @@ class TestGenerativeMap(unittest.TestCase):
         except Exception as e:
             self.fail(f"Named region retrieval failed: {str(e)}")
 
+    @pytest.mark.slow
     def test_different_styles(self):
         """Test generating maps with different styles."""
         styles = ["contour", "flow", "particles", "contour_flow"]
