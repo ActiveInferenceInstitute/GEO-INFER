@@ -42,13 +42,11 @@ class TestH3Methods(unittest.TestCase):
         self.boundary = {
             "coordinates": [
                 [
-                    [
-                        [-122.435, 37.765],
-                        [-122.435, 37.795],
-                        [-122.405, 37.795],
-                        [-122.405, 37.765],
-                        [-122.435, 37.765],
-                    ]
+                    [-122.435, 37.765],
+                    [-122.435, 37.795],
+                    [-122.405, 37.795],
+                    [-122.405, 37.765],
+                    [-122.435, 37.765],
                 ]
             ]
         }
@@ -134,7 +132,7 @@ class TestH3Methods(unittest.TestCase):
                 ]
             ]
         }
-        model.enable_h3_spatial(8, small_boundary)
+        model.enable_h3_spatial(11, small_boundary)  # r=11: tiny box yields 4 cells
         observation = np.zeros(model.state_dim)
         observation[0] = 1.0
 

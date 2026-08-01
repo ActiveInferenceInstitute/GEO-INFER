@@ -213,6 +213,7 @@ class TestH3ActiveInference(unittest.TestCase):
                         msg="Coastal gradient not reflected in vegetation density",
                     )
 
+    @pytest.mark.slow
     def test_export_and_reproducibility(self):
         """Test simulation export and reproducibility."""
         # Create a temporary output directory

@@ -180,6 +180,7 @@ def _assert_h3_lattice_animation(result, *, expected_timesteps: int) -> None:
 
 
 @pytest.mark.parametrize("scenario", ["h3", "spatial"])
+@pytest.mark.slow
 def test_geospatial_scenarios_emit_complete_data_and_visualizations(
     scenario: str, tmp_path: Path
 ) -> None:
@@ -306,6 +307,7 @@ def test_geospatial_scenarios_emit_complete_data_and_visualizations(
     assert "spatial_research_statistics_schema" in summary
 
 
+@pytest.mark.slow
 def test_geospatial_manifest_references_only_existing_files(tmp_path: Path) -> None:
     result = run_scenario(
         RunConfig(
@@ -325,6 +327,7 @@ def test_geospatial_manifest_references_only_existing_files(tmp_path: Path) -> N
 
 
 @pytest.mark.parametrize("scenario", ["h3", "spatial"])
+@pytest.mark.slow
 def test_geospatial_visualizations_have_metadata_and_data_sidecars(
     scenario: str, tmp_path: Path
 ) -> None:
@@ -370,6 +373,7 @@ def test_geospatial_visualizations_have_metadata_and_data_sidecars(
 
 
 @pytest.mark.parametrize("scenario", ["h3", "spatial"])
+@pytest.mark.slow
 def test_research_profile_produces_non_degenerate_spatial_statistics(
     scenario: str, tmp_path: Path
 ) -> None:
@@ -399,6 +403,7 @@ def test_research_profile_produces_non_degenerate_spatial_statistics(
     assert statistics["policy"]["switch_count"] >= 1
 
 
+@pytest.mark.slow
 def test_spatial_active_inference_gallery_emits_four_manifested_runs(
     tmp_path: Path,
 ) -> None:
