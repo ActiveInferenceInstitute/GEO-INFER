@@ -20,6 +20,7 @@ Core workspace within `GEO-INFER-SPACE`.
 - `statistics.py`
 - `unified_backend.py`
 - `visualization_engine.py`
+- `visualization_receipt.py`
 
 ## Public Interface
 

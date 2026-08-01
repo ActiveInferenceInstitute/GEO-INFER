@@ -22,6 +22,8 @@
 ## Local Contents
 
 - `test_abm.py`
+- `test_mesa_bridge.py`
+- `test_scenario_manager.py`
 - `test_simulation_engine.py`
 
 ## Validation

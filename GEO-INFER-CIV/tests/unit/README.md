@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-CIV`.
 
 ## Contents
 
+- `test_acceptance_civ.py`
 - `test_civ_init.py`
 - `test_civic_engagement.py`
 - `test_core.py`

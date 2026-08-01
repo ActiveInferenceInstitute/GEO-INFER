@@ -19,7 +19,6 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 - `docker-compose.yml`
 - `pyproject.toml`
 - `requirements.txt`
-- `test.log`
 
 ## Public Interface
 

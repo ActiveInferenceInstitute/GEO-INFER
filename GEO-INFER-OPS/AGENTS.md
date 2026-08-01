@@ -36,7 +36,6 @@
 - `docker-compose.yml`
 - `pyproject.toml`
 - `requirements.txt`
-- `test.log`
 
 ## Validation
 

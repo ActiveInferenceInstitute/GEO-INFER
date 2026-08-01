@@ -5,6 +5,7 @@ Unit workspace within `GEO-INFER-DATA`.
 ## Contents
 
 - `test_api.py`
+- `test_archive_safety.py`
 - `test_caching.py`
 - `test_cloud_connectors.py`
 - `test_compression.py`

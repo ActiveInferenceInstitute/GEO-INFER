@@ -17,6 +17,7 @@ Unit workspace within `GEO-INFER-ACT`.
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_h3_adapter.py`
+- `test_h3_viz_integration.py`
 - `test_inference_hardening.py`
 - `test_markov_decision_process.py`
 - `test_model_contracts.py`

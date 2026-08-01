@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-SEC`.
 
 ## Contents
 
+- `test_acceptance_sec.py`
 - `test_access_control.py`
 - `test_audit.py`
 - `test_audit_logging.py`

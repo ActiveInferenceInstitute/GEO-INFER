@@ -5,6 +5,7 @@ Core workspace within `GEO-INFER-SIM`.
 ## Contents
 
 - `__init__.py`
+- `mesa_bridge.py`
 - `simulation_engine.py`
 
 ## Public Interface

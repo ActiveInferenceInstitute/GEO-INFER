@@ -8,7 +8,7 @@ GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, act
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 894 |
-| Python test files | 489 |
+| Python test files | 500 |
 | Repository README.md files | 849 |
 | Repository AGENTS.md files | 848 |
 
@@ -64,7 +64,7 @@ the exact reproducible exception list.
 
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
-| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 31 |
+| `GEO-INFER-ACT` | `geo_infer_act` | 42 | 32 |
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
 | `GEO-INFER-AGENT` | `geo_infer_agent` | 25 | 13 |
 | `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
@@ -74,14 +74,14 @@ the exact reproducible exception list.
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 8 |
 | `GEO-INFER-BAYES` | `geo_infer_bayes` | 33 | 18 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
-| `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 6 |
+| `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 7 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
 | `GEO-INFER-COG` | `geo_infer_cog` | 20 | 13 |
 | `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 8 |
-| `GEO-INFER-DATA` | `geo_infer_data` | 23 | 19 |
+| `GEO-INFER-DATA` | `geo_infer_data` | 23 | 20 |
 | `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 13 |
 | `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 7 |
-| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 7 |
+| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 8 |
 | `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 9 |
 | `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 4 | 5 |
 | `GEO-INFER-FOREST` | `geo_infer_forest` | 11 | 8 |
@@ -92,21 +92,21 @@ the exact reproducible exception list.
 | `GEO-INFER-LOG` | `geo_infer_log` | 19 | 9 |
 | `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 8 |
 | `GEO-INFER-MATH` | `geo_infer_math` | 66 | 16 |
-| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 12 |
-| `GEO-INFER-NORMS` | `geo_infer_norms` | 19 | 8 |
+| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 13 |
+| `GEO-INFER-NORMS` | `geo_infer_norms` | 19 | 9 |
 | `GEO-INFER-OPS` | `geo_infer_ops` | 23 | 12 |
-| `GEO-INFER-ORG` | `geo_infer_org` | 8 | 6 |
+| `GEO-INFER-ORG` | `geo_infer_org` | 8 | 7 |
 | `GEO-INFER-PEP` | `geo_infer_pep` | 33 | 9 |
 | `GEO-INFER-PLACE` | `geo_infer_place` | 29 | 14 |
-| `GEO-INFER-REQ` | `geo_infer_req` | 8 | 6 |
+| `GEO-INFER-REQ` | `geo_infer_req` | 8 | 7 |
 | `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 13 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 10 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 34 |
-| `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 16 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 35 |
+| `GEO-INFER-SPM` | `geo_infer_spm` | 26 | 17 |
 | `GEO-INFER-TEST` | `geo_infer_test` | 14 | 23 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 15 | 13 |
-| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 7 |
+| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 8 |
 | `GEO-INFER-WATER` | `geo_infer_water` | 11 | 7 |
 
 ## Modular Hygiene

@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_acceptance_metagov.py`
 - `test_accountability.py`
 - `test_adaptation.py`
 - `test_advanced_analysis.py`

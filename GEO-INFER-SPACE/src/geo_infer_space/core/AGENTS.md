@@ -37,6 +37,7 @@
 - `statistics.py`
 - `unified_backend.py`
 - `visualization_engine.py`
+- `visualization_receipt.py`
 
 ## Validation
 
