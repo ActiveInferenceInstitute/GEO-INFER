@@ -286,35 +286,57 @@ class ModelComparison:
 
         return ll_matrix
 
-    def _loo_comparison(self, model: Any, data: Any) -> Dict[str, float]:
-        """Naive leave-one-out cross-validation over pointwise log-likelihoods.
+    def _loo_comparison(self, model: Any, data: Any) -> Dict[str, Any]:
+        """Pareto-smoothed importance-sampling LOO (PSIS-LOO, Vehtari et al. 2017).
 
-        This computes the (approximate) LOO via log-mean-exp of the posterior
-        predictive log-likelihood matrix — **not** Pareto-smoothed importance
-        sampling (PSIS-LOO). Do not present these values as PSIS-LOO k-hat
-        diagnostics; treating them as such would overstate the method.
-
-        Uses the log-sum-exp trick for numerical stability.
+        Uses ``arviz.stats.stats.psislw`` on the pointwise log-likelihood
+        matrix and the same elpd/p_loo/se formulas as arviz's ``loo``. Falls
+        back to naive log-mean-exp LOO (labelled ``naive-loo``) only when
+        arviz is unavailable.
         """
         ll_matrix = self._pointwise_log_likelihoods(model, data)
         n_samples, n_obs = ll_matrix.shape
 
-        # Compute per-observation ELPD using the log predictive density
-        elpd_i = np.zeros(n_obs)
-        for j in range(n_obs):
-            # log mean exp of log-likelihoods across posterior samples
-            max_ll = np.max(ll_matrix[:, j])
-            elpd_i[j] = max_ll + np.log(np.mean(np.exp(ll_matrix[:, j] - max_ll)))
+        try:
+            from arviz.stats.stats import psislw
+            from scipy.special import logsumexp
 
-        elpd_loo = float(np.sum(elpd_i))
-        se = float(np.sqrt(n_obs * np.var(elpd_i)))
-        p_loo = float(np.sum(np.var(ll_matrix, axis=0)))
+            # arviz loo semantics: psislw expects (n_obs, n_samples) — the
+            # LAST dimension is samples — and returns (smoothed_log_weights,
+            # pareto_shape). Verified numerically against az.loo.
+            ll_t = ll_matrix.T
+            log_weights_t, pareto_k = psislw(-ll_t, reff=1.0)
+            elpd_loo_i = logsumexp(log_weights_t + ll_t, axis=1)
+            # Normalized log predictive density (log of the mean).
+            lpd_i = logsumexp(ll_t, axis=1) - np.log(n_samples)
+            elpd_loo = float(np.sum(elpd_loo_i))
+            p_loo = float(np.sum(lpd_i) - elpd_loo)
+            se = float(np.sqrt(n_obs * np.var(elpd_loo_i)))
+            return {
+                "elpd_loo": elpd_loo,
+                "p_loo": p_loo,
+                "se": se,
+                "method": "psis-loo",
+                "pareto_k_max": float(np.max(pareto_k)) if len(pareto_k) else 0.0,
+            }
+        except ImportError:
+            # Naive LOO fallback (no PSIS smoothing).
+            elpd_i = np.zeros(n_obs)
+            for j in range(n_obs):
+                max_ll = np.max(ll_matrix[:, j])
+                elpd_i[j] = max_ll + np.log(np.mean(np.exp(ll_matrix[:, j] - max_ll)))
 
-        return {
-            "elpd_loo": elpd_loo,
-            "p_loo": p_loo,
-            "se": se,
-        }
+            elpd_loo = float(np.sum(elpd_i))
+            se = float(np.sqrt(n_obs * np.var(elpd_i)))
+            p_loo = float(np.sum(np.var(ll_matrix, axis=0)))
+
+            return {
+                "elpd_loo": elpd_loo,
+                "p_loo": p_loo,
+                "se": se,
+                "method": "naive-loo",
+                "pareto_k_max": 0.0,
+            }
 
     def _waic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
         """Widely Applicable Information Criterion (Watanabe 2010).
