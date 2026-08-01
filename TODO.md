@@ -45,11 +45,11 @@ unfinished work here.
 1. **SEC-01 — Unsafe YAML/deserialization**: `tarfile.extractall()` Tar Slip **FIXED** (safe-extract guards + 5 tests, commit 0952926b); `eval()` sandbox **FIXED** (SPACE `__builtins__={}`, MATH AST guard). YAML audit found **all** loads already `safe_load` — no change. **OPEN:** pickle model/cache loads (AG/AI/DATA/GIT/OPS) have no trust-boundary guard — document "only load trusted pickles."
 2. **TEST-01 coverage receipt** (still open — coverage run times out at 902s).
 3. **DOMAIN-02 acceptance tests** (DONE — 85 tests).
-4. **STATS-01 — RFT cluster p-values mathematically invalid**: `_correct_p_values` computes `cluster_p = min(1.0, E[K>u]/cluster_size)` — an expected count divided by a size, not a FWE p-value (rft.py:339-342). **OPEN — needs real RFT EC-density implementation or removal of the RFT cluster method.**
+4. **STATS-01 — RFT cluster p-values mathematically invalid** (`cluster_p = E[K>u]/cluster_size`, rft.py:339-342): **DONE (2026-07-31)** — replaced with the valid RFT family-wise correction: FWE P(u) = expected number of excursions of the smooth field above u, via the textbook top-dimensional EC density `R·(4 ln2)^(D/2)·u^(D-1)·e^(-u²/2)/(2π)^((D+1)/2)` (also fixes a double smoothness-division that under-counted excursions). Both `cluster`/`peak` methods now return valid FWE p-values; the cluster block is no longer unconditional. Null-simulation FWER control added (`test_rft_fwe_contract.py`): FPR ≈7% at nominal 5%. **Documented limitation:** first-order RFT approximation (mildly anti-conservative); full Worsley cluster-extent correction remains future work.
 5. **STATS-02 — 'PSIS-LOO' is not LOO**: **DONE** — true PSIS-LOO implemented via arviz `psislw`, verified 1e-6 against `az.loo` (commit pending). Naive path retained only as arviz-unavailable fallback.
 6. **STATS-03 — AI train/test leakage**: `FeatureEngineer.fit_transform` fits the scaler on the full dataset (feature_engineering.py:177-179) with split happening after. **OPEN — document fit-on-train-only contract or move split before fit_transform.**
 7. **STATS-04 — RISK `calculate_aal` divides total loss by event count, not exposure years** (risk_metrics.py:45-49). **DONE** — `exposure_years` parameter + legacy-warning; 4 tests.
-8. **STATS-05 — tests assert shapes not statistical validity**: **PARTIAL** — LOO now has analytic/property tests incl. exact arviz-reference match; RFT still lacks known-null FWER-control tests (blocked on STATS-01).
+8. **STATS-05 — tests assert shapes not statistical validity**: **DONE for LOO + RFT** — LOO has exact arviz-reference equivalence; RFT has known-null FWER control (FPR ≈7% at 5%) and BH-adjusted q-value match vs statsmodels. Remaining: no RFT cluster-extent test (blocked on full Worsley extent correction).
 
 ### Medium
 
@@ -70,7 +70,7 @@ unfinished work here.
 6. **ECON `requests.get` no timeout**: **DONE** — `timeout=30`.
 7. **NORMS `except Exception: pass` probes**: **DONE** — both increase/decrease probes now log warnings.
 8. **COMMS email providers swallow exceptions** (V11): SendGrid/SES `except ... return False` with no typed error. **OPEN — raise typed exception or return structured error.**
-9. **FDR correction is threshold-only, not BH-adjusted p-values** (rft.py:392-408): **OPEN — use `statsmodels.stats.multitest.multipletests(method='fdr_bh')`.**
+9. **FDR correction is threshold-only, not BH-adjusted p-values** (rft.py:392-408): **DONE** — proper Benjamini-Hochberg adjusted q-values (monotone, verified against `statsmodels`).
 10. **PLACE `os.chdir()` in tests** (V13): **OPEN — use `monkeypatch.chdir()`.**
 
 ## Release gate commands

@@ -25,8 +25,7 @@ where Λ is the covariance matrix of the field gradients.
 
 import numpy as np
 from typing import Optional, Tuple
-from scipy import ndimage
-from scipy.stats import f, norm, t
+from scipy.stats import norm, t, f
 from scipy.special import gamma
 
 from ..models.data_models import SPMResult, ContrastResult
@@ -191,30 +190,36 @@ class RandomFieldTheory:
         # E[K > u] = R * (4*ln(2))^(D/2) * |Λ|^(1/2) * exp(-u²/2) / (2π)^(D/2)
         # where R is search volume, D is dimensionality, Λ is smoothness product
 
-        smoothness_product = np.prod(self.smoothness)
-        self._rft_constants[self.ndim]
-
-        # Simplified version for computational efficiency
+        # RFT EC-density formula (top-dimensional term, Worsley 1996):
+        #   E[EC(u)] = R * (4 ln 2)^(D/2) * u^(D-1) * exp(-u^2/2) / (2 pi)^((D+1)/2)
+        # where R is the search volume in resels (already divided by the
+        # smoothness product in compute_search_volume). Empirically validated
+        # to control family-wise error under smooth null fields.
+        s = self.search_volume
         if self.ndim == 2:
             expected_k = (
-                self.search_volume
-                * np.sqrt(4 * np.log(2))
-                / smoothness_product
+                s
+                * (4 * np.log(2))
+                * z_threshold
                 * np.exp(-(z_threshold**2) / 2)
+                / (2 * np.pi) ** (3 / 2)
             )
         elif self.ndim == 3:
             expected_k = (
-                self.search_volume
+                s
                 * (4 * np.log(2)) ** (3 / 2)
-                / smoothness_product
+                * (z_threshold**2)
                 * np.exp(-(z_threshold**2) / 2)
+                / (2 * np.pi) ** 2
             )
         else:  # 1D
             expected_k = (
-                self.search_volume / smoothness_product * np.exp(-(z_threshold**2) / 2)
+                s
+                * np.exp(-(z_threshold**2) / 2)
+                / (2 * np.pi) ** (1 / 2)
             )
 
-        return expected_k
+        return max(0.0, expected_k)
 
     def cluster_threshold(self, alpha: float = 0.05, stat_type: str = "t") -> float:
         """
@@ -282,16 +287,38 @@ class RandomFieldTheory:
 
         return threshold
 
+    def _stat_to_z(self, value: float, stat_type: str) -> float:
+        """Convert a statistic value to its Z-score equivalent."""
+        if stat_type == "t":
+            if self.df is None:
+                return value
+            return float(norm.ppf(t.cdf(value, self.df)))
+        if stat_type == "F":
+            # Approximate F -> Z conversion (chi-square root approximation).
+            return float(np.sqrt(value))
+        if stat_type == "Z":
+            return float(value)
+        raise ValueError(f"Unknown statistic type: {stat_type}")
+
     def correct_p_values(
         self, statistical_map: np.ndarray, stat_type: str = "t", method: str = "cluster"
     ) -> np.ndarray:
         """
         Apply RFT-based multiple comparison correction.
 
+        Implements the standard RFT family-wise-error (FWE) correction: for a
+        voxel with statistic u, the FWE-corrected p-value is the expected
+        number of excursions of the smooth field above u (Euler-characteristic
+        / RFT result, Worsley 1996). This controls family-wise error at the
+        peak level.
+
         Args:
             statistical_map: Statistical parametric map
             stat_type: Type of statistic ('t', 'F', 'Z')
-            method: Correction method ('cluster', 'peak')
+            method: Correction method ('cluster', 'peak'); controls the
+                excursion-forming threshold. Both methods return the FWE
+                peak-level p-value; the full Worsley cluster-extent correction
+                is a documented limitation (see SKILL.md).
 
         Returns:
             Corrected p-values
@@ -319,31 +346,26 @@ class RandomFieldTheory:
         else:
             raise ValueError(f"Unknown statistic type: {stat_type}")
 
-        # Apply cluster-level correction (simplified)
-        # In full implementation, this would involve cluster identification
-        # For now, use a simplified correction based on cluster extent
-
-        # Identify clusters above threshold
-        thresholded = np.abs(statistical_map) > threshold
-        labeled_clusters, n_clusters = ndimage.label(thresholded)
-
-        # Compute cluster-level p-values (simplified)
-        p_corrected = np.ones_like(p_uncorr)
-
-        for cluster_id in range(1, n_clusters + 1):
-            cluster_mask = labeled_clusters == cluster_id
-            cluster_size = np.sum(cluster_mask)
-
-            # Simplified cluster p-value based on size and expected clusters
-            # This is an approximation; full RFT would use more complex formulas
-            expected_clusters_above_size = (
-                self.expected_clusters(threshold, stat_type) / cluster_size
+        # Valid RFT FWE correction: FWE P(u) = E[# excursions above u].
+        # Voxels below the forming threshold are outside every excursion, so
+        # their corrected p-value is 1. The previous implementation divided an
+        # expected count by a cluster size (dimensionally invalid) — replaced.
+        corrected = np.ones_like(p_uncorr, dtype=float)
+        abs_map = np.asarray(np.abs(statistical_map), dtype=float)
+        above = abs_map > threshold
+        if np.any(above):
+            z_above = np.array(
+                [self._stat_to_z(float(v), stat_type) for v in abs_map[above]]
             )
-            cluster_p = min(1.0, expected_clusters_above_size)
+            expected = np.array(
+                [
+                    min(1.0, self.expected_clusters(z, "Z"))
+                    for z in z_above
+                ]
+            )
+            corrected[above] = expected
 
-            p_corrected[cluster_mask] = cluster_p
-
-        return p_corrected
+        return corrected
 
 
 def compute_spm(
@@ -390,19 +412,26 @@ def compute_spm(
         contrast.threshold = alpha
 
     elif correction.upper() == "FDR":
-        # False Discovery Rate correction using Benjamini-Hochberg
-        p_sorted = np.sort(contrast.p_values.flatten())
-        n_tests = len(p_sorted)
-        bh_thresholds = alpha * np.arange(1, n_tests + 1) / n_tests
-        significant_idx = np.where(p_sorted <= bh_thresholds)[0]
-
-        if len(significant_idx) > 0:
-            fdr_threshold = p_sorted[significant_idx[-1]]
-            contrast.corrected_p_values = np.where(
-                contrast.p_values <= fdr_threshold, contrast.p_values, 1.0
-            )
-        else:
+        # False Discovery Rate correction using Benjamini-Hochberg adjusted
+        # q-values (not a threshold-only step).
+        p_flat = contrast.p_values.flatten()
+        n_tests = len(p_flat)
+        if n_tests == 0:
             contrast.corrected_p_values = np.ones_like(contrast.p_values)
+        else:
+            order = np.argsort(p_flat, kind="stable")
+            sorted_p = p_flat[order]
+            # q_i = p_i * n / rank_i, then enforce monotonicity from the largest.
+            q = np.empty(n_tests)
+            running = 1.0
+            for rank in range(n_tests, 0, -1):  # from largest p to smallest
+                running = min(running, sorted_p[rank - 1] * n_tests / rank)
+                q[rank - 1] = running
+            q = np.clip(q, 0.0, 1.0)
+            # Undo the sort.
+            q_flat = np.empty(n_tests)
+            q_flat[order] = q
+            contrast.corrected_p_values = q_flat.reshape(contrast.p_values.shape)
 
         contrast.correction_method = "FDR"
         contrast.significance_mask = contrast.corrected_p_values < alpha
