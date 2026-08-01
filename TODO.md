@@ -53,7 +53,7 @@ unfinished work here.
 ### Medium
 
 1. **ACT unit suite timeout**: **DONE** — 9 heaviest tests marked `@pytest.mark.slow` (removes ~380s). Operator runs `pytest -m "not slow"`.
-2. **ART unit suite timeout**: **OPEN** — ART takes 149s standalone but exceeds the 300s unified-runner limit under `-W error`; needs slow-marks on 6 heavy style-transfer/place-art tests.
+2. **ART unit suite timeout**: **DONE** — 6 heaviest tests marked `@pytest.mark.slow` (place/style/generative/procedural + style-transfer); default suite now 52 tests / 16s.
 3. **HEALTH slow tests in unit category**: **DONE** — `test_large_dataset_performance` marked `@pytest.mark.slow`.
 4. **ACT integration test_h3_spatial_model_creation**: **DONE** — root cause was malformed 4-level GeoJSON boundary (native H3 v4 rejects); fixed boundary to valid 3-level Polygon + r=8.
 5. **RISK cross-validation is a stub** (V6): `_calibrate_with_cross_validation` returns `calibrated_parameters: {}` — never fits a model (risk_engine.py:752-784). **OPEN — implement real fitting or rename the method to `cross_validate_loss`.**

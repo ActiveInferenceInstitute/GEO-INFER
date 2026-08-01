@@ -6,6 +6,7 @@ Unit tests for the ProceduralArt class in geo_infer_art.core.generation.procedur
 import os
 import tempfile
 import unittest
+import pytest
 from pathlib import Path
 from PIL import Image
 
@@ -82,6 +83,7 @@ class TestProceduralArt(unittest.TestCase):
         self.assertEqual(proc_art.params["iterations"], 3)
         self.assertIsNotNone(proc_art.image)
 
+    @pytest.mark.slow
     def test_from_geo_features(self):
         """Test creating ProceduralArt from geographic features."""
         # Test basic creation

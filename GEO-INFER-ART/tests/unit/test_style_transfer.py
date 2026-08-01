@@ -7,6 +7,7 @@ import os
 import tempfile
 import unittest
 import numpy as np
+import pytest
 import geopandas as gpd
 from shapely.geometry import Polygon
 from PIL import Image
@@ -110,6 +111,7 @@ class TestStyleTransfer(unittest.TestCase):
         style_transfer.load_style_image(pil_image)
         self.assertIsNotNone(style_transfer.style_image)
 
+    @pytest.mark.slow
     def test_apply_style_transfer(self):
         """Test applying style transfer to geospatial data."""
         # Skip test if TensorFlow is not available
@@ -136,6 +138,7 @@ class TestStyleTransfer(unittest.TestCase):
         except Exception as e:
             self.fail(f"Style transfer test failed: {str(e)}")
 
+    @pytest.mark.slow
     def test_apply_with_custom_weights(self):
         """Test applying style transfer with custom weights."""
         # Skip test if TensorFlow is not available
