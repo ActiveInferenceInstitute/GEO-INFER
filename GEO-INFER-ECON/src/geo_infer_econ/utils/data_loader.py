@@ -196,7 +196,9 @@ class EconomicDataLoader:
         headers = config.authentication or {}
         params = config.parameters or {}
 
-        response = requests.get(config.location, headers=headers, params=params)
+        response = requests.get(
+            config.location, headers=headers, params=params, timeout=30
+        )
 
         if response.status_code != 200:
             raise ConnectionError(f"API request failed: {response.status_code}")

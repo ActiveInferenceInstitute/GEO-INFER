@@ -259,17 +259,17 @@ class TestSocialNormDiffusionAcceptance:
     def test_content_influence_uses_jaccard(self):
         """Content factor adoption uses Jaccard similarity over attribute keys."""
         model = SocialNormDiffusion()
-        model.add_entity("e1", attributes={"env", "climate"}, adoption_threshold=0.0)
-        model.add_entity("e2", attributes={"env"}, adoption_threshold=0.0)
+        model.add_entity("e1", attributes={"env": 1, "climate": 1}, adoption_threshold=0.0)
+        model.add_entity("e2", attributes={"env": 1}, adoption_threshold=0.0)
         # Norm attributes overlap 'env' with e1 (intersection 1, union 2 → 0.5)
         # and fully overlap with e2 (intersection 1, union 1 → 1.0).
         model.add_norm("n1", "Green", initial_adopters=[],
                        spatial_factor=0.0, network_factor=0.0, content_factor=1.0,
-                       attributes={"env"})
+                       attributes={"env": 1})
         prob_e1 = model.calculate_adoption_probability("n1", "e1")
         prob_e2 = model.calculate_adoption_probability("n1", "e2")
-        assert prob_e2 == 1.0  # full overlap
-        assert prob_e1 == 0.5  # half overlap
+        assert prob_e2 == pytest.approx(1.0)  # full overlap
+        assert prob_e1 == pytest.approx(0.5)  # half overlap
 
     def test_adoption_summary_counts(self):
         """The adoption summary reports adopted/total per norm."""
@@ -280,7 +280,7 @@ class TestSocialNormDiffusionAcceptance:
         summary = model.get_adoption_summary()
         assert summary["n1"]["adopted_count"] == 2
         assert summary["n1"]["total_count"] == 3
-        assert summary["n1"]["adoption_rate"] == round(2 / 3, 4) if summary["n1"]["total_count"] else 0
+        assert summary["n1"]["adoption_rate"] == pytest.approx(2 / 3)
 
 
 # ---------------------------------------------------------------------------

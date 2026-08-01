@@ -9,8 +9,43 @@ import numpy as np
 from typing import List, Tuple, Dict, Optional, Any
 import logging
 import warnings
+import ast
 
 logger = logging.getLogger(__name__)
+
+# numpy members that reach the filesystem or pickle; expressions must not
+# invoke them from the eval namespace.
+_UNSAFE_NUMPY_MEMBERS = {
+    "load",
+    "loads",
+    "loadtxt",
+    "genfromtxt",
+    "fromfile",
+    "fromstring",
+    "memmap",
+    "save",
+    "saves",
+    "savetxt",
+    "savez",
+    "savez_compressed",
+    "tofile",
+    "dumps",
+}
+
+
+def _reject_unsafe_numpy_access(expression: str) -> None:
+    """Raise ValueError if the expression reaches an unsafe numpy member."""
+    try:
+        tree = ast.parse(expression, mode="eval")
+    except SyntaxError:
+        return
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr in _UNSAFE_NUMPY_MEMBERS:
+            raise ValueError(f"Unsafe numpy member in expression: np.{node.attr}")
+        if isinstance(node, ast.Call):
+            func = node.func
+            if isinstance(func, ast.Name) and func.id in _UNSAFE_NUMPY_MEMBERS:
+                raise ValueError(f"Unsafe call in expression: {func.id}")
 
 
 class SymbolicMath:
@@ -555,6 +590,9 @@ class SymbolicMath:
                         f"Cannot numerically evaluate descriptor: {expression.get('type')}"
                     )
                 if isinstance(expression, str):
+                    # Reject numpy members that reach the filesystem or
+                    # pickle (np.load can unpickle arbitrary objects).
+                    _reject_unsafe_numpy_access(expression)
                     return float(
                         eval(
                             expression, {"np": np, "__builtins__": {}}, variable_values

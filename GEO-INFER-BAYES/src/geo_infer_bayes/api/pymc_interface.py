@@ -161,6 +161,7 @@ class PyMCInterface:
         chains: int = 4,
         cores: int = None,
         sampler: str = "nuts",
+        random_seed: Optional[int] = 42,
         **kwargs,
     ) -> az.InferenceData:
         """
@@ -178,6 +179,8 @@ class PyMCInterface:
             Number of cores to use
         sampler : str, default='nuts'
             Sampler to use: 'nuts', 'metropolis'
+        random_seed : int, optional, default=42
+            Seed for the sampler so traces are reproducible
         **kwargs : dict
             Additional parameters for the sampler
 
@@ -192,7 +195,12 @@ class PyMCInterface:
         with self.pymc_model:
             if sampler == "nuts":
                 self.trace = pm.sample(
-                    draws=n_samples, tune=n_warmup, chains=chains, cores=cores, **kwargs
+                    draws=n_samples,
+                    tune=n_warmup,
+                    chains=chains,
+                    cores=cores,
+                    random_seed=random_seed,
+                    **kwargs,
                 )
             elif sampler == "metropolis":
                 self.trace = pm.sample(
@@ -201,6 +209,7 @@ class PyMCInterface:
                     chains=chains,
                     cores=cores,
                     step=pm.Metropolis(),
+                    random_seed=random_seed,
                     **kwargs,
                 )
             else:

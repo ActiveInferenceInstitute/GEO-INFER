@@ -79,6 +79,7 @@ class BayesianSPM:
         priors: Optional[Dict[str, Any]] = None,
         n_samples: int = 1000,
         n_tune: int = 1000,
+        random_seed: int = 42,
     ) -> SPMResult:
         """
         Fit Bayesian GLM using MCMC sampling.
@@ -89,6 +90,7 @@ class BayesianSPM:
             priors: Prior specifications for parameters
             n_samples: Number of MCMC samples
             n_tune: Number of tuning samples
+            random_seed: Seed for the MCMC sampler (deterministic traces)
 
         Returns:
             SPMResult with Bayesian parameter estimates
@@ -97,7 +99,9 @@ class BayesianSPM:
             priors = self._default_priors(design_matrix.shape[1])
 
         if PYMC3_AVAILABLE and self.model_type != "empirical_bayes":
-            return self._fit_pymc3_glm(data, design_matrix, priors, n_samples, n_tune)
+            return self._fit_pymc3_glm(
+                data, design_matrix, priors, n_samples, n_tune, random_seed
+            )
         else:
             return self._fit_empirical_bayes_glm(data, design_matrix, priors)
 
@@ -121,6 +125,7 @@ class BayesianSPM:
         priors: Dict[str, Any],
         n_samples: int,
         n_tune: int,
+        random_seed: int = 42,
     ) -> SPMResult:
         """Fit GLM using PyMC3 MCMC sampling."""
         y = data.data.flatten() if data.data.ndim > 1 else data.data
@@ -150,7 +155,12 @@ class BayesianSPM:
             _likelihood = pm.Normal("y", mu=mu, sigma=sigma, observed=y)
 
             # Sample from posterior
-            trace = pm.sample(n_samples, tune=n_tune, return_inferencedata=True)
+            trace = pm.sample(
+                n_samples,
+                tune=n_tune,
+                return_inferencedata=True,
+                random_seed=random_seed,
+            )
 
         # Extract posterior samples
         beta_samples = np.column_stack(

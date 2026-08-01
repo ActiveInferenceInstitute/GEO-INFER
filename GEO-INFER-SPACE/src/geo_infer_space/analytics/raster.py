@@ -139,7 +139,10 @@ def map_algebra(
                 profile.update(dtype=rasterio.float32, nodata=nodata_value)
     
     # Create namespace for expression evaluation
-    namespace = {**bands, 'np': np, 'nodata': nodata_value}
+    # '__builtins__' is locked down so expressions cannot reach
+    # importers/subprocess/file primitives; only the raster bands,
+    # numpy, and the nodata sentinel are in scope.
+    namespace = {**bands, "np": np, "nodata": nodata_value, "__builtins__": {}}
     
     try:
         # Evaluate expression
