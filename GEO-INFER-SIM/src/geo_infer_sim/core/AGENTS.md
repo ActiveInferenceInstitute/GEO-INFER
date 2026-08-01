@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `mesa_bridge.py`
 - `simulation_engine.py`
 
 ## Validation

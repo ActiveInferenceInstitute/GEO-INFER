@@ -6,6 +6,7 @@ Tests workspace within `GEO-INFER-EMERGENCY`.
 
 - `integration/`
 - `conftest.py`
+- `test_acceptance_emergency.py`
 - `test_awareness.py`
 - `test_coordinator.py`
 - `test_evacuation.py`

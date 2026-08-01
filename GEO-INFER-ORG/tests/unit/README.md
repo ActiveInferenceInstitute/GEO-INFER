@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-ORG`.
 
 ## Contents
 
+- `test_acceptance_org.py`
 - `test_collaboration.py`
 - `test_core.py`
 - `test_governance.py`

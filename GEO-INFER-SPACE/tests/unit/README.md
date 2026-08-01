@@ -26,8 +26,10 @@ Unit workspace within `GEO-INFER-SPACE`.
 - `test_spatiotemporal.py`
 - `test_temporal_analytics.py`
 - `test_unified_backend.py`
+- `test_unified_backend_geojson_seam.py`
 - `test_unified_comprehensive.py`
 - `test_visualization_engine.py`
+- `test_visualization_receipts.py`
 
 ## Public Interface
 

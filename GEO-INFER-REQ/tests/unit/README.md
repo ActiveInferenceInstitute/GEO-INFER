@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-REQ`.
 
 ## Contents
 
+- `test_acceptance_req.py`
 - `test_core.py`
 - `test_req_init.py`
 - `test_requirements.py`

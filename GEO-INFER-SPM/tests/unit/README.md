@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-SPM`.
 
 ## Contents
 
+- `test_acceptance_spm.py`
 - `test_advanced_models.py`
 - `test_bayesian.py`
 - `test_contrasts.py`

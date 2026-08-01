@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-NORMS`.
 
 ## Contents
 
+- `test_acceptance_norms.py`
 - `test_compliance_tracking.py`
 - `test_legal_frameworks.py`
 - `test_models.py`

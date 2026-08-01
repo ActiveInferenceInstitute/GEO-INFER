@@ -22,11 +22,12 @@
 ## Local Contents
 
 - `__init__.py`
+- `test_acceptance_transport.py`
 
 ## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/run_unified_tests.py --module TRANSPORT
+uv run python -m pytest GEO-INFER-TRANSPORT/tests/unit
 ```
 
 
