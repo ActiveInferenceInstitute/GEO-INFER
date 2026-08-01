@@ -38,6 +38,7 @@ class TestLogModule:
             from geo_infer_log.core.routing import RouteOptimizer
             assert RouteOptimizer is not None
         except ImportError:
-            # Module may not be fully implemented yet
-            pass
+            # The routing module must exist — a missing import is a loud
+            # failure, not a silent skip.
+            raise
 

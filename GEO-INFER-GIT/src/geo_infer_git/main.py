@@ -254,16 +254,20 @@ def main():
                     for repo in user_repos:
                         repo_name = repo.get("name", "")
                         repo_path = os.path.join(
-                            clone_config["general"]["output_dir"], 
-                            username, 
-                            repo_name
+                            clone_config["general"]["output_dir"],
+                            username,
+                            repo_name,
                         )
-                        success = os.path.exists(repo_path)
-                        
-                        user_result['repos'].append({
-                            'name': repo_name,
-                            'success': success
-                        })
+                        # A clone is only successful when a real git repo
+                        # exists (has .git), not merely an empty/partial dir
+                        # left behind by an interrupted clone.
+                        success = os.path.isdir(repo_path) and os.path.isdir(
+                            os.path.join(repo_path, ".git")
+                        )
+
+                        user_result["repos"].append(
+                            {"name": repo_name, "success": success}
+                        )
                     
                     results['target_users'].append(user_result)
                 except Exception as e:

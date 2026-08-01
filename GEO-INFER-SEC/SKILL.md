@@ -48,7 +48,10 @@ print(f"Confidence: {result.confidence_score}")  # Real computed value
 
 ## Guidelines
 
-- `confidence_score` uses real `calculated_confidence` — not hardcoded
+- `confidence_score` is computed from calibrated constituent signals (base
+  risk weights + correlation bonuses). The weights are heuristics and are
+  explicitly documented here — they are not claimed to be empirically
+  calibrated.
 
 ### Integrations
 

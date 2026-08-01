@@ -503,6 +503,10 @@ class LocalFileBackend:
 
     def _find_data_file(self, data_id: str) -> Optional[Path]:
         """Find data file by ID."""
+        # Reject glob metacharacters and path separators so data_id can never
+        # widen the search (e.g. data_id='*' or '../').
+        if not data_id or any(ch in data_id for ch in "*?[]/\\"):
+            raise ValueError(f"Invalid data_id for lookup: {data_id!r}")
         matches = sorted(self.base_path.rglob(f"{data_id}.*"))
         for file_path in matches:
             if file_path.suffix != ".json":

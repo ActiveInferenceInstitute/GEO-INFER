@@ -258,7 +258,16 @@ class ModernToolsIntegration:
                 except Exception as e:
                     results[method] = {"error": str(e), "success": False}
 
-            return {"status": "success", "results": results, "tool": "bayeux"}
+            # Report per-method results; the top-level status reflects whether
+            # each requested method succeeded, not just that the fan-out ran.
+            all_ok = bool(results) and all(
+                r.get("success", False) for r in results.values()
+            )
+            return {
+                "status": "success" if all_ok else "partial",
+                "results": results,
+                "tool": "bayeux",
+            }
 
         except Exception as e:
             logger.error(f"Bayeux integration failed: {e}")
