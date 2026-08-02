@@ -222,7 +222,10 @@ def test_command(path: Path, module: ModuleInfo | None) -> str:
             for candidate in tracked_files()
             if candidate.parent == path.parent
             and candidate.suffix == ".py"
-            and (candidate.name.startswith("test_") or candidate.name.endswith("_test.py"))
+            and (
+                candidate.name.startswith("test_")
+                or candidate.name.endswith("_test.py")
+            )
         ]
         if not test_files and module:
             return (
@@ -745,12 +748,46 @@ def render_root_readme(
         for module in modules.values()
     )
     theme_groups = [
-        ("🌍 Spatial & Place-based", ["SPACE", "PLACE", "TIME", "MARINE", "WATER", "FOREST", "CLIMATE", "ENERGY", "TRANSPORT", "EMERGENCY"]),
-        ("🧠 Bayesian & Active Inference", ["BAYES", "SIM", "SPM", "COG", "ACT", "MATH"]),
+        (
+            "🌍 Spatial & Place-based",
+            [
+                "SPACE",
+                "PLACE",
+                "TIME",
+                "MARINE",
+                "WATER",
+                "FOREST",
+                "CLIMATE",
+                "ENERGY",
+                "TRANSPORT",
+                "EMERGENCY",
+            ],
+        ),
+        (
+            "🧠 Bayesian & Active Inference",
+            ["BAYES", "SIM", "SPM", "COG", "ACT", "MATH"],
+        ),
         ("🤖 Agents & AI Orchestration", ["AGENT", "AG", "AI", "ANT", "OPS", "COMMS"]),
-        ("🏛️ Governance, Risk & Domain", ["RISK", "METAGOV", "NORMS", "ECON", "PEP", "REQ", "SEC", "CIV", "HEALTH", "ORG"]),
+        (
+            "🏛️ Governance, Risk & Domain",
+            [
+                "RISK",
+                "METAGOV",
+                "NORMS",
+                "ECON",
+                "PEP",
+                "REQ",
+                "SEC",
+                "CIV",
+                "HEALTH",
+                "ORG",
+            ],
+        ),
         ("🗄️ Data, API & Applications", ["API", "APP", "DATA", "IOT", "ART", "EDU"]),
-        ("🛠️ Infrastructure & Validation", ["INTRA", "TEST", "LOG", "GIT", "EXAMPLES", "BIO"]),
+        (
+            "🛠️ Infrastructure & Validation",
+            ["INTRA", "TEST", "LOG", "GIT", "EXAMPLES", "BIO"],
+        ),
     ]
     name_set = {m.name for m in modules.values()}
     theme_rows = []
