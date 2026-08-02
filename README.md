@@ -1,6 +1,29 @@
 # GEO-INFER Framework
 
-GEO-INFER is a 44-module geospatial inference monorepo for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![uv workspaces](https://img.shields.io/badge/uv-workspace-4C65F6?logo=astral&logoColor=white)](pyproject.toml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ActiveInferenceInstitute/GEO-INFER/ci.yml?branch=main&label=CI)](.github/workflows/ci.yml)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](LICENSE)
+[![Active Inference Institute](https://img.shields.io/badge/Active_Inference_Institute-6C3483?style=flat)](https://activeinference.org)
+
+**GEO-INFER** is a 44-module **geospatial inference monorepo** from the
+Active Inference Institute — spatial analysis, Active Inference, Bayesian modeling,
+domain modeling, agent workflows, and reproducible repository validation in one
+`uv`/Python workspace.
+
+> Build geospatial and place-based models, run Active-Inference and Bayesian
+> inference over them, orchestrate agents and domain workflows, and keep the
+> whole thing reproducible — served from a [user documentation hub](GEO-INFER-INTRA/docs/index.md)
+> backed by an auto-generated, validation-gated [module catalog](GEO-INFER-INTRA/docs/modules/index.md).
+
+## What's inside
+
+- 🧭 **Spatial & place-based analysis** — geospatial data, H3 grids, place & time modeling, and Earth-system domains (water, marine, forest, climate, energy, transport, emergency).
+- 🧠 **Active Inference & Bayesian modeling** — Active-Inference agents and Bayesian models (Bayes, simulation, SPM, cognition, math).
+- 🤖 **Agent & AI orchestration** — agent workflows, AI/LLM integration, communications, and operations.
+- 🏛️ **Governance, risk & domain modeling** — risk, meta-governance, norms, economics, policy, security, health, and civil domains.
+- 🗄️ **Data, API & applications** — data pipelines, APIs, applications, IoT, art, and education.
+- 🛠️ **Infrastructure & validation** — documentation hub (INTRA), the validation & test harness, logging, git, examples, and bio.
 
 ## Current Repository Facts
 
@@ -59,6 +82,17 @@ uv sync --package geo-infer-ant
 quality, and documentation dependencies. CI intentionally omits native-only
 extras that cannot build on its CPU runner; see `.github/workflows/ci.yml` for
 the exact reproducible exception list.
+
+## Module Themes
+
+| Theme | Modules |
+| --- | --- |
+| 🌍 Spatial & Place-based | `GEO-INFER-SPACE`, `GEO-INFER-PLACE`, `GEO-INFER-TIME`, `GEO-INFER-MARINE`, `GEO-INFER-WATER`, `GEO-INFER-FOREST`, `GEO-INFER-CLIMATE`, `GEO-INFER-ENERGY`, `GEO-INFER-TRANSPORT`, `GEO-INFER-EMERGENCY` |
+| 🧠 Bayesian & Active Inference | `GEO-INFER-BAYES`, `GEO-INFER-SIM`, `GEO-INFER-SPM`, `GEO-INFER-COG`, `GEO-INFER-ACT`, `GEO-INFER-MATH` |
+| 🤖 Agents & AI Orchestration | `GEO-INFER-AGENT`, `GEO-INFER-AG`, `GEO-INFER-AI`, `GEO-INFER-ANT`, `GEO-INFER-OPS`, `GEO-INFER-COMMS` |
+| 🏛️ Governance, Risk & Domain | `GEO-INFER-RISK`, `GEO-INFER-METAGOV`, `GEO-INFER-NORMS`, `GEO-INFER-ECON`, `GEO-INFER-PEP`, `GEO-INFER-REQ`, `GEO-INFER-SEC`, `GEO-INFER-CIV`, `GEO-INFER-HEALTH`, `GEO-INFER-ORG` |
+| 🗄️ Data, API & Applications | `GEO-INFER-API`, `GEO-INFER-APP`, `GEO-INFER-DATA`, `GEO-INFER-IOT`, `GEO-INFER-ART`, `GEO-INFER-EDU` |
+| 🛠️ Infrastructure & Validation | `GEO-INFER-INTRA`, `GEO-INFER-TEST`, `GEO-INFER-LOG`, `GEO-INFER-GIT`, `GEO-INFER-EXAMPLES`, `GEO-INFER-BIO` |
 
 ## Module Index
 
