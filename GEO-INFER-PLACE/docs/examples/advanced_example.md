@@ -20,6 +20,7 @@ uv pip install -e ./GEO-INFER-PLACE
 
 ## Step 1: Initialize Cascadia Analysis
 
+```
 ```python
 from geo_infer_place import PlaceInterface, latlng_to_cell, grid_disk, cell_to_latlng
 import numpy as np
@@ -44,6 +45,7 @@ print(f"Analyzers: {status['available_analyzers']}")
 
 Create an H3 grid spanning the focus area at resolution 7 (~5.16 km2 per cell).
 
+```
 ```python
 # Define focus area bounds
 bounds = {
@@ -78,6 +80,7 @@ for cell in cells:
 
 Query real-time data from federal agency APIs.
 
+```
 ```python
 # Seismic activity
 cascadia_seismicity = pi.get_cascadia_seismicity(days=90)
@@ -103,6 +106,7 @@ for key in ["temperature", "humidity", "wind_speed"]:
 
 For each H3 cell, compute indicators across four domains: watershed, forest, wildlife, and human wellbeing.
 
+```
 ```python
 np.random.seed(42)
 
@@ -177,6 +181,7 @@ for domain, values in scores.items():
 
 Classify cells into conservation categories based on composite health.
 
+```
 ```python
 # Sort by composite health
 ranked = sorted(health_data, key=lambda d: d["composite_health"])
@@ -221,6 +226,7 @@ for cell_info in ranked[:10]:
 
 Identify which domain is weakest in each priority area to guide targeted intervention.
 
+```
 ```python
 print(f"\nDomain Deficiency Analysis (Critical cells):")
 domain_deficiency_count = {"watershed": 0, "forest": 0, "wildlife": 0, "wellbeing": 0}
@@ -245,6 +251,7 @@ else:
 
 ## Step 7: Summary Report
 
+```
 ```python
 composite_arr = np.array(scores["composite"])
 

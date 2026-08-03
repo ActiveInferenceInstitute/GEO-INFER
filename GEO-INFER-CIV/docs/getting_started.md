@@ -16,7 +16,7 @@ uv pip install -e ./GEO-INFER-CIV ./GEO-INFER-SPACE ./GEO-INFER-ECON ./GEO-INFER
 
 ### Dependencies
 
-GEO-INFER-CIV requires Python 3.9+ with standard library only for core functionality. No heavy dependencies are needed for the engagement, participation, and policy analysis classes.
+GEO-INFER-CIV requires Python 3.11+ (the workspace target) with standard library only for core functionality. No heavy dependencies are needed for the engagement, participation, and policy analysis classes.
 
 Optional dependencies for spatial and data integration:
 

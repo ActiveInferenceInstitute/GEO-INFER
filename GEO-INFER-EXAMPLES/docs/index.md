@@ -1,4 +1,10 @@
 # GEO-INFER Examples Gallery
+> **Historical analysis document.** This file is an assessment-era analysis
+> (June 2025) and may not reflect the current repository state. Treat its
+> metrics, API sketches, and integration claims as historical; verify against
+> the current module sources, `GEO-INFER-TEST/` validators, and the INTRA
+> documentation hub before relying on them.
+
 
 > Working code examples demonstrating GEO-INFER capabilities across all domains.
 
@@ -24,7 +30,7 @@ This gallery covers every example shipped in the `GEO-INFER-EXAMPLES` module, or
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.11+
 - [uv](https://github.com/astral-sh/uv) package manager
 - GEO-INFER repository cloned locally
 
@@ -43,6 +49,7 @@ uv run python examples/<category>/<example_name>/scripts/run_example.py
 
 ### Quick Verification
 
+```
 ```bash
 # Run the basic integration demo to verify your setup
 uv pip install -e ./GEO-INFER-EXAMPLES
@@ -68,6 +75,7 @@ Examples suitable for first-time users who want to understand how GEO-INFER modu
   - Basic spatial data structures
   - Running an analysis pipeline end-to-end
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-SPACE ./GEO-INFER-DATA ./GEO-INFER-MATH
 uv run python GEO-INFER-EXAMPLES/examples/getting_started/basic_integration_demo/scripts/run_example.py
@@ -90,6 +98,7 @@ Multi-module examples that integrate domain-specific analysis with spatial infra
   - Agricultural domain analysis patterns
   - Time-series integration with spatial grids
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-AG ./GEO-INFER-SPACE ./GEO-INFER-DATA \
   ./GEO-INFER-IOT ./GEO-INFER-TIME
@@ -107,6 +116,7 @@ uv run python GEO-INFER-EXAMPLES/examples/agriculture_integration/precision_farm
   - Bayesian cluster detection
   - Temporal outbreak pattern recognition
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-HEALTH ./GEO-INFER-SPACE ./GEO-INFER-DATA \
   ./GEO-INFER-BAYES ./GEO-INFER-TIME
@@ -126,6 +136,7 @@ uv run python GEO-INFER-EXAMPLES/examples/health_integration/disease_surveillanc
   - Spatial interpolation techniques
   - Risk model integration
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-IOT ./GEO-INFER-SPACE ./GEO-INFER-DATA \
   ./GEO-INFER-RISK
@@ -149,6 +160,7 @@ uv run python GEO-INFER-EXAMPLES/examples/iot_radiation_monitoring/scripts/run_e
   - Bayesian uncertainty quantification
   - Environmental gradient analysis
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-CLIMATE ./GEO-INFER-BIO ./GEO-INFER-SPACE \
   ./GEO-INFER-DATA ./GEO-INFER-BAYES
@@ -181,6 +193,7 @@ Full-scale examples involving interactive dashboards, complex multi-module pipel
   - Multi-scale H3 analysis (resolution 7-11)
   - Community-engaged data collection patterns
 
+```
 ```bash
 uv pip install -e ./GEO-INFER-SPACE ./GEO-INFER-DATA ./GEO-INFER-PLACE \
   ./GEO-INFER-PEP ./GEO-INFER-IOT ./GEO-INFER-BIO ./GEO-INFER-HEALTH \
@@ -197,6 +210,7 @@ Each of the 44 GEO-INFER modules has a dedicated orchestrator example under `exa
 
 ### Running an Orchestrator
 
+```
 ```bash
 # General pattern
 uv pip install -e ./GEO-INFER-<MODULE>
@@ -312,6 +326,7 @@ examples/<category>/<example_name>/
 
 ### Adding a New Example
 
+```
 ```bash
 # 1. Create the directory structure
 mkdir -p GEO-INFER-EXAMPLES/examples/<category>/<example_name>/scripts
