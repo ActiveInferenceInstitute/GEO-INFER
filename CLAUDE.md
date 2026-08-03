@@ -19,14 +19,11 @@ GEO-INFER is a 44-module geospatial inference framework implementing Active Infe
 ## Build & Development Commands
 
 ```bash
-# Install a specific module (editable)
-uv pip install -e ./GEO-INFER-MATH
+# Synchronize the shared workspace and all package extras
+uv sync --all-packages --all-extras
 
-# Install multiple modules
-uv pip install -e ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-ACT
-
-# Install with optional extras
-uv pip install -e "./GEO-INFER-AI[dev,docs]"
+# Synchronize one workspace package when a focused check needs it
+uv sync --package geo-infer-math
 ```
 
 ## Testing
@@ -64,34 +61,29 @@ Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `a
 ## Code Quality
 
 ```bash
-# Format
-black GEO-INFER-MODULE/src/
+# Lint and format changed Python files with the repository's preferred tool
+uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-MODULE/src/
+uv run --with 'ruff>=0.3.0' ruff format --check GEO-INFER-MODULE/src/
 
-# Sort imports
-isort GEO-INFER-MODULE/src/
-
-# Type check
-mypy GEO-INFER-MODULE/src/
-
-# Lint changed files or a module
-uv run ruff check GEO-INFER-MODULE/src/
-
-# Format check
-uv run black --check GEO-INFER-MODULE/src/
+# Type check when the owning module provides a mypy contract
+uv run mypy GEO-INFER-MODULE/src/
 ```
 
-Configuration: Black line-length 88, isort profile "black", mypy strict mode. All configured in root `pyproject.toml`.
+Ruff is the preferred lint/format tool for changed Python files. The root
+`pyproject.toml` remains the source of truth for any module-specific formatter
+or type-check configuration.
 
 ## Architecture
 
 ### Module Layout
 
-Every module follows this package structure:
+Most modules use a structure similar to the following; inspect the owning
+module before assuming an optional directory or export exists:
 
 ```text
 GEO-INFER-MODULE/
 ├── src/geo_infer_module/
-│   ├── __init__.py      # Exports with graceful try/except imports
+│   ├── __init__.py      # Public exports (module-specific)
 │   ├── core/            # Core algorithms and logic
 │   ├── models/          # Data models
 │   ├── api/             # API endpoints/interfaces
@@ -99,13 +91,13 @@ GEO-INFER-MODULE/
 ├── tests/
 │   ├── unit/
 │   └── integration/
-├── examples/            # Working, runnable examples
+├── examples/            # Examples; verify each one before running
 ├── pyproject.toml
 ├── requirements.txt
 ├── README.md            # Module overview and usage
 ├── AGENTS.md            # Agent capabilities and integration
 ├── SKILL.md             # Claude Code skill (auto-discovered)
-└── .cursorrules         # Optional module-specific dev rules (extends root)
+└── .cursorrules         # Optional module-specific development rules
 ```
 
 ### Module Categories

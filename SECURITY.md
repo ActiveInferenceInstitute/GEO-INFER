@@ -1,69 +1,41 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported |
-|---------|-----------|
-| Main / unreleased | ✅ Yes — security fixes are evaluated against the current workspace |
-| 0.2.x | ✅ Yes — latest published beta line |
-| 0.1.x and earlier | ❌ No — upgrade before reporting a version-specific issue |
+GEO-INFER is a continuously developed monorepo. Security fixes are evaluated
+against the current `main` branch and the dependency lockfile in the checkout.
+There are no version-specific support promises in this repository; consumers
+should update to the current default branch before reporting or assessing a
+fix.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-We take security seriously. If you discover a security vulnerability, please report it responsibly.
+Please do not open a public GitHub issue for a security vulnerability. Use
+[GitHub Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability)
+for this repository and include:
 
-### How to Report
+- A concise description of the vulnerability.
+- Reproduction steps or a minimal proof of concept.
+- Potential impact and affected modules or commands.
+- Relevant environment and dependency information (without secrets).
+- A suggested fix, if available.
 
-1. **Do NOT** open a public GitHub issue for security vulnerabilities
-2. Use [GitHub Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability) or email the Active Inference Institute security team
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Affected GEO-INFER modules
-   - Suggested fix (if any)
+The maintainers will acknowledge reports and provide status updates as the
+investigation permits. Response and remediation time depends on severity,
+reproducibility, and maintainer availability; this policy does not promise a
+fixed response-time SLA.
 
-### Response Timeline
+## Security practices for contributors and users
 
-- **Initial Response**: Within 48 hours
-- **Status Update**: Within 7 days
-- **Fix Timeline**: Depends on severity
-  - Critical: 24-72 hours
-  - High: 1-2 weeks
-  - Medium: 1 month
-  - Low: Next release
+1. Keep dependencies reproducible with `uv sync` and review lockfile changes.
+2. Use environment variables or a secret manager for sensitive configuration;
+   never commit credentials or tokens.
+3. Validate untrusted input, paths, coordinate values, and output locations.
+4. Follow least privilege when deploying integrations or services.
+5. Treat detailed location data as potentially sensitive and apply appropriate
+   anonymization, access controls, and jurisdictional requirements.
 
-### Security Best Practices
-
-When using GEO-INFER:
-
-1. **Keep dependencies reproducible** - use `uv sync` and review lockfile changes
-2. **Use environment variables** for sensitive configuration
-3. **Validate inputs** when processing external data
-4. **Follow least privilege** when deploying services
-
-## Known Security Considerations
-
-### GEO-INFER-SEC Module
-
-The GEO-INFER-SEC module provides security utilities:
-
-- Authentication and authorization
-- Data encryption
-- Audit logging
-- Access control
-
-See [GEO-INFER-SEC/README.md](./GEO-INFER-SEC/README.md) for details.
-
-### Geospatial Data Privacy
-
-When working with geospatial data:
-
-- Be aware of privacy implications of location data
-- Anonymize sensitive location information
-- Follow [GDPR](https://gdpr.eu/) and local regulations
-- Use differential privacy techniques when appropriate
-
----
-
-*Last Updated: 2026-07-15*
+The GEO-INFER-SEC module contains security-related utilities, but its current
+exports and coverage should be checked in
+[GEO-INFER-SEC/README.md](./GEO-INFER-SEC/README.md) before relying on a
+specific capability.

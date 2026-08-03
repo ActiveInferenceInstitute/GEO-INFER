@@ -179,3 +179,62 @@ geospatial/data_formats/h3/h3_{mobility_analysis,comparative_analysis}.md.
 - `git diff --check`: clean. PLACE test change: py_compile verified.
 - Heavy suites not run (docs-only pass; no behavioral code changes beyond the
   PLACE test path parameterization).
+
+## First and second passes
+
+The earlier entries in this file record the repository-wide documentation
+reflow, link repair, SRAI provenance, historical assessment cleanup, and
+source-backed tutorial repairs.
+
+## Third pass (continued)
+
+### Findings and repairs
+
+1. **Residual Markdown fences** — the 24 files identified after the second
+   pass were repaired with a conservative state machine. Reopen-while-open
+   markers, detached language tags, formula blocks, and heading boundaries now
+   render as separate Markdown blocks. Literal prose examples that discuss
+   backtick syntax remain intentionally inline.
+2. **Fabricated INTRA workflow API** — `docs/api/workflow.md` claimed a REST
+   service and JavaScript client although `core/workflow/` contains only its
+   package marker. The page now states the implementation status and links to
+   conceptual workflow guidance without presenting a proposed API as current.
+3. **Fabricated Knowledge Base interfaces** — `user_guide/knowledge_base_usage.md`
+   claimed a web server, CLI subcommands, and `KnowledgeBaseClient`, none of
+   which exist. It now documents the actual Markdown article tree, repository
+   search, contribution path, and validator command.
+4. **Legacy facade examples** — `geo-infer-space.md` was rewritten from the
+   actual `geo_infer_space.__init__` exports: interfaces, H3 helpers, dispatcher,
+   optional components, and `PlaceAnalyzer`. Thirty-one other legacy INTRA
+   pages containing `SpatialAnalyzer`, `EnvironmentalMonitoringModel`, or
+   similar non-public facades gained an explicit illustrative/non-executable
+   notice.
+5. **Root guidance drift** — CLAUDE.md now uses `uv sync`, ruff, and the real
+   workspace contract rather than standalone `uv pip install`, Black/isort,
+   and an assumed module layout. SKILL.md's fabricated cross-module imports
+   were replaced by a source-backed SPACE H3 example. PAI.md was reduced to the
+   actual seven-phase methodology and removed unsupported historical fleet
+   metrics. SECURITY.md no longer promises unsupported release lines or fixed
+   response SLAs. CHANGELOG.md no longer links to nonexistent Git tags.
+6. **External links** — 561 unique URLs were checked outside fenced blocks.
+   Concrete repository-owned or clearly stale URLs were repaired (malformed
+   trailing URL token, historical Landsat citation, OS-Climate links, Esri
+   coordinate-system link, and `example.com` cookbook endpoint). Upstream
+   citations and sites returning 403 to automated requests remain citations;
+   they are not repository link failures.
+7. **Stale module prerequisites** — remaining Python 3.9 claims in EDU and
+   EMERGENCY getting-started pages were corrected to the repository's 3.11+
+   target. A sweep of all module README/SKILL files found no remaining old
+   Python, PyPI, fake-organization, `SpatialAnalyzer`, or
+   `EnvironmentalMonitoringModel` claims.
+
+### Third-pass verification targets
+
+- Fence diagnosis: all 24 residual files structurally clean; two literal fence
+  mentions in DOCUMENTATION_STANDARDS.md intentionally remain prose.
+- Fence-aware internal link audit: 0 MAJOR / 0 MEDIUM at the prior checkpoint;
+  rerun after final edits.
+- External URL audit: 561 unique URLs checked; status caveats recorded above.
+- Root and module documentation claims were checked against source exports and
+  tracked paths.
+- Full repository gates are run after generated signposts are refreshed.

@@ -1,5 +1,11 @@
 # GEO-INFER-FOREST: Forest Management Module
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 > **Purpose**: Forest monitoring, deforestation detection, and sustainable forestry
 >
 > This module provides forest management capabilities including health monitoring, biomass estimation, fire risk assessment, and integration with Active Inference principles.

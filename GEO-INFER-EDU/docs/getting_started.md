@@ -16,7 +16,7 @@ uv pip install -e ./GEO-INFER-EDU ./GEO-INFER-SPACE ./GEO-INFER-DATA
 
 ### Dependencies
 
-GEO-INFER-EDU requires Python 3.9+ with:
+GEO-INFER-EDU requires Python 3.11+ with:
 
 - `pyyaml` -- Curriculum configuration loading
 - Standard library (`datetime`, `dataclasses`, `enum`)

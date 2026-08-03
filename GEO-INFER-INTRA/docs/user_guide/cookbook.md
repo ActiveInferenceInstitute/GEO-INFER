@@ -45,7 +45,10 @@ python from geo_infer_space import raster import numpy as np # Load raster data 
  ## Data Integration ### Loading and Transforming Data
 ```
 ```python
- from geo_infer_data import datasets, transformations import pandas as pd # Load dataset from various sources climate_data = datasets.load_dataset( source="path/to/climate_data.nc", variables=["temperature", "precipitation"] ) # Load from remote source remote_data = datasets.load_dataset( source="https://example.com/api/data", source_type="api", api_key="your_api_key" ) # Transform data transformed = transformations.normalize_variables( climate_data, variables=["temperature"] ) # Join datasets joined = datasets.join_datasets( left=climate_data, right=remote_data, on="location_id", how="inner" ) # Filter dataset filtered = datasets.filter_dataset( joined, filter_expr="temperature > 25 and precipitation < 10" ) # Export to standard format datasets.export_dataset( filtered, output_path="filtered_data.nc", format="netcdf" )
+ from geo_infer_data import datasets, transformations import pandas as pd # Load dataset from various sources climate_data = datasets.load_dataset( source="path/to/climate_data.nc", variables=["temperature", "precipitation"] ) # Load from remote source remote_data = datasets.load_dataset(
+    source="path/to/remote_data.nc",
+    source_type="file",
+) # Transform data transformed = transformations.normalize_variables( climate_data, variables=["temperature"] ) # Join datasets joined = datasets.join_datasets( left=climate_data, right=remote_data, on="location_id", how="inner" ) # Filter dataset filtered = datasets.filter_dataset( joined, filter_expr="temperature > 25 and precipitation < 10" ) # Export to standard format datasets.export_dataset( filtered, output_path="filtered_data.nc", format="netcdf" )
 ```
  ### Working with Common Data Sources
 ```
