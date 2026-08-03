@@ -445,7 +445,7 @@ class SpatialAnalyzer:
         return best_bandwidth
 
     def spatial_basis_functions(
-        self, n_basis: int = 10, basis_type: str = "gaussian"
+        self, n_basis: int = 10, basis_type: str = "gaussian", random_seed: Optional[int] = None
     ) -> np.ndarray:
         """
         Generate spatial basis functions for modeling spatial variation.
@@ -453,16 +453,26 @@ class SpatialAnalyzer:
         Args:
             n_basis: Number of basis functions
             basis_type: Type of basis functions ('gaussian', 'polynomial')
+            random_seed: Optional seed for reproducible Gaussian center
+                selection. When ``None`` (default) the legacy behaviour is
+                kept: the global ``np.random`` state is seeded with 42.
 
         Returns:
             Basis function matrix (n_points x n_basis)
         """
         if basis_type == "gaussian":
             # Random Gaussian basis functions
-            np.random.seed(42)  # For reproducibility
-            centers = self.coordinates[
-                np.random.choice(len(self.coordinates), size=n_basis, replace=False)
-            ]
+            if random_seed is None:
+                np.random.seed(42)  # legacy reproducibility path
+                center_indices = np.random.choice(
+                    len(self.coordinates), size=n_basis, replace=False
+                )
+            else:
+                rng = np.random.default_rng(random_seed)
+                center_indices = rng.choice(
+                    len(self.coordinates), size=n_basis, replace=False
+                )
+            centers = self.coordinates[center_indices]
             scale = np.std(self.coordinates) / np.sqrt(n_basis)
 
             basis = np.zeros((len(self.coordinates), n_basis))

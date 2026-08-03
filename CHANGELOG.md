@@ -57,6 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BAYES module**: Full-rank variational inference now uses a scalar Cholesky covariance approximation; vector-valued full-rank parameters raise a clear `ValueError`, while mean-field inference remains available for vector parameters.
 - **COMMS module**: REST models now use the repository's Pydantic v2/FastAPI contract, preserve intentional HTTP errors, and isolate per-instance CORS configuration.
 - **Repository toolchain**: Module-level mypy configurations now target the supported Python 3.11 baseline consistently.
+- **REPRO-01 (SPM)**: The SPM module's global-state RNG usage is migrated to a seed-threaded pattern. `geolibre`-style helpers (`_resolve_rng`) let `generate_coordinates`, `generate_synthetic_data`, `create_spatial_basis_functions`, and `compute_power_analysis` accept an optional `random_seed` and produce reproducible output via `np.random.default_rng`, while the default keeps the legacy global `np.random` path so existing callers are unaffected. `ModelValidator` now owns a per-instance `default_rng` instead of mutating process-wide state. 8 reproducibility tests added (`test_helpers_reproducibility.py`); full SPM suite green.
+- **SEC-02b (pickle trust boundary)**: GEO-INFER-DATA storage and caching modules now document the pickle-load trust boundary — only deserialise pickles written by the repository's own layers, and require an integrity check for untrusted payloads.
+- **Algorithm registry API**: GEO-INFER-API exposes the processing algorithm registry as REST endpoints (`GET/POST /api/v1/algorithms[...]/run`), with a graceful 503 when `geo_infer_space` is not importable. 7 endpoint tests added (`test_algorithms_router.py`).
 
 ### Fixed
 

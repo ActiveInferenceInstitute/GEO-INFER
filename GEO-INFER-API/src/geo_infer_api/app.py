@@ -9,7 +9,11 @@ from fastapi.staticfiles import StaticFiles
 
 from geo_infer_api.core.config import get_settings
 from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
-from geo_infer_api.endpoints import geojson_router, health_router
+from geo_infer_api.endpoints import (
+    algorithms_router,
+    geojson_router,
+    health_router,
+)
 
 # Create FastAPI app
 settings = get_settings()
@@ -37,6 +41,9 @@ main_app.add_middleware(
 # Include routers
 main_app.include_router(health_router.router, tags=["Health"])
 main_app.include_router(geojson_router.router, prefix="/api/v1", tags=["GeoJSON"])
+main_app.include_router(
+    algorithms_router.router, prefix="/api/v1", tags=["Algorithms"]
+)
 
 
 # Custom documentation endpoints

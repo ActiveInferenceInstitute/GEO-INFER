@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-API`.
 
 ## Contents
 
+- `test_algorithms_router.py`
 - `test_config.py`
 - `test_exceptions.py`
 - `test_geojson_helpers.py`

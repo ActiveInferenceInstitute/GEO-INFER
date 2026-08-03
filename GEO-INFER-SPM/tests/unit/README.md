@@ -11,6 +11,7 @@ Unit workspace within `GEO-INFER-SPM`.
 - `test_data_io.py`
 - `test_glm.py`
 - `test_helpers.py`
+- `test_helpers_reproducibility.py`
 - `test_preprocessing.py`
 - `test_rft.py`
 - `test_rft_fwe_contract.py`
