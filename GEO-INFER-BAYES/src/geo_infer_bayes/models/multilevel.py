@@ -165,9 +165,22 @@ class MultilevelModel(BayesianModel):
             return predictions
 
     def posterior_predictive(
-        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        samples: int = 100,
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
-        """Generate posterior predictive samples."""
+        """Generate posterior predictive samples.
+
+        Args:
+            posterior: Fitted posterior object.
+            X: Input coordinates/features (required).
+            samples: Number of posterior predictive samples.
+            random_seed: Optional seed for reproducible noise draws. When
+                ``None`` (default) the legacy global ``np.random`` state is
+                used.
+        """
         if X is None:
             raise ValueError(
                 "X is required for multilevel posterior predictive sampling"
@@ -180,9 +193,14 @@ class MultilevelModel(BayesianModel):
         n_samples = min(samples, len(posterior.samples.get("noise", [1.0])))
         all_samples = []
 
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         for i in range(n_samples):
             noise_sample = posterior.samples.get("noise", [1.0])[i]
-            sample = np.random.normal(predictions, np.sqrt(noise_sample))
+            sample = rng.normal(predictions, np.sqrt(noise_sample))
             all_samples.append(sample)
 
         return np.stack(all_samples)
