@@ -1,1 +1,65 @@
-# Tutorials This section provides step-by-step tutorials for common tasks and use cases with GEO-INFER-INTRA. ## Getting Started Tutorials - [Setting Up GEO-INFER-INTRA](getting_started/setup.md) - [Exploring the Documentation System](getting_started/documentation.md) - [Understanding the Knowledge Base](getting_started/knowledge_base.md) - [Navigating Ontologies](getting_started/ontologies.md) - [Creating Your First Workflow](getting_started/first_workflow.md) ## Ontology Tutorials - [Creating Custom Ontology Extensions](ontology/custom_extension.md) - [Mapping Between Domain Ontologies](ontology/domain_mapping.md) - [Querying Ontologies Programmatically](ontology/programmatic_query.md) - [Visualizing Ontology Relationships](ontology/visualization.md) - [Exporting Ontologies to External Formats](ontology/exporting.md) ## Workflow Tutorials - [Building Data Processing Workflows](workflow/data_processing.md) - [Creating Reusable Workflow Components](workflow/reusable_components.md) - [Implementing Error Handling in Workflows](workflow/error_handling.md) - [Monitoring Workflow Execution](workflow/monitoring.md) - [Optimizing Workflow Performance](workflow/optimization.md) ## Knowledge Base Tutorials - [Contributing to the Knowledge Base](knowledge_base/contributing.md) - [Creating Best Practice Guides](knowledge_base/best_practices.md) - [Writing Effective FAQ Entries](knowledge_base/writing_faqs.md) - [Developing Troubleshooting Guides](knowledge_base/troubleshooting.md) - [Integrating External Documentation](knowledge_base/external_integration.md) ## Integration Tutorials - [Integrating GEO-INFER-INTRA with GEO-INFER-SPACE](integration/space.md) - [Integrating GEO-INFER-INTRA with GEO-INFER-TIME](integration/time.md) - [Integrating GEO-INFER-INTRA with GEO-INFER-API](integration/api.md) - [Integrating GEO-INFER-INTRA with GEO-INFER-OPS](integration/ops.md) - [Integrating GEO-INFER-INTRA with GEO-INFER-APP](integration/app.md) ## Tutorials - [Implementing Custom Documentation Generators](advanced/doc_generators.md) - [Developing Ontology Inference Rules](advanced/inference_rules.md) - [Creating Custom Workflow Node Types](advanced/custom_nodes.md) - [Building Knowledge Base Extensions](advanced/kb_extensions.md) - [Deploying GEO-INFER-INTRA at Scale](advanced/deployment.md) 
+# Tutorials
+
+Step-by-step tutorials for common tasks with GEO-INFER. Each tutorial uses
+real, importable module symbols and can be run from the repository root with
+the shared uv environment.
+
+## Getting Started
+
+- [Setting Up GEO-INFER-INTRA](getting_started/setup.md) — environment and
+  workspace setup.
+- [Installation Guide](../getting_started/installation_guide.md) — reproducible
+  uv installation.
+- [First Analysis](../getting_started/first_analysis.md) — a runnable H3 plus
+  Active Inference workflow.
+- [First Map](../getting_started/first_map.md) — render your first spatial map.
+- [Active Inference Basics](../getting_started/active_inference_basics.md) —
+  categorical beliefs, free energy, and policy selection.
+- [Spatial Analysis Basics](../getting_started/spatial_analysis_basics.md) —
+  core spatial operations.
+
+## Domain Guides
+
+- [Environmental Monitoring Integration](../guides/ENVIRONMENTAL_MONITORING_INTEGRATION.md)
+- [Module Integration Guide](../guides/MODULE_INTEGRATION_GUIDE.md)
+- [UV Migration Guide](../guides/UV_MIGRATION_GUIDE.md)
+
+## Workflow Tutorials
+
+- [Active Inference Workflows](../workflows/active_inference_workflows.md) —
+  end-to-end workflow patterns.
+- [Workflows overview](../workflows/index.md) — workflow concepts and
+  orchestration.
+
+## Ontology Tutorials
+
+- [Ontology modeling](../ontology/ontology_modeling.md) — building and
+  extending ontologies.
+- [Custom rules](../ontology/custom_rules.md) — domain-specific ontology rules.
+- [Reasoning](../ontology/reasoning.md) — inference over ontology graphs.
+- [Ontology visualization](../ontology/visualization.md) — visualizing
+  ontology relationships.
+
+## Knowledge Base
+
+- [Knowledge base overview](../knowledge_base/index.md) — structure and
+  contribution model.
+- [Best practices](../knowledge_base/best_practices/index.md) — data,
+  performance, and workflow guidance.
+
+## Integration Tutorials
+
+- [Integration overview](../integration/index.md) — GEO-INFER module
+  integration patterns.
+- [External systems](../integration/external_systems.md) — integrating with
+  services outside the workspace.
+
+## Advanced Tutorials
+
+- [Performance Optimization](../advanced/performance_optimization.md) — speed
+  up analyses.
+- [Scaling Guide](../advanced/scaling_guide.md) — handle massive datasets.
+- [Custom Models](../advanced/custom_models.md) — build specialized active
+  inference models.
+- [Production Architecture](../advanced/production_architecture.md) — design
+  production-ready systems.
