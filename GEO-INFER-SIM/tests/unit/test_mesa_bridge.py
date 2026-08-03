@@ -6,7 +6,7 @@ against real Mesa models. They are skipped automatically when the optional
 ``mesa`` dependency is not installed, so the rest of the SIM test suite remains
 runnable in a minimal environment.
 
-The acceptance criteria covered here (from TODO.md):
+The acceptance criteria covered here:
 
 * a real Mesa-backed scenario runs,
 * state/metric history is recorded,
