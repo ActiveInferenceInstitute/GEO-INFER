@@ -190,38 +190,38 @@ After execution, verify:
 
 ```bash
 # 1. No broken internal links in key files
-grep -n "\.\.\/" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/index.md | grep "getting_started"
+grep -n "\.\.\/" <repo>/GEO-INFER-INTRA/docs/index.md | grep "getting_started"
 # Expected: 0 results (all fixed to relative without ../)
 
 # 2. License is correct in docs/index.md
-grep "License" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/index.md
+grep "License" <repo>/GEO-INFER-INTRA/docs/index.md
 # Expected: "CC BY-NC-SA 4.0"
 
 # 3. Correct GitHub URLs
-grep "geo-infer/geo-infer-intra" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/index.md
+grep "geo-infer/geo-infer-intra" <repo>/GEO-INFER-INTRA/docs/index.md
 # Expected: 0 results (all replaced)
 
 # 4. All 16 new files exist
-ls /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/getting_started/spatial_analysis_basics.md
-ls /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/getting_started/first_map.md
-ls /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/advanced/performance_optimization.md
-ls /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/support/troubleshooting.md
-ls /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/SKILL.md
+ls <repo>/GEO-INFER-INTRA/docs/getting_started/spatial_analysis_basics.md
+ls <repo>/GEO-INFER-INTRA/docs/getting_started/first_map.md
+ls <repo>/GEO-INFER-INTRA/docs/advanced/performance_optimization.md
+ls <repo>/GEO-INFER-INTRA/docs/support/troubleshooting.md
+ls <repo>/GEO-INFER-INTRA/SKILL.md
 
 # 5. Module catalog covers all 44 modules
-grep -c "GEO-INFER-" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/architecture/module_catalog.md
+grep -c "GEO-INFER-" <repo>/GEO-INFER-INTRA/docs/architecture/module_catalog.md
 # Expected: ≥44
 
 # 6. modules/index.md has updated metadata
-grep "last_updated\|framework_version" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/modules/index.md
+grep "last_updated\|framework_version" <repo>/GEO-INFER-INTRA/docs/modules/index.md
 # Expected: 2026-02-25, 0.2.0
 
 # 7. EXAMPLES module appears in modules index
-grep -i "examples" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/modules/index.md
+grep -i "examples" <repo>/GEO-INFER-INTRA/docs/modules/index.md
 # Expected: at least 1 row with EXAMPLES
 
 # 8. SPM description is correct
-grep "SPM" /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/modules/index.md
+grep "SPM" <repo>/GEO-INFER-INTRA/docs/modules/index.md
 # Expected: "Statistical Parametric Mapping"
 ```
 
