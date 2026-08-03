@@ -7,7 +7,7 @@ This document describes the GeoJSON API endpoints provided by GEO-INFER-API for 
 ## Base URL
 
 ```
-https://api.geo-infer.org/v1/geojson
+/v1/geojson
 ```
 
 ## Endpoints
