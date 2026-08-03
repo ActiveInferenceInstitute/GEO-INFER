@@ -103,7 +103,9 @@ class BayesianSPM:
                 data, design_matrix, priors, n_samples, n_tune, random_seed
             )
         else:
-            return self._fit_empirical_bayes_glm(data, design_matrix, priors)
+            return self._fit_empirical_bayes_glm(
+                data, design_matrix, priors, random_seed=random_seed
+            )
 
     def _default_priors(self, n_regressors: int) -> Dict[str, Any]:
         """Set default prior distributions."""
@@ -209,9 +211,26 @@ class BayesianSPM:
         return result
 
     def _fit_empirical_bayes_glm(
-        self, data: SPMData, design_matrix: np.ndarray, priors: Dict[str, Any]
+        self,
+        data: SPMData,
+        design_matrix: np.ndarray,
+        priors: Dict[str, Any],
+        random_seed: Optional[int] = None,
     ) -> SPMResult:
-        """Fit GLM using empirical Bayes approximation."""
+        """Fit GLM using empirical Bayes approximation.
+
+        Args:
+            data: SPMData containing response and covariates.
+            design_matrix: Design matrix for GLM.
+            priors: Prior specifications for parameters.
+            random_seed: Optional seed for reproducible posterior samples. When
+                ``None`` the legacy global ``np.random`` state is used.
+        """
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         # Use maximum a posteriori (MAP) estimation as approximation
         y = data.data.flatten() if data.data.ndim > 1 else data.data
         X = design_matrix
@@ -251,11 +270,14 @@ class BayesianSPM:
 
         # Generate approximate posterior samples for posterior probability mapping
         try:
-            beta_samples = np.random.multivariate_normal(beta_map, cov_beta, 500)
+            beta_samples = rng.multivariate_normal(beta_map, cov_beta, 500)
         except np.linalg.LinAlgError:
-            beta_samples = beta_map + np.random.randn(500, len(beta_map)) * np.sqrt(
-                np.abs(np.diag(cov_beta))
-            )
+            # Generator uses standard_normal; the legacy module uses randn.
+            if hasattr(rng, "standard_normal"):
+                noise = rng.standard_normal((500, len(beta_map)))
+            else:
+                noise = rng.randn(500, len(beta_map))  # type: ignore[attr-defined]
+            beta_samples = beta_map + noise * np.sqrt(np.abs(np.diag(cov_beta)))
         self.posterior_samples = {
             "beta": beta_samples,
             "sigma": np.full(500, float(np.std(residuals)) or 1.0),
@@ -452,6 +474,7 @@ class BayesianSPM:
         data: SPMData,
         design_matrix: np.ndarray,
         spatial_structure: Dict[str, Any],
+        random_seed: Optional[int] = None,
     ) -> SPMResult:
         """
         Fit spatial hierarchical Bayesian model.
@@ -460,6 +483,9 @@ class BayesianSPM:
             data: SPMData with spatial coordinates
             design_matrix: Design matrix for GLM
             spatial_structure: Spatial correlation structure specification
+            random_seed: Optional seed for reproducible basis selection and
+                posterior samples. When ``None`` the legacy global
+                ``np.random`` state is used.
 
         Returns:
             SPMResult with hierarchical parameter estimates
@@ -471,14 +497,19 @@ class BayesianSPM:
         logger.debug("Spatial hierarchical model uses a simplified approximation")
 
         # Add spatial random effects to design matrix
-        spatial_basis = self._create_spatial_basis(data.coordinates, spatial_structure)
+        spatial_basis = self._create_spatial_basis(
+            data.coordinates, spatial_structure, random_seed=random_seed
+        )
 
         # Augment design matrix
         X_augmented = np.column_stack([design_matrix, spatial_basis])
 
         # Fit using empirical Bayes
         result = self._fit_empirical_bayes_glm(
-            data, X_augmented, self._default_priors(X_augmented.shape[1])
+            data,
+            X_augmented,
+            self._default_priors(X_augmented.shape[1]),
+            random_seed=random_seed,
         )
 
         result.model_diagnostics["spatial_hierarchical"] = True
@@ -487,14 +518,29 @@ class BayesianSPM:
         return result
 
     def _create_spatial_basis(
-        self, coordinates: np.ndarray, spatial_structure: Dict[str, Any]
+        self,
+        coordinates: np.ndarray,
+        spatial_structure: Dict[str, Any],
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
-        """Create spatial basis functions for hierarchical model."""
+        """Create spatial basis functions for hierarchical model.
+
+        Args:
+            coordinates: Spatial coordinates (n_points, 2).
+            spatial_structure: Spatial structure specification.
+            random_seed: Optional seed for reproducible center selection. When
+                ``None`` the legacy global ``np.random`` state is used.
+        """
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         n_points = coordinates.shape[0]
         n_basis = spatial_structure.get("n_basis", min(20, n_points // 10))
 
         # Simple Gaussian basis functions
-        centers = coordinates[np.random.choice(n_points, size=n_basis, replace=False)]
+        centers = coordinates[rng.choice(n_points, size=n_basis, replace=False)]
         scale = spatial_structure.get("scale", np.std(coordinates) / np.sqrt(n_basis))
 
         basis = np.zeros((n_points, n_basis))

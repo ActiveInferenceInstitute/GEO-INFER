@@ -5,11 +5,19 @@ Endpoints workspace within `GEO-INFER-API`.
 ## Contents
 
 - `__init__.py`
+- `algorithms_router.py`
 - `geojson_router.py`
 - `health_router.py`
 
 ## Public Interface
 
+- `algorithms_router.py:AlgorithmParameterOut` (class)
+- `algorithms_router.py:AlgorithmOut` (class)
+- `algorithms_router.py:AlgorithmRunRequest` (class)
+- `algorithms_router.py:AlgorithmRunResponse` (class)
+- `algorithms_router.py:list_algorithms` (function)
+- `algorithms_router.py:get_algorithm` (function)
+- `algorithms_router.py:run_algorithm` (function)
 - `geojson_router.py:MultiPolygonRequest` (class)
 - `geojson_router.py:DistanceRequest` (class)
 - `geojson_router.py:list_collections` (function)
@@ -23,11 +31,6 @@ Endpoints workspace within `GEO-INFER-API`.
 - `geojson_router.py:simplify_polygon_endpoint` (function)
 - `geojson_router.py:check_polygon_contains_point` (function)
 - `geojson_router.py:create_buffer_endpoint` (function)
-- `geojson_router.py:calculate_intersection_endpoint` (function)
-- `geojson_router.py:calculate_union_endpoint` (function)
-- `geojson_router.py:calculate_distance_endpoint` (function)
-- `health_router.py:health_check` (function)
-- `health_router.py:detailed_health_check` (function)
 
 ## Module Metadata
 

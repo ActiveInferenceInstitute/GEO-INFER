@@ -59,7 +59,9 @@ class ModelValidator:
         self.n_bootstraps = n_bootstraps
         self.random_state = random_state
 
-        np.random.seed(random_state)
+        # Reproducible per-instance RNG (unlike the legacy global seed, this
+        # does not mutate process-wide np.random state).
+        self._rng = np.random.default_rng(random_state)
 
     def cross_validate(
         self, model_func, data: SPMData, design_matrix, **model_kwargs
@@ -216,7 +218,7 @@ class ModelValidator:
 
         for i in range(self.n_bootstraps):
             # Bootstrap sample
-            boot_idx = np.random.choice(n_points, size=n_points, replace=True)
+            boot_idx = self._rng.choice(n_points, size=n_points, replace=True)
 
             # Fit model on bootstrap sample
             boot_data = self._subset_data(data, boot_idx)

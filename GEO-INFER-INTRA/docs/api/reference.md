@@ -18,6 +18,7 @@ export, docstring, module README, and tests.
 - Spatial/H3: [SPACE guide](../modules/geo-infer-space.md)
 - Testing: [GEO-INFER-TEST API](../../../GEO-INFER-TEST/docs/api_reference.md)
 - GeoJSON/FastAPI: [GEO-INFER-API docs](../../../GEO-INFER-API/docs/README.md)
+- Algorithm registry API: [GEO-INFER-API algorithms_api](../../../GEO-INFER-API/docs/algorithms_api.md)
 - Cross-module patterns: [integration guide](../integration/index.md)
 
 ## Accuracy rule

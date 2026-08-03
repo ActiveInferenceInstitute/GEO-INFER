@@ -4,6 +4,17 @@ Adaptive data storage system for GEO-INFER-DATA.
 This module provides comprehensive data storage capabilities with adaptive
 optimization based on access patterns, performance requirements, and
 cost considerations.
+
+Security note (pickle trust boundary): several backends in this module
+serialise and deserialise payloads with :mod:`pickle`. Pickle is not a safe
+format for untrusted input — ``pickle.load``/``pickle.loads`` can execute
+arbitrary code during unpickling. Only load pickles that were written by this
+repository's own storage/caching/compression layers from trusted data. Never
+accept a pickle payload from an untrusted ``data_id``, remote response, or
+user upload without an independent integrity check (authenticated encryption
+or a verified HMAC over the payload). The ``data_id`` glob hardening in
+``_find_data_file`` prevents path-widening, but it does not by itself make an
+arbitrary pickle safe to load.
 """
 
 import logging

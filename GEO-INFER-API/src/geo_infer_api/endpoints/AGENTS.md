@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `algorithms_router.py`
 - `geojson_router.py`
 - `health_router.py`
 

@@ -3,6 +3,12 @@ Caching utilities for GEO-INFER-DATA.
 
 This module provides caching capabilities for frequently accessed data
 including in-memory caching, file-based caching, and distributed caching.
+
+Security note (pickle trust boundary): cache entries are serialised with
+:mod:`pickle`. ``pickle.load`` can execute arbitrary code during unpickling, so
+only deserialise cache entries that were written by this repository's own
+caching layer from trusted data. Never load a cache file whose provenance is
+untrusted without an independent integrity check.
 """
 
 import logging

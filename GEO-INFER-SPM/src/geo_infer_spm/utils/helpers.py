@@ -6,10 +6,31 @@ generating coordinates, and other common SPM analysis tasks.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Union
 from scipy import stats
 
 from ..models.data_models import SPMData, DesignMatrix
+
+
+def _resolve_rng(random_seed: Optional[int]) -> Union[np.random.Generator, Any]:
+    """Return the RNG source for a call.
+
+    When ``random_seed`` is ``None`` the legacy global ``np.random`` module is
+    returned, preserving existing behaviour (callers that seed the global state
+    keep getting the same streams). When a seed is supplied a fresh
+    ``np.random.default_rng(seed)`` generator is returned, giving deterministic,
+    seed-threaded results without touching global state.
+    """
+    if random_seed is None:
+        return np.random
+    return np.random.default_rng(random_seed)
+
+
+def _randint(rng: Any, *args: Any, **kwargs: Any) -> Any:
+    """Draw integers from either the legacy module or a Generator."""
+    if hasattr(rng, "integers"):
+        return rng.integers(*args, **kwargs)
+    return rng.randint(*args, **kwargs)
 
 
 def create_design_matrix(
@@ -151,6 +172,7 @@ def generate_coordinates(
     grid_type: str = "regular",
     n_points: int = 100,
     bounds: Optional[Tuple[float, float, float, float]] = None,
+    random_seed: Optional[int] = None,
     **kwargs,
 ) -> np.ndarray:
     """
@@ -160,6 +182,9 @@ def generate_coordinates(
         grid_type: Type of coordinate grid ('regular', 'random', 'clustered')
         n_points: Number of coordinate points to generate
         bounds: Spatial bounds (min_lon, max_lon, min_lat, max_lat)
+        random_seed: Optional seed for reproducible random/clustered grids.
+            When ``None`` (default) the legacy global ``np.random`` state is
+            used, preserving existing behaviour.
         **kwargs: Additional parameters for grid generation
 
     Returns:
@@ -171,7 +196,12 @@ def generate_coordinates(
 
         >>> # Generate random coordinates
         >>> coords = generate_coordinates('random', n_points=50)
+
+        >>> # Reproducible random coordinates
+        >>> coords = generate_coordinates('random', n_points=50, random_seed=7)
     """
+    rng = _resolve_rng(random_seed)
+
     if bounds is None:
         bounds = (-180, 180, -90, 90)  # Global bounds
 
@@ -190,8 +220,8 @@ def generate_coordinates(
 
     elif grid_type == "random":
         # Random coordinates within bounds
-        lon_vals = np.random.uniform(min_lon, max_lon, n_points)
-        lat_vals = np.random.uniform(min_lat, max_lat, n_points)
+        lon_vals = rng.uniform(min_lon, max_lon, n_points)
+        lat_vals = rng.uniform(min_lat, max_lat, n_points)
         coordinates = np.column_stack([lon_vals, lat_vals])
 
     elif grid_type == "clustered":
@@ -202,8 +232,8 @@ def generate_coordinates(
         coordinates = np.zeros((n_points, 2))
 
         # Generate cluster centers
-        cluster_centers_lon = np.random.uniform(min_lon, max_lon, n_clusters)
-        cluster_centers_lat = np.random.uniform(min_lat, max_lat, n_clusters)
+        cluster_centers_lon = rng.uniform(min_lon, max_lon, n_clusters)
+        cluster_centers_lat = rng.uniform(min_lat, max_lat, n_clusters)
 
         points_per_cluster = n_points // n_clusters
         remaining_points = n_points % n_clusters
@@ -213,10 +243,10 @@ def generate_coordinates(
             cluster_size = points_per_cluster + (1 if cluster < remaining_points else 0)
 
             # Generate points around cluster center
-            lon_points = np.random.normal(
+            lon_points = rng.normal(
                 cluster_centers_lon[cluster], cluster_std, cluster_size
             )
-            lat_points = np.random.normal(
+            lat_points = rng.normal(
                 cluster_centers_lat[cluster], cluster_std, cluster_size
             )
 
@@ -241,6 +271,7 @@ def generate_synthetic_data(
     noise_level: float = 0.1,
     temporal: bool = False,
     n_timepoints: int = 10,
+    random_seed: Optional[int] = None,
 ) -> SPMData:
     """
     Generate synthetic SPM data for testing and examples.
@@ -251,6 +282,8 @@ def generate_synthetic_data(
         noise_level: Standard deviation of noise
         temporal: Whether to include temporal dimension
         n_timepoints: Number of time points if temporal
+        random_seed: Optional seed for reproducible noise generation. When
+            ``None`` (default) the legacy global ``np.random`` state is used.
 
     Returns:
         SPMData with synthetic data
@@ -259,6 +292,7 @@ def generate_synthetic_data(
         >>> coords = generate_coordinates('regular', 100)
         >>> data = generate_synthetic_data(coords, effects={'trend': 'north_south'})
     """
+    rng = _resolve_rng(random_seed)
     n_points = len(coordinates)
 
     if effects is None:
@@ -302,7 +336,7 @@ def generate_synthetic_data(
         # Simple cluster generation
         for i in range(n_clusters):
             # Random cluster center
-            center_idx = np.random.randint(0, n_points)
+            center_idx = _randint(rng, 0, n_points)
             center = coordinates[center_idx]
 
             # Points within cluster radius
@@ -324,7 +358,7 @@ def generate_synthetic_data(
             temporal_signal[t] = signal * time_effect
 
         # Add temporal noise
-        temporal_noise = np.random.normal(0, noise_level, (n_timepoints, n_points))
+        temporal_noise = rng.normal(0, noise_level, (n_timepoints, n_points))
         data = temporal_signal + temporal_noise
 
         # Flatten for SPMData format
@@ -332,19 +366,19 @@ def generate_synthetic_data(
 
     else:
         # Spatial only
-        noise = np.random.normal(0, noise_level, n_points)
+        noise = rng.normal(0, noise_level, n_points)
         data = signal + noise
         data_flat = data
 
     # Generate covariates
     signal_scale = np.std(signal) or 1.0
     elevation = 500 + 100 * (signal - np.mean(signal)) / signal_scale
-    elevation += np.random.normal(0, max(noise_level, 0.05) * 10, n_points)
+    elevation += rng.normal(0, max(noise_level, 0.05) * 10, n_points)
     response_summary = data_flat.mean(axis=-1) if temporal else data_flat
     covariates = {
         "elevation": elevation,
         "temperature": response_summary
-        + np.random.normal(0, max(noise_level, 0.05), n_points),
+        + rng.normal(0, max(noise_level, 0.05), n_points),
     }
 
     # Create metadata
@@ -368,7 +402,10 @@ def generate_synthetic_data(
 
 
 def create_spatial_basis_functions(
-    coordinates: np.ndarray, n_basis: int = 10, method: str = "gaussian"
+    coordinates: np.ndarray,
+    n_basis: int = 10,
+    method: str = "gaussian",
+    random_seed: Optional[int] = None,
 ) -> np.ndarray:
     """
     Create spatial basis functions for modeling spatial variation.
@@ -377,6 +414,9 @@ def create_spatial_basis_functions(
         coordinates: Spatial coordinates (n_points, 2)
         n_basis: Number of basis functions
         method: Basis function method ('gaussian', 'polynomial', 'fourier')
+        random_seed: Optional seed for reproducible Gaussian center selection.
+            When ``None`` (default) the legacy behaviour is kept: the global
+            ``np.random`` state is seeded with 42 then used.
 
     Returns:
         Basis function matrix (n_points, n_basis)
@@ -386,10 +426,16 @@ def create_spatial_basis_functions(
     if method == "gaussian":
         # Gaussian radial basis functions
         # Random centers
-        np.random.seed(42)  # For reproducibility
-        center_indices = np.random.choice(
-            n_points, size=min(n_basis, n_points), replace=False
-        )
+        if random_seed is None:
+            np.random.seed(42)  # legacy reproducibility path
+            center_indices = np.random.choice(
+                n_points, size=min(n_basis, n_points), replace=False
+            )
+        else:
+            rng = np.random.default_rng(random_seed)
+            center_indices = rng.choice(
+                n_points, size=min(n_basis, n_points), replace=False
+            )
         centers = coordinates[center_indices]
 
         # Width based on median distance
@@ -461,7 +507,11 @@ def create_spatial_basis_functions(
 
 
 def compute_power_analysis(
-    effect_size: float, n_points: int, alpha: float = 0.05, n_simulations: int = 1000
+    effect_size: float,
+    n_points: int,
+    alpha: float = 0.05,
+    n_simulations: int = 1000,
+    random_seed: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Perform power analysis for SPM statistical tests.
@@ -471,12 +521,15 @@ def compute_power_analysis(
         n_points: Number of spatial/temporal points
         alpha: Significance level
         n_simulations: Number of simulation runs
+        random_seed: Optional seed for reproducible simulations. When ``None``
+            (default) the legacy global ``np.random`` state is used.
 
     Returns:
         Dictionary with power analysis results
     """
     # Simplified power analysis for t-tests
     # In practice, this would account for spatial autocorrelation
+    rng = _resolve_rng(random_seed)
 
     # Degrees of freedom for one-sample t-test
     df = n_points - 1
@@ -489,7 +542,7 @@ def compute_power_analysis(
 
     for _ in range(n_simulations):
         # Simulate data with effect (mean = effect_size, std = 1)
-        data = np.random.normal(effect_size, 1.0, n_points)
+        data = rng.normal(effect_size, 1.0, n_points)
 
         # One-sample t-test: t = mean(data) / (std(data) / sqrt(n))
         t_stat = np.mean(data) / (np.std(data, ddof=1) / np.sqrt(n_points))

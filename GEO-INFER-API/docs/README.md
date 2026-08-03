@@ -4,6 +4,7 @@ Docs workspace within `GEO-INFER-API`.
 
 ## Contents
 
+- `algorithms_api.md`
 - `geojson_api.md`
 - `openapi_spec.yaml`
 

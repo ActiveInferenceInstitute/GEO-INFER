@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `algorithms_api.md`
 - `geojson_api.md`
 - `openapi_spec.yaml`
 
