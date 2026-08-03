@@ -38,7 +38,9 @@ class ModelComparison:
     # Public API
     # ------------------------------------------------------------------
 
-    def compare_models(self, data: Any, method: str = "loo") -> Dict[str, Any]:
+    def compare_models(
+        self, data: Any, method: str = "loo", random_seed: Optional[int] = None
+    ) -> Dict[str, Any]:
         """
         Compare models using specified method.
 
@@ -48,6 +50,9 @@ class ModelComparison:
                   (n_samples, n_obs) **or** a dict that the model's
                   ``log_likelihood`` can accept.
             method: Comparison method ('loo', 'waic', 'dic')
+            random_seed: Optional seed for reproducible prior-draw fallback
+                (when data has no log_likelihood_matrix). When ``None`` the
+                legacy global ``np.random`` state is used.
 
         Returns:
             Dictionary with comparison results keyed by model name, plus a
@@ -62,11 +67,17 @@ class ModelComparison:
             model_name = getattr(model, "name", f"Model_{i}")
 
             if method == "loo":
-                results[model_name] = self._loo_comparison(model, data)
+                results[model_name] = self._loo_comparison(
+                    model, data, random_seed=random_seed
+                )
             elif method == "waic":
-                results[model_name] = self._waic_comparison(model, data)
+                results[model_name] = self._waic_comparison(
+                    model, data, random_seed=random_seed
+                )
             elif method == "dic":
-                results[model_name] = self._dic_comparison(model, data)
+                results[model_name] = self._dic_comparison(
+                    model, data, random_seed=random_seed
+                )
             else:
                 raise ValueError(f"Unknown comparison method: {method}")
 
@@ -226,7 +237,10 @@ class ModelComparison:
 
     @staticmethod
     def _pointwise_log_likelihoods(
-        model: Any, data: Any, n_posterior_samples: int = 200
+        model: Any,
+        data: Any,
+        n_posterior_samples: int = 200,
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
         """Compute a pointwise log-likelihood matrix from a model.
 
@@ -235,10 +249,23 @@ class ModelComparison:
         parameter sets from the model's prior and evaluates the
         log-likelihood pointwise.
 
+        Args:
+            model: The model to evaluate.
+            data: Observations or a dict with 'log_likelihood_matrix'.
+            n_posterior_samples: Number of prior parameter draws.
+            random_seed: Optional seed for reproducible prior draws. When
+                ``None`` (default) the legacy global ``np.random`` state is
+                used.
+
         Returns
         -------
         ll_matrix : ndarray of shape (n_posterior_samples, n_obs)
         """
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         if isinstance(data, dict) and "log_likelihood_matrix" in data:
             return np.asarray(data["log_likelihood_matrix"])
 
@@ -260,21 +287,21 @@ class ModelComparison:
                 hp = pinfo.get("hyperparams", {})
                 prior = pinfo.get("prior", "normal")
                 if prior == "normal":
-                    theta[pname] = np.random.normal(
+                    theta[pname] = rng.normal(
                         hp.get("mu", 0.0), hp.get("sigma", 1.0)
                     )
                 elif prior == "log_normal":
                     theta[pname] = np.exp(
-                        np.random.normal(hp.get("mu", 0.0), hp.get("sigma", 1.0))
+                        rng.normal(hp.get("mu", 0.0), hp.get("sigma", 1.0))
                     )
                 elif prior == "uniform":
-                    theta[pname] = np.random.uniform(
+                    theta[pname] = rng.uniform(
                         hp.get("low", 0.0), hp.get("high", 1.0)
                     )
                 elif prior == "half_normal":
-                    theta[pname] = abs(np.random.normal(0.0, hp.get("sigma", 1.0)))
+                    theta[pname] = abs(rng.normal(0.0, hp.get("sigma", 1.0)))
                 else:
-                    theta[pname] = np.random.normal(0.0, 1.0)
+                    theta[pname] = rng.normal(0.0, 1.0)
 
             # Evaluate per-observation log-likelihood
             for j in range(n_obs):
@@ -286,15 +313,24 @@ class ModelComparison:
 
         return ll_matrix
 
-    def _loo_comparison(self, model: Any, data: Any) -> Dict[str, Any]:
+    def _loo_comparison(
+        self, model: Any, data: Any, random_seed: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Pareto-smoothed importance-sampling LOO (PSIS-LOO, Vehtari et al. 2017).
 
         Uses ``arviz.stats.stats.psislw`` on the pointwise log-likelihood
         matrix and the same elpd/p_loo/se formulas as arviz's ``loo``. Falls
         back to naive log-mean-exp LOO (labelled ``naive-loo``) only when
         arviz is unavailable.
+
+        Args:
+            model: The model to compare.
+            data: Data for comparison.
+            random_seed: Optional seed forwarded to the prior-draw fallback.
         """
-        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        ll_matrix = self._pointwise_log_likelihoods(
+            model, data, random_seed=random_seed
+        )
         n_samples, n_obs = ll_matrix.shape
 
         try:
@@ -338,12 +374,21 @@ class ModelComparison:
                 "pareto_k_max": 0.0,
             }
 
-    def _waic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
+    def _waic_comparison(
+        self, model: Any, data: Any, random_seed: Optional[int] = None
+    ) -> Dict[str, float]:
         """Widely Applicable Information Criterion (Watanabe 2010).
 
         WAIC = -2 * (lppd - p_waic)
+
+        Args:
+            model: The model to compare.
+            data: Data for comparison.
+            random_seed: Optional seed forwarded to the prior-draw fallback.
         """
-        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        ll_matrix = self._pointwise_log_likelihoods(
+            model, data, random_seed=random_seed
+        )
         n_samples, n_obs = ll_matrix.shape
 
         # Log pointwise predictive density (lppd)
@@ -370,14 +415,23 @@ class ModelComparison:
             "se": se,
         }
 
-    def _dic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
+    def _dic_comparison(
+        self, model: Any, data: Any, random_seed: Optional[int] = None
+    ) -> Dict[str, float]:
         """Deviance Information Criterion.
 
         DIC = D_bar + p_D
         where D_bar is the posterior mean deviance and p_D is the effective
         number of parameters (D_bar - D_at_mean).
+
+        Args:
+            model: The model to compare.
+            data: Data for comparison.
+            random_seed: Optional seed forwarded to the prior-draw fallback.
         """
-        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        ll_matrix = self._pointwise_log_likelihoods(
+            model, data, random_seed=random_seed
+        )
         n_samples, n_obs = ll_matrix.shape
 
         # Total log-likelihood per posterior sample

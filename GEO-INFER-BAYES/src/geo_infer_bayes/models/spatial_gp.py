@@ -291,7 +291,11 @@ class SpatialGP(BayesianModel):
             return mean
 
     def posterior_predictive(
-        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        samples: int = 100,
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
@@ -304,12 +308,20 @@ class SpatialGP(BayesianModel):
             Locations to generate predictions for. If None, use observed locations.
         samples : int, default=100
             Number of posterior samples to use
+        random_seed : int, optional
+            Seed for reproducible noise draws. When ``None`` (default) the
+            legacy global ``np.random`` state is used.
 
         Returns
         -------
         ndarray of shape (samples, n_points)
             Posterior predictive samples
         """
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         if X is None:
             X = self.X_train
 
@@ -358,8 +370,10 @@ class SpatialGP(BayesianModel):
                 self.L = cholesky(K, lower=True)
 
                 mean, std = self._predict(X, return_std=True)
+            else:  # pragma: no cover - guarded by the fitted check above
+                raise ValueError("Model must be fitted before posterior prediction")
             # Generate random sample
-            sample = np.random.normal(mean, np.sqrt(std**2 + param_sample["noise"]))
+            sample = rng.normal(mean, np.sqrt(std**2 + param_sample["noise"]))
 
             # Restore old parameters and Cholesky factor
             for param, value in old_params.items():

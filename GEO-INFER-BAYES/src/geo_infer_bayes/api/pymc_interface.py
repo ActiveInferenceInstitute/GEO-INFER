@@ -223,6 +223,7 @@ class PyMCInterface:
         samples: int = 100,
         return_std: bool = False,
         groups_new: Optional[np.ndarray] = None,
+        random_seed: Optional[int] = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """
         Make predictions using the fitted PyMC model.
@@ -238,6 +239,9 @@ class PyMCInterface:
         groups_new : array-like of shape (n_samples,), optional
             Group indicators for hierarchical model predictions. When None,
             predictions are marginalized over all groups.
+        random_seed : int, optional
+            Seed for reproducible subsampling/noise draws. When ``None`` the
+            legacy global ``np.random`` state is used.
 
         Returns
         -------
@@ -252,10 +256,16 @@ class PyMCInterface:
             raise ValueError("No model defined. Call create_*_model first.")
 
         if self._model_type == "gp":
-            return self._predict_gp(X_new, samples=samples, return_std=return_std)
+            return self._predict_gp(
+                X_new, samples=samples, return_std=return_std, random_seed=random_seed
+            )
         elif self._model_type == "hierarchical":
             return self._predict_hierarchical(
-                X_new, samples=samples, return_std=return_std, groups_new=groups_new
+                X_new,
+                samples=samples,
+                return_std=return_std,
+                groups_new=groups_new,
+                random_seed=random_seed,
             )
         else:
             raise ValueError(
@@ -268,6 +278,7 @@ class PyMCInterface:
         X_new: np.ndarray,
         samples: int = 100,
         return_std: bool = False,
+        random_seed: Optional[int] = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """GP posterior predictive via gp.conditional + sample_posterior_predictive."""
         if self.gp is None:
@@ -293,7 +304,11 @@ class PyMCInterface:
         # Subsample to requested number
         n_available = f_flat.shape[0]
         if samples < n_available:
-            idx = np.random.choice(n_available, size=samples, replace=False)
+            if random_seed is None:
+                rng = np.random
+            else:
+                rng = np.random.default_rng(random_seed)
+            idx = rng.choice(n_available, size=samples, replace=False)
             f_flat = f_flat[idx]
 
         mean_pred = f_flat.mean(axis=0)
@@ -307,8 +322,14 @@ class PyMCInterface:
         samples: int = 100,
         return_std: bool = False,
         groups_new: Optional[np.ndarray] = None,
+        random_seed: Optional[int] = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Hierarchical model posterior predictive via linear combination of posterior draws."""
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         post = self.trace.posterior
         alpha_samples = post["alpha"].values  # (chains, draws, n_groups)
         beta_samples = post["beta"].values  # (chains, draws, n_groups, n_features)
@@ -324,7 +345,7 @@ class PyMCInterface:
         sigma_flat = sigma_samples.reshape(-1)  # (total,)
 
         total = alpha_flat.shape[0]
-        draw_idx = np.random.choice(total, size=min(samples, total), replace=False)
+        draw_idx = rng.choice(total, size=min(samples, total), replace=False)
 
         all_preds = []
         for i in draw_idx:
@@ -341,7 +362,7 @@ class PyMCInterface:
                 # Marginalize: use population-level mean coefficients
                 mu = np.mean(alpha_i) + X_new @ np.mean(beta_i, axis=0)
 
-            all_preds.append(np.random.normal(mu, sigma_i))
+            all_preds.append(rng.normal(mu, sigma_i))
 
         all_preds_arr = np.stack(all_preds)  # (samples, n_new)
         mean_pred = all_preds_arr.mean(axis=0)

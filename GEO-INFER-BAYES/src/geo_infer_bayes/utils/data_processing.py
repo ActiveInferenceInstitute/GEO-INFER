@@ -365,6 +365,7 @@ def sample_spatial_data(
     values: np.ndarray,
     n_samples: int,
     method: str = "random",
+    random_seed: Optional[int] = None,
     **kwargs,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -375,11 +376,18 @@ def sample_spatial_data(
         values: Values
         n_samples: Number of samples to take
         method: Sampling method ('random', 'stratified', 'systematic')
+        random_seed: Optional seed for reproducible sampling. When ``None``
+            (default) the legacy global ``np.random`` state is used.
         **kwargs: Additional sampling parameters
 
     Returns:
         Tuple of (sampled_coords, sampled_values)
     """
+    if random_seed is None:
+        rng = np.random
+    else:
+        rng = np.random.default_rng(random_seed)
+
     n_total = len(spatial_coords)
 
     if n_samples >= n_total:
@@ -388,7 +396,7 @@ def sample_spatial_data(
 
     if method == "random":
         # Random sampling
-        indices = np.random.choice(n_total, n_samples, replace=False)
+        indices = rng.choice(n_total, n_samples, replace=False)
 
     elif method == "stratified":
         # Stratified sampling based on value quantiles
@@ -403,7 +411,7 @@ def sample_spatial_data(
             stratum_indices = np.where(mask)[0]
 
             if len(stratum_indices) > 0:
-                stratum_sample = np.random.choice(
+                stratum_sample = rng.choice(
                     stratum_indices,
                     min(samples_per_stratum, len(stratum_indices)),
                     replace=False,
@@ -415,7 +423,7 @@ def sample_spatial_data(
         if remaining > 0:
             used_indices = set(indices)
             available_indices = [i for i in range(n_total) if i not in used_indices]
-            additional_indices = np.random.choice(
+            additional_indices = rng.choice(
                 available_indices, remaining, replace=False
             )
             indices.extend(additional_indices)

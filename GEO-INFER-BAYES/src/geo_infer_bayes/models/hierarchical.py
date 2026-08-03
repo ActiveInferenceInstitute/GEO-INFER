@@ -194,7 +194,11 @@ class HierarchicalBayesianModel(BayesianModel):
             )
 
     def posterior_predictive(
-        self, posterior: Any, X: Optional[np.ndarray] = None, samples: int = 100
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        samples: int = 100,
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
@@ -207,6 +211,9 @@ class HierarchicalBayesianModel(BayesianModel):
             Locations to generate predictions for. If None, use observed locations.
         samples : int, default=100
             Number of posterior samples to use
+        random_seed : int, optional
+            Seed for reproducible noise draws. When ``None`` (default) the
+            legacy global ``np.random`` state is used.
 
         Returns
         -------
@@ -221,11 +228,16 @@ class HierarchicalBayesianModel(BayesianModel):
         predictions, std = self.predict(X, posterior, samples=samples, return_std=True)
 
         # Generate samples with noise
+        if random_seed is None:
+            rng = np.random
+        else:
+            rng = np.random.default_rng(random_seed)
+
         all_samples = []
         for i in range(min(samples, len(posterior.samples))):
             # Sample noise for this posterior sample
             noise_sample = posterior.samples["noise"][i]
-            sample = np.random.normal(predictions, np.sqrt(noise_sample))
+            sample = rng.normal(predictions, np.sqrt(noise_sample))
             all_samples.append(sample)
 
         return np.stack(all_samples)
