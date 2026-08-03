@@ -124,3 +124,58 @@
   fabricated-URL cleanup; aspirational-page rewrites; SRAI provenance header;
   review log + TODO ledger.
 - Pushed to `origin/main`; `git status` shows up to date with origin/main.
+
+
+## Second pass (2026-08-02, continued)
+
+### Findings and fixes
+
+1. **Newline-collapsed code fences (DOCS-11)** — the first pass restored
+   block newlines, but inline fences (```` ```lang ... ``` ```` on one line)
+   do not close under CommonMark, so ~117 files rendered as one giant code
+   block. A fence-restoration pass (iterated to fixpoint) split fences onto
+   their own lines and repaired dangling opens (722 inserts), followed by a
+   balance pass. Residual: 24 legacy INTRA files still have localized fence
+   artifacts; list below.
+2. **Broken links hidden by unclosed fences** — 495 real broken links
+   (422 retargeted, 73 de-linked) surfaced once fences closed; fixed via a
+   rule-based retargeter (existing-file resolution, category rules, de-link
+   fallback). Final audit: **0 MAJOR / 0 MEDIUM across the entire corpus**.
+3. **Fabricated content (DOCS-12)** — MATH tutorial's "Output:" numbers were
+   fabricated (Moran's I claimed 0.6892; measured 0.8078); rewrote with
+   outputs verified by running the code. docs/examples how-to pages used
+   non-existent APIs; added illustrative banners, removed fabricated
+   metrics, fixed the install block.
+4. **Private local paths (DOCS-13)** — scrubbed `/home/trim/...` and
+   `/Users/4d/...` paths from HANDOFF, a `.cursorrules` plan artifact, 8
+   committed ACT output reports, and the PLACE cascadia integration test
+   (now `GEO_INFER_OSC_REPO_DIR` env-var driven; py_compile verified).
+5. **Stale environment claims (DOCS-14)** — Python 3.8/3.9/3.10 → 3.11+ in
+   ANT/CIV/EDU/EMERGENCY/EXAMPLES and INTRA pages; rewrote
+   user_guide/installation.md and geospatial/getting_started/index.md
+   (both described a non-existent application/CLI/PyPI package).
+6. **SRAI snapshot re-linked (DOCS-09)** — parsed the embedded upstream tree
+   (237 entries) and rewrote all 45 relative links to upstream GitHub URLs.
+7. **Assessment results reflowed (DOCS-10)** — 26 files, content preserved.
+
+### Residual fence artifacts (DOCS-11, 24 files, deferred)
+
+DOCUMENTATION_STANDARDS.md, user_guide/active_inference_principles.md,
+user_guide/knowledge_base_usage.md, realms/realms-geo-infer.md,
+realms/UPDATES_SUMMARY.md, examples/environmental_monitoring.md,
+api/workflow.md, modules/geo-infer-{examples,climate,space,metagov,emergency,
+bayes,time,act,energy,water,edu,transport,marine}.md,
+geospatial/algorithms/geometric_algorithms.md,
+geospatial/concepts/spatial_reference_systems.md,
+geospatial/data_formats/h3/h3_{mobility_analysis,comparative_analysis}.md.
+
+### Verification (second pass)
+
+- Fence-aware link audit: 0 MAJOR / 0 MEDIUM findings corpus-wide.
+- `validate_documentation.py --strict`: passed (30 authoritative pages).
+- `validate_skills.py --check-xrefs`: 45/45 passing.
+- `rewrite_readme_agents.py --check`: all 1697 generated signposts current
+  (regeneration was a content-identical no-op).
+- `git diff --check`: clean. PLACE test change: py_compile verified.
+- Heavy suites not run (docs-only pass; no behavioral code changes beyond the
+  PLACE test path parameterization).
