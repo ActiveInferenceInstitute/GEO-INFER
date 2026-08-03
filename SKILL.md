@@ -172,54 +172,19 @@ uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
 
 ## Examples
 
-### Cross-Module Pipeline
+### Source-backed spatial indexing example
 
 ```python
-from geo_infer_data.formats.geojson import GeoJSONLoader
-from geo_infer_space.backends.h3 import H3Backend
-from geo_infer_math.core.spatial_statistics import MoranI
-from geo_infer_bayes.core.bayesian_inference import BayesianModel
+from geo_infer_space import cell_to_latlng, latlng_to_cell
 
-# 1. Load data
-features = GeoJSONLoader().load("observations.geojson")
-
-# 2. Index to H3 cells
-backend = H3Backend()
-cells = backend.tessellate(features.bounds, resolution=7)
-
-# 3. Compute spatial autocorrelation
-moran = MoranI(values, weight_matrix)
-result = moran.compute()
-
-# 4. Bayesian parameter estimation
-model = BayesianModel(prior="normal", likelihood="normal")
-posterior = model.fit(data)
+cell = latlng_to_cell(37.7749, -122.4194, resolution=9)
+latitude, longitude = cell_to_latlng(cell)
+print(cell, latitude, longitude)
 ```
 
-### Domain Workflow: Agricultural Risk
-
-```python
-from geo_infer_ag.models.soil_health import SoilHealthModel
-from geo_infer_risk.core.risk_engine import RiskEngine
-from geo_infer_space.backends.h3 import H3Backend
-
-cells = H3Backend().tessellate(farm_polygon, resolution=9)
-soil = SoilHealthModel()
-health = {cell: soil.assess(cell) for cell in cells}
-risk = RiskEngine().assess(hazard=drought_index, exposure=health)
-```
-
-### Active Inference Agent
-
-```python
-from geo_infer_agent.core.active_inference import ActiveInferenceAgent
-import numpy as np
-
-agent = ActiveInferenceAgent(n_states=8, n_observations=5, n_actions=4)
-obs = np.random.dirichlet(np.ones(5))
-action = agent.act(obs)
-print(f"Action: {action}, Free energy: {agent.free_energy:.4f}")
-```
+Cross-module examples belong in `GEO-INFER-EXAMPLES/examples/` and must be
+checked against the current exports of every participating package before being
+described as runnable.
 
 ## Guidelines
 

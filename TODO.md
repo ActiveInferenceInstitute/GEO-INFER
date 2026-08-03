@@ -178,10 +178,9 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
 11. **DOCS-11 — Newline-collapsed code fences** — 117+ files had inline code
     fences (```` ```lang ... ``` ```` on one line) that never close under
     CommonMark; a fence-restoration pass split them onto their own lines and
-    repaired dangling opens. **Residual:** 24 legacy files still contain
-    localized fence artifacts (some diagram blocks render as code text);
-    listed in the review log. Manual repair **deferred** — content preserved,
-    links intact, no render-breaking states remain.
+    repaired dangling opens. The 24 residual files were subsequently repaired
+    with a conservative state-machine pass; literal prose that mentions fence
+    syntax remains intentionally inline. ✓ COMPLETED.
 12. **DOCS-12 — Fabricated statistics and API claims** — MATH tutorial
     contained fabricated outputs (Moran's I 0.6892 vs measured 0.8078) and a
     fake readthedocs URL; rewritten with outputs verified by running the code.
@@ -203,10 +202,12 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
 
 ### Open / deferred summary
 
-- DOCS-11 residual: localized fence artifacts in 24 legacy INTRA docs files
-  (manual repair deferred; see REVIEW_LOG_2026-08-02.md for the list).
 - EXAMPLES assessment-era docs: preserved as historical records with
   provenance banners (policy question on full removal stays open).
+- External URL audit: 561 unique URLs checked. Repository-owned and concrete
+  dead links were repaired; upstream citations and sites that reject automated
+  requests (403) remain as citations and are not treated as repository link
+  failures.
 - TEST-01, STATS-03, RISK cross-validation, `Path(__file__)` config walks,
   `np.random` refactor, COMMS exceptions, PLACE `os.chdir()`: unchanged code
   items from the 2026-07-31 pass — still open above.

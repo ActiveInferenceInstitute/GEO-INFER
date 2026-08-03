@@ -1,5 +1,11 @@
 # Performance Optimization
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 This guide covers profiling, bottleneck identification, and optimization techniques for geospatial Python code within the GEO-INFER framework. The focus is on practical patterns that yield measurable gains, not speculative micro-optimization.
 
 ## Profiling Geospatial Code

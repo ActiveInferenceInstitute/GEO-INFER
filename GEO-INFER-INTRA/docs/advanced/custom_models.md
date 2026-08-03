@@ -1,5 +1,11 @@
 # Custom Models
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 This guide explains how to build, validate, and integrate custom models within the GEO-INFER framework. It covers Active Inference models via `geo_infer_act`, Bayesian models via `geo_infer_bayes`, and domain-specific spatial models that combine both.
 
 ## Active Inference Models with GEO-INFER-ACT

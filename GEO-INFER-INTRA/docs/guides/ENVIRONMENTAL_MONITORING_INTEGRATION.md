@@ -4,6 +4,12 @@
 
 # 🌱 Environmental Monitoring Integration Guide
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 ## 🎯 Overview
 This guide demonstrates how to integrate multiple GEO-INFER modules to build environmental monitoring systems that combine spatial analysis, temporal patterns, active inference, and real-time data processing.
 

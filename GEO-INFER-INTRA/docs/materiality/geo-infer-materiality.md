@@ -1,5 +1,11 @@
 # GEO-INFER Framework for ESG Materiality Assessment
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 ## Executive Summary
 This document provides a technical framework for implementing ESG materiality assessments using the GEO-INFER geospatial inference framework. It maps specific GEO-INFER modules to each step of the materiality assessment process, providing implementation approaches, data flows, and technical specifications for spatially-aware ESG impact analysis.
 
