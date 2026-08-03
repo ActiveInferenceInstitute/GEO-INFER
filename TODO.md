@@ -115,7 +115,7 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
    MATH docs, SPACE docs, NORMS, OPS, PLACE, METAGOV, and INTRA templates:
    every newline stripped, so headings/lists/tables/fences render as one
    paragraph. Mechanical reflow restored block structure with content
-   preserved byte-for-byte. ✓ COMPLETED (reflow commit).
+   preserved byte-for-byte. ✓ COMPLETED (4b0b436e, 61991e33).
 2. **DOCS-02 — Broken internal links (211 findings, 16 files)** — hub pages
    linked to sibling pages that were never created (`advanced/index.md` 32,
    `tutorials/index.md` 29, `h3_readme.md` 15, `geospatial/*/index.md` 36,
@@ -123,16 +123,17 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
    `ontology/index.md` 7, `module_readme_template.md` 8,
    `architecture/overview.md` 4, `h3/ecosystem.md` 1). Retargeted to real
    pages or de-linked; no dead links remain in scanned docs. ✓ COMPLETED
-   (link-fix commits).
+   (045585e4, 681db68f).
 3. **DOCS-03 — Fabricated external URLs (14 files)** — `geo-infer.org`,
    `forum.geo-infer.org`, `api.geo-infer.org`, `discord.gg/geo-infer`, and
    `github.com/ActiveInferenceInstitute/GEO-INFER` (wrong org). Replaced with the real
    remote (`github.com/ActiveInferenceInstitute/GEO-INFER`) or removed. ✓
-   COMPLETED.
+   COMPLETED (4b0b436e).
 4. **DOCS-04 — Stale documentation artifacts** — `DOCUMENTATION_IMPROVEMENTS.md`,
    `DOCUMENTATION_IMPROVEMENTS_SUMMARY.md`, `DOCUMENTATION_STANDARDS.md` were
    single-line, referenced pages that never existed, and prescribed conventions
-   the repo does not use. Rewritten to current repo state. ✓ COMPLETED.
+   the repo does not use. Rewritten to current repo state. ✓ COMPLETED
+   (045585e4).
 
 ### Medium
 
@@ -141,18 +142,19 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
    `geospatial/case_studies/index.md`, `geospatial/standards/index.md`,
    `knowledge_base/index.md`, `knowledge_base/best_practices/index.md`,
    `workflows/index.md`, `user_guide/index.md`, `ontology/index.md`,
-   `geospatial/algorithms/index.md`. ✓ COMPLETED.
+   `geospatial/algorithms/index.md`. ✓ COMPLETED (045585e4).
 6. **DOCS-06 — `module_readme_template.md` wrong relative paths** —
-   `../GEO-INFER-INTRA/docs/*` and `../LICENSE` corrected. ✓ COMPLETED.
+   `../GEO-INFER-INTRA/docs/*` and `../LICENSE` corrected. ✓ COMPLETED
+   (045585e4).
 7. **DOCS-07 — Stale anchors** — `geospatial/algorithms/index.md` anchors into
    `spatial_indexing.md`; `support/faq.md` anchor into `support/index.md`.
-   ✓ COMPLETED.
+   ✓ COMPLETED (045585e4).
 
 ### Minor
 
 8. **DOCS-08 — `architecture/overview.md` dead image and page links** — image
    reference removed (no such image exists in the repo), links retargeted.
-   ✓ COMPLETED.
+   ✓ COMPLETED (045585e4).
 9. **DOCS-09 — srai_full_reference.md provenance** — vendored 1.4 MB snapshot
    of upstream `kraina-ai/srai`; added a provenance header explaining its
    upstream-relative links. Full re-link of its ~45 internal links **DEFERRED**
