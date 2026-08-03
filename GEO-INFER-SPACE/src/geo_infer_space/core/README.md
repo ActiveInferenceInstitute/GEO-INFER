@@ -5,12 +5,15 @@ Core workspace within `GEO-INFER-SPACE`.
 ## Contents
 
 - `__init__.py`
+- `algorithm_registry.py`
 - `analytics.py`
 - `api_clients.py`
 - `base_module.py`
 - `data_integrator.py`
 - `dispatcher.py`
+- `geolibre_projects.py`
 - `geometric_operations.py`
+- `h3_policy.py`
 - `interfaces.py`
 - `place_analyzer.py`
 - `processor.py`
@@ -21,9 +24,15 @@ Core workspace within `GEO-INFER-SPACE`.
 - `unified_backend.py`
 - `visualization_engine.py`
 - `visualization_receipt.py`
+- `whitebox_bridge.py`
 
 ## Public Interface
 
+- `algorithm_registry.py:ParameterSpec` (class)
+- `algorithm_registry.py:ProcessingAlgorithm` (class)
+- `algorithm_registry.py:ProcessingContext` (class)
+- `algorithm_registry.py:AlgorithmRegistry` (class)
+- `algorithm_registry.py:build_reference_registry` (function)
 - `analytics.py:SpatialAnalyticsInterface` (class)
 - `api_clients.py:BaseAPIManager` (class)
 - `api_clients.py:GeneralGeoDataFetcher` (class)
@@ -33,17 +42,12 @@ Core workspace within `GEO-INFER-SPACE`.
 - `dispatcher.py:get_backend_dispatcher` (function)
 - `dispatcher.py:configure_backends` (function)
 - `dispatcher.py:reset_dispatcher` (function)
-- `geometric_operations.py:GeometricOperationsInterface` (class)
-- `interfaces.py:SpatialBackendProtocol` (class)
-- `interfaces.py:IndexingBackendProtocol` (class)
-- `interfaces.py:AnalyticsBackendProtocol` (class)
-- `interfaces.py:H3UnavailableError` (class)
-- `interfaces.py:SRAIUnavailableError` (class)
-- `interfaces.py:BackendNotAvailableError` (class)
-- `interfaces.py:UnsupportedSpatialOperationError` (class)
-- `place_analyzer.py:PlaceAnalyzer` (class)
-- `processor.py:SpatialProcessor` (class)
-- `spatial_indexing.py:SpatialIndexingInterface` (class)
+- `geolibre_projects.py:default_map_view` (function)
+- `geolibre_projects.py:geojson_layer` (function)
+- `geolibre_projects.py:tile_layer` (function)
+- `geolibre_projects.py:build_project` (function)
+- `geolibre_projects.py:dumps_project` (function)
+- `geolibre_projects.py:write_project` (function)
 
 ## Module Metadata
 

@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `basic_integration_demo/`
+- `geolibre_export/`
 
 ## Validation
 

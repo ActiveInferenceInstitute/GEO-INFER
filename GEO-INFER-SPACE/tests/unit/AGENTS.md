@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_algorithm_registry.py`
 - `test_analytics_comprehensive.py`
 - `test_analytics_context_contract.py`
 - `test_api_schemas.py`
@@ -29,9 +30,11 @@
 - `test_core.py`
 - `test_data_integrator.py`
 - `test_dispatch_comprehensive.py`
+- `test_geolibre_projects.py`
 - `test_gis_submodule.py`
 - `test_h3_enhanced.py`
 - `test_h3_operations_runtime.py`
+- `test_h3_policy.py`
 - `test_io_modules.py`
 - `test_nested_comprehensive.py`
 - `test_nested_h3_contract.py`
@@ -47,6 +50,7 @@
 - `test_unified_comprehensive.py`
 - `test_visualization_engine.py`
 - `test_visualization_receipts.py`
+- `test_whitebox_bridge.py`
 
 ## Validation
 

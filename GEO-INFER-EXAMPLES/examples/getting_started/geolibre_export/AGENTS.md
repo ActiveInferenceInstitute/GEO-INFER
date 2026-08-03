@@ -1,16 +1,16 @@
-# Agent Instructions: GEO-INFER-DATA/tests/unit
+# Agent Instructions: GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export
 
 ## Scope
 
-- Owning module: `GEO-INFER-DATA`
-- Python package: `geo_infer_data`
-- Directory role: Unit workspace within `GEO-INFER-DATA`.
+- Owning module: `GEO-INFER-EXAMPLES`
+- Python package: `geo_infer_examples`
+- Directory role: Geolibre Export workspace within `GEO-INFER-EXAMPLES`.
 
 ## Capabilities
 
 - Maintains the tracked files and subdirectories listed below for this workspace.
 - Validates behavior with the command in the Validation section.
-- Integrates through `geo_infer_data` and the owning module's public contracts.
+- Integrates through `geo_infer_examples` and the owning module's public contracts.
 
 ## Working Rules
 
@@ -21,29 +21,12 @@
 
 ## Local Contents
 
-- `test_api.py`
-- `test_archive_safety.py`
-- `test_caching.py`
-- `test_cloud_connectors.py`
-- `test_compression.py`
-- `test_duckdb_spatial.py`
-- `test_error_handling.py`
-- `test_file_connector.py`
-- `test_format_detection.py`
-- `test_geospatial_validation.py`
-- `test_indexing.py`
-- `test_ingestion.py`
-- `test_performance.py`
-- `test_pipeline.py`
-- `test_schemas.py`
-- `test_storage.py`
-- `test_stream_connectors.py`
-- `test_validation.py`
+- `scripts/`
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-DATA/tests/unit
+uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES
 ```
 
 

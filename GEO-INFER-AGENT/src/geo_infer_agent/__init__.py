@@ -35,6 +35,19 @@ try:
 except ImportError:
     pass
 
+try:
+    from geo_infer_agent.core.llm_proxy import (
+        LLMProxyPolicy,
+        LLMProxyPolicyError,
+        TokenBucket,
+        check_allowed_model,
+        check_output_tokens,
+        check_request_size,
+        enforce_llm_proxy_policy,
+    )
+except ImportError:
+    pass
+
 __all__ = [
     "__version__",
     "BaseAgent", "AgentState",
@@ -47,4 +60,10 @@ __all__ = [
     "Belief", "Desire", "Plan",
     "MessagingService", "Message",
     "TelemetryService",
+    "LLMProxyPolicy", "LLMProxyPolicyError",
+    "TokenBucket",
+    "check_allowed_model",
+    "check_output_tokens",
+    "check_request_size",
+    "enforce_llm_proxy_policy",
 ] 

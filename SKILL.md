@@ -186,6 +186,29 @@ Cross-module examples belong in `GEO-INFER-EXAMPLES/examples/` and must be
 checked against the current exports of every participating package before being
 described as runnable.
 
+### GeoLibre export example
+
+Emit an H3 grid as a `.geolibre.json` project for the GeoLibre viewer
+(mirrors opengeos/GeoLibre's project format, version 0.1.0; one-way
+integration — GEO-INFER produces, GeoLibre presents):
+
+```python
+from geo_infer_space.core import (
+    build_h3_grid_project, geojson_layer, write_project,
+)
+
+project = build_h3_grid_project(
+    "H3 grid", grid_geojson, center=[-122.25, 37.65], zoom=9
+)
+write_project(project, "h3_grid.geolibre.json")
+```
+
+Related optional surfaces: `geo_infer_space.core.h3_policy` (resolution
+suggestion + hard-cap guard), `geo_infer_space.core.algorithm_registry`,
+`geo_infer_space.core.whitebox_bridge`, `geo_infer_data.utils.duckdb_spatial`,
+and `geo_infer_agent.core.llm_proxy`. See the runnable example at
+`GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/`.
+
 ## Guidelines
 
 - **No mock/stub/placeholder code** — every function must have real logic
