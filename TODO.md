@@ -165,10 +165,48 @@ Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
     navigation). **DEFERRED** by policy; see README "Artifact and Output
     Hygiene".
 
+8. **DOCS-08 updated (2026-08-02 second pass)** — beyond the image/link
+   fix, `architecture/overview.md` was rewritten to describe the real
+   repository architecture (module layers, validators, docs hub) instead of
+   an aspirational service stack. ✓ COMPLETED (045585e4).
+9. **DOCS-09 — srai_full_reference.md upstream re-link** — all 45 relative
+   links rewritten to upstream `kraina-ai/srai` GitHub URLs by parsing the
+   snapshot's embedded directory tree (237 entries). ✓ COMPLETED.
+10. **DOCS-10 — assessment_results archival** — the 22 single-line historical
+    dumps were reflowed for readability (content preserved) and remain
+    clearly dated historical records. ✓ COMPLETED (reflow).
+11. **DOCS-11 — Newline-collapsed code fences** — 117+ files had inline code
+    fences (```` ```lang ... ``` ```` on one line) that never close under
+    CommonMark; a fence-restoration pass split them onto their own lines and
+    repaired dangling opens. **Residual:** 24 legacy files still contain
+    localized fence artifacts (some diagram blocks render as code text);
+    listed in the review log. Manual repair **deferred** — content preserved,
+    links intact, no render-breaking states remain.
+12. **DOCS-12 — Fabricated statistics and API claims** — MATH tutorial
+    contained fabricated outputs (Moran's I 0.6892 vs measured 0.8078) and a
+    fake readthedocs URL; rewritten with outputs verified by running the code.
+    `docs/examples/*` how-to pages used non-existent APIs
+    (`EnvironmentalMonitoringModel`, `SpatialAnalyzer`) with fabricated
+    results ("95% accuracy"); all six pages gained an illustrative-guide
+    banner and fabricated result metrics were removed. EXAMPLES historical
+    analysis docs (9) gained dated-provenance banners. ✓ COMPLETED.
+13. **DOCS-13 — Private local paths scrubbed** — removed personal machine
+    paths from HANDOFF_2026-07-31.md, a `.cursorrules` plan artifact, 8
+    committed ACT output reports, and a PLACE integration test (now
+    env-var driven). ✓ COMPLETED.
+14. **DOCS-14 — Stale environment claims** — Python 3.8/3.9/3.10 references in
+    ANT/CIV/EDU/EMERGENCY/EXAMPLES docs and INTRA installation/environment/
+    documentation-guide pages corrected to the 3.11+ workspace target;
+    `user_guide/installation.md` and `geospatial/getting_started/index.md`
+    rewritten (they described a non-existent PyPI package, CLI, and web app).
+    ✓ COMPLETED.
+
 ### Open / deferred summary
 
-- DOCS-09: srai_full_reference.md upstream re-link (deferred).
-- DOCS-10: assessment_results archival cleanup (deferred, policy question).
+- DOCS-11 residual: localized fence artifacts in 24 legacy INTRA docs files
+  (manual repair deferred; see REVIEW_LOG_2026-08-02.md for the list).
+- EXAMPLES assessment-era docs: preserved as historical records with
+  provenance banners (policy question on full removal stays open).
 - TEST-01, STATS-03, RISK cross-validation, `Path(__file__)` config walks,
   `np.random` refactor, COMMS exceptions, PLACE `os.chdir()`: unchanged code
   items from the 2026-07-31 pass — still open above.
