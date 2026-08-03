@@ -1,6 +1,6 @@
 # GEO-INFER open work ledger
 
-> Last reviewed: 2026-07-31 (second pass)
+> Last reviewed: 2026-08-02 (docs deep-review pass)
 > Scope: the 44-module workspace rooted at this repository.
 
 This is the canonical open-only ledger. Completed historical work is represented
@@ -103,3 +103,70 @@ contracts, documentation, skills xrefs, and the unified test suites) pass
 cleanly. The full-fleet coverage run consistently times out at 902s — this
 **remains open** and must not be converted to a passing claim without a
 clean run.
+
+## Documentation deep-review pass (2026-08-02)
+
+Findings from the 2026-08-02 docs-deep pass. Log: `REVIEW_LOG_2026-08-02.md`.
+
+### Major
+
+1. **DOCS-01 — Newline-collapsed markdown (148 files)** — a formatting
+   corruption committed across the INTRA docs hub (117 files), EXAMPLES docs,
+   MATH docs, SPACE docs, NORMS, OPS, PLACE, METAGOV, and INTRA templates:
+   every newline stripped, so headings/lists/tables/fences render as one
+   paragraph. Mechanical reflow restored block structure with content
+   preserved byte-for-byte. ✓ COMPLETED (reflow commit).
+2. **DOCS-02 — Broken internal links (211 findings, 16 files)** — hub pages
+   linked to sibling pages that were never created (`advanced/index.md` 32,
+   `tutorials/index.md` 29, `h3_readme.md` 15, `geospatial/*/index.md` 36,
+   `knowledge_base/*` 18, `workflows/index.md` 9, `user_guide/index.md` 7,
+   `ontology/index.md` 7, `module_readme_template.md` 8,
+   `architecture/overview.md` 4, `h3/ecosystem.md` 1). Retargeted to real
+   pages or de-linked; no dead links remain in scanned docs. ✓ COMPLETED
+   (link-fix commits).
+3. **DOCS-03 — Fabricated external URLs (14 files)** — `geo-infer.org`,
+   `forum.geo-infer.org`, `api.geo-infer.org`, `discord.gg/geo-infer`, and
+   `github.com/ActiveInferenceInstitute/GEO-INFER` (wrong org). Replaced with the real
+   remote (`github.com/ActiveInferenceInstitute/GEO-INFER`) or removed. ✓
+   COMPLETED.
+4. **DOCS-04 — Stale documentation artifacts** — `DOCUMENTATION_IMPROVEMENTS.md`,
+   `DOCUMENTATION_IMPROVEMENTS_SUMMARY.md`, `DOCUMENTATION_STANDARDS.md` were
+   single-line, referenced pages that never existed, and prescribed conventions
+   the repo does not use. Rewritten to current repo state. ✓ COMPLETED.
+
+### Medium
+
+5. **DOCS-05 — Link-only hub pages rewritten with grounded pointers** —
+   `tutorials/index.md`, `geospatial/analysis/index.md`,
+   `geospatial/case_studies/index.md`, `geospatial/standards/index.md`,
+   `knowledge_base/index.md`, `knowledge_base/best_practices/index.md`,
+   `workflows/index.md`, `user_guide/index.md`, `ontology/index.md`,
+   `geospatial/algorithms/index.md`. ✓ COMPLETED.
+6. **DOCS-06 — `module_readme_template.md` wrong relative paths** —
+   `../GEO-INFER-INTRA/docs/*` and `../LICENSE` corrected. ✓ COMPLETED.
+7. **DOCS-07 — Stale anchors** — `geospatial/algorithms/index.md` anchors into
+   `spatial_indexing.md`; `support/faq.md` anchor into `support/index.md`.
+   ✓ COMPLETED.
+
+### Minor
+
+8. **DOCS-08 — `architecture/overview.md` dead image and page links** — image
+   reference removed (no such image exists in the repo), links retargeted.
+   ✓ COMPLETED.
+9. **DOCS-09 — srai_full_reference.md provenance** — vendored 1.4 MB snapshot
+   of upstream `kraina-ai/srai`; added a provenance header explaining its
+   upstream-relative links. Full re-link of its ~45 internal links **DEFERRED**
+   (would require verifying paths against the upstream repo; the file is a
+   reference snapshot, not navigation).
+10. **DOCS-10 — historical assessment artifacts** — `*assessment_results*`
+    single-line dumps left untouched as historical records (not user-facing
+    navigation). **DEFERRED** by policy; see README "Artifact and Output
+    Hygiene".
+
+### Open / deferred summary
+
+- DOCS-09: srai_full_reference.md upstream re-link (deferred).
+- DOCS-10: assessment_results archival cleanup (deferred, policy question).
+- TEST-01, STATS-03, RISK cross-validation, `Path(__file__)` config walks,
+  `np.random` refactor, COMMS exceptions, PLACE `os.chdir()`: unchanged code
+  items from the 2026-07-31 pass — still open above.
