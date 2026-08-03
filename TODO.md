@@ -1,6 +1,6 @@
 # GEO-INFER open work ledger
 
-> Last reviewed: 2026-08-02 (docs deep-review pass)
+> Last reviewed: 2026-08-03 (GeoLibre integration pass)
 > Scope: the 44-module workspace rooted at this repository.
 
 This is the canonical open-only ledger. Completed historical work is represented
@@ -24,6 +24,31 @@ unfinished work here.
   `UnifiedH3Backend._get_geometries` routed through a configurable
   `geojson_path` constructor parameter. 3 focused tests added
   (`test_unified_backend_geojson_seam.py`).
+
+## Completed (2026-08-03 — GeoLibre integration)
+
+- **GEOLIBRE-01**: `.geolibre.json` project writer in
+  `geo_infer_space.core.geolibre_projects` — deterministic, schema-versioned
+  (v0.1.0) emission with GeoJSON/tile layer builders and styled H3 grid export.
+  13 unit tests (`test_geolibre_projects.py`); runnable example
+  `GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/` verified to emit
+  a valid project. No JavaScript added to the repo.
+- **GEOLIBRE-02**: H3 resolution policy in `geo_infer_space.core.h3_policy` —
+  `suggest_h3_resolution`, `check_cell_budget` (hard 200k cap), and
+  `suggest_resolution_with_budget`. 13 unit tests (`test_h3_policy.py`).
+- **GEOLIBRE-03**: Processing algorithm registry in
+  `geo_infer_space.core.algorithm_registry` — GeoLibre-style
+  `ProcessingAlgorithm`/`AlgorithmRegistry` with reference algorithms. 12 unit
+  tests (`test_algorithm_registry.py`).
+- **GEOLIBRE-04**: Optional WhiteboxTools bridge in
+  `geo_infer_space.core.whitebox_bridge` — graceful `HAS_WHITEBOX` probe and
+  `flow_accumulation` terrain helper. 5 unit tests (`test_whitebox_bridge.py`).
+- **GEOLIBRE-05**: DuckDB-Spatial readers in `geo_infer_data.utils.duckdb_spatial`
+  — GeoParquet/FlatGeobuf/Shapefile with transparent GeoPandas/Fiona fallback.
+  5 unit tests (`test_duckdb_spatial.py`).
+- **GEOLIBRE-06**: LLM proxy policy in `geo_infer_agent.core.llm_proxy` —
+  model allowlist, size caps, output-token cap, and per-client rate limiting.
+  12 unit tests (`test_llm_proxy.py`).
 
 ## Open items
 

@@ -24,6 +24,7 @@
 - `active_inference.py`
 - `agent_base.py`
 - `agent_registry.py`
+- `llm_proxy.py`
 
 ## Validation
 

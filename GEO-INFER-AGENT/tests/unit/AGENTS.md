@@ -27,6 +27,7 @@
 - `test_coordination.py`
 - `test_data_collector.py`
 - `test_hybrid.py`
+- `test_llm_proxy.py`
 - `test_messaging.py`
 - `test_planning.py`
 - `test_rule_based.py`

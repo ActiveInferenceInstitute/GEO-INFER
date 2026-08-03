@@ -23,6 +23,7 @@
 
 - `caching.py`
 - `compression.py`
+- `duckdb_spatial.py`
 - `format_detection.py`
 - `indexing.py`
 - `performance.py`

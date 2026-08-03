@@ -1,11 +1,10 @@
-# GEO-INFER-EXAMPLES/examples/getting_started
+# GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export
 
-Getting Started workspace within `GEO-INFER-EXAMPLES`.
+Geolibre Export workspace within `GEO-INFER-EXAMPLES`.
 
 ## Contents
 
-- `basic_integration_demo/`
-- `geolibre_export/`
+- `scripts/`
 
 ## Public Interface
 

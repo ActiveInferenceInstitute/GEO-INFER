@@ -7,6 +7,7 @@ Core workspace within `GEO-INFER-AGENT`.
 - `active_inference.py`
 - `agent_base.py`
 - `agent_registry.py`
+- `llm_proxy.py`
 
 ## Public Interface
 
@@ -17,6 +18,13 @@ Core workspace within `GEO-INFER-AGENT`.
 - `agent_base.py:BaseAgent` (class)
 - `agent_base.py:ExampleAgent` (class)
 - `agent_registry.py:AgentRegistry` (class)
+- `llm_proxy.py:LLMProxyPolicyError` (class)
+- `llm_proxy.py:LLMProxyPolicy` (class)
+- `llm_proxy.py:TokenBucket` (class)
+- `llm_proxy.py:check_allowed_model` (function)
+- `llm_proxy.py:check_request_size` (function)
+- `llm_proxy.py:check_output_tokens` (function)
+- `llm_proxy.py:enforce_llm_proxy_policy` (function)
 
 ## Module Metadata
 

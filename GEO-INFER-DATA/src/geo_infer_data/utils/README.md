@@ -6,6 +6,7 @@ Utils workspace within `GEO-INFER-DATA`.
 
 - `caching.py`
 - `compression.py`
+- `duckdb_spatial.py`
 - `format_detection.py`
 - `indexing.py`
 - `performance.py`
@@ -16,6 +17,9 @@ Utils workspace within `GEO-INFER-DATA`.
 - `caching.py:CacheEntry` (class)
 - `caching.py:CacheManager` (class)
 - `compression.py:DataCompressor` (class)
+- `duckdb_spatial.py:DuckDBSpatialError` (class)
+- `duckdb_spatial.py:read_cloud_native_vector` (function)
+- `duckdb_spatial.py:duckdb_status` (function)
 - `format_detection.py:FormatDetector` (class)
 - `indexing.py:SpatialIndexer` (class)
 - `indexing.py:TemporalIndexer` (class)

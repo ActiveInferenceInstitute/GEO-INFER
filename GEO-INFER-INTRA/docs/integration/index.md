@@ -40,6 +40,38 @@ GEO-INFER-API owns its FastAPI/GeoJSON boundary. GEO-INFER-APP consumes
 application-facing interfaces. Keep authentication, serialization, and route
 contracts in those modules rather than duplicating them in INTRA docs.
 
+### External GIS / LLM integrations
+
+GEO-INFER deliberately keeps its external integrations optional and
+dependency-free by default. The following surfaces were added for interoperability:
+
+- **GeoLibre project emission** (`geo_infer_space.core.geolibre_projects`):
+  deterministic, schema-versioned `.geolibre.json` writers (`build_project`,
+  `build_h3_grid_project`, `write_project`) so GEO-INFER analysis results open
+  in the GeoLibre web/desktop/Jupyter viewer with no JavaScript in this repo.
+  Format version `0.1.0`, mirroring opengeos/GeoLibre's documented project
+  format. See the runnable example at
+  `GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/`.
+- **Cloud-native vector readers** (`geo_infer_data.utils.duckdb_spatial`):
+  GeoParquet/FlatGeobuf/Shapefile reads via DuckDB-Spatial when installed,
+  transparent GeoPandas/Fiona fallback otherwise (`read_cloud_native_vector`).
+  `HAS_DUCKDB` is `False` by default; install the optional DuckDB extra to
+  enable the fast path.
+- **LLM proxy policy** (`geo_infer_agent.core.llm_proxy`): model allowlist,
+  request-size cap, output-token cap, and per-client rate limiting
+  (`enforce_llm_proxy_policy`) for server-side LLM serving, mirroring
+  GeoLibre's `ai-proxy` shape.
+- **WhiteboxTools bridge** (`geo_infer_space.core.whitebox_bridge`): optional
+  terrain/hydrology helpers (`flow_accumulation`) gated on `HAS_WHITEBOX` for
+  the WATER/FOREST/EMERGENCY domain modules.
+
+`text
+GEO-INFER results (H3 grid / GeoJSON layers)
+  -> geo_infer_space.core.geolibre_projects.build_h3_grid_project
+  -> .geolibre.json project file
+  -> GeoLibre web / desktop / Jupyter viewer
+`
+
 ## Example: spatial data handoff
 
 `python

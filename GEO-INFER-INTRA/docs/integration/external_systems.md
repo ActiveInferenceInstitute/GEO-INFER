@@ -367,6 +367,56 @@ with open("elevation_subset.tif", "wb") as f:
     f.write(response.read())
 ```
 
+## GeoLibre & optional integrations
+
+GEO-INFER interoperates with the open-source GeoLibre GIS viewer and with a set
+of optional high-performance engines, all kept dependency-free by default.
+
+### GeoLibre project emission
+
+GeoLibre is a cloud-native GIS platform (MapLibre + DuckDB-WASM + deck.gl) that
+runs in the browser, on the desktop, and inside Jupyter. GEO-INFER emits
+GeoLibre's documented `.geolibre.json` project format (v0.1.0) so analysis
+results open directly in the viewer — no JavaScript is added to this repo.
+
+```python
+from geo_infer_space import polygon_to_cells
+from geo_infer_space.core import (
+    SpatialIndexingInterface, build_h3_grid_project, write_project,
+)
+
+cells = polygon_to_cells(SAMPLE_POLYGON, resolution=7)
+indexer = SpatialIndexingInterface()
+features = [{"type": "Feature",
+             "properties": {"h3": c},
+             "geometry": {"type": "Polygon",
+                          "coordinates": [[[lng, lat] for lat, lng in indexer.get_cell_boundary(c)]]}}
+            for c in cells]
+project = build_h3_grid_project("H3 grid", {"type": "FeatureCollection", "features": features})
+write_project(project, "./h3_grid.geolibre.json")
+```
+
+License note: GEO-INFER is CC BY-NC-SA 4.0; GeoLibre is MIT. MIT code may be
+incorporated into GEO-INFER with attribution, but GEO-INFER source is **not**
+licensable back into a MIT project. The integration is intentionally one-way —
+GEO-INFER produces `.geolibre.json`, GeoLibre presents it.
+
+Runnable example:
+`GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/scripts/run_example.py`.
+
+### Optional engines (graceful fallbacks)
+
+- **DuckDB-Spatial** (`geo_infer_data.utils.duckdb_spatial`): fast
+  GeoParquet/FlatGeobuf/Shapefile reads when DuckDB+Spatial is installed;
+  otherwise `read_cloud_native_vector` transparently uses GeoPandas/Fiona.
+  Gate: `HAS_DUCKDB`.
+- **WhiteboxTools** (`geo_infer_space.core.whitebox_bridge`): terrain/hydrology
+  helpers such as `flow_accumulation` for the WATER/FOREST/EMERGENCY modules.
+  Gate: `HAS_WHITEBOX`; install `whitebox-workflows` to enable.
+- **LLM proxy** (`geo_infer_agent.core.llm_proxy`): model allowlist, size caps,
+  and per-client rate limiting for server-side LLM serving (OpenAI-compatible),
+  mirroring GeoLibre's `ai-proxy` shape.
+
 ## Authentication Patterns
 
 ### API Key Authentication

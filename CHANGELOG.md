@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **GeoLibre integration (`.geolibre.json` project writer)** in
+  `GEO-INFER-SPACE.core.geolibre_projects`: deterministic, schema-versioned
+  project emission (v0.1.0) with GeoJSON/tile layer builders, styled H3 grid
+  export (`build_h3_grid_project`), and receipt-compatible writing. GEO-INFER
+  results now open directly in the GeoLibre web/desktop/Jupyter viewer with no
+  JavaScript added to the repository.
+- **H3 resolution policy** in `GEO-INFER-SPACE.core.h3_policy`: pure helpers
+  for H3 resolution suggestion (`suggest_h3_resolution`) and a hard-cell-cap
+  guard (`check_cell_budget`) mirroring GeoLibre's H3 grid guard; a combined
+  `suggest_resolution_with_budget` convenience wrapper.
+- **Processing algorithm registry** in `GEO-INFER-SPACE.core.algorithm_registry`:
+  a GeoLibre-style `ProcessingAlgorithm`/`AlgorithmRegistry` surface (id, name,
+  description, parameters, run/context) with reference algorithms
+  (`calculate-bounds`, `count-features`) so SPACE/API/APP can expose spatial
+  tools uniformly.
+- **Optional WhiteboxTools bridge** in `GEO-INFER-SPACE.core.whitebox_bridge`:
+  graceful `HAS_WHITEBOX` probe and a representative `flow_accumulation`
+  terrain helper for WATER/FOREST/EMERGENCY domain modules.
+- **Cloud-native vector readers** in `GEO-INFER-DATA.utils.duckdb_spatial`:
+  GeoParquet/FlatGeobuf/Shapefile reading via DuckDB-Spatial when available,
+  transparent GeoPandas/Fiona fallback otherwise (`read_cloud_native_vector`).
+- **LLM proxy policy** in `GEO-INFER-AGENT.core.llm_proxy`: dependency-free
+  model allowlist, request-size cap, output-token cap, and per-client rate
+  limiting (mirrors GeoLibre's `ai-proxy` shape) for server-side LLM serving.
+- **geolibre export example**:
+  `GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/` — runnable
+  end-to-end demo emitting a styled `.geolibre.json` H3 grid project.
 - Documentation hub refresh covering installation, first spatial inference,
   architecture, module selection, H3 v4 usage, developer workflow, testing,
   and contribution guidance.

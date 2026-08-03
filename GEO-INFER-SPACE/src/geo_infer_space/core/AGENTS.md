@@ -22,12 +22,15 @@
 ## Local Contents
 
 - `__init__.py`
+- `algorithm_registry.py`
 - `analytics.py`
 - `api_clients.py`
 - `base_module.py`
 - `data_integrator.py`
 - `dispatcher.py`
+- `geolibre_projects.py`
 - `geometric_operations.py`
+- `h3_policy.py`
 - `interfaces.py`
 - `place_analyzer.py`
 - `processor.py`
@@ -38,6 +41,7 @@
 - `unified_backend.py`
 - `visualization_engine.py`
 - `visualization_receipt.py`
+- `whitebox_bridge.py`
 
 ## Validation
 

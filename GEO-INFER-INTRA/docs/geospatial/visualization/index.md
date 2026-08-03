@@ -19,6 +19,9 @@ client boundary.
 - `geo_infer_space.backends.h3.visualization.H3Visualization`
 - `geo_infer_place.core.visualization_engine.InteractiveVisualizationEngine`
 - `geo_infer_place.core.unified_backend.CascadianAgriculturalH3Backend`
+- `geo_infer_space.core.geolibre_projects` — deterministic `.geolibre.json`
+  project emission (GeoLibre format v0.1.0) for H3 grids and GeoJSON layers,
+  so results open in the GeoLibre web/desktop/Jupyter viewer.
 
 Generated HTML, PNG, and dashboard artifacts belong in a caller-provided
 output directory. The repository's validation suites check finite metrics,
