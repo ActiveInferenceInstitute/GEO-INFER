@@ -20,6 +20,7 @@ uv sync --all-packages --all-extras
 
 For work on a single module, sync only that package:
 
+```
 ```bash
 uv sync --package geo-infer-act
 ```
@@ -28,6 +29,7 @@ uv sync --package geo-infer-act
 
 Run the syntax and documentation gates:
 
+```
 ```bash
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
@@ -38,6 +40,7 @@ uv run python GEO-INFER-TEST/validate_documentation.py --strict
 Each module ships runnable examples under `GEO-INFER-*/examples/`. For
 example, the ACT module examples:
 
+```
 ```bash
 uv run python GEO-INFER-ACT/examples/simple_model.py
 ```

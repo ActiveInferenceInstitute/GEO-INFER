@@ -41,6 +41,7 @@ changes and avoid destructive Git commands.
 
 ## Validation checklist
 
+```
 ```bash
 uv run python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language

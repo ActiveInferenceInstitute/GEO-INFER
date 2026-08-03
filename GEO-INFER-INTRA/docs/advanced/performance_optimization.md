@@ -28,10 +28,12 @@ stats.print_stats(20)  # top 20 by cumulative time
 
 ### line_profiler for Hot Loops
 
+```
 ```bash
 uv pip install line_profiler
 ```
 
+```
 ```python
 # Decorate the function you suspect is slow
 from line_profiler import profile
@@ -46,6 +48,7 @@ def compute_spatial_weights(coordinates: np.ndarray, bandwidth: float) -> np.nda
 
 Run with:
 
+```
 ```bash
 kernprof -l -v my_script.py
 ```
@@ -54,6 +57,7 @@ kernprof -l -v my_script.py
 
 Geospatial workloads often hit memory limits before CPU limits. Profile memory to catch unexpected allocations.
 
+```
 ```python
 from memory_profiler import profile
 
@@ -71,6 +75,7 @@ GEO-INFER-SPACE uses H3 v4. The single-cell functions (`h3.latlng_to_cell`) are 
 
 ### Vectorized Indexing
 
+```
 ```python
 import h3
 import numpy as np
@@ -107,6 +112,7 @@ Higher H3 resolutions produce more cells and more memory. Choose resolution base
 
 ### Avoid Row-Wise Iteration
 
+```
 ```python
 import pandas as pd
 import numpy as np
@@ -131,6 +137,7 @@ def distances_fast(gdf):
 
 ### Chunked Processing for Large DataFrames
 
+```
 ```python
 def process_spatial_chunks(df: pd.DataFrame, chunk_size: int = 50_000):
     """Process a large spatial DataFrame in chunks to limit peak memory."""
@@ -146,6 +153,7 @@ def process_spatial_chunks(df: pd.DataFrame, chunk_size: int = 50_000):
 
 For datasets that exceed memory, use Dask to process partitions lazily.
 
+```
 ```python
 import dask.dataframe as dd
 
@@ -167,6 +175,7 @@ Dask works well when the computation is partition-friendly (aggregations, filter
 
 ### R-tree for Geometry Queries
 
+```
 ```python
 from shapely import STRtree
 from shapely.geometry import Point
@@ -183,6 +192,7 @@ indices = tree.query(query_polygon)
 
 H3 cells are a natural spatial index. Instead of R-tree queries, aggregate data by cell, then query neighboring cells.
 
+```
 ```python
 import h3
 
@@ -196,6 +206,7 @@ def get_neighborhood_data(cell: str, data_by_cell: dict, k: int = 1) -> list:
 
 ### functools.lru_cache for Repeated Computations
 
+```
 ```python
 from functools import lru_cache
 
@@ -210,6 +221,7 @@ def cell_to_polygon_wkt(cell: str) -> str:
 
 ### Disk Caching for Expensive Computations
 
+```
 ```python
 import hashlib
 import pickle
@@ -235,6 +247,7 @@ def cached_computation(key: str, compute_fn, *args, **kwargs):
 
 For raster data that exceeds available RAM, use memory-mapped access.
 
+```
 ```python
 import rasterio
 import numpy as np
@@ -261,6 +274,7 @@ def process_raster_tiled(path: str, tile_size: int = 1024):
 
 For custom spatial kernels where numpy broadcasting is insufficient, use numba to compile Python loops to machine code.
 
+```
 ```python
 from numba import njit
 
@@ -292,6 +306,7 @@ Numba works well for numerical loops over arrays. It does not support arbitrary 
 
 Use `pytest-benchmark` for repeatable benchmarks.
 
+```
 ```python
 # tests/performance/test_spatial_perf.py
 import pytest
@@ -312,6 +327,7 @@ def test_h3_indexing_throughput(benchmark):
 
 Run with:
 
+```
 ```bash
 uv run python -m pytest tests/performance/ -v --benchmark-only
 ```

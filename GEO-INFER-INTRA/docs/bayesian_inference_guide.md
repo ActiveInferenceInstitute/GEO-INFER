@@ -47,6 +47,7 @@ Given training locations X and observations y:
 4. Solve for weights: alpha = cho_solve(L, y)
 5. Compute log-marginal-likelihood for model assessment
 
+```
 ```python
 import numpy as np
 from geo_infer_bayes.api.tfp_interface import TFPInterface
@@ -78,6 +79,7 @@ print(summary)
 
 After fitting, predict at new locations using the posterior mean and variance:
 
+```
 ```python
 def gp_predict(gp: TFPInterface, X_test: np.ndarray) -> tuple:
     """Predict mean and variance at test locations.
@@ -132,6 +134,7 @@ For spatial fields with finite differentiability. The Matern class includes:
 - **Matern 3/2**: once differentiable (common for ecological data)
 - **Matern 5/2**: twice differentiable (common for environmental data)
 
+```
 ```python
 def matern_52_kernel(X1: np.ndarray, X2: np.ndarray,
                       lengthscale: float, variance: float) -> np.ndarray:
@@ -146,6 +149,7 @@ def matern_52_kernel(X1: np.ndarray, X2: np.ndarray,
 
 For rough spatial fields (e.g., precipitation, soil properties).
 
+```
 ```python
 def exponential_kernel(X1: np.ndarray, X2: np.ndarray,
                         lengthscale: float, variance: float) -> np.ndarray:
@@ -171,6 +175,7 @@ def exponential_kernel(X1: np.ndarray, X2: np.ndarray,
 
 The lengthscale controls how far spatial correlation extends. Set the prior based on domain knowledge:
 
+```
 ```python
 # For city-scale analysis (coordinates in km)
 # Expect correlation over 1-10 km
@@ -185,6 +190,7 @@ lengthscale_prior_mean = 5.0  # degrees
 
 The signal variance controls the amplitude of the GP. Set it relative to the observed data variance:
 
+```
 ```python
 data_variance = np.var(y_train)
 # GP variance prior: centered at data variance
@@ -199,6 +205,7 @@ gp = TFPInterface(model_config={
 
 The observation noise captures measurement error. For sensor data, this is often known:
 
+```
 ```python
 # Temperature sensor accuracy: +/- 0.5 degrees
 # noise = sensor_std^2
@@ -209,6 +216,7 @@ noise = 0.5 ** 2  # = 0.25
 
 After fitting a GP, validate that the model captures the data structure:
 
+```
 ```python
 def posterior_predictive_check(gp: TFPInterface, X_train: np.ndarray,
                                 y_train: np.ndarray, n_draws: int = 100) -> dict:
@@ -237,6 +245,7 @@ GEO-INFER-BAYES implements these comparison metrics with real numerical computat
 
 Efficient analytical LOO for GPs, no refitting required:
 
+```
 ```python
 from scipy import linalg
 
@@ -281,6 +290,7 @@ Uses the posterior mean deviance and deviance at the posterior mean. Simpler tha
 
 The `TFPInterface.sample()` method runs Metropolis-Hastings in log-space on the GP hyperparameters:
 
+```
 ```python
 # Sample hyperparameter posteriors
 gp = TFPInterface(model_config={"lengthscale": 1.0, "variance": 1.0, "noise": 0.01})
@@ -301,6 +311,7 @@ GEO-INFER-BAYES provides posterior distributions that GEO-INFER-ACT uses for bel
 
 ### Workflow: Bayesian Spatial Model to Active Inference
 
+```
 ```python
 from geo_infer_bayes.api.tfp_interface import TFPInterface
 from geo_infer_act.core.free_energy import FreeEnergyCalculator

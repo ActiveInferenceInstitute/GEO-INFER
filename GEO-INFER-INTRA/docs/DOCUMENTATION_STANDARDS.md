@@ -33,7 +33,10 @@ source and validator are authoritative; open a documentation issue.
 ### Markdown
 
 - Use ATX headings (`#` to `######`) with a single `#` title per page.
-- Use fenced code blocks with a language tag (```` ```python ````).
+- Use fenced code blocks with a language tag (```
+` ```python `
+```
+).
 - Use descriptive link text; prefer relative links between hub pages.
 - Tables use GFM pipe syntax with a header separator row.
 - Keep lines under ~100 characters where practical.
@@ -87,6 +90,7 @@ troubleshooting, performance, and related documentation.
 
 From the repository root:
 
+```
 ```bash
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 uv run python GEO-INFER-TEST/validate_documentation.py --strict

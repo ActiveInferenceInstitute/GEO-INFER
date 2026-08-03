@@ -36,6 +36,7 @@ from geo_infer_place.core.geocoding import PlaceGeocoder
 
 ## Examples
 
+```
 ```python
 from geo_infer_place.core.unified_backend import UnifiedPlaceBackend
 
@@ -46,6 +47,7 @@ boundary = backend.get_boundary(place.id)
 print(f"Boundary: {boundary.area_km2:.1f} km²")
 ```
 
+```
 ```python
 from geo_infer_place.core.catchment import CatchmentAnalyzer
 

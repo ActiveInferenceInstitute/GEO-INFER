@@ -36,6 +36,7 @@ gdf.to_postgis("analysis_results", engine, if_exists="replace", index=False)
 
 Connection pooling is handled through SQLAlchemy's `pool_size` and `max_overflow` parameters. For production deployments, use PgBouncer as a connection pooler between the application and PostgreSQL.
 
+```
 ```python
 engine = create_engine(
     "postgresql+psycopg2://geo_user:password@pgbouncer:6432/geo_infer_db",
@@ -50,6 +51,7 @@ engine = create_engine(
 
 GDAL/OGR provides access to over 200 raster and vector formats. GEO-INFER uses GDAL through `rasterio` (rasters) and `fiona`/`geopandas` (vectors).
 
+```
 ```python
 import rasterio
 from rasterio.windows import from_bounds
@@ -71,6 +73,7 @@ with rasterio.open("/data/elevation_dem.tif") as src:
 
 For vector data from file geodatabases, shapefiles, or GeoPackage:
 
+```
 ```python
 import geopandas as gpd
 
@@ -91,6 +94,7 @@ GEO-INFER connects to external geospatial data providers through their REST APIs
 
 ### NOAA Weather and Climate Data
 
+```
 ```python
 import httpx
 from datetime import datetime, timedelta
@@ -127,6 +131,7 @@ async def fetch_noaa_observations(
 
 ### USGS Earthquake and Water Data
 
+```
 ```python
 async def fetch_usgs_earthquakes(
     min_magnitude: float = 4.0,
@@ -153,6 +158,7 @@ async def fetch_usgs_earthquakes(
 
 ### Copernicus Climate Data Store
 
+```
 ```python
 import cdsapi
 
@@ -184,6 +190,7 @@ def download_copernicus_era5(
 
 GEO-INFER-IOT and GEO-INFER-DATA use Kafka for ingesting real-time geospatial data streams (sensor readings, vehicle positions, satellite telemetry).
 
+```
 ```python
 from confluent_kafka import Consumer, Producer
 import json
@@ -235,6 +242,7 @@ GEO-INFER-DATA provides a unified interface to cloud object stores. Rasterio and
 
 ### Amazon S3
 
+```
 ```python
 import rasterio
 import boto3
@@ -255,6 +263,7 @@ s3.upload_file(
 
 ### Google Cloud Storage
 
+```
 ```python
 from google.cloud import storage
 
@@ -272,6 +281,7 @@ with rasterio.open("/vsigs/geo-infer-data/rasters/ndvi.tif") as src:
 
 ### Azure Blob Storage
 
+```
 ```python
 from azure.storage.blob import BlobServiceClient
 
@@ -297,6 +307,7 @@ GEO-INFER supports OGC service protocols for interoperability with GIS platforms
 
 ### WMS (Web Map Service)
 
+```
 ```python
 from owslib.wms import WebMapService
 
@@ -320,6 +331,7 @@ with open("map_tile.png", "wb") as f:
 
 ### WFS (Web Feature Service)
 
+```
 ```python
 from owslib.wfs import WebFeatureService
 import geopandas as gpd
@@ -337,6 +349,7 @@ gdf = gpd.read_file(BytesIO(response.read()))
 
 ### WCS (Web Coverage Service)
 
+```
 ```python
 from owslib.wcs import WebCoverageService
 
@@ -360,6 +373,7 @@ with open("elevation_subset.tif", "wb") as f:
 
 Most external data providers (NOAA, Copernicus, Planet) use API keys passed as headers or query parameters.
 
+```
 ```python
 import os
 
@@ -374,6 +388,7 @@ COPERNICUS_KEY = os.environ["COPERNICUS_API_KEY"]
 
 For services requiring OAuth2 (Sentinel Hub, some STAC catalogs):
 
+```
 ```python
 import httpx
 
@@ -402,6 +417,7 @@ async def get_oauth2_token(
 
 External API calls can fail due to network issues or rate limits. Use retry logic with exponential backoff.
 
+```
 ```python
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -433,6 +449,7 @@ Common causes and fixes:
 
 If GDAL cannot open a format, verify the driver is compiled in:
 
+```
 ```python
 from osgeo import gdal
 
@@ -446,6 +463,7 @@ for i in range(gdal.GetDriverCount()):
 
 Ensure credentials are configured correctly:
 
+```
 ```bash
 # AWS: verify credentials
 aws sts get-caller-identity
@@ -459,6 +477,7 @@ az account show
 
 For GDAL virtual filesystem access, set the relevant environment variables:
 
+```
 ```bash
 # AWS
 export AWS_ACCESS_KEY_ID="..."

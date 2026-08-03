@@ -97,6 +97,7 @@ the generative model for a geospatial agent consists of:
 | Preferences | `C` | Desired observations | `GenerativeModel.preferences` |
 | Policies | `E` | Prior over action sequences | `PolicySelector.policy_prior` |
 
+```
 ```python
 from geo_infer_act.core.generative_model import GenerativeModel
 import numpy as np
@@ -172,6 +173,7 @@ satellite image has high sensory precision. A well-validated climate model has
 high prior precision. Cloud-covered imagery has low sensory precision, causing the
 agent to rely more on its prior beliefs.
 
+```
 ```python
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 
@@ -229,6 +231,7 @@ Geospatial belief updating extends standard Active Inference by incorporating
 spatial structure into the prior. Nearby locations are assumed to have correlated
 hidden states, encoded through spatial kernels or adjacency matrices on H3 grids.
 
+```
 ```python
 import numpy as np
 import h3
@@ -290,6 +293,7 @@ print(f"Edge cell probability: {min(prior.values()):.6f}")
 
 Belief updating then combines this spatial prior with incoming observations:
 
+```
 ```python
 def update_spatial_beliefs(prior: dict, observations: dict,
                            likelihood_model: dict,
@@ -343,6 +347,7 @@ validation contract is
 
 ### Creating an Active Inference Agent
 
+```
 ```python
 from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_act.core.generative_model import GenerativeModel
@@ -395,6 +400,7 @@ This example demonstrates tracking habitat quality across a landscape using
 free energy minimization. The agent monitors NDVI values and updates its beliefs
 about habitat suitability for a target species.
 
+```
 ```python
 import numpy as np
 from geo_infer_act.core.active_inference import ActiveInferenceModel
@@ -479,6 +485,7 @@ for t, obs in enumerate(observation_sequence):
 This example uses belief updating to predict traffic patterns across an
 H3-indexed urban grid.
 
+```
 ```python
 import numpy as np
 import h3

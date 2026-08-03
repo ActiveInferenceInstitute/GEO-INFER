@@ -57,6 +57,7 @@ df["local_time"] = df["timestamp"].dt.tz_convert("America/Los_Angeles")
 
 The `TemporalAnalyzer` detects trends using linear regression, polynomial fitting, or moving average smoothing.
 
+```
 ```python
 from geo_infer_time.core.analysis import TemporalAnalyzer
 from geo_infer_time.models.timeseries import TimeSeries
@@ -81,6 +82,7 @@ print(f"R-squared: {trend_info['r_squared']:.4f}")   # strength of trend
 
 Decompose a time series into trend, seasonal, and residual components. Requires `statsmodels`.
 
+```
 ```python
 # Decompose monthly temperature data
 monthly_dates = pd.date_range("2015-01-01", periods=96, freq="M")
@@ -100,6 +102,7 @@ print(f"Seasonal amplitude: {decomp['seasonal'].max() - decomp['seasonal'].min()
 
 Detect points where the statistical properties of a time series change.
 
+```
 ```python
 def detect_changepoints(values: np.ndarray, min_segment: int = 20,
                          penalty: float = 3.0) -> list:
@@ -146,6 +149,7 @@ print(f"Changepoints at indices: {cps}")  # near 100 and 200
 
 Measure how spatial and temporal proximity jointly affect correlation.
 
+```
 ```python
 def spatiotemporal_autocorrelation(
     locations: np.ndarray,
@@ -190,6 +194,7 @@ def spatiotemporal_autocorrelation(
 
 The `StreamProcessor` handles sliding, tumbling, and session windows for real-time data.
 
+```
 ```python
 from geo_infer_time.core.stream_processing import StreamProcessor
 from datetime import datetime, timedelta
@@ -218,6 +223,7 @@ print(f"Windows computed: {stats['total_windows']}")
 
 For streaming data, compute statistics incrementally to avoid re-scanning the buffer:
 
+```
 ```python
 class IncrementalStats:
     """Welford's online algorithm for running mean and variance."""
@@ -247,6 +253,7 @@ class IncrementalStats:
 
 For moving objects (vehicles, wildlife, ships), combine temporal and spatial analysis.
 
+```
 ```python
 import numpy as np
 from dataclasses import dataclass
@@ -301,6 +308,7 @@ def compute_trajectory_metrics(points: List[TrajectoryPoint]) -> dict:
 
 ### Pattern: Sensor Network Aggregation
 
+```
 ```python
 from geo_infer_time.core.stream_processing import StreamProcessor
 from datetime import timedelta
@@ -334,6 +342,7 @@ class SpatioTemporalAggregator:
 
 ### Pattern: Alerting on Anomalies
 
+```
 ```python
 from geo_infer_time.core.analysis import TemporalAnalyzer, AnomalyType
 
@@ -367,6 +376,7 @@ def check_for_alerts(values: np.ndarray, timestamps: list,
 
 Active Inference provides a principled way to incorporate prior beliefs into forecasting. The generative model predicts future observations, and prediction errors update the model.
 
+```
 ```python
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 import numpy as np
@@ -420,6 +430,7 @@ print(f"Forecasts: {forecasts}")
 
 Combine spatial GP interpolation with temporal trend models:
 
+```
 ```python
 from geo_infer_bayes.api.tfp_interface import TFPInterface
 from geo_infer_time.core.analysis import TemporalAnalyzer
@@ -488,6 +499,7 @@ def spatiotemporal_interpolation(
 
 For data that changes over both space and time (e.g., air quality, temperature fields):
 
+```
 ```python
 def animate_spatial_field(timestamps: list,
                            locations: np.ndarray,

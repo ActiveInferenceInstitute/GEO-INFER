@@ -105,7 +105,7 @@ teaches the AI assistant how to work with the module.
 name: GEO-INFER-MODULE Skill
 description: Brief description of what this skill enables
 prerequisites:
-  - Python 3.9+
+  - Python 3.11+
   - uv package manager
   - List specific dependencies
 difficulty: beginner | intermediate | advanced
@@ -144,6 +144,7 @@ orchestration.
 
 ### Required Format
 
+```
 ```markdown
 # GEO-INFER-MODULE Agent Capabilities
 
@@ -176,6 +177,7 @@ All code examples in documentation must follow these rules:
 Every code example must run without modification when the module is installed.
 No placeholder comments like `# Implementation here` or `# TODO: add logic`.
 
+```
 ```python
 # CORRECT: functional example
 import numpy as np
@@ -188,6 +190,7 @@ fe = calculator.compute_categorical_free_energy(beliefs, observations)
 print(f"Free energy: {fe:.4f}")
 ```
 
+```
 ```python
 # INCORRECT: non-functional stub
 from geo_infer_act import SomeClass
@@ -210,6 +213,7 @@ probability vectors that sum to 1.0.
 
 Where practical, show what the code produces:
 
+```
 ```python
 cell = h3.latlng_to_cell(45.5231, -122.6765, 9)
 print(cell)
@@ -231,6 +235,7 @@ Always specify the language in fenced code blocks:
 
 Use relative paths from the document's location:
 
+```
 ```markdown
 <!-- From GEO-INFER-INTRA/docs/overview.md -->
 [Installation Guide](installation.md)
@@ -241,6 +246,7 @@ Use relative paths from the document's location:
 
 Use full URLs with descriptive link text:
 
+```
 ```markdown
 [H3 Documentation](https://h3geo.org/docs/)
 [GeoPandas User Guide](https://geopandas.org/en/stable/docs/user_guide.html)
@@ -250,6 +256,7 @@ Use full URLs with descriptive link text:
 
 When referencing another GEO-INFER module from documentation, use the format:
 
+```
 ```markdown
 See [GEO-INFER-BAYES](../../GEO-INFER-BAYES/README.md) for Bayesian inference.
 ```
@@ -258,6 +265,7 @@ See [GEO-INFER-BAYES](../../GEO-INFER-BAYES/README.md) for Bayesian inference.
 
 All Python code uses Google-style docstrings with full type annotations:
 
+```
 ```python
 def compute_spatial_autocorrelation(
     gdf: gpd.GeoDataFrame,

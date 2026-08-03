@@ -66,6 +66,7 @@ global_tiles = generate_tiles((-180, -90, 180, 90), tile_size_deg=1.0)
 
 Use coarse H3 cells as tile boundaries. This ensures tiles align with the H3 hierarchy and simplifies aggregation.
 
+```
 ```python
 import h3
 
@@ -91,6 +92,7 @@ def h3_tile_partition(bbox: Tuple[float, float, float, float],
 
 Process data at coarse resolution first, then drill into areas of interest at finer resolution:
 
+```
 ```python
 def hierarchical_analysis(data_by_cell: dict,
                            coarse_res: int = 5,
@@ -130,6 +132,7 @@ Active Inference belief propagation can be partitioned spatially. Each spatial p
 
 ### Spatial Belief Partitioning
 
+```
 ```python
 import numpy as np
 from typing import Dict, List
@@ -168,6 +171,7 @@ def synchronize_boundary_beliefs(
 - Report generation
 - Workloads where latency is not critical
 
+```
 ```python
 # Batch processing pattern with Dask
 import dask.dataframe as dd
@@ -187,6 +191,7 @@ result = (
 - Live dashboards
 - Workloads where results must be available within seconds
 
+```
 ```python
 from geo_infer_time.core.stream_processing import StreamProcessor
 from datetime import timedelta
@@ -211,6 +216,7 @@ for reading in sensor_stream:
 
 For sporadic workloads, package analysis as serverless functions:
 
+```
 ```python
 # Example: AWS Lambda handler for point-in-polygon lookup
 import json
@@ -238,6 +244,7 @@ def handler(event, context):
 
 For sustained workloads, deploy GEO-INFER modules as containers:
 
+```
 ```yaml
 # docker-compose.yml for a GEO-INFER analysis cluster
 services:
@@ -279,6 +286,7 @@ services:
 
 ### Example: Cost-Aware Resolution Selection
 
+```
 ```python
 def estimate_cost(n_points: int, resolution: int) -> dict:
     """Estimate processing cost for a given H3 resolution.
@@ -302,6 +310,7 @@ def estimate_cost(n_points: int, resolution: int) -> dict:
 
 ### Scaling GEO-INFER-RISK: Monte Carlo Simulation
 
+```
 ```python
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np

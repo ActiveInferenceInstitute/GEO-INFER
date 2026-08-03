@@ -59,6 +59,7 @@ def read_raster_in_windows(
 
 ### Accumulating Statistics Without Full Load
 
+```
 ```python
 import rasterio
 from rasterio.windows import Window
@@ -130,6 +131,7 @@ def compute_raster_statistics(path: str, window_size: int = 2048) -> dict:
 
 When you only need data within a polygon (common in GEO-INFER-SPACE workflows):
 
+```
 ```python
 import rasterio
 from rasterio.mask import mask as rasterio_mask
@@ -178,12 +180,14 @@ def read_raster_within_polygon(
 
 ### Installation
 
+```
 ```bash
 uv pip install dask-geopandas
 ```
 
 ### Loading Large Vector Files
 
+```
 ```python
 import dask_geopandas
 import geopandas as gpd
@@ -233,6 +237,7 @@ def spatial_filter_lazy(
 
 ### Aggregation on Large Datasets
 
+```
 ```python
 import dask_geopandas
 import dask.dataframe as dd
@@ -264,6 +269,7 @@ National or continental H3 grids are too large to process at once. The key insig
 
 ### Chunking by Parent Resolution
 
+```
 ```python
 import h3
 import numpy as np
@@ -316,6 +322,7 @@ def chunk_cells_by_parent(
 
 ### Processing a National H3 Grid in Chunks
 
+```
 ```python
 import h3
 import numpy as np
@@ -392,6 +399,7 @@ Use these formulas to estimate memory requirements before running a job:
 | 8 | 5,764,801 | 691,776,122 | 16 | 40 |
 | 9 | 40,353,607 | 4,842,432,842 | 16 | 40 |
 
+```
 ```python
 def estimate_h3_memory_mb(
     num_cells: int,
@@ -436,6 +444,7 @@ Measured on US Census block groups (~240,000 polygons):
 
 ### Writing GeoParquet
 
+```
 ```python
 import geopandas as gpd
 
@@ -466,6 +475,7 @@ def convert_to_geoparquet(
 
 GeoParquet allows reading only the columns you need:
 
+```
 ```python
 import geopandas as gpd
 
@@ -493,10 +503,12 @@ def read_selected_columns(
 
 ### Using memory_profiler
 
+```
 ```bash
 uv pip install memory_profiler
 ```
 
+```
 ```python
 from memory_profiler import profile
 
@@ -520,12 +532,14 @@ def spatial_join_large(
 
 Run with:
 
+```
 ```bash
 python -m memory_profiler my_script.py
 ```
 
 ### Using tracemalloc for Peak Tracking
 
+```
 ```python
 import tracemalloc
 from typing import Callable, Any, Tuple
@@ -559,10 +573,12 @@ def measure_peak_memory(fn: Callable, *args, **kwargs) -> Tuple[Any, float]:
 
 For detailed object-level memory inspection:
 
+```
 ```bash
 uv pip install guppy3
 ```
 
+```
 ```python
 from guppy import hpy
 
@@ -591,6 +607,7 @@ def inspect_heap_after_load(path: str) -> None:
 
 A generator-based pipeline keeps memory constant regardless of input size.
 
+```
 ```python
 import geopandas as gpd
 import pandas as pd
@@ -687,6 +704,7 @@ When working with large H3 grids:
 - Avoid materializing `h3.polygon_to_cells()` for fine resolutions over large polygons; iterate parent cells and expand children per-chunk
 - Store H3 indexes as `uint64` instead of strings to cut memory per cell from 16+ bytes to 8 bytes
 
+```
 ```python
 import h3
 
@@ -717,6 +735,7 @@ For streaming data ingestion:
 - Set `engine="pyogrio"` in `gpd.read_file()` for 2-5x faster reads with lower peak memory
 - Prefer GeoParquet as the intermediate storage format after initial ingestion
 
+```
 ```python
 import geopandas as gpd
 

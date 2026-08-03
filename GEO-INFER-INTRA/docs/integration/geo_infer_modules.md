@@ -44,6 +44,7 @@ DATA manages ETL and data formats. API exposes module functionality over REST/Gr
 
 GEO-INFER uses `uv` as its package manager. Install modules in editable mode for development:
 
+```
 ```bash
 # Install foundation + core
 uv pip install -e ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-ACT
@@ -60,6 +61,7 @@ uv pip install -e "./GEO-INFER-AI[dev,docs]"
 
 Module load order does not matter at install time; Python resolves imports at runtime. However, if a module's optional dependency is missing, its `__init__.py` uses `try/except` to degrade gracefully:
 
+```
 ```python
 # Pattern used in every GEO-INFER module's __init__.py
 try:
@@ -76,6 +78,7 @@ Modules exchange data using standard geospatial formats. No custom serialization
 
 The default interchange format for vector features between modules.
 
+```
 ```python
 import json
 
@@ -95,6 +98,7 @@ feature_collection = {
 
 For large datasets, GeoParquet provides columnar storage with spatial metadata.
 
+```
 ```python
 import geopandas as gpd
 
@@ -110,6 +114,7 @@ gdf = gpd.read_parquet("analysis_output.parquet")
 
 GEO-INFER-SPACE uses H3 v4 for hexagonal spatial indexing. H3 cell IDs (integers) are the standard spatial key for joining data across modules.
 
+```
 ```python
 import h3
 
@@ -129,6 +134,7 @@ Raster data and matrix computations pass as NumPy arrays. MATH, BAYES, and AI mo
 
 This pipeline reads spatial data, computes statistics with GEO-INFER-MATH, then quantifies uncertainty with GEO-INFER-BAYES.
 
+```
 ```python
 from geo_infer_math.core.spatial_statistics import SpatialStatistics
 from geo_infer_math.core.transforms import CoordinateTransform
@@ -163,6 +169,7 @@ mean, variance = gp.predict(grid_points, return_variance=True)
 
 Combine GEO-INFER-ACT with GEO-INFER-SPACE for spatially-aware Active Inference.
 
+```
 ```python
 from geo_infer_act.core.active_inference import ActiveInferenceAgent
 from geo_infer_space.backends.h3.h3_backend import H3Backend
@@ -191,6 +198,7 @@ for timestep in range(100):
 
 A complete agricultural analysis combining four modules:
 
+```
 ```python
 from geo_infer_space.backends.h3.h3_backend import H3Backend
 from geo_infer_math.core.spatial_statistics import SpatialStatistics
@@ -227,6 +235,7 @@ best_model = results.best_model
 
 The `uv` package manager handles all Python dependencies. Each module has its own `pyproject.toml` specifying its requirements.
 
+```
 ```bash
 # Create a virtual environment
 uv venv
@@ -261,6 +270,7 @@ If two modules pin conflicting versions of a shared dependency, `uv` will report
 
 For applications that need to consume multiple modules without importing them directly, GEO-INFER-API provides a unified REST interface.
 
+```
 ```python
 import httpx
 
@@ -304,6 +314,7 @@ predictions = response.json()["predictions"]
 
 The simplest pattern. One module imports classes from another.
 
+```
 ```python
 from geo_infer_math.core.transforms import CoordinateTransform
 from geo_infer_space.backends.h3.h3_backend import H3Backend
@@ -327,6 +338,7 @@ For batch workflows, one module writes results to disk (or cloud storage) and an
 
 Run the unified test suite to validate that modules work together:
 
+```
 ```bash
 # All integration tests
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration

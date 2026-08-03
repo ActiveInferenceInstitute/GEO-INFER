@@ -27,6 +27,7 @@ uv sync --all-packages --all-extras
 
 2. **Verify** — run the documentation and syntax gates:
 
+```
 ```bash
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
