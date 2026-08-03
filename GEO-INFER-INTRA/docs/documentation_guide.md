@@ -91,7 +91,7 @@ sections in this order:
     - Links to relevant guides (active inference, geospatial standards, etc.)
 
 11. **License**
-    - "Apache 2.0" with link to LICENSE file
+    - "CC BY-NC-SA 4.0" with link to LICENSE file
 
 ## SKILL.md Structure
 

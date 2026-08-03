@@ -278,14 +278,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module [MODULE]
 
 ## Documentation Hub
 
-- [GEO-INFER Framework Overview](../GEO-INFER-INTRA/docs/overview.md)
-- [Active Inference Guide](../GEO-INFER-INTRA/docs/active_inference_guide.md)
-- [Geospatial Standards](../GEO-INFER-INTRA/docs/geospatial_standards.md)
-- [Data Dictionary](../GEO-INFER-INTRA/docs/data_dictionary.md)
-- [Installation Guide](../GEO-INFER-INTRA/docs/installation.md)
-- [Examples Gallery](../GEO-INFER-INTRA/docs/examples_gallery.md)
-- [Terminology Glossary](../GEO-INFER-INTRA/docs/terminology.md)
+- [GEO-INFER Framework Overview](overview.md)
+- [Active Inference Guide](active_inference_guide.md)
+- [Geospatial Standards](geospatial_standards.md)
+- [Data Dictionary](data_dictionary.md)
+- [Installation Guide](installation.md)
+- [Examples Gallery](examples_gallery.md)
+- [Terminology Glossary](terminology.md)
 
 ## License
 
-Apache 2.0 -- see [LICENSE](../LICENSE) for details.
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International —
+see [LICENSE](../../LICENSE) for details.
