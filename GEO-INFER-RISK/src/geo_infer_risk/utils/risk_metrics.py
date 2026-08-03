@@ -305,7 +305,8 @@ def calculate_annual_occurrence_exceedance_probability(event_loss_table: pd.Data
 
 def calculate_annual_aggregate_exceedance_probability(event_loss_table: pd.DataFrame,
                                                     threshold: float,
-                                                    num_years: int = 10000) -> float:
+                                                    num_years: int = 10000,
+                                                    random_seed: Optional[int] = None) -> float:
     """
     Calculate the Annual Aggregate Exceedance Probability (AEP) for a loss threshold.
     
@@ -316,10 +317,18 @@ def calculate_annual_aggregate_exceedance_probability(event_loss_table: pd.DataF
             Must have columns 'event_id', 'hazard_type', and 'loss'.
         threshold (float): Loss threshold.
         num_years (int, optional): Number of years to simulate. Default is 10000.
+        random_seed (int, optional): Seed for reproducible Monte Carlo
+            simulation. When ``None`` (default) the legacy global
+            ``np.random`` state is used.
             
     Returns:
         float: Annual aggregate exceedance probability
     """
+    if random_seed is None:
+        rng = np.random
+    else:
+        rng = np.random.default_rng(random_seed)
+
     # Calculate total loss by event
     event_totals = event_loss_table.groupby('event_id')['loss'].sum().reset_index()
     
@@ -337,11 +346,11 @@ def calculate_annual_aggregate_exceedance_probability(event_loss_table: pd.DataF
     
     for _ in range(num_years):
         # Generate random number of events for this year
-        num_events = np.random.poisson(avg_events_per_year)
+        num_events = rng.poisson(avg_events_per_year)
         
         # Sample events and sum losses
         if num_events > 0:
-            year_losses = np.random.choice(all_losses, size=num_events, replace=True)
+            year_losses = rng.choice(all_losses, size=num_events, replace=True)
             total_year_loss = np.sum(year_losses)
             
             # Check if year loss exceeds threshold

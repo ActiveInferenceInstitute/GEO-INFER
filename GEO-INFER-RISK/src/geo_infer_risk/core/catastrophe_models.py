@@ -51,6 +51,22 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def _randint(rng: Any, *args: Any, **kwargs: Any) -> Any:
+    """Draw integers from either the legacy np.random module or a Generator.
+
+    Scalar results are coerced to Python ``int`` so downstream consumers such
+    as ``timedelta(days=...)`` accept them (a fresh ``default_rng`` returns
+    ``numpy.int64`` scalars, which ``datetime.timedelta`` rejects).
+    """
+    if hasattr(rng, "integers"):
+        result = rng.integers(*args, **kwargs)
+    else:
+        result = rng.randint(*args, **kwargs)
+    if getattr(result, "ndim", 0) == 0:
+        return int(result)
+    return result
+
+
 @dataclass
 class CatastropheConfig:
     """Enhanced configuration for catastrophe models."""
@@ -163,6 +179,11 @@ class EnhancedCatastropheModel:
         # Event simulation state
         self.event_cache = {}
         self.correlation_matrix = None
+
+        # Reproducible RNG source: legacy global np.random by default; a single
+        # call to simulate_events(random_seed=...) replaces it with a
+        # deterministic default_rng for that run.
+        self._rng: Any = np.random
 
         # Performance tracking
         self.simulation_metrics = {
@@ -481,6 +502,7 @@ class EnhancedCatastropheModel:
         n_simulations: int,
         region: Optional[Dict] = None,
         time_period: Optional[Tuple[datetime, datetime]] = None,
+        random_seed: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
         Simulate catastrophe events with advanced features.
@@ -489,10 +511,20 @@ class EnhancedCatastropheModel:
             n_simulations: Number of events to simulate
             region: Spatial region constraints
             time_period: Temporal constraints
+            random_seed: Optional seed for reproducible event simulation. When
+                ``None`` (default) the legacy global ``np.random`` state is
+                used. When provided, a deterministic ``default_rng`` is used
+                for this run.
 
         Returns:
             List of simulated catastrophe events
         """
+        # Bind a reproducible RNG source for this run when a seed is supplied.
+        if random_seed is None:
+            self._rng = np.random
+        else:
+            self._rng = np.random.default_rng(random_seed)
+
         logger.info(f"Simulating {n_simulations} catastrophe events")
 
         events = []
@@ -618,7 +650,7 @@ class EnhancedCatastropheModel:
             L = np.linalg.cholesky(C)
 
             # Draw correlated standard-normal perturbations
-            z = np.random.standard_normal(n_events)
+            z = self._rng.standard_normal(n_events)
             correlated_z = L @ z
 
             # Apply perturbation to intensities (multiplicative, bounded to ±30 %)
@@ -822,7 +854,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"EQ_{np.random.randint(1000000)}",
+            "event_id": f"EQ_{_randint(self._rng, 1000000)}",
             "hazard_type": "earthquake",
             "timestamp": timestamp,
             "location": location,
@@ -843,7 +875,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         }
 
         # Add tectonic region
-        event["tectonic_region"] = np.random.choice(
+        event["tectonic_region"] = self._rng.choice(
             ["active_crustal", "subduction", "stable_crustal"]
         )
 
@@ -853,7 +885,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         """Generate earthquake magnitude using fitted parameters."""
         if not self.is_fitted:
             # Default Gutenberg-Richter with b=1.0
-            u = np.random.uniform(0, 1)
+            u = self._rng.uniform(0, 1)
             return 4.0 + np.log10(1 / u)  # Simplified
 
         params = self.model_parameters
@@ -861,7 +893,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         min_mag = params.get("min_magnitude", 4.0)
 
         # Generate using inverse transform sampling
-        u = np.random.uniform(0, 1)
+        u = self._rng.uniform(0, 1)
         magnitude = min_mag + np.log10(1 / u) / b_value
 
         return min(8.5, magnitude)
@@ -872,21 +904,21 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         """Generate earthquake location."""
         if region and "bounds" in region:
             bounds = region["bounds"]
-            lat = np.random.uniform(
+            lat = self._rng.uniform(
                 bounds.get("min_lat", -60), bounds.get("max_lat", 60)
             )
-            lon = np.random.uniform(
+            lon = self._rng.uniform(
                 bounds.get("min_lon", -180), bounds.get("max_lon", 180)
             )
         else:
-            lat = np.random.uniform(-60, 60)
-            lon = np.random.uniform(-180, 180)
+            lat = self._rng.uniform(-60, 60)
+            lon = self._rng.uniform(-180, 180)
 
         # Generate depth
         if self.is_fitted:
-            depth = np.random.exponential(self.model_parameters.get("mean_depth", 15.0))
+            depth = self._rng.exponential(self.model_parameters.get("mean_depth", 15.0))
         else:
-            depth = np.random.exponential(15.0)
+            depth = self._rng.exponential(15.0)
 
         return {"latitude": lat, "longitude": lon, "depth": depth}
 
@@ -897,12 +929,12 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         if time_period:
             start_time, end_time = time_period
             timestamp = start_time + timedelta(
-                seconds=np.random.randint(
-                    0, int((end_time - start_time).total_seconds())
+                seconds=_randint(
+                    self._rng, 0, int((end_time - start_time).total_seconds())
                 )
             )
         else:
-            timestamp = datetime.now() + timedelta(days=np.random.randint(0, 365))
+            timestamp = datetime.now() + timedelta(days=_randint(self._rng, 0, 365))
 
         return timestamp
 
@@ -1037,7 +1069,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"HUR_{np.random.randint(1000000)}",
+            "event_id": f"HUR_{_randint(self._rng, 1000000)}",
             "hazard_type": "hurricane",
             "timestamp": timestamp,
             "location": track[0] if track else {"latitude": 25.0, "longitude": -80.0},
@@ -1066,9 +1098,9 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
             params = self.model_parameters
             shape = params.get("weibull_shape", 2.5)
             scale = params.get("weibull_scale", 30.0)
-            wind_speed = np.random.weibull(shape) * scale
+            wind_speed = self._rng.weibull(shape) * scale
         else:
-            wind_speed = np.random.weibull(2.5) * 40 + 30
+            wind_speed = self._rng.weibull(2.5) * 40 + 30
 
         return max(25, wind_speed)  # Minimum tropical storm strength
 
@@ -1076,32 +1108,32 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
         self, region: Optional[Dict] = None
     ) -> List[Dict[str, Any]]:
         """Generate hurricane track."""
-        track_length = np.random.randint(5, 20)
+        track_length = _randint(self._rng, 5, 20)
         track = []
 
         # Start in tropical Atlantic
         if region and "bounds" in region:
             bounds = region["bounds"]
-            start_lat = np.random.uniform(
+            start_lat = self._rng.uniform(
                 bounds.get("min_lat", 10), bounds.get("max_lat", 30)
             )
-            start_lon = np.random.uniform(
+            start_lon = self._rng.uniform(
                 bounds.get("min_lon", -100), bounds.get("max_lon", -60)
             )
         else:
-            start_lat = np.random.uniform(10, 30)
-            start_lon = np.random.uniform(-100, -60)
+            start_lat = self._rng.uniform(10, 30)
+            start_lon = self._rng.uniform(-100, -60)
 
         current_lat, current_lon = start_lat, start_lon
 
         for i in range(track_length):
             # Storm movement (westward then northward)
             if i < track_length // 2:
-                delta_lon = np.random.normal(-0.2, 0.1)
-                delta_lat = np.random.normal(0.1, 0.1)
+                delta_lon = self._rng.normal(-0.2, 0.1)
+                delta_lat = self._rng.normal(0.1, 0.1)
             else:
-                delta_lon = np.random.normal(0.1, 0.1)
-                delta_lat = np.random.normal(0.3, 0.1)
+                delta_lon = self._rng.normal(0.1, 0.1)
+                delta_lat = self._rng.normal(0.3, 0.1)
 
             current_lat += delta_lat
             current_lon += delta_lon
@@ -1271,7 +1303,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"FLD_{np.random.randint(1000000)}",
+            "event_id": f"FLD_{_randint(self._rng, 1000000)}",
             "hazard_type": "flood",
             "timestamp": timestamp,
             "location": location,
@@ -1291,9 +1323,9 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
         }
 
         # Add flood-specific properties
-        event["flood_type"] = np.random.choice(["riverine", "pluvial", "coastal"])
-        event["duration"] = np.random.exponential(72.0)  # Hours
-        event["affected_area"] = np.random.exponential(50.0)  # km²
+        event["flood_type"] = self._rng.choice(["riverine", "pluvial", "coastal"])
+        event["duration"] = self._rng.exponential(72.0)  # Hours
+        event["affected_area"] = self._rng.exponential(50.0)  # km²
 
         return event
 
@@ -1306,13 +1338,13 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
             if distribution == "gumbel":
                 loc = params.get("gumbel_location", 2.0)
                 scale = params.get("gumbel_scale", 1.0)
-                depth = np.random.gumbel(loc, scale)
+                depth = self._rng.gumbel(loc, scale)
             else:
                 mean_depth = params.get("mean_depth", 2.0)
                 std_depth = params.get("std_depth", 1.0)
-                depth = np.random.normal(mean_depth, std_depth)
+                depth = self._rng.normal(mean_depth, std_depth)
         else:
-            depth = np.random.exponential(2.0)
+            depth = self._rng.exponential(2.0)
 
         return max(0.1, depth)  # Minimum flood depth
 
@@ -1320,16 +1352,16 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
         """Generate flood location."""
         if region and "bounds" in region:
             bounds = region["bounds"]
-            lat = np.random.uniform(
+            lat = self._rng.uniform(
                 bounds.get("min_lat", -90), bounds.get("max_lat", 90)
             )
-            lon = np.random.uniform(
+            lon = self._rng.uniform(
                 bounds.get("min_lon", -180), bounds.get("max_lon", 180)
             )
         else:
             # Global flood distribution
-            lat = np.random.uniform(-60, 60)
-            lon = np.random.uniform(-180, 180)
+            lat = self._rng.uniform(-60, 60)
+            lon = self._rng.uniform(-180, 180)
 
         return {
             "latitude": lat,

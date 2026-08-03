@@ -31,7 +31,7 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | --- | ---: |
 | Modules | 44 |
 | Python source files | 901 |
-| Python test files | 512 |
+| Python test files | 513 |
 | Repository README.md files | 850 |
 | Repository AGENTS.md files | 849 |
 
@@ -133,7 +133,7 @@ the exact reproducible exception list.
 | `GEO-INFER-PEP` | `geo_infer_pep` | 33 | 9 |
 | `GEO-INFER-PLACE` | `geo_infer_place` | 29 | 14 |
 | `GEO-INFER-REQ` | `geo_infer_req` | 8 | 7 |
-| `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 14 |
+| `GEO-INFER-RISK` | `geo_infer_risk` | 30 | 15 |
 | `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 10 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 87 | 39 |
