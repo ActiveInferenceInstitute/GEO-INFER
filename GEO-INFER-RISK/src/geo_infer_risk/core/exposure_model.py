@@ -71,6 +71,13 @@ class EnhancedExposureModel:
         self.params = params
         self.logger = logging.getLogger(f"{__name__}.{exposure_type}")
 
+        # Reproducible RNG (legacy global by default; callers may bind a
+        # default_rng via set_random_seed or by setting random_seed in params).
+        self._rng: Any = np.random
+        seed = params.get("random_seed") or params.get("seed")
+        if seed is not None:
+            self._rng = np.random.default_rng(int(seed))
+
         # Enhanced parameter handling
         self.data_sources = params.get("data_sources", [])
         self.value_type = params.get("value_type", "replacement_cost")
@@ -340,9 +347,9 @@ class EnhancedExposureModel:
                 # Estimate area based on building levels
                 self.exposure_data["area"] = self.exposure_data[
                     "building_levels"
-                ] * np.random.uniform(100, 500, len(self.exposure_data))
+                ] * self._rng.uniform(100, 500, len(self.exposure_data))
             else:
-                self.exposure_data["area"] = np.random.uniform(
+                self.exposure_data["area"] = self._rng.uniform(
                     50, 200, len(self.exposure_data)
                 )
 
