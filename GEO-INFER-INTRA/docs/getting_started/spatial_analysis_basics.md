@@ -85,6 +85,7 @@ Key H3 concepts:
 - **Cell ID**: A 64-bit integer encoded as a hex string (e.g., `"8928308280fffff"`).
 - **Hierarchy**: Every cell at resolution `r` has 7 children at resolution `r+1`.
 
+```
 ```python
 from geo_infer_space import latlng_to_cell, cell_to_latlng, grid_disk
 
@@ -113,6 +114,7 @@ v4 convention.
 A buffer creates a new polygon at a specified distance from a geometry. Use
 buffers to define impact zones, proximity areas, or safety perimeters.
 
+```
 ```python
 from geo_infer_space import GeometricOperationsInterface
 
@@ -127,6 +129,7 @@ With `geopandas`, buffering works directly on GeoDataFrame columns. Note that
 buffering in geographic CRS (EPSG:4326) uses degrees, not meters. Project to a
 metric CRS first for meter-based buffers:
 
+```
 ```python
 # Project to UTM Zone 10N (meters) before buffering
 sensors_utm = sensors.to_crs("EPSG:32610")
@@ -138,6 +141,7 @@ sensors_utm["buffer_500m"] = sensors_utm.geometry.buffer(500)
 A spatial join links two datasets based on their geographic relationship. The
 most common predicates are `intersects`, `within`, and `contains`.
 
+```
 ```python
 import geopandas as gpd
 
@@ -157,6 +161,7 @@ print(sensors_with_county[["sensor_id", "county_name"]].head())
 Finding the closest feature to each point is a common operation for site
 selection, nearest-facility analysis, and interpolation.
 
+```
 ```python
 from shapely.ops import nearest_points
 
@@ -173,6 +178,7 @@ for idx, sensor in sensors.iterrows():
 
 Test whether geometries overlap, contain, or touch each other:
 
+```
 ```python
 # Which sensors fall within a specific polygon?
 study_area = Polygon([
@@ -189,6 +195,7 @@ print(f"{len(sensors_in_area)} sensors inside the study area")
 
 The `SpatialAnalyticsInterface` provides clustering and hotspot analysis:
 
+```
 ```python
 import numpy as np
 from geo_infer_space import SpatialAnalyticsInterface
@@ -230,6 +237,7 @@ Rules of thumb:
 2. **Analyze** in a projected CRS appropriate for your study area when you need metric distances or areas.
 3. **Display** in EPSG:3857 if feeding a web map, or EPSG:4326 for GeoJSON export.
 
+```
 ```python
 # Check CRS
 print(f"Current CRS: {sensors.crs}")
@@ -272,6 +280,7 @@ The three main interfaces are:
 
 All three are importable directly from `geo_infer_space`:
 
+```
 ```python
 from geo_infer_space import (
     SpatialIndexingInterface,
@@ -289,6 +298,7 @@ analytics = SpatialAnalyticsInterface()
 This example loads point data, indexes it with H3, buffers a study area, and
 runs a hotspot analysis:
 
+```
 ```python
 import geopandas as gpd
 import numpy as np

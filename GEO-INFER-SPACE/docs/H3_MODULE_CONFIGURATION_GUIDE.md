@@ -26,6 +26,7 @@ A module's public API should expose an explicit backend capability or a clear
 missing. Add focused tests for point conversion, polygon conversion, invalid
 inputs, and GeoJSON ring order.
 
+```
 ```bash
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language

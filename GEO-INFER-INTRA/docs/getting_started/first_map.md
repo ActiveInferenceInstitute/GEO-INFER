@@ -24,6 +24,7 @@ You also need these Python packages (installed as GEO-INFER-SPACE dependencies):
 
 Verify your environment:
 
+```
 ```python
 import geopandas as gpd
 import folium
@@ -42,6 +43,7 @@ We will work with point data representing sensor readings across a metro area.
 In practice, you would load data from a GeoJSON file, shapefile, or database.
 For this tutorial, we generate sample data:
 
+```
 ```python
 import geopandas as gpd
 import numpy as np
@@ -69,6 +71,7 @@ print(sensors.head())
 
 To load from a file instead:
 
+```
 ```python
 # GeoJSON
 sensors = gpd.read_file("path/to/sensors.geojson")
@@ -91,6 +94,7 @@ sensors = gpd.GeoDataFrame(
 `folium` generates Leaflet.js maps that run in any browser. Each marker
 represents a sensor, colored by AQI category.
 
+```
 ```python
 import folium
 
@@ -141,6 +145,7 @@ H3 hexagonal grids aggregate point data into uniform spatial bins. This is
 useful for density analysis, heatmaps, and feeding data into Active Inference
 models that operate on discrete spatial cells.
 
+```
 ```python
 import h3
 import json
@@ -162,6 +167,7 @@ print(cell_aqi.head())
 
 Now draw the hexagons on the map:
 
+```
 ```python
 import folium
 
@@ -202,6 +208,7 @@ print("H3 hex map saved to hex_map.html")
 
 Combine the point and hex layers into a single map with toggle controls:
 
+```
 ```python
 import folium
 from folium.plugins import MarkerCluster
@@ -254,6 +261,7 @@ print("Combined map saved to combined_map.html")
 For reports and publications, you may need a static image rather than an
 interactive HTML file.
 
+```
 ```python
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -288,6 +296,7 @@ GEO-INFER-SPACE includes a higher-level visualization engine for creating
 dashboards with multiple data layers. It wraps folium with H3 integration and
 multi-layer overlay support:
 
+```
 ```python
 from pathlib import Path
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
@@ -328,6 +337,7 @@ print(f"Dashboard saved to: {dashboard_path}")
 
 All folium maps save directly to HTML:
 
+```
 ```python
 m.save("output/my_map.html")
 ```
@@ -339,6 +349,7 @@ shared, uploaded to a web server, or embedded in an iframe.
 
 Use matplotlib for static exports, as shown in Step 5. For higher resolution:
 
+```
 ```python
 plt.savefig("output/my_map.png", dpi=300, bbox_inches="tight")
 ```
@@ -348,6 +359,7 @@ plt.savefig("output/my_map.png", dpi=300, bbox_inches="tight")
 Export your GeoDataFrame to GeoJSON for use in other GIS tools (QGIS, ArcGIS,
 Mapbox):
 
+```
 ```python
 # Export sensor points
 sensors.to_file("output/sensors.geojson", driver="GeoJSON")
@@ -375,6 +387,7 @@ print("GeoJSON files exported")
 
 For publication-quality figures:
 
+```
 ```python
 fig, ax = plt.subplots(1, 1, figsize=(10, 8))
 sensors.plot(ax=ax, column="aqi", cmap="RdYlGn_r", markersize=40)

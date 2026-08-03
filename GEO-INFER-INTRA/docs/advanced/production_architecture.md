@@ -54,6 +54,7 @@ GEO-INFER modules have clear boundaries that map naturally to services, but not 
 
 **Start with a modular monolith:**
 
+```
 ```python
 # Single FastAPI application importing multiple modules
 from fastapi import FastAPI
@@ -84,6 +85,7 @@ Responsibilities:
 - API versioning
 - Response caching headers
 
+```
 ```python
 # API gateway pattern
 from fastapi import FastAPI, Request, Response
@@ -117,6 +119,7 @@ GEO-INFER-SEC provides authentication, authorization, and audit logging.
 3. User identity and permissions are injected into the request context
 4. Module endpoints check permissions before executing
 
+```
 ```python
 # Security middleware
 from geo_infer_sec.auth import verify_token, check_permission
@@ -138,6 +141,7 @@ async def auth_middleware(request: Request, call_next):
 
 PostgreSQL with PostGIS for all vector geospatial data.
 
+```
 ```sql
 -- Spatial table with H3 index column
 CREATE TABLE observations (
@@ -168,6 +172,7 @@ Benefits:
 - Internal tiling and overviews -- zoom-level-appropriate data
 - No specialized raster database needed
 
+```
 ```python
 import rasterio
 
@@ -187,6 +192,7 @@ Use Redis for:
 - Rate limiting counters
 - Frequently accessed H3 cell aggregations
 
+```
 ```python
 import redis
 import json
@@ -227,6 +233,7 @@ Set long cache TTLs for tiles that change infrequently (basemaps, administrative
 
 ### Metrics (Prometheus + Grafana)
 
+```
 ```python
 from prometheus_client import Counter, Histogram, start_http_server
 
@@ -253,6 +260,7 @@ REQUEST_LATENCY = Histogram(
 
 ### Logs (Structured JSON)
 
+```
 ```python
 import logging
 import json
@@ -275,6 +283,7 @@ class JSONFormatter(logging.Formatter):
 
 ### Traces (OpenTelemetry)
 
+```
 ```python
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider

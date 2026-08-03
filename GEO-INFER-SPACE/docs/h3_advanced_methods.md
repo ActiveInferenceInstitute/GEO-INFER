@@ -19,6 +19,7 @@ latitude/longitude rings, and explicit coordinate conversion for GeoJSON and
 visualization output. Backend capabilities include the installed version and
 minimum supported version.
 
+```
 ```bash
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 ```

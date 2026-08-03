@@ -22,6 +22,7 @@ feature = {
 
 ## Fill a GeoJSON polygon
 
+```
 ```python
 geometry = {
     "type": "Polygon",
@@ -38,6 +39,7 @@ cells = sorted(h3.geo_to_cells(geometry, res=9))
 
 ## Native H3 polygon
 
+```
 ```python
 polygon = h3.LatLngPoly([
     (45.50, -122.70),

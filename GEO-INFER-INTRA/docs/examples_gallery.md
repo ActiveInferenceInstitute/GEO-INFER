@@ -38,6 +38,7 @@ uv pip install -e ./GEO-INFER-ACT ./GEO-INFER-BAYES ./GEO-INFER-AG
 
 ### Running a Python Example
 
+```
 ```bash
 # Run directly
 uv run python GEO-INFER-EXAMPLES/examples/spatial/h3_grid_analysis.py
@@ -49,6 +50,7 @@ uv run python spatial/h3_grid_analysis.py
 
 ### Running a Jupyter Notebook
 
+```
 ```bash
 uv pip install jupyter
 uv run jupyter notebook GEO-INFER-EXAMPLES/examples/spatial/h3_grid_analysis.ipynb
@@ -58,6 +60,7 @@ uv run jupyter notebook GEO-INFER-EXAMPLES/examples/spatial/h3_grid_analysis.ipy
 
 Some examples require data paths or API keys:
 
+```
 ```bash
 export GEO_INFER_DATA_DIR="/path/to/sample/data"
 export GEO_INFER_CACHE_DIR="/tmp/geo_infer_cache"
@@ -79,6 +82,7 @@ Compute Moran's I spatial autocorrelation on a synthetic dataset.
 - **Estimated Runtime**: < 30 seconds
 - **Directory**: `GEO-INFER-EXAMPLES/examples/math/`
 
+```
 ```python
 from geo_infer_math.core.statistics import compute_morans_i
 import numpy as np
@@ -98,6 +102,7 @@ Create an H3 hexagonal grid covering a bounding box.
 - **Estimated Runtime**: < 10 seconds
 - **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/`
 
+```
 ```python
 import h3
 import geopandas as gpd
@@ -121,6 +126,7 @@ Compute variational free energy for a simple categorical model.
 - **Estimated Runtime**: < 5 seconds
 - **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/`
 
+```
 ```python
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 import numpy as np
@@ -232,6 +238,7 @@ with uncertainty bounds.
 - **Estimated Runtime**: 1-3 minutes
 - **Directory**: `GEO-INFER-EXAMPLES/examples/bayesian/gp_regression/`
 
+```
 ```python
 from geo_infer_bayes.core.inference import GaussianProcess
 import numpy as np
@@ -441,6 +448,7 @@ multiple modules in a declarative pipeline.
 - **Estimated Runtime**: 5-20 minutes
 - **Directory**: `GEO-INFER-EXAMPLES/examples/integration/orchestrator/`
 
+```
 ```python
 from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
 
@@ -540,6 +548,7 @@ To add an example to this gallery:
 
 ### Example Directory Structure
 
+```
 ```text
 GEO-INFER-EXAMPLES/examples/<category>/<example_name>/
     README.md           # Prerequisites and description

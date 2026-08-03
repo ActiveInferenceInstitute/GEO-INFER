@@ -34,6 +34,7 @@ uv sync --all-packages --all-extras
 
 For a single module, sync just that package:
 
+```
 ```bash
 uv sync --package geo-infer-act
 ```
@@ -68,6 +69,7 @@ H3 backends:
 **A:** Use the data handling tools in `geo_infer_data` and the underlying
 libraries (pandas, numpy). Drop or interpolate missing values before fitting:
 
+```
 ```python
 import pandas as pd
 
@@ -108,6 +110,7 @@ their prerequisites; see `AGENTS.md` and the TODO release-gate notes.
 
 **A:** Use the SPACE module's public interfaces:
 
+```
 ```python
 from geo_infer_space import SpatialIndexingInterface, SpatialAnalyticsInterface
 
@@ -122,6 +125,7 @@ v4 API and the [SPACE module page](../modules/geo-infer-space.md).
 
 **A:** Use the TIME module:
 
+```
 ```python
 from geo_infer_time import TemporalAnalyzer
 
@@ -160,6 +164,7 @@ the [Active Inference guide](../active_inference_guide.md).
 
 **A:** Start with a simple categorical model from the ACT module:
 
+```
 ```python
 from geo_infer_act import ActiveInferenceModel
 

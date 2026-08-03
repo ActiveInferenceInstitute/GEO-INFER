@@ -12,6 +12,7 @@ uv run --package geo-infer-act --extra dev python -c "import geo_infer_act; prin
 
 ## Build A Categorical Generative Model
 
+```
 ```python
 import numpy as np
 
@@ -43,6 +44,7 @@ agent.set_generative_model(generative_model)
 
 ## Run One Perception-Action Step
 
+```
 ```python
 observation = np.array([1.0, 0.0])
 result = agent.step(
@@ -61,6 +63,7 @@ print(result.free_energy)
 
 ## Inspect Free-Energy Terms
 
+```
 ```python
 from geo_infer_act import FreeEnergyCalculator
 
@@ -82,6 +85,7 @@ normalization of beliefs, observations, and preferences.
 
 ## Select Policies By Expected Free Energy
 
+```
 ```python
 from geo_infer_act import PolicySelector
 
@@ -105,6 +109,7 @@ with a seedable random generator.
 
 ## Add H3 Spatial Context
 
+```
 ```python
 from geo_infer_space import latlng_to_cell
 
@@ -119,6 +124,7 @@ through `ActiveInferenceModel` or the spatial agent utilities in `GEO-INFER-ACT`
 
 ## Verification
 
+```
 ```bash
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q

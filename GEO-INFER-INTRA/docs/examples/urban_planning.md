@@ -1,4 +1,11 @@
 # Urban Planning: Data-Driven Planning with Active Inference
+> **Illustrative guide.** The code in this page is illustrative: it sketches
+> how the module APIs compose for this use case. Some identifiers shown are
+> conceptual; always import from the current package exports (see the module
+> `__init__.py` and `SKILL.md`) and prefer the runnable scripts under
+> `GEO-INFER-*/examples/` for verified behavior. Any numeric results shown
+> are illustrative and must be reproduced against your own data before use.
+
 
 This guide demonstrates data-driven urban planning workflows using GEO-INFER modules for zoning analysis, transport network optimization, green space scoring, participatory planning, and multi-criteria site selection.
 
@@ -21,6 +28,7 @@ Zoning determines permitted land uses and development intensity. This section lo
 
 ### Setting Up the Planning Grid
 
+```
 ```python
 import numpy as np
 import pandas as pd
@@ -80,6 +88,7 @@ print(f"Planning grid: {len(planning_grid)} cells at resolution 9")
 
 ### Generating Zoning Data
 
+```
 ```python
 def generate_zoning_data(
     grid: gpd.GeoDataFrame,
@@ -152,6 +161,7 @@ print(f"\nMean development capacity (FAR): {zoned_grid['development_capacity'].m
 
 ### Mixed-Use Index
 
+```
 ```python
 def compute_mixed_use_index(
     grid: gpd.GeoDataFrame,
@@ -221,6 +231,7 @@ Transport accessibility is a key driver of land value and livability. This secti
 
 ### Building the Network Graph
 
+```
 ```python
 def build_road_network(
     grid: gpd.GeoDataFrame,
@@ -293,6 +304,7 @@ print(f"Connected: {nx.is_connected(road_network)}")
 
 ### Network Centrality Analysis
 
+```
 ```python
 from geo_infer_transport.core.network import NetworkAnalyzer
 
@@ -336,6 +348,7 @@ print(f"Closeness range: {transport_grid['closeness_centrality'].min():.4f} - "
 
 ### Accessibility Isochrones
 
+```
 ```python
 def compute_isochrone(
     G: nx.Graph,
@@ -410,6 +423,7 @@ Access to parks and vegetation affects property values, health outcomes, and equ
 
 ### Generating Green Space Data
 
+```
 ```python
 def generate_green_spaces(
     grid: gpd.GeoDataFrame,
@@ -512,6 +526,7 @@ print(f"Mean green space score: {green_grid['green_space_score'].mean():.3f}")
 
 ### Equity Analysis
 
+```
 ```python
 def green_space_equity(
     grid: gpd.GeoDataFrame,
@@ -549,6 +564,7 @@ Citizen input adds a preference layer that complements technical analysis. This 
 
 ### Aggregating Citizen Input
 
+```
 ```python
 def generate_citizen_input(
     grid: gpd.GeoDataFrame,
@@ -621,6 +637,7 @@ for col in ["housing_priority", "transit_priority", "parks_priority",
 
 ### Aggregating to Grid
 
+```
 ```python
 def aggregate_citizen_preferences(
     citizen_df: pd.DataFrame,
@@ -676,6 +693,7 @@ print(f"Cells with community input: {(community_grid['response_count'] > 0).sum(
 
 ### Active Inference for Policy Preferences
 
+```
 ```python
 def compute_policy_preferences(
     grid: gpd.GeoDataFrame,
@@ -762,6 +780,7 @@ The final workflow combines all layers into a multi-criteria analysis for select
 
 ### Multi-Criteria Site Selection
 
+```
 ```python
 def site_selection_analysis(
     grid: gpd.GeoDataFrame,
@@ -849,6 +868,7 @@ print(candidates[display_cols].to_string(index=False))
 
 ### Decision Support Output
 
+```
 ```python
 def generate_planning_report(
     candidates: gpd.GeoDataFrame,
@@ -905,6 +925,7 @@ print(report_text)
 
 ### Site Selection Visualization
 
+```
 ```python
 import matplotlib.pyplot as plt
 

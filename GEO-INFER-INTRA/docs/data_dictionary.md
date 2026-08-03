@@ -64,6 +64,7 @@ GEO-INFER modules use consistent column names for common fields:
 
 ### Example: Creating a Standard GeoDataFrame
 
+```
 ```python
 import geopandas as gpd
 import pandas as pd
@@ -150,6 +151,7 @@ strings (e.g., `"8928308280fffff"`). In Python, they are handled as `str` type.
 | `average_hexagon_area(res, unit)` | int, str | float | Average cell area at resolution |
 | `average_hexagon_edge_length(res, unit)` | int, str | float | Average edge length at resolution |
 
+```
 ```python
 import h3
 
@@ -187,6 +189,7 @@ print(f"Children (res 10): {len(children)} cells")
 - Store timestamps as ISO 8601 strings in serialized formats:
   `"2025-06-15T10:30:00Z"`.
 
+```
 ```python
 import pandas as pd
 
@@ -222,6 +225,7 @@ monthly = ts.resample("ME").mean()
 
 When resampling spatial time series, specify the aggregation method explicitly:
 
+```
 ```python
 # Spatial time series: aggregate temperature readings
 daily_mean = hourly_readings.resample("D").mean()
@@ -267,6 +271,7 @@ following the notation in `GEO-INFER-ACT`.
 - The transition matrix `B` follows the convention `B[s', s] = P(s' | s)` for
   the action-free case.
 
+```
 ```python
 import numpy as np
 
@@ -301,6 +306,7 @@ C = np.array([0.0, 1.0, 2.0, 3.0])  # prefers observation index 3
 When exchanging spatial features between modules via JSON, use GeoJSON format
 with GEO-INFER metadata extensions:
 
+```
 ```json
 {
   "type": "FeatureCollection",
@@ -338,6 +344,7 @@ opposite of H3's `(lat, lng)` convention. Always convert explicitly.
 GeoParquet files must include the following metadata in the `geo` key of the
 Parquet file metadata:
 
+```
 ```python
 import geopandas as gpd
 
@@ -371,6 +378,7 @@ When passing data between GEO-INFER modules in-process, use these conventions:
 GEO-INFER uses strict type annotations throughout. These are the standard types
 used across modules:
 
+```
 ```python
 from typing import Dict, List, Optional, Tuple, Union, Any, Sequence
 import numpy as np
@@ -419,6 +427,7 @@ def update_beliefs(
 
 All modules should validate incoming data using these patterns:
 
+```
 ```python
 import numpy as np
 import geopandas as gpd

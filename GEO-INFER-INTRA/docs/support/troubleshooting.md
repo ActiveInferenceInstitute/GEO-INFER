@@ -48,6 +48,7 @@ GEO-INFER modules use graceful degradation for optional dependencies. If you see
 
 **Diagnosis:**
 
+```
 ```python
 import geopandas as gpd
 
@@ -75,6 +76,7 @@ print(f"Bounds: {gdf.total_bounds}")
 
 **Diagnosis:**
 
+```
 ```python
 import psutil
 import os
@@ -96,6 +98,7 @@ print(f"System available: {psutil.virtual_memory().available / 1e9:.2f} GB")
 
 **Quick memory reduction techniques:**
 
+```
 ```python
 # Reduce DataFrame memory by downcasting types
 def reduce_memory(df):
@@ -129,6 +132,7 @@ If you see `AttributeError: module 'h3' has no attribute 'geo_to_h3'`, you have 
 
 **Diagnosis:**
 
+```
 ```bash
 # Check for conflicting versions
 uv pip check
@@ -199,6 +203,7 @@ Read from bottom to top. The fix is almost always at the boundary between your c
 
 GEO-INFER uses pytest markers to categorize tests. Use them to run targeted test suites when diagnosing issues.
 
+```
 ```bash
 # Run only unit tests for a module
 uv run python -m pytest GEO-INFER-SPACE/tests/ -m unit -v
@@ -225,6 +230,7 @@ Available markers: `unit`, `integration`, `system`, `performance`, `geospatial`,
 
 Enable debug logging for detailed diagnostics:
 
+```
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)

@@ -36,6 +36,7 @@ flowchart TB
 
 ## Canonical data flow
 
+```
 ```text
 source data
   -> DATA ingestion/validation
