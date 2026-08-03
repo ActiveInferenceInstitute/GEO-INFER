@@ -18,7 +18,7 @@ uv pip install -e ./GEO-INFER-ANT ./GEO-INFER-SPACE ./GEO-INFER-ACT ./GEO-INFER-
 
 ### Dependencies
 
-GEO-INFER-ANT requires Python 3.9+ and depends on:
+GEO-INFER-ANT requires Python 3.11+ (the workspace target; see `.python-version`) and depends on:
 
 - `numpy` -- Array operations and mathematical computations
 - `scipy` -- Spatial distance calculations and optimization

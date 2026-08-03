@@ -21,6 +21,7 @@ uv pip install -e ./GEO-INFER-PLACE
 
 Use H3 hexagonal cells to define the spatial extent of analysis for Crescent City, the county seat of Del Norte County.
 
+```
 ```python
 from geo_infer_place import (
     PlaceInterface,
@@ -57,6 +58,7 @@ for cell in analysis_cells:
 
 Use the `PlaceInterface` to pull real-time environmental data.
 
+```
 ```python
 pi = PlaceInterface("del_norte")
 
@@ -94,6 +96,7 @@ if weather.get("temperature"):
 
 Create a multi-layer characterization of the place. In a production system, each layer would come from a real data source (census, land cover, OSM amenities). Here we define a structured place profile.
 
+```
 ```python
 import numpy as np
 
@@ -160,6 +163,7 @@ print(f"  Primary hazard: {place_identity['hazards']['seismic']['fault_zone']}")
 
 Assign attributes to each H3 cell based on its position relative to key features.
 
+```
 ```python
 cell_profiles = []
 
@@ -210,6 +214,7 @@ print(f"  Cells in tsunami zone: {tsunami_count} ({tsunami_count / len(cell_prof
 
 ## Step 5: Generate Place Report
 
+```
 ```python
 print("\n" + "=" * 60)
 print("PLACE CHARACTERIZATION REPORT")

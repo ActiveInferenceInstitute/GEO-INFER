@@ -1,4 +1,10 @@
 # GEO-INFER Documentation Analysis 📊📖 [![Analysis Status](https://img.shields.io/badge/analysis-definitive-brightgreen.svg)]() [![Documentation Audit](https://img.shields.io/badge/audit-complete-blue.svg)]() [![Recommendations](https://img.shields.io/badge/recommendations-actionable-success.svg)]()
+> **Historical analysis document.** This file is an assessment-era analysis
+> (June 2025) and may not reflect the current repository state. Treat its
+> metrics, API sketches, and integration claims as historical; verify against
+> the current module sources, `GEO-INFER-TEST/` validators, and the INTRA
+> documentation hub before relying on them.
+
 
 ## 🎯 **Executive Summary**
 This analysis provides the **definitive assessment** of documentation status across the entire GEO-INFER ecosystem, correcting previous assessment inconsistencies and providing actionable recommendations for documentation improvements.

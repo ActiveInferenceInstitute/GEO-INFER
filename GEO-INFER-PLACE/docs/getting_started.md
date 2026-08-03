@@ -12,6 +12,7 @@ uv pip install -e ./GEO-INFER-PLACE
 
 GEO-INFER-PLACE has optional integration with other GEO-INFER modules:
 
+```
 ```bash
 # For full integration (data quality + temporal analysis)
 uv pip install -e ./GEO-INFER-PLACE ./GEO-INFER-DATA ./GEO-INFER-TIME ./GEO-INFER-SPACE
@@ -19,6 +20,7 @@ uv pip install -e ./GEO-INFER-PLACE ./GEO-INFER-DATA ./GEO-INFER-TIME ./GEO-INFE
 
 Verify the installation:
 
+```
 ```python
 import geo_infer_place
 print(geo_infer_place.__version__)
@@ -69,6 +71,7 @@ Currently two locations are fully supported:
 
 All `PlaceInterface` components are lazily initialized. The interface object itself is lightweight. API clients, analyzers, and bridge modules are created only when first accessed:
 
+```
 ```python
 from geo_infer_place import PlaceInterface
 
@@ -84,6 +87,7 @@ quality = pi.data_manager.validate_dataset(some_data)
 
 ## First Example: Check Location Status
 
+```
 ```python
 from geo_infer_place import PlaceInterface
 
@@ -101,6 +105,7 @@ print(f"GEO-INFER-TIME available: {status['time_module_available']}")
 
 Retrieve real-time environmental data from federal agencies.
 
+```
 ```python
 from geo_infer_place import PlaceInterface
 
@@ -131,6 +136,7 @@ print(f"Weather station: {weather.get('station', 'unknown')}")
 
 Execute all configured analyzers for Del Norte County.
 
+```
 ```python
 from geo_infer_place import PlaceInterface
 
@@ -165,6 +171,7 @@ for name, quality in results.get("data_quality", {}).items():
 
 GEO-INFER-PLACE re-exports H3 v4 utility functions for convenience.
 
+```
 ```python
 from geo_infer_place import (
     latlng_to_cell,
@@ -199,6 +206,7 @@ print(f"GeoDataFrame shape: {gdf.shape}")
 
 Initialize a Cascadia analysis with specific counties.
 
+```
 ```python
 from geo_infer_place import PlaceInterface
 
@@ -218,6 +226,7 @@ print(f"Available analyzers: {status['available_analyzers']}")
 
 GEO-INFER-PLACE provides several convenience functions:
 
+```
 ```python
 from geo_infer_place import get_supported_locations, create_analyzer, create_place_interface
 
