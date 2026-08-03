@@ -222,7 +222,10 @@ def test_command(path: Path, module: ModuleInfo | None) -> str:
             for candidate in tracked_files()
             if candidate.parent == path.parent
             and candidate.suffix == ".py"
-            and (candidate.name.startswith("test_") or candidate.name.endswith("_test.py"))
+            and (
+                candidate.name.startswith("test_")
+                or candidate.name.endswith("_test.py")
+            )
         ]
         if not test_files and module:
             return (
@@ -744,9 +747,80 @@ def render_root_readme(
         f"| `{module.name}` | `{module.package}` | {module.source_files} | {module.test_files} |"
         for module in modules.values()
     )
+    theme_groups = [
+        (
+            "🌍 Spatial & Place-based",
+            [
+                "SPACE",
+                "PLACE",
+                "TIME",
+                "MARINE",
+                "WATER",
+                "FOREST",
+                "CLIMATE",
+                "ENERGY",
+                "TRANSPORT",
+                "EMERGENCY",
+            ],
+        ),
+        (
+            "🧠 Bayesian & Active Inference",
+            ["BAYES", "SIM", "SPM", "COG", "ACT", "MATH"],
+        ),
+        ("🤖 Agents & AI Orchestration", ["AGENT", "AG", "AI", "ANT", "OPS", "COMMS"]),
+        (
+            "🏛️ Governance, Risk & Domain",
+            [
+                "RISK",
+                "METAGOV",
+                "NORMS",
+                "ECON",
+                "PEP",
+                "REQ",
+                "SEC",
+                "CIV",
+                "HEALTH",
+                "ORG",
+            ],
+        ),
+        ("🗄️ Data, API & Applications", ["API", "APP", "DATA", "IOT", "ART", "EDU"]),
+        (
+            "🛠️ Infrastructure & Validation",
+            ["INTRA", "TEST", "LOG", "GIT", "EXAMPLES", "BIO"],
+        ),
+    ]
+    name_set = {m.name for m in modules.values()}
+    theme_rows = []
+    for icon, group in theme_groups:
+        present = [f"GEO-INFER-{n}" for n in group if f"GEO-INFER-{n}" in name_set]
+        theme_rows.append(f"| {icon} | `{'`, `'.join(present) if present else '—'}` |")
+    theme_rows = "\n".join(theme_rows)
     return f"""# GEO-INFER Framework
 
-GEO-INFER is a {len(modules)}-module geospatial inference monorepo for spatial analysis, active inference, domain modeling, agent workflows, and repository validation.
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![uv workspaces](https://img.shields.io/badge/uv-workspace-4C65F6?logo=astral&logoColor=white)](pyproject.toml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ActiveInferenceInstitute/GEO-INFER/ci.yml?branch=main&label=CI)](.github/workflows/ci.yml)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](LICENSE)
+[![Active Inference Institute](https://img.shields.io/badge/Active_Inference_Institute-6C3483?style=flat)](https://activeinference.org)
+
+**GEO-INFER** is a {len(modules)}-module **geospatial inference monorepo** from the
+Active Inference Institute — spatial analysis, Active Inference, Bayesian modeling,
+domain modeling, agent workflows, and reproducible repository validation in one
+`uv`/Python workspace.
+
+> Build geospatial and place-based models, run Active-Inference and Bayesian
+> inference over them, orchestrate agents and domain workflows, and keep the
+> whole thing reproducible — served from a [user documentation hub](GEO-INFER-INTRA/docs/index.md)
+> backed by an auto-generated, validation-gated [module catalog](GEO-INFER-INTRA/docs/modules/index.md).
+
+## What's inside
+
+- 🧭 **Spatial & place-based analysis** — geospatial data, H3 grids, place & time modeling, and Earth-system domains (water, marine, forest, climate, energy, transport, emergency).
+- 🧠 **Active Inference & Bayesian modeling** — Active-Inference agents and Bayesian models (Bayes, simulation, SPM, cognition, math).
+- 🤖 **Agent & AI orchestration** — agent workflows, AI/LLM integration, communications, and operations.
+- 🏛️ **Governance, risk & domain modeling** — risk, meta-governance, norms, economics, policy, security, health, and civil domains.
+- 🗄️ **Data, API & applications** — data pipelines, APIs, applications, IoT, art, and education.
+- 🛠️ **Infrastructure & validation** — documentation hub (INTRA), the validation & test harness, logging, git, examples, and bio.
 
 ## Current Repository Facts
 
@@ -805,6 +879,12 @@ uv sync --package geo-infer-ant
 quality, and documentation dependencies. CI intentionally omits native-only
 extras that cannot build on its CPU runner; see `.github/workflows/ci.yml` for
 the exact reproducible exception list.
+
+## Module Themes
+
+| Theme | Modules |
+| --- | --- |
+{theme_rows}
 
 ## Module Index
 
