@@ -106,7 +106,7 @@ Follow [Keep a Changelog](https://keepachangelog.com/) format:
 ## Cross-Reference Standards
 
 - Link to related modules: `See [GEO-INFER-SPACE](../GEO-INFER-SPACE/README.md)`
-- Link to specific files: `See [risk_engine.py](src/geo_infer_risk/core/risk_engine.py)`
+- Link to specific files: `See [risk_engine.py](../GEO-INFER-RISK/src/geo_infer_risk/core/risk_engine.py)`
 - Reference other cursorrules: `See principles.md for logging standards`
 
 ## Language Guidelines
