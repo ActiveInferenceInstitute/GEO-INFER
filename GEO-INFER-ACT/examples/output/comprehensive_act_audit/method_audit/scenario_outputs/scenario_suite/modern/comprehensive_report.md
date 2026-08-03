@@ -1,6 +1,6 @@
 # Active Inference Analysis Report
 Generated at: 2026-05-18 19:29:20.765260
-Output directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/comprehensive_act_audit/method_audit/scenario_outputs/scenario_suite/modern
+Output directory: <repo>/GEO-INFER-ACT/examples/output/comprehensive_act_audit/method_audit/scenario_outputs/scenario_suite/modern
 Total steps analyzed: 8
 
 ## Executive Summary

@@ -142,7 +142,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties=self.test_config['analysis_settings']['target_counties'],
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                    osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                 )
                 
                 # Validate backend properties
@@ -172,7 +172,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties=self.test_config['analysis_settings']['target_counties'],
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                    osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                 )
                 
                 modules = {}
@@ -259,7 +259,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Del Norte']},  # Use real county
                     base_data_dir=Path(".").resolve(),  # Use actual project directory
-                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                    osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                 )
 
                 # Test with real empirical data if available
@@ -477,7 +477,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Lassen']},
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                    osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                 )
                 
                 # Add test data
@@ -555,7 +555,7 @@ class ComprehensiveTestSuite:
                         bioregion='Cascadia',
                         target_counties={'INVALID': ['INVALID']},
                         base_data_dir=self.temp_dir / 'data',
-                        osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                        osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                     )
                     logger.warning("⚠️ Backend should have failed with invalid config")
                 except Exception:
@@ -592,7 +592,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Lassen']},
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+                    osc_repo_dir=os.environ.get("GEO_INFER_OSC_REPO_DIR", "osc-repo")
                 )
                 
                 # Add modules
