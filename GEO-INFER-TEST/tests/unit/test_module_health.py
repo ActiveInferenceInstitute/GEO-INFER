@@ -3,18 +3,20 @@ Unit tests for ModuleHealthChecker using standard and property-based testing.
 """
 
 import shutil
+import string
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from hypothesis import given, settings, strategies as st
 from geo_infer_test.core.module_health import (
-    ModuleHealthChecker,
-    HealthMetrics,
-    SystemValidator,
     DependencyChecker,
+    HealthMetrics,
+    ModuleHealthChecker,
+    SystemValidator,
 )
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 
 class TestModuleHealthChecker:
@@ -33,9 +35,7 @@ class TestModuleHealthChecker:
         (base / "GEO-INFER-AAA" / "tests").mkdir()
         (base / "GEO-INFER-AAA" / "tests" / "test_dummy.py").touch()
         (base / "GEO-INFER-AAA" / "tests" / "legacy_test.py").touch()
-        (base / "GEO-INFER-AAA" / "pyproject.toml").write_text(
-            'dependencies = ["numpy", "pandas"]'
-        )
+        (base / "GEO-INFER-AAA" / "pyproject.toml").write_text('dependencies = ["numpy", "pandas"]')
 
         # Create an unhealthy module (missing everything)
         (base / "GEO-INFER-ZZZ").mkdir()
@@ -187,7 +187,7 @@ class TestHypothesisModuleHealth:
             st.text(
                 min_size=3,
                 max_size=20,
-                alphabet=st.characters(whitelist_categories=("L",)),
+                alphabet=string.ascii_letters,
             ),
             min_size=1,
             max_size=5,

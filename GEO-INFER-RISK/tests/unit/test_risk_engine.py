@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-
 from geo_infer_risk.core.hazard_model import EnhancedHazardModel
 from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
 from geo_infer_risk.utils.config_loader import load_config_with_defaults
@@ -64,6 +63,22 @@ def test_engine_rejects_underspecified_calibration(tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="at least two"):
             engine.calibrate_models({"samples": []})
         with pytest.raises(ValueError, match="BayesianModel adapter"):
-            engine.calibrate_models(
-                {"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian"
-            )
+            engine.calibrate_models({"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian")
+
+
+def test_cross_validation_fits_loss_baseline_parameters(tmp_path: Path) -> None:
+    samples = [{"loss": loss} for loss in (10.0, 20.0, 30.0, 40.0)]
+
+    with EnhancedRiskEngine(engine_config(tmp_path)) as engine:
+        result = engine.calibrate_models({"samples": samples})
+
+    assert result["method"] == "cross_validation"
+    assert result["calibrated_parameters"] == {
+        "loss_mean": 25.0,
+        "loss_standard_deviation": pytest.approx(12.9099444874),
+        "sample_count": 4,
+    }
+    assert len(result["cross_validation_results"]["folds"]) == 4
+    assert all(
+        fold["training_sample_count"] == 3 for fold in result["cross_validation_results"]["folds"]
+    )

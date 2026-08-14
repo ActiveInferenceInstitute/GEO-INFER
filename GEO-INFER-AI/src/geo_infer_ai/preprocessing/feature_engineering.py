@@ -7,7 +7,7 @@ spatial features, and data augmentation.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -36,12 +36,14 @@ class GeospatialFeatureEngineer:
         self.handle_spatial_autocorr = handle_spatial_autocorr
         self.scaler: Optional[StandardScaler] = None
         self.feature_names_: Optional[List[str]] = None
+        self.spatial_centroid_: Optional[np.ndarray] = None
 
     def create_spatial_features(
         self,
         coordinates: np.ndarray,
         include_distances: bool = True,
         include_angles: bool = False,
+        centroid: Optional[np.ndarray] = None,
     ) -> pd.DataFrame:
         """
         Create spatial features from coordinates.
@@ -50,6 +52,8 @@ class GeospatialFeatureEngineer:
             coordinates: Spatial coordinates (n_samples, 2) [lon, lat]
             include_distances: Whether to include distance-based features
             include_angles: Whether to include angular features
+            centroid: Optional fitted ``[longitude, latitude]`` reference.
+                When omitted, derive the centroid from ``coordinates``.
 
         Returns:
             DataFrame with spatial features
@@ -58,6 +62,14 @@ class GeospatialFeatureEngineer:
 
         lon = coordinates[:, 0]
         lat = coordinates[:, 1]
+        reference = (
+            np.asarray(centroid, dtype=float)
+            if centroid is not None
+            else np.mean(coordinates, axis=0)
+        )
+        if reference.shape != (2,) or not np.all(np.isfinite(reference)):
+            raise ValueError("centroid must contain two finite coordinates")
+        centroid_lon, centroid_lat = reference
 
         features: Dict[str, np.ndarray] = {
             "longitude": lon,
@@ -66,22 +78,16 @@ class GeospatialFeatureEngineer:
 
         if include_distances:
             # Distance from centroid
-            centroid_lon = np.mean(lon)
-            centroid_lat = np.mean(lat)
             features["distance_from_centroid"] = np.sqrt(
                 (lon - centroid_lon) ** 2 + (lat - centroid_lat) ** 2
             )
 
             # Distance from origin
-            features["distance_from_origin"] = np.sqrt(lon ** 2 + lat ** 2)
+            features["distance_from_origin"] = np.sqrt(lon**2 + lat**2)
 
         if include_angles:
             # Angle from centroid
-            centroid_lon = np.mean(lon)
-            centroid_lat = np.mean(lat)
-            features["angle_from_centroid"] = np.arctan2(
-                lat - centroid_lat, lon - centroid_lon
-            )
+            features["angle_from_centroid"] = np.arctan2(lat - centroid_lat, lon - centroid_lon)
 
         df = pd.DataFrame(features)
         return df
@@ -153,9 +159,16 @@ class GeospatialFeatureEngineer:
         # Reset index to ensure alignment
         X_df = X_df.reset_index(drop=True)
 
+        # Every fit establishes a new spatial contract. Do not retain a
+        # centroid from an earlier dataset when this fit has no coordinates.
+        self.spatial_centroid_ = None
+
         # Add spatial features
         if coordinates is not None:
-            spatial_features = self.create_spatial_features(coordinates)
+            self.spatial_centroid_ = np.mean(coordinates, axis=0)
+            spatial_features = self.create_spatial_features(
+                coordinates, centroid=self.spatial_centroid_
+            )
             # Reset index to ensure alignment
             spatial_features = spatial_features.reset_index(drop=True)
             X_df = pd.concat([X_df, spatial_features], axis=1, ignore_index=False)
@@ -221,7 +234,14 @@ class GeospatialFeatureEngineer:
 
         # Add spatial features
         if coordinates is not None:
-            spatial_features = self.create_spatial_features(coordinates)
+            if self.spatial_centroid_ is None:
+                raise ValueError(
+                    "Spatial coordinates were not fitted. Fit with training coordinates "
+                    "before transforming held-out coordinates."
+                )
+            spatial_features = self.create_spatial_features(
+                coordinates, centroid=self.spatial_centroid_
+            )
             # Reset index to ensure alignment
             spatial_features = spatial_features.reset_index(drop=True)
             X_df = pd.concat([X_df, spatial_features], axis=1, ignore_index=False)
@@ -274,8 +294,7 @@ class GeospatialFeatureEngineer:
             DataFrame with spatial lag features
         """
         logger.info(
-            f"Creating spatial lag features with k={k_neighbors} "
-            f"for {len(coordinates)} samples"
+            f"Creating spatial lag features with k={k_neighbors} for {len(coordinates)} samples"
         )
 
         n_samples = coordinates.shape[0]
@@ -287,7 +306,7 @@ class GeospatialFeatureEngineer:
 
         # Compute pairwise distance matrix
         diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
-        dist_matrix = np.sqrt(np.sum(diff ** 2, axis=2))
+        dist_matrix = np.sqrt(np.sum(diff**2, axis=2))
 
         lag_features: Dict[str, np.ndarray] = {}
 
@@ -310,9 +329,7 @@ class GeospatialFeatureEngineer:
 
                 neighbor_vals = values[neighbor_idx, v]
                 var_lags[i] = np.sum(weights * neighbor_vals)
-                var_lag_std[i] = np.sqrt(
-                    np.sum(weights * (neighbor_vals - var_lags[i]) ** 2)
-                )
+                var_lag_std[i] = np.sqrt(np.sum(weights * (neighbor_vals - var_lags[i]) ** 2))
 
             lag_features[f"spatial_lag_v{v}_mean"] = var_lags
             lag_features[f"spatial_lag_v{v}_std"] = var_lag_std
@@ -336,9 +353,7 @@ class GeospatialFeatureEngineer:
         Returns:
             DataFrame with distance features
         """
-        logger.info(
-            f"Creating distance features to {len(reference_points)} reference points"
-        )
+        logger.info(f"Creating distance features to {len(reference_points)} reference points")
 
         n_refs = reference_points.shape[0]
         if reference_names is None:
@@ -348,7 +363,7 @@ class GeospatialFeatureEngineer:
 
         for j in range(n_refs):
             diff = coordinates - reference_points[j]
-            dist = np.sqrt(np.sum(diff ** 2, axis=1))
+            dist = np.sqrt(np.sum(diff**2, axis=1))
             features[f"dist_to_{reference_names[j]}"] = dist
             # Log distance (useful for distance-decay relationships)
             features[f"log_dist_to_{reference_names[j]}"] = np.log1p(dist)
@@ -375,9 +390,7 @@ class GeospatialFeatureEngineer:
         if window_sizes is None:
             window_sizes = [3, 7, 14]
 
-        logger.info(
-            f"Creating temporal aggregation features with windows {window_sizes}"
-        )
+        logger.info(f"Creating temporal aggregation features with windows {window_sizes}")
 
         if not isinstance(timestamps, pd.Series):
             timestamps = pd.Series(timestamps)
@@ -408,4 +421,3 @@ class GeospatialFeatureEngineer:
             features[f"rolling_max_{window}"] = roll_max[unsort_idx]
 
         return pd.DataFrame(features)
-

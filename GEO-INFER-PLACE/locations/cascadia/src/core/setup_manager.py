@@ -8,15 +8,16 @@ for the Cascadia agricultural analysis framework.
 
 import logging
 import sys
-from pathlib import Path
-from typing import Dict, Any
-import yaml
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict
+
+import yaml
 
 # Import the necessary components from the main module
 try:
-    from geo_infer_space.core.spatial_processor import SpatialProcessor
     from geo_infer_space.core.data_integrator import DataIntegrator
+    from geo_infer_space.core.spatial_processor import SpatialProcessor
     from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
     from geo_infer_space.utils.config_loader import LocationBounds
 
@@ -33,8 +34,7 @@ def setup_logging(verbose: bool = False, output_dir: str = ".") -> None:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     log_filename = (
-        Path(output_dir)
-        / f'cascadia_analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+        Path(output_dir) / f"cascadia_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
     )
 
     # Remove all existing handlers before configuring logging
@@ -48,9 +48,7 @@ def setup_logging(verbose: bool = False, output_dir: str = ".") -> None:
     )
 
     logger = logging.getLogger(__name__)
-    logger.info(
-        "Enhanced Cascadia Analysis Framework initialized with SPACE integration"
-    )
+    logger.info("Enhanced Cascadia Analysis Framework initialized with SPACE integration")
     logger.info(f"Log file: {log_filename}")
 
 
@@ -84,8 +82,7 @@ def check_dependencies() -> bool:
     if missing_packages:
         logger.error(f"Missing packages: {', '.join(missing_packages)}")
         logger.error(
-            "Please install missing packages: uv pip install "
-            + " ".join(missing_packages)
+            "Please install missing packages: uv pip install " + " ".join(missing_packages)
         )
         return False
 
@@ -134,15 +131,24 @@ def setup_data_integrator() -> DataIntegrator:
         raise
 
 
-def load_analysis_config() -> Dict[str, Any]:
-    """Load analysis configuration with SPACE integration"""
-    config_path = Path("config/analysis_config.yaml")
+def load_analysis_config(config_path: Path | str | None = None) -> Dict[str, Any]:
+    """Load Cascadia analysis configuration without depending on the caller's CWD.
 
-    if config_path.exists():
-        with open(config_path, "r") as f:
+    Args:
+        config_path: Optional explicit YAML path. When omitted, load the tracked
+            configuration beside the Cascadia framework.
+    """
+    resolved_config_path = (
+        Path(config_path)
+        if config_path is not None
+        else Path(__file__).resolve().parents[2] / "config" / "analysis_config.yaml"
+    )
+
+    if resolved_config_path.exists():
+        with resolved_config_path.open("r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
         logger = logging.getLogger(__name__)
-        logger.info(f"Loaded analysis configuration from {config_path}")
+        logger.info(f"Loaded analysis configuration from {resolved_config_path}")
         return config
     else:
         # Enhanced default configuration with SPACE integration

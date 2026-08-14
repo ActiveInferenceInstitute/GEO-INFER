@@ -2,16 +2,22 @@
 Unit and property-based tests for the GeoInferTestRunner and helpers.
 """
 
+import string
+
 import pytest
-from hypothesis import given, settings, strategies as st
+from geo_infer_test.core.test_runner import (
+    GeoInferTestRunner as _GeoInferTestRunner,
+)
 
 # Alias imports to prevent pytest collection warnings
 from geo_infer_test.core.test_runner import (
     TestConfiguration as _TestConfiguration,
-    TestResult as _TestResult,
-    GeoInferTestRunner as _GeoInferTestRunner,
 )
-
+from geo_infer_test.core.test_runner import (
+    TestResult as _TestResult,
+)
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 # ============================================================================
 # TestConfiguration dataclass tests
@@ -57,9 +63,7 @@ class TestTestConfiguration:
 
     @pytest.mark.parametrize("workers", [1, 2, 4, 8, 16])
     def test_max_workers(self, workers):
-        cfg = _TestConfiguration(
-            modules_to_test=["A"], test_types=["unit"], max_workers=workers
-        )
+        cfg = _TestConfiguration(modules_to_test=["A"], test_types=["unit"], max_workers=workers)
         assert cfg.max_workers == workers
 
     @pytest.mark.parametrize("timeout", [10, 60, 300, 600, 3600])
@@ -174,9 +178,7 @@ class TestGeoInferTestRunner:
         # Should not raise
         runner._setup_test_environment()
 
-    def test_runner_initialization_does_not_create_test_tree(
-        self, tmp_path, monkeypatch
-    ):
+    def test_runner_initialization_does_not_create_test_tree(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
         cfg = _TestConfiguration(
             modules_to_test=["SPACE"],
@@ -195,14 +197,7 @@ class TestGeoInferTestRunner:
 
     def test_runner_discovers_nested_test_files(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
-        test_file = (
-            tmp_path
-            / "GEO-INFER-SAMPLE"
-            / "tests"
-            / "unit"
-            / "nested"
-            / "test_nested.py"
-        )
+        test_file = tmp_path / "GEO-INFER-SAMPLE" / "tests" / "unit" / "nested" / "test_nested.py"
         test_file.parent.mkdir(parents=True)
         test_file.write_text("def test_nested():\n    assert True\n")
         cfg = _TestConfiguration(
@@ -212,9 +207,7 @@ class TestGeoInferTestRunner:
         )
         runner = _GeoInferTestRunner(cfg)
 
-        assert runner._discover_module_tests("SAMPLE") == [
-            "SAMPLE::unit::nested/test_nested"
-        ]
+        assert runner._discover_module_tests("SAMPLE") == ["SAMPLE::unit::nested/test_nested"]
 
     def test_core_exports_only_defined_names(self):
         import geo_infer_test.core as core
@@ -294,7 +287,7 @@ class TestHypothesisTestRunner:
             st.text(
                 min_size=1,
                 max_size=10,
-                alphabet=st.characters(whitelist_categories=("Lu",)),
+                alphabet=string.ascii_uppercase,
             ),
             min_size=1,
             max_size=15,
@@ -314,9 +307,7 @@ class TestHypothesisTestRunner:
         st.sampled_from(["passed", "failed", "error", "skipped"]),
         st.floats(min_value=0.0, max_value=300.0),
     )
-    def test_result_creation_never_crashes(
-        self, test_id, module, name, status, duration
-    ):
+    def test_result_creation_never_crashes(self, test_id, module, name, status, duration):
         """TestResult should handle any valid inputs."""
         r = _TestResult(
             test_id=test_id,

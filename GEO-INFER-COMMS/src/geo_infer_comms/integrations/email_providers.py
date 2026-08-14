@@ -7,15 +7,49 @@ and others for reliable email notifications and communications.
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import asyncio
 import logging
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
-from typing import Dict, List, Optional, Any
+from abc import ABC, abstractmethod
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from enum import Enum
+from typing import Any, Dict, List, NoReturn, Optional
+
 import requests
 
 from geo_infer_comms.models.spatial import GeospatialMetadata
+
+
+class EmailErrorCategory(str, Enum):
+    """Stable caller-facing categories for email delivery failures."""
+
+    INVALID_RECIPIENT = "invalid_recipient"
+    CONFIGURATION = "configuration"
+    DEPENDENCY = "dependency"
+    TRANSPORT = "transport"
+    PROVIDER = "provider"
+
+
+class EmailDeliveryError(RuntimeError):
+    """Safe, typed failure returned by an email provider boundary."""
+
+    def __init__(
+        self,
+        provider: str,
+        category: EmailErrorCategory,
+        safe_detail: str,
+        *,
+        cause_type: Optional[str] = None,
+    ) -> None:
+        self.provider = provider
+        self.category = category
+        self.safe_detail = safe_detail
+        self.cause_type = cause_type
+        cause_suffix = f" ({cause_type})" if cause_type else ""
+        super().__init__(
+            f"{provider} email delivery failed [{category.value}]{cause_suffix}: {safe_detail}"
+        )
 
 
 class EmailProvider(ABC):
@@ -66,8 +100,35 @@ class EmailProvider(ABC):
 
         Returns:
             True if email sent successfully
+
+        Raises:
+            EmailDeliveryError: If validation, configuration, dependency,
+                transport, or provider execution fails.
         """
         raise RuntimeError("Email provider subclasses must implement send_email")
+
+    def _fail(
+        self,
+        category: EmailErrorCategory,
+        safe_detail: str,
+        cause: Optional[BaseException] = None,
+    ) -> NoReturn:
+        """Record and raise a redacted provider failure."""
+        self.emails_failed += 1
+        cause_type = type(cause).__name__ if cause is not None else None
+        self.logger.error(
+            "%s email delivery failed [%s]%s: %s",
+            self.provider_name,
+            category.value,
+            f" ({cause_type})" if cause_type else "",
+            safe_detail,
+        )
+        raise EmailDeliveryError(
+            self.provider_name,
+            category,
+            safe_detail,
+            cause_type=cause_type,
+        ) from None
 
     def format_email_with_geospatial_context(
         self,
@@ -90,7 +151,9 @@ class EmailProvider(ABC):
         enhanced_subject = subject
         if geospatial_context:
             location = geospatial_context.location
-            enhanced_subject = f"[Location: {location.latitude:.4f}, {location.longitude:.4f}] {subject}"
+            enhanced_subject = (
+                f"[Location: {location.latitude:.4f}, {location.longitude:.4f}] {subject}"
+            )
 
         # Enhance body with geospatial details
         enhanced_body = body
@@ -98,8 +161,8 @@ class EmailProvider(ABC):
             location_info = f"""
 Geospatial Context:
 - Location: {geospatial_context.location.latitude:.6f}, {geospatial_context.location.longitude:.6f}
-- Accuracy: {geospatial_context.accuracy or 'Unknown'} meters
-- Source: {geospatial_context.source or 'Unknown'}
+- Accuracy: {geospatial_context.accuracy or "Unknown"} meters
+- Source: {geospatial_context.source or "Unknown"}
 - Timestamp: {geospatial_context.timestamp.isoformat()}
 """
             enhanced_body += location_info
@@ -115,17 +178,17 @@ Geospatial Context:
 
     def create_mime_message(
         self, to_email: str, subject: str, body: str, html_body: Optional[str] = None
-    ) -> MimeMultipart:
+    ) -> MIMEMultipart:
         """Create MIME message for email."""
-        msg = MimeMultipart("alternative")
+        msg = MIMEMultipart("alternative")
 
         # Add text part
-        text_part = MimeText(body, "plain")
+        text_part = MIMEText(body, "plain")
         msg.attach(text_part)
 
         # Add HTML part if provided
         if html_body:
-            html_part = MimeText(html_body, "html")
+            html_part = MIMEText(html_body, "html")
             msg.attach(html_part)
 
         # Set headers
@@ -152,6 +215,7 @@ class SendGridProvider(EmailProvider):
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
+        self.provider_name = "sendgrid"
         self.api_url = "https://api.sendgrid.com/v3/mail/send"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -167,16 +231,20 @@ class SendGridProvider(EmailProvider):
         attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via SendGrid API."""
-        try:
-            # Validate email
-            if not self.validate_email_address(to_email):
-                self.logger.error(f"Invalid email address: {to_email}")
-                return False
-
-            # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(
-                subject, body, geospatial_context
+        if not self.validate_email_address(to_email):
+            self._fail(
+                EmailErrorCategory.INVALID_RECIPIENT,
+                "recipient address failed syntax validation",
             )
+        if not self.api_key:
+            self._fail(
+                EmailErrorCategory.CONFIGURATION,
+                "SendGrid api_key is required",
+            )
+
+        try:
+            # Format content with geospatial context
+            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
 
             # Create SendGrid payload
             payload = {
@@ -187,8 +255,6 @@ class SendGridProvider(EmailProvider):
                 "content": [{"type": "text/plain", "value": formatted["body"]}],
             }
 
-            if not self.api_key:
-                raise ValueError("SendGrid api_key is required")
             response = await asyncio.to_thread(
                 requests.post,
                 self.api_url,
@@ -197,17 +263,25 @@ class SendGridProvider(EmailProvider):
                 timeout=30,
             )
             response.raise_for_status()
-            self.logger.info(
-                "SendGrid email sent to %s: %s", to_email, formatted["subject"]
-            )
+            self.logger.info("SendGrid email sent to %s: %s", to_email, formatted["subject"])
             self.emails_sent += 1
 
             return True
 
-        except Exception as e:
-            self.logger.error(f"SendGrid email failed: {e}")
-            self.emails_failed += 1
-            return False
+        except requests.RequestException as exc:
+            self._fail(
+                EmailErrorCategory.TRANSPORT,
+                "SendGrid request did not complete successfully",
+                exc,
+            )
+        except EmailDeliveryError:
+            raise
+        except Exception as exc:
+            self._fail(
+                EmailErrorCategory.PROVIDER,
+                "SendGrid client execution failed",
+                exc,
+            )
 
 
 class SESProvider(EmailProvider):
@@ -215,6 +289,7 @@ class SESProvider(EmailProvider):
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
+        self.provider_name = "ses"
         self.aws_region = config.get("aws_region", "us-east-1")
         self.aws_access_key = config.get("aws_access_key")
         self.aws_secret_key = config.get("aws_secret_key")
@@ -228,23 +303,29 @@ class SESProvider(EmailProvider):
         attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via Amazon SES."""
-        try:
-            # Validate email
-            if not self.validate_email_address(to_email):
-                self.logger.error(f"Invalid email address: {to_email}")
-                return False
-
-            # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(
-                subject, body, geospatial_context
+        if not self.validate_email_address(to_email):
+            self._fail(
+                EmailErrorCategory.INVALID_RECIPIENT,
+                "recipient address failed syntax validation",
+            )
+        if not self.aws_access_key or not self.aws_secret_key:
+            self._fail(
+                EmailErrorCategory.CONFIGURATION,
+                "AWS credentials are required for SES",
             )
 
-            if not self.aws_access_key or not self.aws_secret_key:
-                raise ValueError("AWS credentials are required for SES")
+        try:
+            # Format content with geospatial context
+            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
+
             try:
                 import boto3
             except ImportError as exc:
-                raise RuntimeError("boto3 is required for SES delivery") from exc
+                self._fail(
+                    EmailErrorCategory.DEPENDENCY,
+                    "boto3 is required for SES delivery",
+                    exc,
+                )
             client = boto3.client(
                 "ses",
                 region_name=self.aws_region,
@@ -265,10 +346,14 @@ class SESProvider(EmailProvider):
 
             return True
 
-        except Exception as e:
-            self.logger.error(f"SES email failed: {e}")
-            self.emails_failed += 1
-            return False
+        except EmailDeliveryError:
+            raise
+        except Exception as exc:
+            self._fail(
+                EmailErrorCategory.PROVIDER,
+                "SES client execution failed",
+                exc,
+            )
 
 
 class MailgunProvider(EmailProvider):
@@ -276,7 +361,10 @@ class MailgunProvider(EmailProvider):
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.api_url = f"https://api.mailgun.net/v3/{config.get('domain', 'geo-infer.org')}/messages"
+        self.provider_name = "mailgun"
+        self.api_url = (
+            f"https://api.mailgun.net/v3/{config.get('domain', 'geo-infer.org')}/messages"
+        )
         self.api_username = "api"
 
     async def send_email(
@@ -288,19 +376,21 @@ class MailgunProvider(EmailProvider):
         attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Send email via Mailgun API."""
-        try:
-            # Validate email
-            if not self.validate_email_address(to_email):
-                self.logger.error(f"Invalid email address: {to_email}")
-                return False
-
-            # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(
-                subject, body, geospatial_context
+        if not self.validate_email_address(to_email):
+            self._fail(
+                EmailErrorCategory.INVALID_RECIPIENT,
+                "recipient address failed syntax validation",
+            )
+        if not self.api_key:
+            self._fail(
+                EmailErrorCategory.CONFIGURATION,
+                "Mailgun api_key is required",
             )
 
-            if not self.api_key:
-                raise ValueError("Mailgun api_key is required")
+        try:
+            # Format content with geospatial context
+            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
+
             response = await asyncio.to_thread(
                 requests.post,
                 self.api_url,
@@ -314,17 +404,25 @@ class MailgunProvider(EmailProvider):
                 timeout=30,
             )
             response.raise_for_status()
-            self.logger.info(
-                "Mailgun email sent to %s: %s", to_email, formatted["subject"]
-            )
+            self.logger.info("Mailgun email sent to %s: %s", to_email, formatted["subject"])
             self.emails_sent += 1
 
             return True
 
-        except Exception as e:
-            self.logger.error(f"Mailgun email failed: {e}")
-            self.emails_failed += 1
-            return False
+        except requests.RequestException as exc:
+            self._fail(
+                EmailErrorCategory.TRANSPORT,
+                "Mailgun request did not complete successfully",
+                exc,
+            )
+        except EmailDeliveryError:
+            raise
+        except Exception as exc:
+            self._fail(
+                EmailErrorCategory.PROVIDER,
+                "Mailgun client execution failed",
+                exc,
+            )
 
 
 class EmailProviderFactory:

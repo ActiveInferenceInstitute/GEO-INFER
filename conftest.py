@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import warnings
 from pathlib import Path
 
@@ -35,6 +36,20 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "module: auto-applied module marker")
     for marker in (*PRIMARY_MARKERS, *DOMAIN_MARKERS):
         config.addinivalue_line("markers", f"{marker}: GEO-INFER test taxonomy marker")
+
+
+def _close_imported_matplotlib_figures() -> None:
+    """Close test-created figures without importing the optional backend."""
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    if pyplot is not None:
+        pyplot.close("all")
+
+
+@pytest.fixture(autouse=True)
+def isolate_matplotlib_figures():
+    """Prevent one test's figures from leaking into later strict-warning tests."""
+    yield
+    _close_imported_matplotlib_figures()
 
 
 def _primary_marker_for_path(path: Path) -> str:
@@ -73,8 +88,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[object]):
     if report.outcome == "skipped":
         report.outcome = "failed"
         report.longrepr = (
-            f"Skipped tests are forbidden by the GEO-INFER test contract: "
-            f"{report.longrepr}"
+            f"Skipped tests are forbidden by the GEO-INFER test contract: {report.longrepr}"
         )
 
 

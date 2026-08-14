@@ -5,7 +5,6 @@ Unit tests for feature engineering.
 import numpy as np
 import pandas as pd
 import pytest
-
 from geo_infer_ai.preprocessing.feature_engineering import GeospatialFeatureEngineer
 
 
@@ -41,9 +40,7 @@ class TestGeospatialFeatureEngineer:
         coordinates = np.random.randn(50, 2)
 
         engineer = GeospatialFeatureEngineer()
-        features = engineer.create_spatial_features(
-            coordinates, include_angles=True
-        )
+        features = engineer.create_spatial_features(coordinates, include_angles=True)
 
         assert "angle_from_centroid" in features.columns
 
@@ -110,6 +107,38 @@ class TestGeospatialFeatureEngineer:
         assert X_test_transformed.shape[0] == len(X_test)
         assert X_test_transformed.shape[1] == expected_features
 
+    def test_held_out_coordinates_do_not_change_fitted_spatial_state(self) -> None:
+        engineer = GeospatialFeatureEngineer(normalize=True)
+        engineer.fit_transform(
+            np.array([[0.0], [2.0]]),
+            coordinates=np.array([[0.0, 0.0], [2.0, 0.0]]),
+        )
+        assert engineer.scaler is not None
+        fitted_scaler_mean = engineer.scaler.mean_.copy()
+
+        probe_alone = engineer.transform(np.array([[1.0]]), coordinates=np.array([[1.0, 0.0]]))
+        probe_with_outlier = engineer.transform(
+            np.array([[1.0], [1.0]]),
+            coordinates=np.array([[1.0, 0.0], [1000.0, 0.0]]),
+        )
+
+        np.testing.assert_allclose(probe_alone[0], probe_with_outlier[0])
+        np.testing.assert_array_equal(engineer.scaler.mean_, fitted_scaler_mean)
+        np.testing.assert_array_equal(engineer.spatial_centroid_, np.array([1.0, 0.0]))
+
+    def test_refit_without_coordinates_clears_spatial_state(self) -> None:
+        engineer = GeospatialFeatureEngineer(normalize=True)
+        engineer.fit_transform(
+            np.array([[0.0], [2.0]]),
+            coordinates=np.array([[0.0, 0.0], [2.0, 0.0]]),
+        )
+
+        engineer.fit_transform(np.array([[3.0], [4.0]]))
+
+        assert engineer.spatial_centroid_ is None
+        with pytest.raises(ValueError, match="Spatial coordinates were not fitted"):
+            engineer.transform(np.array([[3.5]]), coordinates=np.array([[1.0, 0.0]]))
+
     def test_transform_before_fit(self, sample_data: tuple) -> None:
         """Test that transform fails before fit."""
         X, coordinates, _ = sample_data
@@ -129,4 +158,3 @@ class TestGeospatialFeatureEngineer:
         feature_names = engineer.get_feature_names()
         assert feature_names is not None
         assert len(feature_names) >= X.shape[1]  # Should have at least original features
-

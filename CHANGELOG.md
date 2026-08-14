@@ -9,33 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **GeoLibre integration (`.geolibre.json` project writer)** in
-  `GEO-INFER-SPACE.core.geolibre_projects`: deterministic, schema-versioned
-  project emission (v0.1.0) with GeoJSON/tile layer builders, styled H3 grid
-  export (`build_h3_grid_project`), and receipt-compatible writing. GEO-INFER
-  results now open directly in the GeoLibre web/desktop/Jupyter viewer with no
-  JavaScript added to the repository.
-- **H3 resolution policy** in `GEO-INFER-SPACE.core.h3_policy`: pure helpers
-  for H3 resolution suggestion (`suggest_h3_resolution`) and a hard-cell-cap
-  guard (`check_cell_budget`) mirroring GeoLibre's H3 grid guard; a combined
-  `suggest_resolution_with_budget` convenience wrapper.
-- **Processing algorithm registry** in `GEO-INFER-SPACE.core.algorithm_registry`:
-  a GeoLibre-style `ProcessingAlgorithm`/`AlgorithmRegistry` surface (id, name,
-  description, parameters, run/context) with reference algorithms
-  (`calculate-bounds`, `count-features`) so SPACE/API/APP can expose spatial
-  tools uniformly.
-- **Optional WhiteboxTools bridge** in `GEO-INFER-SPACE.core.whitebox_bridge`:
-  graceful `HAS_WHITEBOX` probe and a representative `flow_accumulation`
-  terrain helper for WATER/FOREST/EMERGENCY domain modules.
-- **Cloud-native vector readers** in `GEO-INFER-DATA.utils.duckdb_spatial`:
-  GeoParquet/FlatGeobuf/Shapefile reading via DuckDB-Spatial when available,
-  transparent GeoPandas/Fiona fallback otherwise (`read_cloud_native_vector`).
-- **LLM proxy policy** in `GEO-INFER-AGENT.core.llm_proxy`: dependency-free
-  model allowlist, request-size cap, output-token cap, and per-client rate
-  limiting (mirrors GeoLibre's `ai-proxy` shape) for server-side LLM serving.
-- **geolibre export example**:
-  `GEO-INFER-EXAMPLES/examples/getting_started/geolibre_export/` — runnable
-  end-to-end demo emitting a styled `.geolibre.json` H3 grid project.
+- A dated validation receipt for the 2026-08-13 performance and isolated
+  module-coverage campaign, including failed-attempt evidence, optional-backend
+  availability, artifact digests, and the all-extras CuPy build boundary.
+- Typed, redacted email-provider delivery failures and regression tests for
+  SMTP, SendGrid, and AWS SES integrations.
+- A deterministic Cascadia validation profile shared by the focused and
+  comprehensive compatibility entry points.
 - Documentation hub refresh covering installation, first spatial inference,
   architecture, module selection, H3 v4 usage, developer workflow, testing,
   and contribution guidance.
@@ -52,19 +32,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The unified coverage runner now executes each module in an isolated pytest
+  subprocess, rejects skips/xfails from JUnit evidence, emits aggregate
+  coverage JSON, and removes stale per-module receipts before a run.
+- GEO-INFER-AI spatial feature transforms reuse the training centroid and
+  clear it on a coordinate-free refit; RISK cross-validation now evaluates a
+  fitted mean-loss baseline per fold and validates finite samples.
+- Cascadia configuration and validation no longer depend on the caller's
+  working directory; the ownership data source resolves its tracked URL
+  configuration from the framework root.
 - **PEP 8 package naming normalization completed** — all 44 modules now use lowercase `geo_infer_<module>` package directories (`geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water` included). Stale docs referencing mixed-case paths corrected.
 - **TIME module**: `sklearn` now guarded with a `HAS_SKLEARN` flag and `LinearRegression` raises an actionable `RuntimeError` when unavailable; `requirements.txt` lists `scikit-learn>=1.6.1` to match `pyproject.toml`.
 - **BAYES module**: Full-rank variational inference now uses a scalar Cholesky covariance approximation; vector-valued full-rank parameters raise a clear `ValueError`, while mean-field inference remains available for vector parameters.
 - **COMMS module**: REST models now use the repository's Pydantic v2/FastAPI contract, preserve intentional HTTP errors, and isolate per-instance CORS configuration.
 - **Repository toolchain**: Module-level mypy configurations now target the supported Python 3.11 baseline consistently.
-- **REPRO-01 (SPM)**: The SPM module's global-state RNG usage is migrated to a seed-threaded pattern. `geolibre`-style helpers (`_resolve_rng`) let `generate_coordinates`, `generate_synthetic_data`, `create_spatial_basis_functions`, and `compute_power_analysis` accept an optional `random_seed` and produce reproducible output via `np.random.default_rng`, while the default keeps the legacy global `np.random` path so existing callers are unaffected. `ModelValidator` now owns a per-instance `default_rng` instead of mutating process-wide state. 8 reproducibility tests added (`test_helpers_reproducibility.py`); full SPM suite green.
-- **REPRO-01 (BAYES)**: The BAYES module's remaining global-state RNG usage is migrated to the same seed-threaded pattern. `ModelComparison.compare_models` (and its LOO/WAIC/DIC helpers), `sample_spatial_data`, the multilevel/hierarchical/GP `posterior_predictive` methods, and `PyMCInterface.predict` now accept an optional `random_seed` that routes prior draws / subsampling / noise through `np.random.default_rng`, preserving the legacy global path by default. 5 reproducibility tests added (`test_reproducibility.py`); full BAYES suite green. (COG's remaining `np.random` uses are ephemeral timestamped ID generators, plus one stochastic retrieval in `spatial_memory` — left as-is.)
-- **REPRO-01 (RISK)**: The RISK catastrophe-modelling global-state RNG usage is migrated to the same seed-threaded pattern. `EnhancedCatastropheModel.simulate_events` (and the earthquake/hurricane/flood event generators it drives) accept `random_seed` and route all draws through an instance `default_rng` when seeded, preserving the legacy global path by default. The exposure model honours a `random_seed`/`seed` param in its config, and `calculate_annual_aggregate_exceedance_probability` accepts `random_seed`. 4 reproducibility tests added (`test_reproducibility.py`); full RISK suite green. Remaining RISK/COG `np.random` uses are ephemeral timestamped unique-ID generators (low reproducibility value).
-- **SEC-02b (pickle trust boundary)**: GEO-INFER-DATA storage and caching modules now document the pickle-load trust boundary — only deserialise pickles written by the repository's own layers, and require an integrity check for untrusted payloads.
-- **Algorithm registry API**: GEO-INFER-API exposes the processing algorithm registry as REST endpoints (`GET/POST /api/v1/algorithms[...]/run`), with a graceful 503 when `geo_infer_space` is not importable. 7 endpoint tests added (`test_algorithms_router.py`).
 
 ### Fixed
 
+- Removed stale COMMS integration exports for modules that do not exist and
+  corrected MIME imports used by real email attachments.
+- Replaced vacuous/skipped Cascadia validation scripts with strict real
+  backend, H3, configuration, and module-initialization checks.
+- Corrected the INTRA system-test workspace root, removed a wall-clock HEALTH
+  assertion, and made root matplotlib cleanup explicit and test-covered.
+- Strict repository terminology no longer mistakes completed SIM acceptance
+  evidence for module-local planned work.
 - Documentation drift: README, CLAUDE.md, AGENTS.md and module-level docs updated to reflect completed lowercase normalization.
 - Replaced stale INTRA navigation and examples that referenced nonexistent
   API, deployment, workflow, and package paths with current repository links.
@@ -170,7 +162,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-The version labels above are historical documentation entries. The current
-checkout does not carry matching Git tags, so release comparison links are not
-published here; use the repository commit history and GitHub releases page
-when release metadata is available.
+[Unreleased]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0

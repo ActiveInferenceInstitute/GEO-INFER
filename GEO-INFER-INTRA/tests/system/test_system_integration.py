@@ -3,18 +3,19 @@
 These tests verify end-to-end integration across multiple modules.
 """
 
-import pytest
+import json
 import sys
 import tempfile
-import json
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from intra_utils import collect_test_modules
 from intra_utils.geospatial import (
-    create_point,
     create_feature,
     create_feature_collection,
+    create_point,
 )
 
 
@@ -25,7 +26,7 @@ class TestSystemIntegration:
     @pytest.fixture(scope="class")
     def geo_infer_modules(self):
         """Collect all GEO-INFER modules."""
-        root_dir = Path(__file__).parent.parent.parent
+        root_dir = Path(__file__).resolve().parents[3]
         return collect_test_modules(root_dir)
 
     @pytest.fixture(scope="class")
