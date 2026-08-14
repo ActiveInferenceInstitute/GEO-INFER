@@ -8,15 +8,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RUNNER_PATH = REPO_ROOT / "GEO-INFER-TEST" / "run_unified_tests.py"
 
 
 def load_runner_module():
-    spec = importlib.util.spec_from_file_location(
-        "geo_infer_run_unified_tests", RUNNER_PATH
-    )
+    spec = importlib.util.spec_from_file_location("geo_infer_run_unified_tests", RUNNER_PATH)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -88,9 +85,7 @@ def test_unit_category_falls_back_to_root_test_files(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
     module = runner.discover_geo_infer_modules()[0]
 
-    assert runner.category_test_paths(module, "unit") == sorted(
-        [root_test, unit_test, tool_test]
-    )
+    assert runner.category_test_paths(module, "unit") == sorted([root_test, unit_test, tool_test])
     assert runner.category_test_paths(module, "integration") == []
     assert runner.category_test_paths(module, "system") == []
 
@@ -126,10 +121,12 @@ def test_run_command_passes_workspace_env(tmp_path, monkeypatch):
         "sample",
         timeout=10,
         cwd=tmp_path,
+        env_overrides={"COVERAGE_FILE": "/tmp/coverage-contract"},
     )
 
     assert result.success is True
     assert str(src_path) in captured["env"]["PYTHONPATH"]
+    assert captured["env"]["COVERAGE_FILE"] == "/tmp/coverage-contract"
 
 
 def test_pytest_no_tests_exit_is_a_failure(tmp_path, monkeypatch):
@@ -171,9 +168,7 @@ def test_non_pytest_no_tests_exit_remains_failure(tmp_path, monkeypatch):
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
 
-    result = runner.run_command(
-        ["python", "script.py"], "script", timeout=10, cwd=tmp_path
-    )
+    result = runner.run_command(["python", "script.py"], "script", timeout=10, cwd=tmp_path)
 
     assert result.success is False
 
@@ -216,9 +211,7 @@ def test_performance_category_uses_canonical_directory_only(tmp_path, monkeypatc
 
     def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
         captured.append((name, command, timeout, cwd))
-        return runner.CommandResult(
-            name=name, success=True, duration=0.0, command=command
-        )
+        return runner.CommandResult(name=name, success=True, duration=0.0, command=command)
 
     monkeypatch.setattr(runner, "run_command", fake_run)
 
@@ -228,3 +221,48 @@ def test_performance_category_uses_canonical_directory_only(tmp_path, monkeypatc
     assert len(captured) == 1
     assert str(performance_file) in captured[0][1]
     assert str(unit_file) not in captured[0][1]
+
+
+def test_coverage_category_isolates_modules_and_combines_data(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    a_src = make_module(tmp_path, "A")
+    b_src = make_module(tmp_path, "B")
+    for module_name in ("A", "B"):
+        test_file = tmp_path / f"GEO-INFER-{module_name}" / "tests" / "unit" / "test_sample.py"
+        test_file.parent.mkdir(parents=True)
+        test_file.write_text("def test_sample():\n    assert True\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(runner, "RESULTS_DIR", tmp_path / "results")
+    runner.RESULTS_DIR.mkdir()
+    stale_report = runner.RESULTS_DIR / "OLD_coverage_results.xml"
+    stale_report.write_text("stale")
+    captured = []
+
+    def fake_run(
+        command,
+        name,
+        timeout,
+        cwd=runner.PROJECT_ROOT,
+        env_overrides=None,
+    ):
+        captured.append((name, command, timeout, cwd, env_overrides))
+        return runner.CommandResult(name=name, success=True, duration=0.0, command=command)
+
+    monkeypatch.setattr(runner, "run_command", fake_run)
+
+    report = runner.run_coverage_analysis(timeout=42)
+
+    assert report.success is True
+    assert not stale_report.exists()
+    assert len(captured) == 4
+    a_run, b_run, json_run, terminal_run = captured
+    assert f"--cov={a_src}" in a_run[1]
+    assert f"--cov={b_src}" not in a_run[1]
+    assert f"--cov={b_src}" in b_run[1]
+    assert f"--cov={a_src}" not in b_run[1]
+    assert "--cov-append" in a_run[1] and "--cov-report=" in a_run[1]
+    expected_data = str(runner.RESULTS_DIR / ".coverage")
+    assert a_run[4] == {"COVERAGE_FILE": expected_data}
+    assert b_run[4] == {"COVERAGE_FILE": expected_data}
+    assert json_run[1][-2:] == ["-o", str(runner.RESULTS_DIR / "coverage.json")]
+    assert terminal_run[1][-2:] == ["report", "--show-missing"]

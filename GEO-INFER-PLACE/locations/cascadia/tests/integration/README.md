@@ -14,21 +14,14 @@ Integration workspace within `GEO-INFER-PLACE`.
 
 ## Public Interface
 
-- `comprehensive_test.py:ComprehensiveTestSuite` (class)
-- `comprehensive_test.py:main` (function)
-- `focused_framework_test.py:test_main_script_functionality` (function)
-- `focused_framework_test.py:test_backend_with_mocked_dependencies` (function)
-- `focused_framework_test.py:test_module_functionality` (function)
-- `focused_framework_test.py:test_h3_utilities` (function)
-- `focused_framework_test.py:run_focused_tests` (function)
-- `run_comprehensive_validation.py:test_main_script_syntax` (function)
-- `run_comprehensive_validation.py:test_configuration_files` (function)
-- `run_comprehensive_validation.py:test_module_structure` (function)
-- `run_comprehensive_validation.py:test_h3_integration` (function)
-- `run_comprehensive_validation.py:test_backend_initialization` (function)
-- `run_comprehensive_validation.py:test_module_imports` (function)
-- `run_comprehensive_validation.py:test_main_script_functionality` (function)
-- `run_comprehensive_validation.py:run_comprehensive_validation` (function)
+- `run_comprehensive_validation.py:check_main_script_contract` (function)
+- `run_comprehensive_validation.py:check_configuration_contract` (function)
+- `run_comprehensive_validation.py:check_module_structure` (function)
+- `run_comprehensive_validation.py:check_h3_integration` (function)
+- `run_comprehensive_validation.py:check_backend_initialization` (function)
+- `run_comprehensive_validation.py:check_data_module_initialization` (function)
+- `run_comprehensive_validation.py:run_checks` (function)
+- `run_comprehensive_validation.py:main` (function)
 
 ## Module Metadata
 

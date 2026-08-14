@@ -5,19 +5,21 @@ This module is responsible for fetching parcel-level ownership data by
 querying public ArcGIS REST services.
 """
 
+import json
 import logging
 import os
-import requests
-import geopandas as gpd
-from shapely.geometry import Polygon
+from pathlib import Path
 from typing import List
-import json
+
+import geopandas as gpd
+import requests
+from shapely.geometry import Polygon
 
 try:
     from geo_infer_space.utils.h3_utils import (
-        latlng_to_cell,
         cell_to_latlng,
         cell_to_latlng_boundary,
+        latlng_to_cell,
         polygon_to_cells,
     )
 except ImportError:
@@ -37,14 +39,10 @@ class CascadianOwnershipDataSources:
     """
 
     def __init__(self):
-        self.data_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "data", "parcels"
-        )
+        self.data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "parcels")
         os.makedirs(self.data_dir, exist_ok=True)
 
-        config_path = os.path.join(
-            os.path.dirname(__file__), "..", "config", "data_urls.json"
-        )
+        config_path = Path(__file__).resolve().parents[3] / "config" / "data_urls.json"
         try:
             with open(config_path) as f:
                 self.config = json.load(f)
@@ -58,9 +56,7 @@ class CascadianOwnershipDataSources:
             .get("del_norte_parcels", {})
             .get("url"),
         }
-        self.arcgis_service_urls = {
-            k: v for k, v in self.arcgis_service_urls.items() if v
-        }
+        self.arcgis_service_urls = {k: v for k, v in self.arcgis_service_urls.items() if v}
 
     def _fetch_arcgis_parcels(self, service_url: str, bbox: tuple) -> gpd.GeoDataFrame:
         """
@@ -91,9 +87,7 @@ class CascadianOwnershipDataSources:
                 return gpd.GeoDataFrame()
 
             if not data.get("features"):
-                logger.info(
-                    "No features returned from the ArcGIS service for the given extent."
-                )
+                logger.info("No features returned from the ArcGIS service for the given extent.")
                 return gpd.GeoDataFrame()
 
             # The geojson response from ArcGIS is directly readable by GeoPandas
@@ -134,9 +128,7 @@ class CascadianOwnershipDataSources:
         )
 
         try:
-            response = requests.post(
-                overpass_url, data={"data": overpass_query}, timeout=120
-            )
+            response = requests.post(overpass_url, data={"data": overpass_query}, timeout=120)
             response.raise_for_status()
             data = response.json()
 
@@ -179,9 +171,7 @@ class CascadianOwnershipDataSources:
                 return gpd.GeoDataFrame()
 
             gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
-            logger.info(
-                f"Ownership: Fetched {len(gdf)} OSM buildings as parcel proxies."
-            )
+            logger.info(f"Ownership: Fetched {len(gdf)} OSM buildings as parcel proxies.")
             return gdf
 
         except Exception as e:
@@ -241,9 +231,7 @@ class CascadianOwnershipDataSources:
                 (col for col in id_cols if col in combined_gdf.columns), "generated_id"
             )
             if parcel_id_col == "generated_id":
-                combined_gdf["parcel_id"] = [
-                    f"gen_{i}" for i in range(len(combined_gdf))
-                ]
+                combined_gdf["parcel_id"] = [f"gen_{i}" for i in range(len(combined_gdf))]
             else:
                 combined_gdf.rename(columns={parcel_id_col: "parcel_id"}, inplace=True)
 

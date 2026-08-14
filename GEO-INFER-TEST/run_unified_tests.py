@@ -25,7 +25,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODULE_PREFIX = "GEO-INFER-"
 TEST_DIR_NAME = "tests"
@@ -108,9 +107,7 @@ def build_subprocess_env() -> dict[str, str]:
     pythonpath_parts = [str(path) for path in workspace_src_paths()]
     existing_pythonpath = env.get("PYTHONPATH")
     if existing_pythonpath:
-        pythonpath_parts.extend(
-            part for part in existing_pythonpath.split(os.pathsep) if part
-        )
+        pythonpath_parts.extend(part for part in existing_pythonpath.split(os.pathsep) if part)
     env["PYTHONPATH"] = os.pathsep.join(dict.fromkeys(pythonpath_parts))
     return env
 
@@ -133,11 +130,7 @@ def junit_contract_errors(path: Path | None) -> list[str]:
     for testcase in root.iter("testcase"):
         skipped = testcase.find("skipped")
         if skipped is not None:
-            name = (
-                testcase.attrib.get("classname", "")
-                + "::"
-                + testcase.attrib.get("name", "")
-            )
+            name = testcase.attrib.get("classname", "") + "::" + testcase.attrib.get("name", "")
             reason = skipped.attrib.get("message", "") or (skipped.text or "")
             errors.append(f"forbidden skipped/xfail testcase {name}: {reason}")
     return errors
@@ -148,16 +141,20 @@ def run_command(
     name: str,
     timeout: int,
     cwd: Path = PROJECT_ROOT,
+    env_overrides: dict[str, str] | None = None,
 ) -> CommandResult:
     """Run a subprocess and capture a compact result."""
     print(f"\n== {name}")
     print("$ " + " ".join(command))
     started = time.time()
+    subprocess_env = build_subprocess_env()
+    if env_overrides:
+        subprocess_env.update(env_overrides)
     try:
         completed = subprocess.run(
             command,
             cwd=cwd,
-            env=build_subprocess_env(),
+            env=subprocess_env,
             text=True,
             capture_output=True,
             timeout=timeout,
@@ -302,9 +299,7 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
             *map(str, paths),
             f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
         ]
-        report.add(
-            run_command(command, f"{module.name} {category} tests", timeout=timeout)
-        )
+        report.add(run_command(command, f"{module.name} {category} tests", timeout=timeout))
 
     if not discovered:
         report.add(
@@ -350,9 +345,7 @@ def run_performance_tests(timeout: int) -> SuiteReport:
             *map(str, performance_files),
             f"--junitxml={RESULTS_DIR / f'{module.name}_performance_results.xml'}",
         ]
-        report.add(
-            run_command(command, f"{module.name} performance tests", timeout=timeout)
-        )
+        report.add(run_command(command, f"{module.name} performance tests", timeout=timeout))
 
     if not discovered:
         report.add(
@@ -369,25 +362,67 @@ def run_performance_tests(timeout: int) -> SuiteReport:
 
 
 def run_coverage_analysis(timeout: int) -> SuiteReport:
+    """Collect fleet coverage in isolated module subprocesses, then combine it."""
     report = SuiteReport()
-    source_dirs = [
-        module.path / "src"
-        for module in discover_geo_infer_modules()
-        if (module.path / "src").exists()
-    ]
-    test_paths = [
-        module.test_path for module in discover_geo_infer_modules() if module.has_tests
-    ]
-    command = [
-        sys.executable,
-        "-m",
-        "pytest",
-        *map(str, test_paths),
-        "--cov",
-        ",".join(str(path) for path in source_dirs),
-        "--cov-report=term-missing",
-    ]
-    report.add(run_command(command, "coverage analysis", timeout=timeout))
+    ensure_results_dir()
+    coverage_data = RESULTS_DIR / ".coverage"
+    coverage_json = RESULTS_DIR / "coverage.json"
+    coverage_data.unlink(missing_ok=True)
+    coverage_json.unlink(missing_ok=True)
+    for stale_report in RESULTS_DIR.glob("*_coverage_results.xml"):
+        stale_report.unlink()
+    coverage_env = {"COVERAGE_FILE": str(coverage_data)}
+
+    for module in discover_geo_infer_modules():
+        source_dir = module.path / "src"
+        test_files = test_file_paths(module.test_path)
+        if not source_dir.exists() or not test_files:
+            continue
+        command = [
+            *pytest_base_args(),
+            *map(str, test_files),
+            f"--cov={source_dir}",
+            "--cov-append",
+            "--cov-report=",
+            f"--junitxml={RESULTS_DIR / f'{module.name}_coverage_results.xml'}",
+        ]
+        report.add(
+            run_command(
+                command,
+                f"{module.name} coverage tests",
+                timeout=timeout,
+                env_overrides=coverage_env,
+            )
+        )
+
+    if not report.results:
+        report.add(
+            CommandResult(
+                name="coverage tests",
+                success=False,
+                duration=0.0,
+                command=[],
+                stderr="No modules with source and tests were discovered.",
+            )
+        )
+        return report
+
+    report.add(
+        run_command(
+            [sys.executable, "-m", "coverage", "json", "-o", str(coverage_json)],
+            "coverage JSON report",
+            timeout=timeout,
+            env_overrides=coverage_env,
+        )
+    )
+    report.add(
+        run_command(
+            [sys.executable, "-m", "coverage", "report", "--show-missing"],
+            "coverage terminal report",
+            timeout=timeout,
+            env_overrides=coverage_env,
+        )
+    )
     return report
 
 

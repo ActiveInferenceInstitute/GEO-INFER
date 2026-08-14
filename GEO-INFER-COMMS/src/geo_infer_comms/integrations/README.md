@@ -9,6 +9,8 @@ Integrations workspace within `GEO-INFER-COMMS`.
 
 ## Public Interface
 
+- `email_providers.py:EmailErrorCategory` (class)
+- `email_providers.py:EmailDeliveryError` (class)
 - `email_providers.py:EmailProvider` (class)
 - `email_providers.py:SendGridProvider` (class)
 - `email_providers.py:SESProvider` (class)

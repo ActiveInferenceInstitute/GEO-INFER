@@ -6,7 +6,7 @@ against real Mesa models. They are skipped automatically when the optional
 ``mesa`` dependency is not installed, so the rest of the SIM test suite remains
 runnable in a minimal environment.
 
-The acceptance criteria covered here:
+The completed SIM-01 acceptance criteria covered here are:
 
 * a real Mesa-backed scenario runs,
 * state/metric history is recorded,
@@ -19,10 +19,8 @@ import json
 
 import mesa
 import pytest
-
 from geo_infer_sim.core.mesa_bridge import HAS_MESA, MesaModelBridge
 from geo_infer_sim.core.simulation_engine import SimulationConfig, SimulationState
-
 
 # ---------------------------------------------------------------------------
 # Mesa model fixtures
@@ -72,9 +70,7 @@ class CancelModel(mesa.Model):
         super().__init__(rng=rng)
         self._cancel_after = cancel_after
         self.bridge: "MesaModelBridge | None" = None  # set by the test before run()
-        self.datacollector = mesa.DataCollector(
-            model_reporters={"steps": lambda m: m.steps}
-        )
+        self.datacollector = mesa.DataCollector(model_reporters={"steps": lambda m: m.steps})
 
     def step(self):
         self.datacollector.collect(self)
