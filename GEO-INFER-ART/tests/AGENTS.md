@@ -25,11 +25,12 @@
 - `unit/`
 - `conftest.py`
 - `run_all_tests.py`
+- `test_generative_terrain.py`
 
 ## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/run_unified_tests.py --module ART
+uv run python -m pytest GEO-INFER-ART/tests
 ```
 
 

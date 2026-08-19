@@ -6,7 +6,9 @@ Unit workspace within `GEO-INFER-GIT`.
 
 - `test_config_loader.py`
 - `test_error_handler.py`
+- `test_error_recovery_strategies.py`
 - `test_github_api.py`
+- `test_intelligent_cache_prefetch.py`
 - `test_repo_analyzer.py`
 - `test_repo_cloner.py`
 - `test_repo_manager.py`
