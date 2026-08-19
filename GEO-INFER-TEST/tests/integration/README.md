@@ -9,6 +9,7 @@ Integration workspace within `GEO-INFER-TEST`.
 - `test_cross_module.py`
 - `test_cross_module_workflows.py`
 - `test_ecosystem_health.py`
+- `test_h3_space_time_bayes_risk_act_composition.py`
 - `test_module_imports.py`
 - `test_sec_api_app_security.py`
 - `test_space_time_data_integration.py`

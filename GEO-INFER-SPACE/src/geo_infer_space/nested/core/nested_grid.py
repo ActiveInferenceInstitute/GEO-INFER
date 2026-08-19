@@ -1015,7 +1015,7 @@ class NestedH3Grid:
                 center_lng = (min_lng + max_lng) / 2
 
                 if H3_CORE_AVAILABLE:
-                    from ...h3.core import H3Cell
+                    from ...backends.h3.core import H3Cell
 
                     center_cell = H3Cell.from_coordinates(
                         center_lat, center_lng, resolution
