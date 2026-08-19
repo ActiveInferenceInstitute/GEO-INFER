@@ -6,6 +6,7 @@ anomalies, changepoints, and significant events in time series data.
 """
 
 import logging
+import math
 from typing import Dict, List, Optional, Any
 import pandas as pd
 import numpy as np
@@ -35,7 +36,18 @@ class EventDetector:
             threshold_multiplier: Multiplier for standard deviation threshold
             window_size: Window size for moving statistics
         """
-        self.threshold_multiplier = threshold_multiplier
+        if isinstance(threshold_multiplier, bool) or not isinstance(
+            threshold_multiplier, (int, float)
+        ):
+            raise TypeError("threshold_multiplier must be a number")
+        if not math.isfinite(threshold_multiplier) or threshold_multiplier < 0:
+            raise ValueError("threshold_multiplier must be finite and non-negative")
+        if isinstance(window_size, bool) or not isinstance(window_size, int):
+            raise TypeError("window_size must be an integer")
+        if window_size <= 0:
+            raise ValueError("window_size must be greater than zero")
+
+        self.threshold_multiplier = float(threshold_multiplier)
         self.window_size = window_size
 
     def detect_anomalies(
@@ -51,18 +63,26 @@ class EventDetector:
         Returns:
             Dictionary with detected anomalies
         """
+        supported_methods = {"z_score", "iqr", "isolation_forest"}
+        if method not in supported_methods:
+            raise ValueError(f"Unknown anomaly detection method: {method}")
+
         data = timeseries.to_dataframe()
+        if data.empty or data.shape[1] == 0:
+            return {"method": method, "anomalies": [], "count": 0}
         values = data.iloc[:, 0].dropna().values
         timestamps = data.index[~data.iloc[:, 0].isna()]
+
+        if len(values) == 0:
+            return {"method": method, "anomalies": [], "count": 0}
 
         anomalies = []
 
         if method == "z_score":
             mean = np.mean(values)
             std = np.std(values)
-            threshold = self.threshold_multiplier * std
 
-            for i, (val, ts) in enumerate(zip(values, timestamps)):
+            for val, ts in zip(values, timestamps):
                 z_score = abs(val - mean) / std if std > 0 else 0
                 if z_score > self.threshold_multiplier:
                     anomalies.append(
@@ -95,9 +115,7 @@ class EventDetector:
             try:
                 from sklearn.ensemble import IsolationForest
             except ImportError:
-                raise ImportError(
-                    "scikit-learn required for isolation_forest method"
-                )
+                raise ImportError("scikit-learn required for isolation_forest method")
 
             clf = IsolationForest(
                 contamination=0.05,
@@ -106,9 +124,7 @@ class EventDetector:
             predictions = clf.fit_predict(values.reshape(-1, 1))
             scores = clf.decision_function(values.reshape(-1, 1))
 
-            for i, (pred, val, score) in enumerate(
-                zip(predictions, values, scores)
-            ):
+            for i, (pred, val, score) in enumerate(zip(predictions, values, scores)):
                 if pred == -1:
                     anomalies.append(
                         {
@@ -118,9 +134,6 @@ class EventDetector:
                             "type": "outlier",
                         }
                     )
-
-        else:
-            raise ValueError(f"Unknown anomaly detection method: {method}")
 
         return {
             "method": method,
@@ -136,12 +149,19 @@ class EventDetector:
 
         Args:
             timeseries: TimeSeries object
-            sensitivity: Sensitivity parameter (0.0 to 1.0)
+            sensitivity: Non-negative multiplier applied to local variability.
 
         Returns:
             Dictionary with detected changepoints
         """
+        if isinstance(sensitivity, bool) or not isinstance(sensitivity, (int, float)):
+            raise TypeError("sensitivity must be a number")
+        if not math.isfinite(sensitivity) or sensitivity < 0:
+            raise ValueError("sensitivity must be finite and non-negative")
+
         data = timeseries.to_dataframe()
+        if data.empty or data.shape[1] == 0:
+            return {"changepoints": [], "count": 0}
         values = data.iloc[:, 0].dropna().values
         timestamps = data.index[~data.iloc[:, 0].isna()]
 
@@ -176,6 +196,3 @@ class EventDetector:
             "changepoints": changepoints,
             "count": len(changepoints),
         }
-
-
-

@@ -30,6 +30,7 @@ Models workspace within `GEO-INFER-BAYES`.
 - `_model_utils.py:gaussian_log_likelihood` (function)
 - `_model_utils.py:log_prior_from_parameters` (function)
 - `_model_utils.py:predictive_samples` (function)
+- `_model_utils.py:posterior_draw_indices` (function)
 - `base.py:BayesianModel` (class)
 - `bayesian_network.py:BayesianNetwork` (class)
 - `bayesian_timeseries.py:BayesianTimeSeriesModel` (class)
@@ -39,7 +40,6 @@ Models workspace within `GEO-INFER-BAYES`.
 - `multilevel.py:MultilevelModel` (class)
 - `spatial_causal.py:SpatialCausalModel` (class)
 - `spatial_clustering.py:SpatialClusteringModel` (class)
-- `spatial_gp.py:SpatialGP` (class)
 
 ## Module Metadata
 

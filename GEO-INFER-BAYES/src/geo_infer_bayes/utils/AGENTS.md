@@ -26,6 +26,7 @@
 - `diagnostics.py`
 - `likelihoods.py`
 - `priors.py`
+- `rng.py`
 - `visualization.py`
 
 ## Validation

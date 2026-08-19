@@ -16,7 +16,6 @@ Core workspace within `GEO-INFER-SPACE`.
 - `h3_policy.py`
 - `interfaces.py`
 - `place_analyzer.py`
-- `processor.py`
 - `spatial_indexing.py`
 - `spatial_methods.py`
 - `spatial_processor.py`

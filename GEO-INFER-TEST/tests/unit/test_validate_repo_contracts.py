@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONTRACTS_PATH = REPO_ROOT / "GEO-INFER-TEST" / "validate_repo_contracts.py"
+REWRITER_PATH = REPO_ROOT / "GEO-INFER-TEST" / "rewrite_readme_agents.py"
 
 
 def load_contracts_module():
@@ -20,6 +22,41 @@ def load_contracts_module():
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def load_rewriter_module():
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_rewrite_readme_agents_for_test", REWRITER_PATH
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_signpost_inventory_includes_new_files_and_excludes_deletions(
+    tmp_path, monkeypatch
+):
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    tracked = tmp_path / "tracked.py"
+    tracked.write_text("tracked = True\n")
+    subprocess.run(["git", "add", "tracked.py"], cwd=tmp_path, check=True)
+    tracked.unlink()
+
+    added = tmp_path / "added.py"
+    added.write_text("added = True\n")
+    (tmp_path / ".gitignore").write_text("ignored.py\n")
+    (tmp_path / "ignored.py").write_text("ignored = True\n")
+
+    rewriter = load_rewriter_module()
+    monkeypatch.setattr(rewriter, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(rewriter, "_TRACKED_FILES", None)
+
+    inventory = rewriter.tracked_files()
+    assert added in inventory
+    assert tracked not in inventory
+    assert tmp_path / "ignored.py" not in inventory
 
 
 def write_root_uv_files(root: Path) -> None:

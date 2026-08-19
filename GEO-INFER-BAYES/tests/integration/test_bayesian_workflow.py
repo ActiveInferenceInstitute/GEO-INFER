@@ -21,9 +21,9 @@ class TestGaussianProcessEndToEnd:
         """Fit a GP to noisy sine data and verify predictions."""
         from geo_infer_bayes import GaussianProcess
 
-        rng = np.random.RandomState(42)
+        rng = np.random.default_rng(42)
         X_train = np.linspace(0, 2 * np.pi, 30).reshape(-1, 1)
-        y_train = np.sin(X_train).ravel() + 0.05 * rng.randn(30)
+        y_train = np.sin(X_train).ravel() + 0.05 * rng.standard_normal(30)
 
         gp = GaussianProcess(
             kernel_type="rbf",
@@ -47,10 +47,10 @@ class TestGaussianProcessEndToEnd:
         """Fit a GP to 2-D spatial data."""
         from geo_infer_bayes import GaussianProcess
 
-        rng = np.random.RandomState(7)
+        rng = np.random.default_rng(7)
         n = 40
-        X_train = rng.rand(n, 2) * 5.0
-        y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + 0.1 * rng.randn(n)
+        X_train = rng.random((n, 2)) * 5.0
+        y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + 0.1 * rng.standard_normal(n)
 
         gp = GaussianProcess(
             kernel_type="rbf",
@@ -59,7 +59,7 @@ class TestGaussianProcessEndToEnd:
         )
         gp.fit(X_train, y_train)
 
-        X_test = rng.rand(20, 2) * 5.0
+        X_test = rng.random((20, 2)) * 5.0
         mean = gp.predict(X_test, return_std=False)
         assert mean.shape == (20,)
         assert np.all(np.isfinite(mean))
@@ -68,9 +68,9 @@ class TestGaussianProcessEndToEnd:
         """LML should be computable after fitting."""
         from geo_infer_bayes import GaussianProcess
 
-        rng = np.random.RandomState(3)
+        rng = np.random.default_rng(3)
         X = np.linspace(0, 3, 15).reshape(-1, 1)
-        y = np.cos(X).ravel() + 0.05 * rng.randn(15)
+        y = np.cos(X).ravel() + 0.05 * rng.standard_normal(15)
 
         gp = GaussianProcess(length_scale=0.8, noise_variance=0.01)
         gp.fit(X, y)
@@ -85,14 +85,14 @@ class TestSpatialGPEndToEnd:
     def test_spatial_gp_fit_predict(self) -> None:
         from geo_infer_bayes.models.spatial_gp import SpatialGP
 
-        rng = np.random.RandomState(10)
-        X = rng.rand(25, 2)
-        y = np.sin(3 * X[:, 0]) * np.cos(3 * X[:, 1]) + 0.05 * rng.randn(25)
+        rng = np.random.default_rng(10)
+        X = rng.random((25, 2))
+        y = np.sin(3 * X[:, 0]) * np.cos(3 * X[:, 1]) + 0.05 * rng.standard_normal(25)
 
         model = SpatialGP(kernel="rbf", lengthscale=0.3, variance=1.0, noise=0.05)
         model.fit(X, y)
 
-        X_new = rng.rand(10, 2)
+        X_new = rng.random((10, 2))
         y_pred, y_std = model.predict(X_new, return_std=True)
         assert y_pred.shape == (10,)
         assert y_std.shape == (10,)
@@ -101,9 +101,9 @@ class TestSpatialGPEndToEnd:
     def test_spatial_gp_log_likelihood(self) -> None:
         from geo_infer_bayes.models.spatial_gp import SpatialGP
 
-        rng = np.random.RandomState(11)
-        X = rng.rand(20, 2)
-        y = X[:, 0] + 0.1 * rng.randn(20)
+        rng = np.random.default_rng(11)
+        X = rng.random((20, 2))
+        y = X[:, 0] + 0.1 * rng.standard_normal(20)
 
         model = SpatialGP(kernel="rbf", lengthscale=0.5, variance=1.0, noise=0.1)
         model.fit(X, y)
@@ -125,11 +125,12 @@ class TestDataProcessingWorkflow:
             create_spatial_grid,
         )
 
+        rng = np.random.default_rng(31)
         df = pd.DataFrame(
             {
-                "lat": np.random.uniform(30, 40, 50),
-                "lon": np.random.uniform(-80, -70, 50),
-                "measurement": np.random.randn(50),
+                "lat": rng.uniform(30, 40, 50),
+                "lon": rng.uniform(-80, -70, 50),
+                "measurement": rng.standard_normal(50),
             }
         )
 
@@ -155,7 +156,7 @@ class TestModelComparisonWorkflow:
         from geo_infer_bayes.core.model_comparison import ModelComparison
         from geo_infer_bayes.models.spatial_gp import SpatialGP
 
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
 
         model_rbf = SpatialGP(kernel="rbf", lengthscale=0.5)
         model_rbf.name = "SpatialGP_RBF"
@@ -165,7 +166,7 @@ class TestModelComparisonWorkflow:
         # Use pre-computed log-likelihood matrix for speed
         ll_matrix = rng.normal(-2.0, 0.3, size=(30, 15))
         data = {
-            "observations": rng.randn(15),
+            "observations": rng.standard_normal(15),
             "log_likelihood_matrix": ll_matrix,
         }
 

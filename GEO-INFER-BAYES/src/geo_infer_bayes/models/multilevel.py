@@ -8,6 +8,8 @@ complex hierarchical spatial data structures.
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import posterior_draw_indices
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class MultilevelModel(BayesianModel):
@@ -18,19 +20,33 @@ class MultilevelModel(BayesianModel):
     more complex multi-level data structures.
     """
 
-    def __init__(self, levels: List[str] = None, **kwargs):
-        """
-        Initialize the multi-level model.
+    def __init__(self, levels: Optional[List[str]] = None, **kwargs: Any):
+        """Initialize the multi-level model.
 
         Args:
-            levels: List of level names in the hierarchy
-            **kwargs: Additional model parameters
-        """
-        super().__init__(name="MultilevelModel", **kwargs)
-        self.levels = levels or ["global", "regional", "local"]
-        self.level_structure = {}
+            levels: Level names in the hierarchy, outermost first. The first
+                entry is the global level and carries no random effect of its
+                own. Defaults to ``["global", "regional", "local"]``.
+            **kwargs: Additional model parameters forwarded to the base class.
 
-    def _setup_model(self, **kwargs) -> None:
+        Raises:
+            ValueError: If fewer than two level names are given, or if any name
+                is duplicated.
+        """
+        resolved = list(levels) if levels else ["global", "regional", "local"]
+        if len(resolved) < 2:
+            raise ValueError(
+                "levels must name a global level and at least one nested level"
+            )
+        if len(set(resolved)) != len(resolved):
+            raise ValueError("level names must be unique")
+        # Set before super().__init__, which calls _setup_model and needs these
+        # to declare the per-level variance parameters.
+        self.levels = resolved
+        self.level_structure: Dict[str, Any] = {}
+        super().__init__(name="MultilevelModel", **kwargs)
+
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the multi-level model structure and parameters."""
         # Define parameter distributions for inference
         self.parameters = {
@@ -131,24 +147,27 @@ class MultilevelModel(BayesianModel):
         n_obs = len(X_new)
 
         if posterior is not None:
-            n_samples = min(samples, len(posterior.samples.get("global_mean", [0])))
-            predictions = np.full(
-                (n_samples, n_obs),
-                posterior.samples.get("global_mean", [0.0])[:n_samples][:, np.newaxis],
-            )
+            # One index set, reused for every parameter, so the global mean and
+            # the level effects always come from the same draw. Draws are spread
+            # across the chain rather than taken from its least-converged front.
+            draws = posterior_draw_indices(posterior, samples, ["global_mean"])
+            global_mean = np.asarray(posterior.samples["global_mean"])[draws]
+            predictions = np.repeat(global_mean[:, np.newaxis], n_obs, axis=1)
 
             # Add level effects if requested
             if level_indices:
                 for level, indices in level_indices.items():
                     eff_key = f"{level}_effects"
                     if eff_key in posterior.samples:
-                        eff_samples = posterior.samples[eff_key][:n_samples]
-                        # eff_samples shape: (n_samples, n_groups)
-                        predictions += eff_samples[:, indices]
+                        # eff_samples shape: (n_draws, n_groups)
+                        eff_samples = np.asarray(posterior.samples[eff_key])[draws]
+                        predictions = predictions + eff_samples[:, indices]
 
-            mean_pred = np.mean(predictions, axis=0)
+            mean_pred = np.asarray(np.mean(predictions, axis=0), dtype=float)
             if return_std:
-                return mean_pred, np.std(predictions, axis=0)
+                return mean_pred, np.asarray(
+                    np.std(predictions, axis=0), dtype=float
+                )
             return mean_pred
         else:
             global_mean = getattr(self, "global_mean", 0.0)
@@ -169,7 +188,7 @@ class MultilevelModel(BayesianModel):
         posterior: Any,
         X: Optional[np.ndarray] = None,
         samples: int = 100,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> np.ndarray:
         """Generate posterior predictive samples.
 
@@ -177,9 +196,10 @@ class MultilevelModel(BayesianModel):
             posterior: Fitted posterior object.
             X: Input coordinates/features (required).
             samples: Number of posterior predictive samples.
-            random_seed: Optional seed for reproducible noise draws. When
-                ``None`` (default) the legacy global ``np.random`` state is
-                used.
+            random_seed: Seed or generator for the observation-noise draws.
+                ``None`` (default) means a generator seeded from OS entropy, so
+                results are not replayable; pass an int to replay. See
+                :func:`geo_infer_bayes.utils.rng.resolve_rng`.
         """
         if X is None:
             raise ValueError(
@@ -190,17 +210,12 @@ class MultilevelModel(BayesianModel):
         predictions, std = self.predict(X, posterior, samples=samples, return_std=True)
 
         # Generate samples with noise
-        n_samples = min(samples, len(posterior.samples.get("noise", [1.0])))
+        rng = resolve_rng(random_seed)
         all_samples = []
-
-        if random_seed is None:
-            rng = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
-
-        for i in range(n_samples):
-            noise_sample = posterior.samples.get("noise", [1.0])[i]
-            sample = rng.normal(predictions, np.sqrt(noise_sample))
-            all_samples.append(sample)
+        for i in posterior_draw_indices(posterior, samples, ["noise"]):
+            # Each draw carries its own observation-noise variance, so the
+            # predictive spread widens with posterior uncertainty about noise.
+            noise_sample = float(np.asarray(posterior.samples["noise"])[i])
+            all_samples.append(rng.normal(predictions, np.sqrt(noise_sample)))
 
         return np.stack(all_samples)

@@ -47,6 +47,8 @@ except ImportError:
     MATH_AVAILABLE = False
     MoranI = None
 
+from ..utils.rng import SeedLike, resolve_rng
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,11 +81,11 @@ class EnhancedHazardModel:
         self.params = dict(params)
         self.logger = logging.getLogger(f"{__name__}.{hazard_type}")
 
+        # All stochastic draws come from self.rng; resolve_rng owns seed
+        # validation and never touches the numpy.random singleton.
         random_seed = self.params.get("random_seed")
-        if random_seed is not None and not isinstance(random_seed, (int, np.integer)):
-            raise TypeError("random_seed must be an integer or None")
-        self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.random_seed: SeedLike = random_seed
+        self.rng: np.random.Generator = resolve_rng(random_seed)
         reference_time = self.params.get("reference_time")
         if reference_time is None:
             reference_time = (
@@ -146,14 +148,14 @@ class EnhancedHazardModel:
         # Model state
         self.is_fitted = False
         self.historical_data = None
-        self.model_parameters = {}
-        self.climate_factors = {}
-        self.uncertainty_parameters = {}
+        self.model_parameters: Dict[str, Any] = {}
+        self.climate_factors: Dict[str, Any] = {}
+        self.uncertainty_parameters: Dict[str, Any] = {}
 
         # Hazard-specific attributes
         self.intensity_measure_type = self._get_intensity_measure_type()
         self.intensity_measure_units = self._get_intensity_measure_units()
-        self.hazard_specific_params = {}
+        self.hazard_specific_params: Dict[str, Any] = {}
 
         # Load and validate data
         self._load_and_validate_data()

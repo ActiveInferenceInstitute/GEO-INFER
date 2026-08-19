@@ -18,6 +18,7 @@ Tests workspace within `GEO-INFER-TIME`.
 - `test_temporal_analysis.py`
 - `test_temporal_statistics.py`
 - `test_temporal_visualization.py`
+- `test_timeseries_model.py`
 
 ## Public Interface
 

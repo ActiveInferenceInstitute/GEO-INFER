@@ -20,6 +20,3 @@ GeoJSON or visualization boundary and close polygon rings.
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 uv run pytest GEO-INFER-SPACE/tests/unit/test_h3_operations_runtime.py -q --no-cov
 ```
-
-The historical migration utility is not a test and must not be run against the
-whole checkout; it can rewrite source and documentation files.

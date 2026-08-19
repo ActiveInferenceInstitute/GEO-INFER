@@ -59,7 +59,7 @@ class TestUnifiedSpatialOperations:
         # Test Neighbors (k=1)
         neighbors = self.interface.get_cell_neighbors(center, k=1)
         assert len(neighbors) > 0
-        assert center not in neighbors  # Usually implementations exclude self for k=1 unless k_ring
+        assert center not in neighbors  # The backend neighbor contract excludes self.
         
         # Verify distance to neighbors
         for neighbor in neighbors:

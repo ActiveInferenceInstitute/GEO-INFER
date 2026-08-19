@@ -54,3 +54,20 @@ def test_pymdp_metadata_contract_rejects_non_normalized_posterior() -> None:
             },
             "non_normalized",
         )
+
+
+def test_h3_contract_scans_tool_directories_for_legacy_calls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    validator = load_validator_module()
+    module_root = tmp_path / "GEO-INFER-SPACE"
+    tool_file = module_root / "src" / "geo_infer_space" / "tools" / "legacy.py"
+    tool_file.parent.mkdir(parents=True)
+    tool_file.write_text("import h3\ncell = h3.geo_to_h3(1, 2, 3)\n")
+
+    monkeypatch.setattr(validator, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(validator, "RUNTIME_SOURCE_ROOTS", [module_root])
+    monkeypatch.setattr(validator, "DOC_FILES", [])
+
+    with pytest.raises(AssertionError, match="h3.geo_to_h3"):
+        validator._validate_no_h3_v3_calls()

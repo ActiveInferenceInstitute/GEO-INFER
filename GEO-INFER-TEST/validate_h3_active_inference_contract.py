@@ -26,7 +26,7 @@ SPACE_PACKAGE = SPACE_SRC / "geo_infer_space"
 
 # The H3 contract applies to every shipped module and example, not only the
 # original ACT/SPACE integration. Scan module trees while excluding tests and
-# migration tooling in ``_is_runtime_file`` below.
+# cache files in ``_is_runtime_file`` below.
 RUNTIME_SOURCE_ROOTS = [
     module_dir
     for module_dir in sorted(REPO_ROOT.glob("GEO-INFER-*"))
@@ -43,7 +43,9 @@ TARGETED_H3_FILES = [
     SPACE_PACKAGE / "backends" / "h3" / "operations.py",
 ]
 DOC_FILES = sorted(
-    (REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "geospatial" / "data_formats" / "h3").glob("*.md")
+    (
+        REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "geospatial" / "data_formats" / "h3"
+    ).glob("*.md")
 )
 DOC_FILES.extend(
     sorted(
@@ -90,13 +92,9 @@ def _ensure_import_path() -> None:
 
 def _is_runtime_file(path: Path) -> bool:
     parts = set(path.parts)
-    if {"tests", "tools", "__pycache__"} & parts:
+    if {"tests", "__pycache__"} & parts:
         return False
-    if path.name in {
-        "h3_v3_to_v4_upgrade.py",
-        "h3_v4_framework_upgrade.py",
-        "validate_h3_active_inference_contract.py",
-    }:
+    if path.name == "validate_h3_active_inference_contract.py":
         return False
     return path.suffix == ".py"
 
@@ -311,7 +309,7 @@ def _validate_space_indexing_contract() -> list[str]:
                 [-122.39, 37.77],
                 [-122.42, 37.77],
             ]
-        ]
+        ],
     }
     cells = indexer.polygon_to_cells(boundary, 8)
     if len(cells) < 2:
@@ -374,7 +372,7 @@ def _validate_act_h3_runtime(cells: list[str]) -> None:
                 [-122.39, 37.77],
                 [-122.42, 37.77],
             ]
-        ]
+        ],
     }
 
     gen = GenerativeModel("categorical", {"state_dim": 3, "obs_dim": 3})

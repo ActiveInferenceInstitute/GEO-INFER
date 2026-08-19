@@ -5,9 +5,9 @@ This module provides powerful spatial indexing, analytics, and integration
 with external geospatial tools and libraries through a unified, backend-agnostic API.
 """
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 
-# Import the new generic spatial interfaces
+# Import the generic spatial interfaces
 from .core.spatial_indexing import (
     SpatialIndexingInterface,
     latlng_to_cell,
@@ -31,13 +31,11 @@ try:
 except ImportError:
     SpatialUtils = None
 
-# Import new GIS Submodule facade
+# Import the GIS submodule facade
 try:
     from .gis import GISManager
 except ImportError:
     GISManager = None
-
-# OSC Geo functionality has been removed in favor of UnifiedH3Backend
 
 # Make core functionality easily accessible
 __all__ = [

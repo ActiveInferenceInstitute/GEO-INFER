@@ -21,6 +21,8 @@ from datetime import datetime, timedelta
 import json
 from scipy import stats, spatial
 
+from ..utils.rng import SeedLike, resolve_rng
+
 # GEO-INFER module imports with error handling
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
@@ -49,22 +51,6 @@ except ImportError:
     MoranI = None
 
 logger = logging.getLogger(__name__)
-
-
-def _randint(rng: Any, *args: Any, **kwargs: Any) -> Any:
-    """Draw integers from either the legacy np.random module or a Generator.
-
-    Scalar results are coerced to Python ``int`` so downstream consumers such
-    as ``timedelta(days=...)`` accept them (a fresh ``default_rng`` returns
-    ``numpy.int64`` scalars, which ``datetime.timedelta`` rejects).
-    """
-    if hasattr(rng, "integers"):
-        result = rng.integers(*args, **kwargs)
-    else:
-        result = rng.randint(*args, **kwargs)
-    if getattr(result, "ndim", 0) == 0:
-        return int(result)
-    return result
 
 
 @dataclass
@@ -119,6 +105,10 @@ class CatastropheConfig:
     batch_size: int = 1000
     cache_results: bool = True
 
+    # Reproducibility: seed for the model's own generator. ``None`` means a
+    # fresh generator seeded from OS entropy, so runs are not replayable.
+    random_seed: SeedLike = None
+
 
 class EnhancedCatastropheModel:
     """
@@ -133,12 +123,18 @@ class EnhancedCatastropheModel:
     - Integration with external data sources
     """
 
-    def __init__(self, config: Optional[CatastropheConfig] = None):
-        """
-        Initialize enhanced catastrophe model.
+    def __init__(
+        self,
+        config: Optional[CatastropheConfig] = None,
+        random_seed: SeedLike = None,
+    ):
+        """Initialize enhanced catastrophe model.
 
         Args:
-            config: Enhanced model configuration
+            config: Enhanced model configuration.
+            random_seed: Seed or generator for this model's stochastic
+                simulation, overriding ``config.random_seed`` when given. See
+                :func:`geo_infer_risk.utils.rng.resolve_rng` for accepted forms.
         """
         self.config = config or CatastropheConfig()
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -172,18 +168,20 @@ class EnhancedCatastropheModel:
         # Model state
         self.is_fitted = False
         self.historical_data = None
-        self.model_parameters = {}
-        self.climate_factors = {}
-        self.uncertainty_parameters = {}
+        self.model_parameters: Dict[str, Any] = {}
+        self.climate_factors: Dict[str, Any] = {}
+        self.uncertainty_parameters: Dict[str, Any] = {}
 
         # Event simulation state
-        self.event_cache = {}
+        self.event_cache: Dict[str, Any] = {}
         self.correlation_matrix = None
 
-        # Reproducible RNG source: legacy global np.random by default; a single
-        # call to simulate_events(random_seed=...) replaces it with a
-        # deterministic default_rng for that run.
-        self._rng: Any = np.random
+        # All stochastic draws in this model come from this generator, never
+        # from the process-wide numpy.random singleton. simulate_events() may
+        # rebind it for a single run when passed its own seed.
+        self._rng: np.random.Generator = resolve_rng(
+            random_seed if random_seed is not None else self.config.random_seed
+        )
 
         # Performance tracking
         self.simulation_metrics = {
@@ -502,28 +500,25 @@ class EnhancedCatastropheModel:
         n_simulations: int,
         region: Optional[Dict] = None,
         time_period: Optional[Tuple[datetime, datetime]] = None,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> List[Dict[str, Any]]:
-        """
-        Simulate catastrophe events with advanced features.
+        """Simulate catastrophe events with advanced features.
 
         Args:
-            n_simulations: Number of events to simulate
-            region: Spatial region constraints
-            time_period: Temporal constraints
-            random_seed: Optional seed for reproducible event simulation. When
-                ``None`` (default) the legacy global ``np.random`` state is
-                used. When provided, a deterministic ``default_rng`` is used
-                for this run.
+            n_simulations: Number of events to simulate.
+            region: Spatial region constraints.
+            time_period: Temporal constraints.
+            random_seed: Seed or generator for this run, rebinding the model's
+                generator. When ``None`` (default) the generator established at
+                construction continues, so successive calls draw fresh events
+                rather than repeating. See
+                :func:`geo_infer_risk.utils.rng.resolve_rng`.
 
         Returns:
-            List of simulated catastrophe events
+            List of simulated catastrophe events.
         """
-        # Bind a reproducible RNG source for this run when a seed is supplied.
-        if random_seed is None:
-            self._rng = np.random
-        else:
-            self._rng = np.random.default_rng(random_seed)
+        if random_seed is not None:
+            self._rng = resolve_rng(random_seed)
 
         logger.info(f"Simulating {n_simulations} catastrophe events")
 
@@ -787,10 +782,14 @@ class EnhancedCatastropheModel:
 class EnhancedEarthquakeModel(EnhancedCatastropheModel):
     """Enhanced earthquake catastrophe model with advanced seismological modeling."""
 
-    def __init__(self, config: Optional[CatastropheConfig] = None):
-        super().__init__(config)
-        self.fault_lines = []
-        self.seismicity_rates = {}
+    def __init__(
+        self,
+        config: Optional[CatastropheConfig] = None,
+        random_seed: SeedLike = None,
+    ):
+        super().__init__(config, random_seed=random_seed)
+        self.fault_lines: List[Any] = []
+        self.seismicity_rates: Dict[str, Any] = {}
 
     def _fit_model_parameters(self) -> None:
         """Fit earthquake-specific model parameters."""
@@ -854,7 +853,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"EQ_{_randint(self._rng, 1000000)}",
+            "event_id": f"EQ_{int(self._rng.integers(1000000))}",
             "hazard_type": "earthquake",
             "timestamp": timestamp,
             "location": location,
@@ -925,18 +924,24 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
     def _generate_event_timestamp(
         self, time_period: Optional[Tuple[datetime, datetime]] = None
     ) -> datetime:
-        """Generate event timestamp."""
+        """Draw a uniformly distributed event timestamp.
+
+        Args:
+            time_period: Inclusive-start, exclusive-end window to draw from.
+                When omitted, a day within the next year is drawn.
+
+        Returns:
+            The event timestamp. A zero-width window returns its start.
+        """
         if time_period:
             start_time, end_time = time_period
-            timestamp = start_time + timedelta(
-                seconds=_randint(
-                    self._rng, 0, int((end_time - start_time).total_seconds())
-                )
+            span_seconds = int((end_time - start_time).total_seconds())
+            if span_seconds <= 0:
+                return start_time
+            return start_time + timedelta(
+                seconds=int(self._rng.integers(0, span_seconds))
             )
-        else:
-            timestamp = datetime.now() + timedelta(days=_randint(self._rng, 0, 365))
-
-        return timestamp
+        return datetime.now() + timedelta(days=int(self._rng.integers(0, 365)))
 
     def calculate_loss(self, event: Dict[str, Any], exposure: Dict[str, Any]) -> float:
         """Calculate earthquake loss."""
@@ -1025,10 +1030,14 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
 class EnhancedHurricaneModel(EnhancedCatastropheModel):
     """Enhanced hurricane model with storm track modeling."""
 
-    def __init__(self, config: Optional[CatastropheConfig] = None):
-        super().__init__(config)
-        self.track_data = []
-        self.intensity_data = {}
+    def __init__(
+        self,
+        config: Optional[CatastropheConfig] = None,
+        random_seed: SeedLike = None,
+    ):
+        super().__init__(config, random_seed=random_seed)
+        self.track_data: List[Any] = []
+        self.intensity_data: Dict[str, Any] = {}
 
     def _fit_model_parameters(self) -> None:
         """Fit hurricane-specific model parameters."""
@@ -1069,7 +1078,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"HUR_{_randint(self._rng, 1000000)}",
+            "event_id": f"HUR_{int(self._rng.integers(1000000))}",
             "hazard_type": "hurricane",
             "timestamp": timestamp,
             "location": track[0] if track else {"latitude": 25.0, "longitude": -80.0},
@@ -1108,7 +1117,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
         self, region: Optional[Dict] = None
     ) -> List[Dict[str, Any]]:
         """Generate hurricane track."""
-        track_length = _randint(self._rng, 5, 20)
+        track_length = int(self._rng.integers(5, 20))
         track = []
 
         # Start in tropical Atlantic
@@ -1252,10 +1261,14 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
 class EnhancedFloodModel(EnhancedCatastropheModel):
     """Enhanced flood model with hydrological modeling."""
 
-    def __init__(self, config: Optional[CatastropheConfig] = None):
-        super().__init__(config)
-        self.river_data = {}
-        self.rainfall_data = {}
+    def __init__(
+        self,
+        config: Optional[CatastropheConfig] = None,
+        random_seed: SeedLike = None,
+    ):
+        super().__init__(config, random_seed=random_seed)
+        self.river_data: Dict[str, Any] = {}
+        self.rainfall_data: Dict[str, Any] = {}
 
     def _fit_model_parameters(self) -> None:
         """Fit flood-specific model parameters."""
@@ -1303,7 +1316,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
 
         # Create event
         event = {
-            "event_id": f"FLD_{_randint(self._rng, 1000000)}",
+            "event_id": f"FLD_{int(self._rng.integers(1000000))}",
             "hazard_type": "flood",
             "timestamp": timestamp,
             "location": location,

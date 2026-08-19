@@ -6,6 +6,7 @@ error handling, and real-world spatial analysis capabilities.
 """
 
 import logging
+import math
 from typing import List, Dict, Any, Optional, Tuple, Set
 
 logger = logging.getLogger(__name__)
@@ -26,9 +27,7 @@ try:
 
     _h3_version = _version_tuple(getattr(h3, "__version__", None))
     H3_AVAILABLE = bool(
-        _h3_version is not None
-        and MIN_H3_VERSION <= _h3_version
-        and _h3_version[0] < 5
+        _h3_version is not None and MIN_H3_VERSION <= _h3_version and _h3_version[0] < 5
     )
     if not H3_AVAILABLE:
         logger.error(
@@ -47,9 +46,6 @@ def get_resolution_info(resolution: int) -> Dict[str, Any]:
     """
     Get detailed information about an H3 resolution level.
 
-    Based on H3 resolution table from:
-    https://h3geo.org/docs/core-library/restable/
-
     Args:
         resolution: H3 resolution (0-15)
 
@@ -60,43 +56,32 @@ def get_resolution_info(resolution: int) -> Dict[str, Any]:
         >>> info = get_resolution_info(9)
         >>> print(f"Resolution 9 average area: {info['avg_area_km2']:.6f} km²")
     """
+    if not H3_AVAILABLE:
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
+
+    if isinstance(resolution, bool) or not isinstance(resolution, int):
+        raise TypeError("Resolution must be an integer")
     if not 0 <= resolution <= 15:
         raise ValueError("Resolution must be between 0 and 15")
 
-    # H3 resolution information (approximate values)
-    resolution_data = {
-        0: {"avg_edge_length_km": 1107.712, "avg_area_km2": 4250546.848},
-        1: {"avg_edge_length_km": 418.676, "avg_area_km2": 607220.982},
-        2: {"avg_edge_length_km": 158.244, "avg_area_km2": 86745.854},
-        3: {"avg_edge_length_km": 59.810, "avg_area_km2": 12392.264},
-        4: {"avg_edge_length_km": 22.606, "avg_area_km2": 1770.323},
-        5: {"avg_edge_length_km": 8.544, "avg_area_km2": 252.903},
-        6: {"avg_edge_length_km": 3.229, "avg_area_km2": 36.129},
-        7: {"avg_edge_length_km": 1.220, "avg_area_km2": 5.161},
-        8: {"avg_edge_length_km": 0.461, "avg_area_km2": 0.737},
-        9: {"avg_edge_length_km": 0.174, "avg_area_km2": 0.105},
-        10: {"avg_edge_length_km": 0.065, "avg_area_km2": 0.015},
-        11: {"avg_edge_length_km": 0.025, "avg_area_km2": 0.002},
-        12: {"avg_edge_length_km": 0.009, "avg_area_km2": 0.0003},
-        13: {"avg_edge_length_km": 0.003, "avg_area_km2": 0.00004},
-        14: {"avg_edge_length_km": 0.001, "avg_area_km2": 0.000007},
-        15: {"avg_edge_length_km": 0.0005, "avg_area_km2": 0.000001},
-    }
-
-    data = resolution_data[resolution]
+    avg_edge_length_km = float(h3.average_hexagon_edge_length(resolution, unit="km"))
+    avg_area_km2 = float(h3.average_hexagon_area(resolution, unit="km^2"))
 
     return {
         "resolution": resolution,
-        "avg_edge_length_km": data["avg_edge_length_km"],
-        "avg_edge_length_m": data["avg_edge_length_km"] * 1000,
-        "avg_area_km2": data["avg_area_km2"],
-        "avg_area_m2": data["avg_area_km2"] * 1000000,
-        "description": f"Resolution {resolution}: ~{data['avg_edge_length_km']:.3f}km edge, ~{data['avg_area_km2']:.6f}km² area",
+        "avg_edge_length_km": avg_edge_length_km,
+        "avg_edge_length_m": avg_edge_length_km * 1000,
+        "avg_area_km2": avg_area_km2,
+        "avg_area_m2": avg_area_km2 * 1_000_000,
+        "description": (
+            f"Resolution {resolution}: ~{avg_edge_length_km:.3f}km edge, "
+            f"~{avg_area_km2:.6f}km² area"
+        ),
     }
 
 
 def find_optimal_resolution(
-    area_km2: float, target_cells: int = None
+    area_km2: float, target_cells: Optional[int] = None
 ) -> Dict[str, Any]:
     """
     Find the optimal H3 resolution for a given area or target number of cells.
@@ -112,6 +97,16 @@ def find_optimal_resolution(
         >>> optimal = find_optimal_resolution(100.0)  # 100 km²
         >>> print(f"Recommended resolution: {optimal['recommended_resolution']}")
     """
+    if isinstance(area_km2, bool) or not isinstance(area_km2, (int, float)):
+        raise TypeError("Area must be a number")
+    if not math.isfinite(area_km2) or area_km2 <= 0:
+        raise ValueError("Area must be a finite value greater than zero")
+    if target_cells is not None:
+        if isinstance(target_cells, bool) or not isinstance(target_cells, int):
+            raise TypeError("Target cells must be an integer")
+        if target_cells <= 0:
+            raise ValueError("Target cells must be greater than zero")
+
     recommendations = []
 
     for resolution in range(16):
@@ -121,7 +116,7 @@ def find_optimal_resolution(
         estimated_cells = area_km2 / res_info["avg_area_km2"]
 
         # Calculate efficiency score
-        if target_cells:
+        if target_cells is not None:
             efficiency = 1.0 / (
                 1.0 + abs(estimated_cells - target_cells) / target_cells
             )
@@ -170,7 +165,7 @@ def create_h3_grid_for_bounds(
         resolution: H3 resolution
 
     Returns:
-        Set of H3 cell indices covering the bounding box
+        List of H3 cell indices covering the bounding box
 
     Example:
         >>> grid = create_h3_grid_for_bounds(37.7, 37.8, -122.5, -122.4, 9)
@@ -375,7 +370,7 @@ def cells_to_geojson(
 
 def grid_disk(h3_index: str, k: int) -> List[str]:
     """
-    Get all H3 cells within k rings of the given cell (k-ring).
+    Get all H3 cells within grid distance k of the given cell.
 
     Based on methods from Foursquare's H3 guide:
     https://location.foursquare.com/resources/reports-and-insights/ebook/how-to-use-h3-for-geospatial-analytics/
@@ -385,7 +380,7 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
         k: Number of rings (0 = just the center cell)
 
     Returns:
-        Set of H3 cell indices within k rings
+        Deterministically ordered list of H3 cells within grid distance k
 
     Example:
         >>> neighbors = grid_disk('89283082e3fffff', 2)
@@ -394,8 +389,13 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
     if not H3_AVAILABLE:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
+    if isinstance(k, bool) or not isinstance(k, int):
+        raise TypeError("Grid distance k must be an integer")
+    if k < 0:
+        raise ValueError("Grid distance k must be non-negative")
+
     try:
-        return list(h3.grid_disk(h3_index, k))
+        return sorted(h3.grid_disk(h3_index, k))
     except Exception as e:
         logger.error(f"Failed to get grid disk for {h3_index} with k={k}: {e}")
         raise
@@ -403,14 +403,14 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
 
 def grid_ring(h3_index: str, k: int) -> List[str]:
     """
-    Get H3 cells at exactly k rings from the given cell.
+    Get H3 cells at exactly grid distance k from the given cell.
 
     Args:
         h3_index: Center H3 cell index
         k: Ring distance (must be > 0)
 
     Returns:
-        Set of H3 cell indices at exactly k rings
+        Deterministically ordered list of H3 cells at grid distance k
 
     Example:
         >>> ring_cells = grid_ring('89283082e3fffff', 1)
@@ -419,11 +419,13 @@ def grid_ring(h3_index: str, k: int) -> List[str]:
     if not H3_AVAILABLE:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
+    if isinstance(k, bool) or not isinstance(k, int):
+        raise TypeError("Ring distance k must be an integer")
     if k <= 0:
         raise ValueError("Ring distance k must be greater than 0")
 
     try:
-        return list(h3.grid_ring(h3_index, k))
+        return sorted(h3.grid_ring(h3_index, k))
     except Exception as e:
         logger.error(f"Failed to get grid ring for {h3_index} with k={k}: {e}")
         raise
@@ -531,7 +533,7 @@ def cell_to_children(h3_index: str, child_resolution: int) -> List[str]:
         child_resolution: Target child resolution (must be > current resolution)
 
     Returns:
-        Set of child H3 cell indices
+        Deterministically ordered list of child H3 cells
 
     Example:
         >>> children = cell_to_children('89283082e3fffff', 10)
@@ -547,7 +549,7 @@ def cell_to_children(h3_index: str, child_resolution: int) -> List[str]:
                 f"Child resolution {child_resolution} must be greater than current resolution {current_resolution}"
             )
 
-        return list(h3.cell_to_children(h3_index, child_resolution))
+        return sorted(h3.cell_to_children(h3_index, child_resolution))
     except Exception as e:
         logger.error(
             f"Failed to get children for {h3_index} at resolution {child_resolution}: {e}"
@@ -563,7 +565,7 @@ def compact_cells(h3_indices: Set[str]) -> List[str]:
         h3_indices: Set of H3 cell indices
 
     Returns:
-        Compacted set of H3 cell indices
+        Deterministically ordered list of compacted H3 cells
 
     Example:
         >>> cells = {'89283082e3fffff', '89283082e7fffff', '89283082ebfffff'}
@@ -574,7 +576,7 @@ def compact_cells(h3_indices: Set[str]) -> List[str]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return list(h3.compact_cells(h3_indices))
+        return sorted(h3.compact_cells(h3_indices))
     except Exception as e:
         logger.error(f"Failed to compact cells: {e}")
         raise
@@ -589,7 +591,7 @@ def uncompact_cells(h3_indices: Set[str], target_resolution: int) -> List[str]:
         target_resolution: Target resolution for uncompacting
 
     Returns:
-        Uncompacted set of H3 cell indices
+        Deterministically ordered list of uncompacted H3 cells
 
     Example:
         >>> cells = {'89283082e3fffff'}
@@ -600,7 +602,7 @@ def uncompact_cells(h3_indices: Set[str], target_resolution: int) -> List[str]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return list(h3.uncompact_cells(h3_indices, target_resolution))
+        return sorted(h3.uncompact_cells(h3_indices, target_resolution))
     except Exception as e:
         logger.error(
             f"Failed to uncompact cells to resolution {target_resolution}: {e}"
@@ -627,7 +629,7 @@ def polygon_to_cells(
         resolution: H3 resolution for the cells
 
     Returns:
-        Set of H3 cell indices covering the polygon
+        Deterministically ordered list of H3 cells covering the polygon
 
     Example:
         >>> coords = [(37.7749, -122.4194), (37.7849, -122.4194), (37.7849, -122.4094), (37.7749, -122.4094)]
@@ -645,7 +647,7 @@ def polygon_to_cells(
         ring = list(polygon_coords)
         if ring and ring[0] == ring[-1]:
             ring = ring[:-1]
-        return list(h3.polygon_to_cells(LatLngPoly(ring), resolution))
+        return sorted(h3.polygon_to_cells(LatLngPoly(ring), resolution))
     except Exception as e:
         logger.error(f"Failed to convert polygon to H3 cells: {e}")
         raise
@@ -748,7 +750,7 @@ def neighbor_cells(h3_index: str) -> List[str]:
         h3_index: H3 cell index
 
     Returns:
-        Set of neighboring H3 cell indices
+        Deterministically ordered list of neighboring H3 cells
 
     Example:
         >>> neighbors = neighbor_cells('89283082e3fffff')
@@ -758,11 +760,9 @@ def neighbor_cells(h3_index: str) -> List[str]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        # Get k-ring with k=1 and remove the center cell
-        k_ring = list(h3.grid_disk(h3_index, 1))
-        if h3_index in k_ring:
-            k_ring.remove(h3_index)
-        return k_ring
+        disk = set(h3.grid_disk(h3_index, 1))
+        disk.discard(h3_index)
+        return sorted(disk)
     except Exception as e:
         logger.error(f"Failed to get neighbors for {h3_index}: {e}")
         raise
@@ -851,7 +851,7 @@ def cells_intersection(cells1: Set[str], cells2: Set[str]) -> List[str]:
         cells2: Second set of H3 cell indices
 
     Returns:
-        Set of H3 cell indices in both sets
+        Deterministically ordered list of H3 cell indices in both sets
 
     Example:
         >>> set1 = {'89283082e3fffff', '89283082e7fffff'}
@@ -859,7 +859,7 @@ def cells_intersection(cells1: Set[str], cells2: Set[str]) -> List[str]:
         >>> intersection = cells_intersection(set1, set2)
         >>> print(f"Intersection has {len(intersection)} cells")
     """
-    return list(cells1.intersection(cells2))
+    return sorted(cells1.intersection(cells2))
 
 
 def cells_union(cells1: Set[str], cells2: Set[str]) -> List[str]:
@@ -871,7 +871,7 @@ def cells_union(cells1: Set[str], cells2: Set[str]) -> List[str]:
         cells2: Second set of H3 cell indices
 
     Returns:
-        Set of H3 cell indices in either set
+        Deterministically ordered list of H3 cell indices in either set
 
     Example:
         >>> set1 = {'89283082e3fffff', '89283082e7fffff'}
@@ -879,7 +879,7 @@ def cells_union(cells1: Set[str], cells2: Set[str]) -> List[str]:
         >>> union = cells_union(set1, set2)
         >>> print(f"Union has {len(union)} cells")
     """
-    return list(cells1.union(cells2))
+    return sorted(cells1.union(cells2))
 
 
 def cells_difference(cells1: Set[str], cells2: Set[str]) -> List[str]:
@@ -891,7 +891,7 @@ def cells_difference(cells1: Set[str], cells2: Set[str]) -> List[str]:
         cells2: Second set of H3 cell indices
 
     Returns:
-        Set of H3 cell indices in cells1 but not in cells2
+        Deterministically ordered list of H3 cell indices in cells1 but not in cells2
 
     Example:
         >>> set1 = {'89283082e3fffff', '89283082e7fffff'}
@@ -899,7 +899,7 @@ def cells_difference(cells1: Set[str], cells2: Set[str]) -> List[str]:
         >>> difference = cells_difference(set1, set2)
         >>> print(f"Difference has {len(difference)} cells")
     """
-    return list(cells1.difference(cells2))
+    return sorted(cells1.difference(cells2))
 
 
 def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
@@ -930,18 +930,18 @@ def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
         total_cells = len(h3_indices)
 
         # Resolution analysis
-        resolutions = [h3.get_resolution(idx) for idx in h3_indices]
-        unique_resolutions = set(resolutions)
+        h3_list = sorted(h3_indices)
+        resolutions = [h3.get_resolution(idx) for idx in h3_list]
+        unique_resolutions = sorted(set(resolutions))
 
         # Area calculations
-        total_area_km2 = sum(h3.cell_area(idx, "km^2") for idx in h3_indices)
-        total_area_m2 = sum(h3.cell_area(idx, "m^2") for idx in h3_indices)
+        total_area_km2 = sum(h3.cell_area(idx, "km^2") for idx in h3_list)
+        total_area_m2 = sum(h3.cell_area(idx, "m^2") for idx in h3_list)
 
         # Connectivity analysis
         connected_pairs = 0
         total_possible_pairs = total_cells * (total_cells - 1) // 2
 
-        h3_list = list(h3_indices)
         for i in range(len(h3_list)):
             for j in range(i + 1, len(h3_list)):
                 if h3.are_neighbor_cells(h3_list[i], h3_list[j]):
@@ -960,7 +960,7 @@ def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
 
         # Bounding box
         if h3_indices:
-            all_coords = [h3.cell_to_latlng(idx) for idx in h3_indices]
+            all_coords = [h3.cell_to_latlng(idx) for idx in h3_list]
             lats = [coord[0] for coord in all_coords]
             lngs = [coord[1] for coord in all_coords]
 

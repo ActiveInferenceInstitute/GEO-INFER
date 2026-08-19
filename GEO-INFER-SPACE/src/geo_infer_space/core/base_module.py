@@ -29,7 +29,7 @@ class BaseAnalysisModule(ABC):
     The base class provides a standardized workflow:
     1.  Check for cached H3-processed data.
     2.  If not found, acquire raw data from source.
-    3.  Process raw data into H3 using the backend's OSC H3 loader.
+    3.  Process raw data through the package's H3 v4 spatial interface.
     4.  Cache the H3 data.
     5.  Load and perform final analysis on the H3 data.
     """
@@ -62,8 +62,6 @@ class BaseAnalysisModule(ABC):
         # Initialize target hexagons (will be set by backend)
         self.target_hexagons = set()
 
-        # Initialize logging
-        logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(f"{__name__}.{module_name}")
 
         # Load configuration if provided
@@ -93,7 +91,7 @@ class BaseAnalysisModule(ABC):
         """
         Processes a raw data file (e.g., GeoJSON, Shapefile) into an H3-indexed dictionary.
 
-        This method uses direct H3 processing instead of the buggy OSC CLI.
+        This method uses the package's H3 v4 spatial interface.
 
         Args:
             raw_data_path: Path to the raw geospatial data file.
@@ -106,7 +104,6 @@ class BaseAnalysisModule(ABC):
                 f"[{self.module_name}] 🔄 Using direct H3 processing for {raw_data_path}"
             )
 
-            # Skip the buggy OSC CLI entirely and use direct H3 processing
             start_time = time.time()
             h3_data = self._direct_h3_processing(raw_data_path)
             processing_time = time.time() - start_time
@@ -126,28 +123,6 @@ class BaseAnalysisModule(ABC):
         except Exception as e:
             logger.error(f"[{self.module_name}] ❌ H3 processing failed: {e}")
             return {}
-
-    def _clear_osc_database_files(self):
-        """Clear OSC database files to prevent conflicts."""
-        try:
-            # Remove any existing DuckDB files that might cause conflicts
-            for db_file in self.data_dir.glob("*.duckdb"):
-                logger.info(
-                    f"[{self.module_name}] Removing existing OSC database file: {db_file}"
-                )
-                db_file.unlink()
-
-            # Also remove any geospatial_data files
-            for data_file in self.data_dir.glob("geospatial_data*"):
-                logger.info(
-                    f"[{self.module_name}] Removing existing data file: {data_file}"
-                )
-                data_file.unlink()
-
-        except Exception as e:
-            logger.warning(
-                f"[{self.module_name}] Warning: Could not clear OSC database files: {e}"
-            )
 
     def _direct_h3_processing(self, raw_data_path: Path) -> dict:
         """

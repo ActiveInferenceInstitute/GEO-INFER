@@ -207,7 +207,7 @@ class Claim:
 class ClaimsProcessingConfig:
     """Configuration for claims processing operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.processing_mode: str = "automated"  # automated, manual, hybrid
         self.auto_approval_threshold: float = (
             10000  # Claims under this amount auto-approved
@@ -363,10 +363,18 @@ class ClaimsProcessor:
             return claim
 
     def _generate_claim_number(self) -> str:
-        """Generate unique claim number."""
-        timestamp = int(time.time())
-        random_suffix = np.random.randint(1000, 9999)
-        return f"CLM{timestamp}{random_suffix}"
+        """Generate a collision-resistant claim number.
+
+        The suffix comes from :mod:`uuid`, not from a seeded generator: the
+        four-digit random suffix this replaces admitted only 9000 values per
+        timestamp second, so high-volume claim intake collided in practice.
+        Identifier uniqueness is a correctness property and must not depend on
+        a reproducible simulation seed.
+
+        Returns:
+            A claim number of the form ``CLM<unix-seconds><12 hex digits>``.
+        """
+        return f"CLM{int(time.time())}{uuid.uuid4().hex[:12].upper()}"
 
     def _validate_claim(self, claim_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate claim data."""
@@ -374,9 +382,12 @@ class ClaimsProcessor:
 
         # Check required fields
         required_fields = ["policy_id", "date_of_loss", "claimed_amount", "description"]
-        for field in required_fields:
-            if field not in claim_data or claim_data[field] is None:
-                validation_result["errors"].append(f"Required field missing: {field}")
+        # Named field_name, not field: `field` is dataclasses.field in this module.
+        for field_name in required_fields:
+            if field_name not in claim_data or claim_data[field_name] is None:
+                validation_result["errors"].append(
+                    f"Required field missing: {field_name}"
+                )
                 validation_result["is_valid"] = False
 
         # Validate amounts
@@ -727,7 +738,7 @@ class ClaimsProcessor:
             }
 
         # Status breakdown
-        status_counts = {}
+        status_counts: Dict[str, Any] = {}
         for claim in claims:
             status = claim.status.value
             status_counts[status] = status_counts.get(status, 0) + 1

@@ -24,12 +24,7 @@
 - `integration/`
 - `reports/`
 - `test_output/`
-- `tools/`
 - `unit/`
-- `conftest.py`
-- `h3_v4_framework_upgrade.py`
-- `run_h3_tests.py`
-- `run_tests_in_order.py`
 
 ## Validation
 

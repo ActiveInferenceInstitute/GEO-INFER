@@ -6,6 +6,7 @@ Utils workspace within `GEO-INFER-RISK`.
 
 - `config_loader.py`
 - `risk_metrics.py`
+- `rng.py`
 - `validation.py`
 
 ## Public Interface
@@ -25,11 +26,11 @@ Utils workspace within `GEO-INFER-RISK`.
 - `risk_metrics.py:calculate_annual_aggregate_exceedance_probability` (function)
 - `risk_metrics.py:calculate_loss_frequency_curve` (function)
 - `risk_metrics.py:calculate_correlation_matrix` (function)
+- `rng.py:resolve_rng` (function)
+- `rng.py:spawn_rng` (function)
+- `rng.py:derive_int_seed` (function)
 - `validation.py:ValidationResult` (class)
 - `validation.py:ConfigurationValidator` (class)
-- `validation.py:validate_config` (function)
-- `validation.py:validate_data_file` (function)
-- `validation.py:validate_csv_file` (function)
 
 ## Module Metadata
 

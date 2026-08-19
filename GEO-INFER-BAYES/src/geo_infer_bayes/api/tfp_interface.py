@@ -9,6 +9,7 @@ import logging
 import numpy as np
 from scipy import linalg
 from typing import Dict, Any, Optional
+from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +143,7 @@ class TFPInterface:
             return self._prior_samples(n_samples)
 
         # Metropolis-Hastings in log-space
-        rng = np.random.default_rng(kwargs.get("seed", 42))
+        rng = resolve_rng(kwargs.get("seed", 42))
         current = np.array(
             [
                 np.log(self._lengthscale),
@@ -195,7 +196,7 @@ class TFPInterface:
     @staticmethod
     def _prior_samples(n: int) -> Dict[str, np.ndarray]:
         """Draw samples from a weakly-informative log-normal prior."""
-        rng = np.random.default_rng(0)
+        rng = resolve_rng(0)
         return {
             "lengthscale": rng.lognormal(0, 1, n),
             "variance": rng.lognormal(0, 1, n),

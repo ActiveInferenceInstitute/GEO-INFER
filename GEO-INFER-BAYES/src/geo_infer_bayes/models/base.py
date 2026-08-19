@@ -24,14 +24,14 @@ class BayesianModel(ABC):
         Additional model-specific parameters
     """
 
-    def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, **kwargs: Any):
         self.name = name
-        self.parameters = {}
-        self.priors = {}
+        self.parameters: Dict[str, Any] = {}
+        self.priors: Dict[str, Any] = {}
         self._setup_model(**kwargs)
 
     @abstractmethod
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """
         Set up the model structure and parameters.
 
@@ -116,6 +116,29 @@ class BayesianModel(ABC):
         # Default implementation - override for specific data preprocessing
         return data
 
+    def bind_training_data(
+        self, data: Union[np.ndarray, xr.Dataset, Dict[str, Any]]
+    ) -> None:
+        """Retain the data the model was conditioned on.
+
+        Inference produces a posterior over parameters *given* data, so a model
+        must keep that data to make posterior predictions. Conditional models
+        such as a Gaussian process also need it to form the predictive
+        covariance. :meth:`geo_infer_bayes.core.BayesianInference.run` calls
+        this after sampling, which is what lets a returned
+        ``PosteriorAnalysis`` predict without a separate ``fit`` call.
+
+        The default implementation is a no-op, which is correct for models
+        whose posterior is self-contained. Subclasses holding training arrays
+        should override it.
+
+        Parameters
+        ----------
+        data : array-like, Dataset, or dict
+            Prepared data, as returned by :meth:`prepare_data`.
+        """
+        return None
+
     @abstractmethod
     def predict(
         self,
@@ -177,7 +200,7 @@ class BayesianModel(ABC):
         posterior: Any,
         grid: Optional[np.ndarray] = None,
         uncertainty: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[plt.Figure, plt.Axes]:
         """
         Plot model predictions from the posterior.

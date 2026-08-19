@@ -16,7 +16,6 @@ Models workspace within `GEO-INFER-SPACE`.
 - `config_models.py:APIConfig` (class)
 - `config_models.py:LoggingConfig` (class)
 - `config_models.py:CacheConfig` (class)
-- `config_models.py:OSCConfig` (class)
 - `config_models.py:SpaceConfig` (class)
 - `config_models.py:PerformanceConfig` (class)
 - `data_models.py:GeometryType` (class)
@@ -30,6 +29,7 @@ Models workspace within `GEO-INFER-SPACE`.
 - `data_models.py:H3CellData` (class)
 - `data_models.py:NetworkEdge` (class)
 - `data_models.py:NetworkNode` (class)
+- `data_models.py:SpatialNetwork` (class)
 
 ## Module Metadata
 

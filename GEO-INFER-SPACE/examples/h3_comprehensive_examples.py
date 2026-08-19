@@ -97,9 +97,9 @@ def example_1_basic_h3_operations():
     neighbors = indexer.get_cell_neighbors(sf_cell, k=1)
     print(f"Direct neighbors: {len(neighbors)}")
 
-    # Get k-ring
-    k2_ring = indexer.get_cell_neighbors(sf_cell, k=2)
-    print(f"2-ring disk: {len(k2_ring)} cells")
+    # Get the grid disk within distance 2.
+    disk_radius_2 = indexer.get_cell_neighbors(sf_cell, k=2)
+    print(f"Distance-2 grid disk: {len(disk_radius_2)} cells")
 
     # Test distance calculation
     if neighbors:
@@ -259,14 +259,12 @@ def example_4_retail_catchment_analysis():
         lat, lng = store_data["location"]
         catchment_km = store_data["catchment_km"]
 
-        # Estimate k-ring for catchment (rough approximation)
-        # Resolution 9 edge length is ~0.174 km. k=1 is ~center + 1 ring.
-        # Approx radius ~ k * edge_length * 2?
-        # Simpler: k=3 is roughly 1km radius at res 9.
-        k_ring = max(1, int(catchment_km * 3))
+        # Use a simple three-grid-steps-per-kilometer catchment heuristic.
+        # This is illustrative rather than a geodesic distance guarantee.
+        disk_radius = max(1, int(catchment_km * 3))
 
         center_cell = indexer.latlng_to_cell(lat, lng, 9)
-        catchment_cells = indexer.get_cell_neighbors(center_cell, k=k_ring)
+        catchment_cells = indexer.get_cell_neighbors(center_cell, k=disk_radius)
 
         all_catchment_cells.update(catchment_cells)
 

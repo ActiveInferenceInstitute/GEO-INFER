@@ -52,20 +52,20 @@ class TestGaussianProcessKernels:
 
     def test_rbf_kernel_symmetric(self) -> None:
         gp = GaussianProcess(kernel_type="rbf", length_scale=1.0, signal_variance=1.0)
-        X = np.random.RandomState(42).randn(10, 2)
+        X = np.random.default_rng(42).standard_normal((10, 2))
         K = gp._compute_kernel(X, X)
         assert K.shape == (10, 10)
         assert_allclose(K, K.T, atol=1e-12)
 
     def test_rbf_kernel_diagonal(self) -> None:
         gp = GaussianProcess(kernel_type="rbf", signal_variance=3.0)
-        X = np.random.RandomState(7).randn(5, 1)
+        X = np.random.default_rng(7).standard_normal((5, 1))
         K = gp._compute_kernel(X, X)
         assert_allclose(np.diag(K), 3.0 * np.ones(5), atol=1e-12)
 
     def test_matern32_kernel_positive_definite(self) -> None:
         gp = GaussianProcess(kernel_type="matern32", length_scale=0.5)
-        X = np.random.RandomState(99).randn(8, 2)
+        X = np.random.default_rng(99).standard_normal((8, 2))
         K = gp._compute_kernel(X, X) + 1e-8 * np.eye(8)
         eigvals = np.linalg.eigvalsh(K)
         assert np.all(eigvals > 0)
@@ -86,9 +86,9 @@ class TestGaussianProcessFitPredict:
 
     @pytest.fixture
     def simple_data(self):
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
         X = np.linspace(0, 5, 20).reshape(-1, 1)
-        y = np.sin(X).ravel() + 0.05 * rng.randn(20)
+        y = np.sin(X).ravel() + 0.05 * rng.standard_normal(20)
         return X, y
 
     def test_fit_returns_self(self, simple_data) -> None:
@@ -154,8 +154,8 @@ class TestGaussianProcessLogMarginalLikelihood:
     """Tests for the log marginal likelihood."""
 
     def test_lml_is_finite(self) -> None:
-        rng = np.random.RandomState(1)
-        X = rng.randn(15, 1)
+        rng = np.random.default_rng(1)
+        X = rng.standard_normal((15, 1))
         y = np.sin(X).ravel()
         gp = GaussianProcess()
         gp.fit(X, y)
@@ -170,9 +170,9 @@ class TestGaussianProcessLogMarginalLikelihood:
     def test_better_params_higher_lml(self) -> None:
         """A GP with appropriate length scale should have higher LML
         than one with a grossly wrong length scale."""
-        rng = np.random.RandomState(3)
+        rng = np.random.default_rng(3)
         X = np.linspace(0, 4, 25).reshape(-1, 1)
-        y = np.sin(X).ravel() + 0.01 * rng.randn(25)
+        y = np.sin(X).ravel() + 0.01 * rng.standard_normal(25)
 
         gp_good = GaussianProcess(length_scale=1.0, noise_variance=0.01)
         gp_good.fit(X, y)

@@ -66,7 +66,7 @@ class SimpleBayesianModel(BayesianModel):
         samples: int = 100,
     ) -> np.ndarray:
         n = len(X) if X is not None else 10
-        return np.random.randn(samples, n)
+        return np.random.default_rng(0).standard_normal((samples, n))
 
 
 class TestBayesianModelInterface:

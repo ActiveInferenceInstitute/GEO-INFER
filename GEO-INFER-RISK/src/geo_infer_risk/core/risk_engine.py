@@ -25,6 +25,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
+from types import TracebackType
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -75,6 +76,7 @@ from geo_infer_risk.core.hazard_model import EnhancedHazardModel
 from geo_infer_risk.core.insurance_models import InsuranceManager
 from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel
 from geo_infer_risk.utils.config_loader import load_config_with_defaults
+from geo_infer_risk.utils.rng import resolve_rng
 from geo_infer_risk.utils.validation import validate_config
 
 
@@ -143,9 +145,9 @@ class EnhancedRiskEngine:
         self.random_seed = config.get("risk_model", {}).get(
             "random_seed", config.get("general", {}).get("random_seed")
         )
-        if self.random_seed is not None and not isinstance(self.random_seed, (int, np.integer)):
-            raise TypeError("random_seed must be an integer or None")
-        self.rng = np.random.default_rng(self.random_seed)
+        # All stochastic draws come from self.rng; resolve_rng owns seed
+        # validation and never touches the numpy.random singleton.
+        self.rng: np.random.Generator = resolve_rng(self.random_seed)
         self._file_handler: Optional[logging.FileHandler] = None
         self._closed = False
         # Logging needs the output directory before it creates its file handler.
@@ -164,9 +166,9 @@ class EnhancedRiskEngine:
         self._initialize_core_components()
 
         # Initialize model containers
-        self.hazard_models = {}
-        self.vulnerability_models = {}
-        self.exposure_models = {}
+        self.hazard_models: Dict[str, Any] = {}
+        self.vulnerability_models: Dict[str, Any] = {}
+        self.exposure_models: Dict[str, Any] = {}
         self.catastrophe_manager = CatastropheModelManager()
         self.insurance_manager = InsuranceManager()
 
@@ -197,7 +199,12 @@ class EnhancedRiskEngine:
             raise RuntimeError("Cannot enter a closed EnhancedRiskEngine")
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         """Shut down worker resources when leaving a context manager."""
         self.close()
 
@@ -359,7 +366,7 @@ class EnhancedRiskEngine:
         }
 
     def run_enhanced_analysis(
-        self, analysis_type: str = "comprehensive", **kwargs
+        self, analysis_type: str = "comprehensive", **kwargs: Any
     ) -> Dict[str, Any]:
         """
         Run enhanced risk analysis with advanced capabilities.
@@ -399,7 +406,7 @@ class EnhancedRiskEngine:
             self._update_job_status(job_id, "failed", error_message=str(e))
             raise
 
-    def _run_comprehensive_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_comprehensive_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Run comprehensive multi-hazard risk analysis."""
         # Load and validate models
         self._load_configured_models()
@@ -408,13 +415,13 @@ class EnhancedRiskEngine:
         if self.spatial_interface:
             spatial_results = self._run_spatial_analysis(**kwargs)
         else:
-            spatial_results = {}
+            spatial_results: Dict[str, Any] = {}
 
         # Run temporal analysis if available
         if self.temporal_interface:
             temporal_results = self._run_temporal_analysis(**kwargs)
         else:
-            temporal_results = {}
+            temporal_results: Dict[str, Any] = {}
 
         # Report the configured core models. Monte Carlo simulation is opt-in so
         # an analysis without event and exposure data cannot present fabricated
@@ -432,7 +439,7 @@ class EnhancedRiskEngine:
 
         return combined_results
 
-    def _run_core_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_core_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Summarize configured models and optionally run their loss simulation."""
         results: Dict[str, Any] = {
             "analysis_type": "core",
@@ -445,7 +452,7 @@ class EnhancedRiskEngine:
             )
         return results
 
-    def _run_spatial_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_spatial_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Run advanced spatial analysis using GEO-INFER-SPACE."""
         if not self.spatial_interface:
             return {}
@@ -560,7 +567,7 @@ class EnhancedRiskEngine:
             self.logger.warning(f"Spatial statistics failed: {e}")
             return {}
 
-    def _run_temporal_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_temporal_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Run temporal analysis using GEO-INFER-TIME."""
         if not self.temporal_interface:
             return {}
@@ -614,7 +621,7 @@ class EnhancedRiskEngine:
             self.logger.warning(f"Temporal analysis failed: {e}")
             return {}
 
-    def _create_analysis_job(self, job_type: str, **kwargs) -> str:
+    def _create_analysis_job(self, job_type: str, **kwargs: Any) -> str:
         """Create a new analysis job."""
         self.job_counter += 1
         job_id = f"analysis_{self.job_counter}_{int(time.time())}"
@@ -1012,8 +1019,18 @@ class EnhancedRiskEngine:
         self.logger.info(f"Enhanced results saved to {filepath}")
         return filepath
 
-    def _json_encoder(self, obj):
-        """Custom JSON encoder for datetime and numpy objects."""
+    def _json_encoder(self, obj: Any) -> Any:
+        """Convert datetime and numpy values to JSON-serializable equivalents.
+
+        Args:
+            obj: Value ``json`` could not serialize on its own.
+
+        Returns:
+            A JSON-serializable equivalent.
+
+        Raises:
+            TypeError: If the value has no known JSON representation.
+        """
         if isinstance(obj, datetime):
             return obj.isoformat()
         elif isinstance(obj, np.integer):
@@ -1061,7 +1078,7 @@ class EnhancedRiskEngine:
             f"{len(self.exposure_models)} exposure"
         )
 
-    def _run_portfolio_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_portfolio_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Run portfolio risk analysis."""
         # Aggregate risk across loaded models
         hazard_count = len(self.hazard_models)
@@ -1078,7 +1095,7 @@ class EnhancedRiskEngine:
             "diversification_benefits": {"benefit_ratio": max(0, 1 - 1 / max(hazard_count, 1))},
         }
 
-    def _run_climate_analysis(self, **kwargs) -> Dict[str, Any]:
+    def _run_climate_analysis(self, **kwargs: Any) -> Dict[str, Any]:
         """Run climate risk analysis."""
         # Climate projection using simple scaling factors per scenario
         baseline_year = kwargs.get("baseline_year", 2023)
@@ -1100,7 +1117,7 @@ class EnhancedRiskEngine:
             "adaptation_analysis": {"cost_benefit_ratio": 2.5},
         }
 
-    def _run_stress_test(self, **kwargs) -> Dict[str, Any]:
+    def _run_stress_test(self, **kwargs: Any) -> Dict[str, Any]:
         """Run stress testing analysis."""
         # Stress test by scaling losses by severity multiplier
         severity_map = {"low": 1.5, "moderate": 2.0, "high": 3.0, "extreme": 5.0}

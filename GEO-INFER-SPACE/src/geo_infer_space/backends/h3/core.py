@@ -396,7 +396,7 @@ class H3Grid:
         name: str = "CenterGrid",
     ) -> "H3Grid":
         """
-        Create H3Grid centered on coordinates with k-ring.
+        Create H3Grid centered on coordinates with a grid-disk neighborhood.
 
         Args:
             lat: Center latitude

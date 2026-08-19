@@ -9,22 +9,29 @@ def spatial_utils():
 
 def test_transform_coordinates(spatial_utils):
     """Behavior-focused test: test_transform_coordinates."""
-    # Single tuple
+    # WGS84 uses conventional longitude, latitude order.
     result = spatial_utils.transform_coordinates(
-        (37.7749, -122.4194), "EPSG:4326", "EPSG:3857"
+        (-122.4194, 37.7749), "EPSG:4326", "EPSG:3857"
     )
-    assert isinstance(result, tuple)
-    assert len(result) == 2
+    assert result == pytest.approx((-13627665.27, 4547675.35), abs=1.0)
 
     # List of tuples
-    coords = [(37.7749, -122.4194), (34.0522, -118.2437)]
+    coords = [(-122.4194, 37.7749), (-118.2437, 34.0522)]
     results = spatial_utils.transform_coordinates(coords, "EPSG:4326", "EPSG:3857")
     assert isinstance(results, list)
     assert len(results) == 2
-    assert isinstance(results[0], tuple)
+    assert results[0] == pytest.approx(result)
 
     # Empty
     assert spatial_utils.transform_coordinates([]) == []
+
+
+def test_transformer_cache_reuses_transformer(spatial_utils):
+    """Equivalent CRS pairs reuse the initialized Transformer."""
+    first = spatial_utils.get_transformer("EPSG:4326", "EPSG:3857")
+    second = spatial_utils.get_transformer("EPSG:4326", "EPSG:3857")
+
+    assert first is second
 
 
 def test_calculate_distance(spatial_utils):

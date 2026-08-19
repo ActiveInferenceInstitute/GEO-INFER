@@ -38,17 +38,21 @@ class ModuleInfo:
 
 def git_ls_files() -> list[Path]:
     result = subprocess.run(
-        ["git", "ls-files"],
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
         cwd=REPO_ROOT,
         text=True,
         capture_output=True,
         check=True,
     )
-    return [REPO_ROOT / line for line in result.stdout.splitlines() if line]
+    return [
+        REPO_ROOT / line
+        for line in result.stdout.splitlines()
+        if line and (REPO_ROOT / line).is_file()
+    ]
 
 
 def tracked_files() -> set[Path]:
-    """Return tracked paths once so generated docs ignore local build output."""
+    """Return versioned and non-ignored worktree files, excluding deletions."""
     global _TRACKED_FILES
     if _TRACKED_FILES is None:
         _TRACKED_FILES = set(git_ls_files())
@@ -142,6 +146,7 @@ def repository_doc_files() -> tuple[list[Path], list[Path]]:
         REPO_ROOT / line
         for line in result.stdout.splitlines()
         if Path(line).name in {"README.md", "AGENTS.md"}
+        and (REPO_ROOT / line).is_file()
     }
 
     readmes = sorted(path for path in files if path.name == "README.md")

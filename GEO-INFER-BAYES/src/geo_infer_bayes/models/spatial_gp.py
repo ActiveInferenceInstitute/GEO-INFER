@@ -2,12 +2,16 @@
 Gaussian Process model for spatial data.
 """
 
+from contextlib import contextmanager
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+
 import numpy as np
-from typing import Dict, Any, Optional, Union, Tuple, Callable
 from scipy.spatial.distance import cdist
 from scipy.linalg import cholesky, solve_triangular
 
 from .base import BayesianModel
+from ._model_utils import posterior_draw_indices
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class SpatialGP(BayesianModel):
@@ -42,10 +46,10 @@ class SpatialGP(BayesianModel):
         variance: float = 1.0,
         noise: float = 0.1,
         degree: float = 1.5,
-        mean_function: Optional[Callable] = None,
+        mean_function: Optional[Callable[[np.ndarray], np.ndarray]] = None,
         jitter: float = 1e-6,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         self.kernel_type = kernel.lower()
         self.lengthscale = lengthscale
         self.variance = variance
@@ -53,13 +57,14 @@ class SpatialGP(BayesianModel):
         self.degree = degree
         self.mean_function = mean_function or (lambda x: np.zeros(len(x)))
         self.jitter = jitter
-        self.X_train = None
-        self.y_train = None
-        self.L = None  # Cholesky factor of the covariance matrix
+        # None until fit(); every method that needs them checks first.
+        self.X_train: Optional[np.ndarray] = None
+        self.y_train: Optional[np.ndarray] = None
+        self.L: Optional[np.ndarray] = None  # Cholesky factor of the covariance
 
         super().__init__(name="SpatialGP", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the Gaussian Process model."""
         # Define parameter distributions for inference
         self.parameters = {
@@ -97,7 +102,9 @@ class SpatialGP(BayesianModel):
     def _rbf_kernel(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """RBF (squared exponential) kernel."""
         dist = cdist(X1, X2)
-        return self.variance * np.exp(-0.5 * (dist / self.lengthscale) ** 2)
+        return np.asarray(
+            self.variance * np.exp(-0.5 * (dist / self.lengthscale) ** 2), dtype=float
+        )
 
     def _matern_kernel(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """Matern kernel with adjustable degree."""
@@ -105,28 +112,30 @@ class SpatialGP(BayesianModel):
 
         if self.degree == 0.5:
             # Exponential kernel
-            return self.variance * np.exp(-dist / self.lengthscale)
+            kernel = self.variance * np.exp(-dist / self.lengthscale)
         elif self.degree == 1.5:
             # Matern 3/2
             scaled_dist = np.sqrt(3) * dist / self.lengthscale
-            return self.variance * (1 + scaled_dist) * np.exp(-scaled_dist)
+            kernel = self.variance * (1 + scaled_dist) * np.exp(-scaled_dist)
         elif self.degree == 2.5:
             # Matern 5/2
             scaled_dist = np.sqrt(5) * dist / self.lengthscale
-            return (
+            kernel = (
                 self.variance
                 * (1 + scaled_dist + scaled_dist**2 / 3)
                 * np.exp(-scaled_dist)
             )
         else:
-            # For other degrees, use a simpler approximation
+            # Other degrees fall back to a stretched-exponential form, which is
+            # not a Matern kernel; only the three cases above are exact.
             scaled_dist = dist / self.lengthscale
-            return self.variance * np.exp(-(scaled_dist**self.degree))
+            kernel = self.variance * np.exp(-(scaled_dist**self.degree))
+        return np.asarray(kernel, dtype=float)
 
     def _exponential_kernel(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """Exponential kernel."""
         dist = cdist(X1, X2)
-        return self.variance * np.exp(-dist / self.lengthscale)
+        return np.asarray(self.variance * np.exp(-dist / self.lengthscale), dtype=float)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> "SpatialGP":
         """
@@ -155,6 +164,116 @@ class SpatialGP(BayesianModel):
         self.L = cholesky(K, lower=True)
 
         return self
+
+    def _posterior_draws(self, posterior: Any, samples: int) -> List[Dict[str, float]]:
+        """Return hyperparameter dicts for the draws a prediction averages over.
+
+        Parameters
+        ----------
+        posterior : PosteriorAnalysis
+            Posterior holding the sampled hyperparameters.
+        samples : int
+            Maximum number of draws to use.
+
+        Returns
+        -------
+        list of dict
+            One parameter dict per selected draw, spread evenly across the
+            chain.
+        """
+        names = ["lengthscale", "variance", "noise"]
+        if self.kernel_type == "matern":
+            names.append("degree")
+        indices = posterior_draw_indices(posterior, samples, names)
+        return [
+            {name: float(np.asarray(posterior.samples[name])[i]) for name in names}
+            for i in indices
+        ]
+
+    @contextmanager
+    def _parameters_from(self, theta: Dict[str, Any]) -> Iterator[None]:
+        """Adopt hyperparameters from ``theta`` without touching cached state.
+
+        Unlike :meth:`_temporary_parameters` this does not refactorize the
+        training covariance, so it is the right tool for evaluating a likelihood
+        on data other than the training set.
+
+        Parameters
+        ----------
+        theta : dict
+            Hyperparameter values to adopt; unknown keys are ignored.
+
+        Yields
+        ------
+        None
+        """
+        tracked = ("lengthscale", "variance", "noise", "degree", "kernel_type")
+        saved = {name: getattr(self, name) for name in tracked}
+        saved_kernel = self.kernel_fn
+        try:
+            for name in tracked:
+                if name in theta:
+                    setattr(self, name, theta[name])
+            self.kernel_fn = self._get_kernel_function()
+            yield
+        finally:
+            for name, value in saved.items():
+                setattr(self, name, value)
+            self.kernel_fn = saved_kernel
+
+    @contextmanager
+    def _temporary_parameters(self, theta: Dict[str, float]) -> Iterator[None]:
+        """Adopt one hyperparameter draw, then restore the fitted state.
+
+        Refactorizing the training covariance is what makes the draw usable:
+        the Cholesky factor cached by :meth:`fit` belongs to the fitted
+        hyperparameters, not to ``theta``. The original factor and parameters
+        are restored even if the body raises, so a failed draw cannot leave the
+        model describing a covariance it no longer holds.
+
+        Parameters
+        ----------
+        theta : dict
+            Hyperparameter values to adopt; unknown keys are ignored.
+
+        Yields
+        ------
+        None
+        """
+        X_train, _, _ = self._fitted_state()
+        tracked = ("lengthscale", "variance", "noise", "degree")
+        saved = {name: getattr(self, name) for name in tracked}
+        saved_L, saved_kernel = self.L, self.kernel_fn
+        try:
+            for name in tracked:
+                if name in theta:
+                    setattr(self, name, theta[name])
+            self.kernel_fn = self._get_kernel_function()
+            K = self.kernel_fn(X_train, X_train)
+            K += np.eye(len(X_train)) * (self.noise + self.jitter)
+            self.L = cholesky(K, lower=True)
+            yield
+        finally:
+            for name, value in saved.items():
+                setattr(self, name, value)
+            self.L, self.kernel_fn = saved_L, saved_kernel
+
+    def bind_training_data(self, data: Any) -> None:
+        """Fit the GP to the data inference conditioned on.
+
+        A GP predictive distribution is defined only relative to its training
+        set, so sampling hyperparameters is not enough: the Cholesky factor of
+        the training covariance has to exist before
+        :meth:`predict` can be called with a posterior.
+
+        Parameters
+        ----------
+        data : dict
+            Prepared data holding ``X`` and ``y``. Anything else is ignored, so
+            a model conditioned on a different data shape still runs.
+        """
+        if isinstance(data, dict) and "X" in data and "y" in data:
+            self.fit(data["X"], data["y"])
 
     def predict(
         self,
@@ -191,111 +310,108 @@ class SpatialGP(BayesianModel):
                 raise ValueError(
                     "Model has not been fitted. Call fit() before posterior prediction."
                 )
-            # Use posterior samples
-            all_preds = []
 
-            # Extract samples for relevant parameters
-            for i in range(min(samples, len(posterior.samples))):
-                param_sample = {
-                    "lengthscale": posterior.samples["lengthscale"][i],
-                    "variance": posterior.samples["variance"][i],
-                    "noise": posterior.samples["noise"][i],
-                }
-                if self.kernel_type == "matern":
-                    param_sample["degree"] = posterior.samples["degree"][i]
-
-                # Update current model parameters and predict
-                # (This is more efficient than creating new models)
-                old_params = {
-                    "lengthscale": self.lengthscale,
-                    "variance": self.variance,
-                    "noise": self.noise,
-                    "degree": self.degree,
-                }
-
-                # Set new parameters
-                self.lengthscale = param_sample["lengthscale"]
-                self.variance = param_sample["variance"]
-                self.noise = param_sample["noise"]
-                if self.kernel_type == "matern":
-                    self.degree = param_sample.get("degree", self.degree)
-
-                # Update kernel function
-                self.kernel_fn = self._get_kernel_function()
-
-                # Get prediction with current parameters (need to ensure model is "fitted" with current params)
-                # For prediction, we need a covariance matrix, so let's compute it temporarily
-                old_L = self.L
-                if self.X_train is not None and self.y_train is not None:
-                    # Use the stored training data but with current parameters
-                    K = self.kernel_fn(self.X_train, self.X_train)
-                    K += np.eye(len(self.X_train)) * (self.noise + self.jitter)
-                    self.L = cholesky(K, lower=True)
-
+            means = []
+            conditional_variances = []
+            for theta in self._posterior_draws(posterior, samples):
+                with self._temporary_parameters(theta):
                     if return_std:
-                        mean, _ = self._predict(X_new, return_std=True)
+                        mean, std = self._conditional_mean_std(X_new)
+                        conditional_variances.append(std**2)
                     else:
-                        mean = self._predict(X_new, return_std=False)
-                # Restore old parameters and Cholesky factor
-                for param, value in old_params.items():
-                    setattr(self, param, value)
-                self.L = old_L
-                self.kernel_fn = self._get_kernel_function()
+                        mean = self._conditional_mean(X_new)
+                means.append(mean)
 
-                all_preds.append(mean)
-
-            if not all_preds:
-                raise ValueError("posterior contains no usable parameter samples")
-            # Compute statistics across samples
-            all_preds = np.stack(all_preds)
-            mean_pred = np.mean(all_preds, axis=0)
+            stacked = np.stack(means)
+            mean_pred = np.asarray(np.mean(stacked, axis=0), dtype=float)
 
             if return_std:
-                std_pred = np.std(all_preds, axis=0)
-                return mean_pred, std_pred
-            else:
-                return mean_pred
-        else:
-            # Use current parameters
-            return self._predict(X_new, return_std=return_std)
+                # Law of total variance. The spread of the per-draw means alone
+                # captures only hyperparameter uncertainty and understates the
+                # predictive interval badly -- for a well-identified posterior
+                # the conditional GP variance is the dominant term.
+                total_variance = np.mean(
+                    np.stack(conditional_variances), axis=0
+                ) + np.var(stacked, axis=0)
+                return mean_pred, np.asarray(np.sqrt(total_variance), dtype=float)
+            return mean_pred
 
-    def _predict(
-        self, X_new: np.ndarray, return_std: bool = False
-    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-        """Internal prediction method using current parameter values."""
-        if self.X_train is None or self.y_train is None:
-            raise ValueError("Model has not been fitted. Call fit() first.")
-
-        # Compute prior mean
-        mean = self.mean_function(X_new)
-
-        # Compute cross-covariance
-        K_s = self.kernel_fn(self.X_train, X_new)
-
-        # Compute posterior mean
-        alpha = solve_triangular(
-            self.L, self.y_train - self.mean_function(self.X_train), lower=True
-        )
-        alpha = solve_triangular(self.L.T, alpha, lower=False)
-        mean = mean + K_s.T @ alpha
-
+        # No posterior: predict at the currently held hyperparameters.
         if return_std:
-            # Compute posterior variance
-            v = solve_triangular(self.L, K_s, lower=True)
-            K_ss = self.kernel_fn(X_new, X_new)
-            var = K_ss - v.T @ v
-            var = np.clip(np.diag(var), self.jitter, np.inf)
-            std = np.sqrt(var)
-            return mean, std
-        else:
-            return mean
+            return self._conditional_mean_std(X_new)
+        return self._conditional_mean(X_new)
+
+    def _fitted_state(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Return the training inputs, targets and Cholesky factor.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(X_train, y_train, L)``.
+
+        Raises
+        ------
+        ValueError
+            If the model has not been fitted.
+        """
+        if self.X_train is None or self.y_train is None or self.L is None:
+            raise ValueError("Model has not been fitted. Call fit() first.")
+        return self.X_train, self.y_train, self.L
+
+    def _conditional_mean(self, X_new: np.ndarray) -> np.ndarray:
+        """Posterior mean of the latent function at ``X_new``.
+
+        Parameters
+        ----------
+        X_new : ndarray
+            Locations to predict at.
+
+        Returns
+        -------
+        ndarray
+            Posterior mean, one entry per row of ``X_new``.
+        """
+        X_train, y_train, L = self._fitted_state()
+        K_s = self.kernel_fn(X_train, X_new)
+        alpha = solve_triangular(L, y_train - self.mean_function(X_train), lower=True)
+        alpha = solve_triangular(L.T, alpha, lower=False)
+        return np.asarray(self.mean_function(X_new) + K_s.T @ alpha, dtype=float)
+
+    def _conditional_mean_std(
+        self, X_new: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Posterior mean and standard deviation of the latent function.
+
+        The standard deviation excludes observation noise, which belongs to a
+        predictive draw rather than to the latent function; see
+        :meth:`posterior_predictive`.
+
+        Parameters
+        ----------
+        X_new : ndarray
+            Locations to predict at.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(mean, std)``, each with one entry per row of ``X_new``.
+        """
+        X_train, _, L = self._fitted_state()
+        mean = self._conditional_mean(X_new)
+        K_s = self.kernel_fn(X_train, X_new)
+        v = solve_triangular(L, K_s, lower=True)
+        K_ss = self.kernel_fn(X_new, X_new)
+        # Clipped at the jitter: the exact expression can go slightly negative
+        # from rounding when a prediction point coincides with a training point.
+        var = np.clip(np.diag(K_ss - v.T @ v), self.jitter, np.inf)
+        return mean, np.asarray(np.sqrt(var), dtype=float)
 
     def posterior_predictive(
         self,
         posterior: Any,
         X: Optional[np.ndarray] = None,
         samples: int = 100,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
@@ -308,19 +424,19 @@ class SpatialGP(BayesianModel):
             Locations to generate predictions for. If None, use observed locations.
         samples : int, default=100
             Number of posterior samples to use
-        random_seed : int, optional
-            Seed for reproducible noise draws. When ``None`` (default) the
-            legacy global ``np.random`` state is used.
+        random_seed : int or numpy.random.Generator, optional
+            Seed or generator for the observation-noise draws. ``None``
+            (default) means a generator seeded from OS entropy, so results are
+            not replayable; pass an int to replay, or a ``Generator`` to thread
+            one stream through a pipeline. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
 
         Returns
         -------
         ndarray of shape (samples, n_points)
             Posterior predictive samples
         """
-        if random_seed is None:
-            rng = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         if X is None:
             X = self.X_train
@@ -331,56 +447,14 @@ class SpatialGP(BayesianModel):
                 "Model has not been fitted. Call fit() before posterior prediction."
             )
         all_samples = []
-
-        # For each posterior sample
-        for i in range(min(samples, len(posterior.samples))):
-            # Extract parameters
-            param_sample = {
-                "lengthscale": posterior.samples["lengthscale"][i],
-                "variance": posterior.samples["variance"][i],
-                "noise": posterior.samples["noise"][i],
-            }
-            if self.kernel_type == "matern":
-                param_sample["degree"] = posterior.samples["degree"][i]
-
-            # Update current model parameters for this sample
-            old_params = {
-                "lengthscale": self.lengthscale,
-                "variance": self.variance,
-                "noise": self.noise,
-                "degree": self.degree,
-            }
-            old_L = self.L
-
-            # Set new parameters
-            self.lengthscale = param_sample["lengthscale"]
-            self.variance = param_sample["variance"]
-            self.noise = param_sample["noise"]
-            if self.kernel_type == "matern":
-                self.degree = param_sample.get("degree", self.degree)
-
-            # Update kernel function
-            self.kernel_fn = self._get_kernel_function()
-
-            # Predict mean and std with current parameters (need to ensure model is "fitted")
-            if self.X_train is not None and self.y_train is not None:
-                # Use the stored training data but with current parameters
-                K = self.kernel_fn(self.X_train, self.X_train)
-                K += np.eye(len(self.X_train)) * (self.noise + self.jitter)
-                self.L = cholesky(K, lower=True)
-
-                mean, std = self._predict(X, return_std=True)
-            else:  # pragma: no cover - guarded by the fitted check above
-                raise ValueError("Model must be fitted before posterior prediction")
-            # Generate random sample
-            sample = rng.normal(mean, np.sqrt(std**2 + param_sample["noise"]))
-
-            # Restore old parameters and Cholesky factor
-            for param, value in old_params.items():
-                setattr(self, param, value)
-            self.L = old_L
-            self.kernel_fn = self._get_kernel_function()
-            all_samples.append(sample)
+        for theta in self._posterior_draws(posterior, samples):
+            with self._temporary_parameters(theta):
+                mean, std = self._conditional_mean_std(X)
+            # std is the latent-function uncertainty; a predictive draw of an
+            # observation also carries the observation-noise variance.
+            all_samples.append(
+                rng.normal(mean, np.sqrt(std**2 + theta["noise"]))
+            )
 
         if not all_samples:
             raise ValueError("posterior contains no usable parameter samples")
@@ -442,7 +516,60 @@ class SpatialGP(BayesianModel):
         if "kernel_type" in old_params:
             self.kernel_fn = self._get_kernel_function()
 
-        return log_likelihood
+        return float(log_likelihood)
+
+    def pointwise_log_likelihood(
+        self, theta: Dict[str, Any], data: Dict[str, np.ndarray]
+    ) -> np.ndarray:
+        """Decompose the GP marginal log-likelihood into per-observation terms.
+
+        LOO and WAIC need a log-likelihood per observation, but a GP likelihood
+        is joint, not factorized. The usable decomposition is the ordered
+        conditional one: with ``K = L L^T`` and ``z = L^{-1} (y - m)``,
+
+            log p(y_i | y_1..y_{i-1}) = -z_i^2 / 2 - log L_ii - log(2 pi) / 2
+
+        and those terms sum exactly to the joint marginal log-likelihood. Naive
+        alternatives are wrong in a way that is easy to miss: evaluating each
+        point's own marginal density drops all correlation, and for a stationary
+        kernel it drops the kernel entirely -- ``K(x, x)`` equals the signal
+        variance whatever the lengthscale -- so every kernel scores identically.
+
+        Parameters
+        ----------
+        theta : dict
+            Hyperparameter values to evaluate at.
+        data : dict
+            Dictionary with ``X`` and ``y`` keys.
+
+        Returns
+        -------
+        ndarray of shape (n_obs,)
+            Per-observation log-likelihood contributions, summing to
+            :meth:`log_likelihood`. All ``-inf`` if the covariance is not
+            positive definite at ``theta``.
+
+        Notes
+        -----
+        The decomposition depends on the observation order, though its sum does
+        not. Diagnostics that treat the terms as exchangeable, Pareto-k among
+        them, inherit that dependence.
+        """
+        X = np.asarray(data["X"], dtype=float)
+        y = np.asarray(data["y"], dtype=float)
+
+        with self._parameters_from(theta):
+            K = self.kernel_fn(X, X)
+            K += np.eye(len(X)) * (self.noise + self.jitter)
+            try:
+                L = cholesky(K, lower=True)
+            except np.linalg.LinAlgError:
+                return np.full(len(X), -np.inf)
+            z = solve_triangular(L, y - self.mean_function(X), lower=True)
+
+        return np.asarray(
+            -0.5 * z**2 - np.log(np.diag(L)) - 0.5 * np.log(2 * np.pi), dtype=float
+        )
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """

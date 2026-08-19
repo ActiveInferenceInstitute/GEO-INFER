@@ -25,7 +25,6 @@
 - `examples/`
 - `output/`
 - `reports/`
-- `scripts/`
 - `src/`
 - `test_output/`
 - `tests/`

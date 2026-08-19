@@ -11,6 +11,7 @@ from typing import Dict, Optional, Tuple, Union, Any
 from pathlib import Path
 import logging
 import json
+from .rng import SeedLike, resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -365,7 +366,7 @@ def sample_spatial_data(
     values: np.ndarray,
     n_samples: int,
     method: str = "random",
-    random_seed: Optional[int] = None,
+    random_seed: SeedLike = None,
     **kwargs,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -376,17 +377,16 @@ def sample_spatial_data(
         values: Values
         n_samples: Number of samples to take
         method: Sampling method ('random', 'stratified', 'systematic')
-        random_seed: Optional seed for reproducible sampling. When ``None``
-            (default) the legacy global ``np.random`` state is used.
+        random_seed: Seed or generator for the sampling draws. ``None``
+            (default) means a generator seeded from OS entropy, so the sample
+            is not replayable; pass an int to replay. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
         **kwargs: Additional sampling parameters
 
     Returns:
         Tuple of (sampled_coords, sampled_values)
     """
-    if random_seed is None:
-        rng = np.random
-    else:
-        rng = np.random.default_rng(random_seed)
+    rng = resolve_rng(random_seed)
 
     n_total = len(spatial_coords)
 

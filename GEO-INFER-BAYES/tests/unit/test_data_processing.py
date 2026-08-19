@@ -164,9 +164,9 @@ class TestCreateSpatialGrid:
 class TestSampleSpatialData:
 
     def test_random_sampling(self) -> None:
-        rng = np.random.RandomState(0)
-        coords = rng.randn(100, 2)
-        values = rng.randn(100)
+        rng = np.random.default_rng(0)
+        coords = rng.standard_normal((100, 2))
+        values = rng.standard_normal(100)
         sampled_coords, sampled_values = sample_spatial_data(
             coords, values, n_samples=20, method="random"
         )

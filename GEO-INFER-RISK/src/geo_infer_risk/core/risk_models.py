@@ -13,6 +13,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 
+from ..utils.rng import SeedLike, resolve_rng
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +26,7 @@ class RiskParameters:
     time_horizon: int = 50  # years
     spatial_resolution: float = 1.0  # km
     monte_carlo_iterations: int = 1000
-    random_seed: Optional[int] = None
+    random_seed: SeedLike = None
 
     def __post_init__(self) -> None:
         """Validate the numerical contract before a model uses it."""
@@ -42,10 +44,9 @@ class RiskParameters:
             or self.monte_carlo_iterations < 1
         ):
             raise ValueError("monte_carlo_iterations must be a positive integer")
-        if self.random_seed is not None and not isinstance(
-            self.random_seed, (int, np.integer)
-        ):
-            raise TypeError("random_seed must be an integer or None")
+        # resolve_rng owns seed validation; calling it here surfaces a bad
+        # seed at construction rather than at the first draw.
+        resolve_rng(self.random_seed)
 
 
 class RiskModel:
@@ -58,10 +59,11 @@ class RiskModel:
             parameters: Model configuration parameters
         """
         self.parameters = parameters or RiskParameters()
-        self.rng = np.random.default_rng(self.parameters.random_seed)
-        self.hazard = None
-        self.vulnerability = None
-        self.exposure = None
+        self.rng = resolve_rng(self.parameters.random_seed)
+        # Components are attached by the set_* methods before assess() runs.
+        self.hazard: Optional["HazardModel"] = None
+        self.vulnerability: Optional["VulnerabilityModel"] = None
+        self.exposure: Optional["ExposureModel"] = None
         logger.info(
             "RiskModel initialized with %d-year horizon", self.parameters.time_horizon
         )
@@ -104,15 +106,24 @@ class RiskModel:
         Returns:
             GeoDataFrame with risk metrics for each area
         """
-        if not all([self.hazard, self.vulnerability, self.exposure]):
+        hazard_model, vulnerability_model, exposure_model = (
+            self.hazard,
+            self.vulnerability,
+            self.exposure,
+        )
+        if (
+            hazard_model is None
+            or vulnerability_model is None
+            or exposure_model is None
+        ):
             raise ValueError("Hazard, vulnerability, and exposure models must be set")
 
         logger.info("Calculating risk for %d geometries", len(geometry))
 
         # Calculate risk components and validate their shared spatial contract.
-        hazard_data = self.hazard.calculate(geometry)
-        vulnerability_data = self.vulnerability.calculate(geometry)
-        exposure_data = self.exposure.calculate(geometry)
+        hazard_data = hazard_model.calculate(geometry)
+        vulnerability_data = vulnerability_model.calculate(geometry)
+        exposure_data = exposure_model.calculate(geometry)
         hazard = self._component_values(
             hazard_data, geometry, "hazard_probability", "hazard"
         )
@@ -314,8 +325,14 @@ class HazardModel(ABC):
         )
 
     @abstractmethod
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Generate a random sample from the hazard model for Monte Carlo simulation.
+
+        Args:
+            random_state: Seed or generator for the draw; see
+                :func:`geo_infer_risk.utils.rng.resolve_rng`. Concrete models
+                must draw only from it, never from the ``numpy.random``
+                singleton, so a Monte Carlo run is replayable from its seed.
 
         Returns:
             Array of sampled hazard values
@@ -354,8 +371,14 @@ class VulnerabilityModel(ABC):
         )
 
     @abstractmethod
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Generate a random sample from the vulnerability model for Monte Carlo simulation.
+
+        Args:
+            random_state: Seed or generator for the draw; see
+                :func:`geo_infer_risk.utils.rng.resolve_rng`. Concrete models
+                must draw only from it, never from the ``numpy.random``
+                singleton, so a Monte Carlo run is replayable from its seed.
 
         Returns:
             Array of sampled vulnerability values
@@ -392,8 +415,14 @@ class ExposureModel(ABC):
         )
 
     @abstractmethod
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Generate a random sample from the exposure model for Monte Carlo simulation.
+
+        Args:
+            random_state: Seed or generator for the draw; see
+                :func:`geo_infer_risk.utils.rng.resolve_rng`. Concrete models
+                must draw only from it, never from the ``numpy.random``
+                singleton, so a Monte Carlo run is replayable from its seed.
 
         Returns:
             Array of sampled exposure values
@@ -468,9 +497,9 @@ class FloodHazardModel(HazardModel):
         )
         return result
 
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Sample flood hazard values from Gumbel distribution."""
-        rng = random_state or np.random.default_rng()
+        rng = resolve_rng(random_state)
         mu = 1.0 / self.return_period
         beta = mu * 0.3  # Scale parameter
         return rng.gumbel(loc=mu, scale=beta, size=self._n_samples).clip(0, 1)
@@ -549,9 +578,9 @@ class BuildingVulnerabilityModel(VulnerabilityModel):
         )
         return result
 
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Sample vulnerability values from Beta distribution."""
-        rng = random_state or np.random.default_rng()
+        rng = resolve_rng(random_state)
         return rng.beta(2, 5, size=self._n_samples)
 
 
@@ -605,7 +634,7 @@ class PopulationExposureModel(ExposureModel):
         )
         return result
 
-    def sample(self, random_state: Optional[np.random.Generator] = None) -> np.ndarray:
+    def sample(self, random_state: SeedLike = None) -> np.ndarray:
         """Sample exposure values from log-normal distribution."""
-        rng = random_state or np.random.default_rng()
+        rng = resolve_rng(random_state)
         return rng.lognormal(mean=0, sigma=0.3, size=self._n_samples).clip(0, 1)

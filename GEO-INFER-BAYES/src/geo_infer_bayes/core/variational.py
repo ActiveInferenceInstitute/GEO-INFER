@@ -7,6 +7,7 @@ import xarray as xr
 import copy
 from typing import Dict, Any, Optional, Union, List, Tuple
 from tqdm import tqdm
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class VariationalInference:
@@ -30,19 +31,23 @@ class VariationalInference:
         Number of Monte Carlo samples for gradient estimation
     vi_method : str, default='meanfield'
         Variational inference method: 'meanfield' or 'fullrank'
-    random_seed : int, optional
-        Random seed for reproducibility
+    random_seed : int or numpy.random.Generator, optional
+        Seed or generator for every draw this sampler makes. ``None`` (default)
+        means a generator seeded from OS entropy, so the chain is not
+        replayable; pass an int to replay it, or a ``Generator`` to thread one
+        stream through several samplers. See
+        :func:`geo_infer_bayes.utils.rng.resolve_rng`.
     """
 
     def __init__(
         self,
-        model,
+        model: Any,
         learning_rate: float = 0.01,
         n_iterations: int = 10000,
         convergence_tol: float = 1e-6,
         n_mc_samples: int = 10,
         vi_method: str = "meanfield",
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ):
         if not np.isfinite(learning_rate) or learning_rate <= 0:
             raise ValueError("learning_rate must be finite and strictly positive")
@@ -59,7 +64,7 @@ class VariationalInference:
         self.n_mc_samples = int(n_mc_samples)
         self.vi_method = vi_method.lower()
         self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.rng: np.random.Generator = resolve_rng(random_seed)
 
         if self.vi_method not in ["meanfield", "fullrank"]:
             raise ValueError(
@@ -74,7 +79,7 @@ class VariationalInference:
         *,
         initial_var_params: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
         n_samples: int = 1000,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Run variational inference for the model.
@@ -140,8 +145,9 @@ class VariationalInference:
                     print(f"Converged after {i} iterations")
                 break
 
-            # Update progress bar
-            if progress_bar and i % 100 == 0:
+            # Update progress bar. tqdm wraps range() only when enabled, so
+            # the attribute is checked rather than assumed.
+            if progress_bar and i % 100 == 0 and hasattr(iterator, "set_postfix"):
                 iterator.set_postfix(ELBO=elbo)
 
         # Generate samples from the approximate posterior
@@ -159,7 +165,7 @@ class VariationalInference:
         log-standard deviation for each parameter.
         For full-rank, we would need additional covariance terms.
         """
-        var_params = {}
+        var_params: Dict[str, Dict[str, np.ndarray]] = {}
 
         for param in param_names:
             param_info = self.model.parameters[param]
@@ -352,9 +358,10 @@ class VariationalInference:
         # For log-normal parameters, handle in log space
         if self.model.parameters[param]["prior"] == "log_normal":
             log_value = np.log(sample[param])
-            return (log_value - var_params[param]["mean"]) / (std**2)
+            gradient = (log_value - var_params[param]["mean"]) / (std**2)
         else:
-            return (sample[param] - var_params[param]["mean"]) / (std**2)
+            gradient = (sample[param] - var_params[param]["mean"]) / (std**2)
+        return np.asarray(gradient, dtype=float)
 
     def _compute_log_std_gradient(
         self,
@@ -373,9 +380,10 @@ class VariationalInference:
         # For log-normal parameters, handle in log space
         if self.model.parameters[param]["prior"] == "log_normal":
             log_value = np.log(sample[param])
-            return (log_value - mean) ** 2 / std**2 - 1.0
+            gradient = (log_value - mean) ** 2 / std**2 - 1.0
         else:
-            return (sample[param] - mean) ** 2 / std**2 - 1.0
+            gradient = (sample[param] - mean) ** 2 / std**2 - 1.0
+        return np.asarray(gradient, dtype=float)
 
     def _compute_cov_factor_gradient(
         self,
@@ -458,7 +466,10 @@ class VariationalInference:
                         "fullrank variational covariance currently supports scalar parameters only"
                     )
                 return np.asarray(max(abs(cov_factor.reshape(-1)[0]), 1e-6))
-        return np.maximum(np.exp(np.asarray(param_dist["log_std"], dtype=float)), 1e-6)
+        return np.asarray(
+            np.maximum(np.exp(np.asarray(param_dist["log_std"], dtype=float)), 1e-6),
+            dtype=float,
+        )
 
     def _generate_samples(
         self, var_params: Dict[str, Dict[str, np.ndarray]], n_samples: int = 1000
@@ -484,7 +495,7 @@ class VariationalInference:
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], xr.Dataset],
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Update the approximate posterior with new data.

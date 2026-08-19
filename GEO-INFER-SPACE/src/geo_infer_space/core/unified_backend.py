@@ -17,22 +17,7 @@ from shapely.geometry import Polygon, MultiPolygon, mapping
 import folium
 from folium.plugins import HeatMap
 
-# --- H3 and OSC Integration ---
 import h3
-
-# OSC integration is optional - allows standalone operation
-try:
-    from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
-
-    OSC_GEO_AVAILABLE = True
-except ImportError:
-    OSC_GEO_AVAILABLE = False
-    H3DataLoader = None
-
-    def create_h3_data_loader(*args, **kwargs):
-        """Fallback for when osc_geo is not available."""
-        raise ImportError("osc_geo module not available. OSC data loading disabled.")
-
 
 # --- Local Core Imports ---
 # Base class for type hinting
@@ -73,7 +58,6 @@ class UnifiedH3Backend:
         target_region: str = "Global",
         target_areas: Optional[Dict[str, List[str]]] = None,
         base_data_dir: Optional[Path] = None,
-        osc_repo_dir: Optional[str] = None,
         geojson_path: Optional[Path] = None,
     ):
         """
@@ -85,9 +69,8 @@ class UnifiedH3Backend:
             target_region: Region identifier (default: 'Global')
             target_areas: A dict specifying areas to run, e.g., {'CA': ['all']}.
             base_data_dir: The root directory for data caching.
-            osc_repo_dir: The root directory of the cloned OS-Climate repositories.
             geojson_path: Explicit path to the target-areas GeoJSON file. When
-                omitted, the legacy CWD-relative default of
+                omitted, the CWD-relative default of
                 ``config/target_areas.geojson`` is used.
         """
         self.modules = modules
@@ -102,19 +85,6 @@ class UnifiedH3Backend:
         )
         self.unified_data: Dict[str, Dict] = {}
         self.analysis_scores: Dict[str, Dict] = {}
-
-        # --- OSC Integration ---
-        try:
-            self.h3_loader: Optional[H3DataLoader] = create_h3_data_loader(
-                repo_base_dir=osc_repo_dir
-            )
-            logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
-        except Exception as e:
-            logger.warning(
-                f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}. Functionality relying on OSC data loading will be unavailable."
-            )
-            self.h3_loader = None
-        # --- End OSC Integration ---
 
         self.target_hexagons_by_area, self.target_hexagons = self._define_target_region(
             target_areas

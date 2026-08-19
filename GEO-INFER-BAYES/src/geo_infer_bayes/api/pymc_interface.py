@@ -6,6 +6,7 @@ import numpy as np
 import pymc as pm
 import arviz as az
 from typing import Dict, Any, Optional, Union, Tuple
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class PyMCInterface:
@@ -161,7 +162,7 @@ class PyMCInterface:
         chains: int = 4,
         cores: int = None,
         sampler: str = "nuts",
-        random_seed: Optional[int] = 42,
+        random_seed: SeedLike = 42,
         **kwargs,
     ) -> az.InferenceData:
         """
@@ -179,8 +180,9 @@ class PyMCInterface:
             Number of cores to use
         sampler : str, default='nuts'
             Sampler to use: 'nuts', 'metropolis'
-        random_seed : int, optional, default=42
-            Seed for the sampler so traces are reproducible
+        random_seed : int or numpy.random.Generator, optional, default=42
+            Seed or generator for the sampler, so traces are reproducible. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
         **kwargs : dict
             Additional parameters for the sampler
 
@@ -223,7 +225,7 @@ class PyMCInterface:
         samples: int = 100,
         return_std: bool = False,
         groups_new: Optional[np.ndarray] = None,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """
         Make predictions using the fitted PyMC model.
@@ -239,9 +241,11 @@ class PyMCInterface:
         groups_new : array-like of shape (n_samples,), optional
             Group indicators for hierarchical model predictions. When None,
             predictions are marginalized over all groups.
-        random_seed : int, optional
-            Seed for reproducible subsampling/noise draws. When ``None`` the
-            legacy global ``np.random`` state is used.
+        random_seed : int or numpy.random.Generator, optional
+            Seed or generator for the subsampling and noise draws. ``None``
+            (default) means a generator seeded from OS entropy, so results are
+            not replayable; pass an int to replay. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
 
         Returns
         -------
@@ -278,7 +282,7 @@ class PyMCInterface:
         X_new: np.ndarray,
         samples: int = 100,
         return_std: bool = False,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """GP posterior predictive via gp.conditional + sample_posterior_predictive."""
         if self.gp is None:
@@ -304,10 +308,7 @@ class PyMCInterface:
         # Subsample to requested number
         n_available = f_flat.shape[0]
         if samples < n_available:
-            if random_seed is None:
-                rng = np.random
-            else:
-                rng = np.random.default_rng(random_seed)
+            rng = resolve_rng(random_seed)
             idx = rng.choice(n_available, size=samples, replace=False)
             f_flat = f_flat[idx]
 
@@ -322,13 +323,10 @@ class PyMCInterface:
         samples: int = 100,
         return_std: bool = False,
         groups_new: Optional[np.ndarray] = None,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Hierarchical model posterior predictive via linear combination of posterior draws."""
-        if random_seed is None:
-            rng = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         post = self.trace.posterior
         alpha_samples = post["alpha"].values  # (chains, draws, n_groups)

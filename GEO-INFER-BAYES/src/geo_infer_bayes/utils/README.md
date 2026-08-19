@@ -9,6 +9,7 @@ Utils workspace within `GEO-INFER-BAYES`.
 - `diagnostics.py`
 - `likelihoods.py`
 - `priors.py`
+- `rng.py`
 - `visualization.py`
 
 ## Public Interface
@@ -27,10 +28,12 @@ Utils workspace within `GEO-INFER-BAYES`.
 - `priors.py:SpatialPrior` (class)
 - `priors.py:TemporalPrior` (class)
 - `priors.py:GaussianProcessPrior` (class)
+- `rng.py:resolve_rng` (function)
+- `rng.py:spawn_rng` (function)
+- `rng.py:derive_int_seed` (function)
 - `visualization.py:plot_posterior` (function)
 - `visualization.py:plot_spatial_prediction` (function)
 - `visualization.py:plot_uncertainty` (function)
-- `visualization.py:plot_model_comparison` (function)
 
 ## Module Metadata
 

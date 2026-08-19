@@ -134,7 +134,7 @@ class TestMCMCSampling:
         should be close to the sample mean of the data."""
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, n_chains=2, step_size=0.5, random_seed=0)
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
         data = rng.normal(5.0, 1.0, size=20)
         samples = mcmc.run(data, n_samples=500, n_warmup=200, progress_bar=False)
         posterior_mean = np.mean(samples["mu"])

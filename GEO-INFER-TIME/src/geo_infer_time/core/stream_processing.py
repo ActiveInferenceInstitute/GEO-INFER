@@ -7,6 +7,7 @@ aggregation, late data handling, and event detection.
 """
 
 import logging
+import math
 from typing import Dict, List, Optional, Any, Callable, Tuple
 from collections import deque
 from datetime import datetime, timedelta
@@ -38,9 +39,24 @@ class StreamProcessor:
             slide_interval: Interval for sliding windows (if None, uses window_size)
             aggregation_func: Optional aggregation function
         """
+        if not isinstance(window_size, timedelta):
+            raise TypeError("window_size must be a timedelta")
+        if window_size <= timedelta(0):
+            raise ValueError("window_size must be greater than zero")
+        if slide_interval is not None and not isinstance(slide_interval, timedelta):
+            raise TypeError("slide_interval must be a timedelta")
+        if slide_interval is not None and slide_interval <= timedelta(0):
+            raise ValueError("slide_interval must be greater than zero")
+        if aggregation_func is not None and not callable(aggregation_func):
+            raise TypeError("aggregation_func must be callable")
+
         self.window_size = window_size
-        self.slide_interval = slide_interval or window_size
-        self.aggregation_func = aggregation_func or np.mean
+        self.slide_interval = (
+            slide_interval if slide_interval is not None else window_size
+        )
+        self.aggregation_func = (
+            aggregation_func if aggregation_func is not None else np.mean
+        )
 
         self.buffer: deque = deque()
         self.windows: List[Dict[str, Any]] = []
@@ -68,10 +84,23 @@ class StreamProcessor:
             value: Data point value
             metadata: Optional metadata
         """
+        if not isinstance(timestamp, datetime):
+            raise TypeError("timestamp must be a datetime")
+        if isinstance(value, bool):
+            raise TypeError("value must be a finite number")
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError) as exc:
+            raise TypeError("value must be a finite number") from exc
+        if not math.isfinite(numeric_value):
+            raise ValueError("value must be finite")
+        if metadata is not None and not isinstance(metadata, dict):
+            raise TypeError("metadata must be a dictionary")
+
         point = {
             "timestamp": timestamp,
-            "value": value,
-            "metadata": metadata or {},
+            "value": numeric_value,
+            "metadata": dict(metadata) if metadata is not None else {},
         }
 
         # Check for late data (arrived after watermark)
@@ -135,6 +164,12 @@ class StreamProcessor:
         Returns:
             List of recent window results
         """
+        if isinstance(count, bool) or not isinstance(count, int):
+            raise TypeError("count must be an integer")
+        if count < 0:
+            raise ValueError("count must be non-negative")
+        if count == 0:
+            return []
         return self.windows[-count:]
 
     def process_tumbling_windows(self) -> List[Dict[str, Any]]:
@@ -198,9 +233,7 @@ class StreamProcessor:
         while window_start <= stream_end:
             window_end = window_start + self.window_size
             window_points = [
-                p
-                for p in all_points
-                if window_start <= p["timestamp"] < window_end
+                p for p in all_points if window_start <= p["timestamp"] < window_end
             ]
 
             if window_points:
@@ -227,6 +260,11 @@ class StreamProcessor:
         Returns:
             List of session window results.
         """
+        if not isinstance(session_gap, timedelta):
+            raise TypeError("session_gap must be a timedelta")
+        if session_gap < timedelta(0):
+            raise ValueError("session_gap must be non-negative")
+
         if not self.buffer:
             return []
 
@@ -264,6 +302,11 @@ class StreamProcessor:
                 'anomaly', 'trend_change')
             handler: Callback function that receives the event dict.
         """
+        if not isinstance(event_type, str) or not event_type.strip():
+            raise ValueError("event_type must be a non-empty string")
+        if not callable(handler):
+            raise TypeError("handler must be callable")
+
         self._event_handlers[event_type] = handler
         logger.info("Registered event handler for '%s'", event_type)
 
@@ -282,6 +325,34 @@ class StreamProcessor:
         Returns:
             List of detected threshold events.
         """
+        for name, threshold in (
+            ("upper_threshold", upper_threshold),
+            ("lower_threshold", lower_threshold),
+        ):
+            if threshold is not None:
+                if isinstance(threshold, bool):
+                    raise TypeError(f"{name} must be a finite number")
+                try:
+                    numeric_threshold = float(threshold)
+                except (TypeError, ValueError) as exc:
+                    raise TypeError(f"{name} must be a finite number") from exc
+                if not math.isfinite(numeric_threshold):
+                    raise ValueError(f"{name} must be finite")
+
+        upper_threshold = (
+            float(upper_threshold) if upper_threshold is not None else None
+        )
+        lower_threshold = (
+            float(lower_threshold) if lower_threshold is not None else None
+        )
+
+        if (
+            upper_threshold is not None
+            and lower_threshold is not None
+            and lower_threshold > upper_threshold
+        ):
+            raise ValueError("lower_threshold cannot exceed upper_threshold")
+
         events: List[Dict[str, Any]] = []
 
         for point in self.buffer:
@@ -331,6 +402,11 @@ class StreamProcessor:
         Returns:
             List of detected anomaly events.
         """
+        if isinstance(z_threshold, bool) or not isinstance(z_threshold, (int, float)):
+            raise TypeError("z_threshold must be a number")
+        if not math.isfinite(z_threshold) or z_threshold <= 0:
+            raise ValueError("z_threshold must be finite and greater than zero")
+
         if len(self.buffer) < 3:
             return []
 

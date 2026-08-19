@@ -3,10 +3,10 @@
 California Multi-Layer Geospatial Demo
 
 This example demonstrates the integration of multiple geospatial data types (Zoning, Water, Climate)
-over California using the OSC-GEO/H3 grid system and interactive Folium visualization with layer toggles.
+over California using the GEO-INFER H3 grid and an interactive Folium visualization with layer toggles.
 
 Features:
-- Sets up OSC-GEO and H3 grid manager
+- Sets up the GEO-INFER H3 grid manager
 - Simulates three geospatial data types over California:
     1. Zoning (polygons)
     2. Water (lines/polygons)
