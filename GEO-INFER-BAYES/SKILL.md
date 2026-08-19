@@ -20,7 +20,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 - **Bayesian inference**: Full posterior computation via MCMC and variational methods
 - **Model comparison**: LOO-CV, WAIC, DIC, BIC, AIC (all real implementations)
-- **Gaussian processes**: Cholesky-decomposition GP with multiple kernels
+- **Gaussian processes**: Exact Cholesky and batched inducing-point variational GPs
 - **Hierarchical models**: Partial pooling via Cholesky LKJ decomposition
 - **Prior specification**: Jeffreys, reference, unit-information priors
 - **ELBO computation**: Real evidence lower bound (not placeholder)
@@ -30,7 +30,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ```python
 from geo_infer_bayes.core.inference import BayesianInference
 from geo_infer_bayes.core.model_comparison import ModelComparison
-from geo_infer_bayes.models.spatial_gp import SpatialGP
+from geo_infer_bayes.models.spatial_gp import SparseSpatialGP, SpatialGP
 from geo_infer_bayes.core.variational import VariationalInference
 from geo_infer_bayes.utils.diagnostics import mcmc_diagnostics
 from geo_infer_bayes.api.pymc_interface import PyMCInterface
@@ -57,6 +57,25 @@ posterior = inference.run(
     data={"X": X, "y": y}, n_samples=2000, n_warmup=1000, progress_bar=False
 )
 print(posterior.summary()[["mean", "sd", "r_hat"]])
+```
+
+Fit a large spatial dataset without constructing an observation-by-observation
+covariance matrix. Supplied inducing locations are fixed; omit them to select a
+deterministic maximin subset. `fit` optimizes the collapsed variational ELBO by
+default:
+
+```python
+from geo_infer_bayes.models import SparseSpatialGP
+
+model = SparseSpatialGP(
+    inducing_points=inducing_locations,
+    kernel="matern",
+    degree=1.5,
+    batch_size=2048,
+)
+model.fit(X, y)
+mean, std = model.predict(X_new, return_std=True)
+print(model.elbo_)
 ```
 
 Convergence diagnostics. Samplers return draws pooled across chains, and R-hat
@@ -122,6 +141,8 @@ Every sampler and predictive method takes a `random_seed` routed through
 ## Guidelines
 
 - GP uses actual Cholesky decomposition
+- Sparse GP fit uses batched `N` by `M` kernel blocks and `M` by `M`
+  sufficient statistics; it never builds a dense `N` by `N` covariance
 - TFP interface: real GP + Metropolis-Hastings sampling
 - PyMC interface: posterior predictive sampling for predictions
 - Variational: real ELBO computation with KL divergence

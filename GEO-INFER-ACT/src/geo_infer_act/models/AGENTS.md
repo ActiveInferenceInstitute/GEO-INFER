@@ -24,6 +24,7 @@
 - `__init__.py`
 - `base.py`
 - `climate.py`
+- `continuous_pomdp.py`
 - `ecological.py`
 - `multi_agent.py`
 - `resource.py`

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import warnings
 from pathlib import Path
@@ -9,6 +10,14 @@ from pathlib import Path
 import pytest
 
 pytest_plugins = ["geo_infer_test.testing"]
+
+
+# Cache and storage layers sign serialized payloads with a key resolved from
+# ``GEO_INFER_SERIALIZATION_KEY`` or, failing that, a per-installation key file
+# under the developer's config directory. Pinning a deterministic test key
+# keeps the suite hermetic: no test creates, reads, or rotates the real key.
+SERIALIZATION_KEY_ENV = "GEO_INFER_SERIALIZATION_KEY"
+SERIALIZATION_TEST_KEY = "geo-infer-test-suite-serialization-key"
 
 
 PRIMARY_MARKERS = ("unit", "integration", "system", "performance")
@@ -36,6 +45,18 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "module: auto-applied module marker")
     for marker in (*PRIMARY_MARKERS, *DOMAIN_MARKERS):
         config.addinivalue_line("markers", f"{marker}: GEO-INFER test taxonomy marker")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def pin_serialization_signing_key() -> None:
+    """Pin the payload-signing key so tests never touch the real key file."""
+    previous = os.environ.get(SERIALIZATION_KEY_ENV)
+    os.environ[SERIALIZATION_KEY_ENV] = SERIALIZATION_TEST_KEY
+    yield
+    if previous is None:
+        os.environ.pop(SERIALIZATION_KEY_ENV, None)
+    else:
+        os.environ[SERIALIZATION_KEY_ENV] = previous
 
 
 def _close_imported_matplotlib_figures() -> None:

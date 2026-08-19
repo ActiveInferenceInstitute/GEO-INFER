@@ -12,6 +12,7 @@ Core workspace within `GEO-INFER-OPS`.
 - `logging.py`
 - `monitoring.py`
 - `orchestrator.py`
+- `secure_serialization.py`
 - `security.py`
 - `testing.py`
 

@@ -10,6 +10,19 @@ This module provides sophisticated caching functionality including:
 - Intelligent cache invalidation strategies
 - Cache analytics and optimization
 - Adaptive cache sizing and eviction policies
+
+Security note (serialization trust boundary): :class:`DiskCache` persists
+pickled values to disk and :class:`RedisCache` persists JSON documents to a
+shared Redis instance. Both are untrusted input on the way back in — a disk
+cache file or Redis value can be rewritten by anything with write access, and
+``pickle.loads`` executes arbitrary code. Every payload is therefore written
+as an authenticated GISP1 envelope (see
+:mod:`geo_infer_git.utils.secure_serialization`) and every read verifies the
+envelope's HMAC-SHA256 under a per-layer context key before deserialisation.
+For the disk cache the envelope wraps the *compressed* bytes, so a hostile
+file is rejected before it is even decompressed. :class:`MemoryCache` holds
+live objects and never round-trips through a deserialiser, so it sits inside
+the trust boundary.
 """
 
 import json
@@ -26,6 +39,15 @@ import sqlite3
 from abc import ABC, abstractmethod
 
 from ..utils.logging_utils import get_logger
+from .secure_serialization import (
+    CONTEXT_DISK_CACHE,
+    CONTEXT_REDIS_CACHE,
+    PayloadSecurityError,
+    dumps_signed_text,
+    loads_signed_text,
+    sign_payload,
+    verify_payload,
+)
 
 logger = get_logger(__name__)
 
@@ -320,7 +342,8 @@ class MemoryCache:
             metadata: Additional metadata
         """
         with self.lock:
-            # Serialize value to calculate size
+            # Serialize value to calculate size. This never deserialises, so
+            # it is outside the serialization trust boundary.
             try:
                 serialized = pickle.dumps(value)
                 size_bytes = len(serialized)
@@ -424,6 +447,7 @@ class DiskCache:
         cache_dir: Union[str, Path],
         max_size_gb: float = 1.0,
         compression: bool = True,
+        signing_key: Optional[Union[bytes, str]] = None,
     ):
         """
         Initialize disk cache.
@@ -432,10 +456,15 @@ class DiskCache:
             cache_dir: Directory for cache storage
             max_size_gb: Maximum cache size in GB
             compression: Whether to compress cached data
+            signing_key: Explicit HMAC master key for cache files. When
+                omitted the key is resolved from
+                ``GEO_INFER_SERIALIZATION_KEY`` or the per-installation key
+                file.
         """
         self.cache_dir = Path(cache_dir)
         self.max_size_bytes = int(max_size_gb * 1024 * 1024 * 1024)
         self.compression = compression
+        self.signing_key = signing_key
 
         # Create cache directory
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -514,16 +543,29 @@ class DiskCache:
                     self.stats.misses += 1
                     return default
 
-                # Load and deserialize data
-                with open(data_path, "rb") as f:
+                # Trust boundary: verify the envelope before the bytes reach
+                # gzip or pickle, so a rewritten cache file is rejected rather
+                # than inflated or executed.
+                try:
+                    data = verify_payload(
+                        Path(data_path).read_bytes(),
+                        context=CONTEXT_DISK_CACHE,
+                        key=self.signing_key,
+                    )
+                except PayloadSecurityError as exc:
+                    logger.error(
+                        f"Rejected untrusted disk cache entry {key!r} before "
+                        f"deserialization: {exc}"
+                    )
+                    self._evict_entry(key)
+                    self.stats.misses += 1
+                    return default
+
+                try:
                     if self.compression:
                         import gzip
 
-                        data = gzip.decompress(f.read())
-                    else:
-                        data = f.read()
-
-                try:
+                        data = gzip.decompress(data)
                     value = pickle.loads(data)
                 except Exception:
                     # Data corrupted, remove it
@@ -569,16 +611,24 @@ class DiskCache:
             metadata: Additional metadata
         """
         try:
-            # Serialize value
-            data = pickle.dumps(value)
+            # Serialize, compress, then sign: the on-disk bytes are always an
+            # authenticated envelope wrapping the compressed payload.
+            data = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
             if self.compression:
                 import gzip
 
                 data = gzip.compress(data)
 
+            data = sign_payload(
+                data,
+                context=CONTEXT_DISK_CACHE,
+                key=self.signing_key,
+            )
+
             size_bytes = len(data)
             data_path = (
-                self.cache_dir / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+                self.cache_dir
+                / f"{hashlib.sha256(key.encode('utf-8')).hexdigest()}.cache"
             )
 
             # Check if we need to evict entries
@@ -728,6 +778,7 @@ class RedisCache:
         db: int = 0,
         password: str = None,
         max_connections: int = 20,
+        signing_key: Optional[Union[bytes, str]] = None,
     ):
         """
         Initialize Redis cache.
@@ -738,12 +789,17 @@ class RedisCache:
             db: Redis database number
             password: Redis password
             max_connections: Maximum connection pool size
+            signing_key: Explicit HMAC master key for cache documents. When
+                omitted the key is resolved from
+                ``GEO_INFER_SERIALIZATION_KEY`` or the per-installation key
+                file.
         """
         self.host = host
         self.port = port
         self.db = db
         self.password = password
         self.max_connections = max_connections
+        self.signing_key = signing_key
 
         # Connection pool
         self.connection_pool = None
@@ -802,10 +858,33 @@ class RedisCache:
                 self.stats.misses += 1
                 return default
 
-            # Parse JSON data
+            # Trust boundary: verify the envelope HMAC before parsing the
+            # document. A Redis value rewritten by another client is rejected.
             try:
-                cache_data = json.loads(data)
-            except json.JSONDecodeError:
+                cache_data = loads_signed_text(
+                    data,
+                    context=CONTEXT_REDIS_CACHE,
+                    key=self.signing_key,
+                    serializer="json",
+                )
+            except PayloadSecurityError as exc:
+                logger.error(
+                    f"Rejected untrusted Redis cache entry {key!r} before "
+                    f"deserialization: {exc}"
+                )
+                self.redis_client.delete(key)
+                self.stats.misses += 1
+                return default
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                self.stats.misses += 1
+                return default
+
+            if not isinstance(cache_data, dict):
+                logger.error(
+                    f"Redis cache entry {key!r} is not a cache document; "
+                    "discarding"
+                )
+                self.redis_client.delete(key)
                 self.stats.misses += 1
                 return default
 
@@ -819,8 +898,19 @@ class RedisCache:
             cache_data["access_count"] = cache_data.get("access_count", 0) + 1
             cache_data["accessed_at"] = time.time()
 
-            # Store updated data
-            self.redis_client.set(key, json.dumps(cache_data))
+            # Re-sign: the rewritten document must carry a fresh MAC, and the
+            # original TTL must survive the update.
+            remaining_ttl = self.redis_client.ttl(key)
+            envelope = dumps_signed_text(
+                cache_data,
+                context=CONTEXT_REDIS_CACHE,
+                key=self.signing_key,
+                serializer="json",
+            )
+            if isinstance(remaining_ttl, int) and remaining_ttl > 0:
+                self.redis_client.setex(key, remaining_ttl, envelope)
+            else:
+                self.redis_client.set(key, envelope)
 
             self.stats.hits += 1
             return cache_data.get("value")
@@ -861,9 +951,18 @@ class RedisCache:
 
             if ttl_seconds:
                 cache_data["expires_at"] = time.time() + ttl_seconds
-                self.redis_client.setex(key, ttl_seconds, json.dumps(cache_data))
+
+            envelope = dumps_signed_text(
+                cache_data,
+                context=CONTEXT_REDIS_CACHE,
+                key=self.signing_key,
+                serializer="json",
+            )
+
+            if ttl_seconds:
+                self.redis_client.setex(key, ttl_seconds, envelope)
             else:
-                self.redis_client.set(key, json.dumps(cache_data))
+                self.redis_client.set(key, envelope)
 
         except Exception as e:
             logger.error(f"Error writing to Redis cache: {e}")
@@ -1322,7 +1421,10 @@ class IntelligentCache:
 
 
 def create_optimized_cache(
-    memory_size: int = 1000, disk_size_gb: float = 1.0, redis_host: str = None
+    memory_size: int = 1000,
+    disk_size_gb: float = 1.0,
+    redis_host: str = None,
+    signing_key: Optional[Union[bytes, str]] = None,
 ) -> MultiLevelCache:
     """
     Create an optimized multi-level cache configuration.
@@ -1331,6 +1433,9 @@ def create_optimized_cache(
         memory_size: Size of memory cache
         disk_size_gb: Size of disk cache in GB
         redis_host: Redis host (None to disable Redis)
+        signing_key: Explicit HMAC master key for the persistent levels. When
+            omitted the key is resolved from ``GEO_INFER_SERIALIZATION_KEY``
+            or the per-installation key file.
 
     Returns:
         Configured MultiLevelCache instance
@@ -1344,13 +1449,13 @@ def create_optimized_cache(
     disk_cache = None
     if disk_size_gb > 0:
         cache_dir = Path.home() / ".geo_infer_git" / "cache"
-        disk_cache = DiskCache(cache_dir, disk_size_gb)
+        disk_cache = DiskCache(cache_dir, disk_size_gb, signing_key=signing_key)
 
     # Redis cache
     redis_cache = None
     if redis_host:
         try:
-            redis_cache = RedisCache(host=redis_host)
+            redis_cache = RedisCache(host=redis_host, signing_key=signing_key)
         except Exception as e:
             logger.warning(f"Failed to initialize Redis cache: {e}")
 
@@ -1401,7 +1506,7 @@ class CacheDecorator:
                 key_parts.extend([str(arg) for arg in args])
                 key_parts.extend([f"{k}={v}" for k, v in sorted(kwargs.items())])
 
-            cache_key = hashlib.md5("::".join(key_parts).encode()).hexdigest()
+            cache_key = hashlib.sha256("::".join(key_parts).encode("utf-8")).hexdigest()
 
             # Check cache
             result = self.cache.get(cache_key)
@@ -1432,5 +1537,5 @@ class CacheDecorator:
             key_parts.extend([str(arg) for arg in args])
             key_parts.extend([f"{k}={v}" for k, v in sorted(kwargs.items())])
 
-        cache_key = hashlib.md5("::".join(key_parts).encode()).hexdigest()
+        cache_key = hashlib.sha256("::".join(key_parts).encode("utf-8")).hexdigest()
         self.cache.evict(cache_key)

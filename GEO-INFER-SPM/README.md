@@ -47,6 +47,15 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
 ```
 
 
+## Random Field Theory Contracts
+
+- `RandomFieldTheory` computes the complete Gaussian Euler characteristic from
+  zero- through top-dimensional resel counts and exposes full-EC peak FWE
+  thresholds.
+- Cluster inference labels excursion components, measures extent in resels,
+  and returns Poisson-clumping maximum-cluster FWE p-values; the default
+  cluster-forming Gaussian tail is one-sided `p=0.001`.
+
 ## Visualization Contracts
 
 - Statistical and interactive maps reject invalid contrast indices, empty or

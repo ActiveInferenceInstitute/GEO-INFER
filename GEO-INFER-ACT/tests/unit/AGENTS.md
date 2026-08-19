@@ -25,6 +25,7 @@
 - `test_api.py`
 - `test_categorical_regressions.py`
 - `test_climate_model.py`
+- `test_continuous_pomdp_filter.py`
 - `test_core.py`
 - `test_dynamic_causal_model.py`
 - `test_ecological_model.py`

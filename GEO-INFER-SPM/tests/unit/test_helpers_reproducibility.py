@@ -1,9 +1,8 @@
 """Tests for deterministic random-seed threading in SPM helpers.
 
-Verifies the REPRO-01 migration: public SPM helpers accept ``random_seed`` and
-produce identical outputs across separate calls when given the same seed, while
-the default (``random_seed=None``) continues to use the legacy global
-``np.random`` state so existing callers are unaffected.
+Verifies the REPRO-01 migration: public SPM helpers produce identical outputs
+when given the same explicit seed. It also protects the legacy global-stream
+default where that behavior remains part of a helper's documented contract.
 """
 
 from __future__ import annotations

@@ -1,9 +1,21 @@
 """
 Caching management for GEO-INFER-OPS.
+
+Security note (serialization trust boundary): Redis is shared, mutable
+infrastructure — any client with write access can replace a cached value, and
+``pickle.loads`` executes arbitrary code during unpickling. Every value this
+manager writes is therefore wrapped in an authenticated GISP1 envelope (see
+:mod:`geo_infer_ops.core.secure_serialization`) and every value it reads is
+verified against its HMAC-SHA256 under the ``ops.cache.redis`` context key
+before ``json.loads`` or ``pickle.loads`` is called. Unsigned, truncated, or
+tampered values are rejected and never deserialised.
+
+The counter operations (:meth:`CacheManager.increment` and
+:meth:`CacheManager.decrement`) deliberately stay outside the envelope: they
+use Redis' native ``INCRBY``/``DECRBY`` on integer strings and never
+deserialise a payload, so they carry no code-execution risk.
 """
 
-import json
-import pickle
 from typing import Optional, Any, Union, Dict, List
 from enum import Enum
 
@@ -12,6 +24,14 @@ from redis.exceptions import RedisError
 
 from geo_infer_ops.core.config import get_config
 from geo_infer_ops.core.logging import get_logger
+from geo_infer_ops.core.secure_serialization import (
+    CONTEXT_REDIS_CACHE,
+    PayloadSecurityError,
+    dumps_signed,
+    dumps_signed_text,
+    loads_signed,
+    loads_signed_text,
+)
 
 logger = get_logger(__name__)
 
@@ -30,6 +50,8 @@ class CacheManager:
         self,
         serializer: CacheSerializer = CacheSerializer.JSON,
         prefix: str = "geo_infer:",
+        signing_key: Optional[Union[bytes, str]] = None,
+        raise_on_untrusted: bool = False,
     ):
         """
         Initialize cache manager.
@@ -37,10 +59,21 @@ class CacheManager:
         Args:
             serializer: Serialization format to use
             prefix: Key prefix for all cache entries
+            signing_key: Explicit HMAC master key for cached payloads. When
+                omitted the key is resolved from
+                ``GEO_INFER_SERIALIZATION_KEY`` or the per-installation key
+                file.
+            raise_on_untrusted: When True, a read that fails HMAC verification
+                propagates :class:`PayloadSecurityError` to the caller. When
+                False (the default) the poisoned key is evicted, the rejection
+                is logged at error level, and the read reports a cache miss.
+                Either way the payload is never deserialized.
         """
         self.config = get_config()
         self.serializer = serializer
         self.prefix = prefix
+        self.signing_key = signing_key
+        self.raise_on_untrusted = raise_on_untrusted
         self._connect()
 
     def _connect(self) -> None:
@@ -61,42 +94,97 @@ class CacheManager:
 
     def _serialize(self, value: Any) -> Union[str, bytes]:
         """
-        Serialize value for storage.
+        Serialize and sign a value for storage.
+
+        JSON mode produces a text envelope (the Redis client runs with
+        ``decode_responses=True``); pickle mode produces a binary envelope.
 
         Args:
             value: Value to serialize
 
         Returns:
-            Serialized value
+            Authenticated GISP1 envelope carrying the serialized value.
         """
         try:
             if self.serializer == CacheSerializer.JSON:
-                return json.dumps(value)
-            else:
-                return pickle.dumps(value)
+                return dumps_signed_text(
+                    value,
+                    context=CONTEXT_REDIS_CACHE,
+                    key=self.signing_key,
+                    serializer="json",
+                )
+            return dumps_signed(
+                value,
+                context=CONTEXT_REDIS_CACHE,
+                key=self.signing_key,
+                serializer="pickle",
+            )
         except Exception as e:
             logger.error("cache_serialization_failed", error=str(e))
             raise
 
     def _deserialize(self, value: Union[str, bytes]) -> Any:
         """
-        Deserialize value from storage.
+        Verify and deserialize a value read from storage.
+
+        This is the trust boundary: HMAC verification runs before any
+        deserializer touches the payload, so an unsigned or tampered Redis
+        value raises instead of being decoded.
 
         Args:
-            value: Value to deserialize
+            value: Raw value read from Redis
 
         Returns:
-            Deserialized value
+            Deserialized value, or ``None`` when ``value`` is ``None``.
+
+        Raises:
+            PayloadSecurityError: If the payload is not a valid, correctly
+                signed envelope for this cache.
         """
         if value is None:
             return None
         try:
             if self.serializer == CacheSerializer.JSON:
-                return json.loads(value)
-            else:
-                return pickle.loads(value)
+                return loads_signed_text(
+                    value,
+                    context=CONTEXT_REDIS_CACHE,
+                    key=self.signing_key,
+                    serializer="json",
+                )
+            return loads_signed(
+                value,
+                context=CONTEXT_REDIS_CACHE,
+                key=self.signing_key,
+                serializer="pickle",
+            )
+        except PayloadSecurityError as e:
+            logger.error("cache_untrusted_payload_rejected", error=str(e))
+            raise
         except Exception as e:
             logger.error("cache_deserialization_failed", error=str(e))
+            raise
+
+    def _reject_untrusted(self, key: str, full_key: str) -> None:
+        """
+        Handle a payload that failed HMAC verification.
+
+        The poisoned entry is evicted so a later read cannot re-trigger the
+        rejection, and the event is logged at error level. When
+        ``raise_on_untrusted`` is set the exception is re-raised to the caller.
+
+        Args:
+            key: Logical cache key
+            full_key: Prefixed Redis key
+
+        Raises:
+            PayloadSecurityError: Re-raised when ``raise_on_untrusted`` is set.
+        """
+        logger.error("cache_untrusted_payload_evicted", key=key)
+        try:
+            self.redis.delete(full_key)
+        except RedisError as e:
+            logger.error("cache_untrusted_eviction_failed", key=key, error=str(e))
+        if self.raise_on_untrusted:
             raise
 
     def _get_key(self, key: str) -> str:
@@ -129,7 +217,11 @@ class CacheManager:
             if value is None:
                 return default
 
-            return self._deserialize(value)
+            try:
+                return self._deserialize(value)
+            except PayloadSecurityError:
+                self._reject_untrusted(key, full_key)
+                return default
         except RedisError as e:
             logger.error("cache_get_failed", key=key, error=str(e))
             return default
@@ -293,12 +385,14 @@ class CacheManager:
 
             result = {}
             for key, value in zip(keys, values):
-                if value is not None:
-                    try:
-                        result[key] = self._deserialize(value)
-                    except Exception:
-                        logger.warning("cache_deserialization_failed", key=key)
-                        continue
+                if value is None:
+                    continue
+                try:
+                    result[key] = self._deserialize(value)
+                except PayloadSecurityError:
+                    self._reject_untrusted(key, self._get_key(key))
+                except Exception:
+                    logger.warning("cache_deserialization_failed", key=key)
             return result
         except RedisError as e:
             logger.error("cache_get_many_failed", error=str(e))

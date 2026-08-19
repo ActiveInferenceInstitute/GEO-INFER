@@ -6,6 +6,7 @@ Integration workspace within `GEO-INFER-SEC`.
 
 - `__init__.py`
 - `test_sec_integration.py`
+- `test_serialization_security.py`
 
 ## Public Interface
 

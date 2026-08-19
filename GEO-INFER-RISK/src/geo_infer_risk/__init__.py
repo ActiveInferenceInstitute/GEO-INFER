@@ -17,6 +17,8 @@ try:
         HazardModel,
         VulnerabilityModel,
         ExposureModel,
+        MultiHazardInteractionMatrix,
+        calculate_compound_exceedance_probability,
     )
 except ImportError:
     EnhancedRiskEngine = None
@@ -24,6 +26,8 @@ except ImportError:
     HazardModel = None
     VulnerabilityModel = None
     ExposureModel = None
+    MultiHazardInteractionMatrix = None
+    calculate_compound_exceedance_probability = None
 
 # Import specialized risk models (optional)
 try:
@@ -104,6 +108,7 @@ try:
         EnhancedVulnerabilityModel,
         EnhancedCatastropheModel,
         CatastropheConfig,
+        MultiHazardInteractionMatrix,
     )
 
     ENHANCED_CORE_AVAILABLE = True
@@ -198,6 +203,8 @@ __all__ = [
     "HazardModel",
     "VulnerabilityModel",
     "ExposureModel",
+    "MultiHazardInteractionMatrix",
+    "calculate_compound_exceedance_probability",
     "FloodModel",
     "EarthquakeModel",
     "HurricaneModel",

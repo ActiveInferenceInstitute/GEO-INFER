@@ -1,5 +1,12 @@
 """
 Tests for cache management module.
+
+Cached payloads are authenticated GISP1 envelopes (see
+``geo_infer_ops.core.secure_serialization``), so these tests assert the signed
+contract: ``_serialize`` emits an envelope, ``_deserialize`` only accepts one,
+and an unsigned or tampered Redis value is rejected and evicted rather than
+deserialized. The cross-module security contract lives in
+``GEO-INFER-SEC/tests/integration/test_serialization_security.py``.
 """
 import json
 import pickle
@@ -8,6 +15,30 @@ import pytest
 from redis.exceptions import RedisError
 
 from geo_infer_ops.core.cache import CacheManager, CacheSerializer
+from geo_infer_ops.core.secure_serialization import (
+    CONTEXT_REDIS_CACHE,
+    MAGIC,
+    TEXT_PREFIX,
+    PayloadSecurityError,
+    dumps_signed,
+    dumps_signed_text,
+)
+
+SIGNING_KEY = b"ops-cache-unit-test-signing-key!"
+
+
+def signed_json(value):
+    """Return the text envelope a signed cache write would produce."""
+    return dumps_signed_text(
+        value, context=CONTEXT_REDIS_CACHE, key=SIGNING_KEY, serializer="json"
+    )
+
+
+def signed_pickle(value):
+    """Return the binary envelope a signed pickle-mode cache write produces."""
+    return dumps_signed(
+        value, context=CONTEXT_REDIS_CACHE, key=SIGNING_KEY, serializer="pickle"
+    )
 
 @pytest.fixture
 def mock_config():
@@ -38,9 +69,9 @@ def mock_pipeline():
 
 @pytest.fixture
 def cache_manager(mock_config, mock_redis):
-    """Create cache manager instance."""
+    """Create cache manager instance with a deterministic signing key."""
     with patch("geo_infer_ops.core.cache.get_config", return_value=mock_config):
-        manager = CacheManager()
+        manager = CacheManager(signing_key=SIGNING_KEY)
         yield manager
 
 def test_cache_connection_success(cache_manager, mock_redis):
@@ -57,34 +88,40 @@ def test_cache_connection_failure(mock_config, mock_redis):
             CacheManager()
 
 def test_cache_serialization_json(cache_manager):
-    """Test JSON serialization."""
+    """JSON mode emits a signed text envelope, not bare JSON."""
     data = {"key": "value"}
     serialized = cache_manager._serialize(data)
     assert isinstance(serialized, str)
-    assert json.loads(serialized) == data
+    assert serialized.startswith(TEXT_PREFIX)
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(serialized)
+    assert cache_manager._deserialize(serialized) == data
 
 def test_cache_serialization_pickle(cache_manager):
-    """Test pickle serialization."""
+    """Pickle mode emits a signed binary envelope, not a bare pickle."""
     cache_manager.serializer = CacheSerializer.PICKLE
     data = {"key": "value"}
     serialized = cache_manager._serialize(data)
     assert isinstance(serialized, bytes)
-    assert pickle.loads(serialized) == data
+    assert serialized.startswith(MAGIC)
+    with pytest.raises(pickle.UnpicklingError):
+        pickle.loads(serialized)
+    assert cache_manager._deserialize(serialized) == data
 
 def test_cache_deserialization_json(cache_manager):
-    """Test JSON deserialization."""
+    """A signed JSON envelope deserializes; bare JSON is refused."""
     data = {"key": "value"}
-    serialized = json.dumps(data)
-    deserialized = cache_manager._deserialize(serialized)
-    assert deserialized == data
+    assert cache_manager._deserialize(signed_json(data)) == data
+    with pytest.raises(PayloadSecurityError):
+        cache_manager._deserialize(json.dumps(data))
 
 def test_cache_deserialization_pickle(cache_manager):
-    """Test pickle deserialization."""
+    """A signed pickle envelope deserializes; a bare pickle is refused."""
     cache_manager.serializer = CacheSerializer.PICKLE
     data = {"key": "value"}
-    serialized = pickle.dumps(data)
-    deserialized = cache_manager._deserialize(serialized)
-    assert deserialized == data
+    assert cache_manager._deserialize(signed_pickle(data)) == data
+    with pytest.raises(PayloadSecurityError):
+        cache_manager._deserialize(pickle.dumps(data))
 
 def test_cache_deserialization_none(cache_manager):
     """Test deserialization of None value."""
@@ -93,11 +130,31 @@ def test_cache_deserialization_none(cache_manager):
 def test_cache_get_success(cache_manager, mock_redis):
     """Test successful cache get."""
     data = {"key": "value"}
-    mock_redis.get.return_value = json.dumps(data)
-    
+    mock_redis.get.return_value = signed_json(data)
+
     result = cache_manager.get("test_key")
     assert result == data
     mock_redis.get.assert_called_once_with("geo_infer:test_key")
+
+
+def test_cache_get_rejects_unsigned_value(cache_manager, mock_redis):
+    """An unsigned Redis value is reported as a miss and evicted."""
+    mock_redis.get.return_value = json.dumps({"injected": True})
+
+    assert cache_manager.get("test_key", default="MISS") == "MISS"
+    mock_redis.delete.assert_called_once_with("geo_infer:test_key")
+
+
+def test_cache_get_strict_mode_raises_on_unsigned_value(mock_config, mock_redis):
+    """With raise_on_untrusted the rejection propagates to the caller."""
+    mock_redis.get.return_value = json.dumps({"injected": True})
+
+    with patch("geo_infer_ops.core.cache.get_config", return_value=mock_config):
+        manager = CacheManager(signing_key=SIGNING_KEY, raise_on_untrusted=True)
+
+    with pytest.raises(PayloadSecurityError):
+        manager.get("test_key")
+    mock_redis.delete.assert_called_once_with("geo_infer:test_key")
 
 def test_cache_get_missing(cache_manager, mock_redis):
     """Test cache get with missing key."""
@@ -147,7 +204,10 @@ def test_cache_set_with_xx(cache_manager, mock_redis):
     
     result = cache_manager.set("test_key", data, xx=True)
     assert result is True
-    mock_redis.set.assert_called_once_with("geo_infer:test_key", json.dumps(data), xx=True)
+    call_args, call_kwargs = mock_redis.set.call_args
+    assert call_args[0] == "geo_infer:test_key"
+    assert call_args[1].startswith(TEXT_PREFIX)
+    assert call_kwargs == {"xx": True}
 
 def test_cache_delete_success(cache_manager, mock_redis):
     """Test successful cache delete."""
@@ -228,8 +288,8 @@ def test_cache_decrement_success(cache_manager, mock_redis):
 def test_cache_get_many_success(cache_manager, mock_redis):
     """Test successful cache get_many."""
     data = {
-        "key1": json.dumps({"value": 1}),
-        "key2": json.dumps({"value": 2}),
+        "key1": signed_json({"value": 1}),
+        "key2": signed_json({"value": 2}),
         "key3": None
     }
     mock_redis.mget.return_value = list(data.values())
@@ -242,18 +302,19 @@ def test_cache_get_many_success(cache_manager, mock_redis):
     mock_redis.mget.assert_called_once()
 
 def test_cache_get_many_with_invalid_value(cache_manager, mock_redis):
-    """Test get_many with invalid value."""
+    """get_many skips unsigned entries and evicts them."""
     data = {
-        "key1": json.dumps({"value": 1}),
+        "key1": signed_json({"value": 1}),
         "key2": "invalid_json",
         "key3": None
     }
     mock_redis.mget.return_value = list(data.values())
-    
+
     result = cache_manager.get_many(["key1", "key2", "key3"])
     assert result == {
         "key1": {"value": 1}
     }
+    mock_redis.delete.assert_called_once_with("geo_infer:key2")
 
 def test_cache_set_many_success(cache_manager, mock_redis, mock_pipeline):
     """Test successful cache set_many."""

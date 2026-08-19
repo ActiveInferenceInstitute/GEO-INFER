@@ -14,7 +14,7 @@ This module provides sophisticated catastrophe modeling capabilities with:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 from dataclasses import dataclass, field
 import logging
 from datetime import datetime, timedelta
@@ -108,6 +108,226 @@ class CatastropheConfig:
     # Reproducibility: seed for the model's own generator. ``None`` means a
     # fresh generator seeded from OS entropy, so runs are not replayable.
     random_seed: SeedLike = None
+
+
+class MultiHazardInteractionMatrix:
+    """Directed cross-hazard interactions for compound exceedance analysis.
+
+    Rows are source hazards and columns are downstream hazards.  Off-diagonal
+    entries are interaction strengths in ``[-1, 1]``: zero preserves the
+    downstream hazard's marginal exceedance probability, one makes downstream
+    exceedance certain after its source exceeds, and minus one suppresses it.
+    The matrix may be asymmetric, which represents causal chains such as
+    earthquake -> fire-following -> flood rather than an ordinary symmetric
+    loss-correlation matrix.
+
+    Compound probabilities use a first-order Markov chain along the requested
+    hazard sequence.  If ``p_j`` is the marginal probability of the next
+    hazard and ``w_ij`` is its interaction with the preceding hazard, the
+    conditional probability is
+
+    ``p_j + w_ij * (1 - p_j)`` for non-negative interactions, and
+    ``p_j * (1 + w_ij)`` for negative interactions.  Consequently an all-zero
+    interaction matrix exactly recovers independent joint exceedance.
+
+    Parameters
+    ----------
+    hazards : sequence of str
+        Unique hazard names defining matrix row and column order.
+    matrix : array-like of shape (n_hazards, n_hazards), optional
+        Directed interaction strengths.  The default has zero off-diagonal
+        interactions.  Diagonal entries are retained for reporting but are not
+        used in compound paths.
+    """
+
+    def __init__(
+        self,
+        hazards: Sequence[str],
+        matrix: Optional[Sequence[Sequence[float]]] = None,
+    ) -> None:
+        self.hazards = self._validate_hazards(hazards)
+        if matrix is None:
+            self.matrix = np.eye(len(self.hazards), dtype=float)
+        else:
+            self.matrix = self._validate_matrix(matrix, len(self.hazards))
+
+    @staticmethod
+    def _validate_hazards(hazards: Sequence[str]) -> List[str]:
+        """Return normalized unique hazard names."""
+        if isinstance(hazards, (str, bytes)):
+            raise TypeError("hazards must be a sequence of hazard names")
+        normalized = [str(hazard).strip() for hazard in hazards]
+        if not normalized or any(not hazard for hazard in normalized):
+            raise ValueError("hazards must contain at least one non-empty name")
+        if len(set(normalized)) != len(normalized):
+            raise ValueError("hazard names must be unique")
+        return normalized
+
+    @staticmethod
+    def _validate_matrix(
+        matrix: Sequence[Sequence[float]], hazard_count: int
+    ) -> np.ndarray:
+        """Validate a finite square interaction matrix."""
+        values = np.asarray(matrix, dtype=float)
+        if values.shape != (hazard_count, hazard_count):
+            raise ValueError(
+                "interaction matrix must have shape "
+                f"({hazard_count}, {hazard_count})"
+            )
+        if not np.all(np.isfinite(values)):
+            raise ValueError("interaction matrix must contain only finite values")
+        if np.any((values < -1.0) | (values > 1.0)):
+            raise ValueError("interaction strengths must be between -1 and 1")
+        return np.array(values, copy=True)
+
+    @property
+    def hazard_types(self) -> List[str]:
+        """Return the matrix hazard order."""
+        return list(self.hazards)
+
+    @property
+    def interaction_matrix(self) -> np.ndarray:
+        """Return a copy of the directed interaction matrix."""
+        return np.array(self.matrix, copy=True)
+
+    def add_hazard(self, hazard: str) -> None:
+        """Add a hazard while preserving existing matrix entries."""
+        name = str(hazard).strip()
+        if not name:
+            raise ValueError("hazard must be a non-empty name")
+        if name in self.hazards:
+            return
+        expanded = np.zeros(
+            (len(self.hazards) + 1, len(self.hazards) + 1), dtype=float
+        )
+        expanded[:-1, :-1] = self.matrix
+        expanded[-1, -1] = 1.0
+        self.hazards.append(name)
+        self.matrix = expanded
+
+    def set_interaction(self, source: str, target: str, strength: float) -> None:
+        """Set one directed source-to-target interaction strength."""
+        if source not in self.hazards or target not in self.hazards:
+            raise KeyError("source and target must both be configured hazards")
+        value = float(strength)
+        if not np.isfinite(value) or not -1.0 <= value <= 1.0:
+            raise ValueError("interaction strength must be finite and between -1 and 1")
+        self.matrix[self.hazards.index(source), self.hazards.index(target)] = value
+
+    def get_interaction(self, source: str, target: str) -> float:
+        """Return one directed interaction strength."""
+        if source not in self.hazards or target not in self.hazards:
+            raise KeyError("source and target must both be configured hazards")
+        return float(
+            self.matrix[self.hazards.index(source), self.hazards.index(target)]
+        )
+
+    @staticmethod
+    def _validate_probability(probability: float, hazard: str) -> float:
+        """Return one finite probability in the closed unit interval."""
+        value = float(probability)
+        if not np.isfinite(value) or not 0.0 <= value <= 1.0:
+            raise ValueError(
+                f"exceedance probability for {hazard!r} must be between 0 and 1"
+            )
+        return value
+
+    def conditional_exceedance_probability(
+        self,
+        source: str,
+        target: str,
+        target_probability: float,
+    ) -> float:
+        """Adjust a target marginal probability after its source exceeds."""
+        probability = self._validate_probability(target_probability, target)
+        strength = self.get_interaction(source, target)
+        if strength >= 0.0:
+            conditional = probability + strength * (1.0 - probability)
+        else:
+            conditional = probability * (1.0 + strength)
+        return float(np.clip(conditional, 0.0, 1.0))
+
+    def compound_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequence: Optional[Sequence[str]] = None,
+    ) -> float:
+        """Calculate joint exceedance along a directed compound-hazard path.
+
+        Parameters
+        ----------
+        exceedance_probabilities : mapping or sequence of float
+            Marginal annual exceedance probabilities.  A sequence is aligned to
+            ``hazards``; a mapping is keyed by hazard name.
+        hazard_sequence : sequence of str, optional
+            Ordered compound path.  The configured hazard order is used when
+            omitted.
+
+        Returns
+        -------
+        float
+            Joint exceedance estimate in ``[0, 1]``.
+        """
+        if isinstance(exceedance_probabilities, Mapping):
+            probabilities = {
+                hazard: self._validate_probability(probability, hazard)
+                for hazard, probability in exceedance_probabilities.items()
+            }
+        else:
+            values = np.asarray(exceedance_probabilities, dtype=float)
+            if values.ndim != 1 or values.size != len(self.hazards):
+                raise ValueError(
+                    "probability sequence must have one value per configured hazard"
+                )
+            probabilities = {
+                hazard: self._validate_probability(values[index], hazard)
+                for index, hazard in enumerate(self.hazards)
+            }
+
+        sequence = list(self.hazards if hazard_sequence is None else hazard_sequence)
+        if not sequence:
+            raise ValueError("hazard_sequence must contain at least one hazard")
+        if len(set(sequence)) != len(sequence):
+            raise ValueError("hazard_sequence must not repeat hazards")
+        unknown = [hazard for hazard in sequence if hazard not in self.hazards]
+        if unknown:
+            raise KeyError(f"Unknown hazards in sequence: {unknown}")
+        missing = [hazard for hazard in sequence if hazard not in probabilities]
+        if missing:
+            raise KeyError(f"Missing exceedance probabilities for: {missing}")
+
+        compound = probabilities[sequence[0]]
+        for source, target in zip(sequence, sequence[1:]):
+            compound *= self.conditional_exceedance_probability(
+                source, target, probabilities[target]
+            )
+        return float(np.clip(compound, 0.0, 1.0))
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-serializable matrix representation."""
+        return {
+            "hazards": list(self.hazards),
+            "interaction_matrix": self.matrix.tolist(),
+        }
+
+
+def calculate_compound_exceedance_probability(
+    exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+    interaction_matrix: Sequence[Sequence[float]],
+    hazard_types: Optional[Sequence[str]] = None,
+    hazard_sequence: Optional[Sequence[str]] = None,
+) -> float:
+    """Calculate compound exceedance from marginals and an interaction matrix."""
+    if hazard_types is None:
+        if not isinstance(exceedance_probabilities, Mapping):
+            raise ValueError(
+                "hazard_types is required when probabilities are provided as a sequence"
+            )
+        hazard_types = list(exceedance_probabilities)
+    model = MultiHazardInteractionMatrix(hazard_types, interaction_matrix)
+    return model.compound_exceedance_probability(
+        exceedance_probabilities, hazard_sequence
+    )
 
 
 class EnhancedCatastropheModel:
@@ -1443,10 +1663,19 @@ class CatastropheModelManager:
     def __init__(self, config: Optional[CatastropheConfig] = None) -> None:
         self.config = config or CatastropheConfig()
         self._models: Dict[str, EnhancedCatastropheModel] = {}
+        self.hazard_interactions = MultiHazardInteractionMatrix(
+            self.config.event_types
+        )
+
+    @property
+    def models(self) -> Dict[str, EnhancedCatastropheModel]:
+        """Return the live model registry for compatibility with managers."""
+        return self._models
 
     def register_model(self, name: str, model: EnhancedCatastropheModel) -> None:
         """Register a catastrophe model under a given name."""
         self._models[name] = model
+        self.hazard_interactions.add_hazard(name)
 
     def get_model(self, name: str) -> Optional[EnhancedCatastropheModel]:
         """Retrieve a registered model by name."""
@@ -1455,6 +1684,33 @@ class CatastropheModelManager:
     def list_models(self) -> List[str]:
         """Return names of all registered models."""
         return list(self._models.keys())
+
+    def configure_hazard_interactions(
+        self,
+        hazards: Sequence[str],
+        interaction_matrix: Sequence[Sequence[float]],
+    ) -> MultiHazardInteractionMatrix:
+        """Replace the directed multi-hazard interaction matrix."""
+        self.hazard_interactions = MultiHazardInteractionMatrix(
+            hazards, interaction_matrix
+        )
+        return self.hazard_interactions
+
+    def set_hazard_interaction(
+        self, source: str, target: str, strength: float
+    ) -> None:
+        """Set one directed cross-hazard interaction."""
+        self.hazard_interactions.set_interaction(source, target, strength)
+
+    def calculate_compound_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequence: Optional[Sequence[str]] = None,
+    ) -> float:
+        """Calculate compound exceedance using the configured interactions."""
+        return self.hazard_interactions.compound_exceedance_probability(
+            exceedance_probabilities, hazard_sequence
+        )
 
     def run_all(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Run all registered models against the given input data.

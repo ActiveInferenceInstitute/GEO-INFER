@@ -20,6 +20,8 @@ from .catastrophe_models import (
     EnhancedEarthquakeModel,
     EnhancedHurricaneModel,
     EnhancedFloodModel,
+    MultiHazardInteractionMatrix,
+    calculate_compound_exceedance_probability,
     create_enhanced_earthquake_model,
     create_enhanced_hurricane_model,
     create_enhanced_flood_model,
@@ -96,6 +98,8 @@ __all__ = [
     # Enhanced Catastrophe modeling
     "EnhancedCatastropheModel",
     "CatastropheConfig",
+    "MultiHazardInteractionMatrix",
+    "calculate_compound_exceedance_probability",
     "EnhancedEarthquakeCatModel",
     "EnhancedHurricaneCatModel",
     "EnhancedFloodCatModel",

@@ -288,6 +288,25 @@ class TestGreatCircleDistance:
         result = great_circle_distance(coords1, coords2)
         assert result.shape == (2, 3)
 
+
+class TestVectorizedPointInPolygon:
+    """Tests for SIMD/vectorized point-in-polygon containment."""
+
+    def test_vectorized_matches_scalar_ray_casting(self):
+        from geo_infer_math.core.geometry import points_in_polygon_vectorized, point_in_polygon, Point, Polygon
+        poly_x = np.array([0.0, 10.0, 10.0, 0.0, 0.0])
+        poly_y = np.array([0.0, 0.0, 10.0, 10.0, 0.0])
+        polygon = Polygon([Point(x=x, y=y) for x, y in zip(poly_x, poly_y)])
+
+        test_x = np.array([5.0, 15.0, -2.0, 2.0, 8.0, 10.5])
+        test_y = np.array([5.0, 5.0, 2.0, 8.0, 2.0, 10.0])
+
+        vec_res = points_in_polygon_vectorized(test_x, test_y, poly_x, poly_y)
+        scalar_res = np.array([point_in_polygon(Point(x=x, y=y), polygon) for x, y in zip(test_x, test_y)])
+
+        assert np.array_equal(vec_res, scalar_res)
+        assert np.array_equal(vec_res, [True, False, False, True, True, False])
+
     def test_self_distance_zero(self):
         coords = np.array([[40.0, -74.0]])
         result = great_circle_distance(coords, coords)

@@ -29,6 +29,7 @@ Core workspace within `GEO-INFER-MATH`.
 - `geometry.py:bearing` (function)
 - `geometry.py:destination_point` (function)
 - `geometry.py:point_in_polygon` (function)
+- `geometry.py:points_in_polygon_vectorized` (function)
 - `geometry.py:buffer_point` (function)
 - `geometry.py:line_intersection` (function)
 - `geometry.py:polygon_area_spherical` (function)
@@ -40,7 +41,6 @@ Core workspace within `GEO-INFER-MATH`.
 - `gpu_acceleration.py:gpu_matrix_multiply` (function)
 - `gpu_acceleration.py:gpu_distance_matrix` (function)
 - `gpu_acceleration.py:gpu_spatial_interpolation` (function)
-- `graph_theory.py:GraphNode` (class)
 
 ## Module Metadata
 

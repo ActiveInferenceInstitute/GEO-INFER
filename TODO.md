@@ -13,7 +13,6 @@
 | ID | Module / Package | Scope | Description & Acceptance Criteria |
 |---|---|---|---|
 | **ARCH-01** | `GEO-INFER-CORE` / Monorepo | Platform Wheel Distribution & Packaging | Implement unified multi-package wheel release pipeline in GitHub Actions with PyPI namespace validation. Verify package configuration discovery across isolated virtual environments without reliance on `__file__` traversal. |
-| **SPM-01** | `GEO-INFER-SPM` | Random Field Theory Full Cluster Extents | Extend first-order excursion approximation in RFT (`rft.py`) to full Gaussian Random Field Euler Characteristic and topological cluster-extent inference with validated FWE (Family-Wise Error) control under known-null Monte Carlo simulations. |
 | **SEC-01** | `GEO-INFER-SEC` / `DATA` / `GIT` | Cryptographic Provenance & Serialization Hardening | Define explicit HMAC/signature verification on serialized state caches and model checkpoints (AG, AI, DATA, GIT, OPS) to enforce hardened trusted-data boundaries before deserialization. |
 
 ### Medium Scope
@@ -22,8 +21,6 @@
 |---|---|---|---|
 | **SPACE-01** | `GEO-INFER-SPACE` | SRAI & GPU Spatial Kernel Bindings | Add optional CUDA/JAX GPU-accelerated spatial joins and H3 distance kernels while preserving zero-dependency CPU fallback semantics. |
 | **TIME-01** | `GEO-INFER-TIME` | Online Spatiotemporal Streaming Pipelines | Add native WebSocket/Kafka stream ingest adapters to `StreamProcessor` with bounded watermarking, session windowing, and automated sliding-window anomaly alerts. |
-| **BAYES-01** | `GEO-INFER-BAYES` | Variational Sparse Gaussian Processes | Implement inducing-point Sparse Spatial GP regression for datasets with $N > 10,000$ spatial coordinates with automated variational ELBO optimization. |
-| **RISK-01** | `GEO-INFER-RISK` | Dynamic Multi-Hazard Interaction Matrices | Expand catastrophe modeling cross-hazard correlation matrices (earthquake $\rightarrow$ fire-following $\rightarrow$ flood) with compound joint exceedance probability estimation. |
 | **ACT-01** | `GEO-INFER-ACT` | Continuous POMDP Active Inference | Bridge discrete categorical active inference models to continuous-time Gaussian filter Active Inference for high-frequency robotic and sensor tracking. |
 
 ### Minor Scope
@@ -40,7 +37,10 @@
 
 ## ✅ Completed & Verified Work (Audit Log)
 
-1. **REPRO-01 (Completed)**: Seed-isolated `np.random.Generator` instances implemented across `GEO-INFER-RISK` (`rng.py`), `GEO-INFER-BAYES` (`rng.py`), `GEO-INFER-MATH` (`rng.py`), and `GEO-INFER-SPM` (`rng.py`), removing global random state mutation.
+1. **REPRO-01 (Completed)**: Explicit seeds use isolated `np.random.Generator` instances across `GEO-INFER-RISK` (`rng.py`), `GEO-INFER-BAYES` (`rng.py`), `GEO-INFER-MATH` (`rng.py`), and `GEO-INFER-SPM` (`rng.py`); unseeded SPM helpers retain their documented behavior, including the legacy global stream where promised.
 2. **PLACE-V14 (Completed)**: Authoritative GeoJSON layers sourced, structured, and verified for Cascadia volcanoes (12 Cascade Arc stratovolcanoes), Cascadia Subduction Zone (megathrust boundary), major watersheds (Columbia, Fraser, Puget Sound, Oregon Coast), and bioregion boundary. Full pipeline verified (18/18 tests pass).
 3. **SUPPLY-01 (Completed)**: Cleaned all installation references to point to verified editable installs (`uv pip install -e ./GEO-INFER-<MODULE>`).
 4. **H3 v4.5 Composition (Completed)**: Implemented end-to-end multi-module composition suite (`test_h3_space_time_bayes_risk_act_composition.py`) connecting H3 spatial grids to `TIME`, `BAYES`, `RISK`, and `ACT`.
+5. **BAYES-01 (Completed)**: Added batched inducing-point `SparseSpatialGP` regression with collapsed variational ELBO optimization, finite posterior uncertainty, and a 10,001-observation no-dense-covariance regression test.
+6. **RISK-01 (Completed)**: Added directed multi-hazard interaction matrices and engine-level compound exceedance calculation for ordered hazard chains including earthquake to fire-following to flood.
+7. **SPM-01 (Completed)**: Added full Gaussian Euler-characteristic inference across all boundary resel dimensions, peak FWE thresholds, topological cluster-extent FWE p-values, closed-form unit contracts, and fixed-seed known-null Monte Carlo calibration for both peak and cluster inference.

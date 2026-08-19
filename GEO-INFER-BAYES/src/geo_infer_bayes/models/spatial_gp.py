@@ -6,8 +6,9 @@ from contextlib import contextmanager
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
-from scipy.spatial.distance import cdist
 from scipy.linalg import cholesky, solve_triangular
+from scipy.optimize import OptimizeResult, minimize
+from scipy.spatial.distance import cdist
 
 from .base import BayesianModel
 from ._model_utils import posterior_draw_indices
@@ -618,3 +619,488 @@ class SpatialGP(BayesianModel):
                 log_prior += -np.log(high - low)
 
         return log_prior
+
+
+class SparseSpatialGP(SpatialGP):
+    """Variational inducing-point Gaussian process for large spatial datasets.
+
+    The model uses the collapsed variational bound for a Gaussian likelihood
+    described by Titsias (2009).  Its fit cost is
+    :math:`O(NM^2 + M^3)` for ``N`` observations and ``M`` inducing points,
+    and it never constructs an ``N`` by ``N`` covariance matrix.  Sufficient
+    statistics are accumulated in batches so the working memory is bounded by
+    ``batch_size * M``.
+
+    Parameters
+    ----------
+    inducing_points : array-like of shape (n_inducing, n_features), optional
+        Fixed inducing-point locations.  When omitted, deterministic maximin
+        locations are selected from the training inputs.
+    n_inducing : int, default=100
+        Number of locations to select when ``inducing_points`` is omitted.
+    optimize_hyperparameters : bool, default=True
+        Optimize lengthscale, signal variance, and observation-noise variance
+        by maximizing the collapsed evidence lower bound during :meth:`fit`.
+    max_iter : int, default=50
+        Maximum L-BFGS-B iterations used for ELBO optimization.
+    batch_size : int, default=2048
+        Number of observations used for each sufficient-statistic update.
+    **kwargs
+        Kernel and mean-function arguments accepted by :class:`SpatialGP`.
+
+    Notes
+    -----
+    ``noise`` is an observation-noise *variance*, matching :class:`SpatialGP`.
+    The fitted variational distribution is exposed as
+    ``variational_mean_`` and ``variational_covariance_`` in the original
+    inducing-variable coordinates.
+    """
+
+    def __init__(
+        self,
+        inducing_points: Optional[np.ndarray] = None,
+        n_inducing: int = 100,
+        optimize_hyperparameters: bool = True,
+        max_iter: int = 50,
+        batch_size: int = 2048,
+        **kwargs: Any,
+    ) -> None:
+        # Accept the common spelling used by some GP libraries without leaking
+        # it through to BayesianModel._setup_model().
+        alias_count = kwargs.pop("num_inducing", None)
+        if alias_count is None:
+            alias_count = kwargs.pop("n_inducing_points", None)
+        if alias_count is not None:
+            if n_inducing != 100 and int(alias_count) != n_inducing:
+                raise ValueError("Conflicting inducing-point counts were provided")
+            n_inducing = int(alias_count)
+
+        alias_locations = kwargs.pop("inducing_locations", None)
+        if inducing_points is not None and alias_locations is not None:
+            raise ValueError(
+                "Use only one of inducing_points and inducing_locations"
+            )
+        if inducing_points is None:
+            inducing_points = alias_locations
+
+        if isinstance(n_inducing, (bool, np.bool_)) or not isinstance(
+            n_inducing, (int, np.integer)
+        ):
+            raise TypeError("n_inducing must be an integer")
+        if int(n_inducing) < 1:
+            raise ValueError("n_inducing must be greater than zero")
+        if isinstance(max_iter, (bool, np.bool_)) or not isinstance(
+            max_iter, (int, np.integer)
+        ):
+            raise TypeError("max_iter must be an integer")
+        if int(max_iter) < 1:
+            raise ValueError("max_iter must be greater than zero")
+        if isinstance(batch_size, (bool, np.bool_)) or not isinstance(
+            batch_size, (int, np.integer)
+        ):
+            raise TypeError("batch_size must be an integer")
+        if int(batch_size) < 1:
+            raise ValueError("batch_size must be greater than zero")
+
+        self.inducing_points = (
+            None
+            if inducing_points is None
+            else np.asarray(inducing_points, dtype=float)
+        )
+        self.n_inducing = int(n_inducing)
+        self.optimize_hyperparameters = bool(optimize_hyperparameters)
+        self.max_iter = int(max_iter)
+        self.batch_size = int(batch_size)
+
+        self.inducing_points_: Optional[np.ndarray] = None
+        self.n_inducing_: Optional[int] = None
+        self.variational_mean_: Optional[np.ndarray] = None
+        self.variational_covariance_: Optional[np.ndarray] = None
+        self.elbo_: Optional[float] = None
+        self.initial_elbo_: Optional[float] = None
+        self.elbo_history_: List[float] = []
+        self.optimization_result_: Optional[OptimizeResult] = None
+        self._inducing_cholesky: Optional[np.ndarray] = None
+        self._whitened_mean: Optional[np.ndarray] = None
+        self._whitened_covariance: Optional[np.ndarray] = None
+
+        super().__init__(**kwargs)
+        self.name = "SparseSpatialGP"
+
+    @staticmethod
+    def _validate_training_data(
+        X: np.ndarray, y: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Return finite, aligned training arrays."""
+        X_array = np.asarray(X, dtype=float)
+        if X_array.ndim == 1:
+            X_array = X_array[:, None]
+        if X_array.ndim != 2 or X_array.shape[0] == 0:
+            raise ValueError("X must be a non-empty one- or two-dimensional array")
+        if not np.all(np.isfinite(X_array)):
+            raise ValueError("X must contain only finite values")
+
+        y_array = np.asarray(y, dtype=float)
+        if y_array.ndim != 1:
+            raise ValueError("y must be one-dimensional")
+        if y_array.shape[0] != X_array.shape[0]:
+            raise ValueError("X and y must contain the same number of observations")
+        if not np.all(np.isfinite(y_array)):
+            raise ValueError("y must contain only finite values")
+        return X_array, y_array
+
+    def _mean_values(self, X: np.ndarray) -> np.ndarray:
+        """Evaluate and validate the configured mean function."""
+        values = np.asarray(self.mean_function(X), dtype=float)
+        if values.ndim == 0:
+            values = np.full(X.shape[0], float(values))
+        values = values.reshape(-1)
+        if values.shape != (X.shape[0],) or not np.all(np.isfinite(values)):
+            raise ValueError(
+                "mean_function must return one finite value per input row"
+            )
+        return values
+
+    def _resolve_inducing_points(self, X: np.ndarray) -> np.ndarray:
+        """Validate supplied locations or select deterministic maximin points."""
+        if self.inducing_points is not None:
+            locations = np.asarray(self.inducing_points, dtype=float)
+            if locations.ndim == 1:
+                if X.shape[1] == 1:
+                    locations = locations[:, None]
+                elif locations.size == X.shape[1]:
+                    locations = locations[None, :]
+            if locations.ndim != 2 or locations.shape[0] == 0:
+                raise ValueError("inducing_points must contain at least one location")
+            if locations.shape[1] != X.shape[1]:
+                raise ValueError(
+                    "inducing_points must have the same feature dimension as X"
+                )
+            if not np.all(np.isfinite(locations)):
+                raise ValueError("inducing_points must contain only finite values")
+            return np.array(locations, copy=True)
+
+        count = min(self.n_inducing, X.shape[0])
+        if count == X.shape[0]:
+            return np.array(X, copy=True)
+
+        # Start near the data centroid, then repeatedly choose the point farthest
+        # from the selected set.  This provides deterministic spatial coverage
+        # without introducing a clustering dependency or an N-by-N distance
+        # matrix.
+        centroid = np.mean(X, axis=0)
+        first = int(np.argmin(np.sum((X - centroid) ** 2, axis=1)))
+        selected = np.empty(count, dtype=int)
+        selected[0] = first
+        min_sq_distance = np.sum((X - X[first]) ** 2, axis=1)
+        min_sq_distance[first] = -np.inf
+
+        for index in range(1, count):
+            next_point = int(np.argmax(min_sq_distance))
+            selected[index] = next_point
+            candidate_distance = np.sum((X - X[next_point]) ** 2, axis=1)
+            min_sq_distance = np.minimum(min_sq_distance, candidate_distance)
+            min_sq_distance[selected[: index + 1]] = -np.inf
+
+        return np.array(X[selected], copy=True)
+
+    def _validate_positive_hyperparameters(self) -> None:
+        """Reject invalid kernel parameters before linear algebra begins."""
+        for name in ("lengthscale", "variance", "noise", "jitter"):
+            value = float(getattr(self, name))
+            if not np.isfinite(value) or value <= 0.0:
+                raise ValueError(f"{name} must be finite and greater than zero")
+
+    def _collapsed_elbo(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        inducing_points: np.ndarray,
+        *,
+        return_posterior: bool = False,
+    ) -> Tuple[float, Optional[Dict[str, np.ndarray]]]:
+        """Evaluate the Gaussian collapsed variational evidence lower bound."""
+        self._validate_positive_hyperparameters()
+        count = inducing_points.shape[0]
+        K_mm = self.kernel_fn(inducing_points, inducing_points)
+        K_mm = np.asarray(K_mm, dtype=float)
+        K_mm += np.eye(count) * self.jitter
+        L_mm = cholesky(K_mm, lower=True, check_finite=False)
+
+        gram = np.zeros((count, count), dtype=float)
+        cross = np.zeros(count, dtype=float)
+        projected_trace = 0.0
+        residual_sum_squares = 0.0
+
+        for start in range(0, X.shape[0], self.batch_size):
+            stop = min(start + self.batch_size, X.shape[0])
+            X_batch = X[start:stop]
+            residual = y[start:stop] - self._mean_values(X_batch)
+            K_mn = self.kernel_fn(inducing_points, X_batch)
+            projected = solve_triangular(
+                L_mm, K_mn, lower=True, check_finite=False
+            )
+            gram += projected @ projected.T
+            cross += projected @ residual
+            projected_trace += float(np.sum(projected**2))
+            residual_sum_squares += float(residual @ residual)
+
+        noise = float(self.noise)
+        B = np.eye(count) + gram / noise
+        L_b = cholesky(B, lower=True, check_finite=False)
+        scaled_cross = cross / noise
+        solved_cross = solve_triangular(
+            L_b, scaled_cross, lower=True, check_finite=False
+        )
+
+        # Every supported stationary kernel has k(x, x) == variance.  Avoiding
+        # kernel_fn(X, X) here is the key large-N memory invariant.
+        trace_residual = max(
+            0.0, X.shape[0] * float(self.variance) - projected_trace
+        )
+        bound = -0.5 * X.shape[0] * np.log(2.0 * np.pi * noise)
+        bound -= float(np.sum(np.log(np.diag(L_b))))
+        bound -= 0.5 * residual_sum_squares / noise
+        bound += 0.5 * float(solved_cross @ solved_cross)
+        bound -= 0.5 * trace_residual / noise
+
+        if not return_posterior:
+            return float(bound), None
+
+        whitened_mean = solve_triangular(
+            L_b.T, solved_cross, lower=False, check_finite=False
+        )
+        inverse_factor = solve_triangular(
+            L_b, np.eye(count), lower=True, check_finite=False
+        )
+        whitened_covariance = inverse_factor.T @ inverse_factor
+        variational_mean = L_mm @ whitened_mean
+        variational_covariance = L_mm @ whitened_covariance @ L_mm.T
+        posterior = {
+            "inducing_cholesky": L_mm,
+            "whitened_mean": whitened_mean,
+            "whitened_covariance": whitened_covariance,
+            "variational_mean": variational_mean,
+            "variational_covariance": variational_covariance,
+        }
+        return float(bound), posterior
+
+    def fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        *,
+        optimize: Optional[bool] = None,
+    ) -> "SparseSpatialGP":
+        """Fit the sparse GP and optimize its collapsed variational ELBO."""
+        X_array, y_array = self._validate_training_data(X, y)
+        locations = self._resolve_inducing_points(X_array)
+        self._validate_positive_hyperparameters()
+
+        self.X_train = X_array
+        self.y_train = y_array
+        self.inducing_points_ = locations
+        self.n_inducing_ = locations.shape[0]
+        # An exact N-by-N Cholesky factor is deliberately never populated.
+        self.L = None
+
+        initial_parameters = np.log(
+            np.asarray([self.lengthscale, self.variance, self.noise], dtype=float)
+        )
+        initial_elbo, _ = self._collapsed_elbo(X_array, y_array, locations)
+        self.initial_elbo_ = initial_elbo
+        best_parameters = np.array(initial_parameters, copy=True)
+        best_elbo = initial_elbo
+
+        should_optimize = (
+            self.optimize_hyperparameters if optimize is None else bool(optimize)
+        )
+        if should_optimize:
+
+            def objective(log_parameters: np.ndarray) -> float:
+                nonlocal best_elbo, best_parameters
+                self.lengthscale, self.variance, self.noise = np.exp(log_parameters)
+                try:
+                    candidate, _ = self._collapsed_elbo(
+                        X_array, y_array, locations
+                    )
+                except (ValueError, np.linalg.LinAlgError, FloatingPointError):
+                    return np.finfo(float).max / 100.0
+                if np.isfinite(candidate) and candidate > best_elbo:
+                    best_elbo = candidate
+                    best_parameters = np.array(log_parameters, copy=True)
+                return -candidate if np.isfinite(candidate) else np.finfo(float).max / 100.0
+
+            # Log-space optimization preserves positivity.  The broad finite
+            # bounds prevent overflow while allowing units from degrees to
+            # projected metres and target scales from tiny to very large.
+            self.optimization_result_ = minimize(
+                objective,
+                initial_parameters,
+                method="L-BFGS-B",
+                bounds=[(-18.0, 18.0)] * 3,
+                options={"maxiter": self.max_iter},
+            )
+        else:
+            self.optimization_result_ = None
+
+        self.lengthscale, self.variance, self.noise = np.exp(best_parameters)
+        final_elbo, posterior = self._collapsed_elbo(
+            X_array, y_array, locations, return_posterior=True
+        )
+        if posterior is None:  # Defensive: return_posterior=True guarantees it.
+            raise RuntimeError("Variational posterior construction failed")
+
+        self.elbo_ = final_elbo
+        self.elbo_history_ = [initial_elbo, final_elbo]
+        self._inducing_cholesky = posterior["inducing_cholesky"]
+        self._whitened_mean = posterior["whitened_mean"]
+        self._whitened_covariance = posterior["whitened_covariance"]
+        self.variational_mean_ = posterior["variational_mean"]
+        self.variational_covariance_ = posterior["variational_covariance"]
+        # Non-suffixed aliases make the variational parameters convenient in
+        # exploratory workflows while retaining sklearn-style fitted names.
+        self.variational_mean = self.variational_mean_
+        self.variational_covariance = self.variational_covariance_
+        return self
+
+    def _sparse_fitted_state(
+        self,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Return inducing locations and the whitened variational posterior."""
+        if (
+            self.inducing_points_ is None
+            or self._inducing_cholesky is None
+            or self._whitened_mean is None
+            or self._whitened_covariance is None
+        ):
+            raise ValueError("Model has not been fitted. Call fit() first.")
+        return (
+            self.inducing_points_,
+            self._inducing_cholesky,
+            self._whitened_mean,
+            self._whitened_covariance,
+        )
+
+    def predict(
+        self,
+        X_new: np.ndarray,
+        posterior: Any = None,
+        samples: int = 100,
+        return_std: bool = False,
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """Predict from the fitted inducing-point variational posterior."""
+        del samples
+        if posterior is not None:
+            raise ValueError(
+                "SparseSpatialGP uses its fitted variational posterior; "
+                "posterior must be None"
+            )
+        X_array = np.asarray(X_new, dtype=float)
+        if X_array.ndim == 1:
+            X_array = X_array[:, None]
+        if X_array.ndim != 2 or X_array.shape[0] == 0:
+            raise ValueError("X_new must contain at least one input row")
+        if not np.all(np.isfinite(X_array)):
+            raise ValueError("X_new must contain only finite values")
+
+        locations, L_mm, whitened_mean, whitened_covariance = (
+            self._sparse_fitted_state()
+        )
+        if X_array.shape[1] != locations.shape[1]:
+            raise ValueError("X_new has a different feature dimension from training data")
+
+        means: List[np.ndarray] = []
+        variances: List[np.ndarray] = []
+        for start in range(0, X_array.shape[0], self.batch_size):
+            stop = min(start + self.batch_size, X_array.shape[0])
+            X_batch = X_array[start:stop]
+            K_mx = self.kernel_fn(locations, X_batch)
+            projected = solve_triangular(
+                L_mm, K_mx, lower=True, check_finite=False
+            )
+            means.append(self._mean_values(X_batch) + projected.T @ whitened_mean)
+            if return_std:
+                prior_residual = float(self.variance) - np.sum(projected**2, axis=0)
+                posterior_component = np.sum(
+                    projected * (whitened_covariance @ projected), axis=0
+                )
+                variances.append(
+                    np.clip(prior_residual + posterior_component, self.jitter, np.inf)
+                )
+
+        mean = np.asarray(np.concatenate(means), dtype=float)
+        if not return_std:
+            return mean
+        variance = np.concatenate(variances)
+        return mean, np.asarray(np.sqrt(variance), dtype=float)
+
+    def evidence_lower_bound(
+        self,
+        X: Optional[np.ndarray] = None,
+        y: Optional[np.ndarray] = None,
+    ) -> float:
+        """Return the collapsed ELBO at current hyperparameters."""
+        if X is None and y is None:
+            if self.elbo_ is None:
+                raise ValueError("Model has not been fitted. Call fit() first.")
+            return float(self.elbo_)
+        if X is None or y is None:
+            raise ValueError("X and y must be provided together")
+        X_array, y_array = self._validate_training_data(X, y)
+        locations = (
+            self.inducing_points_
+            if self.inducing_points_ is not None
+            else self._resolve_inducing_points(X_array)
+        )
+        bound, _ = self._collapsed_elbo(X_array, y_array, locations)
+        return bound
+
+    def compute_elbo(
+        self,
+        X: Optional[np.ndarray] = None,
+        y: Optional[np.ndarray] = None,
+    ) -> float:
+        """Alias for :meth:`evidence_lower_bound`."""
+        return self.evidence_lower_bound(X, y)
+
+    def log_likelihood(
+        self, theta: Dict[str, Any], data: Dict[str, np.ndarray]
+    ) -> float:
+        """Use the sparse variational bound as the large-N likelihood proxy."""
+        X_array, y_array = self._validate_training_data(data["X"], data["y"])
+        locations = (
+            self.inducing_points_
+            if self.inducing_points_ is not None
+            else self._resolve_inducing_points(X_array)
+        )
+        with self._parameters_from(theta):
+            bound, _ = self._collapsed_elbo(X_array, y_array, locations)
+        return bound
+
+    def posterior_predictive(
+        self,
+        posterior: Any = None,
+        X: Optional[np.ndarray] = None,
+        samples: int = 100,
+        random_seed: SeedLike = None,
+    ) -> np.ndarray:
+        """Draw observations from the fitted sparse variational posterior."""
+        if posterior is not None:
+            raise ValueError(
+                "SparseSpatialGP uses its fitted variational posterior; "
+                "posterior must be None"
+            )
+        if not isinstance(samples, (int, np.integer)) or samples < 1:
+            raise ValueError("samples must be a positive integer")
+        if X is None:
+            if self.X_train is None:
+                raise ValueError("Model has not been fitted. Call fit() first.")
+            X = self.X_train
+        mean, std = self.predict(X, return_std=True)
+        rng = resolve_rng(random_seed)
+        observation_std = np.sqrt(std**2 + float(self.noise))
+        return np.asarray(
+            rng.normal(mean, observation_std, size=(int(samples), mean.size)),
+            dtype=float,
+        )
