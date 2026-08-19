@@ -8,6 +8,7 @@ Bayesian inference when likelihood functions are intractable.
 import numpy as np
 from typing import Dict, Any, Optional, Union, List, Callable
 import logging
+from ..utils.rng import SeedLike, resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +23,11 @@ class ApproximateBayesianComputation:
 
     def __init__(
         self,
-        model,
+        model: Any,
         distance_metric: str = "euclidean",
         tolerance: float = 0.1,
         n_samples: int = 10000,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ):
         """
         Initialize the ABC sampler.
@@ -36,7 +37,10 @@ class ApproximateBayesianComputation:
             distance_metric: Distance metric for comparing simulated and observed data
             tolerance: Tolerance for accepting samples
             n_samples: Number of ABC samples to generate
-            random_seed: Random seed for reproducibility
+            random_seed: Seed or generator for every draw this sampler
+                makes. ``None`` (default) means a generator seeded from OS
+                entropy, so the run is not replayable; pass an int to replay
+                it. See :func:`geo_infer_bayes.utils.rng.resolve_rng`.
         """
         valid_metrics = {"euclidean", "manhattan", "mahalanobis"}
         if distance_metric.lower() not in valid_metrics:
@@ -50,7 +54,7 @@ class ApproximateBayesianComputation:
         self.tolerance = float(tolerance)
         self.n_samples = int(n_samples)
         self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.rng: np.random.Generator = resolve_rng(random_seed)
 
     def run(
         self,
@@ -58,7 +62,7 @@ class ApproximateBayesianComputation:
         simulator: Optional[Callable] = None,
         progress_bar: bool = True,
         prior_samples: Optional[Union[Dict[str, np.ndarray], Any]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Run ABC sampling for the model.
@@ -212,7 +216,7 @@ class ApproximateBayesianComputation:
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], Any],
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Update ABC samples with new data.

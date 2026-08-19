@@ -6,7 +6,8 @@ Bayesian inference, particularly useful for sequential data.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Union, List
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class SequentialMonteCarlo:
@@ -19,10 +20,10 @@ class SequentialMonteCarlo:
 
     def __init__(
         self,
-        model,
+        model: Any,
         n_particles: int = 1000,
         resampling_threshold: float = 0.5,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ):
         """
         Initialize the SMC sampler.
@@ -31,7 +32,10 @@ class SequentialMonteCarlo:
             model: The model to perform inference on
             n_particles: Number of particles for SMC
             resampling_threshold: ESS threshold for resampling
-            random_seed: Random seed for reproducibility
+            random_seed: Seed or generator for every draw this sampler
+                makes. ``None`` (default) means a generator seeded from OS
+                entropy, so the run is not replayable; pass an int to replay
+                it. See :func:`geo_infer_bayes.utils.rng.resolve_rng`.
         """
         if not isinstance(n_particles, (int, np.integer)) or n_particles < 1:
             raise ValueError("n_particles must be a positive integer")
@@ -41,10 +45,14 @@ class SequentialMonteCarlo:
         self.n_particles = int(n_particles)
         self.resampling_threshold = float(resampling_threshold)
         self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.rng: np.random.Generator = resolve_rng(random_seed)
 
     def run(
-        self, data: Any, n_steps: int = 100, progress_bar: bool = True, **kwargs
+        self,
+        data: Any,
+        n_steps: int = 100,
+        progress_bar: bool = True,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Run SMC sampling for the model.
@@ -124,7 +132,7 @@ class SequentialMonteCarlo:
             raise ValueError("particle weights must be finite and non-negative")
         weights = weights / np.sum(weights)
 
-        return 1.0 / np.sum(weights**2)
+        return float(1.0 / np.sum(weights**2))
 
     def _resample_particles(
         self, particles: List[Dict[str, float]]
@@ -235,7 +243,7 @@ class SequentialMonteCarlo:
         self,
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], Any],
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], Any]:
         """
         Update particles with new data.

@@ -16,9 +16,11 @@ Unit workspace within `GEO-INFER-BAYES`.
 - `test_model_comparison.py`
 - `test_model_contracts.py`
 - `test_posterior.py`
+- `test_posterior_prediction.py`
 - `test_priors.py`
 - `test_psis_loo_contract.py`
 - `test_reproducibility.py`
+- `test_rng.py`
 - `test_spatial_gp.py`
 - `test_spatiotemporal_gp.py`
 - `test_variational.py`

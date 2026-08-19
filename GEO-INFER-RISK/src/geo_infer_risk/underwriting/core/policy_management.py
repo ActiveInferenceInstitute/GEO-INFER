@@ -19,7 +19,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 
-import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -223,7 +222,7 @@ class Policy:
 class PolicyLifecycle:
     """Manages the complete lifecycle of insurance policies."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.states = {
             PolicyStatus.QUOTED: self._handle_quoted,
             PolicyStatus.BOUND: self._handle_bound,
@@ -236,7 +235,11 @@ class PolicyLifecycle:
         }
 
     def transition_policy(
-        self, policy: Policy, new_status: PolicyStatus, reason: str = "", **kwargs
+        self,
+        policy: Policy,
+        new_status: PolicyStatus,
+        reason: str = "",
+        **kwargs: Any,
     ) -> bool:
         """
         Transition policy to new status.
@@ -273,7 +276,7 @@ class PolicyLifecycle:
             logger.error(f"Policy transition failed: {e}")
             return False
 
-    def _handle_quoted(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_quoted(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy in quoted status."""
         # Validate quote requirements
         if policy.total_premium <= 0:
@@ -282,7 +285,7 @@ class PolicyLifecycle:
 
         return True
 
-    def _handle_bound(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_bound(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy binding."""
         # Validate binding requirements
         if not policy.coverages:
@@ -294,7 +297,7 @@ class PolicyLifecycle:
 
         return True
 
-    def _handle_active(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_active(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy activation."""
         # Policy becomes active when effective date is reached
         now = datetime.now()
@@ -304,7 +307,7 @@ class PolicyLifecycle:
 
         return True
 
-    def _handle_renewed(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_renewed(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy renewal."""
         # Extend expiration date
         renewal_term = kwargs.get("renewal_term_months", policy.term_months)
@@ -314,7 +317,7 @@ class PolicyLifecycle:
 
         return True
 
-    def _handle_cancelled(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_cancelled(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy cancellation."""
         # Calculate refund if applicable
         cancellation_date = kwargs.get("cancellation_date", datetime.now())
@@ -327,13 +330,13 @@ class PolicyLifecycle:
 
         return True
 
-    def _handle_expired(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_expired(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy expiration."""
         # Mark as expired
         policy.metadata["expired_at"] = datetime.now().isoformat()
         return True
 
-    def _handle_suspended(self, policy: Policy, reason: str, **kwargs) -> bool:
+    def _handle_suspended(self, policy: Policy, reason: str, **kwargs: Any) -> bool:
         """Handle policy suspension."""
         # Record suspension reason
         policy.metadata["suspension_reason"] = reason
@@ -341,7 +344,7 @@ class PolicyLifecycle:
         return True
 
     def _handle_pending_cancellation(
-        self, policy: Policy, reason: str, **kwargs
+        self, policy: Policy, reason: str, **kwargs: Any
     ) -> bool:
         """Handle pending cancellation status."""
         # Set cancellation effective date
@@ -458,10 +461,18 @@ class PolicyManager:
         return policy
 
     def _generate_policy_number(self) -> str:
-        """Generate unique policy number."""
-        timestamp = int(time.time())
-        random_suffix = np.random.randint(1000, 9999)
-        return f"POL{timestamp}{random_suffix}"
+        """Generate a collision-resistant policy number.
+
+        The suffix comes from :mod:`uuid`, not from a seeded generator: the
+        four-digit random suffix this replaces admitted only 9000 values per
+        timestamp second, so bulk policy creation collided in practice.
+        Identifier uniqueness is a correctness property and must not depend on
+        a reproducible simulation seed.
+
+        Returns:
+            A policy number of the form ``POL<unix-seconds><12 hex digits>``.
+        """
+        return f"POL{int(time.time())}{uuid.uuid4().hex[:12].upper()}"
 
     def _determine_risk_tier(self, risk_score: float) -> str:
         """Determine risk tier from risk score."""
@@ -787,13 +798,13 @@ class PolicyManager:
         average_premium = total_premium / len(policies) if policies else 0
 
         # Risk tier distribution
-        risk_tiers = {}
+        risk_tiers: Dict[str, Any] = {}
         for policy in policies:
             tier = policy.risk_tier
             risk_tiers[tier] = risk_tiers.get(tier, 0) + 1
 
         # Status distribution
-        status_counts = {}
+        status_counts: Dict[str, Any] = {}
         for policy in policies:
             status = policy.status.value
             status_counts[status] = status_counts.get(status, 0) + 1
@@ -856,14 +867,14 @@ class PolicyManager:
         )
 
         # Update status distribution
-        status_counts = {}
+        status_counts: Dict[str, Any] = {}
         for policy in policies:
             status = policy.status.value
             status_counts[status] = status_counts.get(status, 0) + 1
         self.performance_metrics["policies_by_status"] = status_counts
 
         # Update risk tier distribution
-        tier_counts = {}
+        tier_counts: Dict[str, Any] = {}
         for policy in policies:
             tier = policy.risk_tier
             tier_counts[tier] = tier_counts.get(tier, 0) + 1

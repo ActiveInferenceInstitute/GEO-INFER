@@ -28,22 +28,96 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_bayes.core.bayesian_inference import BayesianModel
-from geo_infer_bayes.core.gaussian_process import GaussianProcess
+from geo_infer_bayes.core.inference import BayesianInference
+from geo_infer_bayes.core.model_comparison import ModelComparison
+from geo_infer_bayes.models.spatial_gp import SpatialGP
 from geo_infer_bayes.core.variational import VariationalInference
+from geo_infer_bayes.utils.diagnostics import mcmc_diagnostics
 from geo_infer_bayes.api.pymc_interface import PyMCInterface
 from geo_infer_bayes.api.tfp_interface import TFPInterface
 ```
 
 ## Examples
 
-```python
-from geo_infer_bayes.core.bayesian_inference import BayesianModel
+Every snippet below runs against the current API.
 
-model = BayesianModel(prior="normal", likelihood="normal")
-posterior = model.fit(data, n_samples=2000)
-comparison = model.compare(["model_a", "model_b"], method="loo")
+Fit a spatial Gaussian process by MCMC. `BayesianInference.run` hands the data
+back to the model afterwards, so the returned posterior can predict without a
+separate `fit` call:
+
+```python
+from geo_infer_bayes.core.inference import BayesianInference
+from geo_infer_bayes.models.spatial_gp import SpatialGP
+
+model = SpatialGP(kernel="rbf", lengthscale=1.0, variance=1.0, noise=0.5)
+inference = BayesianInference(
+    model=model, method="mcmc", sampler_config={"n_chains": 4, "random_seed": 0}
+)
+posterior = inference.run(
+    data={"X": X, "y": y}, n_samples=2000, n_warmup=1000, progress_bar=False
+)
+print(posterior.summary()[["mean", "sd", "r_hat"]])
 ```
+
+Convergence diagnostics. Samplers return draws pooled across chains, and R-hat
+is a between-chain statistic, so split the chain axis back out first:
+
+```python
+from geo_infer_bayes.utils.diagnostics import mcmc_diagnostics
+
+diagnostics = mcmc_diagnostics(posterior.chain_samples())
+worst_r_hat = max(stats["r_hat"] for stats in diagnostics.values())
+```
+
+Predict with calibrated uncertainty. The returned `std` is the total predictive
+standard deviation of the latent function -- the mean conditional GP variance
+across posterior draws plus the variance of the per-draw means. It excludes
+observation noise, which belongs to `posterior_predictive`:
+
+```python
+mean, std = model.predict(X_new, posterior=posterior, samples=200, return_std=True)
+draws = model.posterior_predictive(posterior, X=X_new, samples=500, random_seed=0)
+```
+
+Model comparison by LOO. A GP likelihood is joint, so
+`pointwise_log_likelihood` supplies the per-observation terms LOO needs, via the
+ordered-conditional decomposition of the marginal likelihood:
+
+```python
+import numpy as np
+from geo_infer_bayes.core.model_comparison import ModelComparison
+
+names = ["lengthscale", "variance", "noise"]
+draws = np.linspace(0, len(posterior.samples["noise"]) - 1, 100, dtype=int)
+matrix = np.asarray([
+    model.pointwise_log_likelihood(
+        {name: float(posterior.samples[name][i]) for name in names},
+        {"X": X, "y": y},
+    )
+    for i in draws
+])
+results = ModelComparison([model]).compare_models(
+    {"log_likelihood_matrix": matrix}, method="loo", random_seed=0
+)
+```
+
+## Reproducibility
+
+Every sampler and predictive method takes a `random_seed` routed through
+`geo_infer_bayes.utils.rng.resolve_rng`, which accepts `None`, an `int`, a
+`SeedSequence`, a `BitGenerator`, a `numpy.random.Generator`, or a legacy
+`RandomState`, and always returns a `Generator`. Consequences worth knowing:
+
+- Passing an `int` makes a chain replayable; `0` is a valid seed.
+- Passing a `Generator` threads one stream through a whole pipeline.
+- `None` means OS entropy, so results are *not* replayable. Calling
+  `np.random.seed(...)` does not make them so: this module never reads the
+  process-wide singleton, and never advances it either.
+- For independent parallel chains use
+  `geo_infer_bayes.utils.rng.spawn_rng(seed, n)` rather than `seed`, `seed + 1`,
+  ... which carries no independence guarantee.
+- At boundaries that accept only an `int` seed, such as scikit-learn's
+  `random_state`, use `geo_infer_bayes.utils.rng.derive_int_seed`.
 
 ## Guidelines
 
@@ -51,6 +125,12 @@ comparison = model.compare(["model_a", "model_b"], method="loo")
 - TFP interface: real GP + Metropolis-Hastings sampling
 - PyMC interface: posterior predictive sampling for predictions
 - Variational: real ELBO computation with KL divergence
+- Posterior predictions average over draws spread across the chain, not the
+  first N draws; the count comes from the draw axis, not from the number of
+  parameter names
+- LOO and WAIC need a *posterior* pointwise log-likelihood matrix. Passing data
+  without one falls back to prior draws, which is not cross-validation and whose
+  elpd is not comparable with a posterior-based one
 - Test: `uv run python -m pytest GEO-INFER-BAYES/tests/ -v`
 
 ### Integrations

@@ -9,6 +9,8 @@ Examples workspace within `GEO-INFER-BAYES`.
 
 ## Public Interface
 
+- `spatial_bayesian_analysis.py:simulate_gp_field` (function)
+- `spatial_bayesian_analysis.py:log_likelihood_matrix` (function)
 - `spatial_bayesian_analysis.py:main` (function)
 - `spatial_gp_example.py:generate_synthetic_data` (function)
 - `spatial_gp_example.py:plot_spatial_data` (function)

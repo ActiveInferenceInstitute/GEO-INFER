@@ -29,7 +29,6 @@
 - `io/`
 - `models/`
 - `nested/`
-- `tools/`
 - `utils/`
 - `__init__.py`
 - `place_analyzer.py`

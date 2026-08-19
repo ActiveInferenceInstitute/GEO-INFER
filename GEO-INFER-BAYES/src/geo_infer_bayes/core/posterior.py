@@ -7,7 +7,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import arviz as az
 import pandas as pd
-from typing import Dict, Optional, Union, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ..models.base import BayesianModel
 
@@ -29,19 +29,28 @@ class PosteriorAnalysis:
         Data used for inference
     method : str
         Inference method used
+    n_chains : int, default=1
+        Number of chains the samplers ran. Samplers hand back draws already
+        concatenated across chains, so this is what lets the split-chain
+        diagnostics -- R-hat above all -- be computed at all. Leaving it at 1
+        makes ``r_hat`` undefined, which ArviZ reports as ``NaN``.
     """
 
     def __init__(
         self,
         model: "BayesianModel",
-        samples: Union[Dict[str, np.ndarray], xr.Dataset],
-        data: Union[Dict[str, np.ndarray], xr.Dataset],
+        samples: Union[Dict[str, np.ndarray], xr.Dataset, Any],
+        data: Union[Dict[str, np.ndarray], xr.Dataset, None],
         method: str,
+        n_chains: int = 1,
     ):
+        if not isinstance(n_chains, (int, np.integer)) or n_chains < 1:
+            raise ValueError("n_chains must be a positive integer")
         self.model = model
         self.samples = samples
         self.data = data
         self.method = method
+        self.n_chains = int(n_chains)
 
         # Convert samples to InferenceData if not already
         if not isinstance(samples, az.InferenceData):
@@ -49,18 +58,66 @@ class PosteriorAnalysis:
         else:
             self.arviz_data = samples
 
+    def chain_samples(self) -> Dict[str, np.ndarray]:
+        """Return the draws reshaped to ``(chain, draw, ...)``.
+
+        Samplers concatenate chains in C order, so reshaping the leading axis
+        recovers the original chain assignment exactly. Use this for any
+        between-chain diagnostic; ``self.samples`` stays flat because
+        prediction and model comparison want one pooled draw axis.
+
+        Returns
+        -------
+        dict of str to ndarray
+            One array per parameter, leading axis of length ``n_chains``.
+
+        Raises
+        ------
+        TypeError
+            If the samples are not a dict of arrays.
+        ValueError
+            If a parameter's draw count is not divisible by ``n_chains``.
+        """
+        if not isinstance(self.samples, dict):
+            raise TypeError("chain_samples requires dict-valued samples")
+        reshaped: Dict[str, np.ndarray] = {}
+        for name, values in self.samples.items():
+            array = np.asarray(values)
+            if array.shape[0] % self.n_chains:
+                raise ValueError(
+                    f"parameter '{name}' has {array.shape[0]} draws, which is "
+                    f"not divisible by n_chains={self.n_chains}"
+                )
+            reshaped[name] = array.reshape(
+                (self.n_chains, array.shape[0] // self.n_chains) + array.shape[1:]
+            )
+        return reshaped
+
     def _convert_to_arviz(
         self, samples: Union[Dict[str, np.ndarray], xr.Dataset]
-    ) -> az.InferenceData:
-        """Convert samples to ArviZ InferenceData format."""
+    ) -> Any:
+        """Convert samples to ArviZ InferenceData format.
+
+        Draws arrive pooled across chains; ArviZ needs an explicit chain axis
+        to compute R-hat and split-ESS, so the pooled axis is unpacked here.
+        """
         if isinstance(samples, dict):
             # ArviZ requires observed_data to be a dict; wrap raw arrays
             obs_data = self.data
             if obs_data is not None and not isinstance(obs_data, dict):
                 obs_data = {"observed": np.asarray(obs_data)}
-            return az.from_dict(posterior=samples, observed_data=obs_data)
-        else:
-            return az.from_xarray(posterior=samples)
+            posterior = samples
+            if self.n_chains > 1:
+                try:
+                    posterior = self.chain_samples()
+                except ValueError:
+                    # Ragged draw counts: fall back to a single pooled chain
+                    # rather than mislabelling which draw came from which chain.
+                    posterior = samples
+            return az.from_dict(posterior=posterior, observed_data=obs_data)
+        # An xarray Dataset already carries chain/draw dims, so it is wrapped
+        # as-is rather than reshaped.
+        return az.InferenceData(posterior=samples)
 
     def summary(self, parameters: Optional[List[str]] = None) -> pd.DataFrame:
         """
@@ -178,20 +235,23 @@ class PosteriorAnalysis:
         lower, upper : float, float
             Lower and upper bounds of the credible interval
         """
-        if not np.isscalar(alpha) or not np.isfinite(alpha) or not 0 < alpha < 1:
+        if not isinstance(alpha, (int, float, np.floating, np.integer)):
+            raise TypeError("alpha must be a real number")
+        level = float(alpha)
+        if not np.isfinite(level) or not 0.0 < level < 1.0:
             raise ValueError("alpha must be finite and strictly between zero and one")
         try:
             param_samples = np.asarray(
-                self.arviz_data.posterior[parameter].values, dtype=float
-            ).reshape(-1)
+                self.arviz_data.posterior[parameter].values
+            ).astype(float).reshape(-1)
         except (AttributeError, KeyError) as exc:
             raise KeyError(
                 f"posterior does not contain parameter {parameter!r}"
             ) from exc
         if param_samples.size == 0 or not np.all(np.isfinite(param_samples)):
             raise ValueError("posterior parameter samples must be non-empty and finite")
-        lower = np.percentile(param_samples, 100 * alpha / 2)
-        upper = np.percentile(param_samples, 100 * (1 - alpha / 2))
+        lower = np.percentile(param_samples, 100.0 * level / 2.0)
+        upper = np.percentile(param_samples, 100.0 * (1.0 - level / 2.0))
         return float(lower), float(upper)
 
     def posterior_predictive(

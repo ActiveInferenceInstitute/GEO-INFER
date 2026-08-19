@@ -12,6 +12,7 @@ import logging
 
 from .base import BayesianModel
 from .spatial_gp import SpatialGP
+from ..utils.rng import SeedLike, derive_int_seed, resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class SpatioTemporalConfig:
     # Computational parameters
     max_iterations: int = 1000
     convergence_tolerance: float = 1e-6
-    random_seed: Optional[int] = None
+    random_seed: SeedLike = None
 
     def __post_init__(self) -> None:
         """Validate positive kernel and optimization parameters."""
@@ -92,7 +93,7 @@ class SpatioTemporalGP(BayesianModel):
         self.temporal_coords = None
         self.observations = None
 
-        self.rng = np.random.default_rng(self.config.random_seed)
+        self.rng: np.random.Generator = resolve_rng(self.config.random_seed)
 
     def fit(
         self,
@@ -245,7 +246,13 @@ class SpatioTemporalGP(BayesianModel):
         """
         from sklearn.model_selection import KFold
 
-        kf = KFold(n_splits=n_folds, shuffle=True, random_state=self.config.random_seed)
+        # KFold accepts only an int or a RandomState, so a configured
+        # Generator is converted rather than rejected at runtime.
+        kf = KFold(
+            n_splits=n_folds,
+            shuffle=True,
+            random_state=derive_int_seed(self.config.random_seed),
+        )
 
         mse_scores = []
         mae_scores = []

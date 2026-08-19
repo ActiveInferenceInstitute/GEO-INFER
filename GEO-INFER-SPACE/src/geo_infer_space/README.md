@@ -12,7 +12,6 @@ Geo Infer Space workspace within `GEO-INFER-SPACE`.
 - `io/`
 - `models/`
 - `nested/`
-- `tools/`
 - `utils/`
 - `__init__.py`
 - `place_analyzer.py`

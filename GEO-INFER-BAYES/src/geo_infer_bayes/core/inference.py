@@ -36,7 +36,9 @@ class BayesianInference:
         self.model = model
         self.method = method.lower()
         self.sampler_config = sampler_config or {}
-        self.backend = None
+        # _initialize_backend always assigns or raises, so the attribute is
+        # never left as None; declaring it Any keeps the backend duck-typed.
+        self.backend: Any = None
         self._initialize_backend()
 
     def _initialize_backend(self) -> None:
@@ -64,7 +66,7 @@ class BayesianInference:
         self.backend = backends[self.method](self.model, **self.sampler_config)
 
     def run(
-        self, data: Union[np.ndarray, xr.Dataset, Dict[str, Any]], **kwargs
+        self, data: Union[np.ndarray, xr.Dataset, Dict[str, Any]], **kwargs: Any
     ) -> PosteriorAnalysis:
         """
         Run the inference algorithm on the provided data.
@@ -87,16 +89,40 @@ class BayesianInference:
         # Run inference with the selected backend
         samples = self.backend.run(prepared_data, **kwargs)
 
+        # A posterior is conditional on the data that produced it, so hand that
+        # data back to the model. Without this, a conditional model such as a
+        # Gaussian process holds sampled hyperparameters but no training set,
+        # and posterior prediction fails.
+        self.model.bind_training_data(prepared_data)
+
         # Create and return a PosteriorAnalysis object
         return PosteriorAnalysis(
-            model=self.model, samples=samples, data=prepared_data, method=self.method
+            model=self.model,
+            samples=samples,
+            data=prepared_data,
+            method=self.method,
+            n_chains=self._backend_chain_count(),
         )
+
+    def _backend_chain_count(self) -> int:
+        """Report how many chains the active backend ran.
+
+        Backends that are not chain-based -- variational inference, SMC, ABC --
+        expose no ``n_chains``, and their draws are a single pooled sample, so
+        1 is the correct answer for them.
+
+        Returns
+        -------
+        int
+            Number of chains, at least 1.
+        """
+        return max(1, int(getattr(self.backend, "n_chains", 1) or 1))
 
     def update(
         self,
         new_data: Union[np.ndarray, xr.Dataset, Dict[str, Any]],
         previous_posterior: PosteriorAnalysis,
-        **kwargs,
+        **kwargs: Any,
     ) -> PosteriorAnalysis:
         """
         Update a previous posterior with new data (sequential inference).
@@ -124,10 +150,12 @@ class BayesianInference:
         updated_samples = self.backend.update(
             prepared_data, previous_posterior.samples, **kwargs
         )
+        self.model.bind_training_data(prepared_data)
 
         return PosteriorAnalysis(
             model=self.model,
             samples=updated_samples,
             data=prepared_data,
             method=self.method,
+            n_chains=self._backend_chain_count(),
         )

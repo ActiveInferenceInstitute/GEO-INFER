@@ -1,6 +1,4 @@
-"""
-Unit tests for the new GIS Submodule facade (GISManager) in GEO-INFER-SPACE.
-"""
+"""Unit tests for the GISManager facade in GEO-INFER-SPACE."""
 
 import pytest
 
@@ -29,8 +27,8 @@ def test_gis_manager_initialization(gis_manager):
 
 def test_coordinate_transformation(gis_manager):
     """Test a basic generic spatial method routing through GISManager."""
-    # Dummy coordinate
-    coords = (37.7749, -122.4194)
+    # ``always_xy=True`` means WGS84 coordinates use longitude, latitude.
+    coords = (-122.4194, 37.7749)
     result = gis_manager.transform_coordinates(
         coords, from_crs="EPSG:4326", to_crs="EPSG:3857"
     )

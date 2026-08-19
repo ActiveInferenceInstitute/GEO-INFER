@@ -6,12 +6,17 @@ different Bayesian models using information criteria (AIC, BIC, DIC,
 WAIC) and leave-one-out cross-validation.
 """
 
+import logging
+
 import numpy as np
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple, Any
+from ..utils.rng import SeedLike, resolve_rng
+
+logger = logging.getLogger(__name__)
 
 
 class ModelComparison:
@@ -39,7 +44,7 @@ class ModelComparison:
     # ------------------------------------------------------------------
 
     def compare_models(
-        self, data: Any, method: str = "loo", random_seed: Optional[int] = None
+        self, data: Any, method: str = "loo", random_seed: SeedLike = None
     ) -> Dict[str, Any]:
         """
         Compare models using specified method.
@@ -50,9 +55,11 @@ class ModelComparison:
                   (n_samples, n_obs) **or** a dict that the model's
                   ``log_likelihood`` can accept.
             method: Comparison method ('loo', 'waic', 'dic')
-            random_seed: Optional seed for reproducible prior-draw fallback
-                (when data has no log_likelihood_matrix). When ``None`` the
-                legacy global ``np.random`` state is used.
+            random_seed: Seed or generator for the prior-draw fallback used
+                when ``data`` has no ``log_likelihood_matrix``. ``None``
+                (default) means a generator seeded from OS entropy, so the
+                estimate is not replayable; pass an int to replay. See
+                :func:`geo_infer_bayes.utils.rng.resolve_rng`.
 
         Returns:
             Dictionary with comparison results keyed by model name, plus a
@@ -161,7 +168,7 @@ class ModelComparison:
         -------
         float
         """
-        return -2.0 * log_likelihood + n_params * np.log(n_obs)
+        return float(-2.0 * log_likelihood + n_params * np.log(n_obs))
 
     def compute_bayes_factor(
         self, log_evidence_1: float, log_evidence_2: float
@@ -240,31 +247,35 @@ class ModelComparison:
         model: Any,
         data: Any,
         n_posterior_samples: int = 200,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> np.ndarray:
         """Compute a pointwise log-likelihood matrix from a model.
 
         If *data* already contains a 'log_likelihood_matrix' key it is
-        returned directly. Otherwise the method draws ``n_posterior_samples``
-        parameter sets from the model's prior and evaluates the
-        log-likelihood pointwise.
+        returned directly; that is the intended path, and the matrix should hold
+        *posterior* draws.
+
+        Otherwise the method falls back to drawing parameter sets from the
+        model's **prior**. That fallback keeps the comparison runnable without a
+        fitted posterior, but prior-draw elpd is not leave-one-out
+        cross-validation and its absolute values are not comparable with elpd
+        computed from a posterior. Supply a posterior matrix whenever one
+        exists.
 
         Args:
             model: The model to evaluate.
             data: Observations or a dict with 'log_likelihood_matrix'.
             n_posterior_samples: Number of prior parameter draws.
-            random_seed: Optional seed for reproducible prior draws. When
-                ``None`` (default) the legacy global ``np.random`` state is
-                used.
+            random_seed: Seed or generator for the prior draws. ``None``
+                (default) means a generator seeded from OS entropy, so the
+                estimate is not replayable; pass an int to replay. See
+                :func:`geo_infer_bayes.utils.rng.resolve_rng`.
 
         Returns
         -------
         ll_matrix : ndarray of shape (n_posterior_samples, n_obs)
         """
-        if random_seed is None:
-            rng = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         if isinstance(data, dict) and "log_likelihood_matrix" in data:
             return np.asarray(data["log_likelihood_matrix"])
@@ -279,6 +290,8 @@ class ModelComparison:
 
         n_obs = len(observations)
         ll_matrix = np.zeros((n_posterior_samples, n_obs))
+        failures = 0
+        first_failure: Optional[BaseException] = None
 
         params = getattr(model, "parameters", {})
         for s in range(n_posterior_samples):
@@ -308,13 +321,33 @@ class ModelComparison:
                 single_obs = observations[j : j + 1]
                 try:
                     ll_matrix[s, j] = model.log_likelihood(theta, single_obs)
-                except Exception:
+                except Exception as exc:
+                    # A -inf entry silently drags elpd to -inf, so record why.
+                    failures += 1
+                    first_failure = first_failure or exc
                     ll_matrix[s, j] = -np.inf
+
+        if failures:
+            total = n_posterior_samples * n_obs
+            if failures == total:
+                raise RuntimeError(
+                    f"log_likelihood failed for every one of {total} "
+                    f"(draw, observation) pairs; the pointwise matrix carries no "
+                    f"information. First error: {first_failure!r}"
+                ) from first_failure
+            logger.warning(
+                "log_likelihood failed for %d of %d (draw, observation) pairs; "
+                "those entries are -inf and dominate any elpd computed from "
+                "this matrix. First error: %r",
+                failures,
+                total,
+                first_failure,
+            )
 
         return ll_matrix
 
     def _loo_comparison(
-        self, model: Any, data: Any, random_seed: Optional[int] = None
+        self, model: Any, data: Any, random_seed: SeedLike = None
     ) -> Dict[str, Any]:
         """Pareto-smoothed importance-sampling LOO (PSIS-LOO, Vehtari et al. 2017).
 
@@ -326,7 +359,8 @@ class ModelComparison:
         Args:
             model: The model to compare.
             data: Data for comparison.
-            random_seed: Optional seed forwarded to the prior-draw fallback.
+            random_seed: Seed or generator forwarded to the prior-draw
+                fallback; see :meth:`compare_models`.
         """
         ll_matrix = self._pointwise_log_likelihoods(
             model, data, random_seed=random_seed
@@ -375,7 +409,7 @@ class ModelComparison:
             }
 
     def _waic_comparison(
-        self, model: Any, data: Any, random_seed: Optional[int] = None
+        self, model: Any, data: Any, random_seed: SeedLike = None
     ) -> Dict[str, float]:
         """Widely Applicable Information Criterion (Watanabe 2010).
 
@@ -384,7 +418,8 @@ class ModelComparison:
         Args:
             model: The model to compare.
             data: Data for comparison.
-            random_seed: Optional seed forwarded to the prior-draw fallback.
+            random_seed: Seed or generator forwarded to the prior-draw
+                fallback; see :meth:`compare_models`.
         """
         ll_matrix = self._pointwise_log_likelihoods(
             model, data, random_seed=random_seed
@@ -416,7 +451,7 @@ class ModelComparison:
         }
 
     def _dic_comparison(
-        self, model: Any, data: Any, random_seed: Optional[int] = None
+        self, model: Any, data: Any, random_seed: SeedLike = None
     ) -> Dict[str, float]:
         """Deviance Information Criterion.
 
@@ -427,7 +462,8 @@ class ModelComparison:
         Args:
             model: The model to compare.
             data: Data for comparison.
-            random_seed: Optional seed forwarded to the prior-draw fallback.
+            random_seed: Seed or generator forwarded to the prior-draw
+                fallback; see :meth:`compare_models`.
         """
         ll_matrix = self._pointwise_log_likelihoods(
             model, data, random_seed=random_seed

@@ -301,6 +301,10 @@ module = [
     "torch.*",
     "pymc.*",
     "arviz.*",
+    "tqdm.*",
+    "yaml",
+    "requests",
+    "jsonschema",
 ]
 ignore_missing_imports = true
 

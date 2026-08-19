@@ -95,22 +95,22 @@ class TestCompareModels:
 
     @pytest.fixture
     def centered_data(self):
-        rng = np.random.RandomState(42)
+        rng = np.random.default_rng(42)
         ll_matrix_A = rng.normal(-1.0, 0.1, size=(50, 20))
         ll_matrix_B = rng.normal(-3.0, 0.1, size=(50, 20))
         return {
-            "observations": rng.randn(20),
+            "observations": rng.standard_normal(20),
             "log_likelihood_matrix": ll_matrix_A,
         }, {
-            "observations": rng.randn(20),
+            "observations": rng.standard_normal(20),
             "log_likelihood_matrix": ll_matrix_B,
         }
 
     def test_compare_loo(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
         data = {
-            "observations": rng.randn(15),
+            "observations": rng.standard_normal(15),
             "log_likelihood_matrix": rng.normal(-1, 0.2, size=(40, 15)),
         }
         results = mc.compare_models(data, method="loo")
@@ -120,9 +120,9 @@ class TestCompareModels:
 
     def test_compare_waic(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
-        rng = np.random.RandomState(1)
+        rng = np.random.default_rng(1)
         data = {
-            "observations": rng.randn(10),
+            "observations": rng.standard_normal(10),
             "log_likelihood_matrix": rng.normal(-2, 0.3, size=(30, 10)),
         }
         results = mc.compare_models(data, method="waic")
@@ -131,9 +131,9 @@ class TestCompareModels:
 
     def test_compare_dic(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
-        rng = np.random.RandomState(2)
+        rng = np.random.default_rng(2)
         data = {
-            "observations": rng.randn(10),
+            "observations": rng.standard_normal(10),
             "log_likelihood_matrix": rng.normal(-1.5, 0.2, size=(30, 10)),
         }
         results = mc.compare_models(data, method="dic")
@@ -157,9 +157,9 @@ class TestCompareModels:
 
     def test_get_best_model_returns_model(self, two_models) -> None:
         mc = ModelComparison(models=two_models)
-        rng = np.random.RandomState(5)
+        rng = np.random.default_rng(5)
         data = {
-            "observations": rng.randn(10),
+            "observations": rng.standard_normal(10),
             "log_likelihood_matrix": rng.normal(-1, 0.1, size=(30, 10)),
         }
         mc.compare_models(data, method="loo")
@@ -177,9 +177,9 @@ class TestPlotComparison:
 
         models = [_DummyModel("A"), _DummyModel("B")]
         mc = ModelComparison(models=models)
-        rng = np.random.RandomState(10)
+        rng = np.random.default_rng(10)
         data = {
-            "observations": rng.randn(10),
+            "observations": rng.standard_normal(10),
             "log_likelihood_matrix": rng.normal(-1, 0.2, size=(20, 10)),
         }
         mc.compare_models(data, method="loo")

@@ -4,8 +4,9 @@ Hamiltonian Monte Carlo implementation for Bayesian inference.
 
 import numpy as np
 import xarray as xr
-from typing import Dict, Any, Optional, Union, List, Tuple
+from typing import Dict, Any, Union, List, Tuple
 from tqdm import tqdm
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class HMC:
@@ -31,8 +32,12 @@ class HMC:
         Maximum depth for NUTS (No-U-Turn Sampler)
     target_accept : float, default=0.8
         Target acceptance rate
-    random_seed : int, optional
-        Random seed for reproducibility
+    random_seed : int or numpy.random.Generator, optional
+        Seed or generator for every draw this sampler makes. ``None`` (default)
+        means a generator seeded from OS entropy, so the chain is not
+        replayable; pass an int to replay it, or a ``Generator`` to thread one
+        stream through several samplers. See
+        :func:`geo_infer_bayes.utils.rng.resolve_rng`.
     """
 
     def __init__(
@@ -44,7 +49,7 @@ class HMC:
         adapt_step_size: bool = True,
         max_tree_depth: int = 10,
         target_accept: float = 0.8,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ):
         if not isinstance(n_chains, (int, np.integer)) or n_chains < 1:
             raise ValueError("n_chains must be a positive integer")
@@ -64,7 +69,7 @@ class HMC:
         self.max_tree_depth = int(max_tree_depth)
         self.target_accept = float(target_accept)
         self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.rng: np.random.Generator = resolve_rng(random_seed)
         self._parameter_layout = None
 
     def run(

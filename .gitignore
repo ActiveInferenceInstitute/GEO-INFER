@@ -10,6 +10,8 @@ __pycache__/
 /outputs/
 /output/
 /logs/
+# Example scripts write plots next to themselves.
+GEO-INFER-*/examples/outputs/
 
 # Build artifacts
 *.egg-info/

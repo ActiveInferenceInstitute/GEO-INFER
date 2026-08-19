@@ -21,7 +21,7 @@ from geo_infer_bayes.utils.diagnostics import (
 class TestMCMCDiagnostics:
 
     def test_basic_diagnostics(self) -> None:
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
         samples = {"mu": rng.normal(3.0, 0.5, size=1000)}
         diag = mcmc_diagnostics(samples)
         assert "mu" in diag
@@ -30,15 +30,15 @@ class TestMCMCDiagnostics:
         assert diag["mu"]["min"] < diag["mu"]["max"]
 
     def test_ess_positive(self) -> None:
-        rng = np.random.RandomState(1)
-        samples = {"theta": rng.randn(500)}
+        rng = np.random.default_rng(1)
+        samples = {"theta": rng.standard_normal(500)}
         diag = mcmc_diagnostics(samples)
         assert diag["theta"]["ess"] > 0
 
     def test_r_hat_is_undefined_without_multiple_chains(self) -> None:
         """A single chain cannot identify between-chain scale differences."""
-        rng = np.random.RandomState(2)
-        samples = {"x": rng.randn(200)}
+        rng = np.random.default_rng(2)
+        samples = {"x": rng.standard_normal(200)}
         diag = mcmc_diagnostics(samples)
         assert np.isnan(diag["x"]["r_hat"])
 
@@ -47,10 +47,10 @@ class TestMCMCDiagnostics:
         assert mcmc_diagnostics(samples)["x"]["r_hat"] > 1.0
 
     def test_multiple_parameters(self) -> None:
-        rng = np.random.RandomState(3)
+        rng = np.random.default_rng(3)
         samples = {
-            "alpha": rng.randn(300),
-            "beta": rng.randn(300) + 5.0,
+            "alpha": rng.standard_normal(300),
+            "beta": rng.standard_normal(300) + 5.0,
         }
         diag = mcmc_diagnostics(samples)
         assert "alpha" in diag
@@ -58,8 +58,8 @@ class TestMCMCDiagnostics:
         np.testing.assert_allclose(diag["beta"]["mean"], 5.0, atol=0.3)
 
     def test_2d_samples_flattened(self) -> None:
-        rng = np.random.RandomState(4)
-        samples = {"mu": rng.randn(4, 100)}
+        rng = np.random.default_rng(4)
+        samples = {"mu": rng.standard_normal((4, 100))}
         diag = mcmc_diagnostics(samples)
         assert np.isfinite(diag["mu"]["mean"])
 
@@ -68,7 +68,7 @@ class TestConvergenceMetrics:
 
     def test_geweke_z_near_zero_for_stationary_chain(self) -> None:
         """A stationary chain should have Geweke Z near zero."""
-        rng = np.random.RandomState(0)
+        rng = np.random.default_rng(0)
         samples = {"mu": rng.normal(0.0, 1.0, size=2000)}
         metrics = convergence_metrics(samples)
         assert "mu" in metrics
@@ -83,15 +83,15 @@ class TestConvergenceMetrics:
         assert abs(metrics["mu"]["geweke_z"]) > 2.0
 
     def test_monte_carlo_se_positive(self) -> None:
-        rng = np.random.RandomState(5)
-        samples = {"x": rng.randn(500)}
+        rng = np.random.default_rng(5)
+        samples = {"x": rng.standard_normal(500)}
         metrics = convergence_metrics(samples)
         assert metrics["x"]["monte_carlo_se"] > 0
 
     def test_monte_carlo_se_decreases_with_more_samples(self) -> None:
-        rng = np.random.RandomState(6)
-        small = {"x": rng.randn(100)}
-        large = {"x": rng.randn(10000)}
+        rng = np.random.default_rng(6)
+        small = {"x": rng.standard_normal(100)}
+        large = {"x": rng.standard_normal(10000)}
         mcse_small = convergence_metrics(small)["x"]["monte_carlo_se"]
         mcse_large = convergence_metrics(large)["x"]["monte_carlo_se"]
         assert mcse_large < mcse_small

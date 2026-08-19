@@ -8,6 +8,8 @@ multi-level spatial data structures.
 import numpy as np
 from typing import Dict, Optional, Tuple, Union, Any
 from .base import BayesianModel
+from ._model_utils import posterior_draw_indices
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class HierarchicalBayesianModel(BayesianModel):
@@ -18,19 +20,26 @@ class HierarchicalBayesianModel(BayesianModel):
     are grouped into levels with shared parameters.
     """
 
-    def __init__(self, n_levels: int = 2, **kwargs):
-        """
-        Initialize the hierarchical Bayesian model.
+    def __init__(self, n_levels: int = 2, **kwargs: Any):
+        """Initialize the hierarchical Bayesian model.
 
         Args:
-            n_levels: Number of hierarchical levels
-            **kwargs: Additional model parameters
+            n_levels: Number of hierarchical levels. Each level gets its own
+                partially pooled intercept.
+            **kwargs: Additional model parameters forwarded to the base class.
+
+        Raises:
+            ValueError: If ``n_levels`` is not a positive integer.
         """
-        self.n_levels = n_levels
-        self.levels = {}
+        if not isinstance(n_levels, (int, np.integer)) or n_levels < 1:
+            raise ValueError("n_levels must be a positive integer")
+        # Set before super().__init__, which calls _setup_model and needs this
+        # to declare the per-level intercept parameters.
+        self.n_levels = int(n_levels)
+        self.levels: Dict[str, Any] = {}
         super().__init__(name="HierarchicalBayesianModel", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the hierarchical model structure and parameters."""
         # Define parameter distributions for inference
         self.parameters = {
@@ -80,7 +89,7 @@ class HierarchicalBayesianModel(BayesianModel):
             residuals**2 / noise**2 + np.log(2 * np.pi * noise**2)
         )
 
-        return log_likelihood
+        return float(log_likelihood)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """
@@ -125,7 +134,7 @@ class HierarchicalBayesianModel(BayesianModel):
                 sigma * np.sqrt(2 * np.pi)
             )
 
-        return log_prior
+        return float(log_prior)
 
     def predict(
         self,
@@ -159,7 +168,8 @@ class HierarchicalBayesianModel(BayesianModel):
             # Use posterior samples
             all_preds = []
 
-            for i in range(min(samples, len(posterior.samples))):
+            names = [f"alpha_{level}" for level in range(self.n_levels)]
+            for i in posterior_draw_indices(posterior, samples, names):
                 # Extract level parameters
                 alphas = [
                     posterior.samples[f"alpha_{level}"][i]
@@ -180,14 +190,12 @@ class HierarchicalBayesianModel(BayesianModel):
                 all_preds.append(predictions)
 
             # Compute statistics across samples
-            all_preds = np.stack(all_preds)
-            mean_pred = np.mean(all_preds, axis=0)
+            stacked = np.stack(all_preds)
+            mean_pred = np.asarray(np.mean(stacked, axis=0), dtype=float)
 
             if return_std:
-                std_pred = np.std(all_preds, axis=0)
-                return mean_pred, std_pred
-            else:
-                return mean_pred
+                return mean_pred, np.asarray(np.std(stacked, axis=0), dtype=float)
+            return mean_pred
         else:
             raise RuntimeError(
                 "Direct prediction requires a posterior. Pass a posterior or run fit() first."
@@ -198,7 +206,7 @@ class HierarchicalBayesianModel(BayesianModel):
         posterior: Any,
         X: Optional[np.ndarray] = None,
         samples: int = 100,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
@@ -211,9 +219,11 @@ class HierarchicalBayesianModel(BayesianModel):
             Locations to generate predictions for. If None, use observed locations.
         samples : int, default=100
             Number of posterior samples to use
-        random_seed : int, optional
-            Seed for reproducible noise draws. When ``None`` (default) the
-            legacy global ``np.random`` state is used.
+        random_seed : int or numpy.random.Generator, optional
+            Seed or generator for the observation-noise draws. ``None``
+            (default) means a generator seeded from OS entropy, so results are
+            not replayable; pass an int to replay. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
 
         Returns
         -------
@@ -221,23 +231,22 @@ class HierarchicalBayesianModel(BayesianModel):
             Posterior predictive samples
         """
         if X is None:
-            # Use observed data structure
-            X = getattr(self, "observed_groups", [])
+            # Fall back to the group structure seen during fitting.
+            X = np.asarray(getattr(self, "observed_groups", []))
 
-        # Get predictions
-        predictions, std = self.predict(X, posterior, samples=samples, return_std=True)
+        # Get predictions. return_std=True guarantees the tuple form.
+        predictions, _std = self.predict(
+            np.asarray(X), posterior, samples=samples, return_std=True
+        )
 
         # Generate samples with noise
-        if random_seed is None:
-            rng = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         all_samples = []
-        for i in range(min(samples, len(posterior.samples))):
-            # Sample noise for this posterior sample
-            noise_sample = posterior.samples["noise"][i]
-            sample = rng.normal(predictions, np.sqrt(noise_sample))
-            all_samples.append(sample)
+        for i in posterior_draw_indices(posterior, samples, ["noise"]):
+            # Each draw carries its own observation-noise variance, so the
+            # predictive spread widens with posterior uncertainty about noise.
+            noise_sample = float(np.asarray(posterior.samples["noise"])[i])
+            all_samples.append(rng.normal(predictions, np.sqrt(noise_sample)))
 
         return np.stack(all_samples)

@@ -8,7 +8,6 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 - `examples/`
 - `output/`
 - `reports/`
-- `scripts/`
 - `src/`
 - `test_output/`
 - `tests/`

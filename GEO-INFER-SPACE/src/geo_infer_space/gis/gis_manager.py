@@ -118,8 +118,8 @@ class GISManager:
         Calculate distance between two points.
 
         Args:
-            point1: The first point as a (lon, lat) tuple.
-            point2: The second point as a (lon, lat) tuple.
+            point1: The first point as a (latitude, longitude) tuple.
+            point2: The second point as a (latitude, longitude) tuple.
             method: The algorithm to use, either "haversine" or "euclidean" (default: "haversine").
 
         Returns:

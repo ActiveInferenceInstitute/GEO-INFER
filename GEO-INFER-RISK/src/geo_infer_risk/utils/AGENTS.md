@@ -23,6 +23,7 @@
 
 - `config_loader.py`
 - `risk_metrics.py`
+- `rng.py`
 - `validation.py`
 
 ## Validation

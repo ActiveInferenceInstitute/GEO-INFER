@@ -1,14 +1,18 @@
-"""Tests for deterministic random-seed threading in RISK.
+"""Tests for explicit random-seed threading in RISK.
 
-Verifies the REPRO-01 migration: the catastrophe simulation and the annual
-aggregate exceedance probability (AEP) Monte Carlo accept ``random_seed`` and
-produce identical output across calls for the same seed, while the default
-continues to use the legacy global ``np.random`` state.
+Two properties are checked for every stochastic entry point:
+
+* Replay -- equal seeds give equal output, distinct seeds give distinct output.
+* Isolation -- the process-wide ``numpy.random`` stream is never read or
+  advanced, so a caller's global state cannot silently change a risk number and
+  a risk run cannot perturb a caller's own stream.
 """
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
+import pytest
 
 from geo_infer_risk.core.catastrophe_models import (
     CatastropheConfig,
@@ -19,7 +23,19 @@ from geo_infer_risk.utils.risk_metrics import (
 )
 
 
-def _make_earthquake_model():
+@pytest.fixture
+def loss_table() -> pd.DataFrame:
+    """A three-event loss table."""
+    return pd.DataFrame(
+        {
+            "event_id": ["e1", "e2", "e3"],
+            "hazard_type": ["eq", "eq", "eq"],
+            "loss": [10.0, 5.0, 8.0],
+        }
+    )
+
+
+def _make_earthquake_model() -> EnhancedEarthquakeModel:
     config = CatastropheConfig(
         simulation_years=10,
         return_periods=[10, 25, 50],
@@ -34,9 +50,9 @@ def _make_earthquake_model():
 
 
 def test_earthquake_simulate_events_seed_replay() -> None:
+    """simulate_events with a seed replays identically."""
     a = _make_earthquake_model().simulate_events(5, random_seed=7)
     b = _make_earthquake_model().simulate_events(5, random_seed=7)
-    # Same seed => same count and, for EQ events, same ids.
     assert len(a) == len(b) == 5
     assert [e["event_id"] for e in a] == [e["event_id"] for e in b]
 
@@ -47,28 +63,74 @@ def test_earthquake_simulate_events_different_seeds_differ() -> None:
     assert [e["event_id"] for e in a] != [e["event_id"] for e in b]
 
 
-def test_aep_seed_replay() -> None:
-    df = pd.DataFrame(
-        {"event_id": ["e1", "e2", "e3"], "hazard_type": ["eq", "eq", "eq"], "loss": [10.0, 5.0, 8.0]}
+def test_earthquake_simulate_events_accepts_a_generator() -> None:
+    """A caller-owned Generator is threaded through instead of a seed."""
+    a = _make_earthquake_model().simulate_events(
+        4, random_seed=np.random.default_rng(21)
     )
+    b = _make_earthquake_model().simulate_events(
+        4, random_seed=np.random.default_rng(21)
+    )
+    assert [e["event_id"] for e in a] == [e["event_id"] for e in b]
+
+
+def test_earthquake_simulate_events_leaves_global_stream_untouched() -> None:
+    """Simulation neither reads nor advances the numpy.random singleton."""
+    np.random.seed(5)
+    expected = np.random.random()
+
+    np.random.seed(5)
+    _make_earthquake_model().simulate_events(5)
+    assert np.random.random() == expected
+
+
+def test_aep_seed_replay(loss_table: pd.DataFrame) -> None:
     a = calculate_annual_aggregate_exceedance_probability(
-        df, threshold=20.0, num_years=500, random_seed=9
+        loss_table, threshold=20.0, num_years=500, random_seed=9, exposure_years=3.0
     )
     b = calculate_annual_aggregate_exceedance_probability(
-        df, threshold=20.0, num_years=500, random_seed=9
+        loss_table, threshold=20.0, num_years=500, random_seed=9, exposure_years=3.0
     )
     assert a == b
     assert 0.0 <= a <= 1.0
 
 
-def test_aep_default_uses_global_state() -> None:
-    df = pd.DataFrame(
-        {"event_id": ["e1", "e2", "e3"], "hazard_type": ["eq", "eq", "eq"], "loss": [10.0, 5.0, 8.0]}
+def test_aep_different_seeds_differ(loss_table: pd.DataFrame) -> None:
+    """Distinct seeds give distinct Monte Carlo estimates."""
+    a = calculate_annual_aggregate_exceedance_probability(
+        loss_table, threshold=15.0, num_years=2000, random_seed=1, exposure_years=3.0
     )
-    import numpy as np
+    b = calculate_annual_aggregate_exceedance_probability(
+        loss_table, threshold=15.0, num_years=2000, random_seed=2, exposure_years=3.0
+    )
+    assert a != b
+
+
+def test_aep_accepts_a_generator(loss_table: pd.DataFrame) -> None:
+    a = calculate_annual_aggregate_exceedance_probability(
+        loss_table,
+        threshold=20.0,
+        num_years=500,
+        random_seed=np.random.default_rng(4),
+        exposure_years=3.0,
+    )
+    b = calculate_annual_aggregate_exceedance_probability(
+        loss_table,
+        threshold=20.0,
+        num_years=500,
+        random_seed=np.random.default_rng(4),
+        exposure_years=3.0,
+    )
+    assert a == b
+
+
+def test_aep_leaves_global_stream_untouched(loss_table: pd.DataFrame) -> None:
+    """The AEP Monte Carlo draws from its own generator, not the singleton."""
+    np.random.seed(5)
+    expected = np.random.random()
 
     np.random.seed(5)
-    a = calculate_annual_aggregate_exceedance_probability(df, threshold=20.0, num_years=300)
-    np.random.seed(5)
-    b = calculate_annual_aggregate_exceedance_probability(df, threshold=20.0, num_years=300)
-    assert a == b
+    calculate_annual_aggregate_exceedance_probability(
+        loss_table, threshold=20.0, num_years=300, exposure_years=3.0
+    )
+    assert np.random.random() == expected

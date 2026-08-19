@@ -5,23 +5,33 @@ This example demonstrates how to use the Gaussian Process model
 for spatial interpolation and uncertainty quantification.
 """
 
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
-import geopandas as gpd
-from shapely.geometry import Point
 
 from geo_infer_bayes.models import SpatialGP
 from geo_infer_bayes.core import BayesianInference
 
 
 def generate_synthetic_data(n_points=50, seed=42):
-    """Generate synthetic spatial data."""
-    np.random.seed(seed)
-    
+    """Generate synthetic spatial data from a known GP.
+
+    Args:
+        n_points: Number of observation locations.
+        seed: Seed for the local generator. Draws come from an explicit
+            ``Generator``, so running this example never disturbs the
+            process-wide ``numpy.random`` stream.
+
+    Returns:
+        Tuple of ``(X, y, true_lengthscale, true_variance, noise_std)``.
+    """
+    rng = np.random.default_rng(seed)
+
     # Generate random points in 2D space
-    X = np.random.uniform(0, 10, size=(n_points, 2))
+    X = rng.uniform(0, 10, size=(n_points, 2))
     
     # True lengthscale and variance
     true_lengthscale = 2.0
@@ -37,11 +47,11 @@ def generate_synthetic_data(n_points=50, seed=42):
     cov = true_variance * np.exp(-0.5 * (dist / true_lengthscale)**2)
     
     # Generate random function values
-    y = np.random.multivariate_normal(np.zeros(n_points), cov)
+    y = rng.multivariate_normal(np.zeros(n_points), cov)
     
     # Add noise
     noise_std = 0.1
-    y += np.random.normal(0, noise_std, size=n_points)
+    y += rng.normal(0, noise_std, size=n_points)
     
     return X, y, true_lengthscale, true_variance
 
@@ -69,6 +79,11 @@ def plot_spatial_data(X, y, title="Spatial Data"):
 
 def main():
     """Run the spatial GP example."""
+    # Write plots beside this example rather than into the caller's working
+    # directory, which would otherwise be littered with untracked PNGs.
+    output_dir = Path(__file__).parent / "outputs"
+    output_dir.mkdir(exist_ok=True)
+
     print("Generating synthetic spatial data...")
     X, y, true_lengthscale, true_variance = generate_synthetic_data(n_points=50)
     
@@ -77,7 +92,7 @@ def main():
     
     # Plot the data
     fig, ax = plot_spatial_data(X, y, title="Synthetic Spatial Data")
-    plt.savefig("spatial_data.png")
+    plt.savefig(output_dir / "spatial_data.png")
     
     # Create and fit a Gaussian Process model
     print("\nFitting Gaussian Process model...")
@@ -98,8 +113,8 @@ def main():
     print("\nRunning MCMC sampling...")
     posterior = inference.run(
         data=data,
-        n_samples=1000,
-        n_warmup=500,
+        n_samples=3000,
+        n_warmup=1500,
         thin=1
     )
     
@@ -111,10 +126,10 @@ def main():
     # Plot traces and posterior distributions
     print("\nPlotting traces and posteriors...")
     posterior.plot_trace()
-    plt.savefig("mcmc_traces.png")
+    plt.savefig(output_dir / "mcmc_traces.png")
     
     posterior.plot_posterior()
-    plt.savefig("posterior_distributions.png")
+    plt.savefig(output_dir / "posterior_distributions.png")
     
     # Make predictions on a grid
     print("\nMaking spatial predictions...")
@@ -139,7 +154,7 @@ def main():
     ax.set_title("Mean Prediction")
     ax.set_xlabel("X coordinate")
     ax.set_ylabel("Y coordinate")
-    plt.savefig("mean_prediction.png")
+    plt.savefig(output_dir / "mean_prediction.png")
     
     # Plot standard deviation (uncertainty)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -149,7 +164,7 @@ def main():
     ax.set_title("Prediction Uncertainty")
     ax.set_xlabel("X coordinate")
     ax.set_ylabel("Y coordinate")
-    plt.savefig("uncertainty.png")
+    plt.savefig(output_dir / "uncertainty.png")
     
     print("\nExample completed. Results saved as PNG files.")
 

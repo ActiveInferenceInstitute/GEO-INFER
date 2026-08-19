@@ -239,37 +239,6 @@ class CacheConfig(BaseModel):
         return v
 
 
-class OSCConfig(BaseModel):
-    """Configuration for OS-Climate integration."""
-
-    enabled: bool = Field(True, description="Enable OS-Climate integration")
-    repos_directory: Path = Field(
-        Path("./repo"), description="Directory for cloned repositories"
-    )
-    auto_update: bool = Field(False, description="Auto-update repositories")
-    update_interval_hours: int = Field(24, description="Update interval in hours")
-
-    # Repository settings
-    repositories: Dict[str, str] = Field(
-        default_factory=lambda: {
-            "osc-geo-h3loader-cli": "https://github.com/docxology/osc-geo-h3loader-cli.git",
-            "osc-geo-h3grid-srv": "https://github.com/docxology/osc-geo-h3grid-srv.git",
-        },
-        description="Repository URLs",
-    )
-
-    # H3 service settings
-    h3_service_enabled: bool = Field(True, description="Enable H3 grid service")
-    h3_service_host: str = Field("localhost", description="H3 service host")
-    h3_service_port: int = Field(8080, description="H3 service port")
-
-    @field_validator("update_interval_hours")
-    def validate_update_interval(cls, v):
-        if v < 1:
-            raise ValueError("Update interval must be at least 1 hour")
-        return v
-
-
 class SpaceConfig(BaseModel):
     """Main configuration model for GEO-INFER-SPACE."""
 
@@ -298,10 +267,6 @@ class SpaceConfig(BaseModel):
     cache: CacheConfig = Field(
         default_factory=CacheConfig, description="Cache configuration"
     )
-    osc: OSCConfig = Field(
-        default_factory=OSCConfig, description="OS-Climate configuration"
-    )
-
     # Custom settings
     custom: Dict[str, Any] = Field(
         default_factory=dict, description="Custom configuration parameters"

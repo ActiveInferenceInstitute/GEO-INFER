@@ -1,5 +1,5 @@
 """
-H3 utility functions for OSC-GEO.
+H3 utility functions for GEO-INFER-SPACE.
 
 This module provides utility functions for working with H3 grid data.
 All functions use H3 4.x API directly.
@@ -128,7 +128,7 @@ def polygon_to_cells(
     if isinstance(polygon, dict):
         # For GeoJSON Feature or FeatureCollection
         if polygon.get("type") == "Feature":
-            return list(h3.geo_to_cells(polygon["geometry"], resolution))
+            return sorted(h3.geo_to_cells(polygon["geometry"], resolution))
         # For GeoJSON Geometry objects
         elif polygon.get("type") in ("Polygon", "MultiPolygon"):
             # Ensure coordinates are properly nested for H3 v4
@@ -138,7 +138,7 @@ def polygon_to_cells(
                 if not isinstance(coordinates[0][0], (list, tuple)):
                     normalized_polygon["coordinates"] = [coordinates]
             # Do not mutate a caller-owned GeoJSON object while normalizing it.
-            return list(h3.geo_to_cells(normalized_polygon, resolution))
+            return sorted(h3.geo_to_cells(normalized_polygon, resolution))
         # For GeoJSON FeatureCollection
         elif polygon.get("type") == "FeatureCollection":
             all_cells = set()
@@ -157,7 +157,7 @@ def polygon_to_cells(
                 "type": "Polygon",
                 "coordinates": [polygon],  # Wrap in an array as GeoJSON requires
             }
-            return list(h3.geo_to_cells(geojson, resolution))
+            return sorted(h3.geo_to_cells(geojson, resolution))
         else:
             raise ValueError(f"Invalid coordinate list format: {polygon}")
     else:
@@ -291,11 +291,11 @@ def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
         )
         raise ImportError("h3-py package required for geo_to_cells")
 
-    return list(h3.geo_to_cells(geojson, resolution))
+    return sorted(h3.geo_to_cells(geojson, resolution))
 
 
 def grid_disk(h3_index: str, k: int) -> List[str]:
-    """Get k-ring around H3 index using H3 v4 API."""
+    """Get cells within grid distance k using the H3 v4 API."""
     try:
         import h3
     except ImportError:
@@ -304,7 +304,7 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
         )
         raise ImportError("h3-py package required for grid_disk")
 
-    return list(h3.grid_disk(h3_index, k))
+    return sorted(h3.grid_disk(h3_index, k))
 
 
 def get_h3_neighbors(h3_index: str, ring_size: int = 1) -> List[str]:

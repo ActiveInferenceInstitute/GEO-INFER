@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 def _make_posterior_samples():
     """Create deterministic posterior draws for summary-statistic tests."""
-    rng = np.random.RandomState(0)
+    rng = np.random.default_rng(0)
     samples = {
         "mu": rng.normal(2.0, 0.5, size=500),
         "sigma": np.abs(rng.normal(1.0, 0.3, size=500)),
@@ -85,10 +85,10 @@ class TestPosteriorPredictive:
         samples = _make_posterior_samples()
         n_pred = 100
         n_new = 10
-        rng = np.random.RandomState(1)
+        rng = np.random.default_rng(1)
         pred_samples = np.zeros((n_pred, n_new))
         for i in range(n_pred):
-            idx = rng.randint(0, len(samples["mu"]))
+            idx = rng.integers(0, len(samples["mu"]))
             mu = samples["mu"][idx]
             sigma = samples["sigma"][idx]
             pred_samples[i] = rng.normal(mu, sigma, size=n_new)
@@ -97,10 +97,10 @@ class TestPosteriorPredictive:
     def test_posterior_predictive_covers_data(self) -> None:
         """Posterior predictive distribution should cover plausible data."""
         samples = _make_posterior_samples()
-        rng = np.random.RandomState(2)
+        rng = np.random.default_rng(2)
         preds = []
         for _ in range(200):
-            idx = rng.randint(0, len(samples["mu"]))
+            idx = rng.integers(0, len(samples["mu"]))
             preds.append(rng.normal(samples["mu"][idx], samples["sigma"][idx]))
         preds = np.array(preds)
         # Most predictions should fall within [-2, 6] given mu~2, sigma~1

@@ -40,7 +40,7 @@ try:
     _spatial = SpatialIndexingInterface()
 
     def grid_disk(cell_index: str, k: int = 1):
-        """Get cells within k rings using unified interface."""
+        """Get cells within grid distance k using the unified interface."""
         return _spatial.get_cell_neighbors(cell_index, k)
 
     def grid_distance(cell1: str, cell2: str):

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from math import lgamma, log, pi
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 import numpy as np
+from ..utils.rng import SeedLike, resolve_rng
 
 
 def observations_from(data: Any) -> np.ndarray:
@@ -39,7 +40,7 @@ def features_from(X: Any) -> np.ndarray:
 
 def signal_from(X: Any) -> np.ndarray:
     """Reduce one or more features to a stable scalar signal per row."""
-    return np.mean(features_from(X), axis=1)
+    return np.asarray(np.mean(features_from(X), axis=1), dtype=float)
 
 
 def posterior_values(posterior: Any) -> Mapping[str, Any]:
@@ -65,7 +66,7 @@ def posterior_vector(posterior: Any, key: str, limit: int | None = None) -> np.n
     vector = vector[np.isfinite(vector)]
     if limit is not None:
         vector = vector[:limit]
-    return vector
+    return np.asarray(vector, dtype=float)
 
 
 def scalar_parameter(theta: Mapping[str, Any], key: str, default: float) -> float:
@@ -171,14 +172,71 @@ def log_prior_from_parameters(
 
 
 def predictive_samples(
-    mean: np.ndarray, scale: np.ndarray | float, samples: int, seed: int | None = None
+    mean: np.ndarray,
+    scale: np.ndarray | float,
+    samples: int,
+    seed: SeedLike = None,
 ) -> np.ndarray:
-    """Draw validated predictive samples around a model prediction."""
+    """Draw validated predictive samples around a model prediction.
+
+    Args:
+        mean: Predictive mean, one entry per prediction point.
+        scale: Predictive standard deviation, scalar or aligned to ``mean``.
+        samples: Number of draws to return.
+        seed: Seed or generator for the draws; see
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
+
+    Returns:
+        Array of shape ``(samples, len(mean))``.
+    """
     if samples <= 0:
         raise ValueError("samples must be greater than zero")
     mean = np.asarray(mean, dtype=float).reshape(-1)
     scale = np.asarray(scale, dtype=float)
     if np.any(~np.isfinite(scale)) or np.any(scale <= 0):
         raise ValueError("Predictive scale must be finite and greater than zero")
-    rng = np.random.default_rng(seed)
+    rng = resolve_rng(seed)
     return rng.normal(loc=mean, scale=scale, size=(samples, mean.size))
+
+
+def posterior_draw_indices(posterior: Any, samples: int, names: Sequence[str]) -> np.ndarray:
+    """Choose which posterior draws a prediction should average over.
+
+    Two things this gets right that an ad-hoc ``range(min(samples, ...))``
+    does not. First, the number of available draws is the length of a parameter
+    *array*, not ``len(posterior.samples)`` -- that is the count of parameter
+    names, so using it silently collapses a 4000-draw posterior to a handful of
+    draws. Second, the chosen draws are spread evenly across the chain instead
+    of taken from the front, which would otherwise weight the least-converged
+    part of the run most heavily.
+
+    Args:
+        posterior: Object exposing a ``samples`` mapping of parameter name to
+            draws along the leading axis.
+        samples: Maximum number of draws to use. Must be positive.
+        names: Parameter names the caller needs; the draw count is the minimum
+            across them, so a ragged posterior cannot index out of bounds.
+
+    Returns:
+        Integer indices into the draw axis, ascending, of length
+        ``min(samples, available)``.
+
+    Raises:
+        ValueError: If ``samples`` is not positive, if ``names`` is empty, if a
+            name is missing from the posterior, or if no draws are available.
+    """
+    if samples <= 0:
+        raise ValueError("samples must be greater than zero")
+    if not names:
+        raise ValueError("names must not be empty")
+
+    draw_counts = []
+    for name in names:
+        if name not in posterior.samples:
+            raise ValueError(f"posterior has no samples for parameter {name!r}")
+        draw_counts.append(len(np.asarray(posterior.samples[name])))
+    available = min(draw_counts)
+    if available == 0:
+        raise ValueError("posterior contains no usable parameter samples")
+
+    return np.linspace(0, available - 1, num=min(int(samples), available), dtype=int)

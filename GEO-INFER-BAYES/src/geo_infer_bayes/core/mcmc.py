@@ -4,8 +4,9 @@ Markov Chain Monte Carlo implementation for Bayesian inference.
 
 import numpy as np
 import xarray as xr
-from typing import Dict, Any, Optional, Union, List, Tuple
+from typing import Dict, Any, Union, List, Tuple
 from tqdm import tqdm
+from ..utils.rng import SeedLike, resolve_rng
 
 
 class MCMC:
@@ -27,18 +28,22 @@ class MCMC:
         Whether to adapt the step size during warmup
     max_steps : int, default=1000
         Maximum number of steps in one parameter update
-    random_seed : int, optional
-        Random seed for reproducibility
+    random_seed : int or numpy.random.Generator, optional
+        Seed or generator for every draw this sampler makes. ``None`` (default)
+        means a generator seeded from OS entropy, so the chain is not
+        replayable; pass an int to replay it, or a ``Generator`` to thread one
+        stream through several samplers. See
+        :func:`geo_infer_bayes.utils.rng.resolve_rng`.
     """
 
     def __init__(
         self,
-        model,
+        model: Any,
         n_chains: int = 4,
         step_size: float = 0.1,
         adapt_step_size: bool = True,
         max_steps: int = 1000,
-        random_seed: Optional[int] = None,
+        random_seed: SeedLike = None,
     ):
         if not isinstance(n_chains, (int, np.integer)) or n_chains < 1:
             raise ValueError("n_chains must be a positive integer")
@@ -52,7 +57,7 @@ class MCMC:
         self.adapt_step_size = adapt_step_size
         self.max_steps = int(max_steps)
         self.random_seed = random_seed
-        self.rng = np.random.default_rng(random_seed)
+        self.rng: np.random.Generator = resolve_rng(random_seed)
 
     def run(
         self,
@@ -62,7 +67,7 @@ class MCMC:
         thin: int = 1,
         init_strategy: str = "random",
         progress_bar: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Run MCMC sampling for the model.
@@ -172,7 +177,7 @@ class MCMC:
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], xr.Dataset],
         n_samples: int = 500,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Update previous samples with new data.
@@ -236,7 +241,7 @@ class MCMC:
         )
 
     def _initialize_chains(
-        self, data: Any, init_strategy: str, **kwargs
+        self, data: Any, init_strategy: str, **kwargs: Any
     ) -> List[Dict[str, float]]:
         """Initialize the Markov chains."""
         param_names = list(self.model.parameters.keys())
@@ -404,7 +409,7 @@ class MCMC:
     def _log_posterior(self, theta: Dict[str, float], data: Any) -> float:
         """Compute log posterior for a set of parameters."""
         try:
-            return self.model.log_posterior(theta, data)
+            return float(self.model.log_posterior(theta, data))
         except Exception:
             # Return negative infinity for invalid parameters
             return -np.inf

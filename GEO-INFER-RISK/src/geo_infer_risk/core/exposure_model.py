@@ -41,6 +41,8 @@ except ImportError:
     DATA_AVAILABLE = False
     DataManager = None
 
+from ..utils.rng import resolve_rng
+
 logger = logging.getLogger(__name__)
 
 
@@ -60,23 +62,29 @@ class EnhancedExposureModel:
     """
 
     def __init__(self, exposure_type: str, params: Dict[str, Any]):
-        """
-        Initialize the enhanced exposure model.
+        """Initialize the enhanced exposure model.
 
         Args:
-            exposure_type: Type of exposure (property, population, infrastructure, business)
-            params: Model parameters and configuration
+            exposure_type: Type of exposure (``property``, ``population``,
+                ``infrastructure`` or ``business``).
+            params: Model parameters and configuration. A ``random_seed`` key
+                (or its alias ``seed``) sets the seed for this model's
+                generator; see
+                :func:`geo_infer_risk.utils.rng.resolve_rng` for accepted
+                forms. Omitting it gives a generator seeded from OS entropy,
+                so results are not replayable.
         """
         self.exposure_type = exposure_type
         self.params = params
         self.logger = logging.getLogger(f"{__name__}.{exposure_type}")
 
-        # Reproducible RNG (legacy global by default; callers may bind a
-        # default_rng via set_random_seed or by setting random_seed in params).
-        self._rng: Any = np.random
-        seed = params.get("random_seed") or params.get("seed")
-        if seed is not None:
-            self._rng = np.random.default_rng(int(seed))
+        # All stochastic draws in this model come from this generator, never
+        # from the process-wide numpy.random singleton. Checking for None
+        # explicitly keeps random_seed=0 a valid, replayable seed.
+        seed = params.get("random_seed")
+        if seed is None:
+            seed = params.get("seed")
+        self._rng: np.random.Generator = resolve_rng(seed)
 
         # Enhanced parameter handling
         self.data_sources = params.get("data_sources", [])
@@ -111,8 +119,8 @@ class EnhancedExposureModel:
         self.is_initialized = False
         self.exposure_data = None
         self.spatial_index = None
-        self.temporal_profiles = {}
-        self.economic_factors = {}
+        self.temporal_profiles: Dict[str, Any] = {}
+        self.economic_factors: Dict[str, Any] = {}
         self.last_update = None
 
         # Load comprehensive exposure data

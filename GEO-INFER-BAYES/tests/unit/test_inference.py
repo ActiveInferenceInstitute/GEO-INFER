@@ -42,7 +42,7 @@ class _SimpleModel(BayesianModel):
 
     def posterior_predictive(self, posterior, X=None, samples=100):
         n = 10 if X is None else len(X)
-        return np.random.randn(samples, n)
+        return np.random.default_rng(0).standard_normal((samples, n))
 
 
 class TestBayesianInferenceInit:

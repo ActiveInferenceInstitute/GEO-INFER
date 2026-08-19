@@ -38,29 +38,45 @@ class TimeSeries:
             spatial_location: Optional spatial location {"lat": float, "lon": float}
             metadata: Optional metadata dictionary
         """
+        if not isinstance(data, (pd.Series, pd.DataFrame, np.ndarray)):
+            raise TypeError("data must be a pandas Series, DataFrame, or numpy array")
+
+        normalized_timestamps = None
+        if timestamps is not None:
+            try:
+                normalized_timestamps = pd.DatetimeIndex(timestamps)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Could not convert timestamps to datetime: {exc}"
+                ) from exc
+            if len(normalized_timestamps) != len(data):
+                raise ValueError("timestamps length must match data length")
+
         # Convert to DataFrame if needed
         if isinstance(data, np.ndarray):
-            if timestamps is None:
+            if normalized_timestamps is None:
                 raise ValueError("timestamps required when data is numpy array")
-            self.data = pd.DataFrame(data, index=timestamps)
+            self.data = pd.DataFrame(data, index=normalized_timestamps)
         elif isinstance(data, pd.Series):
             self.data = data.to_frame()
-            if timestamps is not None:
-                self.data.index = timestamps
+            if normalized_timestamps is not None:
+                self.data.index = normalized_timestamps
         else:
             self.data = data.copy()
-            if timestamps is not None:
-                self.data.index = timestamps
+            if normalized_timestamps is not None:
+                self.data.index = normalized_timestamps
 
-        self.spatial_location = spatial_location
-        self.metadata = metadata or {}
+        self.spatial_location = (
+            dict(spatial_location) if spatial_location is not None else None
+        )
+        self.metadata = dict(metadata) if metadata is not None else {}
 
         # Validate temporal index
         if not isinstance(self.data.index, pd.DatetimeIndex):
             try:
                 self.data.index = pd.to_datetime(self.data.index)
-            except Exception as e:
-                raise ValueError(f"Could not convert index to datetime: {e}")
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"Could not convert index to datetime: {exc}") from exc
 
         logger.debug(f"Created TimeSeries with {len(self.data)} observations")
 
@@ -76,11 +92,15 @@ class TimeSeries:
     @property
     def start_time(self) -> datetime:
         """Get start time."""
+        if self.data.empty:
+            raise ValueError("TimeSeries is empty")
         return self.data.index[0]
 
     @property
     def end_time(self) -> datetime:
         """Get end time."""
+        if self.data.empty:
+            raise ValueError("TimeSeries is empty")
         return self.data.index[-1]
 
     @property
@@ -193,6 +213,9 @@ class TimeSeries:
         Returns:
             Sliced TimeSeries
         """
+        if start > end:
+            raise ValueError("slice start must not be after end")
+
         sliced_data = self.data.loc[start:end]
 
         return TimeSeries(
@@ -200,6 +223,3 @@ class TimeSeries:
             spatial_location=self.spatial_location,
             metadata={**self.metadata, "sliced": True},
         )
-
-
-

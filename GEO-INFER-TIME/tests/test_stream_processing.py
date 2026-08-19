@@ -420,3 +420,167 @@ class TestStreamSequence:
         result = sp.process_window()
         assert result["count"] == 1
         assert result["aggregated_value"] == 100.0
+
+
+class TestStreamProcessorContracts:
+    """Validation and state-management contracts for stream processing."""
+
+    @pytest.mark.parametrize(
+        ("kwargs", "exception"),
+        [
+            ({"window_size": timedelta(0)}, ValueError),
+            ({"window_size": timedelta(seconds=-1)}, ValueError),
+            ({"window_size": 60}, TypeError),
+            (
+                {
+                    "window_size": timedelta(seconds=10),
+                    "slide_interval": timedelta(0),
+                },
+                ValueError,
+            ),
+            (
+                {
+                    "window_size": timedelta(seconds=10),
+                    "aggregation_func": "mean",
+                },
+                TypeError,
+            ),
+        ],
+    )
+    def test_constructor_rejects_invalid_configuration(self, kwargs, exception):
+        with pytest.raises(exception):
+            StreamProcessor(**kwargs)
+
+    @pytest.mark.parametrize(
+        ("timestamp", "value", "exception"),
+        [
+            ("2024-01-01", 1.0, TypeError),
+            (BASE_TIME, True, TypeError),
+            (BASE_TIME, "not-a-number", TypeError),
+            (BASE_TIME, np.nan, ValueError),
+            (BASE_TIME, np.inf, ValueError),
+        ],
+    )
+    def test_add_data_point_rejects_invalid_values(self, timestamp, value, exception):
+        processor = StreamProcessor(timedelta(minutes=1))
+
+        with pytest.raises(exception):
+            processor.add_data_point(timestamp, value)
+
+    def test_metadata_is_copied_at_ingress(self):
+        processor = StreamProcessor(timedelta(minutes=1))
+        metadata = {"sensor": "A"}
+
+        processor.add_data_point(BASE_TIME, 1, metadata)
+        metadata["sensor"] = "B"
+
+        assert processor.buffer[0]["metadata"] == {"sensor": "A"}
+        assert processor.buffer[0]["value"] == 1.0
+
+    def test_recent_window_count_contract(self):
+        processor = StreamProcessor(timedelta(minutes=1))
+        processor.add_data_point(BASE_TIME, 1)
+        processor.process_window()
+
+        assert processor.get_recent_windows(0) == []
+        with pytest.raises(ValueError, match="non-negative"):
+            processor.get_recent_windows(-1)
+        with pytest.raises(TypeError, match="integer"):
+            processor.get_recent_windows(1.5)
+
+
+class TestWindowingAndEventMethods:
+    """Exercise public windowing, late-data, event, and reset methods."""
+
+    @pytest.fixture
+    def processor(self):
+        processor = StreamProcessor(
+            window_size=timedelta(seconds=60),
+            slide_interval=timedelta(seconds=20),
+        )
+        for offset, value in [(0, 1), (10, 2), (30, 3), (50, 4), (60, 5)]:
+            processor.add_data_point(_ts(BASE_TIME, offset), value)
+        return processor
+
+    def test_tumbling_sliding_and_session_windows(self, processor):
+        tumbling = processor.process_tumbling_windows()
+        sliding = processor.process_sliding_windows()
+        sessions = processor.process_session_windows(timedelta(seconds=15))
+
+        assert [window["count"] for window in tumbling] == [4, 1]
+        assert [window["count"] for window in sliding] == [4, 3, 2, 1]
+        assert [window["count"] for window in sessions] == [2, 1, 2]
+
+    def test_session_gap_validation(self, processor):
+        with pytest.raises(ValueError, match="non-negative"):
+            processor.process_session_windows(timedelta(seconds=-1))
+        with pytest.raises(TypeError, match="timedelta"):
+            processor.process_session_windows(10)
+
+    def test_late_data_watermark_and_flush(self):
+        processor = StreamProcessor(timedelta(minutes=1))
+        processor.add_data_point(_ts(BASE_TIME, 10), 10)
+        processor.add_data_point(_ts(BASE_TIME, 5), 5)
+
+        assert processor.get_watermark() == _ts(BASE_TIME, 10)
+        assert [point["value"] for point in processor.get_late_data()] == [5.0]
+        assert processor.get_stats()["late_arrivals"] == 1
+        assert processor.flush_late_data()[0]["value"] == 5.0
+        assert processor.get_late_data() == []
+
+    def test_threshold_events_call_registered_handler(self):
+        processor = StreamProcessor(timedelta(minutes=1))
+        handled = []
+        processor.register_event_handler("threshold_breach", handled.append)
+        for offset, value in enumerate([-5, 0, 10]):
+            processor.add_data_point(_ts(BASE_TIME, offset), value)
+
+        events = processor.detect_threshold_events(
+            lower_threshold=-1, upper_threshold=5
+        )
+
+        assert [event["direction"] for event in events] == ["lower", "upper"]
+        assert handled == events
+        assert processor.get_stats()["events_detected"] == 2
+
+        with pytest.raises(ValueError, match="cannot exceed"):
+            processor.detect_threshold_events(lower_threshold=2, upper_threshold=1)
+
+    def test_anomaly_detection_calls_handler_and_validates_threshold(self):
+        processor = StreamProcessor(timedelta(minutes=1))
+        handled = []
+        processor.register_event_handler("anomaly", handled.append)
+        for offset, value in enumerate([0] * 20 + [100]):
+            processor.add_data_point(_ts(BASE_TIME, offset), value)
+
+        anomalies = processor.detect_anomalies_zscore(3)
+
+        assert len(anomalies) == 1
+        assert anomalies[0]["value"] == 100.0
+        assert handled == anomalies
+
+        with pytest.raises(ValueError, match="greater than zero"):
+            processor.detect_anomalies_zscore(0)
+
+    def test_summary_stats_and_reset(self, processor):
+        processor.process_window()
+        summary = processor.get_buffer_summary()
+        stats = processor.get_stats()
+
+        assert summary["size"] == 5
+        assert summary["mean"] == 3.0
+        assert stats == {
+            "total_points": 5,
+            "total_windows": 1,
+            "late_arrivals": 0,
+            "events_detected": 0,
+        }
+
+        processor.reset()
+        assert processor.get_buffer_summary() == {
+            "size": 0,
+            "window_start": None,
+            "window_end": None,
+            "watermark": None,
+        }
+        assert processor.get_stats()["total_points"] == 0

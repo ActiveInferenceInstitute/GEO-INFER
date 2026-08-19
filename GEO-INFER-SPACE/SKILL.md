@@ -17,7 +17,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **H3 v4.5 indexing**: Cell operations, hierarchical resolution, k-ring neighbors
+- **H3 v4.5 indexing**: Cell operations, hierarchical resolution, grid-disk neighborhoods
 - **Nested H3 hierarchies**: Parent/child closure, same-resolution adjacency,
   and deterministic aggregation for ordered H3 resolutions
 - **Backend dispatch**: Interface pattern for H3, SRAI, PostGIS backends
@@ -29,8 +29,11 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ```python
 from geo_infer_space.backends.h3 import H3Backend
-from geo_infer_space.core.spatial_operations import SpatialEngine
-from geo_infer_space.core.coordinate_systems import CRSManager
+from geo_infer_space import GISManager
+from geo_infer_space.core import (
+    GeometricOperationsInterface,
+    SpatialIndexingInterface,
+)
 from geo_infer_space.nested import NestedH3Grid
 ```
 
@@ -43,8 +46,8 @@ cell = h3.latlng_to_cell(lat, lng, resolution)
 lat, lng = h3.cell_to_latlng(cell)
 neighbors = h3.grid_disk(cell, k)
 
-# WRONG (legacy v3 — never use):
-# h3.geo_to_h3(), h3.h3_to_geo(), h3.k_ring()
+# Pre-v4 coordinate and neighborhood spellings are unsupported. The repository
+# H3 contract validator rejects them in runtime source.
 ```
 
 ## Examples
@@ -83,10 +86,14 @@ assert hierarchy["validation"]["orphan_count"] == 0
 ```
 
 ```python
-from geo_infer_space.core.coordinate_systems import CRSManager
+from geo_infer_space import GISManager
 
-crs = CRSManager()
-x, y = crs.transform(45.5, -122.6, from_epsg=4326, to_epsg=32610)
+gis = GISManager()
+x, y = gis.transform_coordinates(
+    (-122.6, 45.5),
+    from_crs="EPSG:4326",
+    to_crs="EPSG:32610",
+)
 print(f"UTM Zone 10N: ({x:.0f}, {y:.0f})")
 ```
 
