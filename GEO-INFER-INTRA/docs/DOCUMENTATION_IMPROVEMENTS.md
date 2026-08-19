@@ -37,8 +37,7 @@ git diff --check
 
 ## Historical Notes
 
-- A 2026-08-02 documentation deep-review pass restored 148 newline-collapsed
-  markdown files, repaired broken links and fabricated URLs, and rewrote
-  hub pages to match repository reality. See the root
-  [REVIEW_LOG_2026-08-02.md](../../REVIEW_LOG_2026-08-02.md) and
-  [TODO.md](../../TODO.md) for the scoped findings.
+ - A 2026-08-02 documentation deep-review pass restored 148 newline-collapsed
+   markdown files, repaired broken links and fabricated URLs, and rewrote
+   hub pages to match repository reality. See
+   [TODO.md](../../TODO.md) for the scoped findings.

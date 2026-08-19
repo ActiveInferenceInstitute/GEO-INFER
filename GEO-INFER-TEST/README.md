@@ -22,7 +22,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_repo_contracts.py`
 - `validate_skills.py`
 - `validate_test_contracts.py`
-- `.cursorrules`
 - `SKILL.md`
 - `TESTING.md`
 - `pyproject.toml`

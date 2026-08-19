@@ -10,7 +10,6 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

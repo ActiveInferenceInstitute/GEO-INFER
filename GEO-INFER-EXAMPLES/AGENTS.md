@@ -31,7 +31,6 @@
 - `tests/`
 - `run_orchestrator.py`
 - `setup.py`
-- `.cursorrules`
 - `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`

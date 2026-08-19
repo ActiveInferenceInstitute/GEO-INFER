@@ -2,6 +2,7 @@
 GenerativeMap module for creating generative art from geospatial data.
 """
 
+import hashlib
 import os
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -78,7 +79,7 @@ class GenerativeMap:
         # Load elevation data
         if isinstance(region, str):
             # Get elevation data for a named region
-            elevation_data = cls._get_region_elevation(region, resolution)
+            elevation_data = cls._generate_region_terrain(region, resolution)
             gen_map.metadata["region"] = region
             gen_map.metadata["type"] = "named_region"
         elif isinstance(region, np.ndarray):
@@ -88,7 +89,7 @@ class GenerativeMap:
             gen_map.metadata["type"] = "elevation_array"
         elif isinstance(region, tuple) and len(region) == 4:
             # Get elevation data for a bounding box (min_lon, min_lat, max_lon, max_lat)
-            elevation_data = cls._get_bbox_elevation(region, resolution)
+            elevation_data = cls._generate_bbox_terrain(region, resolution)
             gen_map.metadata["region"] = f"bbox_{region}"
             gen_map.metadata["bbox"] = region
             gen_map.metadata["type"] = "bbox"
@@ -121,23 +122,32 @@ class GenerativeMap:
         return gen_map
 
     @staticmethod
-    def _get_region_elevation(region: str, resolution: int = 512) -> np.ndarray:
+    def _generate_region_terrain(region: str, resolution: int = 512) -> np.ndarray:
         """
-        Get elevation data for a named region.
+        Generate a procedural terrain field for a named region.
+
+        This is generated relief, not measured elevation: the region's real
+        latitude, longitude, and characteristic relief scale parameterise a
+        multi-octave noise field. It exists to give the generative-art
+        pipeline a plausible, reproducible surface to render, and must not
+        be presented as survey or DEM data.
+
+        Output is deterministic for a given ``(region, resolution)`` pair --
+        the noise is drawn from a generator seeded from the region name, so
+        the same call renders the same artwork across processes.
 
         Args:
             region: Name of the region (e.g., "grand_canyon", "everest", "alps")
-            resolution: Resolution of the output data
+            resolution: Side length of the square output grid
 
         Returns:
-            Elevation data as a 2D numpy array
+            Generated relief as a 2D numpy array of shape
+            ``(resolution, resolution)``
 
         Raises:
-            ValueError: If the region is not supported or data can't be retrieved
+            ValueError: If the region is not one of the supported names
         """
-        # For demo purposes, generate synthetic elevation data
-        # In a real implementation, this would fetch actual elevation data
-
+        # lat, lon, characteristic relief scale in metres
         known_regions = {
             "grand_canyon": (
                 36.0544,
@@ -179,31 +189,35 @@ class GenerativeMap:
         # Scale to make the terrain more pronounced for certain regions
         elevation = elevation * scale
 
-        # Add some random variation
-        elevation += np.random.normal(0, abs(scale / 20), elevation.shape)
+        # Seed from the region name so the same region always renders alike.
+        seed = int(hashlib.sha256(region.encode("utf-8")).hexdigest(), 16) % (2**32)
+        rng = np.random.default_rng(seed)
+        elevation += rng.normal(0, abs(scale / 20), elevation.shape)
 
         return elevation
 
     @staticmethod
-    def _get_bbox_elevation(
+    def _generate_bbox_terrain(
         bbox: Tuple[float, float, float, float], resolution: int = 512
     ) -> np.ndarray:
         """
-        Get elevation data for a bounding box.
+        Generate a procedural terrain field for a bounding box.
+
+        As with :meth:`_generate_region_terrain` this is generated relief,
+        not measured elevation. Relief amplitude scales inversely with the
+        extent of the box, so large areas render gentler terrain. Output is
+        deterministic for a given ``(bbox, resolution)`` pair.
 
         Args:
             bbox: Bounding box coordinates (min_lon, min_lat, max_lon, max_lat)
-            resolution: Resolution of the output data
+            resolution: Side length of the square output grid
 
         Returns:
-            Elevation data as a 2D numpy array
+            Generated relief as a 2D numpy array
 
         Raises:
-            ValueError: If the bounding box is invalid or data can't be retrieved
+            ValueError: If the bounding box is invalid
         """
-        # For demo purposes, generate synthetic elevation data
-        # In a real implementation, this would fetch actual elevation data
-
         min_lon, min_lat, max_lon, max_lat = bbox
 
         # Validate bbox
@@ -235,8 +249,12 @@ class GenerativeMap:
         # Scale the terrain
         elevation = elevation * scale * 50
 
-        # Add some random variation
-        elevation += np.random.normal(0, scale, elevation.shape)
+        # Seed from the bounding box so the same extent always renders alike.
+        seed = int(
+            hashlib.sha256(repr(tuple(bbox)).encode("utf-8")).hexdigest(), 16
+        ) % (2**32)
+        rng = np.random.default_rng(seed)
+        elevation += rng.normal(0, scale, elevation.shape)
 
         return elevation
 

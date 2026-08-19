@@ -10,7 +10,6 @@ Comprehensive Bayesian inference framework with probabilistic modeling, uncertai
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `mcmc_traces.png`
 - `mean_prediction.png`

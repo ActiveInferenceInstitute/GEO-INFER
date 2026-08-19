@@ -9,7 +9,6 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

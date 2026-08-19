@@ -13,14 +13,14 @@ def load_module(module_filename: str):
     return module
 
 
-essage = "from h3.module import something\n"
+SAMPLE_SOURCE = "from h3.module import something\n"
 
 
 def test_fix_imports_in_file(tmp_path: Path):
     """Behavior-focused test: test_fix_imports_in_file."""
     mod = load_module("fix_imports.py")
     f = tmp_path / "ex.py"
-    f.write_text(essage, encoding="utf-8")
+    f.write_text(SAMPLE_SOURCE, encoding="utf-8")
 
     mod.fix_imports_in_file(str(f))
 

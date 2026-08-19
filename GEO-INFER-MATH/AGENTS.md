@@ -26,7 +26,6 @@
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `CHANGELOG.md`
 - `IMPROVEMENTS.md`
 - `SKILL.md`

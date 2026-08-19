@@ -96,8 +96,7 @@ GEO-INFER-MODULE/
 ├── requirements.txt
 ├── README.md            # Module overview and usage
 ├── AGENTS.md            # Agent capabilities and integration
-├── SKILL.md             # Claude Code skill (auto-discovered)
-└── .cursorrules         # Optional module-specific development rules
+└── SKILL.md             # Claude Code skill (auto-discovered)
 ```
 
 ### Module Categories
@@ -133,7 +132,7 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
 
 ## Critical Development Rules
 
-These rules are from `.cursorrules/` and apply to all modules:
+These rules are from `.agents/` and apply to all modules:
 
 1. **NO MOCK METHODS**: Never create placeholder, stub, or mock implementations. Every function must have real logic. Use proper error handling instead of `pass` or `NotImplementedError`.
 
@@ -143,7 +142,7 @@ These rules are from `.cursorrules/` and apply to all modules:
 
 4. **Type Hints Everywhere**: Full type annotations on all function parameters and return values.
 
-5. **Module-specific `.cursorrules`**: Individual modules may have their own `.cursorrules` file that extends the root rules. Check `GEO-INFER-MODULE/.cursorrules` before working on a module.
+5. **Module-specific agent guidance**: Individual modules maintain domain-specific workflows and contracts in their `AGENTS.md` and `SKILL.md` files. Check `GEO-INFER-MODULE/AGENTS.md` before working on a module.
 
 6. **Docs track code**: Every code change must keep `README.md` (user-facing) and `AGENTS.md` (agent/integration-facing) in sync with the implementation.
 
@@ -160,7 +159,7 @@ These rules are from `.cursorrules/` and apply to all modules:
 - `GEO-INFER-EXAMPLES/examples/` - Working examples including module orchestrators
 - `SKILL.md` - Root Claude Code skill (ecosystem overview)
 - `GEO-INFER-*/SKILL.md` - Module-level Claude Code skills (44 files)
-- `.cursorrules/` - Framework-wide development rules
+- `.agents/` - Framework-wide development rules and agent guidance
 - `AGENTS.md` - Multi-agent systems architecture documentation
 - `PAI.md` - PAI Algorithm integration and development methodology
 - `ISA.md` - Current ideal-state criteria and verification targets

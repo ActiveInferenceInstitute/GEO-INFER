@@ -14,7 +14,6 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 - `tests/`
 - `demo_all_methods.py`
 - `verify_installation.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

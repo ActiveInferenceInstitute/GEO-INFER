@@ -9,7 +9,6 @@ Comprehensive security and privacy framework for geospatial information systems 
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

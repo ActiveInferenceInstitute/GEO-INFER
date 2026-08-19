@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `.test-results/`
 - `docs/`
 - `examples/`
 - `src/`

@@ -26,6 +26,3 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["tests*"]
-
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"

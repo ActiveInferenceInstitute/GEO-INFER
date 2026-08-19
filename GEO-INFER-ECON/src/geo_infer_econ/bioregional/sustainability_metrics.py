@@ -9,7 +9,7 @@ from typing import Dict, Optional, Any
 import numpy as np
 import pandas as pd
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -491,7 +491,7 @@ class PlanetaryBoundaries:
             "overall_status": (
                 "within_safe_space" if not transgressed else "boundaries_transgressed"
             ),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         logger.info(

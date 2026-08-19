@@ -9,6 +9,7 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_manuscript_research.py`
 - `test_module_health.py`
 - `test_performance_monitor.py`
+- `test_root_pytest_policy.py`
 - `test_run_unified_tests.py`
 - `test_spatial_functions.py`
 - `test_test_discoverer.py`

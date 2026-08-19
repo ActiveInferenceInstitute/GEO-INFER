@@ -12,7 +12,6 @@ Comprehensive place-based analysis framework providing deep insights into specif
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

@@ -11,7 +11,6 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 - `tests/`
 - `demo_all_methods.py`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

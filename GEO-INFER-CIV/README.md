@@ -9,7 +9,6 @@ Empowering communities with participatory mapping, citizen science, and collabor
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

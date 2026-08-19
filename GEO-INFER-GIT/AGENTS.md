@@ -29,7 +29,6 @@
 - `clone_repos.py`
 - `clone_script.py`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

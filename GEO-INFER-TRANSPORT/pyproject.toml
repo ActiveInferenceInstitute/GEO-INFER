@@ -51,8 +51,3 @@ exclude = ["tests*"]
 [tool.black]
 line-length = 88
 target-version = ['py311', 'py312']
-
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]

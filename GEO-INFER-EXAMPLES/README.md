@@ -14,7 +14,6 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 - `tests/`
 - `run_orchestrator.py`
 - `setup.py`
-- `.cursorrules`
 - `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`

@@ -13,7 +13,6 @@ Foundational data backbone providing ETL pipelines, storage optimization, and da
 - `tests/`
 - `validation/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

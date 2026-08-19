@@ -70,8 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PAI Algorithm integration (`PAI.md`): 7-phase OBSERVE→LEARN methodology for GEO-INFER development
 - `GEO-INFER-SPM`: Statistical Parametric Mapping module (spatial GLM, random field theory)
 - `GEO-INFER-EXAMPLES`: Cross-module integration demonstrations and entry-point tutorials
-- Module-specific `.cursorrules` files extending root rules for all 44 modules
-- Root-level `.cursorrules/` directory with framework-wide development rules
+- Root-level `.agents/` directory with framework-wide development rules and standards
 - Backend-agnostic spatial dispatch pattern (`SpatialIndexingInterface`) in SPACE module
 
 ### Changed

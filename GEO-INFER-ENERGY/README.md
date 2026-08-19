@@ -4,7 +4,6 @@ Energy systems analysis, renewable energy optimization, and grid management.
 
 ## Contents
 
-- `.test-results/`
 - `docs/`
 - `examples/`
 - `src/`

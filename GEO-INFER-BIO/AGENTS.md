@@ -26,7 +26,6 @@
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `Dockerfile`
 - `SKILL.md`
 - `docker-compose.yml`

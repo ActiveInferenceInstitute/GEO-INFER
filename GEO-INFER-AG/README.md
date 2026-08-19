@@ -10,7 +10,6 @@ Advanced agricultural analysis and precision farming applications using geospati
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements-test.txt`

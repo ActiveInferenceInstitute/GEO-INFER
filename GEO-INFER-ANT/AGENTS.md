@@ -28,7 +28,6 @@
 - `tests/`
 - `run_tests.py`
 - `setup.py`
-- `.cursorrules`
 - `IMPLEMENTATION_STATUS.md`
 - `SKILL.md`
 - `pyproject.toml`

@@ -20,7 +20,7 @@ import queue
 from typing import Dict, Any, Optional, Callable, Union, List
 from dataclasses import dataclass, field
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pickle
 import sqlite3
 from abc import ABC, abstractmethod
@@ -30,14 +30,19 @@ from ..utils.logging_utils import get_logger
 logger = get_logger(__name__)
 
 
+def _utc_now() -> datetime:
+    """Return the current UTC time as a timezone-aware datetime."""
+    return datetime.now(timezone.utc)
+
+
 @dataclass
 class CacheEntry:
     """A cache entry with metadata."""
 
     key: str
     value: Any
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    accessed_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=_utc_now)
+    accessed_at: datetime = field(default_factory=_utc_now)
     expires_at: Optional[datetime] = None
     access_count: int = 0
     size_bytes: int = 0
@@ -48,16 +53,16 @@ class CacheEntry:
         """Check if the cache entry has expired."""
         if self.expires_at is None:
             return False
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
     def access(self) -> None:
         """Mark the entry as accessed."""
-        self.accessed_at = datetime.utcnow()
+        self.accessed_at = datetime.now(timezone.utc)
         self.access_count += 1
 
     def get_age_seconds(self) -> float:
         """Get age of the cache entry in seconds."""
-        return (datetime.utcnow() - self.created_at).total_seconds()
+        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
 
 
 @dataclass
@@ -70,7 +75,7 @@ class CacheStatistics:
     total_size_bytes: int = 0
     entry_count: int = 0
     average_access_time_ms: float = 0.0
-    last_reset: datetime = field(default_factory=datetime.utcnow)
+    last_reset: datetime = field(default_factory=_utc_now)
 
     @property
     def hit_rate(self) -> float:
@@ -83,7 +88,7 @@ class CacheStatistics:
         self.hits = 0
         self.misses = 0
         self.evictions = 0
-        self.last_reset = datetime.utcnow()
+        self.last_reset = datetime.now(timezone.utc)
 
 
 class CachePolicy(ABC):
@@ -191,7 +196,7 @@ class AdaptivePolicy(CachePolicy):
 
         # Calculate scores for each entry
         scores = {}
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         for key, entry in entries.items():
             # LRU score (inverse of access time)
@@ -334,7 +339,7 @@ class MemoryCache:
 
             # Set expiration
             if ttl_seconds:
-                entry.expires_at = datetime.utcnow() + timedelta(seconds=ttl_seconds)
+                entry.expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
 
             # Check if we need to evict entries
             if len(self.entries) >= self.max_size:
@@ -1028,6 +1033,17 @@ class IntelligentCache:
     - Cache analytics and optimization recommendations
     """
 
+    #: Sentinel distinguishing "absent" from a cached ``None``.
+    _MISS = object()
+    #: Accesses this far apart count as co-access.
+    CO_ACCESS_WINDOW_SECONDS = 5.0
+    #: Weight contributed by sharing a key namespace.
+    NAMESPACE_SIBLING_WEIGHT = 1.0
+    #: Minimum score before a key is treated as related.
+    MIN_RELATEDNESS_SCORE = 0.5
+    #: Upper bound on keys returned per prefetch pass.
+    MAX_RELATED_KEYS = 10
+
     def __init__(self, cache: MultiLevelCache = None):
         """
         Initialize intelligent cache.
@@ -1131,22 +1147,93 @@ class IntelligentCache:
         return ttl
 
     def _trigger_prefetch(self, key: str) -> None:
-        """Trigger prefetching based on access patterns."""
-        # Simplified prefetching logic
-        # In a real implementation, this would analyze access patterns
-        # and prefetch related data
+        """Queue related keys that are not currently resident in the cache.
 
-        related_keys = self._find_related_keys(key)
-        for related_key in related_keys:
-            if related_key not in [k for k in self.access_patterns.keys()]:
-                # Add to prefetch queue
+        Keys already held by the cache need no prefetch; keys that were seen
+        before but have since been evicted are exactly the ones worth
+        warming, so residency -- not whether the key was ever accessed --
+        decides what is queued.
+
+        Note:
+            :meth:`MultiLevelCache.get` cannot distinguish a stored ``None``
+            from a miss, so a key whose cached value is ``None`` is treated
+            as absent and may be queued again. The sentinel below keeps this
+            method correct if that layer later gains that distinction.
+
+        Args:
+            key: The key whose access triggered this prefetch pass.
+        """
+        for related_key in self._find_related_keys(key):
+            if self.cache.get(related_key, self._MISS) is self._MISS:
                 self.prefetch_queue.put(related_key)
 
+    @staticmethod
+    def _key_namespace(key: str) -> str:
+        """Return the namespace of a cache key.
+
+        Keys are conventionally structured as ``<namespace><sep><leaf>``
+        using ``:`` or ``/``; the namespace is everything up to the final
+        separator. Keys with no separator have no namespace.
+
+        Args:
+            key: The cache key to split.
+
+        Returns:
+            The namespace, or an empty string when the key has none.
+        """
+        cut = max(key.rfind(':'), key.rfind('/'))
+        return key[:cut] if cut > 0 else ''
+
     def _find_related_keys(self, key: str) -> List[str]:
-        """Find keys related to the given key."""
-        # Simplified implementation
-        # In practice, this would use semantic analysis or predefined relationships
-        return []
+        """Find keys likely to be needed alongside *key*.
+
+        Two signals are combined, both drawn from observed behaviour rather
+        than a fixed table:
+
+        * **Namespace siblings** -- keys sharing this key's namespace are
+          usually facets of one entity and are fetched together.
+        * **Temporal co-access** -- keys repeatedly accessed within
+          ``CO_ACCESS_WINDOW_SECONDS`` of this key are used together
+          regardless of naming.
+
+        Results are ordered by co-access strength (strongest first) so a
+        bounded prefetch queue spends its budget on the best candidates.
+
+        Args:
+            key: The key that was just accessed.
+
+        Returns:
+            Related keys, most strongly related first, excluding *key*.
+        """
+        own_accesses = self.access_patterns.get(key) or []
+        namespace = self._key_namespace(key)
+
+        scores: Dict[str, float] = {}
+        for candidate, accesses in self.access_patterns.items():
+            if candidate == key:
+                continue
+
+            score = 0.0
+            if namespace and self._key_namespace(candidate) == namespace:
+                score += self.NAMESPACE_SIBLING_WEIGHT
+
+            if own_accesses and accesses:
+                co_accesses = sum(
+                    1
+                    for own_time in own_accesses
+                    for other_time in accesses
+                    if abs(own_time - other_time) <= self.CO_ACCESS_WINDOW_SECONDS
+                )
+                if co_accesses:
+                    # Normalise by this key's access count so a hot candidate
+                    # cannot dominate purely by being accessed often.
+                    score += co_accesses / len(own_accesses)
+
+            if score >= self.MIN_RELATEDNESS_SCORE:
+                scores[candidate] = score
+
+        ranked = sorted(scores.items(), key=lambda item: (-item[1], item[0]))
+        return [candidate for candidate, _ in ranked[: self.MAX_RELATED_KEYS]]
 
     def warmup(self, keys: List[str]) -> None:
         """

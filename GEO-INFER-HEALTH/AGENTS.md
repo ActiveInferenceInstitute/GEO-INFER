@@ -28,7 +28,6 @@
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `MANIFEST.in`
 - `SKILL.md`
 - `pyproject.toml`
