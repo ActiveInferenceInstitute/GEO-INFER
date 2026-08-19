@@ -198,9 +198,9 @@ except Exception:
 
 
 @pytest.fixture(autouse=True)
-def h3_legacy_test_compatibility(monkeypatch):
-    """Scope legacy integer H3 assertions to TEST module tests only."""
-    if _orig_h3_latlng_to_cell is None:
+def h3_legacy_test_compatibility(request, monkeypatch):
+    """Scope legacy integer H3 assertions to test_spatial_functions only."""
+    if _orig_h3_latlng_to_cell is None or "test_spatial_functions" not in request.node.nodeid:
         yield
         return
 

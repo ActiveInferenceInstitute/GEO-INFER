@@ -656,11 +656,11 @@ class H3HierarchyAnalyzer:
         total_edges = 0
 
         for node in hierarchy.values():
-            if not node.h3_index or not node.h3_resolution:
+            if not node.h3_index or node.h3_resolution is None:
                 continue
             for child_id in node.children_ids:
                 child = hierarchy.get(child_id)
-                if child is None or not child.h3_index or not child.h3_resolution:
+                if child is None or not child.h3_index or child.h3_resolution is None:
                     continue
                 total_edges += 1
                 # A coherent edge: child is at finer resolution and parent contains it.
