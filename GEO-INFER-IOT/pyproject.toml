@@ -79,7 +79,6 @@ advanced = [
     "arviz>=0.12.0"
 ]
 
-
 [project.urls]
 Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
@@ -87,7 +86,6 @@ Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 
 [project.scripts]
-
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -155,24 +153,6 @@ module = [
     "arviz.*",
 ]
 ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
-minversion = "6.0"
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--strict-config",
-]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-    "performance: marks tests as performance tests",
-]
 
 [tool.coverage.run]
 source = ["src"]

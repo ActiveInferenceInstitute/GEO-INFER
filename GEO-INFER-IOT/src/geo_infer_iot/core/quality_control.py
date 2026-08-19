@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
-from collections import defaultdict
+from collections import defaultdict, deque
 
 # Optional imports for enhanced functionality
 try:
@@ -48,11 +48,21 @@ class QualityController:
     - Calibration drift detection
     """
 
+    #: Per-sensor measurements retained for temporal and outlier analysis.
+    DEFAULT_HISTORY_SIZE = 500
+
     def __init__(self, config: Optional[Dict] = None):
         self.config = config or {}
         self.quality_history = []
         self.sensor_baselines = {}
         self.outlier_detector = None
+        self.history_size = int(
+            self.config.get('history_size', self.DEFAULT_HISTORY_SIZE)
+        )
+        # Bounded per-sensor rings so a long-lived controller keeps constant memory.
+        self.measurement_history: Dict[str, deque] = defaultdict(
+            lambda: deque(maxlen=self.history_size)
+        )
 
         # Default quality control parameters
         self.default_params = {
@@ -135,6 +145,9 @@ class QualityController:
         if not passed:
             quality_score = max(0.0, quality_score - 0.1 * len(issues))
 
+        # Retain after scoring so a measurement is never compared against itself.
+        self._record_measurement(measurement)
+
         return QualityCheckResult(
             passed=passed,
             issues=issues,
@@ -208,12 +221,25 @@ class QualityController:
             return QualityCheckResult(True, [], 1.0)
 
         try:
-            # For isolation forest, we need multiple samples
-            # In practice, this would use a sliding window of recent measurements
-            # For now, we'll use a simplified approach
-
-            # Simple statistical outlier detection
             sensor_id = measurement.get('sensor_id', 'unknown')
+
+            # Isolation Forest needs a population; fit it on the retained window.
+            window = self.config.get(
+                'outlier_window_minutes',
+                self.default_params['temporal_consistency']['window_minutes'],
+            )
+            recent = self._get_recent_measurements(sensor_id, minutes=window)
+            min_samples = int(self.config.get('outlier_min_samples', 20))
+            if len(recent) >= min_samples:
+                samples = np.array([[entry['value']] for entry in recent])
+                self.outlier_detector.fit(samples)
+                if self.outlier_detector.predict(np.array([[value]]))[0] == -1:
+                    issues.append(
+                        f"Isolation Forest flagged value {value} against "
+                        f"{len(recent)} recent measurements"
+                    )
+
+            # Statistical 3-sigma check against the running baseline.
             if sensor_id in self.sensor_baselines:
                 baseline = self.sensor_baselines[sensor_id]
                 mean_val = baseline['mean']
@@ -281,11 +307,70 @@ class QualityController:
         return QualityCheckResult(len(issues) == 0, issues, quality_score)
 
 
+    @staticmethod
+    def _parse_timestamp(timestamp: Any) -> Optional[datetime]:
+        """Coerce a measurement timestamp to a naive datetime, or None.
+
+        Args:
+            timestamp: An ISO-8601 string, a datetime, or anything else.
+
+        Returns:
+            A timezone-naive datetime, or None when the value is unusable.
+        """
+        if isinstance(timestamp, datetime):
+            parsed = timestamp
+        elif isinstance(timestamp, str):
+            try:
+                parsed = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            except ValueError:
+                return None
+        else:
+            return None
+        # Drop tzinfo so mixed-awareness histories stay comparable.
+        return parsed.replace(tzinfo=None)
+
+    def _record_measurement(self, measurement: Dict) -> None:
+        """Append a measurement to its sensor's history ring.
+
+        Measurements without a usable numeric value or timestamp are not
+        retained, because the temporal and outlier checks cannot use them.
+
+        Args:
+            measurement: The measurement that was just validated.
+        """
+        value = measurement.get('value')
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            return
+        if np.isnan(value) or np.isinf(value):
+            return
+        observed_at = self._parse_timestamp(measurement.get('timestamp'))
+        if observed_at is None:
+            return
+        sensor_id = measurement.get('sensor_id', 'unknown')
+        self.measurement_history[sensor_id].append(
+            {'value': float(value), 'timestamp': observed_at}
+        )
+
     def _get_recent_measurements(self, sensor_id: str, minutes: int = 60) -> List[Dict]:
-        """Get recent measurements for a sensor."""
-        # This would typically query a database or cache
-        # For now, return empty list (no historical data)
-        return []
+        """Return this sensor's retained measurements from the last *minutes*.
+
+        The window is anchored on the newest retained measurement rather than
+        wall-clock now, so replayed or backfilled histories are analysed the
+        same way live ones are.
+
+        Args:
+            sensor_id: Identifier of the sensor to look up.
+            minutes: Width of the lookback window in minutes.
+
+        Returns:
+            Measurements inside the window, oldest first.
+        """
+        history = self.measurement_history.get(sensor_id)
+        if not history:
+            return []
+        newest = history[-1]['timestamp']
+        cutoff = newest - timedelta(minutes=minutes)
+        return [entry for entry in history if entry['timestamp'] >= cutoff]
 
     def _update_sensor_baseline(self, sensor_id: str, value: float):
         """Update baseline statistics for a sensor."""

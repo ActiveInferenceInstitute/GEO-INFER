@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-COMMS`.
 
 - `test_channels.py`
 - `test_core.py`
+- `test_email_providers.py`
 - `test_message_models.py`
 - `test_protocol_handling.py`
 - `test_rest_api.py`

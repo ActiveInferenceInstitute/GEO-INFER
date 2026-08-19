@@ -27,7 +27,6 @@
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

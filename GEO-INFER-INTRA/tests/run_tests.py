@@ -94,7 +94,7 @@ def build_pytest_command(args: argparse.Namespace) -> List[str]:
         cmd.append("--cov-report=term")
         
         if args.html_report:
-            cmd.append("--cov-report=html:.test-results/coverage")
+            cmd.append("--cov-report=html:.geo-infer-test-results/coverage")
     
     # Parallel
     if args.jobs > 1:

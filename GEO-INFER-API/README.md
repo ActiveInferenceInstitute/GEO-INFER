@@ -9,7 +9,6 @@ Comprehensive API development and integration services enabling interoperability
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

@@ -31,7 +31,6 @@
 - `tests/`
 - `demo_all_methods.py`
 - `verify_installation.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

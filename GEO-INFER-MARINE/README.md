@@ -4,7 +4,6 @@ Marine and oceanographic analysis, coastal management, and marine ecosystem moni
 
 ## Contents
 
-- `.test-results/`
 - `docs/`
 - `examples/`
 - `src/`

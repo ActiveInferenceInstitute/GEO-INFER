@@ -5,8 +5,6 @@
 
 This is the canonical open-only ledger. Completed work belongs in code, tests,
 validation receipts, and Git history rather than in active backlog rows.
-The 2026-08-13 performance and coverage campaign is recorded in
-[`RELEASE_EVIDENCE_2026-08-13.md`](RELEASE_EVIDENCE_2026-08-13.md).
 
 | ID | Scope | Open work | Behavior-based acceptance probe |
 | --- | --- | --- | --- |

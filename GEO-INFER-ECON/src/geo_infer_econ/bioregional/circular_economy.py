@@ -9,7 +9,7 @@ from typing import Dict, Optional, Any
 import numpy as np
 import pandas as pd
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -437,7 +437,7 @@ class WasteToResourceSystems:
             },
             "budget_usd": budget,
             "space_m2": space,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @staticmethod

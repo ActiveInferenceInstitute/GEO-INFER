@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class BioregionalGovernanceModels:
             "weak_dimensions": weak_dims,
             "recommendations": recommendations,
             "density_ratio": round(population / max(area_km2, 1), 2),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         logger.info(

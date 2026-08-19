@@ -27,7 +27,6 @@
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `IMPLEMENTATION_SUMMARY.md`
 - `SKILL.md`
 - `pyproject.toml`

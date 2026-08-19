@@ -10,7 +10,6 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `IMPLEMENTATION_SUMMARY.md`
 - `SKILL.md`
 - `pyproject.toml`

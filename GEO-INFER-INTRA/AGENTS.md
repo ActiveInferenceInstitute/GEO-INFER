@@ -31,7 +31,6 @@
 - `tests/`
 - `assess_repository.py`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements-dev.txt`

@@ -9,7 +9,6 @@ Bioinformatics and biological data analysis with geospatial context for spatial 
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `Dockerfile`
 - `SKILL.md`
 - `docker-compose.yml`

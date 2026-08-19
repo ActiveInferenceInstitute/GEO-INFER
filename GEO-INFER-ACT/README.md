@@ -13,7 +13,6 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 - `setup.py`
 - `verify_comprehensive.py`
 - `verify_pipeline.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

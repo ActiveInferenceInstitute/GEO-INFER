@@ -21,7 +21,7 @@ import subprocess
 from typing import Dict, List, Any, Optional, Tuple, Set, Union
 from pathlib import Path
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import base64
 
@@ -750,7 +750,7 @@ class RepositoryAnalyzer:
         self.repo_path = Path(repo_path)
         self.analysis = RepositoryAnalysis(
             repository_path=str(repo_path),
-            analysis_timestamp=datetime.utcnow()
+            analysis_timestamp=datetime.now(timezone.utc)
         )
 
     def analyze_repository(self) -> RepositoryAnalysis:

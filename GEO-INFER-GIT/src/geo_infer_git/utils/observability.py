@@ -21,7 +21,7 @@ import logging
 from typing import Dict, List, Any, Optional, Callable, Union, Tuple
 from dataclasses import dataclass, field
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict, deque
 import psutil
 import socket
@@ -32,13 +32,18 @@ from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
+def _utc_now() -> datetime:
+    """Return the current UTC time as a timezone-aware datetime."""
+    return datetime.now(timezone.utc)
+
+
 @dataclass
 class Metric:
     """A single metric measurement."""
 
     name: str
     value: Union[int, float]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=_utc_now)
     tags: Dict[str, str] = field(default_factory=dict)
     unit: str = ""
     description: str = ""
@@ -51,7 +56,7 @@ class TraceSpan:
     trace_id: str
     parent_span_id: Optional[str] = None
     operation_name: str = ""
-    start_time: datetime = field(default_factory=datetime.utcnow)
+    start_time: datetime = field(default_factory=_utc_now)
     end_time: Optional[datetime] = None
     tags: Dict[str, str] = field(default_factory=dict)
     logs: List[Dict[str, Any]] = field(default_factory=list)
@@ -66,13 +71,13 @@ class TraceSpan:
 
     def finish(self, status: str = "ok") -> None:
         """Finish the span."""
-        self.end_time = datetime.utcnow()
+        self.end_time = datetime.now(timezone.utc)
         self.status = status
 
     def log(self, message: str, **fields) -> None:
         """Add a log entry to the span."""
         self.logs.append({
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'message': message,
             'fields': fields
         })
@@ -100,7 +105,7 @@ class Alert:
     rule_name: str
     severity: str
     message: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=_utc_now)
     metric_name: str = ""
     metric_value: float = 0.0
     threshold: float = 0.0
@@ -330,7 +335,7 @@ class MetricsCollector:
     def _export_json(self) -> str:
         """Export metrics in JSON format."""
         export_data = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'counters': self.counters,
             'gauges': self.gauges,
             'histograms': dict(self.histograms),
@@ -584,7 +589,7 @@ class HealthChecker:
                 results[name] = {
                     'status': 'error',
                     'error': str(e),
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
                 overall_status = 'error'
 
@@ -594,7 +599,7 @@ class HealthChecker:
         return {
             'service': self.service_name,
             'status': overall_status,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'checks': results
         }
 
@@ -674,7 +679,7 @@ class AlertManager:
         Args:
             metrics_collector: MetricsCollector instance
         """
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
 
         for rule in self.rules.values():
             if not rule.enabled:
@@ -822,7 +827,7 @@ class ObservabilityManager:
                 'status': status,
                 'memory_percent': memory.percent,
                 'memory_available': memory.available / (1024 * 1024),  # MB
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         self.health_checker.register_check('memory', memory_check)
@@ -834,7 +839,7 @@ class ObservabilityManager:
             return {
                 'status': status,
                 'cpu_percent': cpu_percent,
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         self.health_checker.register_check('cpu', cpu_check)
@@ -847,7 +852,7 @@ class ObservabilityManager:
                 'status': status,
                 'disk_percent': disk.percent,
                 'disk_free': disk.free / (1024 * 1024 * 1024),  # GB
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         self.health_checker.register_check('disk', disk_check)
@@ -928,7 +933,7 @@ class ObservabilityManager:
         """
         data = {
             'service': self.service_name,
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'health': self.get_health_status(),
             'metrics': self.metrics.export_metrics('json'),
             'traces': self.tracer.export_traces('json')

@@ -15,7 +15,7 @@ import socket
 import threading
 from typing import Dict, List, Any, Optional, Callable, Union, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import hashlib
 import queue
@@ -23,6 +23,11 @@ import queue
 from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
+
+
+def _utc_now() -> datetime:
+    """Return the current UTC time as a timezone-aware datetime."""
+    return datetime.now(timezone.utc)
 
 
 @dataclass
@@ -38,7 +43,7 @@ class NodeInfo:
     capabilities: List[str] = field(default_factory=list)
     current_load: float = 0.0
     max_load: float = 1.0
-    last_heartbeat: datetime = field(default_factory=datetime.utcnow)
+    last_heartbeat: datetime = field(default_factory=_utc_now)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -50,7 +55,7 @@ class JobInfo:
     job_type: str
     status: str = "pending"  # pending, running, completed, failed, cancelled
     priority: int = 1
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=_utc_now)
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     assigned_node: Optional[str] = None
@@ -72,7 +77,7 @@ class CoordinationMessage:
     message_type: str
     sender_id: str
     recipient_id: str = "*"
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=_utc_now)
     payload: Dict[str, Any] = field(default_factory=dict)
     ttl: int = 300  # Time to live in seconds
 
@@ -247,7 +252,7 @@ class DistributedCoordinator:
             if node_id in self.nodes:
                 self.nodes[node_id].ip_address = addr[0]
                 self.nodes[node_id].port = addr[1]
-                self.nodes[node_id].last_heartbeat = datetime.utcnow()
+                self.nodes[node_id].last_heartbeat = datetime.now(timezone.utc)
 
                 logger.info(f"Updated node discovery info for {node_id}")
             else:
@@ -319,7 +324,7 @@ class DistributedCoordinator:
         """Monitor node heartbeats and detect failures."""
         while not self.shutdown_event.is_set():
             try:
-                current_time = datetime.utcnow()
+                current_time = datetime.now(timezone.utc)
 
                 with self.lock:
                     # Check for dead nodes
@@ -436,7 +441,7 @@ class DistributedCoordinator:
         try:
             # Update job status
             job.status = "running"
-            job.started_at = datetime.utcnow()
+            job.started_at = datetime.now(timezone.utc)
             job.assigned_node = node.node_id
 
             # Update node load
@@ -482,7 +487,7 @@ class DistributedCoordinator:
         """Handle heartbeat message from a node."""
         node_id = message.get("node_id")
         if node_id in self.nodes:
-            self.nodes[node_id].last_heartbeat = datetime.utcnow()
+            self.nodes[node_id].last_heartbeat = datetime.now(timezone.utc)
             self.nodes[node_id].status = "active"
 
     def _handle_node_register(self, message: Dict[str, Any]) -> None:
@@ -524,7 +529,7 @@ class DistributedCoordinator:
         if job_id and job_id in self.jobs:
             job = self.jobs[job_id]
             job.status = "running"
-            job.started_at = datetime.utcnow()
+            job.started_at = datetime.now(timezone.utc)
 
             logger.info(f"Job {job_id} started execution")
 
@@ -535,7 +540,7 @@ class DistributedCoordinator:
         if job_id in self.jobs:
             job = self.jobs[job_id]
             job.status = "completed"
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
             job.progress = 100.0
 
             # Update node load
@@ -555,7 +560,7 @@ class DistributedCoordinator:
 
             if job.retry_count >= job.max_retries:
                 job.status = "failed"
-                job.completed_at = datetime.utcnow()
+                job.completed_at = datetime.now(timezone.utc)
 
                 # Update node load
                 if job.assigned_node and job.assigned_node in self.nodes:
@@ -751,7 +756,7 @@ class DistributedCoordinator:
                 job = self.jobs[job_id]
                 if job.status in ["pending", "running"]:
                     job.status = "cancelled"
-                    job.completed_at = datetime.utcnow()
+                    job.completed_at = datetime.now(timezone.utc)
 
                     # Update node load if job was assigned
                     if job.assigned_node and job.assigned_node in self.nodes:

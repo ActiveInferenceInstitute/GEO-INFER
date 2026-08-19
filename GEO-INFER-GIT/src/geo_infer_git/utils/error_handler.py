@@ -86,9 +86,14 @@ class GeoInferGitError(Exception):
         return " | ".join(parts)
 
 class NetworkError(GeoInferGitError):
-    """Network-related errors."""
+    """Network-related errors.
+
+    Recoverable by default, matching :func:`classify_error`, so the network
+    recovery strategies run for directly constructed errors too.
+    """
 
     def __init__(self, message: str, **kwargs):
+        kwargs.setdefault('recoverable', True)
         super().__init__(message, category=ErrorCategory.NETWORK,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
@@ -107,9 +112,14 @@ class PermissionError(GeoInferGitError):
                         severity=ErrorSeverity.HIGH, **kwargs)
 
 class GitOperationError(GeoInferGitError):
-    """Git operation errors."""
+    """Git operation errors.
+
+    Recoverable by default, matching :func:`classify_error`, so the Git
+    recovery strategies run for directly constructed errors too.
+    """
 
     def __init__(self, message: str, **kwargs):
+        kwargs.setdefault('recoverable', True)
         super().__init__(message, category=ErrorCategory.GIT_OPERATION,
                         severity=ErrorSeverity.MEDIUM, **kwargs)
 
@@ -367,6 +377,17 @@ class ErrorRecoveryManager:
     Manager for handling error recovery strategies.
     """
 
+    #: Attempts allowed before :meth:`_retry_with_backoff` gives up.
+    MAX_RETRY_ATTEMPTS = 3
+    #: First backoff delay; doubles per attempt.
+    BASE_RETRY_DELAY_SECONDS = 1.0
+    #: Ceiling applied to the exponential backoff delay.
+    MAX_BACKOFF_SECONDS = 30.0
+    #: Timeout applied to every recovery HTTP probe.
+    REQUEST_TIMEOUT_SECONDS = 5
+    #: An index.lock older than this is treated as abandoned.
+    STALE_LOCK_SECONDS = 300.0
+
     def __init__(self, logger_instance: logging.Logger = None):
         """
         Initialize error recovery manager.
@@ -441,9 +462,38 @@ class ErrorRecoveryManager:
         return False
 
     def _retry_with_backoff(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
-        """Retry operation with exponential backoff."""
-        # This would be implemented based on the specific operation context
-        return False
+        """Wait out a transient failure so the caller can retry.
+
+        Sleeps for an exponentially growing delay derived from the attempt
+        counter the caller supplies, capped by ``max_backoff_seconds``.
+        Returns True when the caller should retry, and False once the
+        attempt budget is spent so the error propagates instead of looping.
+
+        Args:
+            error: The classified error being recovered from.
+            context: Recovery context; honours ``attempt``,
+                ``max_retry_attempts``, ``base_delay``, and
+                ``max_backoff_seconds``.
+
+        Returns:
+            True if a retry should follow, False if the budget is exhausted.
+        """
+        attempt = int(context.get('attempt', 1))
+        max_attempts = int(context.get('max_retry_attempts', self.MAX_RETRY_ATTEMPTS))
+        if attempt >= max_attempts:
+            if self.logger:
+                self.logger.warning(
+                    f"Retry budget exhausted after {attempt} attempts for {error.category.value}"
+                )
+            return False
+
+        base_delay = float(context.get('base_delay', self.BASE_RETRY_DELAY_SECONDS))
+        max_delay = float(context.get('max_backoff_seconds', self.MAX_BACKOFF_SECONDS))
+        delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+        if self.logger:
+            self.logger.info(f"Backing off {delay:.2f}s before retry {attempt + 1}")
+        time.sleep(delay)
+        return True
 
     def _check_network_connectivity(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
         """Check if network connectivity is available."""
@@ -470,9 +520,70 @@ class ErrorRecoveryManager:
             return False
 
     def _refresh_token(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
-        """Attempt to refresh authentication token."""
-        # This would implement token refresh logic
-        return False
+        """Refresh the authentication token through the configured mechanism.
+
+        Two mechanisms are supported, in order: a ``token_refresh`` callable
+        supplied by the caller, or an OAuth refresh-token exchange against
+        ``token_url``. A refreshed token is written back into ``context``
+        under ``token`` and validated before success is reported. When
+        neither mechanism is configured there is nothing to refresh and the
+        strategy declines.
+
+        Args:
+            error: The classified authentication error.
+            context: Recovery context; honours ``token_refresh``,
+                ``refresh_token``, ``token_url``, and ``client_id``.
+
+        Returns:
+            True if a validated replacement token was obtained.
+        """
+        refresher = context.get('token_refresh')
+        if callable(refresher):
+            try:
+                new_token = refresher()
+            except Exception as exc:
+                if self.logger:
+                    self.logger.warning(f"Token refresh callable failed: {exc}")
+                return False
+            if not new_token:
+                return False
+            context['token'] = new_token
+            return self._check_token_validity(error, context)
+
+        refresh_token = context.get('refresh_token')
+        token_url = context.get('token_url')
+        if not refresh_token or not token_url:
+            if self.logger:
+                self.logger.info("No token refresh mechanism configured; cannot refresh")
+            return False
+
+        payload = {'grant_type': 'refresh_token', 'refresh_token': refresh_token}
+        if context.get('client_id'):
+            payload['client_id'] = context['client_id']
+
+        try:
+            response = requests.post(
+                token_url,
+                data=payload,
+                headers={'Accept': 'application/json'},
+                timeout=self.REQUEST_TIMEOUT_SECONDS,
+            )
+        except requests.RequestException as exc:
+            if self.logger:
+                self.logger.warning(f"Token refresh request failed: {exc}")
+            return False
+
+        if response.status_code != 200:
+            return False
+        try:
+            new_token = response.json().get('access_token')
+        except ValueError:
+            return False
+        if not new_token:
+            return False
+
+        context['token'] = new_token
+        return self._check_token_validity(error, context)
 
     def _wait_for_rate_limit_reset(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
         """Wait for API rate limit reset."""
@@ -485,19 +596,139 @@ class ErrorRecoveryManager:
         return False
 
     def _use_alternate_api_endpoint(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
-        """Try using an alternate API endpoint."""
-        # This would implement endpoint switching logic
+        """Switch to the first alternate API endpoint that answers healthily.
+
+        Probes each candidate from ``alternate_api_endpoints`` and records
+        the first one that responds without a rate-limit or server status
+        into ``context['api_base_url']``, so the retried operation targets
+        it. Endpoints equal to the failing ``api_base_url`` are skipped.
+
+        Args:
+            error: The classified API-limit error.
+            context: Recovery context; honours ``alternate_api_endpoints``
+                and ``api_base_url``.
+
+        Returns:
+            True if a healthy alternate endpoint was selected.
+        """
+        candidates = context.get('alternate_api_endpoints') or []
+        current = context.get('api_base_url')
+        headers = {'Accept': 'application/vnd.github+json'}
+        if context.get('token'):
+            headers['Authorization'] = f"token {context['token']}"
+
+        for endpoint in candidates:
+            if not endpoint or endpoint == current:
+                continue
+            try:
+                response = requests.get(
+                    endpoint,
+                    headers=headers,
+                    timeout=self.REQUEST_TIMEOUT_SECONDS,
+                )
+            except requests.RequestException as exc:
+                if self.logger:
+                    self.logger.debug(f"Alternate endpoint {endpoint} unreachable: {exc}")
+                continue
+
+            # 403/429 mean the alternate is rate limited too; 5xx means unhealthy.
+            if response.status_code in (403, 429) or response.status_code >= 500:
+                continue
+
+            context['api_base_url'] = endpoint
+            if self.logger:
+                self.logger.info(f"Switched to alternate API endpoint {endpoint}")
+            return True
+
+        if self.logger:
+            self.logger.info("No healthy alternate API endpoint available")
         return False
 
     def _retry_git_operation(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
-        """Retry a Git operation."""
-        # This would implement Git-specific retry logic
-        return False
+        """Confirm the working repository is usable, then allow a retry.
+
+        A Git operation is only worth retrying if the repository is still a
+        valid Git directory; retrying against a corrupted or partially
+        cloned tree just repeats the failure. When ``path`` names a valid
+        repository the strategy backs off and reports that a retry should
+        follow.
+
+        Args:
+            error: The classified Git-operation error.
+            context: Recovery context; honours ``path`` and the keys read
+                by :meth:`_retry_with_backoff`.
+
+        Returns:
+            True if the repository is usable and a retry should follow.
+        """
+        path = context.get('path')
+        if path:
+            try:
+                git.Repo(path)
+            except Exception as exc:
+                if self.logger:
+                    self.logger.warning(f"Repository at {path} is not usable: {exc}")
+                return False
+
+        return self._retry_with_backoff(error, context)
 
     def _clean_git_cache(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
-        """Clean Git cache and retry."""
-        # This would implement cache cleaning logic
-        return False
+        """Clear a stale index lock and repack loose objects.
+
+        The two recoverable causes of a repeated Git failure this handles
+        are an ``index.lock`` left behind by a killed process and an
+        overgrown loose-object store. A lock file is only removed once it
+        is older than ``stale_lock_seconds``, so a lock held by a live
+        concurrent operation is never taken away from it.
+
+        Args:
+            error: The classified Git-operation error.
+            context: Recovery context; requires ``path`` and honours
+                ``stale_lock_seconds``.
+
+        Returns:
+            True if the repository was cleaned and a retry may succeed.
+        """
+        path = context.get('path')
+        if not path:
+            return False
+
+        try:
+            repo = git.Repo(path)
+        except Exception as exc:
+            if self.logger:
+                self.logger.warning(f"Cannot clean cache; {path} is not a repository: {exc}")
+            return False
+
+        cleaned = False
+        stale_after = float(context.get('stale_lock_seconds', self.STALE_LOCK_SECONDS))
+        lock_path = os.path.join(repo.git_dir, 'index.lock')
+        if os.path.exists(lock_path):
+            age = time.time() - os.path.getmtime(lock_path)
+            if age < stale_after:
+                if self.logger:
+                    self.logger.info(
+                        f"index.lock is {age:.0f}s old; a concurrent operation may hold it"
+                    )
+                return False
+            try:
+                os.remove(lock_path)
+                cleaned = True
+                if self.logger:
+                    self.logger.info(f"Removed stale index.lock ({age:.0f}s old)")
+            except OSError as exc:
+                if self.logger:
+                    self.logger.warning(f"Could not remove stale index.lock: {exc}")
+                return False
+
+        try:
+            repo.git.gc('--prune=now', '--quiet')
+            cleaned = True
+        except Exception as exc:
+            if self.logger:
+                self.logger.warning(f"git gc failed: {exc}")
+
+        return cleaned
 
     def _check_disk_space(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
         """Check available disk space."""
@@ -559,10 +790,15 @@ def with_error_handling(operation: str = None, logger_instance: logging.Logger =
                     if structured_error.recoverable and attempt < max_retries - 1:
                         context = {
                             'function': func.__name__,
+                            'operation': func,
                             'attempt': attempt + 1,
+                            'max_retry_attempts': max_retries,
                             'args': args,
                             'kwargs': kwargs
                         }
+                        # Surface a repository path so Git strategies can act on it.
+                        if 'path' in kwargs:
+                            context['path'] = kwargs['path']
 
                         if recovery_manager.attempt_recovery(structured_error, context):
                             continue

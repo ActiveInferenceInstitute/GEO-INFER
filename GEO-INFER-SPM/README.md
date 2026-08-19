@@ -10,7 +10,6 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

@@ -85,7 +85,7 @@ uv run python -m pytest GEO-INFER-ACT/tests/ -m "integration" -v --tb=short
 
 - Use real objects in tests
 - Property-based tests (Hypothesis) in ≥10 modules
-- Results saved to `test-results/{MODULE}_results.xml`
+- Results saved to `.geo-infer-test-results/{MODULE}_results.xml`
 
 ### Integrations
 

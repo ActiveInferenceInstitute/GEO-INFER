@@ -14,7 +14,6 @@ Cascadia workspace within `GEO-INFER-PLACE`.
 - `cascadia_main.py`
 - `cascadia_server.py`
 - `cleanup_data.py`
-- `.cursorrules`
 - `.gitignore`
 - `.python-version`
 - `DATA_STRUCTURE.md`

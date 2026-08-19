@@ -28,7 +28,6 @@
 - `tests/`
 - `demo_all_methods.py`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

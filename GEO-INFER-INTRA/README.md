@@ -14,7 +14,6 @@ Comprehensive project documentation, workflow management, and ontology systems f
 - `tests/`
 - `assess_repository.py`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements-dev.txt`

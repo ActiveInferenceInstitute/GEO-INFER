@@ -9,7 +9,6 @@ Human-computer interaction layer providing accessible geospatial applications, d
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

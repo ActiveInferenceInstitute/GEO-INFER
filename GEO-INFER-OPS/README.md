@@ -13,7 +13,6 @@ System orchestration, monitoring, infrastructure management, and deployment auto
 - `src/`
 - `tests/`
 - `setup.py`
-- `.cursorrules`
 - `Dockerfile`
 - `SKILL.md`
 - `docker-compose.yml`
