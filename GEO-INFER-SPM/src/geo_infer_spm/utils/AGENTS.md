@@ -25,6 +25,7 @@
 - `data_io.py`
 - `helpers.py`
 - `preprocessing.py`
+- `rng.py`
 - `validation.py`
 
 ## Validation

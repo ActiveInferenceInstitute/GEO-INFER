@@ -12,6 +12,8 @@ import logging
 from abc import ABC, abstractmethod
 from scipy.optimize import minimize, differential_evolution, basinhopping
 
+from ..utils.rng import resolve_rng, SeedLike
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,9 +55,7 @@ class Optimizer(ABC):
         self.best_solution = None
         self.best_value = None
         self.convergence_history = []
-
-        if self.config.random_seed is not None:
-            np.random.seed(self.config.random_seed)
+        self.rng = resolve_rng(self.config.random_seed)
 
     @abstractmethod
     def optimize(
@@ -261,7 +261,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
         """Initialize random population."""
         population = []
         for _ in range(self.config.population_size):
-            individual = np.array([np.random.uniform(b[0], b[1]) for b in bounds])
+            individual = np.array([self.rng.uniform(b[0], b[1]) for b in bounds])
             population.append(individual)
         return np.array(population)
 
@@ -273,7 +273,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
         for _ in range(n_parents):
             # Tournament selection
             tournament_size = 3
-            tournament_indices = np.random.choice(
+            tournament_indices = self.rng.choice(
                 len(population), tournament_size, replace=False
             )
             tournament_fitness = fitness[tournament_indices]
@@ -292,7 +292,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
                 parent2 = parents[i + 1]
 
                 # Uniform crossover
-                mask = np.random.random(len(parent1)) < self.config.crossover_rate
+                mask = self.rng.random(len(parent1)) < self.config.crossover_rate
                 child1 = np.where(mask, parent1, parent2)
                 child2 = np.where(mask, parent2, parent1)
 
@@ -308,10 +308,10 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         for i in range(len(mutated)):
             for j in range(len(mutated[i])):
-                if np.random.random() < self.config.mutation_rate:
+                if self.rng.random() < self.config.mutation_rate:
                     # Gaussian mutation
                     sigma = (bounds[j][1] - bounds[j][0]) * 0.1
-                    mutated[i, j] += np.random.normal(0, sigma)
+                    mutated[i, j] += self.rng.normal(0, sigma)
                     mutated[i, j] = np.clip(mutated[i, j], bounds[j][0], bounds[j][1])
 
         return mutated
@@ -491,7 +491,7 @@ class MultiObjectiveOptimizer(Optimizer):
         """Initialize random population."""
         population = []
         for _ in range(self.config.population_size):
-            individual = np.array([np.random.uniform(b[0], b[1]) for b in bounds])
+            individual = np.array([self.rng.uniform(b[0], b[1]) for b in bounds])
             population.append(individual)
         return np.array(population)
 
@@ -503,19 +503,19 @@ class MultiObjectiveOptimizer(Optimizer):
 
         for _ in range(len(population)):
             # Select parents
-            parent1, parent2 = np.random.choice(len(population), 2, replace=False)
+            parent1, parent2 = self.rng.choice(len(population), 2, replace=False)
 
             # Crossover
-            if np.random.random() < self.config.crossover_rate:
+            if self.rng.random() < self.config.crossover_rate:
                 child = (population[parent1] + population[parent2]) / 2
             else:
                 child = population[parent1].copy()
 
             # Mutation
             for j in range(len(child)):
-                if np.random.random() < self.config.mutation_rate:
+                if self.rng.random() < self.config.mutation_rate:
                     sigma = (bounds[j][1] - bounds[j][0]) * 0.1
-                    child[j] += np.random.normal(0, sigma)
+                    child[j] += self.rng.normal(0, sigma)
                     child[j] = np.clip(child[j], bounds[j][0], bounds[j][1])
 
             offspring.append(child)

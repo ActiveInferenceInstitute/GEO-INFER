@@ -114,7 +114,7 @@ class MesaModelBridge(SimulationEngine):
             raise ImportError(
                 "MesaModelBridge requires the optional 'mesa' dependency. "
                 "Install it via `uv sync --extra mesa` (GEO-INFER-SIM) or "
-                "`pip install geo-infer-sim[mesa]`."
+                "`uv pip install -e ./GEO-INFER-SIM[mesa]`."
             )
         if model is None or not hasattr(model, "step") or not callable(model.step):
             raise TypeError(

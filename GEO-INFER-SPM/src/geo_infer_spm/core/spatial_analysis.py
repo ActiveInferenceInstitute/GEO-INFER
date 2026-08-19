@@ -29,6 +29,9 @@ from scipy.optimize import minimize
 from ..models.data_models import SPMData, SPMResult
 
 
+from ..utils.rng import resolve_rng, SeedLike
+
+
 class SpatialAnalyzer:
     """
     Spatial analysis tools for SPM data.
@@ -462,16 +465,10 @@ class SpatialAnalyzer:
         """
         if basis_type == "gaussian":
             # Random Gaussian basis functions
-            if random_seed is None:
-                np.random.seed(42)  # legacy reproducibility path
-                center_indices = np.random.choice(
-                    len(self.coordinates), size=n_basis, replace=False
-                )
-            else:
-                rng = np.random.default_rng(random_seed)
-                center_indices = rng.choice(
-                    len(self.coordinates), size=n_basis, replace=False
-                )
+            rng = resolve_rng(random_seed)
+            center_indices = rng.choice(
+                len(self.coordinates), size=n_basis, replace=False
+            )
             centers = self.coordinates[center_indices]
             scale = np.std(self.coordinates) / np.sqrt(n_basis)
 

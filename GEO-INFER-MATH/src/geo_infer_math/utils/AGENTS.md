@@ -28,6 +28,7 @@
 - `decorators.py`
 - `exceptions.py`
 - `parallel.py`
+- `rng.py`
 - `validation.py`
 
 ## Validation

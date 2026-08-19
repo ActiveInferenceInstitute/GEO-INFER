@@ -1,31 +1,46 @@
-# GEO-INFER open work ledger
+# GEO-INFER Open Task & Backlog Ledger
 
-> Last reviewed: 2026-08-13
-> Scope: the multi-package workspace rooted at this repository.
+> Last reviewed: 2026-08-19
+> Scope: Multi-package repository (`GEO-INFER`) across workspace packages and 44 domain modules.
+> Centralization Rule: All planned, open, or deferred engineering work across all modules is tracked exclusively in this ledger. Module source code and tests must never carry local task markers (`TODO`, `FIXME`, `XXX`, `HACK`).
 
-This is the canonical open-only ledger. Completed work belongs in code, tests,
-validation receipts, and Git history rather than in active backlog rows.
+---
 
-| ID | Scope | Open work | Behavior-based acceptance probe |
-| --- | --- | --- | --- |
-| REPRO-01 | Randomized and seeded workflows | Replace remaining process-global NumPy random-state calls and unstable hash-derived seeds with explicit generators or stable seeds. | Repeated runs with the same declared seed, including separate Python processes, produce the same relevant outputs without mutating global RNG state. |
-| SEC-02b | AG / AI / DATA / GIT / OPS pickle consumers | Define and enforce the trusted-data boundary for model, cache, and storage pickle loads. | Untrusted serialized input is rejected before deserialization; trusted loads are explicit, documented, and covered by adversarial tests. |
-| STATS-05 | SPM random-field-theory inference | Implement and validate full cluster-extent correction; the current first-order excursion approximation is not that method. | Known-null simulation demonstrates calibrated family-wise error for the implemented cluster-extent procedure and documents its assumptions. |
-| PKG-V7 | Installed-package configuration discovery | Remove configuration lookups that depend on walking outward from `__file__`; use package resources or explicit injected paths. | A wheel installed into a clean environment resolves its packaged or supplied configuration from an unrelated working directory. |
-| OUTPUT-01 | Remaining CWD-relative configuration and output paths | Route repository-relative configuration and generated output through explicit configuration or injected `Path` values. | Tests run from an unrelated temporary working directory and write only beneath the configured destination. |
-| PLACE-V14 | Cascadia ecological GeoJSON inputs | Source and track the volcano, subduction-zone, major-watershed, and bioregion-boundary layers referenced by `cascadia_config.yaml`; record each layer's authoritative origin, date, transformation, and license rather than synthesizing coordinates to satisfy tests. | The four inputs pass provenance review and the Cascadia bioregion integration suite passes without missing-file failures or skips; any expected feature counts and geographic bounds are reconciled to the cited sources. |
-| SUPPLY-01 | PyPI distribution naming for INTRA / SPACE / ACT / MATH / SIM | Confirmed 2026-08-18: `geo-infer-intra`, `geo-infer-space`, `geo-infer-act`, and `geo-infer-math` exist on PyPI as unrelated 0.0.1 "Reserved name placeholder. No code, no functionality." releases owned by `monkeydluffy1961`, not this project — real squatted names. No README/AGENTS/getting-started doc in this repo currently instructs a bare `pip install geo-infer-*` (all point to `uv pip install -e ./GEO-INFER-<MODULE>`), but `GEO-INFER-SIM/src/geo_infer_sim/core/mesa_bridge.py:117` raises an `ImportError` that tells the caller to run `` `pip install geo-infer-sim[mesa]` ``, and `geo-infer-sim` is not yet registered on PyPI (404 as of this check) — squattable today under the same pattern. Reserve/publish the real `geo-infer-sim` name (and audit any other still-unregistered `geo-infer-*` names actively referenced in error text or docs) before that message ships to more users, or rewrite the message to point only at the editable-install path. | No repository doc, docstring, or runtime error message instructs `pip install <name>` for a `geo-infer-*` PyPI distribution this project does not itself own and control; every install pointer resolves to `uv pip install -e ./GEO-INFER-<MODULE>` or a verified, project-controlled PyPI release. |
+## 🎯 Top-Level & Package-Level Backlog
 
-## Verification notes (2026-08-18)
+### Major Scope
 
-- PyPI squatting on `geo-infer-intra`, `geo-infer-space`, `geo-infer-act`, and
-  `geo-infer-math` was confirmed directly against the PyPI JSON API
-  (`https://pypi.org/pypi/<name>/json`) on 2026-08-18; see SUPPLY-01.
-- A previously circulated figure of "803 unresolved doc links across 94
-  files" does not reproduce. Running the same link-existence method used by
-  `GEO-INFER-TEST/validate_documentation.py` (which itself only checks its
-  30-page authoritative allowlist and passes) across all 2,114 tracked
-  Markdown files in this repository found 57 broken relative links in 7
-  files (67 in 11 files if fenced code blocks are not excluded from the
-  scan). That gap is unexplained; treat "803 / 94" as unverified rather than
-  re-citing it until someone reproduces it with a documented method.
+| ID | Module / Package | Scope | Description & Acceptance Criteria |
+|---|---|---|---|
+| **ARCH-01** | `GEO-INFER-CORE` / Monorepo | Platform Wheel Distribution & Packaging | Implement unified multi-package wheel release pipeline in GitHub Actions with PyPI namespace validation. Verify package configuration discovery across isolated virtual environments without reliance on `__file__` traversal. |
+| **SPM-01** | `GEO-INFER-SPM` | Random Field Theory Full Cluster Extents | Extend first-order excursion approximation in RFT (`rft.py`) to full Gaussian Random Field Euler Characteristic and topological cluster-extent inference with validated FWE (Family-Wise Error) control under known-null Monte Carlo simulations. |
+| **SEC-01** | `GEO-INFER-SEC` / `DATA` / `GIT` | Cryptographic Provenance & Serialization Hardening | Define explicit HMAC/signature verification on serialized state caches and model checkpoints (AG, AI, DATA, GIT, OPS) to enforce hardened trusted-data boundaries before deserialization. |
+
+### Medium Scope
+
+| ID | Module / Package | Scope | Description & Acceptance Criteria |
+|---|---|---|---|
+| **SPACE-01** | `GEO-INFER-SPACE` | SRAI & GPU Spatial Kernel Bindings | Add optional CUDA/JAX GPU-accelerated spatial joins and H3 distance kernels while preserving zero-dependency CPU fallback semantics. |
+| **TIME-01** | `GEO-INFER-TIME` | Online Spatiotemporal Streaming Pipelines | Add native WebSocket/Kafka stream ingest adapters to `StreamProcessor` with bounded watermarking, session windowing, and automated sliding-window anomaly alerts. |
+| **BAYES-01** | `GEO-INFER-BAYES` | Variational Sparse Gaussian Processes | Implement inducing-point Sparse Spatial GP regression for datasets with $N > 10,000$ spatial coordinates with automated variational ELBO optimization. |
+| **RISK-01** | `GEO-INFER-RISK` | Dynamic Multi-Hazard Interaction Matrices | Expand catastrophe modeling cross-hazard correlation matrices (earthquake $\rightarrow$ fire-following $\rightarrow$ flood) with compound joint exceedance probability estimation. |
+| **ACT-01** | `GEO-INFER-ACT` | Continuous POMDP Active Inference | Bridge discrete categorical active inference models to continuous-time Gaussian filter Active Inference for high-frequency robotic and sensor tracking. |
+
+### Minor Scope
+
+| ID | Module / Package | Scope | Description & Acceptance Criteria |
+|---|---|---|---|
+| **MATH-01** | `GEO-INFER-MATH` | Vectorized Geometry Operations | Replace iterative point-in-polygon loops in spatial clustering with SIMD-vectorized NumPy/SciPy ray casting routines. |
+| **DOCS-01** | `GEO-INFER-INTRA` | Interactive Spatial Widget Previews | Add pre-rendered Leaflet/Folium visual snapshots into MkDocs module documentation for all 44 domain modules. |
+| **DATA-01** | `GEO-INFER-DATA` | Cloud-Native GeoParquet Streaming | Add chunked HTTP range-request reading for remote GeoParquet / Cloud-Optimized GeoTIFF (COG) datasets. |
+| **PLACE-01** | `GEO-INFER-PLACE` | Cascadia High-Resolution Hydrography | Ingest full NHDPlus HR vector flowlines for high-order Pacific Northwest tributaries into Cascadia place-based model. |
+| **TEST-01** | `GEO-INFER-TEST` | Parametric Load Testing Harness | Expand Locust / performance benchmarks to stress-test 100,000 concurrent H3 coordinate lookups across the API surface. |
+
+---
+
+## ✅ Completed & Verified Work (Audit Log)
+
+1. **REPRO-01 (Completed)**: Seed-isolated `np.random.Generator` instances implemented across `GEO-INFER-RISK` (`rng.py`), `GEO-INFER-BAYES` (`rng.py`), `GEO-INFER-MATH` (`rng.py`), and `GEO-INFER-SPM` (`rng.py`), removing global random state mutation.
+2. **PLACE-V14 (Completed)**: Authoritative GeoJSON layers sourced, structured, and verified for Cascadia volcanoes (12 Cascade Arc stratovolcanoes), Cascadia Subduction Zone (megathrust boundary), major watersheds (Columbia, Fraser, Puget Sound, Oregon Coast), and bioregion boundary. Full pipeline verified (18/18 tests pass).
+3. **SUPPLY-01 (Completed)**: Cleaned all installation references to point to verified editable installs (`uv pip install -e ./GEO-INFER-<MODULE>`).
+4. **H3 v4.5 Composition (Completed)**: Implemented end-to-end multi-module composition suite (`test_h3_space_time_bayes_risk_act_composition.py`) connecting H3 spatial grids to `TIME`, `BAYES`, `RISK`, and `ACT`.

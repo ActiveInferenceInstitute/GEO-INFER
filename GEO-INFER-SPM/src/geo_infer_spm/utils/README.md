@@ -8,6 +8,7 @@ Utils workspace within `GEO-INFER-SPM`.
 - `data_io.py`
 - `helpers.py`
 - `preprocessing.py`
+- `rng.py`
 - `validation.py`
 
 ## Public Interface

@@ -55,11 +55,11 @@ def test_create_spatial_basis_functions_seed_replay() -> None:
     assert np.array_equal(a, b)
 
 
-def test_create_spatial_basis_functions_legacy_default() -> None:
-    """Default (no seed) keeps the legacy seed-42 behaviour."""
-    coords = generate_coordinates("regular", n_points=20)
-    a = create_spatial_basis_functions(coords, n_basis=5)
-    b = create_spatial_basis_functions(coords, n_basis=5)
+def test_create_spatial_basis_functions_deterministic_seed() -> None:
+    """Explicit seed provides deterministic results."""
+    coords = generate_coordinates("regular", n_points=20, random_seed=42)
+    a = create_spatial_basis_functions(coords, n_basis=5, random_seed=42)
+    b = create_spatial_basis_functions(coords, n_basis=5, random_seed=42)
     assert np.array_equal(a, b)
 
 
