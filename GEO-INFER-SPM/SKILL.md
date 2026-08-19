@@ -28,10 +28,31 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_spm.core.glm import GLMModel
-from geo_infer_spm.core.random_field import RandomFieldTheory
+from geo_infer_spm.core.glm import GeneralLinearModel
+from geo_infer_spm.core.rft import RandomFieldTheory
 from geo_infer_spm.models.data_models import SPMData, SPMResult
 from geo_infer_spm.visualization.interactive import create_time_series_explorer
+```
+
+### Random Field Theory Inference
+
+```python
+import numpy as np
+from geo_infer_spm.core.rft import RandomFieldTheory
+
+rft = RandomFieldTheory(
+    field_shape=(64, 64),
+    smoothness=np.array([4.5, 4.5]),
+)
+rft.compute_resel_counts()
+
+peak_height = rft.peak_threshold(0.05, stat_type="Z", two_sided=True)
+cluster_p = rft.cluster_extent_p_value(
+    extent=1.25,
+    cluster_forming_threshold=3.09,
+    stat_type="Z",
+    two_sided=True,
+)
 ```
 
 ## Examples

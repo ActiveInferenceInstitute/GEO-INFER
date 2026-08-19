@@ -28,6 +28,7 @@
 - `logging_utils.py`
 - `observability.py`
 - `performance.py`
+- `secure_serialization.py`
 - `validation.py`
 
 ## Validation

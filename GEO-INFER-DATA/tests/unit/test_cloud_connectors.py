@@ -104,6 +104,18 @@ class TestS3Connector:
         connector = S3Connector({})
         _run(connector.disconnect())
 
+    def test_read_byte_range_local_file(self, tmp_path):
+        connector = S3Connector({})
+        file_path = tmp_path / "test.geoparquet"
+        file_path.write_bytes(b"PAR1_GEOPARQUET_MAGIC_BYTES_FOOTER_PAR1")
+        data = _run(connector.read_byte_range(str(file_path), start_byte=0, end_byte=3))
+        assert data == b"PAR1"
+        data_footer = _run(connector.read_byte_range(str(file_path), start_byte=35, end_byte=38))
+        assert data_footer == b"PAR1"
+
+        with pytest.raises(ValueError):
+            _run(connector.read_byte_range(str(file_path), start_byte=-1, end_byte=5))
+
 
 # ---------------------------------------------------------------------------
 # GCSConnector

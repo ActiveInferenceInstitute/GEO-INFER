@@ -7,6 +7,7 @@ Models workspace within `GEO-INFER-ACT`.
 - `__init__.py`
 - `base.py`
 - `climate.py`
+- `continuous_pomdp.py`
 - `ecological.py`
 - `multi_agent.py`
 - `resource.py`
@@ -18,6 +19,7 @@ Models workspace within `GEO-INFER-ACT`.
 - `base.py:CategoricalModel` (class)
 - `base.py:GaussianModel` (class)
 - `climate.py:ClimateModel` (class)
+- `continuous_pomdp.py:ContinuousPOMDPActiveInference` (class)
 - `ecological.py:EcologicalModel` (class)
 - `multi_agent.py:MultiAgentModel` (class)
 - `resource.py:ResourceModel` (class)

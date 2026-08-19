@@ -38,6 +38,7 @@
 - `test_psis_loo_contract.py`
 - `test_reproducibility.py`
 - `test_rng.py`
+- `test_sparse_spatial_gp.py`
 - `test_spatial_gp.py`
 - `test_spatiotemporal_gp.py`
 - `test_variational.py`

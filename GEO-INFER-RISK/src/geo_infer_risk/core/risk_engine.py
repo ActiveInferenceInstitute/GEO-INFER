@@ -26,7 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 from scipy import stats
@@ -70,7 +70,10 @@ except ImportError:
     BayesianInference = None
 
 # Local imports
-from geo_infer_risk.core.catastrophe_models import CatastropheModelManager
+from geo_infer_risk.core.catastrophe_models import (
+    CatastropheModelManager,
+    MultiHazardInteractionMatrix,
+)
 from geo_infer_risk.core.exposure_model import EnhancedExposureModel
 from geo_infer_risk.core.hazard_model import EnhancedHazardModel
 from geo_infer_risk.core.insurance_models import InsuranceManager
@@ -704,6 +707,35 @@ class EnhancedRiskEngine:
             + len(self.vulnerability_models)
             + len(self.exposure_models),
         }
+
+    def configure_hazard_interactions(
+        self,
+        hazards: Sequence[str],
+        interaction_matrix: Sequence[Sequence[float]],
+    ) -> MultiHazardInteractionMatrix:
+        """Configure directed multi-hazard interactions for compound analysis."""
+        self._ensure_open()
+        return self.catastrophe_manager.configure_hazard_interactions(
+            hazards, interaction_matrix
+        )
+
+    def set_hazard_interaction(
+        self, source: str, target: str, strength: float
+    ) -> None:
+        """Set one directed source-to-target hazard interaction."""
+        self._ensure_open()
+        self.catastrophe_manager.set_hazard_interaction(source, target, strength)
+
+    def calculate_compound_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequence: Optional[Sequence[str]] = None,
+    ) -> float:
+        """Estimate joint exceedance along a configured compound-hazard path."""
+        self._ensure_open()
+        return self.catastrophe_manager.calculate_compound_exceedance_probability(
+            exceedance_probabilities, hazard_sequence
+        )
 
     def calibrate_models(
         self, calibration_data: Dict[str, Any], method: str = "cross_validation"

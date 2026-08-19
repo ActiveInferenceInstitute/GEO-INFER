@@ -5,16 +5,21 @@ This module provides comprehensive data storage capabilities with adaptive
 optimization based on access patterns, performance requirements, and
 cost considerations.
 
-Security note (pickle trust boundary): several backends in this module
-serialise and deserialise payloads with :mod:`pickle`. Pickle is not a safe
-format for untrusted input — ``pickle.load``/``pickle.loads`` can execute
-arbitrary code during unpickling. Only load pickles that were written by this
-repository's own storage/caching/compression layers from trusted data. Never
-accept a pickle payload from an untrusted ``data_id``, remote response, or
-user upload without an independent integrity check (authenticated encryption
-or a verified HMAC over the payload). The ``data_id`` glob hardening in
-``_find_data_file`` prevents path-widening, but it does not by itself make an
-arbitrary pickle safe to load.
+Security note (serialization trust boundary): the MinIO, Redis, local-file,
+and generic-table backends in this module serialise payloads with
+:mod:`pickle`, which can execute arbitrary code during unpickling. Every one
+of those payloads is therefore written as an authenticated GISP1 envelope (see
+:mod:`geo_infer_data.utils.secure_serialization`) and every read verifies the
+envelope's HMAC-SHA256 under a per-backend context key *before* the bytes
+reach a deserialiser — including before decompression, so a hostile blob
+cannot even be inflated. Unsigned, truncated, cross-backend, or tampered
+payloads raise
+:class:`geo_infer_data.utils.secure_serialization.PayloadSecurityError`
+and are never deserialised.
+
+The ``data_id`` glob hardening in ``_find_data_file`` remains as defence in
+depth against path-widening; the envelope verification is what makes a
+retrieved payload safe to load.
 """
 
 import logging
@@ -36,6 +41,19 @@ from ..models.schemas import DatasetMetadata
 from ..utils.indexing import SpatialIndexer, TemporalIndexer
 from ..utils.compression import DataCompressor
 from ..utils.caching import CacheManager
+from ..utils.secure_serialization import (
+    TEXT_PREFIX,
+    CONTEXT_STORAGE_GENERIC,
+    CONTEXT_STORAGE_LOCAL_FILE,
+    CONTEXT_STORAGE_MINIO,
+    CONTEXT_STORAGE_REDIS,
+    dumps_signed,
+    loads_signed,
+    sign_payload,
+    sign_payload_text,
+    verify_payload,
+    verify_payload_text,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -161,6 +179,7 @@ class PostgreSQLBackend:
         self.config = config
         self.connection_string = self._build_connection_string()
         self.spatial_indexer = SpatialIndexer()
+        self.signing_key = config.get("signing_key")
 
     def _build_connection_string(self) -> str:
         """Build PostgreSQL connection string."""
@@ -257,8 +276,19 @@ class PostgreSQLBackend:
         try:
             serialized = json.dumps(data, default=str)
         except (TypeError, ValueError) as ser_err:
-            serialized = pickle.dumps(data).hex()
-            logger.warning("Fell back to pickle serialisation: %s", ser_err)
+            # JSON cannot represent this value. Fall back to pickle, but only
+            # inside an authenticated text envelope so the reader can tell a
+            # signed pickle from plain JSON and can reject a tampered row.
+            serialized = sign_payload_text(
+                pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL),
+                context=CONTEXT_STORAGE_GENERIC,
+                key=self.signing_key,
+            )
+            logger.warning(
+                "Fell back to signed pickle serialisation for %s: %s",
+                data_id,
+                ser_err,
+            )
 
         insert_stmt = (
             f"INSERT INTO {table_name} (data_id, payload, title) "
@@ -282,6 +312,42 @@ class PostgreSQLBackend:
         except Exception as e:
             logger.error("Failed to store generic data %s: %s", data_id, e)
             raise
+
+    def decode_generic_payload(self, payload: str) -> Any:
+        """Decode a ``generic_data_store`` payload written by ``_store_generic``.
+
+        Plain JSON rows decode directly. Rows that fell back to pickle are
+        stored as authenticated text envelopes and are only unpickled after
+        HMAC verification, so a row rewritten in the database is rejected
+        instead of executed.
+
+        Args:
+            payload: Raw ``payload`` column value.
+
+        Returns:
+            The decoded value.
+
+        Raises:
+            PayloadSecurityError: If the envelope fails HMAC verification.
+            ValueError: If the payload is neither JSON nor a GISP1 envelope.
+        """
+        if not isinstance(payload, str):
+            raise ValueError(
+                f"Generic payload must be str, got {type(payload).__name__}"
+            )
+        if payload.startswith(TEXT_PREFIX):
+            verified = verify_payload_text(
+                payload,
+                context=CONTEXT_STORAGE_GENERIC,
+                key=self.signing_key,
+            )
+            return pickle.loads(verified)
+        try:
+            return json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Generic payload is neither JSON nor a GISP1 envelope: {exc}"
+            ) from exc
 
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from PostgreSQL."""
@@ -313,6 +379,7 @@ class MinIOBackend:
         self.secret_key = config.get("secret_key")
         self.bucket = config.get("bucket", "geo-infer-data")
         self.compressor = DataCompressor()
+        self.signing_key = config.get("signing_key")
 
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in MinIO."""
@@ -337,7 +404,14 @@ class MinIOBackend:
         serialized_data = (
             self.compressor.compress_data(data)
             if self.compressor.is_enabled()
-            else pickle.dumps(data)
+            else pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
+        )
+        # Sign the bytes that actually land in the object store, whether they
+        # are compressed or a raw pickle stream.
+        serialized_data = sign_payload(
+            serialized_data,
+            context=CONTEXT_STORAGE_MINIO,
+            key=self.signing_key,
         )
         client = Minio(
             self.endpoint,
@@ -373,10 +447,17 @@ class MinIOBackend:
         )
         response = client.get_object(self.bucket, f"{data_id}.bin")
         try:
-            payload = response.read()
+            envelope = response.read()
         finally:
             response.close()
             response.release_conn()
+        # Trust boundary: verify before decompressing or unpickling, so a
+        # hostile object is never inflated or deserialised.
+        payload = verify_payload(
+            envelope,
+            context=CONTEXT_STORAGE_MINIO,
+            key=self.signing_key,
+        )
         return (
             self.compressor.decompress_data(payload)
             if self.compressor.is_enabled()
@@ -413,6 +494,7 @@ class RedisBackend:
         self.host = config.get("host", "localhost")
         self.port = config.get("port", 6379)
         self.db = config.get("db", 0)
+        self.signing_key = config.get("signing_key")
         from redis import Redis
 
         self.client = Redis(host=self.host, port=self.port, db=self.db)
@@ -420,9 +502,11 @@ class RedisBackend:
     async def store(self, data: Any, metadata: DatasetMetadata) -> str:
         """Store data in Redis."""
         data_id = f"redis_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}_{uuid.uuid4().hex[:8]}"
-        payload = pickle.dumps(
+        payload = dumps_signed(
             {"data": data, "metadata": metadata.model_dump()},
-            protocol=pickle.HIGHEST_PROTOCOL,
+            context=CONTEXT_STORAGE_REDIS,
+            key=self.signing_key,
+            serializer="pickle",
         )
         await asyncio.to_thread(self.client.set, data_id, payload)
         return data_id
@@ -432,7 +516,14 @@ class RedisBackend:
         payload = await asyncio.to_thread(self.client.get, data_id)
         if payload is None:
             raise FileNotFoundError(f"Redis dataset {data_id!r} was not found")
-        return pickle.loads(payload)["data"]
+        # Trust boundary: a Redis value is untrusted input until its envelope
+        # verifies under the redis-backend context key.
+        return loads_signed(
+            payload,
+            context=CONTEXT_STORAGE_REDIS,
+            key=self.signing_key,
+            serializer="pickle",
+        )["data"]
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from Redis."""
@@ -446,6 +537,7 @@ class LocalFileBackend:
         self.config = config
         self.base_path = Path(config.get("base_path", "/tmp/geo_infer_data"))
         self.compressor = DataCompressor()
+        self.signing_key = config.get("signing_key")
 
         # Ensure base path exists
         self.base_path.mkdir(parents=True, exist_ok=True)
@@ -463,13 +555,12 @@ class LocalFileBackend:
                 data.to_parquet(file_path)
             except Exception:
                 file_path = file_path.with_suffix(".pkl")
-                with open(file_path, "wb") as f:
-                    pickle.dump(data, f)
+                self._write_signed_pickle(file_path, data)
         elif hasattr(data, "to_json"):
             data.to_json(file_path)
         else:
-            with open(file_path, "wb") as f:
-                pickle.dump(data, f)
+            file_path = file_path.with_suffix(".pkl")
+            self._write_signed_pickle(file_path, data)
 
         # Store metadata
         metadata_path = file_path.with_suffix(".json")
@@ -493,6 +584,22 @@ class LocalFileBackend:
 
         return file_path
 
+    def _write_signed_pickle(self, file_path: Path, data: Any) -> None:
+        """Write ``data`` as an authenticated pickle envelope.
+
+        Args:
+            file_path: Destination path (``.pkl``).
+            data: Object to serialise.
+        """
+        file_path.write_bytes(
+            dumps_signed(
+                data,
+                context=CONTEXT_STORAGE_LOCAL_FILE,
+                key=self.signing_key,
+                serializer="pickle",
+            )
+        )
+
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from local file system."""
         # Find data file
@@ -509,8 +616,13 @@ class LocalFileBackend:
         elif data_file.suffix == ".json":
             return gpd.read_file(data_file)
         else:
-            with open(data_file, "rb") as f:
-                return pickle.load(f)
+            # Trust boundary: pickled files on disk are verified before load.
+            return loads_signed(
+                data_file.read_bytes(),
+                context=CONTEXT_STORAGE_LOCAL_FILE,
+                key=self.signing_key,
+                serializer="pickle",
+            )
 
     def _find_data_file(self, data_id: str) -> Optional[Path]:
         """Find data file by ID."""

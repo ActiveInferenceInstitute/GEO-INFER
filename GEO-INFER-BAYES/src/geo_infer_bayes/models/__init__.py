@@ -1,7 +1,7 @@
 """Bayesian models for geospatial applications."""
 
 # Gaussian Process models
-from .spatial_gp import SpatialGP
+from .spatial_gp import SparseSpatialGP, SpatialGP
 from .spatiotemporal_gp import SpatioTemporalGP
 
 # Hierarchical models
@@ -22,6 +22,7 @@ from .spatial_causal import SpatialCausalModel
 
 __all__ = [
     "SpatialGP",
+    "SparseSpatialGP",
     "SpatioTemporalGP",
     "HierarchicalBayesianModel",
     "MultilevelModel",

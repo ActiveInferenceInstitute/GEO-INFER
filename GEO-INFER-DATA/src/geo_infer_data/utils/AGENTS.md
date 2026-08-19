@@ -27,6 +27,7 @@
 - `format_detection.py`
 - `indexing.py`
 - `performance.py`
+- `secure_serialization.py`
 - `validation.py`
 
 ## Validation

@@ -86,9 +86,10 @@ except ImportError as e:
 
 # Expose key classes for easy import with error handling
 try:
-    from .models.spatial_gp import SpatialGP
+    from .models.spatial_gp import SparseSpatialGP, SpatialGP
 except ImportError:
     SpatialGP = None
+    SparseSpatialGP = None
 
 try:
     from .core.inference import BayesianInference
@@ -333,6 +334,7 @@ class GaussianProcess:
 
 __all__ = [
     "SpatialGP",
+    "SparseSpatialGP",
     "BayesianInference",
     "PosteriorAnalysis",
     "GaussianProcess",

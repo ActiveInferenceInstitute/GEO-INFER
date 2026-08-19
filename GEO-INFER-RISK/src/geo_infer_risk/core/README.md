@@ -16,6 +16,8 @@ Core workspace within `GEO-INFER-RISK`.
 ## Public Interface
 
 - `catastrophe_models.py:CatastropheConfig` (class)
+- `catastrophe_models.py:MultiHazardInteractionMatrix` (class)
+- `catastrophe_models.py:calculate_compound_exceedance_probability` (function)
 - `catastrophe_models.py:EnhancedCatastropheModel` (class)
 - `catastrophe_models.py:EnhancedEarthquakeModel` (class)
 - `catastrophe_models.py:EnhancedHurricaneModel` (class)
@@ -33,8 +35,6 @@ Core workspace within `GEO-INFER-RISK`.
 - `exposure_model.py:create_enhanced_infrastructure_exposure_model` (function)
 - `hazard_model.py:EnhancedHazardModel` (class)
 - `hazard_model.py:EnhancedFloodModel` (class)
-- `hazard_model.py:EnhancedEarthquakeModel` (class)
-- `hazard_model.py:EnhancedHurricaneModel` (class)
 
 ## Module Metadata
 

@@ -1,48 +1,55 @@
+"""Random Field Theory inference for Statistical Parametric Mapping.
+
+The implementation uses the Gaussian kinematic formula for one-, two-, and
+three-dimensional rectangular search regions. Peak-level family-wise error
+(FWE) probabilities include every Euler-characteristic (EC) density and the
+corresponding lower-dimensional boundary resels. Cluster-level inference uses
+the Poisson clumping approximation for the maximum topological cluster extent.
+
+For a Gaussian field at threshold ``u``, the expected EC is
+
+``E[chi(A_u)] = sum(R_d * rho_d(u), d=0..D)``,
+
+where ``R_d`` are resel counts (Lipschitz--Killing curvatures in FWHM units)
+and ``rho_d`` are Gaussian EC densities. At a sufficiently high threshold,
+the EC is the number of connected excursion components. Conditional cluster
+extent survival is approximated by ``exp(-beta * k ** (2 / D))`` and the
+search-volume FWE probability follows from a Poisson maximum-cluster model.
 """
-Random Field Theory implementation for Statistical Parametric Mapping
 
-This module implements Random Field Theory (RFT) for multiple comparison correction
-in SPM analysis. RFT provides rigorous control of family-wise error rates when
-analyzing continuous statistical fields, which is essential for geospatial SPM.
+from __future__ import annotations
 
-The implementation follows the mathematical framework developed by Keith Worsley
-and others, adapted for geospatial applications with spatial and temporal fields.
-
-Key Features:
-- Euler characteristic calculation for Gaussian random fields
-- Spatial smoothness estimation
-- Cluster-level inference
-- Peak-level correction
-- Support for both 2D spatial and 3D spatio-temporal fields
-
-Mathematical Foundation:
-For a Gaussian random field with smoothness parameters (FWHM_x, FWHM_y),
-the expected number of clusters above threshold u is:
-E[K > u] = (4*log(2))^(3/2) * (FWHM_x * FWHM_y)^(-1) * exp(-u²/2) * |Λ|^{1/2}
-
-where Λ is the covariance matrix of the field gradients.
-"""
+from itertools import combinations
+from typing import Optional, Tuple, Union
 
 import numpy as np
-from typing import Optional, Tuple
-from scipy.stats import norm, t, f
-from scipy.special import gamma
+from scipy import ndimage
+from scipy.special import eval_hermitenorm, gamma
+from scipy.stats import f, norm, t
 
-from ..models.data_models import SPMResult, ContrastResult
+from ..models.data_models import ContrastResult, SPMResult
+
+ScalarOrArray = Union[float, np.ndarray]
 
 
 class RandomFieldTheory:
-    """
-    Random Field Theory for multiple comparison correction in SPM.
+    """Random Field Theory multiple-comparison correction for SPM fields.
 
-    This class implements RFT-based correction for statistical parametric maps,
-    providing family-wise error control for continuous data fields.
-
-    Attributes:
-        field_shape: Shape of the statistical field
-        smoothness: Estimated smoothness parameters (FWHM)
-        search_volume: Volume/resolution of the search space
-        df: Degrees of freedom for t/F statistics
+    Parameters
+    ----------
+    field_shape:
+        Shape of the complete rectangular search region. One-, two-, and
+        three-dimensional fields are supported.
+    smoothness:
+        FWHM smoothness in the physical units of each field dimension.
+    search_volume:
+        Optional top-dimensional search volume in resels. When supplied
+        directly, lower-dimensional resel counts are inferred from the field's
+        aspect ratio. :meth:`compute_search_volume` calculates the complete
+        resel vector from field geometry and should normally be preferred.
+    df:
+        Residual degrees of freedom for t fields or denominator degrees of
+        freedom for F fields (whose numerator degrees of freedom are one).
     """
 
     def __init__(
@@ -52,320 +59,535 @@ class RandomFieldTheory:
         search_volume: Optional[float] = None,
         df: Optional[int] = None,
     ):
-        """
-        Initialize RFT calculator.
-
-        Args:
-            field_shape: Shape of the statistical field (e.g., (height, width) for 2D)
-            smoothness: FWHM smoothness parameters for each dimension
-            search_volume: Search volume in resels (resolution elements)
-            df: Degrees of freedom for statistical test
-        """
-        self.field_shape = field_shape
-        self.ndim = len(field_shape)
-        self.smoothness = smoothness
-        self.search_volume = search_volume
+        self.field_shape = tuple(field_shape)
+        self.ndim = len(self.field_shape)
+        self.smoothness = None if smoothness is None else np.asarray(smoothness, dtype=float)
+        self.search_volume = None if search_volume is None else float(search_volume)
         self.df = df
+        self.resel_counts: Optional[np.ndarray] = None
+        self._voxel_sizes = np.ones(self.ndim, dtype=float)
 
-        # RFT constants for different field dimensions
+        # Kept as a compatibility attribute for callers that inspected the old
+        # implementation. EC calculations use ec_densities() directly.
         self._rft_constants = {
-            1: 1.0,  # 1D fields
-            2: 4 * np.log(2),  # 2D fields
-            3: (4 * np.log(2)) ** (3 / 2) * gamma(3 / 2),  # 3D fields
+            1: np.sqrt(4 * np.log(2)),
+            2: 4 * np.log(2),
+            3: (4 * np.log(2)) ** (3 / 2),
         }
 
         self._validate_parameters()
 
-    def _validate_parameters(self):
-        """Validate RFT parameters."""
-        if self.ndim not in [1, 2, 3]:
+    def _validate_parameters(self) -> None:
+        """Validate field geometry and optional inference parameters."""
+        if self.ndim not in (1, 2, 3):
             raise ValueError(f"RFT supports 1D, 2D, and 3D fields, got {self.ndim}D")
-
+        if any(
+            not isinstance(size, (int, np.integer)) or int(size) <= 0 for size in self.field_shape
+        ):
+            raise ValueError("Field dimensions must be positive integers")
         if self.smoothness is not None:
-            if len(self.smoothness) != self.ndim:
+            if self.smoothness.shape != (self.ndim,):
                 raise ValueError(f"Smoothness must have {self.ndim} dimensions")
+            if not np.all(np.isfinite(self.smoothness)) or np.any(self.smoothness <= 0):
+                raise ValueError("Smoothness values must be finite and positive")
+        if self.search_volume is not None and (
+            not np.isfinite(self.search_volume) or self.search_volume <= 0
+        ):
+            raise ValueError("Search volume must be finite and positive")
+        if self.df is not None and self.df <= 0:
+            raise ValueError("Degrees of freedom must be positive")
+
+    @staticmethod
+    def _validate_alpha(alpha: float) -> float:
+        alpha = float(alpha)
+        if not np.isfinite(alpha) or not 0 < alpha < 1:
+            raise ValueError("alpha must be strictly between 0 and 1")
+        return alpha
+
+    @staticmethod
+    def _normalise_stat_type(stat_type: str) -> str:
+        normalised = stat_type.upper()
+        if normalised not in {"T", "F", "Z"}:
+            raise ValueError(f"Unknown statistic type: {stat_type}")
+        return normalised
 
     def estimate_smoothness(
         self, residuals: np.ndarray, mask: Optional[np.ndarray] = None
     ) -> np.ndarray:
+        """Estimate axis-wise FWHM from finite differences of residuals.
+
+        For a unit-variance stationary Gaussian field, the derivative variance
+        is estimated by ``Var(diff) / Var(field)``. The corresponding FWHM is
+        ``sqrt(4 log(2) / lambda)``. Only adjacent pairs that are finite and
+        inside ``mask`` contribute to an axis estimate.
         """
-        Estimate field smoothness using residuals.
+        residual_field = np.asarray(residuals, dtype=float)
+        if residual_field.size != int(np.prod(self.field_shape)):
+            raise ValueError("Residuals must contain one value per field location")
+        residual_field = residual_field.reshape(self.field_shape)
 
-        Uses the method of moments to estimate FWHM smoothness parameters
-        from model residuals, accounting for spatial autocorrelation.
-
-        Args:
-            residuals: Model residuals as field
-            mask: Optional mask for valid data points
-
-        Returns:
-            FWHM smoothness parameters for each dimension
-        """
         if mask is None:
-            mask = np.ones_like(residuals, dtype=bool)
+            valid = np.ones(self.field_shape, dtype=bool)
+        else:
+            valid = np.asarray(mask, dtype=bool)
+            if valid.size != residual_field.size:
+                raise ValueError("Mask must contain one value per field location")
+            valid = valid.reshape(self.field_shape)
+        valid &= np.isfinite(residual_field)
+        if np.count_nonzero(valid) < 2:
+            raise ValueError("At least two finite residuals are required")
 
-        # Reshape residuals to field shape
-        field_residuals = residuals.reshape(self.field_shape)
-        var_residuals = np.var(field_residuals)
+        residual_variance = float(np.var(residual_field[valid]))
+        fwhm = np.ones(self.ndim, dtype=float)
+        if residual_variance <= 0:
+            self.smoothness = fwhm
+            self.resel_counts = None
+            return fwhm
 
-        # Estimate smoothness for each dimension using finite differences
-        fwhm = np.zeros(self.ndim)
-
-        for dim in range(self.ndim):
-            # Compute first differences along this dimension
-            diff_field = np.diff(field_residuals, axis=dim)
-            var_diff = np.var(diff_field)
-
-            # Convert to FWHM: FWHM = sqrt(8*ln(2)) / lambda
-            if var_diff > 0 and var_residuals > 0:
-                lambda_param = np.sqrt(var_diff / (2 * var_residuals))
-                fwhm[dim] = np.sqrt(8 * np.log(2)) / lambda_param
-            else:
-                fwhm[dim] = 1.0  # Default if estimation fails
+        for axis in range(self.ndim):
+            lower = [slice(None)] * self.ndim
+            upper = [slice(None)] * self.ndim
+            lower[axis] = slice(None, -1)
+            upper[axis] = slice(1, None)
+            pair_mask = valid[tuple(lower)] & valid[tuple(upper)]
+            differences = np.diff(residual_field, axis=axis)[pair_mask]
+            if differences.size:
+                derivative_variance = float(np.var(differences))
+                if derivative_variance > 0:
+                    fwhm[axis] = np.sqrt(4 * np.log(2) * residual_variance / derivative_variance)
 
         self.smoothness = fwhm
+        self.resel_counts = None
         return fwhm
 
-    def compute_search_volume(self, voxel_sizes: Optional[np.ndarray] = None) -> float:
+    @staticmethod
+    def _box_resel_counts(resel_edges: np.ndarray) -> np.ndarray:
+        """Return intrinsic volumes of a box from its resel edge lengths."""
+        ndim = len(resel_edges)
+        counts = np.empty(ndim + 1, dtype=float)
+        counts[0] = 1.0
+        for order in range(1, ndim + 1):
+            counts[order] = sum(
+                float(np.prod(resel_edges[list(indices)]))
+                for indices in combinations(range(ndim), order)
+            )
+        return counts
+
+    def compute_resel_counts(self, voxel_sizes: Optional[np.ndarray] = None) -> np.ndarray:
+        """Compute all zero- through D-dimensional resel counts.
+
+        A rectangular field with FWHM-normalised side lengths ``q_i`` has resel
+        counts equal to the elementary symmetric sums of those lengths. This
+        includes ``R_0 = 1`` (the Euler characteristic), boundary resels, and
+        the top-dimensional search volume ``R_D``.
         """
-        Compute search volume in resels (resolution elements).
-
-        Args:
-            voxel_sizes: Size of voxels/pixels in each dimension
-
-        Returns:
-            Search volume in resels
-        """
-        if voxel_sizes is None:
-            voxel_sizes = np.ones(self.ndim)
-
-        if len(voxel_sizes) != self.ndim:
+        if self.smoothness is None:
+            raise ValueError("Smoothness must be estimated before computing resel counts")
+        sizes = (
+            np.ones(self.ndim, dtype=float)
+            if voxel_sizes is None
+            else np.asarray(voxel_sizes, dtype=float)
+        )
+        if sizes.shape != (self.ndim,):
             raise ValueError(f"Voxel sizes must have {self.ndim} dimensions")
+        if not np.all(np.isfinite(sizes)) or np.any(sizes <= 0):
+            raise ValueError("Voxel sizes must be finite and positive")
 
-        if self.smoothness is None:
-            raise ValueError(
-                "Smoothness must be estimated before computing search volume"
-            )
+        self._voxel_sizes = sizes
+        physical_edges = np.asarray(self.field_shape, dtype=float) * sizes
+        resel_edges = physical_edges / self.smoothness
+        counts = self._box_resel_counts(resel_edges)
+        self.resel_counts = counts
+        self.search_volume = float(counts[-1])
+        return counts.copy()
 
-        # Search volume = product over dimensions of (field_size * smoothness / voxel_size)
-        search_vol = 1.0
-        for i in range(self.ndim):
-            dim_size = self.field_shape[i] * voxel_sizes[i]
-            search_vol *= dim_size / self.smoothness[i]
+    def compute_search_volume(self, voxel_sizes: Optional[np.ndarray] = None) -> float:
+        """Compute and store the top-dimensional search volume in resels."""
+        return float(self.compute_resel_counts(voxel_sizes)[-1])
 
-        self.search_volume = search_vol
-        return search_vol
-
-    def expected_clusters(self, threshold: float, stat_type: str = "t") -> float:
-        """
-        Compute expected number of clusters above threshold.
-
-        Args:
-            threshold: Statistical threshold (in statistical units)
-            stat_type: Type of statistic ('t', 'F', 'Z')
-
-        Returns:
-            Expected number of clusters
-        """
+    def _resolved_resel_counts(self) -> np.ndarray:
+        """Resolve a complete resel vector while honoring an explicit volume."""
         if self.search_volume is None:
             raise ValueError("Search volume must be computed first")
 
         if self.smoothness is None:
-            raise ValueError("Smoothness must be estimated first")
-
-        # Convert threshold to Z-score equivalent
-        if stat_type == "t":
-            z_threshold = (
-                threshold if self.df is None else norm.ppf(t.cdf(threshold, self.df))
-            )
-        elif stat_type == "F":
-            # Simplified F to Z conversion (approximation)
-            z_threshold = np.sqrt(threshold)
-        elif stat_type == "Z":
-            z_threshold = threshold
+            edges = np.asarray(self.field_shape, dtype=float)
         else:
-            raise ValueError(f"Unknown statistic type: {stat_type}")
+            edges = np.asarray(self.field_shape, dtype=float) * self._voxel_sizes / self.smoothness
 
-        # RFT formula for expected clusters
-        # E[K > u] = R * (4*ln(2))^(D/2) * |Λ|^(1/2) * exp(-u²/2) / (2π)^(D/2)
-        # where R is search volume, D is dimensionality, Λ is smoothness product
-
-        # RFT EC-density formula (top-dimensional term, Worsley 1996):
-        #   E[EC(u)] = R * (4 ln 2)^(D/2) * u^(D-1) * exp(-u^2/2) / (2 pi)^((D+1)/2)
-        # where R is the search volume in resels (already divided by the
-        # smoothness product in compute_search_volume). Empirically validated
-        # to control family-wise error under smooth null fields.
-        s = self.search_volume
-        if self.ndim == 2:
-            expected_k = (
-                s
-                * (4 * np.log(2))
-                * z_threshold
-                * np.exp(-(z_threshold**2) / 2)
-                / (2 * np.pi) ** (3 / 2)
-            )
-        elif self.ndim == 3:
-            expected_k = (
-                s
-                * (4 * np.log(2)) ** (3 / 2)
-                * (z_threshold**2)
-                * np.exp(-(z_threshold**2) / 2)
-                / (2 * np.pi) ** 2
-            )
-        else:  # 1D
-            expected_k = (
-                s
-                * np.exp(-(z_threshold**2) / 2)
-                / (2 * np.pi) ** (1 / 2)
-            )
-
-        return max(0.0, expected_k)
-
-    def cluster_threshold(self, alpha: float = 0.05, stat_type: str = "t") -> float:
-        """
-        Compute cluster-forming threshold for given alpha level.
-
-        Args:
-            alpha: Family-wise error rate
-            stat_type: Type of statistic
-
-        Returns:
-            Cluster-forming threshold
-        """
-
-        # Use bisection method to find threshold where E[K] = alpha
-        def expected_clusters_func(u):
-            return self.expected_clusters(u, stat_type)
-
-        # Initial bounds
-        u_min, u_max = 0.0, 5.0
-
-        # Expand bounds if needed
-        while expected_clusters_func(u_max) > alpha:
-            u_max *= 2
-
-        # Bisection
-        for _ in range(50):
-            u_mid = (u_min + u_max) / 2
-            if expected_clusters_func(u_mid) > alpha:
-                u_min = u_mid
-            else:
-                u_max = u_mid
-
-        return (u_min + u_max) / 2
-
-    def peak_threshold(self, alpha: float = 0.05, stat_type: str = "t") -> float:
-        """
-        Compute peak-level threshold for given alpha level.
-
-        Args:
-            alpha: Family-wise error rate
-            stat_type: Type of statistic
-
-        Returns:
-            Peak-level threshold
-        """
-        if self.search_volume is None:
-            raise ValueError("Search volume must be computed first")
-
-        # Peak-level correction: p_FWE = 1 - (1 - p_uncorrected)^R
-        # Solve for threshold where p_FWE = alpha
-
-        # Approximation for high thresholds
-        if stat_type == "Z":
-            # For Z-statistics, threshold ≈ sqrt(2 * log(R / alpha))
-            threshold = np.sqrt(2 * np.log(self.search_volume / alpha))
-        elif stat_type == "t":
-            # Convert Z threshold to t threshold
-            z_thresh = np.sqrt(2 * np.log(self.search_volume / alpha))
-            threshold = (
-                z_thresh if self.df is None else t.ppf(norm.cdf(z_thresh), self.df)
-            )
-        else:
-            # Simplified approximation
-            threshold = np.sqrt(2 * np.log(self.search_volume / alpha))
-
-        return threshold
+        raw_volume = float(np.prod(edges))
+        scale = (self.search_volume / raw_volume) ** (1 / self.ndim)
+        counts = self._box_resel_counts(edges * scale)
+        # Avoid round-off drift in the user-visible top-dimensional count.
+        counts[-1] = self.search_volume
+        self.resel_counts = counts
+        return counts
 
     def _stat_to_z(self, value: float, stat_type: str) -> float:
-        """Convert a statistic value to its Z-score equivalent."""
-        if stat_type == "t":
-            if self.df is None:
-                return value
-            return float(norm.ppf(t.cdf(value, self.df)))
-        if stat_type == "F":
-            # Approximate F -> Z conversion (chi-square root approximation).
-            return float(np.sqrt(value))
-        if stat_type == "Z":
-            return float(value)
-        raise ValueError(f"Unknown statistic type: {stat_type}")
+        """Convert a one-sided statistic height to a Gaussian Z height."""
+        kind = self._normalise_stat_type(stat_type)
+        value = float(value)
+        if not np.isfinite(value):
+            raise ValueError("Statistic thresholds must be finite")
+        if kind == "Z" or (kind == "T" and self.df is None):
+            return value
+        if kind == "T":
+            probability = float(t.sf(value, self.df))
+        else:
+            if value < 0:
+                raise ValueError("F-statistic thresholds must be non-negative")
+            probability = float(f.sf(value, 1, self.df or 100))
+        probability = float(np.clip(probability, np.nextafter(0.0, 1.0), np.nextafter(1.0, 0.0)))
+        return float(norm.isf(probability))
+
+    def _z_to_stat(self, z_value: float, stat_type: str) -> float:
+        """Convert a Gaussian Z height to the requested statistic scale."""
+        kind = self._normalise_stat_type(stat_type)
+        if kind == "Z" or (kind == "T" and self.df is None):
+            return float(z_value)
+        probability = float(norm.sf(z_value))
+        if kind == "T":
+            return float(t.isf(probability, self.df))
+        return float(f.isf(probability, 1, self.df or 100))
+
+    def ec_densities(self, threshold: float, stat_type: str = "Z") -> np.ndarray:
+        """Return all Gaussian EC densities ``rho_0`` through ``rho_D``.
+
+        Statistic fields other than Z are transformed to an equivalent
+        one-sided Gaussian height before applying the Gaussian densities.
+        """
+        z_value = self._stat_to_z(threshold, stat_type)
+        densities = np.empty(self.ndim + 1, dtype=float)
+        densities[0] = norm.sf(z_value)
+        exponential = np.exp(-(z_value**2) / 2)
+        for order in range(1, self.ndim + 1):
+            densities[order] = (
+                (4 * np.log(2)) ** (order / 2)
+                * eval_hermitenorm(order - 1, z_value)
+                * exponential
+                / (2 * np.pi) ** ((order + 1) / 2)
+            )
+        return densities
+
+    def expected_euler_characteristic(self, threshold: float, stat_type: str = "Z") -> float:
+        """Return the full expected EC of the one-sided excursion set."""
+        counts = self._resolved_resel_counts()
+        return float(np.dot(counts, self.ec_densities(threshold, stat_type)))
+
+    def expected_clusters(self, threshold: float, stat_type: str = "t") -> float:
+        """Approximate the expected number of high-threshold clusters.
+
+        At high excursion thresholds the Euler characteristic equals the
+        number of connected components with high probability. The full EC,
+        including boundary terms, therefore replaces the former
+        top-dimensional-only approximation.
+        """
+        if self.search_volume is None:
+            raise ValueError("Search volume must be computed first")
+        if self.smoothness is None:
+            raise ValueError("Smoothness must be estimated first")
+        return max(0.0, self.expected_euler_characteristic(threshold, stat_type))
+
+    def peak_fwe_p_value(
+        self,
+        threshold: float,
+        stat_type: str = "Z",
+        *,
+        two_sided: bool = False,
+    ) -> float:
+        """Approximate the peak-level FWE tail probability at ``threshold``."""
+        z_value = self._stat_to_z(threshold, stat_type)
+        tail_factor = 2.0 if two_sided else 1.0
+        expected_ec = tail_factor * max(
+            0.0, self.expected_euler_characteristic(threshold, stat_type)
+        )
+        # A search-volume probability cannot be below its pointwise marginal
+        # tail. This also protects low thresholds where the EC heuristic is
+        # outside its asymptotic regime and odd-dimensional terms may be negative.
+        pointwise_tail = tail_factor * norm.sf(z_value)
+        return float(np.clip(max(expected_ec, pointwise_tail), 0.0, 1.0))
+
+    def peak_threshold(
+        self,
+        alpha: float = 0.05,
+        stat_type: str = "t",
+        *,
+        two_sided: bool = True,
+    ) -> float:
+        """Solve the full-EC peak-level FWE threshold numerically."""
+        alpha = self._validate_alpha(alpha)
+        if self.search_volume is None:
+            raise ValueError("Search volume must be computed first")
+
+        lower_z = 0.0
+        upper_z = 8.0
+        while (
+            self.peak_fwe_p_value(
+                self._z_to_stat(upper_z, stat_type),
+                stat_type,
+                two_sided=two_sided,
+            )
+            > alpha
+        ):
+            upper_z *= 2
+            if upper_z > 64:
+                raise RuntimeError("Unable to bracket the RFT peak threshold")
+
+        for _ in range(80):
+            middle_z = (lower_z + upper_z) / 2
+            probability = self.peak_fwe_p_value(
+                self._z_to_stat(middle_z, stat_type),
+                stat_type,
+                two_sided=two_sided,
+            )
+            if probability > alpha:
+                lower_z = middle_z
+            else:
+                upper_z = middle_z
+        return self._z_to_stat((lower_z + upper_z) / 2, stat_type)
+
+    def cluster_threshold(
+        self,
+        alpha: float = 0.05,
+        stat_type: str = "t",
+        *,
+        two_sided: bool = True,
+    ) -> float:
+        """Return the EC-based FWE height threshold for an excursion set.
+
+        This compatibility method historically supplied the height used to
+        form clusters. Cluster-extent inference normally uses a fixed
+        uncorrected forming threshold instead; pass that threshold explicitly
+        to :meth:`correct_p_values`.
+        """
+        if self.smoothness is None:
+            raise ValueError("Smoothness must be estimated first")
+        return self.peak_threshold(alpha, stat_type, two_sided=two_sided)
+
+    def expected_excursion_volume(
+        self, cluster_forming_threshold: float, stat_type: str = "Z"
+    ) -> float:
+        """Return expected one-sided suprathreshold volume in resels."""
+        if self.search_volume is None:
+            raise ValueError("Search volume must be computed first")
+        z_value = self._stat_to_z(cluster_forming_threshold, stat_type)
+        return float(self.search_volume * norm.sf(z_value))
+
+    def _cluster_extent_parameters(
+        self, cluster_forming_threshold: float, stat_type: str
+    ) -> tuple[float, float, float]:
+        """Return expected clusters, expected volume, and extent rate beta."""
+        z_value = self._stat_to_z(cluster_forming_threshold, stat_type)
+        if z_value <= 0:
+            raise ValueError("Cluster-forming threshold must have positive Z height")
+        expected_clusters = max(
+            0.0,
+            self.expected_euler_characteristic(cluster_forming_threshold, stat_type),
+        )
+        expected_volume = self.expected_excursion_volume(cluster_forming_threshold, stat_type)
+        if expected_clusters <= 0 or expected_volume <= 0:
+            raise ValueError(
+                "Cluster-extent inference requires positive expected clusters and excursion volume"
+            )
+        mean_extent = expected_volume / expected_clusters
+        beta = (gamma(self.ndim / 2 + 1) / mean_extent) ** (2 / self.ndim)
+        return expected_clusters, expected_volume, float(beta)
+
+    def _extent_in_resels(self, extent: ScalarOrArray, *, extent_in_resels: bool) -> np.ndarray:
+        values = np.asarray(extent, dtype=float)
+        if not np.all(np.isfinite(values)) or np.any(values < 0):
+            raise ValueError("Cluster extents must be finite and non-negative")
+        if extent_in_resels:
+            return values
+        if self.search_volume is None:
+            raise ValueError("Search volume must be computed first")
+        resels_per_voxel = self.search_volume / float(np.prod(self.field_shape))
+        return values * resels_per_voxel
+
+    @staticmethod
+    def _return_scalar_if_scalar(original: ScalarOrArray, values: np.ndarray) -> ScalarOrArray:
+        if np.ndim(original) == 0:
+            return float(values)
+        return values
+
+    def cluster_extent_probability(
+        self,
+        extent: ScalarOrArray,
+        cluster_forming_threshold: float,
+        stat_type: str = "Z",
+        *,
+        extent_in_resels: bool = True,
+    ) -> ScalarOrArray:
+        """Return the uncorrected survival probability of a cluster extent.
+
+        ``extent`` is measured in resels by default. Set
+        ``extent_in_resels=False`` to supply a count of field voxels.
+        """
+        resel_extent = self._extent_in_resels(extent, extent_in_resels=extent_in_resels)
+        _, _, beta = self._cluster_extent_parameters(cluster_forming_threshold, stat_type)
+        survival = np.exp(-beta * resel_extent ** (2 / self.ndim))
+        return self._return_scalar_if_scalar(extent, survival)
+
+    def cluster_extent_p_value(
+        self,
+        extent: ScalarOrArray,
+        cluster_forming_threshold: float,
+        stat_type: str = "Z",
+        *,
+        extent_in_resels: bool = True,
+        two_sided: bool = False,
+    ) -> ScalarOrArray:
+        """Return maximum-cluster FWE p-values for observed extents."""
+        expected_clusters, _, _ = self._cluster_extent_parameters(
+            cluster_forming_threshold, stat_type
+        )
+        survival = np.asarray(
+            self.cluster_extent_probability(
+                extent,
+                cluster_forming_threshold,
+                stat_type,
+                extent_in_resels=extent_in_resels,
+            ),
+            dtype=float,
+        )
+        tail_factor = 2.0 if two_sided else 1.0
+        corrected = -np.expm1(-tail_factor * expected_clusters * survival)
+        corrected = np.clip(corrected, 0.0, 1.0)
+        return self._return_scalar_if_scalar(extent, corrected)
+
+    def cluster_extent_threshold(
+        self,
+        alpha: float,
+        cluster_forming_threshold: float,
+        stat_type: str = "Z",
+        *,
+        extent_in_resels: bool = True,
+        two_sided: bool = False,
+    ) -> float:
+        """Return the minimum continuous extent whose cluster FWE is ``alpha``."""
+        alpha = self._validate_alpha(alpha)
+        expected_clusters, _, beta = self._cluster_extent_parameters(
+            cluster_forming_threshold, stat_type
+        )
+        tail_factor = 2.0 if two_sided else 1.0
+        target_survival = -np.log1p(-alpha) / (tail_factor * expected_clusters)
+        if target_survival >= 1:
+            extent_resels = 0.0
+        else:
+            extent_resels = (-np.log(target_survival) / beta) ** (self.ndim / 2)
+        if extent_in_resels:
+            return float(extent_resels)
+        resels_per_voxel = self.search_volume / float(np.prod(self.field_shape))
+        return float(extent_resels / resels_per_voxel)
+
+    def _label_and_correct_clusters(
+        self,
+        excursion_mask: np.ndarray,
+        threshold: float,
+        stat_type: str,
+        corrected: np.ndarray,
+        *,
+        connectivity: int,
+        two_sided: bool,
+    ) -> None:
+        structure = ndimage.generate_binary_structure(self.ndim, connectivity)
+        labels, cluster_count = ndimage.label(excursion_mask, structure=structure)
+        for cluster_id in range(1, cluster_count + 1):
+            cluster_mask = labels == cluster_id
+            extent_voxels = int(np.count_nonzero(cluster_mask))
+            probability = self.cluster_extent_p_value(
+                extent_voxels,
+                threshold,
+                stat_type,
+                extent_in_resels=False,
+                two_sided=two_sided,
+            )
+            corrected[cluster_mask] = probability
 
     def correct_p_values(
-        self, statistical_map: np.ndarray, stat_type: str = "t", method: str = "cluster"
+        self,
+        statistical_map: np.ndarray,
+        stat_type: str = "t",
+        method: str = "cluster",
+        *,
+        cluster_forming_threshold: Optional[float] = None,
+        cluster_forming_alpha: float = 0.001,
+        connectivity: int = 1,
+        two_sided: Optional[bool] = None,
     ) -> np.ndarray:
+        """Apply peak-height or topological cluster-extent RFT correction.
+
+        For ``method="peak"``, each location receives its full-EC peak FWE
+        probability. For ``method="cluster"``, connected excursion components
+        receive a shared maximum-cluster extent p-value and locations below the
+        cluster-forming threshold receive one.
+
+        By default, t and Z maps are treated as two-sided while F maps are
+        one-sided. The default cluster-forming height is the one-sided
+        uncorrected Gaussian tail specified by ``cluster_forming_alpha``.
         """
-        Apply RFT-based multiple comparison correction.
+        kind = self._normalise_stat_type(stat_type)
+        if kind == "T" and self.df is None:
+            raise ValueError("Degrees of freedom required for t-statistics")
+        if self.search_volume is None:
+            raise ValueError("Search volume must be computed first")
+        if two_sided is None:
+            two_sided = kind != "F"
 
-        Implements the standard RFT family-wise-error (FWE) correction: for a
-        voxel with statistic u, the FWE-corrected p-value is the expected
-        number of excursions of the smooth field above u (Euler-characteristic
-        / RFT result, Worsley 1996). This controls family-wise error at the
-        peak level.
+        original = np.asarray(statistical_map, dtype=float)
+        if original.size != int(np.prod(self.field_shape)):
+            raise ValueError("Statistical map must contain one value per field location")
+        if not np.all(np.isfinite(original)):
+            raise ValueError("Statistical map must contain only finite values")
+        field = original.reshape(self.field_shape)
+        method_name = method.lower()
 
-        Args:
-            statistical_map: Statistical parametric map
-            stat_type: Type of statistic ('t', 'F', 'Z')
-            method: Correction method ('cluster', 'peak'); controls the
-                excursion-forming threshold. Both methods return the FWE
-                peak-level p-value; the full Worsley cluster-extent correction
-                is a documented limitation (see SKILL.md).
+        if method_name == "peak":
+            heights = np.abs(field) if kind != "F" else field
+            corrected = np.fromiter(
+                (
+                    self.peak_fwe_p_value(float(value), kind, two_sided=bool(two_sided))
+                    for value in heights.flat
+                ),
+                dtype=float,
+                count=heights.size,
+            ).reshape(self.field_shape)
+            return corrected.reshape(original.shape)
 
-        Returns:
-            Corrected p-values
-        """
-        if method == "cluster":
-            threshold = self.cluster_threshold(alpha=0.05, stat_type=stat_type)
-        elif method == "peak":
-            threshold = self.peak_threshold(alpha=0.05, stat_type=stat_type)
-        else:
+        if method_name != "cluster":
             raise ValueError(f"Unknown correction method: {method}")
+        if not isinstance(connectivity, (int, np.integer)) or not (
+            1 <= int(connectivity) <= self.ndim
+        ):
+            raise ValueError(f"connectivity must be between 1 and {self.ndim}")
 
-        # Compute uncorrected p-values
-        if stat_type == "t":
-            if self.df is None:
-                raise ValueError("Degrees of freedom required for t-statistics")
-            p_uncorr = 2 * t.sf(np.abs(statistical_map), self.df)
-        elif stat_type == "Z":
-            p_uncorr = 2 * norm.sf(np.abs(statistical_map))
-        elif stat_type == "F":
-            # Simplified F p-values
-            p_uncorr = 1 - np.array(
-                [f.cdf(x, 1, self.df or 100) for x in statistical_map.flatten()]
-            )
-            p_uncorr = p_uncorr.reshape(statistical_map.shape)
-        else:
-            raise ValueError(f"Unknown statistic type: {stat_type}")
+        if cluster_forming_threshold is None:
+            cluster_forming_alpha = self._validate_alpha(cluster_forming_alpha)
+            cluster_forming_threshold = self._z_to_stat(norm.isf(cluster_forming_alpha), kind)
+        threshold = float(cluster_forming_threshold)
+        # Validate the forming threshold and the cluster distribution before
+        # labeling so an invalid inference configuration fails closed.
+        self._cluster_extent_parameters(threshold, kind)
 
-        # Valid RFT FWE correction: FWE P(u) = E[# excursions above u].
-        # Voxels below the forming threshold are outside every excursion, so
-        # their corrected p-value is 1. The previous implementation divided an
-        # expected count by a cluster size (dimensionally invalid) — replaced.
-        corrected = np.ones_like(p_uncorr, dtype=float)
-        abs_map = np.asarray(np.abs(statistical_map), dtype=float)
-        above = abs_map > threshold
-        if np.any(above):
-            z_above = np.array(
-                [self._stat_to_z(float(v), stat_type) for v in abs_map[above]]
+        corrected = np.ones(self.field_shape, dtype=float)
+        self._label_and_correct_clusters(
+            field >= threshold,
+            threshold,
+            kind,
+            corrected,
+            connectivity=int(connectivity),
+            two_sided=bool(two_sided),
+        )
+        if two_sided and kind != "F":
+            self._label_and_correct_clusters(
+                field <= -threshold,
+                threshold,
+                kind,
+                corrected,
+                connectivity=int(connectivity),
+                two_sided=True,
             )
-            expected = np.array(
-                [
-                    min(1.0, self.expected_clusters(z, "Z"))
-                    for z in z_above
-                ]
-            )
-            corrected[above] = expected
-
-        return corrected
+        return corrected.reshape(original.shape)
 
 
 def compute_spm(
@@ -374,46 +596,38 @@ def compute_spm(
     correction: str = "RFT",
     alpha: float = 0.05,
 ) -> ContrastResult:
-    """
-    Compute Statistical Parametric Map with multiple comparison correction.
-
-    Args:
-        model_result: Fitted GLM results
-        contrast: Contrast specification
-        correction: Multiple comparison correction method ('RFT', 'FDR', 'Bonferroni')
-        alpha: Significance level
-
-    Returns:
-        ContrastResult with corrected statistics
-
-    Example:
-        >>> result = fit_glm(data, design)
-        >>> contrast_def = contrast(result, "condition_A > condition_B")
-        >>> spm_result = compute_spm(result, contrast_def, correction="RFT")
-    """
-    # Initialize RFT if needed
+    """Compute a statistical parametric map with multiple-comparison control."""
     if correction.upper() == "RFT":
-        field_shape = (len(model_result.residuals),)
+        residuals = np.asarray(model_result.residuals)
+        field_shape = (residuals.shape[0],)
+        residual_df = max(1, field_shape[0] - model_result.design_matrix.n_regressors)
 
-        # Estimate smoothness from residuals
-        rft = RandomFieldTheory(field_shape, df=model_result.design_matrix.n_regressors)
-        rft.estimate_smoothness(model_result.residuals)
-
-        # Compute search volume (assuming unit voxel size)
+        rft = RandomFieldTheory(field_shape, df=residual_df)
+        rft.estimate_smoothness(residuals)
         rft.compute_search_volume()
+        statistic = np.asarray(contrast.t_statistic, dtype=float)
+        if statistic.size == 1:
+            # A scalar coefficient contrast has no connected-component
+            # topology. Correct its height against the residual search region.
+            corrected_p = np.asarray(
+                rft.peak_fwe_p_value(
+                    float(np.abs(statistic).item()),
+                    stat_type="t",
+                    two_sided=True,
+                )
+            )
+        else:
+            corrected_p = rft.correct_p_values(
+                statistic, stat_type="t", method="cluster"
+            )
 
-        # Apply RFT correction
-        corrected_p = rft.correct_p_values(contrast.t_statistic, stat_type="t")
-
-        # Update contrast result
         contrast.corrected_p_values = corrected_p
         contrast.correction_method = "RFT"
         contrast.significance_mask = corrected_p < alpha
         contrast.threshold = alpha
 
     elif correction.upper() == "FDR":
-        # False Discovery Rate correction using Benjamini-Hochberg adjusted
-        # q-values (not a threshold-only step).
+        # Benjamini--Hochberg adjusted q-values.
         p_flat = contrast.p_values.flatten()
         n_tests = len(p_flat)
         if n_tests == 0:
@@ -421,30 +635,26 @@ def compute_spm(
         else:
             order = np.argsort(p_flat, kind="stable")
             sorted_p = p_flat[order]
-            # q_i = p_i * n / rank_i, then enforce monotonicity from the largest.
-            q = np.empty(n_tests)
+            q_values = np.empty(n_tests)
             running = 1.0
-            for rank in range(n_tests, 0, -1):  # from largest p to smallest
+            for rank in range(n_tests, 0, -1):
                 running = min(running, sorted_p[rank - 1] * n_tests / rank)
-                q[rank - 1] = running
-            q = np.clip(q, 0.0, 1.0)
-            # Undo the sort.
+                q_values[rank - 1] = running
+            q_values = np.clip(q_values, 0.0, 1.0)
             q_flat = np.empty(n_tests)
-            q_flat[order] = q
+            q_flat[order] = q_values
             contrast.corrected_p_values = q_flat.reshape(contrast.p_values.shape)
 
         contrast.correction_method = "FDR"
         contrast.significance_mask = contrast.corrected_p_values < alpha
 
     elif correction.upper() == "BONFERRONI":
-        # Bonferroni correction
         n_tests = np.prod(contrast.p_values.shape)
         contrast.corrected_p_values = np.minimum(contrast.p_values * n_tests, 1.0)
         contrast.correction_method = "Bonferroni"
         contrast.significance_mask = contrast.corrected_p_values < alpha
 
     else:
-        # No correction
         contrast.corrected_p_values = contrast.p_values
         contrast.correction_method = "uncorrected"
         contrast.significance_mask = contrast.p_values < alpha

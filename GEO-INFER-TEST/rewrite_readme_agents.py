@@ -492,6 +492,15 @@ uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 - Dashboard configuration honors validated `zoom_start` and `tiles` values.
 """,
         "GEO-INFER-SPM": """
+## Random Field Theory Contracts
+
+- `RandomFieldTheory` computes the complete Gaussian Euler characteristic from
+  zero- through top-dimensional resel counts and exposes full-EC peak FWE
+  thresholds.
+- Cluster inference labels excursion components, measures extent in resels,
+  and returns Poisson-clumping maximum-cluster FWE p-values; the default
+  cluster-forming Gaussian tail is one-sided `p=0.001`.
+
 ## Visualization Contracts
 
 - Statistical and interactive maps reject invalid contrast indices, empty or
@@ -727,6 +736,13 @@ def module_agent_notes(path: Path, module: ModuleInfo | None) -> str:
   options before building a dashboard.
 """,
         "GEO-INFER-SPM": """
+## Random Field Theory Guidance
+
+- Preserve every Gaussian EC density and boundary resel term in peak inference;
+  do not replace the full expected EC with only its top-dimensional term.
+- Keep cluster extent in resel units, correct the maximum-cluster probability,
+  and verify peak and cluster FWE with deterministic known-null simulations.
+
 ## Visualization Guidance
 
 - Reject invalid contrast/statistic/coordinate inputs before map construction.

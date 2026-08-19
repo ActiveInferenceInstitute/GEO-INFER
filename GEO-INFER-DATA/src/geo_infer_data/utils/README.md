@@ -10,6 +10,7 @@ Utils workspace within `GEO-INFER-DATA`.
 - `format_detection.py`
 - `indexing.py`
 - `performance.py`
+- `secure_serialization.py`
 - `validation.py`
 
 ## Public Interface
@@ -27,7 +28,13 @@ Utils workspace within `GEO-INFER-DATA`.
 - `performance.py:OperationTracker` (class)
 - `performance.py:DataProcessingProfiler` (class)
 - `performance.py:StepProfiler` (class)
-- `validation.py:GeospatialValidator` (class)
+- `secure_serialization.py:PayloadSecurityError` (class)
+- `secure_serialization.py:SigningKeyUnavailableError` (class)
+- `secure_serialization.py:MalformedEnvelopeError` (class)
+- `secure_serialization.py:UnsignedPayloadError` (class)
+- `secure_serialization.py:SignatureMismatchError` (class)
+- `secure_serialization.py:clear_signing_key_cache` (function)
+- `secure_serialization.py:default_key_path` (function)
 
 ## Module Metadata
 

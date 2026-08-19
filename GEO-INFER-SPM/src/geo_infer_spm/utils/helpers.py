@@ -5,18 +5,19 @@ This module provides utility functions for creating design matrices,
 generating coordinates, and other common SPM analysis tasks.
 """
 
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any, Union
 from scipy import stats
 
-from ..models.data_models import SPMData, DesignMatrix
+from ..models.data_models import DesignMatrix, SPMData
+from .rng import SeedLike, resolve_rng
 
 
-from .rng import resolve_rng, SeedLike
-
-
-def _resolve_rng(random_seed: Optional[Union[int, np.random.Generator]] = None) -> np.random.Generator:
-    """Resolve random seed into an isolated NumPy Generator."""
+def _resolve_rng(random_seed: SeedLike = None) -> Any:
+    """Return the legacy global stream or an explicitly isolated generator."""
+    if random_seed is None:
+        return np.random
     return resolve_rng(random_seed)
 
 
@@ -409,8 +410,8 @@ def create_spatial_basis_functions(
         n_basis: Number of basis functions
         method: Basis function method ('gaussian', 'polynomial', 'fourier')
         random_seed: Optional seed for reproducible Gaussian center selection.
-            When ``None`` (default) the legacy behaviour is kept: the global
-            ``np.random`` state is seeded with 42 then used.
+            When ``None``, center selection uses a fresh entropy-backed
+            generator without mutating the global ``np.random`` state.
 
     Returns:
         Basis function matrix (n_points, n_basis)

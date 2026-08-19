@@ -19,7 +19,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Catastrophe models**: Cholesky-decomposition spatial correlation
+- **Catastrophe models**: Spatial correlation and directed multi-hazard interactions
 - **Risk engine**: Moran's I, Geary C, Monte Carlo loss calculation
 - **Exposure modeling**: Multi-source data loading (DB, file, stream, API)
 - **Hazard modeling**: Spatial hazard assessment and mapping
@@ -30,7 +30,10 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ```python
 from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
-from geo_infer_risk.core.catastrophe_models import EnhancedCatastropheModel
+from geo_infer_risk.core.catastrophe_models import (
+    EnhancedCatastropheModel,
+    MultiHazardInteractionMatrix,
+)
 from geo_infer_risk.core.exposure_model import EnhancedExposureModel
 from geo_infer_risk.core.hazard_model import EnhancedHazardModel
 ```
@@ -55,6 +58,22 @@ config = CatastropheConfig(
 model = EnhancedEarthquakeModel(config=config)
 model.model_parameters = {"mean_depth": 15.0}
 events = model.simulate_events(200)
+```
+
+Estimate compound annual exceedance along a directed hazard chain. Zero
+off-diagonal interaction recovers independent joint exceedance; positive
+interaction raises the downstream conditional probability:
+
+```python
+from geo_infer_risk.core import MultiHazardInteractionMatrix
+
+interactions = MultiHazardInteractionMatrix(
+    ["earthquake", "fire_following", "flood"],
+    [[1.0, 0.5, 0.0], [0.0, 1.0, 0.4], [0.0, 0.0, 1.0]],
+)
+compound_probability = interactions.compound_exceedance_probability(
+    {"earthquake": 0.1, "fire_following": 0.2, "flood": 0.3}
+)
 ```
 
 Risk metrics from an event loss table. `exposure_years` is how many years the
@@ -109,6 +128,8 @@ a `SeedSequence`, a `BitGenerator`, a `numpy.random.Generator`, or a legacy
 
 - Production paths require configured data sources and do not fabricate risk inputs.
 - Spatial correlation uses Cholesky decomposition
+- Directed interaction entries are bounded to `[-1, 1]`; ordered compound
+  exceedance uses the configured source-to-target chain
 - Risk aggregation uses real Moran's I and Monte Carlo
 - Exceedance-probability curves use the Weibull plotting position and
   interpolate loss as a function of exceedance probability; return periods

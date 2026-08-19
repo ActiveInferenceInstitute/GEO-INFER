@@ -6,7 +6,8 @@ AWS S3, Google Cloud Storage, Azure Blob Storage, and other cloud platforms.
 """
 
 import logging
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,29 @@ class CloudConnector:
             True if deletion successful
         """
         raise RuntimeError("Cloud connector subclasses must implement delete_file()")
+
+    async def read_byte_range(
+        self, remote_path: str, start_byte: int, end_byte: int
+    ) -> bytes:
+        """
+        Read a byte range from a remote file (HTTP/Cloud range request).
+
+        Args:
+            remote_path: Path or key of the remote resource
+            start_byte: 0-indexed start offset
+            end_byte: 0-indexed end offset (inclusive)
+
+        Returns:
+            Extracted byte buffer
+        """
+        if start_byte < 0 or end_byte < start_byte:
+            raise ValueError("Invalid byte range coordinates")
+        path = Path(remote_path)
+        if path.exists():
+            with path.open("rb") as f:
+                f.seek(start_byte)
+                return f.read(end_byte - start_byte + 1)
+        raise FileNotFoundError(f"Remote resource not available for range reading: {remote_path}")
 
     async def disconnect(self):
         """Close cloud storage connection."""

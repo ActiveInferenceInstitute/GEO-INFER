@@ -6,6 +6,10 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 from geo_infer_data.utils.caching import CacheEntry, CacheManager
+from geo_infer_data.utils.secure_serialization import MAGIC
+
+# Explicit key so persistence tests never touch the per-installation key file.
+SIGNING_KEY = b"data-cache-unit-test-signing-key!"
 
 
 # ---------------------------------------------------------------------------
@@ -72,11 +76,59 @@ class TestCacheManager:
             max_size=10,
             enable_persistence=True,
             persistence_path=tmp_path,
+            signing_key=SIGNING_KEY,
         )
         self._run(cache.set("../../outside", "value"))
         files = list(tmp_path.glob("*.pkl"))
         assert len(files) == 1
         assert files[0].parent == tmp_path
+
+    def test_persisted_entry_is_signed_and_reloads(self, tmp_path):
+        cache = CacheManager(
+            max_size=10,
+            default_ttl=None,
+            enable_persistence=True,
+            persistence_path=tmp_path,
+            signing_key=SIGNING_KEY,
+        )
+        self._run(cache.set("key1", {"value": 1}))
+
+        cache_file = next(iter(tmp_path.glob("*.pkl")))
+        assert cache_file.read_bytes().startswith(MAGIC)
+
+        reloaded = CacheManager(
+            max_size=10,
+            default_ttl=None,
+            enable_persistence=True,
+            persistence_path=tmp_path,
+            signing_key=SIGNING_KEY,
+        )
+        assert self._run(reloaded.get("key1")) == {"value": 1}
+
+    def test_tampered_persisted_entry_is_rejected(self, tmp_path):
+        cache = CacheManager(
+            max_size=10,
+            default_ttl=None,
+            enable_persistence=True,
+            persistence_path=tmp_path,
+            signing_key=SIGNING_KEY,
+        )
+        self._run(cache.set("key1", {"value": 1}))
+
+        cache_file = next(iter(tmp_path.glob("*.pkl")))
+        blob = bytearray(cache_file.read_bytes())
+        blob[-1] ^= 0x01
+        cache_file.write_bytes(bytes(blob))
+
+        reloaded = CacheManager(
+            max_size=10,
+            default_ttl=None,
+            enable_persistence=True,
+            persistence_path=tmp_path,
+            signing_key=SIGNING_KEY,
+        )
+        assert reloaded.cache == {}
+        assert not cache_file.exists()
 
     def test_invalid_max_size_is_rejected(self):
         try:

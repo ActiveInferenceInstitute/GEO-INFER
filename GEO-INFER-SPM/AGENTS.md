@@ -38,6 +38,13 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM
 ```
 
 
+## Random Field Theory Guidance
+
+- Preserve every Gaussian EC density and boundary resel term in peak inference;
+  do not replace the full expected EC with only its top-dimensional term.
+- Keep cluster extent in resel units, correct the maximum-cluster probability,
+  and verify peak and cluster FWE with deterministic known-null simulations.
+
 ## Visualization Guidance
 
 - Reject invalid contrast/statistic/coordinate inputs before map construction.

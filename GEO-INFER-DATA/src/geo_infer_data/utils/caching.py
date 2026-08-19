@@ -4,19 +4,29 @@ Caching utilities for GEO-INFER-DATA.
 This module provides caching capabilities for frequently accessed data
 including in-memory caching, file-based caching, and distributed caching.
 
-Security note (pickle trust boundary): cache entries are serialised with
-:mod:`pickle`. ``pickle.load`` can execute arbitrary code during unpickling, so
-only deserialise cache entries that were written by this repository's own
-caching layer from trusted data. Never load a cache file whose provenance is
-untrusted without an independent integrity check.
+Security note (serialization trust boundary): persisted cache entries are
+serialised with :mod:`pickle` and wrapped in an authenticated GISP1 envelope
+(see :mod:`geo_infer_data.utils.secure_serialization`). ``pickle.loads`` can
+execute arbitrary code during unpickling, so the persistence layer never
+unpickles a file directly: every read passes HMAC-SHA256 verification under
+the ``data.cache.entry`` context key first, and any file that is unsigned,
+truncated, cross-context, or tampered with is rejected and quarantined before
+deserialisation is attempted.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
 from datetime import datetime, timedelta, timezone
 import hashlib
 import pickle
 from pathlib import Path
+
+from .secure_serialization import (
+    CONTEXT_CACHE_ENTRY,
+    PayloadSecurityError,
+    dumps_signed,
+    loads_signed,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -77,6 +87,9 @@ class CacheManager:
         default_ttl: Default time-to-live for cache entries
         enable_persistence: Whether to enable file-based persistence
         persistence_path: Path for cache persistence
+        signing_key: Explicit HMAC master key for persisted entries. When
+            omitted the key is resolved from ``GEO_INFER_SERIALIZATION_KEY``
+            or the per-installation key file.
 
     Examples:
         >>> cache = CacheManager(max_size=1000, default_ttl=3600)
@@ -98,6 +111,7 @@ class CacheManager:
         default_ttl: Optional[int] = 3600,
         enable_persistence: bool = False,
         persistence_path: Optional[Path] = None,
+        signing_key: Optional[Union[bytes, str]] = None,
     ):
         if max_size < 1:
             raise ValueError("max_size must be at least 1")
@@ -107,6 +121,7 @@ class CacheManager:
         self.default_ttl = default_ttl
         self.enable_persistence = enable_persistence
         self.persistence_path = persistence_path or Path("/tmp/geo_infer_cache")
+        self.signing_key = signing_key
 
         self.cache: Dict[str, CacheEntry] = {}
         self.access_stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0}
@@ -279,8 +294,15 @@ class CacheManager:
             "metadata": entry.metadata,
         }
 
-        with open(cache_file, "wb") as f:
-            pickle.dump(entry_data, f)
+        # Sign before writing: the on-disk bytes are an authenticated GISP1
+        # envelope, never a bare pickle stream.
+        envelope = dumps_signed(
+            entry_data,
+            context=CONTEXT_CACHE_ENTRY,
+            key=self.signing_key,
+            serializer="pickle",
+        )
+        cache_file.write_bytes(envelope)
 
     def _cache_file(self, key: str) -> Path:
         """Return a filesystem-safe path for a logical cache key.
@@ -300,8 +322,14 @@ class CacheManager:
 
         for cache_file in self.persistence_path.glob("*.pkl"):
             try:
-                with open(cache_file, "rb") as f:
-                    entry_data = pickle.load(f)
+                # Trust boundary: HMAC verification runs before unpickling, so
+                # an unsigned or tampered file is rejected, not deserialised.
+                entry_data = loads_signed(
+                    cache_file.read_bytes(),
+                    context=CONTEXT_CACHE_ENTRY,
+                    key=self.signing_key,
+                    serializer="pickle",
+                )
 
                 entry = CacheEntry(
                     key=entry_data["key"],
@@ -320,9 +348,16 @@ class CacheManager:
                     # Remove expired file
                     cache_file.unlink()
 
+            except PayloadSecurityError as e:
+                logger.error(
+                    "Rejected untrusted cache entry %s before deserialization: %s",
+                    cache_file,
+                    e,
+                )
+                cache_file.unlink(missing_ok=True)
             except Exception as e:
                 logger.error(f"Failed to load cache entry {cache_file}: {e}")
-                cache_file.unlink()
+                cache_file.unlink(missing_ok=True)
 
     def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
@@ -336,6 +371,8 @@ class CacheManager:
         memory_usage = 0
         for entry in self.cache.values():
             try:
+                # Size estimation only: this pickles in-memory data and never
+                # deserialises, so it is outside the trust boundary.
                 memory_usage += len(pickle.dumps(entry.data))
             except Exception:
                 memory_usage += 1000  # Estimate 1KB per entry

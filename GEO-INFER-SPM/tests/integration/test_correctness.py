@@ -320,9 +320,9 @@ class TestRFTCorrectness:
         rft.smoothness = np.array([1.5, 1.5])
         rft.search_volume = 40.0
 
-        # For high thresholds, expected clusters should approach 0
+        # For high thresholds, the full boundary-corrected EC approaches zero.
         expected_high = rft.expected_clusters(4.0)
-        assert expected_high < 0.01
+        assert expected_high < 0.02
 
         # For low thresholds, expected clusters should be higher
         expected_low = rft.expected_clusters(1.0)
