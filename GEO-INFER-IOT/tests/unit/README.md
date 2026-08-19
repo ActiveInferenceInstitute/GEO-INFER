@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-IOT`.
 - `test_ingestion.py`
 - `test_performance_monitor.py`
 - `test_quality_control.py`
+- `test_quality_control_history.py`
 - `test_radiation_monitoring.py`
 - `test_registry.py`
 - `test_sensor_data.py`
