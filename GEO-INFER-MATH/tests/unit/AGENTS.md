@@ -23,6 +23,7 @@
 
 - `test_ai_convenience.py`
 - `test_bayes_convenience.py`
+- `test_clustering.py`
 - `test_convenience_api.py`
 - `test_geometry.py`
 - `test_graph_theory.py`

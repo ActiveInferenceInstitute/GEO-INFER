@@ -14,6 +14,8 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.cluster import KMeans, DBSCAN
 import logging
 
+from ..utils.rng import resolve_rng, SeedLike
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -67,16 +69,14 @@ class SpatialKMeans:
         Returns:
             Self for method chaining
         """
-        if self.random_state is not None:
-            np.random.seed(self.random_state)
-
+        rng = resolve_rng(self.random_state)
         n_samples, n_features = X.shape
 
         # Initialize centroids
         if self.init == 'k-means++':
-            self.cluster_centers_ = self._kmeans_plus_plus_init(X)
+            self.cluster_centers_ = self._kmeans_plus_plus_init(X, rng)
         elif self.init == 'random':
-            indices = np.random.choice(n_samples, self.n_clusters, replace=False)
+            indices = rng.choice(n_samples, self.n_clusters, replace=False)
             self.cluster_centers_ = X[indices].copy()
         else:
             raise ValueError(f"Unknown init method: {self.init}")
@@ -99,7 +99,7 @@ class SpatialKMeans:
                     self.cluster_centers_[k] = np.mean(X[mask], axis=0)
                 else:
                     # Reinitialize empty cluster
-                    self.cluster_centers_[k] = X[np.random.choice(n_samples)]
+                    self.cluster_centers_[k] = X[rng.choice(n_samples)]
 
             # Check convergence
             center_shift = np.sum((self.cluster_centers_ - old_centers)**2)
@@ -115,13 +115,15 @@ class SpatialKMeans:
         self.is_fitted = True
         return self
 
-    def _kmeans_plus_plus_init(self, X: np.ndarray) -> np.ndarray:
+    def _kmeans_plus_plus_init(self, X: np.ndarray, rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """K-means++ initialization."""
+        if rng is None:
+            rng = resolve_rng(self.random_state)
         n_samples, n_features = X.shape
         centers = np.zeros((self.n_clusters, n_features))
 
         # First center: random selection
-        centers[0] = X[np.random.randint(n_samples)]
+        centers[0] = X[rng.integers(n_samples)]
 
         for k in range(1, self.n_clusters):
             # Calculate distances to nearest existing center
@@ -136,7 +138,7 @@ class SpatialKMeans:
             # Select next center with probability proportional to distance squared
             probabilities = distances**2 / np.sum(distances**2)
             cumulative_prob = np.cumsum(probabilities)
-            r = np.random.random()
+            r = rng.random()
 
             selected_idx = np.searchsorted(cumulative_prob, r)
             centers[k] = X[selected_idx]
@@ -211,13 +213,11 @@ class SpatiallyConstrainedKMeans:
         Returns:
             Self for method chaining
         """
-        if self.random_state is not None:
-            np.random.seed(self.random_state)
-
+        rng = resolve_rng(self.random_state)
         n_samples = len(X)
 
         # Initialize centroids randomly
-        indices = np.random.choice(n_samples, self.n_clusters, replace=False)
+        indices = rng.choice(n_samples, self.n_clusters, replace=False)
         self.cluster_centers_ = X[indices].copy()
 
         self.labels_ = np.zeros(n_samples, dtype=int)

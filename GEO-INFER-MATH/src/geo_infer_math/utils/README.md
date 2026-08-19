@@ -11,6 +11,7 @@ Utils workspace within `GEO-INFER-MATH`.
 - `decorators.py`
 - `exceptions.py`
 - `parallel.py`
+- `rng.py`
 - `validation.py`
 
 ## Public Interface

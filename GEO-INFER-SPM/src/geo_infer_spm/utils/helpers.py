@@ -12,18 +12,12 @@ from scipy import stats
 from ..models.data_models import SPMData, DesignMatrix
 
 
-def _resolve_rng(random_seed: Optional[int]) -> Union[np.random.Generator, Any]:
-    """Return the RNG source for a call.
+from .rng import resolve_rng, SeedLike
 
-    When ``random_seed`` is ``None`` the legacy global ``np.random`` module is
-    returned, preserving existing behaviour (callers that seed the global state
-    keep getting the same streams). When a seed is supplied a fresh
-    ``np.random.default_rng(seed)`` generator is returned, giving deterministic,
-    seed-threaded results without touching global state.
-    """
-    if random_seed is None:
-        return np.random
-    return np.random.default_rng(random_seed)
+
+def _resolve_rng(random_seed: Optional[Union[int, np.random.Generator]] = None) -> np.random.Generator:
+    """Resolve random seed into an isolated NumPy Generator."""
+    return resolve_rng(random_seed)
 
 
 def _randint(rng: Any, *args: Any, **kwargs: Any) -> Any:
@@ -425,17 +419,10 @@ def create_spatial_basis_functions(
 
     if method == "gaussian":
         # Gaussian radial basis functions
-        # Random centers
-        if random_seed is None:
-            np.random.seed(42)  # legacy reproducibility path
-            center_indices = np.random.choice(
-                n_points, size=min(n_basis, n_points), replace=False
-            )
-        else:
-            rng = np.random.default_rng(random_seed)
-            center_indices = rng.choice(
-                n_points, size=min(n_basis, n_points), replace=False
-            )
+        rng = resolve_rng(random_seed)
+        center_indices = rng.choice(
+            n_points, size=min(n_basis, n_points), replace=False
+        )
         centers = coordinates[center_indices]
 
         # Width based on median distance
