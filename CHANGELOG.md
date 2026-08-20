@@ -60,6 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation drift: README, CLAUDE.md, AGENTS.md and module-level docs updated to reflect completed lowercase normalization.
 - Replaced stale INTRA navigation and examples that referenced nonexistent
   API, deployment, workflow, and package paths with current repository links.
+- WATER pollution plume dispersion now derives its grid extent from
+  `grid_resolution`, computes `plume_area_km2` from the actual grid cell size
+  instead of the nominal resolution, and guards zero diffusion/time so
+  concentration fields stay finite and the reported area is no longer
+  underestimated.
 
 ---
 

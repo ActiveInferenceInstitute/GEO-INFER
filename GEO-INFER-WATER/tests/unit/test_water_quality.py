@@ -114,3 +114,47 @@ class TestRegulatoryCompliance:
         assert "regulations" in epa
         assert epa["regulations"] == "EPA"
         assert who["regulations"] == "WHO"
+
+
+class TestPollutionPlume:
+    def test_plume_area_scales_with_diffusion(self, assessor):
+        small = assessor.track_pollution_plume(
+            initial_location=(-118.25, 34.05),
+            pollutant_type=PollutantType.NUTRIENT,
+            flow_velocity=(0.0, 0.0),
+            diffusion_coefficient=1.0,
+            time_hours=24,
+        )
+        large = assessor.track_pollution_plume(
+            initial_location=(-118.25, 34.05),
+            pollutant_type=PollutantType.NUTRIENT,
+            flow_velocity=(0.0, 0.0),
+            diffusion_coefficient=100.0,
+            time_hours=24,
+        )
+        assert small["plume_area_km2"] > 0
+        assert large["plume_area_km2"] > small["plume_area_km2"]
+
+    def test_zero_diffusion_confines_to_source_cell(self, assessor):
+        result = assessor.track_pollution_plume(
+            initial_location=(-118.25, 34.05),
+            pollutant_type=PollutantType.NUTRIENT,
+            flow_velocity=(0.0, 0.0),
+            diffusion_coefficient=0.0,
+            time_hours=24,
+        )
+        field = np.asarray(result["concentration_field"])
+        assert np.all(np.isfinite(field))
+        assert result["dispersion_sigma_m"] == 0.0
+        assert result["plume_area_km2"] > 0
+
+    def test_advection_shifts_plume_center(self, assessor):
+        result = assessor.track_pollution_plume(
+            initial_location=(-118.25, 34.05),
+            pollutant_type=PollutantType.ORGANIC,
+            flow_velocity=(0.1, 0.0),
+            diffusion_coefficient=10.0,
+            time_hours=1.0,
+        )
+        lon, _ = result["plume_center"]
+        assert lon > -118.25
