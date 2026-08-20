@@ -298,31 +298,41 @@ class WaterQualityAssessor:
             Plume dispersion model results
         """
         time_seconds = time_hours * 3600
-        
-        # Create grid (simplified 2D Gaussian plume)
+
+        # Create grid (2D Gaussian plume); grid_resolution sets the cell size.
         grid_size = 50
-        x = np.linspace(-5000, 5000, grid_size)
-        y = np.linspace(-5000, 5000, grid_size)
+        half_extent = (grid_size / 2) * grid_resolution
+        x = np.linspace(-half_extent, half_extent, grid_size)
+        y = np.linspace(-half_extent, half_extent, grid_size)
         X, Y = np.meshgrid(x, y)
-        
+        cell_size = float(x[1] - x[0])
+
         # Advection displacement
         x_displacement = flow_velocity[0] * time_seconds
         y_displacement = flow_velocity[1] * time_seconds
-        
+
         # Gaussian dispersion
-        sigma = np.sqrt(2 * diffusion_coefficient * time_seconds)
-        
+        sigma = np.sqrt(max(0.0, 2 * diffusion_coefficient * time_seconds))
+
         # Calculate concentration field
         X_shifted = X - x_displacement
         Y_shifted = Y - y_displacement
-        
-        concentration = np.exp(-(X_shifted**2 + Y_shifted**2) / (2 * sigma**2))
-        concentration = concentration / concentration.max()  # Normalize
-        
-        # Calculate plume extent
+
+        if sigma <= 0.0:
+            # Zero dispersion or zero time: concentration stays at the source.
+            concentration = np.zeros_like(X)
+            concentration[grid_size // 2, grid_size // 2] = 1.0
+        else:
+            concentration = np.exp(-(X_shifted**2 + Y_shifted**2) / (2 * sigma**2))
+            max_concentration = float(concentration.max())
+            if max_concentration > 0 and np.isfinite(max_concentration):
+                concentration = concentration / max_concentration  # Normalize
+
+        # Calculate plume extent using the actual grid cell size, not the
+        # nominal grid_resolution (they differ by the endpoint convention).
         threshold = 0.01  # 1% of max concentration
         plume_mask = concentration > threshold
-        plume_area = np.sum(plume_mask) * (grid_resolution**2) / 1e6  # km²
+        plume_area = np.sum(plume_mask) * (cell_size**2) / 1e6  # km²
         
         return {
             'initial_location': initial_location,
