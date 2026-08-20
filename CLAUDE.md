@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
 
-### Current Stats (2026-07-30)
+### Current Stats (2026-08-20)
 
-- **44 modules** | **892 Python source files** | **483 Python test files**
-- **849 repository README.md files** and **848 repository AGENTS.md files** are
+- **44 modules** | **901 Python source files** | **524 Python test files**
+- **844 repository README.md files** and **843 repository AGENTS.md files** are
   maintained recursively; nested signposts are generated from repository files.
 - All package directories follow PEP 8 lowercase naming: `geo_infer_<module>` (including `geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`). Mixed-case directory normalization is complete.
 - Repo contract checks live in `GEO-INFER-TEST/validate_repo_contracts.py`; source-language debt is reported by default and can be made fatal with `--strict-source-language`.
