@@ -504,7 +504,8 @@ def create_interactive_map(
     # Add demand points if provided
     if demand_points is not None:
         # Create cluster for demand points
-        marker_cluster = folium.plugins.MarkerCluster().add_to(m)
+        marker_cluster = folium.plugins.MarkerCluster()  # type: ignore[attr-defined]
+        marker_cluster.add_to(m)
 
         for _, point in demand_points.iterrows():
             name = point.get("name", "Demand Point")

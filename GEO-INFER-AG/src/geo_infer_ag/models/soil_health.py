@@ -57,7 +57,7 @@ class SoilHealthModel(AgricultureModel):
             self.soil_indicators = soil_indicators
             
         self.model_type = model_type
-        self.predictors = {}
+        self.predictors: Dict[str, Dict[str, Any]] = {}
         self.fitted = False
         
         # Define required inputs based on model type
@@ -301,12 +301,13 @@ class SoilHealthModel(AgricultureModel):
                     soil_health_index += indicator_scores[indicator] * weight
             
             # Add predictions to results
-            result = {
+            spatial_results: Dict[str, Any] = {
+                "soil_health_index": soil_health_index
+            }
+            result: Dict[str, Any] = {
                 "soil_health_index": soil_health_index,
                 "indicator_scores": indicator_scores,
-                "spatial_results": {
-                    "soil_health_index": soil_health_index
-                },
+                "spatial_results": spatial_results,
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "model_type": self.model_type,
@@ -317,7 +318,7 @@ class SoilHealthModel(AgricultureModel):
             
             # Add individual indicator results to spatial results
             for indicator, scores in indicator_scores.items():
-                result["spatial_results"][f"{indicator}_score"] = scores
+                spatial_results[f"{indicator}_score"] = scores
             
             # Calculate summary statistics
             result["summary"] = {
@@ -372,12 +373,13 @@ class SoilHealthModel(AgricultureModel):
                 soil_health_index = soil_health_index * (1.0 / weight_sum)
             
             # Add predictions to results
+            ml_spatial: Dict[str, Any] = {
+                "soil_health_index": soil_health_index
+            }
             result = {
                 "soil_health_index": soil_health_index,
                 "indicator_predictions": indicator_predictions,
-                "spatial_results": {
-                    "soil_health_index": soil_health_index
-                },
+                "spatial_results": ml_spatial,
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "model_type": self.model_type,
@@ -388,7 +390,7 @@ class SoilHealthModel(AgricultureModel):
             
             # Add individual indicator results to spatial results
             for indicator, predictions in indicator_predictions.items():
-                result["spatial_results"][indicator] = predictions
+                ml_spatial[indicator] = predictions
             
             # Calculate summary statistics
             result["summary"] = {
@@ -458,12 +460,13 @@ class SoilHealthModel(AgricultureModel):
                 soil_health_index /= total_w
             
             # Add predictions to results
+            pb_spatial: Dict[str, Any] = {
+                "soil_health_index": soil_health_index
+            }
             result = {
                 "soil_health_index": soil_health_index,
                 "indicator_scores": indicator_scores,
-                "spatial_results": {
-                    "soil_health_index": soil_health_index
-                },
+                "spatial_results": pb_spatial,
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "model_type": self.model_type,
@@ -473,7 +476,7 @@ class SoilHealthModel(AgricultureModel):
             
             # Add individual indicator results to spatial results
             for indicator, scores in indicator_scores.items():
-                result["spatial_results"][f"{indicator}_score"] = scores
+                pb_spatial[f"{indicator}_score"] = scores
             
             # Calculate summary statistics
             result["summary"] = {

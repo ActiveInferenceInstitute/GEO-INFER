@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from enum import Enum
-from typing import Any, Dict, List, NoReturn, Optional
+from typing import Any, Dict, List, NoReturn, Optional, Callable, cast
 
 import requests
 
@@ -453,7 +453,7 @@ class EmailProviderFactory:
         if not provider_class:
             raise ValueError(f"Unsupported email provider: {provider_type}")
 
-        return provider_class(config)
+        return cast(Callable[[Dict[str, Any]], EmailProvider], provider_class)(config)
 
     @staticmethod
     def get_available_providers() -> List[str]:

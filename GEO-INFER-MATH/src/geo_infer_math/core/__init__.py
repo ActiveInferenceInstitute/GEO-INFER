@@ -13,7 +13,17 @@ from geo_infer_math.core.geometry import *
 
 # Import newly implemented modules
 try:
-    from geo_infer_math.core.numerical_methods import *
+    from geo_infer_math.core.numerical_methods import (
+        InterpolationResult,
+        OptimizationResult,
+        ODEsolution,
+        SpatialOptimizer,
+        ODESolver,
+        PDEsolver,
+        numerical_integration,
+        find_root,
+        minimize_scalar_function,
+    )
     _numerical_methods_available = True
 except ImportError:
     _numerical_methods_available = False
@@ -55,7 +65,19 @@ except ImportError:
     _symbolic_math_available = False
 
 try:
-    from geo_infer_math.core.information_theory import *
+    from geo_infer_math.core.information_theory import (
+        shannon_entropy,
+        renyi_entropy,
+        tsallis_entropy,
+        spatial_entropy as info_spatial_entropy,
+        mutual_information,
+        kl_divergence,
+        conditional_entropy,
+        joint_entropy,
+        EntropyCalculator,
+        MutualInformationCalculator,
+        KLDivergenceCalculator,
+    )
     _information_theory_available = True
 except ImportError:
     _information_theory_available = False

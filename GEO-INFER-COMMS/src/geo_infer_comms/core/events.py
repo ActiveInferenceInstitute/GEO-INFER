@@ -8,7 +8,7 @@ coordination with geospatial context and filtering capabilities.
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Callable, Any, Set
+from typing import Dict, List, Optional, Callable, Any, Set, cast
 import logging
 import threading
 import time
@@ -284,7 +284,7 @@ class EventManager:
     def get_event_statistics(self) -> Dict[str, Any]:
         """Get event system statistics."""
         with self._lock:
-            event_type_counts = {}
+            event_type_counts: Dict[str, int] = {}
             for event in self.events.values():
                 event_type_counts[event.event_type] = (
                     event_type_counts.get(event.event_type, 0) + 1
@@ -437,7 +437,7 @@ class EventProcessor(ABC):
 class DataUpdateProcessor(EventProcessor):
     """Processor for data update events."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     def process_event(self, event: EventPublishResponse) -> None:
@@ -452,7 +452,7 @@ class DataUpdateProcessor(EventProcessor):
 class SystemAlertProcessor(EventProcessor):
     """Processor for system alert events."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     def process_event(self, event: EventPublishResponse) -> None:
@@ -468,7 +468,7 @@ class SystemAlertProcessor(EventProcessor):
 class UserActionProcessor(EventProcessor):
     """Processor for user action events."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     def process_event(self, event: EventPublishResponse) -> None:
@@ -482,7 +482,7 @@ class UserActionProcessor(EventProcessor):
 class SensorTriggerProcessor(EventProcessor):
     """Processor for sensor trigger events."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     def process_event(self, event: EventPublishResponse) -> None:
@@ -497,7 +497,7 @@ class SensorTriggerProcessor(EventProcessor):
 class GeospatialChangeProcessor(EventProcessor):
     """Processor for geospatial change events."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     def process_event(self, event: EventPublishResponse) -> None:
@@ -600,7 +600,7 @@ class EventFilter:
         )
 
         if lat is None or lon is None:
-            return filter_config.get("pass_on_missing_coords", True)
+            return cast(bool, filter_config.get("pass_on_missing_coords", True))
 
         # Bounding-box check
         bbox = filter_config.get("bbox")
@@ -660,7 +660,7 @@ class EventFilter:
         """Apply custom filters."""
         filter_name = filter_config.get("filter_name")
         if filter_name in self.custom_filters:
-            return self.custom_filters[filter_name](event, filter_config)
+            return cast(bool, self.custom_filters[filter_name](event, filter_config))
         else:
             self.logger.warning(f"Custom filter not found: {filter_name}")
             return True
@@ -792,9 +792,7 @@ class EventScheduler:
                     self.recurring_events.items()
                 ):
                     if recurring_event.status == "active":
-                        if self._should_trigger_recurring(
-                            recurring_event, current_time
-                        ):
+                        if recurring_event._should_trigger_recurring(current_time):
                             try:
                                 self.event_manager.publish_event(
                                     recurring_event.event_request

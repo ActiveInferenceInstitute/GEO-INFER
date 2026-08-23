@@ -9,7 +9,7 @@ computations using GeoPandas and Shapely.
 import logging
 import numpy as np
 import geopandas as gpd
-from typing import Union, Optional
+from typing import Union, Optional, Any
 from shapely.ops import unary_union
 from shapely.ops import transform as shapely_transform
 from pyproj import Transformer
@@ -17,7 +17,7 @@ from pyproj import Transformer
 logger = logging.getLogger(__name__)
 
 
-def _reproject(frame: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+def _reproject(frame: gpd.GeoDataFrame, target_crs: Any) -> gpd.GeoDataFrame:
     """Reproject without the array-to-scalar warning in older GeoPandas."""
     if frame.crs == target_crs:
         return frame

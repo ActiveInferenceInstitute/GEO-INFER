@@ -236,7 +236,7 @@ class MicrobiomeDataset:
 
         logger.info(f"MicrobiomeDataset initialized: {len(self.metadata)} samples")
 
-    def _validate_coordinates(self):
+    def _validate_coordinates(self) -> None:
         """Validate that spatial coordinates are present and valid."""
         required_cols = ["latitude", "longitude"]
         missing_cols = [

@@ -17,7 +17,7 @@ class BaseTalentImporter(ABC):
     """Abstract base class for Talent data importers."""
 
     @abstractmethod
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         """Connect to the Talent data source (e.g., ATS API)."""
         raise RuntimeError("Talent importer subclasses must implement connect()")
 
@@ -61,7 +61,7 @@ class BaseTalentImporter(ABC):
         self,
         last_sync_date: Optional[datetime] = None,
         requisition_id: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> List[Candidate]:
         self.connect(**kwargs)
         raw_data = self.fetch_candidates(
@@ -75,7 +75,7 @@ class BaseTalentImporter(ABC):
         self,
         last_sync_date: Optional[datetime] = None,
         status: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> List[JobRequisition]:
         self.connect(**kwargs)
         raw_data = self.fetch_requisitions(last_sync_date=last_sync_date, status=status)
@@ -99,7 +99,7 @@ class CSVTalentImporter(BaseTalentImporter):
         self.requisition_file_path = requisition_file_path
         self.connection = False
 
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         paths = [
             path
             for path in (self.candidate_file_path, self.requisition_file_path)
@@ -172,15 +172,17 @@ class CSVTalentImporter(BaseTalentImporter):
                             f"Warn: Bad updated_at for cand {record.get('candidate_id')}"
                         )
 
-                candidate_data = {
+                status_raw = (record.get("status") or "").strip()
+
+                candidate_data: Dict[str, Any] = {
                     "candidate_id": record.get("candidate_id"),
                     "first_name": record.get("first_name"),
                     "last_name": record.get("last_name"),
                     "email": record.get("email"),
                     "phone_number": record.get("phone_number"),
                     "status": (
-                        CandidateStatus(record["status"].strip().lower())
-                        if record.get("status") and record.get("status").strip()
+                        CandidateStatus(status_raw.lower())
+                        if status_raw
                         else CandidateStatus.APPLIED
                     ),
                     "job_requisition_id": record.get("job_requisition_id"),
@@ -200,7 +202,7 @@ class CSVTalentImporter(BaseTalentImporter):
                     ),
                     # Add other fields like linkedin_profile, resume_url etc.
                 }
-                candidate_data_cleaned = {
+                candidate_data_cleaned: Dict[str, Any] = {
                     k: v
                     for k, v in candidate_data.items()
                     if v is not None or k in ["applied_at", "updated_at"]
@@ -250,13 +252,15 @@ class CSVTalentImporter(BaseTalentImporter):
                             f"Warn: Bad closed_at for req {record.get('requisition_id')}"
                         )
 
-                req_data = {
+                status_raw = (record.get("status") or "").strip()
+
+                req_data: Dict[str, Any] = {
                     "requisition_id": record.get("requisition_id"),
                     "job_title": record.get("job_title"),
                     "department": record.get("department"),
                     "status": (
-                        JobRequisitionStatus(record["status"].strip().lower())
-                        if record.get("status") and record.get("status").strip()
+                        JobRequisitionStatus(status_raw.lower())
+                        if status_raw
                         else JobRequisitionStatus.OPEN
                     ),
                     "opened_at": opened_at_date
@@ -265,7 +269,7 @@ class CSVTalentImporter(BaseTalentImporter):
                     "hiring_manager_id": record.get("hiring_manager_id"),
                     # Add other fields like location, description, etc.
                 }
-                req_data_cleaned = {
+                req_data_cleaned: Dict[str, Any] = {
                     k: v
                     for k, v in req_data.items()
                     if v is not None or k == "closed_at"

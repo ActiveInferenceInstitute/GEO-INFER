@@ -5,7 +5,7 @@ This module implements variational free energy calculations for different
 types of active inference models, including categorical and Gaussian models.
 """
 
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, cast
 import logging
 
 import numpy as np
@@ -268,7 +268,12 @@ class FreeEnergyCalculator:
         entropy = float(-np.sum(predictive * np.log(predictive + EPSILON)))
         if "expected_posterior" in policy or "posterior_beliefs" in policy:
             expected_posterior = _coerce_probability_vector(
-                policy.get("expected_posterior", policy.get("posterior_beliefs")),
+                cast(
+                    Any,
+                    policy.get(
+                        "expected_posterior", policy.get("posterior_beliefs")
+                    ),
+                ),
                 len(beliefs),
             )
             epistemic_value = kl_divergence(expected_posterior, predictive)
@@ -335,14 +340,28 @@ class FreeEnergyCalculator:
         """General free energy compute dispatching."""
         if model_type == "categorical":
             if isinstance(beliefs, dict):
-                beliefs = beliefs.get("states", beliefs.get("mean"))
+                beliefs_arr = beliefs.get("states", beliefs.get("mean"))
+            else:
+                beliefs_arr = beliefs
+            if not isinstance(beliefs_arr, np.ndarray):
+                raise ValueError(
+                    "categorical beliefs must be an array or a dict with "
+                    "'states' or 'mean'"
+                )
             obs = (
                 observations
                 if observations is not None
-                else np.ones_like(beliefs) / len(beliefs)
+                else np.ones_like(beliefs_arr) / len(beliefs_arr)
             )
-            return self.compute_categorical_free_energy(beliefs, obs, preferences)
+            return cast(
+                float,
+                self.compute_categorical_free_energy(beliefs_arr, obs, preferences),
+            )
         elif model_type == "gaussian":
+            if not isinstance(beliefs, dict):
+                raise ValueError(
+                    "gaussian beliefs must be a dict with 'mean' and 'precision'"
+                )
             mean = beliefs.get("mean", beliefs)
             precision = beliefs.get("precision", np.eye(len(mean)))
             obs = observations if observations is not None else np.zeros_like(mean)

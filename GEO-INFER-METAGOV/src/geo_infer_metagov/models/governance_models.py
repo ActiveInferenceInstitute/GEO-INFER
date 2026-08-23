@@ -46,7 +46,7 @@ class GoverningEntity:
     contact_information: Optional[Dict[str, str]] = None
     established_date: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.established_date is None:
             self.established_date = datetime.now()
 
@@ -196,7 +196,7 @@ class GovernanceStructure:
     
     def get_entity_count_by_level(self) -> Dict[str, int]:
         """Get count of entities at each governance level."""
-        counts = {}
+        counts: Dict[str, int] = {}
         for entity in self.governing_entities:
             level = entity.governance_level
             counts[level] = counts.get(level, 0) + 1

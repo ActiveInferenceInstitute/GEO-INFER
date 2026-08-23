@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `abc.py`
+- `evaluation.py`
 - `hmc.py`
 - `inference.py`
 - `mcmc.py`

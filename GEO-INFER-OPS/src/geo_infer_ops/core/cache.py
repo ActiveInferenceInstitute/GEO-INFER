@@ -16,7 +16,7 @@ use Redis' native ``INCRBY``/``DECRBY`` on integer strings and never
 deserialise a payload, so they carry no code-execution risk.
 """
 
-from typing import Optional, Any, Union, Dict, List
+from typing import Optional, Any, Union, Dict, List, cast
 from enum import Enum
 
 import redis
@@ -79,11 +79,12 @@ class CacheManager:
     def _connect(self) -> None:
         """Connect to Redis server."""
         try:
+            cache_cfg: Any = getattr(self.config, "cache")
             self.redis = redis.Redis(
-                host=self.config.cache.redis.host,
-                port=self.config.cache.redis.port,
-                db=self.config.cache.redis.db,
-                password=self.config.cache.redis.password,
+                host=cache_cfg.redis.host,
+                port=cache_cfg.redis.port,
+                db=cache_cfg.redis.db,
+                password=cache_cfg.redis.password,
                 decode_responses=(self.serializer == CacheSerializer.JSON),
             )
             self.redis.ping()
@@ -123,7 +124,7 @@ class CacheManager:
             logger.error("cache_serialization_failed", error=str(e))
             raise
 
-    def _deserialize(self, value: Union[str, bytes]) -> Any:
+    def _deserialize(self, value: Optional[Union[str, bytes]]) -> Any:
         """
         Verify and deserialize a value read from storage.
 
@@ -146,13 +147,13 @@ class CacheManager:
         try:
             if self.serializer == CacheSerializer.JSON:
                 return loads_signed_text(
-                    value,
+                    cast(str, value),
                     context=CONTEXT_REDIS_CACHE,
                     key=self.signing_key,
                     serializer="json",
                 )
             return loads_signed(
-                value,
+                cast(bytes, value),
                 context=CONTEXT_REDIS_CACHE,
                 key=self.signing_key,
                 serializer="pickle",
@@ -212,7 +213,7 @@ class CacheManager:
         """
         try:
             full_key = self._get_key(key)
-            value = self.redis.get(full_key)
+            value: Any = self.redis.get(full_key)
 
             if value is None:
                 return default
@@ -327,7 +328,8 @@ class CacheManager:
         """
         try:
             full_key = self._get_key(key)
-            ttl = self.redis.ttl(full_key)
+            ttl_raw: Any = self.redis.ttl(full_key)
+            ttl = int(ttl_raw)
             return ttl if ttl >= 0 else None
         except RedisError as e:
             logger.error("cache_ttl_failed", key=key, error=str(e))
@@ -346,7 +348,7 @@ class CacheManager:
         """
         try:
             full_key = self._get_key(key)
-            return self.redis.incrby(full_key, amount)
+            return cast(int, self.redis.incrby(full_key, amount))
         except RedisError as e:
             logger.error("cache_increment_failed", key=key, error=str(e))
             return None
@@ -364,7 +366,7 @@ class CacheManager:
         """
         try:
             full_key = self._get_key(key)
-            return self.redis.decrby(full_key, amount)
+            return cast(int, self.redis.decrby(full_key, amount))
         except RedisError as e:
             logger.error("cache_decrement_failed", key=key, error=str(e))
             return None
@@ -381,7 +383,7 @@ class CacheManager:
         """
         try:
             full_keys = [self._get_key(key) for key in keys]
-            values = self.redis.mget(full_keys)
+            values: Any = self.redis.mget(full_keys)
 
             result = {}
             for key, value in zip(keys, values):
@@ -457,7 +459,8 @@ class CacheManager:
             success = True
 
             while True:
-                cursor, keys = self.redis.scan(cursor=cursor, match=pattern)
+                scan_result: Any = self.redis.scan(cursor=cursor, match=pattern)
+                cursor, keys = scan_result
                 if keys:
                     if not self.redis.delete(*keys):
                         success = False
@@ -479,13 +482,16 @@ class CacheManager:
         """
         try:
             pattern = f"{self.prefix}*"
-            cursor = "0"
+            cursor = 0
             count = 0
 
-            while cursor != 0:
-                cursor, keys = self.redis.scan(cursor=cursor, match=pattern)
+            while True:
+                scan_result: Any = self.redis.scan(cursor=cursor, match=pattern)
+                cursor, keys = scan_result
                 count += len(keys)
                 cursor = int(cursor)
+                if cursor == 0:
+                    break
 
             return count
         except RedisError as e:

@@ -232,8 +232,8 @@ def contrast(
         >>> result = contrast(model, c)
     """
     # Convert contrast specification to Contrast object
+    design_names = model_result.design_matrix.names or []
     if isinstance(contrast_spec, str):
-        design_names = model_result.design_matrix.names
         contrast_obj = Contrast.from_string(contrast_spec, design_names, contrast_type)
     elif isinstance(contrast_spec, np.ndarray):
         contrast_obj = Contrast(contrast_spec, contrast_type=contrast_type)
@@ -241,11 +241,11 @@ def contrast(
         if contrast_spec and all(isinstance(item, str) for item in contrast_spec):
             vector = np.zeros(model_result.design_matrix.n_regressors)
             for name in contrast_spec:
-                if name not in model_result.design_matrix.names:
+                if name not in design_names:
                     raise ValueError(
                         f"Contrast regressor '{name}' not found in design matrix"
                     )
-                vector[model_result.design_matrix.names.index(name)] = 1.0
+                vector[design_names.index(name)] = 1.0
             contrast_obj = Contrast(
                 vector, name="+".join(contrast_spec), contrast_type=contrast_type
             )
@@ -418,7 +418,7 @@ def generate_common_contrasts(
         >>> for c in contrasts:
         ...     result = contrast(model, c)
     """
-    names = design_matrix.names
+    names = design_matrix.names or []
     contrasts = []
 
     if design_type == "categorical":

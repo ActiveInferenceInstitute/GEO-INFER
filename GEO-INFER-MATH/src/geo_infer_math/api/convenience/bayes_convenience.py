@@ -6,7 +6,7 @@ including posterior helpers, prior builders, and MCMC wrappers.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable
+from typing import Union, Optional, List, Tuple, Dict, Any, Callable, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def posterior_helper(
     if normalize:
         posterior = posterior / np.sum(posterior) if np.sum(posterior) > 0 else posterior
     
-    return posterior
+    return cast(np.ndarray, posterior)
 
 
 def prior_builder(
@@ -267,7 +267,7 @@ class BayesianConvenience:
     Provides high-level methods for common Bayesian tasks.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Bayesian convenience class."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._posterior_cache: Dict[str, np.ndarray] = {}
@@ -278,7 +278,7 @@ class BayesianConvenience:
         prior: np.ndarray,
         likelihood: Callable,
         data: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> np.ndarray:
         """
         Calculate posterior distribution.
@@ -297,7 +297,7 @@ class BayesianConvenience:
     def build_prior(
         self,
         distribution_type: str = 'uniform',
-        **kwargs
+        **kwargs: Any
     ) -> np.ndarray:
         """
         Build prior distribution.
@@ -316,7 +316,7 @@ class BayesianConvenience:
         self,
         log_posterior: Callable,
         initial_state: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Perform MCMC sampling.
@@ -335,7 +335,7 @@ class BayesianConvenience:
         self,
         objective: Callable,
         prior: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         """
         Perform Bayesian optimization.

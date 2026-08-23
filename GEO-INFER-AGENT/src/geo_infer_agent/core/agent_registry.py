@@ -13,7 +13,7 @@ import uuid
 import logging
 import asyncio
 import importlib
-from typing import Dict, List, Any, Optional, Set, Union, Tuple
+from typing import Dict, List, Any, Optional, Set, Union, Tuple, cast
 from datetime import datetime
 
 from geo_infer_agent.core.agent_base import BaseAgent
@@ -30,16 +30,17 @@ class AgentRegistry:
     - Agent lifecycle management (start/stop)
     """
     
-    _instance = None
+    _instance: Optional["AgentRegistry"] = None
+    _initialized: bool = False
     
-    def __new__(cls):
+    def __new__(cls) -> "AgentRegistry":
         """Singleton pattern to ensure a single registry instance."""
         if cls._instance is None:
             cls._instance = super(AgentRegistry, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the agent registry."""
         if self._initialized:
             return
@@ -94,7 +95,7 @@ class AgentRegistry:
             # Get class
             agent_class = getattr(module, class_name)
             
-            return agent_class
+            return cast(type, agent_class)
         except (ImportError, AttributeError) as e:
             logger.error(f"Failed to load agent class for type '{agent_type}': {str(e)}")
             raise ImportError(f"Failed to load agent type {agent_type}: {str(e)}")
@@ -383,7 +384,7 @@ class AgentRegistry:
         result = await method(**parameters)
         
         logger.debug(f"Performed action '{action}' on agent {agent_id}")
-        return result
+        return cast(Dict[str, Any], result)
     
     async def send_message(
         self,

@@ -127,9 +127,9 @@ class EcosystemServicesValuation:
         """Compute net present value of an annual flow."""
         r = self.discount_rate
         if r <= 0:
-            return annual_value * self.time_horizon
+            return float(annual_value * self.time_horizon)
         factor = (1 - (1 + r) ** (-self.time_horizon)) / r
-        return annual_value * factor
+        return float(annual_value * factor)
 
 
 class ProvisioningServices:
@@ -354,4 +354,4 @@ class ServiceFlowModeling:
         dlat = np.radians(lat2 - lat1)
         dlon = np.radians(lon2 - lon1)
         a = np.sin(dlat / 2) ** 2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2) ** 2
-        return R * 2 * np.arcsin(np.sqrt(a))
+        return float(R * 2 * np.arcsin(np.sqrt(a)))

@@ -394,7 +394,7 @@ class SpatialPerceptionModel:
             return elements
 
         # Simple proximity-based grouping
-        grouped_elements = []
+        grouped_elements: List[SpatialPercept] = []
         used_indices = set()
 
         for i, element in enumerate(elements):
@@ -474,7 +474,7 @@ class SpatialPerceptionModel:
                                    context: Optional[Dict[str, Any]] = None,
                                    user_profile: Optional[UserCognitiveProfile] = None) -> Dict[str, Any]:
         """Generate perceptual insights and recommendations."""
-        insights = {
+        insights: Dict[str, Any] = {
             'attention_patterns': {},
             'perceptual_groups': {},
             'scale_distribution': {},
@@ -486,13 +486,13 @@ class SpatialPerceptionModel:
         if attention_weights:
             max_attention = max(attention_weights.values())
             insights['attention_patterns'] = {
-                'most_attended': max(attention_weights, key=attention_weights.get),
+                'most_attended': max(attention_weights, key=lambda k: attention_weights[k]),
                 'attention_concentration': max_attention,
                 'attention_dispersion': len([w for w in attention_weights.values() if w > 0.1])
             }
 
         # Analyze perceptual groups
-        groups = {}
+        groups: Dict[str, List[str]] = {}
         for element in elements:
             group_id = element.perceptual_group or element.element_id
             if group_id not in groups:
@@ -505,7 +505,7 @@ class SpatialPerceptionModel:
         }
 
         # Analyze scale distribution
-        scale_counts = {}
+        scale_counts: Dict[str, int] = {}
         for element in elements:
             scale = element.scale_level
             scale_counts[scale] = scale_counts.get(scale, 0) + 1
@@ -534,7 +534,7 @@ class SpatialPerceptionModel:
                               attention_weights: Dict[str, float],
                               user_profile: UserCognitiveProfile) -> Dict[str, Any]:
         """Generate insights tailored to user cognitive profile."""
-        user_insights = {}
+        user_insights: Dict[str, Any] = {}
 
         # Adjust recommendations based on user expertise
         if user_profile.spatial_expertise > 0.7:  # Expert user
@@ -562,7 +562,7 @@ class SpatialPerceptionModel:
 
     def update_model(self, training_data: Dict[str, Any], learning_rate: float = 0.01) -> Dict[str, Any]:
         """Update perception model based on training data."""
-        update_results = {
+        update_results: Dict[str, Any] = {
             'parameters_updated': [],
             'performance_improvement': 0.0,
             'training_examples': len(training_data.get('examples', []))

@@ -169,7 +169,9 @@ def _run_card(run: Dict[str, Any]) -> str:
 
 
 def _format_float(value: Optional[Any]) -> str:
+    if value is None:
+        return ""
     try:
-        return f"{float(value):.6f}"
+        return f"{float(str(value)):.6f}"
     except (TypeError, ValueError):
         return ""

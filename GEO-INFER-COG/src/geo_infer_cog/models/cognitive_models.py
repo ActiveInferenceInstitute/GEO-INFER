@@ -20,7 +20,7 @@ Mathematical Foundations:
 
 import numpy as np
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union, Set
+from typing import Dict, List, Optional, Tuple, Any, Union, Set, cast
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
@@ -129,10 +129,10 @@ class CognitiveMap:
         self.config = config or {}
 
         # Map components
-        self.landmarks = {}  # Landmark nodes
-        self.routes = {}     # Route segments
-        self.regions = {}    # Regional organization
-        self.connections = {} # Interconnections
+        self.landmarks: Dict[str, SpatialNode] = {}  # Landmark nodes
+        self.routes: Dict[str, Any] = {}     # Route segments
+        self.regions: Dict[str, Any] = {}    # Regional organization
+        self.connections: Dict[str, List[Dict[str, Any]]] = {} # Interconnections
 
         # Cognitive properties
         self.distortion_factors = {
@@ -286,7 +286,7 @@ class CognitiveMap:
         mode_multiplier = mode_multipliers.get(properties.get('mode', 'walking'), 1.0)
         complexity *= mode_multiplier
 
-        return complexity
+        return cast(float, complexity)
 
     def _calculate_region_saliency(self, landmark_composition: List[str]) -> float:
         """Calculate saliency of a region based on its landmarks."""
@@ -392,7 +392,7 @@ class CognitiveMap:
         for route in self.routes.values():
             if ((route['start_landmark'] == landmark1 and route['end_landmark'] == landmark2) or
                 (route['start_landmark'] == landmark2 and route['end_landmark'] == landmark1)):
-                return route
+                return cast(Dict[str, Any], route)
         return None
 
     def calculate_cognitive_load(self, user_profile: Optional[UserCognitiveProfile] = None) -> float:
@@ -493,7 +493,7 @@ class CognitiveMap:
 
     def export_to_geojson(self) -> Dict[str, Any]:
         """Export cognitive map as GeoJSON for visualization."""
-        geojson = {
+        geojson: Dict[str, Any] = {
             'type': 'FeatureCollection',
             'features': [],
             'metadata': {
@@ -573,12 +573,12 @@ class SpatialKnowledgeGraph:
         self.graph.graph['created'] = datetime.now().isoformat()
 
         # Node and edge indexes for efficient querying
-        self.node_index = {}  # node_id -> node_data
-        self.edge_index = {}  # (source, target) -> edge_data
+        self.node_index: Dict[str, Any] = {}  # node_id -> node_data
+        self.edge_index: Dict[Tuple[str, str], Any] = {}  # (source, target) -> edge_data
 
         # Knowledge organization
-        self.ontologies = {}  # Domain ontologies
-        self.taxonomies = {}  # Hierarchical classifications
+        self.ontologies: Dict[str, Any] = {}  # Domain ontologies
+        self.taxonomies: Dict[str, Any] = {}  # Hierarchical classifications
 
         # Performance tracking
         self.graph_metrics = {
@@ -595,7 +595,7 @@ class SpatialKnowledgeGraph:
                           entity_id: str,
                           entity_type: str,
                           geometry: Optional[Dict[str, Any]] = None,
-                          properties: Dict[str, Any] = None) -> None:
+                          properties: Optional[Dict[str, Any]] = None) -> None:
         """
         Add a spatial entity to the knowledge graph.
 
@@ -634,7 +634,7 @@ class SpatialKnowledgeGraph:
                                source_entity: str,
                                target_entity: str,
                                relation_type: str,
-                               properties: Dict[str, Any] = None) -> None:
+                               properties: Optional[Dict[str, Any]] = None) -> None:
         """
         Add a spatial relationship between entities.
 
@@ -823,7 +823,7 @@ class SpatialKnowledgeGraph:
         if self.graph.number_of_nodes() == 0:
             return 0.0
 
-        return sum(dict(self.graph.degree()).values()) / self.graph.number_of_nodes()
+        return cast(float, sum(dict(self.graph.degree()).values()) / self.graph.number_of_nodes())
 
     def get_graph_statistics(self) -> Dict[str, Any]:
         """Get comprehensive statistics about the knowledge graph."""
@@ -842,7 +842,7 @@ class SpatialKnowledgeGraph:
         }
 
         # Entity type distribution
-        entity_types = {}
+        entity_types: Dict[str, int] = {}
         for node, node_data in self.graph.nodes(data=True):
             entity_type = node_data.get('entity_type', 'unknown')
             entity_types[entity_type] = entity_types.get(entity_type, 0) + 1
@@ -850,7 +850,7 @@ class SpatialKnowledgeGraph:
         stats['entity_types'] = entity_types
 
         # Relationship type distribution
-        relation_types = {}
+        relation_types: Dict[str, int] = {}
         for edge_data in self.graph.edges.values():
             relation_type = edge_data.get('relation_type', 'unknown')
             relation_types[relation_type] = relation_types.get(relation_type, 0) + 1
@@ -861,7 +861,7 @@ class SpatialKnowledgeGraph:
 
     def export_to_jsonld(self) -> Dict[str, Any]:
         """Export knowledge graph as JSON-LD for semantic web compatibility."""
-        jsonld = {
+        jsonld: Dict[str, Any] = {
             '@context': {
                 'spatial': 'https://schema.org/spatial#',
                 'geo': 'https://schema.org/geo#',

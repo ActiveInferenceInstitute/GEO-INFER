@@ -51,7 +51,7 @@ class ProductionFunctions:
         """
         if np.any(inputs <= 0):
             return 0
-        return np.prod(np.power(inputs, alpha))
+        return float(np.prod(np.power(inputs, alpha)))
 
     @staticmethod
     def ces_production(inputs: np.ndarray, alpha: np.ndarray, rho: float, A: float = 1.0) -> float:
@@ -100,7 +100,7 @@ class ProductionFunctions:
                 log_q += beta[idx] * inputs[i] * inputs[j]
                 idx += 1
 
-        return np.exp(log_q)
+        return float(np.exp(log_q))
 
     @staticmethod
     def leontief_production(inputs: np.ndarray, alpha: np.ndarray) -> float:
@@ -114,7 +114,7 @@ class ProductionFunctions:
         Returns:
             Output quantity
         """
-        return np.min(inputs / alpha)
+        return float(np.min(inputs / alpha))
 
 
 class CostMinimization:
@@ -122,9 +122,13 @@ class CostMinimization:
     Cost minimization and cost function analysis
     """
 
-    def __init__(self, production_function: Callable = None):
-        self.production_function = production_function or ProductionFunctions.cobb_douglas
-        self.parameters = {}
+    def __init__(self, production_function: Optional[Callable[..., Any]] = None):
+        self.production_function = (
+            production_function
+            if production_function is not None
+            else ProductionFunctions.cobb_douglas
+        )
+        self.parameters: Dict[str, Any] = {}
 
     def minimize_cost(self, output_target: float, input_prices: np.ndarray,
                      production_params: Dict[str, Any]) -> Dict[str, Any]:
@@ -141,7 +145,7 @@ class CostMinimization:
         """
         n_inputs = len(input_prices)
 
-        def cost_function(inputs):
+        def cost_function(inputs: np.ndarray) -> float:
             """Cost function to minimize"""
             if np.any(inputs <= 0):
                 return 1e10  # Penalty for negative inputs
@@ -152,9 +156,9 @@ class CostMinimization:
             if actual_output < output_target:
                 return 1e10  # Penalty for not meeting output target
 
-            return np.sum(input_prices * inputs)
+            return float(np.sum(input_prices * inputs))
 
-        def production_constraint(inputs):
+        def production_constraint(inputs: np.ndarray) -> float:
             """Constraint: output >= target"""
             return self.production_function(inputs, production_params.get('alpha', np.ones(n_inputs)/n_inputs)) - output_target
 
@@ -191,8 +195,8 @@ class TechnicalEfficiency:
     Technical efficiency analysis using DEA and SFA
     """
 
-    def __init__(self):
-        self.efficiency_scores = {}
+    def __init__(self) -> None:
+        self.efficiency_scores: Dict[str, float] = {}
 
     def data_envelopment_analysis(self, inputs: np.ndarray, outputs: np.ndarray) -> np.ndarray:
         """
@@ -234,7 +238,7 @@ class TechnicalEfficiency:
         # Overall efficiency
         efficiency = np.min(np.concatenate([input_efficiency, output_efficiency]))
 
-        return efficiency
+        return float(efficiency)
 
 
 class ProducerTheoryModels:
@@ -323,10 +327,10 @@ class MarketStructureAnalysis:
     Analysis of market structure and competition
     """
 
-    def __init__(self):
-        self.market_metrics = {}
+    def __init__(self) -> None:
+        self.market_metrics: Dict[str, Any] = {}
 
-    def calculate_market_concentration(self, market_shares: np.ndarray) -> Dict[str, float]:
+    def calculate_market_concentration(self, market_shares: np.ndarray) -> Dict[str, Any]:
         """
         Calculate market concentration indices
 
@@ -367,8 +371,8 @@ class GameTheoryModels:
     Game theory applications in economics
     """
 
-    def __init__(self):
-        self.game_solutions = {}
+    def __init__(self) -> None:
+        self.game_solutions: Dict[str, Any] = {}
 
     def solve_cournot_game(self, n_firms: int, demand_params: Dict[str, float],
                           cost_params: List[float]) -> Dict[str, Any]:
@@ -391,7 +395,7 @@ class GameTheoryModels:
         # Each firm maximizes: π_i = P*q_i - c_i*q_i = (a - b*Q)*q_i - c_i*q_i
         # FOC: a - b*Q - b*q_i - c_i = 0
 
-        def reaction_function(i, q_others):
+        def reaction_function(i: int, q_others: float) -> float:
             Q = q_others + cost_params[i] / (2*b)  # Simplified
             return (a - b*Q - cost_params[i]) / (2*b)
 
@@ -421,8 +425,8 @@ class BehavioralEconomicsEngine:
     Behavioral economics modeling and analysis
     """
 
-    def __init__(self):
-        self.behavioral_models = {}
+    def __init__(self) -> None:
+        self.behavioral_models: Dict[str, Any] = {}
 
     def prospect_theory_valuation(self, outcomes: np.ndarray, probabilities: np.ndarray,
                                 reference_point: float = 0, alpha: float = 0.88,
@@ -454,7 +458,7 @@ class BehavioralEconomicsEngine:
         values[losses] = -lambda_param * np.power(reference_point - outcomes[losses], beta)
 
         # Expected value
-        return np.sum(probabilities * values)
+        return float(np.sum(probabilities * values))
 
     def analyze_risk_preferences(self, choice_data: pd.DataFrame) -> Dict[str, Any]:
         """

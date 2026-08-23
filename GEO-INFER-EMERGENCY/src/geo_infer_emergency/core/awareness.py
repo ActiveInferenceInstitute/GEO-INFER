@@ -102,12 +102,13 @@ class SituationalAwareness:
         """
         sensors = sensor_network.get("sensors", [])
         
-        integration = {
+        sensors_out: List[Dict[str, Any]] = []
+        integration: Dict[str, Any] = {
             "sensor_count": len(sensors),
             "data_types": data_types,
             "sampling_rate": sampling_rate,
             "integration_status": "active",
-            "sensors": [],
+            "sensors": sensors_out,
             "timestamp": datetime.now().isoformat()
         }
         
@@ -125,7 +126,7 @@ class SituationalAwareness:
             )
             self._sensor_data[sensor_id] = sensor_input
             
-            integration["sensors"].append({
+            sensors_out.append({
                 "sensor_id": sensor_id,
                 "type": sensor.get("type", "unknown"),
                 "location": sensor.get("location"),
@@ -155,12 +156,13 @@ class SituationalAwareness:
         Returns:
             COP configuration
         """
-        cop = {
+        layers_out: List[Dict[str, Any]] = []
+        cop: Dict[str, Any] = {
             "cop_id": f"cop_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "created_at": datetime.now().isoformat(),
             "extent": extent,
             "refresh_rate_seconds": refresh_rate,
-            "layers": [],
+            "layers": layers_out,
             "status": "active"
         }
         
@@ -171,11 +173,11 @@ class SituationalAwareness:
                 source=layer_data.get("source", ""),
                 visible=layer_data.get("visible", True),
                 refresh_rate_seconds=layer_data.get("refresh", refresh_rate),
-                symbology=symbology.get(layer_data.get("type"), {})
+                symbology=symbology.get(str(layer_data.get("type")), {}) if layer_data.get("type") is not None else {}
             )
             self._layers[layer.layer_id] = layer
             
-            cop["layers"].append({
+            layers_out.append({
                 "layer_id": layer.layer_id,
                 "name": layer.name,
                 "type": layer_data.get("type"),
@@ -321,11 +323,12 @@ class SituationalAwareness:
         if not sources:
             return {"error": "No sources provided"}
         
-        fused = {
+        fused_data_out: Dict[str, Any] = {}
+        fused: Dict[str, Any] = {
             "fusion_method": fusion_method,
             "source_count": len(sources),
             "timestamp": datetime.now().isoformat(),
-            "fused_data": {},
+            "fused_data": fused_data_out,
             "confidence": 0
         }
         
@@ -335,17 +338,17 @@ class SituationalAwareness:
             all_fields.update(source.get("data", {}).keys())
         
         # Fuse each field
-        total_confidence = 0
+        total_confidence = 0.0
         for field in all_fields:
-            values = []
-            weights = []
+            values: List[float] = []
+            weights: List[float] = []
             
             for source in sources:
                 if field in source.get("data", {}):
                     value = source["data"][field]
                     if isinstance(value, (int, float)):
-                        values.append(value)
-                        confidence = source.get("confidence", 0.5) if confidence_weighting else 1.0
+                        values.append(float(value))
+                        confidence = float(source.get("confidence", 0.5)) if confidence_weighting else 1.0
                         weights.append(confidence)
             
             if values and weights:
@@ -353,7 +356,7 @@ class SituationalAwareness:
                 total_weight = sum(weights)
                 if total_weight > 0:
                     fused_value = sum(v * w for v, w in zip(values, weights)) / total_weight
-                    fused["fused_data"][field] = round(fused_value, 2)
+                    fused_data_out[field] = round(float(fused_value), 2)
                     total_confidence += total_weight / len(weights)
         
         fused["confidence"] = round(total_confidence / len(all_fields), 2) if all_fields else 0
@@ -378,18 +381,19 @@ class SituationalAwareness:
         Returns:
             Dashboard configuration
         """
-        dashboard = {
+        widgets_out: List[Dict[str, Any]] = []
+        dashboard: Dict[str, Any] = {
             "dashboard_id": f"dash_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "layout": layout,
             "update_frequency_seconds": update_frequency,
             "created_at": datetime.now().isoformat(),
-            "widgets": [],
+            "widgets": widgets_out,
             "status": "active"
         }
         
         for widget in widgets:
-            widget_config = {
-                "widget_id": widget.get("id", f"widget_{len(dashboard['widgets'])}"),
+            widget_config: Dict[str, Any] = {
+                "widget_id": widget.get("id", f"widget_{len(widgets_out)}"),
                 "type": widget.get("type", "text"),
                 "title": widget.get("title", "Widget"),
                 "position": widget.get("position", {"row": 0, "col": 0}),
@@ -397,7 +401,7 @@ class SituationalAwareness:
                 "data_source": widget.get("data_source"),
                 "refresh_rate": widget.get("refresh", update_frequency)
             }
-            dashboard["widgets"].append(widget_config)
+            widgets_out.append(widget_config)
         
         logger.info(f"Generated dashboard with {len(widgets)} widgets")
         return dashboard

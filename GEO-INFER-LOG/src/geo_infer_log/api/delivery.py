@@ -39,20 +39,20 @@ class DeliveryOptimizationRequest(BaseModel):
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
-                    "coordinates": (13.404954, 52.520008),
+                    "coordinates": [13.404954, 52.520008],
                     "type": "depot",
                 },
                 "deliveries": [
                     {
                         "name": "Customer A",
-                        "coordinates": (13.5, 52.5),
+                        "coordinates": [13.5, 52.5],
                         "type": "customer",
                         "service_time": 15,
                         "priority": 1,
                     },
                     {
                         "name": "Customer B",
-                        "coordinates": (13.4, 52.4),
+                        "coordinates": [13.4, 52.4],
                         "type": "customer",
                         "service_time": 10,
                         "priority": 2,
@@ -67,7 +67,7 @@ class DeliveryOptimizationRequest(BaseModel):
                         "speed": 80,
                         "cost_per_km": 1.2,
                         "emissions_per_km": 0.8,
-                        "location": (13.404954, 52.520008),
+                        "location": [13.404954, 52.520008],
                     }
                 ],
                 "constraints": {"max_route_duration": 480, "max_stops_per_route": 20},
@@ -91,13 +91,13 @@ class ScheduleRequest(BaseModel):
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
-                    "coordinates": (13.404954, 52.520008),
+                    "coordinates": [13.404954, 52.520008],
                     "type": "depot",
                 },
                 "deliveries": [
                     {
                         "name": "Customer A",
-                        "coordinates": (13.5, 52.5),
+                        "coordinates": [13.5, 52.5],
                         "type": "customer",
                         "service_time": 15,
                     }
@@ -111,7 +111,7 @@ class ScheduleRequest(BaseModel):
                         "speed": 80,
                         "cost_per_km": 1.2,
                         "emissions_per_km": 0.8,
-                        "location": (13.404954, 52.520008),
+                        "location": [13.404954, 52.520008],
                     }
                 ],
                 "start_date": "2023-01-01T08:00:00",
@@ -134,7 +134,7 @@ class ServiceAreaRequest(BaseModel):
         json_schema_extra={
             "example": {
                 "depot_id": "depot-001",
-                "depot_location": (13.404954, 52.520008),
+                "depot_location": [13.404954, 52.520008],
                 "max_time": 60,  # minutes
                 "max_distance": 30,  # km
             }
@@ -166,8 +166,8 @@ class CoverageAnalysisRequest(BaseModel):
                     }
                 },
                 "demand_points": [
-                    {"id": "d1", "location": (13.4, 52.5)},
-                    {"id": "d2", "location": (13.6, 52.5)},
+                    {"id": "d1", "location": [13.4, 52.5]},
+                    {"id": "d2", "location": [13.6, 52.5]},
                 ],
             }
         }
@@ -193,19 +193,21 @@ class RescheduleRequest(BaseModel):
 
 
 # Get a last-mile router instance
-def get_last_mile_router():
+def get_last_mile_router() -> LastMileRouter:
     """Dependency for last-mile router."""
     return LastMileRouter()
 
 
 # Get a delivery scheduler instance
-def get_delivery_scheduler(router: LastMileRouter = Depends(get_last_mile_router)):
+def get_delivery_scheduler(
+    router: LastMileRouter = Depends(get_last_mile_router),
+) -> DeliveryScheduler:
     """Dependency for delivery scheduler."""
     return DeliveryScheduler(router)
 
 
 # Get a service area analyzer instance
-def get_service_area_analyzer():
+def get_service_area_analyzer() -> ServiceAreaAnalyzer:
     """Dependency for service area analyzer."""
     return ServiceAreaAnalyzer()
 
@@ -214,7 +216,7 @@ def get_service_area_analyzer():
 async def optimize_deliveries(
     request: DeliveryOptimizationRequest,
     router: LastMileRouter = Depends(get_last_mile_router),
-):
+) -> List[Dict]:
     """Optimize deliveries from a depot."""
     try:
         routes = router.optimize_deliveries(
@@ -234,7 +236,7 @@ async def optimize_deliveries(
 async def create_schedule(
     request: ScheduleRequest,
     scheduler: DeliveryScheduler = Depends(get_delivery_scheduler),
-):
+) -> Dict:
     """Create a delivery schedule for a date range."""
     try:
         result = scheduler.create_schedule(
@@ -253,7 +255,7 @@ async def create_schedule(
 @router.get("/schedule/{date}", response_model=List[Dict])
 async def get_daily_schedule(
     date: str, scheduler: DeliveryScheduler = Depends(get_delivery_scheduler)
-):
+) -> List[Dict]:
     """Get the delivery schedule for a specific day."""
     try:
         # Parse date string to datetime
@@ -269,7 +271,7 @@ async def get_daily_schedule(
 @router.get("/schedule/vehicle/{vehicle_id}", response_model=List[Dict])
 async def get_vehicle_schedule(
     vehicle_id: str, scheduler: DeliveryScheduler = Depends(get_delivery_scheduler)
-):
+) -> List[Dict]:
     """Get the schedule for a specific vehicle."""
     try:
         routes = scheduler.get_vehicle_schedule(vehicle_id)
@@ -284,7 +286,7 @@ async def get_vehicle_schedule(
 async def reschedule_delivery(
     request: RescheduleRequest,
     scheduler: DeliveryScheduler = Depends(get_delivery_scheduler),
-):
+) -> Dict:
     """Reschedule a delivery to a different date."""
     try:
         result = scheduler.reschedule_delivery(
@@ -301,7 +303,7 @@ async def reschedule_delivery(
 async def create_service_area(
     request: ServiceAreaRequest,
     analyzer: ServiceAreaAnalyzer = Depends(get_service_area_analyzer),
-):
+) -> Dict:
     """Create a service area around a depot."""
     try:
         gdf = analyzer.create_service_area(
@@ -328,7 +330,7 @@ async def create_service_area(
 async def analyze_coverage(
     request: CoverageAnalysisRequest,
     analyzer: ServiceAreaAnalyzer = Depends(get_service_area_analyzer),
-):
+) -> Dict:
     """Analyze coverage of demand points by service areas."""
     try:
         # Convert service area GeoJSON to Shapely polygons and test

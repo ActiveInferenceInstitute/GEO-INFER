@@ -6,7 +6,7 @@ coordinate systems, and units commonly used in geospatial analysis.
 """
 
 import numpy as np
-from typing import Union, Tuple, Any
+from typing import Union, Tuple, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -401,7 +401,7 @@ def normalize_array(
             return np.full_like(array, feature_range[0])
 
         normalized = (array - min_val) / (max_val - min_val)
-        return normalized * (feature_range[1] - feature_range[0]) + feature_range[0]
+        return cast(np.ndarray, normalized * (feature_range[1] - feature_range[0]) + feature_range[0])
 
     elif method == "zscore":
         mean_val = np.mean(array)
@@ -410,7 +410,7 @@ def normalize_array(
         if std_val == 0:
             return np.zeros_like(array)
 
-        return (array - mean_val) / std_val
+        return cast(np.ndarray, (array - mean_val) / std_val)
 
     elif method == "robust":
         median_val = np.median(array)
@@ -419,7 +419,7 @@ def normalize_array(
         if mad == 0:
             return np.zeros_like(array)
 
-        return (array - median_val) / mad
+        return cast(np.ndarray, (array - median_val) / mad)
 
     else:
         raise ValueError(f"Unknown normalization method: {method}")

@@ -23,6 +23,9 @@ def project_to_utm(location: Location) -> Tuple[float, float, str]:
     Returns:
         Tuple of (easting, northing, utm_zone)
     """
+    if location.latitude is None or location.longitude is None:
+        raise TypeError("Location must have non-null latitude and longitude")
+
     # Determine UTM zone
     zone = int((location.longitude + 180) / 6) + 1
 
@@ -88,6 +91,9 @@ def buffer_point(
     Returns:
         List of Location points forming the buffer polygon
     """
+    if location.latitude is None or location.longitude is None:
+        raise TypeError("Location must have non-null latitude and longitude")
+
     delta_deg = radius_meters / 111320.0 if radius_meters else 0.0
     points = []
     for i in range(num_points):
@@ -186,9 +192,16 @@ def calculate_spatial_statistics(locations: List[Location]) -> Dict[str, float]:
     if not locations:
         return {}
 
-    # Calculate centroid
-    centroid_lat = sum(loc.latitude for loc in locations) / len(locations)
-    centroid_lon = sum(loc.longitude for loc in locations) / len(locations)
+    # Calculate centroid using non-null coordinates
+    lat_sum = 0.0
+    lon_sum = 0.0
+    for loc in locations:
+        if loc.latitude is None or loc.longitude is None:
+            raise ValueError("Locations must have non-null latitude and longitude")
+        lat_sum += loc.latitude
+        lon_sum += loc.longitude
+    centroid_lat = lat_sum / len(locations)
+    centroid_lon = lon_sum / len(locations)
     centroid = Location(latitude=centroid_lat, longitude=centroid_lon)
 
     # Calculate distances from centroid
@@ -202,10 +215,10 @@ def calculate_spatial_statistics(locations: List[Location]) -> Dict[str, float]:
     bbox = create_bounding_box(centroid, max_dist)
 
     # Calculate statistics
-    stats = {
+    stats: Dict[str, float] = {
         "count": len(locations),
-        "centroid_lat": centroid.latitude,
-        "centroid_lon": centroid.longitude,
+        "centroid_lat": centroid_lat,
+        "centroid_lon": centroid_lon,
         "mean_distance_from_centroid": (
             sum(distances) / len(distances) if distances else 0
         ),
@@ -234,7 +247,7 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
     Returns:
         Validation results dictionary
     """
-    validation_results = {
+    validation_results: Dict[str, Any] = {
         "valid": True,
         "total_locations": len(locations),
         "invalid_locations": [],
@@ -243,27 +256,34 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
 
     for i, loc in enumerate(locations):
         issues = []
+        if loc.latitude is None or loc.longitude is None:
+            issues.append(f"Location {i} has null coordinates")
 
         # Check latitude bounds
-        if not -90 <= loc.latitude <= 90:
+        if loc.latitude is not None and not -90 <= loc.latitude <= 90:
             issues.append(f"Latitude {loc.latitude} out of range [-90, 90]")
 
         # Check longitude bounds
-        if not -180 <= loc.longitude <= 180:
+        if loc.longitude is not None and not -180 <= loc.longitude <= 180:
             issues.append(f"Longitude {loc.longitude} out of range [-180, 180]")
 
         # Check for potentially erroneous coordinates (0, 0)
-        if loc.latitude == 0.0 and loc.longitude == 0.0:
+        if (
+            loc.latitude is not None
+            and loc.longitude is not None
+            and loc.latitude == 0.0
+            and loc.longitude == 0.0
+        ):
             issues.append("Coordinates (0, 0) may indicate missing data")
 
         # Check for unrealistic precision (more than 6 decimal places suggests synthetic data)
         lat_str = str(loc.latitude)
         lon_str = str(loc.longitude)
 
-        if "." in lat_str and len(lat_str.rstrip("0").split(".")[-1]) > 6:
+        if lat_str != "None" and "." in lat_str and len(lat_str.rstrip("0").split(".")[-1]) > 6:
             issues.append("Latitude has unrealistic precision")
 
-        if "." in lon_str and len(lon_str.rstrip("0").split(".")[-1]) > 6:
+        if lon_str != "None" and "." in lon_str and len(lon_str.rstrip("0").split(".")[-1]) > 6:
             issues.append("Longitude has unrealistic precision")
 
         if issues:
@@ -308,6 +328,8 @@ def interpolate_points(locations: List[Location], num_points: int) -> List[Locat
         # Interpolate between start and end
         for j in range(1, num_points + 1):
             fraction = j / (num_points + 1)
+            assert start.latitude is not None and start.longitude is not None
+            assert end.latitude is not None and end.longitude is not None
 
             # Linear interpolation in geographic coordinates
             lat = start.latitude + (end.latitude - start.latitude) * fraction
@@ -338,8 +360,15 @@ def find_centroid(locations: List[Location]) -> Location:
 
     # Simple arithmetic mean for geographic coordinates
     # Note: This is an approximation that works for small areas
-    avg_lat = sum(loc.latitude for loc in locations) / len(locations)
-    avg_lon = sum(loc.longitude for loc in locations) / len(locations)
+    lat_sum = 0.0
+    lon_sum = 0.0
+    for loc in locations:
+        if loc.latitude is None or loc.longitude is None:
+            raise ValueError("Locations must have non-null latitude and longitude")
+        lat_sum += loc.latitude
+        lon_sum += loc.longitude
+    avg_lat = lat_sum / len(locations)
+    avg_lon = lon_sum / len(locations)
 
     return Location(latitude=avg_lat, longitude=avg_lon, crs=locations[0].crs)
 
@@ -367,30 +396,46 @@ def calculate_voronoi_regions(
     # Simple nearest-neighbor approach for Voronoi-like regions
     # This is not a true Voronoi diagram but provides similar functionality
 
+    # Collect validated coordinates
+    lat_list: List[float] = []
+    lon_list: List[float] = []
+    for loc in locations:
+        if loc.latitude is None or loc.longitude is None:
+            raise ValueError("Locations must have non-null latitude and longitude")
+        lat_list.append(loc.latitude)
+        lon_list.append(loc.longitude)
+
     if boundary_box is None:
         # Calculate bounding box
-        min_lat = min(loc.latitude for loc in locations)
-        max_lat = max(loc.latitude for loc in locations)
-        min_lon = min(loc.longitude for loc in locations)
-        max_lon = max(loc.longitude for loc in locations)
+        min_lat = min(lat_list)
+        max_lat = max(lat_list)
+        min_lon = min(lon_list)
+        max_lon = max(lon_list)
 
         boundary_box = (
             Location(latitude=min_lat, longitude=min_lon),
             Location(latitude=max_lat, longitude=max_lon),
         )
 
+    bb_min_lat = boundary_box[0].latitude
+    bb_max_lat = boundary_box[1].latitude
+    bb_min_lon = boundary_box[0].longitude
+    bb_max_lon = boundary_box[1].longitude
+    assert bb_min_lat is not None and bb_max_lat is not None
+    assert bb_min_lon is not None and bb_max_lon is not None
+
     # Create a grid of test points
     grid_size = 20
-    lat_step = (boundary_box[1].latitude - boundary_box[0].latitude) / grid_size
-    lon_step = (boundary_box[1].longitude - boundary_box[0].longitude) / grid_size
+    lat_step = (bb_max_lat - bb_min_lat) / grid_size
+    lon_step = (bb_max_lon - bb_min_lon) / grid_size
 
     # Assign grid points to nearest location
-    regions = defaultdict(list)
+    regions: Dict[int, List[Location]] = defaultdict(list)
 
     for i in range(grid_size + 1):
         for j in range(grid_size + 1):
-            grid_lat = boundary_box[0].latitude + i * lat_step
-            grid_lon = boundary_box[0].longitude + j * lon_step
+            grid_lat = bb_min_lat + i * lat_step
+            grid_lon = bb_min_lon + j * lon_step
 
             grid_point = Location(latitude=grid_lat, longitude=grid_lon)
 
@@ -541,7 +586,7 @@ def calculate_hotspot_statistics(
     if len(locations) != len(case_counts):
         raise ValueError("Locations and case counts must have the same length")
 
-    results = {
+    results: Dict[str, Any] = {
         "total_cases": sum(case_counts),
         "total_locations": len(locations),
         "hotspots": [],

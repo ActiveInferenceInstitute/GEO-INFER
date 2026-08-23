@@ -15,7 +15,7 @@ class BaseCRMImporter(ABC):
     """Abstract base class for CRM importers."""
 
     @abstractmethod
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         """Connect to the CRM data source."""
         raise RuntimeError("CRM importer subclasses must implement connect()")
 
@@ -32,7 +32,7 @@ class BaseCRMImporter(ABC):
         raise RuntimeError("CRM importer subclasses must implement transform_data()")
 
     def import_customers(
-        self, last_sync_date: Optional[datetime] = None, **kwargs
+        self, last_sync_date: Optional[datetime] = None, **kwargs: Any
     ) -> List[Customer]:
         """Orchestrates the import process: connect, fetch, transform."""
         self.connect(**kwargs)
@@ -49,10 +49,10 @@ class CSVCRMImporter(BaseCRMImporter):
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.connection = None
+        self.connection: Optional[str] = None
         print(f"CSV CRM Importer initialized for file: {self.file_path}")
 
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         """Open and validate access to the CSV file."""
         try:
             # In a real scenario, you might keep the file open or check its existence.

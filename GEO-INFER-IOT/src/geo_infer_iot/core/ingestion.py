@@ -17,7 +17,7 @@ import asyncio
 import logging
 import json
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 from dataclasses import dataclass, field
 from collections import defaultdict
 import time
@@ -35,7 +35,7 @@ from geo_infer_space.utils.h3_utils import (
     get_h3_neighbors,
     h3_resolution_stats,
 )
-from geo_infer_bayes import GaussianProcess, SpatialCovariance
+from geo_infer_bayes import GaussianProcess, SpatialCovariance  # type: ignore[import-untyped]
 
 HAS_GEO_SPACE = True
 HAS_GEO_BAYES = True
@@ -101,9 +101,9 @@ class SensorMeasurement:
     h3_index: Optional[str] = None
     h3_resolution: int = 8
     quality_flags: List[str] = field(default_factory=list)
-    metadata: Dict = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Automatically compute H3 index from coordinates."""
         if self.h3_index is None and self.latitude and self.longitude:
             self.h3_index = h3.latlng_to_cell(
@@ -136,7 +136,7 @@ class IoTDataIngestion:
     converting point measurements to continuous spatial distributions.
     """
 
-    def __init__(self, registry, config: Optional[Dict] = None):
+    def __init__(self, registry: Any, config: Optional[Dict[str, Any]] = None):
         self.registry = registry
         self.config = config or {}
 
@@ -146,7 +146,7 @@ class IoTDataIngestion:
 
         # Spatial inference configuration
         self.inference_configs: Dict[str, SpatialInferenceConfig] = {}
-        self.spatial_models: Dict[str, object] = {}
+        self.spatial_models: Dict[str, Any] = {}
 
         # OSC integration
         if HAS_GEO_SPACE:
@@ -155,16 +155,16 @@ class IoTDataIngestion:
             self.coord_transform = CoordinateTransform()
 
         # Protocol handlers
-        self.protocol_handlers = {}
+        self.protocol_handlers: Dict[str, Any] = {}
         self._setup_protocol_handlers()
 
         # Processing state
         self.is_processing = False
-        self.processing_tasks = []
+        self.processing_tasks: List[asyncio.Task[Any]] = []
 
         logger.info("IoT Data Ingestion engine initialized")
 
-    def _setup_protocol_handlers(self):
+    def _setup_protocol_handlers(self) -> None:
         """Setup handlers for different IoT protocols."""
         if HAS_MQTT:
             self.protocol_handlers["mqtt"] = self._handle_mqtt
@@ -201,7 +201,8 @@ class IoTDataIngestion:
 
             # Store measurement
             self.measurements.append(measurement)
-            self.spatial_index[measurement.h3_index].append(measurement)
+            if measurement.h3_index is not None:
+                self.spatial_index[measurement.h3_index].append(measurement)
 
             if (
                 hasattr(self.registry, "sensors")
@@ -261,7 +262,7 @@ class IoTDataIngestion:
 
         return True
 
-    def _add_spatial_index(self, measurement: SensorMeasurement):
+    def _add_spatial_index(self, measurement: SensorMeasurement) -> None:
         """Add H3 spatial index to measurement and integrate with OSC methods."""
         # Basic H3 indexing
         if not measurement.h3_index:
@@ -270,7 +271,7 @@ class IoTDataIngestion:
             )
 
         # Enhanced spatial operations using GEO-INFER-SPACE OSC methods
-        if HAS_GEO_SPACE:
+        if HAS_GEO_SPACE and measurement.h3_index is not None:
             try:
                 # Get neighbor cells for spatial context
                 neighbors = get_h3_neighbors(measurement.h3_index, ring_size=1)
@@ -287,7 +288,7 @@ class IoTDataIngestion:
             except Exception as e:
                 logger.warning(f"Error in enhanced spatial indexing: {e}")
 
-    def setup_spatial_inference(self, config: SpatialInferenceConfig):
+    def setup_spatial_inference(self, config: Union[Dict[str, Any], SpatialInferenceConfig, Any]) -> None:
         """
         Setup Bayesian spatial inference for a specific variable.
 
@@ -301,9 +302,9 @@ class IoTDataIngestion:
             return
 
         if isinstance(config, dict):
-            config = SpatialInferenceConfig(**config)
+            config_obj = SpatialInferenceConfig(**config)
         elif not isinstance(config, SpatialInferenceConfig):
-            config = SpatialInferenceConfig(
+            config_obj = SpatialInferenceConfig(
                 variable=config.variable,
                 h3_resolution=getattr(config, "h3_resolution", 8),
                 temporal_window_hours=getattr(config, "temporal_window_hours", 1.0),
@@ -315,60 +316,62 @@ class IoTDataIngestion:
                 update_interval_minutes=getattr(config, "update_interval_minutes", 15),
                 confidence_levels=getattr(config, "confidence_levels", [0.68, 0.95]),
             )
+        else:
+            config_obj = config
 
-        self.inference_configs[config.variable] = config
+        self.inference_configs[config_obj.variable] = config_obj
 
         # Initialize Gaussian Process model
         try:
             # Setup covariance function
-            if config.covariance_function == "matern_52":
+            if config_obj.covariance_function == "matern_52":
                 cov_func = SpatialCovariance.matern_52(
-                    length_scale=config.length_scale, variance=1.0
+                    length_scale=config_obj.length_scale, variance=1.0
                 )
-            elif config.covariance_function == "rbf":
+            elif config_obj.covariance_function == "rbf":
                 cov_func = SpatialCovariance.rbf(
-                    length_scale=config.length_scale, variance=1.0
+                    length_scale=config_obj.length_scale, variance=1.0
                 )
             else:
                 cov_func = SpatialCovariance.matern_52(
-                    length_scale=config.length_scale, variance=1.0
+                    length_scale=config_obj.length_scale, variance=1.0
                 )
 
             # Initialize Gaussian Process
             gp_model = GaussianProcess(
                 covariance_function=cov_func,
-                mean_function=config.mean_function,
-                noise_variance=config.noise_variance,
+                mean_function=config_obj.mean_function,
+                noise_variance=config_obj.noise_variance,
             )
 
-            self.spatial_models[config.variable] = gp_model
+            self.spatial_models[config_obj.variable] = gp_model
 
-            logger.info(f"Setup spatial inference for variable: {config.variable}")
+            logger.info(f"Setup spatial inference for variable: {config_obj.variable}")
 
         except Exception as e:
             logger.error(f"Error setting up spatial inference: {e}")
 
-    async def _update_spatial_inference(self, variable: str):
+    async def _update_spatial_inference(self, variable: str) -> None:
         """Update Bayesian spatial inference for a variable."""
         if not HAS_GEO_BAYES or variable not in self.spatial_models:
             return
 
         try:
-            config = self.inference_configs[variable]
+            cfg = self.inference_configs[variable]
             model = self.spatial_models[variable]
 
             # Get recent measurements for this variable
             recent_data = self._get_recent_measurements(
-                variable=variable, hours=config.temporal_window_hours
+                variable=variable, hours=cfg.temporal_window_hours
             )
 
             if len(recent_data) < 3:  # Need minimum data for inference
                 return
 
             # Prepare spatial coordinates (convert to meters)
-            coords = []
-            values = []
-            h3_indices = []
+            coords_list = []
+            values_list = []
+            h3_indices_list: List[str] = []
 
             for measurement in recent_data:
                 # Convert lat/lon to local coordinate system
@@ -381,26 +384,27 @@ class IoTDataIngestion:
                     x = measurement.longitude * 111000  # rough meters per degree
                     y = measurement.latitude * 111000
 
-                coords.append([x, y])
-                values.append(measurement.value)
-                h3_indices.append(measurement.h3_index)
+                coords_list.append([x, y])
+                values_list.append(measurement.value)
+                if measurement.h3_index is not None:
+                    h3_indices_list.append(measurement.h3_index)
 
-            coords = np.array(coords)
-            values = np.array(values)
+            coords = np.array(coords_list)
+            values = np.array(values_list)
 
             # Perform Bayesian inference
             await model.fit_async(coords, values)
 
             # Generate predictions on H3 grid
             prediction_grid = self._generate_h3_prediction_grid(
-                h3_indices, config.h3_resolution
+                h3_indices_list, cfg.h3_resolution
             )
 
             predictions = await model.predict_async(prediction_grid, return_std=True)
 
             # Store results
             self._store_spatial_predictions(
-                variable, predictions, prediction_grid, config
+                variable, predictions, prediction_grid, cfg
             )
 
             logger.info(
@@ -465,7 +469,7 @@ class IoTDataIngestion:
         predictions: Dict,
         grid_coords: np.ndarray,
         config: SpatialInferenceConfig,
-    ):
+    ) -> None:
         """Store spatial prediction results."""
         # This would typically store to a database or cache
         # For now, we'll store in memory
@@ -479,7 +483,7 @@ class IoTDataIngestion:
             "timestamp": datetime.now(timezone.utc),
         }
 
-    async def start_stream_processing(self):
+    async def start_stream_processing(self) -> None:
         """Start real-time stream processing."""
         if self.is_processing:
             logger.warning("Stream processing already running")
@@ -497,7 +501,7 @@ class IoTDataIngestion:
         task = asyncio.create_task(self._periodic_spatial_updates())
         self.processing_tasks.append(task)
 
-    async def stop_stream_processing(self):
+    async def stop_stream_processing(self) -> None:
         """Stop stream processing."""
         self.is_processing = False
 
@@ -511,7 +515,7 @@ class IoTDataIngestion:
 
         logger.info("Stopped IoT stream processing")
 
-    async def _periodic_spatial_updates(self):
+    async def _periodic_spatial_updates(self) -> None:
         """Periodically update spatial inference models."""
         while self.is_processing:
             try:
@@ -647,7 +651,7 @@ class IoTDataIngestion:
                     await client.subscribe(topic)
                     logger.debug("Async MQTT subscribed to topic: %s", topic)
 
-                async with client.unfiltered_messages() as messages:
+                async with client.messages as messages:  # type: ignore[attr-defined]
                     async for msg in messages:
                         if not self.is_processing:
                             break
@@ -687,13 +691,24 @@ class IoTDataIngestion:
         prediction_data = self.spatial_predictions[variable]
 
         # Format results for API consumption
+        res_timestamp = prediction_data["timestamp"]
+        ts_str = res_timestamp.isoformat() if hasattr(res_timestamp, "isoformat") else str(res_timestamp)
+        cfg = prediction_data["config"]
+        h3_res = getattr(cfg, "h3_resolution", 8)
+        grid_coords_raw = prediction_data["grid_coords"]
+        if hasattr(grid_coords_raw, "tolist"):
+            grid_coords_list = grid_coords_raw.tolist()
+        elif isinstance(grid_coords_raw, (list, tuple)):
+            grid_coords_list = list(grid_coords_raw)
+        else:
+            grid_coords_list = []
         result = {
             "variable": variable,
-            "timestamp": prediction_data["timestamp"].isoformat(),
-            "h3_resolution": prediction_data["config"].h3_resolution,
+            "timestamp": ts_str,
+            "h3_resolution": h3_res,
             "confidence_level": confidence_level,
             "predictions": prediction_data["predictions"],
-            "grid_coordinates": prediction_data["grid_coords"].tolist(),
+            "grid_coordinates": grid_coords_list,
         }
 
         return result
@@ -734,7 +749,7 @@ class RadiationMonitoringSystem:
     comprehensive logging and quality assurance.
     """
 
-    def __init__(self, config: Dict, logger=None):
+    def __init__(self, config: Dict[str, Any], logger: Optional[Any] = None):
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
 
@@ -746,7 +761,7 @@ class RadiationMonitoringSystem:
 
         # Performance tracking
         self.start_time = time.time()
-        self.metrics = {
+        self.metrics: Dict[str, Any] = {
             "measurements_processed": 0,
             "spatial_inferences": 0,
             "anomalies_detected": 0,
@@ -775,7 +790,7 @@ class RadiationMonitoringSystem:
         )
 
         start_time = time.time()
-        results = {
+        results: Dict[str, Any] = {
             "processed": 0,
             "failed": 0,
             "spatial_cells": set(),
@@ -791,7 +806,8 @@ class RadiationMonitoringSystem:
                 # Quality control
                 quality_result = self._quality_control(sensor_measurement)
                 if not quality_result["passed"]:
-                    results["quality_issues"].append(
+                    quality_issues = cast(List[Any], results["quality_issues"])
+                    quality_issues.append(
                         {
                             "sensor_id": sensor_measurement.sensor_id,
                             "issues": quality_result["issues"],
@@ -800,7 +816,8 @@ class RadiationMonitoringSystem:
 
                 # Anomaly detection
                 if self._is_anomaly(sensor_measurement):
-                    results["anomalies"].append(
+                    anomalies_list = cast(List[Any], results["anomalies"])
+                    anomalies_list.append(
                         {
                             "sensor_id": sensor_measurement.sensor_id,
                             "location": [
@@ -817,7 +834,8 @@ class RadiationMonitoringSystem:
                 success = await self.ingestion.ingest_measurement(sensor_measurement)
                 if success:
                     results["processed"] += 1
-                    results["spatial_cells"].add(sensor_measurement.h3_index)
+                    spatial_cells_set = cast(set, results["spatial_cells"])
+                    spatial_cells_set.add(sensor_measurement.h3_index)
                     self.metrics["measurements_processed"] += 1
                 else:
                     results["failed"] += 1
@@ -836,7 +854,8 @@ class RadiationMonitoringSystem:
                 self.metrics["errors_encountered"] += 1
 
         processing_time = time.time() - start_time
-        results["spatial_cells"] = list(results["spatial_cells"])
+        spatial_cells_set = cast(set, results["spatial_cells"])
+        results["spatial_cells"] = list(spatial_cells_set)
         results["processing_time"] = processing_time
 
         self.logger.info(
@@ -909,10 +928,10 @@ class RadiationMonitoringSystem:
         z_score = abs(measurement.value - background) / noise
 
         # Check against thresholds
-        mild_threshold = anomaly_config.get("threshold_mild", 2.0)
-        return z_score >= mild_threshold
+        mild_threshold = float(anomaly_config.get("threshold_mild", 2.0))
+        return bool(z_score >= mild_threshold)
 
-    def setup_spatial_inference(self, variable: str = "gamma_radiation"):
+    def setup_spatial_inference(self, variable: str = "gamma_radiation") -> None:
         """Setup Bayesian spatial inference for radiation monitoring."""
         bayes_config = self.config.get("bayesian_inference", {})
 
@@ -1045,7 +1064,7 @@ class RadiationMonitoringSystem:
 class GlobalMonitoringSystem:
     """Global-scale radiation monitoring system for demonstration."""
 
-    def __init__(self, config: Dict, logger=None):
+    def __init__(self, config: Dict[str, Any], logger: Optional[Any] = None):
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         self.radiation_system = RadiationMonitoringSystem(config, logger)

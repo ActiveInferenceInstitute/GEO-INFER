@@ -6,7 +6,7 @@ converters, optimizers, caching, and general helper functions.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple, Union, Callable
 import json
 import time
 from datetime import datetime
@@ -34,7 +34,7 @@ class H3Utils:
             True if format appears valid
         """
         if not isinstance(h3_index, str):
-            return False
+            return False  # type: ignore[unreachable]
         
         # Basic format check - H3 indices are typically 15 characters
         if len(h3_index) != 15:
@@ -152,7 +152,7 @@ class H3Utils:
         for cell in cells:
             all_properties.update(cell.properties.keys())
         
-        summary = {
+        summary: Dict[str, Any] = {
             'cell_count': len(cells),
             'resolutions': {
                 'unique': len(set(resolutions)),
@@ -260,11 +260,17 @@ class H3Optimizer:
     spatial indexing, query optimization, and performance tuning.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize optimizer."""
-        self.performance_stats = {}
+        self.performance_stats: Dict[str, Dict[str, Any]] = {}
     
-    def time_operation(self, operation_name: str, func, *args, **kwargs):
+    def time_operation(
+        self,
+        operation_name: str,
+        func: Callable[..., Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Tuple[Any, float]:
         """
         Time an operation and record performance statistics.
         
@@ -332,7 +338,7 @@ class H3Optimizer:
         Returns:
             List of optimization suggestions
         """
-        suggestions = []
+        suggestions: List[str] = []
         
         if not cells:
             return suggestions
@@ -358,7 +364,7 @@ class H3Optimizer:
             suggestions.append("High resolution detected - may impact performance")
         
         # Property-based suggestions
-        property_counts = {}
+        property_counts: Dict[str, int] = {}
         for cell in cells:
             for prop in cell.properties:
                 property_counts[prop] = property_counts.get(prop, 0) + 1
@@ -379,15 +385,15 @@ class H3Cache:
     to improve performance.
     """
     
-    def __init__(self, max_size: int = 1000):
+    def __init__(self, max_size: int = 1000) -> None:
         """
         Initialize cache with maximum size.
         
         Args:
             max_size: Maximum number of cached items
         """
-        self.cache = {}
-        self.access_times = {}
+        self.cache: Dict[str, Any] = {}
+        self.access_times: Dict[str, float] = {}
         self.max_size = max_size
     
     def get(self, key: str) -> Optional[Any]:
@@ -405,7 +411,7 @@ class H3Cache:
             return self.cache[key]
         return None
     
-    def put(self, key: str, value: Any):
+    def put(self, key: str, value: Any) -> None:
         """
         Put item in cache.
         
@@ -423,7 +429,7 @@ class H3Cache:
         self.cache[key] = value
         self.access_times[key] = time.time()
     
-    def clear(self):
+    def clear(self) -> None:
         """Clear all cached items."""
         self.cache.clear()
         self.access_times.clear()

@@ -50,7 +50,7 @@ class AgentAPIClient:
         self.base_url = self.config.get("base_url", "http://localhost:8000/api/agents")
         self.agents: Dict[str, Dict[str, Any]] = {}
         self.agent_status_callbacks: Dict[str, List[Callable[[str, str], None]]] = {}
-        self._status_monitoring_task: Optional[asyncio.Task] = None  # type: ignore[type-arg]
+        self._status_monitoring_task: Optional[asyncio.Task[None]] = None
         # Per-agent operational counters: {agent_id: {"decision_count": int, "success_count": int}}
         self._agent_counters: Dict[str, Dict[str, int]] = {}
 

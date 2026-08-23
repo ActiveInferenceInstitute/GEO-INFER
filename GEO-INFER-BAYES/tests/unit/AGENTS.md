@@ -25,6 +25,8 @@
 - `test_base_model.py`
 - `test_data_processing.py`
 - `test_diagnostics.py`
+- `test_distributional_uncertainty.py`
+- `test_evaluation_metrics.py`
 - `test_gaussian_process.py`
 - `test_hmc.py`
 - `test_inference.py`

@@ -9,7 +9,7 @@ and distributed computing environments.
 from typing import Dict, Any
 import numpy as np
 
-from ..models.data_models import SPMData, SPMResult
+from ..models.data_models import SPMData, SPMResult, DesignMatrix
 from ..core.glm import fit_glm
 from ..core.contrasts import contrast
 from ..core.rft import compute_spm
@@ -23,9 +23,9 @@ class SPMAPI:
     and result retrieval in a web service format.
     """
 
-    def __init__(self):
-        self.datasets = {}  # Store uploaded datasets
-        self.results = {}  # Store analysis results
+    def __init__(self) -> None:
+        self.datasets: Dict[str, Any] = {}  # Store uploaded datasets
+        self.results: Dict[str, Any] = {}  # Store analysis results
         self.next_id = 1
 
     def upload_data(self, data: Dict[str, Any], format: str = "json") -> Dict[str, Any]:
@@ -291,7 +291,9 @@ class SPMAPI:
             crs=data.get("crs", "EPSG:4326"),
         )
 
-    def _create_design_from_spec(self, design_spec: Dict[str, Any], data: SPMData):
+    def _create_design_from_spec(
+        self, design_spec: Dict[str, Any], data: SPMData
+    ) -> DesignMatrix:
         """Create design matrix from API specification."""
         from ..utils.helpers import create_design_matrix
 

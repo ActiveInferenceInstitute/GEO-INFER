@@ -10,15 +10,8 @@ from datetime import datetime, timezone
 from enum import Enum
 import uuid
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 from pydantic import computed_field
-
-try:
-    from pydantic import field_validator, model_validator
-except ImportError:
-    # Fallback for older Pydantic versions
-    from pydantic import validator as field_validator
-    from pydantic import root_validator as model_validator
 
 
 def utc_now() -> datetime:
@@ -115,7 +108,7 @@ class SpatialExtent(BaseModel):
 
     @field_validator("bbox")
     @classmethod
-    def validate_bbox(cls, v):
+    def validate_bbox(cls, v: List[float]) -> List[float]:
         """Validate bounding box coordinates."""
         if len(v) == 4:
             # [min_lon, min_lat, max_lon, max_lat]
@@ -139,7 +132,7 @@ class SpatialExtent(BaseModel):
 
     @field_validator("crs")
     @classmethod
-    def validate_crs(cls, v):
+    def validate_crs(cls, v: Any) -> Any:
         """Validate coordinate reference system."""
         if isinstance(v, str):
             # Handle string CRS like 'EPSG:4326'
@@ -168,7 +161,7 @@ class TemporalExtent(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_temporal_order(self):
+    def validate_temporal_order(self) -> "TemporalExtent":
         """Ensure start time is before end time."""
         if self.start and self.end and self.start > self.end:
             raise ValueError("Start time must be before or equal to end time")
@@ -318,7 +311,6 @@ class DataQualityReport(BaseModel):
     )
 
     @computed_field
-    @property
     def status(self) -> QualityStatus:
         """Overall pass/warning/fail status derived from the quality score."""
         if self.overall_score >= 0.8:
@@ -328,7 +320,6 @@ class DataQualityReport(BaseModel):
         return QualityStatus.FAIL
 
     @computed_field
-    @property
     def issues(self) -> List[Dict[str, Any]]:
         """Flattened issues across all quality checks."""
         return [issue for check in self.checks.values() for issue in check.issues]
@@ -406,7 +397,7 @@ class ETLPipeline(BaseModel):
 
     @field_validator("transformations")
     @classmethod
-    def sort_transformations(cls, v):
+    def sort_transformations(cls, v: List[Transformation]) -> List[Transformation]:
         """Sort transformations by execution order."""
         return sorted(v, key=lambda x: x.order)
 

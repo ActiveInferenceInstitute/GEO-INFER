@@ -26,7 +26,7 @@ where:
 
 import numpy as np
 import logging
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, cast
 from scipy import linalg
 from scipy.stats import t, f
 
@@ -301,7 +301,7 @@ class GeneralLinearModel:
 
         return beta, residuals, cov_beta
 
-    def _compute_diagnostics(self, y: np.ndarray, data: SPMData):
+    def _compute_diagnostics(self, y: np.ndarray, data: SPMData) -> None:
         """Compute comprehensive model diagnostics."""
         if self.beta is None or self.residuals is None:
             return
@@ -375,7 +375,8 @@ class GeneralLinearModel:
             # Default: predict on training data
             X_pred = self.design_matrix.matrix
 
-        return X_pred @ self.beta
+        assert self.beta is not None
+        return cast(np.ndarray, X_pred @ self.beta)
 
     def get_coefficient_test(self, coefficient_idx: int) -> Dict[str, Any]:
         """
@@ -409,7 +410,7 @@ class GeneralLinearModel:
 
 
 def fit_glm(
-    data: SPMData, design_matrix: DesignMatrix, method: str = "OLS", **kwargs
+    data: SPMData, design_matrix: DesignMatrix, method: str = "OLS", **kwargs: Any
 ) -> SPMResult:
     """
     Convenience function to fit a GLM to geospatial data.

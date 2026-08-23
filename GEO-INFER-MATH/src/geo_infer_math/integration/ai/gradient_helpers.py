@@ -20,7 +20,7 @@ class AIGradientHelpers:
     spatial neural networks and ML models.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize gradient helpers."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._cache: Dict[str, np.ndarray] = {}

@@ -34,7 +34,7 @@ def parse_h3_resolution(value: Any) -> int:
 
     if not 0 <= value <= 15:
         raise ValueError("H3 resolution must be between 0 and 15")
-    return value
+    return int(value)
 
 
 def validate_bounds(bounds: Mapping[str, Any]) -> dict[str, float]:

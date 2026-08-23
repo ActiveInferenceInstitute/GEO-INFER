@@ -12,7 +12,7 @@ import os
 import yaml
 import logging
 import concurrent.futures
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, cast, Callable
 from pathlib import Path
 import shutil
 import git
@@ -42,7 +42,7 @@ class RepoManager:
         """
         self.config = self._load_config(config_path)
         self.base_dir = self._get_base_dir()
-        self.repos = {}  # Will store repo name -> repo object mappings
+        self.repos: Dict[str, Any] = {}  # Will store repo name -> repo object mappings
         self._protected_branches: Dict[str, set[str]] = {}
 
     def _load_config(self, config_path: Optional[str] = None) -> Dict:
@@ -73,7 +73,7 @@ class RepoManager:
             with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
                 logger.info(f"Loaded configuration from {config_path}")
-                return config
+                return cast(Dict, config)
         except Exception as e:
             logger.error(f"Failed to load configuration from {config_path}: {e}")
             logger.info("Using default configuration")
@@ -101,7 +101,7 @@ class RepoManager:
 
         return base_dir
 
-    def clone_repositories(self, repo_list: List[Dict], parallel: bool = None) -> Dict:
+    def clone_repositories(self, repo_list: List[Dict], parallel: bool = True) -> Dict:
         """
         Clone multiple repositories.
 
@@ -115,17 +115,17 @@ class RepoManager:
         Returns:
             Dictionary mapping repository names to success status
         """
-        if parallel is None:
-            parallel = (
-                self.config.get("operations", {}).get("clone", {}).get("parallel", True)
-            )
+        configured_parallel = (
+            self.config.get("operations", {}).get("clone", {}).get("parallel", True)
+        )
+        should_parallel = parallel and configured_parallel
 
         max_workers = (
             self.config.get("operations", {}).get("clone", {}).get("max_workers", 4)
         )
         results = {}
 
-        if parallel and len(repo_list) > 1:
+        if should_parallel and len(repo_list) > 1:
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=max_workers
             ) as executor:
@@ -322,7 +322,7 @@ class RepoManager:
         Returns:
             Dictionary with repository status information
         """
-        results = {}
+        results: Dict[str, Any] = {}
         all_repos = self._get_all_repo_paths()
 
         repos_to_check = []
@@ -419,7 +419,7 @@ class RepoManager:
             "ahead": ahead,
             "behind": behind,
             "protected": branch.name
-            in self._protected_branches.get(Path(repo.working_tree_dir).name, set()),
+            in self._protected_branches.get(Path(cast(str, repo.working_tree_dir)).name, set()),
         }
 
     def list_branches(self, repo_name: str) -> List[Dict[str, object]]:
@@ -446,7 +446,7 @@ class RepoManager:
         branch = repo.create_head(branch_name, repo.heads[base].commit)
         if protected:
             self._protected_branches.setdefault(
-                Path(repo.working_tree_dir).name, set()
+                Path(cast(str, repo.working_tree_dir)).name, set()
             ).add(branch_name)
         return self._branch_info(repo, branch)
 
@@ -631,7 +631,7 @@ class RepoManager:
 
         return results
 
-    def batch_operation(self, operation: str, *args, **kwargs) -> Dict:
+    def batch_operation(self, operation: str, *args: Any, **kwargs: Any) -> Dict:
         """
         Perform a Git operation across multiple repositories.
 
@@ -642,7 +642,7 @@ class RepoManager:
         Returns:
             Dictionary with operation results
         """
-        op_map = {
+        op_map: Dict[str, Callable[..., Any]] = {
             "clone": self.clone_repositories,
             "sync": self.sync_repositories,
             "status": self.check_repo_status,
@@ -655,7 +655,7 @@ class RepoManager:
             return {"error": f"Unknown operation: {operation}"}
 
         logger.info(f"Performing batch operation: {operation}")
-        return op_map[operation](*args, **kwargs)
+        return cast(Dict, op_map[operation](*args, **kwargs))
 
 
 if __name__ == "__main__":

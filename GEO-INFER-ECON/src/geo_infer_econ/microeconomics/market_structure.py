@@ -11,7 +11,7 @@ Implements comprehensive market structure analysis including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any
+from typing import cast, Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 import logging
 from scipy.spatial.distance import pdist, squareform
@@ -33,8 +33,8 @@ class CompetitionAnalysis:
     Analysis of market competition and structure
     """
 
-    def __init__(self):
-        self.market_data = {}
+    def __init__(self) -> None:
+        self.market_data: Dict[str, Any] = {}
 
     def calculate_price_correlation_matrix(self, price_data: pd.DataFrame) -> np.ndarray:
         """
@@ -47,7 +47,7 @@ class CompetitionAnalysis:
             Price correlation matrix
         """
         # Calculate correlations between price series
-        return price_data.corr().values
+        return cast(np.ndarray, price_data.corr().values)
 
     def test_market_definition(self, price_data: pd.DataFrame,
                              candidate_market: List[str]) -> Dict[str, Any]:
@@ -127,8 +127,8 @@ class SpatialMarketAnalysis:
     Spatial market analysis and geographic market delineation
     """
 
-    def __init__(self):
-        self.spatial_markets = {}
+    def __init__(self) -> None:
+        self.spatial_markets: Dict[str, Any] = {}
 
     def delineate_geographic_markets(self, price_data: pd.DataFrame,
                                    locations: List[str]) -> Dict[str, Any]:
@@ -186,7 +186,7 @@ class SpatialMarketAnalysis:
 
         # Accessibility as inverse distance (simplified)
         accessibility = 1 / (distances + 1e-10)  # Avoid division by zero
-        return accessibility.mean(axis=1)
+        return cast(np.ndarray, accessibility.mean(axis=1))
 
 
 class MarketStructureAnalysis:
@@ -196,7 +196,7 @@ class MarketStructureAnalysis:
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.competition_analysis = CompetitionAnalysis()
+        self.competition_analysis: Any = CompetitionAnalysis()
         self.spatial_analysis = SpatialMarketAnalysis()
 
     def analyze_market_power(self, market_data: pd.DataFrame) -> Dict[str, Any]:

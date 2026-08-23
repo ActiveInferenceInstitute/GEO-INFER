@@ -5,7 +5,17 @@ Enhanced with hierarchical modeling, Markov blankets, and modern inference techn
 based on latest research from the Active Inference Institute and peer-reviewed literature.
 """
 
-from typing import Dict, List, Optional, Any, Callable, Mapping
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Union,
+    cast,
+)
 import numpy as np
 from dataclasses import dataclass, field
 import logging
@@ -14,6 +24,7 @@ import warnings
 
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 from geo_infer_act.core.types import (
+    FreeEnergyBreakdown,
     H3BeliefUpdateResult,
     H3SpatialConsistency,
     NestedH3BeliefUpdateResult,
@@ -30,6 +41,7 @@ from geo_infer_act.utils.math import (
     categorical_posterior,
     entropy,
     normalize_distribution,
+    softmax,
 )
 from geo_infer_act.utils.pymdp_adapter import run_model_step
 from geo_infer_act.utils.spatial_diagnostics import SpatialDiagnostics
@@ -174,8 +186,9 @@ class MarkovBlanket:
         threshold = 0.5
         if residual_given_blanket < 1e-10:
             return True
-        return (direct_external_influence / (residual_given_blanket + 1e-10)) < (
-            1.0 / threshold
+        return bool(
+            (direct_external_influence / (residual_given_blanket + 1e-10))
+            < (1.0 / threshold)
         )
 
 
@@ -230,12 +243,12 @@ class GenerativeModel:
 
         # Hierarchical architecture
         self.hierarchical = parameters.get("hierarchical", False)
-        self.levels = []
+        self.levels: List[HierarchicalLevel] = []
         self.current_level = 0
 
         # Markov blanket structure
         self.markov_blankets = parameters.get("markov_blankets", False)
-        self.blanket_structure = None
+        self.blanket_structure: Optional[MarkovBlanket] = None
 
         # Message passing configuration
         self.message_passing = parameters.get("message_passing", True)
@@ -245,11 +258,11 @@ class GenerativeModel:
         self.spatial_mode = parameters.get("spatial_mode", False)
         self.temporal_hierarchies = parameters.get("temporal_hierarchies", False)
 
-        self.spatial_graph = None
+        self.spatial_graph: Optional[Any] = None
 
         # Initialize core components
         self.beliefs = self._initialize_beliefs()
-        self.preferences = self._initialize_preferences()
+        self.preferences: Any = self._initialize_preferences()
         self.transition_model = self._initialize_transition_model()
         self.observation_model = self._initialize_observation_model()
 
@@ -277,7 +290,7 @@ class GenerativeModel:
         self.rxinfer_model = None
         self.bayeux_model = None
 
-    def _initialize_hierarchical_structure(self):
+    def _initialize_hierarchical_structure(self) -> None:
         """Initialize hierarchical levels for multi-scale modeling."""
         state_dims = self.parameters.get("state_dims", [self.state_dim])
         obs_dims = self.parameters.get("obs_dims", [self.obs_dim])
@@ -307,7 +320,7 @@ class GenerativeModel:
 
         logger.info(f"Initialized {len(self.levels)} hierarchical levels")
 
-    def _initialize_markov_blankets(self):
+    def _initialize_markov_blankets(self) -> None:
         """Initialize Markov blanket structure for conditional independence."""
         # Create default Markov blanket partitioning
         n_states = self.state_dim
@@ -324,7 +337,7 @@ class GenerativeModel:
 
         logger.info("Initialized Markov blanket structure")
 
-    def _initialize_neural_field(self):
+    def _initialize_neural_field(self) -> None:
         """Initialize neural field dynamics for large-scale spatial modeling."""
         spatial_resolution = self.parameters.get("spatial_resolution", 0.1)
         field_size = self.parameters.get("field_size", [10, 10])
@@ -364,7 +377,7 @@ class GenerativeModel:
                 self.parameters["D"], list
             ):
                 return {"states": self.parameters["D"]}
-            return self.parameters["D"]
+            return cast(Dict[str, Any], self.parameters["D"])
 
         if self.hierarchical:
             beliefs = {}
@@ -405,7 +418,7 @@ class GenerativeModel:
         """Initialize prior preferences with hierarchical support."""
         if "C" in self.parameters:
             # If C is provided
-            return self.parameters["C"]
+            return cast(Dict[str, Any], self.parameters["C"])
 
         if self.hierarchical:
             preferences = {}
@@ -429,6 +442,10 @@ class GenerativeModel:
                     "mean": np.zeros(self.obs_dim),
                     "precision": np.eye(self.obs_dim),
                 }
+            else:
+                raise ValueError(
+                    f"Unsupported model type for preferences: {self.model_type}"
+                )
 
     def _initialize_transition_model(self) -> Any:
         """Initialize the state transition model with hierarchical support."""
@@ -462,7 +479,7 @@ class GenerativeModel:
             return transition
 
         if self.hierarchical:
-            models = {}
+            models: Dict[str, Any] = {}
             for level in self.levels:
                 if self.model_type == "categorical":
                     models[f"level_{level.level_id}"] = np.eye(level.state_dim)
@@ -548,7 +565,7 @@ class GenerativeModel:
             return self.parameters["A"]
 
         if self.hierarchical:
-            models = {}
+            models: Dict[str, Any] = {}
             for level in self.levels:
                 if self.model_type == "categorical":
                     models[f"level_{level.level_id}"] = (
@@ -641,7 +658,7 @@ class GenerativeModel:
                 updated_beliefs[level_key] = self.beliefs[level_key]
         return updated_beliefs
 
-    def _send_message_up(self, level: HierarchicalLevel):
+    def _send_message_up(self, level: HierarchicalLevel) -> None:
         """Send message from child level to parent."""
         if level.parent_level is None:
             return  # No parent to send to
@@ -675,7 +692,7 @@ class GenerativeModel:
             parent_states + influence_rate * (message - parent_states)
         )
 
-    def _send_message_down(self, level: HierarchicalLevel):
+    def _send_message_down(self, level: HierarchicalLevel) -> None:
         """Send message from parent level to children."""
         # Simplified message passing
         level_key = f"level_{level.level_id}"
@@ -819,7 +836,9 @@ class GenerativeModel:
 
         return {"mean": updated_mean, "precision": updated_precision}
 
-    def _update_level_beliefs(self, level: HierarchicalLevel, observation: np.ndarray):
+    def _update_level_beliefs(
+        self, level: HierarchicalLevel, observation: np.ndarray
+    ) -> None:
         """Update beliefs for a specific level."""
         level_key = f"level_{level.level_id}"
         if self.model_type == "categorical":
@@ -874,8 +893,11 @@ class GenerativeModel:
                 # observation is attached to this standalone generative model.
                 observations = np.ones(level.obs_dim) / level.obs_dim
                 preferences = np.ones(level.state_dim) / level.state_dim
-                level_fe = self.free_energy_calculator.compute_categorical_free_energy(
-                    beliefs, observations, preferences
+                level_fe = cast(
+                    float,
+                    self.free_energy_calculator.compute_categorical_free_energy(
+                        beliefs, observations, preferences
+                    ),
                 )
                 total_fe += level_fe
             return total_fe
@@ -893,18 +915,125 @@ class GenerativeModel:
             else:
                 preferences = np.ones(self.state_dim) / self.state_dim
 
-            return self.free_energy_calculator.compute_categorical_free_energy(
-                beliefs, observations, preferences
+            return cast(
+                float,
+                self.free_energy_calculator.compute_categorical_free_energy(
+                    beliefs, observations, preferences
+                ),
             )
 
-    def add_nested_level(self, child_model: "GenerativeModel"):
+    def compute_expected_free_energy(
+        self,
+        policies: List[Dict[str, Any]],
+        preferences: Optional[np.ndarray] = None,
+        return_breakdowns: bool = False,
+    ) -> Union[float, Dict[str, Any], List[Any]]:
+        """
+        Compute expected free energy over a set of continuous/categorical
+        policies for the discrete generative model.
+
+        Each policy's EFE is decomposed into a pragmatic (preference
+        alignment, via ``C``) and an epistemic (information-gain, entropy or
+        expected-posterior KL) term through ``FreeEnergyCalculator``.  The
+        policy posterior combines the scores under adaptive precision.
+
+        Args:
+            policies: Candidate policy dictionaries.
+            preferences: Optional prior preferences (vector).  When omitted,
+                defaults to the model's initialized preference prior where
+                available.
+            return_breakdowns: When true return a dict with the decomposition
+                fields; otherwise return the scalar best-EFE value.
+
+        Returns:
+            Dict with ``efe_scores``, ``pragmatic_values``,
+            ``epistemic_values``, ``posterior`` and ``best_index`` keys when
+            ``return_breakdowns`` is true, else the ``float`` EFE of the
+            arg-minimal policy.
+        """
+        if self.model_type != "categorical":
+            raise ValueError(
+                "Expected free energy requires a categorical (discrete) "
+                f"generative model, got {self.model_type}"
+            )
+        belief_vector = self._categorical_belief_vector()
+        pref = (
+            preferences
+            if preferences is not None
+            else self._categorical_preference_vector(len(belief_vector))
+        )
+        breakdowns: List[FreeEnergyBreakdown] = []
+        for policy in policies:
+            breakdown = self.free_energy_calculator.compute_expected_free_energy(
+                belief_vector,
+                policy,
+                pref,
+                return_breakdown=True,
+            )
+            assert isinstance(breakdown, FreeEnergyBreakdown)
+            breakdowns.append(breakdown)
+        efe_scores = [item.free_energy for item in breakdowns]
+        efe_array = np.asarray(efe_scores, dtype=float)
+        posterior = softmax(-efe_array)
+        result: Dict[str, Any] = {
+            "efe_scores": efe_scores,
+            "pragmatic_values": [item.pragmatic_value for item in breakdowns],
+            "epistemic_values": [item.epistemic_value for item in breakdowns],
+            "entropies": [item.entropy for item in breakdowns],
+            "posterior": posterior,
+            "best_index": int(np.argmin(efe_array)) if efe_array.size else -1,
+        }
+        if return_breakdowns:
+            return result
+        return float(efe_array[np.argmin(efe_array)]) if efe_array.size else float("inf")
+
+    def _categorical_belief_vector(self) -> np.ndarray:
+        """Return a flat categorical belief vector for the current model."""
+        if self.hierarchical:
+            if self.levels:
+                return cast(
+                    np.ndarray,
+                    np.mean(
+                        [
+                            normalize_distribution(
+                                np.asarray(item["states"], dtype=float)
+                            )
+                            for item in self.beliefs.values()
+                        ],
+                        axis=0,
+                    ),
+                )
+        states = self.beliefs.get("states")
+        if states is not None:
+            return np.asarray(states, dtype=float).reshape(-1)
+        mean = self.beliefs.get("mean")
+        if mean is not None:
+            return np.asarray(mean, dtype=float).reshape(-1)
+        raise ValueError("No categorical belief vector is available")
+
+    def _categorical_preference_vector(self, length: int) -> np.ndarray:
+        """Return a normalized preference vector aligned to beliefs."""
+        pref = self.preferences
+        if pref is None:
+            return np.ones(length) / max(length, 1)
+        if isinstance(pref, dict):
+            for key in ("observations", "states", "preferences"):
+                item = pref.get(key)
+                if item is not None:
+                    pref = item
+                    break
+            else:
+                return np.ones(length) / max(length, 1)
+        return normalize_distribution(np.asarray(pref, dtype=float).reshape(-1))
+
+    def add_nested_level(self, child_model: "GenerativeModel") -> None:
         """Add a nested child model."""
         if not hasattr(self, "nested_models"):
             self.nested_models = []
         self.nested_models.append(child_model)
         logger.info(f"Added nested model of type {child_model.model_type}")
 
-    def update_nested_beliefs(self, observations):
+    def update_nested_beliefs(self, observations: Dict[str, np.ndarray]) -> None:
         """Update beliefs through hierarchy recursively."""
         # Update current level
         self.update_beliefs(observations)
@@ -942,7 +1071,7 @@ class GenerativeModel:
                 )
             }
 
-    def enable_spatial_navigation(self, grid_size: int):
+    def enable_spatial_navigation(self, grid_size: int) -> None:
         """Enable spatial navigation mode for geospatial applications."""
         self.spatial_mode = True
         self.grid_size = grid_size
@@ -954,7 +1083,7 @@ class GenerativeModel:
         self.spatial_graph = {}
         logger.info(f"Enabled spatial navigation with {grid_size}x{grid_size} grid")
 
-    def enable_h3_spatial(self, h3_resolution: int, boundary: Dict[str, Any]):
+    def enable_h3_spatial(self, h3_resolution: int, boundary: Dict[str, Any]) -> None:
         """
         Enable H3-based spatial modeling for a real geospatial boundary.
 
@@ -1044,14 +1173,14 @@ class GenerativeModel:
             .get(str(finest), {})
             .items()
         }
-        return hierarchy
+        return cast(Dict[str, Any], hierarchy)
 
     def _build_h3_neighbor_graph(self, cells: List[str]) -> Dict[str, set]:
         """Build a first-order neighbor graph for H3 cells known to this model."""
         adapter = get_h3_adapter()
         cells = adapter.validate_cells(cells)
         cell_set = set(cells)
-        graph = {cell: set() for cell in cells}
+        graph: Dict[str, set] = {cell: set() for cell in cells}
 
         for cell in cells:
             try:
@@ -1153,7 +1282,9 @@ class GenerativeModel:
                     timeout=60,
                 )
                 if result_proc.returncode == 0 and result_proc.stdout.strip():
-                    result = _json.loads(result_proc.stdout.strip().splitlines()[-1])
+                    result: Dict[str, Any] = _json.loads(
+                        result_proc.stdout.strip().splitlines()[-1]
+                    )
                     logger.info("RxInfer integration completed via Julia subprocess")
                     result.setdefault("backend", "rxinfer")
                     return result
@@ -1211,7 +1342,7 @@ class GenerativeModel:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", DeprecationWarning)
-                import bayeux as bx  # type: ignore
+                import bayeux as bx
                 import jax
 
                 model = bx.Model(log_density=log_density_fn, test_point=test_point)
@@ -1401,7 +1532,7 @@ class GenerativeModel:
         )
         return aggregated
 
-    def set_preferences(self, preferences: Dict[str, np.ndarray]) -> None:
+    def set_preferences(self, preferences: Any) -> None:
         """Set prior preferences with hierarchical support."""
         if not isinstance(preferences, dict):
             self.preferences = copy.deepcopy(preferences)
@@ -1459,18 +1590,30 @@ class GenerativeModel:
                 elif self.model_type in ["gaussian", "hierarchical_gaussian"]:
                     # Differential entropy for Gaussian
                     precision = beliefs["precision"]
-                    total_entropy += 0.5 * np.log(
-                        np.linalg.det(2 * np.pi * np.e * np.linalg.inv(precision))
+                    total_entropy += float(
+                        0.5
+                        * np.log(
+                            np.linalg.det(
+                                2 * np.pi * np.exp(1.0) * np.linalg.inv(precision)
+                            )
+                        )
                     )
-            return total_entropy
-        else:
-            if self.model_type == "categorical":
-                return entropy(self.beliefs["states"])
-            elif self.model_type == "gaussian":
-                precision = self.beliefs["precision"]
-                return 0.5 * np.log(
-                    np.linalg.det(2 * np.pi * np.e * np.linalg.inv(precision))
+            return float(total_entropy)
+        if self.model_type == "categorical":
+            return entropy(self.beliefs["states"])
+        if self.model_type == "gaussian":
+            precision = self.beliefs["precision"]
+            return float(
+                0.5
+                * np.log(
+                    np.linalg.det(
+                        2 * np.pi * np.exp(1.0) * np.linalg.inv(precision)
+                    )
                 )
+            )
+        raise ValueError(
+            f"Unsupported model type for entropy computation: {self.model_type}"
+        )
 
     def _check_model_convergence(self) -> str:
         """Check if model has converged to stable beliefs."""
@@ -1486,7 +1629,7 @@ class GenerativeModel:
 
     def update_h3_beliefs(
         self, h3_observations: Dict[str, np.ndarray], return_result: bool = False
-    ):
+    ) -> Union[H3BeliefUpdateResult, Dict[str, Any]]:
         """
         Update beliefs for H3-indexed observations and report spatial coherence.
 
@@ -1613,7 +1756,7 @@ class GenerativeModel:
         h3_observations: Dict[str, np.ndarray],
         return_result: bool = False,
         top_down_weight: Optional[float] = None,
-    ):
+    ) -> Union[NestedH3BeliefUpdateResult, Dict[str, Any]]:
         """
         Update beliefs on a nested H3 hierarchy with bottom-up and top-down flow.
 
@@ -1817,7 +1960,7 @@ class GenerativeModel:
         same_level_neighbors = hierarchy.get("same_level_neighbors", {})
         for resolution in hierarchy.get("resolutions", []):
             level = level_beliefs.get(int(resolution), {})
-            graph = {
+            graph: Dict[str, Iterable[str]] = {
                 cell: {
                     neighbor
                     for neighbor in same_level_neighbors.get(str(resolution), {}).get(

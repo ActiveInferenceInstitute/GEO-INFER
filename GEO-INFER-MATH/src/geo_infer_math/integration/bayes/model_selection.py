@@ -102,7 +102,7 @@ class ModelSelection:
         Returns:
             BIC score (lower is better).
         """
-        return n_params * np.log(max(1, n_obs)) - 2.0 * log_likelihood
+        return float(n_params * np.log(max(1, n_obs)) - 2.0 * log_likelihood)
 
     def aic(
         self,
@@ -184,7 +184,7 @@ class ModelSelection:
         self,
         log_evidence_1: float,
         log_evidence_2: float,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Compute Bayes factor B₁₂ = p(D|M₁) / p(D|M₂).
 
         Args:

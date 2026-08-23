@@ -18,7 +18,7 @@ GeoLibre's ``void``-oriented design while still allowing a result.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Callable, Dict, Iterator, List, Mapping, Optional, Sequence
 
 
 @dataclass(frozen=True)
@@ -217,7 +217,7 @@ def _flatten_points(coords: Any) -> List[Any]:
     return flattened
 
 
-def _iter_positions(coords: Any):
+def _iter_positions(coords: Any) -> Iterator[List[Any]]:
     if not isinstance(coords, list):
         return
     for ring_or_line in coords:

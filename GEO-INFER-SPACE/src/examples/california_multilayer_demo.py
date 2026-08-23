@@ -25,7 +25,7 @@ Usage:
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
 import folium
 from shapely.geometry import Polygon, LineString, Point
@@ -226,7 +226,14 @@ def cell_to_latlngjson_polygons(h3_indices: List[str], properties: Dict[str, Any
     }
 
 
-def add_h3_layer_to_map(m: folium.Map, h3_indices: List[str], properties: Dict[str, Any], layer_name: str, color: str, popup_fields: List[str] = None):
+def add_h3_layer_to_map(
+    m: folium.Map,
+    h3_indices: List[str],
+    properties: Dict[str, Any],
+    layer_name: str,
+    color: str,
+    popup_fields: Optional[List[str]] = None,
+) -> None:
     """
     Add an H3 hexagon layer to a Folium map.
     """
@@ -248,7 +255,13 @@ def add_h3_layer_to_map(m: folium.Map, h3_indices: List[str], properties: Dict[s
     fg.add_to(m)
 
 
-def add_point_layer_to_map(m: folium.Map, geojson: Dict[str, Any], layer_name: str, color: str, popup_fields: List[str] = None):
+def add_point_layer_to_map(
+    m: folium.Map,
+    geojson: Dict[str, Any],
+    layer_name: str,
+    color: str,
+    popup_fields: Optional[List[str]] = None,
+) -> None:
     """
     Add a point layer to a Folium map.
     """
@@ -270,7 +283,7 @@ def add_point_layer_to_map(m: folium.Map, geojson: Dict[str, Any], layer_name: s
     fg.add_to(m)
 
 
-def main():
+def main() -> None:
     """
     Main function to run the California multi-layer geospatial demo.
     """
@@ -315,7 +328,9 @@ def main():
          <h3 align="center" style="font-size:20px"><b>California Multi-Layer Geospatial Demo</b></h3>
          <p align="center">Zoning, Water, and Climate Data Visualized on H3 Grid</p>
          '''
-    m.get_root().html.add_child(folium.Element(title_html))
+    m.get_root().html.add_child(  # type: ignore[attr-defined]
+        folium.Element(title_html)
+    )
 
     # Save map
     output_dir = Path(__file__).parent / "california_demo_outputs"

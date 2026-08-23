@@ -2,7 +2,7 @@
 API client for GEO-INFER-ACT.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from urllib.parse import quote
 import requests
 
@@ -10,7 +10,7 @@ import requests
 class Client:
     """REST API client for GEO-INFER-ACT."""
 
-    def __init__(self, base_url: str = "http://localhost:8000", timeout: float = 10.0):
+    def __init__(self, base_url: str = "http://localhost:8000", timeout: float = 10.0) -> None:
         if timeout <= 0:
             raise ValueError("timeout must be greater than zero")
         self.base_url = base_url.rstrip("/")
@@ -25,7 +25,7 @@ class Client:
             **kwargs,
         )
         response.raise_for_status()
-        return response.json()
+        return cast(Dict[str, Any], response.json())
 
     def create_model(self, model_config: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new model via API."""

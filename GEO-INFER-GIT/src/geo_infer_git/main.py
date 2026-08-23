@@ -10,7 +10,7 @@ import os
 import sys
 import argparse
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, cast
 import yaml
 
 # Import the required modules
@@ -24,7 +24,7 @@ from .core.repo_cloner import RepoCloner
 
 logger = logging.getLogger(__name__)
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='GEO-INFER-GIT Repository Cloning Tool')
     
@@ -57,7 +57,7 @@ def parse_arguments():
     
     return parser.parse_args()
 
-def create_gitignore_entry(output_dir: str):
+def create_gitignore_entry(output_dir: str) -> None:
     """Add output directory to .gitignore if not already present."""
     gitignore_path = os.path.abspath(os.path.join(output_dir, '..', '..', '.gitignore'))
     
@@ -78,7 +78,7 @@ def create_gitignore_entry(output_dir: str):
             f.write(f"\n# GEO-INFER-GIT cloned repositories\n{output_dir}\n")
         logger.info(f"Added {output_dir} to .gitignore")
 
-def generate_report(results: Dict[str, Any], output_dir: str, format: str = 'markdown'):
+def generate_report(results: Dict[str, Any], output_dir: str, format: str = 'markdown') -> str:
     """Generate a report of cloning results."""
     report_filename = os.path.join(output_dir, 'clone_report.md')
     
@@ -133,7 +133,7 @@ def generate_report(results: Dict[str, Any], output_dir: str, format: str = 'mar
     logger.info(f"Generated report at {report_filename}")
     return report_filename
 
-def main():
+def main() -> None:
     """Main entry point for the script."""
     args = parse_arguments()
     
@@ -146,7 +146,7 @@ def main():
     
     # Load configuration
     config_dir = args.config_dir
-    clone_config = load_clone_config(config_dir)
+    clone_config = cast(Dict[str, Any], load_clone_config(config_dir))
     
     # Override configuration with command line arguments
     if args.output_dir:
@@ -169,13 +169,13 @@ def main():
     )
     
     # Initialize repository cloner
-    repo_cloner = RepoCloner(clone_config)
+    repo_cloner = RepoCloner(cast(Any, clone_config))
     
     # Add cloned repositories directory to .gitignore
     create_gitignore_entry(clone_config["general"]["output_dir"])
     
     # Collect results for report
-    results = {
+    results: Dict[str, Any] = {
         'total_repos': 0,
         'success_repos': 0,
         'target_repos': [],
@@ -185,7 +185,9 @@ def main():
     try:
         # Clone specific repositories
         if args.clone_repos:
-            target_repos = load_target_repos_config(config_dir)
+            target_repos = cast(
+                List[Dict[str, Any]], load_target_repos_config(config_dir)
+            )
             logger.info(f"Cloning {len(target_repos)} target repositories")
             
             for repo_info in target_repos:
@@ -219,7 +221,9 @@ def main():
         
         # Clone user repositories
         if args.clone_users:
-            target_users = load_target_users_config(config_dir)
+            target_users = cast(
+                List[Dict[str, Any]], load_target_users_config(config_dir)
+            )
             logger.info(f"Cloning repositories for {len(target_users)} users")
             
             for user_info in target_users:
@@ -252,7 +256,7 @@ def main():
                     }
                     
                     for repo in user_repos:
-                        repo_name = repo.get("name", "")
+                        repo_name = getattr(repo, "name", "")
                         repo_path = os.path.join(
                             clone_config["general"]["output_dir"],
                             username,

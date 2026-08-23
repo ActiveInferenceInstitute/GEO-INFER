@@ -10,7 +10,7 @@ import datetime
 import csv
 import json
 import uuid
-from pathlib import Path
+from pathlib import Path as FilePath
 import numpy as np
 from fastapi import APIRouter, HTTPException, Query, Path
 from pydantic import BaseModel, Field
@@ -204,7 +204,7 @@ class NormativeAPI:
         self._setup_routes()
 
         # Temporary storage for social norms
-        self._social_norms = {}
+        self._social_norms: Dict[str, Dict[str, Any]] = {}
 
     def _setup_routes(self) -> None:
         """Set up API routes"""
@@ -588,7 +588,7 @@ class NormativeAPI:
             Inference results
         """
         try:
-            source_path = Path(inference_request.data_source)
+            source_path = FilePath(inference_request.data_source)
             if not source_path.is_file():
                 raise HTTPException(
                     status_code=404,

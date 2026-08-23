@@ -7,14 +7,18 @@ and profiling capabilities for the GEO-INFER-IOT system.
 
 import logging
 import time
-import psutil
-import threading
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Deque
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from collections import deque
 import json
 import numpy as np
+import threading
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +67,12 @@ class PerformanceMonitor:
     and performance benchmarking capabilities.
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.is_monitoring = False
-        self.monitoring_thread = None
-        self.metrics_history = deque(maxlen=1000)  # Keep last 1000 metrics
-        self.benchmark_history = []
+        self.is_monitoring: bool = False
+        self.monitoring_thread: Optional[threading.Thread] = None
+        self.metrics_history: Deque[PerformanceMetrics] = deque(maxlen=1000)  # Keep last 1000 metrics
+        self.benchmark_history: List[BenchmarkResult] = []
 
         # Monitoring intervals
         self.system_metrics_interval = self.config.get(
@@ -86,13 +90,13 @@ class PerformanceMonitor:
         }
 
         # IoT system references for metrics collection
-        self.iot_system = None
-        self.measurement_count = 0
-        self.last_measurement_time = None
+        self.iot_system: Any = None
+        self.measurement_count: int = 0
+        self.last_measurement_time: Optional[float] = None
 
         logger.info("PerformanceMonitor initialized")
 
-    def start_monitoring(self, iot_system=None):
+    def start_monitoring(self, iot_system: Any = None) -> None:
         """
         Start performance monitoring.
 
@@ -114,19 +118,19 @@ class PerformanceMonitor:
 
         logger.info("Performance monitoring started")
 
-    def stop_monitoring(self):
+    def stop_monitoring(self) -> None:
         """Stop performance monitoring."""
         if not self.is_monitoring:
             return
 
         self.is_monitoring = False
 
-        if self.monitoring_thread and self.monitoring_thread.is_alive():
+        if self.monitoring_thread is not None and self.monitoring_thread.is_alive():
             self.monitoring_thread.join(timeout=5)
 
         logger.info("Performance monitoring stopped")
 
-    def _monitoring_loop(self):
+    def _monitoring_loop(self) -> None:
         """Main monitoring loop running in background thread."""
         last_system_check = time.time()
         last_iot_check = time.time()
@@ -146,9 +150,11 @@ class PerformanceMonitor:
 
             time.sleep(0.1)  # Small sleep to prevent busy waiting
 
-    def _collect_system_metrics(self):
+    def _collect_system_metrics(self) -> None:
         """Collect system-level performance metrics."""
         try:
+            if psutil is None:
+                return
             # System resource metrics
             cpu_percent = psutil.cpu_percent(interval=None)
             memory = psutil.virtual_memory()
@@ -176,7 +182,7 @@ class PerformanceMonitor:
         except Exception as e:
             logger.error(f"Error collecting system metrics: {e}")
 
-    def _collect_iot_metrics(self):
+    def _collect_iot_metrics(self) -> None:
         """Collect IoT-specific performance metrics."""
         if self.iot_system is None:
             return
@@ -221,7 +227,7 @@ class PerformanceMonitor:
         except Exception as e:
             logger.error(f"Error collecting IoT metrics: {e}")
 
-    def _check_performance_thresholds(self, metrics: PerformanceMetrics):
+    def _check_performance_thresholds(self, metrics: PerformanceMetrics) -> List[str]:
         """Check if performance metrics exceed thresholds."""
         warnings = []
 
@@ -246,6 +252,7 @@ class PerformanceMonitor:
 
         if warnings:
             logger.warning(f"Performance thresholds exceeded: {', '.join(warnings)}")
+        return warnings
 
     def get_current_metrics(self) -> Optional[PerformanceMetrics]:
         """Get the most recent performance metrics."""
@@ -338,7 +345,7 @@ class PerformanceMonitor:
 
         return exceedances
 
-    def run_benchmark(self, benchmark_type: str, **kwargs) -> BenchmarkResult:
+    def run_benchmark(self, benchmark_type: str, **kwargs: Any) -> BenchmarkResult:
         """
         Run a performance benchmark.
 
@@ -494,6 +501,8 @@ class PerformanceMonitor:
         self, operation: str = "ingestion", iterations: int = 100
     ) -> Dict:
         """Benchmark memory usage for different operations."""
+        if psutil is None:
+            return {"error": "psutil not available"}
         process = psutil.Process()
 
         if operation == "ingestion" and self.iot_system:
@@ -681,13 +690,13 @@ def get_performance_monitor() -> PerformanceMonitor:
     return _performance_monitor
 
 
-def start_performance_monitoring(iot_system=None):
+def start_performance_monitoring(iot_system: Any = None) -> None:
     """Start global performance monitoring."""
     monitor = get_performance_monitor()
     monitor.start_monitoring(iot_system)
 
 
-def stop_performance_monitoring():
+def stop_performance_monitoring() -> None:
     """Stop global performance monitoring."""
     monitor = get_performance_monitor()
     monitor.stop_monitoring()
@@ -699,13 +708,13 @@ def get_current_performance_metrics() -> Optional[PerformanceMetrics]:
     return monitor.get_current_metrics()
 
 
-def run_performance_benchmark(benchmark_type: str, **kwargs) -> BenchmarkResult:
+def run_performance_benchmark(benchmark_type: str, **kwargs: Any) -> BenchmarkResult:
     """Run a performance benchmark."""
     monitor = get_performance_monitor()
     return monitor.run_benchmark(benchmark_type, **kwargs)
 
 
-def get_performance_report(hours: int = 24) -> Dict:
+def get_performance_report(hours: int = 24) -> Dict[str, Any]:
     """Get comprehensive performance report."""
     monitor = get_performance_monitor()
     return monitor.get_performance_report(hours)

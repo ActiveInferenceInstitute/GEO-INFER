@@ -23,11 +23,11 @@ class AgriculturalConfig:
     timeout: int = 30
 
     # Agricultural parameters
-    crop_types: List[str] = None
-    soil_types: List[str] = None
-    climate_zones: List[str] = None
+    crop_types: Optional[List[str]] = None
+    soil_types: Optional[List[str]] = None
+    climate_zones: Optional[List[str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.crop_types is None:
             self.crop_types = ["corn", "soybeans", "wheat", "rice", "cotton"]
         if self.soil_types is None:
@@ -44,7 +44,7 @@ class AgriculturalAPI:
     and precision agriculture services.
     """
 
-    def __init__(self, config: Optional[AgriculturalConfig] = None):
+    def __init__(self, config: Optional[AgriculturalConfig] = None) -> None:
         """
         Initialize agricultural API client.
 
@@ -52,21 +52,22 @@ class AgriculturalAPI:
             config: API configuration
         """
         self.config = config or AgriculturalConfig()
-        self.session = None
+        self.session: Optional[Any] = None
         self._initialize_session()
 
-    def _initialize_session(self):
+    def _initialize_session(self) -> None:
         """Initialize API session."""
         try:
             import requests
 
-            self.session = requests.Session()
-            self.session.headers.update(
+            session = requests.Session()
+            session.headers.update(
                 {
                     "User-Agent": f"GEO-INFER-AG/{self.config.api_version}",
                     "Accept": "application/json",
                 }
             )
+            self.session = session
             logger.info("Agricultural API session initialized")
         except ImportError:
             logger.warning("Requests library not available, API functionality limited")
@@ -101,7 +102,8 @@ class AgriculturalAPI:
         Returns:
             Crop data dictionary
         """
-        if crop_type not in self.config.crop_types:
+        crop_types = self.config.crop_types or []
+        if crop_type not in crop_types:
             raise ValueError(f"Unsupported crop type: {crop_type}")
 
         data = self._request(
@@ -378,7 +380,7 @@ def get_crop_recommendations(
 
     weather_data = api.get_weather_forecast(location, days=7)
     recommendations = []
-    for crop in api.config.crop_types:
+    for crop in (api.config.crop_types or []):
         analysis = api.analyze_crop_yield(crop, location, soil_data, weather_data)
         if analysis["predicted_yield"] > 7.0:
             recommendations.append(crop)

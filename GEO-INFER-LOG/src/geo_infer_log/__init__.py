@@ -58,7 +58,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Lazy-load logistics classes from core/ subpackages."""
     _logistics_map = {
         "LastMileRouter": "geo_infer_log.core.delivery",
@@ -100,7 +100,7 @@ class LogEntry:
     operation: str
     message: str
     context: Dict[str, Any] = field(default_factory=dict)
-    spatial_context: Optional[Dict[str, Any]] = None
+    spatial_context: Optional["SpatialLogContext"] = None
     performance_metrics: Optional[Dict[str, float]] = None
     trace_id: Optional[str] = None
     span_id: Optional[str] = None
@@ -123,7 +123,7 @@ class SpatialLogContext:
 class PerformanceMetrics:
     """Performance metrics collection and analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         self.counters: Dict[str, int] = defaultdict(int)
         self.gauges: Dict[str, float] = defaultdict(float)
@@ -149,18 +149,18 @@ class PerformanceMetrics:
                 return duration
         return 0.0
 
-    def record_duration(self, operation: str, duration: float):
+    def record_duration(self, operation: str, duration: float) -> None:
         """Record operation duration."""
         with self.lock:
             self.metrics[f"{operation}_duration"].append(duration)
             self.histograms[f"{operation}_duration"].append(duration)
 
-    def increment_counter(self, name: str, value: int = 1):
+    def increment_counter(self, name: str, value: int = 1) -> None:
         """Increment a counter metric."""
         with self.lock:
             self.counters[name] += value
 
-    def set_gauge(self, name: str, value: float):
+    def set_gauge(self, name: str, value: float) -> None:
         """Set a gauge metric."""
         with self.lock:
             self.gauges[name] = value
@@ -219,14 +219,14 @@ class EnhancedLogger:
         self._setup_handlers()
 
         # Log queue for async processing
-        self.log_queue = queue.Queue()
+        self.log_queue: "queue.Queue[LogEntry]" = queue.Queue()
         self.log_processor_running = False
 
         # Start background log processor
         if self.config.get("async_logging", True):
             self._start_log_processor()
 
-    def _setup_handlers(self):
+    def _setup_handlers(self) -> None:
         """Setup logging handlers based on configuration."""
         # Clear existing handlers
         self.logger.handlers.clear()
@@ -238,6 +238,7 @@ class EnhancedLogger:
             console_handler = logging.StreamHandler()
             console_format = outputs.get("console", {}).get("format", "text")
 
+            formatter: logging.Formatter
             if console_format == "json":
                 formatter = JSONFormatter()
             else:
@@ -255,13 +256,15 @@ class EnhancedLogger:
             log_file.parent.mkdir(parents=True, exist_ok=True)
 
             if file_config.get("rotation", "") == "daily":
-                file_handler = logging.handlers.TimedRotatingFileHandler(
-                    log_file,
-                    when="D",
-                    interval=1,
-                    backupCount=int(
-                        file_config.get("retention", "30").replace("d", "")
-                    ),
+                file_handler: logging.Handler = (
+                    logging.handlers.TimedRotatingFileHandler(
+                        log_file,
+                        when="D",
+                        interval=1,
+                        backupCount=int(
+                            file_config.get("retention", "30").replace("d", "")
+                        ),
+                    )
                 )
             else:
                 file_handler = logging.FileHandler(log_file)
@@ -277,14 +280,14 @@ class EnhancedLogger:
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
 
-    def _start_log_processor(self):
+    def _start_log_processor(self) -> None:
         """Start background log processor for async logging."""
         if not self.log_processor_running:
             self.log_processor_running = True
             thread = threading.Thread(target=self._process_logs, daemon=True)
             thread.start()
 
-    def _process_logs(self):
+    def _process_logs(self) -> None:
         """Process logs from the queue."""
         while self.log_processor_running:
             try:
@@ -296,7 +299,7 @@ class EnhancedLogger:
             except Exception as e:
                 logging.getLogger(__name__).error("Error processing log entry: %s", e)
 
-    def _write_log_entry(self, entry: LogEntry):
+    def _write_log_entry(self, entry: LogEntry) -> None:
         """Write log entry to configured outputs."""
         level_method = getattr(self.logger, entry.level.lower(), self.logger.info)
 
@@ -330,7 +333,7 @@ class EnhancedLogger:
         module: Optional[str] = None,
         performance_metrics: Optional[Dict] = None,
         error_info: Optional[Dict] = None,
-    ):
+    ) -> None:
         """Log a structured message."""
 
         entry = LogEntry(
@@ -360,27 +363,27 @@ class EnhancedLogger:
         else:
             self._write_log_entry(entry)
 
-    def info(self, operation: str, message: str, **kwargs):
+    def info(self, operation: str, message: str, **kwargs: Any) -> None:
         """Log info message."""
         self.log("INFO", operation, message, **kwargs)
 
-    def debug(self, operation: str, message: str, **kwargs):
+    def debug(self, operation: str, message: str, **kwargs: Any) -> None:
         """Log debug message."""
         self.log("DEBUG", operation, message, **kwargs)
 
-    def warning(self, operation: str, message: str, **kwargs):
+    def warning(self, operation: str, message: str, **kwargs: Any) -> None:
         """Log warning message."""
         self.log("WARNING", operation, message, **kwargs)
 
-    def error(self, operation: str, message: str, **kwargs):
+    def error(self, operation: str, message: str, **kwargs: Any) -> None:
         """Log error message."""
         self.log("ERROR", operation, message, **kwargs)
 
-    def critical(self, operation: str, message: str, **kwargs):
+    def critical(self, operation: str, message: str, **kwargs: Any) -> None:
         """Log critical message."""
         self.log("CRITICAL", operation, message, **kwargs)
 
-    def start_operation(self, operation: str, **context) -> str:
+    def start_operation(self, operation: str, **context: Any) -> str:
         """Start tracking an operation."""
         timer_id = self.metrics.start_timer(operation)
 
@@ -394,8 +397,8 @@ class EnhancedLogger:
         return timer_id
 
     def end_operation(
-        self, operation: str, timer_id: str, success: bool = True, **context
-    ):
+        self, operation: str, timer_id: str, success: bool = True, **context: Any
+    ) -> None:
         """End tracking an operation."""
         duration = self.metrics.end_timer(timer_id)
 
@@ -416,8 +419,8 @@ class EnhancedLogger:
         lat: Optional[float] = None,
         lon: Optional[float] = None,
         resolution: Optional[int] = None,
-        **context,
-    ):
+        **context: Any,
+    ) -> None:
         """Log a spatial operation with geographic context."""
         spatial_context = SpatialLogContext(
             h3_index=h3_index, latitude=lat, longitude=lon, resolution=resolution
@@ -438,7 +441,7 @@ class EnhancedLogger:
 class JSONFormatter(logging.Formatter):
     """JSON formatter for structured logging."""
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         log_entry = {
             "timestamp": datetime.fromtimestamp(
                 record.created, tz=timezone.utc
@@ -482,7 +485,7 @@ class LogAnalyzer:
         if self.log_file_path.exists():
             self._load_logs()
 
-    def _load_logs(self):
+    def _load_logs(self) -> None:
         """Load logs from file."""
         try:
             with open(self.log_file_path, "r") as f:
@@ -498,7 +501,7 @@ class LogAnalyzer:
                 "Error loading logs from %s: %s", self.log_file_path, e
             )
 
-    def analyze_performance(self, operation: str = None) -> Dict[str, Any]:
+    def analyze_performance(self, operation: Optional[str] = None) -> Dict[str, Any]:
         """Analyze performance metrics from logs."""
         performance_data = []
 
@@ -564,8 +567,8 @@ class LogAnalyzer:
         if not spatial_operations:
             return {"message": "No spatial operations found"}
 
-        h3_resolutions = defaultdict(int)
-        regions = defaultdict(int)
+        h3_resolutions: Dict[Any, int] = defaultdict(int)
+        regions: Dict[Any, int] = defaultdict(int)
 
         for op in spatial_operations:
             spatial = op["spatial_context"]

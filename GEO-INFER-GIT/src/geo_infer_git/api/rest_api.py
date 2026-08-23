@@ -9,7 +9,7 @@ defined in the OpenAPI schema for repository management operations.
 """
 
 import time
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, cast
 from datetime import datetime, timezone
 
 import git
@@ -42,10 +42,10 @@ app.add_middleware(
 )
 
 # Global instances
-repo_manager = None
-github_api = None
-config_loader = None
-logger = None
+repo_manager: Optional[RepoManager] = None
+github_api: Optional[GitHubAPI] = None
+config_loader: Optional[ConfigLoader] = None
+logger: Optional[Any] = None
 repository_records: Dict[str, Dict[str, Any]] = {}
 
 
@@ -67,7 +67,7 @@ class RepositoryRequest(BaseModel):
 
     @field_validator("platform")
     @classmethod
-    def validate_platform(cls, v):
+    def validate_platform(cls, v: str) -> str:
         if v not in ["github", "gitlab", "bitbucket", "local"]:
             raise ValueError(
                 "Platform must be one of: github, gitlab, bitbucket, local"
@@ -288,7 +288,7 @@ def get_github_api() -> GitHubAPI:
     return github_api
 
 
-def get_logger():
+def get_logger() -> Any:
     """Get logger instance."""
     if logger is None:
         raise HTTPException(status_code=500, detail="Logger not initialized")
@@ -299,7 +299,7 @@ def get_logger():
 
 
 @app.get("/health", response_model=HealthResponse, tags=["system"])
-async def health_check():
+async def health_check() -> HealthResponse:
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
@@ -319,7 +319,7 @@ async def list_repositories(
     organization: Optional[str] = None,
     language: Optional[str] = None,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> Dict[str, Any]:
     """List managed repositories with optional filtering."""
     try:
         # Get all repositories
@@ -364,7 +364,7 @@ async def add_repository(
     request: RepositoryRequest,
     background_tasks: BackgroundTasks,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> RepositoryResponse:
     """Add a new repository to the management system."""
     try:
         # Validate repository URL
@@ -418,7 +418,7 @@ async def add_repository(
 )
 async def get_repository(
     repo_id: str, manager: RepoManager = Depends(get_repo_manager)
-):
+) -> RepositoryResponse:
     """Get detailed information about a specific repository."""
     try:
         record = repository_records.get(repo_id)
@@ -444,7 +444,7 @@ async def clone_repository(
     request: CloneRequest,
     background_tasks: BackgroundTasks,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> CloneResponse:
     """Clone a repository."""
     try:
         if repo_id not in repository_records:
@@ -478,7 +478,7 @@ async def sync_repository(
     request: SyncRequest,
     background_tasks: BackgroundTasks,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> SyncResponse:
     """Synchronize a repository."""
     try:
         if repo_id not in repository_records:
@@ -512,7 +512,7 @@ async def list_branches(
     status_filter: Optional[str] = None,
     protected: Optional[bool] = None,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> Dict[str, Any]:
     """List branches for a repository."""
     try:
         branches = manager.list_branches(repo_id)
@@ -547,14 +547,14 @@ async def create_branch(
     repo_id: str,
     request: BranchRequest,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> BranchResponse:
     """Create a new branch."""
     try:
         branch = manager.create_branch_for_repository(
             repo_id, request.name, request.base, protected=request.protected
         )
         branch["repository_id"] = repo_id
-        return BranchResponse(**branch)
+        return BranchResponse(**cast(Dict[str, Any], branch))
     except FileExistsError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     except FileNotFoundError as exc:
@@ -577,17 +577,20 @@ async def merge_branch(
     branch_name: str,
     request: MergeRequest,
     manager: RepoManager = Depends(get_repo_manager),
-):
+) -> MergeResponse:
     """Merge a branch."""
     try:
         return MergeResponse(
-            **manager.merge_branch(
-                repo_id,
-                branch_name,
-                request.target_branch,
-                strategy=request.strategy,
-                message=request.message,
-                delete_source=request.delete_source,
+            **cast(
+                Dict[str, Any],
+                manager.merge_branch(
+                    repo_id,
+                    branch_name,
+                    request.target_branch,
+                    strategy=request.strategy,
+                    message=request.message,
+                    delete_source=request.delete_source,
+                ),
             )
         )
     except FileNotFoundError as exc:
@@ -601,12 +604,12 @@ async def merge_branch(
 
 
 @app.get("/system/status", response_model=SystemStatusResponse, tags=["system"])
-async def get_system_status():
+async def get_system_status() -> SystemStatusResponse:
     """Get comprehensive system status."""
     try:
         import git
 
-        records = repo_manager.check_repo_status() if repo_manager else {}
+        records: Dict[str, Any] = repo_manager.check_repo_status() if repo_manager else {}
         active_repositories = sum(
             1 for value in records.values() if "error" not in value
         )
@@ -629,7 +632,7 @@ async def get_system_status():
 async def clone_repository_background(
     repo_id: Union[str, Dict[str, Any]],
     clone_request: Union[RepositoryRequest, CloneRequest],
-):
+) -> None:
     """Background task for repository cloning."""
     try:
         if repo_manager is None:
@@ -637,34 +640,35 @@ async def clone_repository_background(
         if isinstance(repo_id, dict):
             record = repo_id
             identifier = record["id"]
-            clone_config = {
+            clone_config: Dict[str, Any] = {
                 "url": record["clone_url"],
                 "name": record["name"],
                 "branch": getattr(clone_request, "branch", None),
                 "depth": getattr(clone_request, "depth", None),
             }
         else:
-            record = repository_records.get(repo_id)
-            if record is None:
+            repo_record = repository_records.get(repo_id)
+            if repo_record is None:
                 raise FileNotFoundError(f"Repository not found: {repo_id}")
             identifier = repo_id
             clone_config = {
-                "url": record["clone_url"],
-                "name": record["name"],
+                "url": repo_record["clone_url"],
+                "name": repo_record["name"],
                 "branch": getattr(clone_request, "branch", None),
                 "depth": getattr(clone_request, "depth", None),
             }
-        logger.info("Starting background clone for %s", identifier)
+        if logger:
+            logger.info("Starting background clone for %s", identifier)
         result = repo_manager.clone_repositories([clone_config], parallel=False)
         success = bool(result.get(clone_config["name"]))
-        record = repository_records.get(identifier)
-        if record is not None:
-            record["status"] = "active" if success else "error"
-            record["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+        updated_record = repository_records.get(identifier)
+        if updated_record is not None:
+            updated_record["status"] = "active" if success else "error"
+            updated_record["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
             if success:
                 branches = repo_manager.list_branches(clone_config["name"])
-                record["branch_count"] = len(branches)
-                record["commit_count"] = sum(
+                updated_record["branch_count"] = len(branches)
+                updated_record["commit_count"] = sum(
                     1
                     for _ in git.Repo(
                         repo_manager._resolve_repo_path(clone_config["name"])
@@ -673,10 +677,11 @@ async def clone_repository_background(
     except Exception as e:
         if isinstance(repo_id, str) and repo_id in repository_records:
             repository_records[repo_id]["status"] = "error"
-        logger.error("Background clone failed for %s: %s", repo_id, e)
+        if logger:
+            logger.error("Background clone failed for %s: %s", repo_id, e)
 
 
-async def sync_repository_background(repo_id: str, sync_request: SyncRequest):
+async def sync_repository_background(repo_id: str, sync_request: SyncRequest) -> None:
     """Background task for repository synchronization."""
     try:
         if repo_manager is None:
@@ -684,7 +689,8 @@ async def sync_repository_background(repo_id: str, sync_request: SyncRequest):
         record = repository_records.get(repo_id)
         if record is None:
             raise FileNotFoundError(f"Repository not found: {repo_id}")
-        logger.info("Starting background sync for %s", repo_id)
+        if logger:
+            logger.info("Starting background sync for %s", repo_id)
         repo_name = record["name"]
         result = repo_manager.sync_repositories([repo_name])
         success = bool(result.get(repo_name))
@@ -695,11 +701,12 @@ async def sync_repository_background(repo_id: str, sync_request: SyncRequest):
     except Exception as e:
         if repo_id in repository_records:
             repository_records[repo_id]["status"] = "error"
-        logger.error("Background sync failed for %s: %s", repo_id, e)
+        if logger:
+            logger.error("Background sync failed for %s: %s", repo_id, e)
 
 
 # Initialization function
-def initialize_api(config_path: Optional[str] = None):
+def initialize_api(config_path: Optional[str] = None) -> None:
     """Initialize the API with configuration."""
     global repo_manager, github_api, config_loader, logger
 
@@ -729,7 +736,7 @@ def initialize_api(config_path: Optional[str] = None):
     )
 
 
-def run_api(host: str = "0.0.0.0", port: int = 8000, config_path: Optional[str] = None):
+def run_api(host: str = "0.0.0.0", port: int = 8000, config_path: Optional[str] = None) -> None:
     """Run the FastAPI server."""
     initialize_api(config_path)
 

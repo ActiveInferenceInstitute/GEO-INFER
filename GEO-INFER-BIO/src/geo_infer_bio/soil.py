@@ -65,7 +65,7 @@ class SoilDataIntegrator:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # ISRIC SoilGrids configuration
-        self.soilgrids_config = {
+        self.soilgrids_config: Dict[str, Any] = {
             "base_url": "https://rest.isric.org/soilgrids/v2.0/",
             "properties": {
                 "bdod": "Bulk density of the fine earth fraction",
@@ -301,7 +301,7 @@ class SoilDataset:
             f"{len(self.depths)} depths, {len(self.coordinates)} locations"
         )
 
-    def _parse_properties_and_depths(self):
+    def _parse_properties_and_depths(self) -> None:
         """Parse available properties and depths from data keys."""
         properties = set()
         depths = set()
@@ -326,7 +326,7 @@ class SoilDataset:
         """Get list of available depth intervals."""
         return self.depths
 
-    def get_property_data(self, property_name: str, depth: str = None) -> pd.DataFrame:
+    def get_property_data(self, property_name: str, depth: Optional[str] = None) -> pd.DataFrame:
         """
         Get data for a specific soil property.
 
@@ -439,7 +439,7 @@ class SoilDataset:
         health_data = []
 
         # Group data by coordinates
-        coord_groups = {}
+        coord_groups: Dict[Tuple[float, float], Dict[str, Any]] = {}
         for key, prop_data in self.data.items():
             for coord_data in prop_data["coordinates"]:
                 coord_key = (coord_data["latitude"], coord_data["longitude"])
@@ -490,7 +490,7 @@ class SoilDataset:
             # Overall soil health score
             scores = [v for k, v in health_indicators.items() if k.endswith("_score")]
             if scores:
-                health_indicators["overall_soil_health"] = np.mean(scores)
+                health_indicators["overall_soil_health"] = float(np.mean(scores))
 
             health_data.append(health_indicators)
 
@@ -503,17 +503,19 @@ class SoilDataset:
         Returns:
             Dictionary with coordinates and soil data
         """
-        export_data = {
-            "coordinates": self.coordinates,
-            "soil_properties": self.properties,
+        properties_out = self.coordinates
+        soil_props = self.properties
+        export_data: Dict[str, Any] = {
+            "coordinates": properties_out,
+            "soil_properties": soil_props,
             "depths": self.depths,
             "soil_data": self.data,
             "data_source": self.data_source,
         }
 
         logger.info(
-            f"Exported soil data: {len(export_data['soil_properties'])} properties, "
-            f"{len(export_data['coordinates'])} locations"
+            f"Exported soil data: {len(soil_props)} properties, "
+            f"{len(properties_out)} locations"
         )
 
         return export_data

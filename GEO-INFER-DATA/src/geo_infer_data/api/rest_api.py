@@ -7,7 +7,7 @@ and processing operations.
 
 import logging
 import inspect
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -108,11 +108,11 @@ class DataAPI:
 
         logger.info(f"Initialized DataAPI on {host}:{port}")
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Setup API routes."""
 
         @self.app.get("/")
-        async def root():
+        async def root() -> Dict[str, Any]:
             """Root endpoint."""
             return {
                 "name": "GEO-INFER-DATA API",
@@ -122,7 +122,7 @@ class DataAPI:
             }
 
         @self.app.get("/health")
-        async def health_check():
+        async def health_check() -> HealthStatus:
             """Health check endpoint."""
             return HealthStatus(
                 status="healthy",
@@ -136,7 +136,7 @@ class DataAPI:
             limit: int = Query(50, ge=1, le=1000),
             data_type: Optional[str] = None,
             bbox: Optional[str] = Query(None),
-        ):
+        ) -> List[DatasetSummary]:
             """List available datasets."""
             filters: Dict[str, Any] = {}
             if data_type:
@@ -165,14 +165,14 @@ class DataAPI:
             ]
 
         @self.app.post("/datasets", response_model=Dataset, status_code=201)
-        async def create_dataset(dataset: Dataset):
+        async def create_dataset(dataset: Dataset) -> Dataset:
             """Register dataset metadata that has already been stored."""
             logger.info(f"Registering dataset: {dataset.title}")
             self.data_service.datasets[dataset.id] = dataset
             return dataset
 
         @self.app.get("/datasets/{dataset_id}", response_model=Dataset)
-        async def get_dataset(dataset_id: str = PathParam(...)):
+        async def get_dataset(dataset_id: str = PathParam(...)) -> Dataset:
             """Get dataset details."""
             dataset = self.data_service.datasets.get(dataset_id)
             if dataset is None:
@@ -184,7 +184,7 @@ class DataAPI:
             dataset_id: str = PathParam(...),
             format: str = Query("geojson", enum=["geojson", "geotiff", "csv"]),
             bbox: Optional[List[float]] = Query(None),
-        ):
+        ) -> Dict[str, Any]:
             """Get dataset data."""
             if dataset_id not in self.data_service.datasets:
                 raise HTTPException(status_code=404, detail="Dataset not found")
@@ -201,7 +201,7 @@ class DataAPI:
             dataset_id: str = PathParam(...),
             file: UploadFile = File(...),
             overwrite: bool = False,
-        ):
+        ) -> None:
             """Upload data to dataset."""
             raise HTTPException(
                 status_code=501,
@@ -212,7 +212,9 @@ class DataAPI:
             )
 
         @self.app.get("/datasets/{dataset_id}/metadata", response_model=DatasetMetadata)
-        async def get_dataset_metadata(dataset_id: str = PathParam(...)):
+        async def get_dataset_metadata(
+            dataset_id: str = PathParam(...),
+        ) -> DatasetMetadata:
             """Get dataset metadata."""
             dataset = self.data_service.datasets.get(dataset_id)
             if dataset is None:
@@ -220,7 +222,7 @@ class DataAPI:
             return dataset.metadata
 
         @self.app.post("/data/ingest/multi-source")
-        async def ingest_multi_source(request: Dict[str, Any]):
+        async def ingest_multi_source(request: Dict[str, Any]) -> Any:
             """Ingest data from multiple sources."""
             try:
                 result = await self.ingestion_service.ingest_multi_source(**request)
@@ -229,7 +231,7 @@ class DataAPI:
                 raise HTTPException(status_code=400, detail=str(e))
 
         @self.app.post("/data/etl/execute")
-        async def execute_etl(request: Dict[str, Any]):
+        async def execute_etl(request: Dict[str, Any]) -> Any:
             """Execute ETL pipeline."""
             try:
                 result = await self.pipeline_service.execute_workflow(
@@ -245,7 +247,7 @@ class DataAPI:
         async def validate_dataset_quality(
             dataset_id: str = PathParam(...),
             checks: List[str] = Query(["completeness", "accuracy", "consistency"]),
-        ):
+        ) -> Any:
             """Validate dataset quality."""
             try:
                 report = await self.quality_service.validate_dataset(dataset_id)
@@ -260,7 +262,7 @@ class DataAPI:
             temporal: Optional[str] = None,
             data_type: Optional[str] = None,
             tags: List[str] = Query([]),
-        ):
+        ) -> Dict[str, Any]:
             """Search datasets."""
             records = await self.data_service.list_datasets(limit=1000)
             if q:
@@ -285,18 +287,18 @@ class DataAPI:
             }
 
         @self.app.get("/storage/backends")
-        async def list_storage_backends():
+        async def list_storage_backends() -> List[Any]:
             """List storage backends."""
             stats = self.storage_service.get_storage_stats()
-            return stats.get("backends", [])
+            return cast(List[Any], stats.get("backends", []))
 
         @self.app.get("/metrics")
-        async def get_metrics():
+        async def get_metrics() -> Dict[str, Any]:
             """Get API metrics."""
             stats = self.storage_service.get_storage_stats()
             return {"storage": stats, "datasets": len(self.data_service.datasets)}
 
-    def start(self, reload: bool = False):
+    def start(self, reload: bool = False) -> None:
         """Start the API server."""
         logger.info(f"Starting DataAPI server on {self.host}:{self.port}")
 
@@ -304,7 +306,7 @@ class DataAPI:
             self.app, host=self.host, port=self.port, reload=reload, log_level="info"
         )
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the API server."""
         logger.info("Stopping DataAPI server")
         # Implementation for graceful shutdown
@@ -367,8 +369,8 @@ class DatasetAPI:
             id=dataset_id,
             title=metadata.title,
             description=metadata.description,
-            type="vector",
-            format="geojson",
+            type=cast(Any, "vector"),
+            format=cast(Any, "geojson"),
             metadata=metadata,
         )
         self.quality_service.register_dataset(dataset_id, data, metadata)
@@ -433,4 +435,7 @@ class DatasetAPI:
         Returns:
             Quality report
         """
-        return await _maybe_await(self.quality_service.validate_dataset(dataset_id))
+        return cast(
+            DataQualityReport,
+            await _maybe_await(self.quality_service.validate_dataset(dataset_id)),
+        )

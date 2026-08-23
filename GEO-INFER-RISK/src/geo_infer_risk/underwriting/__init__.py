@@ -165,9 +165,9 @@ def create_policy_manager(config: Optional[Dict[str, Any]] = None) -> PolicyMana
 
 def create_claims_processor(config: Optional[Dict[str, Any]] = None) -> ClaimsProcessor:
     """Create a claims processor."""
-    from .core.claims_processing import ClaimsProcessor
+    from .core.claims_processing import ClaimsProcessor, ClaimsProcessingConfig
 
-    return ClaimsProcessor(config)
+    return ClaimsProcessor(ClaimsProcessingConfig())
 
 
 # Package exports

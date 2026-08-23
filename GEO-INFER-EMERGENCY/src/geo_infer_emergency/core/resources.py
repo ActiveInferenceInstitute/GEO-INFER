@@ -306,17 +306,19 @@ class ResourceDeployer:
         Returns:
             Staging management plan
         """
-        staging_plan = {
-            "staging_areas": [],
+        staging_areas_out: List[Dict[str, Any]] = []
+        pending_queue_out: List[Dict[str, Any]] = []
+        staging_plan: Dict[str, Any] = {
+            "staging_areas": staging_areas_out,
             "incoming_assignments": [],
-            "pending_queue": [],
+            "pending_queue": pending_queue_out,
             "prioritization": prioritization,
             "timestamp": datetime.now().isoformat()
         }
         
         # Assign staging areas
         for i, staging in enumerate(staging_areas):
-            area_plan = {
+            area_plan: Dict[str, Any] = {
                 "staging_id": staging.get("id", f"staging_{i}"),
                 "location": staging.get("location"),
                 "capacity": staging.get("capacity", 50),
@@ -330,7 +332,7 @@ class ResourceDeployer:
                     area_plan["assigned_resources"].append(resource.get("id"))
                     area_plan["current_count"] += 1
             
-            staging_plan["staging_areas"].append(area_plan)
+            staging_areas_out.append(area_plan)
         
         # Process assignment queue by priority
         if prioritization == "incident_severity":
@@ -339,7 +341,7 @@ class ResourceDeployer:
             sorted_queue = assignment_queue
         
         for assignment in sorted_queue:
-            staging_plan["pending_queue"].append({
+            pending_queue_out.append({
                 "assignment_id": assignment.get("id"),
                 "incident": assignment.get("incident"),
                 "resources_needed": assignment.get("resources_needed"),
@@ -353,7 +355,7 @@ class ResourceDeployer:
         self,
         resources: List[Dict[str, Any]],
         update_frequency: str = "real_time",
-        metrics: List[str] = None
+        metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Track resource status and locations.
@@ -368,25 +370,27 @@ class ResourceDeployer:
         """
         metrics = metrics or ["location", "status", "availability", "eta"]
         
-        tracking = {
+        resources_out: List[Dict[str, Any]] = []
+        summary_out: Dict[str, int] = {
+            "total": len(resources),
+            "available": 0,
+            "assigned": 0,
+            "en_route": 0,
+            "on_scene": 0,
+            "out_of_service": 0
+        }
+        tracking: Dict[str, Any] = {
             "update_frequency": update_frequency,
             "timestamp": datetime.now().isoformat(),
-            "resources": [],
-            "summary": {
-                "total": len(resources),
-                "available": 0,
-                "assigned": 0,
-                "en_route": 0,
-                "on_scene": 0,
-                "out_of_service": 0
-            }
+            "resources": resources_out,
+            "summary": summary_out
         }
         
         for res_data in resources:
             res_id = res_data.get("id")
             status = res_data.get("status", "available")
             
-            resource_track = {
+            resource_track: Dict[str, Any] = {
                 "resource_id": res_id,
                 "type": res_data.get("type", "unknown")
             }
@@ -400,19 +404,19 @@ class ResourceDeployer:
             if "eta" in metrics:
                 resource_track["eta_minutes"] = res_data.get("eta", None)
             
-            tracking["resources"].append(resource_track)
+            resources_out.append(resource_track)
             
             # Update summary
             if status == "available":
-                tracking["summary"]["available"] += 1
+                summary_out["available"] += 1
             elif status == "assigned":
-                tracking["summary"]["assigned"] += 1
+                summary_out["assigned"] += 1
             elif status == "en_route":
-                tracking["summary"]["en_route"] += 1
+                summary_out["en_route"] += 1
             elif status == "on_scene":
-                tracking["summary"]["on_scene"] += 1
+                summary_out["on_scene"] += 1
             else:
-                tracking["summary"]["out_of_service"] += 1
+                summary_out["out_of_service"] += 1
         
         logger.debug(f"Tracking {len(resources)} resources")
         return tracking

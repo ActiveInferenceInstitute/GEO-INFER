@@ -359,7 +359,7 @@ class TemporalAnalyzer:
         values = data.iloc[:, 0].values
         n = len(values)
 
-        change_points = []
+        change_points: List[Dict[str, Any]] = []
 
         if method == "cusum":
             # CUSUM-based change point detection
@@ -390,7 +390,7 @@ class TemporalAnalyzer:
 
         elif method == "binary_segmentation":
             # Simplified binary segmentation
-            def find_change_point(start, end):
+            def find_change_point(start: int, end: int) -> Optional[Dict[str, Any]]:
                 if end - start < 2 * min_segment_length:
                     return None
 
@@ -521,13 +521,13 @@ class TemporalAnalyzer:
         Returns:
             Forecast validation metrics
         """
-        actual = np.array(actual)
-        predicted = np.array(predicted)
+        actual_arr = np.array(actual)
+        predicted_arr = np.array(predicted)
 
-        n = len(actual)
-        errors = actual - predicted
+        n = len(actual_arr)
+        errors = actual_arr - predicted_arr
         abs_errors = np.abs(errors)
-        pct_errors = np.abs(errors / (actual + 1e-10)) * 100
+        pct_errors = np.abs(errors / (actual_arr + 1e-10)) * 100
 
         # Core metrics
         mae = float(np.mean(abs_errors))
@@ -536,12 +536,12 @@ class TemporalAnalyzer:
         mape = float(np.mean(pct_errors))
 
         # Symmetric MAPE
-        smape = float(np.mean(2 * abs_errors / (np.abs(actual) + np.abs(predicted) + 1e-10)) * 100)
+        smape = float(np.mean(2 * abs_errors / (np.abs(actual_arr) + np.abs(predicted_arr) + 1e-10)) * 100)
 
         # Directional accuracy
-        if len(actual) > 1:
-            actual_direction = np.sign(np.diff(actual))
-            predicted_direction = np.sign(np.diff(predicted))
+        if len(actual_arr) > 1:
+            actual_direction = np.sign(np.diff(actual_arr))
+            predicted_direction = np.sign(np.diff(predicted_arr))
             directional_accuracy = float(np.mean(actual_direction == predicted_direction) * 100)
         else:
             directional_accuracy = None
@@ -549,14 +549,14 @@ class TemporalAnalyzer:
         # Confidence interval coverage
         if confidence_intervals:
             coverage = sum(
-                1 for a, (low, high) in zip(actual, confidence_intervals)
+                1 for a, (low, high) in zip(actual_arr, confidence_intervals)
                 if low <= a <= high
             ) / n * 100
         else:
             coverage = None
 
         # Theil's U statistic
-        naive_errors = np.abs(np.diff(actual))
+        naive_errors = np.abs(np.diff(actual_arr))
         if len(naive_errors) > 0 and np.mean(naive_errors) > 0:
             theil_u = rmse / np.sqrt(np.mean(naive_errors ** 2))
         else:
@@ -575,7 +575,7 @@ class TemporalAnalyzer:
                 "confidence_coverage": coverage
             },
             "interpretation": {
-                "rmse_vs_std": rmse / np.std(actual) if np.std(actual) > 0 else None,
+                "rmse_vs_std": rmse / np.std(actual_arr) if np.std(actual_arr) > 0 else None,
                 "forecast_quality": (
                     "Excellent" if mape < 10
                     else "Good" if mape < 20
@@ -841,10 +841,11 @@ class TemporalAnalyzer:
         data1 = data1[:min_len]
         data2 = data2[:min_len]
         
+        tests: Dict[str, Any] = {}
         results = {
             'series_length': min_len,
             'max_lag': max_lag,
-            'tests': {}
+            'tests': tests
         }
         
         def test_granger(y: np.ndarray, x: np.ndarray, lag: int) -> Dict[str, Any]:
@@ -895,22 +896,22 @@ class TemporalAnalyzer:
         # Test if series1 Granger-causes series2
         for lag in range(1, max_lag + 1):
             key = f'series1_causes_series2_lag{lag}'
-            results['tests'][key] = test_granger(data2, data1, lag)
+            tests[key] = test_granger(data2, data1, lag)
         
         # Test if series2 Granger-causes series1
         for lag in range(1, max_lag + 1):
             key = f'series2_causes_series1_lag{lag}'
-            results['tests'][key] = test_granger(data1, data2, lag)
+            tests[key] = test_granger(data1, data2, lag)
         
         # Summarize
         s1_causes_s2 = any(
-            v.get('significant', False) 
-            for k, v in results['tests'].items() 
+            isinstance(v, dict) and v.get('significant', False) 
+            for k, v in tests.items() 
             if 'series1_causes_series2' in k
         )
         s2_causes_s1 = any(
-            v.get('significant', False) 
-            for k, v in results['tests'].items() 
+            isinstance(v, dict) and v.get('significant', False) 
+            for k, v in tests.items() 
             if 'series2_causes_series1' in k
         )
         
@@ -975,7 +976,7 @@ class TemporalAnalyzer:
             m = 2  # Embedding dimension
             r = 0.2 * np.std(values)  # Tolerance
             
-            def count_matches(template_length):
+            def count_matches(template_length: int) -> int:
                 count = 0
                 templates = []
                 for i in range(n - template_length):
@@ -1007,14 +1008,16 @@ class TemporalAnalyzer:
         # Approximate entropy
         if method == 'approximate' and n > 10:
             # Use sample entropy result for approximation
-            if 'sample_entropy' in results and results['sample_entropy'].get('value'):
+            sample_ent = results.get('sample_entropy')
+            if isinstance(sample_ent, dict) and sample_ent.get('value'):
                 results['approximate_entropy'] = {
-                    'value': results['sample_entropy']['value'],
+                    'value': sample_ent['value'],
                     'note': 'Approximated using sample entropy'
                 }
         
         # Interpretation
-        norm_entropy = results['shannon_entropy']['normalized']
+        shannon_ent = results['shannon_entropy']
+        norm_entropy = shannon_ent['normalized'] if isinstance(shannon_ent, dict) else 0.0
         results['interpretation'] = {
             'complexity': (
                 'High' if norm_entropy > 0.8

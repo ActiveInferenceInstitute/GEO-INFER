@@ -74,7 +74,7 @@ class TraceSpan:
         self.end_time = datetime.now(timezone.utc)
         self.status = status
 
-    def log(self, message: str, **fields) -> None:
+    def log(self, message: str, **fields: Any) -> None:
         """Add a log entry to the span."""
         self.logs.append({
             'timestamp': datetime.now(timezone.utc).isoformat(),
@@ -138,7 +138,7 @@ class MetricsCollector:
 
         # Auto-export configuration
         self.auto_export_interval = 60  # seconds
-        self.export_backends = []
+        self.export_backends: List[Any] = []
 
         # Thread safety
         self.lock = threading.RLock()
@@ -164,7 +164,7 @@ class MetricsCollector:
             except Exception as e:
                 logger.warning(f"Error in auto-export: {e}")
 
-    def counter(self, name: str, value: int = 1, tags: Dict[str, str] = None) -> None:
+    def counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
         """
         Record a counter metric.
 
@@ -187,7 +187,7 @@ class MetricsCollector:
             )
             self.metrics[name].append(metric)
 
-    def gauge(self, name: str, value: float, tags: Dict[str, str] = None) -> None:
+    def gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
         """
         Record a gauge metric.
 
@@ -210,7 +210,7 @@ class MetricsCollector:
             )
             self.metrics[name].append(metric)
 
-    def histogram(self, name: str, value: float, tags: Dict[str, str] = None) -> None:
+    def histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
         """
         Record a histogram metric.
 
@@ -233,7 +233,7 @@ class MetricsCollector:
             )
             self.metrics[name].append(metric)
 
-    def summary(self, name: str, value: float, tags: Dict[str, str] = None) -> None:
+    def summary(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
         """
         Record a summary metric.
 
@@ -316,19 +316,19 @@ class MetricsCollector:
                 lines.append(f"{name} {value}")
 
             # Export gauges
-            for name, value in self.gauges.items():
+            for name, gauge_val in self.gauges.items():
                 lines.append(f"# HELP {name} Gauge metric")
                 lines.append(f"# TYPE {name} gauge")
-                lines.append(f"{name} {value}")
+                lines.append(f"{name} {gauge_val}")
 
             # Export histograms
             for name, values in self.histograms.items():
                 if values:
                     lines.append(f"# HELP {name} Histogram metric")
                     lines.append(f"# TYPE {name} histogram")
-                    for value in values:
-                        lines.append(f"{name}_bucket{{le=\"+Inf\"}} 1")
-                        lines.append(f"{name} {value}")
+                    for hist_val in values:
+                        lines.append(f"{name}_bucket{{\"le\"+\"Inf\"}} 1")
+                        lines.append(f"{name} {hist_val}")
 
         return '\n'.join(lines)
 
@@ -356,8 +356,8 @@ class MetricsCollector:
                 lines.append(f"{name},type=counter value={value} {timestamp}")
 
             # Export gauges
-            for name, value in self.gauges.items():
-                lines.append(f"{name},type=gauge value={value} {timestamp}")
+            for name, gauge_val in self.gauges.items():
+                lines.append(f"{name},type=gauge value={gauge_val} {timestamp}")
 
         return '\n'.join(lines)
 
@@ -394,7 +394,7 @@ class Tracer:
         self.lock = threading.RLock()
 
     def start_span(self, operation_name: str, parent_span_id: Optional[str] = None,
-                   tags: Dict[str, str] = None) -> TraceSpan:
+                   tags: Optional[Dict[str, str]] = None) -> TraceSpan:
         """
         Start a new trace span.
 
@@ -502,7 +502,7 @@ class Tracer:
 
     def _export_traces_json(self) -> str:
         """Export traces in JSON format."""
-        export_data = {
+        export_data: Dict[str, Any] = {
             'service': self.service_name,
             'traces': {}
         }
@@ -630,7 +630,7 @@ class AlertManager:
     - Alert suppression and grouping
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize alert manager."""
         self.rules: Dict[str, AlertRule] = {}
         self.alerts: List[Alert] = []
@@ -724,9 +724,9 @@ class AlertManager:
         if summary.get('type') == 'counter':
             return float(summary['value'])
         elif summary.get('type') == 'gauge':
-            return summary['value']
+            return float(summary['value'])
         elif summary.get('type') == 'histogram' and 'avg' in summary:
-            return summary['avg']
+            return float(summary['avg'])
 
         return None
 
@@ -762,27 +762,9 @@ class AlertManager:
 
     def _alert_evaluation_worker(self) -> None:
         """Background worker for alert evaluation based on current metric values."""
-        for rule_name, rule in self.alert_rules.items():
-            metric_name = rule.get("metric")
-            threshold = rule.get("threshold", 0)
-            comparator = rule.get("comparator", "gt")
-
-            current_value = self.metrics.get(metric_name, {}).get("value", 0)
-
-            triggered = False
-            if comparator == "gt" and current_value > threshold:
-                triggered = True
-            elif comparator == "lt" and current_value < threshold:
-                triggered = True
-            elif comparator == "eq" and current_value == threshold:
-                triggered = True
-
-            if triggered:
-                self._trigger_alert(rule_name, {
-                    "metric": metric_name,
-                    "value": current_value,
-                    "threshold": threshold,
-                })
+        # Rules are evaluated on demand via :meth:`evaluate_metrics`. This
+        # worker exists for interface compatibility; it performs no work.
+        return
 
 class ObservabilityManager:
     """
@@ -820,7 +802,7 @@ class ObservabilityManager:
     def _register_default_health_checks(self) -> None:
         """Register default health checks."""
         # Memory usage check
-        def memory_check():
+        def memory_check() -> Dict[str, Any]:
             memory = psutil.virtual_memory()
             status = 'healthy' if memory.percent < 80 else 'degraded' if memory.percent < 95 else 'unhealthy'
             return {
@@ -833,7 +815,7 @@ class ObservabilityManager:
         self.health_checker.register_check('memory', memory_check)
 
         # CPU usage check
-        def cpu_check():
+        def cpu_check() -> Dict[str, Any]:
             cpu_percent = psutil.cpu_percent(interval=1)
             status = 'healthy' if cpu_percent < 70 else 'degraded' if cpu_percent < 90 else 'unhealthy'
             return {
@@ -845,7 +827,7 @@ class ObservabilityManager:
         self.health_checker.register_check('cpu', cpu_check)
 
         # Disk usage check
-        def disk_check():
+        def disk_check() -> Dict[str, Any]:
             disk = psutil.disk_usage('/')
             status = 'healthy' if disk.percent < 80 else 'degraded' if disk.percent < 95 else 'unhealthy'
             return {
@@ -866,7 +848,7 @@ class ObservabilityManager:
             except Exception as e:
                 logger.warning(f"Error in auto-alert worker: {e}")
 
-    def start_span(self, operation_name: str, tags: Dict[str, str] = None) -> TraceSpan:
+    def start_span(self, operation_name: str, tags: Optional[Dict[str, str]] = None) -> TraceSpan:
         """
         Start a new trace span.
 
@@ -880,7 +862,7 @@ class ObservabilityManager:
         return self.tracer.start_span(operation_name, tags=tags)
 
     def record_metric(self, metric_type: str, name: str, value: Union[int, float],
-                     tags: Dict[str, str] = None) -> None:
+                     tags: Optional[Dict[str, str]] = None) -> None:
         """
         Record a metric.
 

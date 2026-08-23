@@ -9,7 +9,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Callable, List
+from typing import Optional, Dict, Any, Callable, List, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -148,4 +148,4 @@ class VariationalInferenceHelpers:
         """Numerically stable softmax."""
         x = logits - np.max(logits)
         exp_x = np.exp(x)
-        return exp_x / (exp_x.sum() + self._epsilon)
+        return cast(np.ndarray, exp_x / (exp_x.sum() + self._epsilon))

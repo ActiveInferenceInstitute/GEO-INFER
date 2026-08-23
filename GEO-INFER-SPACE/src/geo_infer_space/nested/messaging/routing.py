@@ -96,11 +96,11 @@ class Route:
     last_used: Optional[datetime] = None
     use_count: int = 0
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Calculate route metrics after creation."""
         self._calculate_metrics()
     
-    def _calculate_metrics(self):
+    def _calculate_metrics(self) -> None:
         """Calculate aggregate route metrics."""
         if not self.segments:
             return
@@ -143,7 +143,7 @@ class MessageRouter:
     message delivery across complex nested geospatial systems.
     """
     
-    def __init__(self, name: str = "MessageRouter"):
+    def __init__(self, name: str = "MessageRouter") -> None:
         """
         Initialize message router.
         
@@ -182,7 +182,11 @@ class MessageRouter:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
     
-    def add_node(self, node_id: str, properties: Optional[Dict[str, Any]] = None):
+    def add_node(
+        self,
+        node_id: str,
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Add a node to the routing network.
         
@@ -199,11 +203,19 @@ class MessageRouter:
         
         self.updated_at = datetime.now()
     
-    def add_edge(self, from_node: str, to_node: str, 
-                distance: float = 1.0, latency: float = 0.1,
-                bandwidth: float = float('inf'), reliability: float = 1.0,
-                cost: float = 1.0, bidirectional: bool = True,
-                crosses_boundary: bool = False, boundary_id: Optional[str] = None):
+    def add_edge(
+        self,
+        from_node: str,
+        to_node: str,
+        distance: float = 1.0,
+        latency: float = 0.1,
+        bandwidth: float = float('inf'),
+        reliability: float = 1.0,
+        cost: float = 1.0,
+        bidirectional: bool = True,
+        crosses_boundary: bool = False,
+        boundary_id: Optional[str] = None,
+    ) -> None:
         """
         Add an edge to the routing network.
         
@@ -254,7 +266,12 @@ class MessageRouter:
         self.route_cache.clear()
         self.updated_at = datetime.now()
     
-    def remove_edge(self, from_node: str, to_node: str, bidirectional: bool = True):
+    def remove_edge(
+        self,
+        from_node: str,
+        to_node: str,
+        bidirectional: bool = True,
+    ) -> None:
         """Remove an edge from the routing network."""
         if (from_node, to_node) in self.edges:
             del self.edges[(from_node, to_node)]
@@ -289,10 +306,10 @@ class MessageRouter:
         cache_key = (source, destination, strategy)
         if use_cache and cache_key in self.route_cache:
             self.cache_hits += 1
-            route = self.route_cache[cache_key]
-            route.last_used = datetime.now()
-            route.use_count += 1
-            return route
+            cached_route = self.route_cache[cache_key]
+            cached_route.last_used = datetime.now()
+            cached_route.use_count += 1
+            return cached_route
         
         self.cache_misses += 1
         
@@ -310,7 +327,9 @@ class MessageRouter:
         elif strategy == RoutingStrategy.GEOGRAPHIC:
             route = self._find_geographic_path(source, destination)
         else:
-            logger.warning(f"Unknown routing strategy: {strategy}")
+            logger.warning(  # type: ignore[unreachable]
+                f"Unknown routing strategy: {strategy}"
+            )
             route = self._find_shortest_path(source, destination, metric)
         
         # Cache the route
@@ -347,7 +366,7 @@ class MessageRouter:
         visited = set()
         
         # Priority queue: (distance, node)
-        pq = [(0, source)]
+        pq: List[Tuple[float, str]] = [(0, source)]
         
         while pq:
             current_dist, current_node = heapq.heappop(pq)
@@ -430,7 +449,7 @@ class MessageRouter:
         previous = {}
         visited = set()
         
-        pq = [(0, source)]
+        pq: List[Tuple[float, str]] = [(0, source)]
         
         while pq:
             current_dist, current_node = heapq.heappop(pq)
@@ -486,7 +505,7 @@ class MessageRouter:
         previous = {}
         visited = set()
         
-        pq = [(0, source)]
+        pq: List[Tuple[float, str]] = [(0, source)]
         
         while pq:
             current_dist, current_node = heapq.heappop(pq)
@@ -569,11 +588,11 @@ class MessageRouter:
         
         return route
     
-    def update_node_load(self, node_id: str, load: float):
+    def update_node_load(self, node_id: str, load: float) -> None:
         """Update load for a node."""
         self.node_loads[node_id] = load
     
-    def update_edge_load(self, from_node: str, to_node: str, load: float):
+    def update_edge_load(self, from_node: str, to_node: str, load: float) -> None:
         """Update load for an edge."""
         self.edge_loads[(from_node, to_node)] = load
     
@@ -594,7 +613,7 @@ class MessageRouter:
             'updated_at': self.updated_at.isoformat()
         }
     
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Clear the route cache."""
         self.route_cache.clear()
         self.cache_hits = 0

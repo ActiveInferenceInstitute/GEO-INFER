@@ -7,7 +7,7 @@ error handling, and real-world spatial analysis capabilities.
 
 import logging
 import math
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, cast
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +19,20 @@ try:
     def _version_tuple(version: str) -> Tuple[int, int, int] | None:
         try:
             parts = version.lstrip("v").split(".")
-            return tuple(
-                int(part.split("+")[0].split("-")[0]) for part in parts[:3]
-            ) + (0,) * max(0, 3 - len(parts))
+            return cast(
+                Tuple[int, int, int],
+                tuple(
+                    int(part.split("+")[0].split("-")[0])
+                    for part in parts[:3]
+                )
+                + (0,) * max(0, 3 - len(parts)),
+            )
         except (AttributeError, TypeError, ValueError):
             return None
 
-    _h3_version = _version_tuple(getattr(h3, "__version__", None))
+    _h3_version = _version_tuple(
+        cast(str, getattr(h3, "__version__", None))
+    )
     H3_AVAILABLE = bool(
         _h3_version is not None and MIN_H3_VERSION <= _h3_version and _h3_version[0] < 5
     )
@@ -236,7 +243,7 @@ def coordinate_to_cell(lat: float, lng: float, resolution: int) -> str:
         raise ValueError(f"Resolution {resolution} must be between 0 and 15")
 
     try:
-        return h3.latlng_to_cell(lat, lng, resolution)
+        return cast(str, h3.latlng_to_cell(lat, lng, resolution))
     except Exception as e:
         logger.error(f"Failed to convert coordinates ({lat}, {lng}) to H3 cell: {e}")
         raise
@@ -264,7 +271,7 @@ def cell_to_coordinates(h3_index: str) -> Tuple[float, float]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.cell_to_latlng(h3_index)
+        return cast(Tuple[float, float], h3.cell_to_latlng(h3_index))
     except Exception as e:
         logger.error(f"Failed to convert H3 index {h3_index} to coordinates: {e}")
         raise ValueError(f"Invalid H3 index: {h3_index}")
@@ -344,7 +351,7 @@ def cells_to_geojson(
             coordinates = [ring]
 
             # Create feature
-            feature = {
+            feature: Dict[str, Any] = {
                 "type": "Feature",
                 "properties": {
                     "h3_index": h3_index,
@@ -453,7 +460,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.grid_distance(h3_index1, h3_index2)
+        return cast(int, h3.grid_distance(h3_index1, h3_index2))
     except Exception as e:
         logger.error(
             f"Failed to calculate grid distance between {h3_index1} and {h3_index2}: {e}"
@@ -480,7 +487,7 @@ def grid_path(h3_index1: str, h3_index2: str) -> List[str]:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.grid_path_cells(h3_index1, h3_index2)
+        return cast(List[str], h3.grid_path_cells(h3_index1, h3_index2))
     except Exception as e:
         logger.error(
             f"Failed to find grid path between {h3_index1} and {h3_index2}: {e}"
@@ -516,7 +523,7 @@ def cell_to_parent(h3_index: str, parent_resolution: int) -> str:
                 f"Parent resolution {parent_resolution} must be less than current resolution {current_resolution}"
             )
 
-        return h3.cell_to_parent(h3_index, parent_resolution)
+        return cast(str, h3.cell_to_parent(h3_index, parent_resolution))
     except Exception as e:
         logger.error(
             f"Failed to get parent for {h3_index} at resolution {parent_resolution}: {e}"
@@ -704,7 +711,7 @@ def cell_area(h3_index: str, unit: str = "km^2") -> float:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.cell_area(h3_index, unit=unit)
+        return cast(float, h3.cell_area(h3_index, unit=unit))
     except Exception as e:
         logger.error(f"Failed to calculate area for {h3_index}: {e}")
         raise
@@ -786,7 +793,7 @@ def cell_resolution(h3_index: str) -> int:
         raise ImportError("h3-py package required. Install with 'uv pip install h3'")
 
     try:
-        return h3.get_resolution(h3_index)
+        return cast(int, h3.get_resolution(h3_index))
     except Exception as e:
         logger.error(f"Failed to get resolution for {h3_index}: {e}")
         raise
@@ -810,7 +817,7 @@ def is_valid_cell(h3_index: str) -> bool:
         return False
 
     try:
-        return h3.is_valid_cell(h3_index)
+        return bool(h3.is_valid_cell(h3_index))
     except Exception:
         return False
 
@@ -834,7 +841,7 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
         return False
 
     try:
-        return h3.are_neighbor_cells(h3_index1, h3_index2)
+        return bool(h3.are_neighbor_cells(h3_index1, h3_index2))
     except Exception:
         return False
 

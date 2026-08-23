@@ -5,7 +5,7 @@ evapotranspiration, and the SCS Curve Number method for runoff estimation.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 
 import numpy as np
 import xarray as xr
@@ -104,7 +104,7 @@ class WaterBalanceModeler:
 
         temp_range = np.maximum(temp_max - temp_min, 0.0)
         pet = 0.0023 * ra_values * (temp_mean + 17.8) * np.sqrt(temp_range)
-        return np.maximum(pet, 0.0)
+        return cast("np.ndarray", np.maximum(pet, 0.0))
 
     def scs_curve_number_runoff(
         self,
@@ -224,7 +224,7 @@ class WaterBalanceModeler:
         cos_hour_angle = max(-1.0, min(1.0, cos_hour_angle))
 
         hour_angle = np.degrees(np.arccos(cos_hour_angle))
-        return 2.0 * hour_angle / 15.0
+        return float(2.0 * hour_angle / 15.0)
 
     def _extraterrestrial_radiation(self, lat_rad: float, doy: int) -> float:
         """Calculate daily extraterrestrial radiation (MJ/m^2/day).
@@ -250,4 +250,4 @@ class WaterBalanceModeler:
             * (ws * np.sin(lat_rad) * np.sin(dec) + np.cos(lat_rad) * np.cos(dec) * np.sin(ws))
         )
 
-        return max(0.0, ra / 2.45)
+        return float(max(0.0, ra / 2.45))

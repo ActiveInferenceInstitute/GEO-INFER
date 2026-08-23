@@ -11,7 +11,7 @@ Git platforms including GitHub, GitLab, Bitbucket, and local repositories.
 import os
 import time
 import logging
-from typing import Dict, List, Any, Optional, Union, Protocol
+from typing import Dict, List, Any, Optional, Union, Protocol, cast
 from dataclasses import dataclass
 from pathlib import Path
 import requests
@@ -180,7 +180,7 @@ class LocalRepository:
 class PlatformAPI(Protocol):
     """Protocol for Git platform API clients."""
 
-    def get_user_repositories(self, username: str, **kwargs) -> List[Any]:
+    def get_user_repositories(self, username: str, **kwargs: Any) -> List[Any]:
         """Get repositories for a user."""
         ...
 
@@ -202,9 +202,9 @@ class GitLabAPI:
     - Authentication management
     """
 
-    def __init__(self, token: str = None, api_url: str = "https://gitlab.com/api/v4",
+    def __init__(self, token: Optional[str] = None, api_url: str = "https://gitlab.com/api/v4",
                  wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0):
+                 retry_delay: float = 1.0) -> None:
         """
         Initialize GitLab API client.
 
@@ -233,7 +233,7 @@ class GitLabAPI:
                 'Private-Token': self.token
             })
 
-    def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
         """Make a request to GitLab API with error handling."""
         url = f"{self.api_url}{endpoint}"
 
@@ -263,10 +263,10 @@ class GitLabAPI:
                 logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
                 time.sleep(wait_time)
 
-    def get_user_repositories(self, username: str, include_repos: List[str] = None,
-                             exclude_repos: List[str] = None, max_repos: int = 100) -> List[GitLabRepository]:
+    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
+                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitLabRepository]:
         """Get repositories for a GitLab user."""
-        repositories = []
+        repositories: List[GitLabRepository] = []
         page = 1
         per_page = min(100, max_repos)
 
@@ -340,7 +340,7 @@ class GitLabAPI:
         """Check if GitLab credentials are valid."""
         try:
             response = self._make_request('GET', '/user')
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except requests.RequestException:
             return False
 
@@ -354,10 +354,10 @@ class BitbucketAPI:
     - Authentication management
     """
 
-    def __init__(self, username: str = None, app_password: str = None,
+    def __init__(self, username: Optional[str] = None, app_password: Optional[str] = None,
                  api_url: str = "https://api.bitbucket.org/2.0",
                  wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0):
+                 retry_delay: float = 1.0) -> None:
         """
         Initialize Bitbucket API client.
 
@@ -392,7 +392,7 @@ class BitbucketAPI:
                 'Authorization': f'Basic {encoded_auth}'
             })
 
-    def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
         """Make a request to Bitbucket API with error handling."""
         url = f"{self.api_url}{endpoint}"
 
@@ -411,10 +411,10 @@ class BitbucketAPI:
                 logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
                 time.sleep(wait_time)
 
-    def get_user_repositories(self, username: str, include_repos: List[str] = None,
-                             exclude_repos: List[str] = None, max_repos: int = 100) -> List[BitbucketRepository]:
+    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
+                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[BitbucketRepository]:
         """Get repositories for a Bitbucket user."""
-        repositories = []
+        repositories: List[BitbucketRepository] = []
         page = 1
         per_page = min(100, max_repos)
 
@@ -470,7 +470,7 @@ class BitbucketAPI:
         """Check if Bitbucket credentials are valid."""
         try:
             response = self._make_request('GET', '/user')
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except requests.RequestException:
             return False
 
@@ -484,15 +484,15 @@ class LocalGitAPI:
     - Managing local repository operations
     """
 
-    def __init__(self, base_paths: List[str] = None):
+    def __init__(self, base_paths: Optional[List[str]] = None) -> None:
         """
         Initialize local Git API client.
 
         Args:
             base_paths: List of base directories to search for repositories
         """
-        self.base_paths = base_paths or ['.']
-        self.base_paths = [Path(p).resolve() for p in self.base_paths]
+        raw_paths: List[str] = base_paths or ['.']
+        self.base_paths: List[Path] = [Path(p).resolve() for p in raw_paths]
 
     def discover_repositories(self, max_depth: int = 3) -> List[LocalRepository]:
         """
@@ -547,7 +547,7 @@ class MultiPlatformAPI:
     and local repositories.
     """
 
-    def __init__(self, platform_configs: Dict[str, Dict[str, Any]] = None):
+    def __init__(self, platform_configs: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
         """
         Initialize multi-platform API client.
 
@@ -555,7 +555,7 @@ class MultiPlatformAPI:
             platform_configs: Configuration for each platform
         """
         self.platform_configs = platform_configs or {}
-        self.clients = {}
+        self.clients: Dict[str, Any] = {}
 
         # Initialize platform clients
         self._initialize_clients()
@@ -582,7 +582,7 @@ class MultiPlatformAPI:
             local_config = self.platform_configs['local']
             self.clients['local'] = LocalGitAPI(**local_config)
 
-    def get_user_repositories(self, platform: str, username: str, **kwargs) -> List[Any]:
+    def get_user_repositories(self, platform: str, username: str, **kwargs: Any) -> List[Any]:
         """
         Get repositories for a user across platforms.
 
@@ -597,7 +597,7 @@ class MultiPlatformAPI:
         if platform not in self.clients:
             raise ValueError(f"Platform '{platform}' not configured")
 
-        client = self.clients[platform]
+        client = cast(PlatformAPI, self.clients[platform])
 
         if platform == 'github':
             return client.get_user_repositories(username, **kwargs)
@@ -607,7 +607,8 @@ class MultiPlatformAPI:
             return client.get_user_repositories(username, **kwargs)
         elif platform == 'local':
             # For local, username is ignored, just discover repositories
-            return client.discover_repositories(**kwargs)
+            local_client: Any = self.clients[platform]
+            return cast(List[Any], local_client.discover_repositories(**kwargs))
         else:
             raise ValueError(f"Unsupported platform: {platform}")
 
@@ -649,7 +650,7 @@ class MultiPlatformAPI:
         if platform not in self.clients:
             return False
 
-        client = self.clients[platform]
+        client = cast(PlatformAPI, self.clients[platform])
 
         if platform in ['github', 'gitlab', 'bitbucket']:
             return client.check_credentials()

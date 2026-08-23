@@ -188,7 +188,8 @@ def spatial_entropy(
     values: Optional[np.ndarray] = None,
     method: str = 'shannon',
     bins: Optional[Union[int, Tuple[int, int]]] = None,
-    bandwidth: Optional[float] = None
+    bandwidth: Optional[float] = None,
+    base: float = 2.0,
 ) -> float:
     """
     Calculate spatial entropy for point patterns or spatial data.
@@ -370,7 +371,7 @@ class EntropyCalculator:
         self,
         data: np.ndarray,
         method: str = 'shannon',
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate entropy for given data.
@@ -399,7 +400,7 @@ class EntropyCalculator:
         coordinates: np.ndarray,
         values: Optional[np.ndarray] = None,
         method: str = 'shannon',
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate spatial entropy.

@@ -98,13 +98,19 @@ class AgentVisualization:
         # Customize based on agent type
         if agent_type == AgentType.BDI:
             configs["map"].color = "#e74c3c"
-            configs["dashboard"].custom_props["widgets"].append("intentions")
+            dash_props = configs["dashboard"].custom_props
+            if dash_props is not None and "widgets" in dash_props:
+                dash_props["widgets"].append("intentions")
         elif agent_type == AgentType.ACTIVE_INFERENCE:
             configs["map"].color = "#f39c12"
-            configs["dashboard"].custom_props["widgets"].append("predictions")
+            dash_props = configs["dashboard"].custom_props
+            if dash_props is not None and "widgets" in dash_props:
+                dash_props["widgets"].append("predictions")
         elif agent_type == AgentType.RL:
             configs["map"].color = "#9b59b6"
-            configs["dashboard"].custom_props["widgets"].append("rewards")
+            dash_props = configs["dashboard"].custom_props
+            if dash_props is not None and "widgets" in dash_props:
+                dash_props["widgets"].append("rewards")
 
         return configs
 
@@ -177,37 +183,40 @@ class AgentVisualization:
         """
         configs = AgentVisualization.get_default_config(agent_state.agent_type)
         dash_config = configs["dashboard"]
+        custom_props = dash_config.custom_props or {}
+        widgets_list = custom_props.get("widgets", [])
 
-        dashboard_data = {
+        widgets_data: Dict[str, Any] = {}
+        dashboard_data: Dict[str, Any] = {
             "id": agent_state.agent_id,
             "type": agent_state.agent_type.value,
             "title": dash_config.title,
             "status": agent_state.status,
             "lastUpdated": agent_state.last_updated,
-            "widgets": {},
+            "widgets": widgets_data,
         }
 
         # Add data for each configured widget
-        if "status" in dash_config.custom_props["widgets"]:
-            dashboard_data["widgets"]["status"] = {
+        if "status" in widgets_list:
+            widgets_data["status"] = {
                 "title": "Status",
                 "value": agent_state.status,
             }
 
-        if "tasks" in dash_config.custom_props["widgets"] and agent_state.tasks:
-            dashboard_data["widgets"]["tasks"] = {
+        if "tasks" in widgets_list and agent_state.tasks:
+            widgets_data["tasks"] = {
                 "title": "Tasks",
                 "value": agent_state.tasks,
             }
 
-        if "beliefs" in dash_config.custom_props["widgets"] and agent_state.beliefs:
-            dashboard_data["widgets"]["beliefs"] = {
+        if "beliefs" in widgets_list and agent_state.beliefs:
+            widgets_data["beliefs"] = {
                 "title": "Beliefs",
                 "value": agent_state.beliefs,
             }
 
-        if "goals" in dash_config.custom_props["widgets"] and agent_state.goals:
-            dashboard_data["widgets"]["goals"] = {
+        if "goals" in widgets_list and agent_state.goals:
+            widgets_data["goals"] = {
                 "title": "Goals",
                 "value": agent_state.goals,
             }
@@ -215,30 +224,30 @@ class AgentVisualization:
         # Agent type specific widgets
         if (
             agent_state.agent_type == AgentType.BDI
-            and "intentions" in dash_config.custom_props["widgets"]
+            and "intentions" in widgets_list
         ):
             if agent_state.metadata and "intentions" in agent_state.metadata:
-                dashboard_data["widgets"]["intentions"] = {
+                widgets_data["intentions"] = {
                     "title": "Intentions",
                     "value": agent_state.metadata["intentions"],
                 }
 
         if (
             agent_state.agent_type == AgentType.ACTIVE_INFERENCE
-            and "predictions" in dash_config.custom_props["widgets"]
+            and "predictions" in widgets_list
         ):
             if agent_state.metadata and "predictions" in agent_state.metadata:
-                dashboard_data["widgets"]["predictions"] = {
+                widgets_data["predictions"] = {
                     "title": "Predictions",
                     "value": _json_safe(agent_state.metadata["predictions"]),
                 }
 
         if (
             agent_state.agent_type == AgentType.RL
-            and "rewards" in dash_config.custom_props["widgets"]
+            and "rewards" in widgets_list
         ):
             if agent_state.metadata and "rewards" in agent_state.metadata:
-                dashboard_data["widgets"]["rewards"] = {
+                widgets_data["rewards"] = {
                     "title": "Rewards",
                     "value": _json_safe(agent_state.metadata["rewards"]),
                 }

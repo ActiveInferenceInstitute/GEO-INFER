@@ -24,9 +24,9 @@ class DataSourceConfig:
     source_type: str  # 'file', 'api', 'database', 'web_service'
     format: str  # 'csv', 'json', 'geojson', 'xlsx', 'api'
     location: str  # file path or URL
-    parameters: Dict[str, Any] = None
-    authentication: Dict[str, str] = None
-    cache_settings: Dict[str, Any] = None
+    parameters: Optional[Dict[str, Any]] = None
+    authentication: Optional[Dict[str, str]] = None
+    cache_settings: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -56,14 +56,14 @@ class EconomicDataLoader:
         """
         self.logger = logging.getLogger(__name__)
         self.config = config or {}
-        self.data_sources = {}
-        self.cache = {}
-        self.validation_rules = {}
+        self.data_sources: Dict[str, DataSourceConfig] = {}
+        self.cache: Dict[str, Any] = {}
+        self.validation_rules: Dict[str, Any] = {}
 
         # Setup default configurations
         self._setup_default_configs()
 
-    def _setup_default_configs(self):
+    def _setup_default_configs(self) -> None:
         """Setup default configurations for data loading."""
         self.default_cache_dir = Path(self.config.get("cache_dir", "./cache"))
         self.default_cache_dir.mkdir(exist_ok=True)
@@ -303,7 +303,7 @@ class EconomicDataLoader:
             import time
 
             age_hours = (time.time() - cache_file.stat().st_mtime) / 3600
-            return age_hours < max_age
+            return bool(age_hours < max_age)
 
         return False
 
@@ -395,7 +395,7 @@ class EconomicDataLoader:
         return actual_type == expected_type
 
     def preprocess_economic_data(
-        self, data: pd.DataFrame, preprocessing_steps: List[str] = None
+        self, data: pd.DataFrame, preprocessing_steps: Optional[List[str]] = None
     ) -> pd.DataFrame:
         """
         Preprocess economic data with common cleaning and transformation steps.
@@ -498,7 +498,7 @@ class EconomicDataLoader:
         return merged_data
 
     def export_economic_data(
-        self, data: pd.DataFrame, file_path: Path, format: str = "csv", **kwargs
+        self, data: pd.DataFrame, file_path: Path, format: str = "csv", **kwargs: Any
     ) -> None:
         """
         Export economic data to various formats.
@@ -529,7 +529,7 @@ class EconomicDataLoader:
 
 
 # Example usage and testing functions
-def example_data_loading():
+def example_data_loading() -> EconomicDataLoader:
     """
     Example usage of the EconomicDataLoader
     """

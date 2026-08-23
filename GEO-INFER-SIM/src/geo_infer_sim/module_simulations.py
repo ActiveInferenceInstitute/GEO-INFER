@@ -805,7 +805,7 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         engagement_history = []
-        participation_history = {group: [] for group in stakeholder_groups}
+        participation_history: Dict[str, List[int]] = {group: [] for group in stakeholder_groups}
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate engagement events
@@ -949,7 +949,7 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        message_history = {channel: [] for channel in communication_channels}
+        message_history: Dict[str, List[int]] = {channel: [] for channel in communication_channels}
         engagement_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1161,7 +1161,7 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        commit_history = {commit_type: [] for commit_type in commit_rates.keys()}
+        commit_history: Dict[str, List[int]] = {commit_type: [] for commit_type in commit_rates.keys()}
         branch_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1388,7 +1388,7 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        sensor_data_history = {network: [] for network in sensor_networks}
+        sensor_data_history: Dict[str, List[float]] = {network: [] for network in sensor_networks}
         data_quality_scores = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1615,7 +1615,7 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        metric_history = {metric: [] for metric in system_metrics.keys()}
+        metric_history: Dict[str, List[float]] = {metric: [] for metric in system_metrics.keys()}
         health_scores = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1769,7 +1769,7 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         satisfaction_history = []
-        skill_coverage = {skill: [] for skill in skill_requirements}
+        skill_coverage: Dict[str, List[float]] = {skill: [] for skill in skill_requirements}
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate people management

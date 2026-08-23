@@ -10,7 +10,7 @@ NumPy and the Python standard library for zero-dependency fallback.
 import logging
 import struct
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import numpy as np
 
@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 # Optional dependency: laspy
 # ---------------------------------------------------------------------------
 try:
-    import laspy
+    import laspy  # type: ignore[import-untyped]
     HAS_LASPY = True
 except ImportError:
-    laspy = None  # type: ignore[assignment]
+    laspy = None
     HAS_LASPY = False
     logger.debug(
         "laspy is not installed. LAS/LAZ support is unavailable. "
@@ -264,7 +264,9 @@ class PointCloudReader:
             if ply_format == 'ascii':
                 raw_data = np.loadtxt(fh, dtype=np_dtype, max_rows=vertex_count)
             elif ply_format in ('binary_little_endian', 'binary_big_endian'):
-                endian = '<' if ply_format == 'binary_little_endian' else '>'
+                endian: Literal['<', '>'] = (
+                    '<' if ply_format == 'binary_little_endian' else '>'
+                )
                 np_dtype_endian = np_dtype.newbyteorder(endian)
                 raw_data = np.frombuffer(
                     fh.read(np_dtype_endian.itemsize * vertex_count),
@@ -803,10 +805,10 @@ class PointCloudWriter:
         if classifications is not None:
             vertices['classification'] = np.asarray(classifications, dtype=np.uint8)
         if colors is not None:
-            c = np.asarray(colors, dtype=np.uint8)
-            vertices['red'] = c[:, 0]
-            vertices['green'] = c[:, 1]
-            vertices['blue'] = c[:, 2]
+            color_array = np.asarray(colors, dtype=np.uint8)
+            vertices['red'] = color_array[:, 0]
+            vertices['green'] = color_array[:, 1]
+            vertices['blue'] = color_array[:, 2]
 
         with open(file_path, 'wb') as fh:
             fh.write(header_str.encode('ascii'))

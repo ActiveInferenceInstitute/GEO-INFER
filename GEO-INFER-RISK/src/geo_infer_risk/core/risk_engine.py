@@ -26,7 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
 from scipy import stats
@@ -52,8 +52,12 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.interpolation import InterpolationManager
-    from geo_infer_math.core.spatial_statistics import MoranI
+    from geo_infer_math.core.interpolation import (  # type: ignore[import-untyped]
+        InterpolationManager,
+    )
+    from geo_infer_math.core.spatial_statistics import (  # type: ignore[import-untyped]
+        MoranI,
+    )
 
     MATH_AVAILABLE = True
 except ImportError:
@@ -62,7 +66,9 @@ except ImportError:
     InterpolationManager = None
 
 try:
-    from geo_infer_bayes.core.inference import BayesianInference
+    from geo_infer_bayes.core.inference import (  # type: ignore[import-untyped]
+        BayesianInference,
+    )
 
     BAYES_AVAILABLE = True
 except ImportError:
@@ -128,6 +134,11 @@ class EnhancedRiskEngine:
     - Model calibration and validation
     - Advanced spatial and temporal analysis
     """
+
+    # Runtime-integration singletons; typed Optional[Any] so mypy does not
+    # collapse them to None (they are populated at runtime if modules present).
+    spatial_interface: Optional[Any] = None
+    temporal_interface: Optional[Any] = None
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
@@ -415,16 +426,14 @@ class EnhancedRiskEngine:
         self._load_configured_models()
 
         # Run spatial analysis if available
+        spatial_results: Dict[str, Any] = {}
         if self.spatial_interface:
             spatial_results = self._run_spatial_analysis(**kwargs)
-        else:
-            spatial_results: Dict[str, Any] = {}
 
         # Run temporal analysis if available
+        temporal_results: Dict[str, Any] = {}
         if self.temporal_interface:
             temporal_results = self._run_temporal_analysis(**kwargs)
-        else:
-            temporal_results: Dict[str, Any] = {}
 
         # Report the configured core models. Monte Carlo simulation is opt-in so
         # an analysis without event and exposure data cannot present fabricated
@@ -450,7 +459,7 @@ class EnhancedRiskEngine:
         }
         if kwargs.get("run_monte_carlo", False):
             results["monte_carlo"] = self.run_monte_carlo_analysis(
-                num_iterations=kwargs.get("monte_carlo_iterations"),
+                num_iterations=int(kwargs.get("monte_carlo_iterations", 1000)),
                 convergence_threshold=kwargs.get("convergence_threshold", 0.01),
             )
         return results
@@ -500,6 +509,8 @@ class EnhancedRiskEngine:
                     "spatial_indexing": "h3" if self.spatial_interface else "none",
                 }
 
+            return {}
+
         except Exception as e:
             self.logger.warning(f"Spatial analysis failed: {e}")
             return {}
@@ -534,7 +545,7 @@ class EnhancedRiskEngine:
             dev = vals - mean_val
 
             # Distance-based spatial weights (inverse distance)
-            from scipy.spatial.distance import pdist, squareform  # type: ignore
+            from scipy.spatial.distance import pdist, squareform
 
             dists = squareform(pdist(coords_arr))
             np.fill_diagonal(dists, np.inf)
@@ -597,7 +608,7 @@ class EnhancedRiskEngine:
                 slope = 0.0
 
             # Seasonal: group by month index (mod 12)
-            seasonal = {}
+            seasonal: Dict[int, List[Any]] = {}
             for i, v in enumerate(values):
                 month = i % 12
                 seasonal.setdefault(month, []).append(v)
@@ -638,9 +649,9 @@ class EnhancedRiskEngine:
         self,
         job_id: str,
         status: str,
-        progress: float = None,
-        results: Dict = None,
-        error_message: str = None,
+        progress: Optional[float] = None,
+        results: Optional[Dict[str, Any]] = None,
+        error_message: Optional[str] = None,
     ) -> None:
         """Update job status and progress."""
         if job_id not in self.active_jobs:
@@ -735,6 +746,39 @@ class EnhancedRiskEngine:
         self._ensure_open()
         return self.catastrophe_manager.calculate_compound_exceedance_probability(
             exceedance_probabilities, hazard_sequence
+        )
+
+    def calculate_joint_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequences: Sequence[Sequence[str]],
+    ) -> float:
+        """Estimate the union exceedance across several compound paths."""
+        self._ensure_open()
+        return self.catastrophe_manager.joint_exceedance_probability(
+            exceedance_probabilities, hazard_sequences
+        )
+
+    def get_branch_exceedance_probabilities(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Dict[Tuple[str, ...], float]:
+        """Enumerate directed compound paths and their joint probabilities."""
+        self._ensure_open()
+        return self.catastrophe_manager.branch_exceedance_probabilities(
+            exceedance_probabilities, max_path_length
+        )
+
+    def get_dominant_hazard_path(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Tuple[Tuple[str, ...], float]:
+        """Return the compound path with the largest joint exceedance."""
+        self._ensure_open()
+        return self.catastrophe_manager.dominant_exceedance_path(
+            exceedance_probabilities, max_path_length
         )
 
     def calibrate_models(
@@ -834,7 +878,7 @@ class EnhancedRiskEngine:
         }
 
     def run_monte_carlo_analysis(
-        self, num_iterations: int = None, convergence_threshold: float = 0.01
+        self, num_iterations: Optional[int] = None, convergence_threshold: float = 0.01
     ) -> Dict[str, Any]:
         """
         Run advanced Monte Carlo analysis with convergence monitoring.
@@ -968,7 +1012,7 @@ class EnhancedRiskEngine:
                     f"Hazard catalogue for {hazard_type} has no usable intensity column"
                 )
             event["magnitude"] = event[intensity_column]
-        return event
+        return cast(Dict[str, Any], event)
 
     def _calculate_event_loss(self, event: Dict[str, Any]) -> float:
         """Calculate loss using configured exposure and vulnerability models."""

@@ -8,11 +8,11 @@ configuration files for the GEO-INFER-RISK module.
 import json
 import os
 import logging
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, cast
 from pathlib import Path
 import yaml
 
-from .validation import validate_config
+from .validation import validate_config, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ class ConfigurationLoader:
             schema_path: Path to JSON schema for validation
         """
         self.schema_path = schema_path
-        self._config_cache = {}
-        self._validation_cache = {}
+        self._config_cache: Dict[str, Any] = {}
+        self._validation_cache: Dict[str, ValidationResult] = {}
 
     def load_config(
         self,
@@ -69,7 +69,7 @@ class ConfigurationLoader:
 
             # Check cache
             if use_cache and cache_key in self._config_cache:
-                return self._config_cache[cache_key]
+                return cast(Dict[str, Any], self._config_cache[cache_key])
 
             # Load from file
             config = self._load_config_file(config_path)
@@ -91,10 +91,10 @@ class ConfigurationLoader:
         try:
             if suffix in [".yaml", ".yml"]:
                 with open(config_path, "r") as f:
-                    return yaml.safe_load(f)
+                    return cast(Dict[str, Any], yaml.safe_load(f))
             elif suffix == ".json":
                 with open(config_path, "r") as f:
-                    return json.load(f)
+                    return cast(Dict[str, Any], json.load(f))
             else:
                 raise ValueError(f"Unsupported configuration file format: {suffix}")
 
@@ -149,7 +149,7 @@ class ConfigurationLoader:
     def load_config_with_defaults(
         self,
         config_path: Optional[Union[str, Path, Dict[str, Any]]] = None,
-        **overrides,
+        **overrides: Any,
     ) -> Dict[str, Any]:
         """
         Load configuration with default values and optional overrides.
@@ -488,7 +488,7 @@ def load_config(
 
 
 def load_config_with_defaults(
-    config_path: Optional[Union[str, Path, Dict[str, Any]]] = None, **overrides
+    config_path: Optional[Union[str, Path, Dict[str, Any]]] = None, **overrides: Any
 ) -> Dict[str, Any]:
     """
     Load configuration with default values and optional overrides.

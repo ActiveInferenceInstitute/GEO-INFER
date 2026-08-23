@@ -10,11 +10,25 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    cast,
+)
 from enum import Enum
 from collections import defaultdict
 
 from .detector import BoundaryDetector, BoundarySegment, BoundaryType, BoundaryDetectionMethod
+
+if TYPE_CHECKING:
+    from ..core.nested_grid import NestedH3Grid
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +85,11 @@ class BoundaryFlow:
     created_at: datetime = field(default_factory=datetime.now)
     last_updated: datetime = field(default_factory=datetime.now)
     
-    def update_flow(self, new_rate: float, flow_data: Optional[Dict[str, Any]] = None):
+    def update_flow(
+        self,
+        new_rate: float,
+        flow_data: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Update flow rate and data."""
         # Apply constraints
         if self.max_flow_rate is not None:
@@ -113,7 +131,7 @@ class BoundaryConstraint:
         
         if self.validation_function:
             try:
-                return self.validation_function(value, self.parameters)
+                return cast(bool, self.validation_function(value, self.parameters))
             except Exception as e:
                 logger.warning(f"Constraint validation failed: {e}")
                 return False
@@ -133,7 +151,7 @@ class H3BoundaryManager:
     - Dynamic boundary monitoring
     """
     
-    def __init__(self, name: str = "H3BoundaryManager"):
+    def __init__(self, name: str = "H3BoundaryManager") -> None:
         """
         Initialize boundary manager.
         
@@ -165,8 +183,14 @@ class H3BoundaryManager:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
     
-    def detect_boundaries(self, nested_grid, method: BoundaryDetectionMethod = BoundaryDetectionMethod.NEIGHBOR_ANALYSIS,
-                         **kwargs) -> Dict[str, List[BoundarySegment]]:
+    def detect_boundaries(
+        self,
+        nested_grid: "NestedH3Grid",
+        method: BoundaryDetectionMethod = (
+            BoundaryDetectionMethod.NEIGHBOR_ANALYSIS
+        ),
+        **kwargs: Any,
+    ) -> Dict[str, List[BoundarySegment]]:
         """
         Detect boundaries in nested grid systems.
         
@@ -234,7 +258,7 @@ class H3BoundaryManager:
         split_positions.sort()
         
         # Create new segments
-        new_segments = []
+        new_segments: List[BoundarySegment] = []
         start_idx = 0
         
         for split_pos in split_positions + [len(cell_indices)]:
@@ -337,8 +361,13 @@ class H3BoundaryManager:
         
         return merged_boundary
     
-    def create_flow(self, source_system: str, target_system: str, 
-                   flow_type: str = "generic", **kwargs) -> BoundaryFlow:
+    def create_flow(
+        self,
+        source_system: str,
+        target_system: str,
+        flow_type: str = "generic",
+        **kwargs: Any,
+    ) -> BoundaryFlow:
         """
         Create a flow between two systems.
         
@@ -374,7 +403,7 @@ class H3BoundaryManager:
         return flow
     
     def update_flow(self, flow_id: str, new_rate: float, 
-                   flow_data: Optional[Dict[str, Any]] = None):
+                   flow_data: Optional[Dict[str, Any]] = None) -> None:
         """
         Update flow rate and data.
         
@@ -462,7 +491,13 @@ class H3BoundaryManager:
         
         if permeability_constraints:
             # Use most restrictive constraint
-            return min(c.parameters.get("permeability", 1.0) for c in permeability_constraints)
+            return cast(
+                float,
+                min(
+                    c.parameters.get("permeability", 1.0)
+                    for c in permeability_constraints
+                ),
+            )
         
         # Default permeability based on boundary type
         type_permeability = {
@@ -526,12 +561,12 @@ class H3BoundaryManager:
         total_constraints = len(self.constraints)
         
         # Boundary type distribution
-        type_counts = defaultdict(int)
+        type_counts: Dict[str, int] = defaultdict(int)
         for boundary in self.boundaries.values():
             type_counts[boundary.boundary_type.value] += 1
         
         # Flow type distribution
-        flow_type_counts = defaultdict(int)
+        flow_type_counts: Dict[str, int] = defaultdict(int)
         for flow in self.flows.values():
             flow_type_counts[flow.flow_type] += 1
         
@@ -553,7 +588,7 @@ class H3BoundaryManager:
             'updated_at': self.updated_at.isoformat()
         }
     
-    def _remove_boundary(self, boundary_id: str):
+    def _remove_boundary(self, boundary_id: str) -> None:
         """Remove a boundary and clean up relationships."""
         if boundary_id not in self.boundaries:
             return
@@ -583,7 +618,11 @@ class H3BoundaryManager:
         for constraint_id in constraints_to_remove:
             del self.constraints[constraint_id]
     
-    def _record_boundary_operation(self, operation: BoundaryOperation, details: Dict[str, Any]):
+    def _record_boundary_operation(
+        self,
+        operation: BoundaryOperation,
+        details: Dict[str, Any],
+    ) -> None:
         """Record boundary operation in history."""
         record = {
             'operation': operation.value,
@@ -601,4 +640,3 @@ class H3BoundaryManager:
         if 'new_segments' in details:
             for segment_id in details['new_segments']:
                 self.boundary_history[segment_id].append(record)
-

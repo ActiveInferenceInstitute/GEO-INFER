@@ -5,7 +5,7 @@ This module provides FastAPI endpoints for route optimization functionality.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Dict, Optional, Tuple
+from typing import Any, List, Dict, Optional, Tuple, cast
 from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
@@ -36,11 +36,11 @@ class RouteRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "origin": (13.404954, 52.520008),  # Berlin
-                "destination": (11.576124, 48.137154),  # Munich
+                "origin": [13.404954, 52.520008],  # Berlin
+                "destination": [11.576124, 48.137154],  # Munich
                 "waypoints": [
-                    (9.993682, 53.551086),  # Hamburg
-                    (8.682127, 50.110924),  # Frankfurt
+                    [9.993682, 53.551086],  # Hamburg
+                    [8.682127, 50.110924],  # Frankfurt
                 ],
                 "parameters": {
                     "weight_factor": "time",
@@ -69,7 +69,7 @@ class VehicleRegistration(BaseModel):
                     "speed": 80,
                     "cost_per_km": 1.2,
                     "emissions_per_km": 0.8,
-                    "location": (13.404954, 52.520008),
+                    "location": [13.404954, 52.520008],
                     "fuel_type": "diesel",
                     "fuel_capacity": 200,
                     "fuel_level": 150,
@@ -92,19 +92,19 @@ class VRPRequest(BaseModel):
             "example": {
                 "depot": {
                     "name": "Berlin Warehouse",
-                    "coordinates": (13.404954, 52.520008),
+                    "coordinates": [13.404954, 52.520008],
                     "type": "depot",
                 },
                 "deliveries": [
                     {
                         "name": "Customer A",
-                        "coordinates": (13.5, 52.5),
+                        "coordinates": [13.5, 52.5],
                         "type": "customer",
                         "service_time": 15,
                     },
                     {
                         "name": "Customer B",
-                        "coordinates": (13.4, 52.4),
+                        "coordinates": [13.4, 52.4],
                         "type": "customer",
                         "service_time": 10,
                     },
@@ -118,7 +118,7 @@ class VRPRequest(BaseModel):
                         "speed": 80,
                         "cost_per_km": 1.2,
                         "emissions_per_km": 0.8,
-                        "location": (13.404954, 52.520008),
+                        "location": [13.404954, 52.520008],
                     }
                 ],
                 "constraints": {"max_route_duration": 480, "max_stops_per_route": 20},
@@ -128,19 +128,19 @@ class VRPRequest(BaseModel):
 
 
 # Get a route optimizer instance
-def get_route_optimizer():
+def get_route_optimizer() -> RouteOptimizer:
     """Dependency for route optimizer."""
     return RouteOptimizer()
 
 
 # Get a fleet manager instance
-def get_fleet_manager():
+def get_fleet_manager() -> FleetManager:
     """Dependency for fleet manager."""
     return FleetManager()
 
 
 # Get a vehicle router instance
-def get_vehicle_router():
+def get_vehicle_router() -> VehicleRouter:
     """Dependency for vehicle router."""
     fleet_manager = get_fleet_manager()
     return VehicleRouter(fleet_manager)
@@ -149,12 +149,12 @@ def get_vehicle_router():
 @router.post("/optimize", response_model=Dict)
 async def optimize_route(
     request: RouteRequest, optimizer: RouteOptimizer = Depends(get_route_optimizer)
-):
+) -> Dict:
     """Optimize a route between origin and destination."""
     try:
         # Apply parameters if provided
         if request.parameters:
-            optimizer.parameters = request.parameters
+            optimizer.parameters = cast(Any, request.parameters)
 
         # Optimize route
         route = optimizer.optimize_route(
@@ -172,10 +172,10 @@ async def optimize_route(
 async def register_vehicle(
     registration: VehicleRegistration,
     fleet_manager: FleetManager = Depends(get_fleet_manager),
-):
+) -> Dict:
     """Register a vehicle with the fleet manager."""
     try:
-        fleet_manager.add_vehicle(registration.vehicle)
+        fleet_manager.add_vehicle(cast(Any, registration.vehicle))
         return {
             "status": "success",
             "message": f"Vehicle {registration.vehicle.id} registered",
@@ -187,12 +187,12 @@ async def register_vehicle(
 @router.post("/vrp", response_model=Dict)
 async def solve_vrp(
     request: VRPRequest, router: VehicleRouter = Depends(get_vehicle_router)
-):
+) -> Dict:
     """Solve a vehicle routing problem."""
     try:
         # Register vehicles with fleet manager
         for vehicle in request.vehicles:
-            router.fleet_manager.add_vehicle(vehicle)
+            router.fleet_manager.add_vehicle(cast(Any, vehicle))
 
         # Solve VRP
         result = router.solve_vrp(
@@ -207,7 +207,9 @@ async def solve_vrp(
 
 
 @router.get("/vehicles", response_model=List[Vehicle])
-async def get_vehicles(fleet_manager: FleetManager = Depends(get_fleet_manager)):
+async def get_vehicles(
+    fleet_manager: FleetManager = Depends(get_fleet_manager),
+) -> List[Any]:
     """Get all registered vehicles."""
     try:
         return list(fleet_manager.vehicles.values())

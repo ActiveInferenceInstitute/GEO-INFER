@@ -230,7 +230,7 @@ class H3AggregationEngine:
     various aggregation scopes.
     """
     
-    def __init__(self, name: str = "H3AggregationEngine"):
+    def __init__(self, name: str = "H3AggregationEngine") -> None:
         """
         Initialize aggregation engine.
         
@@ -282,8 +282,13 @@ class H3AggregationEngine:
             return True
         return False
     
-    def aggregate_data(self, nested_grid, system_id: Optional[str] = None,
-                      rule_ids: Optional[List[str]] = None, **kwargs) -> AggregationResult:
+    def aggregate_data(
+        self,
+        nested_grid: Any,
+        system_id: Optional[str] = None,
+        rule_ids: Optional[List[str]] = None,
+        **kwargs: Any,
+    ) -> AggregationResult:
         """
         Aggregate data in a nested grid system.
         
@@ -326,7 +331,7 @@ class H3AggregationEngine:
         rules_to_apply.sort(key=lambda r: r.priority, reverse=True)
         
         # Apply aggregation rules
-        aggregated_data = {}
+        aggregated_data: Dict[str, Dict[str, Any]] = {}
         rules_applied = []
         rules_succeeded = 0
         rules_failed = 0
@@ -470,8 +475,12 @@ class H3AggregationEngine:
         
         return results
     
-    def _aggregate_by_boundary(self, cells: List, rule: AggregationRule, 
-                              nested_grid) -> Dict[str, Dict[str, Any]]:
+    def _aggregate_by_boundary(
+        self,
+        cells: List[Any],
+        rule: AggregationRule,
+        nested_grid: Any,
+    ) -> Dict[str, Dict[str, Any]]:
         """Aggregate data by boundary regions."""
         boundary_distance = rule.scope_parameters.get('boundary_distance', 1)
         
@@ -479,8 +488,12 @@ class H3AggregationEngine:
         # For now, fall back to neighbor-based aggregation
         return self._aggregate_by_neighbors(cells, rule)
     
-    def _aggregate_hierarchical(self, cells: List, rule: AggregationRule,
-                               nested_grid) -> Dict[str, Dict[str, Any]]:
+    def _aggregate_hierarchical(
+        self,
+        cells: List[Any],
+        rule: AggregationRule,
+        nested_grid: Any,
+    ) -> Dict[str, Dict[str, Any]]:
         """Aggregate data hierarchically."""
         if not H3_AVAILABLE:
             logger.warning("h3-py required for hierarchical aggregation")
@@ -571,4 +584,3 @@ class H3AggregationEngine:
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
-

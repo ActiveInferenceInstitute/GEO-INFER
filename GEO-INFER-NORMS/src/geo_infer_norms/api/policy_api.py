@@ -205,16 +205,23 @@ class PolicyAPI:
             policy_impact_analyzer: Optional PolicyImpactAnalyzer instance to use
             regulatory_impact_assessment: Optional RegulatoryImpactAssessment instance to use
         """
-        self.policy_impact_analyzer = policy_impact_analyzer or PolicyImpactAnalyzer()
+        self.policy_impact_analyzer = policy_impact_analyzer or PolicyImpactAnalyzer(
+            policy={}, context_data={}
+        )
         self.regulatory_impact_assessment = (
-            regulatory_impact_assessment or RegulatoryImpactAssessment()
+            regulatory_impact_assessment
+            or RegulatoryImpactAssessment(
+                regulation={},
+                affected_entities=gpd.GeoDataFrame(),
+                baseline_data={},
+            )
         )
         self.router = APIRouter()
         self._setup_routes()
 
         # Temporary storage for policies and implementations
-        self._policies = {}
-        self._implementations = {}
+        self._policies: Dict[str, Policy] = {}
+        self._implementations: Dict[str, PolicyImplementation] = {}
         self._regulations: Dict[str, Dict[str, Any]] = {}
 
     def _setup_routes(self) -> None:
@@ -372,8 +379,9 @@ class PolicyAPI:
                 id=policy_id,
                 name=policy_data.name,
                 description=policy_data.description or "",
+                policy_type=policy_data.category or "",
                 category=policy_data.category,
-                issuing_authority=policy_data.issuing_authority,
+                issuing_authority=policy_data.issuing_authority or "",
                 effective_date=policy_data.effective_date,
                 expiration_date=policy_data.expiration_date,
                 jurisdiction_ids=policy_data.jurisdiction_ids,
@@ -501,6 +509,8 @@ class PolicyAPI:
                 policy_id=implementation_data.policy_id,
                 name=implementation_data.name,
                 description=implementation_data.description or "",
+                implementation_status=implementation_data.status or "planned",
+                implementing_entity_id=implementation_data.jurisdiction_id or "",
                 start_date=implementation_data.start_date,
                 end_date=implementation_data.end_date,
                 jurisdiction_id=implementation_data.jurisdiction_id,
@@ -663,7 +673,7 @@ class PolicyAPI:
 
             # Generate deterministic assessment results based on type
             if assessment_request.assessment_type == "environmental":
-                metrics = {
+                metrics: Dict[str, Any] = {
                     "water_quality_improvement": {"value": 25, "unit": "percent"},
                     "carbon_sequestration": {"value": 150, "unit": "tons/year"},
                     "habitat_improvement": {"value": 18, "unit": "hectares"},

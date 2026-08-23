@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def terrain_analysis(
     dem_path: str,
     output_dir: str,
-    analyses: List[str] = None
+    analyses: Optional[List[str]] = None
 ) -> Dict[str, str]:
     """
     Perform comprehensive terrain analysis on a Digital Elevation Model.
@@ -226,7 +226,7 @@ def focal_statistics(
 def zonal_statistics(
     raster_path: str,
     zones_gdf: gpd.GeoDataFrame,
-    statistics: List[str] = None
+    statistics: Optional[List[str]] = None
 ) -> gpd.GeoDataFrame:
     """
     Calculate zonal statistics for raster values within polygon zones.
@@ -328,6 +328,7 @@ def raster_overlay(
             elif method == 'min':
                 result = np.minimum(result, data)
             elif method == 'weighted_sum':
+                assert weights is not None
                 if i == 1:  # Reset for weighted sum
                     result = result * weights[0] + data * weights[1]
                 else:
@@ -335,6 +336,7 @@ def raster_overlay(
     
     # Apply initial weight for a single weighted raster.
     if method == 'weighted_sum' and len(raster_paths) == 1:
+        assert weights is not None
         result *= weights[0]
     
     # Write output
@@ -349,7 +351,7 @@ def image_processing(
     raster_path: str,
     output_path: str,
     operation: str,
-    **kwargs
+    **kwargs: Any
 ) -> str:
     """
     Perform image processing operations on raster data.

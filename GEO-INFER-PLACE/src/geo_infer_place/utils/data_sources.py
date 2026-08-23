@@ -57,7 +57,7 @@ class CaliforniaDataSources:
         >>> available_data = sources.discover_available_data('del_norte_county')
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize California data sources catalog."""
         self.sources = self._initialize_data_sources()
         self.source_categories = self._categorize_sources()
@@ -341,7 +341,7 @@ class CaliforniaDataSources:
         
     def _categorize_sources(self) -> Dict[str, List[str]]:
         """Organize data sources by category."""
-        categories = {
+        categories: Dict[str, List[str]] = {
             'fire': [],
             'forestry': [],
             'coastal': [],
@@ -463,8 +463,8 @@ class CaliforniaDataSources:
         return results
         
     def get_sources_for_location(self, 
-                               location_bounds: Tuple[float, float, float, float],
-                               location_name: str = None) -> Dict[str, List[DataSource]]:
+                              location_bounds: Tuple[float, float, float, float],
+                              location_name: Optional[str] = None) -> Dict[str, List[DataSource]]:
         """
         Get relevant data sources for a specific location.
         
@@ -490,7 +490,7 @@ class CaliforniaDataSources:
         # Determine if location is northern California
         is_northern = north > 37.0
         
-        relevant_sources = {
+        relevant_sources: Dict[str, List[DataSource]] = {
             'high_priority': [],
             'medium_priority': [],
             'low_priority': []
@@ -620,7 +620,7 @@ class CaliforniaDataSources:
         Returns:
             Dictionary with update frequencies as keys and source lists as values
         """
-        schedule = {}
+        schedule: Dict[str, List[str]] = {}
         
         for source_id, source in self.sources.items():
             frequency = source.update_frequency
@@ -635,7 +635,7 @@ class CaliforniaDataSources:
             'annually', 'biennially', 'varies by dataset'
         ]
         
-        ordered_schedule = {}
+        ordered_schedule: Dict[str, List[str]] = {}
         for freq in frequency_order:
             if freq in schedule:
                 ordered_schedule[freq] = schedule[freq]
@@ -657,7 +657,7 @@ class CaliforniaDataSources:
         total_sources = len(self.sources)
         
         # Count by access method
-        access_methods = {}
+        access_methods: Dict[str, int] = {}
         for source in self.sources.values():
             method = source.access_method
             access_methods[method] = access_methods.get(method, 0) + 1
@@ -666,7 +666,7 @@ class CaliforniaDataSources:
         api_key_required = sum(1 for source in self.sources.values() if source.api_key_required)
         
         # Count by license type
-        license_types = {}
+        license_types: Dict[str, int] = {}
         for source in self.sources.values():
             license_type = source.license_type
             license_types[license_type] = license_types.get(license_type, 0) + 1

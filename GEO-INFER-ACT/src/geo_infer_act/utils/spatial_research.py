@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 
 import numpy as np
 
@@ -114,19 +114,19 @@ def apply_spatial_agent_research_profile(
 
 
 def build_spatial_research_statistics(
-    cell_rows: List[Mapping[str, Any]],
-    edge_rows: List[Mapping[str, Any]],
-    level_rows: List[Mapping[str, Any]],
-    parent_child_rows: Optional[List[Mapping[str, Any]]] = None,
+    cell_rows: Sequence[Mapping[str, Any]],
+    edge_rows: Sequence[Mapping[str, Any]],
+    level_rows: Sequence[Mapping[str, Any]],
+    parent_child_rows: Optional[Sequence[Mapping[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Return JSON-safe run statistics for spatial H3 trace diagnostics."""
     parent_child_rows = list(parent_child_rows or [])
-    leaf_rows = [
+    leaf_rows: Sequence[Mapping[str, Any]] = [
         dict(row)
         for row in cell_rows
         if not _truthy(row.get("aggregate_parent_cell", False))
     ]
-    parent_rows = [
+    parent_rows: Sequence[Mapping[str, Any]] = [
         dict(row)
         for row in cell_rows
         if _truthy(row.get("aggregate_parent_cell", False))
@@ -269,7 +269,7 @@ def statistics_summary_rows(statistics: Mapping[str, Any]) -> List[Dict[str, Any
 
 
 def _graph_statistics(
-    leaf_rows: List[Mapping[str, Any]], edge_rows: List[Mapping[str, Any]]
+    leaf_rows: Sequence[Mapping[str, Any]], edge_rows: Sequence[Mapping[str, Any]]
 ) -> Dict[str, float]:
     entropy_by_cell_time = {
         (str(row.get("cell")), _int(row.get("timestep"))): _float(row.get("entropy"))
@@ -308,9 +308,9 @@ def _graph_statistics(
 
 
 def _nested_statistics(
-    parent_child_rows: List[Mapping[str, Any]],
-    parent_rows: List[Mapping[str, Any]],
-    level_rows: List[Mapping[str, Any]],
+    parent_child_rows: Sequence[Mapping[str, Any]],
+    parent_rows: Sequence[Mapping[str, Any]],
+    level_rows: Sequence[Mapping[str, Any]],
 ) -> Dict[str, Any]:
     residuals = _numeric_values(parent_child_rows, "cross_level_residual")
     consistency = _numeric_values(parent_child_rows, "cross_level_consistency")
@@ -350,8 +350,8 @@ def _nested_statistics(
 
 
 def _moran_proxy(
-    rows: List[Mapping[str, Any]],
-    edge_rows: List[Mapping[str, Any]],
+    rows: Sequence[Mapping[str, Any]],
+    edge_rows: Sequence[Mapping[str, Any]],
     metric: str,
 ) -> float:
     by_time: Dict[int, Dict[str, float]] = defaultdict(dict)
@@ -382,7 +382,7 @@ def _moran_proxy(
     return _mean(values)
 
 
-def _policy_switch_count(rows: List[Mapping[str, Any]]) -> int:
+def _policy_switch_count(rows: Sequence[Mapping[str, Any]]) -> int:
     by_cell: Dict[str, List[Mapping[str, Any]]] = defaultdict(list)
     for row in rows:
         by_cell[str(row.get("cell"))].append(row)
@@ -399,7 +399,7 @@ def _policy_switch_count(rows: List[Mapping[str, Any]]) -> int:
     return switches
 
 
-def _temporal_slope(rows: List[Mapping[str, Any]], metric: str) -> float:
+def _temporal_slope(rows: Sequence[Mapping[str, Any]], metric: str) -> float:
     by_time: Dict[int, List[float]] = defaultdict(list)
     for row in rows:
         value = _maybe_float(row.get(metric))

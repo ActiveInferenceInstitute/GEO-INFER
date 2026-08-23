@@ -9,7 +9,7 @@ Preprocessing steps ensure data quality and compatibility with SPM statistical m
 """
 
 import numpy as np
-from typing import List, Optional
+from typing import List, Optional, Any, cast
 from scipy import stats
 import warnings
 
@@ -18,7 +18,7 @@ from .validation import validate_spm_data
 
 
 def preprocess_data(
-    data: SPMData, steps: Optional[List[str]] = None, **kwargs
+    data: SPMData, steps: Optional[List[str]] = None, **kwargs: Any
 ) -> SPMData:
     """
     Apply preprocessing pipeline to SPM data.
@@ -363,7 +363,7 @@ def _detect_outliers_1d(data: np.ndarray, method: str, threshold: float) -> np.n
     else:
         raise ValueError(f"Unknown outlier detection method: {method}")
 
-    return outliers
+    return cast(np.ndarray, outliers)
 
 
 def spatial_filter(
@@ -501,7 +501,7 @@ def _moving_average_filter(data: np.ndarray, window_size: int) -> np.ndarray:
     """Apply moving average filter."""
     from scipy.ndimage import uniform_filter1d
 
-    return uniform_filter1d(data.astype(float), window_size)
+    return cast(np.ndarray, uniform_filter1d(data.astype(float), window_size))
 
 
 def _exponential_filter(data: np.ndarray, alpha: float) -> np.ndarray:

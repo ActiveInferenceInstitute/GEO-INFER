@@ -68,7 +68,7 @@ class Plan:
     successful: Optional[bool] = None
     action_results: List[Dict[str, Any]] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Normalize goal/desire_name and context aliases."""
         # Sync goal and desire_name: whichever is set, copy to the other
         if self.desire_name and not self.goal:
@@ -326,7 +326,7 @@ class PlanLibrary:
     - Plan selection based on goals and context
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty plan library."""
         self._plans: Dict[str, Plan] = {}
 
@@ -443,7 +443,7 @@ class PlanLibrary:
         return applicable_plans[0]
 
     def create_plan_instance(
-        self, template_name: str, instance_name: str = None
+        self, template_name: str, instance_name: Optional[str] = None
     ) -> Plan:
         """
         Create a new instance of a plan from a template.

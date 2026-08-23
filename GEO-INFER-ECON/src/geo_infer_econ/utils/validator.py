@@ -388,10 +388,14 @@ class ModelValidator:
     def _calculate_durbin_watson(self, residuals: np.ndarray) -> float:
         """Calculate Durbin-Watson statistic for autocorrelation."""
         diff = np.diff(residuals)
-        return np.sum(diff**2) / np.sum(residuals**2)
+        return float(np.sum(diff**2)) / float(np.sum(residuals**2))
 
     def validate_model_assumptions(
-        self, model, X: np.ndarray, y: np.ndarray, assumptions: List[str] = None
+        self,
+        model: Any,
+        X: np.ndarray,
+        y: np.ndarray,
+        assumptions: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Validate key econometric model assumptions.
@@ -546,7 +550,7 @@ class ModelValidator:
         }
 
     def validate_spatial_model_assumptions(
-        self, model, X: np.ndarray, y: np.ndarray, W: np.ndarray
+        self, model: Any, X: np.ndarray, y: np.ndarray, W: np.ndarray
     ) -> Dict[str, Any]:
         """
         Validate assumptions for spatial econometric models.

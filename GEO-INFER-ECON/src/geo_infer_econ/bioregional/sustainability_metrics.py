@@ -184,7 +184,7 @@ class ResilienceMetrics:
         self.config = config or {}
         logger.info("ResilienceMetrics initialized")
 
-    def calculate_resilience(self, resilience_data: Dict[str, Any]) -> Dict[str, float]:
+    def calculate_resilience(self, resilience_data: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate resilience metrics for a system.
 
         Args:
@@ -223,7 +223,7 @@ class ResilienceMetrics:
             historical_resilience = float(np.mean(recovery_efficiencies))
 
         # Composite resilience (weighted geometric mean)
-        components = {
+        components: Dict[str, Any] = {
             "diversity": diversity_norm,
             "connectivity": connectivity,
             "redundancy": redundancy,
@@ -238,7 +238,7 @@ class ResilienceMetrics:
             np.exp(sum(w * np.log(max(v, 1e-6)) for w, v in zip(weights, values)))
         )
 
-        result = {**{k: round(v, 4) for k, v in components.items()}}
+        result: Dict[str, Any] = {**{k: round(v, 4) for k, v in components.items()}}
         result["composite_resilience"] = round(composite, 4)
         result["resilience_grade"] = (
             "high" if composite > 0.7 else "medium" if composite > 0.4 else "low"
@@ -257,7 +257,7 @@ class RegenerativeMetrics:
         self.config = config or {}
         logger.info("RegenerativeMetrics initialized")
 
-    def calculate_regenerative(self, data: Dict[str, Any]) -> Dict[str, float]:
+    def calculate_regenerative(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate regenerative capacity metrics.
 
         Args:
@@ -289,7 +289,7 @@ class RegenerativeMetrics:
         biodiv_score = min(species / max(baseline_species, 1), 1.0)
 
         # Composite regenerative index
-        components = {
+        components: Dict[str, Any] = {
             "soil_health": round(soc_score, 4),
             "vegetation_integrity": round(veg_score, 4),
             "hydrological_function": round(water_score, 4),
@@ -319,7 +319,7 @@ class WellbeingIndicators:
         self.config = config or {}
         logger.info("WellbeingIndicators initialized")
 
-    def calculate_wellbeing(self, wellbeing_data: Dict[str, Any]) -> Dict[str, float]:
+    def calculate_wellbeing(self, wellbeing_data: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate wellbeing indicators.
 
         Args:
@@ -380,7 +380,7 @@ class WellbeingIndicators:
             )
         )
 
-        result = {
+        result: Dict[str, Any] = {
             "gdp_per_capita": gdp_pc,
             "gpi_per_capita": round(gpi_per_capita, 2),
             "happy_planet_index": round(hpi, 2),

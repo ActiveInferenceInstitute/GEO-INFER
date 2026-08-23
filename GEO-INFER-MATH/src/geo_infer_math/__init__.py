@@ -76,17 +76,11 @@ _available_models = []
 
 # Try to import model modules
 # Note: These modules may not have __all__ defined, so we import the modules themselves
-try:
-    from geo_infer_math.models import regression as regression_module
-    _available_models.append("regression")
-except ImportError:
-    regression_module = None
+from geo_infer_math.models import regression as regression_module
+_available_models.append("regression")
 
-try:
-    from geo_infer_math.models import clustering as clustering_module
-    _available_models.append("clustering")
-except ImportError:
-    clustering_module = None
+from geo_infer_math.models import clustering as clustering_module
+_available_models.append("clustering")
 
 # Try to import information theory
 try:

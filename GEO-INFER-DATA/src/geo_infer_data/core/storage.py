@@ -23,7 +23,7 @@ retrieved payload safe to load.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, cast
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
@@ -98,13 +98,15 @@ class StorageConfig:
     max_file_size: int = 1024 * 1024 * 1024  # 1GB
     retention_policy: Optional[Dict[str, Any]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not isinstance(self.optimization_strategy, OptimizationStrategy):
-            self.optimization_strategy = OptimizationStrategy(
+            self.optimization_strategy = OptimizationStrategy(  # type: ignore[unreachable]
                 self.optimization_strategy
             )
         if not isinstance(self.indexing_strategy, IndexingStrategy):
-            self.indexing_strategy = IndexingStrategy(self.indexing_strategy)
+            self.indexing_strategy = IndexingStrategy(  # type: ignore[unreachable]
+                self.indexing_strategy
+            )
 
 
 @dataclass
@@ -124,10 +126,10 @@ class StorageBackendManager:
 
     def __init__(self, backend_configs: Dict[str, Dict[str, Any]]):
         self.backend_configs = backend_configs
-        self.backends = {}
+        self.backends: Dict[str, Any] = {}
         self._initialize_backends()
 
-    def _initialize_backends(self):
+    def _initialize_backends(self) -> None:
         """Initialize storage backends."""
         for backend_name, config in self.backend_configs.items():
             backend_type = config.get("type", backend_name)
@@ -151,7 +153,7 @@ class StorageBackendManager:
             raise ValueError(f"Backend {backend} not available")
 
         backend_instance = self.backends[backend]
-        return await backend_instance.store(data, metadata)
+        return cast(str, await backend_instance.store(data, metadata))
 
     async def retrieve_data(
         self, data_id: str, query: Dict[str, Any], backend: str = "default"
@@ -169,7 +171,7 @@ class StorageBackendManager:
             raise ValueError(f"Backend {backend} not available")
 
         backend_instance = self.backends[backend]
-        return await backend_instance.delete(data_id)
+        return cast(bool, await backend_instance.delete(data_id))
 
 
 class PostgreSQLBackend:
@@ -204,7 +206,7 @@ class PostgreSQLBackend:
 
     async def _store_dataframe(
         self, df: pd.DataFrame, data_id: str, metadata: DatasetMetadata
-    ):
+    ) -> None:
         """Store pandas/geopandas DataFrame."""
         # Create table and store data
         table_name = f"dataset_{data_id.replace('-', '_')}"
@@ -218,9 +220,7 @@ class PostgreSQLBackend:
 
         # Create spatial index if geospatial data
         if isinstance(df, gpd.GeoDataFrame) and df.crs:
-            await self.spatial_indexer.create_spatial_index(
-                table_name, self.connection_string
-            )
+            self.spatial_indexer.create_spatial_index(table_name, self.connection_string)
 
     async def _retrieve_dataframe(
         self, data_id: str, query: Dict[str, Any]
@@ -255,7 +255,9 @@ class PostgreSQLBackend:
         finally:
             engine.dispose()
 
-    async def _store_generic(self, data: Any, data_id: str, metadata: DatasetMetadata):
+    async def _store_generic(
+        self, data: Any, data_id: str, metadata: DatasetMetadata
+    ) -> None:
         """Store generic data by serialising to JSON in a metadata table.
 
         For non-DataFrame data (dicts, lists, scalars) this method
@@ -399,6 +401,9 @@ class MinIOBackend:
             raise ValueError(
                 "MinIO requires endpoint, access_key, secret_key, and bucket"
             )
+        assert self.endpoint is not None
+        assert self.access_key is not None
+        assert self.secret_key is not None
         from minio import Minio
 
         serialized_data = (
@@ -437,6 +442,9 @@ class MinIOBackend:
             raise ValueError(
                 "MinIO requires endpoint, access_key, secret_key, and bucket"
             )
+        assert self.endpoint is not None
+        assert self.access_key is not None
+        assert self.secret_key is not None
         from minio import Minio
 
         client = Minio(
@@ -470,6 +478,9 @@ class MinIOBackend:
             raise ValueError(
                 "MinIO requires endpoint, access_key, secret_key, and bucket"
             )
+        assert self.endpoint is not None
+        assert self.access_key is not None
+        assert self.secret_key is not None
         from minio import Minio
 
         client = Minio(
@@ -519,7 +530,7 @@ class RedisBackend:
         # Trust boundary: a Redis value is untrusted input until its envelope
         # verifies under the redis-backend context key.
         return loads_signed(
-            payload,
+            cast(bytes, payload),
             context=CONTEXT_STORAGE_REDIS,
             key=self.signing_key,
             serializer="pickle",
@@ -784,7 +795,7 @@ class AdaptiveDataStorage:
 
     def _get_backend_configs(self) -> Dict[str, Dict[str, Any]]:
         """Get backend configurations."""
-        configs = {
+        configs: Dict[str, Dict[str, Any]] = {
             "postgresql": {
                 "type": "postgresql",
                 "host": "localhost",
@@ -938,7 +949,7 @@ class AdaptiveDataStorage:
             if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
                 if spatial_bounds and isinstance(data, gpd.GeoDataFrame):
                     min_lon, min_lat, max_lon, max_lat = spatial_bounds
-                    data = data.cx[min_lon:max_lon, min_lat:max_lat]
+                    data = data.cx[min_lon:max_lon, min_lat:max_lat]  # type: ignore[misc]
                 if temporal_range and "timestamp" in data.columns:
                     start, end = temporal_range
                     timestamps = pd.to_datetime(data["timestamp"], errors="coerce")
@@ -1063,7 +1074,7 @@ class AdaptiveDataStorage:
                 return cached_result
 
         # Build query
-        query = {}
+        query: Dict[str, Any] = {}
         if spatial_bounds:
             query["spatial"] = spatial_bounds
         if temporal_range:
@@ -1091,7 +1102,9 @@ class AdaptiveDataStorage:
 
         return results
 
-    def _analyze_access_patterns(self, dataset_id: str, patterns: Dict[str, Any]):
+    def _analyze_access_patterns(
+        self, dataset_id: str, patterns: Dict[str, Any]
+    ) -> None:
         """Analyze access patterns for optimization."""
         access_pattern = AccessPattern()
 
@@ -1183,7 +1196,7 @@ class AdaptiveDataStorage:
 
     def _update_storage_stats(
         self, data_id: str, operation: str, metadata: DatasetMetadata
-    ):
+    ) -> None:
         """Update storage statistics."""
         if data_id not in self.storage_stats:
             self.storage_stats[data_id] = {
@@ -1216,7 +1229,7 @@ class AdaptiveDataStorage:
         logger.info("Optimizing storage for access patterns")
 
         actions = []
-        optimizations = {}
+        optimizations: Dict[str, Any] = {}
 
         for dataset_id, pattern in patterns.items():
             # Analyze pattern and determine optimizations

@@ -36,7 +36,7 @@ class PEPDataManager:
     In a production system, this would interface with a database.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._employees: List[Employee] = []
         self._customers: List[Customer] = []
         self._candidates: List[Candidate] = []
@@ -358,7 +358,7 @@ class PEPEngine:
 
     def generate_all_dashboards(self) -> Dict[str, Any]:
         """Generate all dashboards and return combined results."""
-        results = {
+        results: Dict[str, Any] = {
             "overall_success": True,
             "dashboards": {},
             "generated_at": datetime.now().isoformat(),
@@ -406,7 +406,7 @@ class PEPEngine:
 
     def run_health_check(self) -> Dict[str, Any]:
         """Run comprehensive health check."""
-        health_status = {
+        health_status: Dict[str, Any] = {
             "overall_health": "healthy",
             "checks": {},
             "timestamp": datetime.now().isoformat(),

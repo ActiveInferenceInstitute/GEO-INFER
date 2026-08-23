@@ -42,9 +42,9 @@ from .reporting.talent_reports import (
 )
 
 # Global storage for demonstration (in production, use a database)
-_employees_db = []
-_candidates_db = []
-_customers_db = []
+_employees_db: List[Employee] = []
+_candidates_db: List[Candidate] = []
+_customers_db: List[Customer] = []
 logger = logging.getLogger(__name__)
 
 
@@ -303,7 +303,7 @@ def import_talent_data_from_csv(
 
         if candidates:
             # Clean and enrich candidate data
-            cleaned_candidates = clean_candidate_data(candidates, requisitions)
+            cleaned_candidates = clean_candidate_data(candidates)
             enriched_candidates = enrich_candidate_data(
                 cleaned_candidates, requisitions
             )
@@ -359,7 +359,7 @@ def generate_comprehensive_hr_dashboard() -> Dict[str, Any]:
         )
 
         # Department breakdown
-        dept_breakdown = {}
+        dept_breakdown: Dict[str, int] = {}
         for emp in _employees_db:
             if emp.employment_status == EmploymentStatus.ACTIVE:
                 dept_breakdown[emp.department] = (
@@ -406,9 +406,10 @@ def generate_comprehensive_crm_dashboard() -> Dict[str, Any]:
         active_customers = len([c for c in _customers_db if c.status == "active"])
 
         # Status breakdown
-        status_breakdown = {}
+        status_breakdown: Dict[str, int] = {}
         for cust in _customers_db:
-            status_breakdown[cust.status] = status_breakdown.get(cust.status, 0) + 1
+            status = cust.status or "unknown"
+            status_breakdown[status] = status_breakdown.get(status, 0) + 1
 
         dashboard_data = {
             "total_customers": total_customers,
@@ -451,7 +452,7 @@ def generate_comprehensive_talent_dashboard() -> Dict[str, Any]:
         total_candidates = len(_candidates_db)
 
         # Status breakdown
-        status_breakdown = {}
+        status_breakdown: Dict[str, int] = {}
         for cand in _candidates_db:
             status_breakdown[cand.status.value] = (
                 status_breakdown.get(cand.status.value, 0) + 1

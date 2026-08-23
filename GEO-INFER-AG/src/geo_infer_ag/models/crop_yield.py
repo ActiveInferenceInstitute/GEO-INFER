@@ -44,8 +44,11 @@ class CropYieldModel(AgricultureModel):
         
         self.crop_type = crop_type.lower()
         self.model_type = model_type
-        self.predictor = None
+        self.predictor: Optional[RandomForestRegressor] = None
         self.fitted = False
+        self.feature_columns: Optional[List[str]] = None
+        self._statistical_params: Optional[Dict[str, Any]] = None
+        self._process_params: Optional[Dict[str, Any]] = None
         
         # Define required inputs based on model type
         if model_type == "machine_learning":
@@ -165,13 +168,16 @@ class CropYieldModel(AgricultureModel):
         
         # Generate predictions based on model type
         if self.model_type == "machine_learning":
+            if self.predictor is None:
+                raise ValueError("Model must be fitted before prediction")
+            feature_cols = self.feature_columns or []
             # Check if all feature columns are available
-            missing_features = [col for col in self.feature_columns if col not in field_data.columns]
+            missing_features = [col for col in feature_cols if col not in field_data.columns]
             if missing_features:
                 raise ValueError(f"Missing feature columns: {missing_features}")
                 
             # Generate predictions
-            X = field_data[self.feature_columns]
+            X = field_data[feature_cols]
             predictions = self.predictor.predict(X)
             
             # Add predictions to results
@@ -203,9 +209,10 @@ class CropYieldModel(AgricultureModel):
             historical_data = data["historical_yield_data"]
 
             # Compute baseline from fitted params if available, otherwise from historical data
-            if hasattr(self, "_statistical_params"):
-                baseline = self._statistical_params["mean_yield"]
-                trend = self._statistical_params.get("trend")
+            statistical_params = self._statistical_params
+            if statistical_params is not None:
+                baseline = statistical_params["mean_yield"]
+                trend = statistical_params.get("trend")
             else:
                 # Derive baseline from any numeric column in historical data, excluding 'year'
                 numeric_cols = historical_data.select_dtypes(include="number").columns.tolist()
@@ -251,7 +258,8 @@ class CropYieldModel(AgricultureModel):
             if missing_data:
                 raise ValueError(f"Missing data for process-based model: {missing_data}")
 
-            params = self._process_params if hasattr(self, "_process_params") else {
+            process_params = self._process_params
+            params = process_params if process_params is not None else {
                 "base_temperature": 10.0,
                 "optimal_temperature": 25.0,
                 "max_yield_potential": 10.0,
@@ -346,14 +354,15 @@ class CropYieldModel(AgricultureModel):
         if self.model_type != "machine_learning" or not self.fitted:
             raise ValueError("Feature importance only available for fitted machine learning models")
             
-        if not hasattr(self.predictor, "feature_importances_"):
+        if self.predictor is None or not hasattr(self.predictor, "feature_importances_"):
             raise ValueError("Current model doesn't provide feature importances")
         
         # Get feature importances from the model
         importances = self.predictor.feature_importances_
         
         # Create dictionary mapping features to importance values
-        importance_dict = dict(zip(self.feature_columns, importances))
+        feats = self.feature_columns or []
+        importance_dict = dict(zip(feats, importances))
         
         # Sort by importance (descending)
         sorted_importances = {

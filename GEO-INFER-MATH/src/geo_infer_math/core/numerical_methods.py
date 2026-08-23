@@ -57,11 +57,11 @@ class SpatialInterpolator:
             raise ValueError(f"Unknown interpolation method: {method}. Must be one of {valid_methods}")
         self.method = method
         self.trained = False
-        self.training_points = None
-        self.training_values = None
-        self.parameters = {}
+        self.training_points: Optional[np.ndarray] = None
+        self.training_values: Optional[np.ndarray] = None
+        self.parameters: Dict[str, Any] = {}
 
-    def fit(self, points: np.ndarray, values: np.ndarray, **kwargs) -> 'SpatialInterpolator':
+    def fit(self, points: np.ndarray, values: np.ndarray, **kwargs: Any) -> 'SpatialInterpolator':
         """
         Fit the interpolator to training data.
 
@@ -106,9 +106,12 @@ class SpatialInterpolator:
             return self._predict_spline(query_points)
         elif self.method == 'rbf':
             return self._predict_rbf(query_points)
+        raise ValueError("Interpolator must be fitted and method known")
 
-    def _fit_kriging(self):
+    def _fit_kriging(self) -> None:
         """Fit Kriging model."""
+        assert self.training_points is not None
+        assert self.training_values is not None
         # Calculate distances between all training points
         n_points = len(self.training_points)
         distances = np.zeros((n_points, n_points))
@@ -130,6 +133,8 @@ class SpatialInterpolator:
         })
 
     def _predict_kriging(self, query_points: np.ndarray) -> np.ndarray:
+        assert self.training_points is not None
+        assert self.training_values is not None
         """Predict using Kriging."""
         predictions = []
 
@@ -163,13 +168,15 @@ class SpatialInterpolator:
 
         return result
 
-    def _fit_spline(self):
+    def _fit_spline(self) -> None:
         """Fit spline interpolation model."""
         # For now, use simple linear interpolation between points
         self.parameters['fitted'] = True
 
     def _predict_spline(self, query_points: np.ndarray) -> np.ndarray:
         """Predict using spline interpolation."""
+        assert self.training_points is not None
+        assert self.training_values is not None
         # Simplified spline interpolation using nearest neighbors
         predictions = []
 
@@ -180,7 +187,7 @@ class SpatialInterpolator:
 
         return np.array(predictions)
 
-    def _fit_rbf(self):
+    def _fit_rbf(self) -> None:
         """Fit Radial Basis Function interpolation."""
         # RBF parameters
         epsilon = self.parameters.get('epsilon', 1.0)
@@ -193,6 +200,8 @@ class SpatialInterpolator:
 
     def _predict_rbf(self, query_points: np.ndarray) -> np.ndarray:
         """Predict using RBF interpolation."""
+        assert self.training_points is not None
+        assert self.training_values is not None
         predictions = []
 
         for query_point in query_points:
@@ -214,15 +223,15 @@ class SpatialInterpolator:
     def _rbf_function(self, r: float, epsilon: float, function: str) -> float:
         """Radial basis function."""
         if function == 'multiquadric':
-            return np.sqrt(1 + (epsilon * r)**2)
+            return float(np.sqrt(1 + (epsilon * r)**2))
         elif function == 'inverse_multiquadric':
-            return 1.0 / np.sqrt(1 + (epsilon * r)**2)
+            return float(1.0 / np.sqrt(1 + (epsilon * r)**2))
         elif function == 'gaussian':
-            return np.exp(-(epsilon * r)**2)
+            return float(np.exp(-(epsilon * r)**2))
         elif function == 'thin_plate':
-            return r**2 * np.log(r + 1e-10)
+            return float(r**2 * np.log(r + 1e-10))
         else:
-            return np.exp(-r)  # Default exponential
+            return float(np.exp(-r))  # Default exponential
 
 class SpatialOptimizer:
     """Optimization methods for spatial problems."""
@@ -235,14 +244,14 @@ class SpatialOptimizer:
             method: Optimization method
         """
         self.method = method
-        self.objective_function = None
-        self.constraints = []
+        self.objective_function: Optional[Callable[..., Any]] = None
+        self.constraints: List[Any] = []
 
     def minimize(self,
                 objective: Callable,
                 bounds: List[Tuple[float, float]],
                 initial_guess: Optional[np.ndarray] = None,
-                **kwargs) -> OptimizationResult:
+                **kwargs: Any) -> OptimizationResult:
         """
         Minimize objective function.
 
@@ -483,7 +492,7 @@ class ODESolver:
              t_span: Tuple[float, float],
              y0: np.ndarray,
              t_eval: Optional[np.ndarray] = None,
-             **kwargs) -> ODEsolution:
+             **kwargs: Any) -> ODEsolution:
         """
         Solve ODE system.
 
@@ -650,16 +659,16 @@ def numerical_integration(func: Callable,
     if method == 'trapezoidal':
         x = np.linspace(a, b, n_points)
         y = np.array([func(xi) for xi in x])
-        return np.trapz(y, x)
+        return float(np.trapz(y, x))
 
     elif method == 'simpson':
         x = np.linspace(a, b, n_points)
         y = np.array([func(xi) for xi in x])
-        return np.trapz(y, x)  # Simplified - should use Simpson's rule
+        return float(np.trapz(y, x))  # Simplified - should use Simpson's rule
 
     elif method == 'romberg':
         # Simplified Romberg integration
-        return quad(func, a, b)[0]
+        return float(quad(func, a, b)[0])
 
     else:
         raise ValueError(f"Unknown integration method: {method}")
@@ -667,7 +676,7 @@ def numerical_integration(func: Callable,
 def find_root(func: Callable,
              bracket: Tuple[float, float],
              method: str = 'brentq',
-             **kwargs) -> float:
+             **kwargs: Any) -> float:
     """
     Find root of a function.
 
@@ -682,7 +691,7 @@ def find_root(func: Callable,
     """
     try:
         result = root_scalar(func, bracket=bracket, method=method, **kwargs)
-        return result.root
+        return float(result.root)
     except Exception as e:
         logger.error(f"Root finding failed: {e}")
         return np.nan
@@ -690,7 +699,7 @@ def find_root(func: Callable,
 def minimize_scalar_function(func: Callable,
                            bounds: Tuple[float, float],
                            method: str = 'bounded',
-                           **kwargs) -> float:
+                           **kwargs: Any) -> float:
     """
     Minimize a scalar function.
 
@@ -707,8 +716,8 @@ def minimize_scalar_function(func: Callable,
         result = minimize_scalar(func, bounds=bounds, method=method, **kwargs)
         # If the minimum value is not finite, the optimization effectively failed
         if not np.isfinite(result.fun):
-            return np.nan
-        return result.x
+            return float(np.nan)
+        return float(result.x)
     except Exception as e:
         logger.error(f"Scalar minimization failed: {e}")
         return np.nan

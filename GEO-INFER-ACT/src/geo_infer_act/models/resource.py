@@ -94,9 +94,9 @@ class ResourceModel(ActiveInferenceModel):
         # Normalize rows
         row_sums = conn.sum(axis=1, keepdims=True)
         conn = conn / np.where(row_sums > 0, row_sums, 1.0)
-        return conn
+        return np.asarray(conn)
 
-    def step(self, actions=None) -> Tuple[Dict[str, Any], bool]:
+    def step(self, actions: Optional[Any] = None) -> Tuple[Dict[str, Any], bool]:
         """Advance the resource model by one step.
 
         Args:
@@ -222,4 +222,4 @@ class ResourceModel(ActiveInferenceModel):
         # Normalize per resource type
         row_sums = scores.sum(axis=1, keepdims=True)
         scores = scores / np.where(row_sums > 0, row_sums, 1.0)
-        return scores
+        return np.asarray(scores)

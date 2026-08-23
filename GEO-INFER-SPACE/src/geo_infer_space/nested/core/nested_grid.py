@@ -9,7 +9,7 @@ import logging
 import math
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set
+from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
 from enum import Enum
 from collections import defaultdict
 
@@ -39,15 +39,15 @@ try:
     # Create module-level interface for convenience
     _spatial = SpatialIndexingInterface()
 
-    def grid_disk(cell_index: str, k: int = 1):
+    def grid_disk(cell_index: str, k: int = 1) -> List[str]:
         """Get cells within grid distance k using the unified interface."""
         return _spatial.get_cell_neighbors(cell_index, k)
 
-    def grid_distance(cell1: str, cell2: str):
+    def grid_distance(cell1: str, cell2: str) -> int:
         """Get grid distance using unified interface."""
         return _spatial.get_cell_distance(cell1, cell2)
 
-    def neighbor_cells(cell_index: str):
+    def neighbor_cells(cell_index: str) -> List[str]:
         """Get immediate neighbors using unified interface."""
         return _spatial.get_cell_neighbors(cell_index, 1)
 
@@ -117,7 +117,7 @@ class NestedCell:
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize nested cell after creation."""
         if H3_AVAILABLE and self.h3_cell:
             # Initialize neighbor relationships
@@ -164,7 +164,7 @@ class NestedCell:
             return self.h3_cell.longitude
         return 0.0
 
-    def _update_neighbors(self):
+    def _update_neighbors(self) -> None:
         """Update neighbor cell relationships."""
         if not H3_AVAILABLE or not self.h3_cell:
             return
@@ -175,17 +175,17 @@ class NestedCell:
         except Exception as e:
             logger.warning(f"Failed to update neighbors for {self.index}: {e}")
 
-    def add_parent(self, parent_index: str):
+    def add_parent(self, parent_index: str) -> None:
         """Add a parent cell relationship."""
         self.parent_cells.add(parent_index)
         self.updated_at = datetime.now()
 
-    def add_child(self, child_index: str):
+    def add_child(self, child_index: str) -> None:
         """Add a child cell relationship."""
         self.child_cells.add(child_index)
         self.updated_at = datetime.now()
 
-    def set_boundary(self, boundary_id: str, strength: float = 1.0):
+    def set_boundary(self, boundary_id: str, strength: float = 1.0) -> None:
         """Mark cell as boundary with specified strength."""
         self.is_boundary = True
         self.boundary_ids.add(boundary_id)
@@ -193,7 +193,7 @@ class NestedCell:
         self.cell_type = NestedCellType.BOUNDARY
         self.updated_at = datetime.now()
 
-    def add_message(self, message: Any):
+    def add_message(self, message: Any) -> None:
         """Add message to the cell's queue."""
         self.message_queue.append(message)
         self.updated_at = datetime.now()
@@ -206,12 +206,12 @@ class NestedCell:
         self.updated_at = datetime.now()
         return messages
 
-    def update_state(self, variable: str, value: Any):
+    def update_state(self, variable: str, value: Any) -> None:
         """Update a state variable."""
         self.state_variables[variable] = value
         self.updated_at = datetime.now()
 
-    def update_flow(self, variable: str, value: float):
+    def update_flow(self, variable: str, value: float) -> None:
         """Update a flow variable."""
         self.flow_variables[variable] = value
         self.updated_at = datetime.now()
@@ -259,7 +259,7 @@ class NestedSystem:
     forming hierarchical nested structures.
     """
 
-    def __init__(self, system_id: str, name: str = "", description: str = ""):
+    def __init__(self, system_id: str, name: str = "", description: str = "") -> None:
         """
         Initialize nested system.
 
@@ -295,7 +295,7 @@ class NestedSystem:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-    def add_cell(self, cell: NestedCell):
+    def add_cell(self, cell: NestedCell) -> None:
         """Add a cell to the system."""
         cell.system_id = self.system_id
         cell.hierarchy_level = self.hierarchy_level
@@ -313,7 +313,7 @@ class NestedSystem:
             return True
         return False
 
-    def add_subsystem(self, subsystem: "NestedSystem"):
+    def add_subsystem(self, subsystem: "NestedSystem") -> None:
         """Add a subsystem."""
         subsystem.parent_system = self
         subsystem.hierarchy_level = self.hierarchy_level + 1
@@ -343,7 +343,9 @@ class NestedSystem:
         """Get all boundary cells in the system."""
         return {idx: cell for idx, cell in self.cells.items() if cell.is_boundary}
 
-    def detect_boundaries(self, external_cells: Set[str] = None):
+    def detect_boundaries(
+        self, external_cells: Optional[Set[str]] = None
+    ) -> None:
         """Detect and mark boundary cells."""
         if not self.cells:
             return
@@ -397,7 +399,7 @@ class NestedSystem:
             "system_compactness": internal_connections / max(1, external_connections),
         }
 
-    def _update_system_metrics(self):
+    def _update_system_metrics(self) -> None:
         """Update system-level metrics."""
         if not self.cells:
             return
@@ -446,7 +448,9 @@ class NestedSystem:
 
         return merged_system
 
-    def split_by_criteria(self, criteria_func) -> List["NestedSystem"]:
+    def split_by_criteria(
+        self, criteria_func: Callable[[NestedCell], Any]
+    ) -> List["NestedSystem"]:
         """Split system based on criteria function."""
         if not self.cells:
             return [self]
@@ -504,7 +508,7 @@ class NestedH3Grid:
     and provides comprehensive analysis and manipulation tools.
     """
 
-    def __init__(self, name: str = "NestedH3Grid"):
+    def __init__(self, name: str = "NestedH3Grid") -> None:
         """
         Initialize nested H3 grid.
 
@@ -1048,7 +1052,7 @@ class NestedH3Grid:
 
         return hierarchical_systems
 
-    def detect_all_boundaries(self):
+    def detect_all_boundaries(self) -> None:
         """Detect boundaries for all systems in the grid."""
         for system in self.systems.values():
             system.detect_boundaries()
@@ -1085,7 +1089,11 @@ class NestedH3Grid:
         self.updated_at = datetime.now()
         return merged_system
 
-    def split_system(self, system_id: str, criteria_func) -> List[NestedSystem]:
+    def split_system(
+        self,
+        system_id: str,
+        criteria_func: Callable[[NestedCell], Any],
+    ) -> List[NestedSystem]:
         """Split a system based on criteria."""
         system = self.systems.get(system_id)
         if not system:
@@ -1101,7 +1109,7 @@ class NestedH3Grid:
         self.updated_at = datetime.now()
         return split_systems
 
-    def _update_grid_metrics(self):
+    def _update_grid_metrics(self) -> None:
         """Update grid-level metrics."""
         if not self.cells:
             return

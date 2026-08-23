@@ -1,9 +1,9 @@
 """Logging configuration module."""
 import logging
 import os
-from typing import Optional
 
 import structlog
+from typing import Optional, cast
 
 from .config import get_config
 
@@ -48,7 +48,7 @@ def setup_logging(
         structlog.processors.JSONRenderer() if json_format else structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if json_format else structlog.processors.ConsoleRenderer()
+        structlog.processors.JSONRenderer() if json_format else structlog.dev.ConsoleRenderer()
     ]
     
     structlog.configure(
@@ -68,4 +68,4 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     Returns:
         Structured logger instance
     """
-    return structlog.get_logger(name) 
+    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name)) 

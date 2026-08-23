@@ -4,7 +4,7 @@ Markov Chain Monte Carlo implementation for Bayesian inference.
 
 import numpy as np
 import xarray as xr
-from typing import Dict, Any, Union, List, Tuple
+from typing import Dict, Any, Union, List, Tuple, Optional
 from tqdm import tqdm
 from ..utils.rng import SeedLike, resolve_rng
 
@@ -58,6 +58,12 @@ class MCMC:
         self.max_steps = int(max_steps)
         self.random_seed = random_seed
         self.rng: np.random.Generator = resolve_rng(random_seed)
+
+        # Acceptance and run telemetry, populated by :meth:`run`. The arrays
+        # let a caller audit the adaptively-tuned proposals after the fact.
+        self.acceptance_rates: Optional[np.ndarray] = None
+        self.final_step_size: Optional[float] = None
+        self.total_iterations: Optional[int] = None
 
     def run(
         self,
@@ -161,6 +167,11 @@ class MCMC:
         for param, start, end, shape in self._parameter_layout:
             values = samples[:, :, start:end].reshape((-1,) + shape)
             combined_samples[param] = values.reshape(-1) if shape == () else values
+
+        # Persist run telemetry for post-hoc inspection.
+        self.acceptance_rates = np.asarray(acceptance_rate, dtype=float)
+        self.final_step_size = self.step_size
+        self.total_iterations = total_iterations
 
         # Report diagnostics
         if progress_bar:

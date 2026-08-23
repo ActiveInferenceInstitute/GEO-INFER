@@ -629,5 +629,7 @@ class CarbonSequestrationModel(AgricultureModel):
         # Restore model-type specific components
         if model.model_type == "tier2" and model.fitted and "predictors" in model_data:
             model.predictors = model_data["predictors"]
+
+        return model
         
  

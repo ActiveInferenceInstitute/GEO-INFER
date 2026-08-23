@@ -313,7 +313,7 @@ class UnderwritingReporter:
         self, metrics: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze underwriting performance metrics."""
-        performance = {
+        performance: Dict[str, Any] = {
             "efficiency_score": 0.0,
             "quality_score": 0.0,
             "productivity_score": 0.0,
@@ -409,13 +409,13 @@ class UnderwritingReporter:
             return {"error": "No policy data available"}
 
         # Analyze by risk tier
-        risk_tiers = {}
+        risk_tiers: Dict[str, int] = {}
         for policy in policies:
             tier = policy.get("risk_tier", "standard")
             risk_tiers[tier] = risk_tiers.get(tier, 0) + 1
 
         # Analyze by coverage type
-        coverage_types = {}
+        coverage_types: Dict[str, int] = {}
         for policy in policies:
             for coverage in policy.get("coverages", []):
                 coverage_type = coverage.get("coverage_type", "unknown")
@@ -462,7 +462,7 @@ class UnderwritingReporter:
         self, portfolio_summary: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze portfolio performance."""
-        performance = {
+        performance: Dict[str, Any] = {
             "profitability_score": 0.0,
             "risk_adjusted_return": 0.0,
             "capital_efficiency": 0.0,
@@ -487,7 +487,7 @@ class UnderwritingReporter:
             return {"error": "No claims data available"}
 
         # Analyze claim frequency over time
-        claims_by_month = {}
+        claims_by_month: Dict[str, int] = {}
         for claim in claims:
             claim_date = datetime.fromisoformat(
                 claim["reported_date"].replace("Z", "+00:00")
@@ -520,13 +520,13 @@ class UnderwritingReporter:
             return {"error": "No claims data available"}
 
         # Analyze by claim type
-        claim_types = {}
+        claim_types: Dict[str, int] = {}
         for claim in claims:
             claim_type = claim.get("claim_type", "unknown")
             claim_types[claim_type] = claim_types.get(claim_type, 0) + 1
 
         # Analyze by cause of loss
-        causes = {}
+        causes: Dict[str, int] = {}
         for claim in claims:
             cause = claim.get("cause_of_loss", "unknown")
             causes[cause] = causes.get(cause, 0) + 1
@@ -642,7 +642,7 @@ class ReportingEngine:
 
     def generate_dashboard_data(self) -> Dict[str, Any]:
         """Generate data for underwriting dashboard."""
-        dashboard_data = {
+        dashboard_data: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(),
             "kpis": {},
             "charts": {},
@@ -675,7 +675,7 @@ class ReportingEngine:
 
     def schedule_reports(self, report_configs: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Schedule automated report generation."""
-        schedule_results = {
+        schedule_results: Dict[str, Any] = {
             "scheduled_reports": [],
             "errors": [],
             "timestamp": datetime.now().isoformat(),

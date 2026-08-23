@@ -453,7 +453,7 @@ class SpatialLanguageProcessor:
 
     def _deduplicate_entities(self, entities: List[SpatialEntity]) -> List[SpatialEntity]:
         """Remove duplicate entities while preserving highest confidence."""
-        unique_entities = {}
+        unique_entities: Dict[Tuple[str, str], SpatialEntity] = {}
 
         for entity in entities:
             key = (entity.text.lower(), entity.entity_type)

@@ -27,7 +27,8 @@ class _PymdpCompatUtils:
         dist = dist.astype(float)
         col_sums = dist.sum(axis=0, keepdims=True)
         col_sums[col_sums == 0] = 1.0
-        return dist / col_sums
+        result: np.ndarray = dist / col_sums
+        return result
 
 
 utils = _PymdpCompatUtils()
@@ -83,7 +84,7 @@ class ClimateModel(ActiveInferenceModel):
         D = self._build_prior_D()
 
         # Define parameters for the generic engine
-        params = {
+        params: Dict[str, Any] = {
             "state_dim": self.num_states,  # This might need adaptation in core if it expects int
             "obs_dim": self.num_obs,  # This might need adaptation
             "action_dim": self.num_controls,
@@ -109,6 +110,9 @@ class ClimateModel(ActiveInferenceModel):
         # Inject the specific matrices
         self.generative_model.observation_model = A
         self.generative_model.transition_model = B
+        # C matrix is a per-modality object array, while GenerativeModel types
+        # ``preferences`` as Dict[str, Any] for its hierarchical API; storing the
+        # raw pymdp-style C here is intentional.
         self.generative_model.preferences = C
         self.generative_model.beliefs = {
             "states": D
@@ -123,7 +127,7 @@ class ClimateModel(ActiveInferenceModel):
             self.num_obs,
         )
 
-    def _build_likelihood_A(self):
+    def _build_likelihood_A(self) -> np.ndarray:
         """Build A matrix: P(o|s)."""
         # A[modality][observation, state_factor_combinations...] ??
         # Standard pymdp: A[modality][observation, state_i, state_j, ...]
@@ -168,7 +172,7 @@ class ClimateModel(ActiveInferenceModel):
 
         return A
 
-    def _build_transition_B(self):
+    def _build_transition_B(self) -> np.ndarray:
         """Build B matrix: P(s'|s, u)."""
         # B[factor][next_state, current_state, action]
         B = utils.obj_array(len(self.num_states))
@@ -226,7 +230,7 @@ class ClimateModel(ActiveInferenceModel):
 
         return B
 
-    def _build_preferences_C(self):
+    def _build_preferences_C(self) -> np.ndarray:
         """Build C matrix: P(o) (Preferences)."""
         # C[modality][observation]
         C = utils.obj_array(len(self.num_obs))
@@ -241,7 +245,7 @@ class ClimateModel(ActiveInferenceModel):
 
         return C
 
-    def _build_prior_D(self):
+    def _build_prior_D(self) -> np.ndarray:
         """Build D matrix: P(s) (Initial beliefs)."""
         # D[factor][state]
         D = utils.obj_array(len(self.num_states))
@@ -252,7 +256,7 @@ class ClimateModel(ActiveInferenceModel):
 
         return D
 
-    def step(self, observations=None):
+    def step(self, observations: Any = None, **kwargs: Any) -> Any:  # type: ignore[override]
         """
         Execute one step of active inference.
 
@@ -261,6 +265,8 @@ class ClimateModel(ActiveInferenceModel):
         """
         if observations is None:
             # Default observation (e.g. from environment)
-            observations = [0, 0]
+            obs = np.array([0, 0])
+        else:
+            obs = np.asarray(observations)
 
-        return super().step(observations)
+        return super().step(obs, **kwargs)

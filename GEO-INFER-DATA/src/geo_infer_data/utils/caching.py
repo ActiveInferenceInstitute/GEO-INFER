@@ -69,7 +69,7 @@ class CacheEntry:
             seconds=self.ttl
         )
 
-    def update_access(self):
+    def update_access(self) -> None:
         """Update access statistics."""
         self.access_count += 1
         self.last_accessed = datetime.now(timezone.utc)
@@ -237,7 +237,7 @@ class CacheManager:
 
         return False
 
-    async def clear(self):
+    async def clear(self) -> None:
         """Clear all cache entries."""
         self.cache.clear()
         self.access_stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0}
@@ -248,7 +248,7 @@ class CacheManager:
 
         logger.info("Cache cleared")
 
-    def _cleanup_expired(self):
+    def _cleanup_expired(self) -> None:
         """Remove expired cache entries."""
         expired_keys = [key for key, entry in self.cache.items() if entry.is_expired()]
 
@@ -262,7 +262,7 @@ class CacheManager:
         if expired_keys:
             logger.debug(f"Cleaned up {len(expired_keys)} expired entries")
 
-    def _evict_lru(self):
+    def _evict_lru(self) -> None:
         """Evict least recently used entries."""
         # Sort by last accessed time
         sorted_entries = sorted(self.cache.items(), key=lambda x: x[1].last_accessed)
@@ -279,7 +279,7 @@ class CacheManager:
 
         logger.debug(f"Evicted {entries_to_remove} LRU entries")
 
-    def _persist_entry(self, entry: CacheEntry):
+    def _persist_entry(self, entry: CacheEntry) -> None:
         """Persist cache entry to file."""
         cache_file = self._cache_file(entry.key)
 
@@ -315,7 +315,7 @@ class CacheManager:
         digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
         return self.persistence_path / f"{digest}.pkl"
 
-    def _load_persistent_cache(self):
+    def _load_persistent_cache(self) -> None:
         """Load persistent cache from files."""
         if not self.persistence_path.exists():
             return
@@ -430,7 +430,7 @@ class CacheManager:
         else:
             return key_string
 
-    def optimize_cache(self):
+    def optimize_cache(self) -> None:
         """Optimize cache performance."""
         # Remove expired entries
         self._cleanup_expired()

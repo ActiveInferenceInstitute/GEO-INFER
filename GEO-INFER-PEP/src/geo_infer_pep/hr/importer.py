@@ -15,7 +15,7 @@ class BaseHRImporter(ABC):
     """Abstract base class for HR data importers."""
 
     @abstractmethod
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         """Connect to the HR data source."""
         raise RuntimeError("HR importer subclasses must implement connect()")
 
@@ -34,7 +34,7 @@ class BaseHRImporter(ABC):
         )
 
     def import_employees(
-        self, last_sync_date: Optional[datetime] = None, **kwargs
+        self, last_sync_date: Optional[datetime] = None, **kwargs: Any
     ) -> List[Employee]:
         """Orchestrates the import process: connect, fetch, transform for employees."""
         self.connect(**kwargs)
@@ -52,10 +52,10 @@ class CSVHRImporter(BaseHRImporter):
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.connection = None
+        self.connection: Optional[str] = None
         print(f"CSV HR Importer initialized for file: {self.file_path}")
 
-    def connect(self, **kwargs) -> None:
+    def connect(self, **kwargs: Any) -> None:
         try:
             # Check accessibility
             with open(self.file_path, "r", encoding="utf-8") as f:
@@ -104,28 +104,29 @@ class CSVHRImporter(BaseHRImporter):
                             f"Warning: Could not parse hire_date for record: {record.get('employee_id')}"
                         )
 
-                employee_data = {
+                status_raw = (record.get("status") or "").strip()
+                gender_raw = (record.get("gender") or "").strip()
+
+                employee_data: Dict[str, Any] = {
                     "employee_id": record.get("employee_id"),
                     "first_name": record.get("first_name"),
                     "last_name": record.get("last_name"),
                     "email": record.get("email"),
                     "hire_date": hire_dt,
                     "employment_status": (
-                        EmploymentStatus(record["status"].strip().lower())
-                        if record.get("status") and record.get("status").strip()
+                        EmploymentStatus(status_raw.lower())
+                        if status_raw
                         else EmploymentStatus.ACTIVE
                     ),
                     "job_title": record.get("job_title"),
                     "department": record.get("department"),
                     "gender": (
-                        Gender(record["gender"].strip().lower())
-                        if record.get("gender") and record.get("gender").strip()
-                        else None
+                        Gender(gender_raw.lower()) if gender_raw else None
                     ),
                     # Add other fields as necessary from your CSV
                 }
                 # Filter out None values for fields that are optional and not provided
-                employee_data_cleaned = {
+                employee_data_cleaned: Dict[str, Any] = {
                     k: v
                     for k, v in employee_data.items()
                     if v is not None or k in ["hire_date"]

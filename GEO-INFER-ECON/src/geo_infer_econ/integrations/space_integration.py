@@ -4,7 +4,7 @@ GEO-INFER-SPACE Integration Adapter
 Provides spatial operations wrapper for economic analysis.
 """
 
-from typing import Dict, Optional, Any, Tuple
+from typing import Dict, Optional, Any, Tuple, Union, cast
 import numpy as np
 import geopandas as gpd
 import logging
@@ -91,13 +91,15 @@ class SpaceIntegration:
             if isinstance(cell, int):
                 import h3
 
-                return h3.int_to_str(cell)
+                return str(h3.int_to_str(cell))
             return str(cell)
         except Exception as e:
             logger.error(f"Failed to convert lat/lng to cell: {e}")
             return None
 
-    def cell_to_latlng(self, cell: str) -> Optional[Tuple[float, float]]:
+    def cell_to_latlng(
+        self, cell: Union[str, int]
+    ) -> Optional[Tuple[float, float]]:
         """
         Convert spatial cell index to lat/lng.
 
@@ -116,7 +118,9 @@ class SpaceIntegration:
                 import h3
 
                 cell = h3.int_to_str(cell)
-            return self.indexer.cell_to_latlng(cell)
+            return cast(
+                Tuple[float, float], self.indexer.cell_to_latlng(cell)
+            )
         except Exception as e:
             logger.error(f"Failed to convert cell to lat/lng: {e}")
             return None
@@ -156,13 +160,13 @@ class SpaceIntegration:
 
             p1 = Point(point1[1], point1[0])  # Note: shapely uses (x, y) = (lon, lat)
             p2 = Point(point2[1], point2[0])
-            return p1.distance(p2) * 111000  # Approximate conversion to meters
+            return float(p1.distance(p2)) * 111000  # Approximate conversion to meters
         except Exception as e:
             logger.error(f"Failed to calculate distance: {e}")
             return None
 
     def analyze_hotspots(
-        self, gdf: gpd.GeoDataFrame, value_column: str, **kwargs
+        self, gdf: gpd.GeoDataFrame, value_column: str, **kwargs: Any
     ) -> Optional[gpd.GeoDataFrame]:
         """
         Analyze spatial hotspots in economic data.
@@ -191,7 +195,7 @@ class SpaceIntegration:
         values: np.ndarray,
         target_locations: gpd.GeoDataFrame,
         method: str = "idw",
-        **kwargs,
+        **kwargs: Any,
     ) -> Optional[np.ndarray]:
         """
         Perform spatial interpolation of economic values.
@@ -211,15 +215,18 @@ class SpaceIntegration:
             return None
 
         try:
-            return self.analytics.spatial_interpolation(
-                points, values, target_locations, method=method, **kwargs
+            return cast(
+                np.ndarray,
+                self.analytics.spatial_interpolation(
+                    points, values, target_locations, method=method, **kwargs
+                ),
             )
         except Exception as e:
             logger.error(f"Failed to perform spatial interpolation: {e}")
             return None
 
     def create_buffer(
-        self, geometry: gpd.GeoDataFrame, distance: float, **kwargs
+        self, geometry: gpd.GeoDataFrame, distance: float, **kwargs: Any
     ) -> Optional[gpd.GeoDataFrame]:
         """
         Create buffer zones around geometries.

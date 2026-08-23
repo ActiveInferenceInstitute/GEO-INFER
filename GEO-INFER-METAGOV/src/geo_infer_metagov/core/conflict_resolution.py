@@ -49,7 +49,7 @@ class ConflictResolver:
     - Raiffa, H. (1982). The Art and Science of Negotiation
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize conflict resolver."""
         self.resolution_history: List[ConflictResolution] = []
     

@@ -123,10 +123,12 @@ class TransportNetwork:
         
         # Add edges
         for edge_data in edges:
+            from_node = edge_data.get("from")
+            to_node = edge_data.get("to")
             edge = NetworkEdge(
                 edge_id=edge_data.get("id", f"edge_{len(self._edges)}"),
-                from_node=edge_data.get("from"),
-                to_node=edge_data.get("to"),
+                from_node=str(from_node) if from_node is not None else "",
+                to_node=str(to_node) if to_node is not None else "",
                 road_class=RoadClass(edge_data.get("road_class", "secondary")),
                 length_m=edge_data.get("length_m", 100),
                 speed_limit_kmh=edge_data.get("speed_limit", 50),
@@ -343,7 +345,7 @@ class TransportNetwork:
             stats["total_length_km"] = total_length / 1000
             
             # Road class distribution
-            road_classes = {}
+            road_classes: Dict[str, int] = {}
             for _, _, data in self._graph.edges(data=True):
                 rc = data.get('road_class', 'unknown')
                 road_classes[rc] = road_classes.get(rc, 0) + 1

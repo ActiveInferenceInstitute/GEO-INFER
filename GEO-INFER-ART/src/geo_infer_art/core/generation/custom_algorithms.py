@@ -10,6 +10,7 @@ import importlib.util
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 from geo_infer_art.core.aesthetics import ColorPalette
 
@@ -22,10 +23,10 @@ class CustomAlgorithmFramework:
     from geospatial data, with a consistent interface and validation system.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the custom algorithm framework."""
-        self.registered_algorithms = {}
-        self.algorithm_metadata = {}
+        self.registered_algorithms: Dict[str, Callable] = {}
+        self.algorithm_metadata: Dict[str, Dict[str, Any]] = {}
 
     def register_algorithm(
         self,
@@ -114,7 +115,7 @@ class CustomAlgorithmFramework:
         data: Any,
         width: int = 800,
         height: int = 800,
-        **params
+        **params: Any
     ) -> Any:
         """
         Execute a registered custom algorithm.
@@ -197,7 +198,7 @@ class CustomAlgorithmFramework:
             # Try to recreate the function from source
             try:
                 # Create a temporary module to execute the function
-                spec = importlib.util.spec_from_string("temp_module", source)
+                spec = importlib.util.spec_from_string("temp_module", source)  # type: ignore[attr-defined]
                 temp_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(temp_module)
 
@@ -220,7 +221,9 @@ class CustomAlgorithmFramework:
 
 # Example custom algorithms for demonstration
 
-def example_spiral_algorithm(data, params, width, height):
+def example_spiral_algorithm(
+    data: Any, params: Dict, width: int, height: int
+) -> Figure:
     """
     Example custom algorithm that creates spiral patterns.
 
@@ -254,7 +257,9 @@ def example_spiral_algorithm(data, params, width, height):
     return fig
 
 
-def example_cellular_growth_algorithm(data, params, width, height):
+def example_cellular_growth_algorithm(
+    data: Any, params: Dict, width: int, height: int
+) -> Figure:
     """
     Example algorithm simulating cellular growth patterns.
 
@@ -296,7 +301,7 @@ def example_cellular_growth_algorithm(data, params, width, height):
     colors = ['red', 'green', 'blue', 'yellow']
     for cell in cells:
         x, y, radius, color_idx = cell
-        color = colors[color_idx]
+        color = colors[int(color_idx)]
 
         # Draw cell as circle
         circle = plt.Circle((x, y), radius, color=color, alpha=0.6, edgecolor='white', linewidth=1)
@@ -310,7 +315,9 @@ def example_cellular_growth_algorithm(data, params, width, height):
     return fig
 
 
-def example_fractal_landscape_algorithm(data, params, width, height):
+def example_fractal_landscape_algorithm(
+    data: Any, params: Dict, width: int, height: int
+) -> Figure:
     """
     Example algorithm creating fractal landscape patterns.
 

@@ -27,6 +27,7 @@
 - `test_dashboard_advanced.py`
 - `test_data_sources.py`
 - `test_del_norte_analyzers.py`
+- `test_del_norte_demo_orchestration.py`
 - `test_h3_operations.py`
 - `test_integration_wrappers.py`
 - `test_module_bridge.py`

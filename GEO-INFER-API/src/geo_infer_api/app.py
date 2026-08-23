@@ -2,6 +2,8 @@
 Main application entry point for GEO-INFER-API.
 """
 import os
+from typing import Any
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
@@ -48,9 +50,9 @@ main_app.include_router(
 
 # Custom documentation endpoints
 @main_app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html():
+async def custom_swagger_ui_html() -> Any:
     return get_swagger_ui_html(
-        openapi_url=main_app.openapi_url,
+        openapi_url=main_app.openapi_url or "/openapi.json",
         title=f"{main_app.title} - Swagger UI",
         oauth2_redirect_url=main_app.swagger_ui_oauth2_redirect_url,
         swagger_js_url="/static/swagger-ui-bundle.js",
@@ -59,9 +61,9 @@ async def custom_swagger_ui_html():
 
 
 @main_app.get("/redoc", include_in_schema=False)
-async def redoc_html():
+async def redoc_html() -> Any:
     return get_redoc_html(
-        openapi_url=main_app.openapi_url,
+        openapi_url=main_app.openapi_url or "/openapi.json",
         title=f"{main_app.title} - ReDoc",
         redoc_js_url="/static/redoc.standalone.js",
     )

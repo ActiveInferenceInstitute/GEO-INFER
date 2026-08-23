@@ -972,8 +972,8 @@ class SpatialRoutingOptimizer:
             return {"message": "No routing history available"}
 
         # Analyze success rates by message type
-        success_by_type = {}
-        latency_by_type = {}
+        success_by_type: Dict[str, int] = {}
+        latency_by_type: Dict[str, float] = {}
 
         for record in history:
             message_id = record["message_id"]

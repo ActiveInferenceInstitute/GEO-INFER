@@ -12,7 +12,7 @@ import os
 import time
 import logging
 import functools
-from typing import Dict, Any, Optional, Callable, Type, Union, Tuple, List
+from typing import Dict, Any, Optional, Callable, Type, Union, Tuple, List, cast
 from enum import Enum
 import requests
 import git
@@ -50,8 +50,8 @@ class GeoInferGitError(Exception):
 
     def __init__(self, message: str, category: ErrorCategory = ErrorCategory.UNKNOWN,
                  severity: ErrorSeverity = ErrorSeverity.MEDIUM,
-                 recoverable: bool = False, suggestions: List[str] = None,
-                 original_error: Exception = None):
+                 recoverable: bool = False, suggestions: Optional[List[str]] = None,
+                 original_error: Optional[Exception] = None) -> None:
         """
         Initialize the error.
 
@@ -92,7 +92,7 @@ class NetworkError(GeoInferGitError):
     recovery strategies run for directly constructed errors too.
     """
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         kwargs.setdefault('recoverable', True)
         super().__init__(message, category=ErrorCategory.NETWORK,
                         severity=ErrorSeverity.HIGH, **kwargs)
@@ -100,14 +100,14 @@ class NetworkError(GeoInferGitError):
 class AuthenticationError(GeoInferGitError):
     """Authentication-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.AUTHENTICATION,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
 class PermissionError(GeoInferGitError):
     """Permission-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.PERMISSION,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
@@ -118,7 +118,7 @@ class GitOperationError(GeoInferGitError):
     recovery strategies run for directly constructed errors too.
     """
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         kwargs.setdefault('recoverable', True)
         super().__init__(message, category=ErrorCategory.GIT_OPERATION,
                         severity=ErrorSeverity.MEDIUM, **kwargs)
@@ -126,21 +126,21 @@ class GitOperationError(GeoInferGitError):
 class FilesystemError(GeoInferGitError):
     """Filesystem-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.FILESYSTEM,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
 class ConfigurationError(GeoInferGitError):
     """Configuration-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.CONFIGURATION,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
 class APILimitError(GeoInferGitError):
     """API rate limit errors."""
 
-    def __init__(self, message: str, reset_time: int = None, **kwargs):
+    def __init__(self, message: str, reset_time: Optional[int] = None, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.API_LIMIT,
                         severity=ErrorSeverity.MEDIUM, recoverable=True, **kwargs)
         self.reset_time = reset_time
@@ -148,7 +148,7 @@ class APILimitError(GeoInferGitError):
 class ValidationError(GeoInferGitError):
     """Validation-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.VALIDATION,
                         severity=ErrorSeverity.MEDIUM, **kwargs)
 
@@ -220,8 +220,9 @@ def classify_error(error: Exception) -> Tuple[ErrorCategory, ErrorSeverity, bool
 
 def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
                   max_delay: float = 60.0, exponential_base: float = 2.0,
-                  jitter: bool = True, retryable_errors: Tuple[Type[Exception], ...] = None,
-                  logger_instance: logging.Logger = None):
+                  jitter: bool = True,
+                  retryable_errors: Optional[Tuple[Type[Exception], ...]] = None,
+                  logger_instance: Optional[logging.Logger] = None) -> Callable:
     """
     Decorator for retrying functions on errors.
 
@@ -245,8 +246,8 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            last_error = None
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            last_error: Optional[Exception] = None
 
             for attempt in range(max_attempts):
                 try:
@@ -257,7 +258,10 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
 
                     # Check if error is retryable
                     if not isinstance(error, retryable_errors):
-                        logger_instance.error(f"Non-retryable error in {func.__name__}: {error}")
+                        if logger_instance:
+                            logger_instance.error(
+                                f"Non-retryable error in {func.__name__}: {error}"
+                            )
                         raise
 
                     # Don't retry on last attempt
@@ -284,13 +288,14 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
             if logger_instance:
                 logger_instance.error(f"All {max_attempts} attempts failed in {func.__name__}")
 
-            raise last_error
+            raise cast(BaseException, last_error)
 
         return wrapper
 
     return decorator
 
-def handle_error(error: Exception, operation: str = None, logger_instance: logging.Logger = None,
+def handle_error(error: Exception, operation: Optional[str] = None,
+                logger_instance: Optional[logging.Logger] = None,
                 reraise: bool = True) -> Optional[GeoInferGitError]:
     """
     Handle and classify an error.
@@ -365,7 +370,7 @@ def handle_error(error: Exception, operation: str = None, logger_instance: loggi
 
     # Log the error
     if logger_instance:
-        logger_instance.log_error_with_context(error, operation)
+        cast(Any, logger_instance).log_error_with_context(error, operation)
 
     if reraise:
         raise structured_error from error
@@ -388,7 +393,7 @@ class ErrorRecoveryManager:
     #: An index.lock older than this is treated as abandoned.
     STALE_LOCK_SECONDS = 300.0
 
-    def __init__(self, logger_instance: logging.Logger = None):
+    def __init__(self, logger_instance: Optional[logging.Logger] = None) -> None:
         """
         Initialize error recovery manager.
 
@@ -429,7 +434,7 @@ class ErrorRecoveryManager:
 
         return strategies
 
-    def attempt_recovery(self, error: GeoInferGitError, context: Dict[str, Any] = None) -> bool:
+    def attempt_recovery(self, error: GeoInferGitError, context: Optional[Dict[str, Any]] = None) -> bool:
         """
         Attempt to recover from an error.
 
@@ -515,7 +520,7 @@ class ErrorRecoveryManager:
                 headers={'Authorization': f'token {token}'},
                 timeout=5
             )
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except requests.RequestException:
             return False
 
@@ -755,8 +760,9 @@ class ErrorRecoveryManager:
         except Exception:
             return False
 
-def with_error_handling(operation: str = None, logger_instance: logging.Logger = None,
-                       max_retries: int = 3):
+def with_error_handling(operation: Optional[str] = None,
+                       logger_instance: Optional[logging.Logger] = None,
+                       max_retries: int = 3) -> Callable:
     """
     Decorator for comprehensive error handling.
 
@@ -770,7 +776,7 @@ def with_error_handling(operation: str = None, logger_instance: logging.Logger =
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             recovery_manager = ErrorRecoveryManager(logger_instance)
 
             for attempt in range(max_retries):
@@ -785,6 +791,7 @@ def with_error_handling(operation: str = None, logger_instance: logging.Logger =
                         logger_instance,
                         reraise=False
                     )
+                    assert structured_error is not None
 
                     # Attempt recovery if possible
                     if structured_error.recoverable and attempt < max_retries - 1:

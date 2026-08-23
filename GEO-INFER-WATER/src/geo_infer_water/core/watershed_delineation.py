@@ -5,7 +5,7 @@ for extracting drainage basins from digital elevation models.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, cast
 
 import numpy as np
 import xarray as xr
@@ -217,7 +217,7 @@ class WatershedDelineator:
         """
         dy, dx = np.gradient(dem, cell_size)
         slope_rad = np.arctan(np.sqrt(dx ** 2 + dy ** 2))
-        return np.degrees(slope_rad)
+        return cast("np.ndarray", np.degrees(slope_rad))
 
     def full_delineation(
         self,

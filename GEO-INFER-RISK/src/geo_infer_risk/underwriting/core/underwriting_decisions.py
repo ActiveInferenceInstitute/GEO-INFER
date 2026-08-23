@@ -33,7 +33,7 @@ class DecisionType(Enum):
     DECLINED = "declined"
 
 
-class DecisionCriteria(Enum):
+class DecisionCriterion(Enum):
     """Decision criteria enumeration."""
 
     RISK_SCORE = "risk_score"
@@ -49,7 +49,7 @@ class DecisionCriteria(Enum):
 class DecisionCriteria:
     """Decision criteria configuration."""
 
-    criteria_type: DecisionCriteria
+    criteria_type: DecisionCriterion
     weight: float = 1.0
     threshold: float = 0.7
     operator: str = "greater_equal"  # greater_equal, less_equal, equals, between
@@ -70,7 +70,7 @@ class DecisionCriteria:
 
     def get_score(self, value: float) -> float:
         """Get normalized score for criteria."""
-        if self.criteria_type == DecisionCriteria.RISK_SCORE:
+        if self.criteria_type == DecisionCriterion.RISK_SCORE:
             # Lower risk scores are better
             return max(0, 1 - value) * self.weight
         else:
@@ -111,33 +111,37 @@ class DecisionFramework:
         return criteria_results
 
     def _get_criteria_value(
-        self, data: Dict[str, Any], criteria_type: DecisionCriteria
+        self, data: Dict[str, Any], criteria_type: DecisionCriterion
     ) -> float:
         """Get value for specific criteria."""
-        if criteria_type == DecisionCriteria.RISK_SCORE:
-            return data.get("risk_score", 0.5)
-        elif criteria_type == DecisionCriteria.PREMIUM_ADEQUACY:
-            return data.get("premium_adequacy", 1.0)
-        elif criteria_type == DecisionCriteria.COVERAGE_LIMITS:
-            return data.get("coverage_adequacy", 1.0)
-        elif criteria_type == DecisionCriteria.LOSS_HISTORY:
-            return data.get("loss_ratio", 0.1)
-        elif criteria_type == DecisionCriteria.FINANCIAL_STABILITY:
-            return data.get("financial_stability", 0.8)
-        elif criteria_type == DecisionCriteria.COMPLIANCE:
-            return data.get("compliance_score", 1.0)
-        elif criteria_type == DecisionCriteria.MARKET_CONDITIONS:
-            return data.get("market_competitiveness", 0.8)
+        if criteria_type == DecisionCriterion.RISK_SCORE:
+            return float(data.get("risk_score", 0.5))
+        elif criteria_type == DecisionCriterion.PREMIUM_ADEQUACY:
+            return float(data.get("premium_adequacy", 1.0))
+        elif criteria_type == DecisionCriterion.COVERAGE_LIMITS:
+            return float(data.get("coverage_adequacy", 1.0))
+        elif criteria_type == DecisionCriterion.LOSS_HISTORY:
+            return float(data.get("loss_ratio", 0.1))
+        elif criteria_type == DecisionCriterion.FINANCIAL_STABILITY:
+            return float(data.get("financial_stability", 0.8))
+        elif criteria_type == DecisionCriterion.COMPLIANCE:
+            return float(data.get("compliance_score", 1.0))
+        elif criteria_type == DecisionCriterion.MARKET_CONDITIONS:
+            return float(data.get("market_competitiveness", 0.8))
         else:
-            return 0.5
+            return 0.5  # type: ignore[unreachable]
 
     def calculate_overall_score(self, criteria_results: Dict[str, Any]) -> float:
         """Calculate overall decision score."""
-        total_weight = sum(result["weight"] for result in criteria_results.values())
+        total_weight = float(
+            sum(result["weight"] for result in criteria_results.values())
+        )
         if total_weight == 0:
             return 0.0
 
-        weighted_score = sum(result["score"] for result in criteria_results.values())
+        weighted_score = float(
+            sum(result["score"] for result in criteria_results.values())
+        )
         return weighted_score / total_weight
 
 
@@ -298,14 +302,14 @@ class UnderwritingDecisionEngine:
         """Initialize default decision frameworks."""
         # Standard framework
         standard_criteria = [
-            DecisionCriteria(DecisionCriteria.RISK_SCORE, weight=0.4, threshold=0.7),
+            DecisionCriteria(DecisionCriterion.RISK_SCORE, weight=0.4, threshold=0.7),
             DecisionCriteria(
-                DecisionCriteria.PREMIUM_ADEQUACY, weight=0.3, threshold=1.0
+                DecisionCriterion.PREMIUM_ADEQUACY, weight=0.3, threshold=1.0
             ),
             DecisionCriteria(
-                DecisionCriteria.COVERAGE_LIMITS, weight=0.2, threshold=1.0
+                DecisionCriterion.COVERAGE_LIMITS, weight=0.2, threshold=1.0
             ),
-            DecisionCriteria(DecisionCriteria.COMPLIANCE, weight=0.1, threshold=0.9),
+            DecisionCriteria(DecisionCriterion.COMPLIANCE, weight=0.1, threshold=0.9),
         ]
 
         self.decision_frameworks["standard"] = DecisionFramework(
@@ -317,11 +321,13 @@ class UnderwritingDecisionEngine:
 
         # Conservative framework
         conservative_criteria = [
-            DecisionCriteria(DecisionCriteria.RISK_SCORE, weight=0.5, threshold=0.5),
+            DecisionCriteria(DecisionCriterion.RISK_SCORE, weight=0.5, threshold=0.5),
             DecisionCriteria(
-                DecisionCriteria.PREMIUM_ADEQUACY, weight=0.3, threshold=1.2
+                DecisionCriterion.PREMIUM_ADEQUACY, weight=0.3, threshold=1.2
             ),
-            DecisionCriteria(DecisionCriteria.LOSS_HISTORY, weight=0.2, threshold=0.1),
+            DecisionCriteria(
+                DecisionCriterion.LOSS_HISTORY, weight=0.2, threshold=0.1
+            ),
         ]
 
         self.decision_frameworks["conservative"] = DecisionFramework(
@@ -334,12 +340,12 @@ class UnderwritingDecisionEngine:
 
         # Aggressive framework
         aggressive_criteria = [
-            DecisionCriteria(DecisionCriteria.RISK_SCORE, weight=0.3, threshold=0.8),
+            DecisionCriteria(DecisionCriterion.RISK_SCORE, weight=0.3, threshold=0.8),
             DecisionCriteria(
-                DecisionCriteria.PREMIUM_ADEQUACY, weight=0.4, threshold=0.9
+                DecisionCriterion.PREMIUM_ADEQUACY, weight=0.4, threshold=0.9
             ),
             DecisionCriteria(
-                DecisionCriteria.MARKET_CONDITIONS, weight=0.3, threshold=0.7
+                DecisionCriterion.MARKET_CONDITIONS, weight=0.3, threshold=0.7
             ),
         ]
 
@@ -389,8 +395,8 @@ class UnderwritingDecisionEngine:
         total_decisions = len(self.decision_history)
 
         # Calculate decision distribution
-        decision_types = {}
-        decisions = {}
+        decision_types: Dict[str, int] = {}
+        decisions: Dict[str, int] = {}
 
         for record in self.decision_history:
             decision_result = record["decision_result"]
@@ -420,7 +426,7 @@ class UnderwritingDecisionEngine:
 
     def _get_framework_usage(self) -> Dict[str, int]:
         """Get framework usage statistics."""
-        framework_usage = {}
+        framework_usage: Dict[str, int] = {}
 
         for record in self.decision_history:
             framework = record["decision_result"].get("framework_used", "unknown")

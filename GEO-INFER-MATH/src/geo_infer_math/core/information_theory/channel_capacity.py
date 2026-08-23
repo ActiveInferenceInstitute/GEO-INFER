@@ -338,7 +338,7 @@ class ChannelCapacityCalculator:
         coordinates: np.ndarray,
         signal_power: np.ndarray,
         noise_power: float,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate spatial channel capacity.

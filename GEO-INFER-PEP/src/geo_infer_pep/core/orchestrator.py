@@ -5,7 +5,7 @@ This module provides orchestration capabilities for complex PEP workflows,
 coordinating between multiple modules and handling multi-step processes.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime, date
 import logging
 from enum import Enum
@@ -27,16 +27,22 @@ class WorkflowStatus(str, Enum):
 class WorkflowStep:
     """Represents a single step in a workflow."""
 
-    def __init__(self, name: str, description: str, step_function: callable, dependencies: List[str] = None):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        step_function: Callable[[Dict[str, Any]], Any],
+        dependencies: Optional[List[str]] = None,
+    ):
         self.name = name
         self.description = description
         self.step_function = step_function
         self.dependencies = dependencies or []
         self.status = WorkflowStatus.PENDING
-        self.result = None
-        self.error = None
-        self.started_at = None
-        self.completed_at = None
+        self.result: Any = None
+        self.error: Optional[str] = None
+        self.started_at: Optional[datetime] = None
+        self.completed_at: Optional[datetime] = None
 
     def execute(self, context: Dict[str, Any]) -> bool:
         """Execute the workflow step."""
@@ -72,8 +78,8 @@ class PEPOrchestrator:
 
     def __init__(self, pep_engine: Optional[PEPEngine] = None):
         self.engine = pep_engine or PEPEngine()
-        self.workflows = {}
-        self.active_workflows = {}
+        self.workflows: Dict[str, Any] = {}
+        self.active_workflows: Dict[str, Any] = {}
 
     def create_employee_onboarding_workflow(self, candidate_id: str) -> str:
         """Create a comprehensive employee onboarding workflow."""

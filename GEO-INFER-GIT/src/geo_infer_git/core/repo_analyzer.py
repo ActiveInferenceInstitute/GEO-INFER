@@ -80,6 +80,7 @@ class SecurityAnalysis:
     low_severity_vulnerabilities: int = 0
     secrets_detected: List[str] = field(default_factory=list)
     insecure_patterns: List[str] = field(default_factory=list)
+    dependency_vulnerabilities: List[Dict[str, Any]] = field(default_factory=list)
     security_score: float = 100.0
 
 @dataclass
@@ -169,7 +170,7 @@ class CodeAnalyzer:
         try:
             # Use radon for complexity analysis if available
             try:
-                import radon.complexity as cc
+                import radon.complexity as cc  # type: ignore[import-untyped]
 
                 total_complexity = 0
                 function_count = 0
@@ -242,9 +243,11 @@ class CodeAnalyzer:
                         tree = ast.parse(content)
 
                         for node in ast.walk(tree):
-                            if isinstance(node, ast.FunctionDef) and ast.get_docstring(node):
-                                docstring_lines += len(ast.get_docstring(node).split('\n'))
-                                function_count += 1
+                            if isinstance(node, ast.FunctionDef):
+                                doc = ast.get_docstring(node)
+                                if doc:
+                                    docstring_lines += len(doc.split('\n'))
+                                    function_count += 1
 
                     except SyntaxError:
                         continue
@@ -274,7 +277,7 @@ class DependencyAnalyzer:
             repo_path: Path to the repository to analyze
         """
         self.repo_path = Path(repo_path)
-        self.dependencies = []
+        self.dependencies: List[DependencyInfo] = []
 
     def analyze_dependencies(self) -> List[DependencyInfo]:
         """
@@ -635,7 +638,7 @@ class SecurityAnalyzer:
         }
 
         if not hasattr(self, 'analysis'):
-            self.analysis = {}
+            self.analysis = SecurityAnalysis()
 
         dep_findings = []
         # Check lock files and requirements for dependency names
@@ -654,7 +657,7 @@ class SecurityAnalyzer:
             except Exception as e:
                 logger.warning(f"Error scanning {req_file}: {e}")
 
-        self.analysis["dependency_vulnerabilities"] = dep_findings
+        self.analysis.dependency_vulnerabilities = dep_findings
 
     def _detect_secrets(self) -> None:
         """Detect potential secrets in code."""
@@ -750,7 +753,11 @@ class RepositoryAnalyzer:
         self.repo_path = Path(repo_path)
         self.analysis = RepositoryAnalysis(
             repository_path=str(repo_path),
-            analysis_timestamp=datetime.now(timezone.utc)
+            analysis_timestamp=datetime.now(timezone.utc),
+            code_quality=CodeQualityMetrics(),
+            dependencies=[],
+            geospatial_content=GeospatialContent(),
+            security_analysis=SecurityAnalysis(),
         )
 
     def analyze_repository(self) -> RepositoryAnalysis:

@@ -278,7 +278,7 @@ class Claim:
 
     def validate_claim(self) -> Dict[str, Any]:
         """Validate claim data and return validation results."""
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             'is_valid': True,
             'errors': [],
             'warnings': []

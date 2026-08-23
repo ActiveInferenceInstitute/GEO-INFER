@@ -13,7 +13,7 @@ from pathlib import Path
 class BioVisualizer:
     """A class for visualizing biological data with spatial context."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the BioVisualizer."""
         try:
             plt.style.use("seaborn-v0_8")
@@ -43,7 +43,7 @@ class BioVisualizer:
     @staticmethod
     def _spatial_frame(data: Any, value_column: Optional[str] = None) -> pd.DataFrame:
         """Validate a table that will be converted to point geometries."""
-        required = ("longitude", "latitude")
+        required: tuple[str, ...] = ("longitude", "latitude")
         if value_column is not None:
             required += (value_column,)
         frame = BioVisualizer._as_frame(data, required)
@@ -75,7 +75,7 @@ class BioVisualizer:
 
     def plot_spatial_distribution(
         self,
-        data,
+        data: Any,
         output_path: Optional[str] = None,
         title: str = "Spatial Distribution",
     ) -> plt.Figure:
@@ -208,7 +208,7 @@ class BioVisualizer:
 
     def plot_sequence_alignment(
         self,
-        alignment,
+        alignment: Any,
         output_path: Optional[str] = None,
     ) -> plt.Figure:
         """

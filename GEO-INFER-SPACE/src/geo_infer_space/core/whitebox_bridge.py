@@ -25,7 +25,7 @@ try:  # pragma: no cover - import probe
     HAS_WHITEBOX: bool = True
     _WBW = _wbw
 except ImportError:  # pragma: no cover - exercised when whitebox is missing
-    _WBW = None  # type: ignore[assignment]
+    _WBW = None
     HAS_WHITEBOX = False
 
 

@@ -7,7 +7,7 @@ with support for different channel types and access controls.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set
+from typing import Dict, List, Optional, Callable, Any, Set, cast
 import threading
 import logging
 from datetime import datetime, timezone
@@ -439,10 +439,11 @@ class ChannelManager:
         for channel in self.channels.values():
             if channel.geospatial_bounds:
                 # Simple bounds intersection check
-                if (channel.geospatial_bounds.min_longitude <= max_lon and
-                    channel.geospatial_bounds.max_longitude >= min_lon and
-                    channel.geospatial_bounds.min_latitude <= max_lat and
-                    channel.geospatial_bounds.max_latitude >= min_lat):
+                bounds = cast(Any, channel.geospatial_bounds)
+                if (bounds.min_longitude <= max_lon and
+                    bounds.max_longitude >= min_lon and
+                    bounds.min_latitude <= max_lat and
+                    bounds.max_latitude >= min_lat):
                     nearby_channels.append(channel)
 
         return nearby_channels
@@ -480,13 +481,13 @@ class ChannelManager:
 
             # Check explicit permissions
             if permission in user_perms:
-                return user_perms[permission]
+                return cast(bool, user_perms[permission])
 
             # Check role-based permissions
             user_role = user_perms.get("role", "member")
             role_perms = channel_perms.get(f"role_{user_role}", {})
 
-            return role_perms.get(permission, False)
+            return cast(bool, role_perms.get(permission, False))
 
     def _set_default_permissions(self, channel_id: str, user_id: str) -> None:
         """Set default permissions for channel creator."""
@@ -632,7 +633,8 @@ class ChannelPermissionManager:
             return self.channel_manager.check_permission(channel_id, user_id, permission)
 
         # Check if location is within channel bounds
-        if not channel.geospatial_bounds.contains_point(location):
+        bounds = cast(Any, channel.geospatial_bounds)
+        if not bounds.contains_point(location):
             return False
 
         return self.channel_manager.check_permission(channel_id, user_id, permission)
@@ -650,8 +652,8 @@ class ChannelPermissionManager:
             user_role = user_perms.get("role", "member")
             role_perms = channel_perms.get(f"role_{user_role}", {})
 
-            effective = role_perms.copy()
-            effective.update(user_perms)
+            effective = cast(Dict[str, Any], role_perms.copy())
+            effective.update(cast(Dict[str, Any], user_perms))
 
             return effective
 
@@ -780,7 +782,7 @@ class ChannelMessageFilter:
         elif rule_type == "geospatial":
             if not message.geospatial_data:
                 # If geospatial filter requires location data, reject
-                return filter_rule.get("require_location", False)
+                return cast(bool, filter_rule.get("require_location", False))
 
             # Check geospatial constraints
             geo_filter = filter_rule.get("spatial_filter")
@@ -865,9 +867,9 @@ class ChannelAnalytics:
             return {"message": "No activity data available"}
 
         # Calculate basic metrics
-        activity_counts = {}
-        user_activity = {}
-        hourly_activity = {}
+        activity_counts: Dict[str, int] = {}
+        user_activity: Dict[str, int] = {}
+        hourly_activity: Dict[int, int] = {}
 
         for activity in activities:
             # Count by type
@@ -900,7 +902,7 @@ class ChannelAnalytics:
             return {"message": "No activity data available"}
 
         # System-wide metrics
-        channel_activity = {}
+        channel_activity: Dict[str, int] = {}
         total_activities = len(self.activity_log)
 
         for entry in self.activity_log:

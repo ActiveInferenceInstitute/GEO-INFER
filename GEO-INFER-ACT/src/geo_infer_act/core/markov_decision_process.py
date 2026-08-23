@@ -2,7 +2,7 @@
 Markov Decision Process modeling for Active Inference.
 """
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 
@@ -159,8 +159,8 @@ class MarkovDecisionProcess:
             policies = []
 
             for _ in range(n_policies):
-                policy = self.rng.integers(0, self.n_actions, size=horizon)
-                policies.append(policy)
+                policy_arr = self.rng.integers(0, self.n_actions, size=horizon)
+                policies.append(policy_arr)
 
             return policies
 
@@ -255,7 +255,7 @@ class MarkovDecisionProcess:
             else:
                 # Deterministic transition (most likely)
                 transition_dist = self.transition_prob[current_state, :, action]
-                next_state = np.argmax(transition_dist)
+                next_state = int(np.argmax(transition_dist))
 
             state_trajectory.append(next_state)
 
@@ -265,7 +265,7 @@ class MarkovDecisionProcess:
             else:
                 # Deterministic observation (most likely)
                 observation_dist = self.observation_prob[:, next_state]
-                observation = np.argmax(observation_dist)
+                observation = int(np.argmax(observation_dist))
 
             observation_trajectory.append(observation)
             current_state = next_state
@@ -350,7 +350,7 @@ class MarkovDecisionProcess:
             raise ValueError("Observation has zero posterior support")
         posterior = posterior / total
 
-        return posterior
+        return cast(np.ndarray, posterior)
 
     def set_transition_matrix(
         self, state: int, action: int, distribution: np.ndarray

@@ -8,14 +8,14 @@ computations to improve performance.
 import functools
 import hashlib
 import pickle
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Dict, Tuple
 import numpy as np
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def cache_result(maxsize: int = 128, ttl: Optional[float] = None):
+def cache_result(maxsize: int = 128, ttl: Optional[float] = None) -> Callable:
     """
     Decorator to cache function results.
 
@@ -28,11 +28,11 @@ def cache_result(maxsize: int = 128, ttl: Optional[float] = None):
     """
 
     def decorator(func: Callable) -> Callable:
-        cache = {}
-        cache_times = {}
+        cache: Dict[str, Any] = {}
+        cache_times: Dict[str, float] = {}
 
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Create cache key
             key = _create_cache_key(args, kwargs)
 
@@ -53,7 +53,7 @@ def cache_result(maxsize: int = 128, ttl: Optional[float] = None):
             # Compute result
             result = func(*args, **kwargs)
 
-            # Store in cache
+            # Check cache size limit
             if len(cache) >= maxsize:
                 # Remove oldest entry
                 oldest_key = min(cache_times.keys(), key=lambda k: cache_times[k])
@@ -68,13 +68,20 @@ def cache_result(maxsize: int = 128, ttl: Optional[float] = None):
 
             return result
 
-        wrapper.cache_clear = lambda: (cache.clear(), cache_times.clear())
-        wrapper.cache_info = lambda: {
-            "size": len(cache),
-            "maxsize": maxsize,
-            "hits": getattr(wrapper, "_hits", 0),
-            "misses": getattr(wrapper, "_misses", 0),
-        }
+        def cache_clear() -> None:
+            cache.clear()
+            cache_times.clear()
+
+        def cache_info() -> Dict[str, Any]:
+            return {
+                "size": len(cache),
+                "maxsize": maxsize,
+                "hits": getattr(wrapper, "_hits", 0),
+                "misses": getattr(wrapper, "_misses", 0),
+            }
+
+        setattr(wrapper, "cache_clear", cache_clear)
+        setattr(wrapper, "cache_info", cache_info)
 
         return wrapper
 
@@ -85,7 +92,7 @@ def _create_cache_key(args: tuple, kwargs: dict) -> str:
     """Create a cache key from function arguments."""
 
     # Handle numpy arrays specially
-    def serialize_arg(arg):
+    def serialize_arg(arg: Any) -> Any:
         if isinstance(arg, np.ndarray):
             return hashlib.md5(arg.tobytes()).hexdigest()
         try:
@@ -104,7 +111,7 @@ class ComputationCache:
     Cache manager for expensive computations.
     """
 
-    def __init__(self, maxsize: int = 256):
+    def __init__(self, maxsize: int = 256) -> None:
         """
         Initialize computation cache.
 
@@ -112,8 +119,8 @@ class ComputationCache:
             maxsize: Maximum cache size
         """
         self.maxsize = maxsize
-        self._cache = {}
-        self._access_times = {}
+        self._cache: Dict[str, Any] = {}
+        self._access_times: Dict[str, float] = {}
 
     def get(self, key: str) -> Optional[Any]:
         """
@@ -132,7 +139,7 @@ class ComputationCache:
             return self._cache[key]
         return None
 
-    def set(self, key: str, value: Any):
+    def set(self, key: str, value: Any) -> None:
         """
         Set cached value.
 
@@ -153,7 +160,7 @@ class ComputationCache:
 
         self._access_times[key] = time.time()
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all cached values."""
         self._cache.clear()
         self._access_times.clear()

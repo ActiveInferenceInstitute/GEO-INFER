@@ -27,11 +27,11 @@ class BayesianNetwork(BayesianModel):
     causal relationships in geospatial data.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the Bayesian network model."""
         super().__init__(name="BayesianNetwork", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the Bayesian network model."""
         self.parameters = {
             "edge_weights": {
@@ -81,9 +81,10 @@ class BayesianNetwork(BayesianModel):
         predictions = np.asarray(
             [weight * signal + bias for weight, bias in zip(weights, biases)]
         )
-        mean_prediction = predictions.mean(axis=0)
+        mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
-            return mean_prediction, np.std(predictions, axis=0) + np.finfo(float).eps
+            std_prediction: np.ndarray = np.asarray(np.std(predictions, axis=0)) + np.finfo(float).eps
+            return mean_prediction, std_prediction
         return mean_prediction
 
     def posterior_predictive(

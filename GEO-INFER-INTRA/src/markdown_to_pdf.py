@@ -26,7 +26,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class MarkdownToPDFConverter:
@@ -166,15 +166,12 @@ class MarkdownToPDFConverter:
             }
         }
     
-    def load_custom_config(self, config_path: Path) -> Dict:
+    def load_custom_config(self, config_path: Path) -> Dict[str, Any]:
         """Load custom configuration from file."""
         try:
             with open(config_path, 'r') as f:
-                if config_path.suffix.lower() == '.json':
-                    return json.load(f)
-                else:
-                    # Try to load as JSON anyway
-                    return json.load(f)
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
         except Exception as e:
             self.logger.warning(f"Failed to load config from {config_path}: {e}")
             return {}
@@ -258,7 +255,7 @@ class MarkdownToPDFConverter:
                         output_dir: Optional[Path] = None,
                         config: Optional[Dict] = None) -> Dict[str, bool]:
         """Convert multiple markdown files to PDF."""
-        results = {}
+        results: Dict[str, bool] = {}
         
         # Collect all matching files
         input_files = []
@@ -292,7 +289,7 @@ class MarkdownToPDFConverter:
         return results
 
 
-def main():
+def main() -> None:
     """Main entry point for the script."""
     parser = argparse.ArgumentParser(
         description="Convert Markdown files to PDF with Mermaid diagram support",

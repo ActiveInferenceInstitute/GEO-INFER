@@ -117,9 +117,9 @@ class RoutingEngine:
         dest_id = destination.get("node_id") or destination.get("id") or "destination"
         
         # Get path from network
-        path = []
-        total_distance = 0
-        total_time = 0
+        path: List[str] = []
+        total_distance = 0.0
+        total_time = 0.0
         
         if self.network and hasattr(self.network, 'graph'):
             import networkx as nx
@@ -135,18 +135,18 @@ class RoutingEngine:
                 
                 # Calculate path
                 if self.algorithm == RoutingAlgorithm.A_STAR:
-                    path = nx.astar_path(graph, origin_id, dest_id, weight=weight)
+                    path = list(nx.astar_path(graph, origin_id, dest_id, weight=weight))
                 elif self.algorithm == RoutingAlgorithm.BELLMAN_FORD:
-                    path = nx.bellman_ford_path(graph, origin_id, dest_id, weight=weight)
+                    path = list(nx.bellman_ford_path(graph, origin_id, dest_id, weight=weight))
                 else:  # Default to Dijkstra
-                    path = nx.dijkstra_path(graph, origin_id, dest_id, weight=weight)
+                    path = list(nx.dijkstra_path(graph, origin_id, dest_id, weight=weight))
                 
                 # Calculate totals
                 for i in range(len(path) - 1):
                     edge_data = graph.get_edge_data(path[i], path[i+1])
                     if edge_data:
-                        total_distance += edge_data.get("length", 0)
-                        total_time += edge_data.get("travel_time", 0)
+                        total_distance += float(edge_data.get("length", 0))
+                        total_time += float(edge_data.get("travel_time", 0))
                         
             except nx.NetworkXNoPath:
                 logger.warning(f"No path found from {origin_id} to {dest_id}")
@@ -154,7 +154,7 @@ class RoutingEngine:
         else:
             # Fallback for when no network is set
             path = [origin_id, dest_id]
-            total_distance = self._estimate_distance(origin, destination)
+            total_distance = float(self._estimate_distance(origin, destination))
             total_time = total_distance / 13.9  # ~50 km/h in m/s
         
         # Generate turn-by-turn instructions
@@ -173,7 +173,7 @@ class RoutingEngine:
         logger.info(f"Calculated route: {len(path)} nodes, {total_distance/1000:.1f}km, {total_time/60:.1f}min")
         return route
     
-    def _estimate_distance(self, origin: Dict, destination: Dict) -> float:
+    def _estimate_distance(self, origin: Dict[str, Any], destination: Dict[str, Any]) -> float:
         """Estimate distance using Haversine formula."""
         import math
         
@@ -188,9 +188,9 @@ class RoutingEngine:
         a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
         c = 2 * math.asin(math.sqrt(a))
         
-        return 6371000 * c  # Earth radius in meters
+        return float(6371000 * c)  # Earth radius in meters
     
-    def _apply_traffic_weights(self, graph) -> None:
+    def _apply_traffic_weights(self, graph: Any) -> None:
         """Apply traffic data to edge weights."""
         for u, v, data in graph.edges(data=True):
             edge_id = data.get('edge_id', f"{u}_{v}")
@@ -235,7 +235,7 @@ class RoutingEngine:
         origin = waypoints[0]
         remaining = waypoints[1:]
         ordered = [origin]
-        total_distance = 0
+        total_distance = 0.0
         
         current = origin
         while remaining:

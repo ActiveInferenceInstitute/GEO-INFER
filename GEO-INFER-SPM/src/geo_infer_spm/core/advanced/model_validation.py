@@ -16,12 +16,12 @@ Validation Methods:
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Callable, cast
 from scipy import stats
 from sklearn.model_selection import KFold, LeaveOneOut
 import warnings
 
-from ...models.data_models import SPMData, SPMResult
+from ...models.data_models import SPMData, SPMResult, DesignMatrix
 
 
 class ModelValidator:
@@ -64,7 +64,11 @@ class ModelValidator:
         self._rng = np.random.default_rng(random_state)
 
     def cross_validate(
-        self, model_func, data: SPMData, design_matrix, **model_kwargs
+        self,
+        model_func: Callable[..., Any],
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        **model_kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Perform cross-validation of SPM model.
@@ -96,7 +100,11 @@ class ModelValidator:
         return cv_results
 
     def _kfold_cv(
-        self, model_func, data: SPMData, design_matrix, **model_kwargs
+        self,
+        model_func: Callable[..., Any],
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        **model_kwargs: Any,
     ) -> Dict[str, Any]:
         """Perform k-fold cross-validation."""
         y = self._extract_response(data)
@@ -158,7 +166,11 @@ class ModelValidator:
         }
 
     def _loo_cv(
-        self, model_func, data: SPMData, design_matrix, **model_kwargs
+        self,
+        model_func: Callable[..., Any],
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        **model_kwargs: Any,
     ) -> Dict[str, Any]:
         """Perform leave-one-out cross-validation."""
         y = self._extract_response(data)
@@ -207,7 +219,11 @@ class ModelValidator:
         }
 
     def _bootstrap_cv(
-        self, model_func, data: SPMData, design_matrix, **model_kwargs
+        self,
+        model_func: Callable[..., Any],
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        **model_kwargs: Any,
     ) -> Dict[str, Any]:
         """Perform bootstrap cross-validation."""
         y = self._extract_response(data)
@@ -261,7 +277,11 @@ class ModelValidator:
         }
 
     def _spatial_cv(
-        self, model_func, data: SPMData, design_matrix, **model_kwargs
+        self,
+        model_func: Callable[..., Any],
+        data: SPMData,
+        design_matrix: DesignMatrix,
+        **model_kwargs: Any,
     ) -> Dict[str, Any]:
         """Perform spatial cross-validation."""
         # Simplified spatial CV - in practice would use spatial clustering
@@ -362,7 +382,9 @@ class ModelValidator:
             crs=data.crs,
         )
 
-    def _subset_design_matrix(self, design_matrix, indices: np.ndarray):
+    def _subset_design_matrix(
+        self, design_matrix: DesignMatrix, indices: np.ndarray
+    ) -> DesignMatrix:
         """Create subset of design matrix."""
         from ...models.data_models import DesignMatrix
 
@@ -380,7 +402,7 @@ class ModelValidator:
         model_result: SPMResult,
         test_indices: np.ndarray,
         full_data: SPMData,
-        full_design,
+        full_design: DesignMatrix,
     ) -> np.ndarray:
         """Make predictions on a subset of data."""
         # Simplified prediction - assumes linear model
@@ -389,7 +411,7 @@ class ModelValidator:
             and len(model_result.beta_coefficients) > 0
         ):
             X_test = full_design.matrix[test_indices]
-            return X_test @ model_result.beta_coefficients
+            return cast(np.ndarray, X_test @ model_result.beta_coefficients)
         else:
             # Fallback to mean prediction
             return np.full(
@@ -397,7 +419,7 @@ class ModelValidator:
             )
 
     def _predict_on_full_dataset(
-        self, model_result: SPMResult, data: SPMData, design_matrix
+        self, model_result: SPMResult, data: SPMData, design_matrix: DesignMatrix
     ) -> np.ndarray:
         """Make predictions on full dataset."""
         return self._predict_on_subset(
@@ -412,7 +434,7 @@ class ModelValidator:
         residuals = y - predictions
 
         # Simplified optimism calculation
-        return np.var(residuals)
+        return float(np.var(residuals))
 
     def compare_models(
         self, model_results: List[SPMResult], method: str = "aic"
@@ -466,7 +488,7 @@ class ModelValidator:
         )
         ll = result.model_diagnostics.get("log_likelihood", 0)
 
-        return 2 * n_params - 2 * ll
+        return float(2 * n_params - 2 * ll)
 
     def _compute_bic(self, result: SPMResult) -> float:
         """Compute Bayesian Information Criterion."""
@@ -476,7 +498,7 @@ class ModelValidator:
         n_points = len(result.residuals)
         ll = result.model_diagnostics.get("log_likelihood", 0)
 
-        return np.log(n_points) * n_params - 2 * ll
+        return float(np.log(n_points) * n_params - 2 * ll)
 
     def _compute_dic(self, result: SPMResult) -> float:
         """Compute Deviance Information Criterion (simplified)."""
@@ -489,7 +511,7 @@ class ModelValidator:
         # Effective number of parameters (simplified)
         p_d = n_params
 
-        return deviance + 2 * p_d
+        return float(deviance + 2 * p_d)
 
     def diagnostic_tests(self, model_result: SPMResult) -> Dict[str, Any]:
         """
@@ -505,7 +527,7 @@ class ModelValidator:
         y_hat = y - model_result.residuals
         residuals = model_result.residuals
 
-        diagnostics = {}
+        diagnostics: Dict[str, Any] = {}
 
         # Normality tests
         diagnostics["shapiro_wilk"] = self._shapiro_wilk_test(residuals)
@@ -567,7 +589,7 @@ class ModelValidator:
         except Exception:
             return {"statistic": np.nan, "p_value": np.nan, "homoscedastic": True}
 
-    def _durbin_watson_test(self, residuals: np.ndarray) -> Dict[str, float]:
+    def _durbin_watson_test(self, residuals: np.ndarray) -> Dict[str, Any]:
         """Compute Durbin-Watson statistic for autocorrelation."""
         if len(residuals) < 2:
             return {"statistic": np.nan, "autocorrelation": "unknown"}
@@ -596,9 +618,9 @@ class ModelValidator:
         )
 
         if n > p + 1:
-            return 1 - (1 - r2) * (n - 1) / (n - p - 1)
+            return float(1 - (1 - r2) * (n - 1) / (n - p - 1))
         else:
-            return r2
+            return float(r2)
 
 
 def validate_spm_model(

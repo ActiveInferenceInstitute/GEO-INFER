@@ -12,7 +12,7 @@ This module provides data integration capabilities including:
 import logging
 import time
 import os
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any, Callable, cast
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import json
@@ -121,7 +121,7 @@ class DataIntegrationManager:
 
         return base_config
 
-    def get_data(self, source_name: str, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def get_data(self, source_name: str, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """
         Get data from external source.
 
@@ -163,7 +163,7 @@ class DataIntegrationManager:
             self.logger.error(f"Failed to fetch data from {source_name}: {e}")
             return None
 
-    def _generate_cache_key(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> str:
+    def _generate_cache_key(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> str:
         """Generate cache key for data request."""
         base_key = source.get_cache_key()
 
@@ -188,7 +188,7 @@ class DataIntegrationManager:
 
         return age_seconds < source.cache_duration
 
-    def _fetch_data_from_source(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def _fetch_data_from_source(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Fetch data from specific source."""
         try:
             if source.source_type == 'api':
@@ -207,7 +207,7 @@ class DataIntegrationManager:
             self.logger.error(f"Data fetch failed for {source.name}: {e}")
             return None
 
-    def _fetch_from_api(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def _fetch_from_api(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Fetch data from API endpoint."""
         try:
             # Prepare request
@@ -230,7 +230,7 @@ class DataIntegrationManager:
                     )
 
                     if response.status_code == 200:
-                        return response.json()
+                        return cast(Dict[str, Any], response.json())
                     else:
                         self.logger.warning(f"API request failed with status {response.status_code}")
 
@@ -247,7 +247,7 @@ class DataIntegrationManager:
             self.logger.error(f"API fetch failed: {e}")
             return None
 
-    def _fetch_from_database(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def _fetch_from_database(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Fetch data from a database using SQLAlchemy or psycopg2."""
         try:
             import sqlalchemy
@@ -271,7 +271,7 @@ class DataIntegrationManager:
             self.logger.error(f"Database fetch failed for {source.name}: {e}")
             return None
 
-    def _fetch_from_file(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def _fetch_from_file(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Fetch data from a local file (JSON, CSV, or GeoJSON)."""
         import pathlib
         file_path = pathlib.Path(source.endpoint)
@@ -302,7 +302,7 @@ class DataIntegrationManager:
             self.logger.error(f"File fetch failed for {source.name}: {e}")
             return None
 
-    def _fetch_from_stream(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+    def _fetch_from_stream(self, source: ExternalDataSource, query_parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Fetch data from a streaming source (HTTP SSE or WebSocket snapshot)."""
         try:
             import requests
@@ -439,11 +439,11 @@ class DataIntegrationManager:
 
 
 # Convenience functions
-def create_data_integration_manager(data_sources: List[str] = None) -> DataIntegrationManager:
+def create_data_integration_manager(data_sources: Optional[List[str]] = None) -> DataIntegrationManager:
     """Create a new data integration manager."""
     return DataIntegrationManager(data_sources)
 
-def get_credit_score(ssn: str, data_manager: DataIntegrationManager = None) -> Optional[int]:
+def get_credit_score(ssn: str, data_manager: Optional[DataIntegrationManager] = None) -> Optional[int]:
     """
     Get credit score from external credit bureau.
 
@@ -463,7 +463,7 @@ def get_credit_score(ssn: str, data_manager: DataIntegrationManager = None) -> O
     except Exception:
         return None
 
-def get_property_history(property_id: str, data_manager: DataIntegrationManager = None) -> Optional[Dict[str, Any]]:
+def get_property_history(property_id: str, data_manager: Optional[DataIntegrationManager] = None) -> Optional[Dict[str, Any]]:
     """
     Get property history from external database.
 

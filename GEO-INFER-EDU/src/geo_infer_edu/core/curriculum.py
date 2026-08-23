@@ -407,10 +407,12 @@ class CurriculumDesigner:
         Returns:
             Alignment mapping and optional coverage report
         """
-        alignment = {"mappings": {}, "coverage": {}}
+        mappings_out: Dict[str, List[Dict[str, Any]]] = {}
+        coverage_out: Dict[str, Dict[str, Any]] = {}
+        alignment: Dict[str, Any] = {"mappings": mappings_out, "coverage": coverage_out}
         
         for standard in target_standards:
-            standard_objectives = []
+            standard_objectives: List[Dict[str, Any]] = []
             for module in curriculum.modules:
                 for obj in module.learning_objectives:
                     standard_objectives.append({
@@ -418,10 +420,10 @@ class CurriculumDesigner:
                         "module": module.title,
                         "competency": obj.competency_area
                     })
-            alignment["mappings"][standard] = standard_objectives
+            mappings_out[standard] = standard_objectives
             
             if coverage_report:
-                alignment["coverage"][standard] = {
+                coverage_out[standard] = {
                     "objectives_mapped": len(standard_objectives),
                     "modules_covered": len(curriculum.modules),
                     "competencies": list(set(o["competency"] for o in standard_objectives))
@@ -516,7 +518,7 @@ class CurriculumDesigner:
         }
         
         if format == "yaml":
-            return yaml.dump(curriculum_dict, default_flow_style=False)
+            return str(yaml.dump(curriculum_dict, default_flow_style=False))
         elif format == "json":
             import json
             return json.dumps(curriculum_dict, indent=2)

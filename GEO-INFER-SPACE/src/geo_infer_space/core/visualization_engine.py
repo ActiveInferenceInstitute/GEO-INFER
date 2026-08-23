@@ -14,7 +14,7 @@ import h3
 import geopandas as gpd
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from folium.plugins import MarkerCluster
 import numpy as np
 
@@ -46,7 +46,7 @@ class InteractiveVisualizationEngine:
 
     def __init__(
         self, location_config: Dict[str, Any], output_dir: Path, h3_resolution: int = 8
-    ):
+    ) -> None:
         """
         Initialize visualization engine.
 
@@ -132,14 +132,16 @@ class InteractiveVisualizationEngine:
         # Create base map with professional styling
         m = folium.Map(
             location=[self.center_lat, self.center_lon],
-            zoom_start=zoom_start,
+            zoom_start=cast(int, zoom_start),
             tiles=tiles,
             attr="© CartoDB, © OpenStreetMap contributors",
         )
 
         # Add title
         title_html = self._create_dashboard_title(generated_at=generated_at)
-        m.get_root().html.add_child(folium.Element(title_html))
+        m.get_root().html.add_child(  # type: ignore[attr-defined]
+            folium.Element(title_html)
+        )
 
         # Create layer groups for different analysis domains
         layer_groups = self._create_layer_groups()
@@ -259,7 +261,7 @@ class InteractiveVisualizationEngine:
 
     def _add_forest_health_layers(
         self, m: folium.Map, layer_groups: Dict, forest_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add forest health visualization layers."""
         logger.info("Adding forest health visualization layers...")
 
@@ -306,7 +308,7 @@ class InteractiveVisualizationEngine:
 
     def _add_coastal_resilience_layers(
         self, m: folium.Map, layer_groups: Dict, coastal_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add coastal resilience visualization layers."""
         logger.info("Adding coastal resilience visualization layers...")
 
@@ -351,7 +353,7 @@ class InteractiveVisualizationEngine:
 
     def _add_fire_risk_layers(
         self, m: folium.Map, layer_groups: Dict, fire_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add fire risk visualization layers."""
         logger.info("Adding fire risk visualization layers...")
 
@@ -396,7 +398,7 @@ class InteractiveVisualizationEngine:
 
     def _add_community_development_layers(
         self, m: folium.Map, layer_groups: Dict, community_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add community development visualization layers."""
         logger.info("Adding community development visualization layers...")
 
@@ -447,7 +449,7 @@ class InteractiveVisualizationEngine:
 
     def _add_integration_layers(
         self, m: folium.Map, layer_groups: Dict, integration_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add cross-domain integration visualization layers."""
         logger.info("Adding cross-domain integration layers...")
 
@@ -510,7 +512,10 @@ class InteractiveVisualizationEngine:
             logger.info("No %s observations supplied; omitting visualization layer", source_key)
             return []
         try:
-            return gpd.read_file(data_path).to_dict("records")
+            return cast(
+                List[Dict[str, Any]],
+                gpd.read_file(data_path).to_dict("records"),
+            )
         except Exception as exc:
             logger.warning("Unable to read %s data from %s: %s", source_key, data_path, exc)
             return []
@@ -560,7 +565,7 @@ class InteractiveVisualizationEngine:
     ) -> Dict[str, Dict]:
         """Return H3 integration records explicitly produced by analysis."""
         if not isinstance(integration_data, dict):
-            return {}
+            return {}  # type: ignore[unreachable]
         supplied = integration_data.get("h3_cells")
         if isinstance(supplied, dict):
             return {
@@ -590,7 +595,7 @@ class InteractiveVisualizationEngine:
                     cell_data.get("forest_health_score", cell_data.get("risk_level", 0.0)),
                 )
                 try:
-                    numeric_score = float(score)
+                    numeric_score = float(cast(Any, score))
                 except (TypeError, ValueError):
                     continue
                 if not np.isfinite(numeric_score):

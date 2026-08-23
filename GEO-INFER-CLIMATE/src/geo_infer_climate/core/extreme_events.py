@@ -592,23 +592,22 @@ class ExtremeEventAnalyzer:
         if not self.event_registry:
             return {"error": "No events registered"}
 
-        by_type = {}
+        by_type: Dict[str, Dict[str, Any]] = {}
         for event in self.event_registry:
             etype = event.event_type.value
             if etype not in by_type:
                 by_type[etype] = {
                     "count": 0,
                     "total_duration": 0,
-                    "avg_duration": 0,
+                    "avg_duration": 0.0,
                     "severities": {},
                 }
             by_type[etype]["count"] += 1
             by_type[etype]["total_duration"] += event.duration_days
 
             sev = event.severity.value
-            by_type[etype]["severities"][sev] = (
-                by_type[etype]["severities"].get(sev, 0) + 1
-            )
+            severities: Dict[str, int] = by_type[etype]["severities"]
+            severities[sev] = severities.get(sev, 0) + 1
 
         # Calculate averages
         for etype in by_type:

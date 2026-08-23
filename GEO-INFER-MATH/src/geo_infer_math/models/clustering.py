@@ -7,7 +7,7 @@ hierarchical clustering methods.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
+from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
 from dataclasses import dataclass
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, fcluster
@@ -52,10 +52,10 @@ class SpatialKMeans:
         self.tol = tol
         self.random_state = random_state
 
-        self.cluster_centers_ = None
-        self.labels_ = None
-        self.inertia_ = None
-        self.n_iter_ = None
+        self.cluster_centers_: Optional[np.ndarray] = None
+        self.labels_: Optional[np.ndarray] = None
+        self.inertia_: Optional[float] = None
+        self.n_iter_: Optional[int] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'SpatialKMeans':
@@ -157,6 +157,7 @@ class SpatialKMeans:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.cluster_centers_ is not None
 
         labels = np.zeros(len(X), dtype=int)
 
@@ -177,7 +178,7 @@ class SpatialKMeans:
         Returns:
             Cluster labels
         """
-        return self.fit(X, coordinates).labels_
+        return cast(np.ndarray, self.fit(X, coordinates).labels_)
 
 class SpatiallyConstrainedKMeans:
     """Spatially constrained K-means clustering."""
@@ -198,8 +199,8 @@ class SpatiallyConstrainedKMeans:
         self.max_iter = max_iter
         self.random_state = random_state
 
-        self.cluster_centers_ = None
-        self.labels_ = None
+        self.cluster_centers_: Optional[np.ndarray] = None
+        self.labels_: Optional[np.ndarray] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, coordinates: np.ndarray) -> 'SpatiallyConstrainedKMeans':
@@ -273,6 +274,8 @@ class SpatiallyConstrainedKMeans:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.labels_ is not None
+        assert self.cluster_centers_ is not None
 
         n_samples = len(X)
         labels = np.zeros(n_samples, dtype=int)
@@ -315,10 +318,10 @@ class SpatialDBSCAN:
         self.metric = metric
         self.algorithm = algorithm
 
-        self.core_sample_indices_ = None
-        self.components_ = None
-        self.labels_ = None
-        self.n_features_in_ = None
+        self.core_sample_indices_: Optional[np.ndarray] = None
+        self.components_: Optional[np.ndarray] = None
+        self.labels_: Optional[np.ndarray] = None
+        self.n_features_in_: Optional[int] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'SpatialDBSCAN':
@@ -367,7 +370,7 @@ class SpatialDBSCAN:
         Returns:
             Cluster labels (-1 for noise)
         """
-        return self.fit(X, coordinates).labels_
+        return cast(np.ndarray, self.fit(X, coordinates).labels_)
 
 class SKATERClustering:
     """Spatial 'K'luster Analysis by Tree Edge Removal (SKATER) clustering."""
@@ -383,7 +386,7 @@ class SKATERClustering:
         self.n_clusters = n_clusters
         self.min_cluster_size = min_cluster_size
 
-        self.labels_ = None
+        self.labels_: Optional[np.ndarray] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, coordinates: np.ndarray) -> 'SKATERClustering':
@@ -425,12 +428,12 @@ class SKATERClustering:
         # Union-Find structure
         parent = list(range(n_samples))
 
-        def find(x):
+        def find(x: int) -> int:
             if parent[x] != x:
                 parent[x] = find(parent[x])
             return parent[x]
 
-        def union(x, y):
+        def union(x: int, y: int) -> bool:
             px, py = find(x), find(y)
             if px != py:
                 parent[px] = py
@@ -508,8 +511,8 @@ class HierarchicalClustering:
         self.metric = metric
         self.spatial_weight = spatial_weight
 
-        self.labels_ = None
-        self.linkage_matrix_ = None
+        self.labels_: Optional[np.ndarray] = None
+        self.linkage_matrix_: Optional[np.ndarray] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'HierarchicalClustering':
@@ -564,12 +567,12 @@ class HierarchicalClustering:
         Returns:
             Cluster labels
         """
-        return self.fit(X, coordinates).labels_
+        return cast(np.ndarray, self.fit(X, coordinates).labels_)
 
 def spatial_clustering_analysis(X: np.ndarray,
                               coordinates: np.ndarray,
                               method: str = 'kmeans',
-                              **kwargs) -> ClusteringResults:
+                              **kwargs: Any) -> ClusteringResults:
     """
     Perform spatial clustering analysis.
 
@@ -584,25 +587,26 @@ def spatial_clustering_analysis(X: np.ndarray,
     """
     if method == 'kmeans':
         n_clusters = kwargs.get('n_clusters', 8)
-        model = SpatialKMeans(n_clusters=n_clusters)
-        model.fit(X, coordinates)
+        model_kmeans = SpatialKMeans(n_clusters=n_clusters)
+        model_kmeans.fit(X, coordinates)
+        labels = cast(np.ndarray, model_kmeans.labels_)
 
         # Calculate cluster sizes
-        cluster_sizes = np.bincount(model.labels_)
+        cluster_sizes = np.bincount(labels)
 
         # Calculate within-cluster distances
         within_distances = np.zeros(n_clusters)
         for k in range(n_clusters):
-            mask = model.labels_ == k
+            mask = labels == k
             if np.any(mask):
                 cluster_points = X[mask]
-                centroid = model.cluster_centers_[k]
+                centroid = cast(np.ndarray, model_kmeans.cluster_centers_)[k]
                 within_distances[k] = np.mean(np.sum((cluster_points - centroid)**2, axis=1))
 
         results = ClusteringResults(
-            labels=model.labels_,
+            labels=labels,
             n_clusters=n_clusters,
-            centroids=model.cluster_centers_,
+            centroids=model_kmeans.cluster_centers_,
             cluster_sizes=cluster_sizes,
             within_cluster_distances=within_distances
         )
@@ -610,34 +614,37 @@ def spatial_clustering_analysis(X: np.ndarray,
     elif method == 'constrained_kmeans':
         n_clusters = kwargs.get('n_clusters', 8)
         spatial_weight = kwargs.get('spatial_weight', 0.5)
-        model = SpatiallyConstrainedKMeans(n_clusters=n_clusters, spatial_weight=spatial_weight)
-        model.fit(X, coordinates)
+        model_constrained = SpatiallyConstrainedKMeans(
+            n_clusters=n_clusters, spatial_weight=spatial_weight
+        )
+        model_constrained.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=model.labels_,
+            labels=cast(np.ndarray, model_constrained.labels_),
             n_clusters=n_clusters
         )
 
     elif method == 'dbscan':
         eps = kwargs.get('eps', 0.5)
         min_samples = kwargs.get('min_samples', 5)
-        model = SpatialDBSCAN(eps=eps, min_samples=min_samples)
-        model.fit(X, coordinates)
+        model_dbscan = SpatialDBSCAN(eps=eps, min_samples=min_samples)
+        model_dbscan.fit(X, coordinates)
+        labels = cast(np.ndarray, model_dbscan.labels_)
 
-        n_clusters = len(set(model.labels_)) - (1 if -1 in model.labels_ else 0)
+        n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 
         results = ClusteringResults(
-            labels=model.labels_,
+            labels=labels,
             n_clusters=n_clusters
         )
 
     elif method == 'skater':
         n_clusters = kwargs.get('n_clusters', 8)
-        model = SKATERClustering(n_clusters=n_clusters)
-        model.fit(X, coordinates)
+        model_skater = SKATERClustering(n_clusters=n_clusters)
+        model_skater.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=model.labels_,
+            labels=cast(np.ndarray, model_skater.labels_),
             n_clusters=n_clusters
         )
 
@@ -645,12 +652,13 @@ def spatial_clustering_analysis(X: np.ndarray,
         n_clusters = kwargs.get('n_clusters', 8)
         linkage_method = kwargs.get('linkage_method', 'ward')
         spatial_weight = kwargs.get('spatial_weight', 0.0)
-        model = HierarchicalClustering(n_clusters=n_clusters, method=linkage_method,
-                                     spatial_weight=spatial_weight)
-        model.fit(X, coordinates)
+        model_hier = HierarchicalClustering(
+            n_clusters=n_clusters, method=linkage_method, spatial_weight=spatial_weight
+        )
+        model_hier.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=model.labels_,
+            labels=cast(np.ndarray, model_hier.labels_),
             n_clusters=n_clusters
         )
 
@@ -658,13 +666,3 @@ def spatial_clustering_analysis(X: np.ndarray,
         raise ValueError(f"Unknown clustering method: {method}")
 
     return results
-
-__all__ = [
-    "ClusteringResults",
-    "SpatialKMeans",
-    "SpatiallyConstrainedKMeans",
-    "SpatialDBSCAN",
-    "SKATERClustering",
-    "HierarchicalClustering",
-    "spatial_clustering_analysis"
-]

@@ -25,7 +25,7 @@ try:
     RISK_ENGINE_AVAILABLE = True
 except ImportError:
     RISK_ENGINE_AVAILABLE = False
-    EnhancedRiskEngine = None
+    EnhancedRiskEngine = None  # type: ignore[misc,assignment]
 
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 class RiskAssessmentConfig:
     """Configuration for risk assessment operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.assessment_method: str = "comprehensive"  # basic, comprehensive, advanced
         self.include_climate_risk: bool = True
         self.include_secondary_perils: bool = True
@@ -62,7 +62,7 @@ class RiskAssessmentConfig:
 class RiskMetrics:
     """Comprehensive risk metrics for underwriting assessment."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Core risk metrics
         self.average_annual_loss: float = 0.0
         self.probable_maximum_loss: Dict[str, float] = {}
@@ -357,7 +357,7 @@ class RiskAssessmentEngine:
                 1.0, aal / (property_value * 0.1)
             )  # 10% of value threshold
 
-            return risk_score
+            return float(risk_score)
         except Exception:
             raise RuntimeError("Risk engine results did not contain a valid risk score")
 
@@ -422,7 +422,7 @@ class RiskAssessmentEngine:
         latitude = location.get("latitude", 40.7)
         longitude = location.get("longitude", -74.0)
 
-        location_risk = {
+        location_risk: Dict[str, Any] = {
             "coordinates": {"latitude": latitude, "longitude": longitude},
             "risk_factors": {},
         }
@@ -487,8 +487,8 @@ class RiskAssessmentEngine:
         self, application_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Perform advanced spatial risk analysis."""
-        if not self.spatial_interface:
-            return {"error": "Spatial interface not available"}
+        if not self.spatial_interface or not self.spatial_analytics:
+            return {"error": "Spatial interfaces not available"}
 
         property_info = application_data.get("property", {})
         latitude = property_info.get("latitude", 40.7)
@@ -588,7 +588,7 @@ class RiskAssessmentEngine:
 
     def validate_risk_assessment(self, risk_results: Dict[str, Any]) -> Dict[str, Any]:
         """Validate risk assessment results."""
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             "is_valid": True,
             "validation_score": 0.0,
             "issues": [],
@@ -657,7 +657,7 @@ class RiskAssessmentEngine:
 
     def health_check(self) -> Dict[str, Any]:
         """Perform health check on risk assessment engine."""
-        health_status = {
+        health_status: Dict[str, Any] = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "components": {},

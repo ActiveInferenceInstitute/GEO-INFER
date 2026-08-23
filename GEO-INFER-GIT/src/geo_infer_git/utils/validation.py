@@ -26,10 +26,10 @@ class ConfigValidator:
     provides detailed error reporting.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the configuration validator."""
         self.schemas = self._load_default_schemas()
-        self.custom_schemas = {}
+        self.custom_schemas: Dict[str, Any] = {}
 
     def _load_default_schemas(self) -> Dict[str, Dict[str, Any]]:
         """Load default validation schemas."""
@@ -311,7 +311,7 @@ class RepositoryValidator:
     Repository data validator for ensuring data integrity.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the repository validator."""
         self.required_fields = ["name", "url"]
         self.validation_errors: List[str] = []
@@ -383,7 +383,7 @@ class InputValidator:
     Input validation utilities for user inputs and command-line arguments.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the input validator."""
         self.validation_errors: List[str] = []
 
@@ -413,7 +413,7 @@ class InputValidator:
 
         return errors
 
-    def validate_string_length(self, value: str, field_name: str, min_length: int = 0, max_length: int = None) -> List[str]:
+    def validate_string_length(self, value: Any, field_name: str, min_length: int = 0, max_length: Optional[int] = None) -> List[str]:
         """
         Validate string length.
 
@@ -529,7 +529,7 @@ def validate_config_file(config_path: str) -> Tuple[bool, List[str]]:
 
     return len(errors) == 0, errors
 
-def validate_github_credentials(token: str = None, username: str = None, password: str = None) -> List[str]:
+def validate_github_credentials(token: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None) -> List[str]:
     """
     Validate GitHub authentication credentials.
 
@@ -556,8 +556,8 @@ def validate_github_credentials(token: str = None, username: str = None, passwor
 
     # Validate username if provided
     if username:
-        validator = ConfigValidator()
-        username_errors = validator.validate_string_length(username, 'username', 1, 39)
+        input_validator = InputValidator()
+        username_errors = input_validator.validate_string_length(username, 'username', 1, 39)
         errors.extend(username_errors)
 
     # Validate password if provided

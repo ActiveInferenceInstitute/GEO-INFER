@@ -5,7 +5,7 @@ and precipitation statistics for hydrological design.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 from scipy import stats as scipy_stats
@@ -31,7 +31,7 @@ class PrecipitationAnalyzer:
     def fit_idf_curve(
         self,
         annual_maxima: Dict[float, np.ndarray],
-    ) -> Dict[str, Dict]:
+    ) -> Dict[float, Dict[str, Any]]:
         """Fit Intensity-Duration-Frequency curves from annual maximum series.
 
         For each duration, fits a Gumbel distribution to annual maxima
@@ -90,7 +90,7 @@ class PrecipitationAnalyzer:
         self,
         annual_maxima: np.ndarray,
         design_value: float,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Optional[float]]:
         """Calculate return period for a given rainfall value using Gumbel distribution.
 
         Args:

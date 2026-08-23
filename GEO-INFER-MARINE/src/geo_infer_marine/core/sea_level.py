@@ -3,7 +3,7 @@ Sea-level rise analysis module.
 """
 
 import logging
-from typing import Dict, Optional, List
+from typing import Any, Dict, List, Optional, cast
 import numpy as np
 import xarray as xr
 
@@ -23,7 +23,7 @@ class SeaLevelAnalyzer:
         self,
         historical_data: xr.DataArray,
         scenario: str = 'rcp45',
-        years: List[int] = None
+        years: Optional[List[int]] = None
     ) -> xr.DataArray:
         """
         Project future sea-level rise.
@@ -55,13 +55,13 @@ class SeaLevelAnalyzer:
             )
             projections.append(projected)
         
-        return xr.concat(projections, dim='time')
+        return cast(xr.DataArray, xr.concat(projections, dim='time'))
     
     def _calculate_trend(self, data: xr.DataArray) -> float:
         """Calculate linear trend."""
         time_numeric = np.arange(len(data.time))
         trend = np.polyfit(time_numeric, data.values.flatten(), 1)[0]
-        return trend
+        return float(trend)
     
     def assess_inundation(
         self,

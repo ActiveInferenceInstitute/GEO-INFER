@@ -40,7 +40,9 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.spatial_statistics import MoranI
+    from geo_infer_math.core.spatial_statistics import (  # type: ignore[import-untyped]
+        MoranI,
+    )
 
     MATH_AVAILABLE = True
 except ImportError:
@@ -147,7 +149,7 @@ class EnhancedHazardModel:
 
         # Model state
         self.is_fitted = False
-        self.historical_data = None
+        self.historical_data: Optional[pd.DataFrame] = None
         self.model_parameters: Dict[str, Any] = {}
         self.climate_factors: Dict[str, Any] = {}
         self.uncertainty_parameters: Dict[str, Any] = {}
@@ -319,6 +321,7 @@ class EnhancedHazardModel:
 
     def _fit_earthquake_parameters(self) -> None:
         """Fit earthquake model parameters."""
+        assert self.historical_data is not None
         if "magnitude" in self.historical_data.columns:
             magnitudes = self.historical_data["magnitude"].values
 
@@ -334,6 +337,7 @@ class EnhancedHazardModel:
 
     def _fit_flood_parameters(self) -> None:
         """Fit flood model parameters."""
+        assert self.historical_data is not None
         if "water_depth" in self.historical_data.columns:
             depths = self.historical_data["water_depth"].values
 
@@ -345,6 +349,7 @@ class EnhancedHazardModel:
 
     def _fit_hurricane_parameters(self) -> None:
         """Fit hurricane model parameters."""
+        assert self.historical_data is not None
         if "wind_speed" in self.historical_data.columns:
             wind_speeds = self.historical_data["wind_speed"].values
 
@@ -357,6 +362,7 @@ class EnhancedHazardModel:
 
     def _fit_generic_parameters(self) -> None:
         """Fit generic hazard model parameters."""
+        assert self.historical_data is not None
         if "intensity" in self.historical_data.columns:
             intensities = self.historical_data["intensity"].values
 
@@ -385,7 +391,7 @@ class EnhancedHazardModel:
             mean_mag - min_mag + 0.05
         )  # Add small constant to avoid division by zero
 
-        return max(0.5, min(2.0, b_value))  # Constrain to reasonable range
+        return float(max(0.5, min(2.0, b_value)))  # Constrain to reasonable range
 
     def _initialize_climate_factors(self) -> None:
         """Initialize climate change adjustment factors."""
@@ -596,21 +602,21 @@ class EnhancedHazardModel:
                     params.get("mean_depth", 2.0), params.get("std_depth", 1.0)
                 )
 
-            return max(0, depth) * climate_multiplier
+            return float(max(0, depth) * climate_multiplier)
 
         elif self.hazard_type == "hurricane":
             # Generate wind speed using Weibull distribution
             shape = params.get("shape_parameter", 2.5)
             scale = params.get("scale_parameter", 20.0)
             wind_speed = self.rng.weibull(shape) * scale
-            return max(0, wind_speed) * climate_multiplier
+            return float(max(0, wind_speed) * climate_multiplier)
 
         else:
             # Generic intensity generation
             mean_intensity = params.get("mean_intensity", 1.0)
             std_intensity = params.get("std_intensity", 0.5)
             intensity = self.rng.normal(mean_intensity, std_intensity)
-            return max(0, intensity) * climate_multiplier
+            return float(max(0, intensity) * climate_multiplier)
 
     def _generate_earthquake_magnitude(self, params: Dict[str, Any]) -> float:
         """Generate earthquake magnitude using fitted parameters."""
@@ -628,7 +634,7 @@ class EnhancedHazardModel:
         magnitude = (np.log10(1 / u) - a) / (-b_value) + min_mag
 
         # Ensure magnitude is in reasonable range
-        return max(min_mag, min(8.0, magnitude))
+        return float(max(min_mag, min(8.0, magnitude)))
 
     def _magnitude_to_intensity(self, magnitude: float) -> float:
         """Convert earthquake magnitude to intensity measure (PGA)."""
@@ -926,7 +932,7 @@ class EnhancedHazardModel:
         )
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
-        return R * c
+        return float(R * c)
 
     def _apply_distance_attenuation(self, intensity: float, distance: float) -> float:
         """Apply distance attenuation to hazard intensity."""
@@ -952,10 +958,10 @@ class EnhancedHazardModel:
             radius_max = 50.0  # km
             if distance < radius_max:
                 # Inside RMW - use Holland model approximation
-                return intensity * np.exp(-distance / radius_max)
+                return float(intensity * np.exp(-distance / radius_max))
             else:
                 # Outside RMW - rapid decay
-                return (
+                return float(
                     intensity
                     * np.exp(-distance / radius_max)
                     * (radius_max / distance) ** 0.5
@@ -1090,7 +1096,7 @@ class EnhancedHazardModel:
         return_period_prob = 1.0 / return_period
         gumbel_quantile = -np.log(-np.log(1 - return_period_prob))
 
-        return location + scale * gumbel_quantile
+        return float(location + scale * gumbel_quantile)
 
     def get_model_status(self) -> Dict[str, Any]:
         """Get comprehensive model status information."""
@@ -1165,6 +1171,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
 
     def _fit_flood_parameters(self) -> None:
         """Fit flood-specific model parameters."""
+        assert self.historical_data is not None
         if "water_depth" in self.historical_data.columns:
             depths = self.historical_data["water_depth"].values
 
@@ -1203,6 +1210,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
 
     def _fit_spatial_correlation_parameters(self) -> None:
         """Fit spatial correlation parameters for flood events."""
+        assert self.historical_data is not None
         # Calculate spatial correlation length
         coords = self.historical_data[["longitude", "latitude"]].values
 
@@ -1215,7 +1223,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
     def _generate_event_intensity(self, climate_multiplier: float = 1.0) -> float:
         """Generate flood event intensity with climate adjustment."""
         if not self.is_fitted:
-            return self.rng.exponential(2.0) * climate_multiplier
+            return float(self.rng.exponential(2.0) * climate_multiplier)
 
         params = self.model_parameters
 
@@ -1227,7 +1235,7 @@ class EnhancedFloodModel(EnhancedHazardModel):
             depth = self.rng.exponential(params["mean_depth"])
 
         # Apply climate change adjustment
-        return max(0, depth) * climate_multiplier
+        return float(max(0, depth) * climate_multiplier)
 
     def _get_hazard_specific_properties(
         self, intensity: float, location: Dict[str, Any]
@@ -1255,6 +1263,7 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
 
     def _fit_earthquake_parameters(self) -> None:
         """Fit earthquake-specific model parameters."""
+        assert self.historical_data is not None
         if "magnitude" in self.historical_data.columns:
             magnitudes = self.historical_data["magnitude"].values
 
@@ -1299,7 +1308,7 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
         )
         magnitude = (np.log10(1 / u) - a) / (-b_value) + min_mag
 
-        return max(min_mag, min(8.5, magnitude))
+        return float(max(min_mag, min(8.5, magnitude)))
 
     def _get_hazard_specific_properties(
         self, intensity: float, location: Dict[str, Any]
@@ -1375,6 +1384,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
 
     def _fit_hurricane_parameters(self) -> None:
         """Fit hurricane-specific model parameters."""
+        assert self.historical_data is not None
         if "wind_speed" in self.historical_data.columns:
             wind_speeds = self.historical_data["wind_speed"].values
 
@@ -1394,7 +1404,9 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
     def _generate_event_intensity(self, climate_multiplier: float = 1.0) -> float:
         """Generate hurricane wind speed intensity."""
         if not self.is_fitted:
-            return self.rng.weibull(2.5) * 40 + 30  # Default hurricane wind speeds
+            return float(
+                self.rng.weibull(2.5) * 40 + 30
+            )  # Default hurricane wind speeds
 
         params = self.model_parameters
 
@@ -1405,7 +1417,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
         wind_speed = self.rng.weibull(shape) * scale
 
         # Apply climate change adjustment
-        return (
+        return float(
             max(25, wind_speed) * climate_multiplier
         )  # Minimum tropical storm strength
 
@@ -1413,7 +1425,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
         self, intensity: float, location: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Get hurricane-specific properties."""
-        properties = {
+        properties: Dict[str, Any] = {
             "wind_speed": intensity,
             "category": self._get_hurricane_category(intensity),
             "central_pressure": self._calculate_central_pressure(intensity),
@@ -1445,7 +1457,7 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
             2 * np.pi * self.rng.random()
         )  # ±30% tidal variation
 
-        return max(0, base_surge * tidal_factor)
+        return float(max(0, base_surge * tidal_factor))
 
     def _generate_storm_track(
         self, start_location: Dict[str, Any], intensity: float
@@ -1501,6 +1513,7 @@ class EnhancedWildfireModel(EnhancedHazardModel):
 
     def _fit_wildfire_parameters(self) -> None:
         """Fit wildfire-specific model parameters."""
+        assert self.historical_data is not None
         if "fireline_intensity" in self.historical_data.columns:
             intensities = self.historical_data["fireline_intensity"].values
 
@@ -1530,7 +1543,7 @@ class EnhancedWildfireModel(EnhancedHazardModel):
         intensity = self.rng.lognormal(mean_log, std_log)
 
         # Apply climate change adjustment (drier conditions = higher intensity)
-        return max(100, intensity) * climate_multiplier
+        return float(max(100, intensity) * climate_multiplier)
 
     def _get_hazard_specific_properties(
         self, intensity: float, location: Dict[str, Any]

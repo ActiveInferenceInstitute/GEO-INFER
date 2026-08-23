@@ -119,11 +119,11 @@ def record_metric(
         _CUSTOM_METRICS[name] = existing
 
     metric = existing.labels(**labels) if labels else existing
-    if metric_type == "counter":
+    if isinstance(metric, Counter):
         metric.inc(value)
-    elif metric_type == "gauge":
+    elif isinstance(metric, Gauge):
         metric.set(value)
-    elif metric_type == "histogram":
+    elif isinstance(metric, Histogram):
         metric.observe(value)
     else:
         raise ValueError(f"Invalid metric type: {metric_type}")
@@ -212,7 +212,7 @@ def instrument_app(app: Any, metrics_path: str = "/metrics") -> None:
     """
     from prometheus_fastapi_instrumentator import Instrumentator
 
-    instrumentator = Instrumentator(
+    instrumentator: Any = Instrumentator(
         should_respect_env_var=True,
         should_instrument_requests_inprogress=True,
         excluded_handlers=["/metrics"],

@@ -12,7 +12,7 @@ import logging
 import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 from geo_infer_place.utils.integration import DelNorteDataIntegrator
 from .analyzers import ClimateAnalyzer, ZoningAnalyzer, AgroEconomicAnalyzer
@@ -32,8 +32,8 @@ class AdvancedDashboard:
     def __init__(
         self,
         output_dir: str = "./del_norte_dashboard",
-        api_keys: Dict[str, str] = None,
-        layer_config: Dict[str, Any] = None,
+        api_keys: Optional[Dict[str, str]] = None,
+        layer_config: Optional[Dict[str, Any]] = None,
     ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -56,7 +56,7 @@ class AdvancedDashboard:
         self.layer_configs = LAYER_CONFIGS
 
         # Dashboard state
-        self.dashboard_data = {}
+        self.dashboard_data: Dict[str, Any] = {}
 
         # Initialize layer groups
         self.layer_groups = {
@@ -115,7 +115,7 @@ class AdvancedDashboard:
         earthquakes = self.data_integrator.usgs_client.get_earthquakes()
         tides = self.data_integrator.noaa_client.get_tide_gauge_data()
 
-        data = {
+        data: Dict[str, Any] = {
             "fire_data": fire_incidents,
             "fire_perimeters": (
                 {"success": True, "geojson": fire_perimeters}
@@ -320,7 +320,7 @@ class AdvancedDashboard:
 
         return m
 
-    def _add_county_boundary(self, m: folium.Map):
+    def _add_county_boundary(self, m: folium.Map) -> None:
         boundary_coords = [
             [self.county_bounds["north"], self.county_bounds["west"]],
             [self.county_bounds["north"], self.county_bounds["east"]],
@@ -336,7 +336,7 @@ class AdvancedDashboard:
             fill=False,
         ).add_to(m)
 
-    def _add_fire_incidents_layer(self, m: folium.Map):
+    def _add_fire_incidents_layer(self, m: folium.Map) -> None:
         if (
             "fire_data" in self.dashboard_data
             and self.dashboard_data["fire_data"]["success"]
@@ -354,7 +354,7 @@ class AdvancedDashboard:
                         icon=folium.Icon(color=color, icon="fire"),
                     ).add_to(self.layer_groups["fire"])
 
-    def _add_fire_perimeters_layer(self, m: folium.Map):
+    def _add_fire_perimeters_layer(self, m: folium.Map) -> None:
         if "fire_perimeters" in self.dashboard_data and self.dashboard_data[
             "fire_perimeters"
         ].get("success"):
@@ -373,7 +373,7 @@ class AdvancedDashboard:
                     ),
                 ).add_to(self.layer_groups["fire_perimeters"])
 
-    def _add_weather_layer(self, m: folium.Map):
+    def _add_weather_layer(self, m: folium.Map) -> None:
         if (
             "weather_data" in self.dashboard_data
             and self.dashboard_data["weather_data"]["success"]
@@ -385,7 +385,7 @@ class AdvancedDashboard:
                 icon=folium.Icon(color="blue", icon="cloud"),
             ).add_to(self.layer_groups["weather"])
 
-    def _add_earthquake_layer(self, m: folium.Map):
+    def _add_earthquake_layer(self, m: folium.Map) -> None:
         if (
             "earthquake_data" in self.dashboard_data
             and self.dashboard_data["earthquake_data"]["success"]
@@ -403,7 +403,7 @@ class AdvancedDashboard:
                         fillColor=color,
                     ).add_to(self.layer_groups["earthquake"])
 
-    def _add_tide_gauge_layer(self, m: folium.Map):
+    def _add_tide_gauge_layer(self, m: folium.Map) -> None:
         tide = self.dashboard_data.get("tide_levels", {})
         latest = tide.get("latest")
         if latest:
@@ -415,7 +415,7 @@ class AdvancedDashboard:
                 icon=folium.Icon(color="blue", icon="tint"),
             ).add_to(self.layer_groups["tides"])
 
-    def _add_h3_forest_health_layer(self, m: folium.Map):
+    def _add_h3_forest_health_layer(self, m: folium.Map) -> None:
         forest_data = self.dashboard_data.get("forest_health", {})
         cells = forest_data.get("spatial_data", {}).get("h3_cells", {})
         for h3_cell, cell_data in cells.items():
@@ -436,8 +436,8 @@ class AdvancedDashboard:
                 fillOpacity=0.4,
             ).add_to(self.layer_groups["forest"])
 
-    def _add_climate_risk_zones(self, m: folium.Map):
-        zones = [
+    def _add_climate_risk_zones(self, m: folium.Map) -> None:
+        zones: List[Dict[str, Any]] = [
             {
                 "name": "High Fire Risk",
                 "bounds": [
@@ -464,8 +464,8 @@ class AdvancedDashboard:
                 locations=z["bounds"], popup=z["name"], color=z["color"], fill=True
             ).add_to(self.layer_groups["climate"])
 
-    def _add_zoning_overlay(self, m: folium.Map):
-        areas = [
+    def _add_zoning_overlay(self, m: folium.Map) -> None:
+        areas: List[Dict[str, Any]] = [
             {
                 "name": "Conservation",
                 "bounds": [
@@ -482,7 +482,7 @@ class AdvancedDashboard:
                 locations=a["bounds"], popup=a["name"], color=a["color"], fill=True
             ).add_to(self.layer_groups["zoning"])
 
-    def _add_conservation_areas(self, m: folium.Map):
+    def _add_conservation_areas(self, m: folium.Map) -> None:
         # Redwood Parks
         folium.Polygon(
             locations=[[41.3, -124.1], [41.5, -124.0], [41.4, -123.9], [41.2, -124.0]],
@@ -491,8 +491,8 @@ class AdvancedDashboard:
             fill=True,
         ).add_to(self.layer_groups["conservation"])
 
-    def _add_economic_indicators(self, m: folium.Map):
-        centers = [{"loc": [41.7558, -124.2026], "name": "Crescent City", "emp": 3500}]
+    def _add_economic_indicators(self, m: folium.Map) -> None:
+        centers: List[Dict[str, Any]] = [{"loc": [41.7558, -124.2026], "name": "Crescent City", "emp": 3500}]
         for c in centers:
             folium.CircleMarker(
                 location=c["loc"],
@@ -502,8 +502,8 @@ class AdvancedDashboard:
                 fill=True,
             ).add_to(self.layer_groups["economic"])
 
-    def _add_emergency_services_layer(self, m: folium.Map):
-        facilities = [
+    def _add_emergency_services_layer(self, m: folium.Map) -> None:
+        facilities: List[Dict[str, Any]] = [
             {
                 "loc": [41.7586, -124.2031],
                 "name": "Sutter Coast Hospital",
@@ -518,21 +518,21 @@ class AdvancedDashboard:
                 icon=folium.Icon(color=f["color"], icon=f["icon"]),
             ).add_to(self.layer_groups["emergency"])
 
-    def _add_public_health_layer(self, m: folium.Map):
+    def _add_public_health_layer(self, m: folium.Map) -> None:
         folium.Marker(
             location=[41.7520, -124.2010],
             popup="Community Health Center",
             icon=folium.Icon(color="lightgreen", icon="heart"),
         ).add_to(self.layer_groups["health"])
 
-    def _add_infrastructure_layer(self, m: folium.Map):
+    def _add_infrastructure_layer(self, m: folium.Map) -> None:
         folium.Marker(
             location=[41.7450, -124.2370],
             popup="Crescent City Harbor",
             icon=folium.Icon(color="darkblue", icon="anchor"),
         ).add_to(self.layer_groups["infrastructure"])
 
-    def _add_environmental_justice_layer(self, m: folium.Map):
+    def _add_environmental_justice_layer(self, m: folium.Map) -> None:
         folium.Polygon(
             locations=[[41.80, -124.15], [41.82, -124.12], [41.79, -124.11]],
             popup="Tribal Lands Impact",
@@ -540,16 +540,16 @@ class AdvancedDashboard:
             fill=True,
         ).add_to(self.layer_groups["equity"])
 
-    def _add_layer_controls(self, m: folium.Map):
+    def _add_layer_controls(self, m: folium.Map) -> None:
         folium.LayerControl().add_to(m)
 
-    def _add_measurement_tools(self, m: folium.Map):
+    def _add_measurement_tools(self, m: folium.Map) -> None:
         folium.plugins.MeasureControl().add_to(m)
 
-    def _add_drawing_tools(self, m: folium.Map):
+    def _add_drawing_tools(self, m: folium.Map) -> None:
         folium.plugins.Draw(export=True).add_to(m)
 
-    def _add_custom_controls(self, m: folium.Map):
+    def _add_custom_controls(self, m: folium.Map) -> None:
         folium.plugins.Fullscreen().add_to(m)
         folium.plugins.LocateControl().add_to(m)
         m.add_child(folium.plugins.MiniMap(toggle_display=True))
@@ -603,11 +603,11 @@ class AdvancedDashboard:
         </html>
         """
 
-    def generate_dashboard(self, filename: str = None, fetch_data: bool = False) -> str:
+    def generate_dashboard(self, filename: Optional[str] = None, fetch_data: bool = False) -> str:
         """Alias for save_dashboard() — generates HTML without fetching live data by default."""
         return self.save_dashboard(filename=filename, fetch_data=fetch_data)
 
-    def save_dashboard(self, filename: str = None, fetch_data: bool = True) -> str:
+    def save_dashboard(self, filename: Optional[str] = None, fetch_data: bool = True) -> str:
         if filename is None:
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"del_norte_intelligence_dashboard_{ts}.html"

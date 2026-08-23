@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any, Generator, Union, List
 
 import pytest
 from fastapi.testclient import TestClient
-from prometheus_client import Counter, Gauge, Histogram
+from prometheus_client import Counter, Gauge, Histogram, REGISTRY
 
 from .config import Config, update_config, get_config
 from .logging import get_logger
@@ -157,9 +157,10 @@ def assert_metric_value(
     labels = labels or {}
 
     # Find metric in registry
-    for collector in pytest.REGISTRY._collector_to_names:
-        if hasattr(collector, "_name") and collector._name == metric_name:
-            actual_value = collector.labels(**labels)._value.get()
+    for collector in REGISTRY._collector_to_names:
+        c: Any = collector
+        if hasattr(c, "_name") and c._name == metric_name:
+            actual_value = c.labels(**labels)._value.get()
             assert (
                 actual_value == expected_value
             ), f"Metric {metric_name} value mismatch: expected {expected_value}, got {actual_value}"

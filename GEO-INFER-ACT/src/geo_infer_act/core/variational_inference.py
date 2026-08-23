@@ -6,7 +6,7 @@ in active inference models, including mean-field and structured approximations.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional
+from typing import Callable, Dict, Any, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -478,7 +478,7 @@ class VariationalInference:
     def importance_sampling_update(
         self,
         prior: Dict[str, np.ndarray],
-        likelihood_fn: callable,
+        likelihood_fn: Callable[[np.ndarray, np.ndarray], float],
         observations: np.ndarray,
         n_samples: int = 1000,
     ) -> Dict[str, np.ndarray]:

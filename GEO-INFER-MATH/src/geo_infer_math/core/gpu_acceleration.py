@@ -6,7 +6,7 @@ operations for improved performance on large geospatial datasets.
 """
 
 import numpy as np
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, cast, Optional, Tuple, Callable, Union, cast
 import logging
 import warnings
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class GPUAccelerator:
     """GPU acceleration manager for geospatial computations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize GPU accelerator."""
         self.gpu_available = self._check_gpu_availability()
         self.backends = self._detect_available_backends()
@@ -35,7 +35,8 @@ class GPUAccelerator:
         try:
             # Check for CuPy (NVIDIA GPU support)
             try:
-                import cupy as cp  # noqa: F401
+                import importlib
+                cp = importlib.import_module("cupy")
 
                 self.cupy_available = True
                 logger.debug("CuPy (NVIDIA GPU) backend available")
@@ -234,7 +235,7 @@ class GPUAccelerator:
         return results
 
     def accelerate_distance_calculations(
-        self, points1: np.ndarray, points2: np.ndarray = None
+        self, points1: np.ndarray, points2: Optional[np.ndarray] = None
     ) -> np.ndarray:
         """
         Accelerate distance matrix calculations using GPU.
@@ -246,23 +247,22 @@ class GPUAccelerator:
         Returns:
             Distance matrix
         """
-        if points2 is None:
-            points2 = points1
+        p2 = points1 if points2 is None else points2
 
         if not self.gpu_available:
             warnings.warn("GPU acceleration not available, using CPU")
-            return self._cpu_distance_calculation(points1, points2)
+            return self._cpu_distance_calculation(points1, p2)
 
         # Use CuPy for distance calculations
         if self.backends.get("cupy") is not None:
-            return self._cupy_distance_calculation(points1, points2)
+            return self._cupy_distance_calculation(points1, p2)
 
         # Use PyTorch for distance calculations
         elif self.backends.get("torch") is not None:
-            return self._torch_distance_calculation(points1, points2)
+            return self._torch_distance_calculation(points1, p2)
 
         # Fallback to CPU
-        return self._cpu_distance_calculation(points1, points2)
+        return self._cpu_distance_calculation(points1, p2)
 
     def _cupy_distance_calculation(
         self, points1: np.ndarray, points2: np.ndarray
@@ -277,7 +277,7 @@ class GPUAccelerator:
         diff = points1_gpu[:, cp.newaxis, :] - points2_gpu[cp.newaxis, :, :]
         distances_gpu = cp.sqrt(cp.sum(diff**2, axis=2))
 
-        return cp.asnumpy(distances_gpu)
+        return cast(np.ndarray, np.asarray(cp.asnumpy(distances_gpu)))
 
     def _torch_distance_calculation(
         self, points1: np.ndarray, points2: np.ndarray
@@ -301,7 +301,7 @@ class GPUAccelerator:
         # Use scipy's optimized distance calculation
         from scipy.spatial.distance import cdist
 
-        return cdist(points1, points2, metric="euclidean")
+        return cast(np.ndarray, np.asarray(cdist(points1, points2, metric="euclidean")))
 
     def accelerate_spatial_interpolation(
         self,
@@ -309,7 +309,7 @@ class GPUAccelerator:
         known_values: np.ndarray,
         query_points: np.ndarray,
         method: str = "idw",
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Accelerate spatial interpolation using GPU.
@@ -353,7 +353,7 @@ class GPUAccelerator:
         known_values: np.ndarray,
         query_points: np.ndarray,
         method: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """CuPy-based spatial interpolation."""
         import cupy as cp
@@ -384,7 +384,7 @@ class GPUAccelerator:
                 weights_gpu * known_values_gpu[:, cp.newaxis], axis=0
             )
 
-            return cp.asnumpy(interpolated_gpu)
+            return np.asarray(cp.asnumpy(interpolated_gpu))
 
         else:
             # Fallback for unsupported methods
@@ -398,7 +398,7 @@ class GPUAccelerator:
         known_values: np.ndarray,
         query_points: np.ndarray,
         method: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """PyTorch-based spatial interpolation."""
         import torch
@@ -441,13 +441,13 @@ class GPUAccelerator:
         known_values: np.ndarray,
         query_points: np.ndarray,
         method: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """CPU-based spatial interpolation (fallback)."""
-        from geo_infer_math.core.interpolation import SpatialInterpolator
+        from geo_infer_math.core.numerical_methods import SpatialInterpolator
 
         interpolator = SpatialInterpolator(method=method)
-        interpolator.fit(known_points, known_values)
+        interpolator.fit(known_points, known_values, **kwargs)
         return interpolator.predict(query_points)
 
     def accelerate_clustering(
@@ -455,7 +455,7 @@ class GPUAccelerator:
         data: np.ndarray,
         coordinates: np.ndarray,
         method: str = "kmeans",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Accelerate clustering operations using GPU.
@@ -485,7 +485,7 @@ class GPUAccelerator:
         return self._cpu_clustering(data, coordinates, method, **kwargs)
 
     def _cupy_clustering(
-        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs
+        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs: Any
     ) -> Dict[str, Any]:
         """CuPy-based clustering."""
         # For now, use CPU fallback for clustering
@@ -493,7 +493,7 @@ class GPUAccelerator:
         return self._cpu_clustering(data, coordinates, method, **kwargs)
 
     def _torch_clustering(
-        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs
+        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs: Any
     ) -> Dict[str, Any]:
         """PyTorch-based clustering."""
         # For now, use CPU fallback for clustering
@@ -501,12 +501,12 @@ class GPUAccelerator:
         return self._cpu_clustering(data, coordinates, method, **kwargs)
 
     def _cpu_clustering(
-        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs
+        self, data: np.ndarray, coordinates: np.ndarray, method: str, **kwargs: Any
     ) -> Dict[str, Any]:
         """CPU-based clustering (fallback)."""
         from geo_infer_math.models.clustering import spatial_clustering_analysis
 
-        return spatial_clustering_analysis(data, coordinates, method=method, **kwargs)
+        return cast(Dict[str, Any], spatial_clustering_analysis(data, coordinates, method=method, **kwargs))
 
     def get_performance_info(self) -> Dict[str, Any]:
         """
@@ -515,18 +515,19 @@ class GPUAccelerator:
         Returns:
             Dictionary with performance information
         """
-        info = {
+        info: Dict[str, Any] = {
             "gpu_available": self.gpu_available,
             "backends": list(self.backends.keys()),
             "memory_info": {},
         }
 
+        mem_dict: Dict[str, Any] = info["memory_info"]
         if self.backends.get("cupy") is not None:
             try:
                 import cupy as cp
 
                 mem_info = cp.get_default_memory_pool().get_limit()
-                info["memory_info"]["cupy_limit"] = mem_info
+                mem_dict["cupy_limit"] = mem_info
             except Exception:
                 pass
 
@@ -536,10 +537,10 @@ class GPUAccelerator:
 
                 if torch.cuda.is_available():
                     device = torch.cuda.current_device()
-                    info["memory_info"]["torch_allocated"] = (
+                    mem_dict["torch_allocated"] = (
                         torch.cuda.memory_allocated(device)
                     )
-                    info["memory_info"]["torch_reserved"] = torch.cuda.memory_reserved(
+                    mem_dict["torch_reserved"] = torch.cuda.memory_reserved(
                         device
                     )
             except Exception:
@@ -561,7 +562,7 @@ class GPUAccelerator:
         """
         import time
 
-        results = {
+        results: Dict[str, Dict[str, Any]] = {
             "matrix_multiplication": {},
             "distance_calculation": {},
             "spatial_interpolation": {},
@@ -591,7 +592,7 @@ class GPUAccelerator:
         if "points1" in test_data and "points2" in test_data:
             # CPU timing
             start_time = time.time()
-            _cpu_result = self._cpu_distance_calculation(
+            _cpu_distance_res = self._cpu_distance_calculation(
                 test_data["points1"], test_data["points2"]
             )
             cpu_time = time.time() - start_time
@@ -600,7 +601,7 @@ class GPUAccelerator:
             # GPU timing
             if self.gpu_available:
                 start_time = time.time()
-                _gpu_result = self.accelerate_distance_calculations(
+                _gpu_distance_res = self.accelerate_distance_calculations(
                     test_data["points1"], test_data["points2"]
                 )
                 gpu_time = time.time() - start_time
@@ -635,12 +636,16 @@ def benchmark_gpu_performance(test_data: Dict[str, np.ndarray]) -> Dict[str, Any
 # GPU-accelerated versions of common operations
 def gpu_matrix_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """GPU-accelerated matrix multiplication."""
-    return gpu_accelerator.accelerate_matrix_operations([a, b], "multiply")[0]
+    matrices: List[np.ndarray] = [a, b]
+    return gpu_accelerator.accelerate_matrix_operations(matrices, "multiply")[0]
 
 
-def gpu_distance_matrix(points1: np.ndarray, points2: np.ndarray = None) -> np.ndarray:
+def gpu_distance_matrix(points1: np.ndarray, points2: Optional[np.ndarray] = None) -> np.ndarray:
     """GPU-accelerated distance matrix calculation."""
-    return gpu_accelerator.accelerate_distance_calculations(points1, points2)
+    if points2 is not None:
+        points_list: List[np.ndarray] = [points1, points2]
+        return gpu_accelerator.accelerate_distance_calculations(points_list[0], points_list[1])
+    return gpu_accelerator.accelerate_distance_calculations(points1)
 
 
 def gpu_spatial_interpolation(
@@ -648,7 +653,7 @@ def gpu_spatial_interpolation(
     known_values: np.ndarray,
     query_points: np.ndarray,
     method: str = "idw",
-    **kwargs,
+    **kwargs: Any,
 ) -> np.ndarray:
     """GPU-accelerated spatial interpolation."""
     return gpu_accelerator.accelerate_spatial_interpolation(

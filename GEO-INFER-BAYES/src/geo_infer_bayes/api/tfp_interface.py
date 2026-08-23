@@ -8,7 +8,7 @@ installed, so the module always provides usable posterior sampling.
 import logging
 import numpy as np
 from scipy import linalg
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def _squared_exponential_kernel(
     sqdist = (
         np.sum(X1**2, axis=1, keepdims=True) - 2 * X1 @ X2.T + np.sum(X2**2, axis=1)
     )
-    return variance * np.exp(-0.5 * sqdist / (lengthscale**2))
+    return np.asarray(variance * np.exp(-0.5 * sqdist / (lengthscale**2)))
 
 
 class TFPInterface:
@@ -57,7 +57,7 @@ class TFPInterface:
     # ------------------------------------------------------------------
     # GP model construction
     # ------------------------------------------------------------------
-    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs) -> str:
+    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs: Any) -> str:
         """
         Create a Gaussian Process model for spatial data.
 
@@ -115,7 +115,7 @@ class TFPInterface:
     # Posterior sampling
     # ------------------------------------------------------------------
     def sample(
-        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs
+        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs: Any
     ) -> Dict[str, np.ndarray]:
         """
         Sample hyper-parameter posteriors.
@@ -153,7 +153,7 @@ class TFPInterface:
         )
         proposal_std = kwargs.get("proposal_std", 0.15)
 
-        traces = {k: [] for k in ("lengthscale", "variance", "noise")}
+        traces: Dict[str, List[float]] = {k: [] for k in ("lengthscale", "variance", "noise")}
         current_ll = self._log_marginal_likelihood(np.exp(current))
 
         total = n_warmup + n_samples
@@ -167,9 +167,9 @@ class TFPInterface:
 
             if step >= n_warmup:
                 params = np.exp(current)
-                traces["lengthscale"].append(params[0])
-                traces["variance"].append(params[1])
-                traces["noise"].append(params[2])
+                traces["lengthscale"].append(float(params[0]))
+                traces["variance"].append(float(params[1]))
+                traces["noise"].append(float(params[2]))
 
         return {k: np.array(v) for k, v in traces.items()}
 
@@ -178,6 +178,8 @@ class TFPInterface:
     # ------------------------------------------------------------------
     def _log_marginal_likelihood(self, params: np.ndarray) -> float:
         """Compute GP log-marginal-likelihood for given hyper-parameters."""
+        if self._X is None or self._y is None:
+            return -1e12
         ls, var, noise = params
         try:
             K = _squared_exponential_kernel(self._X, self._X, ls, var)

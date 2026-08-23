@@ -23,13 +23,13 @@ class SpatialBackendDispatcher:
     based on configuration and operation requirements.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.backends: Dict[str, SpatialBackendProtocol] = {}
         self.default_backends: Dict[str, str] = {}
         self.backend_capabilities: Dict[str, Dict[str, Any]] = {}
         self._load_backends()
 
-    def _load_backends(self):
+    def _load_backends(self) -> None:
         """Load available spatial backends."""
         # Load H3 backend if available
         try:
@@ -67,7 +67,7 @@ class SpatialBackendDispatcher:
         except ImportError:
             return None
 
-    def register_backend(self, name: str, backend: SpatialBackendProtocol):
+    def register_backend(self, name: str, backend: SpatialBackendProtocol) -> None:
         """Register a spatial backend."""
         self.backends[name] = backend
         self.backend_capabilities[name] = backend.get_capabilities()
@@ -83,7 +83,7 @@ class SpatialBackendDispatcher:
             name for name, backend in self.backends.items() if backend.is_available()
         ]
 
-    def set_default_backend(self, operation_type: str, backend_name: str):
+    def set_default_backend(self, operation_type: str, backend_name: str) -> None:
         """Set the default backend for a specific operation type."""
         if backend_name not in self.backends:
             raise ValueError(f"Backend '{backend_name}' is not registered")
@@ -94,7 +94,11 @@ class SpatialBackendDispatcher:
         return self.default_backends.get(operation_type, "h3")  # Default to H3
 
     def dispatch_indexing_operation(
-        self, operation: str, *args, backend: Optional[str] = None, **kwargs
+        self,
+        operation: str,
+        *args: Any,
+        backend: Optional[str] = None,
+        **kwargs: Any,
     ) -> Any:
         """Dispatch a spatial indexing operation to the appropriate backend."""
         backend_name = backend or self.get_default_backend("indexing")
@@ -144,7 +148,11 @@ class SpatialBackendDispatcher:
         return method(*args, **kwargs)
 
     def dispatch_geometric_operation(
-        self, operation: str, *args, backend: Optional[str] = None, **kwargs
+        self,
+        operation: str,
+        *args: Any,
+        backend: Optional[str] = None,
+        **kwargs: Any,
     ) -> Any:
         """Dispatch a geometry operation to a backend that implements it."""
         backend_name = backend or self.get_default_backend("geometric")
@@ -178,7 +186,11 @@ class SpatialBackendDispatcher:
         return method(*args, **kwargs)
 
     def dispatch_analytics_operation(
-        self, operation: str, *args, backend: Optional[str] = None, **kwargs
+        self,
+        operation: str,
+        *args: Any,
+        backend: Optional[str] = None,
+        **kwargs: Any,
     ) -> Any:
         """Dispatch a spatial analytics operation to the appropriate backend."""
         backend_name = backend or self.get_default_backend("analytics")
@@ -237,7 +249,7 @@ def get_backend_dispatcher() -> SpatialBackendDispatcher:
     return _dispatcher
 
 
-def configure_backends(config: Dict[str, Any]):
+def configure_backends(config: Dict[str, Any]) -> None:
     """Configure backend defaults from configuration."""
     dispatcher = get_backend_dispatcher()
 
@@ -248,7 +260,7 @@ def configure_backends(config: Dict[str, Any]):
     logger.info("Backend configuration applied")
 
 
-def reset_dispatcher():
+def reset_dispatcher() -> None:
     """Reset the global dispatcher (mainly for testing)."""
     global _dispatcher
     _dispatcher = None

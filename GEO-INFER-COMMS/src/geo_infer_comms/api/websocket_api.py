@@ -10,11 +10,11 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any, Set, cast
 from datetime import datetime, timezone
 
 import websockets
-from websockets.server import WebSocketServerProtocol
+from websockets.asyncio.server import ServerConnection
 from websockets.exceptions import ConnectionClosed
 
 from geo_infer_comms import (
@@ -38,7 +38,7 @@ class WebSocketManager:
 
         self.logger = logging.getLogger(__name__)
 
-    async def handle_connection(self, websocket: WebSocketServerProtocol, path: str) -> None:
+    async def handle_connection(self, websocket: ServerConnection) -> None:
         """Handle a new WebSocket connection."""
         connection_id = f"ws_{id(websocket)}"
 
@@ -121,7 +121,7 @@ class WebSocketConnection:
     def __init__(
         self,
         connection_id: str,
-        websocket: WebSocketServerProtocol,
+        websocket: ServerConnection,
         manager: WebSocketManager
     ):
         self.connection_id = connection_id
@@ -140,7 +140,7 @@ class WebSocketConnection:
         try:
             async for message in self.websocket:
                 try:
-                    await self._process_message(message)
+                    await self._process_message(cast(str, message))
                 except Exception as e:
                     self.logger.error(f"Error processing message from {self.connection_id}: {e}")
                     await self.send_error(f"Message processing error: {str(e)}")
@@ -351,7 +351,7 @@ class WebSocketServer:
         self.max_connections = max_connections
 
         self.websocket_manager = WebSocketManager(system)
-        self.server: Optional[websockets.server.WebSocketServer] = None
+        self.server: Optional[Any] = None
 
         self.logger = logging.getLogger(__name__)
 
@@ -475,9 +475,10 @@ class GeospatialWebSocketHandler:
         min_lat = bounds.get("min_latitude", -90)
         max_lat = bounds.get("max_latitude", 90)
 
-        return (
-            min_lon <= point.longitude <= max_lon and
-            min_lat <= point.latitude <= max_lat
+        return cast(
+            bool,
+            min_lon <= point.longitude <= max_lon
+            and min_lat <= point.latitude <= max_lat,
         )
 
 
@@ -535,7 +536,7 @@ class RealTimeMessageBroadcaster:
 
     def _format_message_for_websocket(self, message: MessageResponse) -> Dict[str, Any]:
         """Format a message for WebSocket transmission."""
-        formatted = {
+        formatted: Dict[str, Any] = {
             "type": "message",
             "message_id": message.message_id,
             "content": message.content,
@@ -622,7 +623,7 @@ class WebSocketAPIManager:
 
     def _broadcast_notification(self, notification: NotificationResponse) -> None:
         """Broadcast a notification to WebSocket connections."""
-        notification_message = {
+        notification_message: Dict[str, Any] = {
             "type": "notification",
             "notification_id": notification.notification_id,
             "title": notification.title,

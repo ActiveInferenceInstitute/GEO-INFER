@@ -12,7 +12,7 @@ This module provides sophisticated exposure modeling capabilities with:
 - Portfolio-level exposure aggregation
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Sequence
 from datetime import datetime
 import logging
 import json
@@ -61,6 +61,10 @@ class EnhancedExposureModel:
     - Integration with external data APIs and databases
     """
 
+    # Runtime-integration singleton; typed Optional[Any] so mypy does not
+    # collapse it to None (populated at runtime if modules present).
+    spatial_interface: Optional[Any] = None
+
     def __init__(self, exposure_type: str, params: Dict[str, Any]):
         """Initialize the enhanced exposure model.
 
@@ -98,7 +102,7 @@ class EnhancedExposureModel:
         self.update_frequency = params.get("update_frequency", "daily")
 
         # Initialize interfaces
-        self.spatial_interface = None
+        self.spatial_interface: Optional[Any] = None
         self.data_manager = None
 
         if SPACE_AVAILABLE:
@@ -117,8 +121,9 @@ class EnhancedExposureModel:
 
         # Model state
         self.is_initialized = False
-        self.exposure_data = None
-        self.spatial_index = None
+        self.exposure_data: Optional[pd.DataFrame] = None
+        self.spatial_index: Optional[str] = None
+        self.spatial_tree: Optional[Any] = None
         self.temporal_profiles: Dict[str, Any] = {}
         self.economic_factors: Dict[str, Any] = {}
         self.last_update = None
@@ -127,7 +132,7 @@ class EnhancedExposureModel:
         self._initialize_exposure_data()
 
         # Initialize spatial indexing if available
-        if self.spatial_interface and self.exposure_data is not None:
+        if getattr(self, "spatial_interface", None) is not None and getattr(self, "exposure_data", None) is not None:
             self._initialize_spatial_indexing()
 
         # Initialize temporal profiles if time variation is enabled
@@ -324,6 +329,7 @@ class EnhancedExposureModel:
 
     def _handle_missing_values(self) -> None:
         """Handle missing values in exposure data."""
+        assert self.exposure_data is not None
         # For each column, apply appropriate missing value handling
         for col in self.exposure_data.columns:
             if self.exposure_data[col].isnull().any():
@@ -404,6 +410,7 @@ class EnhancedExposureModel:
 
     def _apply_economic_adjustments(self) -> None:
         """Apply economic adjustments to asset values."""
+        assert self.exposure_data is not None
         current_year = datetime.now().year
 
         if "year_built" in self.exposure_data.columns:
@@ -480,6 +487,7 @@ class EnhancedExposureModel:
 
     def _initialize_population_temporal_profiles(self) -> None:
         """Initialize population temporal profiles."""
+        assert self.exposure_data is not None
         # Population movement patterns throughout the day
         base_population = (
             self.exposure_data["population_count"].values
@@ -503,6 +511,7 @@ class EnhancedExposureModel:
 
     def _initialize_business_temporal_profiles(self) -> None:
         """Initialize business temporal profiles."""
+        assert self.exposure_data is not None
         # Business activity patterns
         base_value = (
             self.exposure_data["value"].values
@@ -526,6 +535,7 @@ class EnhancedExposureModel:
 
     def _initialize_generic_temporal_profiles(self) -> None:
         """Initialize generic temporal profiles."""
+        assert self.exposure_data is not None
         base_value = (
             self.exposure_data["value"].values
             if "value" in self.exposure_data.columns
@@ -544,7 +554,7 @@ class EnhancedExposureModel:
         latitude: float,
         longitude: float,
         radius: float = 1.0,
-        time_scenario: str = None,
+        time_scenario: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Get exposure within a radius of a specific location with temporal variation.
@@ -561,6 +571,9 @@ class EnhancedExposureModel:
         if self.exposure_data is None:
             return {"total_value": 0, "count": 0, "assets": []}
 
+        if time_scenario is None:
+            time_scenario = self.current_time_scenario
+
         # Use spatial indexing for efficient queries
         if self.spatial_index == "h3" and "h3_cell" in self.exposure_data.columns:
             return self._get_exposure_h3(latitude, longitude, radius, time_scenario)
@@ -572,9 +585,11 @@ class EnhancedExposureModel:
             )
 
     def _get_exposure_h3(
-        self, latitude: float, longitude: float, radius: float, time_scenario: str
+        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get exposure using H3 spatial indexing."""
+        assert self.spatial_interface is not None
+        assert self.exposure_data is not None
         # Convert radius to H3 resolution
         target_cell = self.spatial_interface.latlng_to_cell(
             latitude, longitude, self.spatial_resolution
@@ -592,9 +607,11 @@ class EnhancedExposureModel:
         return self._calculate_exposure_summary(filtered_data, time_scenario)
 
     def _get_exposure_kdtree(
-        self, latitude: float, longitude: float, radius: float, time_scenario: str
+        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get exposure using KDTree spatial indexing."""
+        assert self.spatial_tree is not None
+        assert self.exposure_data is not None
         # Query tree for points within radius
         distances, indices = self.spatial_tree.query(
             [[longitude, latitude]],
@@ -609,9 +626,10 @@ class EnhancedExposureModel:
         return self._calculate_exposure_summary(filtered_data, time_scenario)
 
     def _get_exposure_brute_force(
-        self, latitude: float, longitude: float, radius: float, time_scenario: str
+        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get exposure using brute force calculation."""
+        assert self.exposure_data is not None
         # Calculate distances from target point
         distances = (
             np.sqrt(
@@ -628,7 +646,7 @@ class EnhancedExposureModel:
         return self._calculate_exposure_summary(filtered_data, time_scenario)
 
     def _calculate_exposure_summary(
-        self, filtered_data: pd.DataFrame, time_scenario: str
+        self, filtered_data: pd.DataFrame, time_scenario: Optional[str] = None
     ) -> Dict[str, Any]:
         """Calculate exposure summary for filtered data."""
         if filtered_data.empty:
@@ -664,6 +682,99 @@ class EnhancedExposureModel:
             "assets": filtered_data.to_dict("records"),
             "time_scenario": time_scenario or self.current_time_scenario,
             "spatial_index_used": self.spatial_index,
+        }
+
+    def _exposure_value_column(
+        self, candidates: Sequence[str] = ("value", "replacement_cost", "market_value")
+    ) -> Optional[str]:
+        """Return the first present value column, or ``None``."""
+        if self.exposure_data is None:
+            return None
+        for column in candidates:
+            if column in self.exposure_data.columns:
+                return column
+        return None
+
+    def sample_total_exposure(
+        self,
+        method: str = "bootstrap",
+        num_samples: int = 1000,
+        random_seed: Optional[Any] = None,
+    ) -> Dict[str, Any]:
+        """Return a distributional estimate of total insurable exposure.
+
+        Parameters
+        ----------
+        method : str
+            ``"bootstrap"`` resamples the asset records with replacement, so the
+            exposed total reflects the observed mix of asset values;
+            ``"parametric"`` multiplies each asset value by a log-normal factor
+            (variance equal to the coefficient of variation of the book, or 10%
+            when the book is homogeneous) and sums per sample;
+            ``"deterministic"`` returns the exact recorded total.
+        num_samples : int
+            Number of aggregate draws.
+        random_seed : optional
+            Seed or generator for the draws; when omitted the model's own
+            generator is used (see :mod:`geo_infer_risk.utils.rng`).
+
+        Returns
+        -------
+        dict
+            With ``method``, ``sample_count``, ``deterministic_total``,
+            ``total_mean``, ``total_median``, ``percentile_5``,
+            ``percentile_95`` and ``samples`` (the per-draw array).
+
+        Raises
+        ------
+        ValueError
+            If the model has no exposure data or no value column, or if
+            ``num_samples`` is not positive.
+        """
+        if not isinstance(num_samples, int) or num_samples < 1:
+            raise ValueError("num_samples must be a positive integer")
+        if method not in {"bootstrap", "parametric", "deterministic"}:
+            raise ValueError(
+                "method must be 'bootstrap', 'parametric', or 'deterministic'"
+            )
+        column = self._exposure_value_column()
+        if self.exposure_data is None or column is None:
+            raise ValueError(
+                "exposure data with a value column is required for "
+                "distributional exposure sampling"
+            )
+        values = self.exposure_data[column].to_numpy(dtype=float)
+        finite = values[np.isfinite(values)]
+        if finite.size == 0:
+            raise ValueError("exposure value column contains no finite values")
+        rng = resolve_rng(random_seed) if random_seed is not None else self._rng
+
+        if method == "deterministic":
+            samples = np.array([float(finite.sum())])
+        elif method == "bootstrap":
+            samples = np.empty(num_samples, dtype=float)
+            for i in range(num_samples):
+                draw = rng.choice(finite, size=finite.size, replace=True)
+                samples[i] = float(draw.sum())
+        else:
+            if finite.std(ddof=1) <= 0:
+                sigma = 0.10
+            else:
+                sigma = float(finite.std(ddof=1) / finite.mean())
+            factors = rng.lognormal(
+                mean=-0.5 * sigma * sigma, sigma=sigma, size=num_samples
+            )
+            samples = finite.sum() * factors
+
+        return {
+            "method": method,
+            "sample_count": int(samples.size),
+            "deterministic_total": float(finite.sum()),
+            "total": float(np.mean(samples)),
+            "total_median": float(np.median(samples)),
+            "percentile_5": float(np.percentile(samples, 5)),
+            "percentile_95": float(np.percentile(samples, 95)),
+            "samples": samples.tolist(),
         }
 
     def get_exposure_for_event(self, event: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -825,13 +936,14 @@ class EnhancedExposureModel:
             asset_index = asset.name if hasattr(asset, "name") else 0
 
             if asset_index < len(adjustment_factors):
-                return base_value * adjustment_factors[asset_index]
+                return float(base_value * adjustment_factors[asset_index])
 
-        return base_value
+        return float(base_value)
 
     def calculate_total_exposure(
-        self, bounds: Optional[Dict[str, float]] = None, time_scenario: str = None
+        self, bounds: Optional[Dict[str, float]] = None, time_scenario: Optional[str] = None
     ) -> Dict[str, Any]:
+        assert self.exposure_data is not None
         """
         Calculate the total exposure within optional geographic bounds with temporal variation.
 
@@ -1067,6 +1179,7 @@ class EnhancedPopulationExposureModel(EnhancedExposureModel):
     def _initialize_temporal_profiles(self) -> None:
         """Initialize population-specific temporal profiles."""
         super()._initialize_temporal_profiles()
+        assert self.exposure_data is not None
 
         # Add demographic-specific temporal patterns
         if "median_age" in self.exposure_data.columns:
@@ -1097,6 +1210,7 @@ class EnhancedPopulationExposureModel(EnhancedExposureModel):
 
     def _calculate_social_vulnerability_index(self) -> None:
         """Calculate social vulnerability index for population groups."""
+        assert self.exposure_data is not None
         # Simplified SVI calculation
         svi_components = []
 
@@ -1158,6 +1272,9 @@ class EnhancedInfrastructureExposureModel(EnhancedExposureModel):
 
     def _calculate_infrastructure_derived_properties(self) -> None:
         """Calculate infrastructure-specific derived properties."""
+        assert self.exposure_data is not None
+        if self.exposure_data is None:
+            return
         if "criticality" not in self.exposure_data.columns:
             # Assign criticality based on type
             criticality_mapping = {

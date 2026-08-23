@@ -3,6 +3,7 @@
 Command-line interface for GEO-INFER-ART.
 """
 
+from typing import Any
 import argparse
 import os
 import sys
@@ -22,13 +23,13 @@ from geo_infer_art import (
 )
 
 
-def ensure_directory(directory):
+def ensure_directory(directory: str) -> None:
     """Create output directory if it doesn't exist."""
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
 
 
-def process_geo_art(args):
+def process_geo_art(args: argparse.Namespace) -> int:
     """Process geospatial data with GeoArt."""
     print(f"Loading geospatial data from {args.input}...")
 
@@ -66,7 +67,7 @@ def process_geo_art(args):
     return 0
 
 
-def process_style_transfer(args):
+def process_style_transfer(args: argparse.Namespace) -> int:
     """Process style transfer on geospatial data."""
     print(f"Loading geospatial data from {args.input}...")
 
@@ -114,7 +115,7 @@ def process_style_transfer(args):
     return 0
 
 
-def process_place_art(args):
+def process_place_art(args: argparse.Namespace) -> int:
     """Generate place-based art."""
     if args.place:
         print(f"Generating art for place: {args.place}")
@@ -148,7 +149,7 @@ def process_place_art(args):
     return 0
 
 
-def process_generative_map(args):
+def process_generative_map(args: argparse.Namespace) -> int:
     """Generate art from elevation data."""
     if args.region:
         print(f"Generating elevation art for region: {args.region}")
@@ -187,7 +188,7 @@ def process_generative_map(args):
     return 0
 
 
-def process_procedural_art(args):
+def process_procedural_art(args: argparse.Namespace) -> int:
     """Generate procedural art."""
     if args.coordinates:
         try:
@@ -232,7 +233,7 @@ def process_procedural_art(args):
     return 0
 
 
-def process_cultural_map(args):
+def process_cultural_map(args: argparse.Namespace) -> int:
     """Generate cultural maps."""
     if args.region:
         print(f"Generating cultural map for region: {args.region}")
@@ -280,7 +281,7 @@ def process_cultural_map(args):
     return 0
 
 
-def process_map_style(args):
+def process_map_style(args: argparse.Namespace) -> int:
     """Process map style demonstration."""
     print(f"Creating MapStyle: {args.style}")
 
@@ -326,7 +327,7 @@ def process_map_style(args):
     return 0
 
 
-def process_animation(args):
+def process_animation(args: argparse.Namespace) -> int:
     """Process animation creation."""
     print(f"Creating {args.animation_type} animation...")
 
@@ -374,7 +375,7 @@ def process_animation(args):
     return 0
 
 
-def process_custom_algorithm(args):
+def process_custom_algorithm(args: argparse.Namespace) -> int:
     """Process custom algorithm creation and execution."""
     print(f"Processing custom algorithm: {args.algorithm}")
 
@@ -456,7 +457,7 @@ def process_custom_algorithm(args):
     return 0
 
 
-def process_performance(args):
+def process_performance(args: argparse.Namespace) -> int:
     """Process performance analysis and optimization."""
     print("Processing performance analysis...")
 
@@ -494,7 +495,7 @@ def process_performance(args):
     return 0
 
 
-def process_3d_viz(args):
+def process_3d_viz(args: argparse.Namespace) -> int:
     """Process 3D visualization creation."""
     print(f"Creating 3D {args.viz_type} visualization...")
 
@@ -530,7 +531,7 @@ def process_3d_viz(args):
     return 0
 
 
-def process_realtime(args):
+def process_realtime(args: argparse.Namespace) -> int:
     """Process real-time visualization creation."""
     print("Creating real-time visualization...")
 
@@ -544,7 +545,7 @@ def process_realtime(args):
         return 1
 
     # Create data callback function
-    def data_callback():
+    def data_callback() -> Any:
         # In a real implementation, this would fetch live data
         # For demo, just return the same data
         return geo_art.data
@@ -575,7 +576,7 @@ def process_realtime(args):
     return 0
 
 
-def process_web_map(args):
+def process_web_map(args: argparse.Namespace) -> int:
     """Process interactive web map creation."""
     print("Creating interactive web map...")
 
@@ -602,8 +603,8 @@ def process_web_map(args):
     return 0
 
 
-def main():
-    """Main entry point for the CLI."""
+def main() -> int:
+    """Main entry point for CLI."""
     parser = argparse.ArgumentParser(
         description="GEO-INFER-ART: Artistic visualization of geospatial data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -933,8 +934,6 @@ def main():
     else:
         parser.print_help()
         return 1
-
-    return 0
 
 
 if __name__ == "__main__":

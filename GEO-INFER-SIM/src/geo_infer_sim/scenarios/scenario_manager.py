@@ -206,7 +206,7 @@ class ScenarioManager:
         Returns:
             Comparison results dictionary
         """
-        comparison = {
+        comparison: Dict[str, Any] = {
             "scenarios": [],
             "metrics": {},
             "summary": {},
@@ -219,7 +219,8 @@ class ScenarioManager:
             scenario = self.scenarios[scenario_id]
             result = self.scenario_results.get(scenario_id, {})
 
-            comparison["scenarios"].append(
+            scenarios_list: List[Dict[str, Any]] = comparison["scenarios"]
+            scenarios_list.append(
                 {
                     "scenario_id": scenario_id,
                     "name": scenario.name,
@@ -231,11 +232,12 @@ class ScenarioManager:
             # Extract metrics if results available
             if result and metrics:
                 for metric in metrics:
-                    if metric not in comparison["metrics"]:
-                        comparison["metrics"][metric] = []
+                    metrics_dict: Dict[str, List[Dict[str, Any]]] = comparison["metrics"]
+                    if metric not in metrics_dict:
+                        metrics_dict[metric] = []
 
                     metric_value = result.get("metrics", {}).get(metric)
-                    comparison["metrics"][metric].append(
+                    metrics_dict[metric].append(
                         {
                             "scenario_id": scenario_id,
                             "value": metric_value,
@@ -244,10 +246,11 @@ class ScenarioManager:
 
         # Calculate summary statistics
         if comparison["metrics"]:
+            summary: Dict[str, Dict[str, Any]] = comparison["summary"]
             for metric_name, metric_values in comparison["metrics"].items():
                 values = [m["value"] for m in metric_values if m["value"] is not None]
                 if values:
-                    comparison["summary"][metric_name] = {
+                    summary[metric_name] = {
                         "mean": float(np.mean(values)),
                         "std": float(np.std(values)),
                         "min": float(np.min(values)),
@@ -330,7 +333,7 @@ class ScenarioManager:
         if scenario_ids is None:
             scenario_ids = list(self.scenario_results.keys())
 
-        analysis = {
+        analysis: Dict[str, Any] = {
             "scenarios_analyzed": len(scenario_ids),
             "successful_runs": 0,
             "failed_runs": 0,
@@ -338,15 +341,17 @@ class ScenarioManager:
             "best_scenarios": {},
         }
 
-        all_metrics = set()
+        all_metrics: set = set()
         for scenario_id in scenario_ids:
             result = self.scenario_results.get(scenario_id)
             if result and "error" not in result:
-                analysis["successful_runs"] += 1
+                successful_runs: int = analysis["successful_runs"]
+                analysis["successful_runs"] = successful_runs + 1
                 if "metrics" in result:
                     all_metrics.update(result["metrics"].keys())
             else:
-                analysis["failed_runs"] += 1
+                failed_runs: int = analysis["failed_runs"]
+                analysis["failed_runs"] = failed_runs + 1
 
         # Aggregate metrics
         for metric_name in all_metrics:
@@ -359,7 +364,8 @@ class ScenarioManager:
                     metric_scenarios.append(scenario_id)
 
             if metric_values:
-                analysis["metrics_summary"][metric_name] = {
+                metrics_summary: Dict[str, Dict[str, Any]] = analysis["metrics_summary"]
+                metrics_summary[metric_name] = {
                     "mean": float(np.mean(metric_values)),
                     "std": float(np.std(metric_values)),
                     "min": float(np.min(metric_values)),
@@ -368,11 +374,12 @@ class ScenarioManager:
                 }
 
                 # Find best scenario for each metric
-                best_idx = np.argmax(metric_values) if metric_values else None
+                best_idx = int(np.argmax(metric_values)) if metric_values else None
                 if best_idx is not None:
                     best_scenario_id = metric_scenarios[best_idx]
                     best_scenario = self.scenarios.get(best_scenario_id)
-                    analysis["best_scenarios"][metric_name] = {
+                    best_scenarios: Dict[str, Dict[str, Any]] = analysis["best_scenarios"]
+                    best_scenarios[metric_name] = {
                         "scenario_id": best_scenario_id,
                         "value": float(metric_values[best_idx]),
                         "scenario_name": best_scenario.name

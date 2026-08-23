@@ -537,7 +537,7 @@ You are expected to produce:
         for i, objective in enumerate(learning_objectives):
             # Determine difficulty based on distribution
             rand = random.random()
-            cumulative = 0
+            cumulative = 0.0
             difficulty = DifficultyLevel.INTERMEDIATE
 
             difficulty_map = {

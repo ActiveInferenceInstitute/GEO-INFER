@@ -107,16 +107,17 @@ class MessagingService:
     - Pub/sub channels for topic-based communication
     """
     
-    _instance = None
+    _instance: Optional["MessagingService"] = None
+    _initialized: bool = False
     
-    def __new__(cls):
+    def __new__(cls) -> "MessagingService":
         """Singleton pattern to ensure a single messaging service instance."""
         if cls._instance is None:
             cls._instance = super(MessagingService, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the messaging service."""
         if self._initialized:
             return
@@ -131,13 +132,13 @@ class MessagingService:
         self.message_callbacks: Dict[str, Callable[[Message], None]] = {}
         
         # Background task for message processing
-        self.processing_task = None
+        self.processing_task: Optional[asyncio.Task] = None
         self.running = False
         
         self._initialized = True
         logger.info("Messaging service initialized")
     
-    async def start(self):
+    async def start(self) -> None:
         """Start the messaging service."""
         if self.running:
             return
@@ -146,7 +147,7 @@ class MessagingService:
         self.processing_task = asyncio.create_task(self._process_messages())
         logger.info("Messaging service started")
     
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the messaging service."""
         if not self.running:
             return
@@ -229,7 +230,7 @@ class MessagingService:
         logger.debug(f"Broadcast message sent to {sent_count} agents on channel {channel}")
         return sent_count
     
-    def register_agent(self, agent_id: str):
+    def register_agent(self, agent_id: str) -> None:
         """
         Register an agent with the messaging service.
         
@@ -240,7 +241,7 @@ class MessagingService:
             self.message_queues[agent_id] = []
             logger.debug(f"Agent {agent_id} registered with messaging service")
     
-    def unregister_agent(self, agent_id: str):
+    def unregister_agent(self, agent_id: str) -> None:
         """
         Unregister an agent from the messaging service.
         
@@ -261,7 +262,7 @@ class MessagingService:
             
         logger.debug(f"Agent {agent_id} unregistered from messaging service")
     
-    def subscribe(self, agent_id: str, channel: str):
+    def subscribe(self, agent_id: str, channel: str) -> None:
         """
         Subscribe an agent to a channel.
         
@@ -275,7 +276,7 @@ class MessagingService:
         self.channels[channel].add(agent_id)
         logger.debug(f"Agent {agent_id} subscribed to channel {channel}")
     
-    def unsubscribe(self, agent_id: str, channel: str):
+    def unsubscribe(self, agent_id: str, channel: str) -> None:
         """
         Unsubscribe an agent from a channel.
         
@@ -287,7 +288,9 @@ class MessagingService:
             self.channels[channel].remove(agent_id)
             logger.debug(f"Agent {agent_id} unsubscribed from channel {channel}")
     
-    def register_message_callback(self, agent_id: str, callback: Callable[[Message], None]):
+    def register_message_callback(
+        self, agent_id: str, callback: Callable[[Message], None]
+    ) -> None:
         """
         Register a callback for when an agent receives a message.
         
@@ -327,7 +330,7 @@ class MessagingService:
         logger.debug(f"Retrieved {len(valid_messages)} messages for agent {agent_id}")
         return valid_messages
     
-    async def _process_messages(self):
+    async def _process_messages(self) -> None:
         """Background task to process messages."""
         while self.running:
             try:

@@ -5,7 +5,7 @@ PlaceArt module for creating art based on specific locations and places.
 import os
 import hashlib
 import random
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -32,9 +32,9 @@ class PlaceArt:
 
     def __init__(
         self,
-        location: Optional[Dict] = None,
+        location: Optional[Dict[str, Any]] = None,
         data: Optional[gpd.GeoDataFrame] = None,
-    ):
+    ) -> None:
         """
         Initialize a PlaceArt object.
 
@@ -44,8 +44,9 @@ class PlaceArt:
         """
         self.location = location or {}
         self.data = data
-        self.image = None
+        self.image: Optional[Image.Image] = None
         self._figure = None
+        self.metadata: Dict[str, Any] = {}
 
     @staticmethod
     def _as_pil_image(image: Union[Image.Image, np.ndarray]) -> Image.Image:
@@ -343,9 +344,9 @@ class PlaceArt:
         # Add geographic seed
         params["seed"] = int((norm_lat * 1000) + (norm_lon * 10000))
 
-        # Create the procedural art
+        algorithm_str = str(params.pop("algorithm"))
         art = ProceduralArt(
-            algorithm=params.pop("algorithm"),
+            algorithm=algorithm_str,
             params=params,
             resolution=(800, 800),
         )
@@ -465,6 +466,7 @@ class PlaceArt:
         draw = ImageDraw.Draw(img)
 
         # Try to get a font
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             # Try to load a nice font
             font = ImageFont.truetype("Arial", 24)
@@ -476,13 +478,8 @@ class PlaceArt:
         metadata_text = f"{location_name}\nLat: {lat:.4f}, Lon: {lon:.4f}"
 
         # Calculate text size
-        try:
-            # Try newer PIL method
-            text_bbox = draw.textbbox((0, 0), metadata_text, font=font)
-            text_size = (text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1])
-        except AttributeError:
-            # Fallback for older PIL versions
-            text_size = draw.textsize(metadata_text, font=font)
+        text_bbox = draw.textbbox((0, 0), metadata_text, font=font)
+        text_size = (text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1])
 
         # Determine position
         if position == "bottom":
@@ -625,11 +622,11 @@ class PlaceArt:
         blended_art = PlaceArt(location=blended_location)
         blended_art._generate_art()
 
-        if blended_art.image is not None:
+        if blended_art.image is not None and self.image is not None:
             # Blend the images
-            blended_image = (
-                blend_ratio * blended_art.image + (1 - blend_ratio) * self.image
-            ).astype(np.uint8)
+            img1 = self._as_pil_image(blended_art.image)
+            img2 = self._as_pil_image(self.image)
+            blended_image = Image.blend(img2, img1, alpha=blend_ratio)
 
             # Create new PlaceArt with blended result
             result_art = PlaceArt(location=blended_location)
@@ -639,7 +636,7 @@ class PlaceArt:
 
         return self
 
-    def add_artistic_elements(self, elements: List[str], **kwargs) -> "PlaceArt":
+    def add_artistic_elements(self, elements: List[str], **kwargs: Any) -> "PlaceArt":
         """
         Add artistic elements to the place art.
 
@@ -674,7 +671,7 @@ class PlaceArt:
 
         return self
 
-    def _add_frame(self, img: Image.Image, **kwargs) -> None:
+    def _add_frame(self, img: Image.Image, **kwargs: Any) -> None:
         """Add a decorative frame to the image."""
         frame_style = kwargs.get("frame_style", "simple")
         frame_color = kwargs.get("frame_color", "#8B4513")
@@ -703,12 +700,13 @@ class PlaceArt:
                     width=border_width - 6,
                 )
 
-    def _add_signature(self, img: Image.Image, **kwargs) -> None:
+    def _add_signature(self, img: Image.Image, **kwargs: Any) -> None:
         """Add an artistic signature to the image."""
         signature_text = kwargs.get("signature_text", "Place Art")
         signature_color = kwargs.get("signature_color", "#666666")
         signature_position = kwargs.get("signature_position", "bottom_right")
 
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             font = ImageFont.truetype("Arial", 20)
         except IOError:
@@ -718,14 +716,9 @@ class PlaceArt:
         width, height = img.size
 
         # Position the signature
-        try:
-            # Try newer PIL method
-            text_bbox = draw.textbbox((0, 0), signature_text, font=font)
-            text_width = text_bbox[2] - text_bbox[0]
-            text_height = text_bbox[3] - text_bbox[1]
-        except AttributeError:
-            # Fallback for older PIL versions
-            text_width, text_height = draw.textsize(signature_text, font=font)
+        text_bbox = draw.textbbox((0, 0), signature_text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
 
         if signature_position == "bottom_right":
             x = width - text_width - 20
@@ -750,7 +743,7 @@ class PlaceArt:
         )
         draw.text((x, y), signature_text, fill=signature_color, font=font)
 
-    def _add_texture_overlay(self, img: Image.Image, **kwargs) -> None:
+    def _add_texture_overlay(self, img: Image.Image, **kwargs: Any) -> None:
         """Add a texture overlay to the image."""
         texture_type = kwargs.get("texture_type", "paper")
         texture_opacity = kwargs.get("texture_opacity", 0.1)
@@ -774,7 +767,7 @@ class PlaceArt:
 
             img = Image.blend(img, texture_img, texture_opacity)
 
-    def _add_overlay_pattern(self, img: Image.Image, **kwargs) -> None:
+    def _add_overlay_pattern(self, img: Image.Image, **kwargs: Any) -> None:
         """Add a decorative pattern overlay."""
         pattern_type = kwargs.get("pattern_type", "diagonal")
         pattern_color = kwargs.get("pattern_color", "#000000")

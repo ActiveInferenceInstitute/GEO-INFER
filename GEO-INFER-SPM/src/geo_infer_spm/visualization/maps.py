@@ -187,7 +187,7 @@ def create_statistical_map(
 
 
 def plot_spm_results(
-    spm_result: SPMResult, plot_type: str = "stat_map", **kwargs
+    spm_result: SPMResult, plot_type: str = "stat_map", **kwargs: Any
 ) -> Dict[str, Any]:
     """
     Create comprehensive SPM results visualization.
@@ -222,7 +222,9 @@ def plot_spm_results(
         raise ValueError(f"Unknown plot type: {plot_type}")
 
 
-def _plot_beta_coefficients(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
+def _plot_beta_coefficients(
+    spm_result: SPMResult, **kwargs: Any
+) -> Dict[str, Any]:
     """Plot regression coefficient maps."""
     beta = spm_result.beta_coefficients
     coordinates = spm_result.spm_data.coordinates
@@ -280,7 +282,9 @@ def _plot_beta_coefficients(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
     return {"plot_type": "beta_coefficients", "matplotlib_figure": fig}
 
 
-def _plot_residuals(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
+def _plot_residuals(
+    spm_result: SPMResult, **kwargs: Any
+) -> Dict[str, Any]:
     """Plot model residuals."""
     residuals = spm_result.residuals
     coordinates = spm_result.spm_data.coordinates
@@ -330,7 +334,9 @@ def _plot_residuals(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
     }
 
 
-def _plot_model_diagnostics(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
+def _plot_model_diagnostics(
+    spm_result: SPMResult, **kwargs: Any
+) -> Dict[str, Any]:
     """Create model diagnostic plots."""
     diagnostics = spm_result.model_diagnostics
 
@@ -394,7 +400,7 @@ def _plot_model_diagnostics(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
 
 
 def create_interactive_map(
-    spm_result: SPMResult, contrast_idx: int = 0, **kwargs
+    spm_result: SPMResult, contrast_idx: int = 0, **kwargs: Any
 ) -> Optional[Any]:
     """
     Create interactive statistical map using plotly.
@@ -444,7 +450,7 @@ def create_interactive_map(
         hasattr(contrast, "significance_mask")
         and contrast.significance_mask is not None
     ):
-        colors = ["red" if sig else "blue" for sig in contrast.significance_mask]
+        colors: Any = ["red" if sig else "blue" for sig in contrast.significance_mask]
         color_label = "Significant"
     else:
         colors = stat_values

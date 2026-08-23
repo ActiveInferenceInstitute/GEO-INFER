@@ -22,7 +22,7 @@ import logging
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import h3
 import numpy as np
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 DEL_NORTE_BOUNDS = (-124.408, 41.458, -123.536, 42.006)
 
 # Cascadia Subduction Zone parameters
-CSZ_PARAMS = {
+CSZ_PARAMS: Dict[str, Any] = {
     "trench_lat_range": (40.0, 50.5),
     "trench_lon_approx": -125.0,  # approximate offshore trench longitude
     "max_magnitude_estimate": 9.0,
@@ -142,7 +142,10 @@ class SeismicHazardAnalyzer:
     def _fetch_earthquake_data(self) -> Dict[str, Any]:
         """Fetch real earthquake data from USGS via the data integrator."""
         try:
-            return self.data_integrator.usgs_client.get_earthquakes(bbox=self.bbox)
+            return cast(
+                Dict[str, Any],
+                self.data_integrator.usgs_client.get_earthquakes(bbox=self.bbox),
+            )
         except Exception as exc:
             logger.warning("Earthquake data fetch failed: %s", exc)
             return {"earthquakes": [], "success": False, "error": str(exc)}
@@ -150,7 +153,10 @@ class SeismicHazardAnalyzer:
     def _fetch_cascadia_seismicity(self) -> Dict[str, Any]:
         """Fetch Cascadia-wide seismicity from USGS."""
         try:
-            return self.data_integrator.usgs_client.get_cascadia_seismicity(days=30)
+            return cast(
+                Dict[str, Any],
+                self.data_integrator.usgs_client.get_cascadia_seismicity(days=30),
+            )
         except Exception as exc:
             logger.warning("Cascadia seismicity fetch failed: %s", exc)
             return {"total_events": 0, "events": [], "success": False, "error": str(exc)}
@@ -341,7 +347,7 @@ class SeismicHazardAnalyzer:
         west, south, east, north = self.bbox
 
         # Key areas of concern for liquefaction in Del Norte
-        high_risk_areas = [
+        high_risk_areas: List[Dict[str, Any]] = [
             {"name": "Crescent City Harbor", "lat": 41.745, "lon": -124.185, "radius_km": 2.0},
             {"name": "Smith River Delta", "lat": 41.930, "lon": -124.160, "radius_km": 3.0},
             {"name": "Lake Earl / Lake Talawa", "lat": 41.810, "lon": -124.165, "radius_km": 2.5},

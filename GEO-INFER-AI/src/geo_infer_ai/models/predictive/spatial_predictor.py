@@ -49,31 +49,31 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
     def _initialize_model(self, **kwargs: Any) -> None:
         """Initialize the underlying regression model."""
         if self.model_type == "linear":
-            default_params = {"fit_intercept": True}
-            default_params.update(kwargs)
-            self.model = LinearRegression(**default_params)
+            linear_params: Dict[str, Any] = {"fit_intercept": True}
+            linear_params.update(kwargs)
+            self.model = LinearRegression(**linear_params)
         elif self.model_type == "ridge":
-            default_params = {"alpha": 1.0, "fit_intercept": True}
-            default_params.update(kwargs)
-            self.model = Ridge(**default_params)
+            ridge_params: Dict[str, Any] = {"alpha": 1.0, "fit_intercept": True}
+            ridge_params.update(kwargs)
+            self.model = Ridge(**ridge_params)
         elif self.model_type == "random_forest":
-            default_params = {
+            rf_params: Dict[str, Any] = {
                 "n_estimators": 100,
                 "max_depth": 20,
                 "random_state": 42,
                 "n_jobs": -1,
             }
-            default_params.update(kwargs)
-            self.model = RandomForestRegressor(**default_params)
+            rf_params.update(kwargs)
+            self.model = RandomForestRegressor(**rf_params)
         elif self.model_type == "gradient_boosting":
-            default_params = {
+            gb_params: Dict[str, Any] = {
                 "n_estimators": 100,
                 "learning_rate": 0.1,
                 "max_depth": 5,
                 "random_state": 42,
             }
-            default_params.update(kwargs)
-            self.model = GradientBoostingRegressor(**default_params)
+            gb_params.update(kwargs)
+            self.model = GradientBoostingRegressor(**gb_params)
         else:
             raise ValueError(
                 f"Unknown model_type: {self.model_type}. "
@@ -99,27 +99,34 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
         Returns:
             Self for method chaining
         """
-        logger.info(
-            f"Training {self.model_type} predictor on {len(X)} samples "
-            f"with {X.shape[1] if hasattr(X, 'shape') else len(X.columns)} features"
-        )
-
+        X_arr: np.ndarray
+        num_features: int
         # Convert to numpy if pandas DataFrame
         if isinstance(X, pd.DataFrame):
-            self.feature_names_ = list(X.columns)
-            X = X.values
+            self.feature_names_ = [str(c) for c in X.columns]
+            X_arr = np.asarray(X.values)
+            num_features = len(X.columns)
         else:
-            self.feature_names_ = [f"feature_{i}" for i in range(X.shape[1])]
+            X_arr = np.asarray(X)
+            num_features = X_arr.shape[1] if X_arr.ndim > 1 else 1
+            self.feature_names_ = [f"feature_{i}" for i in range(num_features)]
+
+        logger.info(
+            f"Training {self.model_type} predictor on {len(X_arr)} samples "
+            f"with {num_features} features"
+        )
 
         # Add spatial features if requested and coordinates provided
         if self.include_spatial_features and coordinates is not None:
-            X = self._add_spatial_features(X, coordinates)
+            X_arr = self._add_spatial_features(X_arr, coordinates)
 
         # Train the model
+        if self.model is None:
+            raise ValueError("Model is not initialized")
         if sample_weight is not None:
-            self.model.fit(X, y, sample_weight=sample_weight)
+            self.model.fit(X_arr, y, sample_weight=sample_weight)
         else:
-            self.model.fit(X, y)
+            self.model.fit(X_arr, y)
 
         logger.info("Training completed")
         return self
@@ -147,7 +154,7 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
             X = self._add_spatial_features(X, coordinates)
 
         predictions = self.model.predict(X)
-        return predictions
+        return np.asarray(predictions)
 
     def _add_spatial_features(
         self, X: np.ndarray, coordinates: np.ndarray
@@ -188,11 +195,13 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
         Returns:
             Feature importance array or None if not available
         """
+        if self.model is None:
+            return None
         if hasattr(self.model, "feature_importances_"):
-            return self.model.feature_importances_
+            return np.asarray(self.model.feature_importances_)
         elif hasattr(self.model, "coef_"):
             # For linear models, use absolute coefficients as importance
-            return np.abs(self.model.coef_)
+            return np.asarray(np.abs(self.model.coef_))
         return None
 
     def get_feature_names(self) -> Optional[List[str]]:
@@ -363,6 +372,8 @@ class OrdinaryKriging:
 
     def _estimate_variogram(self) -> None:
         """Estimate experimental variogram and fit model parameters."""
+        if self.values_ is None or self.coordinates_ is None:
+            return
         n = len(self.values_)
 
         # Compute pairwise distances and squared differences
@@ -430,13 +441,13 @@ class OrdinaryKriging:
 
         if self.variogram_model == "spherical":
             if h >= a:
-                return c0 + c
+                return float(c0 + c)
             ratio = h / a
-            return c0 + c * (1.5 * ratio - 0.5 * ratio ** 3)
+            return float(c0 + c * (1.5 * ratio - 0.5 * ratio ** 3))
         elif self.variogram_model == "exponential":
-            return c0 + c * (1.0 - np.exp(-3.0 * h / a))
+            return float(c0 + c * (1.0 - np.exp(-3.0 * h / a)))
         elif self.variogram_model == "gaussian":
-            return c0 + c * (1.0 - np.exp(-3.0 * (h / a) ** 2))
+            return float(c0 + c * (1.0 - np.exp(-3.0 * (h / a) ** 2)))
         else:
             raise ValueError(f"Unknown variogram model: {self.variogram_model}")
 

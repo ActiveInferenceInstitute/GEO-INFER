@@ -17,7 +17,7 @@ class LoggingConfig(BaseModel):
 
     @field_validator("level")
     @classmethod
-    def validate_log_level(cls, v):
+    def validate_log_level(cls, v: str) -> str:
         """Validate log level."""
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if v.upper() not in valid_levels:
@@ -26,7 +26,7 @@ class LoggingConfig(BaseModel):
 
     @field_validator("format")
     @classmethod
-    def validate_log_format(cls, v):
+    def validate_log_format(cls, v: str) -> str:
         """Validate log format."""
         valid_formats = ["console", "json", "text"]
         if v.lower() not in valid_formats:
@@ -43,7 +43,7 @@ class MonitoringConfig(BaseModel):
 
     @field_validator("metrics_port")
     @classmethod
-    def validate_metrics_port(cls, v):
+    def validate_metrics_port(cls, v: int) -> int:
         """Validate metrics port."""
         if not 1 <= v <= 65535:
             raise ValueError("Port must be between 1 and 65535")
@@ -62,7 +62,7 @@ class TestingConfig(BaseModel):
 
     @field_validator("coverage_threshold")
     @classmethod
-    def validate_coverage_threshold(cls, v):
+    def validate_coverage_threshold(cls, v: float) -> float:
         """Validate coverage threshold."""
         if not 0 <= v <= 100:
             raise ValueError("Coverage threshold must be between 0 and 100")
@@ -70,7 +70,7 @@ class TestingConfig(BaseModel):
 
     @field_validator("timeout")
     @classmethod
-    def validate_timeout(cls, v):
+    def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""
         if v < 1:
             raise ValueError("Timeout must be positive")
@@ -88,7 +88,7 @@ class DockerConfig(BaseModel):
 
     @field_validator("timeout")
     @classmethod
-    def validate_timeout(cls, v):
+    def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""
         if v < 1:
             raise ValueError("Timeout must be positive")
@@ -106,7 +106,7 @@ class KubernetesConfig(BaseModel):
 
     @field_validator("timeout")
     @classmethod
-    def validate_timeout(cls, v):
+    def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""
         if v < 1:
             raise ValueError("Timeout must be positive")
@@ -160,7 +160,7 @@ class TLSConfig(BaseModel):
 
     @field_validator("cert_file", "key_file", "ca_file")
     @classmethod
-    def validate_file_paths(cls, v, info):
+    def validate_file_paths(cls, v: Any, info: Any) -> Any:
         """Validate file path values without requiring files at config load time."""
         return v
 
@@ -175,7 +175,7 @@ class AuthConfig(BaseModel):
 
     @field_validator("token_expiry")
     @classmethod
-    def validate_token_expiry(cls, v):
+    def validate_token_expiry(cls, v: int) -> int:
         """Validate token expiry."""
         if v < 1:
             raise ValueError("Token expiry must be positive")
@@ -222,7 +222,7 @@ class Config(BaseModel):
 
     @field_validator("environment")
     @classmethod
-    def validate_environment(cls, v):
+    def validate_environment(cls, v: str) -> str:
         """Validate environment name."""
         valid_environments = ["development", "testing", "test", "staging", "production"]
         if v.lower() not in valid_environments:
@@ -236,8 +236,8 @@ class Config(BaseModel):
 _config: Optional[Config] = None
 
 # Backward-compatible nested aliases used by older callers and tests.
-DeploymentConfig.DockerConfig = DockerConfig
-DeploymentConfig.KubernetesConfig = KubernetesConfig
+DeploymentConfig.DockerConfig = DockerConfig  # type: ignore[attr-defined]
+DeploymentConfig.KubernetesConfig = KubernetesConfig  # type: ignore[attr-defined]
 
 
 def load_config(config_file: Optional[str] = None) -> Config:
@@ -258,7 +258,7 @@ def load_config(config_file: Optional[str] = None) -> Config:
             env_config[env_key] = value
 
     # Load from file if provided
-    file_config = {}
+    file_config: Dict[str, Any] = {}
     if config_file and os.path.exists(config_file):
         import yaml
 

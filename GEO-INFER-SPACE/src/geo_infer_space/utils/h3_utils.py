@@ -7,7 +7,7 @@ All functions use H3 4.x API directly.
 
 import logging
 import json
-from typing import Dict, List, Union, Any, Optional, Tuple
+from typing import Dict, List, Union, Any, Optional, Tuple, cast
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,14 @@ def _version_tuple(version: str) -> Tuple[int, int, int] | None:
     """Parse an H3 semantic version for the supported v4 API surface."""
     try:
         parts = version.lstrip("v").split(".")
-        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
-            0,
-        ) * max(0, 3 - len(parts))
+        return cast(
+            Tuple[int, int, int],
+            tuple(
+                int(part.split("+")[0].split("-")[0])
+                for part in parts[:3]
+            )
+            + (0,) * max(0, 3 - len(parts)),
+        )
     except (AttributeError, TypeError, ValueError):
         return None
 
@@ -30,7 +35,9 @@ try:
 except ImportError:
     _h3 = None
 else:
-    _h3_version = _version_tuple(getattr(_h3, "__version__", None))
+    _h3_version = _version_tuple(
+        cast(str, getattr(_h3, "__version__", None))
+    )
     if _h3_version is None or _h3_version < MIN_H3_VERSION or _h3_version[0] >= 5:
         raise RuntimeError(
             "GEO-INFER-SPACE requires h3-py >=4.5.0,<5; "
@@ -58,7 +65,7 @@ def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
         )
         raise ImportError("h3-py package required for latlng_to_cell")
 
-    return h3.latlng_to_cell(lat, lng, resolution)
+    return cast(str, h3.latlng_to_cell(lat, lng, resolution))
 
 
 def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
@@ -79,7 +86,7 @@ def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
         )
         raise ImportError("h3-py package required for cell_to_latlng")
 
-    return h3.cell_to_latlng(h3_index)
+    return cast(Tuple[float, float], h3.cell_to_latlng(h3_index))
 
 
 def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
@@ -100,7 +107,7 @@ def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
         )
         raise ImportError("h3-py package required for cell_to_latlng_boundary")
 
-    return h3.cell_to_boundary(h3_index)
+    return cast(List[Tuple[float, float]], h3.cell_to_boundary(h3_index))
 
 
 def polygon_to_cells(
@@ -239,17 +246,21 @@ def geojson_to_h3(
     if isinstance(geojson_data, str):
         geojson_data = json.loads(geojson_data)
 
+    geojson_dict = cast(Dict[str, Any], geojson_data)
+
     # Get features from GeoJSON
-    if "type" in geojson_data and geojson_data["type"] == "FeatureCollection":
-        features = geojson_data.get("features", [])
-    elif "type" in geojson_data and geojson_data["type"] == "Feature":
-        features = [geojson_data]
+    if "type" in geojson_dict and geojson_dict["type"] == "FeatureCollection":
+        features = geojson_dict.get("features", [])
+    elif "type" in geojson_dict and geojson_dict["type"] == "Feature":
+        features = [geojson_dict]
     else:
         # Assume it's a geometry object
-        features = [{"type": "Feature", "geometry": geojson_data, "properties": {}}]
+        features = [
+            {"type": "Feature", "geometry": geojson_dict, "properties": {}}
+        ]
 
-    h3_indices = []
-    properties_dict = {}
+    h3_indices: List[str] = []
+    properties_dict: Dict[str, Dict[str, Any]] = {}
 
     for feature in features:
         geometry = feature.get("geometry", {})
@@ -271,7 +282,9 @@ def geojson_to_h3(
         except Exception as e:
             logger.error(f"Failed to convert geometry to H3: {e}")
 
-    result = {"h3_indices": h3_indices}
+    result: Dict[
+        str, Union[List[str], Dict[str, Dict[str, Any]]]
+    ] = {"h3_indices": h3_indices}
     if feature_properties:
         result["properties"] = properties_dict
 
@@ -336,7 +349,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
         )
         raise ImportError("h3-py package required for grid_distance")
 
-    return h3.grid_distance(h3_index1, h3_index2)
+    return cast(int, h3.grid_distance(h3_index1, h3_index2))
 
 
 def compact_cells(h3_indices: List[str]) -> List[str]:
@@ -375,7 +388,7 @@ def cell_area(h3_index: str, unit: str = "km^2") -> float:
         )
         raise ImportError("h3-py package required for cell_area")
 
-    return h3.cell_area(h3_index, unit)
+    return cast(float, h3.cell_area(h3_index, unit))
 
 
 def get_resolution(h3_index: str) -> int:
@@ -388,7 +401,7 @@ def get_resolution(h3_index: str) -> int:
         )
         raise ImportError("h3-py package required for get_resolution")
 
-    return h3.get_resolution(h3_index)
+    return cast(int, h3.get_resolution(h3_index))
 
 
 def is_valid_cell(h3_index: str) -> bool:
@@ -401,7 +414,7 @@ def is_valid_cell(h3_index: str) -> bool:
         )
         raise ImportError("h3-py package required for is_valid_cell")
 
-    return h3.is_valid_cell(h3_index)
+    return cast(bool, h3.is_valid_cell(h3_index))
 
 
 def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
@@ -414,4 +427,4 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
         )
         raise ImportError("h3-py package required for are_neighbor_cells")
 
-    return h3.are_neighbor_cells(h3_index1, h3_index2)
+    return cast(bool, h3.are_neighbor_cells(h3_index1, h3_index2))

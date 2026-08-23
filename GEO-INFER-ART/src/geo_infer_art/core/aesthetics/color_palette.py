@@ -199,8 +199,7 @@ class ColorPalette:
             from sklearn.cluster import KMeans
             
             # Load and resize image for faster processing
-            img = Image.open(image_path)
-            img = img.resize((100, 100))
+            img = Image.open(image_path).resize((100, 100))
             img_array = np.array(img)
             
             # Reshape the image data for clustering
@@ -404,7 +403,7 @@ class ColorPalette:
         Returns:
             Dictionary with harmony analysis results
         """
-        from matplotlib.colors import to_hsv
+        from matplotlib.colors import to_hsv  # type: ignore[attr-defined]
 
         if len(self.colors) < 2:
             return {"harmony_type": "monochromatic", "score": 1.0}
@@ -493,7 +492,7 @@ class ColorPalette:
         Returns:
             A new ColorPalette with adjusted saturation
         """
-        from matplotlib.colors import to_hsv, hsv_to_rgb
+        from matplotlib.colors import to_hsv, hsv_to_rgb  # type: ignore[attr-defined]
 
         adjusted_colors = []
         for color in self.colors:
@@ -503,7 +502,7 @@ class ColorPalette:
             s = min(1.0, max(0.0, s * factor))
 
             # Convert back to RGB
-            r, g, b = hsv_to_rgb(h, s, v)
+            r, g, b = hsv_to_rgb((h, s, v))
             hex_color = f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
             adjusted_colors.append(hex_color)
 
@@ -525,7 +524,7 @@ class ColorPalette:
         """
         from matplotlib.colors import to_rgb
 
-        def luminance(color):
+        def luminance(color: str) -> float:
             r, g, b = to_rgb(color)
             # Convert to linear RGB
             r = r if r <= 0.03928 else ((r + 0.055) / 1.055) ** 2.4

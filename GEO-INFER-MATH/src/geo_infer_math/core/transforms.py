@@ -7,8 +7,8 @@ various geographic and projected coordinate reference systems (CRS).
 
 import numpy as np
 import warnings
-from typing import Union, List, Tuple, Dict, Optional, Callable
-from dataclasses import dataclass
+from typing import Union, List, Tuple, Dict, Optional, Callable, Any, cast
+from dataclasses import dataclass, field
 from math import pi, sin, cos, tan, sqrt, atan2, degrees, radians
 
 # Earth parameters
@@ -25,11 +25,7 @@ class CRSDefinition:
     name: str
     epsg_code: Optional[int] = None
     proj_string: Optional[str] = None
-    parameters: Dict[str, float] = None
-
-    def __post_init__(self):
-        if self.parameters is None:
-            self.parameters = {}
+    parameters: Dict[str, float] = field(default_factory=dict)
 
 
 class CoordinateTransformer:
@@ -87,11 +83,11 @@ class CoordinateTransformer:
         else:
             raise ValueError(f"Unsupported CRS specification type: {type(crs)}")
 
-    def _build_transformation_chain(self) -> List[Callable]:
+    def _build_transformation_chain(self) -> List[Callable[..., Any]]:
         """Build the transformation chain."""
         # For now, implement basic transformations
         # In a full implementation, this would use PROJ or similar libraries
-        chain = []
+        chain: List[Callable[..., Tuple[float, float, Optional[float]]]] = []
 
         # WGS84 to UTM
         if (
@@ -551,7 +547,7 @@ def affine_transformation(
         # 3D transformation
         transformed = np.dot(points, matrix.T) + translation
 
-    return transformed
+    return cast(np.ndarray, transformed)
 
 
 def rotation_matrix_2d(angle: float) -> np.ndarray:
@@ -659,20 +655,16 @@ def atanh(x: float) -> float:
 
 def exp(x: float) -> float:
     """Exponential function."""
-    return 2.718281828459045**x
+    import math
+    return float(math.exp(x))
 
 
 def log(x: float) -> float:
     """Natural logarithm function."""
     if x <= 0:
         raise ValueError("Logarithm undefined for non-positive values")
-    # Simple approximation for natural log
-    result = 0.0
-    y = (x - 1) / (x + 1)
-    y2 = y * y
-    for i in range(1, 20):
-        result += (2 * i - 1) * (y ** (2 * i - 1)) / (2 * i - 1)
-    return 2 * y / (1 - y2) * result
+    import math
+    return float(math.log(x))
 
 
 __all__ = [

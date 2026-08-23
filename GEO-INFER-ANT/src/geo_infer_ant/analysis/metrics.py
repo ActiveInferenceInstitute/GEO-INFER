@@ -48,7 +48,7 @@ class PerformanceConfiguration:
     performance_thresholds: Dict[str, float] = field(default_factory=dict)
     comparison_baselines: List[str] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         valid_criteria = [
             "efficiency",
@@ -82,7 +82,7 @@ class SwarmPerformanceMetrics:
         evaluation_criteria: Optional[List[str]] = None,
         benchmark_datasets: Optional[List[str]] = None,
         statistical_analysis: Optional[List[str]] = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Initialize performance metrics system.
@@ -135,7 +135,7 @@ class SwarmPerformanceMetrics:
         """
         logger.info("Evaluating swarm system performance")
 
-        assessment = {
+        assessment: Dict[str, Any] = {
             "evaluation_time": datetime.now(),
             "performance_scores": {},
             "efficiency_metrics": {},
@@ -209,7 +209,7 @@ class SwarmPerformanceMetrics:
         self, swarm_behavior: Dict[str, Any], task_objectives: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Evaluate swarm system efficiency."""
-        efficiency = {
+        efficiency: Dict[str, Any] = {
             "overall_score": 0.0,
             "task_completion_rate": 0.0,
             "resource_utilization": 0.0,
@@ -283,7 +283,7 @@ class SwarmPerformanceMetrics:
         environmental_conditions: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Evaluate swarm system robustness."""
-        robustness = {
+        robustness: Dict[str, Any] = {
             "overall_score": 0.0,
             "failure_recovery": 0.0,
             "environmental_resilience": 0.0,
@@ -346,7 +346,7 @@ class SwarmPerformanceMetrics:
         environmental_conditions: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Evaluate swarm system adaptability."""
-        adaptability = {
+        adaptability: Dict[str, Any] = {
             "overall_score": 0.0,
             "learning_rate": 0.0,
             "parameter_adaptation": 0.0,
@@ -404,7 +404,7 @@ class SwarmPerformanceMetrics:
 
     def _evaluate_scalability(self, swarm_behavior: Dict[str, Any]) -> Dict[str, Any]:
         """Evaluate swarm system scalability."""
-        scalability = {
+        scalability: Dict[str, Any] = {
             "overall_score": 0.0,
             "size_scalability": 0.0,
             "performance_scaling": 0.0,
@@ -466,7 +466,7 @@ class SwarmPerformanceMetrics:
         self, assessment: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Perform statistical analysis on performance metrics."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "hypothesis_tests": {},
             "confidence_intervals": {},
             "effect_sizes": {},
@@ -623,7 +623,7 @@ class SwarmPerformanceMetrics:
             f"Analyzing robustness for {len(failure_scenarios)} failure scenarios"
         )
 
-        robustness_analysis = {
+        robustness_analysis: Dict[str, Any] = {
             "analysis_time": datetime.now(),
             "failure_scenarios": failure_scenarios,
             "recovery_mechanisms": recovery_mechanisms,
@@ -730,7 +730,7 @@ class SwarmPerformanceMetrics:
         self, mechanism: str, scenario_results: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Evaluate effectiveness of a recovery mechanism."""
-        effectiveness = {
+        effectiveness: Dict[str, Any] = {
             "mechanism": mechanism,
             "avg_recovery_time": 0.0,
             "success_rate": 0.0,
@@ -809,7 +809,7 @@ class SwarmPerformanceMetrics:
             f"Assessing scalability for {len(swarm_sizes)} swarm sizes and {len(problem_complexity_levels)} complexity levels"
         )
 
-        scalability_assessment = {
+        scalability_assessment: Dict[str, Any] = {
             "assessment_time": datetime.now(),
             "test_configurations": [],
             "scaling_results": {},
@@ -879,7 +879,7 @@ class SwarmPerformanceMetrics:
         performance_requirements: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Test a specific scaling configuration."""
-        config_result = {
+        config_result: Dict[str, Any] = {
             "swarm_size": swarm_size,
             "complexity": complexity,
             "performance_score": 0.0,
@@ -949,10 +949,10 @@ class SwarmPerformanceMetrics:
         return config_result
 
     def _analyze_scaling_trends(
-        self, scaling_results: Dict[str, Any]
+        self, scaling_results: Dict[int, Any]
     ) -> Dict[str, Any]:
         """Analyze trends in scaling performance."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "max_scalable_size": 0,
             "scaling_efficiency": 0.0,
             "performance_trends": {},
@@ -972,7 +972,7 @@ class SwarmPerformanceMetrics:
                 )
 
                 if meets_requirements:
-                    max_size = size
+                    max_size = int(size)
                 else:
                     break  # Stop when requirements are no longer met
 
@@ -980,7 +980,7 @@ class SwarmPerformanceMetrics:
 
             # Analyze scaling efficiency (how performance changes with size)
             if len(scaling_results) > 1:
-                sizes = sorted(scaling_results.keys())
+                sizes = [int(s) for s in sorted(scaling_results.keys())]
                 avg_performance = []
 
                 for size in sizes:
@@ -1027,7 +1027,7 @@ class SwarmPerformanceMetrics:
         return analysis
 
     def _identify_performance_bottlenecks(
-        self, scaling_results: Dict[str, Any]
+        self, scaling_results: Dict[int, Any]
     ) -> List[Dict[str, Any]]:
         """Identify performance bottlenecks in scaling results."""
         bottlenecks = []
@@ -1059,7 +1059,7 @@ class SwarmPerformanceMetrics:
         return bottlenecks
 
     def _generate_scaling_recommendations(
-        self, scaling_results: Dict[str, Any], performance_requirements: Dict[str, Any]
+        self, scaling_results: Dict[int, Any], performance_requirements: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Generate recommendations for improving scalability."""
         recommendations = []
@@ -1134,7 +1134,7 @@ class SwarmPerformanceMetrics:
         """
         logger.info(f"Generating {report_format} performance report")
 
-        report = {
+        report: Dict[str, Any] = {
             "report_type": report_format,
             "generation_time": datetime.now(),
             "summary": {},
@@ -1201,7 +1201,7 @@ class SwarmPerformanceMetrics:
         self, assessment: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate data for performance visualizations."""
-        viz_data = {
+        viz_data: Dict[str, Any] = {
             "performance_radar": {},
             "timeline_charts": {},
             "comparison_bars": {},
@@ -1283,7 +1283,7 @@ class SwarmPerformanceMetrics:
 
     def get_performance_summary(self) -> Dict[str, Any]:
         """Get summary of all performance evaluations."""
-        summary = {
+        summary: Dict[str, Any] = {
             "total_evaluations": len(self.performance_history),
             "evaluation_criteria": self.config.evaluation_criteria,
             "performance_trends": {},

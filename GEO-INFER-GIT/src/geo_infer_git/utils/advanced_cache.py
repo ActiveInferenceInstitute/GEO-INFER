@@ -138,7 +138,7 @@ class CachePolicy(ABC):
         Returns:
             List of keys to evict
         """
-        """Return cache keys that should be evicted."""
+        ...
 
 
 class LRUPolicy(CachePolicy):
@@ -263,9 +263,9 @@ class MemoryCache:
     def __init__(
         self,
         max_size: int = 1000,
-        policy: CachePolicy = None,
+        policy: Optional[CachePolicy] = None,
         enable_stats: bool = True,
-    ):
+    ) -> None:
         """
         Initialize memory cache.
 
@@ -328,8 +328,8 @@ class MemoryCache:
         key: str,
         value: Any,
         ttl_seconds: Optional[int] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Put value in cache.
@@ -597,8 +597,8 @@ class DiskCache:
         key: str,
         value: Any,
         ttl_seconds: Optional[int] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Put value in disk cache.
@@ -776,10 +776,10 @@ class RedisCache:
         host: str = "localhost",
         port: int = 6379,
         db: int = 0,
-        password: str = None,
+        password: Optional[str] = None,
         max_connections: int = 20,
         signing_key: Optional[Union[bytes, str]] = None,
-    ):
+    ) -> None:
         """
         Initialize Redis cache.
 
@@ -797,13 +797,13 @@ class RedisCache:
         self.host = host
         self.port = port
         self.db = db
-        self.password = password
+        self.password: Optional[str] = password
         self.max_connections = max_connections
         self.signing_key = signing_key
 
         # Connection pool
-        self.connection_pool = None
-        self.redis_client = None
+        self.connection_pool: Any = None
+        self.redis_client: Any = None
 
         # Statistics
         self.stats = CacheStatistics()
@@ -925,8 +925,8 @@ class RedisCache:
         key: str,
         value: Any,
         ttl_seconds: Optional[int] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Put value in Redis cache.
@@ -1027,10 +1027,10 @@ class MultiLevelCache:
 
     def __init__(
         self,
-        memory_cache: MemoryCache = None,
-        disk_cache: DiskCache = None,
-        redis_cache: RedisCache = None,
-    ):
+        memory_cache: Optional[MemoryCache] = None,
+        disk_cache: Optional[DiskCache] = None,
+        redis_cache: Optional[RedisCache] = None,
+    ) -> None:
         """
         Initialize multi-level cache.
 
@@ -1040,18 +1040,18 @@ class MultiLevelCache:
             redis_cache: L3 Redis cache instance
         """
         self.memory_cache = memory_cache or MemoryCache(max_size=1000)
-        self.disk_cache = disk_cache
-        self.redis_cache = redis_cache
+        self.disk_cache: Optional[DiskCache] = disk_cache
+        self.redis_cache: Optional[RedisCache] = redis_cache
 
         # Cache hierarchy for write-through
-        self.write_levels = [self.memory_cache]
+        self.write_levels: List[Any] = [self.memory_cache]
         if self.disk_cache:
             self.write_levels.append(self.disk_cache)
         if self.redis_cache:
             self.write_levels.append(self.redis_cache)
 
         # Read hierarchy (checked in order)
-        self.read_levels = [self.memory_cache]
+        self.read_levels: List[Any] = [self.memory_cache]
         if self.disk_cache:
             self.read_levels.append(self.disk_cache)
         if self.redis_cache:
@@ -1084,8 +1084,8 @@ class MultiLevelCache:
         key: str,
         value: Any,
         ttl_seconds: Optional[int] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Put value in all cache levels.
@@ -1143,7 +1143,7 @@ class IntelligentCache:
     #: Upper bound on keys returned per prefetch pass.
     MAX_RELATED_KEYS = 10
 
-    def __init__(self, cache: MultiLevelCache = None):
+    def __init__(self, cache: Optional[MultiLevelCache] = None) -> None:
         """
         Initialize intelligent cache.
 
@@ -1151,9 +1151,9 @@ class IntelligentCache:
             cache: Multi-level cache to optimize
         """
         self.cache = cache or MultiLevelCache()
-        self.access_patterns = {}
-        self.prefetch_queue = queue.Queue()
-        self.warmup_list = []
+        self.access_patterns: Dict[str, List[float]] = {}
+        self.prefetch_queue: queue.Queue = queue.Queue()
+        self.warmup_list: List[str] = []
 
     def get(self, key: str, default: Any = None) -> Any:
         """
@@ -1182,8 +1182,8 @@ class IntelligentCache:
         key: str,
         value: Any,
         adaptive_ttl: bool = True,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Put value with intelligent TTL calculation.
@@ -1423,7 +1423,7 @@ class IntelligentCache:
 def create_optimized_cache(
     memory_size: int = 1000,
     disk_size_gb: float = 1.0,
-    redis_host: str = None,
+    redis_host: Optional[str] = None,
     signing_key: Optional[Union[bytes, str]] = None,
 ) -> MultiLevelCache:
     """
@@ -1446,13 +1446,13 @@ def create_optimized_cache(
     )
 
     # Disk cache
-    disk_cache = None
+    disk_cache: Optional[DiskCache] = None
     if disk_size_gb > 0:
         cache_dir = Path.home() / ".geo_infer_git" / "cache"
         disk_cache = DiskCache(cache_dir, disk_size_gb, signing_key=signing_key)
 
     # Redis cache
-    redis_cache = None
+    redis_cache: Optional[RedisCache] = None
     if redis_host:
         try:
             redis_cache = RedisCache(host=redis_host, signing_key=signing_key)
@@ -1497,7 +1497,7 @@ class CacheDecorator:
     def __call__(self, func: Callable) -> Callable:
         """Apply caching decorator to function."""
 
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Generate cache key
             key_parts = [self.key_prefix, func.__name__]
 
@@ -1523,7 +1523,7 @@ class CacheDecorator:
 
         return wrapper
 
-    def invalidate(self, func_name: str, *args, **kwargs) -> None:
+    def invalidate(self, func_name: str, *args: Any, **kwargs: Any) -> None:
         """
         Invalidate cache entries for a function.
 

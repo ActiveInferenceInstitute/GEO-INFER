@@ -3,10 +3,11 @@ ProceduralArt module for creating procedural and algorithmic art from geospatial
 """
 
 import os
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure
 from PIL import Image
 
 from geo_infer_art.core.aesthetics import ColorPalette
@@ -82,10 +83,10 @@ class ProceduralArt:
             raise ValueError("Resolution must be a positive (width, height) tuple.")
 
         self.algorithm = algorithm
-        self.params = params or {}
-        self.resolution = resolution
-        self.image = None
-        self._figure = None
+        self.params: Dict[str, Any] = params or {}
+        self.resolution: Tuple[int, int] = resolution
+        self.image: Optional[Image.Image] = None
+        self._figure: Optional[Figure] = None
 
     @classmethod
     def from_geo_coordinates(
@@ -248,7 +249,7 @@ class ProceduralArt:
 
         return art
 
-    def generate(self) -> None:
+    def generate(self) -> "ProceduralArt":
         """
         Generate the procedural art based on the selected algorithm and parameters.
         """
@@ -343,7 +344,7 @@ class ProceduralArt:
             cmap=palette.cmap,
             interpolation="bicubic",
             aspect="auto",
-            extent=[0, width, 0, height],
+            extent=(0, width, 0, height),
         )
 
         # Remove axes for artistic effect
@@ -648,7 +649,7 @@ class ProceduralArt:
             cmap=palette.cmap,
             interpolation="nearest",
             aspect="auto",
-            extent=[0, width, 0, height],
+            extent=(0, width, 0, height),
         )
 
         # Remove axes for artistic effect
@@ -747,7 +748,7 @@ class ProceduralArt:
             cmap=palette.cmap,
             interpolation="bicubic",
             aspect="auto",
-            extent=[0, width, 0, height],
+            extent=(0, width, 0, height),
         )
 
         # Remove axes for artistic effect
@@ -784,7 +785,14 @@ class ProceduralArt:
         fig, ax = plt.subplots(figsize=(width / 100, height / 100), dpi=100)
 
         # Function to draw a branch recursively
-        def draw_branch(x, y, length, angle, branch_depth, ax):
+        def draw_branch(
+            x: float,
+            y: float,
+            length: float,
+            angle: float,
+            branch_depth: int,
+            ax: Any,
+        ) -> None:
             if branch_depth <= 0:
                 return
 
@@ -968,7 +976,7 @@ class ProceduralArt:
             M,
             cmap=palette.cmap,
             interpolation="bilinear",
-            extent=[x_min, x_max, y_min, y_max],
+            extent=(x_min, x_max, y_min, y_max),
         )
 
         # Remove axes for artistic effect
@@ -1029,7 +1037,7 @@ class ProceduralArt:
             M,
             cmap=palette.cmap,
             interpolation="bilinear",
-            extent=[x_min, x_max, y_min, y_max],
+            extent=(x_min, x_max, y_min, y_max),
         )
 
         # Remove axes for artistic effect
@@ -1094,7 +1102,7 @@ class ProceduralArt:
             cmap=palette.cmap,
             interpolation="bicubic",
             aspect="auto",
-            extent=[0, width, 0, height],
+            extent=(0, width, 0, height),
         )
 
         # Remove axes for artistic effect
@@ -1296,6 +1304,7 @@ class ProceduralArt:
                 break
 
             # Grow branch towards closest point
+            assert closest_branch_idx is not None
             branch = branches[closest_branch_idx]
             start_x, start_y, end_x, end_y = branch
 
@@ -1653,7 +1662,8 @@ class ProceduralArt:
         # Run turtle simulation
         for _ in range(iterations):
             for turtle in turtles:
-                x, y, angle, color_idx = turtle
+                x, y, angle, t_color = turtle
+                color_idx = int(t_color)
 
                 # Move forward
                 step_size = 2
@@ -1703,9 +1713,9 @@ class ProceduralArt:
             points = np.array([[0, 0], [width, 0], [width // 2, height]])
 
             # Generate triangle points
-            triangle_points = [points]
+            triangle_points: List[Any] = [points]
             for _ in range(iterations):
-                new_points = []
+                new_points: List[Any] = []
                 for triangle in triangle_points:
                     # Calculate midpoints
                     p1, p2, p3 = triangle
@@ -1718,7 +1728,7 @@ class ProceduralArt:
                 triangle_points = new_points
 
             # Draw all triangles
-            colors = plt.cm.viridis(np.linspace(0, 1, len(triangle_points)))
+            colors = plt.get_cmap("viridis")(np.linspace(0, 1, len(triangle_points)))
             for i, triangle in enumerate(triangle_points):
                 triangle = np.array(triangle)
                 ax.fill(triangle[:, 0], triangle[:, 1], color=colors[i], alpha=0.6)
@@ -1728,7 +1738,7 @@ class ProceduralArt:
             carpet = np.ones((height, width, 3), dtype=np.uint8) * 255
 
             # Remove squares recursively
-            def remove_square(x, y, size):
+            def remove_square(x: int, y: int, size: int) -> None:
                 if size < 1:
                     return
                 # Remove center third
@@ -1776,7 +1786,9 @@ class ProceduralArt:
         )
 
         # Generate Dragon curve
-        def dragon_curve(x, y, length, angle, depth):
+        def dragon_curve(
+            x: float, y: float, length: float, angle: float, depth: int
+        ) -> None:
             if depth <= 0:
                 return
 
@@ -1823,7 +1835,7 @@ class ProceduralArt:
         )
 
         # Generate Hilbert curve points
-        def hilbert_curve(order, x, y, lg, i1, i2):
+        def hilbert_curve(order: int, x: int, y: int, lg: int, i1: int, i2: int) -> None:
             if order == 0:
                 color_idx = (lg // 2) % len(palette.colors)
                 color = palette.colors[color_idx]
@@ -1873,7 +1885,9 @@ class ProceduralArt:
         )
 
         # Generate Koch snowflake
-        def koch_curve(x1, y1, x2, y2, depth):
+        def koch_curve(
+            x1: float, y1: float, x2: float, y2: float, depth: int
+        ) -> None:
             if depth <= 0:
                 color_idx = (depth + iterations) % len(palette.colors)
                 color = palette.colors[color_idx]
@@ -1959,13 +1973,14 @@ class ProceduralArt:
         ]
 
         # Generate fern points
-        x, y = 0, 0
+        x: float = 0.0
+        y: float = 0.0
         points_x, points_y = [], []
 
         for _ in range(num_points):
             # Choose random transformation
             r = np.random.random()
-            cumulative_prob = 0
+            cumulative_prob: float = 0.0
 
             for transform, prob in transformations:
                 cumulative_prob += prob
@@ -2028,13 +2043,14 @@ class ProceduralArt:
             transforms.append(([a, b, c, d, e, f], prob))
 
         # Generate IFS points
-        x, y = 0, 0
+        x: float = 0.0
+        y: float = 0.0
         points_x, points_y = [], []
 
         for _ in range(num_points):
             # Choose random transformation
             r = np.random.random()
-            cumulative_prob = 0
+            cumulative_prob: float = 0.0
 
             for transform, prob in transforms:
                 cumulative_prob += prob

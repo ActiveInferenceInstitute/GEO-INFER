@@ -40,7 +40,7 @@ from .decision import SpatialDecisionSupport
 try:
     from .api.rest_api import create_cog_api_app
 except ImportError:
-    create_cog_api_app = None
+    create_cog_api_app = None  # type: ignore[assignment]
 
 # Utility functions and helpers
 from .utils.validation import validate_spatial_data, validate_cognitive_model

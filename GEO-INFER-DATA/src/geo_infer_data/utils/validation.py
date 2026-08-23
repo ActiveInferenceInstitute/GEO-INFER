@@ -45,7 +45,7 @@ class GeospatialValidator:
         >>> print(f"Geometry validation: {geometry_check.status}")
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.validation_rules = {
             "geometry": self._validate_geometry,
             "coordinates": self._validate_coordinates,

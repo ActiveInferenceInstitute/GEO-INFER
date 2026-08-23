@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any, Union, Callable, cast
 from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import json
@@ -124,15 +124,15 @@ class CognitiveSecurityManager:
         self.security_events_buffer: deque = deque(maxlen=10000)
         
         # Initialize ML models
-        self.anomaly_detector = None
-        self.threat_classifier = None
-        self.behavior_analyzer = None
-        self.model_scaler = StandardScaler() if ML_AVAILABLE else None
+        self.anomaly_detector: Any = None
+        self.threat_classifier: Any = None
+        self.behavior_analyzer: Any = None
+        self.model_scaler: Any = StandardScaler() if ML_AVAILABLE else None
         
         # Initialize monitoring
         self.monitoring_active = False
         self.analysis_threads: List[threading.Thread] = []
-        self.alert_callbacks: List[callable] = []
+        self.alert_callbacks: List[Callable[[Dict[str, Any]], None]] = []
         
         # Configuration
         self.config = {
@@ -148,7 +148,7 @@ class CognitiveSecurityManager:
         if ML_AVAILABLE:
             self._initialize_ml_models()
     
-    def _initialize_ml_models(self):
+    def _initialize_ml_models(self) -> None:
         """Initialize machine learning models."""
         try:
             # Anomaly detection model
@@ -276,7 +276,7 @@ class CognitiveSecurityManager:
                     deviation = abs(current_value - baseline_value) / baseline_value
                     deviations.append(deviation)
         
-        return np.mean(deviations) if deviations else 0.0
+        return cast(float, np.mean(deviations)) if deviations else 0.0
     
     def _classify_behavior(self, behavior_score: float) -> BehaviorType:
         """Classify behavior based on deviation score."""
@@ -440,8 +440,8 @@ class CognitiveSecurityManager:
         """Conduct AI-assisted threat hunting."""
         hunt_id = f"hunt_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         
-        findings = []
-        threat_indicators = []
+        findings: List[Any] = []
+        threat_indicators: List[str] = []
         
         try:
             # Filter events based on search criteria
@@ -639,7 +639,7 @@ class CognitiveSecurityManager:
         return recommendations
     
     # Monitoring and Management
-    def start_cognitive_monitoring(self):
+    def start_cognitive_monitoring(self) -> None:
         """Start cognitive security monitoring."""
         if not self.monitoring_active:
             self.monitoring_active = True
@@ -658,7 +658,7 @@ class CognitiveSecurityManager:
             
             self.logger.info("Cognitive security monitoring started")
     
-    def stop_cognitive_monitoring(self):
+    def stop_cognitive_monitoring(self) -> None:
         """Stop cognitive security monitoring."""
         self.monitoring_active = False
         
@@ -668,7 +668,7 @@ class CognitiveSecurityManager:
         self.analysis_threads.clear()
         self.logger.info("Cognitive security monitoring stopped")
     
-    def _behavior_analysis_loop(self):
+    def _behavior_analysis_loop(self) -> None:
         """Main behavior analysis loop."""
         while self.monitoring_active:
             try:
@@ -677,7 +677,7 @@ class CognitiveSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in behavior analysis: {e}")
     
-    def _anomaly_detection_loop(self):
+    def _anomaly_detection_loop(self) -> None:
         """Main anomaly detection loop."""
         while self.monitoring_active:
             try:
@@ -692,7 +692,7 @@ class CognitiveSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in anomaly detection: {e}")
     
-    def _threat_prediction_loop(self):
+    def _threat_prediction_loop(self) -> None:
         """Main threat prediction loop."""
         while self.monitoring_active:
             try:
@@ -708,7 +708,7 @@ class CognitiveSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in threat prediction: {e}")
     
-    def _update_behavior_profiles(self):
+    def _update_behavior_profiles(self) -> None:
         """Update behavior profiles for all entities."""
         # Group recent events by entity
         recent_cutoff = datetime.now() - timedelta(hours=self.config["learning_window_hours"])
@@ -724,7 +724,7 @@ class CognitiveSecurityManager:
         for user_id, user_events in events_by_user.items():
             self.analyze_user_behavior(user_id, user_events)
     
-    def _trigger_cognitive_alert(self, anomaly: Dict[str, Any]):
+    def _trigger_cognitive_alert(self, anomaly: Dict[str, Any]) -> None:
         """Trigger alert for cognitive security detection."""
         alert_data = {
             "type": "cognitive_anomaly",
@@ -739,7 +739,7 @@ class CognitiveSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in cognitive alert callback: {e}")
     
-    def _trigger_cognitive_threat_alert(self, threat: CognitiveThreat):
+    def _trigger_cognitive_threat_alert(self, threat: CognitiveThreat) -> None:
         """Trigger alert for cognitive threat prediction."""
         alert_data = {
             "type": "cognitive_threat",
@@ -757,7 +757,7 @@ class CognitiveSecurityManager:
                 self.logger.error(f"Error in cognitive threat alert callback: {e}")
     
     # Public API Methods
-    def add_security_event(self, event: SecurityEvent):
+    def add_security_event(self, event: SecurityEvent) -> None:
         """Add a security event to the cognitive analysis buffer."""
         self.security_events_buffer.append(event)
     
@@ -773,7 +773,7 @@ class CognitiveSecurityManager:
         """Get all threat hunting results."""
         return list(self.threat_hunting_results.values())
     
-    def add_alert_callback(self, callback: callable):
+    def add_alert_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """Add a callback function for cognitive security alerts."""
         self.alert_callbacks.append(callback)
     

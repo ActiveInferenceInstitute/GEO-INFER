@@ -59,12 +59,12 @@ class SymbolicMath:
             backend: Symbolic computation backend ('sympy', 'symengine')
         """
         self.backend = backend
-        self._engine = None
-        self._symbols = {}
+        self._engine: Any = None
+        self._symbols: Dict[str, Any] = {}
 
         try:
             if backend == "sympy":
-                import sympy as sp
+                import sympy as sp  # type: ignore[import-untyped]
 
                 self._engine = sp
                 self.Symbol = sp.Symbol
@@ -103,7 +103,7 @@ class SymbolicMath:
             self._engine = "numpy"
             self._setup_numpy_backend()
 
-    def _setup_numpy_backend(self):
+    def _setup_numpy_backend(self) -> None:
         """Set up the descriptor-based numpy backend."""
         # Bind the descriptor operations exposed by the numpy backend.
         self.Symbol = self._numpy_symbol
@@ -117,15 +117,15 @@ class SymbolicMath:
         self.Matrix = self._numpy_matrix
         self.Function = self._numpy_function
 
-    def _numpy_symbol(self, name: str):
+    def _numpy_symbol(self, name: str) -> Dict[str, Any]:
         """Create a numpy-based symbolic symbol."""
         return {"type": "symbol", "name": name}
 
-    def _numpy_symbols(self, *names):
+    def _numpy_symbols(self, *names: str) -> List[Dict[str, Any]]:
         """Create multiple numpy-based symbolic symbols."""
         return [self._numpy_symbol(name) for name in names]
 
-    def _numpy_diff(self, expr, var):
+    def _numpy_diff(self, expr: Any, var: Any) -> Any:
         """Numerical differentiation via central finite differences.
 
         If ``expr`` is callable, computes df/d(var) ≈ (f(x+h) - f(x-h)) / (2h)
@@ -174,33 +174,33 @@ class SymbolicMath:
         # Fallback descriptor
         return {"type": "derivative", "expression": expr, "variable": var, "order": 1}
 
-    def _numpy_integrate(self, expr, var):
+    def _numpy_integrate(self, expr: Any, var: Any) -> Dict[str, Any]:
         """Numerical integration (simplified)."""
         return {"type": "integral", "expression": expr, "variable": var}
 
-    def _numpy_solve(self, expr, var):
+    def _numpy_solve(self, expr: Any, var: Any) -> Dict[str, Any]:
         """Numerical equation solving (simplified)."""
         return {"type": "solution", "expression": expr, "variable": var}
 
-    def _numpy_simplify(self, expr):
+    def _numpy_simplify(self, expr: Any) -> Any:
         """Return a normalized descriptor for a numpy expression."""
         if isinstance(expr, dict):
             return dict(expr)
         return expr
 
-    def _numpy_expand(self, expr):
+    def _numpy_expand(self, expr: Any) -> Any:
         """Return an expanded descriptor when the numpy backend cannot rewrite it."""
         return expr
 
-    def _numpy_factor(self, expr):
+    def _numpy_factor(self, expr: Any) -> Any:
         """Return a factorization descriptor when symbolic factoring is unavailable."""
         return expr
 
-    def _numpy_matrix(self, data):
+    def _numpy_matrix(self, data: Any) -> np.ndarray:
         """Create a numeric matrix using numpy."""
         return np.array(data)
 
-    def _numpy_function(self, name):
+    def _numpy_function(self, name: str) -> Dict[str, Any]:
         """Create a callable descriptor for a named numpy-backend function."""
         return {"type": "function", "name": name}
 
@@ -259,7 +259,7 @@ class SymbolicMath:
             "backend": self.backend,
         }
 
-    def _parse_equation(self, equation: str, symbols: List):
+    def _parse_equation(self, equation: str, symbols: List[Any]) -> Any:
         """Parse an equation string into symbolic form."""
         if self.backend in ["sympy", "symengine"]:
             # Use the actual symbolic engine
@@ -272,7 +272,7 @@ class SymbolicMath:
             # Numpy backend
             return {"type": "equation", "string": equation}
 
-    def _parse_constraint(self, constraint: str, symbols: List):
+    def _parse_constraint(self, constraint: str, symbols: List[Any]) -> Any:
         """Parse a constraint string."""
         if self.backend in ["sympy", "symengine"]:
             return self._engine.sympify(constraint)
@@ -292,7 +292,7 @@ class SymbolicMath:
         Returns:
             Dictionary of gradients
         """
-        gradients = {}
+        gradients: Dict[str, Any] = {}
 
         for param in parameters:
             try:
@@ -358,7 +358,7 @@ class SymbolicMath:
                 ]
 
                 try:
-                    from scipy.optimize import minimize as sci_minimize  # type: ignore
+                    from scipy.optimize import minimize as sci_minimize
 
                     obj_fn = self._engine.lambdify(
                         param_symbols, objective_expr, modules="numpy"
@@ -367,10 +367,10 @@ class SymbolicMath:
                         param_symbols, self._engine.Matrix(grad_exprs), modules="numpy"
                     )
 
-                    def _f(x):
+                    def _f(x: Any) -> float:
                         return float(obj_fn(*x))
 
-                    def _jac(x):
+                    def _jac(x: Any) -> np.ndarray:
                         g = jac_fn(*x)
                         return np.array(g).flatten().astype(float)
 
@@ -404,7 +404,7 @@ class SymbolicMath:
             else:
                 # Numpy backend: objective must be callable; use scipy numerically
                 try:
-                    from scipy.optimize import minimize as sci_minimize  # type: ignore
+                    from scipy.optimize import minimize as sci_minimize
 
                     if not callable(objective):
                         raise TypeError("Numpy backend requires a callable objective")

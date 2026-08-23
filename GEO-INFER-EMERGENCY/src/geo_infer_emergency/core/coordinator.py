@@ -316,7 +316,8 @@ class EmergencyCoordinator:
         # Find available mutual aid partners
         available_partners = self._find_mutual_aid_partners(requesting_agency, resource_needs)
         
-        request = {
+        assignments_out: List[Dict[str, Any]] = []
+        request: Dict[str, Any] = {
             "request_id": request_id,
             "requesting_agency": requesting_agency,
             "resource_needs": resource_needs,
@@ -325,14 +326,14 @@ class EmergencyCoordinator:
             "requested_at": datetime.now().isoformat(),
             "status": "pending",
             "potential_providers": available_partners,
-            "assignments": []
+            "assignments": assignments_out
         }
         
         # Auto-assign based on agreements
         for need in resource_needs:
             for partner in available_partners:
                 if need in partner.get("capabilities", []):
-                    request["assignments"].append({
+                    assignments_out.append({
                         "resource_type": need,
                         "providing_agency": partner["agency_id"],
                         "staging_area": staging_areas[0] if staging_areas else None,
@@ -340,10 +341,10 @@ class EmergencyCoordinator:
                     })
                     break
         
-        if request["assignments"]:
+        if assignments_out:
             request["status"] = "assigned"
         
-        logger.info(f"Mutual aid request {request_id}: {len(request['assignments'])} assignments")
+        logger.info(f"Mutual aid request {request_id}: {len(assignments_out)} assignments")
         return request
     
     def _find_mutual_aid_partners(
@@ -375,7 +376,7 @@ class EmergencyCoordinator:
         self,
         incident: Dict[str, Any],
         update_frequency: str = "hourly",
-        distribution: List[str] = None,
+        distribution: Optional[List[str]] = None,
         format: str = "ics_209"
     ) -> Dict[str, Any]:
         """

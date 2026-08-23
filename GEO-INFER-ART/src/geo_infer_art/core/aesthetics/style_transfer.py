@@ -78,9 +78,9 @@ class StyleTransfer:
                 "Install it with 'uv pip install tensorflow'."
             )
 
-        self.style_image = None
-        self.content_image = None
-        self.model = None
+        self.style_image: Optional[Image.Image] = None
+        self.content_image: Optional[Image.Image] = None
+        self.model: Optional[Any] = None
         requested_device = os.environ.get("GEO_INFER_ART_TF_DEVICE", "CPU").upper()
         if requested_device not in {"CPU", "GPU"}:
             raise ValueError("GEO_INFER_ART_TF_DEVICE must be CPU or GPU")
@@ -119,7 +119,7 @@ class StyleTransfer:
             "data", "styles", cls.PREDEFINED_STYLES[style_name]
         )
         if style_resource.is_file():
-            return os.fspath(style_resource)
+            return str(style_resource)
 
         raise FileNotFoundError(
             f"Predefined style asset is not installed: {style_resource}"
@@ -341,6 +341,7 @@ class StyleTransfer:
 
             # Save figure to a buffer and load as image
             buf = io.BytesIO()
+            assert geo_art._figure is not None
             geo_art._figure.savefig(buf, format="png", dpi=300, bbox_inches="tight")
             buf.seek(0)
             content_img = Image.open(buf)
@@ -389,6 +390,7 @@ class StyleTransfer:
 
         if self.model is None:
             self._build_model()
+        assert self.model is not None
 
         with tf.device(self._tf_device):
             # Get the feature representations of the content and style images
@@ -409,7 +411,8 @@ class StyleTransfer:
             )
 
             # Define the loss function
-            def style_content_loss():
+            def style_content_loss() -> Any:
+                assert self.model is not None
                 # Process the input image through the model
                 outputs = self.model(input_image)
                 style_outputs = outputs[:num_style_layers]
@@ -483,7 +486,7 @@ class StyleTransfer:
         styles: List[str],
         weights: Optional[List[float]] = None,
         iterations: int = 100,
-        **kwargs,
+        **kwargs: Any,
     ) -> Image.Image:
         """
         Apply multiple styles to geospatial data with different weights.
@@ -544,7 +547,7 @@ class StyleTransfer:
         geo_data: Union[gpd.GeoDataFrame, np.ndarray],
         base_style: str,
         variation_params: Dict,
-        **kwargs,
+        **kwargs: Any,
     ) -> Image.Image:
         """
         Create a variation of a base style with custom parameters.

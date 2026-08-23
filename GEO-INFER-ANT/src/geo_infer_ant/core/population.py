@@ -39,7 +39,7 @@ except ImportError as e:
 # GEO-INFER-TIME currently exposes analysis and forecasting engines rather than
 # the historical TemporalManager class. Keep this integration point explicit so
 # population construction never performs a misleading import-time fallback.
-TemporalManager = None
+TemporalManager: Any = None
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class PopulationConfig:
     max_workers: int = 4
     random_seed: Optional[int] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         if self.population_size <= 0:
             raise ValueError("Population size must be positive")
@@ -151,7 +151,7 @@ class EnvironmentalState:
         max_density = distribution.get("max_density", 1.0)
         decay_rate = distribution.get("decay_rate", 0.1)
 
-        return max_density * np.exp(-decay_rate * min_distance)
+        return float(max_density * np.exp(-decay_rate * min_distance))
 
 
 @dataclass
@@ -221,12 +221,12 @@ class AgentPopulation:
     def __init__(
         self,
         population_size: int = 1000,
-        agent_types: List[str] = None,
+        agent_types: Optional[List[str]] = None,
         spatial_distribution: str = "random",
         behavioral_heterogeneity: str = "stochastic",
         spatial_bounds: Optional[Dict[str, float]] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize agent population.
 
@@ -272,7 +272,7 @@ class AgentPopulation:
 
         # Population state
         self.agents: List["SwarmAgent"] = []
-        self.environment = None
+        self.environment: Optional[EnvironmentalState] = None
         self.simulation_results = SimulationResults()
 
         # Integration components
@@ -556,14 +556,14 @@ class AgentPopulation:
             position = center + np.array(
                 [distance * np.cos(angle), distance * np.sin(angle)]
             )
-            bounds = self.config.spatial_bounds
-            if bounds:
+            config_bounds = self.config.spatial_bounds
+            if config_bounds:
                 position = np.clip(
                     position,
-                    [bounds["min_lat"], bounds["min_lng"]],
-                    [bounds["max_lat"], bounds["max_lng"]],
+                    [config_bounds["min_lat"], config_bounds["min_lng"]],
+                    [config_bounds["max_lat"], config_bounds["max_lng"]],
                 )
-            return position
+            return np.asarray(position)
 
         elif self.config.spatial_distribution == "uniform":
             # Grid-like distribution
@@ -593,7 +593,7 @@ class AgentPopulation:
 
     def _get_agent_config(self, agent_type: str) -> Dict[str, Any]:
         """Get configuration parameters for specific agent type."""
-        base_config = {
+        base_config: Dict[str, Any] = {
             "sensory_range": 100.0,
             "movement_speed": 1.5,
             "active_inference_enabled": True,
@@ -628,7 +628,7 @@ class AgentPopulation:
         self,
         time_steps: int = 1000,
         environmental_changes: Optional[List[Dict[str, Any]]] = None,
-        data_collection: List[str] = None,
+        data_collection: Optional[List[str]] = None,
         progress_callback: Optional[Callable[[int, Dict[str, Any]], None]] = None,
     ) -> SimulationResults:
         """
@@ -764,7 +764,7 @@ class AgentPopulation:
         """
         semaphore = asyncio.Semaphore(max(1, self.config.max_workers))
 
-        async def update_single_agent(agent):
+        async def update_single_agent(agent: "SwarmAgent") -> bool:
             """Update one agent while respecting the concurrency limit."""
             async with semaphore:
                 try:
@@ -791,6 +791,9 @@ class AgentPopulation:
     async def _update_single_agent(self, agent: "SwarmAgent", step: int) -> None:
         """Update a single agent for current time step."""
         try:
+            # Agent updates require an initialized environment.
+            if self.environment is None:
+                return
             # Check if agent is still active
             if agent.energy_level <= 0:
                 return  # Agent is inactive
@@ -858,7 +861,11 @@ class AgentPopulation:
 
     def _get_social_context(self, agent: "SwarmAgent") -> Dict[str, Any]:
         """Get social context for agent (nearby agents)."""
-        context = {"nearby_agents": 0, "nearby_agent_types": {}, "social_signals": []}
+        context: Dict[str, Any] = {
+            "nearby_agents": 0,
+            "nearby_agent_types": {},
+            "social_signals": [],
+        }
 
         # Population positions are the authoritative agent state. The generic
         # SPACE cell-neighbor API returns cells, not agents, so using it here
@@ -920,7 +927,7 @@ class AgentPopulation:
 
     def _get_behavioral_rules(self, agent: "SwarmAgent") -> Dict[str, Any]:
         """Get behavioral rules for agent."""
-        rules = {}
+        rules: Dict[str, Any] = {}
 
         # Apply foraging rules
         if self.foraging_rules:
@@ -992,7 +999,7 @@ class AgentPopulation:
                 metrics["max_inter_agent_distance"] = np.max(distances)
 
         # Agent type distribution
-        agent_types = {}
+        agent_types: Dict[str, int] = {}
         for agent in active_agents:
             agent_type = getattr(agent, "agent_type", "unknown")
             agent_types[agent_type] = agent_types.get(agent_type, 0) + 1
@@ -1003,7 +1010,7 @@ class AgentPopulation:
 
     def _analyze_emergent_patterns(self) -> Dict[str, Any]:
         """Analyze emergent patterns in population behavior."""
-        patterns = {}
+        patterns: Dict[str, Any] = {}
 
         if not self.agents:
             return patterns

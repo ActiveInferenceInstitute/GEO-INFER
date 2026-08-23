@@ -213,7 +213,7 @@ def plot_belief_update(
 
 def plot_free_energy(
     free_energy_history: List[float],
-    iterations: Optional[List[int]] = None,
+    iterations: Optional[np.ndarray] = None,
     title: str = "Free Energy Minimization",
     figsize: Tuple[int, int] = (10, 6),
 ) -> plt.Figure:
@@ -397,7 +397,7 @@ def plot_policies(
             range(n_policies),
             policy_probabilities,
             alpha=0.8,
-            color=plt.cm.viridis(np.linspace(0, 1, n_policies)),
+            color=plt.get_cmap("viridis")(np.linspace(0, 1, n_policies)),
         )
         axes[0].set_xlabel("Policy")
         axes[0].set_ylabel("Probability")
@@ -543,7 +543,7 @@ def plot_policies(
             range(n_policies),
             avg_probs,
             alpha=0.8,
-            color=plt.cm.viridis(np.linspace(0, 1, n_policies)),
+            color=plt.get_cmap("viridis")(np.linspace(0, 1, n_policies)),
         )
         axes[1, 1].set_xlabel("Policy")
         axes[1, 1].set_ylabel("Average Probability")
@@ -948,7 +948,7 @@ def plot_action_analysis(
         ax6 = fig.add_subplot(gs[1, 3])
 
         unique_policies, counts = np.unique(selected_policies, return_counts=True)
-        colors = plt.cm.Set3(np.linspace(0, 1, len(unique_policies)))
+        colors = plt.get_cmap("Set3")(np.linspace(0, 1, len(unique_policies)))
 
         bars = ax6.bar(range(len(unique_policies)), counts, color=colors, alpha=0.8)
         ax6.set_title("Policy Selection Frequency")
@@ -1088,7 +1088,7 @@ def plot_action_analysis(
     logger.info(f"Action analysis saved to {output_dir}")
 
 
-def create_interpretability_dashboard(analyzer, output_dir: Path):
+def create_interpretability_dashboard(analyzer: Any, output_dir: Path) -> None:
     """
     Create a comprehensive interpretability dashboard.
 
@@ -1702,7 +1702,7 @@ def plot_markov_blanket(blanket: Any) -> plt.Figure:
 
 
 def plot_h3_grid_static(
-    h3_data: Dict[str, Dict], metric: str = "fe", title: str = "H3 Grid"
+    h3_data: Dict[str, Any], metric: str = "fe", title: str = "H3 Grid"
 ) -> plt.Figure:
     """
     Create static plot of H3 grid data.
@@ -1757,16 +1757,16 @@ def plot_h3_grid_static(
         return fig
 
     # Extract values for color normalization
-    values = []
+    values_list: list[Any] = []
     for cell_data in h3_data.values():
         if isinstance(cell_data, dict) and metric in cell_data:
-            values.append(cell_data[metric])
+            values_list.append(cell_data[metric])
         elif isinstance(cell_data, (int, float)):
-            values.append(cell_data)
+            values_list.append(cell_data)
         else:
-            values.append(0)
+            values_list.append(0)
 
-    if not values:
+    if not values_list:
         ax.text(
             0.5,
             0.5,
@@ -1779,7 +1779,7 @@ def plot_h3_grid_static(
         ax.set_title(title)
         return fig
 
-    values = np.asarray(values, dtype=float)
+    values = np.asarray(values_list, dtype=float)
     if not np.all(np.isfinite(values)):
         raise ValueError(f"{metric} values must be finite")
     min_val, max_val = float(np.min(values)), float(np.max(values))
@@ -1808,7 +1808,7 @@ def plot_h3_grid_static(
             normalized_value = (
                 (value - min_val) / value_range if value_range > 0 else 0.5
             )
-            color = plt.cm.viridis(normalized_value)
+            color = plt.get_cmap("viridis")(normalized_value)
 
             # Fill the hexagon
             ax.fill(x, y, color=color, edgecolor="white", linewidth=0.5, alpha=0.8)
@@ -1823,7 +1823,7 @@ def plot_h3_grid_static(
 
     # Add colorbar
     sm = plt.cm.ScalarMappable(
-        cmap=plt.cm.viridis,
+        cmap=plt.get_cmap("viridis"),
         norm=plt.Normalize(
             vmin=min_val, vmax=max_val if max_val > min_val else min_val + 1
         ),
@@ -1840,7 +1840,9 @@ def plot_h3_grid_static(
     return fig
 
 
-def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str = "fe"):
+def create_h3_gif(
+    history: List[Dict[str, Any]], output_path: str, metric: str = "fe"
+) -> None:
     """
     Create animated GIF of H3 grid evolution over time.
 
@@ -1859,7 +1861,7 @@ def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str 
 
     try:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        images = []
+        images: List[np.ndarray] = []
 
         # Get global min/max values for consistent color scaling
         all_values = []
@@ -1891,14 +1893,17 @@ def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str 
 
             # Convert figure to image array
             fig.canvas.draw()
-            image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
+            image = np.frombuffer(
+                fig.canvas.buffer_rgba(),  # type: ignore[attr-defined]
+                dtype=np.uint8,
+            )
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:, :, :3]
             images.append(image)
 
             plt.close(fig)
 
         # Save as GIF
-        imageio.mimsave(output_path, images, duration=0.5, loop=0)
+        imageio.mimsave(output_path, images, duration=0.5, loop=0)  # type: ignore[arg-type]
         logger.info(f"H3 evolution GIF saved to {output_path}")
 
     except Exception as e:
@@ -1906,7 +1911,7 @@ def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str 
 
 
 def create_interactive_h3_slider(
-    history: List[Dict[str, Dict]], metric: str = "fe"
+    history: List[Dict[str, Any]], metric: str = "fe"
 ) -> Any:
     """
     Create interactive slider plot for H3 grid evolution.
@@ -2062,7 +2067,7 @@ class BeliefVisualizer:
 
     def plot_free_energy_trace(
         self, free_energy_history: List[float], output_path: str = "free_energy.png"
-    ):
+    ) -> None:
         """Plot free energy minimization trace."""
         fig = plot_free_energy(free_energy_history, title="Free Energy Trace")
         save_path = self.output_dir / output_path

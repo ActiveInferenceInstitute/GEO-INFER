@@ -76,10 +76,10 @@ class MultiAgentModel(ActiveInferenceModel):
 
         # H3 spatial properties
         self.spatial_mode = False
-        self.h3_cells = []
+        self.h3_cells: List[str] = []
         self.h3_resolution = 8
-        self.spatial_graph = None
-        self.agent_location_map = {}
+        self.spatial_graph: Dict[int, List[int]] = {}
+        self.agent_location_map: Dict[str, int] = {}
 
     def reset(self) -> None:
         """Restore deterministic initial resource and preference state."""
@@ -111,8 +111,8 @@ class MultiAgentModel(ActiveInferenceModel):
         )
 
         # Normalize columns (each state sums to 1)
-        obs_model = obs_model / obs_model.sum(axis=0, keepdims=True)
-        return obs_model
+        normed: np.ndarray = obs_model / obs_model.sum(axis=0, keepdims=True)
+        return normed
 
     def _create_environmental_transition_model(self) -> np.ndarray:
         """Create environmental state transition model."""
@@ -234,9 +234,9 @@ class MultiAgentModel(ActiveInferenceModel):
             ],
             dtype=float,
         )
-        return normalize_belief_vector(observation)
+        return np.asarray(normalize_belief_vector(observation), dtype=float)
 
-    def enable_h3_spatial(self, resolution: int, boundary: Dict[str, Any]):
+    def enable_h3_spatial(self, resolution: int, boundary: Dict[str, Any]) -> None:
         """
         Enable H3 spatial modeling for multi-agent active inference.
 
@@ -386,9 +386,9 @@ class MultiAgentModel(ActiveInferenceModel):
         self.agent_locations = np.zeros(len(self.agent_models), dtype=int)
         for agent in self.agent_models:
             agent.location = 0
-        return hierarchy
+        return dict(hierarchy)
 
-    def _create_spatial_coordination_graph(self):
+    def _create_spatial_coordination_graph(self) -> None:
         """Create coordination graph between spatially neighboring agents."""
         if not self.spatial_mode or not self.h3_cells:
             return
@@ -613,7 +613,7 @@ class MultiAgentModel(ActiveInferenceModel):
             )
         return summaries
 
-    def _spatial_belief_coordination(self, step_data: Dict[str, Dict]):
+    def _spatial_belief_coordination(self, step_data: Dict[str, Dict]) -> None:
         """Coordinate agents through environmental updates or spatial belief sharing."""
         if not self.spatial_graph:
             return
@@ -676,14 +676,17 @@ class MultiAgentModel(ActiveInferenceModel):
                 if agent_idx < len(self.agent_models):
                     self.agent_models[agent_idx].beliefs = new_beliefs
 
-    def _apply_stigmergy(self, step_data: Dict[str, Dict]):
+    def _apply_stigmergy(self, step_data: Dict[str, Dict]) -> None:
         """Apply stigmergic pheromone modification to the environmental engine."""
+        if self.environmental_engine is None:
+            return
+        engine = self.environmental_engine
         stigmergy_strength = 0.05
         current_time = 0.0  # Could be synced with global time if needed
 
         observations_to_push = {}
         for cell, data in step_data.items():
-            if cell in self.environmental_engine.environmental_states:
+            if cell in engine.environmental_states:
                 # Based on the agent's beliefs (e.g. they believe it's a good state), they modify the environment
                 # E.g. high belief in state index 3 (excellent)
                 belief_tensor = np.array(data["beliefs"])
@@ -695,7 +698,7 @@ class MultiAgentModel(ActiveInferenceModel):
                 # We modify standard fields to reflect the presence/activity of agents
                 # Example: human_activity increases, which can subsequently influence observations
                 current_activity = getattr(
-                    self.environmental_engine.environmental_states[cell],
+                    engine.environmental_states[cell],
                     "human_activity",
                     0.0,
                 )
@@ -707,7 +710,7 @@ class MultiAgentModel(ActiveInferenceModel):
 
         # Push all modifications back to the environmental engine as new observations
         if observations_to_push:
-            self.environmental_engine.observe_environment(
+            engine.observe_environment(
                 observations_to_push, timestamp=current_time
             )
 
@@ -769,6 +772,88 @@ class MultiAgentModel(ActiveInferenceModel):
                 coordination_matrix[np.triu_indices_from(coordination_matrix, k=1)]
             ),
             "n_coordinated_agents": n_cells,
+        }
+
+    def score_spatial_information_gain(
+        self, target_resolution: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Score the H3 spatial grid by expected information gain for active
+        sensing, aggregating agent belief uncertainty across H3 resolutions.
+
+        Each leaf agent's score is its belief entropy normalized by the
+        maximum entropy of a uniform distribution over its state space.  When
+        ``target_resolution`` is given, leaf scores are averaged up to their
+        coarser H3 parent cells so the swarm can decide where sensing or
+        coordination effort should concentrate.
+
+        Args:
+            target_resolution: Optional coarser H3 resolution to aggregate to.
+
+        Returns:
+            Dict with ``scores``, ``best_cells``, ``count_cells``,
+            ``mean_score``, ``resolution`` and ``uncertain_cell_fraction``.
+        """
+        if not self.spatial_mode or not self.h3_cells:
+            return {
+                "scores": {},
+                "best_cells": [],
+                "count_cells": 0,
+                "mean_score": 0.0,
+                "resolution": int(self.h3_resolution),
+                "uncertain_cell_fraction": 0.0,
+            }
+        adapter = get_h3_adapter()
+        state_dim = 4
+        max_entropy = float(np.log(state_dim))
+        per_cell: Dict[str, float] = {}
+        for cell, agent in zip(self.h3_cells, self.agent_models):
+            vec = normalize_belief_vector(np.asarray(agent.beliefs, dtype=float))
+            if vec.size != state_dim:
+                vec = np.resize(vec, state_dim)
+            entropy = float(-np.sum(vec * np.log(vec + 1e-12)))
+            per_cell[str(cell)] = float(np.clip(entropy / max_entropy, 0.0, 1.0))
+
+        resolution = int(self.h3_resolution)
+        scores = per_cell
+        if target_resolution is not None:
+            try:
+                grouped: Dict[str, List[float]] = {}
+                for cell, score in per_cell.items():
+                    cell_res = adapter.get_resolution(cell)
+                    parent = (
+                        adapter.cell_to_parent(cell, target_resolution)
+                        if cell_res > target_resolution
+                        else cell
+                    )
+                    grouped.setdefault(parent, []).append(score)
+                scores = {
+                    parent: float(np.mean(values))
+                    for parent, values in grouped.items()
+                }
+                resolution = int(target_resolution)
+            except Exception as exc:
+                logger.debug("Multi-agent info-gain aggregation failed: %s", exc)
+                resolution = int(self.h3_resolution)
+        else:
+            resolution = int(self.h3_resolution)
+
+        best = (
+            sorted(scores.keys(), key=lambda cell: float(scores[cell]), reverse=True)
+            if scores
+            else []
+        )
+        values = list(scores.values()) if scores else [0.0]
+        return {
+            "scores": scores,
+            "best_cells": best,
+            "best_score": float(scores[best[0]]) if best else 0.0,
+            "count_cells": len(scores),
+            "resolution": resolution,
+            "mean_score": float(np.mean(values)),
+            "uncertain_cell_fraction": float(
+                np.mean([1.0 if value > 0.5 else 0.0 for value in values])
+            ),
         }
 
     def get_agent_messages(self, agent_id: int) -> Dict[str, Any]:

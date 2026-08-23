@@ -130,9 +130,9 @@ class OptimizationBridges:
             return self.learning_rate * (0.5 ** (iteration // 100))
         elif scheduler == "cosine":
             # Cosine annealing
-            return self.learning_rate * 0.5 * (
+            return float(self.learning_rate * 0.5 * (
                 1 + np.cos(np.pi * iteration / self.max_iterations)
-            )
+            ))
         else:
             return self.learning_rate
 

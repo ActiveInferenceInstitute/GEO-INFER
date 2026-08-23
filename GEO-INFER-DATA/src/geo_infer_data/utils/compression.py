@@ -138,7 +138,8 @@ class DataCompressor:
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             if format == DataFormat.PARQUET or (format is None and len(data) > 1000):
                 # Use Parquet for large datasets
-                return data.to_parquet()
+                res = data.to_parquet()
+                return bytes(res) if isinstance(res, (bytes, bytearray)) else b""
             else:
                 # Use pickle for smaller datasets or complex objects
                 return pickle.dumps(data)

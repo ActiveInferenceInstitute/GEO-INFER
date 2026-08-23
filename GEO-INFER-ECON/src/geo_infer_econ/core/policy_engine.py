@@ -72,9 +72,9 @@ class PolicyAnalysisEngine:
         """
         self.logger = logging.getLogger(__name__)
         self.config = config or {}
-        self.scenarios = {}
-        self.baseline_data = {}
-        self.impact_cache = {}
+        self.scenarios: Dict[str, Any] = {}
+        self.baseline_data: Dict[str, Any] = {}
+        self.impact_cache: Dict[str, Any] = {}
         
     def add_baseline_data(self, data_type: str, data: Union[pd.DataFrame, Dict[str, Any]]) -> None:
         """

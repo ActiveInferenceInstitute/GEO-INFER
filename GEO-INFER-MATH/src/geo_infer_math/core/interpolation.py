@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple, Any
 from dataclasses import dataclass
 import logging
 from abc import ABC, abstractmethod
-from scipy.interpolate import griddata, RBFInterpolator
+from scipy.interpolate import griddata, RBFInterpolator as ScipyRBF
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +118,8 @@ class IDWInterpolator(SpatialInterpolator):
 
     def __init__(self, config: Optional[InterpolationConfig] = None):
         super().__init__(config)
-        self.training_coords = None
-        self.training_values = None
+        self.training_coords: Optional[np.ndarray] = None
+        self.training_values: Optional[np.ndarray] = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "IDWInterpolator":
         """
@@ -156,6 +156,8 @@ class IDWInterpolator(SpatialInterpolator):
         """
         if not self.is_fitted:
             raise ValueError("Interpolator must be fitted before prediction")
+        assert self.training_coords is not None
+        assert self.training_values is not None
 
         predictions = []
 
@@ -192,9 +194,9 @@ class KrigingInterpolator(SpatialInterpolator):
 
     def __init__(self, config: Optional[InterpolationConfig] = None):
         super().__init__(config)
-        self.training_coords = None
-        self.training_values = None
-        self.kriging_weights = None
+        self.training_coords: Optional[np.ndarray] = None
+        self.training_values: Optional[np.ndarray] = None
+        self.kriging_weights: Optional[np.ndarray] = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "KrigingInterpolator":
         """
@@ -231,6 +233,8 @@ class KrigingInterpolator(SpatialInterpolator):
         """
         if not self.is_fitted:
             raise ValueError("Interpolator must be fitted before prediction")
+        assert self.training_coords is not None
+        assert self.training_values is not None
 
         predictions = []
 
@@ -283,7 +287,7 @@ class KrigingInterpolator(SpatialInterpolator):
         # Simplified weight calculation - in practice, solve the Kriging system
         weights = 1.0 / (variogram_values + 1e-10)
         weights = weights / np.sum(weights)  # Normalize
-        return weights
+        return np.asarray(weights)
 
 
 class RBFInterpolator(SpatialInterpolator):
@@ -291,7 +295,7 @@ class RBFInterpolator(SpatialInterpolator):
 
     def __init__(self, config: Optional[InterpolationConfig] = None):
         super().__init__(config)
-        self.rbf_model = None
+        self.rbf_model: Any = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "RBFInterpolator":
         """
@@ -310,7 +314,7 @@ class RBFInterpolator(SpatialInterpolator):
             )
 
         try:
-            self.rbf_model = RBFInterpolator(
+            self.rbf_model = ScipyRBF(
                 coordinates,
                 values,
                 function=self.config.rbf_function,
@@ -342,7 +346,7 @@ class RBFInterpolator(SpatialInterpolator):
             raise ValueError("Interpolator must be fitted before prediction")
 
         try:
-            return self.rbf_model(coordinates)
+            return np.asarray(self.rbf_model(coordinates))
         except Exception as e:
             logger.error(f"RBF prediction failed: {e}")
             # Fallback to IDW
@@ -359,8 +363,8 @@ class LinearInterpolator(SpatialInterpolator):
 
     def __init__(self, config: Optional[InterpolationConfig] = None):
         super().__init__(config)
-        self.training_coords = None
-        self.training_values = None
+        self.training_coords: Optional[np.ndarray] = None
+        self.training_values: Optional[np.ndarray] = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "LinearInterpolator":
         """
@@ -397,24 +401,26 @@ class LinearInterpolator(SpatialInterpolator):
         """
         if not self.is_fitted:
             raise ValueError("Interpolator must be fitted before prediction")
+        assert self.training_coords is not None
+        assert self.training_values is not None
 
         try:
-            return griddata(
+            return np.asarray(griddata(
                 self.training_coords,
                 self.training_values,
                 coordinates,
                 method="linear",
                 fill_value=np.nan,
-            )
+            ))
         except Exception as e:
             logger.error(f"Linear interpolation failed: {e}")
             # Fallback to nearest neighbor
-            return griddata(
+            return np.asarray(griddata(
                 self.training_coords,
                 self.training_values,
                 coordinates,
                 method="nearest",
-            )
+            ))
 
 
 class CubicInterpolator(SpatialInterpolator):
@@ -422,8 +428,8 @@ class CubicInterpolator(SpatialInterpolator):
 
     def __init__(self, config: Optional[InterpolationConfig] = None):
         super().__init__(config)
-        self.training_coords = None
-        self.training_values = None
+        self.training_coords: Optional[np.ndarray] = None
+        self.training_values: Optional[np.ndarray] = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "CubicInterpolator":
         """
@@ -460,25 +466,27 @@ class CubicInterpolator(SpatialInterpolator):
         """
         if not self.is_fitted:
             raise ValueError("Interpolator must be fitted before prediction")
+        assert self.training_coords is not None
+        assert self.training_values is not None
 
         try:
-            return griddata(
+            return np.asarray(griddata(
                 self.training_coords,
                 self.training_values,
                 coordinates,
                 method="cubic",
                 fill_value=np.nan,
-            )
+            ))
         except Exception as e:
             logger.error(f"Cubic interpolation failed: {e}")
             # Fallback to linear interpolation
-            return griddata(
+            return np.asarray(griddata(
                 self.training_coords,
                 self.training_values,
                 coordinates,
                 method="linear",
                 fill_value=np.nan,
-            )
+            ))
 
 
 class InterpolationManager:
@@ -492,10 +500,10 @@ class InterpolationManager:
             config: Configuration for interpolation methods
         """
         self.config = config or InterpolationConfig()
-        self.interpolators = {}
+        self.interpolators: Dict[str, SpatialInterpolator] = {}
         self._initialize_interpolators()
 
-    def _initialize_interpolators(self):
+    def _initialize_interpolators(self) -> None:
         """Initialize all interpolation methods."""
         self.interpolators = {
             "idw": IDWInterpolator(self.config),

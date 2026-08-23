@@ -8,7 +8,7 @@ geospatial data both at rest and in transit.
 import base64
 import os
 import json
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Union, Tuple, cast
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -42,6 +42,7 @@ class GeospatialEncryption:
             self.key = key
             
         self.cipher = Fernet(self.key)
+        self.salt: Optional[bytes] = None
         
     @classmethod
     def from_password(cls, password: str, salt: Optional[bytes] = None) -> 'GeospatialEncryption':
@@ -123,7 +124,7 @@ class GeospatialEncryption:
             Decrypted dictionary
         """
         json_str = self.decrypt_text(encrypted_data)
-        return json.loads(json_str)
+        return cast(Dict[Any, Any], json.loads(json_str))
         
     def encrypt_coordinates(self, lat: float, lon: float) -> str:
         """
@@ -324,13 +325,12 @@ class AsymmetricEncryption:
         public_key = None
         
         if private_key_pem:
-            private_key = load_pem_private_key(
-                private_key_pem,
-                password=None
+            private_key = cast(
+                rsa.RSAPrivateKey, load_pem_private_key(private_key_pem, password=None)
             )
             
         if public_key_pem:
-            public_key = load_pem_public_key(public_key_pem)
+            public_key = cast(rsa.RSAPublicKey, load_pem_public_key(public_key_pem))
             
         return cls(private_key, public_key)
         
@@ -446,4 +446,4 @@ class AsymmetricEncryption:
         Returns:
             Decrypted dictionary
         """
-        return json.loads(self.decrypt_text(encrypted_data)) 
+        return cast(Dict[Any, Any], json.loads(self.decrypt_text(encrypted_data))) 

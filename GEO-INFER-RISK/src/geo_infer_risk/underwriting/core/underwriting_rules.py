@@ -63,17 +63,17 @@ class RuleCondition:
             field_value = self._get_field_value(data, self.field)
 
             if self.operator == RuleOperator.EQUALS:
-                return field_value == self.value
+                return bool(field_value == self.value)
             elif self.operator == RuleOperator.NOT_EQUALS:
-                return field_value != self.value
+                return bool(field_value != self.value)
             elif self.operator == RuleOperator.GREATER_THAN:
-                return field_value > self.value
+                return bool(field_value > self.value)
             elif self.operator == RuleOperator.LESS_THAN:
-                return field_value < self.value
+                return bool(field_value < self.value)
             elif self.operator == RuleOperator.GREATER_EQUAL:
-                return field_value >= self.value
+                return bool(field_value >= self.value)
             elif self.operator == RuleOperator.LESS_EQUAL:
-                return field_value <= self.value
+                return bool(field_value <= self.value)
             elif self.operator == RuleOperator.CONTAINS:
                 return str(self.value).lower() in str(field_value).lower()
             elif self.operator == RuleOperator.NOT_CONTAINS:
@@ -97,7 +97,7 @@ class RuleCondition:
             elif self.operator == RuleOperator.REGEX:
                 return bool(re.search(str(self.value), str(field_value)))
 
-            return False
+            return False  # type: ignore[unreachable]
 
         except Exception as e:
             logger.warning(f"Condition evaluation failed for field {self.field}: {e}")
@@ -106,7 +106,7 @@ class RuleCondition:
     def _get_field_value(self, data: Dict[str, Any], field: str) -> Any:
         """Get field value from nested data structure."""
         keys = field.split(".")
-        value = data
+        value: Any = data
 
         for key in keys:
             if isinstance(value, dict) and key in value:
@@ -263,7 +263,7 @@ class UnderwritingRulesEngine:
         self.rule_index: Dict[str, List[str]] = {}  # Index by type, product, etc.
 
         # Performance tracking
-        self.evaluation_metrics = {
+        self.evaluation_metrics: Dict[str, Any] = {
             "total_evaluations": 0,
             "average_evaluation_time": 0.0,
             "rule_hits": {},
@@ -599,6 +599,7 @@ class UnderwritingRulesEngine:
                     return None
 
                 # Parse value
+                parsed_value: Any
                 try:
                     if value.isdigit():
                         parsed_value = int(value)
@@ -642,7 +643,7 @@ class UnderwritingRulesEngine:
 
     def validate_rule_set(self) -> Dict[str, Any]:
         """Validate the current rule set for conflicts and issues."""
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             "is_valid": True,
             "conflicts": [],
             "warnings": [],
@@ -737,7 +738,7 @@ class UnderwritingRulesEngine:
 class RuleEvaluator:
     """Advanced rule evaluation with complex logic support."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger("geo_infer_risk.underwriting.rule_evaluator")
 
     def evaluate_complex_rule(self, rule_expression: str, data: Dict[str, Any]) -> bool:
@@ -790,7 +791,7 @@ class RuleEvaluator:
                 field = parts[0].strip()
                 value = float(parts[1].strip())
                 field_value = self._get_nested_value(data, field)
-                return field_value > value
+                return bool(field_value > value)
 
         elif "<" in expression:
             parts = expression.split("<")
@@ -798,15 +799,15 @@ class RuleEvaluator:
                 field = parts[0].strip()
                 value = float(parts[1].strip())
                 field_value = self._get_nested_value(data, field)
-                return field_value < value
+                return bool(field_value < value)
 
         elif "==" in expression or "=" in expression:
             parts = expression.replace("==", "=").split("=")
             if len(parts) == 2:
                 field = parts[0].strip()
-                value = parts[1].strip().strip("\"'")
+                value_str = parts[1].strip().strip("\"'")
                 field_value = self._get_nested_value(data, field)
-                return str(field_value) == str(value)
+                return str(field_value) == str(value_str)
 
         return False
 

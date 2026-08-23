@@ -18,7 +18,7 @@ except ImportError:
     space_h3 = None
 
 
-def initialize_logger():
+def initialize_logger() -> logging.Logger:
     """Return the module logger without configuring process-wide handlers."""
     return logging.getLogger(__name__)
 
@@ -431,8 +431,10 @@ class ModernToolsIntegration:
             import pyro
             import pyro.distributions as dist
             from pyro.infer import SVI, Trace_ELBO
-            from pyro.optim import Adam
+            from pyro import optim as pyro_optim
             import torch
+
+            Adam = pyro_optim.Adam  # type: ignore[attr-defined]
 
             # Clear Pyro parameter store
             pyro.clear_param_store()
@@ -1005,7 +1007,7 @@ class IntegrationUtils:
     """
 
     @staticmethod
-    def get_modern_tools():
+    def get_modern_tools() -> ModernToolsIntegration:
         """Get available modern tools integration."""
         return ModernToolsIntegration()
 
@@ -1024,7 +1026,7 @@ class IntegrationUtils:
         agent_configs: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Create and coordinate a multi-agent system."""
-        return coordinate_multi_agent_system(agent_configs)
+        return coordinate_multi_agent_system({}, agent_configs, {})
 
 
 # Export integration functions from the canonical integration module.

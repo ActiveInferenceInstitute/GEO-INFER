@@ -18,7 +18,7 @@ Key components:
 import logging
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Any, Dict, List, Optional, Set, cast, Union
 from geo_infer_iot.core.ingestion import IoTDataIngestion, RadiationMonitoringSystem
 from geo_infer_iot.core.registry import SensorRegistry
 
@@ -81,7 +81,7 @@ class IoTSystem:
     processing capabilities.
     """
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.system_id = f"iot_system_{id(self)}"
         self.start_time = datetime.now()
@@ -91,20 +91,20 @@ class IoTSystem:
         self.ingestion = IoTDataIngestion(self.registry, config)
 
         # Enhanced components (initialized as needed)
-        self.fusion = None
-        self.quality_controller = None
-        self.spatial_inference = None
-        self.visualization = None
-        self.calibration = None
+        self.fusion: Optional[Any] = None
+        self.quality_controller: Optional[Any] = None
+        self.spatial_inference: Optional[Any] = None
+        self.visualization: Optional[Any] = None
+        self.calibration: Optional[SensorCalibration] = None
 
         # System state
         self.is_initialized = False
         self.is_processing = False
         self.error_count = 0
-        self.last_error = None
+        self.last_error: Optional[str] = None
 
         # Performance monitoring
-        self.metrics = {
+        self.metrics: Dict[str, Any] = {
             "measurements_processed": 0,
             "networks_registered": 0,
             "errors_encountered": 0,
@@ -114,7 +114,7 @@ class IoTSystem:
 
         logger.info(f"IoTSystem initialized with ID: {self.system_id}")
 
-    def initialize(self, auto_start_processing: bool = False) -> Dict:
+    def initialize(self, auto_start_processing: bool = False) -> Dict[str, Any]:
         """
         Initialize the IoT system with all components.
 
@@ -180,7 +180,7 @@ class IoTSystem:
                 ).total_seconds(),
             }
 
-    def _initialize_components(self):
+    def _initialize_components(self) -> None:
         """Initialize all system components."""
         # Initialize spatial fusion if available
         try:
@@ -214,10 +214,10 @@ class IoTSystem:
         except ImportError:
             logger.warning("SensorCalibration not available")
 
-    def _validate_system(self) -> Dict:
+    def _validate_system(self) -> Dict[str, Any]:
         """Validate system configuration and dependencies."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         # Check if at least one sensor network is configured
         if not self.registry.networks:
@@ -236,7 +236,7 @@ class IoTSystem:
 
         return {"valid": len(errors) == 0, "errors": errors, "warnings": warnings}
 
-    def register_network(self, **kwargs) -> Dict:
+    def register_network(self, **kwargs: Any) -> Dict[str, Any]:
         """
         Register a new sensor network.
 
@@ -248,7 +248,7 @@ class IoTSystem:
         """
         try:
             network = self.registry.register_network(**kwargs)
-            self.metrics["networks_registered"] += 1
+            self.metrics["networks_registered"] = cast(int, self.metrics["networks_registered"]) + 1
 
             return {
                 "success": True,
@@ -263,7 +263,7 @@ class IoTSystem:
             logger.error(f"Network registration failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def register_sensor(self, sensor_data: Dict) -> Dict:
+    def register_sensor(self, sensor_data: Dict) -> Dict[str, Any]:
         """
         Register a new sensor.
 
@@ -316,7 +316,7 @@ class IoTSystem:
                 }
 
             # Start ingestion processing
-            self.ingestion.start_stream_processing()
+            self.ingestion.start_stream_processing()  # type: ignore[unused-coroutine]
             self.is_processing = True
 
             return {
@@ -348,7 +348,7 @@ class IoTSystem:
                 }
 
             # Stop ingestion processing
-            self.ingestion.stop_stream_processing()
+            self.ingestion.stop_stream_processing()  # type: ignore[unused-coroutine]
             self.is_processing = False
 
             return {
@@ -364,7 +364,7 @@ class IoTSystem:
             logger.error(f"Failed to stop processing: {e}")
             return {"success": False, "error": str(e)}
 
-    def setup_spatial_inference(self, variable: str, **kwargs) -> Dict:
+    def setup_spatial_inference(self, variable: str, **kwargs: Any) -> Dict[str, Any]:
         """
         Setup Bayesian spatial inference for a variable.
 
@@ -459,14 +459,14 @@ class IoTSystem:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def run_diagnostics(self) -> Dict:
+    def run_diagnostics(self) -> Dict[str, Any]:
         """
         Run comprehensive system diagnostics.
 
         Returns:
             Dictionary with diagnostic results
         """
-        diagnostics = {
+        diagnostics: Dict[str, Any] = {
             "system_health": "healthy" if self.error_count == 0 else "degraded",
             "component_checks": {},
             "performance_metrics": self.metrics.copy(),
@@ -496,18 +496,19 @@ class IoTSystem:
         diagnostics["configuration_validation"] = config_validation
 
         # Generate recommendations
+        recommendations = cast(List[str], diagnostics["recommendations"])
         if not self.is_processing:
-            diagnostics["recommendations"].append(
+            recommendations.append(
                 "Consider starting data processing for real-time operation"
             )
 
         if self.error_count > 0:
-            diagnostics["recommendations"].append(
+            recommendations.append(
                 f"Address {self.error_count} errors to improve system health"
             )
 
         if len(self.registry.networks) == 0:
-            diagnostics["recommendations"].append(
+            recommendations.append(
                 "Register at least one sensor network"
             )
 
@@ -521,7 +522,7 @@ class IoTSystem:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def export_system_state(self, output_path: str) -> Dict:
+    def export_system_state(self, output_path: str) -> Dict[str, Any]:
         """
         Export complete system state for backup or analysis.
 
@@ -532,19 +533,23 @@ class IoTSystem:
             Dictionary with export results
         """
         try:
+            import dataclasses
+
             system_state = {
                 "system_id": self.system_id,
                 "configuration": self.config,
                 "status": self.get_system_status(),
                 "networks": {
-                    nid: network.model_dump()
+                    nid: dataclasses.asdict(network)
                     for nid, network in self.registry.networks.items()
                 },
                 "sensors": {
-                    sid: sensor.model_dump()
+                    sid: dataclasses.asdict(sensor)
                     for sid, sensor in self.registry.sensors.items()
                 },
-                "measurements": [m.model_dump() for m in self.ingestion.measurements],
+                "measurements": [
+                    dataclasses.asdict(m) for m in self.ingestion.measurements
+                ],
                 "metrics": self.metrics,
                 "exported_at": datetime.now().isoformat(),
             }
@@ -578,24 +583,30 @@ class BayesianSpatialInference:
     GEO-INFER-BAYES for sophisticated probabilistic modeling.
     """
 
-    def __init__(self, variable, spatial_resolution, temporal_window, config=None):
+    def __init__(
+        self,
+        variable: str,
+        spatial_resolution: int,
+        temporal_window: str,
+        config: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.variable = variable
         self.spatial_resolution = spatial_resolution
         self.temporal_window = temporal_window
         self.config = config or {}
 
         # Integration with GEO-INFER-BAYES
-        self.gp_model = None
-        self.posterior_cache = {}
+        self.gp_model: Optional[Any] = None
+        self.posterior_cache: Dict[str, Any] = {}
 
         # Setup Bayesian inference if available
         self._setup_bayesian_inference()
 
-    def _setup_bayesian_inference(self):
+    def _setup_bayesian_inference(self) -> None:
         """Setup Bayesian spatial inference model."""
         try:
             # Import GEO-INFER-BAYES components
-            from geo_infer_bayes import GaussianProcess, SpatialCovariance
+            from geo_infer_bayes import GaussianProcess, SpatialCovariance  # type: ignore[import-untyped]
 
             # Configure covariance function based on variable characteristics
             if self.variable in ["soil_moisture", "temperature"]:
@@ -629,8 +640,11 @@ class BayesianSpatialInference:
             print("Warning: GEO-INFER-BAYES not available, spatial inference disabled")
 
     def infer_spatial_distribution(
-        self, sensor_data, priors=None, update_interval="15min"
-    ):
+        self,
+        sensor_data: List[Dict[str, Any]],
+        priors: Optional[Any] = None,
+        update_interval: str = "15min",
+    ) -> Dict[str, Any]:
         """
         Perform Bayesian spatial inference on sensor data.
 
@@ -647,22 +661,22 @@ class BayesianSpatialInference:
 
         try:
             # Extract coordinates and values from sensor data
-            coords = []
-            values = []
+            coords_list = []
+            values_list = []
 
             for measurement in sensor_data:
                 if "latitude" in measurement and "longitude" in measurement:
                     # Convert lat/lon to local coordinate system for GP
                     x = measurement["longitude"] * 111000  # Rough meters per degree
                     y = measurement["latitude"] * 111000
-                    coords.append([x, y])
-                    values.append(measurement["value"])
+                    coords_list.append([x, y])
+                    values_list.append(measurement["value"])
 
-            if len(coords) < 3:
+            if len(coords_list) < 3:
                 return {"error": "Insufficient data for spatial inference"}
 
-            coords = np.array(coords)
-            values = np.array(values)
+            coords = np.array(coords_list)
+            values = np.array(values_list)
 
             # Perform Bayesian inference
             self.gp_model.fit(coords, values)
@@ -700,7 +714,7 @@ class BayesianSpatialInference:
         except Exception as e:
             return {"error": f"Spatial inference failed: {str(e)}"}
 
-    def get_posterior_map(self, confidence_intervals=None):
+    def get_posterior_map(self, confidence_intervals: Optional[List[float]] = None) -> Dict[str, Any]:
         """
         Get current posterior spatial distribution map.
 
@@ -741,7 +755,7 @@ class BayesianSpatialInference:
             "sensor_count": len(cache_data["sensor_values"]),
         }
 
-    def _generate_h3_prediction_grid(self, sensor_coords):
+    def _generate_h3_prediction_grid(self, sensor_coords: np.ndarray) -> np.ndarray:
         """Generate H3 grid for spatial predictions."""
         try:
             # Find bounds of sensor data
@@ -767,7 +781,7 @@ class BayesianSpatialInference:
             X, Y = np.meshgrid(x_grid, y_grid)
             grid_points = np.column_stack([X.ravel(), Y.ravel()])
 
-            return grid_points
+            return np.asarray(grid_points)
 
         except Exception as e:
             print(f"Error generating prediction grid: {e}")
@@ -782,12 +796,19 @@ class GlobalMonitoringSystem:
     with real-time updates and alert systems.
     """
 
-    def __init__(self, variable, sensor_networks, update_frequency):
+    def __init__(
+        self,
+        variable: str,
+        sensor_networks: Dict[str, Any],
+        update_frequency: int,
+    ) -> None:
         self.variable = variable
         self.sensor_networks = sensor_networks
         self.update_frequency = update_frequency
 
-    def get_current_global_distribution(self, confidence_level, spatial_resolution):
+    def get_current_global_distribution(
+        self, confidence_level: float, spatial_resolution: int
+    ) -> Dict[str, Any]:
         """Get current global distribution map by aggregating network data.
 
         Args:
@@ -797,7 +818,7 @@ class GlobalMonitoringSystem:
         Returns:
             Dictionary with distribution data including grid cells and values.
         """
-        distribution = {
+        distribution: Dict[str, Any] = {
             "variable": self.variable,
             "confidence_level": confidence_level,
             "spatial_resolution": spatial_resolution,
@@ -808,15 +829,16 @@ class GlobalMonitoringSystem:
         for network_name in self.sensor_networks:
             network_data = self.sensor_networks[network_name]
             if isinstance(network_data, dict):
+                cells = cast(Dict[str, Any], distribution["cells"])
                 for cell_id, value in network_data.get("cells", {}).items():
-                    if cell_id in distribution["cells"]:
-                        existing = distribution["cells"][cell_id]
+                    if cell_id in cells:
+                        existing = cells[cell_id]
                         existing["values"].append(value)
                         existing["mean"] = sum(existing["values"]) / len(
                             existing["values"]
                         )
                     else:
-                        distribution["cells"][cell_id] = {
+                        cells[cell_id] = {
                             "values": [value],
                             "mean": value,
                         }
@@ -833,13 +855,15 @@ class MultiModalFusion:
     accuracy and reliability in environmental monitoring applications.
     """
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.fusion_weights = {}
-        self.sensor_types = []
-        self.fusion_history = []
+        self.fusion_weights: Dict[str, Dict[str, Any]] = {}
+        self.sensor_types: List[str] = []
+        self.fusion_history: List[Any] = []
 
-    def add_sensor_type(self, sensor_type, weight=1.0, reliability=1.0):
+    def add_sensor_type(
+        self, sensor_type: str, weight: float = 1.0, reliability: float = 1.0
+    ) -> None:
         """
         Add a sensor type to the fusion process.
 
@@ -855,8 +879,12 @@ class MultiModalFusion:
         }
 
     def fuse_measurements(
-        self, measurements, variable, spatial_window="5km", temporal_window="1h"
-    ):
+        self,
+        measurements: List[Dict[str, Any]],
+        variable: str,
+        spatial_window: str = "5km",
+        temporal_window: str = "1h",
+    ) -> Dict[str, Any]:
         """
         Fuse measurements from multiple sensor types.
 
@@ -874,7 +902,7 @@ class MultiModalFusion:
 
         try:
             # Group measurements by sensor type
-            sensor_groups = {}
+            sensor_groups: Dict[str, List[Dict[str, Any]]] = {}
             for measurement in measurements:
                 sensor_type = measurement.get("sensor_type", "unknown")
                 if sensor_type not in sensor_groups:
@@ -938,18 +966,18 @@ class AdaptiveSampling:
     uncertainty estimates, coverage requirements, and resource constraints.
     """
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.optimization_history = []
-        self.current_network_state = {}
+        self.optimization_history: List[Dict[str, Any]] = []
+        self.current_network_state: Dict[str, Any] = {}
 
     def suggest_locations(
         self,
-        current_network,
-        priority_areas,
-        uncertainty_threshold=0.1,
-        budget_constraints=None,
-    ):
+        current_network: List[Dict[str, Any]],
+        priority_areas: List[Any],
+        uncertainty_threshold: float = 0.1,
+        budget_constraints: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         Suggest new sensor locations based on uncertainty and coverage analysis.
 
@@ -1015,10 +1043,10 @@ class AdaptiveSampling:
         except Exception as e:
             return {"error": f"Location suggestion failed: {str(e)}"}
 
-    def _analyze_coverage(self, network, priority_areas):
+    def _analyze_coverage(self, network: List[Dict[str, Any]], priority_areas: List[Any]) -> Dict[str, Any]:
         """Analyze current network coverage."""
         # Simplified coverage analysis
-        covered_areas = set()
+        covered_areas: Set[str] = set()
         for sensor in network:
             if "h3_index" in sensor:
                 covered_areas.add(sensor["h3_index"])
@@ -1031,10 +1059,10 @@ class AdaptiveSampling:
 
         return coverage_stats
 
-    def _analyze_uncertainty(self, network):
+    def _analyze_uncertainty(self, network: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze uncertainty in current network."""
         # Simplified uncertainty analysis
-        uncertainties = {}
+        uncertainties: Dict[str, Any] = {}
         for sensor in network:
             # Estimate uncertainty based on sensor density and environmental factors
             base_uncertainty = 0.1  # Base uncertainty level
@@ -1048,10 +1076,13 @@ class AdaptiveSampling:
         return uncertainties
 
     def _identify_coverage_gaps(
-        self, coverage_analysis, uncertainty_analysis, threshold
-    ):
+        self,
+        coverage_analysis: Dict[str, Any],
+        uncertainty_analysis: Dict[str, Any],
+        threshold: float,
+    ) -> List[str]:
         """Identify areas with poor coverage or high uncertainty."""
-        gaps = []
+        gaps: List[str] = []
 
         # Find high uncertainty areas
         high_uncertainty_sensors = [
@@ -1064,9 +1095,11 @@ class AdaptiveSampling:
 
         return gaps
 
-    def _generate_candidate_locations(self, gaps, priority_areas):
+    def _generate_candidate_locations(
+        self, gaps: List[str], priority_areas: List[Any]
+    ) -> List[Dict[str, Any]]:
         """Generate candidate locations for new sensors."""
-        candidates = []
+        candidates: List[Dict[str, Any]] = []
 
         # Generate candidates around coverage gaps
         for gap in gaps[:5]:  # Limit to top 5 gaps for efficiency
@@ -1083,9 +1116,14 @@ class AdaptiveSampling:
 
         return candidates
 
-    def _score_candidates(self, candidates, coverage_analysis, budget_constraints):
+    def _score_candidates(
+        self,
+        candidates: List[Dict[str, Any]],
+        coverage_analysis: Dict[str, Any],
+        budget_constraints: Optional[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
         """Score and rank candidate locations."""
-        scored = []
+        scored: List[Dict[str, Any]] = []
 
         for candidate in candidates:
             # Calculate score based on multiple factors
@@ -1108,12 +1146,16 @@ class AdaptiveSampling:
 
         return scored
 
-    def _apply_budget_constraints(self, candidates, budget_constraints):
+    def _apply_budget_constraints(
+        self,
+        candidates: List[Dict[str, Any]],
+        budget_constraints: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
         """Apply budget constraints to candidate selection."""
         max_sensors = budget_constraints.get("max_sensors", len(candidates))
         max_cost = budget_constraints.get("max_cost", float("inf"))
 
-        filtered = []
+        filtered: List[Dict[str, Any]] = []
         total_cost = 0.0
 
         for candidate in candidates:
@@ -1126,18 +1168,22 @@ class AdaptiveSampling:
 
         return filtered
 
-    def _estimate_improvement(self, recommendations, current_uncertainty):
+    def _estimate_improvement(
+        self,
+        recommendations: List[Dict[str, Any]],
+        current_uncertainty: Dict[str, Any],
+    ) -> float:
         """Estimate improvement from new sensor placements."""
         if not recommendations:
             return 0.0
 
         # Simple estimation: each new sensor reduces uncertainty by ~10%
-        avg_current_uncertainty = np.mean(list(current_uncertainty.values()))
+        avg_current_uncertainty = float(np.mean(list(current_uncertainty.values())))
         improvement_per_sensor = 0.1
 
-        return min(
+        return float(min(
             avg_current_uncertainty, len(recommendations) * improvement_per_sensor
-        )
+        ))
 
 
 class PredictiveMaintenance:
@@ -1148,18 +1194,22 @@ class PredictiveMaintenance:
     and statistical analysis of sensor performance metrics.
     """
 
-    def __init__(self, config=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.sensor_health_models = {}
-        self.maintenance_history = []
-        self.alert_thresholds = {
+        self.sensor_health_models: Dict[str, Any] = {}
+        self.maintenance_history: List[Any] = []
+        self.alert_thresholds: Dict[str, float] = {
             "battery_level": 20.0,  # Percent
             "data_quality_score": 0.7,  # 0-1 scale
             "communication_reliability": 0.8,  # 0-1 scale
             "calibration_drift": 0.1,  # Acceptable drift level
         }
 
-    def assess_network_health(self, sensor_network, metrics=None):
+    def assess_network_health(
+        self,
+        sensor_network: List[Dict[str, Any]],
+        metrics: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
         """
         Assess overall health of the sensor network.
 
@@ -1229,8 +1279,11 @@ class PredictiveMaintenance:
         }
 
     def get_maintenance_schedule(
-        self, sensor_network, priority="critical_sensors", time_horizon="30days"
-    ):
+        self,
+        sensor_network: List[Dict[str, Any]],
+        priority: str = "critical_sensors",
+        time_horizon: str = "30days",
+    ) -> Dict[str, Any]:
         """
         Generate maintenance schedule based on health assessments.
 
@@ -1246,7 +1299,7 @@ class PredictiveMaintenance:
         health_assessment = self.assess_network_health(sensor_network)
 
         # Identify sensors needing maintenance
-        maintenance_candidates = []
+        maintenance_candidates: List[Dict[str, Any]] = []
 
         for sensor_id, assessment in health_assessment["sensor_assessments"].items():
             if assessment["needs_maintenance"]:
@@ -1289,55 +1342,55 @@ class PredictiveMaintenance:
             "time_horizon": time_horizon,
         }
 
-    def _calculate_health_score(self, metric, value):
+    def _calculate_health_score(self, metric: str, value: Any) -> float:
         """Calculate health score for a specific metric."""
         if value is None:
             return 0.0
 
         if metric == "battery_level":
             # Higher battery = higher score
-            return min(100.0, value) / 100.0
+            return float(min(100.0, value)) / 100.0
         elif metric in ["data_quality_score", "communication_reliability"]:
             # Direct mapping for 0-1 scale metrics
             return float(value)
         elif metric == "calibration_drift":
             # Lower drift = higher score
-            return max(0.0, 1.0 - abs(value))
+            return max(0.0, 1.0 - abs(float(value)))
         else:
             raise ValueError(f"Unsupported health metric: {metric}")
 
-    def _determine_health_status(self, metric, value):
+    def _determine_health_status(self, metric: str, value: Any) -> str:
         """Determine health status for a metric."""
         if value is None:
             return "unknown"
 
-        thresholds = self.alert_thresholds.get(metric, {})
+        threshold_value = self.alert_thresholds.get(metric, 0.8)
 
         if metric == "battery_level":
             if value < 10:
                 return "critical"
-            elif value < thresholds.get("battery_level", 20):
+            elif value < threshold_value:
                 return "warning"
             else:
                 return "good"
         elif metric in ["data_quality_score", "communication_reliability"]:
             if value < 0.5:
                 return "critical"
-            elif value < thresholds.get(metric, 0.8):
+            elif value < threshold_value:
                 return "warning"
             else:
                 return "good"
         elif metric == "calibration_drift":
             if abs(value) > 0.2:
                 return "critical"
-            elif abs(value) > thresholds.get("calibration_drift", 0.1):
+            elif abs(value) > threshold_value:
                 return "warning"
             else:
                 return "good"
         else:
             return "unknown"
 
-    def _determine_overall_status(self, sensor_health):
+    def _determine_overall_status(self, sensor_health: Dict[str, Any]) -> str:
         """Determine overall sensor health status."""
         statuses = [
             h["status"] for h in sensor_health.values() if h["status"] != "unknown"
@@ -1353,7 +1406,7 @@ class PredictiveMaintenance:
         else:
             return "good"
 
-    def _calculate_network_summary(self, health_assessments):
+    def _calculate_network_summary(self, health_assessments: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate summary statistics for the network."""
         if not health_assessments:
             return {}
@@ -1375,7 +1428,7 @@ class PredictiveMaintenance:
             + statuses.count("critical"),
         }
 
-    def _calculate_maintenance_urgency(self, assessment):
+    def _calculate_maintenance_urgency(self, assessment: Dict[str, Any]) -> float:
         """Calculate urgency score for maintenance scheduling."""
         base_urgency = 0.0
 
@@ -1388,11 +1441,11 @@ class PredictiveMaintenance:
         # Add urgency based on low health scores
         base_urgency += max(0, (1.0 - assessment["overall_score"])) * 0.5
 
-        return base_urgency
+        return float(base_urgency)
 
-    def _identify_priority_issues(self, assessment):
+    def _identify_priority_issues(self, assessment: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Identify which metrics need priority attention."""
-        priority_metrics = []
+        priority_metrics: List[Dict[str, Any]] = []
 
         for metric, health in assessment["metrics"].items():
             if health["status"] in ["warning", "critical"]:
@@ -1406,9 +1459,9 @@ class PredictiveMaintenance:
 
         return priority_metrics
 
-    def _suggest_maintenance_actions(self, assessment):
+    def _suggest_maintenance_actions(self, assessment: Dict[str, Any]) -> List[str]:
         """Suggest specific maintenance actions."""
-        actions = []
+        actions: List[str] = []
 
         for metric, health in assessment["metrics"].items():
             if health["status"] == "critical":
@@ -1426,15 +1479,19 @@ class PredictiveMaintenance:
 
         return actions
 
-    def _generate_maintenance_schedule(self, candidates, time_horizon):
+    def _generate_maintenance_schedule(
+        self,
+        candidates: List[Dict[str, Any]],
+        time_horizon: str,
+    ) -> List[Dict[str, Any]]:
         """Generate actual maintenance schedule."""
-        schedule = []
+        schedule: List[Dict[str, Any]] = []
 
         for candidate in candidates:
             # Simple scheduling: critical issues first, spread over time horizon
             days_ahead = min(7, len(schedule) + 1)  # Schedule within next week
 
-            schedule_entry = {
+            schedule_entry: Dict[str, Any] = {
                 "sensor_id": candidate["sensor_id"],
                 "scheduled_date": (
                     datetime.now() + timedelta(days=days_ahead)

@@ -16,7 +16,7 @@ Key Features:
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, cast
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import math
@@ -52,7 +52,7 @@ class PheromoneType:
     temperature_sensitivity: float = 0.3  # Temperature effect on evaporation
     humidity_sensitivity: float = 0.2  # Humidity effect on persistence
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate pheromone type configuration."""
         if not 0 < self.evaporation_rate <= 1:
             raise ValueError("Evaporation rate must be between 0 and 1")
@@ -71,7 +71,7 @@ class PheromoneDeposit:
     timestamp: datetime
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate deposit after initialization."""
         if self.intensity <= 0:
             raise ValueError("Pheromone intensity must be positive")
@@ -209,8 +209,8 @@ class PheromoneSystem:
         self.pheromone_fields: Dict[str, PheromoneField] = {}
 
         # Integration components
-        self.spatial_indexer = None
-        self.spatial_analytics = None
+        self.spatial_indexer: Any = None
+        self.spatial_analytics: Any = None
 
         # Performance tracking
         self.performance_stats = {
@@ -527,7 +527,7 @@ class PheromoneSystem:
         )
         modified_concentration *= humidity_factor
 
-        return max(modified_concentration, 0.0)
+        return float(max(modified_concentration, 0.0))
 
     async def diffuse_pheromones(
         self,
@@ -810,11 +810,11 @@ class PheromoneSystem:
                 gradients.append(intensity)
 
             # Calculate gradient magnitude
-            gradients = np.array(gradients)
-            gradient_magnitude = np.max(gradients) - np.min(gradients)
+            gradient_array = np.array(gradients)
+            gradient_magnitude = np.max(gradient_array) - np.min(gradient_array)
 
             # Calculate gradient direction (toward highest concentration)
-            max_idx = np.argmax(gradients)
+            max_idx = np.argmax(gradient_array)
             max_angle = angles[max_idx]
             gradient_direction = np.array([np.cos(max_angle), np.sin(max_angle)])
 
@@ -865,7 +865,7 @@ class PheromoneSystem:
                                 np.array(h["center"]) - start_location
                             ),
                         )
-                        return closest_hotspot
+                        return cast(Dict[str, Any], closest_hotspot)
 
                 except Exception as e:
                     logger.warning(f"Spatial analytics search failed: {e}")
@@ -986,7 +986,7 @@ class PheromoneSystem:
         try:
             import json
 
-            data = {
+            data: Dict[str, Any] = {
                 "pheromone_types": [pt.name for pt in self.pheromone_types],
                 "spatial_resolution": self.spatial_resolution,
                 "bounds": self.bounds,

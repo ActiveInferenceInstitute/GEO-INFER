@@ -67,7 +67,7 @@ from .applications.disaster import DisasterResponseSwarm
 from .applications.urban import UrbanTrafficSwarm
 from .analysis.patterns import SwarmPatternAnalyzer
 from .analysis.metrics import SwarmPerformanceMetrics
-from .utils.config import load_config, validate_config
+from .utils.config import _config_to_dict, load_config, validate_config
 from .utils.logging import setup_logging
 from .utils.integration import IntegrationManager
 
@@ -85,11 +85,11 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     logger.info("Setting up GEO-INFER-ANT module")
 
-    config = {}
+    config: Dict[str, Any] = {}
 
     if config_path:
         try:
-            config = load_config(config_path)
+            config = _config_to_dict(load_config(config_path))
             validate_config(config)
             logger.info(f"Configuration loaded from {config_path}")
         except Exception as e:
@@ -110,7 +110,7 @@ def get_available_components() -> Dict[str, List[str]]:
     Returns:
         Dictionary with component availability information
     """
-    components = {
+    components: Dict[str, List[str]] = {
         "core": [],
         "algorithms": [],
         "applications": [],

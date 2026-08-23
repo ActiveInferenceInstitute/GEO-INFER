@@ -8,7 +8,7 @@ import os
 import json
 import re
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, cast
 from functools import lru_cache
 
 import yaml
@@ -87,7 +87,7 @@ def load_yaml_config(file_path: Union[str, Path]) -> Dict[str, Any]:
             return {}
 
         logger.info(f"Loaded configuration from {file_path}")
-        return config
+        return cast(Dict[str, Any], config)
 
     except yaml.YAMLError as e:
         logger.error(f"Error parsing YAML configuration file {file_path}: {e}")
@@ -121,7 +121,7 @@ def load_json_config(file_path: Union[str, Path]) -> Dict[str, Any]:
             config = json.load(f)
 
         logger.info(f"Loaded configuration from {file_path}")
-        return config
+        return cast(Dict[str, Any], config)
 
     except json.JSONDecodeError as e:
         logger.error(f"Error parsing JSON configuration file {file_path}: {e}")
@@ -211,7 +211,7 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
             # Pattern to match ${VAR_NAME} or ${VAR_NAME:default}
             pattern = r"\$\{([^:}]+)(?::([^}]*))?\}"
 
-            def replace_var(match):
+            def replace_var(match: "re.Match[str]") -> str:
                 var_name = match.group(1)
                 default_value = match.group(2)
 
@@ -234,7 +234,7 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
         else:
             return value
 
-    return resolve_value(config)
+    return cast(Dict[str, Any], resolve_value(config))
 
 
 @lru_cache(maxsize=1)

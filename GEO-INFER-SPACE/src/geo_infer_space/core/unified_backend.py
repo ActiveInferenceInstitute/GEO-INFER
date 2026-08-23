@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class NumpyEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles numpy types and Shapely geometries."""
 
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
@@ -59,7 +59,7 @@ class UnifiedH3Backend:
         target_areas: Optional[Dict[str, List[str]]] = None,
         base_data_dir: Optional[Path] = None,
         geojson_path: Optional[Path] = None,
-    ):
+    ) -> None:
         """
         Initialize the unified backend with H3 spatial indexing.
 
@@ -301,12 +301,12 @@ class UnifiedH3Backend:
             "Comprehensive analysis complete. All module data has been aggregated."
         )
 
-    def _aggregate_module_results(self, results: Dict[str, Dict]):
+    def _aggregate_module_results(self, results: Dict[str, Dict]) -> None:
         """Combine all module results into a unified H3-indexed dataset."""
         logger.info("Aggregating results from all modules...")
 
         for hexagon in self.target_hexagons:
-            hex_data = {"hex_id": hexagon}
+            hex_data: Dict[str, Any] = {"hex_id": hexagon}
 
             # Add geometry and metadata
             try:
@@ -342,7 +342,7 @@ class UnifiedH3Backend:
             return {}
 
         for h3_index, hex_data in self.unified_data.items():
-            scores = {}
+            scores: Dict[str, Any] = {}
             module_scores = []
             for module_name, module_data in hex_data.items():
                 if isinstance(module_data, dict) and "score" in module_data:
@@ -350,7 +350,7 @@ class UnifiedH3Backend:
             if module_scores:
                 composite_score = np.mean(module_scores)
             else:
-                composite_score = 0.0
+                composite_score = 0.0  # type: ignore[assignment]
 
             self.analysis_scores[h3_index] = {
                 "composite_score": composite_score,
@@ -372,7 +372,7 @@ class UnifiedH3Backend:
 
         scores = [s["composite_score"] for s in self.analysis_scores.values()]
 
-        summary = {
+        summary: Dict[str, Any] = {
             "target_region": self.target_region,
             "h3_resolution": self.resolution,
             "total_hexagons": len(self.target_hexagons),
@@ -440,7 +440,7 @@ class UnifiedH3Backend:
             return
         logger.info(f"Successfully exported unified data to {output_path}")
 
-    def _export_geojson(self, data_to_export: Dict, output_path: str):
+    def _export_geojson(self, data_to_export: Dict, output_path: str) -> None:
         """Exports the unified dataset to a GeoJSON file."""
         features = []
         for hex_id, properties in data_to_export.items():
@@ -463,7 +463,7 @@ class UnifiedH3Backend:
         with open(output_path, "w") as f:
             json.dump(feature_collection, f, cls=NumpyEncoder)
 
-    def _export_csv(self, data_to_export: Dict, output_path: str):
+    def _export_csv(self, data_to_export: Dict, output_path: str) -> None:
         """Exports the unified dataset to a CSV file."""
         # This will flatten the nested dictionary structure
         flat_data = []
@@ -508,7 +508,9 @@ class UnifiedH3Backend:
                 Unified Geospatial Analysis Dashboard
             </h3>
         """
-        m.get_root().header.add_child(folium.Element(title_html))
+        m.get_root().header.add_child(  # type: ignore[attr-defined]
+            folium.Element(title_html)
+        )
 
         folium.TileLayer("Stamen Terrain", attr="Stamen").add_to(m)
 
@@ -571,7 +573,7 @@ class UnifiedH3Backend:
     def _get_color_for_score(self, score: float, theme: str = "default") -> str:
         """Helper to get a color based on a score from 0 to 1."""
         if not isinstance(score, (float, int)):
-            return "#808080"  # Grey for invalid score
+            return "#808080"  # type: ignore[unreachable]
 
         # Default: Green-Yellow-Red
         if score > 0.75:

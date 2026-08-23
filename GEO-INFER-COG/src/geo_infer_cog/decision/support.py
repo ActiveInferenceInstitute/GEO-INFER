@@ -115,7 +115,7 @@ class DecisionRecommendation:
 
     def to_display_format(self, user_profile: UserCognitiveProfile) -> Dict[str, Any]:
         """Format recommendation for user display."""
-        display_format = {
+        display_format: Dict[str, Any] = {
             'alternative_id': self.alternative_id,
             'recommendation_score': self.recommendation_score,
             'confidence_level': self.confidence_level,
@@ -280,7 +280,7 @@ class SpatialDecisionSupport:
 
     def _extract_decision_alternatives(self, spatial_alternatives: List[Dict[str, Any]]) -> List[DecisionAlternative]:
         """Extract and structure decision alternatives."""
-        alternatives = []
+        alternatives: List[DecisionAlternative] = []
 
         for alt_data in spatial_alternatives:
             alternative = DecisionAlternative(
@@ -734,7 +734,7 @@ class SpatialDecisionSupport:
                                          alternatives: List[DecisionAlternative],
                                          stakeholder_profiles: List[UserCognitiveProfile]) -> Dict[str, Any]:
         """Analyze stakeholder compatibility with decision alternatives."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             'overall_compatibility': 0.0,
             'stakeholder_preferences': {},
             'consensus_potential': 0.0,
@@ -788,7 +788,7 @@ class SpatialDecisionSupport:
 
     def get_decision_insights(self, decision_analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Generate insights and explanations for decision analysis."""
-        insights = {
+        insights: Dict[str, Any] = {
             'decision_summary': {},
             'key_factors': [],
             'uncertainty_insights': [],

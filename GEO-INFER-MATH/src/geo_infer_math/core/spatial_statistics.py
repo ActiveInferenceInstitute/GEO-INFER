@@ -6,7 +6,7 @@ autocorrelation, and distributions in geospatial data.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
+from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
 from dataclasses import dataclass
 from math import erfc, sqrt
 
@@ -46,7 +46,7 @@ def _generate_weights(
     if include_self:
         np.fill_diagonal(weights, 1.0)
 
-    return weights
+    return cast(np.ndarray, weights)
 
 
 @dataclass
@@ -72,7 +72,7 @@ class MoranI:
     of values across geographic locations.
     """
 
-    def __init__(self, weights_matrix: np.ndarray = None):
+    def __init__(self, weights_matrix: Optional[np.ndarray] = None):
         """
         Initialize MoranI calculator.
 
@@ -83,7 +83,7 @@ class MoranI:
         self.weights_matrix = weights_matrix
 
     def compute(
-        self, values: np.ndarray, coords: np.ndarray = None
+        self, values: np.ndarray, coords: Optional[np.ndarray] = None
     ) -> Dict[str, float]:
         """
         Compute Moran's I statistic.
@@ -96,9 +96,13 @@ class MoranI:
         Returns:
             Dictionary containing Moran's I statistic and p-value
         """
-        if self.weights_matrix is None and coords is not None:
-            self.weights_matrix = _generate_weights(coords)
+        if self.weights_matrix is None:
+            if coords is not None:
+                self.weights_matrix = _generate_weights(coords)
+            else:
+                raise ValueError("weights_matrix must be set or coords provided")
 
+        assert self.weights_matrix is not None
         # Input validation
         if len(values) != self.weights_matrix.shape[0]:
             raise ValueError(
@@ -169,7 +173,7 @@ class GearysC:
     - C > 1: negative spatial autocorrelation
     """
 
-    def __init__(self, weights_matrix: np.ndarray = None):
+    def __init__(self, weights_matrix: Optional[np.ndarray] = None):
         """
         Initialize GearysC calculator.
 
@@ -179,7 +183,7 @@ class GearysC:
         self.weights_matrix = weights_matrix
 
     def compute(
-        self, values: np.ndarray, coords: np.ndarray = None
+        self, values: np.ndarray, coords: Optional[np.ndarray] = None
     ) -> Dict[str, float]:
         """
         Compute Geary's C statistic.
@@ -251,7 +255,7 @@ class GetisOrd:
     clusters) and cold spots (low-value clusters) in spatial data.
     """
 
-    def __init__(self, weights_matrix: np.ndarray = None):
+    def __init__(self, weights_matrix: Optional[np.ndarray] = None):
         """
         Initialize GetisOrd calculator.
 
@@ -262,7 +266,7 @@ class GetisOrd:
         self.weights_matrix = weights_matrix
 
     def compute(
-        self, values: np.ndarray, coords: np.ndarray = None
+        self, values: np.ndarray, coords: Optional[np.ndarray] = None
     ) -> Dict[str, Any]:
         """
         Compute Getis-Ord G* statistics.
@@ -330,7 +334,7 @@ class GetisOrd:
         }
 
 
-def getis_ord_g(values: np.ndarray, weights_matrix: np.ndarray) -> Dict[str, float]:
+def getis_ord_g(values: np.ndarray, weights_matrix: np.ndarray) -> Dict[str, Any]:
     """
     Calculate Getis-Ord G* statistic for hot spot analysis.
 
@@ -540,7 +544,7 @@ def spatial_entropy(values: np.ndarray, bins: int = 10) -> float:
     probs = counts / total
     probs = probs[probs > 0]
     entropy = -np.sum(probs * np.log(probs))
-    return entropy
+    return float(entropy)
 
 
 def local_indicators_spatial_association(

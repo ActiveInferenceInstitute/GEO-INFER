@@ -14,7 +14,7 @@ Implemented Methods:
 """
 
 import numpy as np
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, cast
 from scipy import linalg, sparse
 from scipy.optimize import minimize
 import warnings
@@ -45,17 +45,17 @@ class SpatialRegression:
         """
         self.model_type = model_type.lower()
         self.spatial_weights = spatial_weights
-        self.fitted_model = None
+        self.fitted_model: Optional[Dict[str, Any]] = None
 
         self._validate_model_type()
 
-    def _validate_model_type(self):
+    def _validate_model_type(self) -> None:
         """Validate model type."""
         valid_types = ["sar", "sem", "sdm", "gwr", "spatial_filter", "slx"]
         if self.model_type not in valid_types:
             raise ValueError(f"Model type must be one of {valid_types}")
 
-    def fit(self, data: SPMData, design_matrix: DesignMatrix, **kwargs) -> SPMResult:
+    def fit(self, data: SPMData, design_matrix: DesignMatrix, **kwargs: Any) -> SPMResult:
         """
         Fit spatial regression model.
 
@@ -103,7 +103,7 @@ class SpatialRegression:
             raise TypeError("Spatial regression requires array data")
 
     def _create_spatial_weights_matrix(
-        self, coordinates: np.ndarray, **kwargs
+        self, coordinates: np.ndarray, **kwargs: Any
     ) -> sparse.csr_matrix:
         """
         Create spatial weights matrix from coordinates.
@@ -166,7 +166,7 @@ class SpatialRegression:
         return W
 
     def _fit_sar(
-        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs: Any
     ) -> SPMResult:
         """
         Fit Spatial Autoregressive (SAR) model.
@@ -177,7 +177,7 @@ class SpatialRegression:
         """
         n_points, n_predictors = X.shape
 
-        def sar_loglik(params):
+        def sar_loglik(params: np.ndarray) -> float:
             rho = params[0]  # Spatial autoregressive parameter
             beta = params[1:]  # Regression coefficients
 
@@ -208,7 +208,7 @@ class SpatialRegression:
                     residuals**2
                 ) / (2 * sigma2)
 
-                return -loglik  # Negative for minimization
+                return float(-loglik)  # Negative for minimization
 
             except np.linalg.LinAlgError:
                 return np.inf
@@ -285,7 +285,7 @@ class SpatialRegression:
         return spm_result
 
     def _fit_sem(
-        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs: Any
     ) -> SPMResult:
         """
         Fit Spatial Error Model (SEM).
@@ -297,7 +297,7 @@ class SpatialRegression:
         # Simplified SEM implementation (similar to SAR)
         n_points, n_predictors = X.shape
 
-        def sem_loglik(params):
+        def sem_loglik(params: np.ndarray) -> float:
             lambda_param = params[0]  # Spatial error parameter
             beta = params[1:]
 
@@ -320,7 +320,7 @@ class SpatialRegression:
                     filtered_residuals**2
                 ) / (2 * sigma2)
 
-                return -loglik
+                return float(-loglik)
 
             except np.linalg.LinAlgError:
                 return np.inf
@@ -378,7 +378,7 @@ class SpatialRegression:
         return spm_result
 
     def _fit_sdm(
-        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs: Any
     ) -> SPMResult:
         """
         Fit Spatial Durbin Model (SDM).
@@ -404,7 +404,7 @@ class SpatialRegression:
         return sdm_result
 
     def _fit_slx(
-        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs: Any
     ) -> SPMResult:
         """
         Fit Spatial Lag of X (SLX) model.
@@ -453,7 +453,7 @@ class SpatialRegression:
         return spm_result
 
     def _fit_gwr(
-        self, y: np.ndarray, X: np.ndarray, coordinates: np.ndarray, **kwargs
+        self, y: np.ndarray, X: np.ndarray, coordinates: np.ndarray, **kwargs: Any
     ) -> SPMResult:
         """
         Fit Geographically Weighted Regression (GWR).
@@ -510,7 +510,7 @@ class SpatialRegression:
         return spm_result
 
     def _fit_spatial_filter(
-        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs
+        self, y: np.ndarray, X: np.ndarray, W: sparse.csr_matrix, **kwargs: Any
     ) -> SPMResult:
         """
         Fit spatial filter model.
@@ -585,7 +585,7 @@ class SpatialRegression:
                 "new_data.data must be a two-dimensional design matrix with "
                 f"{self._fitted_predictors} predictors"
             )
-        return values @ self._fitted_coefficients
+        return cast(np.ndarray, values @ self._fitted_coefficients)
 
     def get_spatial_effects(self) -> Dict[str, Any]:
         """
@@ -605,7 +605,7 @@ class SpatialRegression:
 
 
 def fit_spatial_model(
-    data: SPMData, design_matrix: DesignMatrix, model_type: str = "sar", **kwargs
+    data: SPMData, design_matrix: DesignMatrix, model_type: str = "sar", **kwargs: Any
 ) -> SPMResult:
     """
     Convenience function to fit spatial regression model.

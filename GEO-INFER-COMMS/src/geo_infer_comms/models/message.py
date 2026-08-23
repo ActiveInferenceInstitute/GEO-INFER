@@ -6,7 +6,7 @@ and collaboration sessions with full geospatial support and metadata tracking.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Any, Literal
+from typing import Dict, List, Optional, Any, Literal, cast
 from datetime import datetime, timezone
 from enum import Enum
 from dataclasses import dataclass, field
@@ -284,7 +284,9 @@ class NotificationRequest(BaseModel):
     notification_type: NotificationType = NotificationType.INFO
     priority: MessagePriority = MessagePriority.NORMAL
     delivery_method: List[Literal["in_app", "email", "sms", "push"]] = Field(
-        default_factory=lambda: ["in_app"]
+        default_factory=lambda: cast(
+            "list[Literal['in_app', 'email', 'sms', 'push']]", ["in_app"]
+        )
     )
     schedule_time: Optional[datetime] = None
     expiry_time: Optional[datetime] = None
@@ -325,9 +327,15 @@ class EventPublishResponse(BaseModel):
     """Response model for event publishing."""
 
     event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_type: str = Field(...)
+    payload: Dict[str, Any] = Field(...)
+    source: Optional[str] = None
+    target_channels: List[str] = Field(default_factory=list)
+    priority: MessagePriority = MessagePriority.NORMAL
     status: Literal["published", "queued", "failed"] = "published"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     delivery_count: int = 0
+    geospatial_context: Optional[Dict[str, Any]] = None
 
 
 class EventSubscriptionRequest(BaseModel):
@@ -344,6 +352,9 @@ class EventSubscriptionResponse(BaseModel):
 
     subscription_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     event_types: List[str]
+    filter_criteria: Dict[str, Any] = Field(default_factory=dict)
+    delivery_mode: Literal["real_time", "batched", "on_demand"] = "real_time"
+    callback_url: Optional[str] = None
     status: Literal["active", "paused", "error"] = "active"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -501,7 +512,7 @@ def message_request_to_response(
     )
 
 
-def validate_geospatial_bounds(bounds: Dict[str, Any]) -> bool:
+def validate_geospatial_bounds(bounds: Any) -> bool:
     """Validate geospatial bounds for channels and filters."""
     if not isinstance(bounds, dict):
         return False

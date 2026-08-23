@@ -21,7 +21,7 @@ Mathematical Foundations:
 
 import numpy as np
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any, Union, cast
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
@@ -287,7 +287,7 @@ class CognitiveProcessingEngine:
             expertise_bonus = user_profile.spatial_expertise * 0.1
             confidence = min(0.95, confidence + expertise_bonus)
 
-        return confidence
+        return cast(float, confidence)
 
     def _estimate_cognitive_load(self, alternative: Dict[str, Any]) -> float:
         """Estimate cognitive load impact of a spatial alternative."""
@@ -335,7 +335,7 @@ class CognitiveProcessingEngine:
 
     def _extract_cognitive_factors(self, decisions: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         """Extract cognitive factors influencing decisions."""
-        factors = {
+        factors: Dict[str, List[str]] = {
             'high_confidence_factors': [],
             'low_confidence_factors': [],
             'cognitive_load_issues': []

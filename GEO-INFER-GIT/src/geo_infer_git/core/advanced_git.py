@@ -65,6 +65,7 @@ class RebaseOperation:
     base_commit: str
     target_branch: str
     status: str = "pending"  # pending, in_progress, completed, failed, aborted
+    message: str = ""
     current_step: int = 0
     total_steps: int = 0
     conflicts: List[MergeConflict] = field(default_factory=list)
@@ -89,7 +90,7 @@ class SubmoduleManager:
         """
         self.repo_path = Path(repo_path)
         self.repo = git.Repo(repo_path)
-        self.submodules = {}
+        self.submodules: Dict[str, SubmoduleInfo] = {}
 
         # Load existing submodules
         self._load_submodules()
@@ -229,7 +230,7 @@ class SubmoduleManager:
                     remote.fetch()
 
                 # Update to latest commit on tracked branch
-                if sub_repo.head.is_tracking:
+                if getattr(sub_repo.head, "is_tracking", False):
                     sub_repo.git.pull('origin', sub_repo.active_branch.name)
 
                 submodule.status = "synced"
@@ -285,14 +286,16 @@ class SubmoduleManager:
     def _get_ahead_behind(self, repo: git.Repo) -> Dict[str, int]:
         """Get ahead/behind information for a repository."""
         try:
-            if repo.remotes and repo.head.is_tracking:
-                remote_name = repo.head.tracking_branch().remote_name
-                remote_ref = f"{remote_name}/{repo.active_branch.name}"
+            if repo.remotes and getattr(repo.head, "is_tracking", False):
+                tracking = getattr(repo.head, "tracking_branch", lambda: None)()
+                if tracking is not None:
+                    remote_name = tracking.remote_name
+                    remote_ref = f"{remote_name}/{repo.active_branch.name}"
 
-                ahead = len(list(repo.iter_commits(f"{remote_ref}..HEAD")))
-                behind = len(list(repo.iter_commits(f"HEAD..{remote_ref}")))
+                    ahead = len(list(repo.iter_commits(f"{remote_ref}..HEAD")))
+                    behind = len(list(repo.iter_commits(f"HEAD..{remote_ref}")))
 
-                return {'ahead': ahead, 'behind': behind}
+                    return {'ahead': ahead, 'behind': behind}
         except Exception:
             pass
 
@@ -341,7 +344,7 @@ class CherryPickManager:
         """
         self.repo_path = Path(repo_path)
         self.repo = git.Repo(repo_path)
-        self.operations = []
+        self.operations: List[CherryPickOperation] = []
 
     def cherry_pick_commit(self, commit_sha: str, strategy: str = "recursive") -> CherryPickOperation:
         """
@@ -549,9 +552,9 @@ class RebaseManager:
         """
         self.repo_path = Path(repo_path)
         self.repo = git.Repo(repo_path)
-        self.current_rebase = None
+        self.current_rebase: Optional[RebaseOperation] = None
 
-    def start_interactive_rebase(self, base_commit: str, target_branch: str = None) -> RebaseOperation:
+    def start_interactive_rebase(self, base_commit: str, target_branch: Optional[str] = None) -> RebaseOperation:
         """
         Start an interactive rebase operation.
 
@@ -612,6 +615,7 @@ class RebaseManager:
             return True
 
         except git.GitCommandError as e:
+            assert self.current_rebase is not None
             if "conflict" in str(e).lower():
                 self.current_rebase.status = "conflicts"
                 self.current_rebase.conflicts = self._detect_rebase_conflicts()
@@ -703,7 +707,7 @@ class AdvancedGitOperations:
         self.rebase = RebaseManager(repo_path)
 
         # Track operations
-        self.operation_history = []
+        self.operation_history: List[Any] = []
 
     def execute_workflow(self, workflow_config: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -745,7 +749,7 @@ class AdvancedGitOperations:
     def _execute_workflow_step(self, step: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a single workflow step."""
         step_type = step.get('type')
-        step_result = {
+        step_result: Dict[str, Any] = {
             'step_type': step_type,
             'success': False,
             'message': '',
@@ -783,16 +787,16 @@ class AdvancedGitOperations:
                 }
 
             elif step_type == 'rebase':
-                operation = self.rebase.start_interactive_rebase(
+                rebase_op = self.rebase.start_interactive_rebase(
                     step['base_commit'],
                     target_branch=step.get('target_branch')
                 )
-                step_result['success'] = operation.status == "in_progress"
-                step_result['message'] = operation.message
+                step_result['success'] = rebase_op.status == "in_progress"
+                step_result['message'] = rebase_op.message
                 step_result['details'] = {
-                    'base_commit': operation.base_commit,
-                    'target_branch': operation.target_branch,
-                    'status': operation.status
+                    'base_commit': rebase_op.base_commit,
+                    'target_branch': rebase_op.target_branch,
+                    'status': rebase_op.status
                 }
 
             else:
@@ -810,7 +814,7 @@ class AdvancedGitOperations:
         Returns:
             Dictionary with repository health metrics
         """
-        health_info = {
+        health_info: Dict[str, Any] = {
             'submodules': self.submodules.get_submodule_status(),
             'recent_operations': self.operation_history[-10:],  # Last 10 operations
             'repository_stats': {

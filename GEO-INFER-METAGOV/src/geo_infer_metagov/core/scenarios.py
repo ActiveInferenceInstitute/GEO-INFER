@@ -46,7 +46,7 @@ class ScenarioPlanner:
     - Van der Heijden, K. (2005). Scenarios: The Art of Strategic Conversation
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize scenario planner."""
         self.scenarios: Dict[str, Scenario] = {}
         self.analyses: Dict[str, ScenarioAnalysis] = {}
@@ -96,7 +96,7 @@ class ScenarioPlanner:
         scenario_id = f"scenario_{scenario_type}_{len(self.scenarios)}"
         
         # Define scenario characteristics based on type
-        scenario_definitions = {
+        scenario_definitions: Dict[str, Dict[str, Any]] = {
             'optimistic': {
                 'name': 'Optimistic Future',
                 'description': 'Best-case scenario with favorable conditions',
@@ -352,7 +352,7 @@ class ScenarioPlanner:
         scenarios: List[Scenario]
     ) -> Dict[str, Any]:
         """Perform sensitivity analysis on key variables."""
-        sensitivity = {
+        sensitivity: Dict[str, Any] = {
             'key_variables': [],
             'sensitivity_scores': {},
             'critical_factors': []
@@ -376,11 +376,11 @@ class ScenarioPlanner:
                 governance_structure.copy(), test_modifications
             )
             test_evaluation = self._evaluate_structure_under_scenario(
-                test_structure, scenarios[0] if scenarios else None
+                test_structure, scenarios[0]
             )
             
             base_evaluation = self._evaluate_structure_under_scenario(
-                governance_structure, scenarios[0] if scenarios else None
+                governance_structure, scenarios[0]
             )
             
             sensitivity_score = abs(

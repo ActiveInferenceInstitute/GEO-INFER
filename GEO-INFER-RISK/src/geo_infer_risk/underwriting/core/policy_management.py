@@ -385,7 +385,7 @@ class PolicyManager:
         self.lifecycle = PolicyLifecycle()
 
         # Performance tracking
-        self.performance_metrics = {
+        self.performance_metrics: Dict[str, Any] = {
             "total_policies": 0,
             "active_policies": 0,
             "total_premium": 0.0,

@@ -6,7 +6,7 @@ transportation network analysis, and emissions calculation.
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import List, Dict, Optional, Tuple
+from typing import Any, List, Dict, Optional, Tuple
 from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
@@ -41,8 +41,8 @@ class RouteRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "origin": (13.404954, 52.520008),  # Berlin
-                "destination": (11.576124, 48.137154),  # Munich
+                "origin": [13.404954, 52.520008],  # Berlin
+                "destination": [11.576124, 48.137154],  # Munich
                 "allowed_modes": ["car", "train", "bus"],
                 "preferences": {
                     "cost_weight": 1.0,
@@ -69,8 +69,8 @@ class CompareRoutesRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "origin": (13.404954, 52.520008),  # Berlin
-                "destination": (11.576124, 48.137154),  # Munich
+                "origin": [13.404954, 52.520008],  # Berlin
+                "destination": [11.576124, 48.137154],  # Munich
                 "mode_combinations": [["car"], ["train"], ["car", "train"]],
             }
         }
@@ -124,7 +124,7 @@ class EmissionsCalculationRequest(BaseModel):
                     "speed": 80,
                     "cost_per_km": 1.2,
                     "emissions_per_km": 0.8,
-                    "location": (13.404954, 52.520008),
+                    "location": [13.404954, 52.520008],
                     "fuel_type": "diesel",
                 },
                 "distance": 150,
@@ -146,8 +146,8 @@ class EmissionsComparisonRequest(BaseModel):
             "example": {
                 "route": {
                     "distance": 150,
-                    "origin": (13.404954, 52.520008),
-                    "destination": (11.576124, 48.137154),
+                    "origin": [13.404954, 52.520008],
+                    "destination": [11.576124, 48.137154],
                 },
                 "vehicle_options": [
                     {
@@ -158,7 +158,7 @@ class EmissionsComparisonRequest(BaseModel):
                         "speed": 80,
                         "cost_per_km": 1.2,
                         "emissions_per_km": 0.8,
-                        "location": (13.404954, 52.520008),
+                        "location": [13.404954, 52.520008],
                         "fuel_type": "diesel",
                     },
                     {
@@ -169,7 +169,7 @@ class EmissionsComparisonRequest(BaseModel):
                         "speed": 70,
                         "cost_per_km": 1.0,
                         "emissions_per_km": 0.5,
-                        "location": (13.404954, 52.520008),
+                        "location": [13.404954, 52.520008],
                         "fuel_type": "electric",
                     },
                 ],
@@ -179,25 +179,25 @@ class EmissionsComparisonRequest(BaseModel):
 
 
 # Get a multimodal planner instance
-def get_multimodal_planner():
+def get_multimodal_planner() -> MultiModalPlanner:
     """Dependency for multimodal planner."""
     return MultiModalPlanner()
 
 
 # Get a transportation network analyzer instance
-def get_network_analyzer():
+def get_network_analyzer() -> TransportationNetworkAnalyzer:
     """Dependency for transportation network analyzer."""
     return TransportationNetworkAnalyzer()
 
 
 # Get a traffic simulator instance
-def get_traffic_simulator():
+def get_traffic_simulator() -> TrafficSimulator:
     """Dependency for traffic simulator."""
     return TrafficSimulator()
 
 
 # Get an emissions calculator instance
-def get_emissions_calculator():
+def get_emissions_calculator() -> EmissionsCalculator:
     """Dependency for emissions calculator."""
     return EmissionsCalculator()
 
@@ -205,7 +205,7 @@ def get_emissions_calculator():
 @router.post("/route", response_model=Dict)
 async def plan_route(
     request: RouteRequest, planner: MultiModalPlanner = Depends(get_multimodal_planner)
-):
+) -> Dict:
     """Plan a multimodal route between origin and destination."""
     try:
         route = planner.plan_route(
@@ -223,7 +223,7 @@ async def plan_route(
 async def compare_routes(
     request: CompareRoutesRequest,
     planner: MultiModalPlanner = Depends(get_multimodal_planner),
-):
+) -> Dict:
     """Compare different multimodal routes between origin and destination."""
     try:
         df = planner.compare_routes(
@@ -242,7 +242,7 @@ async def compare_routes(
 async def get_network_metrics(
     request: NetworkMetricsRequest,
     analyzer: TransportationNetworkAnalyzer = Depends(get_network_analyzer),
-):
+) -> Dict:
     """Calculate metrics for a transportation network."""
     try:
         metrics = analyzer.calculate_network_metrics()
@@ -256,7 +256,7 @@ async def identify_critical_links(
     request: NetworkMetricsRequest,
     analyzer: TransportationNetworkAnalyzer = Depends(get_network_analyzer),
     top_n: int = Query(10, description="Number of critical links to identify"),
-):
+) -> List[Any]:
     """Identify critical links in a transportation network."""
     try:
         links = analyzer.identify_critical_links(top_n=top_n)
@@ -269,7 +269,7 @@ async def identify_critical_links(
 async def simulate_traffic(
     request: TrafficSimulationRequest,
     simulator: TrafficSimulator = Depends(get_traffic_simulator),
-):
+) -> Dict:
     """Simulate traffic for a route."""
     try:
         result = simulator.simulate_traffic(
@@ -287,7 +287,7 @@ async def analyze_congestion(
     simulator: TrafficSimulator = Depends(get_traffic_simulator),
     time_period: Optional[str] = Query(None, description="Time period to analyze"),
     congestion_threshold: float = Query(0.7, description="Congestion threshold"),
-):
+) -> Dict:
     """Analyze network congestion."""
     try:
         result = simulator.analyze_congestion(
@@ -302,7 +302,7 @@ async def analyze_congestion(
 async def calculate_emissions(
     request: EmissionsCalculationRequest,
     calculator: EmissionsCalculator = Depends(get_emissions_calculator),
-):
+) -> float:
     """Calculate emissions for a route with a specific vehicle."""
     try:
         emissions = calculator.calculate_route_emissions(
@@ -320,7 +320,7 @@ async def calculate_emissions(
 async def compare_vehicle_emissions(
     request: EmissionsComparisonRequest,
     calculator: EmissionsCalculator = Depends(get_emissions_calculator),
-):
+) -> Dict:
     """Compare emissions for different vehicle options on a route."""
     try:
         df = calculator.compare_emissions(
@@ -338,7 +338,7 @@ async def calculate_fleet_emissions(
     fleet: List[Vehicle],
     routes: List[Route],
     calculator: EmissionsCalculator = Depends(get_emissions_calculator),
-):
+) -> Dict:
     """Calculate total emissions for a fleet of vehicles."""
     try:
         result = calculator.calculate_fleet_emissions(fleet=fleet, routes=routes)

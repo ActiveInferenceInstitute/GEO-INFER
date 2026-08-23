@@ -10,7 +10,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 from enum import Enum
 from collections import defaultdict
 
@@ -129,14 +129,14 @@ class FlowField:
     detected_patterns: List[FlowPattern] = field(default_factory=list)
     pattern_confidence: Dict[FlowPattern, float] = field(default_factory=dict)
 
-    def add_vector(self, vector: FlowVector):
+    def add_vector(self, vector: FlowVector) -> None:
         """Add a flow vector to the field."""
         key = (vector.source_cell, vector.target_cell)
         self.vectors[key] = vector
         self.last_updated = datetime.now()
         self._update_field_properties()
 
-    def _update_field_properties(self):
+    def _update_field_properties(self) -> None:
         """Update field-level properties."""
         if not self.vectors:
             return
@@ -203,7 +203,7 @@ class H3FlowAnalyzer:
     - Network flow metrics and optimization
     """
 
-    def __init__(self, name: str = "H3FlowAnalyzer"):
+    def __init__(self, name: str = "H3FlowAnalyzer") -> None:
         """
         Initialize flow analyzer.
 
@@ -297,7 +297,9 @@ class H3FlowAnalyzer:
 
         return vector
 
-    def analyze_flow_patterns(self, field_id: str, **kwargs) -> FlowAnalysisResult:
+    def analyze_flow_patterns(
+        self, field_id: str, **kwargs: Any
+    ) -> FlowAnalysisResult:
         """
         Analyze flow patterns in a field.
 
@@ -357,14 +359,14 @@ class H3FlowAnalyzer:
         return result
 
     def _detect_flow_patterns(
-        self, flow_field: FlowField, **kwargs
+        self, flow_field: FlowField, **kwargs: Any
     ) -> List[FlowPattern]:
         """Detect flow patterns in a field."""
         threshold = kwargs.get(
             "threshold", self.analysis_config["pattern_detection_threshold"]
         )
 
-        detected_patterns = []
+        detected_patterns: List[FlowPattern] = []
         pattern_scores = {}
 
         if not flow_field.vectors:
@@ -414,8 +416,8 @@ class H3FlowAnalyzer:
             return 0.0
 
         # Count flows into each cell
-        inflow_counts = defaultdict(int)
-        outflow_counts = defaultdict(int)
+        inflow_counts: Dict[str, int] = defaultdict(int)
+        outflow_counts: Dict[str, int] = defaultdict(int)
 
         for vector in vectors:
             inflow_counts[vector.target_cell] += 1
@@ -446,8 +448,8 @@ class H3FlowAnalyzer:
             return 0.0
 
         # Count flows from each cell
-        inflow_counts = defaultdict(int)
-        outflow_counts = defaultdict(int)
+        inflow_counts: Dict[str, int] = defaultdict(int)
+        outflow_counts: Dict[str, int] = defaultdict(int)
 
         for vector in vectors:
             inflow_counts[vector.target_cell] += 1
@@ -496,7 +498,7 @@ class H3FlowAnalyzer:
         total_variance = sin_var + cos_var
         parallel_score = 1.0 / (1.0 + total_variance)
 
-        return parallel_score
+        return cast(float, parallel_score)
 
     def _analyze_circular_flow(self, vectors: List[FlowVector]) -> float:
         """Analyze circular/spiral flow patterns."""
@@ -526,7 +528,10 @@ class H3FlowAnalyzer:
         direction_turbulence = min(1.0, direction_var / (np.pi**2))
         magnitude_turbulence = min(1.0, magnitude_var / np.var(magnitudes))
 
-        return (direction_turbulence + magnitude_turbulence) / 2.0
+        return (
+            cast(float, direction_turbulence)
+            + cast(float, magnitude_turbulence)
+        ) / 2.0
 
     def _calculate_flow_connectivity(self, flow_field: FlowField) -> float:
         """Calculate flow connectivity metric."""
@@ -593,7 +598,9 @@ class H3FlowAnalyzer:
         magnitude_stability = 1.0 / (1.0 + np.var(magnitudes))
         direction_stability = 1.0 / (1.0 + np.var(directions))
 
-        return (magnitude_stability + direction_stability) / 2.0
+        return cast(
+            float, (magnitude_stability + direction_stability) / 2.0
+        )
 
     def get_flow_statistics(self) -> Dict[str, Any]:
         """Get flow analyzer statistics."""

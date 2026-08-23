@@ -9,7 +9,7 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
+from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable, cast
 from enum import Enum
 from collections import defaultdict
 
@@ -82,7 +82,7 @@ class LumpingCriterion:
     # Validation function
     validation_function: Optional[Callable] = None
     
-    def evaluate(self, cell1, cell2) -> float:
+    def evaluate(self, cell1: Any, cell2: Any) -> float:
         """
         Evaluate criterion for two cells.
         
@@ -95,7 +95,10 @@ class LumpingCriterion:
         """
         if self.validation_function:
             try:
-                return self.validation_function(cell1, cell2, self.parameters)
+                return cast(
+                    float,
+                    self.validation_function(cell1, cell2, self.parameters),
+                )
             except Exception as e:
                 logger.warning(f"Criterion evaluation failed: {e}")
                 return 0.0
@@ -135,7 +138,7 @@ class LumpingResult:
     created_at: datetime = field(default_factory=datetime.now)
     processing_time: float = 0.0
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Calculate derived statistics."""
         self.num_input_cells = len(self.input_cells)
         self.num_output_lumps = len(self.lumps)
@@ -152,7 +155,7 @@ class H3LumpingEngine:
     based on similarity, proximity, constraints, and other criteria.
     """
     
-    def __init__(self, name: str = "H3LumpingEngine"):
+    def __init__(self, name: str = "H3LumpingEngine") -> None:
         """
         Initialize lumping engine.
         
@@ -204,8 +207,13 @@ class H3LumpingEngine:
             return True
         return False
     
-    def lump_cells(self, nested_grid, strategy: LumpingStrategy = LumpingStrategy.SIMILARITY_BASED,
-                   system_id: Optional[str] = None, **kwargs) -> LumpingResult:
+    def lump_cells(
+        self,
+        nested_grid: Any,
+        strategy: LumpingStrategy = LumpingStrategy.SIMILARITY_BASED,
+        system_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> LumpingResult:
         """
         Lump cells in a nested grid system.
         
@@ -280,7 +288,9 @@ class H3LumpingEngine:
         
         return result
     
-    def _lump_by_similarity(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_by_similarity(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells based on similarity."""
         similarity_threshold = kwargs.get('similarity_threshold', 0.7)
         metric = kwargs.get('metric', SimilarityMetric.EUCLIDEAN)
@@ -309,10 +319,12 @@ class H3LumpingEngine:
         if not features:
             return {}
         
-        features = np.array(features)
+        feature_array = np.array(features)
         
         # Calculate similarity matrix
-        similarity_matrix = self._calculate_similarity_matrix(features, metric)
+        similarity_matrix = self._calculate_similarity_matrix(
+            feature_array, metric
+        )
         
         # Find similar cells and group them
         lumps = {}
@@ -340,7 +352,9 @@ class H3LumpingEngine:
         
         return lumps
     
-    def _lump_by_proximity(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_by_proximity(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells based on spatial proximity."""
         distance_threshold = kwargs.get('distance_threshold', 2)  # H3 distance
         
@@ -379,7 +393,9 @@ class H3LumpingEngine:
         
         return lumps
     
-    def _lump_hierarchical(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_hierarchical(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells using hierarchical clustering."""
         if not SKLEARN_AVAILABLE or not NUMPY_AVAILABLE:
             logger.warning("scikit-learn and NumPy required for hierarchical lumping")
@@ -408,7 +424,7 @@ class H3LumpingEngine:
         if len(features) < 2:
             return {}
         
-        features = np.array(features)
+        feature_array = np.array(features)
         
         # Determine number of clusters if not specified
         if n_clusters is None:
@@ -420,7 +436,7 @@ class H3LumpingEngine:
                 n_clusters=n_clusters,
                 linkage=linkage
             )
-            cluster_labels = clustering.fit_predict(features)
+            cluster_labels = clustering.fit_predict(feature_array)
             
             # Group cells by cluster
             lumps = defaultdict(list)
@@ -434,7 +450,9 @@ class H3LumpingEngine:
             logger.warning(f"Hierarchical clustering failed: {e}")
             return self._simple_proximity_lumping(cells)
     
-    def _lump_by_constraints(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_by_constraints(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells based on constraints."""
         max_lump_size = kwargs.get('max_lump_size', 10)
         min_lump_size = kwargs.get('min_lump_size', 2)
@@ -471,7 +489,9 @@ class H3LumpingEngine:
         
         return lumps
     
-    def _lump_by_density(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_by_density(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells using density-based clustering."""
         if not SKLEARN_AVAILABLE or not NUMPY_AVAILABLE:
             logger.warning("scikit-learn and NumPy required for density-based lumping")
@@ -500,12 +520,12 @@ class H3LumpingEngine:
         if len(features) < min_samples:
             return {}
         
-        features = np.array(features)
+        feature_array = np.array(features)
         
         # Perform DBSCAN clustering
         try:
             clustering = DBSCAN(eps=eps, min_samples=min_samples)
-            cluster_labels = clustering.fit_predict(features)
+            cluster_labels = clustering.fit_predict(feature_array)
             
             # Group cells by cluster (ignore noise points with label -1)
             lumps = defaultdict(list)
@@ -520,7 +540,9 @@ class H3LumpingEngine:
             logger.warning(f"Density-based clustering failed: {e}")
             return self._simple_proximity_lumping(cells)
     
-    def _lump_by_attributes(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _lump_by_attributes(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Lump cells based on attribute values."""
         grouping_field = kwargs.get('grouping_field', 'category')
         
@@ -574,9 +596,13 @@ class H3LumpingEngine:
                     elif metric == SimilarityMetric.COSINE:
                         dot_product = np.dot(features[i], features[j])
                         norms = np.linalg.norm(features[i]) * np.linalg.norm(features[j])
-                        similarity = dot_product / norms if norms > 0 else 0.0
+                        similarity = (
+                            dot_product / norms  # type: ignore[assignment]
+                            if norms > 0
+                            else 0.0
+                        )
                     else:
-                        similarity = 0.5  # Default
+                        similarity = 0.5  # type: ignore[assignment]
                     
                     similarity_matrix[i, j] = similarity
         
@@ -648,7 +674,7 @@ class H3LumpingEngine:
         Falls back to 0.5 when H3 is unavailable or lumps are singletons.
         """
         try:
-            import h3  # type: ignore
+            import h3
         except ImportError:
             return 0.5
 
@@ -690,4 +716,3 @@ class H3LumpingEngine:
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
-

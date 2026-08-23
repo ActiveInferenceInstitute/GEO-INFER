@@ -2,7 +2,7 @@
 Configuration utilities for GEO-INFER-ACT.
 """
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, cast
 import yaml
 
 
@@ -21,8 +21,10 @@ def load_config(path: str) -> Dict[str, Any]:
     
     with open(path, 'r') as file:
         config = yaml.safe_load(file)
-    
-    return config
+
+    if config is None:
+        return {}
+    return cast(Dict[str, Any], config)
 
 
 def save_config(config: Dict[str, Any], path: str) -> None:
@@ -56,7 +58,7 @@ def merge_configs(base_config: Dict[str, Any],
     """
     merged = base_config.copy()
     
-    def _merge_dicts(base, override):
+    def _merge_dicts(base: Dict[str, Any], override: Dict[str, Any]) -> None:
         for key, value in override.items():
             if key in base and isinstance(base[key], dict) and isinstance(value, dict):
                 _merge_dicts(base[key], value)

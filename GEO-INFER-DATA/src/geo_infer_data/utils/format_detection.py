@@ -42,7 +42,7 @@ class FormatDetector:
         >>> print(f"Detected format: {format_type}")
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.format_signatures = {
             DataFormat.GEOJSON: self._detect_geojson,
             DataFormat.SHAPEFILE: self._detect_shapefile,
@@ -285,17 +285,14 @@ class FormatDetector:
     def _detect_hdf5(self, file_path: Path) -> bool:
         """Detect HDF5 format."""
         try:
-            import h5py
-            with h5py.File(file_path, 'r'):
-                return True
+            with open(file_path, 'rb') as f:
+                header = f.read(8)
+                return header.startswith(b'\x89HDF\r\n\x1a\n')
         except Exception:
             return False
 
     def _is_geojson_structure(self, data: Dict[str, Any]) -> bool:
         """Check if dictionary has GeoJSON structure."""
-        if not isinstance(data, dict):
-            return False
-
         # Check for GeoJSON required fields
         if 'type' not in data:
             return False

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, cast
 
 
 class H3Adapter:
@@ -54,14 +54,20 @@ class H3Adapter:
     def latlng_to_cell(self, lat: float, lng: float, resolution: int) -> str:
         """Convert latitude/longitude to an H3 cell."""
         if self.space_indexer is not None:
-            return self.space_indexer.latlng_to_cell(lat, lng, resolution)
-        return self.h3.latlng_to_cell(lat, lng, resolution)
+            return str(self.space_indexer.latlng_to_cell(lat, lng, resolution))
+        if self.h3 is not None:
+            return str(self.h3.latlng_to_cell(lat, lng, resolution))
+        raise RuntimeError("H3 backend unavailable")
 
     def cell_to_latlng(self, cell: str) -> tuple[float, float]:
         """Convert an H3 cell to latitude/longitude."""
         if self.space_indexer is not None:
-            return self.space_indexer.cell_to_latlng(cell)
-        return self.h3.cell_to_latlng(cell)
+            res = self.space_indexer.cell_to_latlng(cell)
+            return (float(res[0]), float(res[1]))
+        if self.h3 is not None:
+            res = self.h3.cell_to_latlng(cell)
+            return (float(res[0]), float(res[1]))
+        raise RuntimeError("H3 backend unavailable")
 
     def cell_to_boundary(self, cell: str) -> List[tuple[float, float]]:
         """Return the H3 cell boundary as latitude/longitude pairs."""
@@ -95,12 +101,12 @@ class H3Adapter:
 
         geometry = polygon.get("geometry", polygon)
         if geometry.get("type") == "FeatureCollection":
-            cells: set[str] = set()
+            feature_cells: set[str] = set()
             for feature in geometry.get("features", []):
                 feature_geometry = feature.get("geometry")
                 if feature_geometry:
-                    cells.update(self.h3.geo_to_cells(feature_geometry, resolution))
-            return sorted(cells)
+                    feature_cells.update(self.h3.geo_to_cells(feature_geometry, resolution))
+            return sorted(feature_cells)
         if geometry.get("type") not in {"Polygon", "MultiPolygon"}:
             raise ValueError("polygon must contain a Polygon or MultiPolygon")
         return sorted(self.h3.geo_to_cells(geometry, resolution))
@@ -132,20 +138,26 @@ class H3Adapter:
     def get_resolution(self, cell: str) -> int:
         """Return the H3 resolution of a cell."""
         if self.space_indexer is not None:
-            return self.space_indexer.get_cell_resolution(cell)
-        return self.h3.get_resolution(cell)
+            return int(self.space_indexer.get_cell_resolution(cell))
+        if self.h3 is not None:
+            return int(self.h3.get_resolution(cell))
+        raise RuntimeError("H3 backend unavailable")
 
     def cell_to_parent(self, cell: str, resolution: int) -> str:
         """Return the parent cell at a coarser resolution."""
         if self.space_indexer is not None:
-            return self.space_indexer.get_cell_parent(cell, resolution)
-        return self.h3.cell_to_parent(cell, resolution)
+            return str(self.space_indexer.get_cell_parent(cell, resolution))
+        if self.h3 is not None:
+            return str(self.h3.cell_to_parent(cell, resolution))
+        raise RuntimeError("H3 backend unavailable")
 
     def cell_to_children(self, cell: str, resolution: int) -> List[str]:
         """Return child cells at a finer resolution."""
         if self.space_indexer is not None:
-            return self.space_indexer.get_cell_children(cell, resolution)
-        return list(self.h3.cell_to_children(cell, resolution))
+            return [str(c) for c in self.space_indexer.get_cell_children(cell, resolution)]
+        if self.h3 is not None:
+            return [str(c) for c in self.h3.cell_to_children(cell, resolution)]
+        raise RuntimeError("H3 backend unavailable")
 
     def is_valid_cell(self, cell: str) -> bool:
         """Return true when a value is a valid H3 cell identifier."""

@@ -51,7 +51,7 @@ class ComplianceTracker:
         self.description = description
         self.compliance_statuses = compliance_statuses or []
         self.compliance_metrics = compliance_metrics or []
-        self._status_index = {}
+        self._status_index: Dict[Tuple[str, str], List[ComplianceStatus]] = {}
         self._metric_index = {m.id: m for m in self.compliance_metrics}
         
         # Build index for faster lookups
@@ -134,7 +134,7 @@ class ComplianceTracker:
             }
         
         # Filter to most recent status for each regulation as of the given date
-        regulation_latest = {}
+        regulation_latest: Dict[str, ComplianceStatus] = {}
         
         for status in entity_statuses:
             if status.timestamp > as_of_date:
@@ -207,7 +207,7 @@ class ComplianceTracker:
             }
         
         # Filter to most recent status for each entity as of the given date
-        entity_latest = {}
+        entity_latest: Dict[str, ComplianceStatus] = {}
         
         for status in regulation_statuses:
             if status.timestamp > as_of_date:
@@ -274,7 +274,7 @@ class ComplianceTracker:
             )
         
         # Evaluate each metric
-        metric_results = []
+        metric_results: List[Dict[str, Any]] = []
         for metric in applicable_metrics:
             # Check if required data is available
             if not all(field in evaluation_data for field in metric.required_fields):
@@ -597,7 +597,7 @@ class ComplianceReport:
             }
         
         # Get the most recent status for each entity-regulation pair
-        latest_statuses = {}
+        latest_statuses: Dict[Tuple[str, str], ComplianceStatus] = {}
         
         for status in recent_statuses:
             key = (status.entity_id, status.regulation_id)

@@ -7,7 +7,7 @@ implementation-specific Spatial methods are available through a single interface
 """
 
 import logging
-from typing import Dict, Any, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 
@@ -28,7 +28,7 @@ class GISManager:
     and `SpatialUtils` instances.
     """
 
-    def __init__(self, h3_backend=None):
+    def __init__(self, h3_backend: Optional[Any] = None) -> None:
         """
         Initialize the GISManager and its underlying spatial components.
 
@@ -210,7 +210,7 @@ class GISManager:
         )
 
     def calculate_coverage(
-        self, cells: List[str], region_cells: List[str] = None
+        self, cells: List[str], region_cells: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Calculate coverage statistics for cell sets.
@@ -233,9 +233,9 @@ class GISManager:
         cells: List[str],
         values: List[float],
         filter_type: str = "threshold",
-        threshold: float = None,
-        percentile: float = None,
-        top_n: int = None,
+        threshold: Optional[float] = None,
+        percentile: Optional[float] = None,
+        top_n: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Filter cells based on spatial criteria.

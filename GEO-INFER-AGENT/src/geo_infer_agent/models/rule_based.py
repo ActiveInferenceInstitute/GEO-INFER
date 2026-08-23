@@ -14,7 +14,7 @@ import os
 import logging
 import asyncio
 import re
-from typing import Dict, List, Any, Optional, Callable, Union
+from typing import Dict, List, Any, Optional, Callable, Union, cast
 from datetime import datetime
 import json
 
@@ -70,7 +70,7 @@ class Rule:
 
         # Stats
         self.match_count = 0
-        self.last_matched = None
+        self.last_matched: Optional[datetime] = None
 
     def matches(self, state: Dict[str, Any]) -> bool:
         """
@@ -123,7 +123,8 @@ class Rule:
         Returns:
             True if all condition key-value pairs match state
         """
-        for key, expected_value in self.condition.items():
+        cond: Dict[str, Any] = cast(Dict[str, Any], self.condition)
+        for key, expected_value in cond.items():
             # Check if key exists in state
             if key not in state:
                 return False
@@ -233,9 +234,9 @@ class RuleSet:
     A collection of rules with management and selection functionality.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty rule set."""
-        self.rules = {}  # rule_id -> Rule
+        self.rules: Dict[str, Rule] = {}  # rule_id -> Rule
 
     def add_rule(self, rule: Rule) -> None:
         """
@@ -349,7 +350,7 @@ class RuleBasedState(AgentState):
     Tracks rules, facts, and execution history.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize rule-based agent state."""
         super().__init__()
 
@@ -357,10 +358,10 @@ class RuleBasedState(AgentState):
         self.rule_set = RuleSet()
 
         # Facts (current state knowledge)
-        self.facts = {}
+        self.facts: Dict[str, Any] = {}
 
         # Execution history
-        self.execution_history = []
+        self.execution_history: List[Dict[str, Any]] = []
         self.max_history_size = 100
 
     def add_rule(self, rule: Rule) -> None:
@@ -487,6 +488,8 @@ class RuleBasedAgent(BaseAgent):
     3. Executes actions based on matching rules
     """
 
+    state: RuleBasedState
+
     def __init__(self, agent_id: Optional[str] = None, config: Optional[Dict] = None):
         """
         Initialize rule-based agent.
@@ -520,7 +523,7 @@ class RuleBasedAgent(BaseAgent):
 
     async def initialize(self) -> None:
         """Initialize the agent."""
-        logger.info(f"Initializing rule-based agent: {self.id}")
+        logger.info(f"Initializing rule-based agent: {self.agent_id}")
 
         # Load rules from config
         self._load_rules_from_config()
@@ -533,7 +536,7 @@ class RuleBasedAgent(BaseAgent):
         if state_path and os.path.exists(state_path):
             self._load_state(state_path)
 
-        logger.info("Rule-based agent %s initialization complete", self.id)
+        logger.info("Rule-based agent %s initialization complete", self.agent_id)
 
     def _load_rules_from_config(self) -> None:
         """Load rules from configuration."""
@@ -615,7 +618,7 @@ class RuleBasedAgent(BaseAgent):
             default_action = self.config.get("default_action")
             if default_action:
                 logger.debug("Using default action")
-                return default_action.copy()
+                return cast(Dict[str, Any], default_action.copy())
 
             return None
 
@@ -660,7 +663,7 @@ class RuleBasedAgent(BaseAgent):
         if "state_save_path" in self.config:
             self._save_state(self.config["state_save_path"])
 
-        logger.info("Rule-based agent %s shutdown complete", self.id)
+        logger.info("Rule-based agent %s shutdown complete", self.agent_id)
 
     def _register_default_action_handlers(self) -> None:
         """Register default action handlers."""

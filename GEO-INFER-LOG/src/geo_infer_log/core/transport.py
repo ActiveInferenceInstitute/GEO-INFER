@@ -8,7 +8,7 @@ transportation network analysis, and emissions calculation.
 import logging
 import pandas as pd
 import networkx as nx
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 
 from geo_infer_log.models.schemas import VehicleType, FuelType, Vehicle, Route
@@ -35,10 +35,11 @@ def _haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
 class MultiModalPlanner:
     """Plans and optimizes multimodal transportation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a multimodal transportation planner."""
-        self.networks = {}  # mode -> network graph
-        self.transfer_points = []  # List of transfer points between modes
+        self.networks: Dict[str, nx.Graph] = {}  # mode -> network graph
+        # List of transfer points between modes
+        self.transfer_points: List[Dict[str, Any]] = []
 
     def load_network(self, mode: str, network_file: str) -> None:
         """Load a transportation network for a specific mode.
@@ -105,7 +106,7 @@ class MultiModalPlanner:
         origin: Tuple[float, float],
         destination: Tuple[float, float],
         allowed_modes: List[str],
-        preferences: Dict = None,
+        preferences: Optional[Dict[str, Any]] = None,
     ) -> Dict:
         """Plan a multimodal route between origin and destination.
 
@@ -138,7 +139,7 @@ class MultiModalPlanner:
                 net = self.networks[mode]
 
                 # Nearest-node lookup via Haversine distance
-                def _nearest(net, lon, lat):
+                def _nearest(net: Any, lon: float, lat: float) -> Optional[Any]:
                     best, best_d = None, float("inf")
                     for n, d in net.nodes(data=True):
                         nx_val = d.get("x", d.get("lon", 0))
@@ -179,7 +180,7 @@ class MultiModalPlanner:
                     continue
 
         # Build route segments from the discovered path
-        segments = []
+        segments: List[Dict[str, Any]] = []
         if best_route:
             current_mode = None
             seg_start = None
@@ -341,10 +342,10 @@ class MultiModalPlanner:
 class TransportationNetworkAnalyzer:
     """Analyzes transportation networks and flows."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a transportation network analyzer."""
-        self.network = None
-        self.flow_data = None
+        self.network: Optional[nx.Graph] = None
+        self.flow_data: Optional[Any] = None
 
     def load_network(self, network_file: str) -> None:
         """Load a transportation network from a file.
@@ -475,14 +476,14 @@ class TransportationNetworkAnalyzer:
             )
 
             if origin_col and dest_col and flow_col:
-                edge_flows = {}
+                edge_flows: Dict[Tuple[str, str], float] = {}
                 for _, row in self.flow_data.iterrows():
                     key = (row[origin_col], row[dest_col])
                     edge_flows[key] = edge_flows.get(key, 0) + row[flow_col]
 
                 total_flow = sum(edge_flows.values())
                 max_flow_edge = (
-                    max(edge_flows, key=edge_flows.get) if edge_flows else None
+                    max(edge_flows, key=lambda k: edge_flows[k]) if edge_flows else None
                 )
                 max_flow_val = edge_flows[max_flow_edge] if max_flow_edge else 0
 
@@ -585,8 +586,9 @@ class TrafficSimulator:
             network: Transportation network graph
         """
         self.network = network
-        self.time_periods = []
-        self.edge_speeds = {}  # (u, v) -> speed by time period
+        self.time_periods: List[str] = []
+        # (u, v) -> speed by time period
+        self.edge_speeds: Dict[Tuple[str, str], Dict[str, float]] = {}
 
     def load_network(self, network_file: str) -> None:
         """Load a transportation network from a file.
@@ -616,6 +618,7 @@ class TrafficSimulator:
             edge: Edge tuple (u, v)
             speeds: Dict of time period -> speed in km/h
         """
+        assert self.network is not None
         if edge not in self.network.edges():
             raise ValueError(f"Edge {edge} not in network")
 
@@ -686,7 +689,7 @@ class TrafficSimulator:
         }
 
     def analyze_congestion(
-        self, time_period: str = None, congestion_threshold: float = 0.7
+        self, time_period: Optional[str] = None, congestion_threshold: float = 0.7
     ) -> Dict:
         """Analyze network congestion.
 
@@ -736,10 +739,10 @@ class TrafficSimulator:
 class EmissionsCalculator:
     """Calculates transportation emissions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an emissions calculator."""
         # Default emissions factors by vehicle type and fuel type (kg CO2e per km)
-        self.emissions_factors = {
+        self.emissions_factors: Dict[Tuple[VehicleType, Optional[FuelType]], float] = {
             (VehicleType.TRUCK, FuelType.DIESEL): 0.9,
             (VehicleType.TRUCK, FuelType.ELECTRIC): 0.2,
             (VehicleType.VAN, FuelType.DIESEL): 0.5,

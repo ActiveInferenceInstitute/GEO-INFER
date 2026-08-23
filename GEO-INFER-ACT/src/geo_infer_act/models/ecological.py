@@ -2,7 +2,7 @@
 Ecological model for active inference.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import numpy as np
 
 from geo_infer_act.core.active_inference import ActiveInferenceModel
@@ -19,7 +19,7 @@ class EcologicalModel(ActiveInferenceModel):
 
     def __init__(
         self,
-        config: Dict[str, Any] = None,
+        config: Optional[Dict[str, Any]] = None,
         random_seed: int | None = None,
     ):
         """
@@ -69,8 +69,9 @@ class EcologicalModel(ActiveInferenceModel):
         )
         self.set_generative_model(gen_model)
 
-    def _build_A_matrix(self):
+    def _build_A_matrix(self) -> List[np.ndarray]:
         """Build Likelihood Matrix A: P(o|s)."""
+        A: List[np.ndarray]
         try:
             from pymdp.utils import obj_array_zeros
 
@@ -125,7 +126,7 @@ class EcologicalModel(ActiveInferenceModel):
 
         return A
 
-    def _build_B_matrix(self):
+    def _build_B_matrix(self) -> List[np.ndarray]:
         """Build Transition Matrix B: P(s'|s,u)."""
         # Initialize B as list of arrays for independent factors
         # Factor 0: Resource (3 states)
@@ -190,8 +191,9 @@ class EcologicalModel(ActiveInferenceModel):
 
         return B
 
-    def _build_C_matrix(self):
+    def _build_C_matrix(self) -> List[np.ndarray]:
         """Build Preference Matrix C: P(o)."""
+        C: List[np.ndarray]
         try:
             from pymdp.utils import obj_array_zeros
 
@@ -211,8 +213,9 @@ class EcologicalModel(ActiveInferenceModel):
 
         return C
 
-    def _build_D_matrix(self):
+    def _build_D_matrix(self) -> List[np.ndarray]:
         """Build Prior Matrix D: P(s)."""
+        D: List[np.ndarray]
         try:
             from pymdp.utils import obj_array_zeros
 
@@ -231,7 +234,7 @@ class EcologicalModel(ActiveInferenceModel):
 
         return D
 
-    def step(self, observation: List[int] = None):
+    def step(self, observation: Any = None, **kwargs: Any) -> Any:  # type: ignore[override]
         """
         Advance the ecological model by one step.
 
@@ -239,12 +242,14 @@ class EcologicalModel(ActiveInferenceModel):
             observation: List of integers [Food_Obs_Idx, Threat_Obs_Idx]
         """
         if observation is None:
-            observation = [0, 0]
+            obs = np.array([0, 0])
+        else:
+            obs = np.asarray(observation)
 
         # Perceive
-        beliefs = self.perceive(observation)
+        beliefs = self.perceive(obs)
 
         # Act
         action = self.act()
 
-        return {"beliefs": beliefs, "action": action, "observation": observation}
+        return {"beliefs": beliefs, "action": action, "observation": obs.tolist()}

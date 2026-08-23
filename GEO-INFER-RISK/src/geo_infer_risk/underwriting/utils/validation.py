@@ -27,7 +27,7 @@ class ValidationResult:
 class UnderwritingValidator:
     """Comprehensive validator for underwriting operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the validator."""
         self.logger = logging.getLogger("geo_infer_risk.underwriting.validator")
 
@@ -38,8 +38,8 @@ class UnderwritingValidator:
 
     def validate_application(self, application_data: Dict[str, Any]) -> ValidationResult:
         """Validate underwriting application data."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_data = application_data.copy()
 
         try:
@@ -84,8 +84,8 @@ class UnderwritingValidator:
 
     def validate_policy(self, policy_data: Dict[str, Any]) -> ValidationResult:
         """Validate policy data."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_data = policy_data.copy()
 
         try:
@@ -131,8 +131,8 @@ class UnderwritingValidator:
 
     def validate_claim(self, claim_data: Dict[str, Any]) -> ValidationResult:
         """Validate claim data."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_data = claim_data.copy()
 
         try:
@@ -177,8 +177,8 @@ class UnderwritingValidator:
 
     def _validate_property_data(self, property_data: Dict[str, Any]) -> Dict[str, List[str]]:
         """Validate property information."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         # Validate coordinates
         if 'latitude' in property_data:
@@ -210,8 +210,8 @@ class UnderwritingValidator:
 
     def _validate_applicant_data(self, applicant_data: Dict[str, Any]) -> Dict[str, List[str]]:
         """Validate applicant information."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         # Validate required applicant fields
         required_fields = ['name', 'contact_info']
@@ -231,8 +231,8 @@ class UnderwritingValidator:
 
     def _validate_coverage_requests(self, coverage_requests: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         """Validate coverage requests."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not coverage_requests:
             errors.append("At least one coverage request is required")
@@ -247,8 +247,8 @@ class UnderwritingValidator:
 
     def _validate_single_coverage_request(self, coverage: Dict[str, Any], index: int) -> Dict[str, List[str]]:
         """Validate single coverage request."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         required_fields = ['coverage_type', 'limit']
         for field in required_fields:
@@ -273,8 +273,8 @@ class UnderwritingValidator:
 
     def _validate_coverage(self, coverage: Dict[str, Any], index: int) -> Dict[str, List[str]]:
         """Validate coverage configuration."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         # Validate limit
         if 'limit' in coverage:
@@ -294,8 +294,8 @@ class UnderwritingValidator:
 
     def _validate_business_logic(self, application_data: Dict[str, Any]) -> Dict[str, List[str]]:
         """Validate business logic rules."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         property_data = application_data.get('property', {})
         coverage_requests = application_data.get('coverage_requests', [])
@@ -318,13 +318,13 @@ class UnderwritingValidator:
 
     def _validate_date(self, date_str: str, field_name: str) -> Dict[str, List[str]]:
         """Validate date field."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         try:
             if isinstance(date_str, str):
                 datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-            elif isinstance(date_str, datetime):
+            elif isinstance(date_str, datetime):  # type: ignore[unreachable]
                 date_str.isoformat()
             else:
                 errors.append(f"{field_name}: Invalid date format")
@@ -336,11 +336,13 @@ class UnderwritingValidator:
 
     def _validate_amount(self, amount: float, field_name: str) -> Dict[str, List[str]]:
         """Validate amount field."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not isinstance(amount, (int, float)):
-            errors.append(f"{field_name}: Must be a number")
+            errors.append(  # type: ignore[unreachable]
+                f"{field_name}: Must be a number"
+            )
         elif amount <= 0:
             errors.append(f"{field_name}: Must be positive")
         elif amount > 100000000:  # 100M limit
@@ -350,8 +352,8 @@ class UnderwritingValidator:
 
     def _validate_premium(self, premium: float) -> Dict[str, List[str]]:
         """Validate premium amount."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if premium <= 0:
             errors.append("Premium must be positive")
@@ -362,8 +364,8 @@ class UnderwritingValidator:
 
     def _validate_description(self, description: str) -> Dict[str, List[str]]:
         """Validate description field."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
 
         if not description or len(description.strip()) == 0:
             errors.append("Description is required")
@@ -416,15 +418,15 @@ class UnderwritingValidator:
 class PolicyValidator:
     """Specialized validator for policy operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the policy validator."""
         self.logger = logging.getLogger("geo_infer_risk.underwriting.policy_validator")
 
     def validate_policy_renewal(self, current_policy: Dict[str, Any],
                                renewal_data: Dict[str, Any]) -> ValidationResult:
         """Validate policy renewal."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_data = renewal_data.copy()
 
         try:
@@ -454,8 +456,8 @@ class PolicyValidator:
     def validate_policy_endorsement(self, policy: Dict[str, Any],
                                    endorsement: Dict[str, Any]) -> ValidationResult:
         """Validate policy endorsement."""
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_data = endorsement.copy()
 
         try:

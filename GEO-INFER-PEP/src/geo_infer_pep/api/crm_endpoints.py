@@ -42,12 +42,12 @@ async def upload_crm_csv(
     file: UploadFile = File(...),
     clean_data: bool = Query(True, description="Perform data cleaning after import"),
     enrich_data: bool = Query(True, description="Perform data enrichment after cleaning")
-):
+) -> Dict[str, Any]:
     """
     Upload a CSV file with CRM data. Data will be imported, (optionally) cleaned and enriched,
     and then stored in memory (for this example).
     """
-    if not file.filename.endswith('.csv'):
+    if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Invalid file type. Only CSV files are accepted.")
 
     temp_file_path = await save_upload_file_tmp(file)
@@ -90,19 +90,19 @@ async def upload_crm_csv(
 
 @router.get("/customers", response_model=List[Customer])
 async def get_all_customers(
-    limit: Optional[int] = Query(100, ge=1, le=1000),
-    offset: Optional[int] = Query(0, ge=0)
-):
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0)
+) -> List[Customer]:
     """Retrieve all customers from the in-memory store."""
     return DB_CUSTOMERS[offset : offset + limit]
 
 @router.get("/customers/count", response_model=Dict[str, int])
-async def get_customers_count():
+async def get_customers_count() -> Dict[str, int]:
     """Get the total number of customers in the in-memory store."""
     return {"total_customers": len(DB_CUSTOMERS)}
 
 @router.get("/reports/segmentation", response_model=Dict[str, Any])
-async def get_crm_segmentation_report():
+async def get_crm_segmentation_report() -> Dict[str, Any]:
     """
     Generate and return a customer segmentation report.
     """
@@ -112,7 +112,7 @@ async def get_crm_segmentation_report():
     return report
 
 @router.get("/reports/lead-conversion", response_model=Dict[str, Any])
-async def get_crm_lead_conversion_report():
+async def get_crm_lead_conversion_report() -> Dict[str, Any]:
     """
     Generate and return a lead conversion report.
     """
@@ -122,7 +122,7 @@ async def get_crm_lead_conversion_report():
     return report
 
 @router.get("/visualizations/status-distribution", response_model=Dict[str, str])
-async def get_status_distribution_plot():
+async def get_status_distribution_plot() -> Dict[str, str]:
     """
     Generate a customer status distribution plot and return its path.
     (In a real app, you might return the image directly or a URL).

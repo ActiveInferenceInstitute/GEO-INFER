@@ -10,7 +10,7 @@ import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from typing import Union, List, Dict, Any, Optional, Tuple
+from typing import Union, List, Dict, Any, Optional, Tuple, cast
 from shapely.geometry import Point, Polygon
 from scipy.spatial import ConvexHull, Delaunay
 from scipy.spatial.distance import cdist
@@ -20,7 +20,7 @@ from sklearn.neighbors import NearestNeighbors
 logger = logging.getLogger(__name__)
 
 try:
-    import laspy
+    import laspy  # type: ignore[import-untyped]
     LASPY_AVAILABLE = True
 except ImportError:
     LASPY_AVAILABLE = False
@@ -46,7 +46,7 @@ class PointCloud:
         intensities: Optional[np.ndarray] = None,
         classifications: Optional[np.ndarray] = None,
         metadata: Optional[Dict[str, Any]] = None
-    ):
+    ) -> None:
         """
         Initialize point cloud.
         
@@ -124,7 +124,7 @@ def load_point_cloud(file_path: str) -> PointCloud:
 def point_cloud_filtering(
     point_cloud: PointCloud,
     filter_type: str,
-    **kwargs
+    **kwargs: Any
 ) -> PointCloud:
     """
     Apply filtering operations to point cloud data.
@@ -194,7 +194,7 @@ def classification(
     point_cloud: PointCloud,
     features_df: pd.DataFrame,
     method: str = 'ground_vegetation',
-    **kwargs
+    **kwargs: Any
 ) -> PointCloud:
     """
     Classify point cloud points into different categories.
@@ -231,7 +231,7 @@ def surface_generation(
     point_cloud: PointCloud,
     method: str = 'triangulation',
     grid_resolution: float = 1.0,
-    **kwargs
+    **kwargs: Any
 ) -> Union[gpd.GeoDataFrame, np.ndarray]:
     """
     Generate surfaces from point cloud data.
@@ -559,12 +559,14 @@ def _clustering_classification(
     classifications = cluster_labels + 1
     classifications[cluster_labels == -1] = 0  # Noise points as unclassified
     
-    return classifications
+    return cast(np.ndarray, classifications)
 
 
 # Helper functions for surface generation
 
-def _delaunay_triangulation(point_cloud: PointCloud, **kwargs) -> gpd.GeoDataFrame:
+def _delaunay_triangulation(
+    point_cloud: PointCloud, **kwargs: Any
+) -> gpd.GeoDataFrame:
     """Generate triangulated surface using Delaunay triangulation."""
     points_2d = point_cloud.points[:, :2]
     
@@ -599,7 +601,7 @@ def _delaunay_triangulation(point_cloud: PointCloud, **kwargs) -> gpd.GeoDataFra
 def _grid_interpolation(
     point_cloud: PointCloud,
     grid_resolution: float,
-    **kwargs
+    **kwargs: Any
 ) -> np.ndarray:
     """Generate regular grid surface using interpolation."""
     points = point_cloud.points
@@ -624,10 +626,12 @@ def _grid_interpolation(
     interpolated_heights = points[indices, 2]
     height_grid = interpolated_heights.reshape(xx.shape)
     
-    return height_grid
+    return cast(np.ndarray, height_grid)
 
 
-def _contour_generation(point_cloud: PointCloud, **kwargs) -> gpd.GeoDataFrame:
+def _contour_generation(
+    point_cloud: PointCloud, **kwargs: Any
+) -> gpd.GeoDataFrame:
     """Generate contour lines from point cloud."""
     # This is a simplified implementation
     # In practice, you would use more sophisticated contouring algorithms

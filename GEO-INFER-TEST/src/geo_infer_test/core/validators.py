@@ -8,7 +8,7 @@ import statistics
 import numpy as np
 import pandas as pd
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, Optional
 from abc import ABC, abstractmethod
 
 from ..models.types import ValidationRule
@@ -25,14 +25,14 @@ except ImportError:
 class BaseValidator(ABC):
     """Base class for all validators."""
 
-    def __init__(self, config: Dict = None, logger=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, logger: Optional[logging.Logger] = None) -> None:
         self.config = config or {}
         self.logger = logger or logging.getLogger(__name__)
         self.validation_rules: List[ValidationRule] = []
         self.setup_rules()
 
     @abstractmethod
-    def setup_rules(self):
+    def setup_rules(self) -> None:
         """Setup validation rules specific to this validator."""
         pass
 
@@ -45,7 +45,7 @@ class BaseValidator(ABC):
 class DataQualityValidator(BaseValidator):
     """Validator for general data quality."""
 
-    def setup_rules(self):
+    def setup_rules(self) -> None:
         """Setup data quality validation rules."""
         self.validation_rules = [
             ValidationRule(
@@ -75,21 +75,23 @@ class DataQualityValidator(BaseValidator):
         """Validate data quality."""
         start_time = time.time()
 
-        # Convert to DataFrame if needed
-        if isinstance(data, (list, dict)):
-            if isinstance(data, dict):
-                data = [data]
-            df = pd.DataFrame(data)
+        if isinstance(data, dict):
+            df = pd.DataFrame([data])
+        elif isinstance(data, list):
+            df = pd.DataFrame.from_records(data)
         else:
             df = data.copy()
 
-        validation_results = {
+        errors_out: List[Dict[str, Any]] = []
+        warnings_out: List[Dict[str, Any]] = []
+        field_quality_out: Dict[str, float] = {}
+        validation_results: Dict[str, Any] = {
             "total_records": len(df),
             "valid_records": 0,
-            "validation_errors": [],
-            "warnings": [],
+            "validation_errors": errors_out,
+            "warnings": warnings_out,
             "quality_score": 0.0,
-            "field_quality": {},
+            "field_quality": field_quality_out,
             "validation_time": 0.0,
         }
 
@@ -115,7 +117,7 @@ class DataQualityValidator(BaseValidator):
 
                 if not result["passed"]:
                     if rule.severity == "error":
-                        validation_results["validation_errors"].append(
+                        errors_out.append(
                             {
                                 "rule": rule.name,
                                 "field": rule.field,
@@ -125,7 +127,7 @@ class DataQualityValidator(BaseValidator):
                         )
                         error_count += result.get("affected_records", 0)
                     elif rule.severity == "warning":
-                        validation_results["warnings"].append(
+                        warnings_out.append(
                             {
                                 "rule": rule.name,
                                 "field": rule.field,
@@ -137,7 +139,7 @@ class DataQualityValidator(BaseValidator):
 
                 # Track field-level quality
                 if rule.field != "*":
-                    validation_results["field_quality"][rule.field] = result.get(
+                    field_quality_out[rule.field] = result.get(
                         "quality_score", 1.0
                     )
 
@@ -254,7 +256,7 @@ class DataQualityValidator(BaseValidator):
 class SpatialValidator(BaseValidator):
     """Validator for spatial data quality."""
 
-    def setup_rules(self):
+    def setup_rules(self) -> None:
         """Setup spatial validation rules."""
         self.validation_rules = [
             ValidationRule(
@@ -282,30 +284,31 @@ class SpatialValidator(BaseValidator):
 
         start_time = time.time()
 
-        results = {
-            "total_records": len(df),
-            "spatial_validation": {
+        spatial_validation_out: Dict[str, Any] = {
                 "coordinate_validity": {},
                 "h3_validation": {},
                 "spatial_distribution": {},
-            },
+            }
+        results: Dict[str, Any] = {
+            "total_records": len(df),
+            "spatial_validation": spatial_validation_out,
             "validation_time": 0.0,
         }
 
         # Validate coordinates
         if all(col in df.columns for col in ["latitude", "longitude"]):
             coord_results = self._validate_coordinates(df)
-            results["spatial_validation"]["coordinate_validity"] = coord_results
+            spatial_validation_out["coordinate_validity"] = coord_results
 
         # Validate H3 indices
         if "h3_index" in df.columns and HAS_H3:
             h3_results = self._validate_h3_indices(df)
-            results["spatial_validation"]["h3_validation"] = h3_results
+            spatial_validation_out["h3_validation"] = h3_results
 
         # Analyze spatial distribution
         if all(col in df.columns for col in ["latitude", "longitude"]):
             distribution_results = self._analyze_spatial_distribution(df)
-            results["spatial_validation"]["spatial_distribution"] = distribution_results
+            spatial_validation_out["spatial_distribution"] = distribution_results
 
         results["validation_time"] = time.time() - start_time
 
@@ -405,7 +408,7 @@ class SpatialValidator(BaseValidator):
 class IoTValidator(BaseValidator):
     """Validator for IoT sensor data."""
 
-    def setup_rules(self):
+    def setup_rules(self) -> None:
         """Setup IoT validation rules."""
         self.validation_rules = [
             ValidationRule(
@@ -440,29 +443,30 @@ class IoTValidator(BaseValidator):
 
         start_time = time.time()
 
-        results = {
+        sensor_validation_out: Dict[str, Any] = {
+            "data_quality": {},
+            "temporal_analysis": {},
+            "anomaly_detection": {},
+        }
+        results: Dict[str, Any] = {
             "total_sensors": len(df),
-            "sensor_validation": {
-                "data_quality": {},
-                "temporal_analysis": {},
-                "anomaly_detection": {},
-            },
+            "sensor_validation": sensor_validation_out,
             "validation_time": 0.0,
         }
 
         # Apply data quality validation
         data_quality = DataQualityValidator(self.config, self.logger)
-        results["sensor_validation"]["data_quality"] = data_quality.validate(df)
+        sensor_validation_out["data_quality"] = data_quality.validate(df)
 
         # Temporal analysis
         if "timestamp" in df.columns:
             temporal_results = self._analyze_temporal_patterns(df)
-            results["sensor_validation"]["temporal_analysis"] = temporal_results
+            sensor_validation_out["temporal_analysis"] = temporal_results
 
         # Anomaly detection for radiation levels
         if "radiation_level" in df.columns:
             anomaly_results = self._detect_radiation_anomalies(df)
-            results["sensor_validation"]["anomaly_detection"] = anomaly_results
+            sensor_validation_out["anomaly_detection"] = anomaly_results
 
         results["validation_time"] = time.time() - start_time
 
@@ -588,7 +592,7 @@ class IoTValidator(BaseValidator):
 class BayesianValidator(BaseValidator):
     """Validator for Bayesian inference results."""
 
-    def setup_rules(self):
+    def setup_rules(self) -> None:
         """Setup Bayesian validation rules."""
         self.validation_rules = [
             ValidationRule(
@@ -611,48 +615,43 @@ class BayesianValidator(BaseValidator):
         """Validate Bayesian inference results."""
         start_time = time.time()
 
-        validation_results = {
-            "inference_validation": {
-                "convergence": False,
-                "prediction_quality": {},
-                "uncertainty_analysis": {},
-                "model_diagnostics": {},
-            },
+        inference_validation_out: Dict[str, Any] = {
+            "convergence": False,
+            "prediction_quality": {},
+            "uncertainty_analysis": {},
+            "model_diagnostics": {},
+        }
+        validation_results: Dict[str, Any] = {
+            "inference_validation": inference_validation_out,
             "validation_time": 0.0,
             "overall_quality": "unknown",
         }
 
         # Check convergence
         convergence_result = self._check_convergence(inference_results)
-        validation_results["inference_validation"]["convergence"] = convergence_result
+        inference_validation_out["convergence"] = convergence_result
 
         # Validate predictions
         if "predictions" in inference_results:
             prediction_quality = self._validate_predictions(
                 inference_results["predictions"]
             )
-            validation_results["inference_validation"][
-                "prediction_quality"
-            ] = prediction_quality
+            inference_validation_out["prediction_quality"] = prediction_quality
 
         # Analyze uncertainty
         if "uncertainty" in inference_results:
             uncertainty_analysis = self._analyze_uncertainty(
                 inference_results["uncertainty"]
             )
-            validation_results["inference_validation"][
-                "uncertainty_analysis"
-            ] = uncertainty_analysis
+            inference_validation_out["uncertainty_analysis"] = uncertainty_analysis
 
         # Model diagnostics
         model_diagnostics = self._model_diagnostics(inference_results)
-        validation_results["inference_validation"][
-            "model_diagnostics"
-        ] = model_diagnostics
+        inference_validation_out["model_diagnostics"] = model_diagnostics
 
         # Overall quality assessment
         validation_results["overall_quality"] = self._assess_overall_quality(
-            validation_results["inference_validation"]
+            inference_validation_out
         )
         validation_results["validation_time"] = time.time() - start_time
 
@@ -660,10 +659,10 @@ class BayesianValidator(BaseValidator):
 
     def _check_convergence(self, results: Dict[str, Any]) -> bool:
         """Check if Bayesian inference converged."""
-        return results.get("converged", False)
+        return bool(results.get("converged", False))
 
     def _validate_predictions(
-        self, predictions: Union[List, np.ndarray]
+        self, predictions: Any
     ) -> Dict[str, Any]:
         """Validate prediction values."""
         # Handle non-sequence inputs
@@ -703,7 +702,7 @@ class BayesianValidator(BaseValidator):
         }
 
     def _analyze_uncertainty(
-        self, uncertainty: Union[List, np.ndarray]
+        self, uncertainty: Any
     ) -> Dict[str, Any]:
         """Analyze uncertainty estimates."""
         # Handle non-sequence inputs
@@ -787,24 +786,25 @@ class BayesianValidator(BaseValidator):
 class PerformanceValidator:
     """Validator for system performance metrics."""
 
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.thresholds = self.config.get("validation", {})
 
     def validate_performance(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
         """Validate system performance metrics."""
-        results = {
-            "performance_validation": {
-                "timing_checks": {},
-                "throughput_checks": {},
-                "resource_checks": {},
-                "overall_performance": "unknown",
-            }
+        performance_out: Dict[str, Any] = {
+            "timing_checks": {},
+            "throughput_checks": {},
+            "resource_checks": {},
+            "overall_performance": "unknown",
+        }
+        results: Dict[str, Any] = {
+            "performance_validation": performance_out,
         }
 
         # Check timing metrics
         max_inference_time = self.thresholds.get("max_inference_time", "30s")
-        max_time_seconds = self._parse_time_string(max_inference_time)
+        max_time_seconds = self._parse_time_string(str(max_inference_time))
 
         actual_times = []
         for key, value in metrics.items():
@@ -813,7 +813,7 @@ class PerformanceValidator:
 
         if actual_times:
             max_actual_time = max(actual_times)
-            results["performance_validation"]["timing_checks"] = {
+            performance_out["timing_checks"] = {
                 "max_time_threshold": max_time_seconds,
                 "max_actual_time": max_actual_time,
                 "timing_acceptable": max_actual_time <= max_time_seconds,
@@ -822,7 +822,7 @@ class PerformanceValidator:
         # Check throughput
         min_accuracy = self.thresholds.get("min_prediction_accuracy", 0.85)
         if "accuracy" in metrics:
-            results["performance_validation"]["throughput_checks"] = {
+            performance_out["throughput_checks"] = {
                 "accuracy_threshold": min_accuracy,
                 "actual_accuracy": metrics["accuracy"],
                 "accuracy_acceptable": metrics["accuracy"] >= min_accuracy,
@@ -830,65 +830,69 @@ class PerformanceValidator:
 
         # Resource usage checks
         max_memory = self.thresholds.get("max_memory_usage", "4GB")
-        max_memory_bytes = self._parse_memory_string(max_memory)
+        max_memory_bytes = self._parse_memory_string(str(max_memory))
 
         if "memory_usage" in metrics:
             memory_acceptable = metrics["memory_usage"] <= max_memory_bytes
-            results["performance_validation"]["resource_checks"] = {
+            performance_out["resource_checks"] = {
                 "memory_threshold": max_memory_bytes,
                 "actual_memory": metrics["memory_usage"],
                 "memory_acceptable": memory_acceptable,
             }
 
         # Overall assessment
-        timing_ok = results["performance_validation"]["timing_checks"].get(
+        timing_ok = performance_out["timing_checks"].get(
             "timing_acceptable", True
         )
-        accuracy_ok = results["performance_validation"]["throughput_checks"].get(
+        accuracy_ok = performance_out["throughput_checks"].get(
             "accuracy_acceptable", True
         )
-        memory_ok = results["performance_validation"]["resource_checks"].get(
+        memory_ok = performance_out["resource_checks"].get(
             "memory_acceptable", True
         )
 
         if timing_ok and accuracy_ok and memory_ok:
-            results["performance_validation"]["overall_performance"] = "acceptable"
+            performance_out["overall_performance"] = "acceptable"
         else:
-            results["performance_validation"]["overall_performance"] = "unacceptable"
+            performance_out["overall_performance"] = "unacceptable"
 
         return results
 
-    def _parse_time_string(self, time_str: str) -> float:
+    def _parse_time_string(self, time_str: Any) -> float:
         """Parse time string like '30s' to seconds."""
         if isinstance(time_str, (int, float)):
             return float(time_str)
-        if time_str.endswith("s"):
-            return float(time_str[:-1])
-        elif time_str.endswith("m"):
-            return float(time_str[:-1]) * 60
-        elif time_str.endswith("h"):
-            return float(time_str[:-1]) * 3600
-        else:
-            return float(time_str)
+        if isinstance(time_str, str):
+            if time_str.endswith("s"):
+                return float(time_str[:-1])
+            elif time_str.endswith("m"):
+                return float(time_str[:-1]) * 60
+            elif time_str.endswith("h"):
+                return float(time_str[:-1]) * 3600
+            else:
+                return float(time_str)
+        return float(time_str)
 
-    def _parse_memory_string(self, memory_str: str) -> float:
+    def _parse_memory_string(self, memory_str: Any) -> float:
         """Parse memory string like '4GB' to bytes."""
         if isinstance(memory_str, (int, float)):
             return float(memory_str)
-        if memory_str.endswith("GB"):
-            return float(memory_str[:-2]) * 1024**3
-        elif memory_str.endswith("MB"):
-            return float(memory_str[:-2]) * 1024**2
-        elif memory_str.endswith("KB"):
-            return float(memory_str[:-2]) * 1024
-        else:
-            return float(memory_str)
+        if isinstance(memory_str, str):
+            if memory_str.endswith("GB"):
+                return float(memory_str[:-2]) * 1024**3
+            elif memory_str.endswith("MB"):
+                return float(memory_str[:-2]) * 1024**2
+            elif memory_str.endswith("KB"):
+                return float(memory_str[:-2]) * 1024
+            else:
+                return float(memory_str)
+        return float(memory_str)
 
 
 class QualityController:
     """Main quality control system that coordinates all validators."""
 
-    def __init__(self, config: Dict = None, logger=None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, logger: Optional[logging.Logger] = None) -> None:
         self.config = config or {}
         self.logger = logger or logging.getLogger(__name__)
 
@@ -901,17 +905,18 @@ class QualityController:
 
     def run_comprehensive_validation(
         self,
-        sensor_data: pd.DataFrame = None,
-        spatial_results: Dict = None,
-        inference_results: Dict = None,
-        performance_metrics: Dict = None,
+        sensor_data: Optional[pd.DataFrame] = None,
+        spatial_results: Optional[Dict[str, Any]] = None,
+        inference_results: Optional[Dict[str, Any]] = None,
+        performance_metrics: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Run comprehensive validation across all components."""
         start_time = time.time()
 
-        validation_summary = {
+        components_out: List[str] = []
+        validation_summary: Dict[str, Any] = {
             "validation_timestamp": datetime.now(timezone.utc).isoformat(),
-            "components_validated": [],
+            "components_validated": components_out,
             "overall_results": {},
             "total_validation_time": 0.0,
         }
@@ -921,7 +926,7 @@ class QualityController:
             self.logger.info("Running IoT sensor data validation")
             iot_results = self.iot_validator.validate(sensor_data)
             validation_summary["iot_validation"] = iot_results
-            validation_summary["components_validated"].append("iot_data")
+            components_out.append("iot_data")
 
         # Validate spatial results
         if spatial_results is not None:
@@ -930,14 +935,14 @@ class QualityController:
                 spatial_results.get("h3_aggregated_data", pd.DataFrame())
             )
             validation_summary["spatial_validation"] = spatial_val_results
-            validation_summary["components_validated"].append("spatial_data")
+            components_out.append("spatial_data")
 
         # Validate Bayesian inference
         if inference_results is not None:
             self.logger.info("Running Bayesian inference validation")
             bayes_results = self.bayesian_validator.validate(inference_results)
             validation_summary["bayesian_validation"] = bayes_results
-            validation_summary["components_validated"].append("bayesian_inference")
+            components_out.append("bayesian_inference")
 
         # Validate performance
         if performance_metrics is not None:
@@ -946,7 +951,7 @@ class QualityController:
                 performance_metrics
             )
             validation_summary["performance_validation"] = perf_results
-            validation_summary["components_validated"].append("performance")
+            components_out.append("performance")
 
         # Overall assessment
         validation_summary["overall_results"] = self._assess_overall_system_quality(
@@ -954,8 +959,9 @@ class QualityController:
         )
         validation_summary["total_validation_time"] = time.time() - start_time
 
+        overall_res = validation_summary["overall_results"]
         self.logger.info(
-            f"Comprehensive validation complete: {validation_summary['overall_results']['system_quality']}"
+            f"Comprehensive validation complete: {overall_res.get('system_quality') if isinstance(overall_res, dict) else 'unknown'}"
         )
 
         return validation_summary
@@ -1029,11 +1035,11 @@ class QualityController:
 
 def run_full_system_test(
     sensor_data: pd.DataFrame,
-    spatial_results: Dict,
-    inference_results: Dict,
-    performance_metrics: Dict,
-    config: Dict = None,
-    logger=None,
+    spatial_results: Dict[str, Any],
+    inference_results: Dict[str, Any],
+    performance_metrics: Dict[str, Any],
+    config: Optional[Dict[str, Any]] = None,
+    logger: Optional[logging.Logger] = None,
 ) -> Dict[str, Any]:
     """Run a complete system test with all validators."""
     qc = QualityController(config, logger)

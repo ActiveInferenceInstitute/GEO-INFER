@@ -64,7 +64,7 @@ class SpatialPermission:
         if self.geometry is None:
             return True  # No spatial restriction
         point = Point(lon, lat)
-        return self.geometry.contains(point)
+        return bool(self.geometry.contains(point))
 
     def filter_geodataframe(
         self, gdf: gpd.GeoDataFrame, geometry_col: str = "geometry"

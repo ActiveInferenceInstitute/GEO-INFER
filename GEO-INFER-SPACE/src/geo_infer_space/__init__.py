@@ -5,6 +5,8 @@ This module provides powerful spatial indexing, analytics, and integration
 with external geospatial tools and libraries through a unified, backend-agnostic API.
 """
 
+from typing import Any
+
 __version__ = "0.2.0"
 
 # Import the generic spatial interfaces
@@ -21,19 +23,25 @@ from .core.dispatcher import get_backend_dispatcher, configure_backends
 from .core.interfaces import UnsupportedSpatialOperationError
 
 # Import additional components with error handling
+PlaceAnalyzer: Any
 try:
-    from .place_analyzer import PlaceAnalyzer
+    from .place_analyzer import PlaceAnalyzer as _PlaceAnalyzer
+    PlaceAnalyzer = _PlaceAnalyzer
 except ImportError:
     PlaceAnalyzer = None
 
+SpatialUtils: Any
 try:
-    from .spatial_utils import SpatialUtils
+    from .spatial_utils import SpatialUtils as _SpatialUtils
+    SpatialUtils = _SpatialUtils
 except ImportError:
     SpatialUtils = None
 
 # Import the GIS submodule facade
+GISManager: Any
 try:
-    from .gis import GISManager
+    from .gis import GISManager as _GISManager
+    GISManager = _GISManager
 except ImportError:
     GISManager = None
 

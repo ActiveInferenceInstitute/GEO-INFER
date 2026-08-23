@@ -6,7 +6,17 @@ grid management, cell representation, analytics, and validation using H3 v4 API.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    cast,
+)
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
@@ -59,7 +69,7 @@ class H3Cell:
     properties: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize cell properties after creation."""
         if H3_AVAILABLE and self.index:
             try:
@@ -85,7 +95,7 @@ class H3Cell:
 
     @classmethod
     def from_coordinates(
-        cls, lat: float, lng: float, resolution: int, **properties
+        cls, lat: float, lng: float, resolution: int, **properties: Any
     ) -> "H3Cell":
         """
         Create H3Cell from latitude/longitude coordinates.
@@ -223,7 +233,7 @@ class H3Cell:
             )
 
         try:
-            return h3.grid_distance(self.index, other.index)
+            return cast(int, h3.grid_distance(self.index, other.index))
         except Exception as e:
             logger.error(
                 f"Failed to calculate distance between {self.index} and {other.index}: {e}"
@@ -244,7 +254,7 @@ class H3Cell:
             return False
 
         try:
-            return h3.are_neighbor_cells(self.index, other.index)
+            return cast(bool, h3.are_neighbor_cells(self.index, other.index))
         except Exception as e:
             logger.error(f"Failed to check neighbor relationship: {e}")
             return False
@@ -293,7 +303,11 @@ class H3Grid:
     including spatial analysis, aggregation, and visualization support.
     """
 
-    def __init__(self, cells: Optional[List[H3Cell]] = None, name: str = "H3Grid"):
+    def __init__(
+        self,
+        cells: Optional[List[H3Cell]] = None,
+        name: str = "H3Grid",
+    ) -> None:
         """
         Initialize H3Grid with optional cells.
 
@@ -307,11 +321,11 @@ class H3Grid:
         self._cell_index: Dict[str, H3Cell] = {}
         self._build_index()
 
-    def _build_index(self):
+    def _build_index(self) -> None:
         """Build internal index for fast cell lookup."""
         self._cell_index = {cell.index: cell for cell in self.cells}
 
-    def add_cell(self, cell: H3Cell):
+    def add_cell(self, cell: H3Cell) -> None:
         """Add a cell to the grid."""
         if cell.index not in self._cell_index:
             self.cells.append(cell)
@@ -557,7 +571,9 @@ class H3Grid:
             },
         }
 
-    def to_dataframe(self):
+    def to_dataframe(
+        self,
+    ) -> Union["pd.DataFrame", List[Dict[str, Any]]]:
         """
         Convert grid to pandas DataFrame.
 
@@ -568,9 +584,9 @@ class H3Grid:
             logger.warning(
                 "pandas not available. Returning list of dictionaries instead."
             )
-            data = []
+            data: List[Dict[str, Any]] = []
             for cell in self.cells:
-                row = {
+                row: Dict[str, Any] = {
                     "h3_index": cell.index,
                     "resolution": cell.resolution,
                     "latitude": cell.latitude,
@@ -602,7 +618,7 @@ class H3Grid:
     def __len__(self) -> int:
         return len(self.cells)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[H3Cell]:
         return iter(self.cells)
 
     def __str__(self) -> str:
@@ -620,7 +636,7 @@ class H3Analytics:
     for H3 hexagonal grids with comprehensive metrics and insights.
     """
 
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize analytics for an H3Grid.
 
@@ -638,7 +654,7 @@ class H3Analytics:
             Dictionary with basic statistics
         """
         if "basic_stats" in self.stats_cache:
-            return self.stats_cache["basic_stats"]
+            return cast(Dict[str, Any], self.stats_cache["basic_stats"])
 
         if not self.grid.cells:
             return {}
@@ -784,8 +800,8 @@ class H3Analytics:
             return {}
 
         resolutions = [cell.resolution for cell in self.grid.cells]
-        resolution_counts = {}
-        resolution_areas = {}
+        resolution_counts: Dict[int, int] = {}
+        resolution_areas: Dict[int, float] = {}
 
         for cell in self.grid.cells:
             res = cell.resolution
@@ -883,7 +899,7 @@ class H3Visualizer:
     of H3 hexagonal grids with various styling and analysis overlays.
     """
 
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize visualizer for an H3Grid.
 
@@ -892,7 +908,7 @@ class H3Visualizer:
         """
         self.grid = grid
 
-    def create_folium_map(self, **kwargs) -> Any:
+    def create_folium_map(self, **kwargs: Any) -> Any:
         """
         Create interactive Folium map of the H3 grid.
 
@@ -965,7 +981,7 @@ class H3Visualizer:
 
         return m
 
-    def save_geojson(self, filepath: str):
+    def save_geojson(self, filepath: str) -> None:
         """
         Save grid as GeoJSON file.
 
@@ -999,7 +1015,7 @@ class H3Validator:
         Returns:
             Validation result dictionary
         """
-        result = {
+        result: Dict[str, Any] = {
             "valid": False,
             "index": h3_index,
             "errors": [],
@@ -1057,7 +1073,7 @@ class H3Validator:
         Returns:
             Validation result dictionary
         """
-        result = {
+        result: Dict[str, Any] = {
             "valid": True,
             "latitude": lat,
             "longitude": lng,
@@ -1092,10 +1108,15 @@ class H3Validator:
         Returns:
             Validation result dictionary
         """
-        result = {"valid": True, "resolution": resolution, "errors": [], "warnings": []}
+        result: Dict[str, Any] = {
+            "valid": True,
+            "resolution": resolution,
+            "errors": [],
+            "warnings": [],
+        }
 
         if not isinstance(resolution, int):
-            result["valid"] = False
+            result["valid"] = False  # type: ignore[unreachable]
             result["errors"].append(
                 f"Resolution must be integer, got {type(resolution)}"
             )
@@ -1124,7 +1145,7 @@ class H3Validator:
         Returns:
             Comprehensive validation report
         """
-        result = {
+        result: Dict[str, Any] = {
             "valid": True,
             "grid_name": grid.name,
             "cell_count": len(grid.cells),

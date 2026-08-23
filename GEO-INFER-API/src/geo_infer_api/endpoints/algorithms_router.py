@@ -149,7 +149,7 @@ async def run_algorithm(
 
     # ProcessingContext is bound by the import above; _require_registry()
     # raises 503 first when the import failed, so this is safe at runtime.
-    context = ProcessingContext(  # type: ignore[possibly-unbound]
+    context = ProcessingContext(
         layers=request.layers,
         parameters=request.parameters,
     )

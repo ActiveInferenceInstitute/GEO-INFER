@@ -2,7 +2,7 @@
 Utility functions for working with GeoJSON data.
 """
 import math
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from geo_infer_api.models.geojson import (
     Feature, FeatureCollection, GeoJSONType, Polygon, PolygonFeature
@@ -145,11 +145,11 @@ def simplify_polygon(polygon: Polygon, tolerance: float = 0.01) -> Polygon:
         x2, y2 = line_end
 
         if x1 == x2:
-            return abs(x - x1)
+            return float(abs(x - x1))
 
         slope = (y2 - y1) / (x2 - x1)
         intercept = y1 - slope * x1
-        return abs(slope * x - y + intercept) / ((slope ** 2 + 1) ** 0.5)
+        return float(abs(slope * x - y + intercept) / ((slope ** 2 + 1) ** 0.5))
 
     simplified_rings = []
     for ring in polygon.coordinates:
@@ -188,8 +188,8 @@ def create_polygon_feature(
     if not validate_polygon_rings(coordinates):
         raise ValueError("Invalid polygon coordinates")
 
-    # Convert coordinates from list of tuples to list of lists for proper JSON serialization
-    json_coordinates = [[[lon, lat] for lon, lat in ring] for ring in coordinates]
+    # Convert coordinates from list of tuples to proper ring positions
+    json_coordinates = [[(lon, lat) for lon, lat in ring] for ring in coordinates]
 
     polygon = Polygon(type=GeoJSONType.POLYGON, coordinates=json_coordinates)
 
@@ -206,7 +206,8 @@ def _get_exterior_ring(polygon: Union[Polygon, Dict]) -> List[Tuple[float, float
     if isinstance(polygon, Polygon):
         return polygon.coordinates[0]
     elif isinstance(polygon, dict) and polygon.get("type") == GeoJSONType.POLYGON:
-        return polygon.get("coordinates", [[]])[0]
+        coords = polygon.get("coordinates", [[]])[0]
+        return cast("List[Tuple[float, float]]", coords)
     raise ValueError("Input must be a GeoJSON Polygon")
 
 
@@ -261,12 +262,12 @@ def create_buffer(
     buf_min_lat = min_lat - lat_delta
     buf_max_lat = max_lat + lat_delta
 
-    buffer_ring = [
-        [buf_min_lon, buf_min_lat],
-        [buf_max_lon, buf_min_lat],
-        [buf_max_lon, buf_max_lat],
-        [buf_min_lon, buf_max_lat],
-        [buf_min_lon, buf_min_lat],  # Close the ring
+    buffer_ring: List[Tuple[float, float]] = [
+        (buf_min_lon, buf_min_lat),
+        (buf_max_lon, buf_min_lat),
+        (buf_max_lon, buf_max_lat),
+        (buf_min_lon, buf_max_lat),
+        (buf_min_lon, buf_min_lat),  # Close the ring
     ]
 
     return Polygon(type=GeoJSONType.POLYGON, coordinates=[buffer_ring])
@@ -313,12 +314,12 @@ def calculate_intersection(polygons: List[Union[Polygon, Dict]]) -> Polygon:
     if inter_min_lon >= inter_max_lon or inter_min_lat >= inter_max_lat:
         raise ValueError("Polygons do not overlap — intersection is empty")
 
-    ring = [
-        [inter_min_lon, inter_min_lat],
-        [inter_max_lon, inter_min_lat],
-        [inter_max_lon, inter_max_lat],
-        [inter_min_lon, inter_max_lat],
-        [inter_min_lon, inter_min_lat],
+    ring: List[Tuple[float, float]] = [
+        (inter_min_lon, inter_min_lat),
+        (inter_max_lon, inter_min_lat),
+        (inter_max_lon, inter_max_lat),
+        (inter_min_lon, inter_max_lat),
+        (inter_min_lon, inter_min_lat),
     ]
     return Polygon(type=GeoJSONType.POLYGON, coordinates=[ring])
 
@@ -342,21 +343,21 @@ def calculate_union(polygons: List[Union[Polygon, Dict]]) -> Polygon:
     all_lons: List[float] = []
     all_lats: List[float] = []
     for poly in polygons:
-        ring = _get_exterior_ring(poly)
-        all_lons.extend(c[0] for c in ring)
-        all_lats.extend(c[1] for c in ring)
+        ext_ring = _get_exterior_ring(poly)
+        all_lons.extend(c[0] for c in ext_ring)
+        all_lats.extend(c[1] for c in ext_ring)
 
     u_min_lon, u_max_lon = min(all_lons), max(all_lons)
     u_min_lat, u_max_lat = min(all_lats), max(all_lats)
 
-    ring = [
-        [u_min_lon, u_min_lat],
-        [u_max_lon, u_min_lat],
-        [u_max_lon, u_max_lat],
-        [u_min_lon, u_max_lat],
-        [u_min_lon, u_min_lat],
+    union_ring: List[Tuple[float, float]] = [
+        (u_min_lon, u_min_lat),
+        (u_max_lon, u_min_lat),
+        (u_max_lon, u_max_lat),
+        (u_min_lon, u_max_lat),
+        (u_min_lon, u_min_lat),
     ]
-    return Polygon(type=GeoJSONType.POLYGON, coordinates=[ring])
+    return Polygon(type=GeoJSONType.POLYGON, coordinates=[union_ring])
 
 
 def calculate_distance(

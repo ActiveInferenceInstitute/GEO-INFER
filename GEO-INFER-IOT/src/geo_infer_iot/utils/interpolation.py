@@ -6,7 +6,7 @@ measurements to continuous spatial surfaces, with integration to H3 spatial inde
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, cast
 from datetime import datetime
 import numpy as np
 import h3
@@ -32,9 +32,9 @@ class SpatialInterpolation:
     - Cross-validation for interpolation quality assessment
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.interpolation_cache = {}
+        self.interpolation_cache: Dict[str, Any] = {}
 
         # Default interpolation parameters
         self.default_params = {
@@ -48,8 +48,8 @@ class SpatialInterpolation:
 
         logger.info("SpatialInterpolation initialized")
 
-    def interpolate_to_grid(self, measurements: List[Dict], target_grid: List[Tuple[float, float]],
-                          method: str = None) -> Dict:
+    def interpolate_to_grid(self, measurements: List[Dict[str, Any]], target_grid: List[Tuple[float, float]],
+                          method: Optional[str] = None) -> Dict[str, Any]:
         """
         Interpolate sensor measurements to a target grid.
 
@@ -68,16 +68,16 @@ class SpatialInterpolation:
             method = method or self.config.get('method', 'inverse_distance_weighted')
 
             # Extract sensor coordinates and values
-            sensor_coords = []
-            sensor_values = []
+            sensor_coords_list = []
+            sensor_values_list = []
 
             for measurement in measurements:
                 if 'latitude' in measurement and 'longitude' in measurement:
-                    sensor_coords.append([measurement['longitude'], measurement['latitude']])
-                    sensor_values.append(measurement['value'])
+                    sensor_coords_list.append([measurement['longitude'], measurement['latitude']])
+                    sensor_values_list.append(measurement['value'])
 
-            sensor_coords = np.array(sensor_coords)
-            sensor_values = np.array(sensor_values)
+            sensor_coords = np.array(sensor_coords_list)
+            sensor_values = np.array(sensor_values_list)
 
             if len(sensor_coords) < 3:
                 return {"error": "Need at least 3 sensor locations for interpolation"}
@@ -106,7 +106,7 @@ class SpatialInterpolation:
 
             # Calculate interpolation uncertainty
             uncertainty = self._calculate_interpolation_uncertainty(
-                sensor_coords, target_coords, method
+                sensor_coords, target_coords, method or "inverse_distance_weighted"
             )
 
             return {
@@ -192,7 +192,7 @@ class SpatialInterpolation:
                 nearest_values = self._nearest_neighbor(sensor_coords, sensor_values, target_coords)
                 interpolated[nan_mask] = nearest_values[nan_mask]
 
-            return interpolated
+            return cast(np.ndarray, interpolated)
 
         except Exception as e:
             logger.warning(f"Linear interpolation failed, using IDW: {e}")

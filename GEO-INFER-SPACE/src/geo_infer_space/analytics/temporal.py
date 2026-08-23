@@ -28,7 +28,7 @@ class TemporalAnalyzer:
     and time-series data.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the TemporalAnalyzer."""
         self.analysis_history: List[Dict[str, Any]] = []
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -115,10 +115,11 @@ class TemporalAnalyzer:
             logger.debug(f"Failed to parse timestamp '{timestamp_str}': {e}")
             return None
 
-    def _aggregate_by_temporal_resolution(self, temporal_data: List[Dict], 
-                                        resolution: str) -> Dict[str, Dict[str, float]]:
+    def _aggregate_by_temporal_resolution(
+        self, temporal_data: List[Dict], resolution: str
+    ) -> Dict[int, Dict[str, float]]:
         """Aggregate data by temporal resolution."""
-        aggregated = {}
+        aggregated: Dict[int, List[float]] = {}
         
         for item in temporal_data:
             ts = item['timestamp']
@@ -140,7 +141,7 @@ class TemporalAnalyzer:
             aggregated[key].append(val)
             
         # Calculate stats for each bucket
-        result = {}
+        result: Dict[int, Dict[str, float]] = {}
         for key, values in aggregated.items():
             if NUMPY_AVAILABLE:
                 stats = {

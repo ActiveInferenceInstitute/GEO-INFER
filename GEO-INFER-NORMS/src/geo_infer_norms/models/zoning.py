@@ -32,6 +32,13 @@ class ZoningCode:
     attributes: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    max_height: Optional[float] = None
+    max_density: Optional[float] = None
+    min_lot_size: Optional[float] = None
+    max_lot_coverage: Optional[float] = None
+    max_floor_area_ratio: float = 0.0
+    setbacks: Any = None
+    environmental_requirements: Any = None
     
     @classmethod
     def create(
@@ -204,6 +211,11 @@ class ZoningDistrict:
     expiration_date: Optional[datetime.date] = None
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    description: Optional[str] = None
+    area: float = 0.0
+    area_hectares: float = 0.0
+    population: float = 0.0
+    employment: float = 0.0
     
     @classmethod
     def create(
@@ -341,6 +353,7 @@ class LandUseType:
     typical_zoning_codes: List[str] = field(default_factory=list)
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    intensity: Optional[float] = None
     
     @classmethod
     def create(
@@ -436,7 +449,7 @@ class LandUseType:
             self.typical_zoning_codes.append(zoning_code)
             self.updated_at = datetime.datetime.now()
     
-    def is_compatible_with(self, use_id: str) -> bool:
+    def is_compatible_with(self, use_id: str) -> Optional[bool]:
         """
         Check if this land use type is compatible with another.
         

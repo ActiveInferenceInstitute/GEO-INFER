@@ -11,18 +11,20 @@ extending the general BaseAPIManager from GEO-INFER-SPACE with:
 
 import logging
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import requests
 
 try:
     from geo_infer_space.core.api_clients import BaseAPIManager
 except ImportError:
-    class BaseAPIManager:
+    class _BaseAPIManagerFallback:
         """Fallback base for API clients when geo_infer_space is unavailable."""
         def __init__(self, base_url: str) -> None:
             self.base_url = base_url
             self.session = requests.Session()
+
+    BaseAPIManager = _BaseAPIManagerFallback
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +67,7 @@ def _fetch_with_retry(
                 return {"error": {"type": "client_error", "status": response.status_code, "detail": response.text[:200]}}
 
             response.raise_for_status()
-            return response.json()
+            return cast(Dict[str, Any], response.json())
 
         except requests.exceptions.Timeout as exc:
             last_exc = exc

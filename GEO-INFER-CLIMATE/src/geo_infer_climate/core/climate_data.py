@@ -176,15 +176,21 @@ class ClimateDataProcessor:
             if 'time' in dataset[var].dims:
                 # Simple linear detrending
                 data = dataset[var].values
-                if data.ndim >= 2:
+                if data.ndim == 1:
+                    if not np.isnan(data).all():
+                        trend = np.polyfit(range(len(data)), data, 1)
+                        detrended[var].values = data - np.polyval(trend, range(len(data)))
+                elif data.ndim >= 2:
                     # Detrend along time dimension
                     time_axis = dataset[var].dims.index('time')
-                    for idx in np.ndindex(data.shape[:time_axis] + data.shape[time_axis+1:]):
-                        time_series = np.take(data, idx, axis=time_axis)
-                        if not np.isnan(time_series).all():
-                            trend = np.polyfit(range(len(time_series)), time_series, 1)
-                            detrended_values = time_series - np.polyval(trend, range(len(time_series)))
-                            np.put(detrended[var].values, idx, detrended_values, axis=time_axis)
+                    x = np.arange(data.shape[time_axis])
+                    # Fit and remove linear trend along time_axis
+                    def _detrend_1d(ts: np.ndarray) -> np.ndarray:
+                        if not np.isnan(ts).all():
+                            trend = np.polyfit(x, ts, 1)
+                            return ts - np.polyval(trend, x)
+                        return ts
+                    detrended[var].values = np.apply_along_axis(_detrend_1d, time_axis, data)
         
         return detrended
     

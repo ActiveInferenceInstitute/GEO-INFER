@@ -89,12 +89,15 @@ class StakeholderGovernanceCoordinator:
         Dict[str, Any]
             Comprehensive stakeholder analysis
         """
-        stakeholder_analysis = {
+        stakeholder_groups_out: List[Stakeholder] = []
+        power_dynamics_out: Dict[str, Any] = {}
+        interest_conflicts_out: List[Dict[str, Any]] = []
+        stakeholder_analysis: Dict[str, Any] = {
             'governance_domain': governance_domain,
             'spatial_extent': spatial_extent,
-            'stakeholder_groups': [],
-            'power_dynamics': {},
-            'interest_conflicts': [],
+            'stakeholder_groups': stakeholder_groups_out,
+            'power_dynamics': power_dynamics_out,
+            'interest_conflicts': interest_conflicts_out,
             'collaboration_potential': 0.0
         }
         
@@ -110,22 +113,20 @@ class StakeholderGovernanceCoordinator:
                 dependence_on_resource=self._estimate_dependence(category),
                 decision_power=self._estimate_decision_power(category)
             )
-            stakeholder_analysis['stakeholder_groups'].append(stakeholder)
+            stakeholder_groups_out.append(stakeholder)
             stakeholder_idx += 1
         
         # Analyze power dynamics
-        stakeholder_analysis['power_dynamics'] = self._analyze_power_dynamics(
-            stakeholder_analysis['stakeholder_groups']
-        )
+        power_dynamics_out = self._analyze_power_dynamics(stakeholder_groups_out)
+        stakeholder_analysis['power_dynamics'] = power_dynamics_out
         
         # Identify interest conflicts
-        stakeholder_analysis['interest_conflicts'] = self._identify_conflicts(
-            stakeholder_analysis['stakeholder_groups']
-        )
+        interest_conflicts_out = self._identify_conflicts(stakeholder_groups_out)
+        stakeholder_analysis['interest_conflicts'] = interest_conflicts_out
         
         # Assess collaboration potential
         stakeholder_analysis['collaboration_potential'] = self._assess_collaboration_potential(
-            stakeholder_analysis['stakeholder_groups']
+            stakeholder_groups_out
         )
         
         return stakeholder_analysis
@@ -266,7 +267,7 @@ class StakeholderGovernanceCoordinator:
             return 0.0
         mean = sum(values) / len(values)
         variance = sum((x - mean) ** 2 for x in values) / len(values)
-        return variance ** 0.5
+        return float(variance ** 0.5)
     
     def _identify_conflicts(self, stakeholders: List[Stakeholder]) -> List[Dict[str, Any]]:
         """Identify potential conflicts between stakeholders."""

@@ -29,10 +29,12 @@ def load_config(config_path: Union[str, Path]) -> Dict[str, Any]:
     suffix = config_path.suffix.lower()
     if suffix in ['.yaml', '.yml']:
         with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
+            data = yaml.safe_load(f)
+            return data if isinstance(data, dict) else {}
     elif suffix == '.json':
         with open(config_path, 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            return data if isinstance(data, dict) else {}
     else:
         raise ValueError(f"Unsupported configuration file format: {suffix}")
 

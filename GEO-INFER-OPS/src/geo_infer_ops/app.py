@@ -9,13 +9,14 @@ import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import make_asgi_app
+from typing import Any, Dict, Tuple
 
 from geo_infer_ops.utils import load_config, configure_logging, get_logger
 
 # Initialize logger
 logger = get_logger("geo_infer_ops.app")
 
-def create_app():
+def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     """Create and configure the FastAPI application."""
     # Load configuration
     try:
@@ -60,12 +61,12 @@ def create_app():
 
     # Health check endpoint
     @app.get("/health")
-    def health_check():
+    def health_check() -> Dict[str, str]:
         return {"status": "ok"}
 
     # Version endpoint
     @app.get("/version")
-    def version():
+    def version() -> Dict[str, str]:
         from geo_infer_ops import __version__
         return {"version": __version__}
 

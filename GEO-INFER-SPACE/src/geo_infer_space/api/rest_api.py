@@ -6,12 +6,13 @@ with automatic documentation, validation, and error handling.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict, List, Tuple, cast
 import math
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import geopandas as gpd
+import pandas as pd
 import json
 from shapely.geometry import shape, mapping
 
@@ -74,12 +75,14 @@ router = APIRouter(prefix="/api/v1", tags=["spatial"])
 
 
 @app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
+async def general_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
     """Handle general exceptions."""
     logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
-        content=ErrorResponse(
+        content=ErrorResponse(  # type: ignore[call-arg]
             error="InternalServerError",
             message="An internal server error occurred",
             details={"exception": str(exc)},
@@ -107,16 +110,16 @@ def geojson_to_gdf(
 def gdf_to_geojson(gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
     """Convert GeoDataFrame to GeoJSON."""
     try:
-        return json.loads(gdf.to_json())
+        return cast(Dict[str, Any], json.loads(gdf.to_json()))
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to convert to GeoJSON: {e}"
         )
 
 
-def _records_to_json(frame) -> list[Dict[str, Any]]:
+def _records_to_json(frame: pd.DataFrame) -> List[Dict[str, Any]]:
     """Convert tabular network results to JSON-safe records."""
-    records = frame.to_dict(orient="records")
+    records = cast(List[Dict[str, Any]], frame.to_dict(orient="records"))
     for record in records:
         for key, value in list(record.items()):
             if isinstance(value, float) and not math.isfinite(value):
@@ -124,7 +127,9 @@ def _records_to_json(frame) -> list[Dict[str, Any]]:
     return records
 
 
-def _reproject_geometry_series(series, source_crs, target_crs):
+def _reproject_geometry_series(
+    series: gpd.GeoSeries, source_crs: Any, target_crs: Any
+) -> gpd.GeoSeries:
     """Reproject a geometry series without NumPy scalar warnings.
 
     The installed GeoPandas/pyproj combination passes one-element NumPy
@@ -137,7 +142,9 @@ def _reproject_geometry_series(series, source_crs, target_crs):
 
     transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
 
-    def transform_coordinates(x, y, z=None):
+    def transform_coordinates(
+        x: Any, y: Any, z: Any = None
+    ) -> Tuple[Any, Any]:
         try:
             x_values = [float(value) for value in x]
             y_values = [float(value) for value in y]
@@ -152,7 +159,9 @@ def _reproject_geometry_series(series, source_crs, target_crs):
     ).set_crs(target_crs)
 
 
-def _buffer_geometry(gdf: gpd.GeoDataFrame, distance: float):
+def _buffer_geometry(
+    gdf: gpd.GeoDataFrame, distance: float
+) -> Tuple[gpd.GeoSeries, Dict[str, Any]]:
     """Buffer safely, using meters for geographic input CRS values.
 
     Shapely buffers coordinates in a planar coordinate system. Calling it
@@ -203,7 +212,9 @@ def _buffer_geometry(gdf: gpd.GeoDataFrame, distance: float):
 
 
 @router.post("/buffer", response_model=SpatialAnalysisResponse)
-async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
+async def buffer_analysis_endpoint(
+    request: BufferAnalysisRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform buffer analysis on geometries.
 
@@ -212,7 +223,9 @@ async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
     """
     try:
         # Convert GeoJSON to GeoDataFrame
-        gdf = geojson_to_gdf(request.data.model_dump(), request.crs)
+        gdf = geojson_to_gdf(
+            request.data.model_dump(), cast(str, request.crs)
+        )
 
         # Project geographic input locally so that buffers are metric and
         # accurate instead of operating directly on longitude/latitude.
@@ -251,7 +264,9 @@ async def buffer_analysis_endpoint(request: BufferAnalysisRequest):
 
 
 @router.post("/proximity", response_model=SpatialAnalysisResponse)
-async def proximity_analysis_endpoint(request: ProximityAnalysisRequest):
+async def proximity_analysis_endpoint(
+    request: ProximityAnalysisRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform proximity analysis between two sets of geometries.
 
@@ -260,8 +275,13 @@ async def proximity_analysis_endpoint(request: ProximityAnalysisRequest):
     """
     try:
         # Convert GeoJSON to GeoDataFrames
-        source_gdf = geojson_to_gdf(request.source_data.model_dump(), request.crs)
-        target_gdf = geojson_to_gdf(request.target_data.model_dump(), request.crs)
+        request_crs = cast(str, request.crs)
+        source_gdf = geojson_to_gdf(
+            request.source_data.model_dump(), request_crs
+        )
+        target_gdf = geojson_to_gdf(
+            request.target_data.model_dump(), request_crs
+        )
 
         # Perform proximity analysis
         result_gdf = proximity_analysis(source_gdf, target_gdf, request.max_distance)
@@ -289,7 +309,9 @@ async def proximity_analysis_endpoint(request: ProximityAnalysisRequest):
 
 
 @router.post("/interpolation", response_model=SpatialAnalysisResponse)
-async def interpolation_endpoint(request: InterpolationRequest):
+async def interpolation_endpoint(
+    request: InterpolationRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform spatial interpolation on point data.
 
@@ -298,7 +320,9 @@ async def interpolation_endpoint(request: InterpolationRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
+        points_gdf = geojson_to_gdf(
+            request.points.model_dump(), cast(str, request.crs)
+        )
 
         # Validate value column exists
         if request.value_column not in points_gdf.columns:
@@ -311,7 +335,9 @@ async def interpolation_endpoint(request: InterpolationRequest):
         result_gdf = spatial_interpolation(
             points_gdf=points_gdf,
             value_column=request.value_column,
-            grid_bounds=tuple(request.bounds),
+            grid_bounds=cast(
+                Tuple[float, float, float, float], tuple(request.bounds)
+            ),
             grid_resolution=request.resolution,
             method=request.method,
             **(request.parameters or {}),
@@ -341,7 +367,9 @@ async def interpolation_endpoint(request: InterpolationRequest):
 
 
 @router.post("/clustering", response_model=SpatialAnalysisResponse)
-async def clustering_endpoint(request: ClusteringRequest):
+async def clustering_endpoint(
+    request: ClusteringRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform spatial clustering analysis on point data.
 
@@ -350,7 +378,9 @@ async def clustering_endpoint(request: ClusteringRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
+        points_gdf = geojson_to_gdf(
+            request.points.model_dump(), cast(str, request.crs)
+        )
 
         # Perform clustering
         result_gdf = clustering_analysis(
@@ -392,7 +422,9 @@ async def clustering_endpoint(request: ClusteringRequest):
 
 
 @router.post("/hotspots", response_model=SpatialAnalysisResponse)
-async def hotspot_detection_endpoint(request: HotspotRequest):
+async def hotspot_detection_endpoint(
+    request: HotspotRequest,
+) -> SpatialAnalysisResponse:
     """
     Detect spatial hotspots and coldspots in point data.
 
@@ -401,7 +433,9 @@ async def hotspot_detection_endpoint(request: HotspotRequest):
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(request.points.model_dump(), request.crs)
+        points_gdf = geojson_to_gdf(
+            request.points.model_dump(), cast(str, request.crs)
+        )
 
         # Validate value column if provided
         if request.value_column and request.value_column not in points_gdf.columns:
@@ -451,7 +485,9 @@ async def hotspot_detection_endpoint(request: HotspotRequest):
 
 
 @router.post("/network", response_model=SpatialAnalysisResponse)
-async def network_analysis_endpoint(request: NetworkAnalysisRequest):
+async def network_analysis_endpoint(
+    request: NetworkAnalysisRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform network analysis operations.
 
@@ -460,7 +496,8 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
     """
     try:
         # Convert network to GeoDataFrame
-        network_gdf = geojson_to_gdf(request.network.model_dump(), request.crs)
+        request_crs = cast(str, request.crs)
+        network_gdf = geojson_to_gdf(request.network.model_dump(), request_crs)
         parameters = request.parameters or {}
 
         if request.analysis_type == "connectivity":
@@ -485,7 +522,9 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                     detail="Service area analysis requires origin points",
                 )
 
-            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            origins_gdf = geojson_to_gdf(
+                request.origins.model_dump(), request_crs
+            )
             center_point = origins_gdf.geometry.iloc[0]
 
             max_distance = parameters.get("max_distance", 1000)
@@ -517,9 +556,11 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                     status_code=400,
                     detail="shortest_path requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            origins_gdf = geojson_to_gdf(
+                request.origins.model_dump(), request_crs
+            )
             destinations_gdf = geojson_to_gdf(
-                request.destinations.model_dump(), request.crs
+                request.destinations.model_dump(), request_crs
             )
             if origins_gdf.empty or destinations_gdf.empty:
                 raise HTTPException(
@@ -552,9 +593,11 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                     status_code=400,
                     detail="routing requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            origins_gdf = geojson_to_gdf(
+                request.origins.model_dump(), request_crs
+            )
             destinations_gdf = geojson_to_gdf(
-                request.destinations.model_dump(), request.crs
+                request.destinations.model_dump(), request_crs
             )
             weight_column = parameters.get("weight_column", "length")
             result = routing_analysis(
@@ -579,9 +622,11 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
                     status_code=400,
                     detail="accessibility requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request.crs)
+            origins_gdf = geojson_to_gdf(
+                request.origins.model_dump(), request_crs
+            )
             destinations_gdf = geojson_to_gdf(
-                request.destinations.model_dump(), request.crs
+                request.destinations.model_dump(), request_crs
             )
             weight_column = parameters.get("weight_column", "length")
             result = accessibility_analysis(
@@ -616,7 +661,9 @@ async def network_analysis_endpoint(request: NetworkAnalysisRequest):
 
 
 @router.post("/h3", response_model=SpatialAnalysisResponse)
-async def h3_analysis_endpoint(request: H3AnalysisRequest):
+async def h3_analysis_endpoint(
+    request: H3AnalysisRequest,
+) -> SpatialAnalysisResponse:
     """
     Perform H3 hexagonal grid operations.
 
@@ -772,13 +819,13 @@ async def h3_analysis_endpoint(request: H3AnalysisRequest):
 
 
 @router.get("/health")
-async def health_check():
+async def health_check() -> Dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy", "service": "GEO-INFER-SPACE"}
 
 
 @router.get("/capabilities")
-async def get_capabilities():
+async def get_capabilities() -> Dict[str, List[str]]:
     """Get available analysis capabilities."""
     return {
         "vector_operations": [

@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 class ModuleIntegrator:
     """Helper class for integrating different GEO-INFER-MATH modules."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the module integrator."""
-        self._module_cache = {}
+        self._module_cache: Dict[str, Any] = {}
         self._dependency_graph = self._build_dependency_graph()
 
     def _build_dependency_graph(self) -> Dict[str, List[str]]:
@@ -103,7 +103,7 @@ class ModuleIntegrator:
         return available
 
     def create_integrated_analysis_pipeline(
-        self, analysis_type: str, **kwargs
+        self, analysis_type: str, **kwargs: Any
     ) -> Callable:
         """
         Create an integrated analysis pipeline combining multiple modules.
@@ -124,7 +124,7 @@ class ModuleIntegrator:
         else:
             raise ValueError(f"Unknown analysis type: {analysis_type}")
 
-    def _create_environmental_analysis_pipeline(self, **kwargs) -> Callable:
+    def _create_environmental_analysis_pipeline(self, **kwargs: Any) -> Callable:
         """Create environmental analysis pipeline."""
 
         def environmental_analysis(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -137,7 +137,7 @@ class ModuleIntegrator:
             Returns:
                 Comprehensive environmental analysis results
             """
-            results = {}
+            results: Dict[str, Any] = {}
 
             # 1. Spatial statistics analysis
             if "spatial_statistics" in self._get_available_modules():
@@ -160,13 +160,13 @@ class ModuleIntegrator:
 
             # 2. Interpolation analysis
             if "interpolation" in self._get_available_modules():
-                from geo_infer_math.core.interpolation import SpatialInterpolator
+                from geo_infer_math.core.interpolation import IDWInterpolator
 
                 coords = data.get("coordinates", np.array([]))
                 values = data.get("temperature", np.array([]))
 
                 if len(coords) > 0 and len(values) > 0:
-                    interpolator = SpatialInterpolator(method="idw")
+                    interpolator = IDWInterpolator()
                     interpolator.fit(coords, values)
 
                     # Create prediction grid
@@ -198,7 +198,7 @@ class ModuleIntegrator:
 
         return environmental_analysis
 
-    def _create_urban_analysis_pipeline(self, **kwargs) -> Callable:
+    def _create_urban_analysis_pipeline(self, **kwargs: Any) -> Callable:
         """Create urban analysis pipeline."""
 
         def urban_analysis(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -211,7 +211,7 @@ class ModuleIntegrator:
             Returns:
                 Comprehensive urban analysis results
             """
-            results = {}
+            results: Dict[str, Any] = {}
 
             # 1. Network analysis using graph theory
             if "graph_theory" in self._get_available_modules():
@@ -256,7 +256,7 @@ class ModuleIntegrator:
 
         return urban_analysis
 
-    def _create_health_analysis_pipeline(self, **kwargs) -> Callable:
+    def _create_health_analysis_pipeline(self, **kwargs: Any) -> Callable:
         """Create health analysis pipeline."""
 
         def health_analysis(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -269,7 +269,7 @@ class ModuleIntegrator:
             Returns:
                 Comprehensive health analysis results
             """
-            results = {}
+            results: Dict[str, Any] = {}
 
             # 1. Spatial statistics for disease patterns
             if "spatial_statistics" in self._get_available_modules():
@@ -321,7 +321,7 @@ class ModuleIntegrator:
         Returns:
             Validation results
         """
-        validation_results = {"compatible": True, "warnings": [], "errors": []}
+        validation_results: Dict[str, Any] = {"compatible": True, "warnings": [], "errors": []}
 
         # Define expected data formats for each module
         module_requirements = {
@@ -386,7 +386,7 @@ def create_integrated_workflow(
         Workflow results
     """
     integrator = ModuleIntegrator()
-    results = {}
+    results: Dict[str, Any] = {}
     current_data = data.copy()
 
     for step in analysis_steps:
@@ -431,7 +431,7 @@ def create_integrated_workflow(
 
             elif module == "interpolation":
                 if function == "spatial_interpolation":
-                    from geo_infer_math.core.interpolation import SpatialInterpolator
+                    from geo_infer_math.core.interpolation import IDWInterpolator
 
                     coords = current_data.get("coordinates")
                     values = current_data.get("values")
@@ -442,9 +442,7 @@ def create_integrated_workflow(
                         and values is not None
                         and query_points is not None
                     ):
-                        interpolator = SpatialInterpolator(
-                            method=parameters.get("method", "idw")
-                        )
+                        interpolator = IDWInterpolator()
                         interpolator.fit(coords, values)
                         results[step_name] = interpolator.predict(query_points)
 
@@ -620,83 +618,6 @@ def urban_planning_workflow(
     ]
 
     return create_integrated_workflow(analysis_steps, data)
-
-
-def verify_with_theorem_proving(
-    theorem: str, assumptions: Optional[List[str]] = None, backend: str = "z3"
-) -> Dict[str, Any]:
-    """
-    Verify mathematical operation using theorem proving.
-
-    Args:
-        theorem: Theorem statement
-        assumptions: List of assumptions
-        backend: Theorem prover backend
-
-    Returns:
-        Verification results
-    """
-    try:
-        from geo_infer_math.core.theorem_proving import TheoremProver
-
-        prover = TheoremProver(backend=backend)
-        result = prover.prove(theorem, assumptions)
-
-        return {
-            "verified": result.status.value == "proven",
-            "status": result.status.value,
-            "proof": result.proof,
-            "backend": result.backend,
-        }
-    except ImportError:
-        logger.warning("Theorem proving not available")
-        return {"verified": False, "error": "Theorem proving not available"}
-
-
-def information_theory_analysis(
-    coordinates: np.ndarray, values: np.ndarray, analysis_type: str = "entropy"
-) -> Dict[str, Any]:
-    """
-    Perform information theory analysis on spatial data.
-
-    Args:
-        coordinates: Spatial coordinates
-        values: Values at locations
-        analysis_type: Type of analysis ('entropy', 'mutual_information', 'kl_divergence')
-
-    Returns:
-        Analysis results
-    """
-    try:
-        from geo_infer_math.core.information_theory import (
-            spatial_entropy,
-            spatial_mutual_information,
-            spatial_kl_divergence,
-        )
-
-        if analysis_type == "entropy":
-            entropy = spatial_entropy(coordinates, values)
-            return {"entropy": entropy, "type": "spatial_entropy"}
-        if analysis_type == "mutual_information":
-            return {
-                "mutual_information": spatial_mutual_information(
-                    coordinates, values, coordinates, np.roll(values, 1)
-                ),
-                "type": "spatial_mutual_information",
-            }
-        if analysis_type == "kl_divergence":
-            reference = np.asarray(values, dtype=float)
-            shifted = np.roll(reference, 1)
-            return {
-                "kl_divergence": spatial_kl_divergence(
-                    coordinates, reference, coordinates, shifted
-                ),
-                "type": "spatial_kl_divergence",
-            }
-        raise ValueError(f"Unsupported information theory analysis: {analysis_type}")
-    except ImportError:
-        logger.warning("Information theory not available")
-        return {"error": "Information theory not available"}
 
 
 def public_health_workflow(

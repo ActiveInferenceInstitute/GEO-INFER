@@ -5,7 +5,16 @@ This module provides classes and methods for inferring, learning, and reasoning 
 normative compliance using probabilistic approaches.
 """
 
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    Any,
+    Callable,
+    cast,
+)
 import datetime
 import logging
 import uuid
@@ -23,12 +32,14 @@ class NormativeInference:
     and observations.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a NormativeInference instance."""
-        self.norms = {}  # Dictionary mapping norm IDs to norm definitions
-        self.observations = {}  # Dictionary mapping entity IDs to observations
-        self.prior_beliefs = {}  # Prior beliefs about norm compliance
-        self.norm_relationships = {}  # Relationships between norms
+        self.norms: Dict[str, Dict[str, Any]] = {}  # norm ID -> norm definitions
+        self.observations: Dict[
+            str, Dict[str, List[Dict[str, Any]]]
+        ] = {}  # entity ID -> behavior -> observations
+        self.prior_beliefs: Dict[Tuple[str, Optional[str]], float] = {}
+        self.norm_relationships: Dict[str, Dict[str, Any]] = {}
 
     def add_norm(
         self,
@@ -346,9 +357,11 @@ class NormativeInference:
             return probability
         else:
             # Infer compliance for all norms
-            result = {}
+            result: Dict[str, float] = {}
             for norm_id in self.norms:
-                result[norm_id] = self.infer_compliance(entity_id, norm_id)
+                result[norm_id] = cast(
+                    float, self.infer_compliance(entity_id, norm_id)
+                )
             return result
 
     def infer_network_compliance(self, entity_id: str, norm_id: str) -> float:
@@ -370,7 +383,9 @@ class NormativeInference:
             return 0.0
 
         # Get direct compliance probability
-        direct_probability = self.infer_compliance(entity_id, norm_id)
+        direct_probability = cast(
+            float, self.infer_compliance(entity_id, norm_id)
+        )
 
         # Find related norms
         related_norms = {}
@@ -386,7 +401,9 @@ class NormativeInference:
         # Calculate influence from related norms
         influences = []
         for related_id, (rel_type, strength) in related_norms.items():
-            related_prob = self.infer_compliance(entity_id, related_id)
+            related_prob = cast(
+                float, self.infer_compliance(entity_id, related_id)
+            )
 
             if rel_type == "supports":
                 # Supporting norms positively influence compliance
@@ -407,7 +424,7 @@ class NormativeInference:
             final_probability = (direct_probability * 0.7) + (avg_influence * 0.3)
             # Ensure probability is in [0, 1]
             final_probability = max(0.0, min(1.0, final_probability))
-            return final_probability
+            return cast(float, final_probability)
         else:
             return direct_probability
 
@@ -427,7 +444,9 @@ class NormativeInference:
         violations = []
 
         for norm_id, norm in self.norms.items():
-            compliance_prob = self.infer_compliance(entity_id, norm_id)
+            compliance_prob = cast(
+                float, self.infer_compliance(entity_id, norm_id)
+            )
 
             if compliance_prob < threshold:
                 violations.append(
@@ -465,7 +484,9 @@ class NormativeInference:
 
         # For each norm with low compliance, suggest improvements
         for norm_id, norm in self.norms.items():
-            compliance_prob = self.infer_compliance(entity_id, norm_id)
+            compliance_prob = cast(
+                float, self.infer_compliance(entity_id, norm_id)
+            )
 
             if compliance_prob < improvement_threshold:
                 # Simple heuristic: identify behaviors that might affect compliance
@@ -565,14 +586,14 @@ class SocialNormDiffusion:
     spread through social networks and spatial contexts.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a SocialNormDiffusion instance."""
-        self.entities = {}  # Dictionary mapping entity IDs to entity data
-        self.norms = {}  # Dictionary mapping norm IDs to norm data
-        self.social_connections = {}  # Social network connections
-        self.spatial_locations = {}  # Spatial locations of entities
-        self.adoption_state = {}  # Current adoption state of norms by entities
-        self.history = []  # History of diffusion process
+        self.entities: Dict[str, Dict[str, Any]] = {}
+        self.norms: Dict[str, Dict[str, Any]] = {}
+        self.social_connections: Dict[str, Dict[str, float]] = {}
+        self.spatial_locations: Dict[str, Point] = {}
+        self.adoption_state: Dict[str, Dict[str, bool]] = {}
+        self.history: List[Dict[str, Any]] = []
 
     def add_entity(
         self,
@@ -603,11 +624,11 @@ class SocialNormDiffusion:
         self,
         norm_id: str,
         name: str,
-        initial_adopters: List[str] = None,
+        initial_adopters: Optional[List[str]] = None,
         spatial_factor: float = 0.5,
         network_factor: float = 0.5,
         content_factor: float = 0.0,
-        attributes: Dict[str, Any] = None,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Add a norm to the diffusion model.
@@ -748,7 +769,7 @@ class SocialNormDiffusion:
         if normalization_factor > 0:
             total_influence /= normalization_factor
 
-        return total_influence
+        return cast(float, total_influence)
 
     def simulate_step(self) -> Dict[str, Any]:
         """
@@ -757,7 +778,10 @@ class SocialNormDiffusion:
         Returns:
             A dictionary with changes made in this step
         """
-        step_changes = {"time_step": len(self.history) + 1, "norm_changes": {}}
+        step_changes: Dict[str, Any] = {
+            "time_step": len(self.history) + 1,
+            "norm_changes": {},
+        }
 
         for norm_id in self.norms:
             norm_changes = []
@@ -838,7 +862,9 @@ class SocialNormDiffusion:
         Returns:
             Dictionary mapping norm IDs to lists of adoption rates
         """
-        history = {norm_id: [] for norm_id in self.norms}
+        history: Dict[str, List[float]] = {
+            norm_id: [] for norm_id in self.norms
+        }
 
         # Calculate initial state
         for norm_id in self.norms:

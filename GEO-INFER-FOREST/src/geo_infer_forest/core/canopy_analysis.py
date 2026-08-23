@@ -5,7 +5,7 @@ and canopy gap detection for forest monitoring applications.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, cast
 
 import numpy as np
 import xarray as xr
@@ -55,7 +55,7 @@ class CanopyAnalyzer:
         ndvi = xr.where(ndvi > 1.0, 1.0, ndvi)
         ndvi = xr.where(ndvi < -1.0, -1.0, ndvi)
         ndvi.name = "ndvi"
-        return ndvi
+        return cast(xr.DataArray, ndvi)
 
     def calculate_evi(
         self,
@@ -95,7 +95,7 @@ class CanopyAnalyzer:
         evi = xr.where(evi > 1.0, 1.0, evi)
         evi = xr.where(evi < -1.0, -1.0, evi)
         evi.name = "evi"
-        return evi
+        return cast(xr.DataArray, evi)
 
     def estimate_canopy_cover(
         self,
@@ -128,7 +128,7 @@ class CanopyAnalyzer:
 
         canopy_cover = fvc * 100.0
         canopy_cover.name = "canopy_cover_pct"
-        return canopy_cover
+        return cast(xr.DataArray, canopy_cover)
 
     def estimate_leaf_area_index(
         self,
@@ -154,7 +154,7 @@ class CanopyAnalyzer:
         lai = -np.log(1.0 - fvc) / k_ext
         lai = xr.where(lai < 0.0, 0.0, lai)
         lai.name = "lai"
-        return lai
+        return cast(xr.DataArray, lai)
 
     def detect_canopy_gaps(
         self,
@@ -226,4 +226,4 @@ class CanopyAnalyzer:
         density = xr.where(ndvi >= 0.6, 3, density)
         density = xr.where(ndvi >= 0.8, 4, density)
         density.name = "canopy_density_class"
-        return density
+        return cast(xr.DataArray, density)

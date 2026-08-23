@@ -22,7 +22,7 @@ from ..models.data_models import SPMResult
 
 
 def create_interactive_map(
-    spm_result: SPMResult, contrast_idx: int = 0, map_type: str = "scattergeo", **kwargs
+    spm_result: SPMResult, contrast_idx: int = 0, map_type: str = "scattergeo", **kwargs: Any
 ) -> Optional[Any]:
     """
     Create interactive geographical map of SPM results.
@@ -119,7 +119,7 @@ def create_interactive_map(
                     symbol=(
                         "star"
                         if (
-                            hasattr(contrast, "significance_mask")
+                            contrast is not None
                             and contrast.significance_mask is not None
                             and np.any(contrast.significance_mask)
                         )

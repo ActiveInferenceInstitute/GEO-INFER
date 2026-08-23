@@ -6,7 +6,7 @@ patterns, and network management for IoT sensor deployments.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Set, cast
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
@@ -90,7 +90,7 @@ class NetworkNode(BaseModel):
     packets_received: int = Field(0, description="Total packets received")
     packet_loss_rate: float = Field(0.0, description="Packet loss rate percentage")
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         # Auto-generate H3 index if coordinates provided
         if (
@@ -100,12 +100,12 @@ class NetworkNode(BaseModel):
         ):
             self.h3_index = h3.latlng_to_cell(self.latitude, self.longitude, 8)
 
-    def add_connection(self, node_id: str):
+    def add_connection(self, node_id: str) -> None:
         """Add a connection to another node."""
         if node_id not in self.connected_nodes:
             self.connected_nodes.append(node_id)
 
-    def remove_connection(self, node_id: str):
+    def remove_connection(self, node_id: str) -> None:
         """Remove a connection to another node."""
         if node_id in self.connected_nodes:
             self.connected_nodes.remove(node_id)
@@ -164,6 +164,7 @@ class NetworkLink(BaseModel):
     signal_quality: float = Field(1.0, description="Signal quality score")
     reliability: float = Field(1.0, description="Link reliability score")
     utilization: float = Field(0.0, description="Link utilization percentage")
+    packet_loss_rate: float = Field(0.0, description="Link packet loss rate percentage")
 
     # Status
     status: str = Field("active", description="Link status")
@@ -227,12 +228,12 @@ class NetworkTopology(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         # Update derived fields
         self._update_derived_fields()
 
-    def _update_derived_fields(self):
+    def _update_derived_fields(self) -> None:
         """Update derived fields based on current nodes and links."""
         self.total_nodes = len(self.nodes)
         self.active_nodes = len(
@@ -246,7 +247,7 @@ class NetworkTopology(BaseModel):
         # Calculate network metrics
         self._calculate_network_metrics()
 
-    def _calculate_network_metrics(self):
+    def _calculate_network_metrics(self) -> None:
         """Calculate network performance metrics."""
         if not self.links:
             return
@@ -277,12 +278,12 @@ class NetworkTopology(BaseModel):
             else 1.0
         )
 
-    def add_node(self, node: NetworkNode):
+    def add_node(self, node: NetworkNode) -> None:
         """Add a node to the network."""
         self.nodes[node.node_id] = node
         self._update_derived_fields()
 
-    def remove_node(self, node_id: str):
+    def remove_node(self, node_id: str) -> None:
         """Remove a node from the network."""
         if node_id in self.nodes:
             del self.nodes[node_id]
@@ -298,7 +299,7 @@ class NetworkTopology(BaseModel):
 
             self._update_derived_fields()
 
-    def add_link(self, link: NetworkLink):
+    def add_link(self, link: NetworkLink) -> None:
         """Add a link to the network."""
         self.links[link.link_id] = link
 
@@ -310,7 +311,7 @@ class NetworkTopology(BaseModel):
 
         self._update_derived_fields()
 
-    def remove_link(self, link_id: str):
+    def remove_link(self, link_id: str) -> None:
         """Remove a link from the network."""
         if link_id in self.links:
             link = self.links[link_id]
@@ -335,10 +336,10 @@ class NetworkTopology(BaseModel):
         }
 
         # Find connected components
-        visited = set()
-        components = []
+        visited: Set[str] = set()
+        components: List[List[str]] = []
 
-        def dfs(node_id: str, component: List[str]):
+        def dfs(node_id: str, component: List[str]) -> None:
             if node_id in visited:
                 return
             visited.add(node_id)
@@ -348,7 +349,7 @@ class NetworkTopology(BaseModel):
 
         for node_id in self.nodes:
             if node_id not in visited:
-                component = []
+                component: List[str] = []
                 dfs(node_id, component)
                 if component:
                     components.append(component)
@@ -382,7 +383,7 @@ class NetworkTopology(BaseModel):
                 return None  # Network is not fully connected
 
             # Calculate diameter
-            return nx.diameter(G)
+            return cast(int, nx.diameter(G))
 
         except Exception as e:
             logger.warning(f"Error calculating network diameter: {e}")
@@ -462,7 +463,7 @@ class NetworkEvent(BaseModel):
     session_id: Optional[str] = Field(None, description="Associated session ID")
 
     @field_validator("severity")
-    def validate_severity(cls, v):
+    def validate_severity(cls, v: str) -> str:
         """Validate event severity."""
         valid_severities = ["debug", "info", "warning", "error", "critical"]
         if v not in valid_severities:
@@ -516,7 +517,7 @@ class NetworkConfiguration(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     @field_validator("deployment_mode")
-    def validate_deployment_mode(cls, v):
+    def validate_deployment_mode(cls, v: str) -> str:
         """Validate deployment mode."""
         valid_modes = ["development", "staging", "production", "testing"]
         if v not in valid_modes:
@@ -571,7 +572,7 @@ class NetworkPerformance(BaseModel):
         value: float,
         node_id: Optional[str] = None,
         link_id: Optional[str] = None,
-    ):
+    ) -> None:
         """Add a performance metric."""
         if node_id:
             if node_id not in self.node_metrics:

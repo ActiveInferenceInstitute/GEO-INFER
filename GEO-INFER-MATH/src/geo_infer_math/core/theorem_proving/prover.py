@@ -5,7 +5,7 @@ This module provides the main theorem prover interface supporting
 multiple backends (Z3, Isabelle, Lean) for spatial mathematics.
 """
 
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict, Union, Callable
 import logging
 from dataclasses import dataclass
 from enum import Enum
@@ -43,7 +43,7 @@ class TheoremProver:
     Supports multiple backends including Z3, Isabelle, and Lean.
     """
 
-    def __init__(self, backend: str = "z3", timeout: float = 10.0):
+    def __init__(self, backend: str = "z3", timeout: float = 10.0) -> None:
         """
         Initialize theorem prover.
 
@@ -53,10 +53,10 @@ class TheoremProver:
         """
         self.backend = backend
         self.timeout = timeout
-        self._prover = None
+        self._prover: Any = None
         self._initialize_backend()
 
-    def _initialize_backend(self):
+    def _initialize_backend(self) -> None:
         """Initialize the selected backend."""
         if self.backend == "z3":
             try:
@@ -82,7 +82,7 @@ class TheoremProver:
             raise ValueError(f"Unsupported theorem prover backend: {self.backend}")
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """
         Attempt to prove a theorem.
@@ -122,7 +122,7 @@ class TheoremProver:
                 time_taken=time.time() - start_time,
             )
 
-    def _prove_z3(self, theorem: str, assumptions: List[str], **kwargs) -> ProofResult:
+    def _prove_z3(self, theorem: str, assumptions: List[str], **kwargs: Any) -> ProofResult:
         """Prove using Z3 backend."""
         try:
             z3 = self._prover
@@ -208,7 +208,7 @@ class TheoremProver:
             )
 
     def _prove_numpy(
-        self, theorem: str, assumptions: List[str], **kwargs
+        self, theorem: str, assumptions: List[str], **kwargs: Any
     ) -> ProofResult:
         """Prove using numpy backend (limited capabilities)."""
         # Numpy backend can only verify numerical properties
@@ -236,7 +236,7 @@ class TheoremProver:
             backend="numpy",
         )
 
-    def verify(self, theorem: str, proof: str, **kwargs) -> bool:
+    def verify(self, theorem: str, proof: str, **kwargs: Any) -> bool:
         """
         Verify a given proof.
 
@@ -263,7 +263,7 @@ class TheoremProver:
             return False
 
     def disprove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """
         Attempt to find a counterexample (disprove).
@@ -288,7 +288,7 @@ class TheoremProver:
             )
 
 
-def create_prover(backend: str = "z3", **kwargs) -> TheoremProver:
+def create_prover(backend: str = "z3", **kwargs: Any) -> TheoremProver:
     """
     Create a theorem prover instance.
 

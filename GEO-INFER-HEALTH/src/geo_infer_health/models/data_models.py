@@ -8,7 +8,9 @@ class Location(BaseModel):
 
     latitude: Optional[float] = Field(..., description="Latitude of the location.")
     longitude: Optional[float] = Field(..., description="Longitude of the location.")
-    crs: str = Field("EPSG:4326", description="Coordinate Reference System.")
+    crs: str = Field(
+        default="EPSG:4326", description="Coordinate Reference System."
+    )
 
     @field_validator("latitude")
     @classmethod
@@ -35,16 +37,16 @@ class HealthFacility(BaseModel):
     )
     location: Location = Field(..., description="Geographic location of the facility.")
     capacity: Optional[int] = Field(
-        None, description="Capacity of the facility (e.g., number of beds)."
+        default=None, description="Capacity of the facility (e.g., number of beds)."
     )
     services_offered: List[str] = Field(
         default_factory=list, description="List of services offered."
     )
     operating_hours: Optional[str] = Field(
-        None, description="Operating hours of the facility."
+        default=None, description="Operating hours of the facility."
     )
     contact_info: Optional[Dict[str, str]] = Field(
-        None, description="Contact information (e.g., phone, email)."
+        default=None, description="Contact information (e.g., phone, email)."
     )
 
     @field_validator("capacity")
@@ -66,14 +68,18 @@ class DiseaseReport(BaseModel):
         ..., description="Geographic location of the reported case."
     )
     report_date: datetime = Field(..., description="Date and time of the report.")
-    case_count: int = Field(1, description="Number of cases in this report.", ge=1)
+    case_count: int = Field(
+        default=1, description="Number of cases in this report.", ge=1
+    )
     source: Optional[str] = Field(
-        None, description="Source of the report (e.g., hospital, lab)."
+        default=None, description="Source of the report (e.g., hospital, lab)."
     )
     demographics: Optional[Dict[str, Any]] = Field(
-        None, description="Anonymized demographic data if available."
+        default=None, description="Anonymized demographic data if available."
     )
-    notes: Optional[str] = Field(None, description="Additional notes for the report.")
+    notes: Optional[str] = Field(
+        default=None, description="Additional notes for the report."
+    )
 
 
 class PopulationData(BaseModel):
@@ -85,10 +91,10 @@ class PopulationData(BaseModel):
     # geometry: Any # Would typically be a GeoJSON dict or a Shapely geometry object
     population_count: int = Field(..., description="Total population in the area.")
     age_distribution: Optional[Dict[str, int]] = Field(
-        None, description="Population count by age group."
+        default=None, description="Population count by age group."
     )
     other_demographics: Optional[Dict[str, Any]] = Field(
-        None, description="Other relevant demographic splits."
+        default=None, description="Other relevant demographic splits."
     )
 
     @field_validator("population_count")

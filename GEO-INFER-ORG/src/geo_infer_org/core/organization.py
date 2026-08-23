@@ -192,7 +192,7 @@ class OrganizationModel:
         Returns:
             List of ancestor OrgUnit objects, from parent to root.
         """
-        ancestors = []
+        ancestors: List[OrgUnit] = []
         current = self._units.get(unit_id)
         if current is None:
             return ancestors

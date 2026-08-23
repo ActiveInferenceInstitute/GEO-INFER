@@ -136,7 +136,7 @@ class UserCognitiveProfile:
         Returns:
             Suitability score (0-1)
         """
-        suitability_factors = []
+        suitability_factors: List[float] = []
 
         # Spatial expertise match
         required_expertise = task_requirements.get('required_expertise', 0.5)
@@ -175,7 +175,7 @@ class UserCognitiveProfile:
         Returns:
             Dictionary of personalized recommendations
         """
-        recommendations = {
+        recommendations: Dict[str, Any] = {
             'visualization_suggestions': [],
             'navigation_aids': [],
             'complexity_adjustments': [],
@@ -253,7 +253,7 @@ class UserCognitiveProfile:
         Returns:
             Dictionary of adaptation recommendations
         """
-        adaptations = {
+        adaptations: Dict[str, Any] = {
             'expertise_adjustments': [],
             'style_modifications': [],
             'load_optimizations': []
@@ -422,7 +422,7 @@ class ProfileManager:
             config: Configuration parameters for profile management
         """
         self.config = config or {}
-        self.profiles = {}  # user_id -> UserCognitiveProfile
+        self.profiles: Dict[str, UserCognitiveProfile] = {}  # user_id -> UserCognitiveProfile
         self.profile_learning_enabled = self.config.get('learning_enabled', True)
         self.adaptation_enabled = self.config.get('adaptation_enabled', True)
 

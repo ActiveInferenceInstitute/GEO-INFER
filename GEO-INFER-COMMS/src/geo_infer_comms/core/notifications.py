@@ -6,7 +6,7 @@ with geospatial filtering, multi-channel delivery, and intelligent routing.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set
+from typing import Dict, List, Optional, Callable, Any, Set, Literal, cast
 import asyncio
 import json
 import logging
@@ -136,7 +136,7 @@ class NotificationManager:
             content=request.content,
             notification_type=request.notification_type,
             priority=request.priority,
-            delivery_method=request.delivery_method,
+            delivery_methods=cast(List[str], request.delivery_method),
             recipients=request.recipients,
             geospatial_context=request.geospatial_context
         )
@@ -560,7 +560,10 @@ class AlertSystem:
             recipients=rule.recipients,
             notification_type=NotificationType.WARNING,
             priority=rule.priority,
-            delivery_method=rule.delivery_methods,
+            delivery_method=cast(
+                "list[Literal['in_app', 'email', 'sms', 'push']]",
+                rule.delivery_methods,
+            ),
             geospatial_context=geospatial_context.to_dict() if geospatial_context else None
         )
 
@@ -747,7 +750,7 @@ class NotificationFormatter:
     @staticmethod
     def format_for_geospatial_context(notification: NotificationResponse) -> Dict[str, Any]:
         """Format notification with geospatial context information."""
-        formatted = {
+        formatted: Dict[str, Any] = {
             "notification_id": notification.notification_id,
             "title": notification.title,
             "content": notification.content,
@@ -893,6 +896,9 @@ class EmergencyAlertSystem:
 
     def _send_resolution_notifications(self, emergency: EmergencyAlert) -> None:
         """Send notifications when emergency is resolved."""
+        duration_minutes = (
+            cast(datetime, emergency.resolved_at) - emergency.declared_at
+        ).total_seconds() / 60
         notification_request = NotificationRequest(
             title=f"Emergency Resolved: {emergency.emergency_type}",
             content=f"""
@@ -900,7 +906,7 @@ class EmergencyAlertSystem:
 
             Type: {emergency.emergency_type}
             Location: {emergency.location.latitude}, {emergency.location.longitude}
-            Duration: {(emergency.resolved_at - emergency.declared_at).total_seconds() / 60:.1f} minutes
+            Duration: {duration_minutes:.1f} minutes
             """,
             recipients=["emergency_contacts"],  # Would be actual contact list
             notification_type=NotificationType.SUCCESS,

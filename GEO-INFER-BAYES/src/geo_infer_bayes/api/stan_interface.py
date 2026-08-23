@@ -14,11 +14,11 @@ class StanInterface:
     and Stan's Bayesian computation capabilities.
     """
 
-    def __init__(self, model_config: Optional[Dict[str, Any]] = None):
+    def __init__(self, model_config: Optional[Dict[str, Any]] = None) -> None:
         self.model_config = model_config or {}
         self.stan_model = None
 
-    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs) -> str:
+    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs: Any) -> str:
         """
         Create a Stan model for spatial Gaussian Process.
 
@@ -65,7 +65,7 @@ class StanInterface:
         return stan_code
 
     def sample(
-        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs
+        self, n_samples: int = 1000, n_warmup: int = 500, **kwargs: Any
     ) -> Dict[str, np.ndarray]:
         """
         Sample from the Stan model.

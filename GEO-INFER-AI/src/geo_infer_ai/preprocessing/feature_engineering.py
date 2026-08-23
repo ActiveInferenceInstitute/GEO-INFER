@@ -193,13 +193,19 @@ class GeospatialFeatureEngineer:
         else:
             X_transformed = X_df.values
 
+        if isinstance(X, np.ndarray):
+            orig_num_features = X.shape[1] if X.ndim > 1 else 1
+        elif isinstance(X, pd.DataFrame):
+            orig_num_features = len(X.columns)
+        else:
+            orig_num_features = len(X)
         logger.info(
             f"Feature engineering completed. "
-            f"Original features: {X.shape[1] if hasattr(X, 'shape') else len(X.columns)}, "
+            f"Original features: {orig_num_features}, "
             f"Final features: {X_transformed.shape[1]}"
         )
 
-        return X_transformed
+        return np.asarray(X_transformed)
 
     def transform(
         self,
@@ -262,7 +268,7 @@ class GeospatialFeatureEngineer:
         else:
             X_transformed = X_df.values
 
-        return X_transformed
+        return np.asarray(X_transformed)
 
     def get_feature_names(self) -> Optional[List[str]]:
         """

@@ -320,33 +320,34 @@ def validate_config(config: Union[Dict[str, Any], AntModuleConfig]) -> bool:
 
 def _load_from_environment() -> Dict[str, Any]:
     """Load configuration from environment variables."""
-    config = {}
+    config: Dict[str, Any] = {}
 
     # Swarm configuration
-    if os.getenv("ANT_POPULATION_SIZE"):
-        config.setdefault("swarm", {})["population_size"] = int(
-            os.getenv("ANT_POPULATION_SIZE")
-        )
-    if os.getenv("ANT_AGENT_TYPES"):
-        config.setdefault("swarm", {})["agent_types"] = os.getenv(
-            "ANT_AGENT_TYPES"
-        ).split(",")
+    population_size = os.getenv("ANT_POPULATION_SIZE")
+    if population_size:
+        config.setdefault("swarm", {})["population_size"] = int(population_size)
+    agent_types_env = os.getenv("ANT_AGENT_TYPES")
+    if agent_types_env:
+        config.setdefault("swarm", {})["agent_types"] = agent_types_env.split(",")
 
     # Algorithm configuration
-    if os.getenv("ANT_ACO_ANTS"):
+    aco_ants = os.getenv("ANT_ACO_ANTS")
+    if aco_ants:
         config.setdefault("algorithms", {}).setdefault("aco", {})["number_of_ants"] = (
-            int(os.getenv("ANT_ACO_ANTS"))
+            int(aco_ants)
         )
 
     # Stigmergy configuration
-    if os.getenv("ANT_PHEROMONE_EVAPORATION"):
+    evaporation_rate = os.getenv("ANT_PHEROMONE_EVAPORATION")
+    if evaporation_rate:
         config.setdefault("stigmergy", {})["pheromone_evaporation_rate"] = float(
-            os.getenv("ANT_PHEROMONE_EVAPORATION")
+            evaporation_rate
         )
 
     # Logging configuration
-    if os.getenv("ANT_LOG_LEVEL"):
-        config.setdefault("logging", {})["level"] = os.getenv("ANT_LOG_LEVEL")
+    log_level = os.getenv("ANT_LOG_LEVEL")
+    if log_level:
+        config.setdefault("logging", {})["level"] = log_level
 
     return config
 
@@ -477,7 +478,7 @@ def _merge_with_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     # Deep merge
-    merged = {
+    merged: Dict[str, Any] = {
         key: value.copy() if isinstance(value, dict) else value
         for key, value in defaults.items()
     }

@@ -8,7 +8,7 @@ message exchanges in nested geospatial systems.
 import logging
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Optional, Set, Tuple, cast
 from enum import Enum
 from abc import ABC, abstractmethod
 
@@ -78,7 +78,7 @@ class MessageProtocol(ABC):
     Abstract base class for message protocols.
     """
 
-    def __init__(self, protocol_id: str, config: ProtocolConfig):
+    def __init__(self, protocol_id: str, config: ProtocolConfig) -> None:
         """
         Initialize protocol.
 
@@ -89,7 +89,7 @@ class MessageProtocol(ABC):
         self.protocol_id = protocol_id
         self.config = config
         self.created_at = datetime.now()
-        self.message_broker = None  # Set externally
+        self.message_broker: Any = None  # Set externally
 
         # Protocol state
         self.active_sessions: Dict[str, Dict[str, Any]] = {}
@@ -103,7 +103,7 @@ class MessageProtocol(ABC):
 
     @abstractmethod
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """
         Send a message using this protocol.
@@ -122,7 +122,7 @@ class MessageProtocol(ABC):
         )
 
     @abstractmethod
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """
         Handle an incoming message.
 
@@ -138,7 +138,7 @@ class MessageProtocol(ABC):
         )
 
     def create_session(
-        self, session_id: str, participants: List[str], **kwargs
+        self, session_id: str, participants: List[str], **kwargs: Any
     ) -> bool:
         """
         Create a protocol session.
@@ -198,7 +198,9 @@ class RequestResponseProtocol(MessageProtocol):
     Request-Response protocol implementation.
     """
 
-    def __init__(self, protocol_id: str, config: Optional[ProtocolConfig] = None):
+    def __init__(
+        self, protocol_id: str, config: Optional[ProtocolConfig] = None
+    ) -> None:
         if config is None:
             config = ProtocolConfig(
                 protocol_type=ProtocolType.REQUEST_RESPONSE,
@@ -210,7 +212,7 @@ class RequestResponseProtocol(MessageProtocol):
         self.pending_requests: Dict[str, Dict[str, Any]] = {}
 
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """Send a request message."""
         if not self.message_broker:
@@ -236,9 +238,9 @@ class RequestResponseProtocol(MessageProtocol):
         }
 
         self.statistics["messages_sent"] += 1
-        return message_id
+        return cast(str, message_id)
 
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """Handle incoming request or response."""
         if message.message_type.value == "response":
             # Handle response
@@ -260,7 +262,7 @@ class RequestResponseProtocol(MessageProtocol):
             self.statistics["messages_received"] += 1
             return message.payload
 
-    def cleanup_expired_requests(self):
+    def cleanup_expired_requests(self) -> None:
         """Clean up expired requests."""
         now = datetime.now()
         expired = [
@@ -279,7 +281,9 @@ class PublishSubscribeProtocol(MessageProtocol):
     Publish-Subscribe protocol implementation.
     """
 
-    def __init__(self, protocol_id: str, config: Optional[ProtocolConfig] = None):
+    def __init__(
+        self, protocol_id: str, config: Optional[ProtocolConfig] = None
+    ) -> None:
         if config is None:
             config = ProtocolConfig(
                 protocol_type=ProtocolType.PUBLISH_SUBSCRIBE, guarantee_delivery=False
@@ -331,7 +335,7 @@ class PublishSubscribeProtocol(MessageProtocol):
         return True
 
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """Publish a message to a topic."""
         topic = kwargs.get("topic", "default")
@@ -362,7 +366,7 @@ class PublishSubscribeProtocol(MessageProtocol):
         self.statistics["messages_sent"] += len(message_ids)
         return f"published_to_{len(message_ids)}_subscribers"
 
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """Handle incoming published message."""
         self.statistics["messages_received"] += 1
         return message.payload
@@ -373,7 +377,9 @@ class FireAndForgetProtocol(MessageProtocol):
     Fire-and-Forget protocol implementation.
     """
 
-    def __init__(self, protocol_id: str, config: Optional[ProtocolConfig] = None):
+    def __init__(
+        self, protocol_id: str, config: Optional[ProtocolConfig] = None
+    ) -> None:
         if config is None:
             config = ProtocolConfig(
                 protocol_type=ProtocolType.FIRE_AND_FORGET,
@@ -384,7 +390,7 @@ class FireAndForgetProtocol(MessageProtocol):
         super().__init__(protocol_id, config)
 
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """Send a fire-and-forget message."""
         if not self.message_broker:
@@ -399,9 +405,9 @@ class FireAndForgetProtocol(MessageProtocol):
         )
 
         self.statistics["messages_sent"] += 1
-        return message_id
+        return cast(str, message_id)
 
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """Handle incoming fire-and-forget message."""
         self.statistics["messages_received"] += 1
         return message.payload
@@ -412,7 +418,9 @@ class StreamingProtocol(MessageProtocol):
     Streaming protocol implementation.
     """
 
-    def __init__(self, protocol_id: str, config: Optional[ProtocolConfig] = None):
+    def __init__(
+        self, protocol_id: str, config: Optional[ProtocolConfig] = None
+    ) -> None:
         if config is None:
             config = ProtocolConfig(
                 protocol_type=ProtocolType.STREAMING,
@@ -424,7 +432,7 @@ class StreamingProtocol(MessageProtocol):
         self.streams: Dict[str, Dict[str, Any]] = {}
 
     def create_stream(
-        self, stream_id: str, sender_id: str, recipient_id: str, **kwargs
+        self, stream_id: str, sender_id: str, recipient_id: str, **kwargs: Any
     ) -> bool:
         """
         Create a streaming session.
@@ -455,7 +463,7 @@ class StreamingProtocol(MessageProtocol):
         return True
 
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """Send a message in a stream."""
         stream_id = kwargs.get("stream_id")
@@ -486,7 +494,7 @@ class StreamingProtocol(MessageProtocol):
         self.statistics["messages_sent"] += 1
         return f"stream_{stream_id}_seq_{stream['message_count']}"
 
-    def _flush_stream_buffer(self, stream_id: str):
+    def _flush_stream_buffer(self, stream_id: str) -> None:
         """Flush stream buffer."""
         if stream_id not in self.streams or not self.message_broker:
             return
@@ -522,7 +530,7 @@ class StreamingProtocol(MessageProtocol):
 
         return True
 
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """Handle incoming stream message."""
         self.statistics["messages_received"] += 1
 
@@ -538,7 +546,9 @@ class BatchProtocol(MessageProtocol):
     Batch protocol implementation.
     """
 
-    def __init__(self, protocol_id: str, config: Optional[ProtocolConfig] = None):
+    def __init__(
+        self, protocol_id: str, config: Optional[ProtocolConfig] = None
+    ) -> None:
         if config is None:
             config = ProtocolConfig(
                 protocol_type=ProtocolType.BATCH,
@@ -552,7 +562,7 @@ class BatchProtocol(MessageProtocol):
         )  # (sender, recipient) -> batch
 
     def send_message(
-        self, sender_id: str, recipient_id: str, payload: Any, **kwargs
+        self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any
     ) -> str:
         """Add message to batch."""
         batch_key = (sender_id, recipient_id)
@@ -612,9 +622,9 @@ class BatchProtocol(MessageProtocol):
         del self.batches[batch_key]
 
         self.statistics["messages_sent"] += len(batch["messages"])
-        return message_id
+        return cast(str, message_id)
 
-    def handle_message(self, message, **kwargs) -> Any:
+    def handle_message(self, message: Any, **kwargs: Any) -> Any:
         """Handle incoming batch message."""
         self.statistics["messages_received"] += 1
 
@@ -624,7 +634,7 @@ class BatchProtocol(MessageProtocol):
 
         return message.payload
 
-    def flush_all_batches(self):
+    def flush_all_batches(self) -> None:
         """Flush all pending batches."""
         for sender_id, recipient_id in list(self.batches.keys()):
             self._send_batch(sender_id, recipient_id)

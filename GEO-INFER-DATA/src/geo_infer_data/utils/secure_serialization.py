@@ -72,7 +72,7 @@ _HEADER_PREFIX_LEN = len(MAGIC) + 3  # magic + version + alg + key_id length
 _LENGTH_FIELD_LEN = 8
 
 _key_cache_lock = threading.Lock()
-_key_file_cache: dict = {}
+_key_file_cache: dict[tuple[str, int, int], bytes] = {}
 
 
 class PayloadSecurityError(Exception):

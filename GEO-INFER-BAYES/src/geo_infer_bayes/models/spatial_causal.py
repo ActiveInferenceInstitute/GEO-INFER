@@ -27,11 +27,11 @@ class SpatialCausalModel(BayesianModel):
     accounting for spatial confounding and interference.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the spatial causal model."""
         super().__init__(name="SpatialCausalModel", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the spatial causal model."""
         self.parameters = {
             "treatment_effect": {
@@ -93,9 +93,10 @@ class SpatialCausalModel(BayesianModel):
                 for effect, confounding in zip(effects, confounders)
             ]
         )
-        mean_prediction = predictions.mean(axis=0)
+        mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
-            return mean_prediction, np.std(predictions, axis=0) + np.finfo(float).eps
+            std_prediction: np.ndarray = np.asarray(np.std(predictions, axis=0)) + np.finfo(float).eps
+            return mean_prediction, std_prediction
         return mean_prediction
 
     def posterior_predictive(

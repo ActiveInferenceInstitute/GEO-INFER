@@ -203,11 +203,12 @@ def validate_design_matrix(
     return design_matrix
 
 
-def _validate_factors(design_matrix: DesignMatrix):
+def _validate_factors(design_matrix: DesignMatrix) -> None:
     """Validate categorical factors in design matrix."""
     if not hasattr(design_matrix, "factors") or not design_matrix.factors:
         return
 
+    names = design_matrix.names or []
     for factor_name, levels in design_matrix.factors.items():
         if not isinstance(levels, list):
             raise ValueError(f"Factor '{factor_name}' levels must be a list")
@@ -215,7 +216,7 @@ def _validate_factors(design_matrix: DesignMatrix):
         # Check if factor columns exist in design matrix
         factor_cols = [
             i
-            for i, name in enumerate(design_matrix.names)
+            for i, name in enumerate(names)
             if name.startswith(f"{factor_name}_")
         ]
 
@@ -337,7 +338,7 @@ def _compute_morans_i(data: np.ndarray, distance_matrix: np.ndarray) -> Dict[str
     # Moran's I
     weight_sum = np.sum(weights)
     numerator = np.sum(weights * np.outer(z, z))
-    morans_i = (n / weight_sum) * numerator / np.sum(z**2)
+    morans_i = float((n / weight_sum) * numerator / np.sum(z**2))
 
     expected_i = -1 / (n - 1)
 
@@ -353,7 +354,8 @@ def _compute_morans_i(data: np.ndarray, distance_matrix: np.ndarray) -> Dict[str
         )
 
     var_i = float(np.var(permuted, ddof=1))
-    z_score = (morans_i - expected_i) / np.sqrt(max(var_i, np.finfo(float).eps))
+    denom = float(np.sqrt(max(var_i, float(np.finfo(float).eps))))
+    z_score = (morans_i - expected_i) / denom
     p_value = (
         np.sum(np.abs(permuted - expected_i) >= abs(morans_i - expected_i)) + 1
     ) / (permutations + 1)

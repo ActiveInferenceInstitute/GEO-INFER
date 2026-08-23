@@ -10,7 +10,7 @@ This module provides comprehensive spatial econometric analysis tools including:
 - Bayesian spatial econometric methods
 """
 
-from typing import Dict, Any, Optional
+from typing import cast, Dict, Any, Optional
 import numpy as np
 import geopandas as gpd
 from dataclasses import dataclass
@@ -78,8 +78,8 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         """
         self.logger = logging.getLogger(__name__)
         self.config = config or {}
-        self.spatial_weights_cache = {}
-        self.fitted_models = {}
+        self.spatial_weights_cache: Dict[str, Any] = {}
+        self.fitted_models: Dict[str, Any] = {}
 
         # Optimization settings
         self.max_iter = self.config.get("max_iter", 1000)
@@ -88,7 +88,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         self.verbose = self.config.get("verbose", 0)
 
         # Model settings
-        self.model_type = None
+        self.model_type: Optional[str] = None
         self.is_fitted = False
 
     def construct_spatial_weights(
@@ -286,11 +286,11 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         if method == "row":
             row_sums = weights.sum(axis=1, keepdims=True)
             row_sums = np.where(row_sums == 0, 1, row_sums)  # Avoid division by zero
-            return weights / row_sums
+            return cast(np.ndarray, weights / row_sums)
         elif method == "col":
             col_sums = weights.sum(axis=0, keepdims=True)
             col_sums = np.where(col_sums == 0, 1, col_sums)  # Avoid division by zero
-            return weights / col_sums
+            return cast(np.ndarray, weights / col_sums)
         elif method == "none":
             return weights
         else:
@@ -368,15 +368,15 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             X = np.column_stack([np.ones(len(X)), X])
 
         if self.model_type == "sar":
-            return self._predict_sar(X, W)
+            return self._predict_sar(X, cast(np.ndarray, W))
         elif self.model_type == "sem":
-            return X @ self.coefficients_
+            return cast(np.ndarray, X @ self.coefficients_)
         elif self.model_type == "sdm":
-            return self._predict_sdm(X, W)
+            return self._predict_sdm(X, cast(np.ndarray, W))
         elif self.model_type == "sac":
-            return self._predict_sac(X, W)
+            return self._predict_sac(X, cast(np.ndarray, W))
         else:
-            return X @ self.coefficients_
+            return cast(np.ndarray, X @ self.coefficients_)
 
     def _fit_sar_model(
         self, y: np.ndarray, X: np.ndarray, W: np.ndarray
@@ -384,7 +384,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         """Fit Spatial Autoregressive (SAR) model."""
         n, k = X.shape
 
-        def sar_log_likelihood(params):
+        def sar_log_likelihood(params: np.ndarray) -> float:
             """SAR model log-likelihood function."""
             rho = params[0]
             beta = params[1 : k + 1]
@@ -405,7 +405,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                     - 0.5 * (residuals.T @ residuals) / sigma2
                 )
 
-                return -ll  # Return negative for minimization
+                return float(-ll)  # Return negative for minimization
             except Exception:
                 return 1e10
 
@@ -494,7 +494,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         """Fit Spatial Error Model (SEM)."""
         n, k = X.shape
 
-        def sem_log_likelihood(params):
+        def sem_log_likelihood(params: np.ndarray) -> float:
             """SEM model log-likelihood function."""
             beta = params[:k]
             lambda_param = params[k]  # Spatial error parameter
@@ -517,7 +517,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
                     - 0.5 * (residuals.T @ Omega_inv @ residuals) / sigma2
                 )
 
-                return -ll
+                return float(-ll)
             except Exception:
                 return 1e10
 
@@ -661,7 +661,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
     ) -> float:
         """Return the coefficient of determination R^2 of the prediction (sklearn-compatible)."""
         y_pred = self.predict(X)
-        return r2_score(y, y_pred, sample_weight=sample_weight)
+        return float(r2_score(y, y_pred, sample_weight=sample_weight))
 
     def get_params(self, deep: bool = True) -> Dict[str, Any]:
         """Get parameters for this estimator (sklearn-compatible)."""
@@ -673,7 +673,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             "verbose": self.verbose,
         }
 
-    def set_params(self, **params) -> "SpatialEconometricsEngine":
+    def set_params(self, **params: Any) -> "SpatialEconometricsEngine":
         """Set parameters for this estimator (sklearn-compatible)."""
         for key, value in params.items():
             if hasattr(self, key):
@@ -690,7 +690,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         X: np.ndarray,
         coordinates: np.ndarray,
         bandwidth: Optional[float] = None,
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, Any]:
         """
         Perform Geographically Weighted Regression (GWR).
 
@@ -764,7 +764,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         cv_scores = []
 
         for bw in bandwidths:
-            cv_score = 0
+            cv_score: float = 0
             n = len(y)
 
             for i in range(n):
@@ -789,7 +789,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             cv_scores.append(cv_score / n)
 
         optimal_bandwidth = bandwidths[np.argmin(cv_scores)]
-        return optimal_bandwidth
+        return float(optimal_bandwidth)
 
     def spatial_diagnostics(
         self, residuals: np.ndarray, W: np.ndarray

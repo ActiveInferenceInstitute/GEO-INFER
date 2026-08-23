@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional security integration
 try:
-    from geo_infer_sec.core.digital_security import (
+    from geo_infer_sec.core.digital_security import (  # type: ignore[import-untyped]
         DigitalSecurityManager as SecurityManager,
     )
 
@@ -32,7 +32,7 @@ class SecurityGovernanceIntegration:
     - Access control in multi-stakeholder environments
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize security governance integration."""
         if SEC_AVAILABLE:
             try:
@@ -186,10 +186,11 @@ class SecurityGovernanceIntegration:
         Dict[str, Any]
             Access control configuration
         """
-        access_config = {
+        entity_access_out: Dict[str, Any] = {}
+        access_config: Dict[str, Any] = {
             "configured": True,
             "policies": access_policies,
-            "entity_access": {},
+            "entity_access": entity_access_out,
         }
 
         if not self.sec_available:
@@ -216,7 +217,7 @@ class SecurityGovernanceIntegration:
                 entity_id, {"access_level": default_access}
             )
 
-            access_config["entity_access"][entity_id] = {
+            entity_access_out[entity_id] = {
                 "entity": entity_id,
                 "access_level": entity_access.get("access_level", default_access),
                 "allowed_operations": entity_access.get(

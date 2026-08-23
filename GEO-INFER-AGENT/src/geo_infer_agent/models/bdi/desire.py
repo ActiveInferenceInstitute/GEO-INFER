@@ -260,7 +260,7 @@ class DesireSet:
     - Checking desire conditions against beliefs
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty desire set."""
         self._desires: Dict[str, Desire] = {}
     

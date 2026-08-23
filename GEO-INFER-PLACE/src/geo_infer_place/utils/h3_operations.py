@@ -14,7 +14,7 @@ Usage:
 """
 
 import logging
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Union, cast, Optional
 
 import h3
 
@@ -27,14 +27,15 @@ def _version_tuple(version: str) -> Tuple[int, int, int] | None:
     """Parse an H3 semantic version for the supported v4 API surface."""
     try:
         parts = version.lstrip("v").split(".")
-        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
-            0,
-        ) * max(0, 3 - len(parts))
+        parsed = tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3])
+        if len(parsed) < 3:
+            parsed = parsed + (0,) * (3 - len(parsed))
+        return parsed[0], parsed[1], parsed[2]
     except (AttributeError, TypeError, ValueError):
         return None
 
 
-_h3_version = _version_tuple(getattr(h3, "__version__", None))
+_h3_version = _version_tuple(str(getattr(h3, "__version__", "")))
 if _h3_version is None or _h3_version < MIN_H3_VERSION or _h3_version[0] >= 5:
     raise RuntimeError(
         "GEO-INFER-PLACE requires h3-py >=4.5.0,<5; "
@@ -58,7 +59,7 @@ def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     Returns:
         H3 cell index as string
     """
-    return h3.latlng_to_cell(lat, lng, resolution)
+    return cast(str, h3.latlng_to_cell(lat, lng, resolution))
 
 
 def cell_to_latlng(cell: str) -> Tuple[float, float]:
@@ -71,7 +72,7 @@ def cell_to_latlng(cell: str) -> Tuple[float, float]:
     Returns:
         Tuple of (latitude, longitude)
     """
-    return h3.cell_to_latlng(cell)
+    return cast(Tuple[float, float], h3.cell_to_latlng(cell))
 
 
 def cell_to_latlng_boundary(cell: str) -> List[Tuple[float, float]]:
@@ -84,10 +85,10 @@ def cell_to_latlng_boundary(cell: str) -> List[Tuple[float, float]]:
     Returns:
         List of (lat, lng) tuples forming the cell boundary
     """
-    return h3.cell_to_boundary(cell)
+    return cast(List[Tuple[float, float]], h3.cell_to_boundary(cell))
 
 
-def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
+def geo_to_cells(geojson: Any, resolution: int) -> List[str]:
     """
     Convert a GeoJSON polygon to a set of H3 cells.
 
@@ -165,7 +166,7 @@ def grid_distance(cell1: str, cell2: str) -> int:
     Returns:
         Grid distance (number of cells)
     """
-    return h3.grid_distance(cell1, cell2)
+    return cast(int, h3.grid_distance(cell1, cell2))
 
 
 def grid_ring(cell: str, k: int) -> List[str]:
@@ -200,7 +201,7 @@ def cell_area(cell: str, unit: str = "km^2") -> float:
     Returns:
         Cell area in specified units
     """
-    return h3.cell_area(cell, unit=unit)
+    return cast(float, h3.cell_area(cell, unit=unit))
 
 
 def get_resolution(cell: str) -> int:
@@ -213,7 +214,7 @@ def get_resolution(cell: str) -> int:
     Returns:
         Resolution (0-15)
     """
-    return h3.get_resolution(cell)
+    return cast(int, h3.get_resolution(cell))
 
 
 def is_valid_cell(cell: str) -> bool:
@@ -226,7 +227,7 @@ def is_valid_cell(cell: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    return h3.is_valid_cell(cell)
+    return cast(bool, h3.is_valid_cell(cell))
 
 
 def are_neighbor_cells(cell1: str, cell2: str) -> bool:
@@ -240,7 +241,7 @@ def are_neighbor_cells(cell1: str, cell2: str) -> bool:
     Returns:
         True if cells are neighbors
     """
-    return h3.are_neighbor_cells(cell1, cell2)
+    return cast(bool, h3.are_neighbor_cells(cell1, cell2))
 
 
 def get_base_cell_number(cell: str) -> int:
@@ -253,7 +254,7 @@ def get_base_cell_number(cell: str) -> int:
     Returns:
         Base cell number (0-121)
     """
-    return h3.get_base_cell_number(cell)
+    return cast(int, h3.get_base_cell_number(cell))
 
 
 # ============================================================================
@@ -272,7 +273,7 @@ def cell_to_parent(cell: str, parent_res: int) -> str:
     Returns:
         Parent H3 cell index
     """
-    return h3.cell_to_parent(cell, parent_res)
+    return cast(str, h3.cell_to_parent(cell, parent_res))
 
 
 def cell_to_children(cell: str, child_res: int) -> List[str]:

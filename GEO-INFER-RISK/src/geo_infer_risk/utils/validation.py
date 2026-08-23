@@ -8,7 +8,7 @@ data inputs, and model parameters using JSON Schema validation and custom valida
 import json
 import os
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Callable, cast
 from pathlib import Path
 import jsonschema
 import pandas as pd
@@ -50,7 +50,7 @@ class ConfigurationValidator:
         """Load JSON schema for validation."""
         try:
             with open(self.schema_path, "r") as f:
-                return json.load(f)
+                return cast(Dict[str, Any], json.load(f))
         except FileNotFoundError:
             logger.warning(
                 f"Schema file not found at {self.schema_path}. Using basic validation."
@@ -60,7 +60,7 @@ class ConfigurationValidator:
             logger.error(f"Invalid JSON schema: {e}")
             return {}
 
-    def _initialize_custom_validators(self) -> Dict[str, callable]:
+    def _initialize_custom_validators(self) -> Dict[str, Callable[..., Any]]:
         """Initialize custom validation functions."""
         return {
             "validate_return_periods": self._validate_return_periods,
@@ -85,8 +85,8 @@ class ConfigurationValidator:
         Returns:
             ValidationResult with validation status and details
         """
-        errors = []
-        warnings = []
+        errors: List[str] = []
+        warnings: List[str] = []
         validated_config = config.copy()
 
         try:
@@ -647,8 +647,8 @@ def validate_data_file(file_path: str, data_type: str = "auto") -> ValidationRes
 
 def validate_csv_file(file_path: str) -> ValidationResult:
     """Validate CSV file format and content."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     try:
         df = pd.read_csv(file_path)
@@ -696,8 +696,8 @@ def validate_csv_file(file_path: str) -> ValidationResult:
 
 def validate_json_file(file_path: str) -> ValidationResult:
     """Validate JSON file format and content."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     try:
         with open(file_path, "r") as f:
@@ -721,8 +721,8 @@ def validate_json_file(file_path: str) -> ValidationResult:
 
 def validate_shapefile(file_path: str) -> ValidationResult:
     """Validate shapefile format and content."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     try:
         import geopandas as gpd
@@ -772,6 +772,8 @@ def validate_shapefile(file_path: str) -> ValidationResult:
     except Exception as e:
         return ValidationResult(False, [f"Error reading shapefile: {str(e)}"], [], {})
 
+    return ValidationResult(len(errors) == 0, errors, warnings, {})
+
 
 def validate_model_parameters(
     model_type: str, parameters: Dict[str, Any]
@@ -802,8 +804,8 @@ def validate_model_parameters(
 
 def validate_hazard_parameters(parameters: Dict[str, Any]) -> ValidationResult:
     """Validate hazard model parameters."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     required_params = ["hazard_type", "return_periods"]
     for param in required_params:
@@ -838,8 +840,8 @@ def validate_hazard_parameters(parameters: Dict[str, Any]) -> ValidationResult:
 
 def validate_vulnerability_parameters(parameters: Dict[str, Any]) -> ValidationResult:
     """Validate vulnerability model parameters."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     required_params = ["vulnerability_type", "classification_scheme"]
     for param in required_params:
@@ -857,8 +859,8 @@ def validate_vulnerability_parameters(parameters: Dict[str, Any]) -> ValidationR
 
 def validate_exposure_parameters(parameters: Dict[str, Any]) -> ValidationResult:
     """Validate exposure model parameters."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     required_params = ["exposure_type", "data_sources", "value_type"]
     for param in required_params:
@@ -885,8 +887,8 @@ def validate_exposure_parameters(parameters: Dict[str, Any]) -> ValidationResult
 
 def validate_insurance_parameters(parameters: Dict[str, Any]) -> ValidationResult:
     """Validate insurance model parameters."""
-    errors = []
-    warnings = []
+    errors: List[str] = []
+    warnings: List[str] = []
 
     # Validate currency
     currency = parameters.get("currency", "USD")

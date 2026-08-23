@@ -74,7 +74,7 @@ class VisualizationElement:
 class ColorScheme:
     """Manages color schemes optimized for human perception and accessibility."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize color scheme manager."""
         self.colorblind_friendly = {
             "safe": [
@@ -303,7 +303,7 @@ class HumanCenteredVisualizer:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             self._visualization_counter += 1
-            visualization_result = {
+            visualization_result: Dict[str, Any] = {
                 "visualization_id": f"viz_{self._visualization_counter:06d}",
                 "timestamp": start_time.isoformat(),
                 "processing_time": processing_time,
@@ -335,7 +335,7 @@ class HumanCenteredVisualizer:
 
     def _analyze_spatial_data(self, spatial_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze spatial data for visualization planning."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "element_count": 0,
             "element_types": {},
             "spatial_extent": {},
@@ -381,7 +381,7 @@ class HumanCenteredVisualizer:
                 coords = element.geometry.get("coordinates", [])
                 if coords:
                     # Flatten coordinate structure
-                    def extract_coords(c):
+                    def extract_coords(c: Any) -> None:
                         if (
                             isinstance(c, list)
                             and len(c) >= 2
@@ -475,7 +475,7 @@ class HumanCenteredVisualizer:
         task_context: str,
     ) -> Dict[str, Any]:
         """Determine cognitive load optimization strategy."""
-        strategy = {
+        strategy: Dict[str, Any] = {
             "load_level": "medium",
             "max_elements": 50,
             "simplification_enabled": True,
@@ -565,7 +565,7 @@ class HumanCenteredVisualizer:
     ) -> List[VisualizationElement]:
         """Apply proximity-based perceptual grouping."""
         # Simple proximity grouping - group elements that are close together
-        grouped = []
+        grouped: List[VisualizationElement] = []
 
         for element in elements:
             # Check if this element should be grouped with existing groups
@@ -633,7 +633,7 @@ class HumanCenteredVisualizer:
             # Simple centroid calculation
             all_coords = []
 
-            def extract_coords(c):
+            def extract_coords(c: Any) -> None:
                 if isinstance(c, list) and len(c) >= 2:
                     if isinstance(c[0], (int, float)):
                         all_coords.append(c)
@@ -701,7 +701,7 @@ class HumanCenteredVisualizer:
         display_constraints: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Generate complete visualization specification."""
-        spec = {
+        spec: Dict[str, Any] = {
             "layout_type": "adaptive",
             "element_specifications": {},
             "interaction_model": "progressive",
@@ -753,7 +753,7 @@ class HumanCenteredVisualizer:
         self, element: VisualizationElement, user_analysis: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Determine visual encoding for an element."""
-        encoding = {
+        encoding: Dict[str, Any] = {
             "shape": "default",
             "size": "medium",
             "color": "#1f77b4",
@@ -1042,7 +1042,7 @@ class HumanCenteredVisualizer:
         Returns:
             Uncertainty communication strategy and visualization
         """
-        communication_strategy = {
+        communication_strategy: Dict[str, Any] = {
             "communication_method": "visual_indicators",
             "detail_level": "moderate",
             "user_adapted": True,
@@ -1095,7 +1095,9 @@ class HumanCenteredVisualizer:
         return communication_strategy
 
     def apply_perceptual_grouping(
-        self, spatial_data: Dict[str, Any], grouping_principles: List[str] = None
+        self,
+        spatial_data: Dict[str, Any],
+        grouping_principles: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Apply perceptual grouping principles to spatial data.
@@ -1110,7 +1112,7 @@ class HumanCenteredVisualizer:
         if grouping_principles is None:
             grouping_principles = ["proximity", "similarity"]
 
-        grouping_result = {
+        grouping_result: Dict[str, Any] = {
             "applied_principles": grouping_principles,
             "group_specifications": {},
             "visual_emphasis": {},
@@ -1189,7 +1191,7 @@ class HumanCenteredVisualizer:
                         queue.append(candidate)
             clusters.append(cluster)
 
-        cluster_specs = [
+        cluster_specs: List[Dict[str, Any]] = [
             {
                 "element_indices": cluster,
                 "element_ids": [f"elem_{index}" for index in cluster],

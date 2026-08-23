@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class SpatialProcessor:
     """Spatial processing engine for geospatial operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the SpatialProcessor."""
         self.logger = logger
         self._operation_count: int = 0

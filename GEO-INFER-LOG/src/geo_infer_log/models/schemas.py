@@ -82,7 +82,7 @@ class Vehicle(BaseModel):
                 "speed": 80,
                 "cost_per_km": 1.2,
                 "emissions_per_km": 0.8,
-                "location": (13.404954, 52.520008),
+                "location": [13.404954, 52.520008],
                 "fuel_type": "diesel",
                 "fuel_capacity": 200,
                 "fuel_level": 150,
@@ -117,12 +117,12 @@ class Location(BaseModel):
         json_schema_extra={
             "example": {
                 "name": "Customer A",
-                "coordinates": (13.4050, 52.5200),
+                "coordinates": [13.4050, 52.5200],
                 "address": "123 Main St, Berlin, Germany",
                 "type": "customer",
                 "time_windows": [
-                    ("2023-01-01T09:00:00", "2023-01-01T12:00:00"),
-                    ("2023-01-01T14:00:00", "2023-01-01T17:00:00"),
+                    ["2023-01-01T09:00:00", "2023-01-01T12:00:00"],
+                    ["2023-01-01T14:00:00", "2023-01-01T17:00:00"],
                 ],
                 "service_time": 15,
                 "priority": 1,
@@ -151,12 +151,12 @@ class Shipment(BaseModel):
                 "id": "shipment-123",
                 "origin": {
                     "name": "Warehouse B",
-                    "coordinates": (13.4050, 52.5200),
+                    "coordinates": [13.4050, 52.5200],
                     "type": "warehouse",
                 },
                 "destination": {
                     "name": "Customer C",
-                    "coordinates": (13.5050, 52.4200),
+                    "coordinates": [13.5050, 52.4200],
                     "type": "customer",
                 },
                 "weight": 150,
@@ -195,22 +195,22 @@ class Route(BaseModel):
                 "stops": [
                     {
                         "name": "Warehouse A",
-                        "coordinates": (13.4050, 52.5200),
+                        "coordinates": [13.4050, 52.5200],
                         "type": "depot",
                     },
                     {
                         "name": "Customer B",
-                        "coordinates": (13.5050, 52.4200),
+                        "coordinates": [13.5050, 52.4200],
                         "type": "customer",
                     },
                     {
                         "name": "Customer C",
-                        "coordinates": (13.6050, 52.3200),
+                        "coordinates": [13.6050, 52.3200],
                         "type": "customer",
                     },
                     {
                         "name": "Warehouse A",
-                        "coordinates": (13.4050, 52.5200),
+                        "coordinates": [13.4050, 52.5200],
                         "type": "depot",
                     },
                 ],
@@ -296,7 +296,7 @@ class FacilityLocation(BaseModel):
             "example": {
                 "id": "dc-001",
                 "name": "Berlin Distribution Center",
-                "location": (13.4050, 52.5200),
+                "location": [13.4050, 52.5200],
                 "type": "distribution_center",
                 "capacity": 5000,
                 "operating_cost": 10000,
@@ -340,7 +340,7 @@ class SupplyChainNetwork(BaseModel):
                     {
                         "id": "dc-001",
                         "name": "Berlin Distribution Center",
-                        "location": (13.4050, 52.5200),
+                        "location": [13.4050, 52.5200],
                         "type": "distribution_center",
                         "capacity": 5000,
                         "operating_cost": 10000,
@@ -348,7 +348,7 @@ class SupplyChainNetwork(BaseModel):
                     {
                         "id": "wh-001",
                         "name": "Munich Warehouse",
-                        "location": (11.5820, 48.1351),
+                        "location": [11.5820, 48.1351],
                         "type": "warehouse",
                         "capacity": 3000,
                         "operating_cost": 8000,
@@ -367,7 +367,7 @@ class SupplyChainNetwork(BaseModel):
                 "demand_points": [
                     {
                         "id": "dp-001",
-                        "location": (8.6821, 50.1109),
+                        "location": [8.6821, 50.1109],
                         "demand": 200,
                         "priority": 1,
                     }
@@ -375,7 +375,7 @@ class SupplyChainNetwork(BaseModel):
                 "supply_points": [
                     {
                         "id": "sp-001",
-                        "location": (18.0686, 59.3293),
+                        "location": [18.0686, 59.3293],
                         "supply": 500,
                         "reliability": 0.95,
                     }

@@ -96,7 +96,7 @@ class SecurityAlert:
     confidence_score: float = 1.0
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    def update_status(self, new_status: str, notes: str = ""):
+    def update_status(self, new_status: str, notes: str = "") -> None:
         """Update alert status."""
         self.status = new_status
         self.updated_at = datetime.now()
@@ -320,7 +320,7 @@ class SecurityModelUtils:
     @staticmethod
     def group_events_by_category(events: List[SecurityEvent]) -> Dict[str, List[SecurityEvent]]:
         """Group events by category."""
-        grouped = {}
+        grouped: Dict[str, List[SecurityEvent]] = {}
         for event in events:
             category = event.category.value
             if category not in grouped:

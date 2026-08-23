@@ -310,6 +310,7 @@ class ZoningAPI:
                 name=code_data.name,
                 description=code_data.description or "",
                 category=code_data.category,
+                jurisdiction_id="",
                 allowed_uses=code_data.allowed_uses or [],
                 conditional_uses=code_data.conditional_uses or [],
                 prohibited_uses=code_data.prohibited_uses or [],
@@ -400,7 +401,7 @@ class ZoningAPI:
                 name=district_data.name,
                 description=district_data.description or "",
                 zoning_code=district_data.zoning_code,
-                jurisdiction_id=district_data.jurisdiction_id,
+                jurisdiction_id=district_data.jurisdiction_id or "",
                 effective_date=district_data.effective_date,
                 geometry=geometry
             )

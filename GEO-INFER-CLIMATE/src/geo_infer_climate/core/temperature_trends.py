@@ -5,7 +5,7 @@ trend test for detecting monotonic trends in temperature time series.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 from scipy import stats as scipy_stats
@@ -86,7 +86,7 @@ class TemperatureTrendAnalyzer:
         self,
         time_series: np.ndarray,
         alpha: float = 0.05,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Perform Mann-Kendall trend test.
 
         Non-parametric test for detecting monotonic trends.
@@ -192,14 +192,14 @@ class TemperatureTrendAnalyzer:
                 "n_slopes": 0,
             }
 
-        slopes = []
+        slope_list = []
         for i in range(n):
             for j in range(i + 1, n):
                 dt = j - i
                 if dt > 0:
-                    slopes.append((x[j] - x[i]) / dt)
+                    slope_list.append((x[j] - x[i]) / dt)
 
-        slopes = np.array(slopes)
+        slopes = np.array(slope_list)
         median_slope = float(np.median(slopes))
 
         n_slopes = len(slopes)

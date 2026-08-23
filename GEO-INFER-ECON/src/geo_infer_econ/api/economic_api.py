@@ -10,7 +10,7 @@ This module provides a comprehensive REST API for GEO-INFER-ECON with:
 - Advanced policy analysis and scenario modeling
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, cast
 from fastapi import FastAPI, HTTPException, Security, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -155,9 +155,9 @@ class EconomicAnalysisAPI:
         self.visualizer = ResultsVisualizer(self.config.get("visualization", {}))
 
         # API state management
-        self.active_executions = {}
-        self.execution_history = []
-        self.api_stats = {
+        self.active_executions: Dict[str, Any] = {}
+        self.execution_history: List[Dict[str, Any]] = []
+        self.api_stats: Dict[str, Any] = {
             "requests_total": 0,
             "requests_by_endpoint": {},
             "average_response_time": 0.0,
@@ -169,7 +169,7 @@ class EconomicAnalysisAPI:
         self.rate_limits = self.config.get(
             "rate_limits", {"requests_per_minute": 100, "requests_per_hour": 1000}
         )
-        self.request_counts = {}
+        self.request_counts: Dict[str, List[float]] = {}
 
         # Setup middleware and security
         self._setup_middleware()
@@ -178,7 +178,7 @@ class EconomicAnalysisAPI:
         # Setup comprehensive routes
         self._setup_routes()
 
-    def _setup_middleware(self):
+    def _setup_middleware(self) -> None:
         """Setup API middleware for security and performance."""
         # CORS middleware
         self.app.add_middleware(
@@ -194,7 +194,7 @@ class EconomicAnalysisAPI:
         if allowed_hosts != ["*"]:
             self.app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-    def _setup_security(self):
+    def _setup_security(self) -> None:
         """Setup authentication and authorization."""
         self.security = HTTPBearer()
         self.api_keys = self.config.get("api_keys", {})
@@ -219,12 +219,12 @@ class EconomicAnalysisAPI:
             [t for t in self.request_counts.get(client_id, []) if t > hour_ago]
         )
 
-        return (
+        return bool(
             recent_requests < self.rate_limits["requests_per_minute"]
             and recent_hour < self.rate_limits["requests_per_hour"]
         )
 
-    def _record_request(self, endpoint: str, client_id: str):
+    def _record_request(self, endpoint: str, client_id: str) -> None:
         """Record API request for monitoring."""
         current_time = time.time()
         self.request_counts.setdefault(client_id, []).append(current_time)
@@ -241,7 +241,7 @@ class EconomicAnalysisAPI:
 
         # Simple API key authentication (in production, use JWT)
         if token in self.api_keys:
-            return self.api_keys[token]
+            return cast(str, self.api_keys[token])
 
         # JWT token validation (simplified)
         try:
@@ -257,7 +257,7 @@ class EconomicAnalysisAPI:
         """Create unique execution ID."""
         return str(uuid.uuid4())
 
-    def _track_execution(self, execution_id: str, model_type: str, status: str):
+    def _track_execution(self, execution_id: str, model_type: str, status: str) -> None:
         """Track model execution status."""
         self.active_executions[execution_id] = {
             "model_type": model_type,
@@ -266,7 +266,7 @@ class EconomicAnalysisAPI:
             "last_update": time.time(),
         }
 
-    def _complete_execution(self, execution_id: str, results: Dict[str, Any]):
+    def _complete_execution(self, execution_id: str, results: Dict[str, Any]) -> None:
         """Mark execution as completed."""
         if execution_id in self.active_executions:
             execution = self.active_executions[execution_id]
@@ -282,11 +282,11 @@ class EconomicAnalysisAPI:
             if len(self.execution_history) > 1000:
                 self.execution_history = self.execution_history[-1000:]
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Setup comprehensive API routes."""
 
         @self.app.get("/api/health", response_model=HealthResponse)
-        async def health_check():
+        async def health_check() -> HealthResponse:
             """Comprehensive health check endpoint."""
             start_time = time.time()
 
@@ -314,7 +314,7 @@ class EconomicAnalysisAPI:
             )
 
         @self.app.get("/api/stats")
-        async def get_api_stats():
+        async def get_api_stats() -> APIResponse:
             """Get API usage statistics."""
             return APIResponse(
                 success=True,
@@ -323,7 +323,7 @@ class EconomicAnalysisAPI:
             )
 
         @self.app.get("/api/models")
-        async def list_available_models():
+        async def list_available_models() -> APIResponse:
             """List all available economic models."""
             models = {
                 "microeconomic": [
@@ -361,7 +361,7 @@ class EconomicAnalysisAPI:
         async def execute_model(
             request: ModelExecutionRequest,
             credentials: HTTPAuthorizationCredentials = Security(self.security),
-        ):
+        ) -> ModelExecutionResponse:
             """Execute economic model with comprehensive monitoring."""
             start_time = time.time()
             try:
@@ -415,13 +415,17 @@ class EconomicAnalysisAPI:
 
                 return ModelExecutionResponse(
                     success=False,
+                    execution_id="",
+                    model_type=request.model_type,
+                    results={},
+                    diagnostics={},
                     error=str(e),
                     execution_time=time.time() - start_time,
                     metadata={"error_type": type(e).__name__},
                 )
 
         @self.app.get("/api/executions/{execution_id}")
-        async def get_execution_status(execution_id: str):
+        async def get_execution_status(execution_id: str) -> APIResponse:
             """Get execution status and results."""
             if execution_id in self.active_executions:
                 execution = self.active_executions[execution_id]
@@ -445,7 +449,7 @@ class EconomicAnalysisAPI:
                 )
 
         @self.app.post("/api/spatial/analyze")
-        async def spatial_analysis(request: SpatialAnalysisRequest):
+        async def spatial_analysis(request: SpatialAnalysisRequest) -> APIResponse:
             """Perform spatial economic analysis."""
             start_time = time.time()
 
@@ -473,7 +477,7 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.post("/api/policy/analyze")
-        async def policy_analysis(request: PolicyAnalysisRequest):
+        async def policy_analysis(request: PolicyAnalysisRequest) -> APIResponse:
             """Analyze policy impacts and scenarios."""
             start_time = time.time()
 
@@ -484,17 +488,18 @@ class EconomicAnalysisAPI:
                 )
 
                 # Analyze policy scenario
+                results: Any
                 if request.analysis_type == "fiscal_impact":
                     results = self.policy_engine.assess_fiscal_policy(
-                        request.policy_scenario
+                        cast(Any, request.policy_scenario)
                     )
                 elif request.analysis_type == "infrastructure_impact":
                     results = self.policy_engine.assess_infrastructure_policy(
-                        request.policy_scenario
+                        cast(Any, request.policy_scenario)
                     )
                 elif request.analysis_type == "environmental_impact":
                     results = self.policy_engine.assess_environmental_policy(
-                        request.policy_scenario
+                        cast(Any, request.policy_scenario)
                     )
                 else:
                     results = self.policy_engine.compare_scenarios(
@@ -509,7 +514,7 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.post("/api/visualize")
-        async def create_visualization(request: VisualizationRequest):
+        async def create_visualization(request: VisualizationRequest) -> Any:
             """Create interactive visualizations."""
             try:
                 # Create visualization
@@ -546,7 +551,7 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.post("/api/data/validate")
-        async def validate_data(data: Dict[str, Any], source_name: str = "unknown"):
+        async def validate_data(data: Dict[str, Any], source_name: str = "unknown") -> APIResponse:
             """Validate economic data quality."""
             try:
                 df = pd.DataFrame(data)
@@ -568,7 +573,7 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.get("/api/indicators/{indicator_type}")
-        async def calculate_indicators(indicator_type: str, data: Dict[str, Any]):
+        async def calculate_indicators(indicator_type: str, data: Dict[str, Any]) -> APIResponse:
             """Calculate economic indicators."""
             try:
                 df = pd.DataFrame(data)
@@ -627,16 +632,19 @@ class EconomicAnalysisAPI:
         self.policy_engine.add_baseline_data("gdp", data.to_dict())
 
         # Define policy scenario
-        scenario = request.model_config.get("policy_scenario", {})
+        scenario: Dict[str, Any] = cast(
+            Dict[str, Any], request.model_config.get("policy_scenario", {})
+        )
 
         # Analyze based on policy type
         policy_type = scenario.get("policy_type", "generic")
+        result: Any
         if policy_type == "fiscal":
-            result = self.policy_engine.assess_fiscal_policy(scenario)
+            result = self.policy_engine.assess_fiscal_policy(cast(Any, scenario))
         else:
-            result = self.policy_engine._generic_policy_assessment(scenario)
+            result = self.policy_engine._generic_policy_assessment(cast(Any, scenario))
 
-        return result
+        return cast(Dict[str, Any], result)
 
     def _execute_bioregional_analysis(
         self, data: pd.DataFrame, request: ModelExecutionRequest
@@ -704,7 +712,7 @@ class EconomicAnalysisAPI:
         return {
             "coefficients": self.econometrics_engine.coefficients_.tolist(),
             "spatial_diagnostics": self.econometrics_engine.spatial_diagnostics(
-                self.econometrics_engine.residuals, W
+                cast(np.ndarray, self.econometrics_engine.residuals), W
             ),
         }
 
@@ -752,7 +760,7 @@ class EconomicAnalysisAPI:
         elapsed = time.time() - execution["start_time"]
         estimated_total = 300  # 5 minutes estimate
 
-        return min(100.0, (elapsed / estimated_total) * 100)
+        return float(min(100.0, (elapsed / estimated_total) * 100))
 
     def get_app(self) -> FastAPI:
         """Get the FastAPI application instance."""

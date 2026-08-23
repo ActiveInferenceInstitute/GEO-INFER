@@ -38,6 +38,10 @@ class Policy:
     attributes: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    category: Optional[str] = None
+    status: Optional[str] = None
+    source_url: Optional[str] = None
+    tags: Optional[List[str]] = None
     
     @classmethod
     def create(
@@ -222,6 +226,11 @@ class PolicyImplementation:
     attributes: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    geometry: Optional[Any] = None
+    jurisdiction_id: Optional[str] = None
+    budget: Optional[float] = None
+    status: Optional[str] = None
+    metrics: Optional[Dict[str, Any]] = None
     
     @classmethod
     def create(

@@ -44,7 +44,7 @@ import secrets
 import stat
 import threading
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def _read_key_file(path: Path) -> bytes:
     with _key_cache_lock:
         cached = _key_file_cache.get(cache_key)
     if cached is not None:
-        return cached
+        return cast(bytes, cached)
     material = _coerce_key(path.read_bytes())
     if len(material) < MIN_KEY_BYTES:
         raise SigningKeyUnavailableError(

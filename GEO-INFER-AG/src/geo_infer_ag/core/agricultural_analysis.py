@@ -27,25 +27,25 @@ class AgriculturalAnalysis:
         self, 
         model: AgricultureModel,
         config: Optional[Dict[str, Any]] = None
-    ):
+    ) -> None:
         """
         Initialize the agricultural analysis with a model.
-        
+
         Args:
             model: Agricultural model instance for analysis
             config: Optional configuration parameters
         """
         self.model = model
         self.config = config or {}
-        self.results = None
-        
+        self.results: Optional["AgriculturalResults"] = None
+
     def run(
         self, 
         field_data: gpd.GeoDataFrame,
         weather_data: Optional[pd.DataFrame] = None,
         soil_data: Optional[gpd.GeoDataFrame] = None,
         management_data: Optional[pd.DataFrame] = None,
-        **kwargs
+        **kwargs: Any
     ) -> "AgriculturalResults":
         """
         Run agricultural analysis using the provided data sources.
@@ -121,7 +121,7 @@ class AgriculturalAnalysis:
         weather_data: Optional[pd.DataFrame] = None,
         soil_data: Optional[gpd.GeoDataFrame] = None,
         management_data: Optional[pd.DataFrame] = None,
-        **kwargs
+        **kwargs: Any
     ) -> Dict[str, Any]:
         """
         Prepare and integrate data sources for model input.
@@ -171,7 +171,7 @@ class AgriculturalResults:
         model_results: Dict[str, Any],
         field_data: gpd.GeoDataFrame,
         model_metadata: Dict[str, Any]
-    ):
+    ) -> None:
         """
         Initialize results container.
         
@@ -182,7 +182,7 @@ class AgriculturalResults:
         """
         self.results = model_results
         self.field_data = self._merge_results_with_field_data(field_data, model_results)
-        self.metadata = {
+        self.metadata: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(),
             "model": model_metadata,
         }
@@ -216,7 +216,7 @@ class AgriculturalResults:
                 
         return merged_data
     
-    def get_metric(self, name: str) -> Union[float, np.ndarray]:
+    def get_metric(self, name: str) -> Any:
         """
         Get a specific metric from the results.
         
@@ -239,8 +239,8 @@ class AgriculturalResults:
         variable: str,
         cmap: str = "viridis",
         title: Optional[str] = None,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> Any:
         """
         Plot spatial distribution of a result variable.
         

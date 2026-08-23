@@ -39,12 +39,12 @@ async def upload_hr_csv(
     file: UploadFile = File(...),
     clean_data: bool = Query(True, description="Perform data cleaning after import"),
     enrich_data: bool = Query(True, description="Perform data enrichment after cleaning")
-):
+) -> Dict[str, Any]:
     """
     Upload a CSV file with HR employee data. Data will be imported, (optionally) cleaned 
     and enriched, and then stored in memory.
     """
-    if not file.filename.endswith('.csv'):
+    if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Invalid file type. Only CSV files are accepted.")
 
     temp_file_path = await save_upload_file_tmp(file)
@@ -84,31 +84,31 @@ async def upload_hr_csv(
 
 @router.get("/employees", response_model=List[Employee])
 async def get_all_employees(
-    limit: Optional[int] = Query(100, ge=1, le=1000),
-    offset: Optional[int] = Query(0, ge=0)
-):
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0)
+) -> List[Employee]:
     """Retrieve all employees from the in-memory store."""
     return DB_EMPLOYEES[offset : offset + limit]
 
 @router.get("/employees/count", response_model=Dict[str, int])
-async def get_employees_count():
+async def get_employees_count() -> Dict[str, int]:
     """Get the total number of employees in the in-memory store."""
     return {"total_employees": len(DB_EMPLOYEES)}
 
 @router.get("/reports/headcount", response_model=Dict[str, Any])
-async def get_hr_headcount_report(group_by: Optional[List[str]] = Query(None, description="Fields to group by, e.g., department,location")):
+async def get_hr_headcount_report(group_by: Optional[List[str]] = Query(None, description="Fields to group by, e.g., department,location")) -> Dict[str, Any]:
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data. Upload data first.")
     return generate_headcount_report(DB_EMPLOYEES, group_by=group_by if group_by else [])
 
 @router.get("/reports/diversity", response_model=Dict[str, Any])
-async def get_hr_diversity_report(diversity_fields: Optional[List[str]] = Query(None, description="Fields for diversity metrics, e.g., gender,nationality")):
+async def get_hr_diversity_report(diversity_fields: Optional[List[str]] = Query(None, description="Fields for diversity metrics, e.g., gender,nationality")) -> Dict[str, Any]:
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data. Upload data first.")
     return generate_diversity_report(DB_EMPLOYEES, diversity_fields=diversity_fields if diversity_fields else ['gender'])
 
 @router.get("/visualizations/headcount-by-department", response_model=Dict[str, str])
-async def get_headcount_by_dept_plot():
+async def get_headcount_by_dept_plot() -> Dict[str, str]:
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data for visualization.")
     plot_path = plot_headcount_by_department(DB_EMPLOYEES)
@@ -118,7 +118,7 @@ async def get_headcount_by_dept_plot():
         raise HTTPException(status_code=500, detail="Failed to generate headcount plot.")
 
 @router.get("/employees/{employee_id}", response_model=Employee)
-async def get_employee_by_id(employee_id: str):
+async def get_employee_by_id(employee_id: str) -> Employee:
     """Get a specific employee by ID."""
     for emp in DB_EMPLOYEES:
         if emp.employee_id == employee_id:
@@ -126,7 +126,7 @@ async def get_employee_by_id(employee_id: str):
     raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
 
 @router.post("/employees", response_model=Employee)
-async def create_employee(employee: Employee):
+async def create_employee(employee: Employee) -> Employee:
     """Create a new employee."""
     # Check if employee already exists
     for emp in DB_EMPLOYEES:
@@ -145,7 +145,7 @@ async def create_employee(employee: Employee):
     return employee
 
 @router.put("/employees/{employee_id}", response_model=Employee)
-async def update_employee(employee_id: str, employee_update: Dict[str, Any]):
+async def update_employee(employee_id: str, employee_update: Dict[str, Any]) -> Employee:
     """Update an existing employee."""
     for i, emp in enumerate(DB_EMPLOYEES):
         if emp.employee_id == employee_id:
@@ -168,7 +168,7 @@ async def update_employee(employee_id: str, employee_update: Dict[str, Any]):
     raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
 
 @router.delete("/employees/{employee_id}")
-async def delete_employee(employee_id: str):
+async def delete_employee(employee_id: str) -> Dict[str, Any]:
     """Delete an employee."""
     for i, emp in enumerate(DB_EMPLOYEES):
         if emp.employee_id == employee_id:
@@ -183,7 +183,7 @@ async def search_employees(
     job_title: Optional[str] = None,
     status: Optional[str] = None,
     limit: int = Query(100, ge=1, le=1000)
-):
+) -> List[Employee]:
     """Search employees with filters."""
     filtered_employees = DB_EMPLOYEES
 
@@ -200,7 +200,7 @@ async def search_employees(
     return filtered_employees[:limit]
 
 @router.get("/dashboard", response_model=Dict[str, Any])
-async def get_hr_dashboard():
+async def get_hr_dashboard() -> Dict[str, Any]:
     """Get comprehensive HR dashboard data."""
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data available")
@@ -214,7 +214,7 @@ async def get_hr_dashboard():
     return dashboard
 
 @router.get("/analytics/tenure", response_model=Dict[str, Any])
-async def get_tenure_analytics():
+async def get_tenure_analytics() -> Dict[str, Any]:
     """Get employee tenure analytics."""
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data available")
@@ -246,7 +246,7 @@ async def get_tenure_analytics():
     }
 
 @router.get("/analytics/turnover", response_model=Dict[str, Any])
-async def get_turnover_analytics():
+async def get_turnover_analytics() -> Dict[str, Any]:
     """Get employee turnover analytics."""
     if not DB_EMPLOYEES:
         raise HTTPException(status_code=404, detail="No employee data available")
@@ -258,7 +258,7 @@ async def get_turnover_analytics():
     turnover_rate = (len(terminated_employees) / total_employees * 100) if total_employees > 0 else 0
 
     # Analyze termination reasons (would need additional data field)
-    termination_reasons = {}
+    termination_reasons: Dict[str, int] = {}
     for emp in terminated_employees:
         reason = emp.custom_fields.get("termination_reason", "Unknown")
         termination_reasons[reason] = termination_reasons.get(reason, 0) + 1

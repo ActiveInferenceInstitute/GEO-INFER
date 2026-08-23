@@ -13,7 +13,7 @@ import yaml
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, cast
 from dataclasses import dataclass, field
 import jsonschema
 
@@ -58,7 +58,7 @@ class CloneConfig:
     auto_sync: bool = True
     sync_interval: int = 3600  # seconds
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         if not self.github_token and self.auth_method == "token":
             logger.warning("GitHub token not provided but auth_method is 'token'")
@@ -81,7 +81,7 @@ class TargetRepository:
     clone_depth: int = 1
     enabled: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate repository configuration."""
         if not self.owner or not self.repo:
             raise ValueError("Repository owner and name are required")
@@ -101,7 +101,7 @@ class TargetUser:
     tags: List[str] = field(default_factory=list)
     enabled: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate user configuration."""
         if not self.username:
             raise ValueError("Username is required")
@@ -136,7 +136,7 @@ class ConfigLoader:
             self.config_dir = git_dir / "config"
 
         self.schemas = self._load_schemas()
-        self.config_cache = {}
+        self.config_cache: Dict[str, Dict[str, Any]] = {}
 
     def _load_schemas(self) -> Dict[str, Dict]:
         """Load JSON schemas for configuration validation."""
@@ -275,7 +275,7 @@ class ConfigLoader:
 
             self.config_cache[cache_key] = config
             logger.info(f"Loaded configuration from {config_path}")
-            return config
+            return cast(Dict[str, Any], config)
 
         except yaml.YAMLError as e:
             logger.error(f"Error parsing YAML file {config_path}: {e}")
@@ -309,7 +309,7 @@ class ConfigLoader:
 
             self.config_cache[cache_key] = config
             logger.info(f"Loaded configuration from {config_path}")
-            return config
+            return cast(Dict[str, Any], config)
 
         except json.JSONDecodeError as e:
             logger.error(f"Error parsing JSON file {config_path}: {e}")

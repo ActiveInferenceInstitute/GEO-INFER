@@ -13,7 +13,7 @@ __author__ = "GEO-INFER Team"
 __email__ = "geo-infer@activeinference.institute"
 
 import numpy as np
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Type, Union
 
 
 class SpatialCovariance:
@@ -53,7 +53,9 @@ class SpatialCovariance:
 
 # Import main submodules with error handling
 try:
-    from . import api
+    from . import api as _api
+
+    api: Any = _api
 except ImportError as e:
     api = None
     import logging
@@ -61,7 +63,9 @@ except ImportError as e:
     logging.warning(f"BAYES API module not available: {e}")
 
 try:
-    from . import core
+    from . import core as _core
+
+    core: Any = _core
 except ImportError as e:
     core = None
     import logging
@@ -69,7 +73,9 @@ except ImportError as e:
     logging.warning(f"BAYES core module not available: {e}")
 
 try:
-    from . import models
+    from . import models as _models
+
+    models: Any = _models
 except ImportError as e:
     models = None
     import logging
@@ -77,7 +83,9 @@ except ImportError as e:
     logging.warning(f"BAYES models module not available: {e}")
 
 try:
-    from . import utils
+    from . import utils as _utils
+
+    utils: Any = _utils
 except ImportError as e:
     utils = None
     import logging
@@ -88,13 +96,13 @@ except ImportError as e:
 try:
     from .models.spatial_gp import SparseSpatialGP, SpatialGP
 except ImportError:
-    SpatialGP = None
-    SparseSpatialGP = None
+    SpatialGP: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    SparseSpatialGP: Optional[Type[Any]] = None  # type: ignore[no-redef]
 
 try:
     from .core.inference import BayesianInference
 except ImportError:
-    BayesianInference = None
+    BayesianInference: Optional[Type[Any]] = None  # type: ignore[no-redef]
 
 from .core.variational import VariationalInference  # noqa: E402
 from .core.mcmc import MCMC as MCMCSampler  # noqa: E402
@@ -102,7 +110,7 @@ from .core.mcmc import MCMC as MCMCSampler  # noqa: E402
 try:
     from .core.posterior import PosteriorAnalysis
 except ImportError:
-    PosteriorAnalysis = None
+    PosteriorAnalysis: Optional[Type[Any]] = None  # type: ignore[no-redef]
 
 
 class GaussianProcess:
@@ -175,24 +183,25 @@ class GaussianProcess:
         sq_dists = self._squared_distances(X1, X2)
 
         if self.kernel_type == "rbf":
-            return self.signal_variance * np.exp(
-                -0.5 * sq_dists / (self.length_scale**2)
+            return np.asarray(
+                self.signal_variance
+                * np.exp(-0.5 * sq_dists / (self.length_scale**2))
             )
         elif self.kernel_type == "matern32":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             sqrt3_r = np.sqrt(3.0) * r
-            return self.signal_variance * (1.0 + sqrt3_r) * np.exp(-sqrt3_r)
+            return np.asarray(self.signal_variance * (1.0 + sqrt3_r) * np.exp(-sqrt3_r))
         elif self.kernel_type == "matern52":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
             sqrt5_r = np.sqrt(5.0) * r
-            return (
+            return np.asarray(
                 self.signal_variance
                 * (1.0 + sqrt5_r + (5.0 / 3.0) * r**2)
                 * np.exp(-sqrt5_r)
             )
         elif self.kernel_type == "exponential":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale
-            return self.signal_variance * np.exp(-r)
+            return np.asarray(self.signal_variance * np.exp(-r))
         else:
             raise ValueError(f"Unsupported kernel type: {self.kernel_type}")
 
@@ -211,13 +220,13 @@ class GaussianProcess:
         """
         X1_sq = np.sum(X1**2, axis=1, keepdims=True)
         X2_sq = np.sum(X2**2, axis=1, keepdims=True)
-        return X1_sq + X2_sq.T - 2.0 * X1 @ X2.T
+        return np.asarray(X1_sq + X2_sq.T - 2.0 * X1 @ X2.T)
 
     # ------------------------------------------------------------------
     # Fit
     # ------------------------------------------------------------------
 
-    def fit(self, X: np.ndarray, y: np.ndarray, **kwargs) -> "GaussianProcess":
+    def fit(self, X: np.ndarray, y: np.ndarray, **kwargs: Any) -> "GaussianProcess":
         """Fit the Gaussian process model to training data.
 
         Stores training data, computes the kernel matrix K, and solves
@@ -299,7 +308,7 @@ class GaussianProcess:
         K_star = self._compute_kernel(self.X_train, X_new)
 
         # Predictive mean: mu_* = K_*^T @ alpha
-        mean = K_star.T @ self._alpha
+        mean: np.ndarray = np.asarray(K_star.T @ self._alpha)
 
         if return_std:
             # v = L^{-1} @ K_*
@@ -309,7 +318,7 @@ class GaussianProcess:
             K_ss_diag = self.signal_variance * np.ones(X_new.shape[0])
             var = K_ss_diag - np.sum(v**2, axis=0)
             var = np.maximum(var, self.jitter)
-            std = np.sqrt(var)
+            std: np.ndarray = np.asarray(np.sqrt(var))
             return mean, std
 
         return mean

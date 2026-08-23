@@ -1,5 +1,5 @@
 """Talent Data Transformers."""
-from typing import List
+from typing import List, Optional
 import pandas as pd
 from ..models.talent_models import Candidate, JobRequisition
 
@@ -73,7 +73,10 @@ def clean_candidate_data(candidates: List[Candidate]) -> List[Candidate]:
     print(f"Successfully cleaned {len(cleaned_candidates)} candidate records")
     return cleaned_candidates
 
-def enrich_candidate_data(candidates: List[Candidate], requisitions: List[JobRequisition] = None) -> List[Candidate]:
+def enrich_candidate_data(
+    candidates: List[Candidate],
+    requisitions: Optional[List[JobRequisition]] = None,
+) -> List[Candidate]:
     """
     Enriches candidate data with calculated fields and requisition context.
 

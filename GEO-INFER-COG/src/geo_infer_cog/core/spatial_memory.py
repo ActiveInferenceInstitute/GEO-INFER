@@ -109,7 +109,7 @@ class MemoryConsolidation:
         """
         self.consolidation_threshold = consolidation_threshold
         self.consolidation_delay = consolidation_delay
-        self.pending_consolidation = []
+        self.pending_consolidation: List[SpatialMemoryItem] = []
 
     def check_for_consolidation(
         self, working_memory_items: List[SpatialMemoryItem]
@@ -178,7 +178,9 @@ class SpatialMemoryModel:
         self.config = config or {}
 
         # Memory storage systems
-        self.memory_storage = {mem_type: {} for mem_type in self.memory_types}
+        self.memory_storage: Dict[str, Dict[str, SpatialMemoryItem]] = {
+            mem_type: {} for mem_type in self.memory_types
+        }
 
         # Memory capacity limits
         self.memory_capacities = {
@@ -225,9 +227,9 @@ class SpatialMemoryModel:
         }
 
         # Memory organization and indexing
-        self.spatial_index = {}  # For spatial memory organization
-        self.temporal_index = {}  # For temporal memory organization
-        self.conceptual_index = {}  # For semantic memory organization
+        self.spatial_index: Dict[str, List[str]] = {}  # For spatial memory organization
+        self.temporal_index: Dict[str, List[str]] = {}  # For temporal memory organization
+        self.conceptual_index: Dict[str, List[str]] = {}  # For semantic memory organization
 
         logger.info(f"Spatial Memory Model initialized with types: {self.memory_types}")
 
@@ -427,7 +429,7 @@ class SpatialMemoryModel:
 
     def _perform_memory_cleanup(self) -> Dict[str, Any]:
         """Perform memory cleanup including decay and forgetting."""
-        cleanup_results = {
+        cleanup_results: Dict[str, Any] = {
             "items_decayed": 0,
             "items_removed": 0,
             "memory_types_affected": [],
@@ -536,7 +538,7 @@ class SpatialMemoryModel:
             List of matching memory items
         """
         search_types = memory_types or self.memory_types
-        results = []
+        results: List[Dict[str, Any]] = []
 
         for memory_type in search_types:
             if memory_type not in self.memory_storage:
@@ -604,11 +606,11 @@ class SpatialMemoryModel:
         query_scale = query_bounds.get("scale", "medium")
 
         # For now, just check if scales match (could be more sophisticated)
-        return item_scale == query_scale
+        return bool(item_scale == query_scale)
 
     def get_memory_statistics(self) -> Dict[str, Any]:
         """Get comprehensive memory system statistics."""
-        stats = {
+        stats: Dict[str, Any] = {
             "memory_utilization": {},
             "access_patterns": {},
             "consolidation_status": {},
@@ -677,7 +679,7 @@ class SpatialMemoryModel:
 
     def export_memory_knowledge_graph(self) -> Dict[str, Any]:
         """Export memory contents as a knowledge graph for analysis."""
-        knowledge_graph = {
+        knowledge_graph: Dict[str, Any] = {
             "nodes": [],
             "edges": [],
             "metadata": {

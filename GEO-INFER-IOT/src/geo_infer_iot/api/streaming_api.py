@@ -8,7 +8,7 @@ sensor data streaming and live monitoring capabilities.
 import logging
 import asyncio
 import json
-from typing import Dict, Optional, Set
+from typing import Dict, Optional, Set, Any
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
@@ -34,7 +34,7 @@ class StreamingAPI:
     - Streaming data export capabilities
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Streaming API", version="1.0.0")
 
@@ -44,6 +44,7 @@ class StreamingAPI:
         self.spatial_subscriptions: Dict[str, Set[WebSocket]] = {}
 
         # Initialize ingestion if available
+        self.ingestion: Optional[Any] = None
         if HAS_INGESTION:
             self.ingestion = IoTDataIngestion(None, config)
         else:
@@ -54,11 +55,11 @@ class StreamingAPI:
 
         logger.info("StreamingAPI initialized")
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Setup API routes and WebSocket endpoints."""
 
         @self.app.get("/")
-        async def root():
+        async def root() -> Dict[str, Any]:
             """API root endpoint."""
             return {
                 "service": "GEO-INFER-IOT Streaming API",
@@ -69,7 +70,7 @@ class StreamingAPI:
             }
 
         @self.app.websocket("/ws/sensor-stream")
-        async def sensor_stream_websocket(websocket: WebSocket):
+        async def sensor_stream_websocket(websocket: WebSocket) -> None:
             """WebSocket endpoint for real-time sensor data streaming."""
             await websocket.accept()
 
@@ -138,7 +139,7 @@ class StreamingAPI:
                 self.active_connections.discard(websocket)
 
         @self.app.get("/streams")
-        async def list_streams():
+        async def list_streams() -> Dict[str, Any]:
             """List available data streams."""
             streams = {
                 "sensor_data_stream": {
@@ -171,7 +172,7 @@ class StreamingAPI:
             }
 
         @self.app.get("/subscriptions")
-        async def get_subscriptions():
+        async def get_subscriptions() -> Dict[str, Any]:
             """Get current subscription status."""
             return {
                 "active_connections": len(self.active_connections),
@@ -186,7 +187,7 @@ class StreamingAPI:
                 "timestamp": datetime.now().isoformat(),
             }
 
-    def broadcast_measurement(self, measurement: Dict):
+    def broadcast_measurement(self, measurement: Dict) -> None:
         """Broadcast a new measurement to subscribed clients."""
         # This would be called when new measurements are ingested
         sensor_id = measurement.get("sensor_id")
@@ -224,7 +225,7 @@ class StreamingAPI:
                     # Remove disconnected clients
                     self.spatial_subscriptions[h3_index].discard(websocket)
 
-    def broadcast_spatial_inference(self, inference_result: Dict):
+    def broadcast_spatial_inference(self, inference_result: Dict) -> None:
         """Broadcast spatial inference results to subscribed clients."""
         message = {
             "type": "spatial_inference",

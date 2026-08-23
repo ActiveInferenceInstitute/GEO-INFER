@@ -12,7 +12,7 @@ import os
 import json
 import logging
 import asyncio
-from typing import Dict, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 from datetime import datetime
 import requests
 import pandas as pd
@@ -151,8 +151,8 @@ class DataCollectorAgent(BDIAgent):
         os.makedirs(self.storage_path, exist_ok=True)
 
         # Track collected datasets
-        self.datasets = []
-        self.unprocessed_data = []
+        self.datasets: list[Dict[str, Any]] = []
+        self.unprocessed_data: List[Dict[str, Any]] = []
 
         logger.info(f"Data collector agent {self.agent_id} initialized")
 
@@ -260,7 +260,7 @@ class DataCollectorAgent(BDIAgent):
                         "timestamp": timestamp,
                         "filename": filename,
                         "processed": False,
-                        "record_count": len(data) if isinstance(data, list) else 1,
+                        "record_count": len(cast(Any, data)),
                     }
                     agent.datasets.append(dataset_info)
                     agent.unprocessed_data.append(dataset_info)
@@ -629,7 +629,7 @@ class DataCollectorAgent(BDIAgent):
                 response = await asyncio.to_thread(
                     requests.head, url, timeout=self.config["timeout"]
                 )
-                return response.ok
+                return bool(response.ok)
             except requests.RequestException:
                 return False
 
@@ -655,7 +655,7 @@ class DataCollectorAgent(BDIAgent):
                     params={"sensor_id": sensor_id},
                     timeout=self.config["timeout"],
                 )
-                return response.ok
+                return bool(response.ok)
             except requests.RequestException:
                 return False
 
@@ -817,7 +817,7 @@ class DataCollectorAgent(BDIAgent):
 
 
 # Example usage
-async def run_agent_example():
+async def run_agent_example() -> None:
     """Run an example data collector agent."""
     # Create agent config
     config = {

@@ -14,7 +14,7 @@ import numpy as np
 
 # Optional imports for enhanced functionality
 try:
-    from geo_infer_iot.core.ingestion import BayesianSpatialInference
+    from geo_infer_iot.core.ingestion import BayesianSpatialInference  # type: ignore[attr-defined]
     HAS_BAYESIAN_INFERENCE = True
 except ImportError:
     HAS_BAYESIAN_INFERENCE = False
@@ -32,11 +32,12 @@ class BayesianInferenceAPI:
     - Real-time inference updates
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Bayesian Inference API", version="1.0.0")
 
         # Initialize Bayesian inference if available
+        self.inference_engine: Optional[Any] = None
         if HAS_BAYESIAN_INFERENCE:
             self.inference_engine = BayesianSpatialInference(
                 variable="default",
@@ -48,19 +49,19 @@ class BayesianInferenceAPI:
             self.inference_engine = None
 
         # Inference cache and history
-        self.inference_history = []
-        self.model_cache = {}
+        self.inference_history: List[Dict[str, Any]] = []
+        self.model_cache: Dict[str, Any] = {}
 
         # Setup API routes
         self._setup_routes()
 
         logger.info("BayesianInferenceAPI initialized")
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Setup API routes and endpoints."""
 
         @self.app.get("/")
-        async def root():
+        async def root() -> Dict[str, Any]:
             """API root endpoint."""
             return {
                 "service": "GEO-INFER-IOT Bayesian Inference API",
@@ -76,7 +77,7 @@ class BayesianInferenceAPI:
             variable: str = Query(..., description="Variable to infer"),
             spatial_resolution: int = Query(8, description="H3 resolution for inference"),
             confidence_levels: List[float] = Query([0.68, 0.95], description="Confidence levels")
-        ):
+        ) -> Dict[str, Any]:
             """Run Bayesian spatial inference on sensor data."""
             if self.inference_engine is None:
                 raise HTTPException(status_code=503, detail="Bayesian inference not available")
@@ -120,7 +121,7 @@ class BayesianInferenceAPI:
                 raise HTTPException(status_code=500, detail=f"Inference failed: {str(e)}")
 
         @self.app.get("/inference/{inference_id}")
-        async def get_inference_result(inference_id: int):
+        async def get_inference_result(inference_id: int) -> Dict[str, Any]:
             """Get results of a specific inference operation."""
             if inference_id >= len(self.inference_history) or inference_id < 0:
                 raise HTTPException(status_code=404, detail=f"Inference {inference_id} not found")
@@ -134,7 +135,7 @@ class BayesianInferenceAPI:
         async def get_inference_history(
             limit: int = Query(50, description="Maximum history entries to return"),
             variable: Optional[str] = Query(None, description="Filter by variable")
-        ):
+        ) -> Dict[str, Any]:
             """Get history of inference operations."""
             history = self.inference_history
 
@@ -153,7 +154,7 @@ class BayesianInferenceAPI:
             }
 
         @self.app.get("/models")
-        async def list_models():
+        async def list_models() -> Dict[str, Any]:
             """List available inference models."""
             models = {
                 "bayesian_spatial": {
@@ -175,7 +176,7 @@ class BayesianInferenceAPI:
             model_type: str,
             config: Dict,
             background_tasks: BackgroundTasks
-        ):
+        ) -> Dict[str, Any]:
             """Configure an inference model."""
             if model_type != "bayesian_spatial":
                 raise HTTPException(status_code=404, detail=f"Model type {model_type} not found")
@@ -185,6 +186,8 @@ class BayesianInferenceAPI:
 
             try:
                 # Update inference engine configuration
+                if self.inference_engine is None:
+                    raise HTTPException(status_code=503, detail="Bayesian inference not available")
                 self.inference_engine.config.update(config)
 
                 # Store in model cache
@@ -208,7 +211,7 @@ class BayesianInferenceAPI:
             variable: str = Query(..., description="Variable for predictions"),
             h3_resolution: int = Query(8, description="H3 resolution"),
             confidence_level: float = Query(0.95, description="Confidence level")
-        ):
+        ) -> Dict[str, Any]:
             """Get current spatial predictions for a variable."""
             if self.inference_engine is None:
                 raise HTTPException(status_code=503, detail="Bayesian inference not available")
@@ -239,13 +242,13 @@ class BayesianInferenceAPI:
         async def run_batch_inference(
             inference_requests: List[Dict],
             background_tasks: BackgroundTasks
-        ):
+        ) -> Dict[str, Any]:
             """Run multiple inference operations in batch."""
             if self.inference_engine is None:
                 raise HTTPException(status_code=503, detail="Bayesian inference not available")
 
-            results = []
-            errors = []
+            results: List[Dict[str, Any]] = []
+            errors: List[Dict[str, Any]] = []
 
             for request in inference_requests:
                 try:

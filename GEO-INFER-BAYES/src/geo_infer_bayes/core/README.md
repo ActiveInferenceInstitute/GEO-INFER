@@ -6,6 +6,7 @@ Core workspace within `GEO-INFER-BAYES`.
 
 - `__init__.py`
 - `abc.py`
+- `evaluation.py`
 - `hmc.py`
 - `inference.py`
 - `mcmc.py`
@@ -24,6 +25,21 @@ Core workspace within `GEO-INFER-BAYES`.
 - `posterior.py:PosteriorAnalysis` (class)
 - `smc.py:SequentialMonteCarlo` (class)
 - `variational.py:VariationalInference` (class)
+- `evaluation.py:coverage_calibration_error` (function)
+- `evaluation.py:crps` (function)
+- `evaluation.py:crps_gaussian` (function)
+- `evaluation.py:crps_pointwise` (function)
+- `evaluation.py:empirical_coverage` (function)
+- `evaluation.py:evaluate_gaussian` (function)
+- `evaluation.py:evaluate_predictive` (function)
+- `evaluation.py:interval_score` (function)
+- `evaluation.py:log_predictive_density` (function)
+- `evaluation.py:log_predictive_density_gaussian` (function)
+- `evaluation.py:log_predictive_density_pointwise` (function)
+- `evaluation.py:pinball_loss` (function)
+- `evaluation.py:pit_gaussian` (function)
+- `evaluation.py:pit_values` (function)
+- `evaluation.py:pit_uniformity_statistic` (function)
 
 ## Module Metadata
 

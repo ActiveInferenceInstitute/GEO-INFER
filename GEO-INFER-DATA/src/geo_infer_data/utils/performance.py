@@ -6,7 +6,7 @@ for data processing operations.
 """
 
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 import time
 import psutil
@@ -43,16 +43,16 @@ class PerformanceMonitor:
         self.enable_memory_monitoring = enable_memory_monitoring
         self.enable_cpu_monitoring = enable_cpu_monitoring
 
-        self.metrics = {
+        self.metrics: Dict[str, Any] = {
             "operations": {},
             "start_time": datetime.now(timezone.utc),
             "memory_usage": {},
             "cpu_usage": {},
         }
 
-        self.active_operations = {}
-        self.memory_history = []
-        self.cpu_history = []
+        self.active_operations: Dict[str, Any] = {}
+        self.memory_history: List[float] = []
+        self.cpu_history: List[float] = []
 
         # Start background monitoring if enabled
         if self.enable_memory_monitoring or self.enable_cpu_monitoring:
@@ -72,7 +72,7 @@ class PerformanceMonitor:
         """
         return OperationTracker(self, operation_name)
 
-    def record_metric(self, operation_name: str, metric_name: str, value: float):
+    def record_metric(self, operation_name: str, metric_name: str, value: float) -> None:
         """
         Record a custom metric.
 
@@ -219,10 +219,10 @@ class PerformanceMonitor:
 
         return bottlenecks
 
-    def _start_background_monitoring(self):
+    def _start_background_monitoring(self) -> None:
         """Start background system monitoring."""
 
-        def monitor_system():
+        def monitor_system() -> None:
             while True:
                 try:
                     # Monitor memory
@@ -259,7 +259,7 @@ class PerformanceMonitor:
         monitor_thread.start()
         logger.info("Started background performance monitoring")
 
-    def reset_metrics(self):
+    def reset_metrics(self) -> None:
         """Reset all performance metrics."""
         self.metrics = {
             "operations": {},
@@ -280,10 +280,10 @@ class OperationTracker:
     def __init__(self, monitor: PerformanceMonitor, operation_name: str):
         self.monitor = monitor
         self.operation_name = operation_name
-        self.start_time = None
-        self.start_memory = None
+        self.start_time: Optional[float] = None
+        self.start_memory: Optional[float] = None
 
-    def __enter__(self):
+    def __enter__(self) -> "OperationTracker":
         """Start tracking operation."""
         self.start_time = time.time()
 
@@ -300,9 +300,10 @@ class OperationTracker:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Stop tracking operation."""
         end_time = time.time()
+        assert self.start_time is not None
         execution_time = end_time - self.start_time
 
         # Record execution time
@@ -360,20 +361,24 @@ class DataProcessingProfiler:
         >>> print(f"Total time: {profile['total_time']:.2f}s")
     """
 
-    def __init__(self):
-        self.profile_data = {"steps": {}, "start_time": None, "end_time": None}
-        self.current_step = None
+    def __init__(self) -> None:
+        self.profile_data: Dict[str, Any] = {
+            "steps": {},
+            "start_time": None,
+            "end_time": None,
+        }
+        self.current_step: Optional[str] = None
 
     def profile_step(self, step_name: str) -> "StepProfiler":
         """Profile a processing step."""
         return StepProfiler(self, step_name)
 
-    def start_profiling(self):
+    def start_profiling(self) -> None:
         """Start profiling session."""
         self.profile_data["start_time"] = datetime.now(timezone.utc)
         logger.info("Started data processing profiling")
 
-    def end_profiling(self):
+    def end_profiling(self) -> None:
         """End profiling session."""
         self.profile_data["end_time"] = datetime.now(timezone.utc)
 
@@ -412,18 +417,19 @@ class StepProfiler:
     def __init__(self, profiler: DataProcessingProfiler, step_name: str):
         self.profiler = profiler
         self.step_name = step_name
-        self.start_time = None
+        self.start_time: Optional[float] = None
 
-    def __enter__(self):
+    def __enter__(self) -> "StepProfiler":
         """Start profiling step."""
         self.start_time = time.time()
         self.profiler.current_step = self.step_name
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """End profiling step."""
         end_time = time.time()
+        assert self.start_time is not None
         duration = end_time - self.start_time
 
         # Record step metrics

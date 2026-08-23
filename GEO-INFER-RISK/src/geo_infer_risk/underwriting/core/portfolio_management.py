@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional, cast
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,9 @@ def _as_mapping(value: Any) -> Mapping[str, Any]:
     if isinstance(value, Mapping):
         return value
     if hasattr(value, "to_dict"):
-        return value.to_dict()
+        return cast(Mapping[str, Any], value.to_dict())
     if hasattr(value, "__dict__"):
-        return vars(value)
+        return cast(Mapping[str, Any], vars(value))
     raise TypeError("portfolio records must be mappings or dataclass-like objects")
 
 
@@ -157,7 +157,7 @@ class PortfolioOptimizer:
     ) -> Dict[str, Any]:
         """Rank policies by risk-adjusted premium and flag capacity breaches."""
         records = [dict(_as_mapping(policy)) for policy in policies]
-        normalized = [
+        normalized: List[Dict[str, Any]] = [
             {
                 "policy_id": str(record.get("policy_id", record.get("id", index))),
                 "risk_score": float(record.get("risk_score", 0.0) or 0.0),

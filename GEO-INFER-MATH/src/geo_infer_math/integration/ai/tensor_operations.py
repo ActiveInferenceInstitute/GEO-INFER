@@ -6,7 +6,7 @@ spatial convolution kernels, and adjacency tensor construction.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Tuple, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class SpatialTensorOperations:
                 f"Available: {[m for m in dir(self._core_ops) if not m.startswith('_')]}"
             )
         logger.debug("Dispatching tensor operation '%s' shape=%s", operation, tensor.shape)
-        return getattr(self._core_ops, operation)(tensor, **kwargs)
+        return cast(np.ndarray, getattr(self._core_ops, operation)(tensor, **kwargs))
 
     def compute_distance_tensor(
         self,
@@ -81,7 +81,7 @@ class SpatialTensorOperations:
         else:
             raise ValueError(f"Unsupported metric: {metric}. Use 'euclidean' or 'manhattan'.")
 
-        return distances
+        return cast(np.ndarray, distances)
 
     def build_adjacency_tensor(
         self,
@@ -112,6 +112,7 @@ class SpatialTensorOperations:
             np.fill_diagonal(adjacency, 0.0)
             logger.debug("Adjacency tensor (threshold=%.4f): %d edges", threshold, int(adjacency.sum()))
         else:
+            assert k_nearest is not None
             adjacency = np.zeros((n, n), dtype=np.float64)
             for i in range(n):
                 indices = np.argsort(distances[i])
@@ -162,4 +163,4 @@ class SpatialTensorOperations:
             raise ValueError(f"Unknown kernel_type: {kernel_type}")
 
         logger.debug("Generated %s kernel size=%d", kernel_type, size)
-        return kernel
+        return cast(np.ndarray, kernel)

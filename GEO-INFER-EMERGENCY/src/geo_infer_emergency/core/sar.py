@@ -146,7 +146,7 @@ class SearchAndRescue:
         last_known_point: Dict[str, float],
         search_radius: Optional[float] = None,
         terrain_type: str = "mixed",
-        weather: Dict[str, Any] = None
+        weather: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Plan a SAR mission.
@@ -420,7 +420,7 @@ class SearchAndRescue:
         if len(waypoints) < 2:
             return 0
         
-        total = 0
+        total = 0.0
         for i in range(1, len(waypoints)):
             p1 = waypoints[i - 1]
             p2 = waypoints[i]
@@ -462,13 +462,16 @@ class SearchAndRescue:
         for team_data in teams:
             self.register_team(team_data)
         
-        coordination = {
+        teams_out: List[Dict[str, Any]] = []
+        search_areas_out: List[Dict[str, Any]] = []
+        assignments_out: List[Dict[str, Any]] = []
+        coordination: Dict[str, Any] = {
             "coordination_id": f"coord_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "created_at": datetime.now().isoformat(),
             "briefing_time": briefing_time.isoformat() if briefing_time else None,
-            "teams": [],
-            "search_areas": [],
-            "assignments": [],
+            "teams": teams_out,
+            "search_areas": search_areas_out,
+            "assignments": assignments_out,
             "communication_plan": {
                 "command_frequency": "SAR_CMD_1",
                 "tactical_frequencies": ["SAR_TAC_1", "SAR_TAC_2"],
@@ -483,18 +486,18 @@ class SearchAndRescue:
         
         # Process teams
         for team_id, team in self._teams.items():
-            team_info = {
+            team_info: Dict[str, Any] = {
                 "team_id": team_id,
                 "name": team.name,
                 "size": team.size,
                 "capabilities": team.capabilities,
                 "assigned_area": assignments.get(team_id)
             }
-            coordination["teams"].append(team_info)
+            teams_out.append(team_info)
         
         # Process search areas
         for area in search_areas:
-            area_info = {
+            area_info: Dict[str, Any] = {
                 "area_id": area.get("id"),
                 "priority": area.get("priority", 1),
                 "probability": area.get("probability", 0.5),
@@ -508,11 +511,11 @@ class SearchAndRescue:
                     area_info["assigned_team"] = team_id
                     break
             
-            coordination["search_areas"].append(area_info)
+            search_areas_out.append(area_info)
         
         # Create assignment list
         for team_id, area_id in assignments.items():
-            coordination["assignments"].append({
+            assignments_out.append({
                 "team_id": team_id,
                 "area_id": area_id,
                 "status": "assigned"
@@ -525,7 +528,7 @@ class SearchAndRescue:
         self,
         area_id: str,
         search_result: str,
-        new_information: Dict[str, Any] = None
+        new_information: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Update search probability based on results.

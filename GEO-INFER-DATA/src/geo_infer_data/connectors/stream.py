@@ -41,7 +41,7 @@ class StreamConnector:
         """
         raise RuntimeError("Stream connector subclasses must implement connect()")
 
-    async def stream_data(self, **kwargs) -> AsyncIterator[Dict[str, Any]]:
+    async def stream_data(self, **kwargs: Any) -> AsyncIterator[Dict[str, Any]]:
         """
         Stream data from source.
 
@@ -53,7 +53,7 @@ class StreamConnector:
         """
         raise RuntimeError("Stream connector subclasses must implement stream_data()")
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Close streaming connection."""
         logger.debug(
             "%s has no persistent streaming connection to close", type(self).__name__
@@ -87,7 +87,9 @@ class MQTTConnector(StreamConnector):
         logger.info(f"Connecting to MQTT broker at {self.host}:{self.port}")
         return True
 
-    async def stream_data(self, topic: str, **kwargs) -> AsyncIterator[Dict[str, Any]]:
+    async def stream_data(  # type: ignore[override]
+        self, topic: str, **kwargs: Any
+    ) -> AsyncIterator[Dict[str, Any]]:
         """
         Stream data from MQTT topic.
 
@@ -111,7 +113,7 @@ class MQTTConnector(StreamConnector):
             }
             await asyncio.sleep(1)
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from MQTT broker."""
         logger.info("MQTT connection closed")
 
@@ -142,7 +144,9 @@ class KafkaConnector(StreamConnector):
         logger.info(f"Connecting to Kafka cluster: {self.bootstrap_servers}")
         return True
 
-    async def stream_data(self, topic: str, **kwargs) -> AsyncIterator[Dict[str, Any]]:
+    async def stream_data(  # type: ignore[override]
+        self, topic: str, **kwargs: Any
+    ) -> AsyncIterator[Dict[str, Any]]:
         """
         Stream data from Kafka topic.
 
@@ -166,7 +170,7 @@ class KafkaConnector(StreamConnector):
             }
             await asyncio.sleep(0.5)
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from Kafka cluster."""
         logger.info("Kafka connection closed")
 
@@ -197,7 +201,9 @@ class WebSocketConnector(StreamConnector):
         logger.info(f"Connecting to WebSocket: {self.url}")
         return True
 
-    async def stream_data(self, **kwargs) -> AsyncIterator[Dict[str, Any]]:
+    async def stream_data(  # type: ignore[override, misc]
+        self, **kwargs: Any
+    ) -> AsyncIterator[Dict[str, Any]]:
         """
         Stream data from WebSocket connection.
 
@@ -223,6 +229,6 @@ class WebSocketConnector(StreamConnector):
             }
             await asyncio.sleep(0.8)
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from WebSocket server."""
         logger.info("WebSocket connection closed")

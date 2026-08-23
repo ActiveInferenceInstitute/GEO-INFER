@@ -34,6 +34,11 @@ class Regulation:
     reference_code: Optional[str] = None
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    code: Optional[str] = None
+    category: Optional[str] = None
+    superseded_regulation_id: Optional[str] = None
+    source_url: Optional[str] = None
+    tags: Optional[List[str]] = None
     
     def __eq__(self, other: object) -> bool:
         """Check equality based on the unique regulation ID."""
@@ -170,8 +175,8 @@ class RegulatoryFramework:
     id: str
     name: str
     description: str
-    domain: str  # e.g., 'environment', 'urban planning', 'finance'
-    issuing_authority: str
+    domain: str = ""  # e.g., 'environment', 'urban planning', 'finance'
+    issuing_authority: str = ""
     regulations: List[str] = field(default_factory=list)  # List of regulation IDs
     attributes: Dict[str, Any] = field(default_factory=dict)
     effective_date: Optional[datetime.date] = None
@@ -179,6 +184,9 @@ class RegulatoryFramework:
     version: str = "1.0"
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    authority: Optional[str] = None
+    sector: Optional[str] = None
+    regulation_ids: Optional[List[str]] = None
     
     @classmethod
     def create(

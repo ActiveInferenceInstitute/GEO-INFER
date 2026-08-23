@@ -54,6 +54,9 @@ def create_bounding_box(
     Returns:
         A tuple containing the bottom-left and top-right Location objects of the bounding box.
     """
+    if center_loc.latitude is None or center_loc.longitude is None:
+        raise TypeError("Center location must have non-null latitude and longitude")
+
     lat_rad = math.radians(center_loc.latitude)
     lon_rad = math.radians(center_loc.longitude)
 

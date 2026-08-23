@@ -56,13 +56,13 @@ class IoTVisualization:
     - Network health and status dashboards
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.maps_cache = {}
-        self.plot_cache = {}
+        self.maps_cache: Dict[str, Any] = {}
+        self.plot_cache: Dict[str, Any] = {}
 
         # Default visualization parameters
-        self.default_params = {
+        self.default_params: Dict[str, Any] = {
             "map_center": [40.7128, -74.0060],  # NYC coordinates
             "map_zoom": 10,
             "color_scheme": "viridis",
@@ -123,16 +123,16 @@ class IoTVisualization:
                 if latitudes and longitudes:
                     center_lat = np.mean(latitudes)
                     center_lon = np.mean(longitudes)
-                    map_center = [center_lat, center_lon]
+                    map_center: List[Any] = [center_lat, center_lon]
                 else:
-                    map_center = self.default_params["map_center"]
+                    map_center = list(self.default_params["map_center"])
             else:
-                map_center = self.default_params["map_center"]
+                map_center = list(self.default_params["map_center"])
 
             # Create base map
             m = folium.Map(
                 location=map_center,
-                zoom_start=self.default_params["map_zoom"],
+                zoom_start=int(self.default_params["map_zoom"]),
                 tiles="OpenStreetMap",
             )
 
@@ -326,14 +326,14 @@ class IoTVisualization:
             )
 
             # Create interpolation surface as GeoJSON-like features
-            features = []
+            features: List[Dict[str, Any]] = []
             for i, (lat, lon) in enumerate(target_coordinates):
                 value = interpolated_values[i]
                 unc = uncertainty[i] if uncertainty else 0.5
 
                 # Create H3 cell boundary for this point (simplified)
                 # In a real implementation, this would use proper H3 boundaries
-                feature = {
+                feature: Dict[str, Any] = {
                     "type": "Feature",
                     "geometry": {"type": "Point", "coordinates": [lon, lat]},
                     "properties": {
@@ -445,7 +445,7 @@ class IoTVisualization:
 
                 # Plot time series
                 ax.plot(
-                    timestamps,
+                    [t.timestamp() for t in timestamps],
                     values,
                     marker="o",
                     label=f"Sensor {sensor_id}",
@@ -539,7 +539,7 @@ class IoTVisualization:
                 assessments = network_data["sensor_assessments"]
 
                 # Count by status
-                status_counts = {}
+                status_counts: Dict[str, int] = {}
                 for assessment in assessments.values():
                     status = assessment.get("overall_status", "unknown")
                     status_counts[status] = status_counts.get(status, 0) + 1

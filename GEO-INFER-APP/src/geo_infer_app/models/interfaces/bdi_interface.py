@@ -21,29 +21,29 @@ try:
     )
 except ImportError:
     # Deterministic local implementation if GEO-INFER-AGENT is not available
-    class BDIAgent:
-        def __init__(self, **kwargs):
+    class BDIAgent:  # type: ignore[no-redef]
+        def __init__(self, **kwargs: Any) -> None:
             self.id = str(uuid.uuid4())
             self.name = kwargs.get("name", f"BDI-Agent-{self.id[:8]}")
-            self.beliefs = kwargs.get("beliefs", {})
-            self.desires = kwargs.get("desires", [])
-            self.intentions = []
+            self.beliefs: Dict[str, Any] = kwargs.get("beliefs", {})
+            self.desires: List[Any] = kwargs.get("desires", [])
+            self.intentions: List[Any] = []
             self.location = kwargs.get("initial_location", {"lat": 0.0, "lng": 0.0})
             self.status = "idle"
 
-        def update_beliefs(self, beliefs):
+        def update_beliefs(self, beliefs: Dict[str, Any]) -> None:
             self.beliefs.update(beliefs)
 
-        def add_desire(self, desire):
+        def add_desire(self, desire: Any) -> None:
             self.desires.append(desire)
 
-        def deliberate(self):
+        def deliberate(self) -> None:
             # Simple deterministic local implementation
             for desire in self.desires:
                 if desire not in self.intentions:
                     self.intentions.append(desire)
 
-        def execute(self):
+        def execute(self) -> None:
             # Simple deterministic local implementation
             if self.intentions:
                 self.status = "executing"
@@ -53,13 +53,13 @@ except ImportError:
             else:
                 self.status = "idle"
 
-    class BeliefBase(dict):
+    class BeliefBase(dict):  # type: ignore[no-redef]
         """Minimal belief container used when GEO-INFER-AGENT is unavailable."""
 
-    class DesireSet(list):
+    class DesireSet(list):  # type: ignore[no-redef]
         """Minimal desire container used when GEO-INFER-AGENT is unavailable."""
 
-    class IntentionStructure(list):
+    class IntentionStructure(list):  # type: ignore[no-redef]
         """Minimal intention container used when GEO-INFER-AGENT is unavailable."""
 
 
@@ -77,7 +77,7 @@ class BDIAgentInterface(AgentInterface):
     and the BDI agent implementation in GEO-INFER-AGENT.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """
         Initialize the BDI agent interface.
 

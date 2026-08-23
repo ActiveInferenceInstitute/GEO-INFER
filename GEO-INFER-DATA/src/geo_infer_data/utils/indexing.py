@@ -7,7 +7,7 @@ queries including H3, quadtree, and R-tree indexing strategies.
 
 import logging
 import math
-from typing import Dict, List, Union, Any, Tuple
+from typing import Dict, List, Union, Any, Tuple, cast
 
 import geopandas as gpd
 import pandas as pd
@@ -19,7 +19,7 @@ from shapely.ops import transform as transform_geometry
 logger = logging.getLogger(__name__)
 
 
-def _require_h3():
+def _require_h3() -> Any:
     """Load the supported native H3 runtime or fail explicitly."""
     try:
         import h3
@@ -61,8 +61,8 @@ class SpatialIndexer:
         >>> cell = indexer.latlng_to_cell(37.7749, -122.4194, resolution=9)
     """
 
-    def __init__(self):
-        self.indexes = {}
+    def __init__(self) -> None:
+        self.indexes: Dict[str, Any] = {}
         logger.info("Initialized SpatialIndexer")
 
     def create_spatial_index(self, data: gpd.GeoDataFrame, strategy: str = "h3") -> str:
@@ -264,7 +264,7 @@ class SpatialIndexer:
         Returns:
             H3 cell index
         """
-        return _require_h3().latlng_to_cell(lat, lng, resolution)
+        return cast(str, _require_h3().latlng_to_cell(lat, lng, resolution))
 
     def cell_to_latlng(self, cell: str) -> Tuple[float, float]:
         """
@@ -276,7 +276,7 @@ class SpatialIndexer:
         Returns:
             Tuple of (latitude, longitude)
         """
-        return _require_h3().cell_to_latlng(cell)
+        return cast(Tuple[float, float], _require_h3().cell_to_latlng(cell))
 
 
 class TemporalIndexer:
@@ -296,8 +296,8 @@ class TemporalIndexer:
         >>> results = indexer.query_by_time_range(index, start_time, end_time)
     """
 
-    def __init__(self):
-        self.indexes = {}
+    def __init__(self) -> None:
+        self.indexes: Dict[str, Any] = {}
         logger.info("Initialized TemporalIndexer")
 
     def create_temporal_index(

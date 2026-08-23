@@ -180,8 +180,8 @@ class AttendanceTracker:
             type_averages[t] = total / count
 
         if type_averages:
-            peak_type = max(type_averages, key=type_averages.get)
-            lowest_type = min(type_averages, key=type_averages.get)
+            peak_type = max(type_averages, key=lambda k: type_averages[k])
+            lowest_type = min(type_averages, key=lambda k: type_averages[k])
         else:
             peak_type = "none"
             lowest_type = "none"
@@ -432,7 +432,7 @@ class VoterTurnoutModel:
         if not records:
             raise ValueError("No election records available")
 
-        return round(sum(r["turnout_rate"] for r in records) / len(records), 4)
+        return float(round(sum(r["turnout_rate"] for r in records) / len(records), 4))
 
     def predict_turnout(
         self,

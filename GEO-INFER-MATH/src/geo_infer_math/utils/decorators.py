@@ -6,9 +6,10 @@ the GEO-INFER-MATH library, including caching, validation, timing, and logging.
 """
 
 import functools
+import inspect
 import time
 import logging
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Tuple, Type
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -24,10 +25,10 @@ def memoize(func: Callable) -> Callable:
     Returns:
         Memoized function
     """
-    cache = {}
+    cache: Dict[Any, Any] = {}
 
     @functools.wraps(func)
-    def memoized_func(*args, **kwargs):
+    def memoized_func(*args: Any, **kwargs: Any) -> Any:
         # Create a hashable key from arguments
         key = (args, tuple(sorted(kwargs.items())))
 
@@ -37,8 +38,8 @@ def memoize(func: Callable) -> Callable:
         return cache[key]
 
     # Add cache clearing method
-    memoized_func.clear_cache = lambda: cache.clear()
-    memoized_func.cache_info = lambda: {"size": len(cache), "keys": list(cache.keys())}
+    setattr(memoized_func, "clear_cache", lambda: cache.clear())
+    setattr(memoized_func, "cache_info", lambda: {"size": len(cache), "keys": list(cache.keys())})
 
     return memoized_func
 
@@ -55,11 +56,11 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
     """
 
     def decorator(func: Callable) -> Callable:
-        cache = {}
-        timestamps = {}
+        cache: Dict[Any, Any] = {}
+        timestamps: Dict[Any, float] = {}
 
         @functools.wraps(func)
-        def memoized_func(*args, **kwargs):
+        def memoized_func(*args: Any, **kwargs: Any) -> Any:
             # Create a hashable key from arguments
             key = (args, tuple(sorted(kwargs.items())))
 
@@ -81,11 +82,11 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
             return result
 
         # Add cache management methods
-        def clear_cache():
+        def clear_cache() -> None:
             cache.clear()
             timestamps.clear()
 
-        def cache_info():
+        def cache_info() -> Dict[str, Any]:
             current_time = time.time()
             valid_entries = sum(
                 1 for t in timestamps.values() if current_time - t < expiry_seconds
@@ -96,15 +97,15 @@ def memoize_with_expiry(expiry_seconds: float) -> Callable:
                 "expired_entries": len(cache) - valid_entries,
             }
 
-        memoized_func.clear_cache = clear_cache
-        memoized_func.cache_info = cache_info
+        setattr(memoized_func, "clear_cache", clear_cache)
+        setattr(memoized_func, "cache_info", cache_info)
 
         return memoized_func
 
     return decorator
 
 
-def validate_input(**validators) -> Callable:
+def validate_input(**validators: Any) -> Callable:
     """
     Input validation decorator.
 
@@ -117,18 +118,18 @@ def validate_input(**validators) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def validated_func(*args, **kwargs):
+        def validated_func(*args: Any, **kwargs: Any) -> Any:
             # Get function signature
-            sig = functools.signature(func)
+            sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
 
-            # Validate each parameter
+            # Validate arguments
             for param_name, validator in validators.items():
                 if param_name in bound_args.arguments:
-                    value = bound_args.arguments[param_name]
+                    val = bound_args.arguments[param_name]
                     try:
-                        validator(value)
+                        validator(val)
                     except Exception as e:
                         raise ValueError(
                             f"Validation failed for parameter '{param_name}': {e}"
@@ -154,7 +155,7 @@ def log_execution(level: int = logging.INFO) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def logged_func(*args, **kwargs):
+        def logged_func(*args: Any, **kwargs: Any) -> Any:
             func_name = func.__name__
 
             # Log function call
@@ -185,7 +186,7 @@ def time_execution(func: Callable) -> Callable:
     """
 
     @functools.wraps(func)
-    def timed_func(*args, **kwargs):
+    def timed_func(*args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
@@ -211,8 +212,8 @@ def requires_positive_values(*param_names: str) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def validated_func(*args, **kwargs):
-            sig = functools.signature(func)
+        def validated_func(*args: Any, **kwargs: Any) -> Any:
+            sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
 
@@ -256,8 +257,8 @@ def requires_finite_values(*param_names: str) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def validated_func(*args, **kwargs):
-            sig = functools.signature(func)
+        def validated_func(*args: Any, **kwargs: Any) -> Any:
+            sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
 
@@ -301,7 +302,7 @@ def handle_exceptions(return_value: Any = None) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def exception_handled_func(*args, **kwargs):
+        def exception_handled_func(*args: Any, **kwargs: Any) -> Any:
             try:
                 return func(*args, **kwargs)
             except Exception as e:
@@ -326,8 +327,8 @@ def requires_numpy_arrays(*param_names: str) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def array_func(*args, **kwargs):
-            sig = functools.signature(func)
+        def array_func(*args: Any, **kwargs: Any) -> Any:
+            sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
 
@@ -351,7 +352,7 @@ def requires_numpy_arrays(*param_names: str) -> Callable:
     return decorator
 
 
-def cache_results(cache_dict: Optional[Dict] = None) -> Callable:
+def cache_results(cache_dict: Optional[Dict[Any, Any]] = None) -> Callable:
     """
     External cache decorator using a provided dictionary.
 
@@ -361,29 +362,28 @@ def cache_results(cache_dict: Optional[Dict] = None) -> Callable:
     Returns:
         Caching decorator
     """
-    if cache_dict is None:
-        cache_dict = {}
+    target_cache: Dict[Any, Any] = cache_dict if cache_dict is not None else {}
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def cached_func(*args, **kwargs):
+        def cached_func(*args: Any, **kwargs: Any) -> Any:
             # Create a hashable key from arguments
             key = (args, tuple(sorted(kwargs.items())))
 
-            if key not in cache_dict:
-                cache_dict[key] = func(*args, **kwargs)
+            if key not in target_cache:
+                target_cache[key] = func(*args, **kwargs)
 
-            return cache_dict[key]
+            return target_cache[key]
 
         # Add cache management methods
-        def clear_cache():
-            cache_dict.clear()
+        def clear_cache() -> None:
+            target_cache.clear()
 
-        def get_cache_size():
-            return len(cache_dict)
+        def get_cache_size() -> int:
+            return len(target_cache)
 
-        cached_func.clear_cache = clear_cache
-        cached_func.cache_size = get_cache_size
+        setattr(cached_func, "clear_cache", clear_cache)
+        setattr(cached_func, "cache_size", get_cache_size)
 
         return cached_func
 
@@ -403,7 +403,7 @@ def validate_output(output_validator: Callable) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def validated_output_func(*args, **kwargs):
+        def validated_output_func(*args: Any, **kwargs: Any) -> Any:
             result = func(*args, **kwargs)
 
             try:
@@ -419,7 +419,7 @@ def validate_output(output_validator: Callable) -> Callable:
 
 
 def retry_on_failure(
-    max_retries: int = 3, exceptions: tuple = (Exception,), delay: float = 0.1
+    max_retries: int = 3, exceptions: Tuple[Type[BaseException], ...] = (Exception,), delay: float = 0.1
 ) -> Callable:
     """
     Retry decorator for handling transient failures.
@@ -435,8 +435,8 @@ def retry_on_failure(
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def retry_func(*args, **kwargs):
-            last_exception = None
+        def retry_func(*args: Any, **kwargs: Any) -> Any:
+            last_exception: Optional[BaseException] = None
 
             for attempt in range(max_retries + 1):
                 try:
@@ -449,7 +449,9 @@ def retry_on_failure(
                     else:
                         logger.error(f"All {max_retries + 1} attempts failed")
 
-            raise last_exception
+            if last_exception is not None:
+                raise last_exception
+            raise RuntimeError("Retry failed without exception")
 
         return retry_func
 

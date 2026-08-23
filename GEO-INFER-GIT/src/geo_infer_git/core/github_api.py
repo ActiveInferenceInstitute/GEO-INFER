@@ -11,10 +11,10 @@ for repository discovery, metadata retrieval, and rate limit management.
 import os
 import time
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, cast
 from dataclasses import dataclass
 import requests
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]
 from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
@@ -93,9 +93,9 @@ class GitHubAPI:
     - Repository filtering and selection
     """
 
-    def __init__(self, token: str = None, api_url: str = "https://api.github.com",
+    def __init__(self, token: Optional[str] = None, api_url: str = "https://api.github.com",
                  wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0):
+                 retry_delay: float = 1.0) -> None:
         """
         Initialize GitHub API client.
 
@@ -134,7 +134,7 @@ class GitHubAPI:
                 'Authorization': f'token {self.token}'
             })
 
-    def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
         """
         Make a request to GitHub API with error handling.
 
@@ -198,8 +198,8 @@ class GitHubAPI:
             used=core.get('used', 0)
         )
 
-    def get_user_repositories(self, username: str, include_repos: List[str] = None,
-                             exclude_repos: List[str] = None, max_repos: int = 100) -> List[GitHubRepository]:
+    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
+                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitHubRepository]:
         """
         Get repositories for a specific user.
 
@@ -212,7 +212,7 @@ class GitHubAPI:
         Returns:
             List of GitHubRepository objects
         """
-        repositories = []
+        repositories: List[GitHubRepository] = []
         page = 1
         per_page = min(100, max_repos)
 
@@ -257,8 +257,8 @@ class GitHubAPI:
         logger.info(f"Found {len(repositories)} repositories for user {username}")
         return repositories
 
-    def get_organization_repositories(self, org_name: str, include_repos: List[str] = None,
-                                    exclude_repos: List[str] = None, max_repos: int = 100) -> List[GitHubRepository]:
+    def get_organization_repositories(self, org_name: str, include_repos: Optional[List[str]] = None,
+                                    exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitHubRepository]:
         """
         Get repositories for a specific organization.
 
@@ -271,7 +271,7 @@ class GitHubAPI:
         Returns:
             List of GitHubRepository objects
         """
-        repositories = []
+        repositories: List[GitHubRepository] = []
         page = 1
         per_page = min(100, max_repos)
 
@@ -336,9 +336,9 @@ class GitHubAPI:
 
         return GitHubRepository.from_api_response(repo_data)
 
-    def search_repositories(self, query: str, language: str = None, stars: str = None,
-                           forks: str = None, size: str = None, followers: str = None,
-                           license: str = None, sort: str = 'updated', order: str = 'desc',
+    def search_repositories(self, query: str, language: Optional[str] = None, stars: Optional[str] = None,
+                           forks: Optional[str] = None, size: Optional[str] = None, followers: Optional[str] = None,
+                           license: Optional[str] = None, sort: str = 'updated', order: str = 'desc',
                            per_page: int = 30, max_results: int = 100) -> List[GitHubRepository]:
         """
         Search for repositories using GitHub's search API.
@@ -359,19 +359,12 @@ class GitHubAPI:
         Returns:
             List of GitHubRepository objects
         """
-        repositories = []
+        repositories: List[GitHubRepository] = []
         page = 1
 
         while len(repositories) < max_results:
             endpoint = "/search/repositories"
-            params = {
-                'q': query,
-                'sort': sort,
-                'order': order,
-                'per_page': min(per_page, 100),
-                'page': page
-            }
-
+            query_str = str(query)
             # Add optional filters
             filters = []
             if language:
@@ -388,7 +381,15 @@ class GitHubAPI:
                 filters.append(f'license:{license}')
 
             if filters:
-                params['q'] += ' ' + ' '.join(filters)
+                query_str = query_str + ' ' + ' '.join(filters)
+
+            params: Dict[str, Any] = {
+                'q': query_str,
+                'sort': sort,
+                'order': order,
+                'per_page': min(per_page, 100),
+                'page': page
+            }
 
             response = self._make_request('GET', endpoint, params=params)
             search_data = response.json()
@@ -419,9 +420,9 @@ class GitHubAPI:
         return repositories
 
     def filter_repositories(self, repositories: List[GitHubRepository],
-                           min_stars: int = 0, max_size: int = None,
-                           languages: List[str] = None, exclude_forks: bool = False,
-                           exclude_archived: bool = False, has_topics: List[str] = None) -> List[GitHubRepository]:
+                           min_stars: int = 0, max_size: Optional[int] = None,
+                           languages: Optional[List[str]] = None, exclude_forks: bool = False,
+                           exclude_archived: bool = False, has_topics: Optional[List[str]] = None) -> List[GitHubRepository]:
         """
         Filter repositories based on various criteria.
 
@@ -485,7 +486,7 @@ class GitHubAPI:
         """
         endpoint = f"/repos/{owner}/{repo}/languages"
         response = self._make_request('GET', endpoint)
-        return response.json()
+        return cast(Dict[str, int], response.json())
 
     def get_repository_topics(self, owner: str, repo: str) -> List[str]:
         """
@@ -501,7 +502,7 @@ class GitHubAPI:
         endpoint = f"/repos/{owner}/{repo}/topics"
         response = self._make_request('GET', endpoint)
         data = response.json()
-        return data.get('names', [])
+        return cast(List[str], data.get('names', []))
 
     def check_repository_exists(self, owner: str, repo: str) -> bool:
         """
@@ -536,7 +537,7 @@ class GitHubAPI:
         params = {'per_page': min(max_contributors, 100)}
 
         response = self._make_request('GET', endpoint, params=params)
-        return response.json()[:max_contributors]
+        return cast(List[Dict[str, Any]], response.json())[:max_contributors]
 
     def close(self) -> None:
         """Close the HTTP session."""

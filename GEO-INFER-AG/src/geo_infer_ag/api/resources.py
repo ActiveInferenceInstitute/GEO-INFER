@@ -436,5 +436,5 @@ class YieldResource:
         if not matching:
             return None
         return round(
-            sum(r["yield_per_hectare"] for r in matching) / len(matching), 2
+            sum(float(r["yield_per_hectare"]) for r in matching) / len(matching), 2
         )

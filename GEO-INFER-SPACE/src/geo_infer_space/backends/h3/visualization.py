@@ -68,7 +68,7 @@ class H3MapVisualizer:
     choropleth maps, and analytical visualizations.
     """
     
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize visualizer for an H3Grid.
         
@@ -78,10 +78,12 @@ class H3MapVisualizer:
         self.grid = grid
         self.analytics = H3Analytics(grid)
     
-    def create_folium_map(self, 
-                         value_column: Optional[str] = None,
-                         color_scheme: str = 'viridis',
-                         **kwargs) -> 'folium.Map':
+    def create_folium_map(
+        self,
+        value_column: Optional[str] = None,
+        color_scheme: str = 'viridis',
+        **kwargs: Any,
+    ) -> 'folium.Map':
         """
         Create interactive Folium map with H3 grid overlay.
         
@@ -135,8 +137,13 @@ class H3MapVisualizer:
         
         return m
     
-    def _add_choropleth_layer(self, m: 'folium.Map', value_column: str, 
-                            color_scheme: str, **kwargs):
+    def _add_choropleth_layer(
+        self,
+        m: 'folium.Map',
+        value_column: str,
+        color_scheme: str,
+        **kwargs: Any,
+    ) -> None:
         """Add choropleth layer to map."""
         # Get values for coloring
         values = []
@@ -160,7 +167,7 @@ class H3MapVisualizer:
             colormap = plt.cm.get_cmap(color_scheme)
         else:
             # Fallback color mapping
-            colormap = lambda x: (x, 0, 1-x)  # Simple red-blue gradient
+            colormap = lambda x: (x, 0, 1-x)  # type: ignore[assignment]
         
         # Add cells with colors
         for cell, norm_value, actual_value in zip(self.grid.cells, normalized_values, values):
@@ -187,7 +194,9 @@ class H3MapVisualizer:
         # Add colorbar legend
         self._add_colorbar_legend(m, min_val, max_val, color_scheme, value_column)
     
-    def _add_simple_overlay(self, m: 'folium.Map', **kwargs):
+    def _add_simple_overlay(
+        self, m: 'folium.Map', **kwargs: Any
+    ) -> None:
         """Add simple colored overlay to map."""
         cell_color = kwargs.get('cell_color', 'blue')
         
@@ -233,7 +242,7 @@ class H3MapVisualizer:
         return popup_html
     
     def _add_colorbar_legend(self, m: 'folium.Map', min_val: float, max_val: float, 
-                           color_scheme: str, value_column: str):
+                           color_scheme: str, value_column: str) -> None:
         """Add colorbar legend to map."""
         # Create colorbar HTML
         colorbar_html = f"""
@@ -247,9 +256,11 @@ class H3MapVisualizer:
             <p>Scheme: {color_scheme}</p>
         </div>
         """
-        m.get_root().html.add_child(folium.Element(colorbar_html))
+        m.get_root().html.add_child(  # type: ignore[attr-defined]
+            folium.Element(colorbar_html)
+        )
     
-    def _add_statistics_control(self, m: 'folium.Map'):
+    def _add_statistics_control(self, m: 'folium.Map') -> None:
         """Add grid statistics control to map."""
         stats = self.analytics.basic_statistics()
         
@@ -265,9 +276,13 @@ class H3MapVisualizer:
             <p><b>Resolutions:</b> {list(stats.get('resolution_distribution', {}).keys())}</p>
         </div>
         """
-        m.get_root().html.add_child(folium.Element(stats_html))
+        m.get_root().html.add_child(  # type: ignore[attr-defined]
+            folium.Element(stats_html)
+        )
     
-    def create_heatmap(self, value_column: str, **kwargs) -> 'folium.Map':
+    def create_heatmap(
+        self, value_column: str, **kwargs: Any
+    ) -> 'folium.Map':
         """
         Create heatmap visualization using cell centroids.
         
@@ -319,7 +334,7 @@ class H3StaticVisualizer:
     for H3 grid analysis and visualization.
     """
     
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize static visualizer for an H3Grid.
         
@@ -329,8 +344,11 @@ class H3StaticVisualizer:
         self.grid = grid
         self.analytics = H3Analytics(grid)
     
-    def plot_grid_overview(self, figsize: Tuple[int, int] = (12, 8), 
-                          save_path: Optional[str] = None):
+    def plot_grid_overview(
+        self,
+        figsize: Tuple[int, int] = (12, 8),
+        save_path: Optional[str] = None,
+    ) -> Optional[Any]:
         """
         Create comprehensive grid overview plot.
         
@@ -369,7 +387,7 @@ class H3StaticVisualizer:
         
         return fig
     
-    def _plot_spatial_distribution(self, ax):
+    def _plot_spatial_distribution(self, ax: Any) -> None:
         """Plot spatial distribution of cells."""
         if not self.grid.cells:
             ax.text(0.5, 0.5, 'No cells to display', ha='center', va='center', transform=ax.transAxes)
@@ -393,7 +411,7 @@ class H3StaticVisualizer:
         if MATPLOTLIB_AVAILABLE:
             plt.colorbar(scatter, ax=ax, label='Cell Index')
     
-    def _plot_resolution_distribution(self, ax):
+    def _plot_resolution_distribution(self, ax: Any) -> None:
         """Plot resolution distribution."""
         stats = self.analytics.resolution_analysis()
         
@@ -417,7 +435,7 @@ class H3StaticVisualizer:
             ax.text(bar.get_x() + bar.get_width()/2., height + 0.1,
                    f'{count}', ha='center', va='bottom')
     
-    def _plot_area_distribution(self, ax):
+    def _plot_area_distribution(self, ax: Any) -> None:
         """Plot area distribution histogram."""
         if not self.grid.cells:
             ax.text(0.5, 0.5, 'No area data', ha='center', va='center', transform=ax.transAxes)
@@ -439,7 +457,7 @@ class H3StaticVisualizer:
                transform=ax.transAxes, verticalalignment='top',
                bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
-    def _plot_statistics_table(self, ax):
+    def _plot_statistics_table(self, ax: Any) -> None:
         """Plot statistics as table."""
         stats = self.analytics.basic_statistics()
         
@@ -475,9 +493,12 @@ class H3StaticVisualizer:
         ax.axis('off')
         ax.set_title('Grid Statistics')
     
-    def plot_hexagon_grid(self, value_column: Optional[str] = None, 
-                         figsize: Tuple[int, int] = (12, 10),
-                         save_path: Optional[str] = None):
+    def plot_hexagon_grid(
+        self,
+        value_column: Optional[str] = None,
+        figsize: Tuple[int, int] = (12, 10),
+        save_path: Optional[str] = None,
+    ) -> Optional[Any]:
         """
         Plot actual hexagonal grid with proper hexagon shapes.
         
@@ -505,7 +526,7 @@ class H3StaticVisualizer:
             values = [cell.properties.get(value_column, 0) for cell in self.grid.cells]
             if any(v != 0 for v in values):
                 norm = Normalize(vmin=min(values), vmax=max(values))
-                cmap = plt.cm.viridis
+                cmap = plt.cm.viridis  # type: ignore[attr-defined]
                 colors = [cmap(norm(v)) for v in values]
             else:
                 colors = ['lightblue'] * len(self.grid.cells)
@@ -550,8 +571,11 @@ class H3StaticVisualizer:
         
         return fig
     
-    def plot_connectivity_analysis(self, figsize: Tuple[int, int] = (10, 6),
-                                 save_path: Optional[str] = None):
+    def plot_connectivity_analysis(
+        self,
+        figsize: Tuple[int, int] = (10, 6),
+        save_path: Optional[str] = None,
+    ) -> Optional[Any]:
         """
         Plot connectivity analysis results.
         
@@ -626,7 +650,7 @@ class H3InteractiveVisualizer:
     for detailed H3 grid exploration and analysis.
     """
     
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize interactive visualizer for an H3Grid.
         
@@ -636,8 +660,9 @@ class H3InteractiveVisualizer:
         self.grid = grid
         self.analytics = H3Analytics(grid)
     
-    def create_plotly_map(self, value_column: Optional[str] = None,
-                         **kwargs) -> 'go.Figure':
+    def create_plotly_map(
+        self, value_column: Optional[str] = None, **kwargs: Any
+    ) -> 'go.Figure':
         """
         Create interactive Plotly map with H3 hexagons.
         
@@ -720,7 +745,7 @@ class H3InteractiveVisualizer:
         
         return fig
     
-    def create_dashboard(self, **kwargs) -> 'go.Figure':
+    def create_dashboard(self, **kwargs: Any) -> 'go.Figure':
         """
         Create comprehensive dashboard with multiple views.
         
@@ -820,7 +845,7 @@ class H3AnimationVisualizer:
     temporal analysis, and dynamic spatial patterns.
     """
     
-    def __init__(self, grids: List[H3Grid]):
+    def __init__(self, grids: List[H3Grid]) -> None:
         """
         Initialize animation visualizer for multiple H3Grids.
         
@@ -830,9 +855,12 @@ class H3AnimationVisualizer:
         self.grids = grids
         self.timestamps = list(range(len(grids)))
     
-    def create_temporal_animation(self, value_column: str, 
-                                save_path: Optional[str] = None,
-                                **kwargs) -> 'go.Figure':
+    def create_temporal_animation(
+        self,
+        value_column: str,
+        save_path: Optional[str] = None,
+        **kwargs: Any,
+    ) -> 'go.Figure':
         """
         Create animated visualization showing temporal changes.
         

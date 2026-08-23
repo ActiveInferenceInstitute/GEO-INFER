@@ -54,7 +54,7 @@ class DigitalTrace:
     access_count: int = 0
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate trace after initialization."""
         if not self.trace_id:
             self.trace_id = str(uuid.uuid4())
@@ -180,8 +180,8 @@ class DigitalStigmergy:
         self.access_patterns: Dict[str, int] = defaultdict(int)
 
         # Integration components
-        self.spatial_indexer = None
-        self.spatial_analytics = None
+        self.spatial_indexer: Any = None
+        self.spatial_analytics: Any = None
 
         # Performance tracking
         self.performance_stats = {
@@ -514,7 +514,7 @@ class DigitalStigmergy:
             logger.warning(f"Failed to get spatial cells: {e}")
             return []
 
-    def _get_temporal_cutoff(self, temporal_window: str) -> datetime:
+    def _get_temporal_cutoff(self, temporal_window: Optional[str]) -> datetime:
         """Get temporal cutoff based on window specification."""
         now = datetime.now()
 
@@ -540,7 +540,7 @@ class DigitalStigmergy:
         if trace is None or trace.location is None:
             return False
         lat, lng = np.asarray(trace.location, dtype=float)
-        return (
+        return bool(
             bounds["min_lat"] <= lat <= bounds["max_lat"]
             and bounds["min_lng"] <= lng <= bounds["max_lng"]
         )
@@ -599,7 +599,7 @@ class DigitalStigmergy:
     async def extract_patterns(
         self,
         information_contributions: Optional[List[DigitalTrace]] = None,
-        pattern_types: List[str] = None,
+        pattern_types: Optional[List[str]] = None,
         temporal_analysis: str = "recent",
     ) -> Dict[str, Any]:
         """
@@ -628,7 +628,7 @@ class DigitalStigmergy:
                 "anomalies",
                 "trends",
             ]
-            patterns = {}
+            patterns: Dict[str, Any] = {}
 
             # Spatial clustering analysis
             if "clusters" in pattern_types and self.spatial_analytics:
@@ -703,7 +703,7 @@ class DigitalStigmergy:
             for i, cluster in enumerate(clusters["clusters"]):
                 cluster_traces = [spatial_traces[j] for j in cluster["indices"]]
 
-                info_types = defaultdict(int)
+                info_types: defaultdict[str, int] = defaultdict(int)
                 for trace in cluster_traces:
                     info_types[trace.information_type] += 1
 
@@ -730,7 +730,7 @@ class DigitalStigmergy:
         self, contributions: List[DigitalTrace]
     ) -> Dict[str, Any]:
         """Analyze information flows and sharing patterns."""
-        flows = {
+        flows: Dict[str, Any] = {
             "information_type_flows": defaultdict(list),
             "agent_contribution_patterns": defaultdict(list),
             "temporal_flows": defaultdict(list),
@@ -772,7 +772,7 @@ class DigitalStigmergy:
 
     def _detect_anomalies(self, contributions: List[DigitalTrace]) -> Dict[str, Any]:
         """Detect anomalous patterns in information contributions."""
-        anomalies = {
+        anomalies: Dict[str, Any] = {
             "unusual_activity_spikes": [],
             "low_credibility_clusters": [],
             "spatial_anomalies": [],
@@ -784,7 +784,7 @@ class DigitalStigmergy:
 
         try:
             # Detect temporal spikes in activity
-            hourly_activity = defaultdict(int)
+            hourly_activity: defaultdict[int, int] = defaultdict(int)
             for trace in contributions:
                 hour = trace.timestamp.hour
                 hourly_activity[hour] += 1
@@ -855,7 +855,7 @@ class DigitalStigmergy:
         self, contributions: List[DigitalTrace], temporal_scope: str
     ) -> Dict[str, Any]:
         """Analyze temporal trends in information contributions."""
-        trends = {
+        trends: Dict[str, Any] = {
             "information_type_trends": defaultdict(list),
             "activity_trends": defaultdict(int),
             "credibility_trends": defaultdict(list),
@@ -866,7 +866,7 @@ class DigitalStigmergy:
 
         for period, period_traces in time_groups.items():
             # Information type trends
-            type_counts = defaultdict(int)
+            type_counts: defaultdict[str, int] = defaultdict(int)
             for trace in period_traces:
                 type_counts[trace.information_type] += 1
 
@@ -942,7 +942,7 @@ class DigitalStigmergy:
             freshness_score = min(1.0, recent_traces / max(10, total_traces * 0.1))
 
             # Combine metrics
-            quality_score = (
+            quality_score = float(
                 avg_credibility * 0.4 + diversity_score * 0.3 + freshness_score * 0.3
             )
 
@@ -987,7 +987,7 @@ class DigitalStigmergy:
         }
 
         # Information type distribution
-        type_distribution = defaultdict(int)
+        type_distribution: defaultdict[str, int] = defaultdict(int)
         for trace in self.digital_traces.values():
             if not trace.is_expired():
                 type_distribution[trace.information_type] += 1
@@ -996,7 +996,7 @@ class DigitalStigmergy:
 
         # Query pattern analysis
         if self.query_history:
-            query_types = defaultdict(int)
+            query_types: defaultdict[str, int] = defaultdict(int)
             for query in self.query_history:
                 query_types[query.query_type] += 1
 

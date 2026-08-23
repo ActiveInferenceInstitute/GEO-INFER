@@ -64,6 +64,7 @@ def create_design_matrix(
         # Build from factors and covariates
         design_components = []
         names = []
+        covariates_map = data.covariates or {}
 
         # Intercept
         if intercept:
@@ -72,19 +73,18 @@ def create_design_matrix(
 
         # Covariates
         if covariates:
-            data_covariates = data.covariates or {}
             for cov_name in covariates:
-                if cov_name not in data_covariates:
+                if cov_name not in covariates_map:
                     raise ValueError(f"Covariate '{cov_name}' not found in data")
-                design_components.append(data_covariates[cov_name])
+                design_components.append(covariates_map[cov_name])
                 names.append(cov_name)
 
         # Factors (categorical variables)
         if factors:
             for factor_name, levels in factors.items():
-                if factor_name in data.covariates:
+                if factor_name in covariates_map:
                     # Convert categorical covariate to dummy variables
-                    factor_values = data.covariates[factor_name]
+                    factor_values = covariates_map[factor_name]
                     dummy_matrix = _create_dummy_variables(factor_values, levels)
                     for i, level in enumerate(levels[:-1]):  # n-1 dummies
                         design_components.append(dummy_matrix[:, i])
@@ -113,6 +113,7 @@ def _parse_formula(
 
     # Parse predictors
     terms = [term.strip() for term in predictors.split("+")]
+    covariates_map = data.covariates or {}
 
     design_components = []
     names = []
@@ -126,15 +127,15 @@ def _parse_formula(
         term = term.strip()
         if term == "0":
             continue  # No intercept
-        elif term in data.covariates:
-            design_components.append(data.covariates[term])
+        elif term in covariates_map:
+            design_components.append(covariates_map[term])
             names.append(term)
         elif "*" in term:
             # Interaction term (simplified)
             var1, var2 = term.split("*", 1)
             var1, var2 = var1.strip(), var2.strip()
-            if var1 in data.covariates and var2 in data.covariates:
-                interaction = data.covariates[var1] * data.covariates[var2]
+            if var1 in covariates_map and var2 in covariates_map:
+                interaction = covariates_map[var1] * covariates_map[var2]
                 design_components.append(interaction)
                 names.append(f"{var1}:{var2}")
         else:
@@ -168,7 +169,7 @@ def generate_coordinates(
     n_points: int = 100,
     bounds: Optional[Tuple[float, float, float, float]] = None,
     random_seed: Optional[int] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> np.ndarray:
     """
     Generate synthetic coordinate arrays for testing and examples.

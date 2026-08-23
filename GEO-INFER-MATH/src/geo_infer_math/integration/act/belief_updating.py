@@ -9,7 +9,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -137,10 +137,10 @@ class BeliefUpdating:
             "Precision-weighted update: learning_rate=%.4f, max_error=%.4f",
             learning_rate, float(np.max(np.abs(prediction_errors))),
         )
-        return updated
+        return cast(np.ndarray, updated)
 
     def _softmax(self, logits: np.ndarray) -> np.ndarray:
         """Numerically stable softmax normalisation."""
         x = logits - np.max(logits)
         exp_x = np.exp(x)
-        return exp_x / (exp_x.sum() + self._epsilon)
+        return cast(np.ndarray, exp_x / (exp_x.sum() + self._epsilon))

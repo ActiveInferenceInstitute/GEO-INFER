@@ -45,7 +45,7 @@ class H3SpatialGraph:
     def __init__(self, cells: List[str], max_distance: int = 3):
         """Build distance-indexed H3 neighbor sets for known cells."""
         self.cells = cells
-        self.neighbors = {}
+        self.neighbors: Dict[str, Dict[int, set]] = {}
         cell_set = set(cells)
         for cell in cells:
             self.neighbors[cell] = {}
@@ -63,7 +63,7 @@ class LevelSpatialGraph:
     def __init__(self, cells: List[str]):
         """Build direct H3 neighbor sets for known cells."""
         self.cells = cells
-        self.neighbors = {}
+        self.neighbors: Dict[str, set] = {}
         cell_set = set(cells)
         for cell in cells:
             try:
@@ -126,10 +126,10 @@ class EnvironmentalActiveInferenceEngine:
     def __init__(
         self,
         h3_resolution: int = 8,
-        environmental_variables: List[str] = None,
+        environmental_variables: Optional[List[str]] = None,
         prediction_horizon: int = 10,
         uncertainty_threshold: float = 0.1,
-    ):
+    ) -> None:
         """
         Initialize Environmental Active Inference Engine.
 
@@ -153,10 +153,10 @@ class EnvironmentalActiveInferenceEngine:
         self.uncertainty_threshold = uncertainty_threshold
 
         # Initialize internal models
-        self.spatial_graph = None
-        self.environmental_states = {}
-        self.observation_history = []
-        self.prediction_models = {}
+        self.spatial_graph: Optional[H3SpatialGraph] = None
+        self.environmental_states: Dict[str, EnvironmentalState] = {}
+        self.observation_history: List[Any] = []
+        self.prediction_models: Dict[str, Any] = {}
         self.resource_optimizer = None
 
         # Gaussian Process models for each environmental variable
@@ -166,7 +166,7 @@ class EnvironmentalActiveInferenceEngine:
             f"Initialized EnvironmentalActiveInferenceEngine with {len(self.environmental_variables)} variables"
         )
 
-    def _initialize_gp_models(self):
+    def _initialize_gp_models(self) -> None:
         """Initialize Gaussian Process models for environmental prediction."""
         self.gp_models = {}
 
@@ -215,7 +215,7 @@ class EnvironmentalActiveInferenceEngine:
         if "coordinates" in boundary:
             raw = boundary["coordinates"]
 
-            def _is_coord_pair(item):
+            def _is_coord_pair(item: Any) -> bool:
                 return (
                     isinstance(item, (list, tuple))
                     and len(item) >= 2
@@ -223,7 +223,7 @@ class EnvironmentalActiveInferenceEngine:
                     and isinstance(item[1], (int, float))
                 )
 
-            def _extract_rings(data):
+            def _extract_rings(data: Any) -> List[Any]:
                 if not isinstance(data, (list, tuple)) or len(data) == 0:
                     return []
                 if _is_coord_pair(data[0]):
@@ -262,7 +262,7 @@ class EnvironmentalActiveInferenceEngine:
 
     def _create_h3_spatial_graph(
         self, h3_cells: List[str], max_neighbor_distance: int = 3
-    ) -> object:
+    ) -> H3SpatialGraph:
         """Create a simple H3 spatial graph for neighbor relationships."""
         return H3SpatialGraph(h3_cells, max_neighbor_distance)
 
@@ -276,7 +276,7 @@ class EnvironmentalActiveInferenceEngine:
             observations: Dictionary mapping H3 cells to environmental observations
             timestamp: Observation timestamp
         """
-        observation_data = {
+        observation_data: Dict[str, Any] = {
             "timestamp": timestamp,
             "observations": observations,
             "updated_cells": [],
@@ -303,15 +303,15 @@ class EnvironmentalActiveInferenceEngine:
             f"Updated {len(observation_data['updated_cells'])} cells with new observations"
         )
 
-    def _update_prediction_models(self):
+    def _update_prediction_models(self) -> None:
         """Update Gaussian Process models with latest observations."""
         if len(self.observation_history) < 2:
             return
 
         # Prepare training data for each environmental variable
         for var in self.environmental_variables:
-            X_spatial = []  # [lat, lng, time]
-            y_values = []  # environmental variable values
+            X_spatial: Any = []  # [lat, lng, time]
+            y_values: Any = []  # environmental variable values
 
             for obs_record in self.observation_history:
                 timestamp = obs_record["timestamp"]
@@ -335,7 +335,7 @@ class EnvironmentalActiveInferenceEngine:
                     logger.warning(f"Failed to update GP model for {var}: {e}")
 
     def predict_environmental_dynamics(
-        self, forecast_timesteps: int = None
+        self, forecast_timesteps: Optional[int] = None
     ) -> Dict[str, List[SpatialPrediction]]:
         """
         Predict future environmental states using learned dynamics.
@@ -580,8 +580,8 @@ class EnvironmentalActiveInferenceEngine:
                         if pred.location == cell:
                             uncertainties.append(pred.uncertainty)
                 avg_uncertainty = np.mean(uncertainties) if uncertainties else 0.5
-                urgency = avg_uncertainty  # High uncertainty = high urgency
-                impact_potential = (
+                urgency = float(avg_uncertainty)  # High uncertainty = high urgency
+                impact_potential = float(
                     avg_uncertainty  # High uncertainty = high impact potential
                 )
             else:
@@ -615,11 +615,11 @@ class EnvironmentalActiveInferenceEngine:
 
             priority_data.update(
                 {
-                    "priority": priority_score,
-                    "urgency": urgency,
-                    "impact_potential": impact_potential,
-                    "uncertainty": avg_uncertainty,
-                    "feasibility": feasibility,
+                    "priority": float(priority_score),
+                    "urgency": float(urgency),
+                    "impact_potential": float(impact_potential),
+                    "uncertainty": float(avg_uncertainty),
+                    "feasibility": float(feasibility),
                 }
             )
 
@@ -688,7 +688,7 @@ class EnvironmentalActiveInferenceEngine:
         Returns:
             Comprehensive uncertainty analysis
         """
-        uncertainty_analysis = {
+        uncertainty_analysis: Dict[str, Any] = {
             "global_uncertainty": {},
             "spatial_uncertainty_patterns": {},
             "temporal_uncertainty_trends": {},
@@ -770,7 +770,7 @@ class EnvironmentalActiveInferenceEngine:
         Returns:
             Dictionary containing free energy metrics
         """
-        free_energy_metrics = {
+        free_energy_metrics: Dict[str, Any] = {
             "total_free_energy": 0.0,
             "spatial_free_energy": {},
             "variable_free_energy": {},
@@ -879,7 +879,7 @@ class EnvironmentalActiveInferenceEngine:
         Returns:
             Dictionary mapping H3 cell to prior probability distribution
         """
-        priors = {}
+        priors: Dict[str, np.ndarray] = {}
 
         # Extract values
         values = []
@@ -1075,9 +1075,9 @@ class MultiScaleHierarchicalAnalyzer:
         self.scale_factor = scale_factor
 
         # Hierarchical structures
-        self.hierarchical_graphs = {}
-        self.hierarchical_beliefs = {}
-        self.scale_relationships = {}
+        self.hierarchical_graphs: Dict[str, LevelSpatialGraph] = {}
+        self.hierarchical_beliefs: Dict[str, Dict[str, np.ndarray]] = {}
+        self.scale_relationships: Dict[str, Any] = {}
 
         logger.info(
             f"Initialized MultiScaleHierarchicalAnalyzer with {hierarchy_levels} levels"
@@ -1085,9 +1085,9 @@ class MultiScaleHierarchicalAnalyzer:
 
     def _create_hierarchical_h3_model(
         self, base_resolution: int, boundary: Dict[str, Any], levels: int
-    ) -> Dict[str, object]:
+    ) -> Dict[str, LevelSpatialGraph]:
         """Create hierarchical H3 models at different resolutions."""
-        hierarchical_graphs = {}
+        hierarchical_graphs: Dict[str, LevelSpatialGraph] = {}
 
         for level in range(levels):
             resolution = max(0, base_resolution - level)
@@ -1129,7 +1129,7 @@ class MultiScaleHierarchicalAnalyzer:
 
         return list(cells)
 
-    def _create_level_spatial_graph(self, cells: List[str]) -> object:
+    def _create_level_spatial_graph(self, cells: List[str]) -> LevelSpatialGraph:
         """Create spatial graph for a hierarchical level."""
         return LevelSpatialGraph(cells)
 
@@ -1153,7 +1153,7 @@ class MultiScaleHierarchicalAnalyzer:
     def propagate_beliefs_hierarchically(
         self,
         bottom_up_evidence: Dict[str, Dict[str, np.ndarray]],
-        top_down_priors: Dict[str, Dict[str, np.ndarray]] = None,
+        top_down_priors: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
     ) -> Dict[str, Dict[str, np.ndarray]]:
         """
         Propagate beliefs hierarchically using message passing.
@@ -1189,9 +1189,7 @@ class MultiScaleHierarchicalAnalyzer:
         if top_down_priors:
             for level_name in sorted(self.hierarchical_graphs.keys(), reverse=True):
                 if level_name in top_down_priors:
-                    self._propagate_priors_downward(
-                        level_name, top_down_priors[level_name]
-                    )
+                    self._propagate_priors_downward(level_name)
 
         # Collect updated beliefs
         for level_name in self.hierarchical_graphs.keys():
@@ -1200,7 +1198,7 @@ class MultiScaleHierarchicalAnalyzer:
         return updated_beliefs
 
     def _aggregate_beliefs_upward(
-        self, lower_level: str, higher_level: str = None
+        self, lower_level: str, higher_level: Optional[str] = None
     ) -> None:
         """Aggregate beliefs from lower level to higher level."""
         if higher_level is None:
@@ -1249,7 +1247,7 @@ class MultiScaleHierarchicalAnalyzer:
                 self.hierarchical_beliefs[higher_level][parent_cell] = posterior
 
     def _propagate_priors_downward(
-        self, higher_level: str, lower_level: str = None
+        self, higher_level: str, lower_level: Optional[str] = None
     ) -> None:
         """Propagate priors from higher level to lower level."""
         if lower_level is None:
@@ -1325,7 +1323,7 @@ class MultiScaleHierarchicalAnalyzer:
             # Check if parent exists in the level
             if parent_level in self.hierarchical_graphs:
                 if parent_cell in self.hierarchical_graphs[parent_level].cells:
-                    return parent_cell
+                    return str(parent_cell)
         except Exception as e:
             logging.getLogger(__name__).debug("Parent cell lookup failed: %s", e)
 
@@ -1338,7 +1336,7 @@ class MultiScaleHierarchicalAnalyzer:
         Returns:
             Analysis of cross-scale patterns and interactions
         """
-        interactions = {
+        interactions: Dict[str, Dict[str, Any]] = {
             "scale_coherence": {},
             "information_flow": {},
             "emergence_indicators": {},
@@ -1532,7 +1530,7 @@ def analyze_multi_scale_patterns(
     Returns:
         Multi-scale pattern analysis results
     """
-    analysis = {
+    analysis: Dict[str, Any] = {
         "scale_statistics": {},
         "pattern_diversity": {},
         "information_integration": {},

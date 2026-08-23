@@ -12,7 +12,7 @@ import json
 import time
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Dict, Optional, Set
 import geopandas as gpd
 from shapely.geometry import shape
 
@@ -39,7 +39,7 @@ class BaseAnalysisModule(ABC):
         module_name: str,
         config_path: Optional[Path] = None,
         h3_resolution: int = 8,
-    ):
+    ) -> None:
         """
         Initialize the base analysis module.
 
@@ -60,14 +60,14 @@ class BaseAnalysisModule(ABC):
         )
 
         # Initialize target hexagons (will be set by backend)
-        self.target_hexagons = set()
+        self.target_hexagons: Set[str] = set()
 
         self.logger = logging.getLogger(f"{__name__}.{module_name}")
 
         # Load configuration if provided
-        self.config = {}
+        self.config: Dict[str, Any] = {}
         if config_path and config_path.exists():
-            self._load_config()
+            self._load_config()  # type: ignore[attr-defined]
 
         # Initialize spatial interface
         self.spatial = SpatialIndexingInterface()
@@ -150,7 +150,7 @@ class BaseAnalysisModule(ABC):
             )
 
             # Initialize H3 data storage
-            h3_data = {}
+            h3_data: Dict[str, Any] = {}
             processed_features = 0
             failed_features = 0
 
@@ -328,7 +328,7 @@ class BaseAnalysisModule(ABC):
 
             # Convert the h3_data to a serializable format before returning
             # This ensures that Shapely geometries are converted to GeoJSON
-            serializable_h3_data = {}
+            serializable_h3_data: Dict[str, Any] = {}
             for h3_cell, cell_data in h3_data.items():
                 serializable_h3_data[h3_cell] = {}
                 for module_name, module_data in cell_data.items():
@@ -363,7 +363,7 @@ class BaseAnalysisModule(ABC):
             "BaseAnalysisModule.run_final_analysis requires a concrete module implementation"
         )
 
-    def _ensure_json_serializable(self, data):
+    def _ensure_json_serializable(self, data: Any) -> Any:
         """
         Recursively convert any Shapely geometry objects to GeoJSON format for JSON serialization.
 
@@ -439,7 +439,7 @@ class BaseAnalysisModule(ABC):
         logger.info(f"[{self.module_name}] 🚀 Starting real data analysis workflow...")
 
         # Track data processing statistics
-        analysis_stats = {
+        analysis_stats: Dict[str, Any] = {
             "cached_data_used": False,
             "raw_data_acquired": False,
             "h3_data_processed": 0,

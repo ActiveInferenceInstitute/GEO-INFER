@@ -23,6 +23,7 @@ Key Features:
 """
 
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +152,7 @@ def get_component_status() -> dict:
         }
     }
 
-def create_nested_system(system_id: str, **kwargs) -> NestedH3Grid:
+def create_nested_system(system_id: str, **kwargs: Any) -> NestedH3Grid:
     """
     Create a new nested H3 system with default configuration.
     
@@ -165,4 +166,8 @@ def create_nested_system(system_id: str, **kwargs) -> NestedH3Grid:
     return NestedH3Grid(name=system_id, **kwargs)
 
 # Log module initialization
-logger.info(f"Nested H3 module initialized - {sum(NESTED_COMPONENTS.values())}/{len(NESTED_COMPONENTS)} components available")
+logger.info(
+    "Nested H3 module initialized - "
+    f"{sum(NESTED_COMPONENTS.values())}/{len(NESTED_COMPONENTS)} "
+    "components available"
+)

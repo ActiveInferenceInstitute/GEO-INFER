@@ -17,8 +17,7 @@ Key Features:
 
 import numpy as np
 import logging
-from numbers import Real
-from typing import Dict, List, Any, Optional, Tuple, Callable
+from typing import Dict, List, Any, Optional, Tuple, Callable, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 
@@ -57,7 +56,7 @@ class PSOParameters:
     neighborhood_topology: str = "global"  # 'global', 'local', 'adaptive'
     neighborhood_size: int = 5
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate parameters after initialization."""
         if self.swarm_size <= 0:
             raise ValueError("Swarm size must be positive")
@@ -72,7 +71,7 @@ class PSOParameters:
             "social_acceleration": self.social_acceleration,
             "convergence_threshold": self.convergence_threshold,
         }.items():
-            if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+            if not np.isfinite(value) or value < 0:
                 raise ValueError(f"{name} must be finite and non-negative")
         if self.min_velocity > self.max_velocity:
             raise ValueError("min_velocity must not exceed max_velocity")
@@ -105,7 +104,7 @@ class Particle:
 
     def update_velocity(
         self,
-        global_best_position: np.ndarray,
+        global_best_position: Optional[np.ndarray],
         inertia_weight: float,
         cognitive_acceleration: float,
         social_acceleration: float,
@@ -138,8 +137,10 @@ class Particle:
         # Social component (global or neighborhood best)
         if neighborhood_best_position is not None:
             social_target = neighborhood_best_position
-        else:
+        elif global_best_position is not None:
             social_target = global_best_position
+        else:
+            social_target = self.personal_best_position
 
         social_component = social_acceleration * r2 * (social_target - self.position)
 
@@ -195,7 +196,7 @@ class ParticleSwarmOptimization:
         max_velocity: float = 3.0,
         max_iterations: int = 200,
         spatial_constraints: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Initialize PSO algorithm.
@@ -308,7 +309,7 @@ class ParticleSwarmOptimization:
         for i in range(self.parameters.swarm_size):
             if positions is not None:
                 # Use provided initial position
-                position = initial_positions[i].copy()
+                position = positions[i].copy()
             else:
                 # Generate random initial position within bounds
                 position = np.asarray(
@@ -471,7 +472,7 @@ class ParticleSwarmOptimization:
             value = objective_function(constrained_position)
             if not np.isscalar(value) or not np.isfinite(value):
                 raise ValueError("objective_function must return a finite scalar")
-            particle.fitness = float(value)
+            particle.fitness = float(cast(Any, value))
             particle.update_personal_best()
 
             self.function_evaluations += 1
@@ -608,8 +609,9 @@ class ParticleSwarmOptimization:
 
         if fitness_mean > 0:
             coefficient_of_variation = fitness_std / fitness_mean
-            return coefficient_of_variation < self.convergence_criteria.get(
-                "tolerance", 1e-6
+            return bool(
+                coefficient_of_variation
+                < self.convergence_criteria.get("tolerance", 1e-6)
             )
 
         return False
@@ -688,7 +690,7 @@ class ParticleSwarmOptimization:
             raise ValueError("Unsupported information sharing mode")
         logger.info(f"Coordinating {len(sub_swarms)} PSO swarms")
 
-        coordination_results = {
+        coordination_results: Dict[str, Any] = {
             "topology": communication_topology,
             "information_sharing": information_sharing,
             "sub_swarm_results": [],
@@ -801,7 +803,7 @@ class ParticleSwarmOptimization:
         """
         logger.info(f"Adapting PSO parameters using {adaptation_strategy} strategy")
 
-        adaptation_results = {
+        adaptation_results: Dict[str, Any] = {
             "strategy": adaptation_strategy,
             "changes_applied": [],
             "parameters_updated": {},

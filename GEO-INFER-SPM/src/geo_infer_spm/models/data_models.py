@@ -7,7 +7,7 @@ All models are designed to work with real geospatial data and support
 the Active Inference framework's requirements for uncertainty quantification.
 """
 
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union, Any, cast
 from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
@@ -40,11 +40,11 @@ class SPMData:
     metadata: Dict[str, Any] = field(default_factory=dict)
     crs: str = "EPSG:4326"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate data integrity and geospatial consistency."""
         self._validate_data()
 
-    def _validate_data(self):
+    def _validate_data(self) -> None:
         """Validate response data structure and format."""
         if isinstance(self.data, np.ndarray):
             if self.data.ndim not in [1, 2]:
@@ -55,7 +55,7 @@ class SPMData:
         else:
             raise TypeError("Data must be numpy array, pandas DataFrame, or GeoDataFrame")
 
-    def _validate_coordinates(self):
+    def _validate_coordinates(self) -> None:
         """Validate spatial coordinate consistency."""
         n_points = self._get_n_points()
         if self.coordinates.shape != (n_points, 2):
@@ -69,8 +69,10 @@ class SPMData:
             if not (-90 <= lat.min() <= lat.max() <= 90):
                 raise ValueError("Latitude values must be between -90 and 90 degrees")
 
-    def _validate_temporal_data(self):
+    def _validate_temporal_data(self) -> None:
         """Validate temporal coordinate consistency."""
+        if self.time is None:
+            return
         n_points = self._get_n_points()
         if len(self.time) != n_points:
             raise ValueError("Time array length must match number of data points")
@@ -97,7 +99,7 @@ class SPMData:
     @property
     def spatial_dims(self) -> Tuple[int, int]:
         """Spatial dimensions of the data."""
-        return self.coordinates.shape
+        return cast(Tuple[int, int], self.coordinates.shape)
 
     def copy(self) -> 'SPMData':
         """Create a shallow copy of this SPMData instance."""
@@ -136,7 +138,7 @@ class DesignMatrix:
     temporal_basis: Optional[np.ndarray] = None
     spatial_basis: Optional[np.ndarray] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize design matrix structure."""
         self.matrix = np.asarray(self.matrix)
         if self.matrix.ndim == 2 and self.names is None:
@@ -187,7 +189,7 @@ class ContrastResult:
     def n_significant(self) -> int:
         """Number of significant points."""
         if self.significance_mask is not None:
-            return np.sum(self.significance_mask)
+            return int(np.sum(self.significance_mask))
         return 0
 
 
@@ -224,7 +226,7 @@ class SPMResult:
     model_diagnostics: Dict[str, Any] = field(default_factory=dict)
     processing_metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize processing metadata."""
         self.processing_metadata['timestamp'] = datetime.now().isoformat()
         self.processing_metadata['n_points'] = self.spm_data.n_points
@@ -234,34 +236,35 @@ class SPMResult:
     def r_squared(self) -> float:
         """Coefficient of determination for model fit."""
         if 'r_squared' in self.model_diagnostics:
-            return self.model_diagnostics['r_squared']
+            return float(self.model_diagnostics['r_squared'])
 
         # Calculate R²
         ss_res = np.sum(self.residuals ** 2)
         ss_tot = np.sum((self.spm_data.data - np.mean(self.spm_data.data, axis=0)) ** 2)
         r2 = 1 - (ss_res / ss_tot)
         self.model_diagnostics['r_squared'] = r2
-        return r2
+        return float(r2)
 
     @property
     def log_likelihood(self) -> float:
         """Log-likelihood of the fitted model."""
         if 'log_likelihood' in self.model_diagnostics:
-            return self.model_diagnostics['log_likelihood']
+            return float(self.model_diagnostics['log_likelihood'])
 
         # Calculate log-likelihood assuming Gaussian errors
         n = self.spm_data.n_points
         sigma2 = np.var(self.residuals, ddof=self.design_matrix.n_regressors)
         ll = -0.5 * n * np.log(2 * np.pi * sigma2) - (1 / (2 * sigma2)) * np.sum(self.residuals ** 2)
         self.model_diagnostics['log_likelihood'] = ll
-        return ll
+        return float(ll)
 
-    def add_contrast(self, contrast: ContrastResult):
+    def add_contrast(self, contrast: ContrastResult) -> None:
         """Add a computed contrast to the results."""
         self.contrasts.append(contrast)
 
     def get_significant_clusters(self, contrast_idx: int = 0) -> Optional[Dict[str, Any]]:
         """Get cluster analysis for a specific contrast."""
-        if self.cluster_analysis and contrast_idx < len(self.cluster_analysis):
-            return self.cluster_analysis[contrast_idx]
+        cluster_analysis = self.cluster_analysis
+        if cluster_analysis is not None and contrast_idx < len(cluster_analysis):
+            return cast(Dict[str, Any], cast(Dict[Any, Any], cluster_analysis)[contrast_idx])
         return None

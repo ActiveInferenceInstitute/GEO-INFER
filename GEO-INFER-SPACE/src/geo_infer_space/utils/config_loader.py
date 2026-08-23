@@ -44,7 +44,7 @@ class LocationConfigLoader:
     multiple sources including YAML, JSON, and defaults.
     """
     
-    def __init__(self, config_dir: Optional[Path] = None):
+    def __init__(self, config_dir: Optional[Path] = None) -> None:
         """
         Initialize config loader.
         
@@ -53,7 +53,7 @@ class LocationConfigLoader:
         """
         self.config_dir = Path(config_dir) if config_dir else Path(__file__).parent.parent.parent / 'config'
         self.default_config = self._load_default_config()
-        self.loaded_config = {}
+        self.loaded_config: Dict[str, Dict[str, Any]] = {}
         
         logger.info(f"Config loader initialized with directory: {self.config_dir}")
     
@@ -176,4 +176,4 @@ class LocationConfigLoader:
             if not isinstance(h3_res, int) or h3_res < 0 or h3_res > 15:
                 raise ValueError("H3 resolution must be an integer between 0 and 15")
                 
-        logger.debug("Configuration validation passed") 
+        logger.debug("Configuration validation passed")

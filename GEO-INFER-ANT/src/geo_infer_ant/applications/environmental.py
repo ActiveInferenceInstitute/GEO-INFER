@@ -17,7 +17,7 @@ Key Features:
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Type, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
@@ -37,13 +37,13 @@ try:
     from geo_infer_ant.utils.spatial import validate_bounds
 except ImportError as e:
     logging.warning(f"Integration modules not available: {e}")
-    SwarmAgent = None
-    AgentPopulation = None
-    PheromoneSystem = None
-    DigitalStigmergy = None
-    AntColonyOptimization = None
-    ParticleSwarmOptimization = None
-    validate_bounds = None
+    SwarmAgent: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    AgentPopulation: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    PheromoneSystem: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    DigitalStigmergy: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    AntColonyOptimization: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    ParticleSwarmOptimization: Optional[Type[Any]] = None  # type: ignore[no-redef]
+    validate_bounds: Any = None  # type: ignore[no-redef]
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +99,8 @@ class EnvironmentalMonitoringSwarm:
         temporal_coverage: str = "continuous",
         adaptive_sampling: bool = True,
         real_time_processing: bool = True,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize environmental monitoring swarm.
 
@@ -169,7 +169,7 @@ class EnvironmentalMonitoringSwarm:
     def _initialize_monitoring_system(self) -> None:
         """Initialize all monitoring system components."""
         # Initialize pheromone system for coordination
-        if PheromoneSystem:
+        if PheromoneSystem is not None:
             try:
                 self.pheromone_system = PheromoneSystem(
                     spatial_resolution="h3_r8",
@@ -181,7 +181,7 @@ class EnvironmentalMonitoringSwarm:
                 logger.warning(f"Failed to initialize pheromone system: {e}")
 
         # Initialize digital stigmergy for information sharing
-        if DigitalStigmergy:
+        if DigitalStigmergy is not None:
             try:
                 self.digital_stigmergy = DigitalStigmergy(
                     communication_medium="iot_network",
@@ -200,7 +200,7 @@ class EnvironmentalMonitoringSwarm:
                 logger.warning(f"Failed to initialize digital stigmergy: {e}")
 
         # Initialize optimization algorithms
-        if AntColonyOptimization:
+        if AntColonyOptimization is not None:
             try:
                 self.sampling_optimizer = AntColonyOptimization(
                     number_of_ants=30, max_iterations=50, variant="ACS"
@@ -209,7 +209,7 @@ class EnvironmentalMonitoringSwarm:
             except Exception as e:
                 logger.warning(f"Failed to initialize sampling optimizer: {e}")
 
-        if ParticleSwarmOptimization:
+        if ParticleSwarmOptimization is not None:
             try:
                 self.coverage_optimizer = ParticleSwarmOptimization(
                     swarm_size=50,
@@ -251,7 +251,7 @@ class EnvironmentalMonitoringSwarm:
         """
         logger.info(f"Deploying {self.swarm_size} monitoring agents")
 
-        deployment_plan = {
+        deployment_plan: Dict[str, Any] = {
             "agents": [],
             "deployment_strategy": "optimized",
             "coverage_achieved": 0.0,
@@ -344,7 +344,9 @@ class EnvironmentalMonitoringSwarm:
                     if selected
                     else diagonal
                 )
-                return priority + min(1.0, separation / max(diagonal, 1e-12))
+                return float(
+                    priority + min(1.0, separation / max(diagonal, 1e-12))
+                )
 
             best_index = max(
                 range(len(remaining)),
@@ -494,7 +496,9 @@ class EnvironmentalMonitoringSwarm:
                 continue
             weight = max(0.0, min(1.0, float(raw_weight)))
             total_weight += weight
-            features = priorities.get(f"{priority_type}_locations", [])
+            features: List[Any] = cast(
+                List[Any], priorities.get(f"{priority_type}_locations", [])
+            )
             if not features:
                 score += weight
                 continue
@@ -550,7 +554,7 @@ class EnvironmentalMonitoringSwarm:
         """
         logger.info(f"Coordinating monitoring for {len(agent_positions)} agents")
 
-        coordination_plan = {
+        coordination_plan: Dict[str, Any] = {
             "monitoring_instructions": {},
             "sampling_strategy": "adaptive" if self.adaptive_sampling else "uniform",
             "communication_protocol": "pheromone_digital_hybrid",
@@ -675,7 +679,9 @@ class EnvironmentalMonitoringSwarm:
         self, agent_positions: List[np.ndarray], zones: Dict[str, Any]
     ) -> Dict[str, List[str]]:
         """Assign agents to sampling zones."""
-        assignments = {zone_name: [] for zone_name in zones.keys()}
+        assignments: Dict[str, List[Any]] = {
+            zone_name: [] for zone_name in zones.keys()
+        }
 
         # Simple assignment based on position
         for i, position in enumerate(agent_positions):
@@ -711,7 +717,7 @@ class EnvironmentalMonitoringSwarm:
         self, agent_positions: List[np.ndarray]
     ) -> Dict[str, Any]:
         """Generate communication plan for agents."""
-        plan = {
+        plan: Dict[str, Any] = {
             "communication_instructions": {},
             "information_sharing_rules": {},
             "coordination_signals": {},
@@ -786,7 +792,7 @@ class EnvironmentalMonitoringSwarm:
                     overlap = 2.0 * radius**2 * np.arccos(
                         ratio
                     ) - 0.5 * distance * np.sqrt(
-                        max(0.0, 4.0 * radius**2 - distance**2)
+                        float(max(0.0, float(4.0 * radius**2 - distance**2)))
                     )
                 covered_area -= overlap
         return float(np.clip(covered_area, 0.0, self._calculate_total_area()))
@@ -874,7 +880,7 @@ class EnvironmentalMonitoringSwarm:
                 converted.append(m)
         individual_measurements = converted
 
-        assessment = {
+        assessment: Dict[str, Any] = {
             "assessment_time": datetime.now(),
             "data_summary": self._summarize_measurements(individual_measurements),
             "spatial_analysis": {},
@@ -931,7 +937,7 @@ class EnvironmentalMonitoringSwarm:
         if not measurements:
             return {"total_measurements": 0}
 
-        summary = {
+        summary: Dict[str, Any] = {
             "total_measurements": len(measurements),
             "measurement_types": list(set([m.sensor_type for m in measurements])),
             "time_range": {
@@ -1044,15 +1050,19 @@ class EnvironmentalMonitoringSwarm:
         # Estimate variogram parameters
         # Use empirical variogram to estimate sill, range, and nugget
         nonzero_distances = distances[distances > 0]
-        max_distance = (
-            float(np.max(nonzero_distances)) if nonzero_distances.size else 0.0
+        max_distance: float = (
+            cast(float, np.max(nonzero_distances)) if nonzero_distances.size else 0.0
         )
-        sill = max(float(np.var(values)), np.finfo(float).eps)
-        range_param = max(max_distance * 0.3, np.finfo(float).eps)
+        sill: float = cast(
+            float, max(cast(float, np.var(values)), np.finfo(float).eps)
+        )
+        range_param: float = cast(
+            float, max(max_distance * 0.3, np.finfo(float).eps)
+        )
         nugget = sill * 0.1
 
         # Spherical variogram function
-        def spherical_variogram(h):
+        def spherical_variogram(h: Any) -> np.ndarray:
             """Spherical variogram model."""
             h = np.asarray(h, dtype=float)
             result = np.zeros_like(h)
@@ -1061,7 +1071,7 @@ class EnvironmentalMonitoringSwarm:
                 1.5 * h[mask] / range_param - 0.5 * (h[mask] / range_param) ** 3
             )
             result[~mask] = sill
-            return result
+            return np.asarray(result)
 
         # Calculate variogram matrix for known points
         variogram_matrix = spherical_variogram(distances)
@@ -1164,7 +1174,7 @@ class EnvironmentalMonitoringSwarm:
             - self.spatial_coverage["min_lng"]
         )
 
-        return min(1.0, total_range / max_range)
+        return float(min(1.0, total_range / max_range))
 
     async def _detect_anomalies(
         self, measurements: List[SensorReading], detection_method: str
@@ -1296,7 +1306,7 @@ class EnvironmentalMonitoringSwarm:
     def _calculate_anomaly_severity(self, value: float, sensor_type: str) -> str:
         """Calculate severity level of anomaly."""
         # Define severity thresholds by sensor type
-        severity_thresholds = {
+        severity_thresholds: Dict[str, Dict[str, float]] = {
             "pm25_sensor": {"low": 25, "medium": 50, "high": 100},
             "no2_sensor": {"low": 0.05, "medium": 0.1, "high": 0.2},
             "ph_sensor": {"low": 1.0, "medium": 2.0, "high": 3.0},
@@ -1324,7 +1334,7 @@ class EnvironmentalMonitoringSwarm:
         self, measurements: List[SensorReading], method: str
     ) -> Dict[str, Any]:
         """Quantify uncertainty in measurements."""
-        uncertainty = {
+        uncertainty: Dict[str, Any] = {
             "method": method,
             "overall_uncertainty": 0.0,
             "sensor_uncertainties": {},
@@ -1404,7 +1414,7 @@ class EnvironmentalMonitoringSwarm:
         max_expected_distance = 0.01  # Expected distance for good coverage
         uncertainty = min(1.0, avg_distance / max_expected_distance)
 
-        return uncertainty
+        return float(uncertainty)
 
     def _calculate_temporal_uncertainty(self, timestamps: List[datetime]) -> float:
         """Calculate temporal uncertainty based on time gaps."""
@@ -1431,8 +1441,7 @@ class EnvironmentalMonitoringSwarm:
 
         expected_gap = expected_gaps.get(self._get_sampling_frequency(), 900)
         uncertainty = min(1.0, avg_gap / expected_gap)
-
-        return uncertainty
+        return cast(float, uncertainty)
 
     def _generate_monitoring_recommendations(
         self, assessment: Dict[str, Any]

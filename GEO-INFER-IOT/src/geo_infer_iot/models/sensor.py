@@ -40,7 +40,7 @@ class Location(BaseModel):
     )
     coordinate_system: str = Field("WGS84", description="Coordinate reference system")
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         # Auto-generate H3 index if coordinates provided but not h3_index
         if (
@@ -53,7 +53,7 @@ class Location(BaseModel):
             )
 
     @field_validator("h3_index")
-    def validate_h3_index(cls, v, values):
+    def validate_h3_index(cls, v: Optional[str]) -> Optional[str]:
         """Validate H3 index format."""
         if v and not h3.is_valid_cell(v):
             raise ValueError(f"Invalid H3 index: {v}")
@@ -126,7 +126,15 @@ class Sensor(BaseModel):
 
     # Capabilities and specifications
     capabilities: SensorCapabilities = Field(
-        default_factory=SensorCapabilities,
+        default_factory=lambda: SensorCapabilities(
+            measured_variables=[],
+            measurement_range={},
+            accuracy={},
+            precision={},
+            sampling_rate_hz=None,
+            power_consumption_watts=None,
+            battery_life_hours=None,
+        ),
         description="Sensor measurement capabilities",
     )
 
@@ -143,7 +151,14 @@ class Sensor(BaseModel):
 
     # Calibration information
     calibration: SensorCalibration = Field(
-        default_factory=SensorCalibration, description="Sensor calibration information"
+        default_factory=lambda: SensorCalibration(
+            last_calibration=None,
+            calibration_method=None,
+            calibration_parameters={},
+            next_calibration_due=None,
+            calibration_certificate=None,
+        ),
+        description="Sensor calibration information",
     )
 
     # Metadata and additional properties
@@ -163,7 +178,7 @@ class Sensor(BaseModel):
     )
 
     @field_validator("status")
-    def validate_status(cls, v):
+    def validate_status(cls, v: str) -> str:
         """Validate sensor status."""
         valid_statuses = [
             "active",
@@ -176,7 +191,7 @@ class Sensor(BaseModel):
             raise ValueError(f"Invalid status '{v}'. Must be one of: {valid_statuses}")
         return v
 
-    def update_location(self, latitude: float, longitude: float, **kwargs):
+    def update_location(self, latitude: float, longitude: float, **kwargs: Any) -> None:
         """Update sensor location and related fields."""
         self.location.latitude = latitude
         self.location.longitude = longitude
@@ -190,7 +205,7 @@ class Sensor(BaseModel):
 
         self.updated_at = datetime.now()
 
-    def add_capability(self, variable: str, **kwargs):
+    def add_capability(self, variable: str, **kwargs: Any) -> None:
         """Add a measurement capability to the sensor."""
         if variable not in self.capabilities.measured_variables:
             self.capabilities.measured_variables.append(variable)
@@ -210,7 +225,7 @@ class Sensor(BaseModel):
 
         self.updated_at = datetime.now()
 
-    def update_calibration(self, calibration_data: Dict):
+    def update_calibration(self, calibration_data: Dict[str, Any]) -> None:
         """Update sensor calibration information."""
         if "last_calibration" in calibration_data:
             self.calibration.last_calibration = calibration_data["last_calibration"]
@@ -306,7 +321,7 @@ class SensorNetwork(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     @field_validator("protocol")
-    def validate_protocol(cls, v):
+    def validate_protocol(cls, v: str) -> str:
         """Validate communication protocol."""
         valid_protocols = [
             "MQTT",
@@ -324,7 +339,7 @@ class SensorNetwork(BaseModel):
         return v.upper()
 
     @field_validator("topology")
-    def validate_topology(cls, v):
+    def validate_topology(cls, v: str) -> str:
         """Validate network topology."""
         valid_topologies = ["mesh", "star", "hierarchical", "bus", "ring"]
         if v.lower() not in valid_topologies:
@@ -334,7 +349,7 @@ class SensorNetwork(BaseModel):
         return v.lower()
 
     @field_validator("spatial_bounds")
-    def validate_spatial_bounds(cls, v):
+    def validate_spatial_bounds(cls, v: Dict[str, float]) -> Dict[str, float]:
         """Validate spatial bounds."""
         required_keys = ["lat_min", "lat_max", "lon_min", "lon_max"]
         for key in required_keys:
@@ -431,7 +446,7 @@ class SensorDeployment(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     @field_validator("deployment_method")
-    def validate_deployment_method(cls, v):
+    def validate_deployment_method(cls, v: str) -> str:
         """Validate deployment method."""
         valid_methods = ["manual", "automated", "aerial", "vehicle", "stationary"]
         if v not in valid_methods:
@@ -441,7 +456,7 @@ class SensorDeployment(BaseModel):
         return v
 
     @field_validator("power_source")
-    def validate_power_source(cls, v):
+    def validate_power_source(cls, v: str) -> str:
         """Validate power source."""
         valid_sources = ["battery", "solar", "mains", "wind", "thermal"]
         if v not in valid_sources:

@@ -48,7 +48,7 @@ class TemporalVisualization:
         self.figsize = figsize
         self.style = style
 
-    def _new_figure(self, *args, **kwargs):
+    def _new_figure(self, *args: Any, **kwargs: Any) -> Any:
         """Create a figure under this instance's style without global mutation."""
         if not HAS_MATPLOTLIB:
             return None, None
@@ -70,7 +70,7 @@ class TemporalVisualization:
         return array
 
     @staticmethod
-    def _x_values(timestamps: Optional[List], length: int, name: str = "timestamps"):
+    def _x_values(timestamps: Optional[List], length: int, name: str = "timestamps") -> Any:
         """Validate optional timestamps and return a plotting x-axis."""
         if timestamps is None:
             return np.arange(length)
@@ -173,23 +173,24 @@ class TemporalVisualization:
         ]
         if len({len(array) for array in component_arrays}) != 1:
             raise ValueError("trend, seasonal, and residual must have equal lengths")
+        orig_arr = None
         if original is not None:
-            original = self._series(original, "original")
-            if len(original) != len(component_arrays[0]):
+            orig_arr = self._series(original, "original")
+            if len(orig_arr) != len(component_arrays[0]):
                 raise ValueError("original must match decomposition component length")
         x = self._x_values(timestamps, len(component_arrays[0]))
-        n_panels = 4 if original is not None else 3
+        n_panels = 4 if orig_arr is not None else 3
         fig, axes = self._new_figure(
             n_panels, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5)
         )
         axes = np.atleast_1d(axes)
 
-        components = []
+        components: List[np.ndarray] = []
         labels = []
         colors = []
 
-        if original is not None:
-            components.append(original)
+        if orig_arr is not None:
+            components.append(orig_arr)
             labels.append("Original")
             colors.append("#2E86AB")
 
@@ -549,7 +550,8 @@ class TemporalVisualization:
         self._x_values(timestamps, len(values_arr))
         fig, ax = self._new_figure(figsize=self.figsize)
 
-        colors = plt.cm.tab10(np.linspace(0, 1, period))
+        cmap = plt.get_cmap("tab10")
+        colors = [cmap(i) for i in np.linspace(0, 1, period)]
 
         for season in range(period):
             season_values = values_arr[season::period]

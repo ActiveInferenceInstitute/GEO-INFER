@@ -8,4 +8,4 @@ for the geospatial communication system.
 # API components will be implemented in separate files
 # This module serves as the API layer entry point
 
-__all__ = []
+__all__: list[str] = []

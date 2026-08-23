@@ -8,42 +8,31 @@ citizen science, and collaborative geospatial decision-making.
 __version__ = "0.1.0"
 __author__ = "GEO-INFER Development Team"
 
-try:
-    from .core.participation import (
-        ParticipationAnalyzer,
-        ParticipationMethod,
-        ParticipantRecord,
-        EngagementScore,
-        RepresentationReport,
-    )
-except ImportError:
-    ParticipationAnalyzer = None
-
-try:
-    from .core.civic_engagement import (
-        AttendanceTracker,
-        PublicCommentAnalyzer,
-        VoterTurnoutModel,
-        MeetingRecord,
-        MeetingType,
-        PublicComment,
-        CommentCategory,
-    )
-except ImportError:
-    AttendanceTracker = None
-
-try:
-    from .core.policy_analysis import (
-        CostBenefitAnalyzer,
-        StakeholderImpactAnalyzer,
-        EquityAnalyzer,
-        CostBenefitItem,
-        StakeholderImpact,
-        ImpactLevel,
-        PolicyDomain,
-    )
-except ImportError:
-    CostBenefitAnalyzer = None
+from .core.participation import (
+    ParticipationAnalyzer,
+    ParticipationMethod,
+    ParticipantRecord,
+    EngagementScore,
+    RepresentationReport,
+)
+from .core.civic_engagement import (
+    AttendanceTracker,
+    PublicCommentAnalyzer,
+    VoterTurnoutModel,
+    MeetingRecord,
+    MeetingType,
+    PublicComment,
+    CommentCategory,
+)
+from .core.policy_analysis import (
+    CostBenefitAnalyzer,
+    StakeholderImpactAnalyzer,
+    EquityAnalyzer,
+    CostBenefitItem,
+    StakeholderImpact,
+    ImpactLevel,
+    PolicyDomain,
+)
 
 __all__ = [
     "ParticipationAnalyzer",

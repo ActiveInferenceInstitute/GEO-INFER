@@ -15,7 +15,7 @@ import asyncio
 import inspect
 from datetime import datetime
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, List, Any, Optional, Callable
 
 # Configure logger
 logger = logging.getLogger("geo_infer_agent.agent_base")
@@ -39,10 +39,10 @@ class AgentState:
         Args:
             capacity: Maximum number of memory items to store
         """
-        self.beliefs = {}  # Current world model
-        self.desires = []  # Goals
-        self.intentions = []  # Planned actions
-        self.memory = []  # Past observations and actions
+        self.beliefs: Dict[str, Any] = {}  # Current world model
+        self.desires: List[Dict[str, Any]] = []  # Goals
+        self.intentions: List[Dict[str, Any]] = []  # Planned actions
+        self.memory: List[Dict[str, Any]] = []  # Past observations and actions
         self.memory_capacity = capacity
         self.creation_time = datetime.now()
         self.last_update = self.creation_time
@@ -236,12 +236,14 @@ class BaseAgent(ABC):
         self.action_handlers: Dict[str, Callable[..., Any]] = {}
         self.perception_handlers: Dict[str, Callable[..., Any]] = {}
         self.running = False
-        self.loop = None  # Will store asyncio event loop
-        self.start_time = None
-        self.stop_time = None
+        self.loop: Optional[asyncio.AbstractEventLoop] = None
+        self.start_time: Optional[datetime] = None
+        self.stop_time: Optional[datetime] = None
+        self.last_perception: Dict[str, Any] = {}
+        self.last_action: Dict[str, Any] = {}
 
         # Initialize communication channels
-        self.message_queue = asyncio.Queue()
+        self.message_queue: asyncio.Queue = asyncio.Queue()
 
         # Setup logging
         self._setup_logging()
@@ -385,6 +387,7 @@ class BaseAgent(ABC):
             logger.info(f"Agent {self.agent_id} stopped at {self.stop_time}")
 
             # Calculate runtime
+            assert self.stop_time is not None and self.start_time is not None
             runtime = (self.stop_time - self.start_time).total_seconds()
             logger.info(f"Agent {self.agent_id} ran for {runtime:.2f} seconds")
 
@@ -672,7 +675,7 @@ if __name__ == "__main__":
     # Example usage
     logging.basicConfig(level=logging.INFO)
 
-    async def run_agent_example():
+    async def run_agent_example() -> None:
         # Create agent
         agent = ExampleAgent(config={"decision_frequency": 1, "memory_capacity": 100})
 

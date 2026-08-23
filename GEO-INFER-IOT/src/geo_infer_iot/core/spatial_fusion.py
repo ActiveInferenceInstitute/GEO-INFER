@@ -6,7 +6,7 @@ integrating with GEO-INFER-SPACE for H3 spatial indexing and spatial operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 import numpy as np
 import h3
@@ -34,10 +34,10 @@ class SpatialDataFusion:
     - Temporal consistency validation across spatial regions
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.fusion_cache = {}
-        self.spatial_operations = None
+        self.fusion_cache: Dict[str, Any] = {}
+        self.spatial_operations: Optional[Dict[str, Any]] = None
 
         # Initialize spatial operations if available
         if HAS_GEO_SPACE:
@@ -183,7 +183,7 @@ class SpatialDataFusion:
     def _aggregate_measurements(self, measurements: List[Dict]) -> Dict:
         """Aggregate measurements spatially without target location."""
         # Simple spatial averaging with H3-based grouping
-        h3_groups = {}
+        h3_groups: Dict[str, List[Dict[str, Any]]] = {}
 
         for measurement in measurements:
             h3_index = h3.latlng_to_cell(
@@ -247,7 +247,7 @@ class SpatialDataFusion:
         )
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
-        return R * c
+        return float(R * c)
 
     def validate_spatial_consistency(
         self, measurements: List[Dict], consistency_threshold: float = 2.0
@@ -258,13 +258,13 @@ class SpatialDataFusion:
         Args:
             measurements: List of measurements to validate
             consistency_threshold: Maximum allowed standard deviations between neighbors
-
+            
         Returns:
             Dictionary with consistency validation results
         """
         try:
             # Group measurements by H3 cell
-            h3_measurements = {}
+            h3_measurements: Dict[str, List[Dict[str, Any]]] = {}
             for measurement in measurements:
                 h3_index = h3.latlng_to_cell(
                     measurement["latitude"], measurement["longitude"], 8

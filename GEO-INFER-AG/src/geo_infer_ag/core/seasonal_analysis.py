@@ -29,7 +29,7 @@ class SeasonalAnalysis:
         time_series_data: Optional[pd.DataFrame] = None,
         spatial_data: Optional[gpd.GeoDataFrame] = None,
         config: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> None:
         """
         Initialize the seasonal analysis.
 
@@ -41,7 +41,7 @@ class SeasonalAnalysis:
         self.time_series_data = time_series_data
         self.spatial_data = spatial_data
         self.config = config or {}
-        self.growing_season = {}
+        self.growing_season: Dict[str, Any] = {}
 
     def detect_growing_season(
         self,
@@ -91,7 +91,9 @@ class SeasonalAnalysis:
         else:
             time_series_smooth = time_series
 
-        def _season_summary(start, end, season_length):
+        def _season_summary(
+            start: Any, end: Any, season_length: int
+        ) -> Optional[Dict[str, Any]]:
             """Build a season summary with a peak strictly inside the detected interval."""
             season_data = time_series_smooth.loc[start:end]
             raw_season_data = time_series.loc[start:end]
@@ -393,7 +395,8 @@ class SeasonalAnalysis:
                 detrended = resampled.copy()
 
         # Calculate statistics
-        trend_results = {
+        trend_data_out: Dict[str, Any] = {"original": resampled, "moving_avg": moving_avg}
+        trend_results: Dict[str, Any] = {
             "variable": variable,
             "period": period,
             "statistics": {
@@ -403,7 +406,7 @@ class SeasonalAnalysis:
                 "max": resampled.max(),
                 "median": resampled.median(),
             },
-            "data": {"original": resampled, "moving_avg": moving_avg},
+            "data": trend_data_out,
         }
 
         # Add trend analysis if there are enough data points
@@ -501,7 +504,7 @@ class SeasonalAnalysis:
         self.spatial_temporal_results = results
         return results
 
-    def plot_growing_season(self, ax=None, **kwargs):
+    def plot_growing_season(self, ax: Any = None, **kwargs: Any) -> Any:
         """
         Plot the detected growing season.
 

@@ -78,7 +78,7 @@ class HealthChecker:
         self.timeout_seconds = timeout_seconds
         self.enable_system_checks = enable_system_checks
 
-        self.custom_checks: Dict[str, Callable] = {}
+        self.custom_checks: Dict[str, Dict[str, Any]] = {}
         self.health_history: List[Dict[str, Any]] = []
 
     def register_check(
@@ -311,7 +311,7 @@ class HealthChecker:
         else:
             overall_status = HealthStatus.UNKNOWN
 
-        results = {
+        results: Dict[str, Any] = {
             "status": overall_status.value,
             "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             "checks": [check.to_dict() for check in checks],

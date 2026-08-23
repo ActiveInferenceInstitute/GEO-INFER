@@ -461,6 +461,112 @@ class SpatialGP(BayesianModel):
             raise ValueError("posterior contains no usable parameter samples")
         return np.stack(all_samples)
 
+    def predictive_interval(
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        level: float = 0.95,
+        samples: int = 200,
+        random_seed: SeedLike = None,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Return a calibrated posterior predictive interval ``(mean, lower, upper)``.
+
+        Unlike a credible band on the latent function, this interval is taken
+        from the *predictive* draws (which carry observation noise), so its
+        coverage is what a held-out observation is expected to satisfy. It is
+        the object to feed :func:`geo_infer_bayes.core.evaluation` coverage
+        diagnostics.
+
+        Parameters
+        ----------
+        posterior : PosteriorAnalysis
+            Posterior analysis object.
+        X : array-like, optional
+            Locations to predict at. If None, use the training locations.
+        level : float, default=0.95
+            Nominal coverage of the interval, in ``(0, 1)``.
+        samples : int, default=200
+            Number of posterior predictive draws to base the interval on.
+        random_seed : SeedLike, optional
+            Seed or generator for the observation-noise draws. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(mean, lower, upper)``, each with one entry per prediction point.
+        """
+        interval_level = float(level)
+        if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
+            raise ValueError("level must be a finite probability strictly between zero and one")
+        draws = self.posterior_predictive(
+            posterior, X=X, samples=samples, random_seed=random_seed
+        )
+        tail = (1.0 - interval_level) / 2.0
+        mean = np.asarray(np.mean(draws, axis=0), dtype=float)
+        lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
+        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        return mean, lower, upper
+
+    def uncertainty_decomposition(
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        samples: int = 50,
+    ) -> Dict[str, np.ndarray]:
+        """
+        Decompose predictive uncertainty into epistemic and aleatoric parts.
+
+        For each hyperparameter draw the predictive mean and its (latent plus
+        noise) variance are formed. The variance across the per-draw predictive
+        means is *epistemic* -- it reflects uncertainty about the
+        hyperparameters. The mean of the per-draw predictive variances is
+        *aleatoric* -- the irreducible spread added by observation noise and
+        the finite training sample. ``total = epistemic + aleatoric`` recovers
+        the full predictive variance.
+
+        Parameters
+        ----------
+        posterior : PosteriorAnalysis
+            Posterior analysis object.
+        X : array-like, optional
+            Locations to predict at. If None, use the training locations.
+        samples : int, default=50
+            Number of posterior draws to average over.
+
+        Returns
+        -------
+        dict of str to ndarray
+            ``epistemic``, ``aleatoric`` and ``total`` predictive standard
+            deviations, plus the pooled ``mean`` prediction, one entry per
+            prediction point.
+        """
+        if X is None:
+            X = self.X_train
+        if X is None:
+            raise ValueError("X must be provided or the model must be fitted")
+        X = np.asarray(X)
+        self._fitted_state()  # raises if never fitted
+        per_draw_means: List[np.ndarray] = []
+        per_draw_vars: List[np.ndarray] = []
+        for theta in self._posterior_draws(posterior, samples):
+            with self._temporary_parameters(theta):
+                mean, latent_std = self._conditional_mean_std(X)
+            per_draw_means.append(np.asarray(mean, dtype=float))
+            # Predictive variance at this draw: latent + observation noise.
+            per_draw_vars.append(np.asarray(latent_std**2 + theta["noise"], dtype=float))
+        means_stack = np.stack(per_draw_means)
+        var_stack = np.stack(per_draw_vars)
+        epistemic = np.var(means_stack, axis=0)
+        aleatoric = np.mean(var_stack, axis=0)
+        total = epistemic + aleatoric
+        return {
+            "mean": np.asarray(np.mean(means_stack, axis=0), dtype=float),
+            "epistemic": np.asarray(np.sqrt(epistemic), dtype=float),
+            "aleatoric": np.asarray(np.sqrt(aleatoric), dtype=float),
+            "total": np.asarray(np.sqrt(total), dtype=float),
+        }
+
     def log_likelihood(
         self, theta: Dict[str, Any], data: Dict[str, np.ndarray]
     ) -> float:
@@ -925,11 +1031,11 @@ class SparseSpatialGP(SpatialGP):
                         X_array, y_array, locations
                     )
                 except (ValueError, np.linalg.LinAlgError, FloatingPointError):
-                    return np.finfo(float).max / 100.0
+                    return float(np.finfo(float).max / 100.0)
                 if np.isfinite(candidate) and candidate > best_elbo:
                     best_elbo = candidate
                     best_parameters = np.array(log_parameters, copy=True)
-                return -candidate if np.isfinite(candidate) else np.finfo(float).max / 100.0
+                return float(-candidate) if np.isfinite(candidate) else float(np.finfo(float).max / 100.0)
 
             # Log-space optimization preserves positivity.  The broad finite
             # bounds prevent overflow while allowing units from degrees to

@@ -30,40 +30,7 @@ try:
 
     _available_apis.append("SpatialAnalysisAPI")
 except ImportError as exc:
-    SpatialAnalysisAPI = None
     _missing_optional_dependencies["SpatialAnalysisAPI"] = str(exc)
-
-try:
-    from geo_infer_math.api.geometric_operations import GeometricOperationsAPI
-
-    _available_apis.append("GeometricOperationsAPI")
-except ImportError as exc:
-    GeometricOperationsAPI = None
-    _missing_optional_dependencies["GeometricOperationsAPI"] = str(exc)
-
-try:
-    from geo_infer_math.api.statistical_modeling import StatisticalModelingAPI
-
-    _available_apis.append("StatisticalModelingAPI")
-except ImportError as exc:
-    StatisticalModelingAPI = None
-    _missing_optional_dependencies["StatisticalModelingAPI"] = str(exc)
-
-try:
-    from geo_infer_math.api.optimization import OptimizationAPI
-
-    _available_apis.append("OptimizationAPI")
-except ImportError as exc:
-    OptimizationAPI = None
-    _missing_optional_dependencies["OptimizationAPI"] = str(exc)
-
-try:
-    from geo_infer_math.api.coordinate_management import CoordinateManagementAPI
-
-    _available_apis.append("CoordinateManagementAPI")
-except ImportError as exc:
-    CoordinateManagementAPI = None
-    _missing_optional_dependencies["CoordinateManagementAPI"] = str(exc)
 
 __all__ = list(_available_apis)
 

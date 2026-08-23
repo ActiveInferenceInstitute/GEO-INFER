@@ -24,7 +24,7 @@ P(θ) is prior, and P(D) is marginal likelihood.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from scipy import stats
 from scipy.optimize import minimize
 import logging
@@ -64,10 +64,10 @@ class BayesianSPM:
             model_type: Type of Bayesian model ('hierarchical_glm', 'spatial_hierarchical')
         """
         self.model_type = model_type
-        self.model_spec = None
-        self.priors = {}
-        self.posterior_samples = None
-        self.diagnostics = {}
+        self.model_spec: Optional[Dict[str, Any]] = None
+        self.priors: Dict[str, Any] = {}
+        self.posterior_samples: Optional[Dict[str, Any]] = None
+        self.diagnostics: Dict[str, Any] = {}
 
         if not PYMC3_AVAILABLE and model_type != "empirical_bayes":
             logger.info("Using empirical Bayes approximation for %s", model_type)
@@ -227,7 +227,7 @@ class BayesianSPM:
                 ``None`` the legacy global ``np.random`` state is used.
         """
         if random_seed is None:
-            rng = np.random
+            rng: Any = np.random
         else:
             rng = np.random.default_rng(random_seed)
 
@@ -235,7 +235,7 @@ class BayesianSPM:
         y = data.data.flatten() if data.data.ndim > 1 else data.data
         X = design_matrix
 
-        def negative_log_posterior(beta):
+        def negative_log_posterior(beta: np.ndarray) -> float:
             """Negative log posterior for optimization."""
             mu = X @ beta
 
@@ -247,7 +247,7 @@ class BayesianSPM:
             beta_prior_sigma = np.ones(len(beta))
             nll_prior = 0.5 * np.sum((beta - beta_prior_mu) ** 2 / beta_prior_sigma**2)
 
-            return nll_likelihood + nll_prior
+            return float(nll_likelihood + nll_prior)
 
         # Optimize MAP estimate
         beta_init = np.linalg.pinv(X) @ y
@@ -276,7 +276,7 @@ class BayesianSPM:
             if hasattr(rng, "standard_normal"):
                 noise = rng.standard_normal((500, len(beta_map)))
             else:
-                noise = rng.randn(500, len(beta_map))  # type: ignore[attr-defined]
+                noise = rng.randn(500, len(beta_map))
             beta_samples = beta_map + noise * np.sqrt(np.abs(np.diag(cov_beta)))
         self.posterior_samples = {
             "beta": beta_samples,
@@ -335,7 +335,7 @@ class BayesianSPM:
             # stat_map is over spatial locations — use normal CDF approximation
             posterior_prob = stats.norm.cdf(statistical_map)
 
-        return posterior_prob
+        return cast(np.ndarray, posterior_prob)
 
     def bayesian_model_comparison(
         self, models: List[SPMResult], method: str = "bayes_factor"
@@ -376,11 +376,11 @@ class BayesianSPM:
                 bic = n * np.log(rss / n) + k * np.log(n)
                 bic_values.append(bic)
 
-        bic_values = np.array(bic_values)
-        min_bic = np.min(bic_values)
+        bic_array = np.array(bic_values)
+        min_bic = np.min(bic_array)
 
         # Bayes factor approximation: exp((BIC_min - BIC_i)/2)
-        bayes_factors = np.exp((min_bic - bic_values) / 2)
+        bayes_factors = np.exp((min_bic - bic_array) / 2)
 
         return {
             "method": "BIC_approximation",
@@ -532,7 +532,7 @@ class BayesianSPM:
                 ``None`` the legacy global ``np.random`` state is used.
         """
         if random_seed is None:
-            rng = np.random
+            rng: Any = np.random
         else:
             rng = np.random.default_rng(random_seed)
 
@@ -550,7 +550,7 @@ class BayesianSPM:
 
         return basis
 
-    def _compute_r_hat(self, trace) -> np.ndarray:
+    def _compute_r_hat(self, trace: Any) -> np.ndarray:
         """Compute R-hat convergence diagnostic."""
         # Simplified R-hat computation
         # In practice, would use proper Gelman-Rubin diagnostic
@@ -559,7 +559,7 @@ class BayesianSPM:
         except Exception:
             return np.array([1.0])
 
-    def _compute_ess(self, trace) -> np.ndarray:
+    def _compute_ess(self, trace: Any) -> np.ndarray:
         """Compute effective sample size."""
         # Simplified ESS computation
         try:

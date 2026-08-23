@@ -46,16 +46,16 @@ logger = logging.getLogger(__name__)
 # *construct* a MesaModelBridge without Mesa available.
 
 try:  # pragma: no cover - import probe
-    import mesa as _mesa  # type: ignore[import-not-found]
+    import mesa as _mesa
 
     HAS_MESA: bool = True
     _MesaModel = _mesa.Model
     _MesaDataCollector = _mesa.DataCollector
 except ImportError:  # pragma: no cover - exercised when mesa is missing
-    _mesa = None  # type: ignore[assignment]
+    _mesa = None
     HAS_MESA = False
-    _MesaModel = None  # type: ignore[assignment]
-    _MesaDataCollector = None  # type: ignore[assignment]
+    _MesaModel = None
+    _MesaDataCollector = None
 
 
 # Type aliases for clarity (kept permissive since Mesa is optional).
@@ -368,7 +368,7 @@ class MesaModelBridge(SimulationEngine):
         # Polite: ask the Mesa model to stop as well so an in-flight step can
         # observe the flag on its next iteration if it polls `running`.
         if getattr(self.model, "running", None) is not None:
-            self.model.running = False  # type: ignore[attr-defined]
+            self.model.running = False
         logger.info("Mesa-backed simulation cancelled")
 
 
