@@ -311,6 +311,10 @@ class DelNorteComprehensiveDashboard:
         logger.info("Performing cross-domain integration analysis...")
         self.analysis_results["integration"] = self._analyze_cross_domain_interactions()
 
+        # Crescent City civic-intel surface (from the crescent-city-intel contract)
+        logger.info("Mapping Crescent City civic-intel contract...")
+        self.analysis_results["crescent_city_intel"] = self._analyze_crescent_city_intel()
+
         # Generate H3 spatial aggregation
         logger.info("Generating H3 spatial aggregation...")
         self.analysis_results["h3_aggregation"] = self._generate_h3_spatial_analysis()
@@ -328,6 +332,103 @@ class DelNorteComprehensiveDashboard:
         }
 
         return integration_results
+
+    def _analyze_crescent_city_intel(self) -> Dict[str, Any]:
+        """Map the crescent-city-intel civic contract onto the Del Norte canvas.
+
+        Loads the machine-readable crescent-city-intel contract (schema
+        ``crescent-city-geo-intel/v1``) via ``CrescentCityIntelMapper`` and
+        projects its 12 civic intelligence domains + hazard-relevant subset
+        onto the H3 grid so the dashboard weights municipal-code policy by
+        hazard intent. Returns a ``status``-flagged result; a missing contract
+        is reported (``unavailable``) rather than fabricated.
+        """
+        try:
+            from .crescent_city_intel import CrescentCityIntelMapper
+
+            mapper = CrescentCityIntelMapper(h3_resolution=self.h3_resolution)
+        except Exception as exc:  # pragma: no cover - defensive import gate
+            logger.warning("CrescentCityIntelMapper unavailable: %s", exc)
+            return {"status": "unavailable", "error": str(exc)}
+
+        if not mapper.loaded:
+            return {
+                "status": "unavailable",
+                "error": mapper.error or "Crescent City intel contract not loaded",
+            }
+
+        h3_cells = mapper.generate_h3_cells()
+        return {
+            "status": "ok",
+            "schema": "crescent-city-geo-intel/v1",
+            "domainCount": len(mapper.domains()),
+            "domains": mapper.domain_ids(),
+            "hazard": mapper.generate_hazard_surface(),
+            "h3_resolution": self.h3_resolution,
+            "h3_cells": h3_cells,
+            "total_cells": len(h3_cells),
+        }
+
+    def _add_crescent_city_intel_layer(
+        self, m: folium.Map, layer_groups: Dict
+    ) -> None:
+        """Add the civic-intel H3 surface + hazard-domain markers to the map."""
+        result = self.analysis_results.get("crescent_city_intel", {})
+        if not isinstance(result, dict) or result.get("status") != "ok":
+            logger.warning("No Crescent City intel surface to render (skipped).")
+            return
+
+        h3_cells = result.get("h3_cells", {})
+        for cell_id, cell_data in h3_cells.items():
+            try:
+                h3_boundary = h3.cell_to_boundary(cell_id)
+                # Color by presence of hazard intent in the civic domain surface.
+                hazard_tags = cell_data.get("hazard_tags", [])
+                has_hazard = bool(hazard_tags)
+                color = "#d73027" if has_hazard else "#4575b4"
+                popup_html = f"""\
+                <div style="font-family: Arial; min-width: 220px;">
+                    <h4 style="color: #2255AA; margin: 0 0 8px 0;">🏛️ Crescent City Civic Intel</h4>
+                    <table style="font-size: 11px; width: 100%;">
+                        <tr><td><b>H3 Index:</b></td><td>{cell_id}</td></tr>
+                        <tr><td><b>Domains:</b></td><td>{cell_data.get('domain_count', 0)}</td></tr>
+                        <tr><td><b>Hazard Tags:</b></td><td>{", ".join(hazard_tags) or 'none'}</td></tr>
+                    </table>
+                </div>"""
+                folium.Polygon(
+                    locations=[[lat, lng] for lat, lng in h3_boundary],
+                    popup=folium.Popup(popup_html, max_width=300),
+                    tooltip=f"Civic intel · {', '.join(hazard_tags) or 'no hazard tag'}",
+                    color="black",
+                    weight=1,
+                    fill=True,
+                    fillColor=color,
+                    fillOpacity=0.35,
+                ).add_to(layer_groups["crescent_city_intel"])
+            except Exception as exc:  # pragma: no cover - per-cell guard
+                logger.warning(f"Error rendering civic-intel cell {cell_id}: {exc}")
+
+        # Hazard-domain callouts anchored at Crescent City (county seat geometry).
+        hazard = result.get("hazard", {})
+        domains_list = hazard.get("domains", []) if isinstance(hazard, dict) else []
+        for idx, domain in enumerate(domains_list[:8]):
+            # Approximate placement around the harbor geography so markers do
+            # not stack exactly onto one another.
+            lat = 41.76 + (idx % 3) * 0.004
+            lon = -124.2 + (idx // 3) * 0.004
+            tags = ", ".join(domain.get("hazardTags", []) or []) or "hazard"
+            popup_html = f"""\
+            <div style="font-family: Arial; min-width: 220px;">
+                <h4 style="color:#2266AA;">{domain.get('icon', '')} {domain.get('name', '')}</h4>
+                <p><b>Hazard Tags:</b> {tags}</p>
+                <p style="font-size:10px;color:#555;">Municipal-code policy weighted by natural-hazard intent (from the crescent-city-intel contract).</p>
+            </div>"""
+            folium.Marker(
+                location=[lat, lon],
+                popup=folium.Popup(popup_html, max_width=260),
+                tooltip=f"{domain.get('name', '')} · {tags}",
+                icon=folium.Icon(color="darkblue", icon="building", prefix="fa"),
+            ).add_to(layer_groups["crescent_city_intel"])
 
     def _generate_h3_spatial_analysis(self) -> Dict[str, Any]:
         """Aggregate H3 cells emitted by the domain analyses."""
@@ -408,6 +509,9 @@ class DelNorteComprehensiveDashboard:
         # Add integration analysis layers
         self._add_integration_layers(m, layer_groups)
 
+        # Add Crescent City civic-intel layer (from the crescent-city-intel contract)
+        self._add_crescent_city_intel_layer(m, layer_groups)
+
         # Add all layer groups to map
         for group in layer_groups.values():
             group.add_to(m)
@@ -456,6 +560,9 @@ class DelNorteComprehensiveDashboard:
             "real_data": folium.FeatureGroup(name="📊 Real-Time Data", show=True),
             "integration": folium.FeatureGroup(
                 name="🔗 Cross-Domain Integration", show=False
+            ),
+            "crescent_city_intel": folium.FeatureGroup(
+                name="🏛️ Crescent City Civic Intel", show=False
             ),
             "infrastructure": folium.FeatureGroup(name="🏗️ Infrastructure", show=False),
         }

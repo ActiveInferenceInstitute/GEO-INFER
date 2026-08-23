@@ -5,9 +5,11 @@ Del Norte County workspace within `GEO-INFER-PLACE`.
 ## Contents
 
 - `dashboard/`
+- `data/`
 - `__init__.py`
 - `coastal_resilience_analyzer.py`
 - `comprehensive_dashboard.py`
+- `crescent_city_intel.py`
 - `fire_risk_assessor.py`
 - `forest_health_monitor.py`
 - `seismic_hazard_analyzer.py`
@@ -16,6 +18,7 @@ Del Norte County workspace within `GEO-INFER-PLACE`.
 
 - `coastal_resilience_analyzer.py:CoastalResilienceAnalyzer` (class)
 - `comprehensive_dashboard.py:DelNorteComprehensiveDashboard` (class)
+- `crescent_city_intel.py:CrescentCityIntelMapper` (class)
 - `fire_risk_assessor.py:FireRiskAssessor` (class)
 - `forest_health_monitor.py:ForestHealthMonitor` (class)
 - `seismic_hazard_analyzer.py:SeismicHazardAnalyzer` (class)
