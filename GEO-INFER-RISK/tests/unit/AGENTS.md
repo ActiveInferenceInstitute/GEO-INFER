@@ -22,9 +22,12 @@
 ## Local Contents
 
 - `test_aal_exposure_years.py`
+- `test_aep_pml_curve.py`
+- `test_catastrophe_compound_paths.py`
 - `test_compound_risk_matrix.py`
 - `test_config_loader.py`
 - `test_core.py`
+- `test_distributional_uncertainty.py`
 - `test_exposure_model.py`
 - `test_generator_isolation.py`
 - `test_hazard_model.py`
