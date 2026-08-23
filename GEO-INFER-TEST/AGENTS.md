@@ -26,6 +26,7 @@
 - `examples/`
 - `src/`
 - `tests/`
+- `build_package_wheels.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`
@@ -36,6 +37,7 @@
 - `validate_documentation.py`
 - `validate_h3_active_inference_contract.py`
 - `validate_model_contracts.py`
+- `validate_packaging.py`
 - `validate_repo_contracts.py`
 - `validate_skills.py`
 - `validate_test_contracts.py`

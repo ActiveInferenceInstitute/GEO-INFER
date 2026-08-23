@@ -94,6 +94,7 @@ jobs:
       - name: Validate repository contracts
         run: |
           uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+          uv run python GEO-INFER-TEST/validate_packaging.py --strict
           uv run python GEO-INFER-TEST/validate_documentation.py --strict
           uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
           uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check

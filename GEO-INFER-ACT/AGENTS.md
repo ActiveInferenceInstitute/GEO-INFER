@@ -82,20 +82,6 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 - Preserve the finite-input, solve-based Gaussian, factor-table variational,
   policy information-gain, and multi-agent perception/action contracts when
   extending ACT core behavior.
-- EFE minimisation exposes an explicit epistemic/pragmatic breakdown:
-  `PolicySelector.compose_policy_posterior` returns a normalized policy
-  posterior from raw EFE scores under adaptive precision, and
-  `PolicySelector.decompose_efe` labels each candidate as epistemic- or
-  pragmatic-dominated. `GenerativeModel.compute_expected_free_energy` yields
-  per-policy EFE scores plus pragmatic/epistemic values and a posterior.
-- Continuous Laplace/Kalman-Bucy state estimation adds
-  `ContinuousPOMDPActiveInference.compute_expected_free_energy` (pragmatic
-  cost, epistemic information gain, control effort), `evaluate_actions`, and
-  `compute_variational_free_energy`.
-- Spatial active sensing adds H3-resolution grid scoring through
-  `SpatialActiveInferenceAgent.score_spatial_information_gain` and
-  `MultiAgentModel.score_spatial_information_gain` (normalized-uncertainty
-  per-cell scores, optionally aggregated to a coarser resolution).
 
 ## Failure Triage
 

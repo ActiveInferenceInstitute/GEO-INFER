@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15078,
+      "name": "geo-infer-transport_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5720,
+      "name": "geo-infer-transport_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2196,
+      "name": "geo-infer-transport_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "3fd2e03dcf3cc37c4c2a5ea7e8eaf27270f13024309ee6590d06d73b0f59fba3",
+  "module_id": "GEO-INFER-TRANSPORT",
+  "name": "Transportation Systems Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

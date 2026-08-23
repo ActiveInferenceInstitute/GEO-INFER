@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14973,
+      "name": "geo-infer-civ_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5659,
+      "name": "geo-infer-civ_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2171,
+      "name": "geo-infer-civ_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "41d33c3351a908e45d74e186dce3a67db6222789a558b6bedc8e376e04027e78",
+  "module_id": "GEO-INFER-CIV",
+  "name": "Civic Engagement",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

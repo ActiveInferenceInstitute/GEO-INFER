@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15016,
+      "name": "geo-infer-spm_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5689,
+      "name": "geo-infer-spm_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2184,
+      "name": "geo-infer-spm_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "75bb5d4e95fb5c8b3b09c77e6f72caf8395d46ae4fe27e4af143420b3f26b74f",
+  "module_id": "GEO-INFER-SPM",
+  "name": "Spatial Process Modeling",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

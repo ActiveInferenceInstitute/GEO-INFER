@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14928,
+      "name": "geo-infer-git_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5667,
+      "name": "geo-infer-git_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2183,
+      "name": "geo-infer-git_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "162ee082e483122818e8a5e02c90be165d1f1a74f66fa1696e776c0446fb26b3",
+  "module_id": "GEO-INFER-GIT",
+  "name": "Git & Orchestration",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

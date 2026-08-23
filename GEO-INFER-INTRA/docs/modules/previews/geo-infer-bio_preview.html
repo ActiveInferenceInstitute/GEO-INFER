@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_7738484954ce2f73808686d9c7888b4d {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #059669; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-BIO</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Biological Systems</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Biodiversity mapping, ecological niche modeling, and genomic dispersion</div></div>
+    
+            <div class="folium-map" id="map_7738484954ce2f73808686d9c7888b4d" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_7738484954ce2f73808686d9c7888b4d = L.map(
+                "map_7738484954ce2f73808686d9c7888b4d",
+                {
+                    center: [38.5, -122.8],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 11,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_518a9c20851445a183b9a4a208cd4f89 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_518a9c20851445a183b9a4a208cd4f89.addTo(map_7738484954ce2f73808686d9c7888b4d);
+        
+    
+            var feature_group_6513ca8b2f43df2365c760242ac777d5 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_22199f10b9388d7f3658b707bc24d876 = L.polygon(
+                [[38.5, -122.789], [38.509526, -122.7945], [38.509526, -122.8055], [38.5, -122.811], [38.490474, -122.8055], [38.490474, -122.7945], [38.5, -122.789]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_ef14c1025c2db89ad947c1cf50a7cefa = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_8b5fa76438d534cf77b6d413739141c3 = $(`<div id="html_8b5fa76438d534cf77b6d413739141c3" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-BIO<br>Feature: Species Occurrence</div>`)[0];
+                popup_ef14c1025c2db89ad947c1cf50a7cefa.setContent(html_8b5fa76438d534cf77b6d413739141c3);
+            
+        
+
+        polygon_22199f10b9388d7f3658b707bc24d876.bindPopup(popup_ef14c1025c2db89ad947c1cf50a7cefa)
+        ;
+
+        
+    
+    
+            var polygon_f46bfb28cc3f77c3e3000ba94b58579a = L.polygon(
+                [[38.52, -122.789], [38.529526, -122.7945], [38.529526, -122.8055], [38.52, -122.811], [38.510474, -122.8055], [38.510474, -122.7945], [38.52, -122.789]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_a04c6c355a2c82ae38f44b1dd5000ddf = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7a606bcb4a2507f1e69db4afe5804243 = $(`<div id="html_7a606bcb4a2507f1e69db4afe5804243" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-BIO<br>Feature: Habitat Suitability</div>`)[0];
+                popup_a04c6c355a2c82ae38f44b1dd5000ddf.setContent(html_7a606bcb4a2507f1e69db4afe5804243);
+            
+        
+
+        polygon_f46bfb28cc3f77c3e3000ba94b58579a.bindPopup(popup_a04c6c355a2c82ae38f44b1dd5000ddf)
+        ;
+
+        
+    
+    
+            var polygon_82ac49a7da692b657a522e126c62219d = L.polygon(
+                [[38.51, -122.771679], [38.519526, -122.777179], [38.519526, -122.788179], [38.51, -122.793679], [38.500474, -122.788179], [38.500474, -122.777179], [38.51, -122.771679]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_f7f758a3da566af7e852ecf6ba0e3ea7 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_198ae255cb71c172a713d6bbafb2ed8f = $(`<div id="html_198ae255cb71c172a713d6bbafb2ed8f" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-BIO<br>Feature: Corridor Network</div>`)[0];
+                popup_f7f758a3da566af7e852ecf6ba0e3ea7.setContent(html_198ae255cb71c172a713d6bbafb2ed8f);
+            
+        
+
+        polygon_82ac49a7da692b657a522e126c62219d.bindPopup(popup_f7f758a3da566af7e852ecf6ba0e3ea7)
+        ;
+
+        
+    
+    
+            var polygon_8dff28522c76d023ca0067a0a37575fd = L.polygon(
+                [[38.49, -122.771679], [38.499526, -122.777179], [38.499526, -122.788179], [38.49, -122.793679], [38.480474, -122.788179], [38.480474, -122.777179], [38.49, -122.771679]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_4d5965d4a0436282c908d04eb238e422 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_eb35aa7989b587a4abb3dd98b13619d4 = $(`<div id="html_eb35aa7989b587a4abb3dd98b13619d4" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-BIO<br>Feature: Species Occurrence</div>`)[0];
+                popup_4d5965d4a0436282c908d04eb238e422.setContent(html_eb35aa7989b587a4abb3dd98b13619d4);
+            
+        
+
+        polygon_8dff28522c76d023ca0067a0a37575fd.bindPopup(popup_4d5965d4a0436282c908d04eb238e422)
+        ;
+
+        
+    
+    
+            var polygon_fa69860a1614d1bc15453e837350e485 = L.polygon(
+                [[38.48, -122.789], [38.489526, -122.7945], [38.489526, -122.8055], [38.48, -122.811], [38.470474, -122.8055], [38.470474, -122.7945], [38.48, -122.789]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_060219f9ab7d0e0411ed0603ad437a99 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_fbb6e6117a242f7b2896f8bf3145670d = $(`<div id="html_fbb6e6117a242f7b2896f8bf3145670d" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-BIO<br>Feature: Habitat Suitability</div>`)[0];
+                popup_060219f9ab7d0e0411ed0603ad437a99.setContent(html_fbb6e6117a242f7b2896f8bf3145670d);
+            
+        
+
+        polygon_fa69860a1614d1bc15453e837350e485.bindPopup(popup_060219f9ab7d0e0411ed0603ad437a99)
+        ;
+
+        
+    
+    
+            var polygon_f0b3824d40925085d4b4cdb5df5863bb = L.polygon(
+                [[38.49, -122.806321], [38.499526, -122.811821], [38.499526, -122.822821], [38.49, -122.828321], [38.480474, -122.822821], [38.480474, -122.811821], [38.49, -122.806321]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_c5b0525c5a305e3993661dc3c390a7be = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a66fd144cebe405f3419d019c51e333e = $(`<div id="html_a66fd144cebe405f3419d019c51e333e" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-BIO<br>Feature: Corridor Network</div>`)[0];
+                popup_c5b0525c5a305e3993661dc3c390a7be.setContent(html_a66fd144cebe405f3419d019c51e333e);
+            
+        
+
+        polygon_f0b3824d40925085d4b4cdb5df5863bb.bindPopup(popup_c5b0525c5a305e3993661dc3c390a7be)
+        ;
+
+        
+    
+    
+            var polygon_fbe5ea42bae59787d4a0f337329b6bb0 = L.polygon(
+                [[38.51, -122.806321], [38.519526, -122.811821], [38.519526, -122.822821], [38.51, -122.828321], [38.500474, -122.822821], [38.500474, -122.811821], [38.51, -122.806321]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_6513ca8b2f43df2365c760242ac777d5);
+        
+    
+        var popup_e905b356e0605b42906e991578feb209 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_df258603f1b9b9b5d9d7e4acff1e2c29 = $(`<div id="html_df258603f1b9b9b5d9d7e4acff1e2c29" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-BIO<br>Feature: Species Occurrence</div>`)[0];
+                popup_e905b356e0605b42906e991578feb209.setContent(html_df258603f1b9b9b5d9d7e4acff1e2c29);
+            
+        
+
+        polygon_fbe5ea42bae59787d4a0f337329b6bb0.bindPopup(popup_e905b356e0605b42906e991578feb209)
+        ;
+
+        
+    
+    
+            feature_group_6513ca8b2f43df2365c760242ac777d5.addTo(map_7738484954ce2f73808686d9c7888b4d);
+        
+    
+            var circle_marker_7b9acdd3d20e32f7101deb2feb29e984 = L.circleMarker(
+                [38.5, -122.8],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_7738484954ce2f73808686d9c7888b4d);
+        
+    
+        var popup_f1e7b4888ff6208debbd867a8263cbab = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_af302abc2f89ab79ee1091b5df462c82 = $(`<div id="html_af302abc2f89ab79ee1091b5df462c82" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-BIO</b> Focus Center</div>`)[0];
+                popup_f1e7b4888ff6208debbd867a8263cbab.setContent(html_af302abc2f89ab79ee1091b5df462c82);
+            
+        
+
+        circle_marker_7b9acdd3d20e32f7101deb2feb29e984.bindPopup(popup_f1e7b4888ff6208debbd867a8263cbab)
+        ;
+
+        
+    
+    
+            var layer_control_d236c00a1f4f0261939efa35118a6da4_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_518a9c20851445a183b9a4a208cd4f89,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_6513ca8b2f43df2365c760242ac777d5,
+                },
+            };
+            let layer_control_d236c00a1f4f0261939efa35118a6da4 = L.control.layers(
+                layer_control_d236c00a1f4f0261939efa35118a6da4_layers.base_layers,
+                layer_control_d236c00a1f4f0261939efa35118a6da4_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_7738484954ce2f73808686d9c7888b4d);
+
+        
+</script>
+</html>

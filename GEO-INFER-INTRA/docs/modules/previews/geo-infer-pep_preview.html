@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_0809bedd0d246476c5b838da0f242db7 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-PEP</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>People &amp; Communities</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Demographic equity, social vulnerability, and human mobility patterns</div></div>
+    
+            <div class="folium-map" id="map_0809bedd0d246476c5b838da0f242db7" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_0809bedd0d246476c5b838da0f242db7 = L.map(
+                "map_0809bedd0d246476c5b838da0f242db7",
+                {
+                    center: [37.76, -122.42],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_31da32dc58ab59cd9caa71afd2235383 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_31da32dc58ab59cd9caa71afd2235383.addTo(map_0809bedd0d246476c5b838da0f242db7);
+        
+    
+            var feature_group_577f0b4008ce095110b61d596c8b493a = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_d4cbee0e88b2eb0e5c1d767847ce901e = L.polygon(
+                [[37.76, -122.409], [37.769526, -122.4145], [37.769526, -122.4255], [37.76, -122.431], [37.750474, -122.4255], [37.750474, -122.4145], [37.76, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_1f4d7e07f5de8f37f6a8359b577d8b9e = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a479bdacbf7749693c43ebb16182ea45 = $(`<div id="html_a479bdacbf7749693c43ebb16182ea45" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-PEP<br>Feature: Equity Index Cells</div>`)[0];
+                popup_1f4d7e07f5de8f37f6a8359b577d8b9e.setContent(html_a479bdacbf7749693c43ebb16182ea45);
+            
+        
+
+        polygon_d4cbee0e88b2eb0e5c1d767847ce901e.bindPopup(popup_1f4d7e07f5de8f37f6a8359b577d8b9e)
+        ;
+
+        
+    
+    
+            var polygon_e44de489834bfa59622d3a609b8f2016 = L.polygon(
+                [[37.78, -122.409], [37.789526, -122.4145], [37.789526, -122.4255], [37.78, -122.431], [37.770474, -122.4255], [37.770474, -122.4145], [37.78, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_707d2053f7d2381e2e973d8755de5ae8 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d24e171f00a6f211e12ccfe1017a1289 = $(`<div id="html_d24e171f00a6f211e12ccfe1017a1289" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-PEP<br>Feature: Demographic Density</div>`)[0];
+                popup_707d2053f7d2381e2e973d8755de5ae8.setContent(html_d24e171f00a6f211e12ccfe1017a1289);
+            
+        
+
+        polygon_e44de489834bfa59622d3a609b8f2016.bindPopup(popup_707d2053f7d2381e2e973d8755de5ae8)
+        ;
+
+        
+    
+    
+            var polygon_1d6db196d427b90622e6e7076dfa5e35 = L.polygon(
+                [[37.77, -122.391679], [37.779526, -122.397179], [37.779526, -122.408179], [37.77, -122.413679], [37.760474, -122.408179], [37.760474, -122.397179], [37.77, -122.391679]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_ae07dd5e174b64977e6e81ea5511981c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2447ab709d43823d5a32a0c83e89e9a4 = $(`<div id="html_2447ab709d43823d5a32a0c83e89e9a4" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-PEP<br>Feature: Community Centers</div>`)[0];
+                popup_ae07dd5e174b64977e6e81ea5511981c.setContent(html_2447ab709d43823d5a32a0c83e89e9a4);
+            
+        
+
+        polygon_1d6db196d427b90622e6e7076dfa5e35.bindPopup(popup_ae07dd5e174b64977e6e81ea5511981c)
+        ;
+
+        
+    
+    
+            var polygon_c8bd2401f08aed308baca83fb98eb64d = L.polygon(
+                [[37.75, -122.391679], [37.759526, -122.397179], [37.759526, -122.408179], [37.75, -122.413679], [37.740474, -122.408179], [37.740474, -122.397179], [37.75, -122.391679]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_d2ce80b5eae08420a12e44294e953d27 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_990017743e151d052bde368f3ac5500e = $(`<div id="html_990017743e151d052bde368f3ac5500e" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-PEP<br>Feature: Equity Index Cells</div>`)[0];
+                popup_d2ce80b5eae08420a12e44294e953d27.setContent(html_990017743e151d052bde368f3ac5500e);
+            
+        
+
+        polygon_c8bd2401f08aed308baca83fb98eb64d.bindPopup(popup_d2ce80b5eae08420a12e44294e953d27)
+        ;
+
+        
+    
+    
+            var polygon_5a5044fa02c7960604e795727b837b21 = L.polygon(
+                [[37.74, -122.409], [37.749526, -122.4145], [37.749526, -122.4255], [37.74, -122.431], [37.730474, -122.4255], [37.730474, -122.4145], [37.74, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_7018b24a6d23fad397a2472fc1769a27 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c44a18d471811cb41b4da0f30231e81b = $(`<div id="html_c44a18d471811cb41b4da0f30231e81b" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-PEP<br>Feature: Demographic Density</div>`)[0];
+                popup_7018b24a6d23fad397a2472fc1769a27.setContent(html_c44a18d471811cb41b4da0f30231e81b);
+            
+        
+
+        polygon_5a5044fa02c7960604e795727b837b21.bindPopup(popup_7018b24a6d23fad397a2472fc1769a27)
+        ;
+
+        
+    
+    
+            var polygon_0fe238921f38c6572f1e99da27b7a393 = L.polygon(
+                [[37.75, -122.426321], [37.759526, -122.431821], [37.759526, -122.442821], [37.75, -122.448321], [37.740474, -122.442821], [37.740474, -122.431821], [37.75, -122.426321]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_309a85298e17c7c6f02f7113ebf838df = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d8d78a76c469d143002159a49b7af72f = $(`<div id="html_d8d78a76c469d143002159a49b7af72f" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-PEP<br>Feature: Community Centers</div>`)[0];
+                popup_309a85298e17c7c6f02f7113ebf838df.setContent(html_d8d78a76c469d143002159a49b7af72f);
+            
+        
+
+        polygon_0fe238921f38c6572f1e99da27b7a393.bindPopup(popup_309a85298e17c7c6f02f7113ebf838df)
+        ;
+
+        
+    
+    
+            var polygon_31e755a8927417f7672340d19498a930 = L.polygon(
+                [[37.77, -122.426321], [37.779526, -122.431821], [37.779526, -122.442821], [37.77, -122.448321], [37.760474, -122.442821], [37.760474, -122.431821], [37.77, -122.426321]],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fbbf24", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_577f0b4008ce095110b61d596c8b493a);
+        
+    
+        var popup_f6836d1e699bda332045b9f0c61cfb37 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a88373a6d488c87a0899bf0844d6d783 = $(`<div id="html_a88373a6d488c87a0899bf0844d6d783" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-PEP<br>Feature: Equity Index Cells</div>`)[0];
+                popup_f6836d1e699bda332045b9f0c61cfb37.setContent(html_a88373a6d488c87a0899bf0844d6d783);
+            
+        
+
+        polygon_31e755a8927417f7672340d19498a930.bindPopup(popup_f6836d1e699bda332045b9f0c61cfb37)
+        ;
+
+        
+    
+    
+            feature_group_577f0b4008ce095110b61d596c8b493a.addTo(map_0809bedd0d246476c5b838da0f242db7);
+        
+    
+            var circle_marker_41c9c359eae88c6cfe9a33a754795436 = L.circleMarker(
+                [37.76, -122.42],
+                {"bubblingMouseEvents": true, "color": "#f59e0b", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_0809bedd0d246476c5b838da0f242db7);
+        
+    
+        var popup_4cabdedb99d6c2e22dadf6e5536d6582 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8b4b1c22041c63b60405512c7359956b = $(`<div id="html_8b4b1c22041c63b60405512c7359956b" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-PEP</b> Focus Center</div>`)[0];
+                popup_4cabdedb99d6c2e22dadf6e5536d6582.setContent(html_8b4b1c22041c63b60405512c7359956b);
+            
+        
+
+        circle_marker_41c9c359eae88c6cfe9a33a754795436.bindPopup(popup_4cabdedb99d6c2e22dadf6e5536d6582)
+        ;
+
+        
+    
+    
+            var layer_control_df0c31405bd4d84e46a57868e1cd79b9_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_31da32dc58ab59cd9caa71afd2235383,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_577f0b4008ce095110b61d596c8b493a,
+                },
+            };
+            let layer_control_df0c31405bd4d84e46a57868e1cd79b9 = L.control.layers(
+                layer_control_df0c31405bd4d84e46a57868e1cd79b9_layers.base_layers,
+                layer_control_df0c31405bd4d84e46a57868e1cd79b9_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_0809bedd0d246476c5b838da0f242db7);
+
+        
+</script>
+</html>

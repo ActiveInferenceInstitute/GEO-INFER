@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14979,
+      "name": "geo-infer-data_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5673,
+      "name": "geo-infer-data_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2183,
+      "name": "geo-infer-data_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "86a1e348836ba90baaa0345a0a2c076c86ed1c568391e96fa6ef713c99046e1d",
+  "module_id": "GEO-INFER-DATA",
+  "name": "Data Management Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_6ffac71a225301d189e2963266235c12 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #2563eb; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-ACT</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Active Inference Engine</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Free energy minimization, epistemic exploration, and action selection</div></div>
+    
+            <div class="folium-map" id="map_6ffac71a225301d189e2963266235c12" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_6ffac71a225301d189e2963266235c12 = L.map(
+                "map_6ffac71a225301d189e2963266235c12",
+                {
+                    center: [37.7749, -122.4194],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_ae316573f48380d40236b8fbaf3b5609 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_ae316573f48380d40236b8fbaf3b5609.addTo(map_6ffac71a225301d189e2963266235c12);
+        
+    
+            var feature_group_89c8f545418ab9c49ec78ceb2f80099d = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_5421bdecb4d03c86c71b9258aa7456f2 = L.polygon(
+                [[37.7749, -122.4084], [37.784426, -122.4139], [37.784426, -122.4249], [37.7749, -122.4304], [37.765374, -122.4249], [37.765374, -122.4139], [37.7749, -122.4084]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_d161d20cef970b39b741c80f80ed5ecf = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bc2aed8ff82b6d9a70b0c1725905e7b5 = $(`<div id="html_bc2aed8ff82b6d9a70b0c1725905e7b5" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-ACT<br>Feature: Belief Posterior</div>`)[0];
+                popup_d161d20cef970b39b741c80f80ed5ecf.setContent(html_bc2aed8ff82b6d9a70b0c1725905e7b5);
+            
+        
+
+        polygon_5421bdecb4d03c86c71b9258aa7456f2.bindPopup(popup_d161d20cef970b39b741c80f80ed5ecf)
+        ;
+
+        
+    
+    
+            var polygon_7ede0434e9eb9f15cb9b8683b777574c = L.polygon(
+                [[37.7949, -122.4084], [37.804426, -122.4139], [37.804426, -122.4249], [37.7949, -122.4304], [37.785374, -122.4249], [37.785374, -122.4139], [37.7949, -122.4084]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_2d1b09ae0e51b99a082d038d9501286d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_40ef900efd15b6e0e5a4b3dfdf6b02ee = $(`<div id="html_40ef900efd15b6e0e5a4b3dfdf6b02ee" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-ACT<br>Feature: Free Energy Landscape</div>`)[0];
+                popup_2d1b09ae0e51b99a082d038d9501286d.setContent(html_40ef900efd15b6e0e5a4b3dfdf6b02ee);
+            
+        
+
+        polygon_7ede0434e9eb9f15cb9b8683b777574c.bindPopup(popup_2d1b09ae0e51b99a082d038d9501286d)
+        ;
+
+        
+    
+    
+            var polygon_69ce9f810fde5742585254843b9d5dfe = L.polygon(
+                [[37.7849, -122.391079], [37.794426, -122.396579], [37.794426, -122.407579], [37.7849, -122.413079], [37.775374, -122.407579], [37.775374, -122.396579], [37.7849, -122.391079]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_91dfcea98740f1ec6b43c410e4e9da14 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_0039c2e9c2c433fe048063e78d0e45cd = $(`<div id="html_0039c2e9c2c433fe048063e78d0e45cd" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-ACT<br>Feature: Policy Prior</div>`)[0];
+                popup_91dfcea98740f1ec6b43c410e4e9da14.setContent(html_0039c2e9c2c433fe048063e78d0e45cd);
+            
+        
+
+        polygon_69ce9f810fde5742585254843b9d5dfe.bindPopup(popup_91dfcea98740f1ec6b43c410e4e9da14)
+        ;
+
+        
+    
+    
+            var polygon_cd412c48f1935e9f12fea689ca6954fe = L.polygon(
+                [[37.7649, -122.391079], [37.774426, -122.396579], [37.774426, -122.407579], [37.7649, -122.413079], [37.755374, -122.407579], [37.755374, -122.396579], [37.7649, -122.391079]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_1550ad7c133756b1d39f135b97bb5797 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_0eea4119c2c8b323f1c2f2322658537a = $(`<div id="html_0eea4119c2c8b323f1c2f2322658537a" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-ACT<br>Feature: Belief Posterior</div>`)[0];
+                popup_1550ad7c133756b1d39f135b97bb5797.setContent(html_0eea4119c2c8b323f1c2f2322658537a);
+            
+        
+
+        polygon_cd412c48f1935e9f12fea689ca6954fe.bindPopup(popup_1550ad7c133756b1d39f135b97bb5797)
+        ;
+
+        
+    
+    
+            var polygon_ac93df0c28bad3f381463b0b0769e98b = L.polygon(
+                [[37.7549, -122.4084], [37.764426, -122.4139], [37.764426, -122.4249], [37.7549, -122.4304], [37.745374, -122.4249], [37.745374, -122.4139], [37.7549, -122.4084]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_449c7221631b04cf10745b657557b1ed = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_30f2b8090896016d611d8b40db7272c6 = $(`<div id="html_30f2b8090896016d611d8b40db7272c6" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-ACT<br>Feature: Free Energy Landscape</div>`)[0];
+                popup_449c7221631b04cf10745b657557b1ed.setContent(html_30f2b8090896016d611d8b40db7272c6);
+            
+        
+
+        polygon_ac93df0c28bad3f381463b0b0769e98b.bindPopup(popup_449c7221631b04cf10745b657557b1ed)
+        ;
+
+        
+    
+    
+            var polygon_ff8e7be0929e5714bc4e42a46fdf44ea = L.polygon(
+                [[37.7649, -122.425721], [37.774426, -122.431221], [37.774426, -122.442221], [37.7649, -122.447721], [37.755374, -122.442221], [37.755374, -122.431221], [37.7649, -122.425721]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_3d08d50b45a0eb0767b47ad8f45d7561 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_058aa7fc6d224011b4ffb01b0cd82035 = $(`<div id="html_058aa7fc6d224011b4ffb01b0cd82035" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-ACT<br>Feature: Policy Prior</div>`)[0];
+                popup_3d08d50b45a0eb0767b47ad8f45d7561.setContent(html_058aa7fc6d224011b4ffb01b0cd82035);
+            
+        
+
+        polygon_ff8e7be0929e5714bc4e42a46fdf44ea.bindPopup(popup_3d08d50b45a0eb0767b47ad8f45d7561)
+        ;
+
+        
+    
+    
+            var polygon_d943bd38e281dbf10b5ba8a6031045a6 = L.polygon(
+                [[37.7849, -122.425721], [37.794426, -122.431221], [37.794426, -122.442221], [37.7849, -122.447721], [37.775374, -122.442221], [37.775374, -122.431221], [37.7849, -122.425721]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#60a5fa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_89c8f545418ab9c49ec78ceb2f80099d);
+        
+    
+        var popup_058ea1f37fda23754f99929f9f6600a7 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1d8ae5f5fba20b7d8f482d4110565440 = $(`<div id="html_1d8ae5f5fba20b7d8f482d4110565440" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-ACT<br>Feature: Belief Posterior</div>`)[0];
+                popup_058ea1f37fda23754f99929f9f6600a7.setContent(html_1d8ae5f5fba20b7d8f482d4110565440);
+            
+        
+
+        polygon_d943bd38e281dbf10b5ba8a6031045a6.bindPopup(popup_058ea1f37fda23754f99929f9f6600a7)
+        ;
+
+        
+    
+    
+            feature_group_89c8f545418ab9c49ec78ceb2f80099d.addTo(map_6ffac71a225301d189e2963266235c12);
+        
+    
+            var circle_marker_63fa2c53b33fac5b18895e51be896dca = L.circleMarker(
+                [37.7749, -122.4194],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_6ffac71a225301d189e2963266235c12);
+        
+    
+        var popup_8216b9314b47b253651a5452fdf8a48b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_89437b8542567a986afc43a7d8f2bee4 = $(`<div id="html_89437b8542567a986afc43a7d8f2bee4" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-ACT</b> Focus Center</div>`)[0];
+                popup_8216b9314b47b253651a5452fdf8a48b.setContent(html_89437b8542567a986afc43a7d8f2bee4);
+            
+        
+
+        circle_marker_63fa2c53b33fac5b18895e51be896dca.bindPopup(popup_8216b9314b47b253651a5452fdf8a48b)
+        ;
+
+        
+    
+    
+            var layer_control_fa8e960d1afd7e736827cdcbd611f639_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_ae316573f48380d40236b8fbaf3b5609,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_89c8f545418ab9c49ec78ceb2f80099d,
+                },
+            };
+            let layer_control_fa8e960d1afd7e736827cdcbd611f639 = L.control.layers(
+                layer_control_fa8e960d1afd7e736827cdcbd611f639_layers.base_layers,
+                layer_control_fa8e960d1afd7e736827cdcbd611f639_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_6ffac71a225301d189e2963266235c12);
+
+        
+</script>
+</html>

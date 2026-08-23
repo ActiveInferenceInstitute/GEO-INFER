@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14952,
+      "name": "geo-infer-cog_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5667,
+      "name": "geo-infer-cog_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2177,
+      "name": "geo-infer-cog_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "4b44aa094e323f64f38f8c48f47f93996d21b4dd78495cba793952af1736048c",
+  "module_id": "GEO-INFER-COG",
+  "name": "Cognitive Modeling",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

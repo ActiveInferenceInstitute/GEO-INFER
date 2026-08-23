@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14967,
+      "name": "geo-infer-econ_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5660,
+      "name": "geo-infer-econ_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2175,
+      "name": "geo-infer-econ_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "28caa334f510e6c49c35d15cc63a9ef64c85a90db45e6e4bd55b6ade95d394c9",
+  "module_id": "GEO-INFER-ECON",
+  "name": "Economic Analysis",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

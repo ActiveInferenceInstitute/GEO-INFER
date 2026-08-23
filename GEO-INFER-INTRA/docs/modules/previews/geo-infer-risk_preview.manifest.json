@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14990,
+      "name": "geo-infer-risk_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5691,
+      "name": "geo-infer-risk_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2175,
+      "name": "geo-infer-risk_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "c1b2d3c40dbd4af78d28433053337588ca2384ec7a97db3e04def99b61f89c32",
+  "module_id": "GEO-INFER-RISK",
+  "name": "Risk Assessment",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14957,
+      "name": "geo-infer-forest_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5677,
+      "name": "geo-infer-forest_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2185,
+      "name": "geo-infer-forest_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "8a27e2b59ae37dc2684c43fea9052d0d560d358185cc665dd4eadad20a96f8d0",
+  "module_id": "GEO-INFER-FOREST",
+  "name": "Forest Management Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

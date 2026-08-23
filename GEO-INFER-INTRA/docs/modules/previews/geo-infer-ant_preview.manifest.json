@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14956,
+      "name": "geo-infer-ant_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5672,
+      "name": "geo-infer-ant_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2185,
+      "name": "geo-infer-ant_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Optimization",
+  "input_sha256": "1eb943a292ced09c1042554e70c2a515c01eb46bd818c76eb6a200161957e975",
+  "module_id": "GEO-INFER-ANT",
+  "name": "Ant Colony Optimization",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15010,
+      "name": "geo-infer-act_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5672,
+      "name": "geo-infer-act_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2184,
+      "name": "geo-infer-act_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "8e744200470d52dc061ac18cb743e73cb0ae7a079331c1d2ea715e4152baaa90",
+  "module_id": "GEO-INFER-ACT",
+  "name": "Active Inference Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

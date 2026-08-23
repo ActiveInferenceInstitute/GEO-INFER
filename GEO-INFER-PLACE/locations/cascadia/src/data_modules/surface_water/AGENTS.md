@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `data_sources.py`
+- `flowline_network.py`
 - `geo_infer_surface_water.py`
 
 ## Validation

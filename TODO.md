@@ -12,7 +12,7 @@
 
 | ID | Module / Package | Scope | Description & Acceptance Criteria |
 |---|---|---|---|
-| **ARCH-01** | `GEO-INFER-CORE` / Monorepo | Platform Wheel Distribution & Packaging | Implement unified multi-package wheel release pipeline in GitHub Actions with PyPI namespace validation. Verify package configuration discovery across isolated virtual environments without reliance on `__file__` traversal. |
+| ~~**ARCH-01**~~ | `GEO-INFER-CORE` / Monorepo | Platform Wheel Distribution & Packaging | **Completed**: Unified multi-package wheel release pipeline in GitHub Actions (`.github/workflows/release.yml`) with strict PyPI `geo-infer-*` namespace validation (`GEO-INFER-TEST/validate_packaging.py`), a wheel-build driver (`build_package_wheels.py`) that builds/validates every module wheel and optionally smoke-installs into isolated venvs, and per-module `[tool.setuptools.package-data]` so YAML/JSON config ships with wheels. Out-of-package `__file__` traversal is reported as diagnostics for installed-wheel-safe migration. CI runs `validate_packaging.py --strict`. |
 
 ### Medium Scope
 

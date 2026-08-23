@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `build_docs_previews.py`
 - `update_documentation_signposts.py`
 
 ## Validation

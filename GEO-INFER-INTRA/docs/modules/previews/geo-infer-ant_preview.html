@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_165d88e8bad36f5cc891eda53a246e54 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #ea580c; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-ANT</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Ant Colony Optimization</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Swarm routing, pheromone field decay, and stigmergic optimization</div></div>
+    
+            <div class="folium-map" id="map_165d88e8bad36f5cc891eda53a246e54" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_165d88e8bad36f5cc891eda53a246e54 = L.map(
+                "map_165d88e8bad36f5cc891eda53a246e54",
+                {
+                    center: [37.75, -122.42],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_dca74fcb79f926a0aa02f585805b8d78 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_dca74fcb79f926a0aa02f585805b8d78.addTo(map_165d88e8bad36f5cc891eda53a246e54);
+        
+    
+            var feature_group_a45839e12294f015da6ff6c8d20c4bdd = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_1b65b736aa0e215379cfa94aa90d37d7 = L.polygon(
+                [[37.75, -122.409], [37.759526, -122.4145], [37.759526, -122.4255], [37.75, -122.431], [37.740474, -122.4255], [37.740474, -122.4145], [37.75, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_f0a99cecaaa67b5f2ea6f16ac6358660 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_50fb77613f24c0ff22b4cf5b5012e652 = $(`<div id="html_50fb77613f24c0ff22b4cf5b5012e652" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-ANT<br>Feature: Pheromone Intensity</div>`)[0];
+                popup_f0a99cecaaa67b5f2ea6f16ac6358660.setContent(html_50fb77613f24c0ff22b4cf5b5012e652);
+            
+        
+
+        polygon_1b65b736aa0e215379cfa94aa90d37d7.bindPopup(popup_f0a99cecaaa67b5f2ea6f16ac6358660)
+        ;
+
+        
+    
+    
+            var polygon_d5098a31b796cc4c8721f2289ff39231 = L.polygon(
+                [[37.77, -122.409], [37.779526, -122.4145], [37.779526, -122.4255], [37.77, -122.431], [37.760474, -122.4255], [37.760474, -122.4145], [37.77, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_02dbf3d1eef44ea046410aeba4788da7 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_78cc544d21ee4a4cf45a37e5303beabd = $(`<div id="html_78cc544d21ee4a4cf45a37e5303beabd" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-ANT<br>Feature: Foraging Paths</div>`)[0];
+                popup_02dbf3d1eef44ea046410aeba4788da7.setContent(html_78cc544d21ee4a4cf45a37e5303beabd);
+            
+        
+
+        polygon_d5098a31b796cc4c8721f2289ff39231.bindPopup(popup_02dbf3d1eef44ea046410aeba4788da7)
+        ;
+
+        
+    
+    
+            var polygon_2a2ebcc0ca24ba33ac373cc3c5a2eb58 = L.polygon(
+                [[37.76, -122.391679], [37.769526, -122.397179], [37.769526, -122.408179], [37.76, -122.413679], [37.750474, -122.408179], [37.750474, -122.397179], [37.76, -122.391679]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_db46eaafceba3d5ca856abaa7f930043 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_70fcaedabbe7600ed1d74916f9c82713 = $(`<div id="html_70fcaedabbe7600ed1d74916f9c82713" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-ANT<br>Feature: Nest-Source Vectors</div>`)[0];
+                popup_db46eaafceba3d5ca856abaa7f930043.setContent(html_70fcaedabbe7600ed1d74916f9c82713);
+            
+        
+
+        polygon_2a2ebcc0ca24ba33ac373cc3c5a2eb58.bindPopup(popup_db46eaafceba3d5ca856abaa7f930043)
+        ;
+
+        
+    
+    
+            var polygon_0f8b208d7c05227d8a475dc19e4391de = L.polygon(
+                [[37.74, -122.391679], [37.749526, -122.397179], [37.749526, -122.408179], [37.74, -122.413679], [37.730474, -122.408179], [37.730474, -122.397179], [37.74, -122.391679]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_551e36bb4206113a93f0cab6170d9928 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_62fa261ef04655e361b8a31172d55c95 = $(`<div id="html_62fa261ef04655e361b8a31172d55c95" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-ANT<br>Feature: Pheromone Intensity</div>`)[0];
+                popup_551e36bb4206113a93f0cab6170d9928.setContent(html_62fa261ef04655e361b8a31172d55c95);
+            
+        
+
+        polygon_0f8b208d7c05227d8a475dc19e4391de.bindPopup(popup_551e36bb4206113a93f0cab6170d9928)
+        ;
+
+        
+    
+    
+            var polygon_c4dc1ef123d4e890e7760f2f26d677a3 = L.polygon(
+                [[37.73, -122.409], [37.739526, -122.4145], [37.739526, -122.4255], [37.73, -122.431], [37.720474, -122.4255], [37.720474, -122.4145], [37.73, -122.409]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_654ccc61ccf78a6657c506a5cd4fdbbe = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b39b7524495d53b1c115b603752193ba = $(`<div id="html_b39b7524495d53b1c115b603752193ba" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-ANT<br>Feature: Foraging Paths</div>`)[0];
+                popup_654ccc61ccf78a6657c506a5cd4fdbbe.setContent(html_b39b7524495d53b1c115b603752193ba);
+            
+        
+
+        polygon_c4dc1ef123d4e890e7760f2f26d677a3.bindPopup(popup_654ccc61ccf78a6657c506a5cd4fdbbe)
+        ;
+
+        
+    
+    
+            var polygon_cddc861bdc1aca0d191cd8982b22fb13 = L.polygon(
+                [[37.74, -122.426321], [37.749526, -122.431821], [37.749526, -122.442821], [37.74, -122.448321], [37.730474, -122.442821], [37.730474, -122.431821], [37.74, -122.426321]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_5e89984a5be9ae64487212e0b9e822a1 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_60c312d07e9e6c4783f49c9aadacf21d = $(`<div id="html_60c312d07e9e6c4783f49c9aadacf21d" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-ANT<br>Feature: Nest-Source Vectors</div>`)[0];
+                popup_5e89984a5be9ae64487212e0b9e822a1.setContent(html_60c312d07e9e6c4783f49c9aadacf21d);
+            
+        
+
+        polygon_cddc861bdc1aca0d191cd8982b22fb13.bindPopup(popup_5e89984a5be9ae64487212e0b9e822a1)
+        ;
+
+        
+    
+    
+            var polygon_8888b219fc8c33ac91cde6dda5ff95b0 = L.polygon(
+                [[37.76, -122.426321], [37.769526, -122.431821], [37.769526, -122.442821], [37.76, -122.448321], [37.750474, -122.442821], [37.750474, -122.431821], [37.76, -122.426321]],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb923c", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a45839e12294f015da6ff6c8d20c4bdd);
+        
+    
+        var popup_e5f88a369e0e22dc859709cbb9ed719f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c9fac5091fea23f81124345d1f651c4e = $(`<div id="html_c9fac5091fea23f81124345d1f651c4e" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-ANT<br>Feature: Pheromone Intensity</div>`)[0];
+                popup_e5f88a369e0e22dc859709cbb9ed719f.setContent(html_c9fac5091fea23f81124345d1f651c4e);
+            
+        
+
+        polygon_8888b219fc8c33ac91cde6dda5ff95b0.bindPopup(popup_e5f88a369e0e22dc859709cbb9ed719f)
+        ;
+
+        
+    
+    
+            feature_group_a45839e12294f015da6ff6c8d20c4bdd.addTo(map_165d88e8bad36f5cc891eda53a246e54);
+        
+    
+            var circle_marker_d43a9ef1be64d2357277386e2ef4e60d = L.circleMarker(
+                [37.75, -122.42],
+                {"bubblingMouseEvents": true, "color": "#ea580c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_165d88e8bad36f5cc891eda53a246e54);
+        
+    
+        var popup_c4a66298e80bd41012e00df0332184a4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9c992e342580a06a3cc7401dbc7c7ee0 = $(`<div id="html_9c992e342580a06a3cc7401dbc7c7ee0" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-ANT</b> Focus Center</div>`)[0];
+                popup_c4a66298e80bd41012e00df0332184a4.setContent(html_9c992e342580a06a3cc7401dbc7c7ee0);
+            
+        
+
+        circle_marker_d43a9ef1be64d2357277386e2ef4e60d.bindPopup(popup_c4a66298e80bd41012e00df0332184a4)
+        ;
+
+        
+    
+    
+            var layer_control_84382e4ed3fb1f58b430ada3b5fbd634_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_dca74fcb79f926a0aa02f585805b8d78,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_a45839e12294f015da6ff6c8d20c4bdd,
+                },
+            };
+            let layer_control_84382e4ed3fb1f58b430ada3b5fbd634 = L.control.layers(
+                layer_control_84382e4ed3fb1f58b430ada3b5fbd634_layers.base_layers,
+                layer_control_84382e4ed3fb1f58b430ada3b5fbd634_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_165d88e8bad36f5cc891eda53a246e54);
+
+        
+</script>
+</html>

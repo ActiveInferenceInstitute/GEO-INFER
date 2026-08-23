@@ -6,10 +6,13 @@ Unit workspace within `GEO-INFER-PLACE`.
 
 - `test_api_clients.py`
 - `test_caching.py`
+- `test_cascadia_flowlines.py`
 - `test_comprehensive_dashboard.py`
+- `test_crescent_city_intel.py`
 - `test_dashboard_advanced.py`
 - `test_data_sources.py`
 - `test_del_norte_analyzers.py`
+- `test_del_norte_demo_orchestration.py`
 - `test_h3_operations.py`
 - `test_integration_wrappers.py`
 - `test_module_bridge.py`

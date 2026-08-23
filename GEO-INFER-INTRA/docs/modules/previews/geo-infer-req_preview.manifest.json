@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14946,
+      "name": "geo-infer-req_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5667,
+      "name": "geo-infer-req_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2182,
+      "name": "geo-infer-req_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Governance",
+  "input_sha256": "fecb613fec8884ac7074f371084bdfcf18432acf097dc9023032452488f6896f",
+  "module_id": "GEO-INFER-REQ",
+  "name": "Requirements Management",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

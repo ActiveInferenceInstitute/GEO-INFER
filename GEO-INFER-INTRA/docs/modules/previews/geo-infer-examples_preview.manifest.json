@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15056,
+      "name": "geo-infer-examples_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5710,
+      "name": "geo-infer-examples_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2192,
+      "name": "geo-infer-examples_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Orchestration",
+  "input_sha256": "0cb8f2c0e9a6abaa8783de8c3858aea2613772e346797f9cb0ac9a2b24b567d8",
+  "module_id": "GEO-INFER-EXAMPLES",
+  "name": "Cross-Module Examples",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

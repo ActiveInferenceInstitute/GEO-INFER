@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15008,
+      "name": "geo-infer-health_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5708,
+      "name": "geo-infer-health_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2189,
+      "name": "geo-infer-health_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "5972609995c572ea046943ba8530fcb2b6fab7d55fa8ae67f5f878e975b9100f",
+  "module_id": "GEO-INFER-HEALTH",
+  "name": "Geospatial Health Analytics",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

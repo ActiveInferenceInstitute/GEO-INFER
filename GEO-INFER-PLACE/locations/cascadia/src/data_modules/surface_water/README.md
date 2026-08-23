@@ -6,11 +6,14 @@ Surface Water workspace within `GEO-INFER-PLACE`.
 
 - `__init__.py`
 - `data_sources.py`
+- `flowline_network.py`
 - `geo_infer_surface_water.py`
 
 ## Public Interface
 
 - `data_sources.py:CascadianSurfaceWaterDataSources` (class)
+- `flowline_network.py:FlowlineTopologyValidator` (class)
+- `flowline_network.py:CascadiaFlowlineNetwork` (class)
 - `geo_infer_surface_water.py:GeoInferSurfaceWater` (class)
 
 ## Module Metadata

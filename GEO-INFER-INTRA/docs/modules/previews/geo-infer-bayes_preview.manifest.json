@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15003,
+      "name": "geo-infer-bayes_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5688,
+      "name": "geo-infer-bayes_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2189,
+      "name": "geo-infer-bayes_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "7dd0dd478bfbf62e9a59267fb6f9560dc8e63e036a1245a49712c74cfc8fd0fa",
+  "module_id": "GEO-INFER-BAYES",
+  "name": "Bayesian Inference Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

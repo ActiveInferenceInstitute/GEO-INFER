@@ -6,6 +6,7 @@ Utils workspace within `GEO-INFER-INTRA`.
 
 - `__init__.py`
 - `config.py`
+- `visual_preview.py`
 
 ## Public Interface
 

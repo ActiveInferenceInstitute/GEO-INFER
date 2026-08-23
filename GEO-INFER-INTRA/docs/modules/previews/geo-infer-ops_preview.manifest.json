@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14929,
+      "name": "geo-infer-ops_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5643,
+      "name": "geo-infer-ops_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2174,
+      "name": "geo-infer-ops_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "d4127163df18cf8f668b09e597ddf35a0e3a67a83415cd5f72869959e3eb8a6c",
+  "module_id": "GEO-INFER-OPS",
+  "name": "Operations",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

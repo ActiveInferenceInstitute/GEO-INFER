@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_62cb4c8b8aca9c5cee9e49f9ae3caeac {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #0891b2; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-CLIMATE</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Climate Analysis Module</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>CMIP6 climate projections, extreme heat indices, and anomaly detection</div></div>
+    
+            <div class="folium-map" id="map_62cb4c8b8aca9c5cee9e49f9ae3caeac" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_62cb4c8b8aca9c5cee9e49f9ae3caeac = L.map(
+                "map_62cb4c8b8aca9c5cee9e49f9ae3caeac",
+                {
+                    center: [37.5, -122.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 9,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_4618e5b4ec24cd43c802e191aaf6e322 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_4618e5b4ec24cd43c802e191aaf6e322.addTo(map_62cb4c8b8aca9c5cee9e49f9ae3caeac);
+        
+    
+            var feature_group_e7618bf9282787fbc865e18c217fddb8 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_092782883b7e4ed5605df28b185c1af0 = L.polygon(
+                [[37.5, -121.989], [37.509526, -121.9945], [37.509526, -122.0055], [37.5, -122.011], [37.490474, -122.0055], [37.490474, -121.9945], [37.5, -121.989]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_4281907a4e955fa53642fc00f17f154f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_64301df7bc09927bb6979b1706c3371a = $(`<div id="html_64301df7bc09927bb6979b1706c3371a" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Temperature Anomaly</div>`)[0];
+                popup_4281907a4e955fa53642fc00f17f154f.setContent(html_64301df7bc09927bb6979b1706c3371a);
+            
+        
+
+        polygon_092782883b7e4ed5605df28b185c1af0.bindPopup(popup_4281907a4e955fa53642fc00f17f154f)
+        ;
+
+        
+    
+    
+            var polygon_d5a1905e1f70015f54223934220a028a = L.polygon(
+                [[37.52, -121.989], [37.529526, -121.9945], [37.529526, -122.0055], [37.52, -122.011], [37.510474, -122.0055], [37.510474, -121.9945], [37.52, -121.989]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_618123f889636104274bd9509de1ad7b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7dc2cc7968a0b1e61b9b0f337ecfdcad = $(`<div id="html_7dc2cc7968a0b1e61b9b0f337ecfdcad" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Precipitation Shift</div>`)[0];
+                popup_618123f889636104274bd9509de1ad7b.setContent(html_7dc2cc7968a0b1e61b9b0f337ecfdcad);
+            
+        
+
+        polygon_d5a1905e1f70015f54223934220a028a.bindPopup(popup_618123f889636104274bd9509de1ad7b)
+        ;
+
+        
+    
+    
+            var polygon_f625f7f5994b83099abf007d7a4f509d = L.polygon(
+                [[37.51, -121.971679], [37.519526, -121.977179], [37.519526, -121.988179], [37.51, -121.993679], [37.500474, -121.988179], [37.500474, -121.977179], [37.51, -121.971679]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_930cb5b95c6da54327cdad29d16bdf8b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c4e98d16032c8bfa337baf16064437f4 = $(`<div id="html_c4e98d16032c8bfa337baf16064437f4" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Heat Vulnerability</div>`)[0];
+                popup_930cb5b95c6da54327cdad29d16bdf8b.setContent(html_c4e98d16032c8bfa337baf16064437f4);
+            
+        
+
+        polygon_f625f7f5994b83099abf007d7a4f509d.bindPopup(popup_930cb5b95c6da54327cdad29d16bdf8b)
+        ;
+
+        
+    
+    
+            var polygon_2577964a501a12c6d9fadfd2990390d3 = L.polygon(
+                [[37.49, -121.971679], [37.499526, -121.977179], [37.499526, -121.988179], [37.49, -121.993679], [37.480474, -121.988179], [37.480474, -121.977179], [37.49, -121.971679]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_d654ff947bcdf3569b44b5f1105d10b9 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_9e67e3349d304214b527e1922e4b1739 = $(`<div id="html_9e67e3349d304214b527e1922e4b1739" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Temperature Anomaly</div>`)[0];
+                popup_d654ff947bcdf3569b44b5f1105d10b9.setContent(html_9e67e3349d304214b527e1922e4b1739);
+            
+        
+
+        polygon_2577964a501a12c6d9fadfd2990390d3.bindPopup(popup_d654ff947bcdf3569b44b5f1105d10b9)
+        ;
+
+        
+    
+    
+            var polygon_f177eae9e99e15f39370747f9f055e3e = L.polygon(
+                [[37.48, -121.989], [37.489526, -121.9945], [37.489526, -122.0055], [37.48, -122.011], [37.470474, -122.0055], [37.470474, -121.9945], [37.48, -121.989]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_2ba1c197afbeaca6341452dbdfb8e6dc = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1d38df3be620388883e76422be49654a = $(`<div id="html_1d38df3be620388883e76422be49654a" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Precipitation Shift</div>`)[0];
+                popup_2ba1c197afbeaca6341452dbdfb8e6dc.setContent(html_1d38df3be620388883e76422be49654a);
+            
+        
+
+        polygon_f177eae9e99e15f39370747f9f055e3e.bindPopup(popup_2ba1c197afbeaca6341452dbdfb8e6dc)
+        ;
+
+        
+    
+    
+            var polygon_01a87c4ed4baeea4a8973bd724e55d6a = L.polygon(
+                [[37.49, -122.006321], [37.499526, -122.011821], [37.499526, -122.022821], [37.49, -122.028321], [37.480474, -122.022821], [37.480474, -122.011821], [37.49, -122.006321]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_c8f41bf438cba80dac864a6a120d1c9f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e16363332afe195bf8c8928019a69331 = $(`<div id="html_e16363332afe195bf8c8928019a69331" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Heat Vulnerability</div>`)[0];
+                popup_c8f41bf438cba80dac864a6a120d1c9f.setContent(html_e16363332afe195bf8c8928019a69331);
+            
+        
+
+        polygon_01a87c4ed4baeea4a8973bd724e55d6a.bindPopup(popup_c8f41bf438cba80dac864a6a120d1c9f)
+        ;
+
+        
+    
+    
+            var polygon_a96e3611869d71ad9a7c5c2557cc0454 = L.polygon(
+                [[37.51, -122.006321], [37.519526, -122.011821], [37.519526, -122.022821], [37.51, -122.028321], [37.500474, -122.022821], [37.500474, -122.011821], [37.51, -122.006321]],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22d3ee", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_e7618bf9282787fbc865e18c217fddb8);
+        
+    
+        var popup_dd671c57582dcb6c9d9d347dac52e586 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d64f7e4bc005aa21cf2dae9e54af529e = $(`<div id="html_d64f7e4bc005aa21cf2dae9e54af529e" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-CLIMATE<br>Feature: Temperature Anomaly</div>`)[0];
+                popup_dd671c57582dcb6c9d9d347dac52e586.setContent(html_d64f7e4bc005aa21cf2dae9e54af529e);
+            
+        
+
+        polygon_a96e3611869d71ad9a7c5c2557cc0454.bindPopup(popup_dd671c57582dcb6c9d9d347dac52e586)
+        ;
+
+        
+    
+    
+            feature_group_e7618bf9282787fbc865e18c217fddb8.addTo(map_62cb4c8b8aca9c5cee9e49f9ae3caeac);
+        
+    
+            var circle_marker_5588d5c03493c381112a8d12d514e6bf = L.circleMarker(
+                [37.5, -122.0],
+                {"bubblingMouseEvents": true, "color": "#0891b2", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_62cb4c8b8aca9c5cee9e49f9ae3caeac);
+        
+    
+        var popup_5665e478efc10acd4dcb2bb24af6078a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a8b7f1050c329ebddc9679479f2eb022 = $(`<div id="html_a8b7f1050c329ebddc9679479f2eb022" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-CLIMATE</b> Focus Center</div>`)[0];
+                popup_5665e478efc10acd4dcb2bb24af6078a.setContent(html_a8b7f1050c329ebddc9679479f2eb022);
+            
+        
+
+        circle_marker_5588d5c03493c381112a8d12d514e6bf.bindPopup(popup_5665e478efc10acd4dcb2bb24af6078a)
+        ;
+
+        
+    
+    
+            var layer_control_a8eff0d6892730e05984cae0afe6fcce_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_4618e5b4ec24cd43c802e191aaf6e322,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_e7618bf9282787fbc865e18c217fddb8,
+                },
+            };
+            let layer_control_a8eff0d6892730e05984cae0afe6fcce = L.control.layers(
+                layer_control_a8eff0d6892730e05984cae0afe6fcce_layers.base_layers,
+                layer_control_a8eff0d6892730e05984cae0afe6fcce_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_62cb4c8b8aca9c5cee9e49f9ae3caeac);
+
+        
+</script>
+</html>

@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `config.py`
+- `visual_preview.py`
 
 ## Validation
 

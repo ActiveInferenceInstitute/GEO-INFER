@@ -4,6 +4,7 @@ Integration workspace within `GEO-INFER-ACT`.
 
 ## Contents
 
+- `test_active_sensing_trajectories.py`
 - `test_h3_example_smoke.py`
 - `test_integration.py`
 - `test_space_integration.py`

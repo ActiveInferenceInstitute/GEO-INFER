@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14975,
+      "name": "geo-infer-sim_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5665,
+      "name": "geo-infer-sim_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2170,
+      "name": "geo-infer-sim_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "97ae1bc3cf0b0a9ad24cec35b79a5fde5baf8ef27e00fdffb6b6180cec9b1dd0",
+  "module_id": "GEO-INFER-SIM",
+  "name": "Simulation",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

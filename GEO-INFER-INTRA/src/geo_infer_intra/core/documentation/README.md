@@ -5,10 +5,16 @@ Documentation workspace within `GEO-INFER-INTRA`.
 ## Contents
 
 - `__init__.py`
+- `visual_preview.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `visual_preview.py:SpatialPreviewArtifacts` (class)
+- `visual_preview.py:render_leaflet_html` (function)
+- `visual_preview.py:render_svg_card` (function)
+- `visual_preview.py:render_png_card` (function)
+- `visual_preview.py:generate_module_preview_suite` (function)
+- `visual_preview.py:generate_all_module_previews` (function)
 
 ## Module Metadata
 

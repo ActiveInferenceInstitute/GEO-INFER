@@ -1,0 +1,96 @@
+name: GEO-INFER Wheel Release
+
+# Unified multi-package wheel release pipeline (ARCH-01).
+# Builds a wheel for every GEO-INFER-* package, validates that every built wheel
+# belongs to the shared ``geo-infer-*`` PyPI namespace, and runs packaging
+# configuration validation across the monorepo.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      run_isolated_verify:
+        description: "Install each wheel into isolated venvs and smoke test"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      UV_PYTHON: "3.11"
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: wheelrelease
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+            .python-version
+
+      - name: Install locked workspace dependencies
+        run: |
+          uv sync --locked --python "$(command -v python)" --all-packages --all-extras \
+            --no-install-package cupy --no-install-package mayavi \
+            --no-install-package vaex --no-install-package vaex-core
+
+      - name: Validate packaging configuration namespace
+        run: |
+          uv run python GEO-INFER-TEST/validate_packaging.py --strict
+          uv run python GEO-INFER-TEST/validate_repo_contracts.py --skip-import-smoke
+
+      - name: Build multi-package wheels
+        run: |
+          uv run python GEO-INFER-TEST/build_package_wheels.py \
+            --outdir dist \
+            --verify ${{ github.event.inputs.tags_isolated_verify || 'false' }}
+
+      - name: Verify built wheels cover all distribution namespaces
+        run: |
+          uv run python - <<'EOF'
+          from pathlib import Path
+          dist = Path("dist")
+          wheels = sorted(p.name for p in dist.glob("*.whl")) if dist.is_dir() else []
+          print(f"Built {len(wheels)} wheels")
+          missing = [name for name in wheels if not name.startswith("geo_infer_")]
+          if missing:
+              print("FAIL: wheels outside geo_infer_ namespace: " + ", ".join(missing))
+              raise SystemExit(1)
+          for name in wheels:
+              print("wheel: " + name)
+          print("All wheels conform to the geo-infer-* namespace")
+          EOF
+
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43907fa02 # v4.6.2
+        with:
+          name: geo-infer-wheels
+          path: dist/*.whl
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Prune uv cache
+        if: always()
+        continue-on-error: true
+        run: uv cache prune --ci

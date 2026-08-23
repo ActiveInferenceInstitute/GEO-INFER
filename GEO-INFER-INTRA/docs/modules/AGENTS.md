@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `previews/`
 - `geo-infer-act.md`
 - `geo-infer-ag.md`
 - `geo-infer-agent.md`
@@ -66,6 +67,7 @@
 - `geo-infer-transport.md`
 - `geo-infer-water.md`
 - `index.md`
+- `previews_index.md`
 
 ## Validation
 
