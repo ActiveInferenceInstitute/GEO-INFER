@@ -8,6 +8,11 @@ this module is a summary of that table:
 - Exceedance probability (EP) curve -- loss as a function of the probability of
   being exceeded, and its inverse, the return-period loss.
 - Probable Maximum Loss (PML) -- the loss at a single long return period.
+- Extreme-value PML -- a power-law tail extrapolation past the observed record
+  (see :func:`estimate_pml_with_tail_fit`).
+- Annual Exceedance Probability (AEP) curve -- the probability that a year's
+  summed losses breach a threshold, as a curve over thresholds (see
+  :func:`calculate_aep_curve`).
 - Tail Value at Risk (TVaR) -- the mean loss conditional on breaching VaR.
 - Occurrence and aggregate exceedance probabilities (OEP / AEP) -- the annual
   probability that a single event, respectively the annual total, breaches a
@@ -23,7 +28,7 @@ year) systematically distorts anything expressed per year.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -42,6 +47,8 @@ __all__ = [
     "calculate_annual_aggregate_exceedance_probability",
     "calculate_loss_frequency_curve",
     "calculate_correlation_matrix",
+    "calculate_aep_curve",
+    "estimate_pml_with_tail_fit",
 ]
 
 REQUIRED_COLUMNS: Tuple[str, ...] = ("event_id", "hazard_type", "loss")
@@ -595,6 +602,186 @@ def calculate_loss_frequency_curve(
         "bin_edges": [float(edge) for edge in bin_edges],
         "frequencies": [int(count) for count in frequencies],
         "normalized_frequencies": [float(value) for value in normalized],
+    }
+
+
+def _fit_exceedance_tail(
+    losses: np.ndarray, years: float, threshold_percentile: float
+) -> Tuple[float, float, float, np.ndarray]:
+    """Fit a power-law tail to the largest per-event losses.
+
+    The tail is the ``threshold_percentile`` largest fraction of losses.  Its
+    exceedance behaviour is modelled in log space as
+
+    ``log(P_annual) ~= slope * log(L) + intercept``,
+
+    where ``P_annual`` is the Poisson-annualised exceedance probability of a
+    loss at least ``L``.  ``np.polyfit`` yields the linear least-squares fit,
+    which extrapolates monotonically beyond the longest observed return period
+    and so supports PML estimates past the record that a purely empirical curve
+    must clamp.
+
+    Args:
+        losses: Per-event losses.
+        years: Years of exposure the record spans (annualisation denominator).
+        threshold_percentile: Tail cut-off quantile in ``(0, 1)``.
+
+    Returns:
+        Tuple of ``(slope, intercept, threshold, tail)`` where ``tail`` holds
+        the losses exceeding ``threshold``.
+
+    Raises:
+        ValueError: If the tail has fewer than three observations (fit would be
+            under-determined), the cut-off is not in ``(0, 1)``, or the fitted
+            slope is not negative (a tail cannot grow more probable with loss).
+    """
+    if not 0.0 < threshold_percentile < 1.0:
+        raise ValueError("threshold_percentile must lie in (0, 1)")
+    if losses.size < 4:
+        raise ValueError("at least four losses are required to fit a tail")
+    threshold = float(np.quantile(losses, threshold_percentile))
+    tail = losses[losses > threshold]
+    if tail.size < 3:
+        raise ValueError(
+            "too few losses above the tail threshold to fit a stable tail"
+        )
+    ordered = np.sort(tail)
+    # Exceedance frequency of the i-th smallest tail loss among the tail.
+    exceed_freq = (tail.size - np.arange(tail.size)) / (tail.size + 1)
+    # Annualise event exceedance through the Poisson occurrence probability.
+    rates = exceed_freq * tail.size / years
+    annual_probs = 1.0 - np.exp(-rates)
+    log_loss = np.log(ordered)
+    log_prob = np.log(annual_probs)
+    slope, intercept = np.polyfit(log_loss, log_prob, 1)
+    if slope >= 0.0:
+        raise ValueError("fitted tail slope is not negative; cannot extrapolate")
+    return float(slope), float(intercept), threshold, tail
+
+
+def calculate_aep_curve(
+    event_loss_table: Union[pd.DataFrame, np.ndarray],
+    thresholds: Optional[Sequence[float]] = None,
+    num_years: int = 5000,
+    random_seed: SeedLike = None,
+    exposure_years: Optional[float] = None,
+) -> Dict[str, List[float]]:
+    """Estimate an Annual Exceedance Probability (AEP) curve over loss levels.
+
+    AEP here is the *aggregate* annual probability that a year's summed losses
+    exceed a threshold -- the frequency-severity simulation of
+    :func:`calculate_annual_aggregate_exceedance_probability` evaluated at
+    several thresholds, sharing one deterministic seed so the curve is smooth.
+
+    Args:
+        event_loss_table: Event loss table (or array of per-event losses).
+        thresholds: Loss levels at which AEP is reported.  When ``None`` a
+            default logarithmic grid spanning the observed losses is used.
+        num_years: Years in the simulation (see the underlying function).
+        random_seed: Seed or generator for reproducibility (default fresh).
+        exposure_years: Years of exposure the record spans, used for the
+            Poisson rate; see the underlying function.
+
+    Returns:
+        Dict with equal-length lists ``threshold`` and ``aep``.  Thresholds
+        above every observed loss have AEP ``0.0``; a threshold of zero is gone
+        unless a year can draw no events.
+
+    Raises:
+        ValueError: If a threshold is non-finite, or the inputs fail underlying
+            validation, or ``num_years`` is not a positive integer.
+    """
+    losses = _event_total_losses(event_loss_table)
+    if losses.size == 0:
+        selected = list(thresholds or [0.0])
+        if any(not np.isfinite(float(threshold)) for threshold in selected):
+            raise ValueError("threshold must be finite")
+        return {"threshold": [float(threshold) for threshold in selected], "aep": [0.0 for _ in selected]}
+    if thresholds is None:
+        low = float(np.min(losses))
+        high = float(np.max(losses))
+        step = (high - low) / 20.0 if high > low else 1.0
+        selected = [low + step * i for i in range(21)]
+    else:
+        if any(not np.isfinite(float(threshold)) for threshold in thresholds):
+            raise ValueError("threshold must be finite")
+        selected = [float(threshold) for threshold in thresholds]
+    aeps = [
+        calculate_annual_aggregate_exceedance_probability(
+            event_loss_table,
+            threshold,
+            num_years=num_years,
+            random_seed=random_seed,
+            exposure_years=exposure_years,
+        )
+        for threshold in selected
+    ]
+    return {"threshold": selected, "aep": aeps}
+
+
+def estimate_pml_with_tail_fit(
+    event_loss_table: Union[pd.DataFrame, np.ndarray],
+    return_period: float = 250,
+    exposure_years: Optional[float] = None,
+    threshold_percentile: float = 0.7,
+) -> Dict[str, Any]:
+    """Estimate PML beyond the observed record from a fitted power-law tail.
+
+    The classic PML is the empirical loss at a long return period, which must
+    clamp at the largest observed loss once the return period exceeds the
+    record. This function instead fits a power-law (Generalised-log / log-log)
+    tail to the largest losses and extrapolates to the requested return period,
+    giving a PML that continues to rise past the record. This is the standard
+    actuarial extreme-value treatment for catastrophe tails.
+
+    Args:
+        event_loss_table: Event loss table (or array of per-event losses).
+        return_period: Return period in years. Must be finite and above 1.
+        exposure_years: Years of exposure the record spans. Required for a
+            correct annualisation; fallback assumes one year and warns.
+        threshold_percentile: Tail quantile in ``(0, 1)``.
+
+    Returns:
+        Dict with ``pml`` (the extrapolated loss), ``return_period``,
+        ``method`` (``\"gpd_tail\"``), ``threshold_percentile``,
+        ``tail_threshold``, ``tail_count``, ``tail_slope`` (the power-law
+        alpha), ``tail_intercept`` and ``warning`` when applicable.
+
+    Raises:
+        ValueError: If the record cannot support a tail fit (too few tail
+            losses) or the fitted tail is ill-conditioned, or ``return_period``
+            is not finite and greater than 1.
+    """
+    if not np.isfinite(return_period) or return_period <= 1:
+        raise ValueError("return_period must be finite and greater than 1")
+    losses = _event_total_losses(event_loss_table)
+    if losses.size == 0:
+        return {
+            "pml": 0.0,
+            "return_period": float(return_period),
+            "method": "gpd_tail",
+            "tail_count": 0,
+        }
+    years = _resolve_exposure_years(
+        exposure_years, losses.size, "estimate_pml_with_tail_fit"
+    )
+    slope, intercept, threshold, tail = _fit_exceedance_tail(
+        losses, years, threshold_percentile
+    )
+    exceedance_prob = 1.0 / float(return_period)
+    # Invert log(prob) = slope*log(L) + intercept for L.
+    log_pml = (np.log(exceedance_prob) - intercept) / slope
+    pml = float(np.exp(log_pml))
+    tail_count = int(tail.size)
+    return {
+        "pml": max(0.0, pml),
+        "return_period": float(return_period),
+        "method": "gpd_tail",
+        "threshold_percentile": threshold_percentile,
+        "tail_threshold": threshold,
+        "tail_count": tail_count,
+        "tail_slope": slope,
+        "tail_intercept": intercept,
     }
 
 

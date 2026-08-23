@@ -5,7 +5,7 @@ This module provides comprehensive validation and integrity checking
 for all PEP data types and workflows.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Callable
 from datetime import datetime, date
 import re
 import logging
@@ -20,18 +20,23 @@ logger = logging.getLogger(__name__)
 class ValidationResult:
     """Result of a validation operation."""
 
-    def __init__(self, is_valid: bool, errors: List[str] = None, warnings: List[str] = None):
+    def __init__(
+        self,
+        is_valid: bool,
+        errors: Optional[List[str]] = None,
+        warnings: Optional[List[str]] = None,
+    ) -> None:
         self.is_valid = is_valid
         self.errors = errors or []
         self.warnings = warnings or []
         self.validated_at = datetime.now()
 
-    def add_error(self, error: str):
+    def add_error(self, error: str) -> None:
         """Add an error to the result."""
         self.errors.append(error)
         self.is_valid = False
 
-    def add_warning(self, warning: str):
+    def add_warning(self, warning: str) -> None:
         """Add a warning to the result."""
         self.warnings.append(warning)
 
@@ -58,7 +63,7 @@ class PEPValidator:
     - Workflow-specific validations
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.email_regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
         self.phone_regex = re.compile(r'^[\+]?[1-9][\d]{0,15}$')
 
@@ -428,9 +433,9 @@ class PEPValidator:
 
         return result
 
-    def validate_data_integrity(self, employees: List[Employee] = None,
-                               customers: List[Customer] = None,
-                               candidates: List[Candidate] = None) -> Dict[str, ValidationResult]:
+    def validate_data_integrity(self, employees: Optional[List[Employee]] = None,
+                               customers: Optional[List[Customer]] = None,
+                               candidates: Optional[List[Candidate]] = None) -> Dict[str, ValidationResult]:
         """
         Perform comprehensive data integrity validation across all data types.
 
@@ -459,7 +464,9 @@ class PEPValidator:
 
         return results
 
-    def _validate_collection(self, items: List[Any], validator_func: callable) -> ValidationResult:
+    def _validate_collection(
+        self, items: List[Any], validator_func: Callable[[Any], ValidationResult]
+    ) -> ValidationResult:
         """Validate a collection of items and aggregate results."""
         collection_result = ValidationResult(True)
         valid_count = 0

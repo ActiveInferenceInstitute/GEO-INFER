@@ -7,7 +7,7 @@ dataset management, data access, and integration with other modules.
 
 import logging
 import inspect
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple, Sequence, cast
 from datetime import datetime, timezone
 
 import geopandas as gpd
@@ -17,6 +17,9 @@ from ..models.schemas import (
     Dataset,
     DatasetMetadata,
     DataQualityReport,
+    DataType,
+    DataFormat,
+    StorageBackend,
 )
 from ..core.storage import AdaptiveDataStorage
 from ..core.validation import DataQualityManager
@@ -98,6 +101,8 @@ class DataService:
                     continue
                 if "bbox" in filters:
                     # Check if dataset intersects with filter bbox
+                    if dataset.metadata.spatial is None:
+                        continue
                     dataset_bbox = dataset.metadata.spatial.bbox
                     filter_bbox = filters["bbox"]
                     if not self._bboxes_intersect(dataset_bbox, filter_bbox):
@@ -238,11 +243,13 @@ class DataService:
             id=dataset_id,
             title=metadata.title,
             description=metadata.description,
-            type="vector",  # Would be determined from data
-            format="geojson",  # Would be determined from data
+            type=DataType.VECTOR,  # Would be determined from data
+            format=DataFormat.GEOJSON,  # Would be determined from data
             metadata=metadata,
             storage_backend=(
-                storage_backend if storage_backend != "auto" else "postgresql"
+                StorageBackend(storage_backend)
+                if storage_backend != "auto"
+                else StorageBackend.POSTGRESQL
             ),
         )
 
@@ -254,7 +261,7 @@ class DataService:
 
     def _analyze_access_patterns(self, metadata: DatasetMetadata) -> Dict[str, Any]:
         """Analyze expected access patterns for optimization."""
-        patterns = {
+        patterns: Dict[str, Any] = {
             "spatial_queries": [],
             "temporal_queries": [],
             "query_frequency": "medium",
@@ -337,7 +344,10 @@ class DataService:
         Returns:
             Quality report
         """
-        return await _maybe_await(self.quality_service.validate_dataset(dataset_id))
+        return cast(
+            DataQualityReport,
+            await _maybe_await(self.quality_service.validate_dataset(dataset_id)),
+        )
 
     def get_access_patterns(self, dataset_id: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -380,7 +390,7 @@ class DataService:
 
     def _find_peak_hours(self, access_log: List[Dict[str, Any]]) -> List[int]:
         """Find peak access hours."""
-        hour_counts = {}
+        hour_counts: Dict[int, int] = {}
 
         for log in access_log:
             hour = log["timestamp"].hour
@@ -399,7 +409,7 @@ class DataService:
 
     def optimize_performance(self) -> Dict[str, Any]:
         """Optimize data service performance."""
-        optimizations = {
+        optimizations: Dict[str, Any] = {
             "cache_optimization": {},
             "storage_optimization": {},
             "query_optimization": {},

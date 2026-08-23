@@ -11,9 +11,10 @@ import uuid
 import time
 import psutil
 import threading
+from types import TracebackType
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Callable
+from typing import Any, Callable, Deque, Dict, List, Optional, Type, cast
 from enum import Enum
 from collections import defaultdict, deque
 
@@ -133,12 +134,12 @@ class BenchmarkResult:
     created_at: datetime = field(default_factory=datetime.now)
     duration: timedelta = field(default_factory=lambda: timedelta(0))
 
-    def add_measurement(self, measurement: PerformanceMeasurement):
+    def add_measurement(self, measurement: PerformanceMeasurement) -> None:
         """Add a measurement to the benchmark."""
         self.measurements.append(measurement)
         self._update_summary_stats()
 
-    def _update_summary_stats(self):
+    def _update_summary_stats(self) -> None:
         """Update summary statistics."""
         if not self.measurements:
             return
@@ -198,7 +199,7 @@ class PerformanceProfile:
     created_at: datetime = field(default_factory=datetime.now)
     last_updated: datetime = field(default_factory=datetime.now)
 
-    def update_metrics(self, metrics: Dict[PerformanceMetric, float]):
+    def update_metrics(self, metrics: Dict[PerformanceMetric, float]) -> None:
         """Update current metrics and trends."""
         for metric, value in metrics.items():
             self.current_metrics[metric] = value
@@ -220,14 +221,14 @@ class PerformanceMonitor:
     Context manager for monitoring performance.
     """
 
-    def __init__(self, operation_name: str, analyzer: "H3PerformanceAnalyzer"):
+    def __init__(self, operation_name: str, analyzer: "H3PerformanceAnalyzer") -> None:
         self.operation_name = operation_name
         self.analyzer = analyzer
-        self.start_time = None
-        self.start_memory = None
-        self.start_cpu = None
+        self.start_time: Optional[float] = None
+        self.start_memory: Optional[int] = None
+        self.start_cpu: Optional[float] = None
 
-    def __enter__(self):
+    def __enter__(self) -> "PerformanceMonitor":
         """Start monitoring."""
         self.start_time = time.time()
 
@@ -241,10 +242,15 @@ class PerformanceMonitor:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         """Stop monitoring and record measurements."""
         end_time = time.time()
-        execution_time = end_time - self.start_time
+        execution_time = end_time - cast(float, self.start_time)
 
         # Record execution time
         self.analyzer.record_measurement(
@@ -260,7 +266,7 @@ class PerformanceMonitor:
             end_cpu = process.cpu_percent()
 
             # Record memory usage
-            memory_delta = end_memory - self.start_memory
+            memory_delta = end_memory - cast(int, self.start_memory)
             self.analyzer.record_measurement(
                 metric_type=PerformanceMetric.MEMORY_USAGE,
                 value=memory_delta,
@@ -269,7 +275,7 @@ class PerformanceMonitor:
             )
 
             # Record CPU usage
-            cpu_usage = (self.start_cpu + end_cpu) / 2
+            cpu_usage = (cast(float, self.start_cpu) + end_cpu) / 2
             self.analyzer.record_measurement(
                 metric_type=PerformanceMetric.CPU_USAGE,
                 value=cpu_usage,
@@ -292,7 +298,7 @@ class H3PerformanceAnalyzer:
     - Resource utilization analysis
     """
 
-    def __init__(self, name: str = "H3PerformanceAnalyzer"):
+    def __init__(self, name: str = "H3PerformanceAnalyzer") -> None:
         """
         Initialize performance analyzer.
 
@@ -308,8 +314,8 @@ class H3PerformanceAnalyzer:
 
         # Real-time monitoring
         self.monitoring_active = False
-        self.monitoring_thread = None
-        self.monitoring_data = deque(maxlen=1000)
+        self.monitoring_thread: Optional[threading.Thread] = None
+        self.monitoring_data: Deque[Dict[str, Any]] = deque(maxlen=1000)
 
         # Configuration
         self.config: Dict[str, Any] = {
@@ -384,9 +390,9 @@ class H3PerformanceAnalyzer:
     def run_benchmark(
         self,
         benchmark_type: BenchmarkType,
-        target_function: Callable,
+        target_function: Callable[..., Any],
         test_config: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> BenchmarkResult:
         """
         Run a benchmark test.
@@ -483,7 +489,7 @@ class H3PerformanceAnalyzer:
 
     def update_performance_profile(
         self, profile_id: str, metrics: Dict[PerformanceMetric, float]
-    ):
+    ) -> None:
         """
         Update a performance profile with new metrics.
 
@@ -502,7 +508,7 @@ class H3PerformanceAnalyzer:
 
         self.updated_at = datetime.now()
 
-    def start_monitoring(self):
+    def start_monitoring(self) -> None:
         """Start real-time performance monitoring."""
         if self.monitoring_active:
             return
@@ -515,7 +521,7 @@ class H3PerformanceAnalyzer:
 
         logger.info(f"Performance monitoring started for {self.name}")
 
-    def stop_monitoring(self):
+    def stop_monitoring(self) -> None:
         """Stop real-time performance monitoring."""
         self.monitoring_active = False
 
@@ -524,7 +530,7 @@ class H3PerformanceAnalyzer:
 
         logger.info(f"Performance monitoring stopped for {self.name}")
 
-    def _monitoring_loop(self):
+    def _monitoring_loop(self) -> None:
         """Real-time monitoring loop."""
         while self.monitoring_active:
             try:
@@ -666,7 +672,10 @@ class H3PerformanceAnalyzer:
 
         if len(execution_times) < 2:
             # Only one data point — use inverse-time score as proxy
-            return self._calculate_speed_score(result)
+            return cast(
+                float,
+                self._calculate_speed_score(result),  # type: ignore[attr-defined]
+            )
 
         mean_time = sum(execution_times) / len(execution_times)
         variance = sum((t - mean_time) ** 2 for t in execution_times) / len(
@@ -718,7 +727,7 @@ class H3PerformanceAnalyzer:
 
         return recommendations
 
-    def _cleanup_old_measurements(self):
+    def _cleanup_old_measurements(self) -> None:
         """Clean up old measurements."""
         cutoff_date = datetime.now() - timedelta(
             days=self.config["measurement_retention_days"]

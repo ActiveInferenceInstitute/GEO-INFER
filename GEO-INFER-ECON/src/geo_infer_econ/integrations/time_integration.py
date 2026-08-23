@@ -4,7 +4,7 @@ GEO-INFER-TIME Integration Adapter
 Provides temporal analysis wrapper for economic time series.
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 import numpy as np
 import pandas as pd
 import logging
@@ -20,9 +20,9 @@ try:
     TIME_AVAILABLE = True
 except ImportError:
     TIME_AVAILABLE = False
-    TemporalAnalyzer = None  # type: ignore[assignment,misc]
-    ForecastingEngine = None  # type: ignore[assignment,misc]
-    TimeSeries = None  # type: ignore[assignment,misc]
+    TemporalAnalyzer = None
+    ForecastingEngine = None
+    TimeSeries = None
 
 
 class TimeIntegration:
@@ -103,8 +103,11 @@ class TimeIntegration:
                 return None
 
         try:
-            return self.analyzer.detect_trend(
-                self._as_timeseries(time_series), method=method
+            return cast(
+                Dict[str, Any],
+                self.analyzer.detect_trend(
+                    self._as_timeseries(time_series), method=method
+                ),
             )
         except Exception as e:
             logger.error(f"Failed to detect trend: {e}")
@@ -128,8 +131,11 @@ class TimeIntegration:
 
         try:
             timeseries = self._as_timeseries(time_series)
-            return self.analyzer.detect_seasonality(
-                timeseries, max_periods=period or 12
+            return cast(
+                Dict[str, Any],
+                self.analyzer.detect_seasonality(
+                    timeseries, max_periods=period or 12
+                ),
             )
         except Exception as e:
             logger.error(f"Failed to analyze seasonality: {e}")
@@ -183,7 +189,7 @@ class TimeIntegration:
             return None
 
     def forecast(
-        self, time_series: pd.Series, horizon: int, method: str = "arima", **kwargs
+        self, time_series: pd.Series, horizon: int, method: str = "arima", **kwargs: Any
     ) -> Optional[Dict[str, Any]]:
         """
         Forecast economic time series.
@@ -210,7 +216,9 @@ class TimeIntegration:
             }
             if method not in methods:
                 raise ValueError(f"Unsupported forecasting method: {method}")
-            return methods[method](timeseries, horizon=horizon, **kwargs)
+            return cast(
+                Dict[str, Any], methods[method](timeseries, horizon=horizon, **kwargs)
+            )
         except Exception as e:
             logger.error(f"Failed to forecast: {e}")
             return None

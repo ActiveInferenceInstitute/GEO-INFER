@@ -15,7 +15,7 @@ import threading
 import time
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any, Union, Callable, cast
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -90,8 +90,8 @@ class SurveillanceDevice:
     name: str
     device_type: SurveillanceType
     location: Point
-    coverage_area: Optional[Polygon] = None
     zone_id: str
+    coverage_area: Optional[Polygon] = None
     is_active: bool = True
     recording_active: bool = False
     detection_sensitivity: float = 0.5
@@ -151,7 +151,7 @@ class PhysicalSecurityManager:
         # Initialize monitoring
         self.monitoring_active = False
         self.monitoring_thread: Optional[threading.Thread] = None
-        self.alert_callbacks: List[callable] = []
+        self.alert_callbacks: List[Callable[[PhysicalThreat], None]] = []
 
         # Initialize utilities
         self.geo_utils = GeoSpatialUtils()
@@ -165,7 +165,7 @@ class PhysicalSecurityManager:
         """Load configuration from file."""
         if config_path and Path(config_path).exists():
             with open(config_path, "r") as f:
-                return yaml.safe_load(f)
+                return cast(Dict[str, Any], yaml.safe_load(f))
         return {
             "monitoring_interval": 5,
             "alert_threshold": 0.7,
@@ -174,7 +174,7 @@ class PhysicalSecurityManager:
             "logging_level": "INFO",
         }
 
-    def _initialize_security_zones(self):
+    def _initialize_security_zones(self) -> None:
         """Initialize default security zones."""
         # Create default zones if none exist
         if not self.security_zones:
@@ -188,19 +188,19 @@ class PhysicalSecurityManager:
                 )
             )
 
-    def _initialize_devices(self):
+    def _initialize_devices(self) -> None:
         """Initialize devices from configuration."""
         devices_config = self.config.get("devices", {})
 
         # Initialize access control devices
         for device_config in devices_config.get("access_control", []):
-            device = AccessControlDevice(**device_config)
-            self.access_devices[device.device_id] = device
+            access_device = AccessControlDevice(**device_config)
+            self.access_devices[access_device.device_id] = access_device
 
         # Initialize surveillance devices
         for device_config in devices_config.get("surveillance", []):
-            device = SurveillanceDevice(**device_config)
-            self.surveillance_devices[device.device_id] = device
+            surv_device = SurveillanceDevice(**device_config)
+            self.surveillance_devices[surv_device.device_id] = surv_device
 
     # Security Zone Management
     def add_security_zone(self, zone: SecurityZone) -> bool:
@@ -420,7 +420,7 @@ class PhysicalSecurityManager:
 
         return threat
 
-    def _trigger_alert(self, threat: PhysicalThreat):
+    def _trigger_alert(self, threat: PhysicalThreat) -> None:
         """Trigger security alerts for detected threats."""
         for callback in self.alert_callbacks:
             try:
@@ -433,12 +433,12 @@ class PhysicalSecurityManager:
             f"SECURITY ALERT: {threat.threat_type} at {threat.location} - {threat.description}"
         )
 
-    def add_alert_callback(self, callback: callable):
+    def add_alert_callback(self, callback: Callable[[PhysicalThreat], None]) -> None:
         """Add a callback function for security alerts."""
         self.alert_callbacks.append(callback)
 
     # Monitoring and Maintenance
-    def start_monitoring(self):
+    def start_monitoring(self) -> None:
         """Start continuous security monitoring."""
         if not self.monitoring_active:
             self.monitoring_active = True
@@ -447,14 +447,14 @@ class PhysicalSecurityManager:
             self.monitoring_thread.start()
             self.logger.info("Physical security monitoring started")
 
-    def stop_monitoring(self):
+    def stop_monitoring(self) -> None:
         """Stop security monitoring."""
         self.monitoring_active = False
         if self.monitoring_thread:
             self.monitoring_thread.join()
         self.logger.info("Physical security monitoring stopped")
 
-    def _monitoring_loop(self):
+    def _monitoring_loop(self) -> None:
         """Main monitoring loop."""
         while self.monitoring_active:
             try:
@@ -466,7 +466,7 @@ class PhysicalSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in monitoring loop: {e}")
 
-    def _check_device_health(self):
+    def _check_device_health(self) -> None:
         """Check health status of all devices."""
         current_time = datetime.now()
 
@@ -480,15 +480,15 @@ class PhysicalSecurityManager:
                     )
 
         # Check surveillance devices
-        for device in self.surveillance_devices.values():
-            if hasattr(device, "last_heartbeat") and device.last_heartbeat:
-                time_since_heartbeat = current_time - device.last_heartbeat
+        for surv_device in self.surveillance_devices.values():
+            if hasattr(surv_device, "last_heartbeat") and surv_device.last_heartbeat:
+                time_since_heartbeat = current_time - surv_device.last_heartbeat
                 if time_since_heartbeat > timedelta(minutes=5):
                     self.logger.warning(
-                        f"Surveillance device {device.device_id} may be offline"
+                        f"Surveillance device {surv_device.device_id} may be offline"
                     )
 
-    def _check_zone_integrity(self):
+    def _check_zone_integrity(self) -> None:
         """Check integrity of security zones by verifying device coverage."""
         for zone_id, zone in self.security_zones.items():
             zone_devices = [
@@ -501,7 +501,7 @@ class PhysicalSecurityManager:
                     f"Security zone {zone_id} has no active access devices"
                 )
 
-    def _process_alerts(self):
+    def _process_alerts(self) -> None:
         """Process and manage active alerts."""
         # Clean up old resolved threats
         current_time = datetime.now()
@@ -555,7 +555,7 @@ class PhysicalSecurityManager:
         )
 
         if total_area > 0:
-            return min(100.0, (covered_area / total_area) * 100)
+            return min(100.0, cast(float, (covered_area / total_area) * 100))
         return 0.0
 
     def _analyze_threats(
@@ -568,8 +568,8 @@ class PhysicalSecurityManager:
             if start_date <= threat.detected_at <= end_date
         ]
 
-        threat_types = {}
-        severity_counts = {}
+        threat_types: Dict[str, int] = {}
+        severity_counts: Dict[str, int] = {}
 
         for threat in relevant_threats:
             threat_types[threat.threat_type] = (
@@ -630,9 +630,9 @@ class PhysicalSecurityManager:
 
             # Count surveillance coverage
             surveillance_coverage = 0
-            for device in self.surveillance_devices.values():
-                if device.coverage_area and zone.boundary.intersects(
-                    device.coverage_area
+            for surv_device in self.surveillance_devices.values():
+                if surv_device.coverage_area and zone.boundary.intersects(
+                    surv_device.coverage_area
                 ):
                     surveillance_coverage += 1
 

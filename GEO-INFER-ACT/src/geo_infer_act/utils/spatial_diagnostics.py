@@ -61,7 +61,7 @@ class SpatialDiagnostics:
         self,
         beliefs: np.ndarray,
         neighbor_matrix: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Compute spatial coherence metrics.
         
@@ -236,7 +236,7 @@ class SpatialDiagnostics:
                     negative_expected_free_energy=neg_efe,
                     selected_negative_expected_free_energy=selected_negative_efe,
                     policy_entropy=_entropy(posterior) if posterior else 0.0,
-                    neighbor_count=metric["neighbor_count"],
+                    neighbor_count=int(metric["neighbor_count"]),
                     local_coherence=metric["local_coherence"],
                     posterior_delta=metric["posterior_delta"],
                     belief_flux_in=metric["belief_flux_in"],
@@ -455,7 +455,9 @@ class SpatialDiagnostics:
             for target in neighbors:
                 if target not in normalized:
                     continue
-                pair = tuple(sorted((str(source), str(target))))
+                pair = (str(source), str(target))
+                if pair[0] > pair[1]:
+                    pair = (pair[1], pair[0])
                 if pair in seen:
                     continue
                 seen.add(pair)
@@ -503,9 +505,9 @@ class SpatialDiagnostics:
         rows: List[H3LevelDiagnostics] = []
         for resolution, level_cells in sorted(by_resolution.items()):
             cross_values = [
-                float(cell.metadata.get("cross_level_consistency"))
+                float(value)
                 for cell in level_cells
-                if cell.metadata.get("cross_level_consistency") is not None
+                if (value := cell.metadata.get("cross_level_consistency")) is not None
             ]
             rows.append(
                 H3LevelDiagnostics(
@@ -550,7 +552,7 @@ class SpatialDiagnostics:
         self,
         values: np.ndarray,
         weights: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Compute Moran's I spatial autocorrelation.
         
@@ -850,7 +852,7 @@ def _trace_belief_vector(values: Any) -> np.ndarray:
     """Normalize belief values from typed results, dicts, or arrays."""
     if isinstance(values, Mapping) and "states" in values:
         values = values["states"]
-    return normalize_belief_vector(values)
+    return np.asarray(normalize_belief_vector(values))
 
 
 def _entropy(values: Any) -> float:

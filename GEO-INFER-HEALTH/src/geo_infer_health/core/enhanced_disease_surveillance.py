@@ -6,7 +6,7 @@ principles for probabilistic reasoning, uncertainty quantification, and
 adaptive belief updating.
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any, cast
 from collections import defaultdict
 import math
 from datetime import timedelta
@@ -55,8 +55,8 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
         self.free_energy_threshold = 0.1  # Threshold for belief updating
 
         # Performance optimization: cache for spatial computations
-        self._spatial_cache = {}
-        self._distance_cache = {}
+        self._spatial_cache: Dict[Any, Any] = {}
+        self._distance_cache: Dict[Any, Any] = {}
 
         # Pre-compute spatial statistics with error handling
         self._spatial_stats = None
@@ -75,7 +75,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
             f"Initialized ActiveInferenceDiseaseAnalyzer with {len(self.reports)} reports"
         )
 
-    def _initialize_belief_states(self):
+    def _initialize_belief_states(self) -> None:
         """Initialize belief states for Active Inference."""
         self.belief_states = {
             "disease_activity": 0.5,  # Prior belief about disease activity level
@@ -96,7 +96,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
         }
 
         # Historical observations for learning
-        self.observation_history = []
+        self.observation_history: List[Dict[str, float]] = []
 
     def _calculate_free_energy(self, observations: Dict[str, float]) -> float:
         """
@@ -123,7 +123,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
 
         return free_energy
 
-    def _update_beliefs(self, observations: Dict[str, float]):
+    def _update_beliefs(self, observations: Dict[str, float]) -> None:
         """
         Update belief states using Active Inference.
 
@@ -193,7 +193,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
         # Calculate spatial autocorrelation if enough data
         morans_i = 0.0
         if len(locations) >= 10:
-            values = [r.case_count for r in reports_subset]
+            values = [float(r.case_count) for r in reports_subset]
             autocorr_result = calculate_spatial_autocorrelation(
                 locations, values, max_distance_km=5.0
             )
@@ -214,7 +214,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
             return 0.0
 
         # Simple seasonal analysis based on month distribution
-        monthly_counts = defaultdict(int)
+        monthly_counts: Dict[int, int] = defaultdict(int)
         for report in reports:
             month = report.report_date.month
             monthly_counts[month] += report.case_count
@@ -254,7 +254,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
 
     def analyze_with_active_inference(
         self, time_window_days: Optional[int] = None
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """
         Perform comprehensive disease analysis using Active Inference.
 
@@ -306,7 +306,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                         logger.error(f"Failed to update beliefs: {e}")
 
                 # Perform analyses with error handling
-                results = {
+                results: Dict[str, Any] = {
                     "belief_states": self.belief_states.copy(),
                     "belief_precisions": self.belief_precisions.copy(),
                     "observations": observations,
@@ -387,7 +387,10 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
         locations = [r.location for r in reports]
         case_counts = [r.case_count for r in reports]
 
-        return calculate_hotspot_statistics(locations, case_counts)["hotspots"]
+        return cast(
+            List[Dict[str, Any]],
+            calculate_hotspot_statistics(locations, case_counts)["hotspots"],
+        )
 
     def _enhanced_hotspot_analysis(self, reports: List[DiseaseReport]) -> List[Dict]:
         """Perform enhanced hotspot analysis with Active Inference."""
@@ -434,7 +437,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
 
         return hotspots
 
-    def _generate_predictions(self, reports: List[DiseaseReport]) -> Dict[str, any]:
+    def _generate_predictions(self, reports: List[DiseaseReport]) -> Dict[str, Any]:
         """Generate predictions using Active Inference."""
         if len(reports) < 5:
             return {"short_term_risk": 0.5, "trend": "insufficient_data"}
@@ -472,7 +475,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
 
     def _calculate_confidence_intervals(
         self, reports: List[DiseaseReport]
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """Calculate confidence intervals for estimates."""
         if not reports:
             return {"incidence_rate": {"lower": 0, "upper": 0, "confidence": 0}}
@@ -511,7 +514,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
             "standard_error": std_error,
         }
 
-    def _assess_overall_risk(self, reports: List[DiseaseReport]) -> Dict[str, any]:
+    def _assess_overall_risk(self, reports: List[DiseaseReport]) -> Dict[str, Any]:
         """Assess overall disease risk."""
         if not reports:
             return {"risk_level": "low", "score": 0.0}

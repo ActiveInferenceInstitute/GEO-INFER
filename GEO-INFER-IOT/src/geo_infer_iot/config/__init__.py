@@ -263,14 +263,14 @@ class ConfigurationManager:
             os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config', 'iot_config.yaml')
         ]
         self.config = IoTConfig()
-        self.validation_errors = []
+        self.validation_errors: List[str] = []
 
         # Load configuration
         self._load_configuration()
 
         logger.info("ConfigurationManager initialized")
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Load configuration from files and environment variables."""
         # Try to load from config files
         for config_path in self.config_paths:
@@ -291,9 +291,9 @@ class ConfigurationManager:
         # Validate configuration
         self._validate_configuration()
 
-    def _merge_config(self, new_config: Dict):
+    def _merge_config(self, new_config: Dict[str, Any]) -> None:
         """Merge new configuration into existing config."""
-        def merge_dicts(base: Dict, update: Dict):
+        def merge_dicts(base: Dict[str, Any], update: Dict[str, Any]) -> None:
             for key, value in update.items():
                 if key in base and isinstance(base[key], dict) and isinstance(value, dict):
                     merge_dicts(base[key], value)
@@ -302,13 +302,14 @@ class ConfigurationManager:
 
         merge_dicts(self.config.__dict__, new_config)
 
-    def _apply_environment_overrides(self):
+    def _apply_environment_overrides(self) -> None:
         """Apply environment variable overrides to configuration."""
         # MQTT configuration
         if os.getenv('MQTT_BROKER_HOST'):
             self.config.protocols['mqtt']['broker_host'] = os.getenv('MQTT_BROKER_HOST')
-        if os.getenv('MQTT_BROKER_PORT'):
-            self.config.protocols['mqtt']['broker_port'] = int(os.getenv('MQTT_BROKER_PORT'))
+        mqtt_port = os.getenv('MQTT_BROKER_PORT')
+        if mqtt_port is not None:
+            self.config.protocols['mqtt']['broker_port'] = int(mqtt_port)
         if os.getenv('MQTT_USERNAME'):
             self.config.protocols['mqtt']['username'] = os.getenv('MQTT_USERNAME')
         if os.getenv('MQTT_PASSWORD'):
@@ -366,7 +367,7 @@ class ConfigurationManager:
         """Get the current configuration."""
         return self.config
 
-    def update_config(self, updates: Dict):
+    def update_config(self, updates: Dict[str, Any]) -> None:
         """Update configuration with new values."""
         self._merge_config(updates)
         if self._validate_configuration():
@@ -374,16 +375,16 @@ class ConfigurationManager:
         else:
             logger.error("Configuration update failed validation")
 
-    def get_sensor_network_config(self, network_id: str) -> Optional[Dict]:
+    def get_sensor_network_config(self, network_id: str) -> Optional[Dict[str, Any]]:
         """Get configuration for a specific sensor network."""
         return self.config.sensor_networks.get(network_id)
 
-    def add_sensor_network(self, network_id: str, network_config: Dict):
+    def add_sensor_network(self, network_id: str, network_config: Dict[str, Any]) -> None:
         """Add configuration for a new sensor network."""
         self.config.sensor_networks[network_id] = network_config
         logger.info(f"Added sensor network configuration: {network_id}")
 
-    def remove_sensor_network(self, network_id: str):
+    def remove_sensor_network(self, network_id: str) -> None:
         """Remove configuration for a sensor network."""
         if network_id in self.config.sensor_networks:
             del self.config.sensor_networks[network_id]
@@ -397,7 +398,7 @@ class ConfigurationManager:
         """Check if configuration is valid."""
         return len(self.validation_errors) == 0
 
-    def save_config(self, output_path: str):
+    def save_config(self, output_path: str) -> None:
         """Save current configuration to file."""
         try:
             # Convert config to dictionary
@@ -415,7 +416,7 @@ class ConfigurationManager:
             logger.error(f"Failed to save configuration: {e}")
             raise
 
-    def get_config_summary(self) -> Dict:
+    def get_config_summary(self) -> Dict[str, Any]:
         """Get a summary of the current configuration."""
         return {
             'module_name': self.config.module_name,
@@ -445,7 +446,7 @@ def get_config() -> IoTConfig:
     """Get the current configuration."""
     return get_config_manager().get_config()
 
-def update_config(updates: Dict):
+def update_config(updates: Dict[str, Any]) -> None:
     """Update the global configuration."""
     get_config_manager().update_config(updates)
 
@@ -453,6 +454,6 @@ def validate_config() -> bool:
     """Validate the current configuration."""
     return get_config_manager().is_valid()
 
-def get_config_summary() -> Dict:
+def get_config_summary() -> Dict[str, Any]:
     """Get a summary of the current configuration."""
     return get_config_manager().get_config_summary()

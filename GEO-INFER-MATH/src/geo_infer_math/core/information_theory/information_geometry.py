@@ -287,7 +287,7 @@ class InformationGeometryCalculator:
     metrics, and geodesic distances for spatial models.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize information geometry calculator."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._metric_cache: Dict[str, np.ndarray] = {}

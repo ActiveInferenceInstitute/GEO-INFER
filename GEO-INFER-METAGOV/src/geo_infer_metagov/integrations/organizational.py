@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional organizational integration
 try:
-    from geo_infer_org.core import OrganizationModel  # noqa: F401
+    from geo_infer_org.core import OrganizationModel  # type: ignore[import-untyped]  # noqa: F401
 
     ORG_AVAILABLE = True
 except ImportError:
@@ -30,7 +30,7 @@ class OrganizationalGovernanceIntegration:
     - Capacity building for governance institutions
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize organizational governance integration."""
         if ORG_AVAILABLE:
             self.org_available = True
@@ -60,9 +60,10 @@ class OrganizationalGovernanceIntegration:
         Dict[str, Any]
             Mapping between governance and organizational structures
         """
-        mapping = {
+        entity_role_mapping_out: Dict[str, Dict[str, Any]] = {}
+        mapping: Dict[str, Any] = {
             "mapped": True,
-            "entity_role_mapping": {},
+            "entity_role_mapping": entity_role_mapping_out,
             "coverage": 0.0,
             "alignment_score": 0.0,
         }
@@ -77,7 +78,6 @@ class OrganizationalGovernanceIntegration:
         _org_units = organizational_structure.get("units", [])
 
         # Map entities to roles
-        entity_role_mapping = {}
         for entity in governance_entities:
             entity_id = entity.get("entity_id", "unknown")
             entity_level = entity.get("governance_level", "unknown")
@@ -99,27 +99,25 @@ class OrganizationalGovernanceIntegration:
                         matched_role = role
                         break
 
-            entity_role_mapping[entity_id] = {
+            entity_role_mapping_out[entity_id] = {
                 "entity": entity,
                 "matched_role": matched_role,
                 "match_quality": 0.8 if matched_role else 0.3,
             }
 
-        mapping["entity_role_mapping"] = entity_role_mapping
-
         # Calculate coverage
         mapped_count = sum(
-            1 for m in entity_role_mapping.values() if m["matched_role"] is not None
+            1 for m in entity_role_mapping_out.values() if m["matched_role"] is not None
         )
         mapping["coverage"] = (
             mapped_count / len(governance_entities) if governance_entities else 0.0
         )
 
         # Calculate alignment score
-        if entity_role_mapping:
+        if entity_role_mapping_out:
             avg_match_quality = sum(
-                m["match_quality"] for m in entity_role_mapping.values()
-            ) / len(entity_role_mapping)
+                float(m["match_quality"]) for m in entity_role_mapping_out.values()
+            ) / len(entity_role_mapping_out)
             mapping["alignment_score"] = avg_match_quality
 
         return mapping
@@ -144,11 +142,13 @@ class OrganizationalGovernanceIntegration:
         Dict[str, Any]
             Capacity assessment results
         """
-        assessment = {
+        entity_capacity_out: Dict[str, Any] = {}
+        capacity_gaps_out: List[Dict[str, Any]] = []
+        assessment: Dict[str, Any] = {
             "capacity_assessed": True,
-            "entity_capacity": {},
+            "entity_capacity": entity_capacity_out,
             "overall_capacity": 0.0,
-            "capacity_gaps": [],
+            "capacity_gaps": capacity_gaps_out,
         }
 
         if not self.org_available:
@@ -170,9 +170,11 @@ class OrganizationalGovernanceIntegration:
             }
 
             # Calculate overall capacity
-            entity_capacity = sum(capacity_factors.values()) / len(capacity_factors)
+            entity_capacity = float(
+                sum(float(v) for v in capacity_factors.values())
+            ) / max(len(capacity_factors), 1)
 
-            assessment["entity_capacity"][entity_id] = {
+            entity_capacity_out[entity_id] = {
                 "capacity_score": entity_capacity,
                 "capacity_factors": capacity_factors,
                 "responsibilities": entity_responsibilities,
@@ -180,7 +182,7 @@ class OrganizationalGovernanceIntegration:
 
             # Identify capacity gaps
             if entity_capacity < 0.6:
-                assessment["capacity_gaps"].append(
+                capacity_gaps_out.append(
                     {
                         "entity_id": entity_id,
                         "capacity_score": entity_capacity,
@@ -189,10 +191,10 @@ class OrganizationalGovernanceIntegration:
                 )
 
         # Calculate overall capacity
-        if assessment["entity_capacity"]:
+        if entity_capacity_out:
             assessment["overall_capacity"] = sum(
-                e["capacity_score"] for e in assessment["entity_capacity"].values()
-            ) / len(assessment["entity_capacity"])
+                float(e["capacity_score"]) for e in entity_capacity_out.values()
+            ) / len(entity_capacity_out)
 
         return assessment
 
@@ -216,11 +218,13 @@ class OrganizationalGovernanceIntegration:
         Dict[str, Any]
             Alignment assessment
         """
-        alignment = {
+        alignment_factors_out: Dict[str, float] = {}
+        misalignments_out: List[Dict[str, Any]] = []
+        alignment: Dict[str, Any] = {
             "alignment_checked": True,
             "overall_alignment": 0.0,
-            "alignment_factors": {},
-            "misalignments": [],
+            "alignment_factors": alignment_factors_out,
+            "misalignments": misalignments_out,
         }
 
         if not self.org_available:
@@ -236,7 +240,7 @@ class OrganizationalGovernanceIntegration:
             set(str(level).lower() for level in gov_levels)
             & set(str(level).lower() for level in org_levels)
         ) / max(1, len(gov_levels))
-        alignment["alignment_factors"]["level_alignment"] = level_alignment
+        alignment_factors_out["level_alignment"] = level_alignment
 
         # Check responsibility alignment
         gov_entities = governance_structure.get("entities", [])
@@ -253,14 +257,12 @@ class OrganizationalGovernanceIntegration:
         responsibility_alignment = len(
             all_gov_responsibilities & all_org_responsibilities
         ) / max(1, len(all_gov_responsibilities))
-        alignment["alignment_factors"][
-            "responsibility_alignment"
-        ] = responsibility_alignment
+        alignment_factors_out["responsibility_alignment"] = responsibility_alignment
 
         # Identify misalignments
         missing_in_org = all_gov_responsibilities - all_org_responsibilities
         if missing_in_org:
-            alignment["misalignments"].append(
+            misalignments_out.append(
                 {
                     "type": "missing_organizational_roles",
                     "description": f"Governance responsibilities not covered by organization: {list(missing_in_org)[:5]}",

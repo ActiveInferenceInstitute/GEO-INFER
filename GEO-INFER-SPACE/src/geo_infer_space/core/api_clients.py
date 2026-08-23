@@ -10,7 +10,7 @@ import requests
 import json
 import geopandas as gpd
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, cast
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class BaseAPIManager:
     """
     Base class for API managers handling data retrieval and caching.
     """
-    def __init__(self, base_url: str, api_key: Optional[str] = None):
+    def __init__(self, base_url: str, api_key: Optional[str] = None) -> None:
         """
         Initialize the API manager.
         
@@ -33,7 +33,11 @@ class BaseAPIManager:
         if api_key:
             self.session.headers.update({'Authorization': f'Bearer {api_key}'})
         
-    def fetch_data(self, endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+    def fetch_data(
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         Fetch data from API endpoint.
         
@@ -48,7 +52,7 @@ class BaseAPIManager:
         try:
             response = self.session.get(url, params=params)
             response.raise_for_status()
-            return response.json()
+            return cast(Dict[str, Any], response.json())
         except requests.RequestException as e:
             logger.error(f"API request failed: {e}")
             return {}
@@ -57,12 +61,16 @@ class GeneralGeoDataFetcher(BaseAPIManager):
     """
     General fetcher for geospatial data from various sources.
     """
-    def __init__(self, base_url: str, cache_dir: Path):
+    def __init__(self, base_url: str, cache_dir: Path) -> None:
         super().__init__(base_url)
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(exist_ok=True)
         
-    def get_geospatial_data(self, dataset: str, params: Dict[str, Any] = None) -> gpd.GeoDataFrame:
+    def get_geospatial_data(
+        self,
+        dataset: str,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> gpd.GeoDataFrame:
         """
         Get geospatial data for a specific dataset.
         

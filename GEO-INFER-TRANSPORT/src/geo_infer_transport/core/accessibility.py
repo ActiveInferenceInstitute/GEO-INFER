@@ -87,7 +87,7 @@ class AccessibilityAnalyzer:
         Returns:
             List of Isochrone objects for each time threshold
         """
-        isochrones = []
+        isochrones: List[Isochrone] = []
         origin_id = origin.get("node_id") or origin.get("id")
         origin_loc = origin.get("location", {"lat": 0, "lon": 0})
         
@@ -179,14 +179,14 @@ class AccessibilityAnalyzer:
         Returns:
             List of ServiceArea objects
         """
-        service_areas = []
+        service_areas: List[ServiceArea] = []
         
         for facility in facilities:
             facility_id = facility.get("id", f"facility_{len(service_areas)}")
             location = facility.get("location", {})
             
             # Generate polygons for each break
-            polygons = []
+            polygons: List[Dict[str, Any]] = []
             for break_value in sorted(breaks):
                 polygon = self._generate_isochrone_polygon(location, break_value)
                 polygons.append({
@@ -229,7 +229,7 @@ class AccessibilityAnalyzer:
         self,
         population_groups: Dict[str, Any],
         accessibility_scores: Dict[str, float],
-        metrics: List[str] = None
+        metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Analyze accessibility equity across population groups.
@@ -245,7 +245,7 @@ class AccessibilityAnalyzer:
         metrics = metrics or ["gini", "mean_difference"]
         
         # Calculate group averages
-        group_scores = {}
+        group_scores: Dict[str, Any] = {}
         for group_id, group_data in population_groups.items():
             areas = group_data.get("areas", [])
             scores = [accessibility_scores.get(a, 0) for a in areas]
@@ -269,7 +269,8 @@ class AccessibilityAnalyzer:
         else:
             gini = 0
         
-        result = {
+        disparities_out: List[Dict[str, Any]] = []
+        result: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(),
             "group_analysis": group_scores,
             "equity_metrics": {
@@ -277,13 +278,13 @@ class AccessibilityAnalyzer:
                 "overall_mean_accessibility": round(overall_mean, 4),
                 "score_range": max(all_scores) - min(all_scores) if all_scores else 0
             },
-            "disparities": []
+            "disparities": disparities_out
         }
         
         # Identify disparities
         for group_id, data in group_scores.items():
             if data["mean_score"] < overall_mean * 0.8:
-                result["disparities"].append({
+                disparities_out.append({
                     "group": group_id,
                     "mean_score": data["mean_score"],
                     "gap": round(overall_mean - data["mean_score"], 4)

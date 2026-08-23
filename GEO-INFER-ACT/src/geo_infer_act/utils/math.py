@@ -7,7 +7,7 @@ and Active Inference specific calculations.
 """
 
 import numpy as np
-from typing import Dict, Optional, Union
+from typing import Callable, Dict, Optional, Union, cast
 from scipy.signal import find_peaks
 
 
@@ -49,7 +49,7 @@ def softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarr
     x_scaled = (values - np.max(values, axis=axis, keepdims=True)) / temperature
     exp_x = np.exp(x_scaled)
     denominator = np.sum(exp_x, axis=axis, keepdims=True)
-    return exp_x / denominator
+    return cast(np.ndarray, exp_x / denominator)
 
 
 def normalize_distribution(x: np.ndarray, axis: int = -1) -> np.ndarray:
@@ -497,7 +497,7 @@ def compute_free_energy_categorical(
     complexity = kl_divergence(beliefs, prior)
 
     # Free energy = Complexity - Accuracy
-    return complexity - accuracy
+    return cast(float, complexity - accuracy)
 
 
 def compute_expected_free_energy(
@@ -529,7 +529,9 @@ def compute_expected_free_energy(
     return float(expected_free_energy)
 
 
-def numerical_gradient(func, x: np.ndarray, h: float = 1e-5) -> np.ndarray:
+def numerical_gradient(
+    func: Callable[[np.ndarray], float], x: np.ndarray, h: float = 1e-5
+) -> np.ndarray:
     """
     Compute numerical gradient using finite differences.
 
@@ -665,16 +667,16 @@ def detect_periodicity(
 
     # Autocorrelation analysis
     max_lag = min(len(data) // 2, 50)  # Limit for computational efficiency
-    autocorr = []
+    autocorr_list = []
 
     for lag in range(1, max_lag):
         if lag < len(data):
             corr = np.corrcoef(data[:-lag], data[lag:])[0, 1]
-            autocorr.append(corr if not np.isnan(corr) else 0.0)
+            autocorr_list.append(corr if not np.isnan(corr) else 0.0)
         else:
-            autocorr.append(0.0)
+            autocorr_list.append(0.0)
 
-    autocorr = np.array(autocorr)
+    autocorr = np.array(autocorr_list)
 
     # Find peaks in autocorrelation
     if len(autocorr) > min_period:

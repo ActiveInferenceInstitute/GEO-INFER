@@ -8,7 +8,7 @@ systems and ecological systems.
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import cast, Dict, List, Optional, Tuple, Union, Any
 from dataclasses import dataclass, field
 import logging
 from abc import ABC, abstractmethod
@@ -55,10 +55,10 @@ class BiophysicalEquilibriumModels:
             config: Configuration parameters
         """
         self.config = config or EcologicalEconomicsConfig()
-        self.models = {}
+        self.models: Dict[str, Any] = {}
         self._initialize_models()
     
-    def _initialize_models(self):
+    def _initialize_models(self) -> None:
         """Initialize equilibrium models."""
         self.models = {
             'lotka_volterra': self._lotka_volterra_model,
@@ -87,7 +87,7 @@ class BiophysicalEquilibriumModels:
             raise ValueError(f"Unknown model type: {model_type}")
         
         model_func = self.models[model_type]
-        return model_func(parameters, time_steps)
+        return cast(Dict[str, Any], model_func(parameters, time_steps))
     
     def _lotka_volterra_model(self, 
                              parameters: Dict[str, Any],
@@ -312,7 +312,7 @@ class BiophysicalEquilibriumModels:
         cv1 = np.std(recent1) / np.mean(recent1) if np.mean(recent1) > 0 else float('inf')
         cv2 = np.std(recent2) / np.mean(recent2) if np.mean(recent2) > 0 else float('inf')
         
-        return cv1 < tolerance and cv2 < tolerance
+        return bool(cv1 < tolerance and cv2 < tolerance)
     
     def _check_equilibrium_multi(self, 
                                population_history: List[List[float]],
@@ -634,7 +634,7 @@ class CarryingCapacityModels:
             cap = usable / max(per_cap, 1e-10)
             capacities[name] = round(cap, 2)
 
-        binding_resource = min(capacities, key=capacities.get)
+        binding_resource = min(capacities, key=lambda x: capacities[x])
         carrying_cap = capacities[binding_resource]
         utilisation = current_population / max(carrying_cap, 1e-10)
 
@@ -735,7 +735,7 @@ class EcologicalEconomicsEngine:
                 f"Choose from: {list(dispatch.keys())}"
             )
         logger.info("Running ecological economics analysis: %s", analysis_type)
-        return dispatch[analysis_type](data)
+        return cast(Dict[str, Any], dispatch[analysis_type](data))
 
     # ------------------------------------------------------------------
     # Private dispatch targets

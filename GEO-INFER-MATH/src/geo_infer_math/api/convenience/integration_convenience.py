@@ -16,14 +16,14 @@ def cross_module_helper(
     module_name: str,
     operation: str,
     data: Dict[str, Any],
-    **kwargs
+    **kwargs: Any
 ) -> Any:
     """
     Helper for cross-module operations.
 
     Args:
         module_name: Name of module to use
-        operation: Operation to perform
+        operation: Operation name
         data: Input data
         **kwargs: Additional parameters
 
@@ -34,11 +34,14 @@ def cross_module_helper(
         from geo_infer_math.api.convenience.act_convenience import (
             ActiveInferenceConvenience
         )
-        conv = ActiveInferenceConvenience()
+        act_conv = ActiveInferenceConvenience()
         if operation == 'free_energy':
-            return conv.calculate_free_energy(
-                data.get('observations'),
-                data.get('beliefs'),
+            obs = data.get('observations')
+            beliefs = data.get('beliefs')
+            assert obs is not None and beliefs is not None
+            return act_conv.calculate_free_energy(
+                obs,
+                beliefs,
                 **kwargs
             )
     
@@ -46,22 +49,29 @@ def cross_module_helper(
         from geo_infer_math.api.convenience.bayes_convenience import (
             BayesianConvenience
         )
-        conv = BayesianConvenience()
+        bayes_conv = BayesianConvenience()
         if operation == 'posterior':
-            return conv.calculate_posterior(
-                data.get('prior'),
-                data.get('likelihood'),
-                data.get('data'),
+            prior = data.get('prior')
+            likelihood = data.get('likelihood')
+            data_val = data.get('data')
+            assert prior is not None and likelihood is not None and data_val is not None
+            return bayes_conv.calculate_posterior(
+                prior,
+                likelihood,
+                data_val,
                 **kwargs
             )
     
     elif module_name == 'ai':
         from geo_infer_math.api.convenience.ai_convenience import AIConvenience
-        conv = AIConvenience()
+        ai_conv = AIConvenience()
         if operation == 'gradient':
-            return conv.compute_gradient(
-                data.get('function'),
-                data.get('parameters'),
+            fn = data.get('function')
+            params = data.get('parameters')
+            assert fn is not None and params is not None
+            return ai_conv.compute_gradient(
+                fn,
+                params,
                 **kwargs
             )
     
@@ -78,7 +88,7 @@ class IntegrationConvenience:
     Provides methods for integrating operations across modules.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize integration convenience class."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._module_registry: Dict[str, Any] = {}
@@ -89,7 +99,7 @@ class IntegrationConvenience:
         module_name: str,
         operation: str,
         data: Dict[str, Any],
-        **kwargs
+        **kwargs: Any
     ) -> Any:
         """
         Execute cross-module operation.

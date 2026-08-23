@@ -5,7 +5,7 @@ related thermal/moisture zone calculations.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import xarray as xr
@@ -33,7 +33,7 @@ class ClimateClassifier:
         self,
         monthly_temp_c: np.ndarray,
         monthly_precip_mm: np.ndarray,
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         """Classify climate using Koppen-Geiger system.
 
         Uses 12 monthly mean temperatures and 12 monthly precipitation

@@ -14,6 +14,10 @@ Utils workspace within `GEO-INFER-SEC`.
 - `security_utils.py:create_security_utils` (function)
 - `security_utils.py:hash_password_simple` (function)
 - `security_utils.py:verify_password_simple` (function)
+- `security_utils.py:generate_secure_token` (function)
+- `security_utils.py:check_pii_columns` (function)
+- `security_utils.py:validate_spatial_bounds` (function)
+- `security_utils.py:detect_outliers` (function)
 
 ## Module Metadata
 

@@ -40,7 +40,7 @@ class SustainabilityAssessment:
         """
         self.field_data = field_data
         self.config = config or {}
-        self.metrics = {}
+        self.metrics: Dict[str, Any] = {}
 
     def assess_carbon_sequestration(
         self,
@@ -801,7 +801,7 @@ class SustainabilityAssessment:
         self.metrics["sustainability_index"] = sustainability_metrics
         return sustainability_metrics
 
-    def plot_sustainability_metrics(self, ax=None, metric_type="sustainability_index"):
+    def plot_sustainability_metrics(self, ax: Any = None, metric_type: str = "sustainability_index") -> Any:
         """
         Plot sustainability metrics on a map.
 

@@ -22,10 +22,10 @@ class APIResponse:
     code: int
     message: str
     data: Optional[Any] = None
-    timestamp: str = None
+    timestamp: Optional[str] = None
     version: str = APIVersion.V1.value
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now().isoformat()
 
@@ -38,9 +38,9 @@ class APIError:
     error_type: str = "BadRequest"
     message: str = ""
     details: Optional[Dict[str, Any]] = None
-    timestamp: str = None
+    timestamp: Optional[str] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.timestamp is None:
             self.timestamp = datetime.now().isoformat()
 
@@ -58,8 +58,8 @@ class GovernanceAPI:
             API version
         """
         self.version = version
-        self.governance_structures = {}
-        self.analysis_cache = {}
+        self.governance_structures: Dict[str, Any] = {}
+        self.analysis_cache: Dict[str, Any] = {}
         logger.info(f"GovernanceAPI initialized (v{version})")
     
     def create_governance_structure(
@@ -67,8 +67,8 @@ class GovernanceAPI:
         spatial_scope: Dict[str, Any],
         stakeholder_groups: List[Dict[str, Any]],
         decision_domains: List[str],
-        governance_levels: List[str] = None,
-        coordination_mechanisms: List[str] = None
+        governance_levels: Optional[List[str]] = None,
+        coordination_mechanisms: Optional[List[str]] = None
     ) -> APIResponse:
         """
         Create a new governance structure via API.
@@ -381,10 +381,10 @@ class GovernanceAPI:
         analysis_type: str
     ) -> Dict[str, float]:
         """Calculate metrics for governance structure."""
-        metrics = {
-            'entity_count': len(structure.get('stakeholder_groups', [])),
-            'domain_count': len(structure.get('decision_domains', [])),
-            'level_count': len(structure.get('governance_levels', []))
+        metrics: Dict[str, float] = {
+            'entity_count': float(len(structure.get('stakeholder_groups', []))),
+            'domain_count': float(len(structure.get('decision_domains', []))),
+            'level_count': float(len(structure.get('governance_levels', [])))
         }
         
         if analysis_type == 'comprehensive':
@@ -459,16 +459,16 @@ class GovernanceAPI:
 class StakeholderAPI:
     """REST API for stakeholder management operations."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize stakeholder API."""
-        self.stakeholders = {}
+        self.stakeholders: Dict[str, Any] = {}
         logger.info("StakeholderAPI initialized")
     
     def create_stakeholder(
         self,
         name: str,
         category: str,
-        interests: List[str] = None,
+        interests: Optional[List[str]] = None,
         decision_power: float = 0.5
     ) -> APIResponse:
         """
@@ -587,4 +587,6 @@ if __name__ == '__main__':
     
     # List structures
     response = api.list_governance_structures()
-    print(f"Listed: {response.status} - {len(response.data['items'])} structures")
+    data = response.data
+    item_count = len(data['items']) if isinstance(data, dict) and 'items' in data else 0
+    print(f"Listed: {response.status} - {item_count} structures")

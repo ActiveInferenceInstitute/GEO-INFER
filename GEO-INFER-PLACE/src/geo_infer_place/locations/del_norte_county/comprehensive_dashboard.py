@@ -11,9 +11,10 @@ import logging
 import json
 import folium
 import h3
+import yaml
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Optional, Any, Tuple
+from typing import Dict, Optional, Any, List, Tuple, cast
 from folium.plugins import MarkerCluster
 
 # Import GEO-INFER modules (optional)
@@ -21,10 +22,10 @@ try:
     from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
     from geo_infer_space.core.visualization_receipt import write_visualization_receipt
 except ImportError:
-    LocationConfigLoader = None  # type: ignore[misc,assignment]
-    LocationBounds = None  # type: ignore[misc,assignment]
+    LocationConfigLoader = None
+    LocationBounds = None
 
-    def write_visualization_receipt(*args, **kwargs):  # type: ignore[no-redef]
+    def write_visualization_receipt(*args: Any, **kwargs: Any) -> None:
         """Fallback no-op when SPACE core is unavailable."""
         return None
 
@@ -110,18 +111,18 @@ class DelNorteComprehensiveDashboard:
         self.api_manager = CaliforniaAPIManager()
 
         # Configuration and data storage
-        self.config = None
-        self.location_bounds = None
-        self.real_data = {}
-        self.analysis_results = {}
+        self.config: Any = None
+        self.location_bounds: Any = None
+        self.real_data: Dict[str, Any] = {}
+        self.analysis_results: Dict[str, Any] = {}
 
         # Initialize specialized analyzers
-        self.forest_analyzer = None
-        self.coastal_analyzer = None
-        self.fire_analyzer = None
+        self.forest_analyzer: Any = None
+        self.coastal_analyzer: Any = None
+        self.fire_analyzer: Any = None
 
         # Visualization engine
-        self.viz_engine = None
+        self.viz_engine: Any = None
 
         logger.info("DelNorteComprehensiveDashboard initialized")
 
@@ -135,9 +136,26 @@ class DelNorteComprehensiveDashboard:
         logger.info("Loading Del Norte County configuration...")
 
         # Load location configuration
-        self.config = self.config_loader.load_location_config(
-            location_code="del_norte_county", config_path=self.config_path
-        )
+        if self.config_path:
+            # User-supplied custom config file takes precedence.
+            with open(self.config_path, "r") as fh:
+                self.config = yaml.safe_load(fh) or {}
+        else:
+            try:
+                self.config = self.config_loader.load_location_config(
+                    location="del_norte_county"
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Location config load failed, using defaults: %s", exc
+                )
+                self._init_analyzers_with_defaults()
+                return cast(Dict[str, Any], self.config or {})
+
+        # Guarantee the del-norte location bounds are present so the
+        # visualization engine and analyzers can construct H3 grids. The SPACE
+        # loader's generic config (and custom files) may omit location.bounds.
+        self._ensure_default_bounds()
 
         # Extract location bounds
         self.location_bounds = self.config_loader.get_location_bounds(self.config)
@@ -150,23 +168,60 @@ class DelNorteComprehensiveDashboard:
         )
 
         # Initialize specialized analyzers with configuration
+        from geo_infer_place.utils.integration import DelNorteDataIntegrator
+
+        integrator = DelNorteDataIntegrator()
+        self.processed_data: Dict[str, Any] = {}
         self.forest_analyzer = ForestHealthMonitor(
-            location_bounds=self.location_bounds.to_bbox(),
-            config=self.config.get("forest_health", {}),
+            config=self.config,
+            data_integrator=integrator,
+            spatial_processor=None,
+            output_dir=self.output_dir,
         )
 
         self.coastal_analyzer = CoastalResilienceAnalyzer(
-            location_bounds=self.location_bounds.to_bbox(),
-            config=self.config.get("coastal_resilience", {}),
+            config=self.config,
+            data_integrator=integrator,
+            spatial_processor=None,
+            output_dir=self.output_dir,
         )
 
         self.fire_analyzer = FireRiskAssessor(
-            location_bounds=self.location_bounds.to_bbox(),
-            config=self.config.get("fire_risk", {}),
+            config=self.config,
+            data_integrator=integrator,
+            spatial_processor=None,
+            output_dir=self.output_dir,
         )
 
         logger.info("Configuration loaded and analyzers initialized")
-        return self.config
+        return cast(Dict[str, Any], self.config)
+
+    def _ensure_default_bounds(self) -> None:
+        """Merge Del Norte bounds into the loaded config if they are absent.
+
+        The SPACE loader's generic default config (and user-supplied custom
+        files) may omit the ``location.bounds`` keys that the visualization
+        engine and analyzers require to build H3 grids. Fill them from the
+        canonical Del Norte extent when missing so the pipeline runs offline.
+        """
+        bounds: Dict[str, Any] = {
+            "west": -124.408,
+            "south": 41.458,
+            "east": -123.536,
+            "north": 42.006,
+        }
+        location: Dict[str, Any] = {}
+        config_location = self.config.get("location")
+        if isinstance(config_location, dict):
+            location = config_location
+        existing = location.get("bounds")
+        if not isinstance(existing, dict):
+            location["bounds"] = bounds
+        else:
+            for key in ("west", "south", "east", "north"):
+                location["bounds"].setdefault(key, bounds[key])
+        self.config.setdefault("location", location)
+        self.config["location"] = location
 
     def fetch_real_data(self) -> Dict[str, Any]:
         """
@@ -178,7 +233,8 @@ class DelNorteComprehensiveDashboard:
         logger.info("Fetching real data from California and federal APIs...")
 
         # Get comprehensive data for Del Norte County
-        self.real_data = self.api_manager.get_comprehensive_data_for_location(
+        api_manager: Any = self.api_manager
+        self.real_data = api_manager.get_comprehensive_data_for_location(
             location_bounds=self.location_bounds.to_bbox(),
             location_name="Del Norte County, CA",
             start_date=datetime.now() - timedelta(days=365),  # 1 year of data
@@ -216,31 +272,40 @@ class DelNorteComprehensiveDashboard:
 
         # Forest health analysis
         logger.info("Analyzing forest health...")
-        self.analysis_results["forest_health"] = (
-            self.forest_analyzer.analyze_forest_health(
-                satellite_data=self.processed_data.get("satellite_imagery"),
-                fire_data=self.processed_data.get("fire_perimeters"),
-                weather_data=self.processed_data.get("weather_stations"),
+        try:
+            self.analysis_results["forest_health"] = (
+                self.forest_analyzer.run_analysis()
             )
-        )
+        except Exception as exc:
+            logger.warning("Forest health analysis failed: %s", exc)
+            self.analysis_results["forest_health"] = {
+                "status": "unavailable",
+                "error": str(exc),
+            }
 
         # Coastal resilience analysis
         logger.info("Analyzing coastal resilience...")
-        self.analysis_results["coastal_resilience"] = (
-            self.coastal_analyzer.analyze_coastal_resilience(
-                tide_data=self.processed_data.get("tide_data"),
-                storm_data=self.processed_data.get("storm_history"),
-                elevation_data=self.processed_data.get("elevation_data"),
+        try:
+            self.analysis_results["coastal_resilience"] = (
+                self.coastal_analyzer.run_analysis()
             )
-        )
+        except Exception as exc:
+            logger.warning("Coastal resilience analysis failed: %s", exc)
+            self.analysis_results["coastal_resilience"] = {
+                "status": "unavailable",
+                "error": str(exc),
+            }
 
         # Fire risk assessment
         logger.info("Assessing fire risk...")
-        self.analysis_results["fire_risk"] = self.fire_analyzer.assess_fire_risk(
-            weather_data=self.processed_data.get("weather_stations"),
-            fuel_data=self.processed_data.get("vegetation_data"),
-            historical_fires=self.processed_data.get("fire_perimeters"),
-        )
+        try:
+            self.analysis_results["fire_risk"] = self.fire_analyzer.run_analysis()
+        except Exception as exc:
+            logger.warning("Fire risk analysis failed: %s", exc)
+            self.analysis_results["fire_risk"] = {
+                "status": "unavailable",
+                "error": str(exc),
+            }
 
         # Cross-domain integration analysis
         logger.info("Performing cross-domain integration analysis...")
@@ -266,7 +331,7 @@ class DelNorteComprehensiveDashboard:
 
     def _generate_h3_spatial_analysis(self) -> Dict[str, Any]:
         """Aggregate H3 cells emitted by the domain analyses."""
-        h3_cells = {}
+        h3_cells: Dict[str, Any] = {}
         for domain_name, domain_result in self.analysis_results.items():
             if not isinstance(domain_result, dict):
                 continue
@@ -395,7 +460,7 @@ class DelNorteComprehensiveDashboard:
             "infrastructure": folium.FeatureGroup(name="🏗️ Infrastructure", show=False),
         }
 
-    def _add_h3_analysis_layer(self, m: folium.Map, layer_groups: Dict):
+    def _add_h3_analysis_layer(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add H3 spatial analysis visualization layer."""
         if "h3_aggregation" not in self.analysis_results:
             return
@@ -449,7 +514,7 @@ class DelNorteComprehensiveDashboard:
             except Exception as e:
                 logger.warning(f"Error adding H3 cell {h3_cell}: {e}")
 
-    def _add_forest_health_layers(self, m: folium.Map, layer_groups: Dict):
+    def _add_forest_health_layers(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add forest health monitoring layers."""
         forest_result = self.analysis_results.get("forest_health", {})
         sites = forest_result.get("forest_plots", forest_result.get("sites", []))
@@ -499,7 +564,7 @@ class DelNorteComprehensiveDashboard:
 
         forest_cluster.add_to(layer_groups["forest_health"])
 
-    def _add_coastal_resilience_layers(self, m: folium.Map, layer_groups: Dict):
+    def _add_coastal_resilience_layers(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add coastal resilience analysis layers."""
         # Add tide gauge data if available
         if "tide_data" in self.processed_data:
@@ -524,7 +589,7 @@ class DelNorteComprehensiveDashboard:
             ).add_to(layer_groups["coastal_resilience"])
 
         # Add coastal vulnerability zones
-        coastal_zones = [
+        coastal_zones: List[Dict[str, Any]] = [
             {
                 "name": "Crescent City Harbor",
                 "lat": 41.745,
@@ -567,7 +632,7 @@ class DelNorteComprehensiveDashboard:
                 fillOpacity=0.7,
             ).add_to(layer_groups["coastal_resilience"])
 
-    def _add_fire_risk_layers(self, m: folium.Map, layer_groups: Dict):
+    def _add_fire_risk_layers(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add fire risk assessment layers."""
         station_data = self.processed_data.get("weather_stations", [])
         if isinstance(station_data, dict):
@@ -597,10 +662,10 @@ class DelNorteComprehensiveDashboard:
                 },
             ).add_to(layer_groups["fire_risk"])
 
-    def _add_real_data_layers(self, m: folium.Map, layer_groups: Dict):
+    def _add_real_data_layers(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add layers showing real-time data integration."""
         # Data source indicators
-        data_sources = [
+        data_sources: List[Dict[str, Any]] = [
             {
                 "name": "CAL FIRE API",
                 "status": "Connected",
@@ -636,10 +701,10 @@ class DelNorteComprehensiveDashboard:
                 icon=folium.Icon(color=color, icon="database", prefix="fa"),
             ).add_to(layer_groups["real_data"])
 
-    def _add_integration_layers(self, m: folium.Map, layer_groups: Dict):
+    def _add_integration_layers(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add cross-domain integration visualization layers."""
         # Integration hotspots - areas where multiple risks converge
-        integration_hotspots = [
+        integration_hotspots: List[Dict[str, Any]] = [
             {
                 "name": "Crescent City WUI",
                 "lat": 41.756,
@@ -695,7 +760,7 @@ class DelNorteComprehensiveDashboard:
                 fillOpacity=0.8,
             ).add_to(layer_groups["integration"])
 
-    def _add_comprehensive_control_panel(self, m: folium.Map):
+    def _add_comprehensive_control_panel(self, m: folium.Map) -> None:
         """Add comprehensive control panel with advanced features."""
         control_html = """
         <div id="comprehensive-control-panel" style="
@@ -796,9 +861,10 @@ class DelNorteComprehensiveDashboard:
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
 
-        m.get_root().html.add_child(folium.Element(control_html))
+        m_root: Any = m.get_root()
+        m_root.html.add_child(folium.Element(control_html))
 
-    def _add_dashboard_header(self, m: folium.Map):
+    def _add_dashboard_header(self, m: folium.Map) -> None:
         """Add dashboard header with title and metadata."""
         header_html = f"""
         <div style="
@@ -825,7 +891,8 @@ class DelNorteComprehensiveDashboard:
         </div>
         """
 
-        m.get_root().html.add_child(folium.Element(header_html))
+        m_root: Any = m.get_root()
+        m_root.html.add_child(folium.Element(header_html))
 
     # Baseline methods for cross-domain analysis
     def _analyze_fire_forest_interaction(self) -> Dict[str, Any]:

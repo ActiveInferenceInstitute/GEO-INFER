@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Callable, Any, Set
+from typing import Dict, List, Optional, Callable, Any, Set, cast
 import threading
 import time
 from datetime import datetime, timezone, timedelta
@@ -683,13 +683,19 @@ class GeospatialCollaborationCoordinator:
     def get_workspace_features(self, workspace_id: str) -> List[Dict[str, Any]]:
         """Get all features in a spatial workspace."""
         if workspace_id in self.spatial_workspaces:
-            return self.spatial_workspaces[workspace_id]["features"]
+            return cast(
+                List[Dict[str, Any]],
+                self.spatial_workspaces[workspace_id]["features"],
+            )
         return []
 
     def get_workspace_annotations(self, workspace_id: str) -> Dict[str, Any]:
         """Get all annotations in a spatial workspace."""
         if workspace_id in self.spatial_workspaces:
-            return self.spatial_workspaces[workspace_id]["annotations"]
+            return cast(
+                Dict[str, Any],
+                self.spatial_workspaces[workspace_id]["annotations"],
+            )
         return {}
 
 
@@ -798,9 +804,9 @@ class CollaborationAnalytics:
         participants = session_data["participants"]
 
         # Calculate metrics
-        activity_counts = {}
-        user_activity = {}
-        activity_timeline = {}
+        activity_counts: Dict[str, int] = {}
+        user_activity: Dict[str, int] = {}
+        activity_timeline: Dict[str, int] = {}
 
         for activity in activities:
             # Count by type

@@ -10,7 +10,7 @@ import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from typing import Union, List, Dict, Any, Optional, Tuple
+from typing import Union, List, Dict, Any, Optional, Tuple, cast
 from shapely.geometry import Point
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import zscore
@@ -34,7 +34,7 @@ def spatial_interpolation(
     grid_bounds: Tuple[float, float, float, float],
     grid_resolution: float,
     method: str = 'idw',
-    **kwargs
+    **kwargs: Any
 ) -> gpd.GeoDataFrame:
     """
     Perform spatial interpolation on point data.
@@ -109,7 +109,7 @@ def spatial_interpolation(
 def clustering_analysis(
     points_gdf: gpd.GeoDataFrame,
     method: str = 'dbscan',
-    **kwargs
+    **kwargs: Any
 ) -> gpd.GeoDataFrame:
     """
     Perform spatial clustering analysis on point data.
@@ -177,7 +177,7 @@ def hotspot_detection(
     points_gdf: gpd.GeoDataFrame,
     value_column: Optional[str] = None,
     method: str = 'getis_ord',
-    **kwargs
+    **kwargs: Any
 ) -> gpd.GeoDataFrame:
     """
     Detect spatial hotspots and coldspots.
@@ -213,7 +213,7 @@ def spatial_autocorrelation(
     points_gdf: gpd.GeoDataFrame,
     value_column: str,
     method: str = 'morans_i'
-) -> Dict[str, float]:
+) -> Dict[str, Union[float, str]]:
     """
     Calculate global spatial autocorrelation statistics.
     
@@ -348,7 +348,7 @@ def variogram_analysis(
         for j in range(i + 1, n):
             value_diffs.append((values[i] - values[j]) ** 2)
     
-    value_diffs = np.array(value_diffs)
+    value_diffs_array = np.array(value_diffs)
     
     # Set maximum distance if not provided
     if max_distance is None:
@@ -370,7 +370,7 @@ def variogram_analysis(
         
         if np.sum(mask) > 0:
             lag_distances = distances[mask]
-            lag_value_diffs = value_diffs[mask]
+            lag_value_diffs = value_diffs_array[mask]
             
             # Calculate semivariance (half the mean squared difference)
             semivariance = np.mean(lag_value_diffs) / 2.0
@@ -555,7 +555,7 @@ def _kriging_interpolation(
     known_coords: np.ndarray,
     known_values: np.ndarray,
     grid_coords: np.ndarray,
-    **kwargs
+    **kwargs: Any
 ) -> np.ndarray:
     """Simple kriging using Gaussian Process."""
     if not SKLEARN_GP_AVAILABLE:
@@ -571,4 +571,4 @@ def _kriging_interpolation(
     # Predict at grid points
     interpolated, _ = gp.predict(grid_coords, return_std=True)
     
-    return interpolated
+    return cast(np.ndarray, interpolated)

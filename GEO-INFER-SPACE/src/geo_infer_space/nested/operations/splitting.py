@@ -10,7 +10,7 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
+from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable, cast
 from enum import Enum
 from collections import defaultdict
 
@@ -77,7 +77,11 @@ class SplittingRule:
     weight: float = 1.0
     is_active: bool = True
     
-    def should_split(self, cell, context: Optional[Dict[str, Any]] = None) -> bool:
+    def should_split(
+        self,
+        cell: Any,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """
         Determine if a cell should be split based on this rule.
         
@@ -93,7 +97,7 @@ class SplittingRule:
         
         if self.evaluation_function:
             try:
-                return self.evaluation_function(cell, self, context)
+                return cast(bool, self.evaluation_function(cell, self, context))
             except Exception as e:
                 logger.warning(f"Rule evaluation failed: {e}")
                 return False
@@ -101,15 +105,15 @@ class SplittingRule:
         # Default evaluation based on criterion
         if self.criterion == SplittingCriterion.LOAD_THRESHOLD:
             load_value = cell.state_variables.get('load', 0.0)
-            return load_value > self.threshold
+            return cast(bool, load_value > self.threshold)
         
         elif self.criterion == SplittingCriterion.SIZE_THRESHOLD:
             size_value = cell.state_variables.get('size', 0.0)
-            return size_value > self.threshold
+            return cast(bool, size_value > self.threshold)
         
         elif self.criterion == SplittingCriterion.DENSITY_THRESHOLD:
             density_value = cell.state_variables.get('density', 0.0)
-            return density_value > self.threshold
+            return cast(bool, density_value > self.threshold)
         
         return False
 
@@ -146,7 +150,7 @@ class SplittingResult:
     created_at: datetime = field(default_factory=datetime.now)
     processing_time: float = 0.0
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Calculate derived statistics."""
         self.num_input_cells = len(self.input_cells)
         self.num_output_cells = sum(len(children) for children in self.split_cells.values())
@@ -163,7 +167,7 @@ class H3SplittingEngine:
     based on load, gradients, thresholds, and other criteria.
     """
     
-    def __init__(self, name: str = "H3SplittingEngine"):
+    def __init__(self, name: str = "H3SplittingEngine") -> None:
         """
         Initialize splitting engine.
         
@@ -215,8 +219,13 @@ class H3SplittingEngine:
             return True
         return False
     
-    def split_cells(self, nested_grid, strategy: SplittingStrategy = SplittingStrategy.RESOLUTION_REFINEMENT,
-                   system_id: Optional[str] = None, **kwargs) -> SplittingResult:
+    def split_cells(
+        self,
+        nested_grid: Any,
+        strategy: SplittingStrategy = SplittingStrategy.RESOLUTION_REFINEMENT,
+        system_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> SplittingResult:
         """
         Split cells in a nested grid system.
         
@@ -291,7 +300,9 @@ class H3SplittingEngine:
         
         return result
     
-    def _split_by_resolution(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_by_resolution(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split cells by increasing resolution."""
         target_resolution = kwargs.get('target_resolution')
         
@@ -322,7 +333,9 @@ class H3SplittingEngine:
         
         return split_cells
     
-    def _split_by_load_balancing(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_by_load_balancing(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split cells based on load balancing."""
         load_threshold = kwargs.get('load_threshold', 1.0)
         target_load = kwargs.get('target_load', 0.5)
@@ -356,7 +369,9 @@ class H3SplittingEngine:
         
         return split_cells
     
-    def _split_adaptive(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_adaptive(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split cells using adaptive subdivision."""
         adaptation_field = kwargs.get('adaptation_field', 'gradient')
         adaptation_threshold = kwargs.get('adaptation_threshold', 0.5)
@@ -392,7 +407,9 @@ class H3SplittingEngine:
         
         return split_cells
     
-    def _split_by_gradient(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_by_gradient(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split cells based on gradient analysis."""
         gradient_field = kwargs.get('gradient_field', 'value')
         gradient_threshold = kwargs.get('gradient_threshold', 0.3)
@@ -442,7 +459,9 @@ class H3SplittingEngine:
         
         return split_cells
     
-    def _split_by_threshold(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_by_threshold(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split cells based on threshold criteria."""
         threshold_field = kwargs.get('threshold_field', 'value')
         threshold_value = kwargs.get('threshold_value', 1.0)
@@ -473,7 +492,9 @@ class H3SplittingEngine:
         
         return split_cells
     
-    def _split_uniform(self, cells: List, **kwargs) -> Dict[str, List[str]]:
+    def _split_uniform(
+        self, cells: List[Any], **kwargs: Any
+    ) -> Dict[str, List[str]]:
         """Split all cells uniformly."""
         target_resolution = kwargs.get('target_resolution')
         
@@ -529,8 +550,8 @@ class H3SplittingEngine:
         
         if NUMPY_AVAILABLE:
             # Lower variance means better balance
-            mean_count = np.mean(children_counts)
-            variance = np.var(children_counts)
+            mean_count: float = cast(float, np.mean(children_counts))
+            variance: float = cast(float, np.var(children_counts))
             
             if mean_count > 0:
                 balance = 1.0 / (1.0 + variance / mean_count)
@@ -588,4 +609,3 @@ class H3SplittingEngine:
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
-

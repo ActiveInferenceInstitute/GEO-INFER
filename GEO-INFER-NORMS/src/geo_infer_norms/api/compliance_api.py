@@ -414,7 +414,7 @@ class ComplianceAPI:
                         "entity_name", evaluation_data.entity_id
                     )
                 ),
-                legal_type="unknown",
+                entity_type="unknown",
             )
 
             regulation = Regulation(
@@ -425,6 +425,9 @@ class ComplianceAPI:
                     )
                 ),
                 description="",
+                regulation_type="unknown",
+                issuing_authority="",
+                effective_date=datetime.date.today(),
                 applicable_jurisdictions=[],
             )
 
@@ -703,7 +706,7 @@ class ComplianceAPI:
                 LegalEntity(
                     id=entity_id,
                     name=f"Entity {entity_id}",
-                    legal_type="unknown",
+                    entity_type="unknown",
                     geometry=Point(0, 0),  # Default geometry
                 )
                 for entity_id in entity_ids

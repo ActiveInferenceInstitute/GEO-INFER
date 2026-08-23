@@ -323,7 +323,7 @@ class IntegrationResult:
             "module_results": {k: v.to_dict() for k, v in self.module_results.items()}
         }
     
-    def add_module_result(self, module_name: str, result: AnalysisResult):
+    def add_module_result(self, module_name: str, result: AnalysisResult) -> None:
         """Add result from a specific module."""
         self.module_results[module_name] = result
     

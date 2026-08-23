@@ -8,7 +8,7 @@ and estimating travel times with geospatial intelligence.
 import numpy as np
 import geopandas as gpd
 import networkx as nx
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 from dataclasses import dataclass
 from enum import Enum
 import logging
@@ -64,11 +64,11 @@ class RouteOptimizer:
             parameters: Routing parameters
         """
         self.parameters = parameters or RoutingParameters()
-        self.network = None
-        self.vehicles = []
-        self._node_tree = None
-        self._node_indices = None
-        self._nodes_list = None
+        self.network: Optional[nx.Graph] = None
+        self.vehicles: List[Vehicle] = []
+        self._node_tree: Optional[KDTree] = None
+        self._node_indices: Optional[List[int]] = None
+        self._nodes_list: Optional[List[int]] = None
 
     def load_network(self, network_file: str) -> None:
         """Load a transportation network from a file.
@@ -90,9 +90,9 @@ class RouteOptimizer:
             logger.error(f"Failed to load network: {e}")
             raise
 
-    def _build_spatial_index(self):
+    def _build_spatial_index(self) -> None:
         """Build KDTree for fast nearest node lookup."""
-        if self.network:
+        if self.network is not None:
             self._nodes_list = list(self.network.nodes)
             coords = []
             valid_nodes = []
@@ -207,14 +207,16 @@ class RouteOptimizer:
         Returns:
             Node ID in the network
         """
-        if self._node_tree:
+        if self._node_tree is not None:
             dist, idx = self._node_tree.query(point)
-            return self._node_indices[idx]
+            assert self._node_indices is not None
+            return cast(int, self._node_indices[idx])
 
         # Fallback if no index (slow)
         min_dist = float("inf")
         nearest = None
 
+        assert self.network is not None
         for node in self.network.nodes:
             data = self.network.nodes[node]
             lon = data.get("x", data.get("lon", 0))
@@ -224,7 +226,7 @@ class RouteOptimizer:
                 min_dist = dist
                 nearest = node
 
-        return nearest or list(self.network.nodes)[0]
+        return cast(int, nearest or list(self.network.nodes)[0])
 
     def _solve_with_waypoints(
         self, origin_node: int, dest_node: int, waypoint_nodes: List[int]
@@ -244,7 +246,7 @@ class RouteOptimizer:
             # Simple greedy approach: Nearest Neighbor
             current_node = origin_node
             unvisited = set(waypoint_nodes)
-            full_path = []
+            full_path: List[int] = []
             total_distance = 0.0
             total_time = 0.0
 
@@ -332,6 +334,7 @@ class RouteOptimizer:
             GeoSeries with route geometry
         """
         coords = []
+        assert self.network is not None
         for node in path:
             data = self.network.nodes[node]
             x = data.get("x", data.get("lon"))
@@ -347,10 +350,10 @@ class RouteOptimizer:
 class FleetManager:
     """Manages a fleet of vehicles and their assignments."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a fleet manager."""
-        self.vehicles = {}  # id -> Vehicle
-        self.assignments = {}  # vehicle_id -> assignment
+        self.vehicles: Dict[str, Vehicle] = {}  # id -> Vehicle
+        self.assignments: Dict[str, Dict[str, Any]] = {}  # vehicle_id -> assignment
         self.route_optimizer = RouteOptimizer()
 
     def add_vehicle(self, vehicle: Vehicle) -> None:
@@ -446,7 +449,7 @@ class VehicleRouter:
         """
         # Greedy cluster-first implementation
 
-        solution = {"routes": {}, "unassigned": []}
+        solution: Dict[str, Any] = {"routes": {}, "unassigned": []}
 
         # Simple heuristic: Assign nearest deliveries to vehicles until capacity/range constraint
 
@@ -511,7 +514,7 @@ class TravelTimeEstimator:
             use_historical_data: Whether to use historical traffic data
         """
         self.use_historical_data = use_historical_data
-        self.historical_data = None
+        self.historical_data: Optional[Any] = None
 
     def load_historical_data(self, data_file: str) -> None:
         """Load historical traffic data.
@@ -774,7 +777,7 @@ class MultiObjectiveOptimizer:
             obj: max(s.get(obj, 0) for s in pareto_front) for obj in self.objectives
         }
 
-        best_solution = None
+        best_solution: Optional[Dict[str, Any]] = None
         best_score = float("inf")
 
         for solution in pareto_front:
@@ -792,17 +795,19 @@ class MultiObjectiveOptimizer:
                 best_score = weighted_sum
                 best_solution = solution
 
+        assert best_solution is not None
         return best_solution
 
 
 class RealTimeTracker:
     """Real-time tracking and dynamic re-routing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize real-time tracker."""
-        self.vehicle_positions = {}  # vehicle_id -> (lon, lat, timestamp)
-        self.active_routes = {}  # vehicle_id -> route info
-        self.events = []  # List of events (delays, completions, etc.)
+        # vehicle_id -> (lon, lat, timestamp)
+        self.vehicle_positions: Dict[str, Tuple[float, float, str]] = {}
+        self.active_routes: Dict[str, Dict[str, Any]] = {}  # vehicle_id -> route info
+        self.events: List[Any] = []  # List of events (delays, completions, etc.)
 
     def update_position(
         self, vehicle_id: str, position: Tuple[float, float], timestamp: str
@@ -819,7 +824,7 @@ class RealTimeTracker:
         """
         self.vehicle_positions[vehicle_id] = (position[0], position[1], timestamp)
 
-        result = {
+        result: Dict[str, Any] = {
             "vehicle_id": vehicle_id,
             "position": position,
             "timestamp": timestamp,

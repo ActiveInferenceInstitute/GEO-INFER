@@ -9,7 +9,7 @@ Gracefully degrades when GEO-INFER-LOG is not installed.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -193,4 +193,4 @@ class LogisticsEconomicAnalyzer:
         result["cost_per_unit_demand"] = (
             result.get("total_cost", 0) / max(result["demand_served"], 1)
         )
-        return result
+        return cast(Dict[str, Any], result)

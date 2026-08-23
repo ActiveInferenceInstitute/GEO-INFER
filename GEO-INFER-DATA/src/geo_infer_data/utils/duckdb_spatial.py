@@ -27,7 +27,7 @@ try:  # pragma: no cover - import probe
     HAS_DUCKDB: bool = True
     _DUCKDB = _duckdb
 except ImportError:  # pragma: no cover - exercised when duckdb is missing
-    _DUCKDB = None  # type: ignore[assignment]
+    _DUCKDB = None
     HAS_DUCKDB = False
 
 

@@ -7,7 +7,7 @@ geospatial data for use with Bayesian models.
 
 import numpy as np
 import pandas as pd
-from typing import Dict, Optional, Tuple, Union, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 import logging
 import json
@@ -22,8 +22,8 @@ def prepare_spatial_data(
     lon_col: str = "lon",
     value_col: Optional[str] = None,
     time_col: Optional[str] = None,
-    **kwargs,
-) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+    **kwargs: Any,
+) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], Dict[str, Any]]:
     """
     Prepare spatial data for Bayesian inference.
 
@@ -106,7 +106,7 @@ def prepare_spatial_data(
 
 
 def load_geospatial_data(
-    file_path: Union[str, Path], file_format: Optional[str] = None, **kwargs
+    file_path: Union[str, Path], file_format: Optional[str] = None, **kwargs: Any
 ) -> pd.DataFrame:
     """
     Load geospatial data from various file formats.
@@ -173,7 +173,7 @@ def _detect_file_format(file_path: Path) -> str:
     return format_mapping.get(suffix, "csv")
 
 
-def _load_json_data(file_path: Path, **kwargs) -> pd.DataFrame:
+def _load_json_data(file_path: Path, **kwargs: Any) -> pd.DataFrame:
     """Load data from JSON or GeoJSON files."""
     with open(file_path, "r") as f:
         data = json.load(f)
@@ -191,7 +191,7 @@ def _load_json_data(file_path: Path, **kwargs) -> pd.DataFrame:
             raise ValueError("Unsupported JSON format")
 
 
-def _parse_geojson(geojson_data: Dict) -> pd.DataFrame:
+def _parse_geojson(geojson_data: Dict[str, Any]) -> pd.DataFrame:
     """Parse GeoJSON data into a DataFrame."""
     features = geojson_data.get("features", [])
 
@@ -236,9 +236,9 @@ def _process_temporal_data(temporal_data: pd.Series) -> np.ndarray:
     # Convert to numerical representation
     if pd.api.types.is_datetime64_any_dtype(temporal_data):
         # Convert to Unix timestamp
-        temporal_numeric = temporal_data.astype(np.int64) // 10**9
+        temporal_numeric: np.ndarray = temporal_data.astype(np.int64).to_numpy() // 10**9
     else:
-        temporal_numeric = temporal_data.values
+        temporal_numeric = np.asarray(temporal_data.values)
 
     return temporal_numeric
 
@@ -259,58 +259,60 @@ def validate_spatial_data(
     Returns:
         Validation results dictionary
     """
-    validation_results = {"is_valid": True, "warnings": [], "errors": []}
+    errors: List[str] = []
+    warnings: List[str] = []
+    validation_results: Dict[str, Any] = {"is_valid": True, "warnings": warnings, "errors": errors}
 
     # Check spatial coordinates
     if spatial_coords.shape[1] != 2:
-        validation_results["errors"].append(
+        errors.append(
             "Spatial coordinates must have 2 columns (lat, lon)"
         )
         validation_results["is_valid"] = False
 
     # Check for NaN values
     if np.any(np.isnan(spatial_coords)):
-        validation_results["warnings"].append("Spatial coordinates contain NaN values")
+        warnings.append("Spatial coordinates contain NaN values")
 
     if np.any(np.isnan(values)):
-        validation_results["warnings"].append("Values contain NaN values")
+        warnings.append("Values contain NaN values")
 
     # Check coordinate ranges
     lat_range = spatial_coords[:, 0]
     lon_range = spatial_coords[:, 1]
 
     if np.any(lat_range < -90) or np.any(lat_range > 90):
-        validation_results["errors"].append("Latitude values out of range [-90, 90]")
+        errors.append("Latitude values out of range [-90, 90]")
         validation_results["is_valid"] = False
 
     if np.any(lon_range < -180) or np.any(lon_range > 180):
-        validation_results["warnings"].append(
+        warnings.append(
             "Longitude values out of range [-180, 180]"
         )
 
     # Check data consistency
     if len(spatial_coords) != len(values):
-        validation_results["errors"].append(
+        errors.append(
             "Spatial coordinates and values have different lengths"
         )
         validation_results["is_valid"] = False
 
     if temporal_coords is not None:
         if len(temporal_coords) != len(values):
-            validation_results["errors"].append(
+            errors.append(
                 "Temporal coordinates and values have different lengths"
             )
             validation_results["is_valid"] = False
 
         if np.any(np.isnan(temporal_coords)):
-            validation_results["warnings"].append(
+            warnings.append(
                 "Temporal coordinates contain NaN values"
             )
 
     # Check for duplicate coordinates
     unique_coords = np.unique(spatial_coords, axis=0)
     if len(unique_coords) < len(spatial_coords):
-        validation_results["warnings"].append(
+        warnings.append(
             f"Found {len(spatial_coords) - len(unique_coords)} duplicate spatial coordinates"
         )
 
@@ -367,7 +369,7 @@ def sample_spatial_data(
     n_samples: int,
     method: str = "random",
     random_seed: SeedLike = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Sample spatial data for training/validation.
@@ -403,7 +405,7 @@ def sample_spatial_data(
         n_strata = kwargs.get("n_strata", 5)
         quantiles = np.percentile(values, np.linspace(0, 100, n_strata + 1))
 
-        indices = []
+        stratified_indices: List[int] = []
         samples_per_stratum = n_samples // n_strata
 
         for i in range(n_strata):
@@ -416,19 +418,19 @@ def sample_spatial_data(
                     min(samples_per_stratum, len(stratum_indices)),
                     replace=False,
                 )
-                indices.extend(stratum_sample)
+                stratified_indices.extend(list(stratum_sample))
 
         # Add remaining samples randomly
-        remaining = n_samples - len(indices)
+        remaining = n_samples - len(stratified_indices)
         if remaining > 0:
-            used_indices = set(indices)
+            used_indices = set(stratified_indices)
             available_indices = [i for i in range(n_total) if i not in used_indices]
             additional_indices = rng.choice(
                 available_indices, remaining, replace=False
             )
-            indices.extend(additional_indices)
+            stratified_indices.extend(list(additional_indices))
 
-        indices = np.array(indices)
+        indices = np.array(stratified_indices)
 
     elif method == "systematic":
         # Systematic sampling
@@ -442,8 +444,8 @@ def sample_spatial_data(
 
 
 def save_processed_data(
-    data: pd.DataFrame, output_path: Union[str, Path], format: str = "csv", **kwargs
-):
+    data: pd.DataFrame, output_path: Union[str, Path], format: str = "csv", **kwargs: Any
+) -> None:
     """
     Save processed data to file.
 

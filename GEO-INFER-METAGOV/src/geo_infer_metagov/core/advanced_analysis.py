@@ -32,7 +32,7 @@ class ConflictAnalysis:
 class AdvancedGovernanceAnalyzer:
     """Advanced analysis methods for governance systems."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize advanced analyzer."""
         logger.info("AdvancedGovernanceAnalyzer initialized")
     
@@ -169,9 +169,9 @@ class AdvancedGovernanceAnalyzer:
     
     def _analyze_interest_conflicts(self, stakeholders: List[Dict[str, Any]]) -> List[ConflictAnalysis]:
         """Analyze conflicts based on stakeholder interests."""
-        conflicts = []
+        conflicts: List[ConflictAnalysis] = []
         
-        interests_map = {}
+        interests_map: Dict[str, List[str]] = {}
         for stakeholder in stakeholders:
             for interest in stakeholder.get('interests', []):
                 if interest not in interests_map:
@@ -299,7 +299,7 @@ class AdvancedGovernanceAnalyzer:
         List[Dict[str, Any]]
             Ranked list of improvement suggestions
         """
-        suggestions = []
+        suggestions: List[Dict[str, Any]] = []
         
         # Analyze efficiency
         if performance_metrics.get('efficiency', 1.0) < 0.7:
@@ -369,9 +369,11 @@ class AdvancedGovernanceAnalyzer:
         Dict[str, Any]
             Scenario analysis results
         """
-        results = {
-            'base_case': self._evaluate_structure(current_structure),
-            'scenarios': []
+        scenarios_out: List[Dict[str, Any]] = []
+        base_eval = self._evaluate_structure(current_structure)
+        results: Dict[str, Any] = {
+            'base_case': base_eval,
+            'scenarios': scenarios_out
         }
         
         for scenario in scenarios:
@@ -379,11 +381,11 @@ class AdvancedGovernanceAnalyzer:
             modified_structure = self._apply_scenario(current_structure, scenario)
             evaluation = self._evaluate_structure(modified_structure)
             
-            results['scenarios'].append({
+            scenarios_out.append({
                 'name': scenario_name,
                 'evaluation': evaluation,
                 'changes': scenario.get('description', ''),
-                'improvement': evaluation.get('overall_score', 0) - results['base_case'].get('overall_score', 0)
+                'improvement': evaluation.get('overall_score', 0.0) - base_eval.get('overall_score', 0.0)
             })
         
         return results

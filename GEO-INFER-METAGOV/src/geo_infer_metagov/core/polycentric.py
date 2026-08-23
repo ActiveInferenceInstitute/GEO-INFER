@@ -160,16 +160,17 @@ class PolycentricGovernanceSystem:
     
     def _analyze_authority_overlaps(self, authorities: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze jurisdictional and functional overlaps between authorities."""
-        overlaps = {
+        overlap_matrix_out: Dict[str, Dict[str, Any]] = {}
+        overlaps: Dict[str, Any] = {
             'jurisdictional_overlaps': 0,
             'functional_overlaps': 0,
             'total_overlap_pairs': 0,
-            'overlap_matrix': {}
+            'overlap_matrix': overlap_matrix_out
         }
         
         for i, auth1 in enumerate(authorities):
             auth1_id = auth1.get('id', f'auth_{i}')
-            overlaps['overlap_matrix'][auth1_id] = {}
+            overlap_matrix_out[auth1_id] = {}
             
             for j, auth2 in enumerate(authorities):
                 if i == j:
@@ -194,7 +195,7 @@ class PolycentricGovernanceSystem:
                 if jurisdictional_overlap > 0 or functional_overlap > 0:
                     overlaps['total_overlap_pairs'] += 1
                 
-                overlaps['overlap_matrix'][auth1_id][auth2_id] = {
+                overlap_matrix_out[auth1_id][auth2_id] = {
                     'jurisdictional': jurisdictional_overlap,
                     'functional': functional_overlap
                 }

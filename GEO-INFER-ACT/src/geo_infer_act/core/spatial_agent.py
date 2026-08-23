@@ -20,7 +20,7 @@ References:
 
 import logging
 import numpy as np
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Dict, Iterable, List, Optional, Union, cast
 from datetime import datetime
 import json
 
@@ -28,6 +28,7 @@ from geo_infer_act.core.types import (
     ActiveInferenceStepResult,
     H3GridInferenceResult,
     H3SpatialConsistency,
+    NestedH3BeliefUpdateResult,
     NestedH3GridInferenceResult,
     SpatialInferenceTrace,
 )
@@ -184,7 +185,7 @@ class SpatialActiveInferenceAgent:
         self.transition_model = self._initialize_transition_model()
         self.preferences = np.zeros((n_cells, self.obs_dim))
         self.preferences[:, 0] = 1.0
-        return hierarchy
+        return cast(Dict[str, Any], hierarchy)
 
     def _get_default_cells(self) -> List[str]:
         """Generate default H3 cells for testing."""
@@ -661,11 +662,14 @@ class SpatialActiveInferenceAgent:
         does not advance the agent a second time.
         """
         if grid_result is None:
-            grid_result = self.step(
+            step_result = self.step(
                 observations,
                 propagate_beliefs=propagate_beliefs,
                 return_result=True,
             )
+            if not isinstance(step_result, H3GridInferenceResult):
+                raise TypeError("step() must return a typed H3GridInferenceResult")
+            grid_result = step_result
         return SpatialDiagnostics.build_h3_trace(
             scenario="spatial",
             timestep=self.step_count if timestep is None else timestep,
@@ -699,6 +703,8 @@ class SpatialActiveInferenceAgent:
             propagate_beliefs=propagate_beliefs,
             return_result=True,
         )
+        if not isinstance(flat_result, H3GridInferenceResult):
+            raise TypeError("step() must return a typed H3GridInferenceResult")
         from geo_infer_act.core.generative_model import GenerativeModel  # noqa: PLC0415
 
         gen = GenerativeModel(
@@ -727,6 +733,11 @@ class SpatialActiveInferenceAgent:
             return_result=True,
             top_down_weight=top_down_weight,
         )
+        if not isinstance(nested_update, NestedH3BeliefUpdateResult):
+            raise TypeError(
+                "update_nested_h3_beliefs() must return a typed "
+                "NestedH3BeliefUpdateResult"
+            )
         result = NestedH3GridInferenceResult(
             cell_results=flat_result.cell_results,
             nested_belief_update=nested_update,
@@ -756,12 +767,17 @@ class SpatialActiveInferenceAgent:
         if not getattr(self, "nested_h3_mode", False):
             raise ValueError("Enable nested H3 spatial mode first")
         if grid_result is None:
-            grid_result = self.step_nested(
+            step_result = self.step_nested(
                 observations,
                 propagate_beliefs=propagate_beliefs,
                 return_result=True,
                 top_down_weight=top_down_weight,
             )
+            if not isinstance(step_result, NestedH3GridInferenceResult):
+                raise TypeError(
+                    "step_nested() must return a typed NestedH3GridInferenceResult"
+                )
+            grid_result = step_result
         nested_update = grid_result.nested_belief_update
         return SpatialDiagnostics.build_h3_trace(
             scenario="spatial",
@@ -902,6 +918,92 @@ class SpatialActiveInferenceAgent:
             "std": float(np.std(coherences)) if coherences else 0.0,
         }
 
+    def score_spatial_information_gain(
+        self,
+        target_resolution: Optional[int] = None,
+        beliefs: Optional[Dict[str, np.ndarray]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Score H3 cells by information gain (expected uncertainty reduction)
+        for active-sensing / where-to-look-next decisions.
+
+        Each cell's score is its belief entropy normalized by the maximum
+        entropy of a uniform distribution over the state space, so a score of
+        1.0 means maximally uncertain (highest information-gain opportunity)
+        and 0.0 means fully resolved.  When ``target_resolution`` is supplied
+        the per-cell scores are aggregated up to that coarser H3 resolution
+        (average child score per parent cell), giving a multi-resolution
+        spatial grid score.
+
+        Args:
+            target_resolution: Optional coarser H3 resolution to aggregate to.
+            beliefs: Optional explicit per-cell belief map.  Defaults to the
+                agent's current ``self.beliefs``.
+
+        Returns:
+            Dict with ``scores`` (per cell or per parent), ``best_cells``,
+            ``resolution``, ``mean_score`` and ``uncertain_cell_fraction``.
+        """
+        n_cells = len(self.cells)
+        working = beliefs if beliefs is not None else {
+            self.cells[i]: self.beliefs[i] for i in range(n_cells)
+        }
+        scores: Dict[str, float] = {}
+        max_entropy = float(np.log(self.state_dim)) if self.state_dim > 1 else 1.0
+        for cell in self.cells:
+            value = working.get(cell)
+            if value is None:
+                continue
+            vec = normalize_belief_vector(np.asarray(value, dtype=float).reshape(-1))
+            if vec.size != self.state_dim:
+                vec = np.resize(vec, self.state_dim)
+            entropy = float(-np.sum(vec * np.log(vec + 1e-12)))
+            if max_entropy > 1e-12:
+                scores[cell] = float(np.clip(entropy / max_entropy, 0.0, 1.0))
+            else:
+                scores[cell] = 0.0
+
+        if target_resolution is not None and scores:
+            parent_scores: Dict[str, List[float]] = {}
+            try:
+                adapter = get_h3_adapter()
+                for cell, score in scores.items():
+                    if adapter.get_resolution(cell) > target_resolution:
+                        parent = adapter.cell_to_parent(cell, target_resolution)
+                    else:
+                        parent = cell
+                    parent_scores.setdefault(parent, []).append(score)
+                scores = {
+                    parent: float(np.mean(child_scores))
+                    for parent, child_scores in parent_scores.items()
+                }
+            except Exception as exc:
+                logger.debug("Information-gain aggregation failed: %s", exc)
+                aggregated_resolution = self.h3_resolution
+            else:
+                aggregated_resolution = target_resolution
+        else:
+            aggregated_resolution = self.h3_resolution
+
+        best_cells = (
+            sorted(scores.keys(), key=lambda cell: float(scores[cell]), reverse=True)
+            if scores
+            else []
+        )
+        score_values = list(scores.values()) if scores else [0.0]
+        uncertain_fraction = float(
+            np.mean([1.0 if value > 0.5 else 0.0 for value in score_values])
+        )
+        return {
+            "scores": scores,
+            "best_cells": best_cells,
+            "best_score": float(scores[best_cells[0]]) if best_cells else 0.0,
+            "resolution": int(aggregated_resolution),
+            "mean_score": float(np.mean(score_values)),
+            "uncertain_cell_fraction": uncertain_fraction,
+            "max_entropy": max_entropy,
+        }
+
     def _compute_h3_result_consistency(
         self, beliefs: Dict[str, np.ndarray]
     ) -> H3SpatialConsistency:
@@ -941,7 +1043,9 @@ class SpatialActiveInferenceAgent:
             global_coherence=global_coherence,
             neighbor_correlations=neighbor_correlations,
             cell_count=len(normalized),
-            edge_count=edge_count_from_graph(self.neighbor_map),
+            edge_count=edge_count_from_graph(
+                cast(Dict[str, Iterable[str]], self.neighbor_map)
+            ),
         )
 
     def _compute_action_distribution(self) -> Dict[str, int]:
@@ -949,7 +1053,7 @@ class SpatialActiveInferenceAgent:
         if not self.action_history:
             return {}
 
-        action_counts = {}
+        action_counts: Dict[str, int] = {}
         for entry in self.action_history:
             name = entry.get("action_name", "unknown")
             action_counts[name] = action_counts.get(name, 0) + 1

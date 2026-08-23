@@ -13,7 +13,7 @@ if SRAI is not installed.
 
 import logging
 from functools import wraps
-from typing import Dict, Any, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 from ...core.interfaces import (
     IndexingBackendProtocol,
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Check SRAI availability once at module load
 try:
-    import srai
+    import srai  # type: ignore[import-not-found]
     SRAI_AVAILABLE = True
     SRAI_VERSION = getattr(srai, '__version__', 'unknown')
     logger.info(f"SRAI library v{SRAI_VERSION} is available")
@@ -37,15 +37,18 @@ except ImportError:
     logger.warning("SRAI library is not available")
 
 
-def _require_srai(operation: str):
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def _require_srai(operation: str) -> Callable[[F], F]:
     """Decorator to require SRAI library for an operation."""
-    def decorator(func):
+    def decorator(func: F) -> F:
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
             if not SRAI_AVAILABLE:
                 raise SRAIUnavailableError(operation)
             return func(self, *args, **kwargs)
-        return wrapper
+        return cast(F, wrapper)
     return decorator
 
 
@@ -67,7 +70,7 @@ class SraiBackend:
     Implements: IndexingBackendProtocol, AnalyticsBackendProtocol
     """
 
-    def __init__(self, default_regionalizer: str = 'h3'):
+    def __init__(self, default_regionalizer: str = 'h3') -> None:
         """
         Initialize the SRAI backend.
         
@@ -101,7 +104,7 @@ class SraiBackend:
         """Return the backend's capabilities."""
         logger.debug("Getting SRAI backend capabilities")
         
-        capabilities = {
+        capabilities: Dict[str, Any] = {
             'indexing': {
                 'latlng_to_cell': self._available,
                 'cell_to_latlng': self._available,
@@ -131,13 +134,17 @@ class SraiBackend:
 
         if self._available:
             try:
-                from srai.regionalizers import H3Regionalizer
+                from srai.regionalizers import (  # type: ignore[import-not-found]
+                    H3Regionalizer,
+                )
                 capabilities['regionalizers_available'] = True
             except ImportError:
                 capabilities['regionalizers_available'] = False
             
             try:
-                from srai.embedders import CountEmbedder
+                from srai.embedders import (  # type: ignore[import-not-found]
+                    CountEmbedder,
+                )
                 capabilities['embedders_available'] = True
             except ImportError:
                 capabilities['embedders_available'] = False
@@ -172,7 +179,7 @@ class SraiBackend:
             import h3
             cell = h3.latlng_to_cell(lat, lng, resolution)
             logger.debug(f"Generated H3 cell: {cell}")
-            return cell
+            return cast(str, cell)
         else:
             # For other regionalizers, use SRAI's approach
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for latlng_to_cell")
@@ -299,7 +306,7 @@ class SraiBackend:
             import h3
             distance = h3.grid_distance(cell1, cell2)
             logger.debug(f"Distance: {distance}")
-            return distance
+            return cast(int, distance)
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_distance")
 
@@ -371,7 +378,7 @@ class SraiBackend:
         
         if self.default_regionalizer == 'h3':
             import h3
-            return h3.cell_to_parent(cell, resolution)
+            return cast(str, h3.cell_to_parent(cell, resolution))
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_parent")
 
@@ -465,7 +472,7 @@ class SraiBackend:
             import h3
             resolution = h3.get_resolution(cell)
             logger.debug(f"Cell {cell} has resolution {resolution}")
-            return resolution
+            return cast(int, resolution)
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_resolution")
 
@@ -514,7 +521,7 @@ class SraiBackend:
             import h3
             area = h3.cell_area(cell, unit=unit)
             logger.debug(f"Cell {cell} has area {area:.6f} {unit}")
-            return area
+            return cast(float, area)
         else:
             raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_area")
 

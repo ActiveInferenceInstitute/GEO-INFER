@@ -152,18 +152,21 @@ class TrafficAnalyzer:
         Returns:
             Congestion analysis results
         """
-        congestion_results = {
+        segments_out: List[Dict[str, Any]] = []
+        total_segments = len(network_flows)
+        summary_out: Dict[str, Any] = {
+            "total_segments": total_segments,
+            "congested_segments": 0,
+            "average_delay_factor": 0
+        }
+        congestion_results: Dict[str, Any] = {
             "algorithm": algorithm,
             "timestamp": datetime.now().isoformat(),
-            "segments": [],
-            "summary": {
-                "total_segments": len(network_flows),
-                "congested_segments": 0,
-                "average_delay_factor": 0
-            }
+            "segments": segments_out,
+            "summary": summary_out
         }
         
-        total_delay = 0
+        total_delay = 0.0
         
         for segment_id, volume in network_flows.items():
             capacity = capacity_data.get(segment_id, 2000)
@@ -187,11 +190,11 @@ class TrafficAnalyzer:
                 condition = TrafficCondition.HEAVY
             else:
                 condition = TrafficCondition.CONGESTED
-                congestion_results["summary"]["congested_segments"] += 1
+                summary_out["congested_segments"] += 1
             
-            total_delay += delay_factor
+            total_delay += float(delay_factor)
             
-            congestion_results["segments"].append({
+            segments_out.append({
                 "segment_id": segment_id,
                 "volume": volume,
                 "capacity": capacity,
@@ -201,7 +204,7 @@ class TrafficAnalyzer:
             })
         
         if network_flows:
-            congestion_results["summary"]["average_delay_factor"] = round(
+            summary_out["average_delay_factor"] = round(
                 total_delay / len(network_flows), 3
             )
         
@@ -229,23 +232,25 @@ class TrafficAnalyzer:
         """
         num_steps = (simulation_hours * 3600) // time_step_seconds
         
-        simulation = {
+        results_out: List[Dict[str, Any]] = []
+        statistics_out: Dict[str, Any] = {
+            "total_trips": 0,
+            "completed_trips": 0,
+            "average_travel_time": 0
+        }
+        simulation: Dict[str, Any] = {
             "simulation_id": f"sim_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "duration_hours": simulation_hours,
             "time_step_seconds": time_step_seconds,
             "total_steps": num_steps,
-            "results": [],
-            "statistics": {
-                "total_trips": 0,
-                "completed_trips": 0,
-                "average_travel_time": 0
-            }
+            "results": results_out,
+            "statistics": statistics_out
         }
         
         # Extract demand from OD matrix
         matrix = demand_matrix.get("matrix", [[]])
         total_demand = sum(sum(row) for row in matrix)
-        simulation["statistics"]["total_trips"] = int(total_demand)
+        statistics_out["total_trips"] = int(total_demand)
         
         # Trip release rate per step (uniform release across simulation)
         trips_per_step = total_demand / max(num_steps, 1)
@@ -292,7 +297,7 @@ class TrafficAnalyzer:
             else:
                 congestion = "congested"
             
-            simulation["results"].append({
+            results_out.append({
                 "step": step,
                 "time_seconds": step_time,
                 "vehicles_in_network": int(vehicles_in_network),
@@ -302,8 +307,8 @@ class TrafficAnalyzer:
                 "bpr_delay_factor": round(bpr_factor, 3),
             })
         
-        simulation["statistics"]["completed_trips"] = completed_trips
-        simulation["statistics"]["average_travel_time"] = round(
+        statistics_out["completed_trips"] = completed_trips
+        statistics_out["average_travel_time"] = round(
             total_travel_time / max(completed_trips, 1), 1
         )
         
@@ -327,7 +332,7 @@ class TrafficAnalyzer:
         Returns:
             List of detected incidents
         """
-        incidents = []
+        incidents: List[Dict[str, Any]] = []
         
         for segment_id, current in current_data.items():
             baseline = historical_baseline.get(segment_id, {})
@@ -412,26 +417,27 @@ class TrafficAnalyzer:
             trend = 0
             residual_std = 200  # default uncertainty
         
-        forecast = {
+        forecasts_out: List[Dict[str, Any]] = []
+        forecast: Dict[str, Any] = {
             "model": model,
             "forecast_horizon": forecast_horizon,
             "generated_at": datetime.now().isoformat(),
             "parameters": {"alpha": alpha, "window": window, "trend": round(trend, 3)},
-            "forecasts": []
+            "forecasts": forecasts_out
         }
-        
+
         # Generate forecast points with widening confidence intervals
         for i in range(steps):
             predicted = ewma + trend * (i + 1)
             # Prediction interval widens with horizon
             interval_width = residual_std * (1 + 0.1 * i)
-            
-            forecast["forecasts"].append({
+
+            forecasts_out.append({
                 "time_offset_minutes": (i + 1) * 15,
                 "predicted_volume": max(0, int(round(predicted))),
                 "confidence_lower": max(0, int(round(predicted - 1.96 * interval_width))),
                 "confidence_upper": int(round(predicted + 1.96 * interval_width))
             })
-        
+
         logger.info(f"Generated {steps}-step traffic forecast (EWMA α={alpha})")
         return forecast

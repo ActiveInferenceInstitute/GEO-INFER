@@ -132,7 +132,7 @@ class ForestHealthMonitor:
         self.forest_types = self.forest_config.get("forest_types", [])
         self.change_detection = self.forest_config.get("change_detection", {})
 
-        self.last_analysis_time = None
+        self.last_analysis_time: Optional[datetime] = None
 
         logger.info("ForestHealthMonitor initialized for Del Norte County")
 
@@ -288,7 +288,7 @@ class ForestHealthMonitor:
             bounds.get("north"),
         )
 
-        forest_data = {
+        forest_data: Dict[str, Any] = {
             "bbox": bbox,
             "temporal_range": temporal_range,
             "data_sources": {},
@@ -823,7 +823,7 @@ class ForestHealthMonitor:
         mortality_analysis = analysis_results.get("mortality_analysis", {})
         climate_vulnerability = analysis_results.get("climate_vulnerability", {})
 
-        risk_assessment = {
+        risk_assessment: Dict[str, Any] = {
             "overall_risk_score": 0.0,
             "risk_factors": {},
             "spatial_risk_map": {},
@@ -912,7 +912,7 @@ class ForestHealthMonitor:
         """Check for forest health alerts and warnings."""
         logger.info("Checking for forest health alerts...")
 
-        alerts = {
+        alerts: Dict[str, Any] = {
             "critical_alerts": [],
             "warnings": [],
             "informational": [],
@@ -950,13 +950,13 @@ class ForestHealthMonitor:
 
         return alerts
 
-    def _save_analysis_results(self, results: Dict[str, Any]):
+    def _save_analysis_results(self, results: Dict[str, Any]) -> None:
         """Save analysis results to file."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = self.output_dir / f"forest_health_analysis_{timestamp}.json"
 
         # Sanitize recursively for JSON (avoid cycles, handle numpy/pandas types)
-        def _sanitize(obj, _seen: set):
+        def _sanitize(obj: Any, _seen: set) -> Any:
             obj_id = id(obj)
             if obj_id in _seen:
                 return "<circular>"

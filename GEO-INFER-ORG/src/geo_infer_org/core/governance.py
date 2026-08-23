@@ -171,7 +171,7 @@ class VotingEngine:
                 counts[vote.choice] += 1
 
         total = len(proposal.votes)
-        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
 
         if winner and counts[winner] <= total / 2.0:
             # Need strict majority? No -- simple majority means plurality
@@ -180,7 +180,7 @@ class VotingEngine:
                 winner = None  # No majority
 
         # For simple majority, plurality wins (most votes)
-        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
         if winner and counts[winner] == 0:
             winner = None
 
@@ -202,7 +202,7 @@ class VotingEngine:
         total = len(proposal.votes)
         winner = None
         if total > 0 and quorum_met:
-            best = max(counts, key=counts.get)
+            best = max(counts, key=lambda k: counts[k])
             if counts[best] / total >= threshold:
                 winner = best
 
@@ -295,7 +295,7 @@ class VotingEngine:
                 break
 
         last_round = rounds[-1] if rounds else {}
-        winner = max(last_round, key=last_round.get) if last_round else None
+        winner = max(last_round, key=lambda k: last_round[k]) if last_round else None
 
         return VotingResult(
             proposal_id=proposal.proposal_id,
@@ -316,7 +316,7 @@ class VotingEngine:
         total = len(proposal.votes)
         winner = None
         if total > 0 and quorum_met:
-            winner = max(counts, key=counts.get)
+            winner = max(counts, key=lambda k: counts[k])
             if counts[winner] == 0:
                 winner = None
 
@@ -338,7 +338,7 @@ class VotingEngine:
                     counts[choice] += 1
 
         total = len(proposal.votes)
-        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
         if winner and counts[winner] == 0:
             winner = None
 
@@ -447,7 +447,7 @@ class ConsensusModel:
         # Max possible spread on 0-10 scale is 5.0 (half the range)
         consensus_level = max(0.0, 1.0 - avg_spread / 5.0)
 
-        recommendation = max(option_scores, key=option_scores.get)
+        recommendation = max(option_scores, key=lambda k: option_scores[k])
 
         return {
             "option_scores": option_scores,

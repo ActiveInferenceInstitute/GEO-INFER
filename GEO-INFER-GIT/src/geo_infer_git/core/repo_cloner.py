@@ -14,8 +14,8 @@ import subprocess
 import logging
 import shutil
 import threading
-from typing import Dict, Any, List, Optional, Tuple, Callable
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, Any, List, Optional, Tuple, Callable, cast
+from concurrent.futures import ThreadPoolExecutor, as_completed, Executor
 import time
 import psutil
 from pathlib import Path
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class CloneProgress:
     """Track cloning progress and statistics."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.total_repos = 0
         self.completed_repos = 0
         self.failed_repos = 0
@@ -37,17 +37,17 @@ class CloneProgress:
         self.start_time = time.time()
         self.lock = threading.Lock()
 
-    def increment_completed(self):
+    def increment_completed(self) -> None:
         """Increment completed repository count."""
         with self.lock:
             self.completed_repos += 1
 
-    def increment_failed(self):
+    def increment_failed(self) -> None:
         """Increment failed repository count."""
         with self.lock:
             self.failed_repos += 1
 
-    def increment_skipped(self):
+    def increment_skipped(self) -> None:
         """Increment skipped repository count."""
         with self.lock:
             self.skipped_repos += 1
@@ -108,7 +108,7 @@ class RepoCloner:
             # For GitHub token authentication via HTTPS
             self.git_env['GIT_TOKEN'] = config.github_token
 
-    def clone_repository(self, owner: str, repo: str, branch: str = None) -> bool:
+    def clone_repository(self, owner: str, repo: str, branch: Optional[str] = None) -> bool:
         """
         Clone a single repository.
 
@@ -140,7 +140,7 @@ class RepoCloner:
             logger.info(f"Cloning {owner}/{repo} to {repo_path}")
 
             # Prepare clone options
-            clone_kwargs = {
+            clone_kwargs: Dict[str, Any] = {
                 'branch': branch or self.config.default_branch,
                 'depth': self.config.clone_depth,
                 'recursive': False  # We'll handle submodules separately if needed
@@ -349,9 +349,10 @@ class RepoCloner:
     def close(self) -> None:
         """Clean up resources and reset internal state."""
         self.reset_progress()
-        if hasattr(self, '_executor') and self._executor is not None:
-            self._executor.shutdown(wait=False)
-            self._executor = None
+        executor: Any = getattr(self, '_executor', None)
+        if executor is not None:
+            cast(Executor, executor).shutdown(wait=False)
+            setattr(self, '_executor', None)
 
     def estimate_clone_time(self, repo_count: int, avg_repo_size: int = 50000) -> Dict[str, Any]:
         """

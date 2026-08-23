@@ -1,7 +1,7 @@
 """Water quality assessment module."""
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, cast
 from dataclasses import dataclass
 from enum import Enum
 import numpy as np
@@ -68,17 +68,17 @@ class WaterQualityAssessor:
         self.config = config or {}
         
         # Water quality standards (EPA/WHO default values)
-        self.standards = {
+        self.standards: Dict[str, Dict[str, float]] = {
             'ph': {'min': 6.5, 'max': 8.5, 'optimal': 7.0},
             'dissolved_oxygen': {'min': 5.0, 'optimal': 8.0},  # mg/L
             'turbidity': {'max': 1.0, 'optimal': 0.5},  # NTU
             'nitrate': {'max': 10.0, 'optimal': 1.0},  # mg/L
             'phosphate': {'max': 0.1, 'optimal': 0.02},  # mg/L
             'ammonia': {'max': 0.5, 'optimal': 0.05},  # mg/L
-            'e_coli': {'max': 126, 'optimal': 0},  # CFU/100mL
+            'e_coli': {'max': 126.0, 'optimal': 0.0},  # CFU/100mL
             'temperature': {'max': 25.0, 'optimal': 20.0},  # Celsius
-            'conductivity': {'max': 1000, 'optimal': 500},  # µS/cm
-            'total_dissolved_solids': {'max': 500, 'optimal': 250},  # mg/L
+            'conductivity': {'max': 1000.0, 'optimal': 500.0},  # µS/cm
+            'total_dissolved_solids': {'max': 500.0, 'optimal': 250.0},  # mg/L
         }
         
         # WQI parameter weights (NSF WQI method)
@@ -115,7 +115,7 @@ class WaterQualityAssessor:
         Returns:
             Water quality assessment
         """
-        results = {}
+        results: Dict[str, Any] = {}
         
         # pH assessment
         ph_standard = self.standards['ph']
@@ -377,21 +377,21 @@ class WaterQualityAssessor:
         if len(values) < 3:
             return {'error': 'Insufficient data for trend analysis'}
         
-        values = np.array(values)
-        time_points = np.arange(len(values))
+        values_arr = np.array(values)
+        time_points = np.arange(len(values_arr))
         
         # Linear regression for trend
-        slope, intercept = np.polyfit(time_points, values, 1)
+        slope, intercept = np.polyfit(time_points, values_arr, 1)
         trend_line = slope * time_points + intercept
         
         # Calculate statistics
-        mean_val = np.mean(values)
-        std_val = np.std(values)
-        min_val = np.min(values)
-        max_val = np.max(values)
+        mean_val = float(np.mean(values_arr))
+        std_val = float(np.std(values_arr))
+        min_val = float(np.min(values_arr))
+        max_val = float(np.max(values_arr))
         
         # Trend significance (simplified)
-        if abs(slope) > std_val / len(values):
+        if abs(slope) > std_val / len(values_arr):
             trend_significant = True
             trend_direction = "increasing" if slope > 0 else "decreasing"
         else:
@@ -401,9 +401,9 @@ class WaterQualityAssessor:
         # Check against standards
         standard = self.standards.get(parameter, {})
         if 'max' in standard:
-            exceedance_count = np.sum(values > standard['max'])
+            exceedance_count = int(np.sum(values_arr > standard['max']))
         elif 'min' in standard:
-            exceedance_count = np.sum(values < standard['min'])
+            exceedance_count = int(np.sum(values_arr < standard['min']))
         else:
             exceedance_count = 0
         
@@ -443,22 +443,22 @@ class WaterQualityAssessor:
             return {'error': 'No samples provided'}
         
         # Usage-specific thresholds
-        usage_thresholds = {
+        usage_thresholds: Dict[str, Dict[str, Dict[str, float]]] = {
             'drinking': {
                 'ph': {'min': 6.5, 'max': 8.5},
                 'turbidity': {'max': 1.0},
                 'nitrate': {'max': 10.0},
-                'e_coli': {'max': 0}
+                'e_coli': {'max': 0.0}
             },
             'recreation': {
                 'ph': {'min': 6.0, 'max': 9.0},
                 'turbidity': {'max': 5.0},
-                'e_coli': {'max': 200}
+                'e_coli': {'max': 200.0}
             },
             'irrigation': {
                 'ph': {'min': 6.0, 'max': 8.5},
-                'conductivity': {'max': 2000},
-                'nitrate': {'max': 30}
+                'conductivity': {'max': 2000.0},
+                'nitrate': {'max': 30.0}
             },
             'aquatic_life': {
                 'ph': {'min': 6.5, 'max': 9.0},
@@ -470,7 +470,7 @@ class WaterQualityAssessor:
         thresholds = usage_thresholds.get(usage_type, usage_thresholds['drinking'])
         
         # Calculate risk scores for each parameter
-        risk_scores = {}
+        risk_scores: Dict[str, float] = {}
         violations = []
         
         for sample in samples:
@@ -553,43 +553,44 @@ class WaterQualityAssessor:
             Compliance report
         """
         # Regulatory limits (simplified)
-        reg_limits = {
+        reg_limits: Dict[str, Dict[str, Dict[str, float]]] = {
             'EPA': {
                 'ph': {'min': 6.5, 'max': 8.5},
                 'nitrate': {'max': 10.0},
                 'turbidity': {'max': 1.0},
-                'e_coli': {'max': 0}
+                'e_coli': {'max': 0.0}
             },
             'WHO': {
                 'ph': {'min': 6.5, 'max': 8.5},
                 'nitrate': {'max': 50.0},
                 'turbidity': {'max': 4.0},
-                'e_coli': {'max': 0}
+                'e_coli': {'max': 0.0}
             },
             'EU': {
                 'ph': {'min': 6.5, 'max': 9.5},
                 'nitrate': {'max': 50.0},
                 'turbidity': {'max': 1.0},
-                'e_coli': {'max': 0}
+                'e_coli': {'max': 0.0}
             }
         }
         
         limits = reg_limits.get(regulations, reg_limits['EPA'])
         
         # Check each parameter
-        compliance_results = {}
+        compliance_results: Dict[str, Any] = {}
         overall_compliant = True
         
         for param, lim in limits.items():
             values = [getattr(s, param, None) for s in samples]
             values = [v for v in values if v is not None]
+            float_values = cast("List[float]", values)
             
             if not values:
                 compliance_results[param] = {'status': 'No data'}
                 continue
             
             violations = 0
-            for v in values:
+            for v in float_values:
                 if 'max' in lim and v > lim['max']:
                     violations += 1
                 if 'min' in lim and v < lim['min']:
@@ -601,12 +602,12 @@ class WaterQualityAssessor:
             
             compliance_results[param] = {
                 'compliant': compliant,
-                'samples_tested': len(values),
+                'samples_tested': len(float_values),
                 'violations': violations,
                 'limits': lim,
-                'mean_value': float(np.mean(values)),
-                'max_value': float(np.max(values)),
-                'min_value': float(np.min(values))
+                'mean_value': float(np.mean(float_values)),
+                'max_value': float(np.max(float_values)),
+                'min_value': float(np.min(float_values))
             }
         
         return {

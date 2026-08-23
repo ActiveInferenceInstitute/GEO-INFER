@@ -1,5 +1,5 @@
 """HR Data Transformers."""
-from typing import List
+from typing import List, Optional
 import pandas as pd
 from datetime import date, datetime
 from ..models.hr_models import Employee
@@ -79,7 +79,9 @@ def clean_employee_data(employees: List[Employee]) -> List[Employee]:
     print(f"Successfully cleaned {len(cleaned_employees)} employee records")
     return cleaned_employees
 
-def enrich_employee_data(employees: List[Employee], org_data: dict = None) -> List[Employee]:
+def enrich_employee_data(
+    employees: List[Employee], org_data: Optional[dict] = None
+) -> List[Employee]:
     """
     Enriches employee data with calculated fields and organizational context.
 

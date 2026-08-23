@@ -34,10 +34,12 @@ SUPPORTED_VECTOR_FORMATS = {
 class VectorReader:
     """Reader class for vector geospatial data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.supported_formats = SUPPORTED_VECTOR_FORMATS
 
-    def read(self, file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame:
+    def read(
+        self, file_path: Union[str, Path], **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """
         Read vector data from file.
 
@@ -81,7 +83,9 @@ class VectorReader:
             logger.error(f"Failed to read vector file {file_path}: {e}")
             raise
 
-    def _read_geojson(self, file_path: Path, **kwargs) -> gpd.GeoDataFrame:
+    def _read_geojson(
+        self, file_path: Path, **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """Read GeoJSON file with enhanced error handling."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -122,7 +126,9 @@ class VectorReader:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON format: {e}")
 
-    def _read_csv(self, file_path: Path, **kwargs) -> gpd.GeoDataFrame:
+    def _read_csv(
+        self, file_path: Path, **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """Read CSV file and convert to GeoDataFrame."""
         # Extract geometry-related parameters
         x_col = kwargs.pop("x_col", "longitude")
@@ -158,7 +164,9 @@ class VectorReader:
 
         return gpd.GeoDataFrame(df, geometry=geometries, crs=crs)
 
-    def _read_excel(self, file_path: Path, **kwargs) -> gpd.GeoDataFrame:
+    def _read_excel(
+        self, file_path: Path, **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """Read Excel file and convert to GeoDataFrame."""
         # Similar to CSV but using pandas.read_excel
         x_col = kwargs.pop("x_col", "longitude")
@@ -189,7 +197,9 @@ class VectorReader:
 
         return gpd.GeoDataFrame(df, geometry=geometries, crs=crs)
 
-    def _read_parquet(self, file_path: Path, **kwargs) -> gpd.GeoDataFrame:
+    def _read_parquet(
+        self, file_path: Path, **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """Read Parquet file with geospatial data."""
         try:
             # Try reading as GeoParquet first
@@ -226,7 +236,9 @@ class VectorReader:
             else:
                 raise ValueError("No geometry column found in Parquet file")
 
-    def _read_feather(self, file_path: Path, **kwargs) -> gpd.GeoDataFrame:
+    def _read_feather(
+        self, file_path: Path, **kwargs: Any
+    ) -> gpd.GeoDataFrame:
         """Read Feather file with geospatial data."""
         df = pd.read_feather(file_path, **kwargs)
 
@@ -250,11 +262,14 @@ class VectorReader:
 class VectorWriter:
     """Writer class for vector geospatial data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.supported_formats = SUPPORTED_VECTOR_FORMATS
 
     def write(
-        self, gdf: gpd.GeoDataFrame, file_path: Union[str, Path], **kwargs
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Union[str, Path],
+        **kwargs: Any,
     ) -> None:
         """
         Write GeoDataFrame to file.
@@ -294,7 +309,12 @@ class VectorWriter:
             logger.error(f"Failed to write vector file {file_path}: {e}")
             raise
 
-    def _write_geojson(self, gdf: gpd.GeoDataFrame, file_path: Path, **kwargs) -> None:
+    def _write_geojson(
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write GeoDataFrame as GeoJSON with formatting options."""
         # Set default formatting options
         kwargs.setdefault("indent", 2)
@@ -302,7 +322,12 @@ class VectorWriter:
 
         gdf.to_file(file_path, driver="GeoJSON", **kwargs)
 
-    def _write_csv(self, gdf: gpd.GeoDataFrame, file_path: Path, **kwargs) -> None:
+    def _write_csv(
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write GeoDataFrame as CSV with coordinate columns."""
         df = gdf.copy()
 
@@ -319,7 +344,12 @@ class VectorWriter:
 
         df.to_csv(file_path, index=False, **kwargs)
 
-    def _write_excel(self, gdf: gpd.GeoDataFrame, file_path: Path, **kwargs) -> None:
+    def _write_excel(
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write GeoDataFrame as Excel with coordinate columns."""
         df = gdf.copy()
 
@@ -333,7 +363,12 @@ class VectorWriter:
 
         df.to_excel(file_path, index=False, **kwargs)
 
-    def _write_parquet(self, gdf: gpd.GeoDataFrame, file_path: Path, **kwargs) -> None:
+    def _write_parquet(
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write GeoDataFrame as GeoParquet."""
         try:
             # Try writing as GeoParquet
@@ -345,7 +380,12 @@ class VectorWriter:
             df = df.drop(columns=["geometry"])
             df.to_parquet(file_path, **kwargs)
 
-    def _write_feather(self, gdf: gpd.GeoDataFrame, file_path: Path, **kwargs) -> None:
+    def _write_feather(
+        self,
+        gdf: gpd.GeoDataFrame,
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write GeoDataFrame as Feather with WKT geometry."""
         df = gdf.copy()
         df["geometry_wkt"] = df.geometry.to_wkt()
@@ -354,7 +394,9 @@ class VectorWriter:
 
 
 # Convenience functions
-def read_vector_file(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame:
+def read_vector_file(
+    file_path: Union[str, Path], **kwargs: Any
+) -> gpd.GeoDataFrame:
     """
     Read vector data from file using appropriate reader.
 
@@ -370,7 +412,9 @@ def read_vector_file(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame:
 
 
 def write_vector_file(
-    gdf: gpd.GeoDataFrame, file_path: Union[str, Path], **kwargs
+    gdf: gpd.GeoDataFrame,
+    file_path: Union[str, Path],
+    **kwargs: Any,
 ) -> None:
     """
     Write GeoDataFrame to file using appropriate writer.
@@ -420,7 +464,12 @@ def validate_vector_file(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
     file_path = Path(file_path)
 
-    result = {"valid": False, "format": None, "error": None, "metadata": {}}
+    result: Dict[str, Any] = {
+        "valid": False,
+        "format": None,
+        "error": None,
+        "metadata": {},
+    }
 
     try:
         # Check if file exists

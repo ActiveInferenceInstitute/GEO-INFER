@@ -7,12 +7,13 @@ import numpy as np
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
+from typing import cast
 
 
 class DataValidator:
     """A class for validating biological data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the DataValidator."""
         self.valid_nucleotides = set("ATCG")
         self.valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
@@ -108,7 +109,9 @@ class DataValidator:
             Dict containing validation results
         """
         results = {
-            "sequence_valid": self.validate_sequence(record.seq),
+            "sequence_valid": self.validate_sequence(
+                cast(Union[str, Seq], record.seq) if record.seq is not None else ""
+            ),
             "id_valid": bool(record.id),
             "description_valid": bool(record.description),
             "spatial_valid": True,

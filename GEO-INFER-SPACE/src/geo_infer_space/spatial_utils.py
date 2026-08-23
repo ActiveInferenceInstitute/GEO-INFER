@@ -6,7 +6,7 @@ distance calculations, and spatial data processing.
 """
 
 import logging
-from typing import Dict, List, Tuple, Any, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 import numpy as np
 from shapely.geometry import Point, Polygon
 from pyproj import Transformer
@@ -26,9 +26,9 @@ class SpatialUtils:
     - Data validation and processing
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize SpatialUtils."""
-        self.transformers = {}
+        self.transformers: Dict[str, Transformer] = {}
         self.indexer = SpatialIndexingInterface()
         logger.info("SpatialUtils initialized")
 
@@ -125,13 +125,19 @@ class SpatialUtils:
 
         # Earth radius in kilometers
         r = 6371
-        return c * r
+        return cast(float, c * r)
 
     def _euclidean_distance(
         self, point1: Tuple[float, float], point2: Tuple[float, float]
     ) -> float:
         """Calculate Euclidean distance between two points."""
-        return np.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2)
+        return cast(
+            float,
+            np.sqrt(
+                (point2[0] - point1[0]) ** 2
+                + (point2[1] - point1[1]) ** 2
+            ),
+        )
 
     def create_buffer(
         self, center: Tuple[float, float], radius_km: float, resolution: int = 16
@@ -257,7 +263,9 @@ class SpatialUtils:
         return min_idx, float(distances[min_idx])
 
     def create_spatial_index(
-        self, points: List[Tuple[float, float]], labels: List[str] = None
+        self,
+        points: List[Tuple[float, float]],
+        labels: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Create a spatial index for efficient point queries.
@@ -315,7 +323,7 @@ class SpatialUtils:
         """Calculate centroid of points."""
         lats = [p[0] for p in points]
         lons = [p[1] for p in points]
-        return np.mean(lats), np.mean(lons)
+        return cast(Tuple[float, float], (np.mean(lats), np.mean(lons)))
 
     def filter_points_by_distance(
         self,

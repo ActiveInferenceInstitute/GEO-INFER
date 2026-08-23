@@ -114,7 +114,7 @@ class CloudConnector:
                 return f.read(end_byte - start_byte + 1)
         raise FileNotFoundError(f"Remote resource not available for range reading: {remote_path}")
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Close cloud storage connection."""
         logger.debug(
             "%s has no persistent cloud connection to close", type(self).__name__
@@ -207,7 +207,7 @@ class S3Connector(CloudConnector):
         logger.info(f"Deleting s3://{self.bucket}/{remote_path}")
         return True
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from S3."""
         logger.info("S3 connection closed")
 
@@ -252,7 +252,7 @@ class GCSConnector(CloudConnector):
         logger.info(f"Deleting gs://{self.bucket}/{remote_path}")
         return True
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from GCS."""
         logger.info("GCS connection closed")
 
@@ -299,6 +299,6 @@ class AzureConnector(CloudConnector):
         logger.info(f"Deleting azure://{self.container}/{remote_path}")
         return True
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from Azure Blob Storage."""
         logger.info("Azure connection closed")

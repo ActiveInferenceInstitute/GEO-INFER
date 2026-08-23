@@ -8,7 +8,7 @@ import json
 logger = logging.getLogger(__name__)
 
 
-def validate_spatial_scope(spatial_scope: Dict[str, Any]) -> bool:
+def validate_spatial_scope(spatial_scope: Any) -> bool:
     """
     Validate spatial scope dictionary.
     
@@ -36,7 +36,7 @@ def validate_spatial_scope(spatial_scope: Dict[str, Any]) -> bool:
     return True
 
 
-def validate_stakeholder_groups(stakeholder_groups: List[Dict[str, Any]]) -> bool:
+def validate_stakeholder_groups(stakeholder_groups: Any) -> bool:
     """
     Validate stakeholder groups list.
     
@@ -73,7 +73,7 @@ def validate_stakeholder_groups(stakeholder_groups: List[Dict[str, Any]]) -> boo
     return True
 
 
-def validate_decision_domains(decision_domains: List[str]) -> bool:
+def validate_decision_domains(decision_domains: Any) -> bool:
     """
     Validate decision domains list.
     

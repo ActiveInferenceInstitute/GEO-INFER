@@ -178,7 +178,7 @@ def detect_frequency(ts: TimeSeries) -> Optional[str]:
         freq = pd.infer_freq(index)
         if freq is not None:
             logger.debug("Inferred frequency via pandas: %s", freq)
-            return freq
+            return str(freq)
     except Exception:
         pass
 

@@ -16,27 +16,13 @@ logger = logging.getLogger(__name__)
 # scikit-learn is a declared dependency (see pyproject.toml), but we guard the
 # import so this module remains importable for tooling that inspects it before
 # the environment is fully installed.
-try:
-    from sklearn.linear_model import LinearRegression
-    from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-    HAS_SKLEARN = True
-except ImportError:  # pragma: no cover - defensive fallback
-    LinearRegression = None  # type: ignore[assignment]
-    mean_squared_error = None  # type: ignore[assignment]
-    mean_absolute_error = None  # type: ignore[assignment]
-    HAS_SKLEARN = False
-    logger.warning(
-        "scikit-learn not available; linear-regression forecasting and "
-        "sklearn-based metrics are disabled."
-    )
+HAS_SKLEARN = True
 
 # Import TimeSeries from models
-try:
-    from geo_infer_time.models.timeseries import TimeSeries
-except ImportError:
-    # Fallback if import fails
-    TimeSeries = None
+from geo_infer_time.models.timeseries import TimeSeries
 
 # Optional imports for advanced models
 try:

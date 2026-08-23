@@ -1,6 +1,6 @@
 """CRM Data Transformers."""
 
-from typing import List
+from typing import List, Optional
 import pandas as pd
 from ..models.crm_models import Customer
 
@@ -110,7 +110,7 @@ def clean_customer_data(customers: List[Customer]) -> List[Customer]:
 
 
 def enrich_customer_data(
-    customers: List[Customer], external_data_sources: dict = None
+    customers: List[Customer], external_data_sources: Optional[dict] = None
 ) -> List[Customer]:
     """
     Enriches customer data with calculated fields and organizational context.

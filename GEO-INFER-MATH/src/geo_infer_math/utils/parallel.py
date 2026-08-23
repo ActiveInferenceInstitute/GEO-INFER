@@ -8,7 +8,7 @@ of geospatial data and mathematical operations.
 import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import numpy as np
-from typing import Any, Callable, List, Optional, Union, Iterable, Dict, Tuple
+from typing import Any, Callable, List, Optional, Union, Iterable, Dict, Tuple, cast
 import logging
 import os
 import time
@@ -29,7 +29,7 @@ def parallel_compute(func: Callable,
                     chunk_size: Optional[int] = None,
                     use_processes: bool = True,
                     max_memory_mb: Optional[float] = None,
-                    **kwargs) -> List[Any]:
+                    **kwargs: Any) -> List[Any]:
     """
     Apply a function to data in parallel with adaptive chunk sizing and memory monitoring.
 
@@ -53,13 +53,16 @@ def parallel_compute(func: Callable,
         chunk_size = _calculate_optimal_chunk_size(data, num_workers, max_memory_mb)
 
     # Convert to list if necessary
+    data_list: List[Any]
     if isinstance(data, np.ndarray):
-        data = data.tolist()
+        data_list = data.tolist()
+    else:
+        data_list = list(data)
 
     # Split data into chunks with memory-aware sizing
-    chunks = _create_memory_aware_chunks(data, chunk_size, max_memory_mb)
+    chunks = _create_memory_aware_chunks(data_list, chunk_size, max_memory_mb)
 
-    logger.info(f"Processing {len(data)} items in {len(chunks)} chunks with {num_workers} workers")
+    logger.info(f"Processing {len(data_list)} items in {len(chunks)} chunks with {num_workers} workers")
 
     # Create partial function with additional arguments
     partial_func = partial(func, **kwargs)
@@ -94,18 +97,18 @@ def parallel_compute(func: Callable,
 
     # Sort results by chunk index to maintain order
     results.sort(key=lambda x: x[0])
-    results = [result for _, result in results]
+    ordered_results = [result for _, result in results]
 
     # Flatten results if function returns multiple values per chunk
-    if results and isinstance(results[0], list) and len(results[0]) == len(chunks[0]):
+    if ordered_results and isinstance(ordered_results[0], list):
         # Function returns one result per input item
         flat_results = []
-        for result_list in results:
+        for result_list in ordered_results:
             flat_results.extend(result_list)
         return flat_results
     else:
         # Function returns one result per chunk
-        return results
+        return ordered_results
 
 def _calculate_optimal_chunk_size(data: Union[List, np.ndarray],
                                 num_workers: int,
@@ -202,17 +205,17 @@ def parallel_matrix_operation(matrix_a: np.ndarray,
     elif operation == 'add':
         if matrix_b is None:
             raise ValueError("Matrix B required for addition")
-        return matrix_a + matrix_b
+        return cast(np.ndarray, matrix_a + matrix_b)
 
     elif operation == 'subtract':
         if matrix_b is None:
             raise ValueError("Matrix B required for subtraction")
-        return matrix_a - matrix_b
+        return cast(np.ndarray, matrix_a - matrix_b)
 
     elif operation == 'elementwise_multiply':
         if matrix_b is None:
             raise ValueError("Matrix B required for elementwise multiplication")
-        return matrix_a * matrix_b
+        return cast(np.ndarray, matrix_a * matrix_b)
 
     else:
         raise ValueError(f"Unknown operation: {operation}")
@@ -242,7 +245,7 @@ def parallel_matrix_multiply(matrix_a: np.ndarray,
 
     # For small matrices, use standard multiplication
     if m * n < 1000000:  # Less than 1M elements
-        return np.dot(matrix_a, matrix_b)
+        return cast(np.ndarray, np.dot(matrix_a, matrix_b))
 
     result = np.zeros((m, n))
 
@@ -250,7 +253,7 @@ def parallel_matrix_multiply(matrix_a: np.ndarray,
     chunk_size = max(1, m // num_workers)
 
     def multiply_chunk(start_row: int, end_row: int) -> np.ndarray:
-        return np.dot(matrix_a[start_row:end_row], matrix_b)
+        return cast(np.ndarray, np.dot(matrix_a[start_row:end_row], matrix_b))
 
     chunks = [(i, min(i + chunk_size, m)) for i in range(0, m, chunk_size)]
 
@@ -292,7 +295,7 @@ def parallel_distance_matrix(points_a: np.ndarray,
     # For small matrices, use scipy's cdist
     if n_a * n_b < 1000000:  # Less than 1M elements
         from scipy.spatial.distance import cdist
-        return cdist(points_a, points_b, metric=metric)
+        return cast(np.ndarray, cdist(points_a, points_b, metric=metric))
 
     # Parallel computation for large matrices
     result = np.zeros((n_a, n_b))
@@ -302,7 +305,7 @@ def parallel_distance_matrix(points_a: np.ndarray,
     def distance_chunk(start_row: int, end_row: int) -> np.ndarray:
         chunk_points = points_a[start_row:end_row]
         from scipy.spatial.distance import cdist
-        return cdist(chunk_points, points_b, metric=metric)
+        return cast(np.ndarray, cdist(chunk_points, points_b, metric=metric))
 
     chunks = [(i, min(i + chunk_size, n_a)) for i in range(0, n_a, chunk_size)]
 
@@ -321,7 +324,7 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
                                  query_points: np.ndarray,
                                  method: str = 'idw',
                                  num_workers: Optional[int] = None,
-                                 **kwargs) -> np.ndarray:
+                                 **kwargs: Any) -> np.ndarray:
     """
     Perform spatial interpolation in parallel.
 
@@ -343,7 +346,7 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
 
     # For small datasets, use serial computation
     if n_query < 1000:
-        from ..core.interpolation import SpatialInterpolator
+        from ..core.numerical_methods import SpatialInterpolator
         interpolator = SpatialInterpolator(method=method)
         interpolator.fit(known_points, known_values, **kwargs)
         return interpolator.predict(query_points)
@@ -353,7 +356,7 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
 
     def interpolate_chunk(chunk_indices: np.ndarray) -> np.ndarray:
         chunk_points = query_points[chunk_indices]
-        from ..core.interpolation import SpatialInterpolator
+        from ..core.numerical_methods import SpatialInterpolator
         interpolator = SpatialInterpolator(method=method)
         interpolator.fit(known_points, known_values, **kwargs)
         return interpolator.predict(chunk_points)
@@ -378,7 +381,7 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
 def parallel_statistical_analysis(data: np.ndarray,
                                 analysis_func: Callable,
                                 num_workers: Optional[int] = None,
-                                **kwargs) -> Any:
+                                **kwargs: Any) -> Any:
     """
     Perform statistical analysis in parallel.
 
@@ -506,7 +509,7 @@ def memory_efficient_parallel(func: Callable,
 
     # Estimate memory usage per item
     if isinstance(data, np.ndarray):
-        item_size_mb = data.itemsize * data.shape[1] if len(data.shape) > 1 else data.itemsize
+        item_size_mb: float = float(data.itemsize * data.shape[1] if len(data.shape) > 1 else data.itemsize)
         item_size_mb /= (1024 * 1024)  # Convert to MB
     else:
         item_size_mb = 0.001  # Assume 1KB per item

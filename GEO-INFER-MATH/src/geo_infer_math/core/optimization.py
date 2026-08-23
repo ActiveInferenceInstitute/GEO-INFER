@@ -6,8 +6,8 @@ in the GEO-INFER framework.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any, Callable
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple, Any, Callable, Union, Set, cast
+from dataclasses import dataclass, field
 import logging
 from abc import ABC, abstractmethod
 from scipy.optimize import minimize, differential_evolution, basinhopping
@@ -52,24 +52,25 @@ class Optimizer(ABC):
             config: Optimization configuration
         """
         self.config = config or OptimizationConfig()
-        self.best_solution = None
-        self.best_value = None
-        self.convergence_history = []
+        self.best_solution: Optional[np.ndarray] = None
+        self.best_value: Optional[float] = None
+        self.convergence_history: List[float] = []
         self.rng = resolve_rng(self.config.random_seed)
 
     @abstractmethod
     def optimize(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         initial_guess: Optional[np.ndarray] = None,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Optimize the objective function."""
         raise RuntimeError("Optimization subclasses must implement optimize()")
 
     def get_best_solution(self) -> Tuple[np.ndarray, float]:
         """Get the best solution found."""
-        if self.best_solution is None:
+        if self.best_solution is None or self.best_value is None:
             raise ValueError("No optimization has been performed yet")
         return self.best_solution, self.best_value
 
@@ -79,14 +80,15 @@ class GradientDescentOptimizer(Optimizer):
 
     def __init__(self, config: Optional[OptimizationConfig] = None):
         super().__init__(config)
-        self.gradient_function = None
+        self.gradient_function: Optional[Callable] = None
 
     def optimize(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         initial_guess: Optional[np.ndarray] = None,
         gradient_function: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Optimize using gradient descent.
@@ -96,10 +98,17 @@ class GradientDescentOptimizer(Optimizer):
             bounds: Parameter bounds
             initial_guess: Initial parameter values
             gradient_function: Gradient function (optional)
+            **kwargs: Additional parameters
 
         Returns:
             Optimization results
         """
+        obj_fn: Callable
+        if isinstance(objective_function, list):
+            obj_fn = objective_function[0]
+        else:
+            obj_fn = objective_function
+
         n_params = len(bounds)
 
         if initial_guess is None:
@@ -107,7 +116,7 @@ class GradientDescentOptimizer(Optimizer):
 
         self.gradient_function = gradient_function
         current_params = initial_guess.copy()
-        current_value = objective_function(current_params)
+        current_value = float(obj_fn(current_params))
 
         self.best_solution = current_params.copy()
         self.best_value = current_value
@@ -120,7 +129,7 @@ class GradientDescentOptimizer(Optimizer):
             if self.gradient_function is not None:
                 gradient = self.gradient_function(current_params)
             else:
-                gradient = self._numerical_gradient(objective_function, current_params)
+                gradient = self._numerical_gradient(obj_fn, current_params)
 
             # Update velocity with momentum
             velocity = (
@@ -136,7 +145,7 @@ class GradientDescentOptimizer(Optimizer):
             )
 
             # Evaluate new solution
-            new_value = objective_function(new_params)
+            new_value = float(obj_fn(new_params))
 
             # Update best solution
             if new_value < self.best_value:
@@ -187,9 +196,10 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
     def optimize(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         initial_guess: Optional[np.ndarray] = None,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Optimize using genetic algorithm.
@@ -202,14 +212,19 @@ class GeneticAlgorithmOptimizer(Optimizer):
         Returns:
             Optimization results
         """
+        if isinstance(objective_function, list):
+            obj_fn: Callable = objective_function[0]
+        else:
+            obj_fn = objective_function
+
         n_params = len(bounds)
 
         # Initialize population
         population = self._initialize_population(n_params, bounds)
-        fitness = np.array([objective_function(ind) for ind in population])
+        fitness = np.array([obj_fn(ind) for ind in population])
 
         self.best_solution = population[np.argmin(fitness)].copy()
-        self.best_value = np.min(fitness)
+        self.best_value = float(np.min(fitness))
         self.convergence_history = [self.best_value]
 
         for generation in range(self.config.max_iterations):
@@ -223,7 +238,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
             offspring = self._mutation(offspring, bounds)
 
             # Evaluate offspring
-            offspring_fitness = np.array([objective_function(ind) for ind in offspring])
+            offspring_fitness = np.array([obj_fn(ind) for ind in offspring])
 
             # Replace worst individuals
             worst_indices = np.argsort(fitness)[-len(offspring) :]
@@ -234,7 +249,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
             min_fitness_idx = np.argmin(fitness)
             if fitness[min_fitness_idx] < self.best_value:
                 self.best_solution = population[min_fitness_idx].copy()
-                self.best_value = fitness[min_fitness_idx]
+                self.best_value = float(fitness[min_fitness_idx])
 
             self.convergence_history.append(self.best_value)
 
@@ -325,10 +340,11 @@ class ScipyOptimizer(Optimizer):
 
     def optimize(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         initial_guess: Optional[np.ndarray] = None,
         method: str = "L-BFGS-B",
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Optimize using scipy methods.
@@ -342,13 +358,18 @@ class ScipyOptimizer(Optimizer):
         Returns:
             Optimization results
         """
+        if isinstance(objective_function, list):
+            obj_fn: Callable = objective_function[0]
+        else:
+            obj_fn = objective_function
+
         if initial_guess is None:
             initial_guess = np.array([(b[0] + b[1]) / 2 for b in bounds])
 
         try:
             if method == "differential_evolution":
                 result = differential_evolution(
-                    objective_function,
+                    obj_fn,
                     bounds,
                     maxiter=self.config.max_iterations,
                     tol=self.config.tolerance,
@@ -356,7 +377,7 @@ class ScipyOptimizer(Optimizer):
                 )
             elif method == "basin_hopping":
                 result = basinhopping(
-                    objective_function,
+                    obj_fn,
                     initial_guess,
                     niter=self.config.n_iter,
                     T=self.config.T,
@@ -365,7 +386,7 @@ class ScipyOptimizer(Optimizer):
                 )
             else:
                 result = minimize(
-                    objective_function,
+                    obj_fn,
                     initial_guess,
                     method=method,
                     bounds=bounds,
@@ -373,7 +394,7 @@ class ScipyOptimizer(Optimizer):
                 )
 
             self.best_solution = result.x
-            self.best_value = result.fun
+            self.best_value = float(result.fun)
 
             return {
                 "success": result.success,
@@ -388,7 +409,7 @@ class ScipyOptimizer(Optimizer):
             return {
                 "success": False,
                 "x": initial_guess,
-                "fun": objective_function(initial_guess),
+                "fun": obj_fn(initial_guess),
                 "error": str(e),
             }
 
@@ -401,21 +422,27 @@ class MultiObjectiveOptimizer(Optimizer):
 
     def optimize(
         self,
-        objective_functions: List[Callable],
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         initial_guess: Optional[np.ndarray] = None,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Optimize multiple objectives using NSGA-II.
 
         Args:
-            objective_functions: List of functions to minimize
+            objective_function: List of functions to minimize (or single function)
             bounds: Parameter bounds
             initial_guess: Initial parameter values (ignored for NSGA-II)
 
         Returns:
             Optimization results
         """
+        if isinstance(objective_function, list):
+            objective_functions = objective_function
+        else:
+            objective_functions = [objective_function]
+
         n_params = len(bounds)
         n_objectives = len(objective_functions)
 
@@ -428,7 +455,7 @@ class MultiObjectiveOptimizer(Optimizer):
         )
 
         self.best_solution = population[np.argmin(np.sum(objectives, axis=1))].copy()
-        self.best_value = np.min(np.sum(objectives, axis=1))
+        self.best_value = float(np.min(np.sum(objectives, axis=1)))
         self.convergence_history = [self.best_value]
 
         for generation in range(self.config.max_iterations):
@@ -446,8 +473,8 @@ class MultiObjectiveOptimizer(Optimizer):
             fronts = self._non_dominated_sort(combined_obj)
 
             # Select next generation
-            new_population = []
-            new_objectives = []
+            new_population: List[np.ndarray] = []
+            new_objectives: List[np.ndarray] = []
 
             for front in fronts:
                 if len(new_population) + len(front) <= self.config.population_size:
@@ -473,7 +500,7 @@ class MultiObjectiveOptimizer(Optimizer):
             min_idx = np.argmin(total_objectives)
             if total_objectives[min_idx] < self.best_value:
                 self.best_solution = population[min_idx].copy()
-                self.best_value = total_objectives[min_idx]
+                self.best_value = float(total_objectives[min_idx])
 
             self.convergence_history.append(self.best_value)
 
@@ -526,7 +553,7 @@ class MultiObjectiveOptimizer(Optimizer):
         """Perform non-dominated sorting."""
         n_points = len(objectives)
         domination_count = np.zeros(n_points)
-        dominated_solutions = [[] for _ in range(n_points)]
+        dominated_solutions: List[List[int]] = [[] for _ in range(n_points)]
 
         for i in range(n_points):
             for j in range(n_points):
@@ -555,7 +582,7 @@ class MultiObjectiveOptimizer(Optimizer):
 
     def _dominates(self, obj1: np.ndarray, obj2: np.ndarray) -> bool:
         """Check if obj1 dominates obj2."""
-        return np.all(obj1 <= obj2) and np.any(obj1 < obj2)
+        return bool(np.all(obj1 <= obj2) and np.any(obj1 < obj2))
 
     def _crowding_distance_selection(
         self, population: np.ndarray, objectives: np.ndarray, n_select: int
@@ -585,13 +612,13 @@ class MultiObjectiveOptimizer(Optimizer):
 
         # Select individuals with highest crowding distance
         selected_indices = np.argsort(distances)[-n_select:]
-        return selected_indices.tolist()
+        return cast(List[int], selected_indices.tolist())
 
 
 class OptimizationManager:
     """Manager for multiple optimization methods."""
 
-    def __init__(self, config: Optional[OptimizationConfig] = None):
+    def __init__(self, config: Optional[OptimizationConfig] = None) -> None:
         """
         Initialize optimization manager.
 
@@ -599,10 +626,10 @@ class OptimizationManager:
             config: Configuration for optimization methods
         """
         self.config = config or OptimizationConfig()
-        self.optimizers = {}
+        self.optimizers: Dict[str, Optimizer] = {}
         self._initialize_optimizers()
 
-    def _initialize_optimizers(self):
+    def _initialize_optimizers(self) -> None:
         """Initialize all optimization methods."""
         self.optimizers = {
             "gradient_descent": GradientDescentOptimizer(self.config),
@@ -617,10 +644,10 @@ class OptimizationManager:
 
     def optimize(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         method: str = "scipy_lbfgs",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Perform optimization.
@@ -652,7 +679,7 @@ class OptimizationManager:
 
     def compare_methods(
         self,
-        objective_function: Callable,
+        objective_function: Union[Callable, List[Callable]],
         bounds: List[Tuple[float, float]],
         methods: Optional[List[str]] = None,
     ) -> Dict[str, Dict[str, Any]]:

@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def _load_spatial_analysis_api():
+def _load_spatial_analysis_api() -> Any:
     """Load the Flask-backed spatial API only when spatial helpers are used."""
     try:
         from geo_infer_math.api.spatial_analysis import SpatialAnalysisAPI
@@ -81,13 +81,13 @@ class SpatialConvenience:
     Provides high-level methods for comprehensive spatial analysis.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize spatial convenience class."""
         SpatialAnalysisAPI = _load_spatial_analysis_api()
         self.api = SpatialAnalysisAPI()
 
     def comprehensive_analysis(
-        self, coordinates: np.ndarray, values: np.ndarray, **kwargs
+        self, coordinates: np.ndarray, values: np.ndarray, **kwargs: Any
     ) -> Dict[str, Any]:
         """
         Perform comprehensive spatial analysis.

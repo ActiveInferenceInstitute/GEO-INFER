@@ -6,7 +6,7 @@ distance-weighted spatial attention.
 """
 
 import numpy as np
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class SpatialAttention:
         values: np.ndarray,
         coordinates: Optional[np.ndarray] = None,
         distance_weight: float = 0.0,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Compute scaled dot-product attention with optional spatial weighting.
 
@@ -162,10 +162,10 @@ class SpatialAttention:
         bias = np.exp(-distances / (median_dist + self._epsilon))
         np.fill_diagonal(bias, 0.0)
 
-        return bias
+        return cast(np.ndarray, bias)
 
     def _softmax(self, x: np.ndarray, axis: int = -1) -> np.ndarray:
         """Numerically stable softmax along given axis."""
         x_shifted = x - np.max(x, axis=axis, keepdims=True)
         exp_x = np.exp(x_shifted)
-        return exp_x / (np.sum(exp_x, axis=axis, keepdims=True) + self._epsilon)
+        return cast(np.ndarray, exp_x / (np.sum(exp_x, axis=axis, keepdims=True) + self._epsilon))

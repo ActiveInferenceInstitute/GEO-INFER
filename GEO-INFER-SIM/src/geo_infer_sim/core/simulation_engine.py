@@ -365,7 +365,7 @@ class SimulationEngine:
             "'dict', or 'json'"
         )
 
-    def get_metric_statistics(self, metric_name: str) -> Dict[str, float]:
+    def get_metric_statistics(self, metric_name: str) -> Dict[str, Any]:
         """
         Get statistics for a recorded metric.
 

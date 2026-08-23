@@ -127,7 +127,7 @@ def service_area(
             raise ValueError("Could not find network node near center point")
         
         # Calculate shortest paths to all reachable nodes within distance
-        reachable_nodes = []
+        reachable_nodes: List[Any] = []
         distances = nx.single_source_dijkstra_path_length(
             G, center_node, cutoff=max_distance, weight=weight_column
         )
@@ -320,7 +320,7 @@ def accessibility_analysis(
             
             accessible_count = 0
             total_distance = 0
-            min_distance = float('inf')
+            min_distance: Optional[float] = float('inf')
             distances = []
             
             for dest_node in dest_nodes:

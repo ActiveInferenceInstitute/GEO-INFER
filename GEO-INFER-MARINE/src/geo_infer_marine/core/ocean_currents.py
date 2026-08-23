@@ -5,7 +5,7 @@ pressure-gradient-driven ocean currents.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, cast
 
 import numpy as np
 import xarray as xr
@@ -126,7 +126,7 @@ class OceanCurrentModeler:
 
         pumping = curl_tau / (WATER_DENSITY * f_trimmed)
         pumping.name = "ekman_pumping"
-        return pumping
+        return cast(xr.DataArray, pumping)
 
     def calculate_geostrophic_current(
         self,
@@ -219,7 +219,7 @@ class OceanCurrentModeler:
 
         for i in range(len(depth)):
             d_val = float(depth[i])
-            mask = exceeds.isel(depth=i)
+            mask = exceeds.isel(depth=i) if hasattr(exceeds, "isel") else exceeds[i]
             mld = xr.where(mask & (mld == float(depth.max())), d_val, mld)
 
         mld.name = "mixed_layer_depth"

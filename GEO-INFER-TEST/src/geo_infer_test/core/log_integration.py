@@ -14,7 +14,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Iterator
 
 
 # Check if GEO-INFER-LOG is available
@@ -87,7 +87,7 @@ class LogIntegration:
     # ------------------------------------------------------------------
 
     @contextmanager
-    def test_context(self, test_id: str, module: str, test_name: str):
+    def test_context(self, test_id: str, module: str, test_name: str) -> Iterator[TestLogEntry]:
         """
         Context manager that records a test's outcome and duration.
 
@@ -364,7 +364,7 @@ class LogAnalyzer:
         if mean_dur == 0:
             return []
 
-        bottlenecks = []
+        bottlenecks: List[Dict[str, Any]] = []
         for entry in entries:
             factor = entry.duration / mean_dur
             if factor >= threshold_factor:

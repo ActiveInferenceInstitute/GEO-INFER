@@ -4,7 +4,7 @@ Security management for GEO-INFER-OPS.
 import os
 import ssl
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -26,7 +26,7 @@ logger = get_logger(__name__)
 class SecurityManager:
     """Manages security operations for GEO-INFER-OPS."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize security manager."""
         self.config = get_config()
         self._load_keys()
@@ -36,9 +36,9 @@ class SecurityManager:
         try:
             # Load TLS certificate and key
             if self.config.security.tls.enabled:
-                with open(self.config.security.tls.cert_file, "rb") as f:
+                with open(self.config.security.tls.cert_file or "", "rb") as f:
                     self.cert = load_pem_x509_certificate(f.read())
-                with open(self.config.security.tls.key_file, "rb") as f:
+                with open(self.config.security.tls.key_file or "", "rb") as f:
                     self.key = serialization.load_pem_private_key(
                         f.read(),
                         password=None
@@ -46,7 +46,9 @@ class SecurityManager:
             
             # Load JWT secret
             if self.config.security.auth.enabled:
-                self.jwt_secret = self.config.security.auth.jwt_secret.encode()
+                jwt_secret = self.config.security.auth.jwt_secret
+                if jwt_secret is not None:
+                    self.jwt_secret = jwt_secret.encode()
             
             # Initialize encryption
             self.fernet = Fernet(Fernet.generate_key())
@@ -101,9 +103,9 @@ class SecurityManager:
             ).serial_number(
                 cryptography.x509.random_serial_number()
             ).not_valid_before(
-                datetime.datetime.now(datetime.UTC)
+                datetime.now(timezone.utc)
             ).not_valid_after(
-                datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=days_valid)
+                datetime.now(timezone.utc) + timedelta(days=days_valid)
             ).add_extension(
                 cryptography.x509.SubjectAlternativeName([
                     cryptography.x509.DNSName(common_name),
@@ -113,8 +115,8 @@ class SecurityManager:
             ).sign(private_key, hashes.SHA256())
             
             # Save certificate and key
-            cert_path = Path(self.config.security.tls.cert_file)
-            key_path = Path(self.config.security.tls.key_file)
+            cert_path = Path(self.config.security.tls.cert_file or "")
+            key_path = Path(self.config.security.tls.key_file or "")
             
             cert_path.parent.mkdir(parents=True, exist_ok=True)
             key_path.parent.mkdir(parents=True, exist_ok=True)
@@ -179,7 +181,7 @@ class SecurityManager:
             ).sign(private_key, hashes.SHA256())
             
             # Save private key
-            key_path = Path(self.config.security.tls.key_file)
+            key_path = Path(self.config.security.tls.key_file or "")
             key_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(key_path, "wb") as f:
@@ -199,7 +201,7 @@ class SecurityManager:
         self,
         user_id: str,
         expires_in: int = 3600,
-        **kwargs
+        **kwargs: Any
     ) -> str:
         """
         Generate a JWT token.
@@ -218,7 +220,7 @@ class SecurityManager:
             
             payload = {
                 "sub": user_id,
-                "exp": datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=expires_in),
+                "exp": datetime.now(timezone.utc) + timedelta(seconds=expires_in),
                 **kwargs
             }
             

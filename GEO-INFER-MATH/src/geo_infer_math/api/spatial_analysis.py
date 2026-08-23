@@ -10,7 +10,7 @@ match the specifications in the API schema.
 """
 
 import numpy as np
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, cast
 from dataclasses import dataclass, asdict
 import logging
 
@@ -22,7 +22,7 @@ try:
 except ImportError:
     HAS_FLASK = False
 
-    class BadRequest(ValueError):
+    class BadRequest(ValueError):  # type: ignore[no-redef]
         """Programmatic fallback when Flask/Werkzeug are not installed."""
 
     class Flask:  # type: ignore[no-redef]
@@ -34,10 +34,9 @@ except ImportError:
                 "geo-infer-math web extra."
             )
 
-    request = None
+    request: Any = None  # type: ignore[no-redef]
 
-    def jsonify(*args: Any, **kwargs: Any) -> Any:
-        raise ImportError("jsonify requires the geo-infer-math web extra.")
+    jsonify: Any = None  # type: ignore[no-redef]
 
 
 from geo_infer_math.core.spatial_statistics import (
@@ -177,7 +176,7 @@ class SpatialAnalysisAPI:
         values: np.ndarray,
         coordinates: np.ndarray,
         method: str = "moran",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Perform spatial autocorrelation analysis using the specified method.
@@ -200,8 +199,11 @@ class SpatialAnalysisAPI:
         if method.lower() == "moran":
             # Perform Moran's I analysis
             moran = MoranI(weights_matrix)
-            results = moran.compute(
-                values, coordinates if weights_matrix is None else None
+            results = cast(
+                Dict[str, Any],
+                moran.compute(
+                    values, coordinates if weights_matrix is None else None
+                ),
             )
 
             # Add interpretation
@@ -219,7 +221,7 @@ class SpatialAnalysisAPI:
             # Ensure we have a weights matrix
             if weights_matrix is None:
                 moran = MoranI()
-                weights_matrix = moran._generate_weights(coordinates)
+                weights_matrix = getattr(moran, "_generate_weights")(coordinates)
 
             # Perform Getis-Ord G* analysis
             results = getis_ord_g(values, weights_matrix)
@@ -234,10 +236,13 @@ class SpatialAnalysisAPI:
             # Ensure we have a weights matrix
             if weights_matrix is None:
                 moran = MoranI()
-                weights_matrix = moran._generate_weights(coordinates)
+                weights_matrix = getattr(moran, "_generate_weights")(coordinates)
 
             # Perform LISA analysis
-            results = local_indicators_spatial_association(values, weights_matrix)
+            results = cast(
+                Dict[str, Any],
+                local_indicators_spatial_association(values, weights_matrix),
+            )
 
             # Count each type of cluster/outlier
             results["high_high_count"] = np.sum(results["classifications"] == 1)
@@ -253,7 +258,7 @@ class SpatialAnalysisAPI:
             )
 
     def point_pattern_analysis(
-        self, points: np.ndarray, method: str = "ripley", **kwargs
+        self, points: np.ndarray, method: str = "ripley", **kwargs: Any
     ) -> Dict[str, Any]:
         """
         Perform point pattern analysis using the specified method.
@@ -290,11 +295,14 @@ class SpatialAnalysisAPI:
                 area = (max_x - min_x) * (max_y - min_y)
 
             # Perform Ripley's K analysis
-            results = ripley_k(
-                points,
-                distances,
-                area,
-                boundary_correction=kwargs.get("boundary_correction", True),
+            results = cast(
+                Dict[str, Any],
+                ripley_k(
+                    points,
+                    distances,
+                    area,
+                    boundary_correction=kwargs.get("boundary_correction", True),
+                ),
             )
 
             # Add interpretation
@@ -385,7 +393,7 @@ class SpatialAnalysisAPI:
         known_values: np.ndarray,
         query_points: np.ndarray,
         method: str = "idw",
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Perform spatial interpolation to estimate values at unsampled locations.
@@ -447,7 +455,7 @@ class SpatialAnalysisAPI:
                     idx = np.where(exact_matches[i])[0][0]
                     interpolated_values[i] = known_values[idx]
 
-            return interpolated_values
+            return np.asarray(interpolated_values)
 
         elif method.lower() == "nearest":
             # Simple nearest neighbor interpolation
@@ -480,7 +488,7 @@ class SpatialAnalysisAPI:
         points1: np.ndarray,
         points2: Optional[np.ndarray] = None,
         method: str = "euclidean",
-        **kwargs,
+        **kwargs: Any,
     ) -> np.ndarray:
         """
         Calculate a distance matrix between two sets of points.
@@ -594,8 +602,8 @@ class SpatialAnalysisAPI:
             req = DescriptiveStatsRequest(**request_data)
             # Convert GeoJSON-like data to numpy arrays
             features = req.data.get("features", [])
-            coordinates = []
-            values = []
+            coordinates: Any = []
+            values: Any = []
 
             for feature in features:
                 coords = feature.get("geometry", {}).get("coordinates", [])
@@ -625,8 +633,8 @@ class SpatialAnalysisAPI:
 
             # Convert data to numpy arrays
             features = req.data.get("features", [])
-            coordinates = []
-            values = []
+            coordinates: Any = []
+            values: Any = []
 
             for feature in features:
                 coords = feature.get("geometry", {}).get("coordinates", [])
@@ -722,8 +730,8 @@ class SpatialAnalysisAPI:
 
             # Convert data to numpy arrays
             features = req.data.get("features", [])
-            coordinates = []
-            values = []
+            coordinates: Any = []
+            values: Any = []
 
             for feature in features:
                 coords = feature.get("geometry", {}).get("coordinates", [])
@@ -761,7 +769,7 @@ class SpatialAnalysisAPI:
 
             # Perform hot spot analysis
             if req.method == "getis_ord_gi_star":
-                g_result = getis_ord_g(values, weights)
+                g_result: Dict[str, Any] = getis_ord_g(values, weights)
 
                 # Count hot and cold spots
                 hot_spots = np.sum(g_result["z_scores"] > 1.96)
@@ -817,8 +825,8 @@ class SpatialAnalysisAPI:
 
             # Convert data to numpy arrays
             features = req.data.get("features", [])
-            coordinates = []
-            values = []
+            coordinates: Any = []
+            values: Any = []
 
             for feature in features:
                 coords = feature.get("geometry", {}).get("coordinates", [])
@@ -890,12 +898,12 @@ class SpatialAnalysisAPI:
         app = Flask(__name__)
 
         @app.route("/health")
-        def health_check():
+        def health_check() -> Any:
             """Health check endpoint."""
             return jsonify({"status": "healthy", "service": "geo-infer-math-api"})
 
         @app.route("/statistics/descriptive", methods=["POST"])
-        def descriptive_stats_endpoint():
+        def descriptive_stats_endpoint() -> Any:
             """Descriptive spatial statistics endpoint."""
             try:
                 data = request.get_json()
@@ -905,7 +913,7 @@ class SpatialAnalysisAPI:
                 return jsonify({"error": str(e)}), 400
 
         @app.route("/statistics/autocorrelation", methods=["POST"])
-        def autocorrelation_endpoint():
+        def autocorrelation_endpoint() -> Any:
             """Spatial autocorrelation analysis endpoint."""
             try:
                 data = request.get_json()
@@ -915,7 +923,7 @@ class SpatialAnalysisAPI:
                 return jsonify({"error": str(e)}), 400
 
         @app.route("/statistics/hotspots", methods=["POST"])
-        def hotspots_endpoint():
+        def hotspots_endpoint() -> Any:
             """Hot spot analysis endpoint."""
             try:
                 data = request.get_json()
@@ -925,7 +933,7 @@ class SpatialAnalysisAPI:
                 return jsonify({"error": str(e)}), 400
 
         @app.route("/statistics/clustering", methods=["POST"])
-        def clustering_endpoint():
+        def clustering_endpoint() -> Any:
             """Spatial clustering analysis endpoint."""
             try:
                 data = request.get_json()

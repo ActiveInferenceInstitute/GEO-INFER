@@ -10,6 +10,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import uvicorn
 from loguru import logger
@@ -26,7 +27,7 @@ from geo_infer_health.utils.config import load_config
 from geo_infer_health.utils.logging import setup_logging
 
 
-def setup_cli():
+def setup_cli() -> argparse.ArgumentParser:
     """Set up the command line interface."""
     parser = argparse.ArgumentParser(
         description="GEO-INFER-HEALTH: Geospatial Health Analytics Framework",
@@ -159,7 +160,7 @@ Examples:
     return parser
 
 
-def main():
+def main() -> None:
     """Main CLI entry point."""
     parser = setup_cli()
     args = parser.parse_args()
@@ -198,7 +199,7 @@ def main():
         sys.exit(1)
 
 
-def run_server(args, config):
+def run_server(args: argparse.Namespace, config: Any) -> None:
     """Run the API server."""
     logger.info(f"Starting GEO-INFER-HEALTH API server on {args.host}:{args.port}")
 
@@ -223,7 +224,7 @@ def run_server(args, config):
     app.include_router(router, prefix="/api/v1")
 
     @app.get("/")
-    async def root():
+    async def root() -> Dict[str, str]:
         return {"message": "GEO-INFER-HEALTH API", "version": "1.0.0"}
 
     uvicorn.run(
@@ -236,7 +237,7 @@ def run_server(args, config):
     )
 
 
-def run_analysis(args, config):
+def run_analysis(args: argparse.Namespace, config: Any) -> None:
     """Run health analysis."""
     logger.info(f"Running {args.analysis_type} analysis")
 
@@ -250,7 +251,7 @@ def run_analysis(args, config):
         logger.error(f"Unknown analysis type: {args.analysis_type}")
 
 
-def run_hotspot_analysis(args, config):
+def run_hotspot_analysis(args: argparse.Namespace, config: Any) -> None:
     """Run disease hotspot analysis."""
     try:
         # Load disease reports
@@ -260,9 +261,9 @@ def run_hotspot_analysis(args, config):
         logger.info(f"Loaded {len(reports_gdf)} disease reports")
 
         # Convert to internal format
-        from geo_infer_health.models import DiseaseReport, Location
+        from geo_infer_health.models import DiseaseReport, Location, PopulationData
 
-        reports = []
+        reports: List[DiseaseReport] = []
         for _, row in reports_gdf.iterrows():
             location = Location(latitude=row.geometry.y, longitude=row.geometry.x)
             report = DiseaseReport(
@@ -275,7 +276,7 @@ def run_hotspot_analysis(args, config):
             reports.append(report)
 
         # Load population data if provided
-        population_data = None
+        population_data: Optional[List[PopulationData]] = None
         if args.population:
             pop_gdf = gpd.read_file(args.population)
             from geo_infer_health.models import PopulationData
@@ -310,7 +311,7 @@ def run_hotspot_analysis(args, config):
         raise
 
 
-def run_accessibility_analysis(args, config):
+def run_accessibility_analysis(args: argparse.Namespace, config: Any) -> None:
     """Run healthcare accessibility analysis."""
     try:
         # Load facilities and population data
@@ -325,7 +326,7 @@ def run_accessibility_analysis(args, config):
         # Convert to internal format
         from geo_infer_health.models import HealthFacility, PopulationData, Location
 
-        facilities = []
+        facilities: List[HealthFacility] = []
         for _, row in facilities_gdf.iterrows():
             location = Location(latitude=row.geometry.y, longitude=row.geometry.x)
             facility = HealthFacility(
@@ -337,7 +338,7 @@ def run_accessibility_analysis(args, config):
             )
             facilities.append(facility)
 
-        population_data = []
+        population_data: List[PopulationData] = []
         for _, row in population_gdf.iterrows():
             pop_data = PopulationData(
                 area_id=str(row.get("area_id", f"area_{len(population_data)}")),
@@ -377,7 +378,7 @@ def run_accessibility_analysis(args, config):
         raise
 
 
-def run_environment_analysis(args, config):
+def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
     """Run environmental health analysis."""
     try:
         # Load environmental and population data
@@ -389,7 +390,7 @@ def run_environment_analysis(args, config):
         # Convert population data
         from geo_infer_health.models import PopulationData
 
-        population_data = []
+        population_data: List[PopulationData] = []
         for _, row in population_gdf.iterrows():
             pop_data = PopulationData(
                 area_id=str(row.get("area_id", f"area_{len(population_data)}")),
@@ -426,7 +427,9 @@ def run_environment_analysis(args, config):
         raise
 
 
-def run_batch_processing(args, config):
+def run_batch_processing(
+    args: argparse.Namespace, config: Any
+) -> List[Dict[str, Any]]:
     """Run batch processing of multiple files."""
     logger.info(f"Running batch processing with config: {args.config}")
     jobs = config.get("jobs", config.get("batch", {}).get("jobs", []))
@@ -477,7 +480,7 @@ def run_batch_processing(args, config):
     return completed
 
 
-def run_validation(args, config):
+def run_validation(args: argparse.Namespace, config: Any) -> None:
     """Validate data files."""
     logger.info(f"Validating file: {args.input}")
     try:

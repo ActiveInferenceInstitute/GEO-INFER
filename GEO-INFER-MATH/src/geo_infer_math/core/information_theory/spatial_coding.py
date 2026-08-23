@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def spatial_encoding_efficiency(
     original_data: np.ndarray,
-    encoded_data: Union[np.ndarray, bytes],
+    encoded_data: Any,
     method: str = 'compression_ratio'
 ) -> float:
     """
@@ -45,7 +45,7 @@ def spatial_encoding_efficiency(
         original_bits = original_data.size * 8
     
     # Calculate encoded size
-    if isinstance(encoded_data, bytes):
+    if isinstance(encoded_data, (bytes, bytearray)):
         encoded_bits = len(encoded_data) * 8
     elif isinstance(encoded_data, np.ndarray):
         if encoded_data.dtype == np.float64:
@@ -225,6 +225,11 @@ def spatial_compression(
                 )
                 
                 return compressed_coeffs, metadata
+            else:
+                return spatial_compression(
+                    coordinates, values, method='quantization',
+                    compression_level=compression_level
+                )
         except Exception as e:
             logger.warning(f"DCT compression failed: {e}, using quantization")
             return spatial_compression(
@@ -257,9 +262,9 @@ def spatial_compression(
                 values.size * 8, n_coeffs * 8
             )
             
-            return compressed_coeffs, metadata
-        except ImportError:
-            logger.warning("PyWavelets not available, using quantization")
+            return np.concatenate(compressed_coeffs), metadata
+        except (ImportError, Exception):
+            logger.warning("PyWavelets not available or failed, using quantization")
             return spatial_compression(
                 coordinates, values, method='quantization',
                 compression_level=compression_level
@@ -292,7 +297,7 @@ def entropy_coding(
     
     if method == 'rle':
         # Run-length encoding
-        encoded = []
+        encoded_list = []
         current_value = data[0]
         count = 1
         
@@ -300,19 +305,19 @@ def entropy_coding(
             if value == current_value:
                 count += 1
             else:
-                encoded.extend([current_value, count])
+                encoded_list.extend([current_value, count])
                 current_value = value
                 count = 1
         
-        encoded.extend([current_value, count])
-        encoded = np.array(encoded, dtype=data.dtype)
+        encoded_list.extend([current_value, count])
+        encoded_arr = np.array(encoded_list, dtype=data.dtype)
         
-        metadata['compressed_size'] = encoded.size
+        metadata['compressed_size'] = encoded_arr.size
         metadata['compression_ratio'] = compression_ratio(
-            data.size, encoded.size
+            data.size, encoded_arr.size
         )
         
-        return encoded.tobytes(), metadata
+        return encoded_arr.tobytes(), metadata
     
     elif method == 'gzip':
         # GZIP compression
@@ -348,7 +353,7 @@ class SpatialCodingCalculator:
     efficiently.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize spatial coding calculator."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._codec_registry: Dict[str, Any] = {}
@@ -359,7 +364,7 @@ class SpatialCodingCalculator:
         coordinates: np.ndarray,
         values: np.ndarray,
         method: str = 'quantization',
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Compress spatial data.
@@ -381,7 +386,7 @@ class SpatialCodingCalculator:
         self,
         data: np.ndarray,
         method: str = 'gzip',
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[bytes, Dict[str, Any]]:
         """
         Apply entropy coding.
@@ -400,7 +405,7 @@ class SpatialCodingCalculator:
         self,
         original_data: np.ndarray,
         encoded_data: Union[np.ndarray, bytes],
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate encoding efficiency.

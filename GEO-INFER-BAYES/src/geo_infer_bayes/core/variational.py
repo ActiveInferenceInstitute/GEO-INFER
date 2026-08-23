@@ -66,6 +66,16 @@ class VariationalInference:
         self.random_seed = random_seed
         self.rng: np.random.Generator = resolve_rng(random_seed)
 
+        # Convergence telemetry, populated by :meth:`run`. ``elbo_history``
+        # records the ELBO in optimization order so a caller can inspect the
+        # trace, and ``best_elbo`` / ``best_var_params`` pin the highest value
+        # seen (the returned samples are drawn from the best state).
+        self.elbo_history: List[float] = []
+        self.best_elbo: float = -np.inf
+        self.best_var_params: Optional[Dict[str, Dict[str, np.ndarray]]] = None
+        self.converged_at: Optional[int] = None
+        self.n_total_iterations: int = 0
+
         if self.vi_method not in ["meanfield", "fullrank"]:
             raise ValueError(
                 f"Unsupported VI method: {self.vi_method}. "
@@ -143,6 +153,7 @@ class VariationalInference:
             ):
                 if progress_bar:
                     print(f"Converged after {i} iterations")
+                self.converged_at = i
                 break
 
             # Update progress bar. tqdm wraps range() only when enabled, so
@@ -150,7 +161,13 @@ class VariationalInference:
             if progress_bar and i % 100 == 0 and hasattr(iterator, "set_postfix"):
                 iterator.set_postfix(ELBO=elbo)
 
-        # Generate samples from the approximate posterior
+        # Persist convergence telemetry for post-hoc inspection.
+        self.elbo_history = list(elbo_history)
+        self.best_elbo = best_elbo
+        self.best_var_params = best_params
+        self.n_total_iterations = len(elbo_history)
+
+        # Generate samples from the approximate posterior (best state found).
         samples = self._generate_samples(best_params, n_samples=n_samples)
 
         return samples
@@ -490,6 +507,37 @@ class VariationalInference:
                 samples[param][i] = value
 
         return samples
+
+    def estimate_posterior(self) -> Dict[str, Dict[str, float]]:
+        """
+        Summarize the converged variational posterior per parameter.
+
+        Returns the mean and marginal standard deviation of the best
+        variational distribution found by the last :meth:`run` call. This is
+        the parametric counterpart to a prediction interval: the ``std`` is the
+        parameter-level posterior uncertainty expressed by the chosen family.
+
+        Returns
+        -------
+        dict of str to dict
+            One ``{"mean": float, "std": float}`` per model parameter.
+
+        Raises
+        ------
+        RuntimeError
+            If :meth:`run` has not populated the best variational state.
+        """
+        if self.best_var_params is None:
+            raise RuntimeError(
+                "No variational posterior to summarize; call run() first."
+            )
+        summary: Dict[str, Dict[str, float]] = {}
+        for param, dist in self.best_var_params.items():
+            summary[param] = {
+                "mean": float(np.mean(np.asarray(dist["mean"], dtype=float))),
+                "std": float(np.mean(self._effective_std(dist))),
+            }
+        return summary
 
     def update(
         self,

@@ -41,7 +41,7 @@ class NetworkRequest(BaseModel):
                         {
                             "id": "dc-001",
                             "name": "Berlin Distribution Center",
-                            "location": (13.4050, 52.5200),
+                            "location": [13.4050, 52.5200],
                             "type": "distribution_center",
                             "capacity": 5000,
                             "operating_cost": 10000,
@@ -49,7 +49,7 @@ class NetworkRequest(BaseModel):
                         {
                             "id": "wh-001",
                             "name": "Munich Warehouse",
-                            "location": (11.5820, 48.1351),
+                            "location": [11.5820, 48.1351],
                             "type": "warehouse",
                             "capacity": 3000,
                             "operating_cost": 8000,
@@ -86,7 +86,7 @@ class FlowOptimizationRequest(BaseModel):
                 "demand_points": [
                     {
                         "id": "dp-001",
-                        "location": (8.6821, 50.1109),
+                        "location": [8.6821, 50.1109],
                         "demand": 200,
                         "priority": 1,
                     }
@@ -94,7 +94,7 @@ class FlowOptimizationRequest(BaseModel):
                 "supply_points": [
                     {
                         "id": "sp-001",
-                        "location": (18.0686, 59.3293),
+                        "location": [18.0686, 59.3293],
                         "supply": 500,
                         "reliability": 0.95,
                     }
@@ -135,12 +135,12 @@ class FacilityLocationRequest(BaseModel):
         json_schema_extra={
             "example": {
                 "candidates": [
-                    {"id": "c1", "location": (13.4050, 52.5200), "cost": 10000},
-                    {"id": "c2", "location": (11.5820, 48.1351), "cost": 8000},
+                    {"id": "c1", "location": [13.4050, 52.5200], "cost": 10000},
+                    {"id": "c2", "location": [11.5820, 48.1351], "cost": 8000},
                 ],
                 "demand_points": [
-                    {"id": "d1", "location": (8.6821, 50.1109), "demand": 200},
-                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300},
+                    {"id": "d1", "location": [8.6821, 50.1109], "demand": 200},
+                    {"id": "d2", "location": [9.9937, 53.5511], "demand": 300},
                 ],
                 "num_facilities": 1,
                 "max_distance": 500,
@@ -160,12 +160,12 @@ class NetworkOptimizationRequest(BaseModel):
         json_schema_extra={
             "example": {
                 "locations": [
-                    {"id": "loc1", "location": (13.4050, 52.5200), "cost": 10000},
-                    {"id": "loc2", "location": (11.5820, 48.1351), "cost": 8000},
+                    {"id": "loc1", "location": [13.4050, 52.5200], "cost": 10000},
+                    {"id": "loc2", "location": [11.5820, 48.1351], "cost": 8000},
                 ],
                 "demand_points": [
-                    {"id": "d1", "location": (8.6821, 50.1109), "demand": 200},
-                    {"id": "d2", "location": (9.9937, 53.5511), "demand": 300},
+                    {"id": "d1", "location": [8.6821, 50.1109], "demand": 200},
+                    {"id": "d2", "location": [9.9937, 53.5511], "demand": 300},
                 ],
                 "constraints": {
                     "max_facilities": 3,
@@ -178,25 +178,27 @@ class NetworkOptimizationRequest(BaseModel):
 
 
 # Get a supply chain model instance
-def get_supply_chain_model():
+def get_supply_chain_model() -> SupplyChainModel:
     """Dependency for supply chain model."""
     return SupplyChainModel()
 
 
 # Get a resilience analyzer instance
-def get_resilience_analyzer(model: SupplyChainModel = Depends(get_supply_chain_model)):
+def get_resilience_analyzer(
+    model: SupplyChainModel = Depends(get_supply_chain_model),
+) -> ResilienceAnalyzer:
     """Dependency for resilience analyzer."""
     return ResilienceAnalyzer(model)
 
 
 # Get a network optimizer instance
-def get_network_optimizer():
+def get_network_optimizer() -> NetworkOptimizer:
     """Dependency for network optimizer."""
     return NetworkOptimizer()
 
 
 # Get a facility locator instance
-def get_facility_locator():
+def get_facility_locator() -> FacilityLocator:
     """Dependency for facility locator."""
     return FacilityLocator()
 
@@ -204,7 +206,7 @@ def get_facility_locator():
 @router.post("/networks", response_model=Dict)
 async def create_network(
     request: NetworkRequest, model: SupplyChainModel = Depends(get_supply_chain_model)
-):
+) -> Dict:
     """Create a supply chain network."""
     try:
         model.load_network(request.network)
@@ -217,7 +219,7 @@ async def create_network(
 async def optimize_flow(
     request: FlowOptimizationRequest,
     model: SupplyChainModel = Depends(get_supply_chain_model),
-):
+) -> Dict:
     """Optimize flow in a supply chain network."""
     try:
         result = model.optimize_flow(
@@ -234,7 +236,7 @@ async def optimize_flow(
 async def analyze_disruption(
     request: DisruptionAnalysisRequest,
     analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
-):
+) -> Dict:
     """Analyze the impact of a disruption in the supply chain."""
     try:
         result = analyzer.simulate_disruption(
@@ -249,7 +251,7 @@ async def analyze_disruption(
 @router.get("/resilience/critical-nodes", response_model=List[str])
 async def get_critical_nodes(
     analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
-):
+) -> List[str]:
     """Identify critical nodes in the supply chain network."""
     try:
         return analyzer.identify_critical_nodes()
@@ -260,7 +262,7 @@ async def get_critical_nodes(
 @router.post("/resilience/improvements", response_model=List[Dict])
 async def get_improvement_suggestions(
     analyzer: ResilienceAnalyzer = Depends(get_resilience_analyzer),
-):
+) -> List[Dict]:
     """Get improvement suggestions for supply chain resilience."""
     try:
         return analyzer.suggest_improvements()
@@ -272,7 +274,7 @@ async def get_improvement_suggestions(
 async def optimize_facility_locations(
     request: FacilityLocationRequest,
     locator: FacilityLocator = Depends(get_facility_locator),
-):
+) -> List[Dict]:
     """Optimize facility locations."""
     try:
         result = locator.locate_facilities(
@@ -290,7 +292,7 @@ async def optimize_facility_locations(
 async def optimize_network(
     request: NetworkOptimizationRequest,
     optimizer: NetworkOptimizer = Depends(get_network_optimizer),
-):
+) -> Dict:
     """Optimize supply chain network design."""
     try:
         result = optimizer.optimize_network(

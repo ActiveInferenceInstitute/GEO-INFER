@@ -114,7 +114,7 @@ def optimization_wrapper(
     objective: Callable,
     initial_guess: np.ndarray,
     method: str = 'gradient_descent',
-    **kwargs
+    **kwargs: Any
 ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
     """
     Wrapper for optimization algorithms.
@@ -128,19 +128,14 @@ def optimization_wrapper(
     Returns:
         Tuple of (optimal_parameters, optimal_value, metadata)
     """
-    from geo_infer_math.core.optimization import Optimizer, GradientDescentOptimizer
+    from geo_infer_math.core.optimization import GradientDescentOptimizer
     
-    initial_guess = np.asarray(initial_guess)
+    initial_guess = np.asarray(initial_guess, dtype=np.float64)
+    bounds = kwargs.pop("bounds", [(-100.0, 100.0) for _ in range(len(initial_guess))])
     
-    if method == 'gradient_descent':
-        optimizer = GradientDescentOptimizer()
-        result = optimizer.optimize(objective, initial_guess, **kwargs)
-        return result.x, result.fun, {'method': method, 'iterations': result.nit}
-    else:
-        # Use generic optimizer
-        optimizer = Optimizer()
-        result = optimizer.optimize(objective, initial_guess, method=method, **kwargs)
-        return result.x, result.fun, {'method': method}
+    optimizer = GradientDescentOptimizer()
+    result = optimizer.optimize(objective, bounds=bounds, initial_guess=initial_guess, **kwargs)
+    return result["x"], result["fun"], {'method': method, 'iterations': result.get("nit", 0)}
 
 
 class AIConvenience:
@@ -150,7 +145,7 @@ class AIConvenience:
     Provides high-level methods for common AI tasks.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize AI convenience class."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._gradient_cache: Dict[str, np.ndarray] = {}
@@ -160,7 +155,7 @@ class AIConvenience:
         self,
         function: Callable,
         parameters: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> np.ndarray:
         """
         Compute gradient.
@@ -179,7 +174,7 @@ class AIConvenience:
         self,
         predictions: np.ndarray,
         targets: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate loss.
@@ -198,7 +193,7 @@ class AIConvenience:
         self,
         objective: Callable,
         initial_guess: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         """
         Optimize objective function.

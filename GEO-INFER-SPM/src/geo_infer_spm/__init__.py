@@ -33,17 +33,22 @@ from .core.glm import GeneralLinearModel, fit_glm
 from .core.rft import RandomFieldTheory, compute_spm
 from .core.contrasts import Contrast, contrast
 
+from typing import Any
+
 # Analysis tools (may have optional dependencies)
+SpatialAnalyzer: Any
 try:
     from .core.spatial_analysis import SpatialAnalyzer
 except ImportError:
     SpatialAnalyzer = None
 
+TemporalAnalyzer: Any
 try:
     from .core.temporal_analysis import TemporalAnalyzer
 except ImportError:
     TemporalAnalyzer = None
 
+BayesianSPM: Any
 try:
     from .core.bayesian import BayesianSPM
 except ImportError:

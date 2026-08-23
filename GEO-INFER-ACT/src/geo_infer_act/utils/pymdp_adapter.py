@@ -94,7 +94,8 @@ def _normalize_likelihood(matrix: Any) -> np.ndarray:
         raise ValueError("Observation model must contain finite values")
     array = np.maximum(array, 1e-12)
     col_sums = np.sum(array, axis=0, keepdims=True)
-    return array / np.maximum(col_sums, 1e-12)
+    res = array / np.maximum(col_sums, 1e-12)
+    return np.asarray(res, dtype=float)
 
 
 def _normalize_transition(tensor: Any, state_dim: int, action_count: int) -> np.ndarray:
@@ -115,7 +116,8 @@ def _normalize_transition(tensor: Any, state_dim: int, action_count: int) -> np.
         raise ValueError("Transition model must contain finite values")
     array = np.maximum(array, 1e-12)
     sums = np.sum(array, axis=0, keepdims=True)
-    return array / np.maximum(sums, 1e-12)
+    res = array / np.maximum(sums, 1e-12)
+    return np.asarray(res, dtype=float)
 
 
 def _preferences_vector(values: Any, obs_dim: int) -> np.ndarray:

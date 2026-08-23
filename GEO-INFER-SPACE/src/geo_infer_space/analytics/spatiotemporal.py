@@ -26,7 +26,7 @@ try:
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
-    np = None
+    np = None  # type: ignore[assignment]
 
 
 class SpatioTemporalAnalyzer:
@@ -37,14 +37,14 @@ class SpatioTemporalAnalyzer:
     that emerge across both space and time.
     """
 
-    def __init__(self, h3_backend=None):
+    def __init__(self, h3_backend: Optional[Any] = None) -> None:
         """
         Initialize the SpatioTemporalAnalyzer.
 
         Args:
             h3_backend: Optional H3Backend instance for spatial operations
         """
-        self.h3 = h3_backend
+        self.h3: Any = h3_backend
         if self.h3 is None:
             try:
                 from ..backends.h3.h3_backend import H3Backend
@@ -80,7 +80,7 @@ class SpatioTemporalAnalyzer:
             return {"error": "No data provided"}
 
         # Group by cell
-        cell_series = defaultdict(list)
+        cell_series: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
         for record in data:
             cell = record.get(cell_column)
             ts = record.get(timestamp_column)
@@ -94,12 +94,12 @@ class SpatioTemporalAnalyzer:
                     )
 
         # Analyze each cell's time series
-        cell_analyses = {}
+        cell_analyses: Dict[Any, Dict[str, Any]] = {}
         for cell, series in cell_series.items():
             sorted_series = sorted(series, key=lambda x: x["timestamp"])
             values = [s["value"] for s in sorted_series]
 
-            analysis = {
+            analysis: Dict[str, Any] = {
                 "count": len(values),
                 "mean": sum(values) / len(values),
                 "min": min(values),
@@ -168,7 +168,7 @@ class SpatioTemporalAnalyzer:
             return {"error": "No data or H3 backend not available"}
 
         # Parse data
-        points = []
+        points: List[Dict[str, Any]] = []
         for i, record in enumerate(data):
             cell = record.get(cell_column)
             ts = record.get(timestamp_column)
@@ -189,7 +189,9 @@ class SpatioTemporalAnalyzer:
 
         temporal_eps_seconds = temporal_eps_hours * 3600
 
-        def are_neighbors(p1, p2):
+        def are_neighbors(
+            p1: Dict[str, Any], p2: Dict[str, Any]
+        ) -> bool:
             """Check if two points are ST-neighbors."""
             # Temporal check
             time_diff = abs((p1["timestamp"] - p2["timestamp"]).total_seconds())
@@ -199,11 +201,11 @@ class SpatioTemporalAnalyzer:
             # Spatial check
             try:
                 dist = self.h3.get_cell_distance(p1["cell"], p2["cell"])
-                return dist <= spatial_eps
+                return bool(dist <= spatial_eps)
             except Exception:
-                return p1["cell"] == p2["cell"]
+                return bool(p1["cell"] == p2["cell"])
 
-        def get_neighbors(point_idx):
+        def get_neighbors(point_idx: int) -> List[int]:
             """Get all neighbors of a point."""
             neighbors = []
             for i, p in enumerate(points):
@@ -441,7 +443,7 @@ class SpatioTemporalAnalyzer:
                 )
 
         # Classify hotspot patterns
-        classifications = {
+        classifications: Dict[str, List[Dict[str, Any]]] = {
             "new": [],  # Not hot before, hot now
             "consecutive": [],  # Hot in all periods
             "intensifying": [],  # Hot and increasing
@@ -659,7 +661,7 @@ class SpatioTemporalAnalyzer:
             entity_tracks[entity_id].sort(key=lambda x: x["timestamp"])
 
         # Analyze flows between cells
-        flows = defaultdict(int)
+        flows: Dict[tuple[Any, Any], int] = defaultdict(int)
         entity_stats = []
 
         for entity_id, track in entity_tracks.items():
@@ -906,7 +908,7 @@ class SpatioTemporalAnalyzer:
         denominator = sum((i - x_mean) ** 2 for i in range(n))
 
         if denominator == 0:
-            slope = 0
+            slope: float = 0
         else:
             slope = numerator / denominator
 

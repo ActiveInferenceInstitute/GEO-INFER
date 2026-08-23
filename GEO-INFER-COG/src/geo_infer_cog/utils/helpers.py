@@ -22,7 +22,7 @@ import numpy as np
 import logging
 import json
 import yaml
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any, Union, cast
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -30,13 +30,15 @@ try:
     from ..models.user_profiles import UserCognitiveProfile, ProfileManager
 except ImportError:
     # Handle case where models aren't fully implemented yet
-    UserCognitiveProfile = None
-    ProfileManager = None
+    UserCognitiveProfile = None  # type: ignore[misc, assignment]
+    ProfileManager = None  # type: ignore[misc, assignment]
 
 logger = logging.getLogger(__name__)
 
 
-def load_cognitive_profile(user_id: str, profile_path: str) -> Optional[UserCognitiveProfile]:
+def load_cognitive_profile(
+    user_id: str, profile_path: Union[str, Path]
+) -> Optional[UserCognitiveProfile]:
     """
     Load user cognitive profile from file.
 
@@ -74,7 +76,9 @@ def load_cognitive_profile(user_id: str, profile_path: str) -> Optional[UserCogn
     return None
 
 
-def save_cognitive_profile(profile: UserCognitiveProfile, profile_path: str) -> bool:
+def save_cognitive_profile(
+    profile: UserCognitiveProfile, profile_path: Union[str, Path]
+) -> bool:
     """
     Save user cognitive profile to file.
 
@@ -115,7 +119,7 @@ def load_cognitive_model(model_path: str, model_type: str = 'auto') -> Dict[str,
     """
     try:
         with open(model_path, 'r') as f:
-            if model_path.suffix.lower() in ['.yaml', '.yml']:
+            if model_path.suffix.lower() in ['.yaml', '.yml']:  # type: ignore[attr-defined]
                 model_config = yaml.safe_load(f)
             else:
                 model_config = json.load(f)
@@ -129,7 +133,7 @@ def load_cognitive_model(model_path: str, model_type: str = 'auto') -> Dict[str,
                 logger.warning(f"Model configuration has validation issues: {validation['errors']}")
 
         logger.info(f"Model loaded from {model_path}")
-        return model_config
+        return cast(Dict[str, Any], model_config)
 
     except Exception as e:
         logger.error(f"Error loading model from {model_path}: {str(e)}")
@@ -137,7 +141,7 @@ def load_cognitive_model(model_path: str, model_type: str = 'auto') -> Dict[str,
 
 
 def save_cognitive_model(model_config: Dict[str, Any],
-                       model_path: str,
+                       model_path: Union[str, Path],
                        model_type: str = 'auto') -> bool:
     """
     Save cognitive model configuration to file.
@@ -312,7 +316,7 @@ def format_spatial_data_for_display(spatial_data: Dict[str, Any],
     Returns:
         Formatted data suitable for display
     """
-    formatted_data = {
+    formatted_data: Dict[str, Any] = {
         'display_format': 'standard',
         'simplified': False,
         'user_optimized': user_profile is not None,
@@ -444,7 +448,7 @@ def _calculate_display_priority(geometry: Dict[str, Any],
 
     # Complexity-based adjustment
     if isinstance(coords, list):
-        def count_coordinates(c):
+        def count_coordinates(c: Any) -> int:
             if isinstance(c, list):
                 return sum(count_coordinates(item) for item in c)
             else:
@@ -481,7 +485,7 @@ def create_performance_report(processing_results: List[Dict[str, Any]]) -> Dict[
     if not processing_results:
         return {'error': 'No processing results provided'}
 
-    report = {
+    report: Dict[str, Any] = {
         'report_generated': datetime.now().isoformat(),
         'total_sessions': len(processing_results),
         'performance_summary': {},
@@ -582,7 +586,7 @@ def export_cognitive_insights(insights: Dict[str, Any], format: str = 'json') ->
         return json.dumps(insights, indent=2, default=str)
 
     elif format == 'yaml':
-        return yaml.dump(insights, default_flow_style=False)
+        return cast(str, yaml.dump(insights, default_flow_style=False))
 
     elif format == 'markdown':
         return _format_insights_as_markdown(insights)
@@ -691,7 +695,7 @@ def validate_file_path(file_path: str, required_extension: Optional[str] = None)
         return False
 
 
-def create_directory_structure(base_path: str) -> None:
+def create_directory_structure(base_path: Union[str, Path]) -> None:
     """Create standard directory structure for cognitive processing."""
     base_path = Path(base_path)
 

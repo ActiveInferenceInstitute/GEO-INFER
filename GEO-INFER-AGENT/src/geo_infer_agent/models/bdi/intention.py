@@ -55,7 +55,7 @@ class Intention:
     progress: float = 0.0
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate intention after initialization."""
         if self.progress < 0.0 or self.progress > 1.0:
             raise ValueError(f"Progress must be between 0.0 and 1.0, got {self.progress}")
@@ -251,7 +251,7 @@ class IntentionStructure:
     - Reconsideration of intentions
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty intention structure."""
         self._intentions: Dict[str, Intention] = {}
     

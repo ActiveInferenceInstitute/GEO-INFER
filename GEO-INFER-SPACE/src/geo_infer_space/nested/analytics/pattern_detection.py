@@ -173,7 +173,7 @@ class H3PatternDetector:
     - Statistical and ML-based detection methods
     """
     
-    def __init__(self, name: str = "H3PatternDetector"):
+    def __init__(self, name: str = "H3PatternDetector") -> None:
         """
         Initialize pattern detector.
         
@@ -207,7 +207,7 @@ class H3PatternDetector:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
     
-    def register_custom_detector(self, name: str, detector_function: Callable):
+    def register_custom_detector(self, name: str, detector_function: Callable) -> None:
         """
         Register a custom pattern detection function.
         
@@ -218,10 +218,14 @@ class H3PatternDetector:
         self.custom_detectors[name] = detector_function
         self.updated_at = datetime.now()
     
-    def detect_patterns(self, nested_grid, system_id: Optional[str] = None,
-                       pattern_types: Optional[List[PatternType]] = None,
-                       methods: Optional[List[DetectionMethod]] = None,
-                       **kwargs) -> PatternDetectionResult:
+    def detect_patterns(
+        self,
+        nested_grid: Any,
+        system_id: Optional[str] = None,
+        pattern_types: Optional[List[PatternType]] = None,
+        methods: Optional[List[DetectionMethod]] = None,
+        **kwargs: Any,
+    ) -> PatternDetectionResult:
         """
         Detect patterns in nested grid systems.
         
@@ -264,7 +268,7 @@ class H3PatternDetector:
             methods = [DetectionMethod.STATISTICAL, DetectionMethod.CLUSTERING]
         
         # Detect patterns using different methods
-        all_patterns = []
+        all_patterns: List[Pattern] = []
         
         for method in methods:
             try:
@@ -283,7 +287,7 @@ class H3PatternDetector:
                 elif method == DetectionMethod.CUSTOM:
                     patterns = self._detect_custom_patterns(cells, pattern_types, **kwargs)
                 else:
-                    continue
+                    continue  # type: ignore[unreachable]
                 
                 all_patterns.extend(patterns)
                 
@@ -295,7 +299,7 @@ class H3PatternDetector:
         validated_patterns = self._validate_patterns(all_patterns)
         
         # Calculate summary statistics
-        pattern_counts = defaultdict(int)
+        pattern_counts: Dict[PatternType, int] = defaultdict(int)
         for pattern in validated_patterns:
             pattern_counts[pattern.pattern_type] += 1
         
@@ -330,10 +334,14 @@ class H3PatternDetector:
         
         return result
     
-    def _detect_statistical_patterns(self, cells: List, pattern_types: List[PatternType],
-                                   **kwargs) -> List[Pattern]:
+    def _detect_statistical_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect patterns using statistical methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         # Extract values for analysis
         values = []
@@ -374,10 +382,14 @@ class H3PatternDetector:
         
         return patterns
     
-    def _detect_statistical_anomalies(self, values: np.ndarray, cell_indices: List[str],
-                                    **kwargs) -> List[Pattern]:
+    def _detect_statistical_anomalies(
+        self,
+        values: np.ndarray,
+        cell_indices: List[str],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect anomalies using statistical methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if len(values) < 3:
             return patterns
@@ -410,10 +422,15 @@ class H3PatternDetector:
         
         return patterns
     
-    def _detect_hotcold_spots(self, values: np.ndarray, cell_indices: List[str],
-                            pattern_types: List[PatternType], **kwargs) -> List[Pattern]:
+    def _detect_hotcold_spots(
+        self,
+        values: np.ndarray,
+        cell_indices: List[str],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect hotspots and coldspots."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if len(values) < 3:
             return patterns
@@ -456,10 +473,15 @@ class H3PatternDetector:
         
         return patterns
     
-    def _detect_statistical_gradients(self, values: np.ndarray, cell_indices: List[str],
-                                    cells: List, **kwargs) -> List[Pattern]:
+    def _detect_statistical_gradients(
+        self,
+        values: np.ndarray,
+        cell_indices: List[str],
+        cells: List[Any],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect gradients using statistical methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if not H3_AVAILABLE or len(values) < 5:
             return patterns
@@ -512,10 +534,14 @@ class H3PatternDetector:
         
         return patterns
     
-    def _detect_clustering_patterns(self, cells: List, pattern_types: List[PatternType],
-                                  **kwargs) -> List[Pattern]:
+    def _detect_clustering_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect patterns using clustering methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if not SKLEARN_AVAILABLE or PatternType.SPATIAL_CLUSTER not in pattern_types:
             return patterns
@@ -584,10 +610,14 @@ class H3PatternDetector:
         
         return patterns
     
-    def _detect_signal_patterns(self, cells: List, pattern_types: List[PatternType],
-                               **kwargs) -> List[Pattern]:
+    def _detect_signal_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect patterns using signal processing methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if not SCIPY_AVAILABLE:
             return patterns
@@ -596,10 +626,14 @@ class H3PatternDetector:
         # For now, return empty list
         return patterns
     
-    def _detect_ml_patterns(self, cells: List, pattern_types: List[PatternType],
-                           **kwargs) -> List[Pattern]:
+    def _detect_ml_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect patterns using machine learning methods."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if not SKLEARN_AVAILABLE:
             return patterns
@@ -608,10 +642,14 @@ class H3PatternDetector:
         # For now, return empty list
         return patterns
     
-    def _detect_spatial_patterns(self, cells: List, pattern_types: List[PatternType],
-                                **kwargs) -> List[Pattern]:
+    def _detect_spatial_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect spatial patterns."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         if not H3_AVAILABLE:
             return patterns
@@ -620,19 +658,27 @@ class H3PatternDetector:
         # For now, return empty list
         return patterns
     
-    def _detect_temporal_patterns(self, cells: List, pattern_types: List[PatternType],
-                                 **kwargs) -> List[Pattern]:
+    def _detect_temporal_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect temporal patterns."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         # This would implement temporal analysis-based pattern detection
         # For now, return empty list
         return patterns
     
-    def _detect_custom_patterns(self, cells: List, pattern_types: List[PatternType],
-                               **kwargs) -> List[Pattern]:
+    def _detect_custom_patterns(
+        self,
+        cells: List[Any],
+        pattern_types: List[PatternType],
+        **kwargs: Any,
+    ) -> List[Pattern]:
         """Detect patterns using custom detectors."""
-        patterns = []
+        patterns: List[Pattern] = []
         
         for detector_name, detector_func in self.custom_detectors.items():
             try:
@@ -676,4 +722,3 @@ class H3PatternDetector:
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
-

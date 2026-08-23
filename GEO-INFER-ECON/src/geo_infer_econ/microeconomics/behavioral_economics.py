@@ -12,7 +12,7 @@ Implements behavioral economics models including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any, Callable
+from typing import Dict, List, Optional, Tuple, Any, Callable, cast
 from dataclasses import dataclass
 import logging
 from scipy.optimize import minimize
@@ -37,7 +37,7 @@ class ProspectTheory:
 
     def __init__(self, parameters: Optional[BehavioralParameters] = None):
         self.parameters = parameters or BehavioralParameters()
-        self.value_function_cache = {}
+        self.value_function_cache: Dict[str, Any] = {}
 
     def value_function(self, outcomes: np.ndarray,
                       reference_point: float = 0.0) -> np.ndarray:
@@ -84,7 +84,9 @@ class ProspectTheory:
 
             # Avoid log(0)
             probabilities = np.clip(probabilities, 1e-10, 1.0)
-            return np.exp(-beta * np.power(-np.log(probabilities), alpha))
+            return cast(
+                np.ndarray, np.exp(-beta * np.power(-np.log(probabilities), alpha))
+            )
 
         else:
             # Linear probability weighting (expected value)
@@ -106,7 +108,7 @@ class ProspectTheory:
         values = self.value_function(outcomes, reference_point)
         weights = self.probability_weighting(probabilities)
 
-        return np.sum(values * weights)
+        return float(np.sum(values * weights))
 
 
 class BoundedRationality:
@@ -114,8 +116,8 @@ class BoundedRationality:
     Models of bounded rationality and cognitive limitations
     """
 
-    def __init__(self):
-        self.choice_models = {}
+    def __init__(self) -> None:
+        self.choice_models: Dict[str, Any] = {}
 
     def satisficing_model(self, alternatives: List[Dict[str, Any]],
                          aspiration_level: float) -> Dict[str, Any]:
@@ -173,7 +175,7 @@ class BoundedRationality:
             return max(recognized, key=lambda x: recognition_memory[x])
         else:
             # Random choice if none recognized
-            return np.random.choice(alternatives)
+            return cast(str, np.random.choice(alternatives))
 
 
 class SocialPreferences:
@@ -181,8 +183,8 @@ class SocialPreferences:
     Models of social preferences and fairness
     """
 
-    def __init__(self):
-        self.social_utility_functions = {}
+    def __init__(self) -> None:
+        self.social_utility_functions: Dict[str, Any] = {}
 
     def fehr_schmidt_model(self, own_payoff: float, other_payoff: float,
                           alpha: float = 0.5, beta: float = 0.5) -> float:
@@ -220,15 +222,15 @@ class SocialPreferences:
             Social welfare value
         """
         if social_welfare_function == 'utilitarian':
-            return np.sum(payoffs)
+            return float(np.sum(payoffs))
         elif social_welfare_function == 'egalitarian':
-            return np.min(payoffs)
+            return float(np.min(payoffs))
         elif social_welfare_function == 'rawlsian':
-            return np.min(payoffs)
+            return float(np.min(payoffs))
         elif social_welfare_function == 'nash':
-            return np.prod(payoffs) ** (1 / len(payoffs))
+            return float(np.prod(payoffs) ** (1 / len(payoffs)))
         else:
-            return np.sum(payoffs)  # Default to utilitarian
+            return float(np.sum(payoffs))  # Default to utilitarian
 
 
 class TimePreferences:
@@ -236,8 +238,8 @@ class TimePreferences:
     Models of time preferences and discounting
     """
 
-    def __init__(self):
-        self.discount_functions = {}
+    def __init__(self) -> None:
+        self.discount_functions: Dict[str, Any] = {}
 
     def hyperbolic_discounting(self, delay: float, k: float = 1.0) -> float:
         """
@@ -270,7 +272,7 @@ class TimePreferences:
         elif delay == 1:
             return beta * delta
         else:
-            return beta * (delta ** delay)
+            return float(beta * (delta ** delay))
 
     def analyze_time_inconsistency(self, reward_sizes: List[float],
                                  delays: List[float],
@@ -360,8 +362,8 @@ class MentalAccounting:
     Mental accounting and framing effects
     """
 
-    def __init__(self):
-        self.accounting_frames = {}
+    def __init__(self) -> None:
+        self.accounting_frames: Dict[str, Any] = {}
 
     def analyze_framing_effect(self, problem_framing: Dict[str, Any],
                              choice_options: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -417,7 +419,7 @@ class MentalAccounting:
             Mental accounting analysis
         """
         # Categorize transactions by mental accounts
-        accounts = {
+        accounts: Dict[str, List[Dict[str, Any]]] = {
             'income': [],
             'necessary_expenses': [],
             'luxury_expenses': [],
@@ -460,8 +462,8 @@ class NudgeAnalysis:
     Analysis of nudges and behavioral interventions
     """
 
-    def __init__(self):
-        self.nudge_effectiveness = {}
+    def __init__(self) -> None:
+        self.nudge_effectiveness: Dict[str, Any] = {}
 
     def evaluate_nudge_effectiveness(self, nudge_type: str,
                                    target_behavior: str,
@@ -510,10 +512,10 @@ class NudgeAnalysis:
             'base_effectiveness': base_effectiveness,
             'adjusted_effectiveness': adjusted_effectiveness,
             'population_factors': adjustment_factors,
-            'expected_impact': self._estimate_behavioral_impact(adjusted_effectiveness, target_behavior)
+            'expected_impact': self._estimate_behavioral_impact(float(adjusted_effectiveness), target_behavior)
         }
 
-    def _estimate_behavioral_impact(self, effectiveness: float, behavior: str) -> Dict[str, float]:
+    def _estimate_behavioral_impact(self, effectiveness: float, behavior: str) -> Dict[str, Any]:
         """Estimate the impact of nudge on behavior"""
         # Simplified impact estimation
         impact_multipliers = {

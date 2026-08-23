@@ -19,7 +19,7 @@ import numpy as np
 import logging
 import ast
 from numbers import Real
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 
@@ -57,7 +57,7 @@ class ACOParameters:
     min_pheromone: float = 0.01  # MMAS variant
     max_pheromone: float = 10.0  # MMAS variant
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate parameters after initialization."""
         if self.number_of_ants <= 0:
             raise ValueError("Number of ants must be positive")
@@ -72,7 +72,7 @@ class ACOParameters:
             "exploration_rate": self.exploration_rate,
         }
         for name, value in numeric_nonnegative.items():
-            if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+            if not np.isfinite(value) or value < 0:
                 raise ValueError(f"{name} must be a finite non-negative number")
         if not isinstance(self.max_iterations, int) or self.max_iterations <= 0:
             raise ValueError("max_iterations must be a positive integer")
@@ -142,7 +142,7 @@ class AntColonyOptimization:
         variant: str = "AS",  # 'AS', 'ACS', 'MMAS'
         spatial_graph: Optional[Any] = None,
         convergence_threshold: float = 0.001,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Initialize ACO algorithm.
@@ -198,7 +198,7 @@ class AntColonyOptimization:
         # Integration components
         self.spatial_indexer = None
         self.spatial_analytics = None
-        self.pheromone_system = None
+        self.pheromone_system: Optional[Any] = None
 
         # Performance tracking
         self.iteration_times: List[float] = []
@@ -275,7 +275,9 @@ class AntColonyOptimization:
         for name in ("max_path_length",):
             if name in self.constraints:
                 value = self.constraints[name]
-                if not isinstance(value, Real) or not np.isfinite(value) or value < 0:
+                if not isinstance(value, Real) or not np.isfinite(
+                    cast(float, value)
+                ) or value < 0:
                     raise ValueError(f"{name} must be a finite non-negative number")
         if "required_nodes" in self.constraints:
             required_nodes = set(self.constraints["required_nodes"])
@@ -443,7 +445,7 @@ class AntColonyOptimization:
         for i in range(len(path_indices) - 1):
             node1 = nodes[path_indices[i]]
             node2 = nodes[path_indices[i + 1]]
-            total_length += np.linalg.norm(node2 - node1)
+            total_length += float(np.linalg.norm(node2 - node1))
 
         return total_length
 
@@ -968,7 +970,7 @@ class AntColonyOptimization:
         """
         logger.info(f"Adapting ACO to environmental changes: {environmental_changes}")
 
-        adaptation_results = {
+        adaptation_results: Dict[str, Any] = {
             "changes_applied": [],
             "parameters_updated": {},
             "convergence_reset": False,

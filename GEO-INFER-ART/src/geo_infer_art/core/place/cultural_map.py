@@ -3,7 +3,7 @@ CulturalMap module for creating maps that integrate cultural and historical cont
 """
 
 import os
-from typing import Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -17,13 +17,13 @@ class _ComparableGeoDataFrame(gpd.GeoDataFrame):
     """GeoDataFrame subclass with scalar equality for unittest assertions."""
 
     @property
-    def _constructor(self):
+    def _constructor(self) -> Callable[..., "_ComparableGeoDataFrame"]:
         return _ComparableGeoDataFrame
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, gpd.GeoDataFrame):
             return bool(self.equals(other))
-        return super().__eq__(other)
+        return bool(super().__eq__(other))
 
 
 class CulturalMap:
@@ -43,8 +43,8 @@ class CulturalMap:
     def __init__(
         self,
         data: Optional[gpd.GeoDataFrame] = None,
-        metadata: Optional[Dict] = None,
-    ):
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Initialize a CulturalMap object.
 
@@ -58,9 +58,9 @@ class CulturalMap:
             else data
         )
         self.metadata = metadata or {}
-        self.image = None
+        self.image: Optional[np.ndarray] = None
         self._figure = None
-        self._cultural_elements = []
+        self._cultural_elements: List[Dict[str, Any]] = []
 
     @classmethod
     def from_region(
@@ -252,7 +252,8 @@ class CulturalMap:
         }
 
         # Get cultural data for the selected theme
-        cultural_data = region_data["cultural_data"].get(cultural_theme, [])
+        raw_cultural_data = region_data.get("cultural_data", {})
+        cultural_data = raw_cultural_data.get(cultural_theme, []) if isinstance(raw_cultural_data, dict) else []
         metadata["cultural_data"] = cultural_data
 
         # Create a simple GeoDataFrame for the region
@@ -469,7 +470,8 @@ class CulturalMap:
 
             # Store the image
             self.image = np.array(base_img)
-            plt.close(geo_art._figure)
+            if geo_art._figure is not None:
+                plt.close(geo_art._figure)
         else:
             raise ValueError("Failed to generate the base map.")
 
@@ -496,7 +498,7 @@ class CulturalMap:
         lon_range = max_lon - min_lon
         lat_range = max_lat - min_lat
 
-        def coord_to_pixel(lon, lat):
+        def coord_to_pixel(lon: float, lat: float) -> Tuple[int, int]:
             """Convert geographic coordinates to pixel coordinates."""
             x = int((lon - min_lon) / lon_range * width)
             # Flip y-axis (latitude increases northward, but pixel coordinates increase downward)
@@ -507,14 +509,13 @@ class CulturalMap:
         draw = ImageDraw.Draw(base_img)
 
         # Try to get a font
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             # Try to load a nice font
             font = ImageFont.truetype("Arial", 16)
-            ImageFont.truetype("Arial", 12)
         except IOError:
             # Fallback to default font
             font = ImageFont.load_default()
-            ImageFont.load_default()
 
         # Add cultural elements based on the theme
         if cultural_theme == "historical":
@@ -549,21 +550,9 @@ class CulturalMap:
                 text = f"{name}\n{period}"
 
                 # Calculate text background
-                try:
-                    # Try newer PIL method
-                    text_bbox = draw.textbbox((0, 0), text, font=font)
-                    text_width = text_bbox[2] - text_bbox[0]
-                    text_height = text_bbox[3] - text_bbox[1]
-                except AttributeError:
-                    # Fallback for older PIL versions
-                    try:
-                        # Try newer PIL method
-                        text_bbox = draw.textbbox((0, 0), text, font=font)
-                        text_width = text_bbox[2] - text_bbox[0]
-                        text_height = text_bbox[3] - text_bbox[1]
-                    except AttributeError:
-                        # Fallback for older PIL versions
-                        text_width, text_height = draw.textsize(text, font=font)
+                text_bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
                 text_bg = (
                     x + marker_radius + 5,
                     y - text_height // 2,
@@ -618,21 +607,9 @@ class CulturalMap:
                 text = f"{name}\n{family} ({script})"
 
                 # Calculate text background
-                try:
-                    # Try newer PIL method
-                    text_bbox = draw.textbbox((0, 0), text, font=font)
-                    text_width = text_bbox[2] - text_bbox[0]
-                    text_height = text_bbox[3] - text_bbox[1]
-                except AttributeError:
-                    # Fallback for older PIL versions
-                    try:
-                        # Try newer PIL method
-                        text_bbox = draw.textbbox((0, 0), text, font=font)
-                        text_width = text_bbox[2] - text_bbox[0]
-                        text_height = text_bbox[3] - text_bbox[1]
-                    except AttributeError:
-                        # Fallback for older PIL versions
-                        text_width, text_height = draw.textsize(text, font=font)
+                text_bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
                 text_bg = (
                     x + marker_radius + 5,
                     y - text_height // 2,
@@ -657,14 +634,9 @@ class CulturalMap:
 
         # Add a legend
         legend_text = f"Cultural Theme: {cultural_theme.capitalize()}"
-        try:
-            # Try newer PIL method
-            text_bbox = draw.textbbox((0, 0), legend_text, font=font)
-            legend_width = text_bbox[2] - text_bbox[0]
-            legend_height = text_bbox[3] - text_bbox[1]
-        except AttributeError:
-            # Fallback for older PIL versions
-            legend_width, legend_height = draw.textsize(legend_text, font=font)
+        text_bbox = draw.textbbox((0, 0), legend_text, font=font)
+        legend_width = text_bbox[2] - text_bbox[0]
+        legend_height = text_bbox[3] - text_bbox[1]
 
         # Draw legend background
         legend_bg = (
@@ -713,6 +685,7 @@ class CulturalMap:
         draw = ImageDraw.Draw(img)
 
         # Try to get a font
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             # Try to load a nice font
             font = ImageFont.truetype("Arial", 14)
@@ -725,19 +698,14 @@ class CulturalMap:
 
         # Simple text wrapping
         words = narrative.split()
-        lines = []
-        current_line = []
+        lines: List[str] = []
+        current_line: List[str] = []
 
         for word in words:
             # Check if adding this word exceeds the max width
             test_line = " ".join(current_line + [word])
-            try:
-                # Try newer PIL method
-                text_bbox = draw.textbbox((0, 0), test_line, font=font)
-                test_width = text_bbox[2] - text_bbox[0]
-            except AttributeError:
-                # Fallback for older PIL versions
-                test_width, _ = draw.textsize(test_line, font=font)
+            test_bbox = draw.textbbox((0, 0), test_line, font=font)
+            test_width = test_bbox[2] - test_bbox[0]
 
             if test_width <= max_width:
                 current_line.append(word)
@@ -752,14 +720,9 @@ class CulturalMap:
         wrapped_text = "\n".join(lines)
 
         # Calculate text size
-        try:
-            # Try newer PIL method
-            text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
-            text_width = text_bbox[2] - text_bbox[0]
-            text_height = text_bbox[3] - text_bbox[1]
-        except AttributeError:
-            # Fallback for older PIL versions
-            text_width, text_height = draw.textsize(wrapped_text, font=font)
+        text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
 
         # Determine position
         if position == "bottom":
@@ -922,6 +885,7 @@ class CulturalMap:
         img = Image.fromarray(self.image)
         draw = ImageDraw.Draw(img)
 
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             font = ImageFont.truetype("Arial", 14)
         except IOError:
@@ -947,14 +911,9 @@ class CulturalMap:
 
             # Add title if provided
             if title:
-                try:
-                    # Try newer PIL method
-                    text_bbox = draw.textbbox((0, 0), title, font=font)
-                    text_width = text_bbox[2] - text_bbox[0]
-                    text_height = text_bbox[3] - text_bbox[1]
-                except AttributeError:
-                    # Fallback for older PIL versions
-                    text_width, text_height = draw.textsize(title, font=font)
+                text_bbox = draw.textbbox((0, 0), title, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
                 draw.rectangle(
                     [
                         x + marker_radius + 5,
@@ -1044,7 +1003,9 @@ class CulturalMap:
 
         return filtered_data or cultural_data  # Return original if no matches
 
-    def add_legend(self, legend_items: List[Dict] = None) -> "CulturalMap":
+    def add_legend(
+        self, legend_items: Optional[List[Dict[str, Any]]] = None
+    ) -> "CulturalMap":
         """
         Add a comprehensive legend to the cultural map.
 
@@ -1066,6 +1027,8 @@ class CulturalMap:
         draw = ImageDraw.Draw(img)
         width, height = img.size
 
+        font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
+        title_font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
         try:
             font = ImageFont.truetype("Arial", 12)
             title_font = ImageFont.truetype("Arial", 14)
@@ -1108,14 +1071,9 @@ class CulturalMap:
 
         # Draw legend title
         title = f"{self.metadata.get('cultural_theme', 'Cultural').capitalize()} Legend"
-        try:
-            # Try newer PIL method
-            text_bbox = draw.textbbox((0, 0), title, font=title_font)
-            title_width = text_bbox[2] - text_bbox[0]
-            title_height = text_bbox[3] - text_bbox[1]
-        except AttributeError:
-            # Fallback for older PIL versions
-            title_width, title_height = draw.textsize(title, font=title_font)
+        text_bbox = draw.textbbox((0, 0), title, font=title_font)
+        title_width = text_bbox[2] - text_bbox[0]
+        title_height = text_bbox[3] - text_bbox[1]
         draw.text(
             (legend_x + (legend_width - title_width) // 2, legend_y + 10),
             title,
@@ -1147,7 +1105,7 @@ class CulturalMap:
         return self
 
     def export_with_layers(
-        self, output_dir: str, layer_types: List[str] = None
+        self, output_dir: str, layer_types: Optional[List[str]] = None
     ) -> List[str]:
         """
         Export the cultural map with separate layers for different elements.

@@ -6,14 +6,14 @@ distributions, spatial predictions, and uncertainty quantification.
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
 
-def _finite_vector(values: np.ndarray, name: str) -> np.ndarray:
+def _finite_vector(values: Union[np.ndarray, Sequence[float]], name: str) -> np.ndarray:
     """Return a non-empty finite one-dimensional plotting vector."""
     vector = np.asarray(values, dtype=float)
     if vector.size == 0:
@@ -247,13 +247,13 @@ def plot_model_comparison(
     fig, axes = plt.subplots(
         1, len(validated_metrics), figsize=(6 * len(validated_metrics), 5)
     )
-    axes = np.atleast_1d(axes)
+    ax_list: np.ndarray = np.atleast_1d(axes)
 
-    for i, (metric_name, values) in enumerate(validated_metrics.items()):
-        axes[i].bar(models, values)
-        axes[i].set_title(f"Model Comparison: {metric_name}")
-        axes[i].set_ylabel(metric_name)
-        axes[i].tick_params(axis="x", rotation=45)
+    for i, (metric_name, val_array) in enumerate(validated_metrics.items()):
+        ax_list[i].bar(models, val_array)
+        ax_list[i].set_title(f"Model Comparison: {metric_name}")
+        ax_list[i].set_ylabel(metric_name)
+        ax_list[i].tick_params(axis="x", rotation=45)
 
     fig.tight_layout()
     return fig

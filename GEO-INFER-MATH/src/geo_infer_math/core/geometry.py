@@ -7,7 +7,7 @@ intersections, and other geometric properties.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
+from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
 from dataclasses import dataclass
 
 # Constants for Earth calculations
@@ -27,9 +27,9 @@ class Point:
     def distance_to(self, other: 'Point') -> float:
         """Calculate Euclidean distance to another point."""
         if self.z is not None and other.z is not None:
-            return np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)
+            return float(np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2))
         else:
-            return np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+            return float(np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2))
 
     def to_array(self) -> np.ndarray:
         """Convert to numpy array."""
@@ -135,7 +135,7 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     c = 2 * np.arcsin(np.sqrt(a))
 
     # Return distance in kilometers
-    return EARTH_RADIUS_KM * c
+    return float(EARTH_RADIUS_KM * c)
 
 def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
                       max_iterations: int = 100, tolerance: float = 1e-12) -> float:
@@ -215,7 +215,7 @@ def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
                B / 6 * cos_2sigma_m * (-3 + 4 * sin_sigma ** 2) * (-3 + 4 * cos_2sigma_m ** 2)))
 
     # Return distance in meters
-    return b * A * (sigma - delta_sigma)
+    return float(b * A * (sigma - delta_sigma))
 
 def bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
@@ -243,7 +243,7 @@ def bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
     # Convert to degrees and normalize to 0-360
     bearing_deg = np.degrees(bearing_rad)
-    return (bearing_deg + 360) % 360
+    return float((bearing_deg + 360) % 360)
 
 def destination_point(lat: float, lon: float, bearing: float, distance: float) -> Tuple[float, float]:
     """
@@ -380,7 +380,7 @@ def points_in_polygon_vectorized(
 
     crossings = cond1 & cond2
     inside = np.sum(crossings, axis=1) % 2 == 1
-    return inside
+    return cast(np.ndarray, inside)
 
 def buffer_point(lat: float, lon: float, distance: float, segments: int = 32) -> List[Tuple[float, float]]:
     """
@@ -477,7 +477,7 @@ def polygon_area_spherical(polygon: List[Tuple[float, float]]) -> float:
 
     area = abs(area * EARTH_RADIUS_KM**2 / 2.0)
 
-    return area
+    return float(area)
 
 def great_circle_distance(coords1: np.ndarray, coords2: np.ndarray) -> np.ndarray:
     """
@@ -511,7 +511,7 @@ def great_circle_distance(coords1: np.ndarray, coords2: np.ndarray) -> np.ndarra
     a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
     c = 2 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
 
-    return EARTH_RADIUS_KM * c
+    return cast(np.ndarray, EARTH_RADIUS_KM * c)
 
 __all__ = [
     "Point",

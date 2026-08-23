@@ -378,7 +378,11 @@ class ClaimsProcessor:
 
     def _validate_claim(self, claim_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate claim data."""
-        validation_result = {"is_valid": True, "errors": [], "warnings": []}
+        validation_result: Dict[str, Any] = {
+            "is_valid": True,
+            "errors": [],
+            "warnings": [],
+        }
 
         # Check required fields
         required_fields = ["policy_id", "date_of_loss", "claimed_amount", "description"]
@@ -467,7 +471,7 @@ class ClaimsProcessor:
             > 30,
         ]
 
-        return sum(suspicious_indicators) >= 2
+        return bool(sum(suspicious_indicators) >= 2)
 
     def _check_for_fraud(
         self, claim: Claim, claim_data: Dict[str, Any]
@@ -813,7 +817,7 @@ class ClaimsProcessor:
                 c.paid_amount for c in self.claims.values() if c.paid_amount > 0
             ]
             if payments:
-                self.processing_metrics["average_payment"] = np.mean(payments)
+                self.processing_metrics["average_payment"] = float(np.mean(payments))
 
         # Update outstanding reserves
         total_reserves = sum(
@@ -856,7 +860,7 @@ class ClaimsProcessor:
 
     def health_check(self) -> Dict[str, Any]:
         """Perform health check on claims processing system."""
-        health_status = {
+        health_status: Dict[str, Any] = {
             "status": "operational",
             "total_claims": len(self.claims),
             "pending_claims": len(self.pending_claims),
@@ -900,6 +904,9 @@ class ClaimsEngine:
         self.claim_assessment_model = None
         self.fraud_detection_model = None
         self.settlement_prediction_model = None
+
+        # Claims storage
+        self.claims: Dict[str, Claim] = {}
 
         # Performance tracking
         self.prediction_accuracy = 0.0

@@ -15,7 +15,7 @@ import asyncio
 import logging
 import threading
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set, Union, Callable
+from typing import Dict, List, Any, Optional, Set, Union, Callable, cast
 from collections import defaultdict, deque
 
 logger = logging.getLogger("geo_infer_agent.api.telemetry")
@@ -46,6 +46,7 @@ class Metric:
         self.description = description
         self.agent_id = agent_id
         self.tags = tags or {}
+        self.metric_type: Optional[str] = None
         self.created_at = datetime.now()
         
     def to_dict(self) -> Dict[str, Any]:
@@ -70,7 +71,7 @@ class CounterMetric(Metric):
         self.metric_type = MetricType.COUNTER
         self.value = 0
         
-    def increment(self, amount: int = 1):
+    def increment(self, amount: int = 1) -> None:
         """
         Increment the counter.
         
@@ -94,9 +95,9 @@ class GaugeMetric(Metric):
         """Initialize a gauge metric."""
         super().__init__(name, description, agent_id, tags)
         self.metric_type = MetricType.GAUGE
-        self.value = 0
+        self.value: float = 0
         
-    def set(self, value: float):
+    def set(self, value: float) -> None:
         """
         Set the gauge value.
         
@@ -105,7 +106,7 @@ class GaugeMetric(Metric):
         """
         self.value = value
         
-    def increment(self, amount: float = 1.0):
+    def increment(self, amount: float = 1.0) -> None:
         """
         Increment the gauge.
         
@@ -114,7 +115,7 @@ class GaugeMetric(Metric):
         """
         self.value += amount
         
-    def decrement(self, amount: float = 1.0):
+    def decrement(self, amount: float = 1.0) -> None:
         """
         Decrement the gauge.
         
@@ -147,13 +148,13 @@ class HistogramMetric(Metric):
         """
         super().__init__(name, description, agent_id, tags)
         self.metric_type = MetricType.HISTOGRAM
-        self.values = deque(maxlen=max_samples)
-        self.min = None
-        self.max = None
-        self.sum = 0
+        self.values: deque[float] = deque(maxlen=max_samples)
+        self.min: Optional[float] = None
+        self.max: Optional[float] = None
+        self.sum: float = 0
         self.count = 0
         
-    def record(self, value: float):
+    def record(self, value: float) -> None:
         """
         Record a value in the histogram.
         
@@ -197,10 +198,10 @@ class TimerMetric(Metric):
         """Initialize a timer metric."""
         super().__init__(name, description, agent_id, tags)
         self.metric_type = MetricType.TIMER
-        self.start_time = None
+        self.start_time: Optional[float] = None
         self.histogram = HistogramMetric(f"{name}_histogram", f"Histogram for {description}", agent_id, tags)
         
-    def start(self):
+    def start(self) -> None:
         """Start the timer."""
         self.start_time = time.time()
         
@@ -240,16 +241,17 @@ class TelemetryService:
     - Resource monitoring
     """
     
-    _instance = None
+    _instance: Optional["TelemetryService"] = None
+    _initialized: bool = False
     
-    def __new__(cls):
+    def __new__(cls) -> "TelemetryService":
         """Singleton pattern to ensure a single telemetry service instance."""
         if cls._instance is None:
             cls._instance = super(TelemetryService, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the telemetry service."""
         if self._initialized:
             return
@@ -267,14 +269,14 @@ class TelemetryService:
         self.reporting_interval = 60  # seconds
         
         # Background tasks
-        self.reporting_task = None
-        self.resource_monitoring_task = None
+        self.reporting_task: Optional[asyncio.Task] = None
+        self.resource_monitoring_task: Optional[asyncio.Task] = None
         self.running = False
         
         self._initialized = True
         logger.info("Telemetry service initialized")
     
-    async def start(self, reporting_interval: int = 60):
+    async def start(self, reporting_interval: int = 60) -> None:
         """
         Start the telemetry service.
         
@@ -295,7 +297,7 @@ class TelemetryService:
         
         logger.info(f"Telemetry service started with reporting interval {reporting_interval}s")
     
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the telemetry service."""
         if not self.running:
             return
@@ -335,7 +337,7 @@ class TelemetryService:
         """
         metric_id = self._get_metric_id(name, agent_id, tags)
         if metric_id in self.metrics:
-            return self.metrics[metric_id]
+            return cast(CounterMetric, self.metrics[metric_id])
             
         metric = CounterMetric(name, description, agent_id, tags)
         self.metrics[metric_id] = metric
@@ -358,7 +360,7 @@ class TelemetryService:
         """
         metric_id = self._get_metric_id(name, agent_id, tags)
         if metric_id in self.metrics:
-            return self.metrics[metric_id]
+            return cast(GaugeMetric, self.metrics[metric_id])
             
         metric = GaugeMetric(name, description, agent_id, tags)
         self.metrics[metric_id] = metric
@@ -381,7 +383,7 @@ class TelemetryService:
         """
         metric_id = self._get_metric_id(name, agent_id, tags)
         if metric_id in self.metrics:
-            return self.metrics[metric_id]
+            return cast(HistogramMetric, self.metrics[metric_id])
             
         metric = HistogramMetric(name, description, agent_id, tags)
         self.metrics[metric_id] = metric
@@ -404,14 +406,19 @@ class TelemetryService:
         """
         metric_id = self._get_metric_id(name, agent_id, tags)
         if metric_id in self.metrics:
-            return self.metrics[metric_id]
+            return cast(TimerMetric, self.metrics[metric_id])
             
         metric = TimerMetric(name, description, agent_id, tags)
         self.metrics[metric_id] = metric
         logger.debug(f"Registered timer metric: {metric_id}")
         return metric
     
-    def update_health(self, agent_id: str, status: str, details: Optional[Dict[str, Any]] = None):
+    def update_health(
+        self,
+        agent_id: str,
+        status: str,
+        details: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Update health status for an agent.
         
@@ -457,7 +464,9 @@ class TelemetryService:
             return {agent_id: self.agent_health.get(agent_id, {"status": "unknown"})}
         return self.agent_health
     
-    def register_metric_callback(self, metric_name: str, callback: Callable[[str, Metric], None]):
+    def register_metric_callback(
+        self, metric_name: str, callback: Callable[[str, Metric], None]
+    ) -> None:
         """
         Register a callback to be called when a metric is updated.
         
@@ -487,7 +496,7 @@ class TelemetryService:
         agent_prefix = f"{agent_id}:" if agent_id else ""
         return f"{agent_prefix}{name}{tags_str}"
     
-    async def _periodic_reporting(self):
+    async def _periodic_reporting(self) -> None:
         """Background task for periodic metric reporting."""
         while self.running:
             try:
@@ -513,7 +522,7 @@ class TelemetryService:
                 logger.error(f"Error in metric reporting: {str(e)}")
                 await asyncio.sleep(10)  # Reduced interval on error
     
-    async def _monitor_resources(self):
+    async def _monitor_resources(self) -> None:
         """Background task for monitoring system and agent resources."""
         try:
             import psutil

@@ -20,7 +20,7 @@ y_t = φ₁y_{t-1} + ... + φ_py_{t-p} + ε_t - θ₁ε_{t-1} - ... - θ_qε_{t-
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, Callable
 from scipy import signal
 from scipy.stats import linregress
 
@@ -305,7 +305,7 @@ class TemporalAnalyzer:
             # Default to weekly/monthly patterns
             period = 7 if len(y) > 14 else 12
 
-        return max(2, min(period, len(y) // 3))
+        return int(max(2, min(int(period), len(y) // 3)))
 
     def _simple_seasonal_decomposition(
         self, y: np.ndarray, period: int
@@ -425,7 +425,7 @@ class TemporalAnalyzer:
         data: np.ndarray,
         window_size: int,
         step_size: int = 1,
-        analysis_func: Optional[callable] = None,
+        analysis_func: Optional[Callable[..., Any]] = None,
     ) -> Dict[str, Any]:
         """
         Perform sliding window analysis for dynamic temporal patterns.
@@ -447,7 +447,7 @@ class TemporalAnalyzer:
 
         if analysis_func is None:
             # Default: compute mean and variance for each window
-            def analysis_func(x):
+            def analysis_func(x: np.ndarray) -> Dict[str, Any]:
                 return {"mean": np.mean(x, axis=0), "var": np.var(x, axis=0)}
 
         window_results = []

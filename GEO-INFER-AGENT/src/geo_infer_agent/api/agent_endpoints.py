@@ -69,12 +69,14 @@ app.add_middleware(
 agent_registry = AgentRegistry()
 
 @app.get("/agents", response_model=List[Dict[str, Any]], tags=["Agents"])
-async def list_agents():
+async def list_agents() -> List[Dict[str, Any]]:
     """List all registered agents."""
     return agent_registry.list_agents()
 
 @app.post("/agents", response_model=AgentResponse, tags=["Agents"])
-async def create_agent(agent_data: AgentCreate, background_tasks: BackgroundTasks):
+async def create_agent(
+    agent_data: AgentCreate, background_tasks: BackgroundTasks
+) -> AgentResponse:
     """Create a new agent."""
     try:
         agent_id = await agent_registry.create_agent(
@@ -97,7 +99,7 @@ async def create_agent(agent_data: AgentCreate, background_tasks: BackgroundTask
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/agents/{agent_id}", response_model=AgentResponse, tags=["Agents"])
-async def get_agent(agent_id: str):
+async def get_agent(agent_id: str) -> AgentResponse:
     """Get agent details."""
     try:
         agent_info = agent_registry.get_agent_info(agent_id)
@@ -110,7 +112,7 @@ async def get_agent(agent_id: str):
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
 @app.delete("/agents/{agent_id}", response_model=AgentResponse, tags=["Agents"])
-async def delete_agent(agent_id: str):
+async def delete_agent(agent_id: str) -> AgentResponse:
     """Delete an agent."""
     try:
         await agent_registry.stop_agent(agent_id)
@@ -124,7 +126,9 @@ async def delete_agent(agent_id: str):
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
 @app.post("/agents/{agent_id}/start", response_model=AgentResponse, tags=["Control"])
-async def start_agent(agent_id: str, background_tasks: BackgroundTasks):
+async def start_agent(
+    agent_id: str, background_tasks: BackgroundTasks
+) -> AgentResponse:
     """Start an agent."""
     try:
         if agent_registry.is_agent_running(agent_id):
@@ -144,7 +148,7 @@ async def start_agent(agent_id: str, background_tasks: BackgroundTasks):
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
 @app.post("/agents/{agent_id}/stop", response_model=AgentResponse, tags=["Control"])
-async def stop_agent(agent_id: str):
+async def stop_agent(agent_id: str) -> AgentResponse:
     """Stop an agent."""
     try:
         await agent_registry.stop_agent(agent_id)
@@ -157,7 +161,9 @@ async def stop_agent(agent_id: str):
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
 @app.post("/agents/{agent_id}/action", response_model=AgentResponse, tags=["Control"])
-async def agent_action(agent_id: str, action_data: AgentAction):
+async def agent_action(
+    agent_id: str, action_data: AgentAction
+) -> AgentResponse:
     """Perform an action on an agent."""
     try:
         result = await agent_registry.agent_action(
@@ -176,7 +182,7 @@ async def agent_action(agent_id: str, action_data: AgentAction):
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/agents/{agent_id}/state", response_model=AgentResponse, tags=["State"])
-async def get_agent_state(agent_id: str):
+async def get_agent_state(agent_id: str) -> AgentResponse:
     """Get the current state of an agent."""
     try:
         state = await agent_registry.get_agent_state(agent_id)
@@ -189,7 +195,7 @@ async def get_agent_state(agent_id: str):
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
 
 @app.post("/agents/{agent_id}/message", response_model=AgentResponse, tags=["Communication"])
-async def send_message(agent_id: str, message: AgentMessage):
+async def send_message(agent_id: str, message: AgentMessage) -> AgentResponse:
     """Send a message from one agent to another."""
     try:
         success = await agent_registry.send_message(
@@ -205,7 +211,7 @@ async def send_message(agent_id: str, message: AgentMessage):
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Agent {agent_id} or {message.to_agent_id} not found")
 
-def start_api_server(host: str = "0.0.0.0", port: int = 8000):
+def start_api_server(host: str = "0.0.0.0", port: int = 8000) -> None:
     """Start the API server."""
     import uvicorn
     uvicorn.run(app, host=host, port=port)

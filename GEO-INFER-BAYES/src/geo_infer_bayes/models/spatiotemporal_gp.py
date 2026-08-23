@@ -6,7 +6,7 @@ both spatial and temporal dependencies in geospatial data.
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Union, Any, List, cast
 from dataclasses import dataclass
 import logging
 
@@ -84,14 +84,14 @@ class SpatioTemporalGP(BayesianModel):
 
         # Initialize spatial and temporal components
         self.spatial_gp = SpatialGP(noise=self.config.observation_noise)
-        self.temporal_gp = None  # Will be initialized when needed
+        self.temporal_gp: Any = None  # Will be initialized when needed
 
         # Model state
         self.is_fitted = False
-        self.training_data = None
-        self.spatial_coords = None
-        self.temporal_coords = None
-        self.observations = None
+        self.training_data: Any = None
+        self.spatial_coords: Optional[np.ndarray] = None
+        self.temporal_coords: Optional[np.ndarray] = None
+        self.observations: Optional[np.ndarray] = None
 
         self.rng: np.random.Generator = resolve_rng(self.config.random_seed)
 
@@ -100,7 +100,7 @@ class SpatioTemporalGP(BayesianModel):
         spatial_coords: np.ndarray,
         temporal_coords: np.ndarray,
         observations: np.ndarray,
-        **kwargs,
+        **kwargs: Any,
     ) -> "SpatioTemporalGP":
         """
         Fit the spatio-temporal Gaussian Process model to data.
@@ -152,13 +152,16 @@ class SpatioTemporalGP(BayesianModel):
 
         return self
 
-    def _fit_temporal_component(self):
+    def _fit_temporal_component(self) -> None:
         """Fit the temporal component of the model."""
+        assert self.observations is not None
+        assert self.spatial_coords is not None
         temporal_residuals = self.observations - self.spatial_gp.predict(
             self.spatial_coords
         )
 
         # Fit a simple temporal trend
+        assert self.temporal_coords is not None
         if len(self.temporal_coords) < 2 or np.allclose(
             self.temporal_coords, self.temporal_coords[0]
         ):
@@ -174,7 +177,7 @@ class SpatioTemporalGP(BayesianModel):
         """Make temporal predictions."""
         if hasattr(self, "temporal_trend"):
             # Use fitted temporal trend
-            return np.polyval(self.temporal_trend, temporal_coords)
+            return np.asarray(np.polyval(self.temporal_trend, temporal_coords))
         else:
             # Return zeros if no temporal component fitted
             return np.zeros_like(temporal_coords)
@@ -217,7 +220,11 @@ class SpatioTemporalGP(BayesianModel):
             raise ValueError("Model must be fitted before accessing parameters")
 
         params = {
-            "spatial_parameters": self.spatial_gp.get_model_parameters(),
+            "spatial_parameters": {
+                "lengthscale": self.spatial_gp.lengthscale,
+                "variance": self.spatial_gp.variance,
+                "noise": self.spatial_gp.noise,
+            },
             "temporal_variance": self.temporal_variance,
             "temporal_trend": getattr(self, "temporal_trend", None),
             "config": self.config,
@@ -289,7 +296,7 @@ class SpatioTemporalGP(BayesianModel):
             "mae_std": np.std(mae_scores),
         }
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the spatio-temporal model structure and parameters."""
         # Define parameter distributions for inference
         self.parameters = {
@@ -354,8 +361,9 @@ class SpatioTemporalGP(BayesianModel):
         noise = self._positive_scalar(
             theta.get("noise", self.config.observation_noise), "noise"
         )
-        std_pred = np.full(predictions.shape, np.sqrt(noise), dtype=float)
-        return self._gaussian_log_likelihood(observed_values, predictions, std_pred)
+        predictions_arr = np.asarray(predictions)
+        std_pred = np.full(predictions_arr.shape, np.sqrt(noise), dtype=float)
+        return self._gaussian_log_likelihood(observed_values, predictions_arr, std_pred)
 
     def log_prior(self, theta: Dict[str, Any]) -> float:
         """
@@ -463,9 +471,10 @@ class SpatioTemporalGP(BayesianModel):
             )
             all_preds.append(prediction)
         draws = np.stack(all_preds)
-        mean_prediction = np.mean(draws, axis=0)
+        mean_prediction: np.ndarray = np.asarray(np.mean(draws, axis=0))
         if return_std:
-            return mean_prediction, np.std(draws, axis=0)
+            std_prediction: np.ndarray = np.asarray(np.std(draws, axis=0))
+            return mean_prediction, std_prediction
         return mean_prediction
 
     @staticmethod
@@ -529,11 +538,16 @@ class SpatioTemporalGP(BayesianModel):
             spatial_mean, spatial_std = spatial_model.predict(
                 spatial_coords, return_std=True
             )
-            mean = spatial_mean + self._predict_temporal(temporal_coords)
-            std = np.sqrt(np.maximum(np.square(spatial_std) + temporal_variance, 1e-12))
+            mean: np.ndarray = np.asarray(
+                spatial_mean + self._predict_temporal(temporal_coords)
+            )
+            std: np.ndarray = np.asarray(np.sqrt(np.maximum(np.square(spatial_std) + temporal_variance, 1e-12)))
             return mean, std
-        mean = spatial_model.predict(spatial_coords, return_std=False)
-        return mean + self._predict_temporal(temporal_coords)
+        spatial_mean_arr = np.asarray(
+            spatial_model.predict(spatial_coords, return_std=False)
+        )
+        temporal_arr = np.asarray(self._predict_temporal(temporal_coords))
+        return cast(np.ndarray, spatial_mean_arr + temporal_arr)
 
     def _fitted_spatial_model(self, theta: Dict[str, Any]) -> SpatialGP:
         """Fit a spatial GP for one valid posterior parameter draw."""
@@ -556,7 +570,7 @@ class SpatioTemporalGP(BayesianModel):
             degree=self.spatial_gp.degree,
             jitter=self.spatial_gp.jitter,
         )
-        model.fit(self.spatial_coords, self.observations)
+        model.fit(np.asarray(self.spatial_coords), np.asarray(self.observations))
         return model
 
     @staticmethod
@@ -651,6 +665,8 @@ class SpatioTemporalGP(BayesianModel):
         if X is None:
             if not self.is_fitted:
                 raise ValueError("Model must be fitted before posterior prediction")
+            assert self.spatial_coords is not None
+            assert self.temporal_coords is not None
             spatial_coords = self.spatial_coords
             temporal_coords = self.temporal_coords
         else:

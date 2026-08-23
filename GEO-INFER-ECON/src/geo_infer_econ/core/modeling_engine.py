@@ -2,7 +2,7 @@
 Economic Modeling Engine - Core orchestration and execution framework.
 """
 
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, List, Optional, Union, cast
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
@@ -33,8 +33,8 @@ class EconomicModelingEngine:
         """
         self.logger = logging.getLogger(__name__)
         self.config = config or {}
-        self.active_models = {}
-        self.model_registry = {}
+        self.active_models: Dict[str, Any] = {}
+        self.model_registry: Dict[str, Any] = {}
         
     def register_model(self, model_name: str, model_class: type) -> None:
         """
@@ -92,7 +92,7 @@ class EconomicModelingEngine:
             else:
                 raise AttributeError("Model must implement 'run' or 'execute' method")
                 
-            return results
+            return cast(Dict[str, Any], results)
             
         except Exception as e:
             self.logger.error(f"Model execution failed: {str(e)}")

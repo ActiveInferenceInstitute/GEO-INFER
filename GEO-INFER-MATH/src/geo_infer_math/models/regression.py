@@ -31,10 +31,10 @@ class RegressionResults:
 class OrdinaryLeastSquares:
     """Ordinary Least Squares regression."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize OLS regression."""
-        self.coefficients = None
-        self.intercept = None
+        self.coefficients: Optional[np.ndarray] = None
+        self.intercept: Optional[float] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'OrdinaryLeastSquares':
@@ -76,8 +76,10 @@ class OrdinaryLeastSquares:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.coefficients is not None
+        assert self.intercept is not None
 
-        return X @ self.coefficients + self.intercept
+        return np.asarray(X @ self.coefficients + self.intercept)
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -97,7 +99,7 @@ class OrdinaryLeastSquares:
         if ss_tot == 0:
             return 0.0
 
-        return 1 - (ss_res / ss_tot)
+        return float(1 - (ss_res / ss_tot))
 
 class SpatialLagModel:
     """Spatial Lag (SAR) regression model."""
@@ -112,8 +114,8 @@ class SpatialLagModel:
         """
         self.weights_matrix = weights_matrix
         self.method = method
-        self.rho = None  # Spatial autoregressive parameter
-        self.beta = None  # Regression coefficients
+        self.rho: Optional[float] = None  # Spatial autoregressive parameter
+        self.beta: Optional[np.ndarray] = None  # Regression coefficients
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'SpatialLagModel':
@@ -137,9 +139,9 @@ class SpatialLagModel:
         self.is_fitted = True
         return self
 
-    def _fit_ml(self, X: np.ndarray, y: np.ndarray):
+    def _fit_ml(self, X: np.ndarray, y: np.ndarray) -> None:
         """Maximum likelihood estimation."""
-        def log_likelihood(params):
+        def log_likelihood(params: np.ndarray) -> float:
             rho = params[0]
             beta = params[1:]
 
@@ -159,7 +161,7 @@ class SpatialLagModel:
             sigma2 = np.sum(residuals**2) / n
             loglik = -0.5 * n * np.log(2 * np.pi * sigma2) - np.sum(residuals**2) / (2 * sigma2)
 
-            return -loglik  # Minimize negative log-likelihood
+            return -float(loglik)  # Minimize negative log-likelihood
 
         # Initial parameter guess
         n_features = X.shape[1]
@@ -174,7 +176,7 @@ class SpatialLagModel:
         self.rho = result.x[0]
         self.beta = result.x[1:]
 
-    def _fit_iv(self, X: np.ndarray, y: np.ndarray):
+    def _fit_iv(self, X: np.ndarray, y: np.ndarray) -> None:
         """Instrumental variables estimation."""
         # Create instruments: WX where W is spatial weights matrix
         WX = self.weights_matrix @ X
@@ -205,8 +207,9 @@ class SpatialLagModel:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.beta is not None
 
-        return X @ self.beta
+        return np.asarray(X @ self.beta)
 
 class GeographicallyWeightedRegression:
     """Geographically Weighted Regression (GWR)."""
@@ -222,7 +225,7 @@ class GeographicallyWeightedRegression:
         """
         self.bandwidth = bandwidth
         self.kernel = kernel
-        self.coordinates = None
+        self.coordinates: Optional[np.ndarray] = None
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, y: np.ndarray,
@@ -252,8 +255,8 @@ class GeographicallyWeightedRegression:
     def _estimate_bandwidth(self, X: np.ndarray, y: np.ndarray,
                            coordinates: np.ndarray) -> float:
         """Estimate optimal bandwidth using cross-validation."""
-        def cv_score(bandwidth):
-            scores = []
+        def cv_score(bandwidth: float) -> float:
+            scores: List[float] = []
             for i in range(len(X)):
                 # Leave-one-out cross-validation
                 mask = np.arange(len(X)) != i
@@ -267,12 +270,12 @@ class GeographicallyWeightedRegression:
                                             coordinates[i], bandwidth)
                 scores.append((y[i] - pred)**2)
 
-            return np.mean(scores)
+            return float(np.mean(scores))
 
         # Optimize bandwidth
         from scipy.optimize import minimize_scalar
         result = minimize_scalar(cv_score, bounds=(0.01, 2.0), method='bounded')
-        return result.x
+        return float(result.x)
 
     def _local_regression(self, X: np.ndarray, y: np.ndarray,
                          coords: np.ndarray, target_coord: np.ndarray,
@@ -287,7 +290,7 @@ class GeographicallyWeightedRegression:
         # Remove points with zero weight
         valid_mask = weights > 1e-10
         if not np.any(valid_mask):
-            return np.mean(y)  # Fallback
+            return float(np.mean(y))  # Fallback
 
         X_valid = X[valid_mask]
         y_valid = y[valid_mask]
@@ -300,20 +303,20 @@ class GeographicallyWeightedRegression:
         # Solve weighted normal equations
         try:
             beta = np.linalg.lstsq(W @ X_design, W @ y_valid, rcond=None)[0]
-            return beta[0]  # Intercept term
+            return float(beta[0])  # Intercept term
         except np.linalg.LinAlgError:
-            return np.mean(y_valid)
+            return float(np.mean(y_valid))
 
     def _kernel_function(self, distances: np.ndarray, bandwidth: float) -> np.ndarray:
         """Calculate kernel weights."""
         if self.kernel == 'gaussian':
-            return np.exp(-0.5 * (distances / bandwidth)**2)
+            return np.asarray(np.exp(-0.5 * (distances / bandwidth)**2))
         elif self.kernel == 'bisquare':
             u = distances / bandwidth
-            return np.where(u < 1, (1 - u**2)**2, 0)
+            return np.asarray(np.where(u < 1, (1 - u**2)**2, 0))
         elif self.kernel == 'tricube':
             u = distances / bandwidth
-            return np.where(u < 1, (1 - u**3)**3, 0)
+            return np.asarray(np.where(u < 1, (1 - u**3)**3, 0))
         else:
             raise ValueError(f"Unknown kernel: {self.kernel}")
 
@@ -330,6 +333,8 @@ class GeographicallyWeightedRegression:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.coordinates is not None
+        assert self.bandwidth is not None
 
         predictions = []
 
@@ -351,8 +356,8 @@ class SpatialErrorModel:
             weights_matrix: Spatial weights matrix
         """
         self.weights_matrix = weights_matrix
-        self.lambda_param = None  # Spatial error parameter
-        self.beta = None  # Regression coefficients
+        self.lambda_param: Optional[float] = None  # Spatial error parameter
+        self.beta: Optional[np.ndarray] = None  # Regression coefficients
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'SpatialErrorModel':
@@ -366,7 +371,7 @@ class SpatialErrorModel:
         Returns:
             Self for method chaining
         """
-        def log_likelihood(params):
+        def log_likelihood(params: np.ndarray) -> float:
             lambda_param = params[0]
             beta = params[1:]
 
@@ -385,7 +390,7 @@ class SpatialErrorModel:
             sigma2 = np.sum(residuals**2) / n
             loglik = -0.5 * n * np.log(2 * np.pi * sigma2) - np.sum(residuals**2) / (2 * sigma2)
 
-            return -loglik
+            return -float(loglik)
 
         # Initial parameter guess
         n_features = X.shape[1]
@@ -415,8 +420,9 @@ class SpatialErrorModel:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.beta is not None
 
-        return X @ self.beta
+        return np.asarray(X @ self.beta)
 
 class SpatialDurbinModel:
     """Spatial Durbin Model (SDM)."""
@@ -429,9 +435,9 @@ class SpatialDurbinModel:
             weights_matrix: Spatial weights matrix
         """
         self.weights_matrix = weights_matrix
-        self.rho = None  # Spatial lag parameter
-        self.beta = None  # Direct effects
-        self.theta = None  # Indirect effects
+        self.rho: Optional[float] = None  # Spatial lag parameter
+        self.beta: Optional[np.ndarray] = None  # Direct effects
+        self.theta: Optional[np.ndarray] = None  # Indirect effects
         self.is_fitted = False
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'SpatialDurbinModel':
@@ -451,7 +457,7 @@ class SpatialDurbinModel:
         # Create design matrix
         X_design = np.column_stack([X, WX])
 
-        def log_likelihood(params):
+        def log_likelihood(params: np.ndarray) -> float:
             rho = params[0]
             other_params = params[1:]
 
@@ -471,7 +477,7 @@ class SpatialDurbinModel:
             sigma2 = np.sum(residuals**2) / n
             loglik = -0.5 * n * np.log(2 * np.pi * sigma2) - np.sum(residuals**2) / (2 * sigma2)
 
-            return -loglik
+            return -float(loglik)
 
         # Initial parameter guess
         n_params = X.shape[1] * 2 + 1  # rho + beta + theta
@@ -503,12 +509,14 @@ class SpatialDurbinModel:
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction")
+        assert self.beta is not None
+        assert self.theta is not None
 
         WX = self.weights_matrix @ X
         X_design = np.column_stack([X, WX])
         other_params = np.concatenate([self.beta, self.theta])
 
-        return X_design @ other_params
+        return np.asarray(X_design @ other_params)
 
 def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
                               coordinates: np.ndarray,
@@ -525,34 +533,33 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
     Returns:
         Dictionary containing analysis results
     """
-    results = {}
+    results: Dict[str, Any] = {}
 
     if model_type == 'ols':
-        model = OrdinaryLeastSquares()
-        model.fit(X, y)
-        results['model'] = model
-        results['coefficients'] = model.coefficients
-        results['intercept'] = model.intercept
-        results['r_squared'] = model.score(X, y)
+        ols_model = OrdinaryLeastSquares()
+        ols_model.fit(X, y)
+        results['model'] = ols_model
+        results['coefficients'] = ols_model.coefficients
+        results['intercept'] = ols_model.intercept
+        results['r_squared'] = ols_model.score(X, y)
 
     elif model_type == 'sar':
-        # Create spatial weights matrix (import used by sar, sem, sdm branches)
         from ..core.linalg_tensor import MatrixOperations  # noqa: F811
         weights_matrix = MatrixOperations.spatial_weights_matrix(
             coordinates, method='inverse_distance', k=5
         )
 
-        model = SpatialLagModel(weights_matrix)
-        model.fit(X, y)
-        results['model'] = model
-        results['rho'] = model.rho
-        results['coefficients'] = model.beta
+        sar_model = SpatialLagModel(weights_matrix)
+        sar_model.fit(X, y)
+        results['model'] = sar_model
+        results['rho'] = sar_model.rho
+        results['coefficients'] = sar_model.beta
 
     elif model_type == 'gwr':
-        model = GeographicallyWeightedRegression()
-        model.fit(X, y, coordinates)
-        results['model'] = model
-        results['bandwidth'] = model.bandwidth
+        gwr_model = GeographicallyWeightedRegression()
+        gwr_model.fit(X, y, coordinates)
+        results['model'] = gwr_model
+        results['bandwidth'] = gwr_model.bandwidth
 
     elif model_type == 'sem':
         from ..core.linalg_tensor import MatrixOperations  # noqa: F811
@@ -560,11 +567,11 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
             coordinates, method='inverse_distance', k=5
         )
 
-        model = SpatialErrorModel(weights_matrix)
-        model.fit(X, y)
-        results['model'] = model
-        results['lambda'] = model.lambda_param
-        results['coefficients'] = model.beta
+        sem_model = SpatialErrorModel(weights_matrix)
+        sem_model.fit(X, y)
+        results['model'] = sem_model
+        results['lambda'] = sem_model.lambda_param
+        results['coefficients'] = sem_model.beta
 
     elif model_type == 'sdm':
         from ..core.linalg_tensor import MatrixOperations  # noqa: F811
@@ -572,12 +579,12 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
             coordinates, method='inverse_distance', k=5
         )
 
-        model = SpatialDurbinModel(weights_matrix)
-        model.fit(X, y)
-        results['model'] = model
-        results['rho'] = model.rho
-        results['direct_effects'] = model.beta
-        results['indirect_effects'] = model.theta
+        sdm_model = SpatialDurbinModel(weights_matrix)
+        sdm_model.fit(X, y)
+        results['model'] = sdm_model
+        results['rho'] = sdm_model.rho
+        results['direct_effects'] = sdm_model.beta
+        results['indirect_effects'] = sdm_model.theta
 
     else:
         raise ValueError(f"Unknown model type: {model_type}")

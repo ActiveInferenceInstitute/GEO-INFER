@@ -475,7 +475,7 @@ class EquityAnalyzer:
         If any group's benefit rate is less than 80% of the highest
         group's benefit rate (adjusted for population), flag it.
         """
-        flags = []
+        flags: List[str] = []
         if not impacts:
             return flags
 

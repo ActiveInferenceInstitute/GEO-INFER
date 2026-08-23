@@ -28,7 +28,7 @@ class PlaceAnalyzer:
         place_name: str,
         base_dir: Path,
         processor: Optional[SpatialProcessor] = None,
-    ):
+    ) -> None:
         """
         Initialize the PlaceAnalyzer.
 
@@ -173,7 +173,7 @@ class PlaceAnalyzer:
         Returns:
             Path to generated report
         """
-        report = {
+        report: Dict[str, Any] = {
             "place": self.place_name,
             "timestamp": datetime.now().isoformat(),
             "data_summary": {

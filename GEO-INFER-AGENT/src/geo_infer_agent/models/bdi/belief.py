@@ -42,7 +42,7 @@ class Belief:
     metadata: Dict[str, Any] = field(default_factory=dict)
     history: List[Dict[str, Any]] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate belief after initialization."""
         if self.confidence < 0.0 or self.confidence > 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
@@ -142,7 +142,7 @@ class BeliefBase:
     - Historical tracking of belief changes
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty belief base."""
         self._beliefs: Dict[str, Belief] = {}
         self._history: List[Tuple[datetime.datetime, str, str, Any, Any]] = []  # (time, operation, name, old_value, new_value)
@@ -268,7 +268,7 @@ class BeliefBase:
         """
         return {name: belief.value for name, belief in self._beliefs.items()}
     
-    def query(self, **kwargs) -> List[Belief]:
+    def query(self, **kwargs: Any) -> List[Belief]:
         """
         Query beliefs by various criteria.
         

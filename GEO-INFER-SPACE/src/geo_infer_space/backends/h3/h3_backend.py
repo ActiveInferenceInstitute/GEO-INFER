@@ -8,39 +8,48 @@ require the H3 library to be installed - no simulated implementations.
 
 import logging
 from functools import wraps
-from typing import Dict, Any, List, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, TypeVar, cast
 
 from ...core.interfaces import H3UnavailableError
+
+if TYPE_CHECKING:
+    from shapely.geometry.base import BaseGeometry
 
 logger = logging.getLogger(__name__)
 
 MIN_H3_VERSION = (4, 5, 0)
 MAX_H3_MAJOR = 5
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 def _version_tuple(version: str) -> Tuple[int, int, int] | None:
     """Parse a semantic H3 version without accepting a legacy major release."""
     try:
         parts = version.lstrip("v").split(".")
-        return tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3]) + (
-            0,
-        ) * max(0, 3 - len(parts))
+        return cast(
+            Tuple[int, int, int],
+            tuple(
+                int(part.split("+")[0].split("-")[0])
+                for part in parts[:3]
+            )
+            + (0,) * max(0, 3 - len(parts)),
+        )
     except (AttributeError, TypeError, ValueError):
         return None
 
 
-def _require_h3(operation: str):
+def _require_h3(operation: str) -> Callable[[F], F]:
     """Decorator to require H3 library for an operation."""
 
-    def decorator(func):
+    def decorator(func: F) -> F:
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
             if not self._available:
                 logger.error(f"H3 library required for {operation}")
                 raise H3UnavailableError(operation)
             return func(self, *args, **kwargs)
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator
 
@@ -56,18 +65,18 @@ class H3Backend:
     Implements: IndexingBackendProtocol, AnalyticsBackendProtocol
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the H3 backend and check library availability."""
         self._check_h3_availability()
 
-    def _check_h3_availability(self):
+    def _check_h3_availability(self) -> None:
         """Check if H3 library is available."""
         try:
             import h3
 
             self.h3 = h3
             version = getattr(h3, "__version__", None)
-            parsed_version = _version_tuple(version)
+            parsed_version = _version_tuple(cast(str, version))
             if (
                 parsed_version is None
                 or parsed_version < MIN_H3_VERSION
@@ -172,7 +181,7 @@ class H3Backend:
             ValueError: If coordinates or resolution are invalid
         """
         logger.debug(f"Converting ({lat}, {lng}) to H3 cell at resolution {resolution}")
-        return self.h3.latlng_to_cell(lat, lng, resolution)
+        return cast(str, self.h3.latlng_to_cell(lat, lng, resolution))
 
     @_require_h3("cell_to_latlng")
     def cell_to_latlng(self, cell: str) -> tuple[float, float]:
@@ -190,7 +199,7 @@ class H3Backend:
             ValueError: If cell identifier is invalid
         """
         logger.debug(f"Converting H3 cell {cell} to coordinates")
-        return self.h3.cell_to_latlng(cell)
+        return cast(Tuple[float, float], self.h3.cell_to_latlng(cell))
 
     @_require_h3("polygon_to_cells")
     def polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> List[str]:
@@ -248,9 +257,11 @@ class H3Backend:
             )
             # GeoJSON is [longitude, latitude]. geo_to_cells performs the
             # official H3Shape conversion and preserves holes/multipolygons.
-            cells = sorted(self.h3.geo_to_cells(geometry, resolution))
-            logger.debug(f"Generated {len(cells)} H3 cells from polygon")
-            return cells
+            polygon_cells = sorted(self.h3.geo_to_cells(geometry, resolution))
+            logger.debug(
+                f"Generated {len(polygon_cells)} H3 cells from polygon"
+            )
+            return polygon_cells
         except Exception as e:
             raise ValueError(f"H3 polygon conversion failed: {e}") from e
 
@@ -303,7 +314,7 @@ class H3Backend:
             ValueError: If cells are at different resolutions or invalid
         """
         logger.debug(f"Calculating distance between {cell1} and {cell2}")
-        return self.h3.grid_distance(cell1, cell2)
+        return cast(int, self.h3.grid_distance(cell1, cell2))
 
     @_require_h3("compact_cells")
     def compact_cells(self, cells: List[str]) -> List[str]:
@@ -364,7 +375,7 @@ class H3Backend:
         """
         logger.debug(f"Getting parent of {cell} at resolution {resolution}")
         try:
-            return self.h3.cell_to_parent(cell, resolution)
+            return cast(str, self.h3.cell_to_parent(cell, resolution))
         except Exception as e:
             raise ValueError(f"Failed to get parent: {e}") from e
 
@@ -571,7 +582,7 @@ class H3Backend:
         try:
             resolution = self.h3.get_resolution(cell)
             logger.debug(f"Cell {cell} has resolution {resolution}")
-            return resolution
+            return cast(int, resolution)
         except Exception as e:
             raise ValueError(f"Invalid H3 cell identifier: {cell}") from e
 
@@ -624,7 +635,7 @@ class H3Backend:
             # H3 v4 cell_area returns area in km² by default
             area = self.h3.cell_area(cell, unit=unit)
             logger.debug(f"Cell {cell} has area {area:.6f} {unit}")
-            return area
+            return cast(float, area)
         except Exception as e:
             raise ValueError(f"Invalid H3 cell identifier: {cell}") from e
 
@@ -671,7 +682,7 @@ class H3Backend:
         except Exception as e:
             raise ValueError(f"Invalid H3 cell identifiers: {e}") from e
 
-    def _geometry(self, geometry: Dict[str, Any]):
+    def _geometry(self, geometry: Any) -> "BaseGeometry":
         """Convert GeoJSON, Feature, or ``__geo_interface__`` to Shapely."""
         from shapely.geometry import shape
 
@@ -686,14 +697,14 @@ class H3Backend:
         return shape(geometry)
 
     @staticmethod
-    def _geojson(geometry) -> Dict[str, Any]:
+    def _geojson(geometry: "BaseGeometry") -> Dict[str, Any]:
         from shapely.geometry import mapping
 
         return dict(mapping(geometry))
 
     @_require_h3("buffer_geometry")
     def buffer_geometry(
-        self, geometry: Dict[str, Any], distance: float, **kwargs
+        self, geometry: Dict[str, Any], distance: float, **kwargs: Any
     ) -> Dict[str, Any]:
         """Buffer a GeoJSON geometry in its coordinate units."""
         if distance <= 0:
@@ -813,7 +824,7 @@ class H3Backend:
         cell_values = dict(zip(cells, values))
         cell_set = set(cells)
         visited = set()
-        clusters = []
+        clusters: List[Dict[str, Any]] = []
         noise = []
 
         def get_neighbors_in_set(cell: str) -> List[str]:
@@ -824,7 +835,7 @@ class H3Backend:
             except Exception:
                 return []
 
-        def expand_cluster(cell: str, neighbors: List[str], cluster: List[str]):
+        def expand_cluster(cell: str, neighbors: List[str], cluster: List[str]) -> None:
             """Expand cluster from seed cell."""
             cluster.append(cell)
             i = 0
@@ -851,7 +862,7 @@ class H3Backend:
             if len(neighbors) < min_cluster_size - 1:
                 noise.append(cell)
             else:
-                cluster = []
+                cluster: List[str] = []
                 expand_cluster(cell, neighbors, cluster)
                 if len(cluster) >= min_cluster_size:
                     cluster_values = [cell_values[c] for c in cluster]
@@ -1184,7 +1195,7 @@ class H3Backend:
             True if valid, False otherwise
         """
         try:
-            return self.h3.is_valid_cell(cell)
+            return bool(self.h3.is_valid_cell(cell))
         except Exception:
             return False
 
@@ -1253,7 +1264,7 @@ class H3Backend:
             True if cells are neighbors, False otherwise
         """
         try:
-            return self.h3.are_neighbor_cells(cell1, cell2)
+            return bool(self.h3.are_neighbor_cells(cell1, cell2))
         except Exception:
             return False
 
@@ -1269,7 +1280,7 @@ class H3Backend:
             True if cell is a pentagon, False if hexagon
         """
         try:
-            return self.h3.is_pentagon(cell)
+            return bool(self.h3.is_pentagon(cell))
         except Exception:
             return False
 
@@ -1289,7 +1300,7 @@ class H3Backend:
         """
         try:
             res = self.h3.get_resolution(cell)
-            return res % 2 == 1
+            return bool(res % 2 == 1)
         except Exception:
             return False
 
@@ -1306,7 +1317,7 @@ class H3Backend:
         Returns:
             Base cell number (0-121)
         """
-        return self.h3.get_base_cell_number(cell)
+        return cast(int, self.h3.get_base_cell_number(cell))
 
     @_require_h3("get_icosahedron_faces")
     def get_icosahedron_faces(self, cell: str) -> List[int]:
@@ -1394,7 +1405,7 @@ class H3Backend:
         """
         if not self.are_neighbors(origin, destination):
             raise ValueError(f"Cells {origin} and {destination} are not neighbors")
-        return self.h3.cells_to_directed_edge(origin, destination)
+        return cast(str, self.h3.cells_to_directed_edge(origin, destination))
 
     @_require_h3("edge_to_cells")
     def edge_to_cells(self, edge: str) -> Tuple[str, str]:
@@ -1473,7 +1484,7 @@ class H3Backend:
         Returns:
             H3 cell identifier
         """
-        return self.h3.local_ij_to_cell(origin, i, j)
+        return cast(str, self.h3.local_ij_to_cell(origin, i, j))
 
     # =========================================================================
     # GEOMETRIC CALCULATION METHODS
@@ -1534,7 +1545,7 @@ class H3Backend:
         Returns:
             Area in specified unit
         """
-        area_rads = self.h3.cell_area(cell, unit="rads^2")
+        area_rads = cast(float, self.h3.cell_area(cell, unit="rads^2"))
 
         # Earth radius squared (meters)
         r2 = 6371000**2
@@ -1560,7 +1571,10 @@ class H3Backend:
         if not res_check["valid"]:
             raise ValueError(res_check["error"])
 
-        length = self.h3.average_hexagon_edge_length(resolution, unit=unit)
+        length = cast(
+            float,
+            self.h3.average_hexagon_edge_length(resolution, unit=unit),
+        )
         return length
 
     @_require_h3("line_to_cells")

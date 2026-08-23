@@ -6,7 +6,7 @@ active inference models, including belief updating and policy selection.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, cast
 import logging
 
 from geo_infer_act.core.generative_model import GenerativeModel
@@ -89,8 +89,8 @@ class ActiveInferenceInterface:
         logger.info(f"Created {model_type} model: {model_id}")
 
     def update_beliefs(
-        self, model_id: str, observations: Dict[str, np.ndarray]
-    ) -> Dict[str, np.ndarray]:
+        self, model_id: str, observations: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Update model beliefs based on observations.
 
@@ -131,7 +131,9 @@ class ActiveInferenceInterface:
                 return updated_beliefs
             return {"states": updated_beliefs}
 
-        return updated_beliefs
+        if isinstance(updated_beliefs, dict):
+            return updated_beliefs
+        return {"states": updated_beliefs}
 
     def select_policy(self, model_id: str) -> Dict[str, Any]:
         """
@@ -200,4 +202,4 @@ class ActiveInferenceInterface:
         if model_id not in self.models:
             raise ValueError(f"Model {model_id} not found")
 
-        return self.models[model_id].compute_free_energy()
+        return float(self.models[model_id].compute_free_energy())

@@ -16,7 +16,7 @@ import threading
 import time
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any, Union, Callable, cast
 from dataclasses import dataclass, field
 from collections import defaultdict
 import json
@@ -111,8 +111,8 @@ class IntegratedSecurityManager:
         # Initialize monitoring and coordination
         self.orchestration_active = False
         self.orchestration_threads: List[threading.Thread] = []
-        self.alert_callbacks: List[callable] = []
-        self.response_handlers: Dict[str, callable] = {}
+        self.alert_callbacks: List[Callable[[Dict[str, Any]], None]] = []
+        self.response_handlers: Dict[str, Callable[[IntegratedThreat], None]] = {}
         
         # Security metrics and KPIs
         self.security_metrics: Dict[str, Any] = {}
@@ -147,14 +147,14 @@ class IntegratedSecurityManager:
         
         return default_config
     
-    def _setup_cross_domain_alerts(self):
+    def _setup_cross_domain_alerts(self) -> None:
         """Setup alert handlers for cross-domain coordination."""
         # Setup callbacks for each domain manager
         self.physical_manager.add_alert_callback(self._handle_physical_alert)
         self.digital_manager.add_alert_callback(self._handle_digital_alert)
         self.cognitive_manager.add_alert_callback(self._handle_cognitive_alert)
     
-    def _initialize_correlation_rules(self):
+    def _initialize_correlation_rules(self) -> None:
         """Initialize threat correlation rules."""
         self.correlation_rules = [
             {
@@ -191,22 +191,22 @@ class IntegratedSecurityManager:
         ]
     
     # Alert Handling
-    def _handle_physical_alert(self, threat: PhysicalThreat):
+    def _handle_physical_alert(self, threat: PhysicalThreat) -> None:
         """Handle alerts from physical security domain."""
         self.logger.info(f"Received physical security alert: {threat.threat_id}")
         self._correlate_cross_domain_threat(SecurityDomain.PHYSICAL, threat)
     
-    def _handle_digital_alert(self, alert: SecurityAlert):
+    def _handle_digital_alert(self, alert: SecurityAlert) -> None:
         """Handle alerts from digital security domain."""
         self.logger.info(f"Received digital security alert: {alert.alert_id}")
         self._correlate_cross_domain_threat(SecurityDomain.DIGITAL, alert)
     
-    def _handle_cognitive_alert(self, alert: Dict[str, Any]):
+    def _handle_cognitive_alert(self, alert: Dict[str, Any]) -> None:
         """Handle alerts from cognitive security domain."""
         self.logger.info(f"Received cognitive security alert: {alert.get('type')}")
         self._correlate_cross_domain_threat(SecurityDomain.COGNITIVE, alert)
     
-    def _correlate_cross_domain_threat(self, domain: SecurityDomain, threat_data: Any):
+    def _correlate_cross_domain_threat(self, domain: SecurityDomain, threat_data: Any) -> None:
         """Correlate threats across security domains."""
         try:
             # Look for related threats in other domains
@@ -262,38 +262,38 @@ class IntegratedSecurityManager:
         elif domain == SecurityDomain.DIGITAL:
             return getattr(threat_data, 'threat_type', 'unknown')
         elif domain == SecurityDomain.COGNITIVE:
-            return threat_data.get('type', 'unknown')
+            return cast(str, threat_data.get('type', 'unknown'))
         
         return 'unknown'
     
     def _find_matching_threats(self, rule: Dict[str, Any], current_time: datetime, 
                              time_window: timedelta) -> List[Tuple[SecurityDomain, Any]]:
         """Find threats matching correlation rule in other domains."""
-        matches = []
+        matches: List[Tuple[SecurityDomain, Any]] = []
         
         # Check physical threats
         if "physical" in rule["conditions"]:
             physical_threats = self.physical_manager.get_active_threats()
-            for threat in physical_threats:
-                if (current_time - threat.detected_at <= time_window and 
-                    threat.threat_type in rule["conditions"]["physical"]):
-                    matches.append((SecurityDomain.PHYSICAL, threat))
+            for phys_threat in physical_threats:
+                if (current_time - phys_threat.detected_at <= time_window and 
+                    phys_threat.threat_type in rule["conditions"]["physical"]):
+                    matches.append((SecurityDomain.PHYSICAL, phys_threat))
         
         # Check digital threats
         if "digital" in rule["conditions"]:
             digital_threats = self.digital_manager.get_active_threats()
-            for threat in digital_threats:
-                if (current_time - threat.detected_at <= time_window and 
-                    threat.threat_type.value in rule["conditions"]["digital"]):
-                    matches.append((SecurityDomain.DIGITAL, threat))
+            for dig_threat in digital_threats:
+                if (current_time - dig_threat.detected_at <= time_window and 
+                    dig_threat.threat_type.value in rule["conditions"]["digital"]):
+                    matches.append((SecurityDomain.DIGITAL, dig_threat))
         
         # Check cognitive threats
         if "cognitive" in rule["conditions"]:
             cognitive_threats = self.cognitive_manager.get_cognitive_threats()
-            for threat in cognitive_threats:
-                if (current_time - threat.detected_at <= time_window and 
-                    threat.threat_type in rule["conditions"]["cognitive"]):
-                    matches.append((SecurityDomain.COGNITIVE, threat))
+            for cog_threat in cognitive_threats:
+                if (current_time - cog_threat.detected_at <= time_window and 
+                    cog_threat.threat_type in rule["conditions"]["cognitive"]):
+                    matches.append((SecurityDomain.COGNITIVE, cog_threat))
         
         return matches
     
@@ -469,7 +469,7 @@ class IntegratedSecurityManager:
         
         return recommendations
     
-    def _trigger_coordinated_response(self, integrated_threat: IntegratedThreat):
+    def _trigger_coordinated_response(self, integrated_threat: IntegratedThreat) -> None:
         """Trigger coordinated response across security domains."""
         self.logger.warning(f"Triggering coordinated response for {integrated_threat.threat_id}")
         
@@ -484,7 +484,7 @@ class IntegratedSecurityManager:
         # Notify stakeholders
         self._notify_stakeholders(integrated_threat)
     
-    def _manage_security_incident(self, integrated_threat: IntegratedThreat):
+    def _manage_security_incident(self, integrated_threat: IntegratedThreat) -> None:
         """Create or update security incident for integrated threat."""
         incident_id = f"incident_{integrated_threat.threat_id}"
         
@@ -516,7 +516,7 @@ class IntegratedSecurityManager:
             integrated_threat.combined_severity in [IncidentSeverity.CRITICAL, IncidentSeverity.EMERGENCY]):
             self._escalate_incident(incident)
     
-    def _notify_stakeholders(self, integrated_threat: IntegratedThreat):
+    def _notify_stakeholders(self, integrated_threat: IntegratedThreat) -> None:
         """Notify relevant stakeholders of integrated threats."""
         notification_data = {
             "threat_id": integrated_threat.threat_id,
@@ -533,7 +533,7 @@ class IntegratedSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in stakeholder notification: {e}")
     
-    def _escalate_incident(self, incident: SecurityIncident):
+    def _escalate_incident(self, incident: SecurityIncident) -> None:
         """Escalate security incident to higher authorities."""
         incident.timeline.append({
             "timestamp": datetime.now().isoformat(),
@@ -544,7 +544,7 @@ class IntegratedSecurityManager:
         self.logger.critical(f"INCIDENT ESCALATED: {incident.incident_id} - {incident.title}")
     
     # Management and Monitoring
-    def start_integrated_monitoring(self):
+    def start_integrated_monitoring(self) -> None:
         """Start integrated security monitoring and orchestration."""
         if not self.orchestration_active:
             self.orchestration_active = True
@@ -568,7 +568,7 @@ class IntegratedSecurityManager:
             
             self.logger.info("Integrated security monitoring started")
     
-    def stop_integrated_monitoring(self):
+    def stop_integrated_monitoring(self) -> None:
         """Stop integrated security monitoring."""
         self.orchestration_active = False
         
@@ -584,7 +584,7 @@ class IntegratedSecurityManager:
         self.orchestration_threads.clear()
         self.logger.info("Integrated security monitoring stopped")
     
-    def _orchestration_loop(self):
+    def _orchestration_loop(self) -> None:
         """Main orchestration loop."""
         while self.orchestration_active:
             try:
@@ -594,7 +594,7 @@ class IntegratedSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in orchestration loop: {e}")
     
-    def _metrics_collection_loop(self):
+    def _metrics_collection_loop(self) -> None:
         """Collect and update security metrics."""
         while self.orchestration_active:
             try:
@@ -603,7 +603,7 @@ class IntegratedSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in metrics collection: {e}")
     
-    def _incident_management_loop(self):
+    def _incident_management_loop(self) -> None:
         """Manage ongoing security incidents."""
         while self.orchestration_active:
             try:
@@ -612,7 +612,7 @@ class IntegratedSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in incident management: {e}")
     
-    def _update_security_posture(self):
+    def _update_security_posture(self) -> None:
         """Update overall security posture assessment."""
         # Collect metrics from all domains
         physical_metrics = self._get_domain_metrics(SecurityDomain.PHYSICAL)
@@ -665,9 +665,9 @@ class IntegratedSecurityManager:
         coverage_bonus = physical.get("coverage_percentage", 0) * 0.1
         
         final_score = max(0, base_score - threat_penalty + coverage_bonus)
-        return min(100.0, final_score)
+        return min(100.0, cast(float, final_score))
     
-    def _collect_security_metrics(self):
+    def _collect_security_metrics(self) -> None:
         """Collect comprehensive security metrics."""
         metrics = {
             "timestamp": datetime.now().isoformat(),
@@ -690,7 +690,7 @@ class IntegratedSecurityManager:
             if datetime.fromisoformat(m["timestamp"]) > cutoff_time
         ]
     
-    def _update_incident_status(self):
+    def _update_incident_status(self) -> None:
         """Update status of ongoing incidents."""
         for incident in self.security_incidents.values():
             if incident.status == "open":
@@ -707,7 +707,7 @@ class IntegratedSecurityManager:
                         "details": "Automatic status update after 24 hours"
                     })
     
-    def _cleanup_old_threats(self):
+    def _cleanup_old_threats(self) -> None:
         """Clean up old resolved threats."""
         cutoff_time = datetime.now() - timedelta(days=7)
         
@@ -747,23 +747,23 @@ class IntegratedSecurityManager:
         alerts = []
         
         # Physical alerts
-        for threat in self.physical_manager.get_active_threats():
-            if threat.detected_at > cutoff_time:
+        for phys_threat in self.physical_manager.get_active_threats():
+            if phys_threat.detected_at > cutoff_time:
                 alerts.append({
                     "domain": "physical",
-                    "type": threat.threat_type,
-                    "severity": threat.severity.value,
-                    "timestamp": threat.detected_at.isoformat()
+                    "type": phys_threat.threat_type,
+                    "severity": phys_threat.severity.value,
+                    "timestamp": phys_threat.detected_at.isoformat()
                 })
         
         # Digital alerts
-        for threat in self.digital_manager.get_active_threats():
-            if threat.detected_at > cutoff_time:
+        for dig_threat in self.digital_manager.get_active_threats():
+            if dig_threat.detected_at > cutoff_time:
                 alerts.append({
                     "domain": "digital",
-                    "type": threat.threat_type.value,
-                    "severity": threat.severity.value,
-                    "timestamp": threat.detected_at.isoformat()
+                    "type": dig_threat.threat_type.value,
+                    "severity": dig_threat.severity.value,
+                    "timestamp": dig_threat.detected_at.isoformat()
                 })
         
         # Sort by timestamp
@@ -831,10 +831,12 @@ class IntegratedSecurityManager:
             return True
         return False
     
-    def add_response_handler(self, action: str, handler: callable):
+    def add_response_handler(
+        self, action: str, handler: Callable[[IntegratedThreat], None]
+    ) -> None:
         """Add a response handler for specific actions."""
         self.response_handlers[action] = handler
     
-    def add_alert_callback(self, callback: callable):
+    def add_alert_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """Add alert callback for integrated security notifications."""
         self.alert_callbacks.append(callback)

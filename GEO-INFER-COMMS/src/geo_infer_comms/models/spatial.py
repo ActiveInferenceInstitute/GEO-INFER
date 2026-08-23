@@ -7,7 +7,7 @@ reference systems, spatial bounds, and geospatial filtering capabilities.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Union, Any, Tuple, Literal
+from typing import Dict, List, Optional, Union, Any, Tuple, Literal, cast
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
@@ -33,7 +33,7 @@ class GeospatialPoint:
     altitude: Optional[float] = None
     crs: str = CoordinateSystem.WGS84
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate coordinates after initialization."""
         if not validate_coordinates(self.longitude, self.latitude):
             raise ValueError(f"Invalid coordinates: ({self.longitude}, {self.latitude})")
@@ -107,7 +107,7 @@ class GeospatialBounds:
     max_latitude: float
     crs: str = CoordinateSystem.WGS84
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate bounds after initialization."""
         if self.min_longitude >= self.max_longitude:
             raise ValueError("min_longitude must be less than max_longitude")
@@ -195,7 +195,7 @@ class GeospatialMetadata:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert geospatial metadata to dictionary."""
-        data = {
+        data: Dict[str, Any] = {
             "location": self.location.to_dict(),
             "timestamp": self.timestamp.isoformat()
         }
@@ -304,7 +304,7 @@ class SpatialFilter:
             latitude=center_data["latitude"],
             crs=self.crs
         )
-        radius = self.parameters.get("radius_meters", 0)
+        radius = cast(float, self.parameters.get("radius_meters", 0))
         return center.distance_to(location) <= radius
 
     def _matches_polygon(self, location: GeospatialPoint) -> bool:
@@ -323,16 +323,19 @@ class SpatialFilter:
             return False
 
         try:
-            from shapely.geometry import Point, Polygon  # type: ignore
+            from shapely.geometry import Point, Polygon
             poly = Polygon([(c[0], c[1]) for c in coords])
             point = Point(location.longitude, location.latitude)
-            return poly.contains(point)
+            return cast(bool, poly.contains(point))
         except ImportError:
             # Bounding-box fallback when Shapely is not installed
             lons = [c[0] for c in coords]
             lats = [c[1] for c in coords]
-            return (min(lons) <= location.longitude <= max(lons) and
-                    min(lats) <= location.latitude <= max(lats))
+            in_bounds = (
+                min(lons) <= location.longitude <= max(lons)
+                and min(lats) <= location.latitude <= max(lats)
+            )
+            return cast(bool, in_bounds)
         except Exception:
             return False
 
@@ -345,7 +348,7 @@ class SpatialFilter:
             latitude=target_location_data["latitude"],
             crs=self.crs
         )
-        max_distance = self.parameters.get("max_distance_meters", 0)
+        max_distance = cast(float, self.parameters.get("max_distance_meters", 0))
         return location.distance_to(target_location) <= max_distance
 
 
@@ -355,7 +358,7 @@ class SpatialIndex:
     def __init__(self, index_type: str = "quadtree", bounds: Optional[GeospatialBounds] = None):
         self.index_type = index_type
         self.bounds = bounds
-        self._index = {}  # Simplified in-memory index
+        self._index: Dict[str, List[str]] = {}  # Simplified in-memory index
 
     def insert(self, location: GeospatialPoint, data_id: str) -> None:
         """Insert location-data mapping into spatial index."""
@@ -440,7 +443,7 @@ def buffer_point(point: GeospatialPoint, distance_meters: float) -> GeospatialBo
     )
 
 
-def validate_geojson_geometry(geometry: Dict[str, Any]) -> bool:
+def validate_geojson_geometry(geometry: Any) -> bool:
     """Validate GeoJSON geometry structure."""
     required_fields = ["type", "coordinates"]
 

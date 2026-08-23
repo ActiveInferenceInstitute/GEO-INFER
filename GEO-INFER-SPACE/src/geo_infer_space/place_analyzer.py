@@ -8,7 +8,7 @@ including demographic analysis, environmental assessment, and spatial indexing.
 import os
 import json
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, cast
 from pathlib import Path
 import geopandas as gpd
 import pandas as pd
@@ -30,7 +30,7 @@ class PlaceAnalyzer:
     - Place-based data integration
     """
     
-    def __init__(self, base_dir: str = None):
+    def __init__(self, base_dir: Optional[str] = None) -> None:
         """
         Initialize PlaceAnalyzer with base directory.
         
@@ -46,9 +46,9 @@ class PlaceAnalyzer:
         self.config_dir.mkdir(exist_ok=True)
         
         # Initialize analysis components
-        self.spatial_index = {}
-        self.place_data = {}
-        self.analysis_results = {}
+        self.spatial_index: Dict[str, Any] = {}
+        self.place_data: Dict[str, Any] = {}
+        self.analysis_results: Dict[str, Any] = {}
         
         logger.info(f"PlaceAnalyzer initialized with base_dir: {self.base_dir}")
     
@@ -166,7 +166,7 @@ class PlaceAnalyzer:
         score += (1 - factors.get('elevation_range', {}).get('mean', 0) / 1000) * 0.2
         score += min(factors.get('water_bodies', 0) / 5, 1) * 0.3
         score += min(factors.get('protected_areas', 0) / 3, 1) * 0.2
-        return min(score, 1.0)
+        return cast(float, min(score, 1.0))
     
     def _calculate_accessibility_score(self, metrics: Dict[str, float]) -> float:
         """Calculate accessibility score."""
@@ -192,4 +192,4 @@ class PlaceAnalyzer:
                 json.dump(results, f, indent=2, default=str)
         
         logger.info(f"Exported results to {output_file}")
-        return str(output_file) 
+        return str(output_file)

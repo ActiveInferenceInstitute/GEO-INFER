@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_cascadia_geojson_pipeline.py`
 - `test_location_configs.py`
 
 ## Validation

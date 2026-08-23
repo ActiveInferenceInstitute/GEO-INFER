@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 # Try to import MLflow, but make it optional
 try:
-    import mlflow
-    import mlflow.sklearn
+    import mlflow  # type: ignore[import-not-found]
+    import mlflow.sklearn  # type: ignore[import-not-found]
 
     MLFLOW_AVAILABLE = True
 except ImportError:
@@ -174,7 +174,7 @@ class MLflowPipeline:
                 logger.info(f"Logged model to MLflow: {artifact_path}")
 
                 # Register model if name provided
-                if registered_model_name:
+                if registered_model_name and self.current_run is not None:
                     try:
                         mlflow.register_model(
                             f"runs:/{self.current_run.info.run_id}/{artifact_path}",

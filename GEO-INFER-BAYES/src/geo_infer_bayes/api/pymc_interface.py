@@ -22,17 +22,17 @@ class PyMCInterface:
         Configuration parameters for the PyMC model
     """
 
-    def __init__(self, model_config: Optional[Dict[str, Any]] = None):
+    def __init__(self, model_config: Optional[Dict[str, Any]] = None) -> None:
         self.model_config = model_config or {}
-        self.pymc_model = None
-        self.trace = None
+        self.pymc_model: Optional[pm.Model] = None
+        self.trace: Optional[az.InferenceData] = None
         self._model_type: Optional[str] = None  # 'gp' or 'hierarchical'
         self.gp: Optional[pm.gp.Marginal] = None
         self.X_train: Optional[np.ndarray] = None
         self.y_train: Optional[np.ndarray] = None
 
     def create_spatial_gp_model(
-        self, X: np.ndarray, y: np.ndarray, kernel_type: str = "matern", **kwargs
+        self, X: np.ndarray, y: np.ndarray, kernel_type: str = "matern", **kwargs: Any
     ) -> pm.Model:
         """
         Create a PyMC Gaussian Process model for spatial data.
@@ -101,7 +101,7 @@ class PyMCInterface:
         return model
 
     def create_hierarchical_model(
-        self, X: np.ndarray, y: np.ndarray, groups: np.ndarray, **kwargs
+        self, X: np.ndarray, y: np.ndarray, groups: np.ndarray, **kwargs: Any
     ) -> pm.Model:
         """
         Create a PyMC hierarchical Bayesian model.
@@ -160,10 +160,10 @@ class PyMCInterface:
         n_samples: int = 1000,
         n_warmup: int = 500,
         chains: int = 4,
-        cores: int = None,
+        cores: Optional[int] = None,
         sampler: str = "nuts",
         random_seed: SeedLike = 42,
-        **kwargs,
+        **kwargs: Any,
     ) -> az.InferenceData:
         """
         Sample from the PyMC model.
@@ -293,6 +293,8 @@ class PyMCInterface:
         # Add the conditional variable for new locations inside the existing model.
         # Use a unique name to avoid collisions on repeated calls.
         pred_var = "f_pred_new"
+        assert self.pymc_model is not None
+        assert self.trace is not None
         with self.pymc_model:
             _ = self.gp.conditional(pred_var, Xnew=X_new)
             pred_idata = pm.sample_posterior_predictive(
@@ -302,7 +304,7 @@ class PyMCInterface:
             )
 
         # Shape: (chains, draws, n_new) → flatten to (total_draws, n_new)
-        f_samples = pred_idata.posterior_predictive[pred_var].values
+        f_samples = getattr(pred_idata, "posterior_predictive")[pred_var].values
         f_flat = f_samples.reshape(-1, f_samples.shape[-1])
 
         # Subsample to requested number
@@ -312,9 +314,10 @@ class PyMCInterface:
             idx = rng.choice(n_available, size=samples, replace=False)
             f_flat = f_flat[idx]
 
-        mean_pred = f_flat.mean(axis=0)
+        mean_pred: np.ndarray = np.asarray(f_flat.mean(axis=0))
         if return_std:
-            return mean_pred, f_flat.std(axis=0)
+            std_pred: np.ndarray = np.asarray(f_flat.std(axis=0))
+            return mean_pred, std_pred
         return mean_pred
 
     def _predict_hierarchical(
@@ -328,7 +331,8 @@ class PyMCInterface:
         """Hierarchical model posterior predictive via linear combination of posterior draws."""
         rng = resolve_rng(random_seed)
 
-        post = self.trace.posterior
+        assert self.trace is not None
+        post = getattr(self.trace, "posterior")
         alpha_samples = post["alpha"].values  # (chains, draws, n_groups)
         beta_samples = post["beta"].values  # (chains, draws, n_groups, n_features)
         sigma_samples = post["sigma"].values  # (chains, draws)
@@ -363,9 +367,10 @@ class PyMCInterface:
             all_preds.append(rng.normal(mu, sigma_i))
 
         all_preds_arr = np.stack(all_preds)  # (samples, n_new)
-        mean_pred = all_preds_arr.mean(axis=0)
+        mean_pred: np.ndarray = np.asarray(all_preds_arr.mean(axis=0))
         if return_std:
-            return mean_pred, all_preds_arr.std(axis=0)
+            std_pred: np.ndarray = np.asarray(all_preds_arr.std(axis=0))
+            return mean_pred, std_pred
         return mean_pred
 
     def convert_to_geo_infer_format(
@@ -391,10 +396,11 @@ class PyMCInterface:
             raise ValueError("No trace available")
 
         samples = {}
-        for var_name in trace.posterior.data_vars:
+        post = getattr(trace, "posterior")
+        for var_name in post.data_vars:
             # Flatten chain and draw dimensions
-            samples[var_name] = trace.posterior[var_name].values.reshape(
-                -1, *trace.posterior[var_name].shape[2:]
+            samples[var_name] = post[var_name].values.reshape(
+                -1, *post[var_name].shape[2:]
             )
             if samples[var_name].ndim > 1:
                 # Flatten multi-dimensional parameters

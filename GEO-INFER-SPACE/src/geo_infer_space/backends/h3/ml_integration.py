@@ -45,7 +45,7 @@ class H3MLFeatureEngine:
     and spatial prediction applications.
     """
 
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize ML feature engine.
 
@@ -274,7 +274,7 @@ class H3MLFeatureEngine:
         Returns:
             Dictionary of temporal features
         """
-        temporal_features = {}
+        temporal_features: Dict[str, Any] = {}
 
         try:
             timestamp_str = str(cell.properties["timestamp"])
@@ -587,7 +587,7 @@ class H3DisasterResponse:
     and environmental monitoring using H3 hexagonal grids.
     """
 
-    def __init__(self, grid: H3Grid):
+    def __init__(self, grid: H3Grid) -> None:
         """
         Initialize disaster response analyzer.
 
@@ -867,7 +867,7 @@ class H3DisasterResponse:
         if not changes or not H3_AVAILABLE:
             return []
 
-        clusters = []
+        clusters: List[Dict[str, Any]] = []
         processed_cells = set()
 
         for change in changes:
@@ -947,13 +947,15 @@ class H3PerformanceOptimizer:
     for large-scale spatial analysis applications.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance optimizer."""
         self.benchmark_results: Dict[str, Any] = {}
         self.optimization_history: List[Dict[str, Any]] = []
 
     def benchmark_h3_operations(
-        self, test_coordinates: List[Tuple[float, float]], resolutions: List[int] = None
+        self,
+        test_coordinates: List[Tuple[float, float]],
+        resolutions: Optional[List[int]] = None,
     ) -> Dict[str, Any]:
         """
         Benchmark H3 operations performance.
@@ -1066,7 +1068,10 @@ class H3PerformanceOptimizer:
         }
 
     def optimize_grid_resolution(
-        self, area_km2: float, target_cells: int = None, analysis_type: str = "general"
+        self,
+        area_km2: float,
+        target_cells: Optional[int] = None,
+        analysis_type: str = "general",
     ) -> Dict[str, Any]:
         """
         Recommend optimal H3 resolution for given area and analysis type.

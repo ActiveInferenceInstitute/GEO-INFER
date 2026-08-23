@@ -10,13 +10,15 @@ import pandas as pd
 import geopandas as gpd
 from typing import Dict, List
 from pathlib import Path
-from pyproj import Transformer
+from pyproj import CRS, Transformer
 from shapely.ops import transform as shapely_transform
 
 logger = logging.getLogger(__name__)
 
 
-def _reproject(frame: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+def _reproject(
+    frame: gpd.GeoDataFrame, target_crs: CRS
+) -> gpd.GeoDataFrame:
     """Reproject with scalar Shapely transforms for pyproj 3.7 compatibility."""
     if frame.crs == target_crs:
         return frame
@@ -33,7 +35,7 @@ class DataIntegrator:
     Integrates data from multiple sources into a unified geospatial dataset.
     """
 
-    def __init__(self, sources: List[Dict[str, str]]):
+    def __init__(self, sources: List[Dict[str, str]]) -> None:
         """
         Initialize the integrator with data sources.
 

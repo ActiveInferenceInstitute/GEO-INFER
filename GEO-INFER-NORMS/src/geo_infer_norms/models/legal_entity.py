@@ -146,6 +146,7 @@ class Jurisdiction:
     geometry: Optional[MultiPolygon] = None
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
+    description: Optional[str] = None
     
     @classmethod
     def create(
@@ -225,7 +226,7 @@ class Jurisdiction:
         if self.geometry is None:
             return False
             
-        return self.geometry.contains(point)
+        return bool(self.geometry.contains(point))
     
     def overlaps_with(self, other_geometry: MultiPolygon) -> bool:
         """
@@ -240,4 +241,4 @@ class Jurisdiction:
         if self.geometry is None:
             return False
             
-        return self.geometry.overlaps(other_geometry) 
+        return bool(self.geometry.overlaps(other_geometry)) 

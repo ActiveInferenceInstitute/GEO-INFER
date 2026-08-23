@@ -51,7 +51,7 @@ def validate_probabilities(value: Any) -> Any:
     func = value
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         for arg in (*args, *kwargs.values()):
             if isinstance(arg, np.ndarray):
                 _validate_probability_array(arg)
@@ -80,7 +80,7 @@ def validate_coordinates(value: Any) -> Any:
     func = value
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         for arg in (*args, *kwargs.values()):
             if isinstance(arg, np.ndarray) and arg.ndim == 2:
                 _validate_coordinate_array(arg)
@@ -105,7 +105,7 @@ def validate_numerical(value: Any) -> Any:
     func = value
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         for arg in (*args, *kwargs.values()):
             if isinstance(arg, (int, float, complex, np.number, np.ndarray)):
                 _validate_numerical_value(arg)
@@ -114,7 +114,7 @@ def validate_numerical(value: Any) -> Any:
     return wrapper
 
 
-def validate_shape(expected_shape: Tuple[int, ...], axis: int = 0):
+def validate_shape(expected_shape: Tuple[int, ...], axis: int = 0) -> Callable:
     """
     Decorator to validate array shapes.
 
@@ -125,7 +125,7 @@ def validate_shape(expected_shape: Tuple[int, ...], axis: int = 0):
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if len(args) > axis:
                 arg = args[axis]
                 if isinstance(arg, np.ndarray):
@@ -141,7 +141,7 @@ def validate_shape(expected_shape: Tuple[int, ...], axis: int = 0):
     return decorator
 
 
-def validate_range(param_name: str, min_val: float, max_val: float):
+def validate_range(param_name: str, min_val: float, max_val: float) -> Callable:
     """
     Decorator to validate parameter ranges.
 
@@ -153,7 +153,7 @@ def validate_range(param_name: str, min_val: float, max_val: float):
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Check in kwargs first
             if param_name in kwargs:
                 val = kwargs[param_name]
@@ -264,7 +264,7 @@ def handle_validation_errors(func: Callable) -> Callable:
     """Translate ordinary input errors into :class:`ValidationError`."""
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return func(*args, **kwargs)
         except ValidationError:
@@ -279,7 +279,7 @@ def handle_numerical_errors(func: Callable) -> Callable:
     """Translate numerical failures into :class:`NumericalError`."""
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return func(*args, **kwargs)
         except NumericalError:

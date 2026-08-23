@@ -49,8 +49,9 @@ class WaterUsageModel(AgricultureModel):
         
         self.crop_type = crop_type
         self.model_type = model_type
-        self.predictor = None
+        self.predictor: Optional[RandomForestRegressor] = None
         self.fitted = False
+        self.feature_columns: Optional[List[str]] = None
         
         # Default water balance components if not provided
         if water_balance_components is None:
@@ -82,7 +83,7 @@ class WaterUsageModel(AgricultureModel):
         })
         
         # Initialize crop coefficients for ET-based methods
-        self.crop_coefficients = {
+        self.crop_coefficients: Dict[str, Dict[str, Any]] = {
             "corn": {"initial": 0.3, "mid": 1.2, "end": 0.6, "length_days": [30, 40, 50, 30]},
             "wheat": {"initial": 0.3, "mid": 1.15, "end": 0.4, "length_days": [20, 30, 60, 30]},
             "rice": {"initial": 1.05, "mid": 1.2, "end": 0.9, "length_days": [30, 30, 60, 30]},
@@ -200,7 +201,7 @@ class WaterUsageModel(AgricultureModel):
             
             # For simplification, use the mid-season coefficient
             # In a real model, you would determine growth stage and use the appropriate coefficient
-            kc = crop_coeffs["mid"]
+            kc = float(crop_coeffs["mid"])
             
             # Calculate crop ET (crop water requirement)
             crop_et = reference_et * kc
@@ -283,12 +284,15 @@ class WaterUsageModel(AgricultureModel):
                 raise ValueError("Statistical model must be fitted before prediction")
                 
             # Check if all feature columns are available
-            missing_features = [col for col in self.feature_columns if col not in field_data.columns]
+            feature_cols = self.feature_columns or []
+            missing_features = [col for col in feature_cols if col not in field_data.columns]
             if missing_features:
                 raise ValueError(f"Missing feature columns: {missing_features}")
-                
+            
             # Generate predictions
-            X = field_data[self.feature_columns]
+            if self.predictor is None:
+                raise ValueError("Statistical model must be fitted before prediction")
+            X = field_data[feature_cols]
             water_usage_predictions = self.predictor.predict(X)
             
             # Calculate water metrics based on predictions
@@ -360,7 +364,7 @@ class WaterUsageModel(AgricultureModel):
             # Step 3: Crop coefficient for mid-season
             crop_type = self.crop_type or "generic"
             crop_coeffs = self.crop_coefficients.get(crop_type.lower(), self.crop_coefficients["generic"])
-            kcb = crop_coeffs["mid"]
+            kcb = float(crop_coeffs["mid"])
             ke = 0.05  # soil evaporation coefficient (simplified)
 
             # Step 4: Daily water balance loop
@@ -535,6 +539,11 @@ class WaterUsageModel(AgricultureModel):
             # This is a simplification - actual values would depend on climate and crop
             green_water = water_requirement * 0.6
             blue_water = water_requirement * 0.4
+
+        if blue_water is None:
+            blue_water = water_requirement * 0.4
+        if green_water is None:
+            green_water = water_requirement * 0.6
             
         # Calculate total water footprint (m³/ha)
         water_footprint_volumetric = blue_water + green_water

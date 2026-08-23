@@ -20,7 +20,7 @@ Implemented Methods:
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, cast
 
 from ...models.data_models import SPMData, SPMResult, DesignMatrix
 
@@ -56,11 +56,11 @@ class NonparametricSPM:
         self.method = method.lower()
         self.bandwidth = bandwidth
         self.kernel = kernel.lower()
-        self.fitted_model = None
+        self.fitted_model: Optional[Dict[str, Any]] = None
 
         self._validate_parameters()
 
-    def _validate_parameters(self):
+    def _validate_parameters(self) -> None:
         """Validate method parameters."""
         valid_methods = ["loess", "lowess", "kernel", "spline", "gam", "robust"]
         if self.method not in valid_methods:
@@ -143,8 +143,9 @@ class NonparametricSPM:
                 return data.data
             else:
                 # Multiple variables - use first column or specified variable
-                if response_var and response_var in data.covariates:
-                    return data.covariates[response_var]
+                covariates = data.covariates or {}
+                if response_var and response_var in covariates:
+                    return covariates[response_var]
                 else:
                     return data.data[:, 0]
         else:
@@ -494,7 +495,7 @@ class NonparametricSPM:
             raise ValueError("Model must be fitted before making predictions")
 
         # Simplified prediction - in practice would need proper interpolation
-        return self.fitted_model["y_hat"]
+        return cast(np.ndarray, self.fitted_model["y_hat"])
 
     def get_smooth_components(self) -> Optional[np.ndarray]:
         """
@@ -510,7 +511,7 @@ class NonparametricSPM:
 
 
 def fit_nonparametric(
-    data: SPMData, design_matrix: DesignMatrix, method: str = "loess", **kwargs
+    data: SPMData, design_matrix: DesignMatrix, method: str = "loess", **kwargs: Any
 ) -> SPMResult:
     """
     Convenience function to fit nonparametric SPM model.

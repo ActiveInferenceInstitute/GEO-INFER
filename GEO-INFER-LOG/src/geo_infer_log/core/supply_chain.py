@@ -46,7 +46,7 @@ class SupplyChainModel:
             network: Supply chain network to model
         """
         self.network = network
-        self.graph = None
+        self.graph: Optional[nx.DiGraph] = None
 
     def load_network(self, network: SupplyChainNetwork) -> None:
         """Load a supply chain network.
@@ -509,7 +509,7 @@ class NetworkOptimizer:
 class FacilityLocator:
     """Optimizes facility locations in supply chains."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a facility locator."""
         self.selected_facilities: List[Dict] = []
         self.coverage_results: Dict = {}
@@ -641,7 +641,7 @@ class FacilityLocator:
 class InventoryManager:
     """Manages inventory in supply chain networks."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an inventory manager."""
         self.inventory_levels: Dict = {}
         self.reorder_points: Dict = {}

@@ -6,8 +6,8 @@ operations and multi-dimensional geospatial data (tensors) for spatial analysis.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
-from dataclasses import dataclass
+from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
+from dataclasses import dataclass, field
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,14 +17,12 @@ class TensorData:
     """Container for multi-dimensional geospatial data."""
     data: np.ndarray
     coordinates: Optional[np.ndarray] = None
-    dimensions: List[str] = None
-    metadata: Dict[str, Any] = None
+    dimensions: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
-        if self.dimensions is None:
+    def __post_init__(self) -> None:
+        if not self.dimensions:
             self.dimensions = [f"dim_{i}" for i in range(self.data.ndim)]
-        if self.metadata is None:
-            self.metadata = {}
 
 class MatrixOperations:
     """Linear algebra operations for geospatial matrices."""
@@ -42,7 +40,7 @@ class MatrixOperations:
         """
         try:
             singular_values = np.linalg.svd(matrix, compute_uv=False)
-            return singular_values[0] / singular_values[-1]
+            return float(singular_values[0] / singular_values[-1])
         except np.linalg.LinAlgError:
             logger.warning("Matrix is singular or nearly singular")
             return float('inf')
@@ -87,7 +85,7 @@ class MatrixOperations:
         eigenvalues[eigenvalues <= epsilon] = epsilon
 
         # Reconstruct matrix
-        return eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T
+        return cast(np.ndarray, eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T)
 
     @staticmethod
     def spatial_weights_matrix(points: np.ndarray,
@@ -151,7 +149,7 @@ class MatrixOperations:
         row_sums[row_sums == 0] = 1  # Avoid division by zero
         weights = weights / row_sums[:, np.newaxis]
 
-        return weights
+        return cast(np.ndarray, weights)
 
     @staticmethod
     def moran_i_matrix(values: np.ndarray,
@@ -581,7 +579,7 @@ class SpatialLinearAlgebra:
             U, s, Vt = np.linalg.svd(matrix)
             # Filter small singular values
             s_inv = np.where(s > 1e-10, 1.0 / s, 0.0)
-            return Vt.T @ np.diag(s_inv) @ U.T
+            return cast(np.ndarray, Vt.T @ np.diag(s_inv) @ U.T)
 
         elif method == 'iterative':
             # Simplified iterative method (Richardson iteration)

@@ -66,7 +66,7 @@ class GeoInferTestRunner:
         self.discovered_tests: Dict[str, List[str]] = {}
         self._setup_test_environment()
 
-    def _setup_test_environment(self):
+    def _setup_test_environment(self) -> None:
         """Validate runner prerequisites without mutating the checkout."""
         # Test discovery is intentionally read-only.  Creating a ``tests/``
         # tree here hides missing module fixtures and dirties the caller's
@@ -102,7 +102,7 @@ class GeoInferTestRunner:
 
     def _discover_module_tests(self, module: str) -> List[str]:
         """Discover tests for a specific module."""
-        tests = []
+        tests: List[str] = []
 
         # Look for module test directory
         module_test_dir = Path(f"GEO-INFER-{module}/tests")
@@ -158,7 +158,7 @@ class GeoInferTestRunner:
 
         return report
 
-    def _run_tests_parallel(self):
+    def _run_tests_parallel(self) -> None:
         """Execute tests in parallel using thread/process pools."""
         with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
             futures = []
@@ -178,7 +178,7 @@ class GeoInferTestRunner:
                     if self.log_integration:
                         self.log_integration.logger.error(f"Test execution error: {e}")
 
-    def _run_tests_sequential(self):
+    def _run_tests_sequential(self) -> None:
         """Execute tests sequentially."""
         for module, tests in self.discovered_tests.items():
             for test in tests:

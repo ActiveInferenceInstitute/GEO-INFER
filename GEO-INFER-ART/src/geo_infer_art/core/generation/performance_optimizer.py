@@ -6,7 +6,7 @@ import os
 import time
 import functools
 import threading
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, List, Optional, Callable, Any, Union, cast
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
@@ -33,9 +33,9 @@ class PerformanceOptimizer:
         """
         self.cache_dir = cache_dir
         self.max_cache_size = max_cache_size
-        self.cache = {}
-        self.cache_timestamps = {}
-        self.cache_sizes = {}
+        self.cache: Dict[str, Any] = {}
+        self.cache_timestamps: Dict[str, float] = {}
+        self.cache_sizes: Dict[str, int] = {}
 
         # Create cache directory if it doesn't exist
         if not os.path.exists(cache_dir):
@@ -132,7 +132,7 @@ class PerformanceOptimizer:
         self,
         func: Callable,
         args: tuple = (),
-        kwargs: dict = None,
+        kwargs: Optional[dict] = None,
         cache_key: Optional[str] = None
     ) -> Any:
         """
@@ -260,9 +260,9 @@ class PerformanceOptimizer:
         self,
         func: Callable,
         args: tuple = (),
-        kwargs: dict = None,
+        kwargs: Optional[dict] = None,
         iterations: int = 10
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Benchmark a function's performance.
 
@@ -308,7 +308,7 @@ class PerformanceOptimizer:
         max_resolution: int = 2000,
         test_function: Optional[Callable] = None,
         test_args: tuple = (),
-        test_kwargs: dict = None
+        test_kwargs: Optional[dict] = None
     ) -> int:
         """
         Find optimal resolution for target execution time.
@@ -328,11 +328,11 @@ class PerformanceOptimizer:
 
         if test_function is None:
             # Simple test function
-            def test_function(resolution):
+            def test_function(resolution: int) -> Any:
                 arr = np.random.rand(resolution, resolution)
                 return np.sum(arr)
 
-        # Binary search for optimal resolution
+        assert test_function is not None
         left, right = min_resolution, max_resolution
         best_resolution = min_resolution
 
@@ -361,7 +361,7 @@ class PerformanceOptimizer:
         self,
         data: np.ndarray,
         chunk_size: int = 1000,
-        process_function: Callable = None
+        process_function: Optional[Callable] = None
     ) -> np.ndarray:
         """
         Process large arrays in chunks to manage memory usage.
@@ -407,7 +407,7 @@ class PerformanceOptimizer:
 
         else:
             # For other dimensions, process as-is
-            return process_function(data)
+            return cast(np.ndarray, process_function(data))
 
     def create_performance_report(self) -> Dict[str, Any]:
         """
@@ -435,7 +435,7 @@ class PerformanceOptimizer:
         """Get available system memory in bytes."""
         try:
             import psutil
-            return psutil.virtual_memory().available
+            return int(psutil.virtual_memory().available)
         except ImportError:
             # Fallback for systems without psutil
             return 0
@@ -460,7 +460,7 @@ class PerformanceOptimizer:
         return recommendations
 
 
-def cache_result(cache_optimizer: PerformanceOptimizer):
+def cache_result(cache_optimizer: PerformanceOptimizer) -> Callable:
     """
     Decorator for caching function results.
 
@@ -470,9 +470,9 @@ def cache_result(cache_optimizer: PerformanceOptimizer):
     Returns:
         Decorated function
     """
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             return cache_optimizer.cached_execution(func, args, kwargs)
         return wrapper
     return decorator
@@ -494,13 +494,13 @@ def parallel_map(func: Callable, items: List[Any], max_workers: Optional[int] = 
 
     parameter_sets = [{"item": item} for item in items]
 
-    def wrapper(params):
+    def wrapper(params: Dict) -> Any:
         return func(params["item"])
 
     return optimizer.parallel_execution(wrapper, parameter_sets, max_workers)
 
 
-def time_execution(func: Callable):
+def time_execution(func: Callable) -> Callable:
     """
     Decorator for timing function execution.
 
@@ -511,7 +511,7 @@ def time_execution(func: Callable):
         Decorated function that returns (result, execution_time)
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
         result = func(*args, **kwargs)
         execution_time = time.time() - start_time

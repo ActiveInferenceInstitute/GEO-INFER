@@ -207,12 +207,12 @@ class RenewableResourceAssessor:
         constraints = constraints or {}
         
         # Define thresholds by resource type
-        thresholds = {
+        thresholds: Dict[RenewableType, List[float]] = {
             RenewableType.SOLAR_PV: [3.5, 4.5, 5.5, 6.5],  # kWh/m²/day
             RenewableType.ONSHORE_WIND: [5.0, 6.0, 7.0, 8.0],  # m/s
             RenewableType.OFFSHORE_WIND: [6.0, 7.0, 8.0, 9.0],  # m/s
-            RenewableType.HYDROPOWER: [10, 50, 100, 200],  # kW potential
-            RenewableType.GEOTHERMAL: [100, 150, 200, 250],  # °C
+            RenewableType.HYDROPOWER: [10.0, 50.0, 100.0, 200.0],  # kW potential
+            RenewableType.GEOTHERMAL: [100.0, 150.0, 200.0, 250.0],  # °C
         }
         
         # Score resource potential
@@ -399,7 +399,7 @@ class RenewableResourceAssessor:
         
         # Calculate NPV of costs and generation
         npv_costs = total_capital
-        npv_generation = 0
+        npv_generation = 0.0
         
         for year in range(1, lifetime_years + 1):
             discount_factor = 1 / (1 + discount_rate) ** year
@@ -502,11 +502,11 @@ class RenewableResourceAssessor:
         sites = list(self.site_registry.values())
         
         # Aggregate by type
-        by_type = {}
+        by_type: Dict[str, Dict[str, Any]] = {}
         for site in sites:
             rtype = site.resource_type.value
             if rtype not in by_type:
-                by_type[rtype] = {'count': 0, 'capacity_mw': 0, 'generation_gwh': 0}
+                by_type[rtype] = {'count': 0, 'capacity_mw': 0.0, 'generation_gwh': 0.0}
             by_type[rtype]['count'] += 1
             by_type[rtype]['capacity_mw'] += site.capacity_mw
             if site.annual_generation_gwh:

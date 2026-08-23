@@ -10,6 +10,8 @@ import pandas as pd
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ..models.base import BayesianModel
+from ..utils.rng import SeedLike
+from .evaluation import empirical_coverage
 
 
 class PosteriorAnalysis:
@@ -273,3 +275,140 @@ class PosteriorAnalysis:
             Posterior predictive samples
         """
         return self.model.posterior_predictive(posterior=self, X=X, samples=samples)
+
+    def epistemic_uncertainty(self, parameter: str) -> float:
+        """
+        Marginal posterior standard deviation of a parameter.
+
+        This is the parameter-level share of the predictive uncertainty: it
+        measures how much the data constrained the parameter, independent of
+        the observation noise. Pair it with
+        :meth:`predictive_interval` for the full predictive picture.
+
+        Parameters
+        ----------
+        parameter : str
+            Name of the parameter.
+
+        Returns
+        -------
+        float
+            Standard deviation of the pooled draws for ``parameter``.
+
+        Raises
+        ------
+        ValueError
+            If the posterior does not contain the parameter.
+        """
+        try:
+            samples = np.asarray(self.arviz_data.posterior[parameter].values).astype(
+                float
+            )
+        except (AttributeError, KeyError) as exc:
+            raise KeyError(
+                f"posterior does not contain parameter {parameter!r}"
+            ) from exc
+        values = samples.reshape(-1)
+        values = values[np.isfinite(values)]
+        if values.size == 0:
+            raise ValueError("posterior parameter samples must be finite and non-empty")
+        return float(np.std(values))
+
+    def predictive_interval(
+        self,
+        X: Optional[np.ndarray] = None,
+        level: float = 0.95,
+        samples: int = 200,
+        random_seed: SeedLike = None,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Posterior predictive interval ``(mean, lower, upper)`` at ``level``.
+
+        The interval is formed from the empirical quantiles of the posterior
+        predictive draws at each prediction point, so its coverage is what a
+        held-out observation is expected to satisfy at the nominal rate.
+
+        Parameters
+        ----------
+        X : array-like, optional
+            Locations to predict at. If None, use the observed locations.
+        level : float, default=0.95
+            Nominal coverage of the interval, in ``(0, 1)``.
+        samples : int, default=200
+            Number of posterior predictive draws to base the interval on.
+        random_seed : SeedLike, optional
+            Seed or generator for the observation-noise draws. See
+            :func:`geo_infer_bayes.utils.rng.resolve_rng`.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(mean, lower, upper)``, each with one entry per prediction point.
+
+        Raises
+        ------
+        ValueError
+            If the model's ``posterior_predictive`` does not accept
+            ``random_seed``, or ``level`` is outside ``(0, 1)``.
+        """
+        interval_level = float(level)
+        if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
+            raise ValueError("level must be a finite probability strictly between zero and one")
+        # ``self.model`` is declared as the abstract base, whose posterior
+        # predictive signature has no ``random_seed``; concrete models extend
+        # it, so it is routed through an ``Any`` handle.
+        model: Any = self.model
+        try:
+            draws = model.posterior_predictive(
+                posterior=self, X=X, samples=samples, random_seed=random_seed
+            )
+        except TypeError as exc:  # pragma: no cover - legacy signature fallback
+            draws = model.posterior_predictive(posterior=self, X=X, samples=samples)
+        draws = np.asarray(draws, dtype=float)
+        if draws.ndim == 1:
+            draws = draws.reshape(1, -1)
+        tail = (1.0 - interval_level) / 2.0
+        mean = np.asarray(np.mean(draws, axis=0), dtype=float)
+        lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
+        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        return mean, lower, upper
+
+    def coverage(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        level: float = 0.95,
+        samples: int = 200,
+        random_seed: SeedLike = None,
+    ) -> float:
+        """
+        Empirical coverage of the predictive interval over held-out data.
+
+        Computes the fraction of ``y`` falling inside the model's posterior
+        predictive interval at ``level``. A calibrated model returns a value
+        near ``level``; values consistently below it signal overconfidence.
+        Use :func:`geo_infer_bayes.core.evaluation.empirical_coverage` directly
+        to compare against an externally supplied interval.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_points,)
+            Held-out locations.
+        y : array-like of shape (n_points,)
+            Held-out observed values.
+        level : float, default=0.95
+            Nominal coverage of the interval, in ``(0, 1)``.
+        samples : int, default=200
+            Number of posterior predictive draws to base the interval on.
+        random_seed : SeedLike, optional
+            Seed or generator for the observation-noise draws.
+
+        Returns
+        -------
+        float
+            Fraction of observations inside the ``level`` predictive interval.
+        """
+        _, lower, upper = self.predictive_interval(
+            X=X, level=level, samples=samples, random_seed=random_seed
+        )
+        return empirical_coverage(y, lower, upper)

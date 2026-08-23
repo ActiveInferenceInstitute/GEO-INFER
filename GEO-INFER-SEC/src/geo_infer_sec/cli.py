@@ -11,7 +11,7 @@ import json
 import argparse
 import logging
 import datetime
-from typing import Union
+from typing import Union, cast
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
@@ -446,7 +446,7 @@ def command_decrypt(args: argparse.Namespace) -> None:
 
         # Decrypt data
         result = encryptor.decrypt_geodataframe(
-            df, encrypted_columns=decrypt_columns, geometry_col=geometry_col
+            df, encrypted_columns=decrypt_columns, geometry_col=cast(str, geometry_col)
         )
 
         logger.info(f"Decrypted {len(decrypt_columns)} columns")
@@ -530,7 +530,7 @@ def command_check_compliance(args: argparse.Namespace) -> None:
         # Print report if no output file specified
         if not args.output_file:
             if args.format == "json":
-                print(json.dumps(json.loads(report), indent=2))
+                print(json.dumps(json.loads(cast(str, report)), indent=2))
             else:
                 print(report)
         else:

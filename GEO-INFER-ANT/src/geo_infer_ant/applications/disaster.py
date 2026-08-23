@@ -38,7 +38,7 @@ class DisasterScenario:
     environmental_conditions: Dict[str, Any]
     time_constraints: Dict[str, float]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate scenario configuration."""
         valid_types = [
             "flood",
@@ -81,8 +81,8 @@ class DisasterResponseSwarm:
         swarm_composition: Optional[Dict[str, int]] = None,
         coordination_protocol: str = "stigmergic",
         real_time_adaptation: bool = True,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize disaster response swarm.
 
@@ -149,7 +149,7 @@ class DisasterResponseSwarm:
             f"Assessing disaster situation: {disaster_type}, severity: {incident_severity}"
         )
 
-        assessment = {
+        assessment: Dict[str, Any] = {
             "assessment_time": datetime.now(),
             "disaster_type": disaster_type,
             "affected_area": affected_area,
@@ -197,7 +197,7 @@ class DisasterResponseSwarm:
 
             # Assess risk factors
             risk_factors = self._assess_risk_factors(
-                environmental_conditions, disaster_type
+                conditions, disaster_type
             )
             assessment["risk_factors"] = risk_factors
 
@@ -298,7 +298,7 @@ class DisasterResponseSwarm:
         self, requirements: Dict[str, Any], available_resources: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Calculate resource allocation requirements."""
-        resource_reqs = {
+        resource_reqs: Dict[str, Any] = {
             "total_required": {},
             "resource_gaps": {},
             "allocation_priority": {},
@@ -306,7 +306,7 @@ class DisasterResponseSwarm:
         }
 
         # Aggregate resource requirements
-        total_required = defaultdict(int)
+        total_required: defaultdict[str, int] = defaultdict(int)
         for response_type, req_data in requirements.items():
             for resource, amount in req_data["resource_needs"].items():
                 total_required[resource] += amount
@@ -383,7 +383,7 @@ class DisasterResponseSwarm:
         self, environmental_conditions: Dict[str, Any], disaster_type: str
     ) -> Dict[str, Any]:
         """Assess risk factors for response operations."""
-        risk_factors = {
+        risk_factors: Dict[str, Any] = {
             "environmental_risks": {},
             "operational_risks": {},
             "coordination_risks": {},
@@ -414,7 +414,7 @@ class DisasterResponseSwarm:
         }
 
         # Overall risk assessment
-        all_risks = []
+        all_risks: List[float] = []
         for category in [
             "environmental_risks",
             "operational_risks",
@@ -459,7 +459,7 @@ class DisasterResponseSwarm:
 
         total_time = setup_time + deployment_time + total_operation_time + gap_penalty
 
-        return total_time
+        return float(total_time)
 
     async def coordinate_response(
         self,
@@ -482,7 +482,7 @@ class DisasterResponseSwarm:
         """
         logger.info("Coordinating disaster response activities")
 
-        coordination_plan = {
+        coordination_plan: Dict[str, Any] = {
             "coordination_time": datetime.now(),
             "response_assignments": {},
             "communication_plan": {},
@@ -536,7 +536,7 @@ class DisasterResponseSwarm:
         resources: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Assign response tasks to available agents."""
-        assignments = {
+        assignments: Dict[str, Any] = {
             "task_assignments": {},
             "agent_utilization": {},
             "coverage_analysis": {},
@@ -583,7 +583,7 @@ class DisasterResponseSwarm:
         self, assessment: Dict[str, Any], networks: List[str]
     ) -> Dict[str, Any]:
         """Generate communication plan for response coordination."""
-        plan = {
+        plan: Dict[str, Any] = {
             "primary_network": networks[0] if networks else "radio",
             "backup_networks": networks[1:] if len(networks) > 1 else [],
             "communication_frequency": "continuous",
@@ -619,7 +619,7 @@ class DisasterResponseSwarm:
         self, assessment: Dict[str, Any], allocation: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Plan deployment of response resources."""
-        deployment = {
+        deployment: Dict[str, Any] = {
             "deployment_schedule": {},
             "resource_routes": {},
             "staging_areas": [],
@@ -695,7 +695,7 @@ class DisasterResponseSwarm:
         self, assessment: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Generate contingency plans for various scenarios."""
-        contingencies = []
+        contingencies: List[Dict[str, Any]] = []
 
         # Risk-based contingency planning
         risk_factors = assessment.get("risk_factors", {})
@@ -763,7 +763,7 @@ class DisasterResponseSwarm:
         """
         logger.info("Adapting disaster response strategy")
 
-        adaptation = {
+        adaptation: Dict[str, Any] = {
             "adaptation_time": datetime.now(),
             "strategy_changes": [],
             "resource_reallocations": {},
@@ -822,7 +822,7 @@ class DisasterResponseSwarm:
         self, env_changes: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Adapt response to environmental changes."""
-        adaptation = {
+        adaptation: Dict[str, Any] = {
             "environmental_changes": env_changes,
             "strategy_changes": [],
             "safety_measures": [],
@@ -927,7 +927,7 @@ class DisasterResponseSwarm:
 
     def get_response_status(self) -> Dict[str, Any]:
         """Get current disaster response status."""
-        status = {
+        status: Dict[str, Any] = {
             "response_active": self.current_scenario is not None,
             "current_scenario": (
                 self.current_scenario.__dict__ if self.current_scenario else None

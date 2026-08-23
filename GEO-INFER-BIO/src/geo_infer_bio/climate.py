@@ -64,7 +64,7 @@ class ClimateDataProcessor:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # WorldClim configuration
-        self.worldclim_config = {
+        self.worldclim_config: Dict[str, Any] = {
             "base_url": "https://biogeo.ucdavis.edu/data/worldclim/v2.1/",
             "variables": {
                 "bio1": "Annual Mean Temperature",
@@ -140,7 +140,7 @@ class ClimateDataProcessor:
                 continue
 
             if source.is_file():
-                raster_path = source
+                raster_path: Optional[Path] = source
             else:
                 number = var.removeprefix("bio")
                 candidates = (
@@ -359,7 +359,7 @@ class ClimateDataset:
         Returns:
             DataFrame with all variables and coordinates
         """
-        dfs = []
+        dfs: List[pd.DataFrame] = []
         for variable in self.get_variables():
             var_df = self.get_variable_data(variable)
             var_df = var_df.rename(columns={"value": variable})

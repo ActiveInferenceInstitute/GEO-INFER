@@ -51,9 +51,35 @@ class APIConnector:
         """Reject undeclared remote calls instead of silently contacting a service."""
         raise RuntimeError("remote API connectors are not configured in local examples")
 
+    async def get_async(self, **_: Any) -> Any:
+        """Reject undeclared remote calls instead of silently contacting a service."""
+        raise RuntimeError("remote API connectors are not configured in local examples")
+
+    async def post_async(self, **_: Any) -> Any:
+        """Reject undeclared remote calls instead of silently contacting a service."""
+        raise RuntimeError("remote API connectors are not configured in local examples")
+
 
 class PerformanceMonitor:
     """Local performance monitor state used by orchestration examples."""
+
+    def start_workflow_tracking(self, execution_id: str) -> None:
+        return None
+
+    def stop_workflow_tracking(self, execution_id: str) -> None:
+        return None
+
+    def start_step_tracking(self, execution_id: str, step_name: str) -> None:
+        return None
+
+    def stop_step_tracking(self, execution_id: str, step_name: str) -> None:
+        return None
+
+    def get_workflow_metrics(self, execution_id: str) -> Dict[str, Any]:
+        return {}
+
+    def shutdown(self) -> None:
+        return None
 
 
 class ExecutionStrategy(Enum):
@@ -240,13 +266,13 @@ class ModuleOrchestrator:
 
         # Execution resources
         self.executor = ThreadPoolExecutor(max_workers=8)
-        self.event_bus = {}  # Simple event system
+        self.event_bus: Dict[str, Any] = {}  # Simple event system
 
         # Load configuration
         self._load_configuration()
         self._initialize_modules()
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Load orchestrator configuration and workflow definitions."""
         try:
             # Load orchestrator settings
@@ -272,7 +298,7 @@ class ModuleOrchestrator:
             self.logger.error(f"Error loading configuration: {e}")
             raise
 
-    def _initialize_modules(self):
+    def _initialize_modules(self) -> None:
         """Initialize and health-check available modules."""
         module_configs = self.config_manager.get_config("modules", {})
 
@@ -283,7 +309,7 @@ class ModuleOrchestrator:
                 self.logger.warning(f"Failed to initialize module {module_name}: {e}")
                 self.module_health[module_name] = ModuleStatus.ERROR
 
-    def _initialize_module(self, module_name: str, config: Dict[str, Any]):
+    def _initialize_module(self, module_name: str, config: Dict[str, Any]) -> None:
         """Initialize a specific module and check its health."""
         self.logger.info(f"Initializing module: {module_name}")
         self.module_health[module_name] = ModuleStatus.INITIALIZING
@@ -397,19 +423,24 @@ class ModuleOrchestrator:
                 self.performance_monitor.start_workflow_tracking(execution_id)
 
             # Execute based on strategy
-            if workflow.execution_strategy == ExecutionStrategy.SEQUENTIAL:
+            strategy = (
+                workflow.execution_strategy.value
+                if isinstance(workflow.execution_strategy, ExecutionStrategy)
+                else str(workflow.execution_strategy)
+            )
+            if strategy == ExecutionStrategy.SEQUENTIAL.value:
                 result = await self._execute_sequential(workflow, input_data, execution)
-            elif workflow.execution_strategy == ExecutionStrategy.PARALLEL:
+            elif strategy == ExecutionStrategy.PARALLEL.value:
                 result = await self._execute_parallel(workflow, input_data, execution)
-            elif workflow.execution_strategy == ExecutionStrategy.CONDITIONAL:
+            elif strategy == ExecutionStrategy.CONDITIONAL.value:
                 result = await self._execute_conditional(
                     workflow, input_data, execution
                 )
-            elif workflow.execution_strategy == ExecutionStrategy.EVENT_DRIVEN:
+            elif strategy == ExecutionStrategy.EVENT_DRIVEN.value:
                 result = await self._execute_event_driven(
                     workflow, input_data, execution
                 )
-            elif workflow.execution_strategy == ExecutionStrategy.FEEDBACK_LOOP:
+            elif strategy == ExecutionStrategy.FEEDBACK_LOOP.value:
                 result = await self._execute_feedback_loop(
                     workflow, input_data, execution
                 )
@@ -610,8 +641,8 @@ class ModuleOrchestrator:
     ) -> IntegrationResult:
         """Execute workflow using event-driven pattern."""
         # Initialize event bus for this execution
-        execution_events = {}
-        results = {}
+        execution_events: Dict[str, List[Any]] = {}
+        results: Dict[str, Any] = {}
         current_data = input_data.copy()
 
         # Set up event listeners
@@ -744,7 +775,8 @@ class ModuleOrchestrator:
             )
 
             if response.status_code == 200:
-                return response.json()
+                res = response.json()
+                return res if isinstance(res, dict) else {"result": res}
             else:
                 raise Exception(
                     f"Step execution failed: {response.status_code} - {response.text}"
@@ -795,7 +827,7 @@ class ModuleOrchestrator:
         current_data: Dict[str, Any],
         execution: WorkflowExecution,
         results: Dict[str, Any],
-    ):
+    ) -> None:
         """Trigger an event and execute associated steps."""
         if event_name in execution_events:
             for step in execution_events[event_name]:
@@ -834,8 +866,8 @@ class ModuleOrchestrator:
             prev_iter = results[iterations[-2]]
 
             # Collect all numeric leaf values from both iterations
-            def _extract_nums(d, prefix=""):
-                vals = {}
+            def _extract_nums(d: Any, prefix: str = "") -> Dict[str, float]:
+                vals: Dict[str, float] = {}
                 if isinstance(d, dict):
                     for k, v in d.items():
                         vals.update(_extract_nums(v, f"{prefix}.{k}"))
@@ -855,7 +887,7 @@ class ModuleOrchestrator:
                 for k in common_keys
             )
 
-            return max_change < threshold
+            return bool(max_change < threshold)
 
         except Exception:
             return False
@@ -923,9 +955,10 @@ class ModuleOrchestrator:
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform comprehensive health check of orchestrator and modules."""
-        health_status = {
+        modules_status: Dict[str, str] = {}
+        health_status: Dict[str, Any] = {
             "orchestrator": "healthy",
-            "modules": {},
+            "modules": modules_status,
             "active_executions": len(self.active_executions),
             "registered_workflows": len(self.workflows),
             "timestamp": time.time(),
@@ -939,19 +972,19 @@ class ModuleOrchestrator:
                 )
 
                 if response.status_code == 200:
-                    health_status["modules"][module_name] = "healthy"
+                    modules_status[module_name] = "healthy"
                     self.module_health[module_name] = ModuleStatus.AVAILABLE
                 else:
-                    health_status["modules"][module_name] = "degraded"
+                    modules_status[module_name] = "degraded"
                     self.module_health[module_name] = ModuleStatus.DEGRADED
 
             except Exception as e:
-                health_status["modules"][module_name] = f"unhealthy: {str(e)}"
+                modules_status[module_name] = f"unhealthy: {str(e)}"
                 self.module_health[module_name] = ModuleStatus.UNAVAILABLE
 
         return health_status
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Gracefully shutdown the orchestrator."""
         self.logger.info("Shutting down module orchestrator")
 
@@ -1007,7 +1040,7 @@ SAMPLE_WORKFLOWS = {
 
 if __name__ == "__main__":
     # Example usage
-    async def main():
+    async def main() -> None:
         orchestrator = ModuleOrchestrator()
 
         # Health check

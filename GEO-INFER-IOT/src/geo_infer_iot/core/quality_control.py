@@ -30,9 +30,9 @@ class QualityCheckResult:
     passed: bool
     issues: List[str]
     quality_score: float
-    metadata: Dict = None
+    metadata: Optional[Dict[str, Any]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.metadata is None:
             self.metadata = {}
 
@@ -51,16 +51,16 @@ class QualityController:
     #: Per-sensor measurements retained for temporal and outlier analysis.
     DEFAULT_HISTORY_SIZE = 500
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.quality_history = []
-        self.sensor_baselines = {}
-        self.outlier_detector = None
+        self.quality_history: List[Dict[str, Any]] = []
+        self.sensor_baselines: Dict[str, Any] = {}
+        self.outlier_detector: Optional[Any] = None
         self.history_size = int(
             self.config.get('history_size', self.DEFAULT_HISTORY_SIZE)
         )
         # Bounded per-sensor rings so a long-lived controller keeps constant memory.
-        self.measurement_history: Dict[str, deque] = defaultdict(
+        self.measurement_history: Dict[str, deque[Dict[str, Any]]] = defaultdict(
             lambda: deque(maxlen=self.history_size)
         )
 
@@ -91,7 +91,7 @@ class QualityController:
 
         logger.info("QualityController initialized")
 
-    def _initialize_outlier_detector(self):
+    def _initialize_outlier_detector(self) -> None:
         """Initialize the outlier detection model."""
         try:
             outlier_config = self.config.get('outlier_detection', self.default_params['outlier_detection'])
@@ -214,7 +214,7 @@ class QualityController:
 
     def _detect_outliers(self, measurement: Dict) -> QualityCheckResult:
         """Detect outliers using statistical methods and machine learning."""
-        issues = []
+        issues: List[str] = []
         value = measurement.get('value')
 
         if value is None or self.outlier_detector is None:
@@ -224,10 +224,9 @@ class QualityController:
             sensor_id = measurement.get('sensor_id', 'unknown')
 
             # Isolation Forest needs a population; fit it on the retained window.
-            window = self.config.get(
-                'outlier_window_minutes',
-                self.default_params['temporal_consistency']['window_minutes'],
-            )
+            temp_cfg: Dict[str, Any] = self.default_params.get('temporal_consistency', {})  # type: ignore[assignment]
+            default_win = temp_cfg.get('window_minutes', 60)
+            window = int(self.config.get('outlier_window_minutes', default_win))
             recent = self._get_recent_measurements(sensor_id, minutes=window)
             min_samples = int(self.config.get('outlier_min_samples', 20))
             if len(recent) >= min_samples:
@@ -372,7 +371,7 @@ class QualityController:
         cutoff = newest - timedelta(minutes=minutes)
         return [entry for entry in history if entry['timestamp'] >= cutoff]
 
-    def _update_sensor_baseline(self, sensor_id: str, value: float):
+    def _update_sensor_baseline(self, sensor_id: str, value: float) -> None:
         """Update baseline statistics for a sensor."""
         if sensor_id not in self.sensor_baselines:
             self.sensor_baselines[sensor_id] = {

@@ -44,7 +44,7 @@ import secrets
 import stat
 import threading
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ _HEADER_PREFIX_LEN = len(MAGIC) + 3  # magic + version + alg + key_id length
 _LENGTH_FIELD_LEN = 8
 
 _key_cache_lock = threading.Lock()
-_key_file_cache: dict = {}
+_key_file_cache: Dict[Tuple[str, int, int], bytes] = {}
 
 
 class PayloadSecurityError(Exception):

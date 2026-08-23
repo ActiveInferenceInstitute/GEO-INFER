@@ -6,7 +6,7 @@ temporal geospatial data with metadata and analysis capabilities.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any, Union, cast
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
@@ -94,14 +94,14 @@ class TimeSeries:
         """Get start time."""
         if self.data.empty:
             raise ValueError("TimeSeries is empty")
-        return self.data.index[0]
+        return cast(datetime, pd.Timestamp(self.data.index[0]).to_pydatetime())
 
     @property
     def end_time(self) -> datetime:
         """Get end time."""
         if self.data.empty:
             raise ValueError("TimeSeries is empty")
-        return self.data.index[-1]
+        return cast(datetime, pd.Timestamp(self.data.index[-1]).to_pydatetime())
 
     @property
     def duration(self) -> timedelta:
@@ -112,7 +112,8 @@ class TimeSeries:
     def frequency(self) -> Optional[str]:
         """Get inferred frequency."""
         try:
-            return pd.infer_freq(self.data.index)
+            freq = pd.infer_freq(self.data.index)
+            return str(freq) if freq is not None else None
         except Exception:
             return None
 
@@ -216,7 +217,7 @@ class TimeSeries:
         if start > end:
             raise ValueError("slice start must not be after end")
 
-        sliced_data = self.data.loc[start:end]
+        sliced_data = self.data.loc[start:end]  # type: ignore[misc]
 
         return TimeSeries(
             data=sliced_data,

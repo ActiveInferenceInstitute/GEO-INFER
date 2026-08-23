@@ -68,7 +68,7 @@ def _check_rasterio() -> None:
 class RasterReader:
     """Reader class for raster geospatial data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.supported_formats = SUPPORTED_RASTER_FORMATS
 
     def read(
@@ -78,7 +78,7 @@ class RasterReader:
         window: Optional[Tuple[int, int, int, int]] = None,
         masked: bool = True,
         overview_level: Optional[int] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """
         Read raster data from file.
@@ -151,7 +151,7 @@ class RasterReader:
         window: Optional[Tuple[int, int, int, int]] = None,
         masked: bool = True,
         overview_level: Optional[int] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Read raster using standard rasterio open."""
         read_window = None
@@ -236,7 +236,7 @@ class RasterReader:
         bands: Optional[List[int]] = None,
         masked: bool = True,
         subdataset: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Read NetCDF raster data.
 
@@ -273,7 +273,7 @@ class RasterReader:
         bands: Optional[List[int]] = None,
         masked: bool = True,
         subdataset: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Read HDF5 raster data.
 
@@ -347,7 +347,7 @@ class RasterReader:
 class RasterWriter:
     """Writer class for raster geospatial data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.supported_formats = SUPPORTED_RASTER_FORMATS
 
     def write(
@@ -362,7 +362,7 @@ class RasterWriter:
         compress: Optional[str] = None,
         tags: Optional[Dict[str, str]] = None,
         overwrite: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Write numpy array as raster file.
@@ -481,7 +481,7 @@ class RasterWriter:
         dtype: str,
         compress: Optional[str],
         tags: Optional[Dict[str, str]],
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Write raster with a standard rasterio driver."""
         band_count, height, width = data.shape
@@ -523,7 +523,7 @@ class RasterWriter:
         tags: Optional[Dict[str, str]],
         blocksize: int = 512,
         overview_resampling: str = "nearest",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Write Cloud Optimized GeoTIFF.
 
@@ -608,7 +608,7 @@ class RasterWriter:
         self,
         raster_dict: Dict[str, Any],
         file_path: Union[str, Path],
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Write raster from a dictionary produced by RasterReader.read().
@@ -634,7 +634,7 @@ class RasterWriter:
 
 def read_raster_file(
     file_path: Union[str, Path],
-    **kwargs,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Read raster data from file using appropriate reader.
@@ -654,7 +654,7 @@ def read_raster_file(
 def write_raster_file(
     data: np.ndarray,
     file_path: Union[str, Path],
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     """
     Write numpy array to raster file using appropriate writer.

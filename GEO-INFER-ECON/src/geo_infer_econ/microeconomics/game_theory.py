@@ -40,8 +40,8 @@ class NashEquilibrium:
     Nash equilibrium computation and analysis
     """
 
-    def __init__(self):
-        self.equilibria = []
+    def __init__(self) -> None:
+        self.equilibria: List[Any] = []
 
     def find_nash_equilibrium(self, game: Game) -> List[Dict[str, Any]]:
         """
@@ -120,7 +120,7 @@ class NashEquilibrium:
         n1, n2 = len(actions1), len(actions2)
 
         # Set up equations for mixed strategy equilibrium
-        def equations(p):
+        def equations(p: np.ndarray) -> Any:
             # p[0:n1] are probabilities for player 1
             # p[n1:n1+n2] are probabilities for player 2
 
@@ -212,8 +212,8 @@ class AuctionTheory:
     Auction theory and mechanism design
     """
 
-    def __init__(self):
-        self.auction_results = {}
+    def __init__(self) -> None:
+        self.auction_results: Dict[str, Any] = {}
 
     def analyze_first_price_auction(
         self, values: List[float], n_bidders: int
@@ -279,8 +279,8 @@ class EvolutionaryGames:
     Evolutionary game theory and population dynamics
     """
 
-    def __init__(self):
-        self.dynamics_results = {}
+    def __init__(self) -> None:
+        self.dynamics_results: Dict[str, Any] = {}
 
     def replicator_dynamics(
         self,
@@ -365,8 +365,8 @@ class SpatialGames:
     Spatial game theory and location models
     """
 
-    def __init__(self):
-        self.spatial_results = {}
+    def __init__(self) -> None:
+        self.spatial_results: Dict[str, Any] = {}
 
     def location_game_analysis(
         self, locations: np.ndarray, demand_function: Callable
@@ -431,7 +431,7 @@ class SpatialGames:
                     else:
                         shares.append(0.0)  # Consumer prefers other firm
 
-            market_shares[i] = np.mean(shares) if shares else 0.0
+            market_shares[i] = float(np.mean(shares)) if shares else 0.0
 
         return market_shares
 
@@ -441,8 +441,8 @@ class BargainingTheory:
     Bargaining theory and cooperative games
     """
 
-    def __init__(self):
-        self.bargaining_solutions = {}
+    def __init__(self) -> None:
+        self.bargaining_solutions: Dict[str, Any] = {}
 
     def nash_bargaining_solution(
         self,
@@ -534,7 +534,7 @@ class GameTheoryModels:
         }
 
     def analyze_auction_game(
-        self, auction_type: str, valuations: List[float], n_bidders: int = None
+        self, auction_type: str, valuations: List[float], n_bidders: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Analyze auction game

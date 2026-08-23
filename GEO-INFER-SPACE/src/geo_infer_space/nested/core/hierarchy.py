@@ -9,7 +9,7 @@ level management, and hierarchical operations.
 import logging
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 from enum import Enum
 from collections import defaultdict, deque
 
@@ -55,7 +55,7 @@ class HierarchicalRelationship:
     properties: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate relationship after creation."""
         if not 0.0 <= self.strength <= 1.0:
             raise ValueError("Relationship strength must be between 0.0 and 1.0")
@@ -81,7 +81,7 @@ class HierarchyManager:
     and complex relationship patterns.
     """
     
-    def __init__(self, name: str = "HierarchyManager"):
+    def __init__(self, name: str = "HierarchyManager") -> None:
         """
         Initialize hierarchy manager.
         
@@ -114,7 +114,7 @@ class HierarchyManager:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
     
-    def add_system(self, system_id: str, level: Optional[int] = None):
+    def add_system(self, system_id: str, level: Optional[int] = None) -> None:
         """Add a system to the hierarchy."""
         self.systems.add(system_id)
         
@@ -127,7 +127,7 @@ class HierarchyManager:
         self._update_system_classification()
         self.updated_at = datetime.now()
     
-    def remove_system(self, system_id: str):
+    def remove_system(self, system_id: str) -> None:
         """Remove a system from the hierarchy."""
         if system_id not in self.systems:
             return
@@ -175,7 +175,7 @@ class HierarchyManager:
     def add_relationship(self, source_id: str, target_id: str, 
                         relationship_type: RelationshipType,
                         strength: float = 1.0,
-                        properties: Dict[str, Any] = None) -> str:
+                        properties: Optional[Dict[str, Any]] = None) -> str:
         """Add a hierarchical relationship."""
         if source_id not in self.systems:
             self.add_system(source_id)
@@ -217,7 +217,7 @@ class HierarchyManager:
         
         return rel_id
     
-    def remove_relationship(self, rel_id: str):
+    def remove_relationship(self, rel_id: str) -> None:
         """Remove a hierarchical relationship."""
         if rel_id not in self.relationships:
             return
@@ -239,7 +239,7 @@ class HierarchyManager:
         self._update_system_classification()
         self.updated_at = datetime.now()
     
-    def set_system_level(self, system_id: str, level: int):
+    def set_system_level(self, system_id: str, level: int) -> None:
         """Set the hierarchical level of a system."""
         if system_id not in self.systems:
             self.add_system(system_id)
@@ -317,7 +317,10 @@ class HierarchyManager:
             return self._find_path_simple(source_id, target_id)
         
         try:
-            return nx.shortest_path(self.hierarchy_graph, source_id, target_id)
+            return cast(
+                List[str],
+                nx.shortest_path(self.hierarchy_graph, source_id, target_id),
+            )
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return None
     
@@ -345,18 +348,20 @@ class HierarchyManager:
         current = source_id
         while current != common_ancestor:
             source_to_ancestor.append(current)
-            current = self.get_parent(current)
-            if not current:
+            source_parent = self.get_parent(current)
+            if not source_parent:
                 break
+            current = source_parent
         source_to_ancestor.append(common_ancestor)
         
         ancestor_to_target = []
         current = target_id
         while current != common_ancestor:
             ancestor_to_target.append(current)
-            current = self.get_parent(current)
-            if not current:
+            target_parent = self.get_parent(current)
+            if not target_parent:
                 break
+            current = target_parent
         
         # Combine paths
         path = source_to_ancestor + ancestor_to_target[::-1][1:]
@@ -376,7 +381,7 @@ class HierarchyManager:
         }
         
         # Count relationship types
-        rel_type_counts = defaultdict(int)
+        rel_type_counts: Dict[str, int] = defaultdict(int)
         for relationship in self.relationships.values():
             rel_type_counts[relationship.relationship_type.value] += 1
         metrics['relationship_type_distribution'] = dict(rel_type_counts)
@@ -419,7 +424,7 @@ class HierarchyManager:
         
         return metrics
     
-    def _update_system_classification(self):
+    def _update_system_classification(self) -> None:
         """Update classification of systems (root, leaf, etc.)."""
         self.root_systems.clear()
         self.leaf_systems.clear()
@@ -512,4 +517,3 @@ class HierarchyManager:
             'num_warnings': len(validation['warnings']),
             'updated_at': self.updated_at.isoformat()
         }
-

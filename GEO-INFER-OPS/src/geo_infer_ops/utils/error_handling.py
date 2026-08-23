@@ -106,7 +106,7 @@ class GeoInferError(Exception):
 class NetworkError(GeoInferError):
     """Network-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.NETWORK, severity=ErrorSeverity.HIGH, **kwargs
         )
@@ -115,7 +115,7 @@ class NetworkError(GeoInferError):
 class AuthenticationError(GeoInferError):
     """Authentication-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message,
             category=ErrorCategory.AUTHENTICATION,
@@ -127,7 +127,7 @@ class AuthenticationError(GeoInferError):
 class PermissionError(GeoInferError):
     """Permission-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.PERMISSION, severity=ErrorSeverity.HIGH, **kwargs
         )
@@ -136,7 +136,7 @@ class PermissionError(GeoInferError):
 class FilesystemError(GeoInferError):
     """Filesystem-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.FILESYSTEM, severity=ErrorSeverity.HIGH, **kwargs
         )
@@ -145,7 +145,7 @@ class FilesystemError(GeoInferError):
 class ConfigurationError(GeoInferError):
     """Configuration-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.CONFIGURATION, severity=ErrorSeverity.HIGH, **kwargs
         )
@@ -154,7 +154,7 @@ class ConfigurationError(GeoInferError):
 class ValidationError(GeoInferError):
     """Validation-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.VALIDATION, severity=ErrorSeverity.MEDIUM, **kwargs
         )
@@ -163,7 +163,7 @@ class ValidationError(GeoInferError):
 class ProcessingError(GeoInferError):
     """Processing-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.PROCESSING, severity=ErrorSeverity.MEDIUM, **kwargs
         )
@@ -172,7 +172,7 @@ class ProcessingError(GeoInferError):
 class DataError(GeoInferError):
     """Data-related errors."""
 
-    def __init__(self, message: str, **kwargs):
+    def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
             message, category=ErrorCategory.DATA, severity=ErrorSeverity.MEDIUM, **kwargs
         )
@@ -345,7 +345,7 @@ def retry_on_error(
     jitter: bool = True,
     retryable_errors: Optional[Tuple[Type[Exception], ...]] = None,
     logger_instance: Optional[logging.Logger] = None,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for retrying operations on error.
 
@@ -364,7 +364,7 @@ def retry_on_error(
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             log = logger_instance or logger
 
             for attempt in range(max_attempts):
@@ -408,7 +408,7 @@ def with_error_handling(
     operation: Optional[str] = None,
     logger_instance: Optional[logging.Logger] = None,
     max_retries: int = 3,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for comprehensive error handling.
 
@@ -423,7 +423,7 @@ def with_error_handling(
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             log = logger_instance or logger
             op_name = operation or func.__name__
 
@@ -443,6 +443,9 @@ def with_error_handling(
                         continue
 
                     # No more retries or non-recoverable error
+                    if structured_error is None:
+                        log.error(f"Final failure in {op_name}")
+                        raise
                     log.error(f"Final failure in {op_name}: {structured_error}")
                     raise structured_error
 

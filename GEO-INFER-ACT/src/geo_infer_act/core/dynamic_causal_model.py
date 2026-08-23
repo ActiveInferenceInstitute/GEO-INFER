@@ -2,7 +2,7 @@
 Dynamic Causal Modeling for Active Inference.
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 import numpy as np
 
 
@@ -85,7 +85,7 @@ class DynamicCausalModel:
         # Linear dynamics: dx/dt = A*x + B*u
         dxdt = self.A @ state + self.B @ inputs
 
-        return dxdt
+        return cast(np.ndarray, dxdt)
 
     def observation_equation(self, state: np.ndarray) -> np.ndarray:
         """
@@ -108,7 +108,7 @@ class DynamicCausalModel:
         # Add noise
         noise = self.rng.multivariate_normal(np.zeros(self.output_dim), self.R)
 
-        return observation + noise
+        return cast(np.ndarray, observation + noise)
 
     def integrate_dynamics(
         self, initial_state: np.ndarray, inputs: np.ndarray, time_points: np.ndarray
@@ -320,7 +320,7 @@ class DynamicCausalModel:
 
         return states
 
-    def set_parameters(self, A: np.ndarray, B: np.ndarray, C: np.ndarray):
+    def set_parameters(self, A: np.ndarray, B: np.ndarray, C: np.ndarray) -> None:
         """Set model parameters after validating their matrix contracts."""
         A = np.asarray(A, dtype=float)
         B = np.asarray(B, dtype=float)
@@ -339,7 +339,7 @@ class DynamicCausalModel:
         self.B = B.copy()
         self.C = C.copy()
 
-    def set_noise_parameters(self, Q: np.ndarray, R: np.ndarray):
+    def set_noise_parameters(self, Q: np.ndarray, R: np.ndarray) -> None:
         """Set positive-definite process and observation noise covariances."""
         Q = np.asarray(Q, dtype=float)
         R = np.asarray(R, dtype=float)

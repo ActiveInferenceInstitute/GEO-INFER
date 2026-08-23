@@ -6,7 +6,7 @@ integrating with H3 spatial indexing for efficient spatial queries.
 """
 
 import logging
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
@@ -26,11 +26,11 @@ class SensorMetadata:
     h3_index: str = ""
     h3_resolution: int = 8
     status: str = "active"
-    metadata: Dict = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
     registered_at: datetime = field(default_factory=datetime.now)
     last_seen: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.h3_index:
             self.h3_index = h3.latlng_to_cell(
                 self.latitude, self.longitude, self.h3_resolution
@@ -42,7 +42,7 @@ class SensorNetwork:
     network_id: str
     name: str
     protocol: str
-    spatial_bounds: Dict
+    spatial_bounds: Dict[str, Any]
     sensor_types: List[str]
     sensor_count: int = 0
     created_at: datetime = field(default_factory=datetime.now)
@@ -58,7 +58,7 @@ class SensorRegistry:
     - Network topology tracking
     """
     
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.networks: Dict[str, SensorNetwork] = {}
         self.sensors: Dict[str, SensorMetadata] = {}
@@ -66,7 +66,7 @@ class SensorRegistry:
         
         logger.info("Sensor Registry initialized")
     
-    def register_network(self, **kwargs) -> SensorNetwork:
+    def register_network(self, **kwargs: Any) -> SensorNetwork:
         """Register a new sensor network."""
         network_id = kwargs.get('network_id') or str(uuid.uuid4())
         

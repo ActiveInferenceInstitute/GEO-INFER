@@ -245,16 +245,18 @@ class ProgressTracker:
         progress = self._learner_data[learner_id]
         target_competencies = competencies or list(self._competency_definitions.keys())
         
-        report = {
+        summary_out: Dict[str, int] = {
+            "total_competencies": len(target_competencies),
+            "proficient_or_above": 0,
+            "developing": 0,
+            "not_started": 0
+        }
+        competencies_out: List[Dict[str, Any]] = []
+        report: Dict[str, Any] = {
             "learner_id": learner_id,
             "generated_at": datetime.now().isoformat(),
-            "competencies": [],
-            "summary": {
-                "total_competencies": len(target_competencies),
-                "proficient_or_above": 0,
-                "developing": 0,
-                "not_started": 0
-            },
+            "competencies": competencies_out,
+            "summary": summary_out,
             "visualization_type": visualization,
             "visualization_data": {}
         }
@@ -271,7 +273,7 @@ class ProgressTracker:
         for comp_id in target_competencies:
             if comp_id in progress.competencies:
                 record = progress.competencies[comp_id]
-                comp_data = {
+                comp_data: Dict[str, Any] = {
                     "id": comp_id,
                     "name": record.competency_name,
                     "level": record.level.value,
@@ -283,9 +285,9 @@ class ProgressTracker:
                 
                 # Update summary
                 if record.level in [CompetencyLevel.PROFICIENT, CompetencyLevel.EXEMPLARY]:
-                    report["summary"]["proficient_or_above"] += 1
+                    summary_out["proficient_or_above"] += 1
                 elif record.level == CompetencyLevel.DEVELOPING:
-                    report["summary"]["developing"] += 1
+                    summary_out["developing"] += 1
             else:
                 comp_data = {
                     "id": comp_id,
@@ -296,15 +298,15 @@ class ProgressTracker:
                     "last_assessed": None,
                     "evidence_count": 0
                 }
-                report["summary"]["not_started"] += 1
+                summary_out["not_started"] += 1
             
-            report["competencies"].append(comp_data)
+            competencies_out.append(comp_data)
         
         # Generate visualization data
         if visualization == "radar_chart":
             report["visualization_data"] = {
-                "labels": [c["name"] for c in report["competencies"]],
-                "values": [c["level_value"] for c in report["competencies"]]
+                "labels": [c["name"] for c in competencies_out],
+                "values": [c["level_value"] for c in competencies_out]
             }
         
         logger.info(f"Generated competency report for {learner_id}")
@@ -327,15 +329,17 @@ class ProgressTracker:
         Returns:
             Gap analysis with optional recommendations
         """
-        gaps = {
+        gaps_out: List[Dict[str, Any]] = []
+        gap_summary_out: Dict[str, int] = {
+            "total_required": len(required_competencies),
+            "met": 0,
+            "partially_met": 0,
+            "not_met": 0
+        }
+        gaps: Dict[str, Any] = {
             "learner_id": learner_progress.learner_id,
-            "gaps": [],
-            "gap_summary": {
-                "total_required": len(required_competencies),
-                "met": 0,
-                "partially_met": 0,
-                "not_met": 0
-            },
+            "gaps": gaps_out,
+            "gap_summary": gap_summary_out,
             "recommendations": [] if recommendations else None
         }
         
@@ -343,26 +347,26 @@ class ProgressTracker:
             if comp_id in learner_progress.competencies:
                 record = learner_progress.competencies[comp_id]
                 if record.level in [CompetencyLevel.PROFICIENT, CompetencyLevel.EXEMPLARY]:
-                    gaps["gap_summary"]["met"] += 1
+                    gap_summary_out["met"] += 1
                 elif record.level in [CompetencyLevel.DEVELOPING, CompetencyLevel.EMERGING]:
-                    gaps["gap_summary"]["partially_met"] += 1
-                    gaps["gaps"].append({
+                    gap_summary_out["partially_met"] += 1
+                    gaps_out.append({
                         "competency": comp_id,
                         "current_level": record.level.value,
                         "required_level": "proficient",
                         "gap_severity": "moderate"
                     })
                 else:
-                    gaps["gap_summary"]["not_met"] += 1
-                    gaps["gaps"].append({
+                    gap_summary_out["not_met"] += 1
+                    gaps_out.append({
                         "competency": comp_id,
                         "current_level": record.level.value,
                         "required_level": "proficient",
                         "gap_severity": "high"
                     })
             else:
-                gaps["gap_summary"]["not_met"] += 1
-                gaps["gaps"].append({
+                gap_summary_out["not_met"] += 1
+                gaps_out.append({
                     "competency": comp_id,
                     "current_level": "not_started",
                     "required_level": "proficient",
@@ -371,15 +375,17 @@ class ProgressTracker:
         
         # Generate recommendations
         if recommendations:
-            for gap in gaps["gaps"]:
-                gaps["recommendations"].append({
+            recs_out: List[Dict[str, Any]] = []
+            gaps["recommendations"] = recs_out
+            for gap in gaps_out:
+                recs_out.append({
                     "competency": gap["competency"],
                     "action": f"Complete exercises and assessments for {gap['competency']}",
                     "priority": "high" if gap["gap_severity"] == "critical" else "medium",
                     "estimated_hours": 10 if gap["gap_severity"] == "critical" else 5
                 })
         
-        logger.info(f"Identified {len(gaps['gaps'])} knowledge gaps")
+        logger.info(f"Identified {len(gaps_out)} knowledge gaps")
         return gaps
     
     def generate_analytics(
@@ -401,10 +407,11 @@ class ProgressTracker:
         Returns:
             Analytics dashboard data
         """
-        analytics = {
+        metrics_out: Dict[str, Any] = {}
+        analytics: Dict[str, Any] = {
             "cohort_size": len(cohort),
             "aggregation": aggregation,
-            "metrics": {},
+            "metrics": metrics_out,
             "visualization_type": visualization
         }
         
@@ -414,7 +421,7 @@ class ProgressTracker:
         for metric in metrics:
             if metric == "completion_rate":
                 rates = [p.completion_rate for p in cohort_data if p]
-                analytics["metrics"]["completion_rate"] = {
+                metrics_out["completion_rate"] = {
                     "average": sum(rates) / len(rates) if rates else 0,
                     "min": min(rates) if rates else 0,
                     "max": max(rates) if rates else 0
@@ -426,21 +433,21 @@ class ProgressTracker:
                     if progress:
                         scores = [a.score for a in progress.activities if a.score is not None]
                         all_scores.extend(scores)
-                analytics["metrics"]["assessment_scores"] = {
+                metrics_out["assessment_scores"] = {
                     "average": sum(all_scores) / len(all_scores) if all_scores else 0,
                     "count": len(all_scores)
                 }
             
             elif metric == "time_on_task":
                 times = [p.total_time_hours for p in cohort_data if p]
-                analytics["metrics"]["time_on_task"] = {
+                metrics_out["time_on_task"] = {
                     "average_hours": sum(times) / len(times) if times else 0,
                     "total_hours": sum(times)
                 }
             
             elif metric == "engagement":
                 activity_counts = [len(p.activities) for p in cohort_data if p]
-                analytics["metrics"]["engagement"] = {
+                metrics_out["engagement"] = {
                     "average_activities": sum(activity_counts) / len(activity_counts) if activity_counts else 0,
                     "active_learners": len([c for c in activity_counts if c > 0])
                 }
@@ -465,14 +472,14 @@ class ProgressTracker:
         Returns:
             List of at-risk learners with risk factors
         """
-        at_risk = []
+        at_risk: List[Dict[str, Any]] = []
         
         for learner_id in cohort:
             if learner_id not in self._learner_data:
                 continue
             
             progress = self._learner_data[learner_id]
-            risk_factors = []
+            risk_factors: List[str] = []
             risk_score = 0
             
             for indicator in risk_indicators:
@@ -494,7 +501,7 @@ class ProgressTracker:
                         risk_score += 35
             
             if risk_factors:
-                at_risk_entry = {
+                at_risk_entry: Dict[str, Any] = {
                     "learner_id": learner_id,
                     "risk_score": min(100, risk_score),
                     "risk_factors": risk_factors,
@@ -507,16 +514,16 @@ class ProgressTracker:
                 at_risk.append(at_risk_entry)
         
         # Sort by risk score
-        at_risk.sort(key=lambda x: x["risk_score"], reverse=True)
+        at_risk.sort(key=lambda x: int(x["risk_score"] or 0), reverse=True)
         
         logger.info(f"Identified {len(at_risk)} at-risk learners")
         return at_risk
     
-    def _recommend_interventions(self, risk_factors: List[str]) -> List[Dict[str, str]]:
+    def _recommend_interventions(self, risk_factors: List[str]) -> List[Dict[str, Any]]:
         """Generate intervention recommendations for risk factors."""
-        interventions = []
+        interventions: List[Dict[str, Any]] = []
         
-        intervention_map = {
+        intervention_map: Dict[str, Dict[str, str]] = {
             "low_engagement": {
                 "type": "outreach",
                 "action": "Schedule one-on-one meeting to discuss challenges",
@@ -536,6 +543,6 @@ class ProgressTracker:
         
         for factor in risk_factors:
             if factor in intervention_map:
-                interventions.append(intervention_map[factor])
+                interventions.append(dict(intervention_map[factor]))
         
         return interventions

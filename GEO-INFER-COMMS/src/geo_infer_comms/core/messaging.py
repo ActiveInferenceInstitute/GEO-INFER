@@ -7,7 +7,7 @@ support and real-time capabilities.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set
+from typing import Dict, List, Optional, Callable, Any, Set, cast
 import asyncio
 import json
 import logging
@@ -19,7 +19,7 @@ import queue
 import uuid
 
 from geo_infer_comms.models.message import (
-    MessageRequest, MessageResponse, MessageStatus, MessagePriority,
+    MessageRequest, MessageResponse, MessageStatus, MessagePriority, MessageType,
     BroadcastRequest, BroadcastResponse, MessageMetadata
 )
 from geo_infer_comms.models.spatial import (
@@ -29,10 +29,6 @@ from geo_infer_comms.utils.validation import (
     validate_message_content, validate_message_recipients,
     validate_spatial_filter, sanitize_message_content
 )
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from geo_infer_comms.core.messaging import MessageBroker
 
 
 class MessageBroker:
@@ -178,9 +174,11 @@ class MessageBroker:
                     message_request = MessageRequest(
                         content=request.content,
                         recipients=[recipient],
-                        message_type=request.message_type,
+                        message_type=cast(MessageType, request.message_type),
                         priority=request.priority,
-                        geospatial_data=request.geospatial_filter
+                        geospatial_data=cast(
+                            Optional[GeospatialMetadata], request.geospatial_filter
+                        )
                     )
                     self.send_message(message_request, sender_id)
                     successful_deliveries += 1
@@ -581,6 +579,7 @@ class RoutingRule:
                     message_type=action.get("message_type", "notification"),
                     priority=message.priority
                 )
+                assert self._broker is not None
                 broadcast_response = self._broker.broadcast_message(broadcast_request, message.sender_id)
                 # Collect actual recipients resolved by the broadcast
                 if hasattr(broadcast_response, 'recipient_count'):
@@ -598,19 +597,21 @@ class RoutingRule:
             bounds = condition["within_bounds"]
             loc = geo_data.location
             lat, lon = loc.latitude, loc.longitude
-            return (
-                bounds.get('min_lat', -90) <= lat <= bounds.get('max_lat', 90)
-                and bounds.get('min_lon', -180) <= lon <= bounds.get('max_lon', 180)
+            return cast(
+                bool,
+                (bounds.get('min_lat', -90) <= lat <= bounds.get('max_lat', 90)
+                 and bounds.get('min_lon', -180) <= lon <= bounds.get('max_lon', 180)),
             )
 
         if "within_distance" in condition:
             dist_cfg = condition["within_distance"]
-            max_km = dist_cfg.get('max_km', float('inf'))
+            max_km = cast(float, dist_cfg.get('max_km', float('inf')))
             ref = dist_cfg.get('reference', {})
             loc = geo_data.location
             # Approximate Euclidean distance in km
-            d_km = ((loc.latitude - ref.get('latitude', 0))**2 + (loc.longitude - ref.get('longitude', 0))**2)**0.5 * 111
-            return d_km <= max_km
+            d_km = ((loc.latitude - ref.get('latitude', 0)) ** 2
+                    + (loc.longitude - ref.get('longitude', 0)) ** 2) ** 0.5 * 111
+            return cast(bool, d_km <= max_km)
 
         return True
 
@@ -666,7 +667,7 @@ class MessageFormatter:
     @staticmethod
     def format_for_geospatial_context(message: MessageResponse) -> Dict[str, Any]:
         """Format message with geospatial context information."""
-        formatted = {
+        formatted: Dict[str, Any] = {
             "message_id": message.message_id,
             "content": message.content,
             "sender_id": message.sender_id,

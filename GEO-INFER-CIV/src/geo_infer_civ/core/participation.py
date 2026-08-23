@@ -226,7 +226,8 @@ class ParticipationAnalyzer:
 
         group_counts: Dict[str, int] = {}
         for r in records_with_demographics:
-            group_counts[r.demographic_group] = group_counts.get(r.demographic_group, 0) + 1
+            if r.demographic_group is not None:
+                group_counts[r.demographic_group] = group_counts.get(r.demographic_group, 0) + 1
 
         group_proportions: Dict[str, float] = {}
         if total_with_demo > 0:

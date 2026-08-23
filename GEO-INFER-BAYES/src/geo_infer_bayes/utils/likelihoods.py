@@ -6,7 +6,7 @@ inference in geospatial applications.
 """
 
 import numpy as np
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 
 class SpatialLikelihood:
@@ -17,7 +17,7 @@ class SpatialLikelihood:
     spatial structure in the data.
     """
 
-    def __init__(self, likelihood_type: str = "gaussian", **kwargs):
+    def __init__(self, likelihood_type: str = "gaussian", **kwargs: Any) -> None:
         """
         Initialize the spatial likelihood.
 
@@ -72,7 +72,7 @@ class SpatialLikelihood:
             log_likelihood = -0.5 * np.sum(residuals**2 / sigma**2)
             log_likelihood -= len(obs) * np.log(sigma * np.sqrt(2 * np.pi))
 
-        return log_likelihood
+        return float(log_likelihood)
 
     def _poisson_likelihood(self, pred: np.ndarray, obs: np.ndarray) -> float:
         """Poisson likelihood for count spatial data."""
@@ -84,7 +84,7 @@ class SpatialLikelihood:
             obs * np.log(pred) - pred - np.log(np.arange(1, int(np.max(obs)) + 1)).sum()
         )
 
-        return log_likelihood
+        return float(log_likelihood)
 
     def _binomial_likelihood(self, pred: np.ndarray, obs: np.ndarray) -> float:
         """Binomial likelihood for binary spatial data."""
@@ -96,7 +96,7 @@ class SpatialLikelihood:
         # Binomial log-likelihood
         log_likelihood = np.sum(obs * np.log(prob) + (n - obs) * np.log(1 - prob))
 
-        return log_likelihood
+        return float(log_likelihood)
 
 
 class PoissonProcess:
@@ -106,7 +106,7 @@ class PoissonProcess:
     This class provides likelihood functions for spatial point processes.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the Poisson process likelihood."""
         self.parameters = kwargs
 
@@ -133,7 +133,7 @@ class PoissonProcess:
         # Poisson process log-likelihood
         log_likelihood = -integral_intensity + n_points * np.log(integral_intensity)
 
-        return log_likelihood
+        return float(log_likelihood)
 
     def _integrate_intensity(
         self, intensity: np.ndarray, window: Dict[str, float]
@@ -143,7 +143,7 @@ class PoissonProcess:
         area = (window["xmax"] - window["xmin"]) * (window["ymax"] - window["ymin"])
         mean_intensity = np.mean(intensity)
 
-        return area * mean_intensity
+        return float(area * mean_intensity)
 
 
 class GaussianLikelihood:
@@ -153,7 +153,7 @@ class GaussianLikelihood:
     This class provides standard Gaussian likelihood functions.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the Gaussian likelihood."""
         self.parameters = kwargs
 
@@ -176,4 +176,4 @@ class GaussianLikelihood:
         log_likelihood = -0.5 * np.sum(residuals**2 / sigma**2)
         log_likelihood -= len(observations) * np.log(sigma * np.sqrt(2 * np.pi))
 
-        return log_likelihood
+        return float(log_likelihood)

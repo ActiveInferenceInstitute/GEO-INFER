@@ -3,7 +3,7 @@ Middleware for the GEO-INFER-API.
 """
 import logging
 import time
-from typing import Callable
+from typing import Callable, cast
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -20,7 +20,7 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Handle requests and convert API exceptions to proper HTTP responses."""
         try:
-            response = await call_next(request)
+            response = cast("Response", await call_next(request))
             return response
         except APIError as e:
             return JSONResponse(
@@ -50,7 +50,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         logger.info("API Request: %s %s", request.method, request.url)
 
-        response = await call_next(request)
+        response = cast("Response", await call_next(request))
 
         process_time = time.time() - start_time
 

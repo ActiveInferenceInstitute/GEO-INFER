@@ -58,7 +58,7 @@ class PerformanceEvaluator:
     - Kaufmann, D., et al. (2010). The Worldwide Governance Indicators
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance evaluator."""
         self.evaluations: Dict[str, PerformanceMetrics] = {}
         self.benchmarks: Dict[str, float] = {
@@ -197,7 +197,7 @@ class PerformanceEvaluator:
         if performance_data:
             outcome_achievement = performance_data.get('outcome_achievement', 0.5)
             objective_fulfillment = performance_data.get('objective_fulfillment', 0.5)
-            return (outcome_achievement * 0.6 + objective_fulfillment * 0.4) * 0.7 + structure_score * 0.3
+            return float((outcome_achievement * 0.6 + objective_fulfillment * 0.4) * 0.7 + structure_score * 0.3)
         
         return structure_score
     
@@ -221,9 +221,9 @@ class PerformanceEvaluator:
         if performance_data:
             process_efficiency = performance_data.get('process_efficiency', 0.5)
             resource_efficiency = performance_data.get('resource_efficiency', 0.5)
-            return (process_efficiency * 0.5 + resource_efficiency * 0.5) * 0.7 + efficiency * 0.3
+            return float((process_efficiency * 0.5 + resource_efficiency * 0.5) * 0.7 + efficiency * 0.3)
         
-        return efficiency
+        return float(efficiency)
     
     def _evaluate_equity(
         self,
@@ -245,7 +245,7 @@ class PerformanceEvaluator:
         if performance_data:
             benefit_distribution = performance_data.get('benefit_distribution_equity', 0.5)
             access_equity = performance_data.get('access_equity', 0.5)
-            return (benefit_distribution * 0.5 + access_equity * 0.5) * 0.7 + representation_score * 0.3
+            return float((benefit_distribution * 0.5 + access_equity * 0.5) * 0.7 + representation_score * 0.3)
         
         return representation_score
     
@@ -268,7 +268,7 @@ class PerformanceEvaluator:
         if performance_data:
             resource_sustainability = performance_data.get('resource_sustainability', 0.5)
             long_term_viability = performance_data.get('long_term_viability', 0.5)
-            return (resource_sustainability * 0.5 + long_term_viability * 0.5) * 0.7 + sustainability_score * 0.3
+            return float((resource_sustainability * 0.5 + long_term_viability * 0.5) * 0.7 + sustainability_score * 0.3)
         
         return sustainability_score
     
@@ -293,7 +293,7 @@ class PerformanceEvaluator:
         if performance_data:
             engagement_level = performance_data.get('stakeholder_engagement', 0.5)
             participation_rate = performance_data.get('participation_rate', 0.5)
-            return (engagement_level * 0.5 + participation_rate * 0.5) * 0.7 + participation_score * 0.3
+            return float((engagement_level * 0.5 + participation_rate * 0.5) * 0.7 + participation_score * 0.3)
         
         return participation_score
     
@@ -310,7 +310,7 @@ class PerformanceEvaluator:
         if performance_data:
             disclosure_rate = performance_data.get('disclosure_rate', 0.5)
             information_accessibility = performance_data.get('information_accessibility', 0.5)
-            return (disclosure_rate * 0.5 + information_accessibility * 0.5) * 0.7 + transparency_score * 0.3
+            return float((disclosure_rate * 0.5 + information_accessibility * 0.5) * 0.7 + transparency_score * 0.3)
         
         return transparency_score
     
@@ -326,8 +326,8 @@ class PerformanceEvaluator:
         
         if performance_data:
             audit_frequency = performance_data.get('audit_frequency', 0.5)
-            compliance_rate = performance_data.get('compliance_rate', 0.5)
-            return (audit_frequency * 0.5 + compliance_rate * 0.5) * 0.7 + accountability_score * 0.3
+            compliance_rate_p = performance_data.get('compliance_rate', 0.5)
+            return float((audit_frequency * 0.5 + compliance_rate_p * 0.5) * 0.7 + accountability_score * 0.3)
         
         return accountability_score
     
@@ -344,9 +344,9 @@ class PerformanceEvaluator:
         if performance_data:
             acceptance_rate = performance_data.get('stakeholder_acceptance', 0.5)
             trust_level = performance_data.get('trust_level', 0.5)
-            return (acceptance_rate * 0.5 + trust_level * 0.5) * 0.7 + legitimacy_score * 0.3
+            return float((acceptance_rate * 0.5 + trust_level * 0.5) * 0.7 + legitimacy_score * 0.3)
         
-        return legitimacy_score
+        return float(legitimacy_score)
     
     def _evaluate_adaptability(
         self,
@@ -365,9 +365,9 @@ class PerformanceEvaluator:
         if performance_data:
             adaptation_capacity = performance_data.get('adaptation_capacity', 0.5)
             learning_rate = performance_data.get('learning_rate', 0.5)
-            return (adaptation_capacity * 0.5 + learning_rate * 0.5) * 0.7 + adaptability_score * 0.3
+            return float((adaptation_capacity * 0.5 + learning_rate * 0.5) * 0.7 + adaptability_score * 0.3)
         
-        return adaptability_score
+        return float(adaptability_score)
     
     def _evaluate_resilience(
         self,
@@ -389,9 +389,9 @@ class PerformanceEvaluator:
         if performance_data:
             shock_resistance = performance_data.get('shock_resistance', 0.5)
             recovery_capacity = performance_data.get('recovery_capacity', 0.5)
-            return (shock_resistance * 0.5 + recovery_capacity * 0.5) * 0.7 + resilience_score * 0.3
+            return float((shock_resistance * 0.5 + recovery_capacity * 0.5) * 0.7 + resilience_score * 0.3)
         
-        return resilience_score
+        return float(resilience_score)
     
     def _identify_trends(self, dimension_scores: Dict[str, float]) -> Dict[str, str]:
         """Identify performance trends."""
@@ -539,12 +539,16 @@ class PerformanceEvaluator:
         Dict[str, Any]
             Comparison results
         """
-        comparison = {
+        dimension_differences_out: Dict[str, float] = {}
+        improved_dimensions_out: List[str] = []
+        declined_dimensions_out: List[str] = []
+        stable_dimensions_out: List[str] = []
+        comparison: Dict[str, Any] = {
             'overall_difference': metrics2.overall_score - metrics1.overall_score,
-            'dimension_differences': {},
-            'improved_dimensions': [],
-            'declined_dimensions': [],
-            'stable_dimensions': []
+            'dimension_differences': dimension_differences_out,
+            'improved_dimensions': improved_dimensions_out,
+            'declined_dimensions': declined_dimensions_out,
+            'stable_dimensions': stable_dimensions_out
         }
         
         # Compare dimensions
@@ -555,14 +559,14 @@ class PerformanceEvaluator:
             score2 = metrics2.dimension_scores.get(dimension, 0.0)
             difference = score2 - score1
             
-            comparison['dimension_differences'][dimension] = difference
+            dimension_differences_out[dimension] = difference
             
             if difference > 0.1:
-                comparison['improved_dimensions'].append(dimension)
+                improved_dimensions_out.append(dimension)
             elif difference < -0.1:
-                comparison['declined_dimensions'].append(dimension)
+                declined_dimensions_out.append(dimension)
             else:
-                comparison['stable_dimensions'].append(dimension)
+                stable_dimensions_out.append(dimension)
         
         return comparison
 

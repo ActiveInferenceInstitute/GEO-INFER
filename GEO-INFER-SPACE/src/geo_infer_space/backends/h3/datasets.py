@@ -1,7 +1,7 @@
 """H3 dataset loading, validation, and export utilities."""
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Set, Union
 from datetime import datetime
 import json
 
@@ -18,7 +18,7 @@ class H3Dataset:
     validation, and export capabilities.
     """
 
-    def __init__(self, grid: H3Grid, metadata: Optional[Dict[str, Any]] = None):
+    def __init__(self, grid: H3Grid, metadata: Optional[Dict[str, Any]] = None) -> None:
         """
         Initialize H3Dataset with grid and metadata.
 
@@ -30,7 +30,7 @@ class H3Dataset:
         self.metadata = metadata or {}
         self.created_at = datetime.now()
 
-    def add_metadata(self, key: str, value: Any):
+    def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata entry."""
         self.metadata[key] = value
 
@@ -45,7 +45,12 @@ class H3Dataset:
         Returns:
             Validation report dictionary
         """
-        report = {"valid": True, "errors": [], "warnings": [], "statistics": {}}
+        report: Dict[str, Any] = {
+            "valid": True,
+            "errors": [],
+            "warnings": [],
+            "statistics": {},
+        }
 
         # Check grid
         if not self.grid or not self.grid.cells:
@@ -54,7 +59,7 @@ class H3Dataset:
             return report
 
         # Check data consistency
-        property_keys = set()
+        property_keys: Set[str] = set()
         for cell in self.grid.cells:
             property_keys.update(cell.properties.keys())
 
@@ -75,7 +80,7 @@ class H3Dataset:
 
         return report
 
-    def export_json(self, filepath: str):
+    def export_json(self, filepath: str) -> None:
         """Export dataset to JSON file."""
         data = {
             "metadata": self.metadata,
@@ -207,6 +212,7 @@ class H3DataLoader:
                             h3_column,
                             resolution_column,
                         ]:
+                            value: Union[float, str]
                             try:
                                 # Try to convert to number
                                 value = float(values[i])
@@ -237,12 +243,12 @@ class H3DataExporter:
     """
 
     @staticmethod
-    def to_geojson(dataset: H3Dataset, filepath: str):
+    def to_geojson(dataset: H3Dataset, filepath: str) -> None:
         """Export dataset to GeoJSON file."""
         dataset.export_json(filepath)
 
     @staticmethod
-    def to_csv(dataset: H3Dataset, filepath: str):
+    def to_csv(dataset: H3Dataset, filepath: str) -> None:
         """
         Export dataset to CSV file.
 
@@ -252,7 +258,7 @@ class H3DataExporter:
         """
         try:
             # Collect all property keys
-            all_keys = set()
+            all_keys: Set[str] = set()
             for cell in dataset.grid.cells:
                 all_keys.update(cell.properties.keys())
 

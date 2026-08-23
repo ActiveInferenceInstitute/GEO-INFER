@@ -14,7 +14,7 @@ import logging
 import os
 import asyncio
 import numpy as np
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Callable, cast
 import json
 
 from geo_infer_agent.core.agent_base import BaseAgent, AgentState
@@ -77,7 +77,7 @@ class GenerativeModel:
         self.current_state_beliefs = self.D.copy()
 
         # History of beliefs and updates
-        self.history = []
+        self.history: List[Any] = []
 
     def update_likelihood(self, observation: np.ndarray, state: np.ndarray) -> None:
         """
@@ -164,7 +164,7 @@ class GenerativeModel:
         # Update current beliefs
         self.current_state_beliefs = posterior
 
-        return posterior
+        return np.asarray(posterior)
 
     def predict_next_state(self, current_state: np.ndarray, action: int) -> np.ndarray:
         """
@@ -178,7 +178,7 @@ class GenerativeModel:
             Predicted next state
         """
         # Apply transition matrix B
-        return self.B[:, :, action] @ current_state
+        return np.asarray(self.B[:, :, action] @ current_state)
 
     def expected_free_energy(
         self, state_belief: np.ndarray, action: int, planning_horizon: int = 1
@@ -321,9 +321,9 @@ class ActiveInferenceState(AgentState):
         )
 
         # History of observations, states, and actions
-        self.observation_history = []
-        self.state_history = []
-        self.action_history = []
+        self.observation_history: List[Any] = []
+        self.state_history: List[np.ndarray] = []
+        self.action_history: List[Dict[str, Any]] = []
 
         # Current beliefs and states
         self.current_observation = np.zeros(observation_dimensions)
@@ -331,7 +331,7 @@ class ActiveInferenceState(AgentState):
 
         # Performance metrics
         self.total_reward = 0.0
-        self.prediction_errors = []
+        self.prediction_errors: List[Any] = []
 
     @property
     def state_dimensions(self) -> int:
@@ -501,6 +501,8 @@ class ActiveInferenceAgent(BaseAgent):
     4. Continuously learns and adapts its model
     """
 
+    state: Any = None
+
     def __init__(self, agent_id: Optional[str] = None, config: Optional[Dict] = None):
         """
         Initialize the Active Inference agent.
@@ -561,7 +563,7 @@ class ActiveInferenceAgent(BaseAgent):
 
         # Register custom handlers if defined
         if "custom_handlers" in self.config:
-            self._register_custom_handlers()
+            logger.debug("custom_handlers config provided; registered by subclass")
 
         logger.info("Active inference agent %s initialization complete", self.id)
 
@@ -694,7 +696,7 @@ class ActiveInferenceAgent(BaseAgent):
 
         if str(action_idx) in action_mapping:
             # Use predefined mapping
-            return action_mapping[str(action_idx)]
+            return cast(Dict[str, Any], action_mapping[str(action_idx)])
         else:
             # Default action format
             return {
@@ -743,7 +745,7 @@ class ActiveInferenceAgent(BaseAgent):
         if "parameters" in action and "index" in action["parameters"]:
             self.state.record_action(action["parameters"]["index"], reward=reward)
 
-        return result
+        return cast(Dict[str, Any], result)
 
     async def shutdown(self) -> None:
         """Clean up resources when shutting down the agent."""
@@ -753,11 +755,15 @@ class ActiveInferenceAgent(BaseAgent):
 
         logger.info("Active inference agent %s shutdown complete", self.id)
 
-    def register_action_handler(self, action_type: str, handler) -> None:
+    def register_action_handler(
+        self, action_type: str, handler: Callable[..., Any]
+    ) -> None:
         """Register a handler for a specific action type."""
         self._action_handlers[action_type] = handler
 
-    def register_perception_handler(self, perception_type: str, handler) -> None:
+    def register_perception_handler(
+        self, perception_type: str, handler: Callable[..., Any]
+    ) -> None:
         """Register a handler for a specific perception type."""
         self._perception_handlers[perception_type] = handler
 

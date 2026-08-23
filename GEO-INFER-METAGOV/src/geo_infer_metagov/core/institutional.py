@@ -720,10 +720,11 @@ class InstitutionalDesigner:
     
     def _detect_rule_conflicts(self, institutions: List[Institution]) -> List[Dict[str, Any]]:
         """Detect conflicts between institutional rules."""
-        conflicts = []
+        # Detect conflicts between institutional rules
+        conflicts: List[Dict[str, Any]] = []
         
         # Check for contradictory rules of the same type
-        rule_groups = {}
+        rule_groups: Dict[str, List[Institution]] = {}
         for inst in institutions:
             if inst.rule_type not in rule_groups:
                 rule_groups[inst.rule_type] = []
@@ -747,7 +748,7 @@ class InstitutionalDesigner:
         choice_rules = rule_groups.get('choice', [])
         if len(choice_rules) > 1:
             # Check for contradictory decision-making processes
-            decision_methods = {}
+            decision_methods: Dict[str, Any] = {}
             for rule in choice_rules:
                 method = None
                 if 'consensus' in rule.description.lower():

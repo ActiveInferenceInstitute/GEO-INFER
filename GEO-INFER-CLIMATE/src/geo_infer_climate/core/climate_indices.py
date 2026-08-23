@@ -9,7 +9,7 @@ Implements calculation of various climate indices including:
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -237,7 +237,7 @@ class ClimateIndicesCalculator:
         pdsi = xr.where(pdsi < -6, -6, pdsi)
         
         pdsi.name = 'PDSI'
-        return pdsi
+        return cast(xr.DataArray, pdsi)
     
     def _calculate_pet(self, temperature: xr.DataArray) -> xr.DataArray:
         """Calculate potential evapotranspiration using Thornthwaite method."""
@@ -245,5 +245,5 @@ class ClimateIndicesCalculator:
         # Full method requires day length and latitude
         pet = 16 * ((10 * temperature / temperature.mean(dim='time')) ** 1.5)
         pet = xr.where(pet < 0, 0, pet)
-        return pet
+        return cast(xr.DataArray, pet)
 

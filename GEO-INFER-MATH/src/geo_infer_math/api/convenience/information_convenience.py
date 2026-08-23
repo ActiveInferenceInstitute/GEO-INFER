@@ -25,7 +25,7 @@ def spatial_entropy_helper(
     coordinates: np.ndarray,
     values: Optional[np.ndarray] = None,
     method: str = 'shannon',
-    **kwargs
+    **kwargs: Any
 ) -> float:
     """
     Helper for calculating spatial entropy.
@@ -49,7 +49,7 @@ def mutual_information_helper(
     values_x: np.ndarray,
     coordinates_y: np.ndarray,
     values_y: np.ndarray,
-    **kwargs
+    **kwargs: Any
 ) -> float:
     """
     Helper for calculating spatial mutual information.
@@ -76,7 +76,7 @@ def kl_divergence_helper(
     values_p: np.ndarray,
     coordinates_q: np.ndarray,
     values_q: np.ndarray,
-    **kwargs
+    **kwargs: Any
 ) -> float:
     """
     Helper for calculating spatial KL divergence.
@@ -105,7 +105,7 @@ class InformationTheoryConvenience:
     Provides high-level methods for common information theory tasks.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize information theory convenience class."""
         self.entropy_calc = EntropyCalculator()
         self.mi_calc = MutualInformationCalculator()
@@ -115,7 +115,7 @@ class InformationTheoryConvenience:
         self,
         data: np.ndarray,
         method: str = 'shannon',
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate entropy.
@@ -135,7 +135,7 @@ class InformationTheoryConvenience:
         probabilities_xy: np.ndarray,
         probabilities_x: np.ndarray,
         probabilities_y: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate mutual information.
@@ -157,7 +157,7 @@ class InformationTheoryConvenience:
         self,
         p: np.ndarray,
         q: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate KL divergence.

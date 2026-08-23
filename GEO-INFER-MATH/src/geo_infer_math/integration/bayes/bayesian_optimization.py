@@ -5,7 +5,7 @@ Gaussian process surrogate model for black-box optimisation.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Callable, List, Tuple
+from typing import Optional, Dict, Any, Callable, List, Tuple, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ class BayesianOptimization:
             (X1[:, np.newaxis, :] - X2[np.newaxis, :, :]) ** 2,
             axis=-1,
         )
-        return np.exp(-0.5 * sq_dist / (self.length_scale ** 2))
+        return cast(np.ndarray, np.exp(-0.5 * sq_dist / (self.length_scale ** 2)))
 
     def _gp_predict(
         self,
@@ -184,10 +184,10 @@ class BayesianOptimization:
             self._expected_improvement(c, mu_fn, sigma_fn, best_y)
             for c in candidates
         ])
-        return candidates[int(np.argmax(ei_values))]
+        return cast(np.ndarray, candidates[int(np.argmax(ei_values))])
 
     def _random_points(self, bounds: np.ndarray, n: int) -> np.ndarray:
         """Generate random points within bounds."""
         d = bounds.shape[0]
         points = np.random.rand(n, d)
-        return bounds[:, 0] + points * (bounds[:, 1] - bounds[:, 0])
+        return cast(np.ndarray, bounds[:, 0] + points * (bounds[:, 1] - bounds[:, 0]))

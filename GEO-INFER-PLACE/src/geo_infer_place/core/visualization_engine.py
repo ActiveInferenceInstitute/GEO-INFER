@@ -13,7 +13,7 @@ import folium
 import h3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from folium.plugins import MarkerCluster
 import numpy as np
 
@@ -131,14 +131,14 @@ class InteractiveVisualizationEngine:
         # Create base map with professional styling
         m = folium.Map(
             location=[self.center_lat, self.center_lon],
-            zoom_start=zoom_start,
+            zoom_start=int(zoom_start),
             tiles=tiles,
             attr="© CartoDB, © OpenStreetMap contributors",
         )
 
         # Add title
         title_html = self._create_dashboard_title(generated_at=generated_at)
-        m.get_root().html.add_child(folium.Element(title_html))
+        m.get_root().html.add_child(folium.Element(title_html))  # type: ignore[attr-defined]
 
         # Create layer groups for different analysis domains
         layer_groups = self._create_layer_groups()
@@ -251,7 +251,7 @@ class InteractiveVisualizationEngine:
 
     def _add_forest_health_layers(
         self, m: folium.Map, layer_groups: Dict, forest_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add forest health visualization layers."""
         logger.info("Adding forest health visualization layers...")
 
@@ -298,7 +298,7 @@ class InteractiveVisualizationEngine:
 
     def _add_coastal_resilience_layers(
         self, m: folium.Map, layer_groups: Dict, coastal_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add coastal resilience visualization layers."""
         logger.info("Adding coastal resilience visualization layers...")
 
@@ -344,7 +344,7 @@ class InteractiveVisualizationEngine:
 
     def _add_fire_risk_layers(
         self, m: folium.Map, layer_groups: Dict, fire_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add fire risk visualization layers."""
         logger.info("Adding fire risk visualization layers...")
 
@@ -390,7 +390,7 @@ class InteractiveVisualizationEngine:
 
     def _add_community_development_layers(
         self, m: folium.Map, layer_groups: Dict, community_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add community development visualization layers."""
         logger.info("Adding community development visualization layers...")
 
@@ -442,7 +442,7 @@ class InteractiveVisualizationEngine:
 
     def _add_integration_layers(
         self, m: folium.Map, layer_groups: Dict, integration_data: Dict[str, Any]
-    ):
+    ) -> None:
         """Add cross-domain integration visualization layers."""
         logger.info("Adding cross-domain integration layers...")
 
@@ -643,7 +643,7 @@ class InteractiveVisualizationEngine:
                 logger.info(
                     f"Using {len(custom)} community facilities from analysis data"
                 )
-                return custom
+                return cast(List[Dict[Any, Any]], custom)
 
         # Verified Del Norte County facilities (public record coordinates)
         return [
@@ -732,7 +732,7 @@ class InteractiveVisualizationEngine:
         """
         # Use pre-computed cells if available
         if not isinstance(integration_data, dict):
-            return {}
+            return {}  # type: ignore[unreachable]
         if isinstance(integration_data.get("h3_cells"), dict):
             return {
                 cell_id: cell_data
@@ -765,6 +765,8 @@ class InteractiveVisualizationEngine:
                     "forest_health_score",
                     cell_info.get("vulnerability", cell_info.get("risk_level", 0.5)),
                 )
+                if score is None:
+                    continue
                 try:
                     numeric_score = float(score)
                 except (TypeError, ValueError):

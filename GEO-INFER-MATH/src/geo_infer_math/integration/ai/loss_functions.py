@@ -121,7 +121,7 @@ class SpatialLossFunctions:
         self,
         predictions: np.ndarray,
         targets: np.ndarray,
-        coordinates: np.ndarray,
+        coordinates: Optional[np.ndarray],
         bandwidth: float = 1.0,
     ) -> Dict[str, float]:
         """Geographically weighted regression loss.

@@ -4,10 +4,12 @@ GenerativeMap module for creating generative art from geospatial data.
 
 import hashlib
 import os
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from PIL import Image
 
 from geo_infer_art.core.aesthetics import ColorPalette
@@ -40,9 +42,10 @@ class GenerativeMap:
         """
         self.data = data
         self.metadata = metadata or {}
-        self.image = None
-        self._figure = None
-        self._ax = None
+        self.image: Optional[Image.Image] = None
+        self._figure: Optional[Figure] = None
+        self._ax: Optional[Axes] = None
+        self._output_resolution: Optional[int] = None
 
     @classmethod
     def from_elevation(
@@ -654,7 +657,7 @@ class GenerativeMap:
             raise ValueError(f"Unsupported parameter for animation: {parameter_sweep}")
 
         # Create frames for each parameter value
-        frames = []
+        frames: List[Any] = []
         for value in values:
             if parameter_sweep == "abstraction_level":
                 self._generate_contour_art(abstraction_level=value)
@@ -666,7 +669,7 @@ class GenerativeMap:
             frames.append(self._figure)
 
         # Create animation
-        def animate(frame_num):
+        def animate(frame_num: int) -> Any:
             return frames[frame_num % len(frames)]
 
         # Calculate number of frames
@@ -694,7 +697,7 @@ class GenerativeMap:
 
         return output_path
 
-    def apply_texture(self, texture_type: str = "noise", **kwargs) -> "GenerativeMap":
+    def apply_texture(self, texture_type: str = "noise", **kwargs: Any) -> "GenerativeMap":
         """
         Apply a texture overlay to the generated map.
 
@@ -821,7 +824,7 @@ class GenerativeMap:
 
         return blended_map
 
-    def add_effects(self, effects: List[str], **kwargs) -> "GenerativeMap":
+    def add_effects(self, effects: List[str], **kwargs: Any) -> "GenerativeMap":
         """
         Apply visual effects to the generated map.
 
@@ -865,7 +868,7 @@ class GenerativeMap:
 
             elif effect == "brightness":
                 factor = kwargs.get("brightness_factor", 1.0)
-                enhancer = ImageEnhance.Brightness(img)
+                enhancer: Any = ImageEnhance.Brightness(img)
                 img = enhancer.enhance(factor)
 
             elif effect == "contrast":
@@ -886,7 +889,7 @@ class GenerativeMap:
         return self
 
     def export_multi_format(
-        self, base_path: str, formats: List[str] = None
+        self, base_path: str, formats: Optional[List[str]] = None
     ) -> List[str]:
         """
         Export the map in multiple formats.
@@ -901,7 +904,7 @@ class GenerativeMap:
         if formats is None:
             formats = ["png", "jpg", "svg"]
 
-        exported_paths = []
+        exported_paths: List[str] = []
 
         for fmt in formats:
             if fmt.lower() == "svg":

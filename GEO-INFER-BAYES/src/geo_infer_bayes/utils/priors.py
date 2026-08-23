@@ -5,6 +5,8 @@ This module provides prior distribution classes for Bayesian
 inference in geospatial applications.
 """
 
+from typing import Any
+
 import numpy as np
 
 
@@ -16,7 +18,7 @@ class SpatialPrior:
     that account for spatial structure in the data.
     """
 
-    def __init__(self, prior_type: str = "icar", **kwargs):
+    def __init__(self, prior_type: str = "icar", **kwargs: Any) -> None:
         """
         Initialize the spatial prior.
 
@@ -68,7 +70,7 @@ class SpatialPrior:
         # Log prior (up to constant)
         log_prior = 0.5 * n * np.log(tau) - 0.5 * tau * phi.T @ Q @ phi
 
-        return log_prior
+        return float(log_prior)
 
     def _bym_prior(self, phi: np.ndarray, W: np.ndarray) -> float:
         """Besag-York-Mollié (BYM) prior.
@@ -91,7 +93,7 @@ class SpatialPrior:
 
         log_prior = 0.5 * n * np.log(tau) - 0.5 * tau * phi.T @ Q @ phi
 
-        return log_prior
+        return float(log_prior)
 
     def _leroux_prior(self, phi: np.ndarray, W: np.ndarray) -> float:
         """Leroux prior with tunable spatial autocorrelation.
@@ -110,7 +112,7 @@ class SpatialPrior:
 
         log_prior = 0.5 * n * np.log(tau) - 0.5 * tau * phi.T @ Q @ phi
 
-        return log_prior
+        return float(log_prior)
 
 
 class TemporalPrior:
@@ -121,7 +123,7 @@ class TemporalPrior:
     for time series and spatio-temporal models.
     """
 
-    def __init__(self, prior_type: str = "ar1", **kwargs):
+    def __init__(self, prior_type: str = "ar1", **kwargs: Any) -> None:
         """
         Initialize the temporal prior.
 
@@ -162,7 +164,7 @@ class TemporalPrior:
         # Log prior
         log_prior = 0.5 * (len(x) - 1) * np.log(tau) - 0.5 * tau * np.sum(diffs**2)
 
-        return log_prior
+        return float(log_prior)
 
     def _rw1_prior(self, x: np.ndarray) -> float:
         """Random walk of order 1 (RW1) prior."""
@@ -174,7 +176,7 @@ class TemporalPrior:
         # Log prior
         log_prior = 0.5 * (len(x) - 1) * np.log(tau) - 0.5 * tau * np.sum(diffs**2)
 
-        return log_prior
+        return float(log_prior)
 
     def _rw2_prior(self, x: np.ndarray) -> float:
         """Random walk of order 2 (RW2) prior."""
@@ -186,7 +188,7 @@ class TemporalPrior:
         # Log prior
         log_prior = 0.5 * (len(x) - 2) * np.log(tau) - 0.5 * tau * np.sum(diffs**2)
 
-        return log_prior
+        return float(log_prior)
 
 
 class GaussianProcessPrior:
@@ -196,7 +198,7 @@ class GaussianProcessPrior:
     This class provides GP priors for spatial and spatio-temporal models.
     """
 
-    def __init__(self, kernel: str = "matern", **kwargs):
+    def __init__(self, kernel: str = "matern", **kwargs: Any) -> None:
         """
         Initialize the Gaussian Process prior.
 
@@ -234,4 +236,4 @@ class GaussianProcessPrior:
         log_prior += -0.5 * ((np.log(variance) - var_mu) / var_sigma) ** 2
         log_prior -= np.log(variance * var_sigma * np.sqrt(2 * np.pi))
 
-        return log_prior
+        return float(log_prior)

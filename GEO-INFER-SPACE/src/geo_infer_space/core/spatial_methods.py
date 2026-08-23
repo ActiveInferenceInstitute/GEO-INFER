@@ -7,7 +7,7 @@ and easily chainable.
 """
 
 import logging
-from typing import Dict, Any, List, Optional, Tuple, Set
+from typing import Dict, Any, List, Optional, Tuple, Set, cast
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ try:
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
-    np = None
+    np: Any = None  # type: ignore[no-redef]
 
 
 class SpatialMethods:
@@ -28,7 +28,7 @@ class SpatialMethods:
     aggregation, and spatial outlier detection.
     """
     
-    def __init__(self, h3_backend=None):
+    def __init__(self, h3_backend: Optional[Any] = None) -> None:
         """
         Initialize SpatialMethods.
         
@@ -67,7 +67,7 @@ class SpatialMethods:
         
         center_cells = set(cells)
         buffer_cells = set()
-        ring_cells = {}
+        ring_cells: Dict[int, Set[str]] = {}
         
         for ring in range(1, buffer_rings + 1):
             ring_cells[ring] = set()
@@ -151,9 +151,9 @@ class SpatialMethods:
         cells: List[str],
         values: List[float],
         filter_type: str = 'threshold',
-        threshold: float = None,
-        percentile: float = None,
-        top_n: int = None
+        threshold: Optional[float] = None,
+        percentile: Optional[float] = None,
+        top_n: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Filter cells based on spatial criteria.
@@ -341,7 +341,7 @@ class SpatialMethods:
     def calculate_coverage(
         self,
         cells: List[str],
-        region_cells: List[str] = None
+        region_cells: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Calculate coverage statistics for cell sets.
@@ -358,7 +358,7 @@ class SpatialMethods:
         
         cells_set = set(cells)
         total_area = 0.0
-        resolution_counts = defaultdict(int)
+        resolution_counts: Dict[int, int] = defaultdict(int)
         
         for cell in cells:
             try:
@@ -413,7 +413,7 @@ class SpatialMethods:
         cell_values = dict(zip(cells, values))
         mean_val = sum(values) / len(values)
         
-        outliers = {
+        outliers: Dict[str, List[Dict[str, Any]]] = {
             'HH': [],  # High value, high neighbors (cluster)
             'LL': [],  # Low value, low neighbors (cluster)  
             'HL': [],  # High value, low neighbors (outlier)
@@ -520,7 +520,10 @@ class SpatialMethods:
                 'accessibility_score': reachable_count / len(destination_cells) if destination_cells else 0
             }
         
-        scores = [a['accessibility_score'] for a in accessibility.values()]
+        scores: List[float] = [
+            cast(float, a['accessibility_score'])
+            for a in accessibility.values()
+        ]
         
         return {
             'num_origins': len(origin_cells),

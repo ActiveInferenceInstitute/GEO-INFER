@@ -296,7 +296,118 @@ class PolicySelector:
             # Lower precision when policies are similar
             precision = baseline_precision * 0.5
 
-        return precision
+        return float(precision)
+
+    def compose_policy_posterior(
+        self,
+        expected_free_energies: np.ndarray,
+        precision: Optional[float] = None,
+        prior: Optional[np.ndarray] = None,
+        prior_temperature: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Compose the policy posterior q(pi) = softmax(-gamma * G)` from raw EFE
+        scores, with an optional E-based habit prior (softmax-normalised).
+
+        When ``precision`` is omitted it is inferred adaptively from the
+        spread of EFE scores (well-separated policies get sharper selection).
+        The returned dict carries the posterior, the inferred
+        ``precision``, and the diversity used to infer it, so callers
+        can audit how sharply the exploration/exploitation trade-off
+        was resolved.
+
+        Args:
+            expected_free_energies: Raw EFE per policy (lower = preferred).
+            precision: Optional explicit inverse-temperature precision.
+            prior: Optional E-vector of prior policy probabilities (habits).
+            prior_temperature: Temperature applied to ``prior`` before mixing.
+
+        Returns:
+            Dict with ``posterior``, ``precision``, ``efe_scores``,
+            ``diversity`` and ``prior`` keys.
+        """
+        scores = np.asarray(expected_free_energies, dtype=float).reshape(-1)
+        if scores.size == 0:
+            raise ValueError("expected_free_energies must not be empty")
+        if not np.all(np.isfinite(scores)):
+            raise ValueError("expected_free_energies must be finite")
+        if prior is not None:
+            prior = _normalize_vector(prior, len(scores))
+        gamma = (
+            float(precision)
+            if precision is not None
+            else float(self.compute_policy_precision(scores))
+        )
+        logits = -gamma * scores
+        if prior is not None:
+            logits = logits + np.log(np.clip(prior, EPSILON, 1.0)) / prior_temperature
+        posterior = softmax(logits, temperature=1.0)
+        return {
+            "posterior": posterior,
+            "precision": float(gamma),
+            "expected_free_energies": scores.tolist(),
+            "diversity": float(np.std(scores)),
+            "prior": prior.tolist() if prior is not None else None,
+        }
+
+    def decompose_efe(
+        self,
+        beliefs: np.ndarray,
+        policies: List[Dict[str, Any]],
+        preferences: Optional[np.ndarray] = None,
+    ) -> Dict[str, Any]:
+        """
+        Decompose a policy set into its epistemic (information-gain) and
+        pragmatic (preference-alignment) contributions and report which term
+        dominates each candidate.
+
+        This provides the explanatory half of the EFE decomposition: a policy
+        with a large subtractive epistemic term is exploration-driven,
+        whereas one whose pragmatic term dominates is exploitation-driven.
+
+        Args:
+            beliefs: Current belief distribution.
+            policies: Candidate policies to evaluate.
+            preferences: Optional prior preferences.
+
+        Returns:
+            A dict with ``policies``, ``epistemic_values``,
+            ``pragmatic_values``, ``efe_scores``, ``dominance`` (per-policy
+            label) and ``exploration_share`` (fraction of policies whose
+            epistemic term dominates).
+        """
+        belief_vector = _normalize_vector(beliefs)
+        if not policies:
+            policies = self._create_default_policies(len(belief_vector))
+        epistemic_values: List[float] = []
+        pragmatic_values: List[float] = []
+        efe_scores: List[float] = []
+        dominance: List[str] = []
+        for policy in policies:
+            breakdown = self.compute_expected_free_energy(
+                belief_vector, policy, preferences, return_breakdown=True
+            )
+            assert isinstance(breakdown, FreeEnergyBreakdown)
+            efe_scores.append(breakdown.free_energy)
+            epistemic_values.append(breakdown.epistemic_value)
+            pragmatic_values.append(breakdown.pragmatic_value)
+            dominance.append(
+                "epistemic"
+                if breakdown.epistemic_value >= abs(breakdown.pragmatic_value)
+                else "pragmatic"
+            )
+        exploration_share = float(
+            np.mean([int(item == "epistemic") for item in dominance])
+        ) if dominance else 0.0
+        return {
+            "policies": policies,
+            "efe_scores": efe_scores,
+            "epistemic_values": epistemic_values,
+            "pragmatic_values": pragmatic_values,
+            "dominance": dominance,
+            "exploration_share": exploration_share,
+            "best_index": int(np.argmin(efe_scores)) if efe_scores else -1,
+        }
 
     def evaluate_policy_set(
         self,
@@ -319,11 +430,6 @@ class PolicySelector:
         if not policies:
             policies = self._create_default_policies(len(beliefs))
 
-        expected_free_energies = []
-        epistemic_values = []
-        pragmatic_values = []
-        risks = []
-        ambiguities = []
         breakdowns = []
 
         for policy in policies:
@@ -335,17 +441,12 @@ class PolicySelector:
             )
             assert isinstance(breakdown, FreeEnergyBreakdown)
             breakdowns.append(breakdown)
-            expected_free_energies.append(breakdown.free_energy)
-            epistemic_values.append(breakdown.epistemic_value)
-            pragmatic_values.append(breakdown.pragmatic_value)
-            risks.append(breakdown.risk)
-            ambiguities.append(breakdown.ambiguity)
 
-        expected_free_energies = np.array(expected_free_energies)
-        epistemic_values = np.array(epistemic_values)
-        pragmatic_values = np.array(pragmatic_values)
-        risks = np.array(risks)
-        ambiguities = np.array(ambiguities)
+        expected_free_energies = np.array([b.free_energy for b in breakdowns])
+        epistemic_values = np.array([b.epistemic_value for b in breakdowns])
+        pragmatic_values = np.array([b.pragmatic_value for b in breakdowns])
+        risks = np.array([b.risk for b in breakdowns])
+        ambiguities = np.array([b.ambiguity for b in breakdowns])
 
         # Compute policy probabilities
         policy_probs = softmax(-expected_free_energies, temperature=self.temperature)

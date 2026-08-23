@@ -55,7 +55,7 @@ class ZoningAnalyzer:
         Returns:
             A nested dictionary mapping zoning code pairs to compatibility scores (0-1)
         """
-        matrix = {}
+        matrix: Dict[str, Dict[str, float]] = {}
         
         for code1 in self.zoning_codes:
             matrix[code1.code] = {}
@@ -435,6 +435,353 @@ class ZoningAnalyzer:
         
         return gpd.GeoDataFrame(data, crs="EPSG:4326")
     
+    def get_zoning_statistics(self) -> Dict[str, Any]:
+        """
+        Calculate comprehensive statistics about the zoning districts.
+
+        Returns:
+            Dictionary containing zoning statistics including area, population,
+            employment, and zoning code distributions.
+        """
+        if not self.zoning_districts:
+            return {"error": "No zoning districts available for analysis"}
+
+        districts_gdf = self.export_districts_to_geodataframe()
+
+        # Basic counts
+        stats = {
+            "total_districts": len(self.zoning_districts),
+            "total_zoning_codes": len(self.zoning_codes),
+            "total_area_hectares": districts_gdf.geometry.area.sum() / 10000,
+            "total_population": sum(d.population for d in self.zoning_districts),
+            "total_employment": sum(d.employment for d in self.zoning_districts)
+        }
+
+        # Zoning code distribution
+        code_counts = districts_gdf['zoning_code'].value_counts().to_dict()
+        stats["zoning_code_distribution"] = code_counts
+
+        # Category distribution
+        category_counts = districts_gdf['category'].value_counts().to_dict()
+        stats["category_distribution"] = category_counts
+
+        # Area by category
+        area_by_category = {}
+        for category in category_counts.keys():
+            area = districts_gdf[districts_gdf['category'] == category].geometry.area.sum() / 10000
+            area_by_category[category] = area
+        stats["area_by_category_hectares"] = area_by_category
+
+        # Population density statistics
+        if stats["total_population"] > 0 and stats["total_area_hectares"] > 0:
+            stats["overall_population_density"] = stats["total_population"] / stats["total_area_hectares"]
+        else:
+            stats["overall_population_density"] = 0
+
+        # Employment density statistics
+        if stats["total_employment"] > 0 and stats["total_area_hectares"] > 0:
+            stats["overall_employment_density"] = stats["total_employment"] / stats["total_area_hectares"]
+        else:
+            stats["overall_employment_density"] = 0
+
+        return stats
+
+    def find_zoning_conflicts(self, threshold: float = 0.3) -> List[Dict[str, Any]]:
+        """
+        Identify zoning districts with potential conflicts based on compatibility.
+
+        Args:
+            threshold: Compatibility threshold below which conflicts are reported (0-1)
+
+        Returns:
+            List of dictionaries describing potential zoning conflicts
+        """
+        conflicts = []
+        districts_gdf = self.export_districts_to_geodataframe()
+
+        # Find adjacent districts
+        for i, district1 in districts_gdf.iterrows():
+            for j, district2 in districts_gdf.iterrows():
+                if i >= j:  # Skip self-comparisons and duplicates
+                    continue
+
+                if district1.geometry.touches(district2.geometry):
+                    compatibility = self.calculate_compatibility(
+                        district1.zoning_code, district2.zoning_code
+                    )
+
+                    if compatibility < threshold:
+                        conflicts.append({
+                            "district1_id": district1.id,
+                            "district1_name": district1.name,
+                            "district1_code": district1.zoning_code,
+                            "district1_category": district1.category,
+                            "district2_id": district2.id,
+                            "district2_name": district2.name,
+                            "district2_code": district2.zoning_code,
+                            "district2_category": district2.category,
+                            "compatibility_score": compatibility,
+                            "severity": "high" if compatibility < 0.2 else "medium"
+                        })
+
+        return conflicts
+
+    def optimize_zoning_layout(self, target_compatibility: float = 0.7) -> Dict[str, Any]:
+        """
+        Suggest zoning layout optimizations to improve compatibility.
+
+        Args:
+            target_compatibility: Target compatibility score to achieve
+
+        Returns:
+            Dictionary with optimization suggestions and metrics
+        """
+        conflicts = self.find_zoning_conflicts()
+
+        optimization_suggestions = []
+
+        for conflict in conflicts:
+            if conflict["compatibility_score"] < target_compatibility:
+                suggestion: Dict[str, Any] = {
+                    "conflict": conflict,
+                    "suggestions": []
+                }
+
+                # Suggest alternative zoning codes
+                current_code = self.get_code_by_id(conflict["district2_code"])
+                if current_code:
+                    for alt_code in self.zoning_codes:
+                        if alt_code.category != current_code.category:
+                            compatibility = self.calculate_compatibility(
+                                conflict["district1_code"], alt_code.code
+                            )
+                            if compatibility >= target_compatibility:
+                                suggestion["suggestions"].append({
+                                    "alternative_code": alt_code.code,
+                                    "alternative_category": alt_code.category,
+                                    "improved_compatibility": compatibility,
+                                    "compatibility_improvement": compatibility - conflict["compatibility_score"]
+                                })
+
+                if suggestion["suggestions"]:
+                    optimization_suggestions.append(suggestion)
+
+        return {
+            "total_conflicts": len(conflicts),
+            "optimization_opportunities": len(optimization_suggestions),
+            "suggestions": optimization_suggestions,
+            "current_average_compatibility": self._calculate_average_compatibility(),
+            "target_compatibility": target_compatibility
+        }
+
+    def _calculate_average_compatibility(self) -> float:
+        """Calculate the average compatibility score across all adjacent districts."""
+        districts_gdf = self.export_districts_to_geodataframe()
+        compatibilities = []
+
+        for i, district1 in districts_gdf.iterrows():
+            for j, district2 in districts_gdf.iterrows():
+                if i < j and district1.geometry.touches(district2.geometry):
+                    compatibility = self.calculate_compatibility(
+                        district1.zoning_code, district2.zoning_code
+                    )
+                    compatibilities.append(compatibility)
+
+        return float(np.mean(compatibilities)) if compatibilities else 0.0
+
+    def generate_zoning_report(self, output_path: Optional[str] = None) -> str:
+        """
+        Generate a comprehensive zoning analysis report.
+
+        Args:
+            output_path: Optional path to save the report
+
+        Returns:
+            Formatted report as a string
+        """
+        stats = self.get_zoning_statistics()
+        conflicts = self.find_zoning_conflicts()
+        optimization = self.optimize_zoning_layout()
+
+        report = []
+        report.append("=" * 60)
+        report.append("GEO-INFER-NORMS ZONING ANALYSIS REPORT")
+        report.append("=" * 60)
+        report.append("")
+
+        report.append("1. ZONING OVERVIEW")
+        report.append("-" * 20)
+        report.append(f"Total Zoning Districts: {stats['total_districts']}")
+        report.append(f"Total Zoning Codes: {stats['total_zoning_codes']}")
+        report.append(".2f")
+        report.append(f"Total Population: {stats['total_population']:,}")
+        report.append(f"Total Employment: {stats['total_employment']:,}")
+        report.append(".1f")
+        report.append(".1f")
+        report.append("")
+
+        report.append("2. ZONING CODE DISTRIBUTION")
+        report.append("-" * 30)
+        for code, count in stats['zoning_code_distribution'].items():
+            report.append(f"  {code}: {count} districts")
+        report.append("")
+
+        report.append("3. CATEGORY DISTRIBUTION")
+        report.append("-" * 25)
+        for category, count in stats['category_distribution'].items():
+            area = stats['area_by_category_hectares'][category]
+            report.append(f"  {category}: {count} districts ({area:.1f} ha)")
+        report.append("")
+
+        report.append("4. COMPATIBILITY ANALYSIS")
+        report.append("-" * 25)
+        report.append(f"Average Compatibility: {optimization['current_average_compatibility']:.3f}")
+        report.append(f"Number of Conflicts: {len(conflicts)}")
+        report.append(f"Optimization Opportunities: {optimization['optimization_opportunities']}")
+        report.append("")
+
+        if conflicts:
+            report.append("5. MAJOR CONFLICTS")
+            report.append("-" * 18)
+            for i, conflict in enumerate(conflicts[:5]):  # Show top 5 conflicts
+                report.append(f"  {i+1}. {conflict['district1_name']} ({conflict['district1_code']})")
+                report.append(f"      ↔ {conflict['district2_name']} ({conflict['district2_code']})")
+                report.append(".3f")
+                report.append(f"      Severity: {conflict['severity']}")
+                report.append("")
+
+        report.append("6. OPTIMIZATION RECOMMENDATIONS")
+        report.append("-" * 35)
+        if optimization['suggestions']:
+            for i, suggestion in enumerate(optimization['suggestions'][:3]):  # Show top 3 suggestions
+                conflict = suggestion['conflict']
+                report.append(f"  {i+1}. Change {conflict['district2_name']} from {conflict['district2_code']}")
+                for alt in suggestion['suggestions'][:2]:  # Show top 2 alternatives
+                    report.append(f"      → {alt['alternative_code']} (compatibility: {alt['improved_compatibility']:.3f})")
+                report.append("")
+        else:
+            report.append("  No optimization suggestions available.")
+            report.append("")
+
+        report.append("=" * 60)
+        report.append("Report generated by GEO-INFER-NORMS ZoningAnalyzer")
+        report.append("=" * 60)
+
+        final_report = "\n".join(report)
+
+        if output_path:
+            with open(output_path, 'w') as f:
+                f.write(final_report)
+            report.append(f"\nReport saved to: {output_path}")
+
+        return final_report
+
+    def calculate_development_potential(self, district_id: str) -> Dict[str, Any]:
+        """
+        Calculate development potential for a specific zoning district.
+
+        Args:
+            district_id: ID of the district to analyze
+
+        Returns:
+            Dictionary with development potential metrics
+        """
+        district = self.get_district_by_id(district_id)
+        if not district:
+            return {"error": f"District with ID {district_id} not found"}
+
+        zoning_code = self.get_code_by_id(district.zoning_code)
+        if not zoning_code:
+            return {"error": f"Zoning code {district.zoning_code} not found"}
+
+        potential: Dict[str, Any] = {
+            "district_id": district_id,
+            "district_name": district.name,
+            "zoning_code": district.zoning_code,
+            "category": zoning_code.category,
+            "area_hectares": district.area_hectares,
+            "development_capacity": {}
+        }
+
+        # Calculate residential capacity
+        if zoning_code.max_density:
+            potential["development_capacity"]["residential_units"] = district.area_hectares * zoning_code.max_density
+
+        # Calculate commercial capacity (simplified)
+        if zoning_code.max_floor_area_ratio:
+            potential["development_capacity"]["floor_area_ratio"] = zoning_code.max_floor_area_ratio
+            potential["development_capacity"]["max_floor_area"] = district.area * zoning_code.max_floor_area_ratio
+
+        # Calculate height limitations
+        if zoning_code.max_height:
+            potential["development_capacity"]["max_height_meters"] = zoning_code.max_height
+            potential["development_capacity"]["max_height_feet"] = zoning_code.max_height * 3.28084
+
+        # Calculate setback requirements
+        if zoning_code.setbacks:
+            potential["development_capacity"]["setbacks"] = zoning_code.setbacks
+
+        # Environmental considerations
+        if zoning_code.environmental_requirements:
+            potential["environmental_requirements"] = zoning_code.environmental_requirements
+
+        return potential
+
+    def compare_zoning_scenarios(self, scenarios: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Compare different zoning scenarios.
+
+        Args:
+            scenarios: List of scenario dictionaries with district changes
+
+        Returns:
+            Comparison results including compatibility improvements
+        """
+        results: Dict[str, Any] = {
+            "scenarios": [],
+            "baseline_compatibility": self._calculate_average_compatibility(),
+            "comparison": {}
+        }
+
+        for i, scenario in enumerate(scenarios):
+            scenario_result = {
+                "scenario_id": scenario.get("id", f"scenario_{i+1}"),
+                "description": scenario.get("description", ""),
+                "changes": []
+            }
+
+            # Create temporary zoning analyzer with scenario changes
+            temp_districts = self.zoning_districts.copy()
+
+            for change in scenario.get("changes", []):
+                district_id = change["district_id"]
+                new_code = change["new_code"]
+
+                # Find and update the district
+                for district in temp_districts:
+                    if district.id == district_id:
+                        district.zoning_code = new_code
+                        break
+
+            # Create temporary analyzer
+            temp_analyzer = ZoningAnalyzer(
+                zoning_districts=temp_districts,
+                zoning_codes=self.zoning_codes
+            )
+
+            scenario_result["average_compatibility"] = temp_analyzer._calculate_average_compatibility()
+            scenario_result["compatibility_improvement"] = (
+                scenario_result["average_compatibility"] - results["baseline_compatibility"]
+            )
+            scenario_result["conflicts"] = len(temp_analyzer.find_zoning_conflicts())
+
+            results["scenarios"].append(scenario_result)
+
+        # Sort scenarios by compatibility improvement
+        results["scenarios"].sort(key=lambda x: x["compatibility_improvement"], reverse=True)
+
+        return results
+
     def __repr__(self) -> str:
         return f"ZoningAnalyzer(districts={len(self.zoning_districts)}, codes={len(self.zoning_codes)})"
 
@@ -584,7 +931,7 @@ class LandUseClassifier:
         Returns:
             A dictionary containing analysis results
         """
-        results = {}
+        results: Dict[str, Any] = {}
         if land_use_gdf.empty:
             results["status"] = "error"
             results["message"] = "Empty GeoDataFrame provided"
@@ -631,7 +978,7 @@ class LandUseClassifier:
         results["category_count"] = land_use_gdf[category_column].nunique()
         
         # Analyze adjacency and compatibility
-        adjacency_matrix = {}
+        adjacency_matrix: Dict[str, Dict[str, int]] = {}
         compatibility_scores = []
         
         # Create a spatial index for more efficient computation
@@ -905,353 +1252,3 @@ class LandUseClassifier:
             plt.savefig(save_path, bbox_inches='tight')
         
         return fig
-
-    def get_zoning_statistics(self) -> Dict[str, Any]:
-        """
-        Calculate comprehensive statistics about the zoning districts.
-
-        Returns:
-            Dictionary containing zoning statistics including area, population,
-            employment, and zoning code distributions.
-        """
-        if not self.zoning_districts:
-            return {"error": "No zoning districts available for analysis"}
-
-        districts_gdf = self.export_districts_to_geodataframe()
-
-        # Basic counts
-        stats = {
-            "total_districts": len(self.zoning_districts),
-            "total_zoning_codes": len(self.zoning_codes),
-            "total_area_hectares": districts_gdf.geometry.area.sum() / 10000,
-            "total_population": sum(d.population or 0 for d in self.zoning_districts),
-            "total_employment": sum(d.employment or 0 for d in self.zoning_districts)
-        }
-
-        # Zoning code distribution
-        code_counts = districts_gdf['zoning_code'].value_counts().to_dict()
-        stats["zoning_code_distribution"] = code_counts
-
-        # Category distribution
-        category_counts = districts_gdf['category'].value_counts().to_dict()
-        stats["category_distribution"] = category_counts
-
-        # Area by category
-        area_by_category = {}
-        for category in category_counts.keys():
-            area = districts_gdf[districts_gdf['category'] == category].geometry.area.sum() / 10000
-            area_by_category[category] = area
-        stats["area_by_category_hectares"] = area_by_category
-
-        # Population density statistics
-        if stats["total_population"] > 0 and stats["total_area_hectares"] > 0:
-            stats["overall_population_density"] = stats["total_population"] / stats["total_area_hectares"]
-        else:
-            stats["overall_population_density"] = 0
-
-        # Employment density statistics
-        if stats["total_employment"] > 0 and stats["total_area_hectares"] > 0:
-            stats["overall_employment_density"] = stats["total_employment"] / stats["total_area_hectares"]
-        else:
-            stats["overall_employment_density"] = 0
-
-        return stats
-
-    def find_zoning_conflicts(self, threshold: float = 0.3) -> List[Dict[str, Any]]:
-        """
-        Identify zoning districts with potential conflicts based on compatibility.
-
-        Args:
-            threshold: Compatibility threshold below which conflicts are reported (0-1)
-
-        Returns:
-            List of dictionaries describing potential zoning conflicts
-        """
-        conflicts = []
-        districts_gdf = self.export_districts_to_geodataframe()
-
-        # Find adjacent districts
-        for i, district1 in districts_gdf.iterrows():
-            for j, district2 in districts_gdf.iterrows():
-                if i >= j:  # Skip self-comparisons and duplicates
-                    continue
-
-                if district1.geometry.touches(district2.geometry):
-                    compatibility = self.calculate_compatibility(
-                        district1.zoning_code, district2.zoning_code
-                    )
-
-                    if compatibility < threshold:
-                        conflicts.append({
-                            "district1_id": district1.id,
-                            "district1_name": district1.name,
-                            "district1_code": district1.zoning_code,
-                            "district1_category": district1.category,
-                            "district2_id": district2.id,
-                            "district2_name": district2.name,
-                            "district2_code": district2.zoning_code,
-                            "district2_category": district2.category,
-                            "compatibility_score": compatibility,
-                            "severity": "high" if compatibility < 0.2 else "medium"
-                        })
-
-        return conflicts
-
-    def optimize_zoning_layout(self, target_compatibility: float = 0.7) -> Dict[str, Any]:
-        """
-        Suggest zoning layout optimizations to improve compatibility.
-
-        Args:
-            target_compatibility: Target compatibility score to achieve
-
-        Returns:
-            Dictionary with optimization suggestions and metrics
-        """
-        conflicts = self.find_zoning_conflicts()
-
-        optimization_suggestions = []
-
-        for conflict in conflicts:
-            if conflict["compatibility_score"] < target_compatibility:
-                suggestion = {
-                    "conflict": conflict,
-                    "suggestions": []
-                }
-
-                # Suggest alternative zoning codes
-                current_code = self.get_code_by_id(conflict["district2_code"])
-                if current_code:
-                    for alt_code in self.zoning_codes:
-                        if alt_code.category != current_code.category:
-                            compatibility = self.calculate_compatibility(
-                                conflict["district1_code"], alt_code.code
-                            )
-                            if compatibility >= target_compatibility:
-                                suggestion["suggestions"].append({
-                                    "alternative_code": alt_code.code,
-                                    "alternative_category": alt_code.category,
-                                    "improved_compatibility": compatibility,
-                                    "compatibility_improvement": compatibility - conflict["compatibility_score"]
-                                })
-
-                if suggestion["suggestions"]:
-                    optimization_suggestions.append(suggestion)
-
-        return {
-            "total_conflicts": len(conflicts),
-            "optimization_opportunities": len(optimization_suggestions),
-            "suggestions": optimization_suggestions,
-            "current_average_compatibility": self._calculate_average_compatibility(),
-            "target_compatibility": target_compatibility
-        }
-
-    def _calculate_average_compatibility(self) -> float:
-        """Calculate the average compatibility score across all adjacent districts."""
-        districts_gdf = self.export_districts_to_geodataframe()
-        compatibilities = []
-
-        for i, district1 in districts_gdf.iterrows():
-            for j, district2 in districts_gdf.iterrows():
-                if i < j and district1.geometry.touches(district2.geometry):
-                    compatibility = self.calculate_compatibility(
-                        district1.zoning_code, district2.zoning_code
-                    )
-                    compatibilities.append(compatibility)
-
-        return np.mean(compatibilities) if compatibilities else 0.0
-
-    def generate_zoning_report(self, output_path: Optional[str] = None) -> str:
-        """
-        Generate a comprehensive zoning analysis report.
-
-        Args:
-            output_path: Optional path to save the report
-
-        Returns:
-            Formatted report as a string
-        """
-        stats = self.get_zoning_statistics()
-        conflicts = self.find_zoning_conflicts()
-        optimization = self.optimize_zoning_layout()
-
-        report = []
-        report.append("=" * 60)
-        report.append("GEO-INFER-NORMS ZONING ANALYSIS REPORT")
-        report.append("=" * 60)
-        report.append("")
-
-        report.append("1. ZONING OVERVIEW")
-        report.append("-" * 20)
-        report.append(f"Total Zoning Districts: {stats['total_districts']}")
-        report.append(f"Total Zoning Codes: {stats['total_zoning_codes']}")
-        report.append(".2f")
-        report.append(f"Total Population: {stats['total_population']:,}")
-        report.append(f"Total Employment: {stats['total_employment']:,}")
-        report.append(".1f")
-        report.append(".1f")
-        report.append("")
-
-        report.append("2. ZONING CODE DISTRIBUTION")
-        report.append("-" * 30)
-        for code, count in stats['zoning_code_distribution'].items():
-            report.append(f"  {code}: {count} districts")
-        report.append("")
-
-        report.append("3. CATEGORY DISTRIBUTION")
-        report.append("-" * 25)
-        for category, count in stats['category_distribution'].items():
-            area = stats['area_by_category_hectares'][category]
-            report.append(f"  {category}: {count} districts ({area:.1f} ha)")
-        report.append("")
-
-        report.append("4. COMPATIBILITY ANALYSIS")
-        report.append("-" * 25)
-        report.append(f"Average Compatibility: {optimization['current_average_compatibility']:.3f}")
-        report.append(f"Number of Conflicts: {len(conflicts)}")
-        report.append(f"Optimization Opportunities: {optimization['optimization_opportunities']}")
-        report.append("")
-
-        if conflicts:
-            report.append("5. MAJOR CONFLICTS")
-            report.append("-" * 18)
-            for i, conflict in enumerate(conflicts[:5]):  # Show top 5 conflicts
-                report.append(f"  {i+1}. {conflict['district1_name']} ({conflict['district1_code']})")
-                report.append(f"      ↔ {conflict['district2_name']} ({conflict['district2_code']})")
-                report.append(".3f")
-                report.append(f"      Severity: {conflict['severity']}")
-                report.append("")
-
-        report.append("6. OPTIMIZATION RECOMMENDATIONS")
-        report.append("-" * 35)
-        if optimization['suggestions']:
-            for i, suggestion in enumerate(optimization['suggestions'][:3]):  # Show top 3 suggestions
-                conflict = suggestion['conflict']
-                report.append(f"  {i+1}. Change {conflict['district2_name']} from {conflict['district2_code']}")
-                for alt in suggestion['suggestions'][:2]:  # Show top 2 alternatives
-                    report.append(f"      → {alt['alternative_code']} (compatibility: {alt['improved_compatibility']:.3f})")
-                report.append("")
-        else:
-            report.append("  No optimization suggestions available.")
-            report.append("")
-
-        report.append("=" * 60)
-        report.append("Report generated by GEO-INFER-NORMS ZoningAnalyzer")
-        report.append("=" * 60)
-
-        final_report = "\n".join(report)
-
-        if output_path:
-            with open(output_path, 'w') as f:
-                f.write(final_report)
-            report.append(f"\nReport saved to: {output_path}")
-
-        return final_report
-
-    def calculate_development_potential(self, district_id: str) -> Dict[str, Any]:
-        """
-        Calculate development potential for a specific zoning district.
-
-        Args:
-            district_id: ID of the district to analyze
-
-        Returns:
-            Dictionary with development potential metrics
-        """
-        district = self.get_district_by_id(district_id)
-        if not district:
-            return {"error": f"District with ID {district_id} not found"}
-
-        zoning_code = self.get_code_by_id(district.zoning_code)
-        if not zoning_code:
-            return {"error": f"Zoning code {district.zoning_code} not found"}
-
-        potential = {
-            "district_id": district_id,
-            "district_name": district.name,
-            "zoning_code": district.zoning_code,
-            "category": zoning_code.category,
-            "area_hectares": district.area_hectares,
-            "development_capacity": {}
-        }
-
-        # Calculate residential capacity
-        if zoning_code.max_density:
-            potential["development_capacity"]["residential_units"] = district.area_hectares * zoning_code.max_density
-
-        # Calculate commercial capacity (simplified)
-        if zoning_code.max_floor_area_ratio:
-            potential["development_capacity"]["floor_area_ratio"] = zoning_code.max_floor_area_ratio
-            potential["development_capacity"]["max_floor_area"] = district.area * zoning_code.max_floor_area_ratio
-
-        # Calculate height limitations
-        if zoning_code.max_height:
-            potential["development_capacity"]["max_height_meters"] = zoning_code.max_height
-            potential["development_capacity"]["max_height_feet"] = zoning_code.max_height * 3.28084
-
-        # Calculate setback requirements
-        if zoning_code.setbacks:
-            potential["development_capacity"]["setbacks"] = zoning_code.setbacks
-
-        # Environmental considerations
-        if zoning_code.environmental_requirements:
-            potential["environmental_requirements"] = zoning_code.environmental_requirements
-
-        return potential
-
-    def compare_zoning_scenarios(self, scenarios: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Compare different zoning scenarios.
-
-        Args:
-            scenarios: List of scenario dictionaries with district changes
-
-        Returns:
-            Comparison results including compatibility improvements
-        """
-        results = {
-            "scenarios": [],
-            "baseline_compatibility": self._calculate_average_compatibility(),
-            "comparison": {}
-        }
-
-        for i, scenario in enumerate(scenarios):
-            scenario_result = {
-                "scenario_id": scenario.get("id", f"scenario_{i+1}"),
-                "description": scenario.get("description", ""),
-                "changes": []
-            }
-
-            # Create temporary zoning analyzer with scenario changes
-            temp_districts = self.zoning_districts.copy()
-
-            for change in scenario.get("changes", []):
-                district_id = change["district_id"]
-                new_code = change["new_code"]
-
-                # Find and update the district
-                for district in temp_districts:
-                    if district.id == district_id:
-                        district.zoning_code = new_code
-                        break
-
-            # Create temporary analyzer
-            temp_analyzer = ZoningAnalyzer(
-                zoning_districts=temp_districts,
-                zoning_codes=self.zoning_codes
-            )
-
-            scenario_result["average_compatibility"] = temp_analyzer._calculate_average_compatibility()
-            scenario_result["compatibility_improvement"] = (
-                scenario_result["average_compatibility"] - results["baseline_compatibility"]
-            )
-            scenario_result["conflicts"] = len(temp_analyzer.find_zoning_conflicts())
-
-            results["scenarios"].append(scenario_result)
-
-        # Sort scenarios by compatibility improvement
-        results["scenarios"].sort(key=lambda x: x["compatibility_improvement"], reverse=True)
-
-        return results
-
-    def __repr__(self) -> str:
-        return f"ZoningAnalyzer(districts={len(self.zoning_districts)}, codes={len(self.zoning_codes)})"

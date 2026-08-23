@@ -5,7 +5,7 @@ indices, turbidity scoring, and composite marine water quality index.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, cast
 
 import numpy as np
 import xarray as xr
@@ -70,7 +70,7 @@ class MarineWaterQuality:
         do_sat = np.exp(ln_do)
         do_sat = xr.where(do_sat < 0, 0, do_sat)
         do_sat.name = "do_saturation_mg_l"
-        return do_sat
+        return cast(xr.DataArray, do_sat)
 
     def calculate_do_percent_saturation(
         self,
@@ -119,7 +119,7 @@ class MarineWaterQuality:
         index = (reference_ph - ph) / 0.3
         index = xr.where(index < 0, 0, index)
         index.name = "acidification_index"
-        return index
+        return cast(xr.DataArray, index)
 
     def calculate_turbidity_score(
         self,
@@ -146,7 +146,7 @@ class MarineWaterQuality:
         score = xr.where(score > 100, 100, score)
         score = xr.where(score < 0, 0, score)
         score.name = "turbidity_score"
-        return score
+        return cast(xr.DataArray, score)
 
     def calculate_trophic_state_index(
         self,
@@ -171,7 +171,7 @@ class MarineWaterQuality:
         chl_safe = xr.where(chlorophyll_a > 0.01, chlorophyll_a, 0.01)
         tsi = 9.81 * np.log(chl_safe) + 30.6
         tsi.name = "trophic_state_index"
-        return tsi
+        return cast(xr.DataArray, tsi)
 
     def composite_marine_wqi(
         self,

@@ -347,7 +347,7 @@ class KLDivergenceCalculator:
         values_p: np.ndarray,
         coordinates_q: np.ndarray,
         values_q: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate spatial KL divergence.

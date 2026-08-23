@@ -8,7 +8,7 @@ import sys
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, cast
 
 import matplotlib
 import numpy as np
@@ -17,7 +17,14 @@ import yaml
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_act.core.active_inference import (
+    ActiveInferenceModel,
+)
+from geo_infer_act.core.types import (
+    ActiveInferenceStepResult,
+    H3GridInferenceResult,
+    NestedH3GridInferenceResult,
+)
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
 from geo_infer_act.runners.contracts import (
@@ -166,6 +173,7 @@ def _default_output_dir(scenario: str) -> Path:
 
 
 def _run_vector_scenario(config: RunConfig) -> Dict[str, Any]:
+    assert config.output_dir is not None
     params = {**SCENARIO_PARAMETERS[config.scenario], **config.parameters}
     rng = np.random.default_rng(config.seed)
     analyzer = ActiveInferenceAnalyzer(str(config.output_dir))
@@ -189,7 +197,9 @@ def _run_vector_scenario(config: RunConfig) -> Dict[str, Any]:
     actions = ["observe", "adapt", "coordinate", "conserve"]
     for timestep in range(config.timesteps):
         observation = _scenario_observation(config.scenario, timestep, params, rng)
-        result = active_model.step(observation, actions, return_result=True)
+        result = cast(
+            ActiveInferenceStepResult, active_model.step(observation, actions, return_result=True)
+        )
         beliefs = _belief_vector(result.beliefs)
         entropy = float(-np.sum(beliefs * np.log(beliefs + 1e-12)))
         row = {
@@ -229,7 +239,7 @@ def _run_vector_scenario(config: RunConfig) -> Dict[str, Any]:
 
 
 def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
-    """Run H3 grid inference with full geospatial data and visualization outputs."""
+    assert config.output_dir is not None
     cells = h3_cells_for_config(
         resolution=config.h3_resolution,
         ring_size=config.h3_ring_size,
@@ -250,7 +260,9 @@ def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
     else:
         model.spatial_mode = True
         model.h3_cells = cells
-        model.spatial_graph = model._build_h3_neighbor_graph(cells)
+        model.spatial_graph = cast(
+            Any, model._build_h3_neighbor_graph(cells)
+        )
     active_model = ActiveInferenceModel(
         "categorical",
         policy_selection_mode="deterministic" if config.deterministic else "sample",
@@ -434,7 +446,7 @@ def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
 
 
 def _run_spatial_scenario(config: RunConfig) -> Dict[str, Any]:
-    """Run SpatialActiveInferenceAgent on real H3 cells with geospatial outputs."""
+    assert config.output_dir is not None
     cells = h3_cells_for_config(
         resolution=config.h3_resolution,
         ring_size=config.h3_ring_size,
@@ -478,20 +490,27 @@ def _run_spatial_scenario(config: RunConfig) -> Dict[str, Any]:
         vector_obs = {
             cell: observation_dict_to_vector(obs) for cell, obs in env_obs.items()
         }
+        grid_result: Any
         if nested_enabled:
-            grid_result = agent.step_nested(
-                vector_obs,
-                return_result=True,
-                top_down_weight=float(config.parameters.get("top_down_weight", 0.15)),
+            grid_result_nested = cast(
+                NestedH3GridInferenceResult,
+                agent.step_nested(
+                    vector_obs,
+                    return_result=True,
+                    top_down_weight=float(
+                        config.parameters.get("top_down_weight", 0.15)
+                    ),
+                ),
             )
-            nested_update = grid_result.nested_belief_update
+            grid_result = grid_result_nested
+            nested_update = grid_result_nested.nested_belief_update
         else:
             grid_result = agent.step(vector_obs, return_result=True)
             nested_update = None
         if nested_enabled:
             trace = agent.trace_nested_step(
                 vector_obs,
-                grid_result=grid_result,
+                grid_result=grid_result_nested,
                 timestep=timestep,
                 previous_beliefs=previous_trace_beliefs,
                 top_down_weight=float(config.parameters.get("top_down_weight", 0.15)),
@@ -584,6 +603,7 @@ def _run_spatial_scenario(config: RunConfig) -> Dict[str, Any]:
     if nested_enabled and nested_update is not None:
         _write_nested_h3_outputs(config, nested_update, diagnostics)
     summary = _summary_metrics(step_rows)
+    scoring = agent.score_spatial_information_gain()
     summary.update(
         {
             "cell_count": len(cells),
@@ -593,6 +613,9 @@ def _run_spatial_scenario(config: RunConfig) -> Dict[str, Any]:
             "mean_belief_entropy": float(
                 np.mean([row["belief_entropy"] for row in step_rows])
             ),
+            "mean_information_gain": float(scoring["mean_score"]),
+            "best_information_gain_cells": list(scoring["best_cells"][:5]),
+            "uncertain_cell_fraction": float(scoring["uncertain_cell_fraction"]),
         }
     )
     if nested_enabled and nested_update is not None:
@@ -643,7 +666,7 @@ def _nested_h3_resolutions(config: RunConfig) -> List[int]:
 def _write_spatial_trace_outputs(
     config: RunConfig, traces: List[Any]
 ) -> Dict[str, Any]:
-    """Write spatial active-inference trace JSON and diagnostic CSV files."""
+    assert config.output_dir is not None
     if not traces:
         raise ValueError("Spatial inference traces are required for geospatial runs")
 
@@ -1104,7 +1127,7 @@ def _write_nested_h3_outputs(
     nested_update: Any,
     diagnostics: List[Dict[str, Any]],
 ) -> None:
-    """Write nested H3 hierarchy data, diagnostics, and visualization outputs."""
+    assert config.output_dir is not None
     adapter = get_h3_adapter()
     rows: List[Dict[str, Any]] = []
     for parent, children in nested_update.parent_child_map.items():
@@ -1206,7 +1229,7 @@ def _pymdp_summary_metrics(records: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 def _write_pymdp_h3_outputs(config: RunConfig, records: List[Dict[str, Any]]) -> None:
-    """Write pymdp H3 diagnostics, policy posterior table, and HTML figure."""
+    assert config.output_dir is not None
     if not records:
         raise ValueError("pymdp H3 diagnostics are required for geospatial runs")
     write_json(config.output_dir / "data" / "pymdp_h3_diagnostics.json", records)
@@ -1296,7 +1319,7 @@ def _write_pymdp_policy_free_energy_html(
         )
         html = fig.to_html(include_plotlyjs="cdn", full_html=True)
     except Exception:
-        rows = "\n".join(
+        rows_html = "\n".join(
             "<tr>"
             f"<td>{row['timestep']}</td>"
             f"<td>{row['mean_free_energy']:.6f}</td>"
@@ -1312,7 +1335,7 @@ def _write_pymdp_policy_free_energy_html(
             "<table><thead><tr><th>Timestep</th><th>Mean VFE</th>"
             "<th>Mean selected negative EFE</th>"
             "<th>Mean selected action probability</th></tr></thead>"
-            f"<tbody>{rows}</tbody></table></body></html>"
+            f"<tbody>{rows_html}</tbody></table></body></html>"
         )
     return write_html_figure_artifact(
         config,
@@ -1575,13 +1598,13 @@ def _scenario_observation(
     signal = base + amplitude * seasonal
     if scenario in {"verification", "debug"}:
         signal += rng.normal(0.0, 0.005, size=4)
-    return normalize_belief_vector(signal)
+    return cast(np.ndarray, normalize_belief_vector(signal))
 
 
 def _belief_vector(beliefs: Any) -> np.ndarray:
     if isinstance(beliefs, dict) and "states" in beliefs:
-        return normalize_belief_vector(beliefs["states"])
-    return normalize_belief_vector(beliefs)
+        return cast(np.ndarray, normalize_belief_vector(beliefs["states"]))
+    return cast(np.ndarray, normalize_belief_vector(beliefs))
 
 
 def _finite_vector(value: Any) -> List[float]:
@@ -1623,7 +1646,7 @@ def _finalize_analyzer(analyzer: ActiveInferenceAnalyzer) -> None:
         )
 
 
-def _summary_metrics(rows: List[Mapping[str, Any]]) -> Dict[str, Any]:
+def _summary_metrics(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
     free_energy = [float(row["free_energy"]) for row in rows]
     expected = [
         float(row["expected_free_energy"])
@@ -1767,7 +1790,7 @@ def _cell_metrics_from_results(
 def _write_geospatial_cell_outputs(
     config: RunConfig, cells: List[str], cell_metrics: List[Dict[str, Any]]
 ) -> None:
-    """Write H3 cell CSV and polygon GeoJSON outputs for geospatial scenarios."""
+    assert config.output_dir is not None
     adapter = get_h3_adapter()
     write_csv(config.output_dir / "data" / "h3_cells.csv", cell_metrics)
     features = []
@@ -1808,8 +1831,8 @@ def _write_geospatial_cell_outputs(
     )
 
 
-def _plot_vector_summary(config: RunConfig, rows: List[Mapping[str, Any]]) -> Path:
-    """Create the standard non-geospatial scenario summary visualization."""
+def _plot_vector_summary(config: RunConfig, rows: Sequence[Mapping[str, Any]]) -> Path:
+    assert config.output_dir is not None
     timesteps = [int(row["timestep"]) for row in rows]
     free_energy = [float(row["free_energy"]) for row in rows]
     entropy = [float(row["belief_entropy"]) for row in rows]
@@ -1856,12 +1879,13 @@ def _plot_vector_summary(config: RunConfig, rows: List[Mapping[str, Any]]) -> Pa
 
 def _write_geospatial_visualizations(
     config: RunConfig,
-    rows: List[Mapping[str, Any]],
+    rows: Sequence[Mapping[str, Any]],
     cell_metrics: List[Dict[str, Any]],
     traces: List[Any],
     research_statistics: Mapping[str, Any],
 ) -> None:
     """Create the full visualization set required for geospatial scenarios."""
+    assert config.output_dir is not None
     _plot_h3_cell_metric_map(config, cell_metrics)
     _plot_free_energy_evolution(config, rows)
     _plot_belief_entropy_coherence(config, rows)
@@ -1934,7 +1958,7 @@ def _plot_h3_cell_metric_map(
 
 
 def _plot_free_energy_evolution(
-    config: RunConfig, rows: List[Mapping[str, Any]]
+    config: RunConfig, rows: Sequence[Mapping[str, Any]]
 ) -> Path:
     """Plot aggregate free-energy and expected-free-energy trajectories."""
     fig, ax = plt.subplots(figsize=(8, 4.4))
@@ -1982,7 +2006,7 @@ def _plot_free_energy_evolution(
 
 
 def _plot_belief_entropy_coherence(
-    config: RunConfig, rows: List[Mapping[str, Any]]
+    config: RunConfig, rows: Sequence[Mapping[str, Any]]
 ) -> Path:
     """Plot belief entropy and spatial coherence diagnostics over time."""
     fig, ax1 = plt.subplots(figsize=(8, 4.4))
@@ -3095,7 +3119,7 @@ def _write_nested_h3_parent_child_residuals(
 
 def _write_spatial_inference_research_report(
     config: RunConfig,
-    rows: List[Mapping[str, Any]],
+    rows: Sequence[Mapping[str, Any]],
     cell_metrics: List[Dict[str, Any]],
     trace_rows: List[Dict[str, Any]],
     research_statistics: Mapping[str, Any],

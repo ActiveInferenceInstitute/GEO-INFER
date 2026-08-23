@@ -9,6 +9,8 @@ __version__ = "0.1.0"
 __author__ = "GEO-INFER Team"
 __license__ = "MIT"
 
+from typing import Any, Optional
+
 # Import core components for easier access
 try:
     from geo_infer_risk.core import (
@@ -21,17 +23,17 @@ try:
         calculate_compound_exceedance_probability,
     )
 except ImportError:
-    EnhancedRiskEngine = None
-    RiskModel = None
-    HazardModel = None
-    VulnerabilityModel = None
-    ExposureModel = None
-    MultiHazardInteractionMatrix = None
-    calculate_compound_exceedance_probability = None
+    EnhancedRiskEngine = None  # type: ignore[assignment,misc]
+    RiskModel = None  # type: ignore[assignment,misc]
+    HazardModel = None  # type: ignore[assignment,misc]
+    VulnerabilityModel = None  # type: ignore[assignment,misc]
+    ExposureModel = None  # type: ignore[assignment,misc]
+    MultiHazardInteractionMatrix = None  # type: ignore[assignment,misc]
+    calculate_compound_exceedance_probability = None  # type: ignore[assignment]
 
 # Import specialized risk models (optional)
 try:
-    from geo_infer_risk.models import (
+    from geo_infer_risk.models import (  # type: ignore[import-untyped]
         FloodModel,
         EarthquakeModel,
         HurricaneModel,
@@ -52,18 +54,16 @@ try:
     from geo_infer_risk.utils import (
         config_loader,
         risk_metrics,
-        spatial_utils,
         validation,
     )
 except ImportError:
-    config_loader = None
-    risk_metrics = None
-    spatial_utils = None
-    validation = None
+    config_loader = None  # type: ignore[assignment]
+    risk_metrics = None  # type: ignore[assignment]
+    validation = None  # type: ignore[assignment]
 
 # Import API components (optional)
 try:
-    from geo_infer_risk.api import (
+    from geo_infer_risk.api import (  # type: ignore[import-untyped]
         RiskAPI,
         ModelRegistry,
         ResultsFormatter,
@@ -120,7 +120,9 @@ DEFAULT_CONFIDENCE_LEVEL = 0.95
 DEFAULT_RETURN_PERIODS = [10, 25, 50, 100, 250, 500, 1000]
 
 
-def create_risk_analysis(config_path=None, **kwargs):
+def create_risk_analysis(
+    config_path: Optional[str] = None, **kwargs: Any
+) -> Any:
     """
     Create a new risk analysis engine with the specified configuration.
 
@@ -148,7 +150,7 @@ def create_risk_analysis(config_path=None, **kwargs):
     return EnhancedRiskEngine(config)
 
 
-def create_underwriting_system(config=None):
+def create_underwriting_system(config: Optional[Any] = None) -> Any:
     """
     Create an underwriting system.
 
@@ -164,7 +166,9 @@ def create_underwriting_system(config=None):
     return create_underwriting_engine(config)
 
 
-def underwrite_insurance_policy(application_data, config=None):
+def underwrite_insurance_policy(
+    application_data: Any, config: Optional[Any] = None
+) -> Any:
     """
     Underwrite an insurance policy application.
 
@@ -181,7 +185,7 @@ def underwrite_insurance_policy(application_data, config=None):
     return underwrite_policy(application_data, config)
 
 
-def process_insurance_claim(claim_data, config=None):
+def process_insurance_claim(claim_data: Any, config: Optional[Any] = None) -> Any:
     """
     Process an insurance claim.
 

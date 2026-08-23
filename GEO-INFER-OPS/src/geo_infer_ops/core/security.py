@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 class SecurityManager:
     """Manages security operations for GEO-INFER-OPS."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize security manager."""
         self.config = get_config()
         self._load_keys(allow_missing=True)
@@ -56,7 +56,9 @@ class SecurityManager:
 
             # Load JWT secret
             if self.config.security.auth.enabled:
-                self.jwt_secret = self.config.security.auth.jwt_secret.encode()
+                jwt_secret = self.config.security.auth.jwt_secret
+                if jwt_secret is not None:
+                    self.jwt_secret = jwt_secret.encode()
 
             # Initialize encryption
             self.fernet = Fernet(Fernet.generate_key())
@@ -122,8 +124,8 @@ class SecurityManager:
             )
 
             # Save certificate and key
-            cert_path = Path(self.config.security.tls.cert_file)
-            key_path = Path(self.config.security.tls.key_file)
+            cert_path = Path(self.config.security.tls.cert_file or "")
+            key_path = Path(self.config.security.tls.key_file or "")
 
             cert_path.parent.mkdir(parents=True, exist_ok=True)
             key_path.parent.mkdir(parents=True, exist_ok=True)
@@ -188,7 +190,7 @@ class SecurityManager:
             )
 
             # Save private key
-            key_path = Path(self.config.security.tls.key_file)
+            key_path = Path(self.config.security.tls.key_file or "")
             key_path.parent.mkdir(parents=True, exist_ok=True)
 
             with open(key_path, "wb") as f:
@@ -212,7 +214,9 @@ class SecurityManager:
             logger.error("csr_generation_failed", error=str(e))
             raise
 
-    def generate_jwt_token(self, user_id: str, expires_in: int = 3600, **kwargs) -> str:
+    def generate_jwt_token(
+        self, user_id: str, expires_in: int = 3600, **kwargs: Any
+    ) -> str:
         """
         Generate a JWT token.
 

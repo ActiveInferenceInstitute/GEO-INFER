@@ -119,7 +119,7 @@ class ComplianceViolation:
 class ComplianceFramework:
     """Framework for managing geospatial data compliance."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the compliance framework."""
         self.rules: Dict[str, ComplianceRule] = {}
         self.violations: List[ComplianceViolation] = []
@@ -218,7 +218,7 @@ class ComplianceFramework:
         Returns:
             Report as a string or dictionary
         """
-        report = {
+        report: Dict[str, Any] = {
             "timestamp": datetime.datetime.now(datetime.timezone.utc)
             .replace(tzinfo=None)
             .isoformat(),

@@ -6,7 +6,7 @@ and pricing in the GEO-INFER framework.
 """
 
 import pandas as pd
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from dataclasses import dataclass
 import logging
 from abc import ABC, abstractmethod
@@ -50,7 +50,7 @@ class InsuranceModel(ABC):
         """
         self.config = config or InsuranceConfig()
         self.is_fitted = False
-        self.historical_data = None
+        self.historical_data: Optional[pd.DataFrame] = None
 
     @abstractmethod
     def fit(self, historical_data: pd.DataFrame) -> "InsuranceModel":
@@ -79,8 +79,8 @@ class PropertyInsuranceModel(InsuranceModel):
 
     def __init__(self, config: Optional[InsuranceConfig] = None):
         super().__init__(config)
-        self.risk_factors = {}
-        self.base_rates = {}
+        self.risk_factors: Dict[str, Any] = {}
+        self.base_rates: Dict[str, Any] = {}
 
     def fit(self, historical_data: pd.DataFrame) -> "PropertyInsuranceModel":
         """Fit property insurance model to historical data."""
@@ -104,7 +104,7 @@ class PropertyInsuranceModel(InsuranceModel):
         logger.info("Property insurance model fitted successfully")
         return self
 
-    def _calculate_risk_factors(self):
+    def _calculate_risk_factors(self) -> None:
         """Calculate risk factors from historical data."""
         if self.historical_data is None:
             return
@@ -160,7 +160,7 @@ class PropertyInsuranceModel(InsuranceModel):
         # Apply expense and profit loading
         premium = premium * (1 + self.config.expense_ratio + self.config.profit_margin)
 
-        return premium
+        return float(premium)
 
     def estimate_losses(self, risk_profile: Dict[str, Any]) -> Dict[str, float]:
         """Estimate potential property losses."""
@@ -258,8 +258,8 @@ class LiabilityInsuranceModel(InsuranceModel):
 
     def __init__(self, config: Optional[InsuranceConfig] = None):
         super().__init__(config)
-        self.liability_limits = {}
-        self.claim_frequencies = {}
+        self.liability_limits: Dict[str, Any] = {}
+        self.claim_frequencies: Dict[str, Any] = {}
 
     def fit(self, historical_data: pd.DataFrame) -> "LiabilityInsuranceModel":
         """Fit liability insurance model to historical data."""
@@ -315,7 +315,7 @@ class LiabilityInsuranceModel(InsuranceModel):
         # Apply expense and profit loading
         premium = premium * (1 + self.config.expense_ratio + self.config.profit_margin)
 
-        return premium
+        return float(premium)
 
     def estimate_losses(self, risk_profile: Dict[str, Any]) -> Dict[str, float]:
         """Estimate potential liability losses."""
@@ -407,8 +407,8 @@ class CatastropheInsuranceModel(InsuranceModel):
 
     def __init__(self, config: Optional[InsuranceConfig] = None):
         super().__init__(config)
-        self.catastrophe_models = {}
-        self.exposure_data = {}
+        self.catastrophe_models: Dict[str, Any] = {}
+        self.exposure_data: Dict[str, Any] = {}
 
     def fit(self, historical_data: pd.DataFrame) -> "CatastropheInsuranceModel":
         """Fit catastrophe insurance model to historical data."""
@@ -438,7 +438,7 @@ class CatastropheInsuranceModel(InsuranceModel):
         location = risk_profile.get("location", {"lat": 0, "lon": 0})
         catastrophe_types = risk_profile.get("catastrophe_types", ["hurricane"])
 
-        total_premium = 0
+        total_premium: float = 0.0
 
         for cat_type in catastrophe_types:
             if cat_type in self.catastrophe_models:
@@ -469,8 +469,8 @@ class CatastropheInsuranceModel(InsuranceModel):
         location = risk_profile.get("location", {"lat": 0, "lon": 0})
         catastrophe_types = risk_profile.get("catastrophe_types", ["hurricane"])
 
-        total_expected_loss = 0
-        max_loss = 0
+        total_expected_loss: float = 0.0
+        max_loss: float = 0.0
 
         for cat_type in catastrophe_types:
             if cat_type in self.catastrophe_models:
@@ -597,10 +597,10 @@ class InsuranceManager:
             config: Configuration for insurance models
         """
         self.config = config or InsuranceConfig()
-        self.models = {}
+        self.models: Dict[str, Any] = {}
         self._initialize_models()
 
-    def _initialize_models(self):
+    def _initialize_models(self) -> None:
         """Initialize all insurance models."""
         self.models = {
             "property": PropertyInsuranceModel(self.config),
@@ -652,7 +652,7 @@ class InsuranceManager:
                 f"{model_type} model must be fitted before premium calculation"
             )
 
-        return model.calculate_premium(risk_profile)
+        return cast(float, model.calculate_premium(risk_profile))
 
     def estimate_losses(
         self, model_type: str, risk_profile: Dict[str, Any]
@@ -676,7 +676,7 @@ class InsuranceManager:
                 f"{model_type} model must be fitted before loss estimation"
             )
 
-        return model.estimate_losses(risk_profile)
+        return cast(Dict[str, float], model.estimate_losses(risk_profile))
 
     def generate_quote(
         self, risk_profile: Dict[str, Any], coverage_types: List[str]
@@ -691,7 +691,7 @@ class InsuranceManager:
         Returns:
             Insurance quote
         """
-        quote = {
+        quote: Dict[str, Any] = {
             "risk_profile": risk_profile,
             "coverage_types": coverage_types,
             "premiums": {},

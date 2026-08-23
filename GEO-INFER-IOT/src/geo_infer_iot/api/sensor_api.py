@@ -33,11 +33,13 @@ class SensorAPI:
     - Sensor network status monitoring
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Sensor API", version="1.0.0")
 
         # Initialize core components if available
+        self.registry: Optional[Any] = None
+        self.ingestion: Optional[Any] = None
         if HAS_CORE_MODULES:
             self.registry = SensorRegistry(config)
             self.ingestion = IoTDataIngestion(self.registry, config)
@@ -50,11 +52,11 @@ class SensorAPI:
 
         logger.info("SensorAPI initialized")
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         """Setup API routes and endpoints."""
 
         @self.app.get("/")
-        async def root():
+        async def root() -> Dict[str, Any]:
             """API root endpoint with service information."""
             return {
                 "service": "GEO-INFER-IOT Sensor API",
@@ -76,7 +78,7 @@ class SensorAPI:
             h3_index: Optional[str] = Query(None, description="Filter by H3 index"),
             limit: int = Query(100, description="Maximum number of sensors to return"),
             offset: int = Query(0, description="Offset for pagination")
-        ):
+        ) -> Dict[str, Any]:
             """List sensors with optional filtering."""
             if self.registry is None:
                 raise HTTPException(status_code=503, detail="Sensor registry not available")
@@ -131,7 +133,7 @@ class SensorAPI:
                 raise HTTPException(status_code=500, detail=f"Error retrieving sensors: {str(e)}")
 
         @self.app.get("/sensors/{sensor_id}")
-        async def get_sensor(sensor_id: str):
+        async def get_sensor(sensor_id: str) -> Dict[str, Any]:
             """Get detailed information about a specific sensor."""
             if self.registry is None:
                 raise HTTPException(status_code=503, detail="Sensor registry not available")
@@ -156,7 +158,7 @@ class SensorAPI:
             }
 
         @self.app.post("/sensors")
-        async def register_sensor(sensor_data: Dict):
+        async def register_sensor(sensor_data: Dict) -> Dict[str, Any]:
             """Register a new sensor."""
             if self.registry is None:
                 raise HTTPException(status_code=503, detail="Sensor registry not available")
@@ -180,7 +182,7 @@ class SensorAPI:
             end_time: Optional[datetime] = Query(None, description="End time for query"),
             h3_resolution: int = Query(8, description="H3 resolution for spatial queries"),
             limit: int = Query(1000, description="Maximum measurements to return")
-        ):
+        ) -> Dict[str, Any]:
             """Query sensor measurements with temporal and spatial filtering."""
             if self.ingestion is None:
                 raise HTTPException(status_code=503, detail="Data ingestion not available")
@@ -243,7 +245,7 @@ class SensorAPI:
                 raise HTTPException(status_code=500, detail=f"Error querying measurements: {str(e)}")
 
         @self.app.post("/measurements")
-        async def submit_measurements(measurements: List[Dict]):
+        async def submit_measurements(measurements: List[Dict]) -> Dict[str, Any]:
             """Submit new sensor measurements."""
             if self.ingestion is None:
                 raise HTTPException(status_code=503, detail="Data ingestion not available")
@@ -271,7 +273,7 @@ class SensorAPI:
                 raise HTTPException(status_code=500, detail=f"Error processing measurements: {str(e)}")
 
         @self.app.get("/networks")
-        async def list_networks():
+        async def list_networks() -> Dict[str, Any]:
             """List all sensor networks."""
             if self.registry is None:
                 raise HTTPException(status_code=503, detail="Sensor registry not available")
@@ -294,9 +296,9 @@ class SensorAPI:
             }
 
         @self.app.get("/health")
-        async def health_check():
+        async def health_check() -> Dict[str, Any]:
             """Health check endpoint."""
-            health_status = {
+            health_status: Dict[str, Any] = {
                 "status": "healthy",
                 "timestamp": datetime.now().isoformat(),
                 "services": {}
@@ -319,7 +321,7 @@ class SensorAPI:
             return health_status
 
         @self.app.get("/spatial/{h3_index}/sensors")
-        async def get_sensors_in_h3_cell(h3_index: str):
+        async def get_sensors_in_h3_cell(h3_index: str) -> Dict[str, Any]:
             """Get all sensors in a specific H3 cell."""
             if self.registry is None:
                 raise HTTPException(status_code=503, detail="Sensor registry not available")
@@ -345,7 +347,7 @@ class SensorAPI:
         """Get the FastAPI application instance."""
         return self.app
 
-    def run(self, host: str = "0.0.0.0", port: int = 8000, **kwargs):
+    def run(self, host: str = "0.0.0.0", port: int = 8000, **kwargs: Any) -> None:
         """Run the API server."""
         import uvicorn
         uvicorn.run(self.app, host=host, port=port, **kwargs)

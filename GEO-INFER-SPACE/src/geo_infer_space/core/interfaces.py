@@ -457,7 +457,7 @@ class H3UnavailableError(RuntimeError):
     to perform the requested operation.
     """
 
-    def __init__(self, operation: str = "spatial operation"):
+    def __init__(self, operation: str = "spatial operation") -> None:
         super().__init__(
             f"H3 library is required for {operation}. "
             "Install it with: pip install h3"
@@ -473,7 +473,7 @@ class SRAIUnavailableError(RuntimeError):
     to perform the requested operation.
     """
 
-    def __init__(self, operation: str = "spatial operation"):
+    def __init__(self, operation: str = "spatial operation") -> None:
         super().__init__(
             f"SRAI library is required for {operation}. "
             "Install it with: pip install srai"
@@ -486,7 +486,7 @@ class BackendNotAvailableError(RuntimeError):
     Raised when a requested backend is not available.
     """
 
-    def __init__(self, backend_name: str, available_backends: List[str]):
+    def __init__(self, backend_name: str, available_backends: List[str]) -> None:
         available_str = ", ".join(available_backends) if available_backends else "none"
         super().__init__(
             f"Backend '{backend_name}' is not available. "
@@ -499,7 +499,7 @@ class BackendNotAvailableError(RuntimeError):
 class UnsupportedSpatialOperationError(ValueError):
     """Raised when a public spatial facade operation has no backend support."""
 
-    def __init__(self, operation: str, backend: str):
+    def __init__(self, operation: str, backend: str) -> None:
         super().__init__(
             f"Spatial operation '{operation}' is not supported by backend '{backend}'"
         )

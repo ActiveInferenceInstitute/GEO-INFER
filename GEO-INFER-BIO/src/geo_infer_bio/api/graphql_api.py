@@ -1,13 +1,15 @@
 """
 GraphQL API for GEO-INFER-BIO.
 """
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, cast
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI
 import pandas as pd
 from pathlib import Path
 import tempfile
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
 
 from ..core.sequence_analysis import SequenceAnalyzer
 from ..utils.validation import DataValidator
@@ -69,8 +71,6 @@ class Query:
             raise ValueError("Invalid sequence")
         
         # Create SeqRecord
-        from Bio.SeqRecord import SeqRecord
-        from Bio.Seq import Seq
         record = SeqRecord(
             Seq(sequence_data.sequence),
             id=sequence_data.id,
@@ -78,15 +78,16 @@ class Query:
         
         # Add spatial data if provided
         if sequence_data.spatial_data:
-            record.spatial_data = pd.DataFrame([{
+            setattr(record, "spatial_data", pd.DataFrame([{
                 "latitude": sequence_data.spatial_data.latitude,
                 "longitude": sequence_data.spatial_data.longitude,
-            }])
+            }]))
         
         # Perform analysis
-        gc_content = analyzer.calculate_gc_content(record.seq)
-        motifs = analyzer.find_motifs(record.seq)
-        coding_regions = analyzer.predict_coding_regions(record.seq)
+        seq_value = cast("Seq", record.seq)
+        gc_content = analyzer.calculate_gc_content(seq_value)
+        motifs = analyzer.find_motifs(seq_value)
+        coding_regions = analyzer.predict_coding_regions(seq_value)
         
         return AnalysisResult(
             sequence_id=sequence_data.id,
@@ -114,18 +115,19 @@ class Query:
         validator = DataValidator()
         
         # Load sequences
-        sequences = analyzer.load_sequence(file_path)
+        loaded = analyzer.load_sequence(file_path)
+        sequences: List[SeqRecord] = loaded if isinstance(loaded, list) else [loaded]
         
         # Load spatial data if provided
         spatial_df = None
         if spatial_data_path:
             spatial_df = pd.read_csv(spatial_data_path)
         
-        results = []
+        results: List[AnalysisResult] = []
         for i, record in enumerate(sequences):
             # Add spatial data if available
             if spatial_df is not None and i < len(spatial_df):
-                record.spatial_data = spatial_df.iloc[[i]]
+                setattr(record, "spatial_data", spatial_df.iloc[[i]])
             
             # Validate sequence
             validation = validator.validate_sequence_record(record)
@@ -133,21 +135,23 @@ class Query:
                 continue
             
             # Perform analysis
-            gc_content = analyzer.calculate_gc_content(record.seq)
-            motifs = analyzer.find_motifs(record.seq)
-            coding_regions = analyzer.predict_coding_regions(record.seq)
+            seq_value = cast("Seq", record.seq)
+            gc_content = analyzer.calculate_gc_content(seq_value)
+            motifs = analyzer.find_motifs(seq_value)
+            coding_regions = analyzer.predict_coding_regions(seq_value)
             
             result = AnalysisResult(
-                sequence_id=record.id,
+                sequence_id=record.id or "",
                 gc_content=gc_content,
                 motif_count=len(motifs),
                 coding_regions=len(coding_regions),
             )
             
-            if hasattr(record, "spatial_data"):
+            spatial_attr = getattr(record, "spatial_data", None)
+            if spatial_attr is not None:
                 result.spatial_data = SpatialData(
-                    latitude=record.spatial_data.iloc[0]["latitude"],
-                    longitude=record.spatial_data.iloc[0]["longitude"],
+                    latitude=float(spatial_attr.iloc[0]["latitude"]),
+                    longitude=float(spatial_attr.iloc[0]["longitude"]),
                 )
             
             results.append(result)
@@ -197,16 +201,16 @@ class Query:
             
             # Read visualization files
             with open(gc_plot, "rb") as f:
-                gc_content = f.read()
+                gc_bytes = f.read()
             with open(motif_plot, "rb") as f:
-                motif_density = f.read()
+                motif_bytes = f.read()
             with open(coding_plot, "rb") as f:
-                coding_potential = f.read()
+                coding_bytes = f.read()
             
             return VisualizationData(
-                gc_content=gc_content,
-                motif_density=motif_density,
-                coding_potential=coding_potential,
+                gc_content=gc_bytes.decode("latin1"),
+                motif_density=motif_bytes.decode("latin1"),
+                coding_potential=coding_bytes.decode("latin1"),
             )
     
     @strawberry.field

@@ -477,6 +477,7 @@ class RandomFieldTheory:
             extent_resels = (-np.log(target_survival) / beta) ** (self.ndim / 2)
         if extent_in_resels:
             return float(extent_resels)
+        assert self.search_volume is not None
         resels_per_voxel = self.search_volume / float(np.prod(self.field_shape))
         return float(extent_resels / resels_per_voxel)
 
@@ -649,7 +650,7 @@ def compute_spm(
         contrast.significance_mask = contrast.corrected_p_values < alpha
 
     elif correction.upper() == "BONFERRONI":
-        n_tests = np.prod(contrast.p_values.shape)
+        n_tests = int(np.prod(contrast.p_values.shape))
         contrast.corrected_p_values = np.minimum(contrast.p_values * n_tests, 1.0)
         contrast.correction_method = "Bonferroni"
         contrast.significance_mask = contrast.corrected_p_values < alpha

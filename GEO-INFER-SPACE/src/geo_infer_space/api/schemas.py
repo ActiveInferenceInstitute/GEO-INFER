@@ -86,7 +86,7 @@ class InterpolationRequest(BaseModel):
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
     @field_validator("method")
-    def validate_method(cls, v):
+    def validate_method(cls: Any, v: str) -> str:
         valid_methods = ["idw", "kriging", "rbf", "nearest"]
         if v not in valid_methods:
             raise ValueError(f"Method must be one of {valid_methods}")
@@ -107,7 +107,7 @@ class ClusteringRequest(BaseModel):
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
     @field_validator("method")
-    def validate_method(cls, v):
+    def validate_method(cls: Any, v: str) -> str:
         valid_methods = ["dbscan", "kmeans", "hierarchical"]
         if v not in valid_methods:
             raise ValueError(f"Method must be one of {valid_methods}")
@@ -130,7 +130,7 @@ class HotspotRequest(BaseModel):
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
     @field_validator("method")
-    def validate_method(cls, v):
+    def validate_method(cls: Any, v: str) -> str:
         valid_methods = ["getis_ord", "local_moran", "kernel_density"]
         if v not in valid_methods:
             raise ValueError(f"Method must be one of {valid_methods}")
@@ -156,7 +156,7 @@ class NetworkAnalysisRequest(BaseModel):
     crs: Optional[str] = Field("EPSG:4326", description="Coordinate reference system")
 
     @field_validator("analysis_type")
-    def validate_analysis_type(cls, v):
+    def validate_analysis_type(cls: Any, v: str) -> str:
         valid_types = [
             "shortest_path",
             "service_area",
@@ -184,7 +184,7 @@ class TerrainAnalysisRequest(BaseModel):
     )
 
     @field_validator("analyses")
-    def validate_analyses(cls, v):
+    def validate_analyses(cls: Any, v: List[str]) -> List[str]:
         valid_analyses = ["slope", "aspect", "hillshade", "curvature", "tpi"]
         for analysis in v:
             if analysis not in valid_analyses:
@@ -207,7 +207,7 @@ class H3AnalysisRequest(BaseModel):
     )
 
     @field_validator("operation")
-    def validate_operation(cls, v):
+    def validate_operation(cls: Any, v: str) -> str:
         valid_ops = [
             "polygon_to_cells",
             "grid_disk",

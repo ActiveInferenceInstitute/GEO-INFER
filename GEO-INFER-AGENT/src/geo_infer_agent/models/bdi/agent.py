@@ -8,7 +8,7 @@ Belief-Desire-Intention cognitive architecture for geospatial agents.
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, cast
 
 from geo_infer_agent.core.agent_base import BaseAgent, AgentState
 
@@ -274,11 +274,11 @@ class BDIState(AgentState):
         super().__init__(capacity)
         self.beliefs_dict: Dict[str, Belief] = {}
         self.desires_dict: Dict[str, Desire] = {}
-        self.intentions: List[Plan] = []
+        self.intentions: List[Plan] = []  # type: ignore[assignment]
         self.current_intention: Optional[Plan] = None
         # Expose beliefs/desires via the parent-class attribute names.
         self.beliefs = self.beliefs_dict
-        self.desires = self.desires_dict
+        self.desires = self.desires_dict  # type: ignore[assignment]
 
     # ------------------------------------------------------------------
     # Belief management
@@ -363,7 +363,7 @@ class BDIState(AgentState):
     # Desire management
     # ------------------------------------------------------------------
 
-    def add_desire(self, desire: Desire) -> None:
+    def add_desire(self, desire: Desire) -> None:  # type: ignore[override]
         """Add a desire to the desire set."""
         self.desires_dict[desire.name] = desire
         self.add_to_memory(
@@ -483,6 +483,8 @@ class BDIAgent(BaseAgent):
     4. Execute the next action of the current intention.
     """
 
+    state: BDIState
+
     def __init__(
         self, agent_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -493,8 +495,8 @@ class BDIAgent(BaseAgent):
 
         self.state = BDIState(capacity=self.config.get("memory_capacity", 1000))
         self.plan_library: Dict[str, Dict[str, Any]] = {}
-        self.action_handlers: Dict[str, Callable] = {}
-        self.perception_handlers: List[Callable] = []
+        self.action_handlers: Dict[str, Callable[..., Any]] = {}
+        self.perception_handler_list: List[Callable[..., Any]] = []
 
         self.deliberation_interval: float = self.config.get("deliberation_interval", 5)
         self.commitment_strategy: str = self.config.get("commitment_strategy", "single_minded")
@@ -551,7 +553,7 @@ class BDIAgent(BaseAgent):
 
     def update_beliefs(self, perception: Dict[str, Any]) -> None:
         """Update beliefs from a perception dict by running all perception handlers."""
-        for handler in self.perception_handlers:
+        for handler in self.perception_handler_list:
             handler(self, perception)
         self.state.update_belief("last_perception_time", datetime.now())
         logger.debug("BDI agent %s beliefs updated from perception", self.agent_id)
@@ -613,7 +615,7 @@ class BDIAgent(BaseAgent):
                             logger.info(
                                 "BDI agent %s achieved desire %s", self.agent_id, desire.name
                             )
-            return result
+            return cast(Dict[str, Any], result)
         except Exception as exc:
             logger.error(
                 "BDI agent %s error executing action %s: %s", self.agent_id, action_type, exc
@@ -635,7 +637,7 @@ class BDIAgent(BaseAgent):
         self.action_handlers["log"] = self._handle_log_action
 
     def _register_default_perception_handlers(self) -> None:
-        self.perception_handlers.append(self._handle_sensor_perceptions)
+        self.perception_handler_list.append(self._handle_sensor_perceptions)
 
     def _handle_sensor_perceptions(
         self, agent: "BDIAgent", perception: Dict[str, Any]

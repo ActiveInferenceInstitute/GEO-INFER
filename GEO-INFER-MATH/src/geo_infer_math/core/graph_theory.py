@@ -6,8 +6,8 @@ for analyzing spatial networks and connectivity in geospatial data.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
-from dataclasses import dataclass
+from typing import Union, List, Tuple, Dict, Optional, Any, Callable, Set, cast
+from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import logging
 import heapq
@@ -19,11 +19,7 @@ class GraphNode:
     """Representation of a graph node."""
     id: Any
     coordinates: Optional[np.ndarray] = None
-    attributes: Dict[str, Any] = None
-
-    def __post_init__(self):
-        if self.attributes is None:
-            self.attributes = {}
+    attributes: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class GraphEdge:
@@ -31,16 +27,12 @@ class GraphEdge:
     source: Any
     target: Any
     weight: float = 1.0
-    attributes: Dict[str, Any] = None
-
-    def __post_init__(self):
-        if self.attributes is None:
-            self.attributes = {}
+    attributes: Dict[str, Any] = field(default_factory=dict)
 
 class SpatialGraph:
     """Spatial graph representation with geospatial operations."""
 
-    def __init__(self, directed: bool = False):
+    def __init__(self, directed: bool = False) -> None:
         """
         Initialize spatial graph.
 
@@ -48,14 +40,15 @@ class SpatialGraph:
             directed: Whether the graph is directed
         """
         self.directed = directed
-        self.nodes = {}  # node_id -> GraphNode
-        self.edges = {}  # (source, target) -> GraphEdge
-        self.adjacency_list = defaultdict(list)  # node_id -> list of connected nodes
-        self.weights = {}  # (source, target) -> weight
+        self.nodes: Dict[Any, GraphNode] = {}  # node_id -> GraphNode
+        self.edges: Dict[Tuple[Any, Any], GraphEdge] = {}  # (source, target) -> GraphEdge
+        self.adjacency_list: Dict[Any, List[Any]] = defaultdict(list)
+        # node_id -> list of connected nodes
+        self.weights: Dict[Tuple[Any, Any], float] = {}  # (source, target) -> weight
 
     def add_node(self, node_id: Any,
                 coordinates: Optional[np.ndarray] = None,
-                **attributes) -> None:
+                **attributes: Any) -> None:
         """
         Add a node to the graph.
 
@@ -71,7 +64,7 @@ class SpatialGraph:
         )
 
     def add_edge(self, source: Any, target: Any,
-                weight: float = 1.0, **attributes) -> None:
+                weight: float = 1.0, **attributes: Any) -> None:
         """
         Add an edge to the graph.
 
@@ -133,7 +126,7 @@ class SpatialGraph:
 
     def get_neighbors(self, node_id: Any) -> List[Any]:
         """Get list of neighboring nodes."""
-        return self.adjacency_list.get(node_id, [])
+        return list(self.adjacency_list.get(node_id, []))
 
     def get_edge_weight(self, source: Any, target: Any) -> Optional[float]:
         """Get weight of edge between two nodes."""
@@ -166,7 +159,7 @@ class SpatialGraph:
         previous = {node: None for node in self.nodes}
 
         # Priority queue: (distance, node)
-        pq = [(0, start)]
+        pq: List[Tuple[float, Any]] = [(0.0, start)]
 
         while pq:
             current_distance, current_node = heapq.heappop(pq)
@@ -257,17 +250,17 @@ class SpatialGraph:
 
         # Add all nodes to MST
         for node_id, node in self.nodes.items():
-            mst.add_node(node_id, node.coordinates, **node.attributes)
+            mst.add_node(node_id, node.coordinates, ** (node.attributes or {}))
 
         # Union-Find structure
         parent = {node_id: node_id for node_id in self.nodes}
 
-        def find(node):
+        def find(node: Any) -> Any:
             if parent[node] != node:
                 parent[node] = find(parent[node])
             return parent[node]
 
-        def union(node1, node2):
+        def union(node1: Any, node2: Any) -> bool:
             root1 = find(node1)
             root2 = find(node2)
             if root1 != root2:
@@ -294,18 +287,19 @@ class SpatialGraph:
 
         # Add all nodes to MST
         for node_id, node in self.nodes.items():
-            mst.add_node(node_id, node.coordinates, **node.attributes)
+            mst.add_node(node_id, node.coordinates, ** (node.attributes or {}))
 
         # Track visited nodes
         visited = set([start_node])
 
         # Priority queue for edges: (weight, source, target)
-        edge_queue = []
+        edge_queue: List[Tuple[float, Any, Any]] = []
 
         # Add edges from start node
         for neighbor in self.get_neighbors(start_node):
             weight = self.get_edge_weight(start_node, neighbor)
-            heapq.heappush(edge_queue, (weight, start_node, neighbor))
+            if weight is not None:
+                heapq.heappush(edge_queue, (float(weight), start_node, neighbor))
 
         while edge_queue and len(visited) < len(self.nodes):
             weight, source, target = heapq.heappop(edge_queue)
@@ -320,10 +314,75 @@ class SpatialGraph:
             # Add new edges from target
             for neighbor in self.get_neighbors(target):
                 if neighbor not in visited:
-                    weight = self.get_edge_weight(target, neighbor)
-                    heapq.heappush(edge_queue, (weight, target, neighbor))
+                    edge_w = self.get_edge_weight(target, neighbor)
+                    if edge_w is not None:
+                        heapq.heappush(edge_queue, (float(edge_w), target, neighbor))
 
         return mst
+
+    def _strongly_connected_components(self) -> List[List[Any]]:
+        """Tarjan's algorithm for strongly connected components."""
+        index = 0
+        indices: Dict[Any, int] = {}
+        lowlinks: Dict[Any, int] = {}
+        on_stack: Dict[Any, bool] = {}
+        stack: List[Any] = []
+        sccs: List[List[Any]] = []
+
+        def strongconnect(v: Any) -> None:
+            nonlocal index
+            indices[v] = index
+            lowlinks[v] = index
+            index += 1
+            stack.append(v)
+            on_stack[v] = True
+
+            for w in self.get_neighbors(v):
+                if w not in indices:
+                    strongconnect(w)
+                    lowlinks[v] = min(lowlinks[v], lowlinks[w])
+                elif on_stack.get(w, False):
+                    lowlinks[v] = min(lowlinks[v], indices[w])
+
+            if lowlinks[v] == indices[v]:
+                scc = []
+                while True:
+                    w = stack.pop()
+                    on_stack[w] = False
+                    scc.append(w)
+                    if w == v:
+                        break
+                sccs.append(scc)
+
+        for node in self.nodes:
+            if node not in indices:
+                strongconnect(node)
+
+        return sccs
+
+    def _weakly_connected_components(self) -> List[List[Any]]:
+        """Weakly connected components for directed graph or components for undirected graph."""
+        visited: Set[Any] = set()
+        components: List[List[Any]] = []
+
+        for node_id in self.nodes:
+            if node_id not in visited:
+                component: List[Any] = []
+                queue: deque[Any] = deque([node_id])
+
+                while queue:
+                    current = queue.popleft()
+                    if current not in visited:
+                        visited.add(current)
+                        component.append(current)
+
+                        for neighbor in self.get_neighbors(current):
+                            if neighbor not in visited:
+                                queue.append(neighbor)
+
+                components.append(component)
+
+        return components
 
     def connected_components(self) -> List[List[Any]]:
         """
@@ -332,29 +391,10 @@ class SpatialGraph:
         Returns:
             List of connected component node lists
         """
-        visited = set()
-        components = []
-
-        for node_id in self.nodes:
-            if node_id not in visited:
-                # Start DFS/BFS from this node
-                component = []
-                queue = deque([node_id])
-
-                while queue:
-                    current = queue.popleft()
-                    if current not in visited:
-                        visited.add(current)
-                        component.append(current)
-
-                        # Add unvisited neighbors
-                        for neighbor in self.get_neighbors(current):
-                            if neighbor not in visited:
-                                queue.append(neighbor)
-
-                components.append(component)
-
-        return components
+        if self.directed:
+            return self._strongly_connected_components()
+        else:
+            return self._weakly_connected_components()
 
     def centrality_measures(self) -> Dict[str, Dict[Any, float]]:
         """
@@ -390,7 +430,7 @@ class SpatialGraph:
             # Run BFS from source
             distances = {node: -1 for node in self.nodes}
             distances[source] = 0
-            predecessors = {node: [] for node in self.nodes}
+            predecessors: Dict[Any, List[Any]] = {node: [] for node in self.nodes}
             sigma = {node: 0 for node in self.nodes}
             sigma[source] = 1
 
@@ -433,11 +473,11 @@ class SpatialGraph:
 
     def _closeness_centrality(self) -> Dict[Any, float]:
         """Calculate closeness centrality."""
-        centrality = {}
+        centrality: Dict[Any, float] = {}
 
         for node in self.nodes:
-            total_distance = 0
-            reachable_nodes = 0
+            total_distance: float = 0.0
+            reachable_nodes: int = 0
 
             for target in self.nodes:
                 if node != target:
@@ -447,7 +487,7 @@ class SpatialGraph:
                         reachable_nodes += 1
 
             if reachable_nodes > 0:
-                centrality[node] = reachable_nodes / total_distance
+                centrality[node] = float(reachable_nodes / total_distance)
             else:
                 centrality[node] = 0.0
 
@@ -460,7 +500,7 @@ class SpatialGraph:
         Returns:
             Dictionary of network analysis results
         """
-        analysis = {}
+        analysis: Dict[str, Any] = {}
 
         # Basic network statistics
         analysis['n_nodes'] = len(self.nodes)
@@ -504,8 +544,8 @@ class NetworkFlow:
         residual = NetworkFlow._create_residual_graph(graph)
 
         # Initialize flow
-        flow = {(u, v): 0 for (u, v) in graph.edges}
-        max_flow = 0
+        flow: Dict[Tuple[Any, Any], float] = {(u, v): 0.0 for (u, v) in graph.edges}
+        max_flow: float = 0.0
 
         while True:
             # Find augmenting path
@@ -539,12 +579,12 @@ class NetworkFlow:
     @staticmethod
     def _create_residual_graph(graph: SpatialGraph) -> Dict[Tuple[Any, Any], float]:
         """Create residual graph for max flow algorithm."""
-        residual = {}
+        residual: Dict[Tuple[Any, Any], float] = {}
 
         # Add forward edges
         for (u, v), edge in graph.edges.items():
-            residual[(u, v)] = edge.weight
-            residual[(v, u)] = 0  # Reverse edge initially 0
+            residual[(u, v)] = float(edge.weight)
+            residual[(v, u)] = 0.0  # Reverse edge initially 0
 
         return residual
 

@@ -8,7 +8,7 @@ crowdsourced data, and various APIs.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any
+from typing import Dict, List, Any, cast
 from datetime import datetime, timezone
 from importlib.util import find_spec
 import asyncio
@@ -143,7 +143,7 @@ class DataSourceConnector(ABC):
         """
         return await self.validator.validate_data(data)
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """
         Close connection to data source.
 
@@ -176,7 +176,7 @@ class SatelliteDataConnector(DataSourceConnector):
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 timeout=10,
             )
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except Exception as e:
             logger.error(f"Failed to connect to satellite API: {e}")
             return False
@@ -247,7 +247,7 @@ class CrowdsourcedDataConnector(DataSourceConnector):
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 timeout=10,
             )
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except Exception as e:
             logger.error(f"Failed to connect to crowdsourcing API: {e}")
             return False
@@ -288,7 +288,7 @@ class GenericDataSourceConnector(DataSourceConnector):
                 headers=self._headers(),
                 timeout=10,
             )
-            return response.ok
+            return bool(response.ok)
         except requests.RequestException as exc:
             logger.warning("Generic data source connection failed: %s", exc)
             return False
@@ -402,7 +402,7 @@ class MultiSourceDataIngestion:
             max_workers=max_workers,
         )
 
-        self.connectors = {}
+        self.connectors: Dict[str, Any] = {}
         self.format_detector = FormatDetector()
         self.validator = GeospatialValidator()
         self._initialize_connectors()
@@ -415,9 +415,9 @@ class MultiSourceDataIngestion:
             f"Initialized MultiSourceDataIngestion with {len(data_sources)} sources"
         )
 
-    def _initialize_connectors(self):
+    def _initialize_connectors(self) -> None:
         """Initialize data source connectors."""
-        connector_configs = {
+        connector_configs: Dict[str, Dict[str, Any]] = {
             "satellite": {
                 "api_key": "your_api_key",
                 "base_url": "https://api.example.com",
@@ -458,7 +458,9 @@ class MultiSourceDataIngestion:
                         connector_configs[source]
                     )
 
-    async def ingest_multi_source(self, **data_sources) -> Dict[str, Any]:
+    async def ingest_multi_source(
+        self, **data_sources: Any
+    ) -> Dict[str, Any]:
         """
         Ingest data from multiple sources simultaneously.
 
@@ -575,20 +577,20 @@ class MultiSourceDataIngestion:
                     results.append({"error": str(e)})
 
         # Process results
-        ingested_data = {}
+        ingested_data: Dict[str, Any] = {}
         quality_reports = {}
 
-        for i, (source_name, result) in enumerate(zip(data_sources.keys(), results)):
-            if isinstance(result, Exception):
-                logger.error(f"Failed to ingest from {source_name}: {result}")
-                ingested_data[source_name] = {"error": str(result)}
+        for source_name, ing_result in zip(data_sources.keys(), results):
+            if isinstance(ing_result, Exception):
+                logger.error(f"Failed to ingest from {source_name}: {ing_result}")
+                ingested_data[source_name] = {"error": str(ing_result)}
             else:
-                ingested_data[source_name] = result
+                ingested_data[source_name] = ing_result
 
                 # Validate data if enabled
                 if self.config.validation_enabled:
                     quality_report = await self._validate_ingested_data(
-                        source_name, result
+                        source_name, ing_result
                     )
                     quality_reports[source_name] = quality_report
 
@@ -669,7 +671,7 @@ class MultiSourceDataIngestion:
                 validation_result = await connector.validate_data(data)
                 data["validation"] = validation_result
 
-            return data
+            return cast(Dict[str, Any], data)
 
         except Exception as e:
             logger.error(f"Failed to ingest from {source_name}: {e}")
@@ -685,7 +687,7 @@ class MultiSourceDataIngestion:
             logger.error(f"Validation failed for {source_name}: {e}")
             return QualityCheck(
                 score=0.0,
-                status="fail",
+                status=cast(Any, "fail"),
                 issues=[{"type": "validation_error", "message": str(e)}],
             )
 

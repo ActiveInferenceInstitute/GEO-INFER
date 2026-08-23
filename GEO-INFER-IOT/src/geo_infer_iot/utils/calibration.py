@@ -43,10 +43,10 @@ class SensorCalibration:
     - Multi-point calibration procedures
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.calibration_history = []
-        self.drift_models = {}
+        self.calibration_history: List[Dict[str, Any]] = []
+        self.drift_models: Dict[str, Any] = {}
 
         # Default calibration parameters
         self.default_params = {
@@ -155,12 +155,13 @@ class SensorCalibration:
         try:
             # Fit 2nd order polynomial
             coeffs = np.polyfit(sensor_values, reference_values, 2)
+            ref_arr = np.array(reference_values)
 
             # Calculate R-squared
             predicted = np.polyval(coeffs, sensor_values)
-            ss_res = np.sum((reference_values - predicted) ** 2)
-            ss_tot = np.sum((reference_values - np.mean(reference_values)) ** 2)
-            r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+            ss_res = np.sum((ref_arr - predicted) ** 2)
+            ss_tot = np.sum((ref_arr - np.mean(ref_arr)) ** 2)
+            r_squared = float(1 - (ss_res / ss_tot) if ss_tot != 0 else 0)
 
             return {
                 'coefficients': coeffs.tolist(),
@@ -180,7 +181,7 @@ class SensorCalibration:
             return [slope * val + offset for val in sensor_values]
         elif method == "polynomial" and 'coefficients' in params:
             coeffs = params['coefficients']
-            return [np.polyval(coeffs, val) for val in sensor_values]
+            return [float(np.polyval(coeffs, val)) for val in sensor_values]
         else:
             return sensor_values  # No calibration
 
@@ -370,7 +371,7 @@ class SensorCalibration:
             'unique_sensor_values': len(set(sensor_values))
         }
 
-    def get_calibration_report(self, sensor_id: str = None, time_window_days: int = 30) -> Dict:
+    def get_calibration_report(self, sensor_id: Optional[str] = None, time_window_days: int = 30) -> Dict:
         """
         Generate calibration report for sensor(s).
 

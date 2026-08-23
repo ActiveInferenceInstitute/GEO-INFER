@@ -9,6 +9,7 @@ security, and complies with relevant regulations.
 from datetime import datetime, timezone
 import logging
 from copy import deepcopy
+from typing import Any, Dict, List, Optional
 
 __version__ = "0.1.0"
 __author__ = "GEO-INFER Team"
@@ -52,16 +53,16 @@ class SecurityFramework:
     processing and analysis workflows.
     """
 
-    def __init__(self, config=None):
-        self.config = config or {}
-        self.audit_log = []
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        self.config: Dict[str, Any] = config or {}
+        self.audit_log: List[Dict[str, Any]] = []
         from .core.cognitive_security import CognitiveSecurityManager
         from .utils.security_utils import SecurityUtils
 
         self.cognitive = CognitiveSecurityManager()
         self.security_utils = SecurityUtils()
 
-    def secure_data_processing(self, data, privacy_level="standard"):
+    def secure_data_processing(self, data: Any, privacy_level: str = "standard") -> Any:
         """Apply security measures to data processing pipeline."""
         levels = {"standard": 2, "high": 3, "strict": 4}
         if privacy_level not in levels:
@@ -87,7 +88,7 @@ class SecurityFramework:
         )
         return protected
 
-    def audit_access(self, user_id, data_access):
+    def audit_access(self, user_id: str, data_access: Any) -> Dict[str, Any]:
         """Audit data access for security compliance."""
         event = {
             "user_id": user_id,

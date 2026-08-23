@@ -4,7 +4,7 @@ Hamiltonian Monte Carlo implementation for Bayesian inference.
 
 import numpy as np
 import xarray as xr
-from typing import Dict, Any, Union, List, Tuple
+from typing import Dict, Any, Union, List, Tuple, Optional
 from tqdm import tqdm
 from ..utils.rng import SeedLike, resolve_rng
 
@@ -42,7 +42,7 @@ class HMC:
 
     def __init__(
         self,
-        model,
+        model: Any,
         n_chains: int = 4,
         step_size: float = 0.01,
         n_steps: int = 50,
@@ -50,7 +50,7 @@ class HMC:
         max_tree_depth: int = 10,
         target_accept: float = 0.8,
         random_seed: SeedLike = None,
-    ):
+    ) -> None:
         if not isinstance(n_chains, (int, np.integer)) or n_chains < 1:
             raise ValueError("n_chains must be a positive integer")
         if not np.isfinite(step_size) or step_size <= 0:
@@ -70,7 +70,13 @@ class HMC:
         self.target_accept = float(target_accept)
         self.random_seed = random_seed
         self.rng: np.random.Generator = resolve_rng(random_seed)
-        self._parameter_layout = None
+        self._parameter_layout: Optional[List[Tuple[str, int, int, Tuple[int, ...]]]] = None
+        self._parameter_dimension: int = 0
+
+        # Acceptance and dual-averaging telemetry, populated by :meth:`run`.
+        self.acceptance_rates: Optional[np.ndarray] = None
+        self.final_step_sizes: Optional[List[float]] = None
+        self.total_iterations: Optional[int] = None
 
     def run(
         self,
@@ -81,7 +87,7 @@ class HMC:
         init_strategy: str = "random",
         use_nuts: bool = True,
         progress_bar: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Run HMC sampling for the model.
@@ -132,7 +138,7 @@ class HMC:
         # Current log probabilities and parameters for each chain
         current_params = chains
         current_log_prob = np.zeros(self.n_chains)
-        current_grad = [None] * self.n_chains
+        current_grad: List[np.ndarray] = [np.zeros(n_params) for _ in range(self.n_chains)]
 
         for c in range(self.n_chains):
             theta = current_params[c]
@@ -209,9 +215,15 @@ class HMC:
 
         # Combine chains and convert to dictionary
         combined_samples = {}
+        assert self._parameter_layout is not None
         for param, start, end, shape in self._parameter_layout:
             values = samples[:, :, start:end].reshape((-1,) + shape)
             combined_samples[param] = values.reshape(-1) if shape == () else values
+
+        # Persist run telemetry for post-hoc inspection.
+        self.acceptance_rates = np.asarray(acceptance_rate, dtype=float)
+        self.final_step_sizes = list(step_sizes)
+        self.total_iterations = total_iterations
 
         # Report diagnostics
         if progress_bar:
@@ -224,14 +236,14 @@ class HMC:
 
     def _hmc_step(
         self,
-        theta: Dict[str, float],
+        theta: Dict[str, Any],
         momentum: np.ndarray,
         log_prob: float,
         grad: np.ndarray,
         step_size: float,
         n_steps: int,
         data: Any,
-    ) -> Tuple[Dict[str, float], np.ndarray, float, np.ndarray, bool]:
+    ) -> Tuple[Dict[str, Any], np.ndarray, float, np.ndarray, bool]:
         """Perform a single HMC step with leapfrog integration."""
         # Make a copy of the initial state
         current_theta = theta.copy()
@@ -280,13 +292,13 @@ class HMC:
 
     def _nuts_step(
         self,
-        theta: Dict[str, float],
+        theta: Dict[str, Any],
         momentum: np.ndarray,
         log_prob: float,
         grad: np.ndarray,
         step_size: float,
         data: Any,
-    ) -> Tuple[Dict[str, float], np.ndarray, float, np.ndarray, bool]:
+    ) -> Tuple[Dict[str, Any], np.ndarray, float, np.ndarray, bool]:
         """Perform one slice-sampled No-U-Turn transition.
 
         This follows the recursive tree construction from Algorithm 3 of
@@ -387,7 +399,7 @@ class HMC:
 
     def _build_tree(
         self,
-        theta: Dict[str, float],
+        theta: Dict[str, Any],
         momentum: np.ndarray,
         grad: np.ndarray,
         log_slice: float,
@@ -539,12 +551,12 @@ class HMC:
 
     def _leapfrog(
         self,
-        theta: Dict[str, float],
+        theta: Dict[str, Any],
         momentum: np.ndarray,
         grad: np.ndarray,
         step_size: float,
         data: Any,
-    ) -> Tuple[Dict[str, float], np.ndarray, float, np.ndarray]:
+    ) -> Tuple[Dict[str, Any], np.ndarray, float, np.ndarray]:
         """Take one reversible leapfrog step."""
         new_momentum = momentum + 0.5 * step_size * grad
         new_theta = theta.copy()
@@ -555,8 +567,8 @@ class HMC:
 
     def _no_u_turn(
         self,
-        left_theta: Dict[str, float],
-        right_theta: Dict[str, float],
+        left_theta: Dict[str, Any],
+        right_theta: Dict[str, Any],
         left_momentum: np.ndarray,
         right_momentum: np.ndarray,
     ) -> bool:
@@ -569,10 +581,11 @@ class HMC:
         )
 
     def _update_position(
-        self, theta: Dict[str, float], momentum: np.ndarray, step_size: float
+        self, theta: Dict[str, Any], momentum: np.ndarray, step_size: float
     ) -> None:
         """Update position (parameters) using momentum."""
         self._ensure_parameter_layout(theta)
+        assert self._parameter_layout is not None
         for param, start, end, shape in self._parameter_layout:
             value = np.asarray(theta[param], dtype=float).reshape(-1)
             updated = value + step_size * momentum[start:end]
@@ -580,7 +593,7 @@ class HMC:
 
     def _set_parameter_layout(self, theta: Dict[str, Any]) -> None:
         """Record flatten/unflatten slices for scalar and array parameters."""
-        layout = []
+        layout: List[Tuple[str, int, int, Tuple[int, ...]]] = []
         offset = 0
         for parameter in self.model.parameters:
             value = np.asarray(theta[parameter], dtype=float)
@@ -598,6 +611,7 @@ class HMC:
     def _flatten_theta(self, theta: Dict[str, Any]) -> np.ndarray:
         """Flatten a parameter dictionary according to the sampler layout."""
         self._ensure_parameter_layout(theta)
+        assert self._parameter_layout is not None
         return np.concatenate(
             [
                 np.asarray(theta[param], dtype=float).reshape(-1)
@@ -606,7 +620,7 @@ class HMC:
         )
 
     def _compute_log_posterior_grad(
-        self, theta: Dict[str, float], data: Any
+        self, theta: Dict[str, Any], data: Any
     ) -> Tuple[float, np.ndarray]:
         """
         Compute log posterior and its gradient.
@@ -616,6 +630,7 @@ class HMC:
         for efficiency.
         """
         self._ensure_parameter_layout(theta)
+        assert self._parameter_layout is not None
         log_posterior = float(self.model.log_posterior(theta, data))
         grad = np.zeros(self._parameter_dimension)
 
@@ -644,8 +659,8 @@ class HMC:
         return log_posterior, grad
 
     def _initialize_chains(
-        self, data: Any, init_strategy: str, **kwargs
-    ) -> List[Dict[str, float]]:
+        self, data: Any, init_strategy: str, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         """Initialize the Markov chains."""
         param_names = list(self.model.parameters.keys())
         chains = []
@@ -722,7 +737,7 @@ class HMC:
         new_data: Any,
         previous_samples: Union[Dict[str, np.ndarray], xr.Dataset],
         n_samples: int = 500,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[Dict[str, np.ndarray], xr.Dataset]:
         """
         Update previous samples with new data.

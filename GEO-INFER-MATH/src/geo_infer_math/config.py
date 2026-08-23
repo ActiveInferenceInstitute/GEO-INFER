@@ -23,9 +23,9 @@ class MathConfig:
     - Numerical precision
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize configuration with defaults."""
-        self._config = {
+        self._config: Dict[str, Dict[str, Any]] = {
             'theorem_proving': {
                 'backend': 'z3',
                 'timeout': 10.0,
@@ -56,24 +56,28 @@ class MathConfig:
         # Load from environment variables
         self._load_from_env()
     
-    def _load_from_env(self):
+    def _load_from_env(self) -> None:
         """Load configuration from environment variables."""
         # Theorem proving
-        if os.getenv('GEO_INFER_MATH_TP_BACKEND'):
-            self._config['theorem_proving']['backend'] = os.getenv('GEO_INFER_MATH_TP_BACKEND')
+        tp_backend = os.getenv('GEO_INFER_MATH_TP_BACKEND')
+        if tp_backend is not None:
+            self._config['theorem_proving']['backend'] = tp_backend
         
-        if os.getenv('GEO_INFER_MATH_TP_TIMEOUT'):
-            self._config['theorem_proving']['timeout'] = float(os.getenv('GEO_INFER_MATH_TP_TIMEOUT'))
+        tp_timeout = os.getenv('GEO_INFER_MATH_TP_TIMEOUT')
+        if tp_timeout is not None:
+            self._config['theorem_proving']['timeout'] = float(tp_timeout)
         
         # Performance
-        if os.getenv('GEO_INFER_MATH_ENABLE_CACHING'):
+        caching = os.getenv('GEO_INFER_MATH_ENABLE_CACHING')
+        if caching is not None:
             self._config['performance']['enable_caching'] = (
-                os.getenv('GEO_INFER_MATH_ENABLE_CACHING').lower() == 'true'
+                caching.lower() == 'true'
             )
         
-        if os.getenv('GEO_INFER_MATH_PARALLEL'):
+        parallel = os.getenv('GEO_INFER_MATH_PARALLEL')
+        if parallel is not None:
             self._config['performance']['parallel_processing'] = (
-                os.getenv('GEO_INFER_MATH_PARALLEL').lower() == 'true'
+                parallel.lower() == 'true'
             )
     
     def get(self, section: str, key: Optional[str] = None) -> Any:
@@ -91,7 +95,7 @@ class MathConfig:
             return self._config.get(section, {})
         return self._config.get(section, {}).get(key)
     
-    def set(self, section: str, key: str, value: Any):
+    def set(self, section: str, key: str, value: Any) -> None:
         """
         Set configuration value.
         
@@ -105,7 +109,7 @@ class MathConfig:
         self._config[section][key] = value
         logger.debug(f"Set config: {section}.{key} = {value}")
     
-    def update(self, section: str, values: Dict[str, Any]):
+    def update(self, section: str, values: Dict[str, Any]) -> None:
         """
         Update configuration section.
         
@@ -141,7 +145,7 @@ def get_config() -> MathConfig:
     return _config
 
 
-def configure(**kwargs) -> MathConfig:
+def configure(**kwargs: Any) -> MathConfig:
     """
     Configure GEO-INFER-MATH settings.
     

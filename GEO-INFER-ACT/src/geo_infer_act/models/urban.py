@@ -2,7 +2,7 @@
 Urban planning model using active inference.
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 import numpy as np
 
 from geo_infer_act.models.base import ActiveInferenceModel
@@ -65,7 +65,7 @@ class UrbanModel(ActiveInferenceModel):
         self._initial_resource_levels = self.resource_levels.copy()
         self._initial_agent_locations = [agent["location"] for agent in self.agents]
 
-    def _initialize_agents(self):
+    def _initialize_agents(self) -> None:
         """Initialize active inference agents with concrete models."""
         for i in range(self.n_agents):
             agent_id = f"resident_{i}"
@@ -112,16 +112,16 @@ class UrbanModel(ActiveInferenceModel):
 
             # --- B Matrix (Transition) ---
             # P(s'|s, u) - Movement dynamics
-            B = np.zeros((self.n_locations, self.n_locations, self.n_locations))
+            B_mat = np.zeros((self.n_locations, self.n_locations, self.n_locations))
             for u in range(self.n_locations):  # Action: "Try to go to u"
                 for s in range(self.n_locations):  # Current state
                     if self.connectivity[s, u]:
-                        B[u, s, u] = 1.0  # Successful move
+                        B_mat[u, s, u] = 1.0  # Successful move
                     else:
-                        B[s, s, u] = 1.0  # Stay if move invalid
+                        B_mat[s, s, u] = 1.0  # Stay if move invalid
 
             # Wrap B for pymdp (factorized)
-            B = [B]
+            B = [B_mat]
 
             # --- C Matrix (Preferences) ---
             # Agents prefer High Resources (Modality 1, Index 2)
@@ -163,7 +163,7 @@ class UrbanModel(ActiveInferenceModel):
                 {"id": agent_id, "model": agent, "location": start_loc, "history": []}
             )
 
-    def step(self, input_actions=None):
+    def step(self, input_actions: Optional[Any] = None) -> Tuple[Dict[str, Any], bool]:
         """Advance one simulation step."""
         states = []
 
@@ -216,7 +216,7 @@ class UrbanModel(ActiveInferenceModel):
 
         return {"states": states, "resource_map": self.resource_levels.tolist()}, False
 
-    def run_simulation(self, n_steps: int = 10):
+    def run_simulation(self, n_steps: int = 10) -> List[Dict[str, Any]]:
         """Run repeated urban planning steps and return the state history."""
         history = []
         for _ in range(n_steps):

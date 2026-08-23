@@ -12,7 +12,7 @@ the strengths of each approach within a unified framework.
 import os
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 from datetime import datetime
 import json
 
@@ -66,7 +66,7 @@ class SubAgentWrapper:
         # Performance statistics
         self.decision_count = 0
         self.successful_decision_count = 0
-        self.last_activated = None
+        self.last_activated: Optional[datetime] = None
         self.last_reward = 0.0
         self.total_reward = 0.0
 
@@ -147,7 +147,7 @@ class SubAgentWrapper:
         """Convert to dictionary representation."""
         return {
             "agent_type": self.agent_type,
-            "agent_id": self.agent.id,
+            "agent_id": self.agent.agent_id,
             "priority": self.priority,
             "activation_conditions": self.activation_conditions,
             "description": self.description,
@@ -172,24 +172,24 @@ class HybridState(AgentState):
     the performance and state of each sub-agent.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize hybrid agent state."""
         super().__init__()
 
         # Shared context (observations, facts, beliefs, etc.)
-        self.context = {}
+        self.context: Dict[str, Any] = {}
 
         # Sub-agent wrappers
         self.sub_agents: Dict[str, SubAgentWrapper] = {}
 
         # Most recent decisions and actions
-        self.last_perception = {}
-        self.last_decision = {}
-        self.last_action = {}
-        self.last_result = {}
+        self.last_perception: Dict[str, Any] = {}
+        self.last_decision: Dict[str, Any] = {}
+        self.last_action: Dict[str, Any] = {}
+        self.last_result: Dict[str, Any] = {}
 
         # Decision history
-        self.decision_history = []
+        self.decision_history: List[Dict[str, Any]] = []
         self.max_history_size = 100
 
         # Performance metrics
@@ -205,7 +205,7 @@ class HybridState(AgentState):
         Args:
             wrapper: Sub-agent wrapper
         """
-        self.sub_agents[wrapper.agent.id] = wrapper
+        self.sub_agents[wrapper.agent.agent_id] = wrapper
 
     def remove_sub_agent(self, agent_id: str) -> bool:
         """
@@ -346,6 +346,8 @@ class HybridAgent(BaseAgent):
     4. Provides conflict resolution mechanisms
     """
 
+    state: HybridState
+
     def __init__(self, agent_id: Optional[str] = None, config: Optional[Dict] = None):
         """
         Initialize hybrid agent.
@@ -372,7 +374,7 @@ class HybridAgent(BaseAgent):
         self._register_default_perception_handlers()
 
         # Sub-agent registry (agent_type -> agent_class)
-        self._agent_registry = {
+        self._agent_registry: Dict[str, Any] = {
             "bdi": BDIAgent,
             "active_inference": ActiveInferenceAgent,
             "rl": RLAgent,
@@ -387,7 +389,7 @@ class HybridAgent(BaseAgent):
 
     async def initialize(self) -> None:
         """Initialize the agent."""
-        logger.info(f"Initializing hybrid agent: {self.id}")
+        logger.info(f"Initializing hybrid agent: {self.agent_id}")
 
         # Create and initialize sub-agents
         await self._initialize_sub_agents()
@@ -400,7 +402,7 @@ class HybridAgent(BaseAgent):
         if state_path and os.path.exists(state_path):
             await self._load_state(state_path)
 
-        logger.info("Hybrid agent %s initialization complete", self.id)
+        logger.info("Hybrid agent %s initialization complete", self.agent_id)
 
     async def _initialize_sub_agents(self) -> None:
         """Create and initialize sub-agents."""
@@ -520,7 +522,9 @@ class HybridAgent(BaseAgent):
                 # Set perceptions directly in agent to avoid duplicate I/O
                 wrapper.agent.last_perception = agent_perceptions
             except Exception as e:
-                logger.error(f"Error forwarding perceptions to {wrapper.agent.id}: {e}")
+                logger.error(
+                    f"Error forwarding perceptions to {wrapper.agent.agent_id}: {e}"
+                )
 
     def _customize_perceptions_for_agent(
         self, agent_type: str, perceptions: Dict[str, Any]
@@ -569,7 +573,7 @@ class HybridAgent(BaseAgent):
             default_action = self.config.get("default_action")
             if default_action:
                 logger.debug("Using default action")
-                return default_action.copy()
+                return cast(Dict[str, Any], default_action.copy())
 
             return None
 
@@ -584,14 +588,16 @@ class HybridAgent(BaseAgent):
                 if decision:
                     agent_decisions.append(
                         {
-                            "agent_id": wrapper.agent.id,
+                            "agent_id": wrapper.agent.agent_id,
                             "agent_type": wrapper.agent_type,
                             "priority": wrapper.priority,
                             "decision": decision,
                         }
                     )
             except Exception as e:
-                logger.error(f"Error getting decision from {wrapper.agent.id}: {e}")
+                logger.error(
+                    f"Error getting decision from {wrapper.agent.agent_id}: {e}"
+                )
 
         if not agent_decisions:
             logger.warning("No decisions made by sub-agents")
@@ -613,7 +619,7 @@ class HybridAgent(BaseAgent):
                 "agent_type": selected_decision["agent_type"],
             }
 
-            return decision
+            return cast(Dict[str, Any], decision)
 
         return None
 
@@ -640,7 +646,7 @@ class HybridAgent(BaseAgent):
 
         elif policy == "voting":
             # Implement a simple voting mechanism
-            action_votes = {}
+            action_votes: Dict[str, Dict[str, Any]] = {}
 
             for decision in agent_decisions:
                 # Extract action signature
@@ -668,7 +674,7 @@ class HybridAgent(BaseAgent):
             if selected_signature:
                 selected_decisions = action_votes[selected_signature]["decisions"]
                 selected_decisions.sort(key=lambda d: d["priority"], reverse=True)
-                return selected_decisions[0]
+                return cast(Dict[str, Any], selected_decisions[0])
 
         elif policy == "negotiation":
             # More complex negotiation logic could be implemented here
@@ -733,9 +739,11 @@ class HybridAgent(BaseAgent):
             try:
                 await wrapper.agent.shutdown()
             except Exception as e:
-                logger.error(f"Error shutting down sub-agent {wrapper.agent.id}: {e}")
+                logger.error(
+                    f"Error shutting down sub-agent {wrapper.agent.agent_id}: {e}"
+                )
 
-        logger.info("Hybrid agent %s shutdown complete", self.id)
+        logger.info("Hybrid agent %s shutdown complete", self.agent_id)
 
     def _register_default_action_handlers(self) -> None:
         """Register default action handlers."""
@@ -836,7 +844,7 @@ class HybridAgent(BaseAgent):
                 "action_id": action.get("action_id", ""),
                 "active_agents": [
                     {
-                        "id": wrapper.agent.id,
+                        "id": wrapper.agent.agent_id,
                         "type": wrapper.agent_type,
                         "priority": wrapper.priority,
                     }
@@ -853,7 +861,7 @@ class HybridAgent(BaseAgent):
                 "action_id": action.get("action_id", ""),
                 "agents": [
                     {
-                        "id": wrapper.agent.id,
+                        "id": wrapper.agent.agent_id,
                         "type": wrapper.agent_type,
                         "priority": wrapper.priority,
                         "is_active": wrapper.is_active,

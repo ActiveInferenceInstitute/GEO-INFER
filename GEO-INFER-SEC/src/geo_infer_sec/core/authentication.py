@@ -90,7 +90,7 @@ class AuthenticationManager:
 
     def hash_password(
         self, password: str, salt: Optional[bytes] = None
-    ) -> Tuple[str, bytes]:
+    ) -> Tuple[str, str]:
         """
         Hash a password using PBKDF2.
 

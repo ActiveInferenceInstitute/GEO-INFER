@@ -6,7 +6,7 @@ multi-level spatial data structures.
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union, Any
 from .base import BayesianModel
 from ._model_utils import posterior_draw_indices
 from ..utils.rng import SeedLike, resolve_rng
@@ -201,6 +201,56 @@ class HierarchicalBayesianModel(BayesianModel):
                 "Direct prediction requires a posterior. Pass a posterior or run fit() first."
             )
 
+    def _per_draw_predictions(
+        self, X: np.ndarray, posterior: Any, samples: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Return per-draw predictive means and per-draw observation noise.
+
+        The group alphas and the observation noise are taken from the *same*
+        posterior draw, so the predictive refuses to mix group effects across
+        draws -- the failure mode of the previous pooled-mean implementation,
+        which collapsed the alpha spread down to one pooled mean and so
+        understated total uncertainty badly.
+
+        Parameters
+        ----------
+        X : ndarray
+            Prediction locations; either group indices or a length-N scalar row.
+        posterior : PosteriorAnalysis
+            Posterior analysis object.
+        samples : int
+            Number of posterior draws to use.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(per_draw_means, per_draw_noise)`` with shapes ``(draws, n)`` and
+            ``(draws,)`` respectively.
+        """
+        X = np.asarray(X)
+        names = [f"alpha_{level}" for level in range(self.n_levels)] + ["noise"]
+        indices = posterior_draw_indices(posterior, samples, names)
+        per_draw_means: List[np.ndarray] = []
+        per_draw_noise: List[float] = []
+        for i in indices:
+            alphas = [
+                float(np.asarray(posterior.samples[f"alpha_{level}"])[i])
+                for level in range(self.n_levels)
+            ]
+            if X.size == 0:
+                predictions = np.asarray([alphas[0]], dtype=float)
+            elif isinstance(X[0], (list, tuple, np.ndarray)):
+                # Each row names a single group id; later rows may wrap it in a
+                # length-1 sequence, so the scalar is extracted before indexing.
+                predictions = np.asarray(
+                    [alphas[int(np.asarray(g).reshape(-1)[0])] for g in X], dtype=float
+                )
+            else:
+                predictions = np.full(len(X), alphas[0], dtype=float)
+            per_draw_means.append(np.asarray(predictions, dtype=float))
+            per_draw_noise.append(float(np.asarray(posterior.samples["noise"])[i]))
+        return np.stack(per_draw_means), np.asarray(per_draw_noise, dtype=float)
+
     def posterior_predictive(
         self,
         posterior: Any,
@@ -210,6 +260,11 @@ class HierarchicalBayesianModel(BayesianModel):
     ) -> np.ndarray:
         """
         Generate posterior predictive samples.
+
+        Each draw yields a prediction from a *single* posterior draw -- both the
+        per-group alpha and the observation noise come from the same sample --
+        so the predictive spread reflects group-parameter uncertainty as well
+        as observation noise, which is what makes the interval calibrated.
 
         Parameters
         ----------
@@ -233,20 +288,96 @@ class HierarchicalBayesianModel(BayesianModel):
         if X is None:
             # Fall back to the group structure seen during fitting.
             X = np.asarray(getattr(self, "observed_groups", []))
-
-        # Get predictions. return_std=True guarantees the tuple form.
-        predictions, _std = self.predict(
-            np.asarray(X), posterior, samples=samples, return_std=True
-        )
-
-        # Generate samples with noise
+        means, noise = self._per_draw_predictions(np.asarray(X), posterior, samples)
         rng = resolve_rng(random_seed)
+        draws = np.empty((len(noise), means.shape[1]), dtype=float)
+        for i in range(len(noise)):
+            draws[i] = rng.normal(means[i], np.sqrt(noise[i]))
+        return draws
 
-        all_samples = []
-        for i in posterior_draw_indices(posterior, samples, ["noise"]):
-            # Each draw carries its own observation-noise variance, so the
-            # predictive spread widens with posterior uncertainty about noise.
-            noise_sample = float(np.asarray(posterior.samples["noise"])[i])
-            all_samples.append(rng.normal(predictions, np.sqrt(noise_sample)))
+    def predictive_interval(
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        level: float = 0.95,
+        samples: int = 200,
+        random_seed: SeedLike = None,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Return a calibrated posterior predictive interval ``(mean, lower, upper)``.
 
-        return np.stack(all_samples)
+        The interval is taken from *predictive* draws (which carry observation
+        noise and per-draw group effects), so its coverage is what a held-out
+        observation is expected to satisfy.
+
+        Parameters
+        ----------
+        posterior : PosteriorAnalysis
+            Posterior analysis object.
+        X : array-like, optional
+            Locations to predict at. If None, use the observed group structure.
+        level : float, default=0.95
+            Nominal coverage of the interval, in ``(0, 1)``.
+        samples : int, default=200
+            Number of posterior predictive draws to base the interval on.
+        random_seed : SeedLike, optional
+            Seed or generator for the observation-noise draws.
+
+        Returns
+        -------
+        tuple of ndarray
+            ``(mean, lower, upper)``, each with one entry per prediction point.
+        """
+        interval_level = float(level)
+        if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
+            raise ValueError("level must be a finite probability strictly between zero and one")
+        draws = self.posterior_predictive(
+            posterior, X=X, samples=samples, random_seed=random_seed
+        )
+        tail = (1.0 - interval_level) / 2.0
+        mean = np.asarray(np.mean(draws, axis=0), dtype=float)
+        lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
+        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        return mean, lower, upper
+
+    def uncertainty_decomposition(
+        self,
+        posterior: Any,
+        X: Optional[np.ndarray] = None,
+        samples: int = 50,
+    ) -> Dict[str, np.ndarray]:
+        """
+        Decompose predictive uncertainty into epistemic and aleatoric parts.
+
+        For the hierarchical model the *epistemic* share is the variance of the
+        per-draw predictive means (group-parameter uncertainty) and the
+        *aleatoric* share is the mean per-draw observation-noise variance.
+        ``total = epistemic + aleatoric`` recovers the full predictive variance.
+
+        Parameters
+        ----------
+        posterior : PosteriorAnalysis
+            Posterior analysis object.
+        X : array-like, optional
+            Locations to predict at. If None, use the observed group structure.
+        samples : int, default=50
+            Number of posterior draws to average over.
+
+        Returns
+        -------
+        dict of str to ndarray
+            ``epistemic``, ``aleatoric`` and ``total`` predictive standard
+            deviations, plus the pooled ``mean`` prediction, one entry per
+            prediction point.
+        """
+        if X is None:
+            X = np.asarray(getattr(self, "observed_groups", []))
+        means, noise = self._per_draw_predictions(np.asarray(X), posterior, samples)
+        epistemic = np.var(means, axis=0)
+        aleatoric = np.full(means.shape[1], float(np.mean(noise)), dtype=float)
+        total = epistemic + aleatoric
+        return {
+            "mean": np.asarray(np.mean(means, axis=0), dtype=float),
+            "epistemic": np.asarray(np.sqrt(epistemic), dtype=float),
+            "aleatoric": np.asarray(np.sqrt(aleatoric), dtype=float),
+            "total": np.asarray(np.sqrt(total), dtype=float),
+        }

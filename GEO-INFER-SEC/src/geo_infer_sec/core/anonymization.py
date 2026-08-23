@@ -142,8 +142,8 @@ class GeospatialAnonymizer:
     def geographic_masking(
         self, 
         gdf: gpd.GeoDataFrame, 
-        attribute_cols: List[str] = None, 
-        admin_boundaries: gpd.GeoDataFrame = None,
+        attribute_cols: Optional[List[str]] = None, 
+        admin_boundaries: Optional[gpd.GeoDataFrame] = None,
         admin_id_col: str = "admin_id",
         geometry_col: str = "geometry"
     ) -> gpd.GeoDataFrame:

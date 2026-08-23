@@ -192,7 +192,7 @@ class MultiLevelGovernanceFramework:
         logger.info(f"Governance structure designed: {governance_id}")
         return structure
     
-    def _validate_spatial_scope(self, spatial_scope: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_spatial_scope(self, spatial_scope: Any) -> Dict[str, Any]:
         """
         Validate spatial scope using spatial indexing if available.
         
@@ -202,7 +202,7 @@ class MultiLevelGovernanceFramework:
         - Coordinate systems consistent
         - Area calculations reasonable
         """
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             'valid': True,
             'issues': [],
             'warnings': []
@@ -286,7 +286,7 @@ class MultiLevelGovernanceFramework:
         Dict[str, Any]
             Performance metrics dictionary
         """
-        metrics = {}
+        metrics: Dict[str, Any] = {}
         
         # 1. Structural efficiency
         num_entities = len(governance_structure.entities)
@@ -686,13 +686,13 @@ class MultiLevelGovernanceFramework:
         - Axelrod, R. (1984). The Evolution of Cooperation
         - Ostrom, E. (1990). Governing the Commons
         """
-        conflicts = []
+        conflicts: List[Dict[str, Any]] = []
         
         if not level_approvals or len(level_approvals) < 2:
             return conflicts
         
         # Collect approval data
-        approval_data = []
+        approval_data: List[Dict[str, Any]] = []
         for entity_id, approval in level_approvals.items():
             entity = next((e for e in entities if e.entity_id == entity_id), None)
             if entity:
@@ -703,7 +703,12 @@ class MultiLevelGovernanceFramework:
                 })
         
         # 1. Approval status consistency conflict
-        statuses = [a['approval']['approval_status'] for a in approval_data]
+        statuses = [
+            str(a['approval']['approval_status'])
+            if isinstance(a['approval'], dict) and 'approval_status' in a['approval']
+            else 'unknown'
+            for a in approval_data
+        ]
         unique_statuses = set(statuses)
         if len(unique_statuses) > 1:
             # Calculate conflict severity based on status disparity
@@ -723,7 +728,11 @@ class MultiLevelGovernanceFramework:
             })
         
         # 2. Decision score disparity conflict
-        decision_scores = [a['approval'].get('decision_score', 0.5) for a in approval_data]
+        decision_scores = [
+            float(a['approval'].get('decision_score', 0.5))
+            if isinstance(a['approval'], dict) else 0.5
+            for a in approval_data
+        ]
         if decision_scores:
             score_variance = self._calculate_variance(decision_scores)
             score_range = max(decision_scores) - min(decision_scores)
@@ -740,7 +749,11 @@ class MultiLevelGovernanceFramework:
                 })
         
         # 3. Resource allocation conflict
-        resource_scores = [a['approval'].get('resource_score', 1.0) for a in approval_data]
+        resource_scores = [
+            float(a['approval'].get('resource_score', 1.0))
+            if isinstance(a['approval'], dict) else 1.0
+            for a in approval_data
+        ]
         resource_conflicts = [i for i, score in enumerate(resource_scores) if score < 0.5]
         if resource_conflicts:
             conflicts.append({
@@ -753,7 +766,11 @@ class MultiLevelGovernanceFramework:
             })
         
         # 4. Stakeholder consensus mismatch
-        consensus_scores = [a['approval'].get('stakeholder_consensus', 0.5) for a in approval_data]
+        consensus_scores = [
+            float(a['approval'].get('stakeholder_consensus', 0.5))
+            if isinstance(a['approval'], dict) else 0.5
+            for a in approval_data
+        ]
         if consensus_scores:
             consensus_range = max(consensus_scores) - min(consensus_scores)
             if consensus_range > 0.4:  # Significant consensus gap
@@ -792,7 +809,7 @@ class MultiLevelGovernanceFramework:
             spatial_indexer = SpatialIndexingInterface()
             
             # Extract spatial boundaries from entities
-            entity_boundaries = []
+            entity_boundaries: List[Dict[str, Any]] = []
             for entity in entities:
                 jurisdiction = entity.jurisdiction
                 if isinstance(jurisdiction, dict):
@@ -808,7 +825,9 @@ class MultiLevelGovernanceFramework:
                 for i, boundary1 in enumerate(entity_boundaries):
                     for boundary2 in entity_boundaries[i+1:]:
                         # Simple overlap detection (can be enhanced with actual spatial operations)
-                        if self._check_boundary_overlap(boundary1['boundary'], boundary2['boundary']):
+                        b1 = boundary1['boundary']
+                        b2 = boundary2['boundary']
+                        if isinstance(b1, dict) and isinstance(b2, dict) and self._check_boundary_overlap(b1, b2):
                             conflicts.append({
                                 'type': 'jurisdictional_overlap',
                                 'description': f'Overlapping jurisdictions between {boundary1["entity_id"]} and {boundary2["entity_id"]}',
@@ -944,7 +963,7 @@ class MultiLevelGovernanceFramework:
         avg_score: float
     ) -> Dict[str, Any]:
         """Estimate implementation timeline based on approach and conflicts."""
-        base_timeline = {
+        base_timeline: Dict[str, Dict[str, Any]] = {
             'immediate': {'weeks': 2, 'months': 0.5},
             'phased': {'weeks': 8, 'months': 2},
             'phased_with_conditions': {'weeks': 12, 'months': 3},
@@ -953,17 +972,21 @@ class MultiLevelGovernanceFramework:
             'rejected': {'weeks': 0, 'months': 0}
         }
         
-        timeline = base_timeline.get(approach, {'weeks': 8, 'months': 2})
+        base = base_timeline.get(approach, {'weeks': 8, 'months': 2})
+        timeline: Dict[str, Any] = {
+            'weeks': base['weeks'],
+            'months': base['months']
+        }
         
         # Adjust for conflicts
         conflict_adjustment = num_conflicts * 2  # 2 weeks per conflict
-        timeline['weeks'] += conflict_adjustment
-        timeline['months'] = timeline['weeks'] / 4.33
+        timeline['weeks'] = int(timeline['weeks']) + conflict_adjustment
+        timeline['months'] = round(float(timeline['weeks']) / 4.33, 1)
         
-        # Adjust for low scores (more time needed for consensus building)
+        # Adjust for decision score (lower score = more time needed)
         if avg_score < 0.6:
-            timeline['weeks'] += 4
-            timeline['months'] = timeline['weeks'] / 4.33
+            timeline['weeks'] = int(timeline['weeks']) + 4
+            timeline['months'] = round(float(timeline['weeks']) / 4.33, 1)
         
         return timeline
     

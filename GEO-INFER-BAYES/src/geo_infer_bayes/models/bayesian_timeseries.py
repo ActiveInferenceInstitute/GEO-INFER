@@ -27,11 +27,11 @@ class BayesianTimeSeriesModel(BayesianModel):
     in geospatial data.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the Bayesian time series model."""
         super().__init__(name="BayesianTimeSeriesModel", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the Bayesian time series model."""
         self.parameters = {
             "trend": {"prior": "normal", "hyperparams": {"mu": 0.0, "sigma": 1.0}},
@@ -92,12 +92,13 @@ class BayesianTimeSeriesModel(BayesianModel):
                 for trend, seasonal in zip(trend_samples, seasonal_samples)
             ]
         )
-        mean_prediction = predictions.mean(axis=0)
+        mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
             scale = np.sqrt(np.maximum(noise_samples, np.finfo(float).eps))
-            return mean_prediction, np.sqrt(
+            std_prediction: np.ndarray = np.asarray(np.sqrt(
                 np.var(predictions, axis=0) + np.mean(scale**2)
-            )
+            ))
+            return mean_prediction, std_prediction
         return mean_prediction
 
     def posterior_predictive(

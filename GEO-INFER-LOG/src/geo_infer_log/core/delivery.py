@@ -12,7 +12,7 @@ import geopandas as gpd
 import networkx as nx
 from shapely.geometry import Point, LineString, Polygon
 from shapely.ops import voronoi_diagram, unary_union
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 from datetime import datetime, timedelta
 
 try:
@@ -47,8 +47,8 @@ class LastMileRouter:
             parameters: Routing parameters
         """
         self.parameters = parameters or RoutingParameters()
-        self.route_optimizer = RouteOptimizer(parameters)
-        self.service_areas = {}  # depot_id -> service area polygon
+        self.route_optimizer = RouteOptimizer(cast(Any, parameters))
+        self.service_areas: Dict[str, Polygon] = {}  # depot_id -> service area polygon
     
     def load_network(self, network_file: str) -> None:
         """Load a transportation network from a file.
@@ -120,7 +120,7 @@ class LastMileRouter:
         clusters = self._cluster_deliveries(deliveries, len(vehicles))
         
         # Optimize routes for each cluster
-        routes = []
+        routes: List[Route] = []
         for i, cluster in enumerate(clusters):
             if i >= len(vehicles):
                 break
@@ -203,8 +203,9 @@ class DeliveryScheduler:
             router: Last-mile router for optimizing deliveries
         """
         self.router = router
-        self.schedule = {}  # date -> list of routes
-        self.vehicle_assignments = {}  # vehicle_id -> list of routes
+        self.schedule: Dict[str, List[Route]] = {}  # date -> list of routes
+        # vehicle_id -> list of routes
+        self.vehicle_assignments: Dict[str, List[Route]] = {}
     
     def create_schedule(self,
                        depot: Location,
@@ -364,9 +365,9 @@ class DeliveryScheduler:
 class ServiceAreaAnalyzer:
     """Analyzes and optimizes delivery service areas."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize a service area analyzer."""
-        self.service_areas = {}  # depot_id -> service area polygon
+        self.service_areas: Dict[str, Polygon] = {}  # depot_id -> service area polygon
     
     def create_service_area(self,
                            depot_id: str,

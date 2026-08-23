@@ -12,7 +12,7 @@ This module provides sophisticated pricing capabilities including:
 
 import logging
 import time
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
@@ -126,7 +126,7 @@ class PricingEngine:
         self.market_rates = self._load_market_rates()
 
         # Performance tracking
-        self.pricing_metrics = {
+        self.pricing_metrics: Dict[str, Any] = {
             "total_calculations": 0,
             "average_premium": 0.0,
             "premium_distribution": {},
@@ -215,8 +215,8 @@ class PricingEngine:
         self, property_info: Dict[str, Any], risk_assessment: Dict[str, Any]
     ) -> float:
         """Calculate base premium using technical pricing."""
-        property_value = property_info.get("value", 200000)
-        risk_score = risk_assessment.get("risk_score", 0.5)
+        property_value = float(property_info.get("value", 200000))
+        risk_score = float(risk_assessment.get("risk_score", 0.5))
 
         # Get base rate based on property type
         property_type = property_info.get("type", "residential")
@@ -228,7 +228,7 @@ class PricingEngine:
         # Calculate base premium
         base_premium = property_value * risk_adjusted_rate
 
-        return base_premium
+        return float(base_premium)
 
     def _calculate_component_breakdown(
         self, base_premium: float, risk_assessment: Dict[str, Any]
@@ -390,7 +390,7 @@ class PricingEngine:
 
             # Ensure minimum premium
             min_premium = market_data.get("minimum_premium", 100)
-            return max(min_premium, adjusted_premium)
+            return float(max(min_premium, adjusted_premium))
 
         except Exception as e:
             self.logger.warning(f"Market adjustment failed: {e}")
@@ -420,7 +420,7 @@ class PricingEngine:
             confidence_adjustment = 1.0 + (1.0 - confidence) * 0.2
             risk_loading = base_loading * confidence_adjustment
 
-            return base_premium * risk_loading
+            return float(base_premium * risk_loading)
 
         except Exception as e:
             self.logger.warning(f"Risk loading calculation failed: {e}")
@@ -447,7 +447,7 @@ class PricingEngine:
             cat_loading = cat_risk * cat_frequency * self.catastrophe_loading_factor
             catastrophe_premium = base_premium * cat_loading
 
-            return catastrophe_premium
+            return float(catastrophe_premium)
 
         except Exception as e:
             self.logger.warning(f"Catastrophe premium calculation failed: {e}")
@@ -512,7 +512,7 @@ class PricingEngine:
         Returns:
             Validation results
         """
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             "is_valid": True,
             "warnings": [],
             "errors": [],
@@ -678,7 +678,7 @@ class PremiumCalculator:
 
             # Ensure minimum premium
             min_premium = policy_history.get("minimum_premium", 100)
-            return max(min_premium, experience_premium)
+            return float(max(min_premium, experience_premium))
 
         except Exception as e:
             self.logger.warning(f"Experience rating failed: {e}")
@@ -735,10 +735,26 @@ class PremiumCalculator:
     def _load_rate_tables(self) -> Dict[str, Any]:
         """Load comprehensive rate tables."""
         return {
-            "base_rates": self._load_base_rates(),
-            "territory_factors": self._load_territory_factors(),
-            "construction_factors": self._load_construction_factors(),
-            "protection_factors": self._load_protection_factors(),
+            "base_rates": {
+                "residential": 0.005,
+                "commercial": 0.006,
+                "industrial": 0.007,
+            },
+            "territory_factors": {
+                "urban": 1.1,
+                "suburban": 1.0,
+                "rural": 0.9,
+            },
+            "construction_factors": {
+                "frame": 1.0,
+                "masonry": 0.9,
+                "concrete": 0.8,
+            },
+            "protection_factors": {
+                "basic": 1.0,
+                "standard": 0.95,
+                "superior": 0.9,
+            },
             "deductible_factors": {
                 0.005: 1.0,  # 0.5% deductible
                 0.01: 0.95,  # 1% deductible
@@ -749,7 +765,7 @@ class PremiumCalculator:
 
     def get_rate_table(self, table_name: str) -> Dict[str, float]:
         """Get specific rate table."""
-        return self.rate_tables.get(table_name, {})
+        return cast(Dict[str, float], self.rate_tables.get(table_name, {}))
 
     def update_rate_table(self, table_name: str, rates: Dict[str, float]) -> None:
         """Update rate table with new rates."""

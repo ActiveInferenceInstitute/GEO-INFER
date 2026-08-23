@@ -127,7 +127,7 @@ class NaturalCapitalAccounting:
             area = float(row.get("area_ha", 0.0))
             condition = float(row.get("condition_score", 1.0))
             unit_val = self.unit_values.get(a_type, 1000.0)
-            return round(area * unit_val * condition, 2)
+            return float(round(area * unit_val * condition, 2))
 
         return assets.apply(_row_value, axis=1)
 
@@ -228,7 +228,7 @@ class BiodiversityCredits:
         quality_multiplier = (quality * connectivity * management) ** (1 / 3)
 
         credits = area * species_ratio * quality_multiplier
-        credits = round(credits, 2)
+        credits = float(round(credits, 2))
 
         logger.info(
             "Biodiversity credits: %.2f units for %.1f ha (species_ratio=%.2f, quality=%.2f)",

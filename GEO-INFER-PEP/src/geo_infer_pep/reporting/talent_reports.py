@@ -73,25 +73,10 @@ def calculate_time_to_hire(hired_candidates: List[Candidate]) -> Dict[str, Any]:
 
     durations = []
     for cand in hired_candidates:
-        if cand.status == CandidateStatus.HIRED and cand.applied_at:
-            # More accurate would be a specific hired_date or offer.accepted_at
-            # Using cand.updated_at as a proxy for hired_at if status is HIRED
-            hired_at_proxy = cand.updated_at
-            if isinstance(cand.applied_at, datetime) and isinstance(
-                hired_at_proxy, datetime
-            ):
-                duration = hired_at_proxy - cand.applied_at
-                durations.append(duration.days)
-            elif isinstance(cand.applied_at, str) and isinstance(hired_at_proxy, str):
-                try:
-                    applied_dt = datetime.fromisoformat(cand.applied_at)
-                    hired_dt = datetime.fromisoformat(hired_at_proxy)
-                    duration = hired_dt - applied_dt
-                    durations.append(duration.days)
-                except ValueError:
-                    print(
-                        f"Could not parse dates for TTH for candidate {cand.candidate_id}"
-                    )
+        if cand.status == CandidateStatus.HIRED:
+            # updated_at is a datetime per the model; used as the hired_at proxy
+            duration = cand.updated_at - cand.applied_at
+            durations.append(duration.days)
 
     if not durations:
         return {
@@ -135,8 +120,11 @@ def get_quarterly_metrics(
     accepted_offers = [
         candidate
         for candidate in offers
-        if candidate.offer.status == "accepted"
-        or candidate.offer.accepted_at is not None
+        if candidate.offer is not None
+        and (
+            candidate.offer.status == "accepted"
+            or candidate.offer.accepted_at is not None
+        )
     ]
     time_to_hire = calculate_time_to_hire(hired)
     return {

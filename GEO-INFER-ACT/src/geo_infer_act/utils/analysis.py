@@ -43,7 +43,7 @@ class ActiveInferenceAnalyzer:
         self._setup_logging()
 
         # Data storage
-        self.traces = {
+        self.traces: Dict[str, list] = {
             "beliefs": [],
             "observations": [],
             "actions": [],
@@ -70,7 +70,7 @@ class ActiveInferenceAnalyzer:
         export_data = []
         for i in range(len(self.traces["timestamps"])):
             # Helper to safely serialize numpy arrays
-            def serialize(obj):
+            def serialize(obj: Any) -> Any:
                 """Convert numpy-rich diagnostics into JSON-compatible values."""
                 if isinstance(obj, np.ndarray):
                     return serialize(obj.tolist())  # Recurse on list conversion
@@ -107,7 +107,7 @@ class ActiveInferenceAnalyzer:
         logger.info(f"Full history exported to {output_path}")
         return output_path
 
-    def _setup_logging(self):
+    def _setup_logging(self) -> None:
         """Setup comprehensive logging for the analyzer."""
         log_file = self.output_dir / "logs" / "analysis.log"
 
@@ -134,7 +134,7 @@ class ActiveInferenceAnalyzer:
         free_energy: float,
         metrics: Optional[Dict[str, Any]] = None,
         timestamp: Optional[float] = None,
-    ):
+    ) -> None:
         """Record a single Active Inference step for analysis."""
 
         if timestamp is None:
@@ -292,15 +292,15 @@ class ActiveInferenceAnalyzer:
         # Handle ragged arrays (object dtype) or regular arrays
         if beliefs_array.dtype == object:
             # Iterate manually and handle potential nested arrays safely
-            entropies = []
+            entropy_values: list[float] = []
             for b in beliefs_array:
                 try:
                     # If b is an array-like object
                     val = np.asarray(b, dtype=float)
-                    entropies.append(-np.sum(val * np.log(val + 1e-8)))
+                    entropy_values.append(float(-np.sum(val * np.log(val + 1e-8))))
                 except Exception:
-                    entropies.append(0.0)
-            entropies = np.array(entropies)
+                    entropy_values.append(0.0)
+            entropies = np.array(entropy_values)
         else:
             beliefs_array = beliefs_array.astype(float)
             entropies = np.array([-np.sum(b * np.log(b + 1e-8)) for b in beliefs_array])
@@ -309,15 +309,17 @@ class ActiveInferenceAnalyzer:
             # Manual stability calculation for ragged arrays
             # We can't compute "column-wise" stability easily if columns differ.
             # Compute stability per step magnitude instead.
-            stability = []
-            # If ragged, just return list of zeros or simplified metric
-            stability = [0.0] * len(beliefs_array[0]) if len(beliefs_array) > 0 else []
+            stability = (
+                np.zeros(len(beliefs_array[0]))
+                if len(beliefs_array) > 0
+                else np.array([])
+            )
         else:
             stability = np.std(belief_changes, axis=0)
 
         # Dominant beliefs
         if beliefs_array.dtype == object:
-            dominant_states = []
+            dominant_values: list[int] = []
             for b in beliefs_array:
                 try:
                     # Attempt to find max index of expected flat array or first factor
@@ -325,25 +327,25 @@ class ActiveInferenceAnalyzer:
                     if val.ndim > 1:
                         # Likely multiple factors, take first or flatten?
                         # For simple "dominant state" metric, let's take max of flattened
-                        dominant_states.append(np.argmax(val.flatten()))
+                        dominant_values.append(int(np.argmax(val.flatten())))
                     else:
-                        dominant_states.append(np.argmax(val))
+                        dominant_values.append(int(np.argmax(val)))
                 except (TypeError, ValueError):
-                    dominant_states.append(0)
-            dominant_states = np.array(dominant_states)
+                    dominant_values.append(0)
+            dominant_states = np.array(dominant_values)
         else:
             dominant_states = np.argmax(beliefs_array, axis=1)
         state_switches = np.sum(np.diff(dominant_states) != 0)
 
         if belief_changes.dtype == object:
-            norms = []
+            norm_values: list[float] = []
             for c in belief_changes:
                 try:
                     val = np.asarray(c, dtype=float)
-                    norms.append(np.linalg.norm(val))
+                    norm_values.append(float(np.linalg.norm(val)))
                 except (TypeError, ValueError):
-                    norms.append(0.0)
-            norms = np.array(norms)
+                    norm_values.append(0.0)
+            norms = np.array(norm_values)
         else:
             norms = np.linalg.norm(belief_changes, axis=1)
 
@@ -359,9 +361,7 @@ class ActiveInferenceAnalyzer:
                 "mean": float(np.mean(entropies)),
                 "trend": float(np.polyfit(range(len(entropies)), entropies, 1)[0]),
             },
-            "stability_by_state": (
-                stability.tolist() if isinstance(stability, np.ndarray) else stability
-            ),
+            "stability_by_state": stability.tolist(),
             "state_switches": int(state_switches),
             "switch_rate": float(state_switches / len(beliefs_array)),
         }
@@ -409,7 +409,7 @@ class ActiveInferenceAnalyzer:
 
     def _compute_obs_belief_correlation(
         self, beliefs: np.ndarray, observations: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Compute correlation between observations and belief changes."""
         if len(beliefs) < 3:
             return {"error": "Insufficient data"}
@@ -459,7 +459,7 @@ class ActiveInferenceAnalyzer:
                 except (TypeError, ValueError):
                     is_flat = False
         else:
-            is_flat = np.all(np.std(beliefs_array, axis=0) < flat_threshold)
+            is_flat = bool(np.all(np.std(beliefs_array, axis=0) < flat_threshold))
 
         # Check for random patterns
         randomness_score = self._assess_randomness(beliefs_array)
@@ -666,7 +666,7 @@ class ActiveInferenceAnalyzer:
         if len(beliefs_array) != len(observations_array) or len(beliefs_array) < 2:
             return {"error": "Insufficient data for surprise analysis"}
 
-        surprises = []
+        surprise_values: list[float] = []
 
         for i in range(len(beliefs_array)):
             # Compute surprise as negative log probability
@@ -677,9 +677,9 @@ class ActiveInferenceAnalyzer:
                 predicted_prob = np.mean(beliefs_array[i])
 
             surprise = -np.log(predicted_prob + 1e-8)
-            surprises.append(surprise)
+            surprise_values.append(float(surprise))
 
-        surprises = np.array(surprises)
+        surprises = np.array(surprise_values)
 
         # Safe extraction of trend
         trend_val = np.polyfit(range(len(surprises)), surprises, 1)[0]
@@ -705,19 +705,19 @@ class ActiveInferenceAnalyzer:
             return {"error": "No policy data available"}
 
         # Extract policy probabilities over time
-        policy_probs = []
+        policy_prob_values: list[Any] = []
         selected_policies = []
 
         for policy_data in self.traces["policies"]:
             if "all_probabilities" in policy_data:
-                policy_probs.append(policy_data["all_probabilities"])
+                policy_prob_values.append(policy_data["all_probabilities"])
             if "policy" in policy_data and "id" in policy_data["policy"]:
                 selected_policies.append(policy_data["policy"]["id"])
 
-        if not policy_probs:
+        if not policy_prob_values:
             return {"error": "No policy probability data available"}
 
-        policy_probs = np.array(policy_probs)
+        policy_probs = np.array(policy_prob_values)
 
         # Policy diversity over time
         policy_entropies = [
@@ -820,15 +820,15 @@ class ActiveInferenceAnalyzer:
             return {"error": "Insufficient policy data for convergence analysis"}
 
         # Extract policy probabilities
-        policy_probs = []
+        policy_prob_values: list[Any] = []
         for policy_data in self.traces["policies"]:
             if "all_probabilities" in policy_data:
-                policy_probs.append(policy_data["all_probabilities"])
+                policy_prob_values.append(policy_data["all_probabilities"])
 
-        if len(policy_probs) < 5:
+        if len(policy_prob_values) < 5:
             return {"error": "Insufficient policy probability data"}
 
-        policy_probs = np.array(policy_probs)
+        policy_probs = np.array(policy_prob_values)
 
         # Compute variance over time windows
         window_size = min(5, len(policy_probs) // 3)
@@ -939,7 +939,7 @@ class ActiveInferenceAnalyzer:
             "efficiency": float(efficiency),
             "monotonicity": float(monotonicity),
             "minimization_quality": self._rate_fe_minimization(
-                total_reduction, monotonicity
+                total_reduction, float(monotonicity)
             ),
         }
 
@@ -1099,7 +1099,7 @@ class ActiveInferenceAnalyzer:
         else:
             return "Inefficient"
 
-    def _save_analysis(self, analysis: Dict[str, Any], filename: str):
+    def _save_analysis(self, analysis: Dict[str, Any], filename: str) -> None:
         """Save analysis results to file."""
         filepath = self.output_dir / "analysis" / filename
         try:
@@ -1109,7 +1109,7 @@ class ActiveInferenceAnalyzer:
         except Exception as e:
             logger.error(f"Failed to save analysis to {filepath}: {e}")
 
-    def save_traces_to_csv(self):
+    def save_traces_to_csv(self) -> None:
         """Save all traces to CSV files for external analysis."""
         data_dir = self.output_dir / "data"
 
@@ -1254,7 +1254,7 @@ def create_shared_visualizations(analyzer: ActiveInferenceAnalyzer) -> None:
     logger.info(f"Shared visualizations created in {viz_dir}")
 
 
-def create_belief_heatmap(beliefs: List[np.ndarray], output_dir: Path):
+def create_belief_heatmap(beliefs: List[np.ndarray], output_dir: Path) -> None:
     """Create a heatmap of belief evolution over time."""
     if not beliefs:
         return
@@ -1279,7 +1279,7 @@ def create_belief_heatmap(beliefs: List[np.ndarray], output_dir: Path):
         logger.error(f"Failed to create belief heatmap: {e}")
 
 
-def create_free_energy_plots(free_energies: List[float], output_dir: Path):
+def create_free_energy_plots(free_energies: List[float], output_dir: Path) -> None:
     """Create comprehensive free energy analysis plots."""
     if not free_energies:
         return
@@ -1347,22 +1347,22 @@ def create_free_energy_plots(free_energies: List[float], output_dir: Path):
         logger.error(f"Failed to create free energy plots: {e}")
 
 
-def create_policy_plots(policies: List[Dict[str, Any]], output_dir: Path):
+def create_policy_plots(policies: List[Dict[str, Any]], output_dir: Path) -> None:
     """Create policy analysis plots."""
     if not policies:
         return
 
     try:
         # Extract policy probabilities
-        policy_probs = []
+        policy_prob_values: list[Any] = []
         for policy_data in policies:
             if "all_probabilities" in policy_data:
-                policy_probs.append(policy_data["all_probabilities"])
+                policy_prob_values.append(policy_data["all_probabilities"])
 
-        if not policy_probs:
+        if not policy_prob_values:
             return
 
-        policy_probs = np.array(policy_probs)
+        policy_probs = np.array(policy_prob_values)
 
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
 
@@ -1418,7 +1418,7 @@ def create_policy_plots(policies: List[Dict[str, Any]], output_dir: Path):
         logger.error(f"Failed to create policy plots: {e}")
 
 
-def create_correlation_analysis(traces: Dict[str, List], output_dir: Path):
+def create_correlation_analysis(traces: Dict[str, list], output_dir: Path) -> None:
     """Create correlation analysis between different traces."""
     try:
         # Prepare data for correlation analysis

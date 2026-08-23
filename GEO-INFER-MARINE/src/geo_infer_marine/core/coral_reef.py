@@ -5,7 +5,7 @@ and biodiversity metrics specific to coral reef ecosystems.
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import numpy as np
 import xarray as xr
@@ -70,7 +70,7 @@ class CoralReefAssessor:
             dhw = stress / 7.0
 
         dhw.name = "degree_heating_weeks"
-        return dhw
+        return cast(xr.DataArray, dhw)
 
     def classify_bleaching_alert(
         self,
@@ -97,7 +97,7 @@ class CoralReefAssessor:
         alert = xr.where(dhw >= 8, 3, alert)
         alert = xr.where(dhw >= 12, 4, alert)
         alert.name = "bleaching_alert_level"
-        return alert
+        return cast(xr.DataArray, alert)
 
     def calculate_reef_biodiversity(
         self,
@@ -153,7 +153,7 @@ class CoralReefAssessor:
         macroalgae_cover_pct: float,
         fish_biomass_kg_ha: float,
         bleaching_alert_level: int = 0,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Calculate composite reef health score.
 
         Combines live coral cover, macroalgae ratio, fish biomass,

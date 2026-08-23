@@ -26,11 +26,11 @@ class DynamicSpatialModel(BayesianModel):
     This model handles spatio-temporal data with dynamic spatial patterns.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the dynamic spatial model."""
         super().__init__(name="DynamicSpatialModel", **kwargs)
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the dynamic spatial model."""
         self.parameters = {
             "spatial_trend": {
@@ -104,12 +104,13 @@ class DynamicSpatialModel(BayesianModel):
                 )
             ]
         )
-        mean_prediction = predictions.mean(axis=0)
+        mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
             scale = np.sqrt(np.maximum(noise_samples, np.finfo(float).eps))
-            return mean_prediction, np.sqrt(
+            std_prediction: np.ndarray = np.asarray(np.sqrt(
                 np.var(predictions, axis=0) + np.mean(scale**2)
-            )
+            ))
+            return mean_prediction, std_prediction
         return mean_prediction
 
     def posterior_predictive(

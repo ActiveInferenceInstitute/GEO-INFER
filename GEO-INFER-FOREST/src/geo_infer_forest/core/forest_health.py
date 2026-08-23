@@ -1,7 +1,7 @@
 """Forest health monitoring."""
 
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 import numpy as np
 import xarray as xr
 
@@ -35,7 +35,7 @@ class ForestHealthMonitor:
         # NDVI-based health (0-1 scale, higher is better)
         health_index = (ndvi - ndvi.min()) / (ndvi.max() - ndvi.min() + 1e-10)
         
-        results = {'health_index': health_index, 'ndvi': ndvi}
+        results: Dict[str, Any] = {'health_index': health_index, 'ndvi': ndvi}
         
         if temperature is not None:
             # Temperature stress

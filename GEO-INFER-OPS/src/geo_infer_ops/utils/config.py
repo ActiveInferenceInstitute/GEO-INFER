@@ -7,7 +7,7 @@ from YAML files, environment variables, and command-line arguments.
 
 import os
 import yaml
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 from pathlib import Path
 
 def find_config_file(config_path: Optional[str] = None) -> str:
@@ -75,19 +75,20 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     # Override with environment variables
     # Format: GEO_INFER_OPS_SECTION_KEY
     # Example: GEO_INFER_OPS_LOGGING_LEVEL=DEBUG
-    for env_var, value in os.environ.items():
+    for env_var, raw_value in os.environ.items():
         if env_var.startswith("GEO_INFER_OPS_"):
             parts = env_var.lower().split("_")[3:]
-            
+
             if len(parts) < 1:
                 continue
-                
+
             section = config
             for part in parts[:-1]:
                 if part not in section:
                     section[part] = {}
                 section = section[part]
-            
+
+            value: Any = raw_value
             # Convert to appropriate type if possible
             if value.lower() == "true":
                 value = True
@@ -97,7 +98,7 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
                 value = int(value)
             elif value.replace(".", "", 1).isdigit() and value.count(".") == 1:
                 value = float(value)
-                
+
             section[parts[-1]] = value
-    
-    return config 
+
+    return cast(Dict[str, Any], config) 

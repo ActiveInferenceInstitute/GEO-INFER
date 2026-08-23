@@ -94,6 +94,11 @@ class CategoricalModel(ActiveInferenceModel):
         self.transition_matrix = np.eye(state_dim)
         self.likelihood_matrix = np.ones((obs_dim, state_dim)) / obs_dim
 
+        # Spatial attributes (used by multi-agent H3 coordination)
+        self.location = 0
+        self.cell_id: Optional[str] = None
+        self.spatial_index: Optional[int] = None
+
     def set_preferences(self, preferences: np.ndarray) -> None:
         """
         Set preference distribution.
@@ -208,8 +213,8 @@ class CategoricalModel(ActiveInferenceModel):
 
     def compute_free_energy(self) -> float:
         """Compute categorical KL free energy relative to uniform preferences."""
-        if self.beliefs is None:
-            return np.inf
+        if not hasattr(self, "beliefs") or self.beliefs is None:
+            return float("inf")
         beliefs = np.asarray(self.beliefs, dtype=float).reshape(-1)
         beliefs = np.clip(beliefs, 1e-12, None)
         beliefs = beliefs / np.sum(beliefs)
@@ -348,18 +353,28 @@ class GaussianModel(ActiveInferenceModel):
             raise ValueError(f"Observation must have shape ({self.obs_dim},)")
 
         # Prediction step
-        predicted_mean = self.A @ self.belief_mean
-        predicted_cov = self.A @ self.belief_cov @ self.A.T + self.Q
+        predicted_mean: np.ndarray = self.A @ self.belief_mean
+        predicted_cov: np.ndarray = self.A @ self.belief_cov @ self.A.T + self.Q
 
         # Update step (Kalman filter)
-        K = (
+        K: np.ndarray = (
             predicted_cov
             @ self.C.T
             @ np.linalg.inv(self.C @ predicted_cov @ self.C.T + self.R)
         )
 
-        updated_mean = predicted_mean + K @ (observation - self.C @ predicted_mean)
-        updated_cov = (np.eye(self.state_dim) - K @ self.C) @ predicted_cov
+        updated_mean: np.ndarray = predicted_mean + K @ (
+            observation - self.C @ predicted_mean
+        )
+        updated_cov: np.ndarray = (
+            np.eye(self.state_dim) - K @ self.C
+        ) @ predicted_cov
+
+        # Ensure covariance matrix stays symmetric and positive definite
+        updated_cov = (updated_cov + updated_cov.T) / 2
+        min_eig = float(np.min(np.real(np.linalg.eigvals(updated_cov))))
+        if min_eig < 1e-6:
+            updated_cov += (1e-6 - min_eig) * np.eye(self.state_dim)
 
         # Update beliefs
         self.belief_mean = updated_mean

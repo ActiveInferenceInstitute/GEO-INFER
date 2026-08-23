@@ -8,9 +8,10 @@ across boundaries and hierarchies in nested geospatial systems.
 import logging
 import uuid
 import asyncio
+from types import TracebackType
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Callable, Set, Tuple
+from typing import Dict, List, Any, Optional, Union, Callable, Set, Tuple, Type
 from enum import Enum
 from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor
@@ -86,7 +87,7 @@ class Message:
     response_timeout: Optional[timedelta] = None
     correlation_id: Optional[str] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Set expiration time if TTL is specified."""
         if self.ttl:
             self.expires_at = self.created_at + self.ttl
@@ -161,7 +162,9 @@ class H3MessageBroker:
     - Message persistence and history
     """
     
-    def __init__(self, broker_id: str = None, max_workers: int = 4):
+    def __init__(
+        self, broker_id: Optional[str] = None, max_workers: int = 4
+    ) -> None:
         """
         Initialize message broker.
         
@@ -200,7 +203,7 @@ class H3MessageBroker:
         # Created timestamp
         self.created_at = datetime.now()
     
-    def start(self):
+    def start(self) -> None:
         """Start the message broker."""
         if self.running:
             return
@@ -216,7 +219,7 @@ class H3MessageBroker:
         
         logger.info(f"Message broker {self.broker_id} started with {self.max_workers} workers")
     
-    def stop(self):
+    def stop(self) -> None:
         """Stop the message broker."""
         if not self.running:
             return
@@ -264,7 +267,7 @@ class H3MessageBroker:
         logger.debug(f"Registered handler {handler_id} for system {system_id}")
         return handler_id
     
-    def unregister_handler(self, handler_id: str):
+    def unregister_handler(self, handler_id: str) -> None:
         """Unregister a message handler."""
         with self._lock:
             if handler_id in self.handlers:
@@ -278,12 +281,17 @@ class H3MessageBroker:
                 
                 logger.debug(f"Unregistered handler {handler_id}")
     
-    def send_message(self, sender_id: str, recipient_id: str, payload: Any,
-                    message_type: MessageType = MessageType.DATA,
-                    priority: MessagePriority = MessagePriority.NORMAL,
-                    ttl: Optional[timedelta] = None,
-                    requires_response: bool = False,
-                    **kwargs) -> str:
+    def send_message(
+        self,
+        sender_id: str,
+        recipient_id: str,
+        payload: Any,
+        message_type: MessageType = MessageType.DATA,
+        priority: MessagePriority = MessagePriority.NORMAL,
+        ttl: Optional[timedelta] = None,
+        requires_response: bool = False,
+        **kwargs: Any,
+    ) -> str:
         """
         Send a message.
         
@@ -325,11 +333,15 @@ class H3MessageBroker:
         logger.debug(f"Queued message {message_id} from {sender_id} to {recipient_id}")
         return message_id
     
-    def broadcast_message(self, sender_id: str, payload: Any,
-                         message_type: MessageType = MessageType.BROADCAST,
-                         priority: MessagePriority = MessagePriority.NORMAL,
-                         ttl: Optional[timedelta] = None,
-                         **kwargs) -> List[str]:
+    def broadcast_message(
+        self,
+        sender_id: str,
+        payload: Any,
+        message_type: MessageType = MessageType.BROADCAST,
+        priority: MessagePriority = MessagePriority.NORMAL,
+        ttl: Optional[timedelta] = None,
+        **kwargs: Any,
+    ) -> List[str]:
         """
         Broadcast message to all systems.
         
@@ -365,11 +377,16 @@ class H3MessageBroker:
         logger.debug(f"Broadcast message from {sender_id} to {len(message_ids)} recipients")
         return message_ids
     
-    def multicast_message(self, sender_id: str, recipient_ids: List[str], payload: Any,
-                         message_type: MessageType = MessageType.MULTICAST,
-                         priority: MessagePriority = MessagePriority.NORMAL,
-                         ttl: Optional[timedelta] = None,
-                         **kwargs) -> List[str]:
+    def multicast_message(
+        self,
+        sender_id: str,
+        recipient_ids: List[str],
+        payload: Any,
+        message_type: MessageType = MessageType.MULTICAST,
+        priority: MessagePriority = MessagePriority.NORMAL,
+        ttl: Optional[timedelta] = None,
+        **kwargs: Any,
+    ) -> List[str]:
         """
         Multicast message to specific recipients.
         
@@ -493,7 +510,7 @@ class H3MessageBroker:
             'uptime': (datetime.now() - self.created_at).total_seconds()
         }
     
-    def _queue_message(self, message: Message):
+    def _queue_message(self, message: Message) -> None:
         """Queue message for delivery."""
         # Priority queue uses tuple (priority, timestamp, message)
         # Lower priority values are processed first
@@ -503,7 +520,7 @@ class H3MessageBroker:
         queue_item = (priority_value, timestamp, message)
         self.message_queues[message.recipient_id].put(queue_item)
     
-    def _message_worker(self):
+    def _message_worker(self) -> None:
         """Worker thread for processing messages."""
         while self.running:
             try:
@@ -525,7 +542,7 @@ class H3MessageBroker:
             except Exception as e:
                 logger.error(f"Message worker error: {e}")
     
-    def _process_message(self, message: Message):
+    def _process_message(self, message: Message) -> None:
         """Process a single message."""
         try:
             # Check if message has expired
@@ -595,12 +612,16 @@ class H3MessageBroker:
                 self._queue_message(message)
                 logger.debug(f"Retrying message {message.message_id} (attempt {message.retry_count})")
     
-    def __enter__(self):
+    def __enter__(self) -> "H3MessageBroker":
         """Context manager entry."""
         self.start()
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         """Context manager exit."""
         self.stop()
-

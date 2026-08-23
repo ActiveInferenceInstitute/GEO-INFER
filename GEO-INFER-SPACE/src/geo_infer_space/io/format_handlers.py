@@ -27,21 +27,21 @@ try:
     HAS_GEOPANDAS = True
 except ImportError:
     HAS_GEOPANDAS = False
-    gpd = None  # type: ignore[assignment]
+    gpd = None
 
 try:
     import rasterio
     HAS_RASTERIO = True
 except ImportError:
     HAS_RASTERIO = False
-    rasterio = None  # type: ignore[assignment]
+    rasterio = None
 
 try:
-    import laspy
+    import laspy  # type: ignore[import-untyped]
     HAS_LASPY = True
 except ImportError:
     HAS_LASPY = False
-    laspy = None  # type: ignore[assignment]
+    laspy = None
 
 try:
     import xarray as xr

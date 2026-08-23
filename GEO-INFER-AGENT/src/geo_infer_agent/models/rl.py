@@ -15,7 +15,7 @@ import logging
 import asyncio
 import numpy as np
 import random
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 import json
 from collections import deque
 
@@ -110,7 +110,7 @@ class QTable:
             default_value: Initial value for Q-values
         """
         if HAS_NUMPY:
-            self.q_table = np.ones((state_size, action_size)) * default_value
+            self.q_table: Any = np.ones((state_size, action_size)) * default_value
         else:
             self.q_table = [
                 [default_value for _ in range(action_size)] for _ in range(state_size)
@@ -134,9 +134,9 @@ class QTable:
             return 0.0
 
         if HAS_NUMPY:
-            return self.q_table[state, action]
+            return cast(float, self.q_table[state, action])
         else:
-            return self.q_table[state][action]
+            return cast(float, self.q_table[state][action])
 
     def update_value(self, state: int, action: int, value: float) -> None:
         """
@@ -169,9 +169,9 @@ class QTable:
             return 0
 
         if HAS_NUMPY:
-            return np.argmax(self.q_table[state])
+            return cast(int, np.argmax(self.q_table[state]))
         else:
-            return self.q_table[state].index(max(self.q_table[state]))
+            return cast(int, self.q_table[state].index(max(self.q_table[state])))
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
@@ -211,7 +211,7 @@ class ReplayBuffer:
         Args:
             capacity: Maximum number of experiences to store
         """
-        self.buffer = deque(maxlen=capacity)
+        self.buffer: deque[Experience] = deque(maxlen=capacity)
         self.capacity = capacity
 
     def add(self, experience: Experience) -> None:
@@ -290,13 +290,13 @@ class RLState(AgentState):
         self.batch_size = 32
 
         # Current state and episode info
-        self.current_state = None
+        self.current_state: Optional[Any] = None
         self.current_episode = 0
         self.total_reward = 0.0
-        self.episode_rewards = []
+        self.episode_rewards: List[float] = []
 
         # Performance tracking
-        self.last_100_rewards = deque(maxlen=100)
+        self.last_100_rewards: deque[float] = deque(maxlen=100)
         self.training_iterations = 0
 
     def select_action(self, state: Any) -> int:
@@ -476,6 +476,8 @@ class RLAgent(BaseAgent):
     Deep Q-Networks (DQN) and Policy Gradient methods.
     """
 
+    state: RLState
+
     def __init__(self, agent_id: Optional[str] = None, config: Optional[Dict] = None):
         """
         Initialize RL agent.
@@ -532,7 +534,7 @@ class RLAgent(BaseAgent):
 
     async def initialize(self) -> None:
         """Initialize the agent."""
-        logger.info(f"Initializing RL agent: {self.id}")
+        logger.info(f"Initializing RL agent: {self.agent_id}")
 
         # Load model if available
         model_path = self.config.get("model_path")
@@ -543,7 +545,7 @@ class RLAgent(BaseAgent):
         if "initial_state" in self.config:
             self.state.current_state = self.config["initial_state"]
 
-        logger.info("RL agent %s initialization complete", self.id)
+        logger.info("RL agent %s initialization complete", self.agent_id)
 
     async def perceive(self) -> Dict[str, Any]:
         """
@@ -600,7 +602,7 @@ class RLAgent(BaseAgent):
 
         if str(action_idx) in action_mapping:
             # Use predefined mapping
-            return action_mapping[str(action_idx)]
+            return cast(Dict[str, Any], action_mapping[str(action_idx)])
         else:
             # Default action format
             return {
@@ -667,7 +669,7 @@ class RLAgent(BaseAgent):
         if "model_save_path" in self.config:
             self._save_model(self.config["model_save_path"])
 
-        logger.info("RL agent %s shutdown complete", self.id)
+        logger.info("RL agent %s shutdown complete", self.agent_id)
 
     def _register_default_action_handlers(self) -> None:
         """Register default action handlers."""

@@ -22,7 +22,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 logger = logging.getLogger(__name__)
 
@@ -99,9 +99,9 @@ class PlaceInterface:
         self.counties = counties
 
         # Lazy-initialised components
-        self._integrator = None
-        self._data_manager = None
-        self._temporal = None
+        self._integrator: Optional[Any] = None
+        self._data_manager: Optional[Any] = None
+        self._temporal: Optional[Any] = None
         self._analyzers: Dict[str, Any] = {}
 
     # ------------------------------------------------------------------
@@ -109,7 +109,7 @@ class PlaceInterface:
     # ------------------------------------------------------------------
 
     @property
-    def integrator(self):
+    def integrator(self) -> Any:
         """Data integrator with CAL FIRE, NOAA, USGS wrappers."""
         if self._integrator is None:
             from ..utils.integration import DelNorteDataIntegrator
@@ -118,7 +118,7 @@ class PlaceInterface:
         return self._integrator
 
     @property
-    def data_manager(self):
+    def data_manager(self) -> Any:
         """Data quality and provenance manager (bridges GEO-INFER-DATA)."""
         if self._data_manager is None:
             from .module_bridge import PlaceDataManager
@@ -127,7 +127,7 @@ class PlaceInterface:
         return self._data_manager
 
     @property
-    def temporal(self):
+    def temporal(self) -> Any:
         """Temporal analyzer (bridges GEO-INFER-TIME)."""
         if self._temporal is None:
             from .module_bridge import PlaceTemporalAnalyzer
@@ -351,11 +351,17 @@ class PlaceInterface:
 
     def get_earthquakes(self, bbox: Optional[tuple] = None) -> Dict[str, Any]:
         """Fetch recent earthquakes for the location."""
-        return self.integrator.usgs_client.get_earthquakes(bbox=bbox)
+        return cast(
+            Dict[str, Any],
+            self.integrator.usgs_client.get_earthquakes(bbox=bbox),
+        )
 
     def get_cascadia_seismicity(self, days: int = 30) -> Dict[str, Any]:
         """Fetch Cascadia-wide seismicity data."""
-        return self.integrator.usgs_client.get_cascadia_seismicity(days=days)
+        return cast(
+            Dict[str, Any],
+            self.integrator.usgs_client.get_cascadia_seismicity(days=days),
+        )
 
     def get_tide_data(
         self,
@@ -363,8 +369,11 @@ class PlaceInterface:
         time_range: Optional[tuple] = None,
     ) -> Dict[str, Any]:
         """Fetch tide gauge data."""
-        return self.integrator.noaa_client.get_tide_gauge_data(
-            stations=stations, time_range=time_range
+        return cast(
+            Dict[str, Any],
+            self.integrator.noaa_client.get_tide_gauge_data(
+                stations=stations, time_range=time_range
+            ),
         )
 
     def get_fire_perimeters(
@@ -373,13 +382,19 @@ class PlaceInterface:
         start_year: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Fetch fire perimeter data."""
-        return self.integrator.calfire_client.get_fire_perimeters(
-            bbox=bbox, start_year=start_year
+        return cast(
+            Dict[str, Any],
+            self.integrator.calfire_client.get_fire_perimeters(
+                bbox=bbox, start_year=start_year
+            ),
         )
 
     def get_weather(self, station_id: str = "KCEC") -> Dict[str, Any]:
         """Fetch current weather observations."""
-        return self.integrator.noaa_client.get_weather_data(station_id=station_id)
+        return cast(
+            Dict[str, Any],
+            self.integrator.noaa_client.get_weather_data(station_id=station_id),
+        )
 
     def status(self) -> Dict[str, Any]:
         """Return status of all components."""

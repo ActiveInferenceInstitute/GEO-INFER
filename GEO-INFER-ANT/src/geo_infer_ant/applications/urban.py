@@ -37,7 +37,7 @@ class UrbanSystem:
     infrastructure_data: Dict[str, Any]
     demand_patterns: Dict[str, Any]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate urban system configuration."""
         valid_types = ["traffic", "energy", "waste", "infrastructure", "multi_system"]
         if self.system_type not in valid_types:
@@ -66,8 +66,8 @@ class UrbanTrafficSwarm:
         traffic_network: Optional[Dict[str, Any]] = None,
         optimization_objectives: Optional[List[str]] = None,
         real_time_coordination: bool = True,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize urban traffic optimization swarm.
 
@@ -127,7 +127,7 @@ class UrbanTrafficSwarm:
         """
         logger.info("Optimizing traffic flow")
 
-        optimization = {
+        optimization: Dict[str, Any] = {
             "optimization_time": datetime.now(),
             "current_conditions": current_traffic,
             "optimization_strategy": "multi_objective_swarm",
@@ -180,7 +180,7 @@ class UrbanTrafficSwarm:
         incident_reports: Optional[List[Dict[str, Any]]],
     ) -> Dict[str, Any]:
         """Optimize vehicle routes based on current conditions."""
-        routes = {
+        routes: Dict[str, Any] = {
             "optimized_routes": {},
             "congestion_reductions": {},
             "travel_time_improvements": {},
@@ -541,7 +541,7 @@ class UrbanTrafficSwarm:
         risk_areas = []
 
         # Count incidents by area
-        area_incidents = defaultdict(int)
+        area_incidents: defaultdict[str, int] = defaultdict(int)
         for report in incident_reports:
             area = report.get("location", "unknown")
             area_incidents[area] += 1
@@ -626,7 +626,7 @@ class UrbanTrafficSwarm:
         priority_schemes: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Assign vehicles to optimized routes."""
-        assignments = {
+        assignments: Dict[str, Any] = {
             "route_assignments": {},
             "priority_handling": {},
             "load_balancing": {},
@@ -682,7 +682,7 @@ class UrbanTrafficSwarm:
         self, optimization: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate traffic control measures."""
-        measures = {
+        measures: Dict[str, Any] = {
             "signal_timing": {},
             "lane_management": {},
             "speed_limits": {},
@@ -821,7 +821,7 @@ class UrbanTrafficSwarm:
         """
         logger.info("Performing adaptive traffic management")
 
-        management = {
+        management: Dict[str, Any] = {
             "management_time": datetime.now(),
             "adaptive_strategies": [],
             "parameter_adjustments": {},
@@ -876,7 +876,7 @@ class UrbanTrafficSwarm:
         self, traffic_patterns: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze traffic patterns for adaptation opportunities."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "peak_periods": [],
             "congestion_hotspots": [],
             "flow_efficiency": 0.0,
@@ -1059,7 +1059,7 @@ class UrbanTrafficSwarm:
         self, stakeholder_feedback: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Update policies based on stakeholder feedback."""
-        policy_updates = []
+        policy_updates: List[Dict[str, Any]] = []
 
         try:
             # Analyze feedback by category
@@ -1109,7 +1109,7 @@ class UrbanTrafficSwarm:
         self, traffic_patterns: Dict[str, Any], use_prediction: bool
     ) -> Dict[str, Any]:
         """Generate performance predictions for future periods."""
-        predictions = {
+        predictions: Dict[str, Any] = {
             "prediction_method": (
                 "trend_analysis" if use_prediction else "current_state"
             ),

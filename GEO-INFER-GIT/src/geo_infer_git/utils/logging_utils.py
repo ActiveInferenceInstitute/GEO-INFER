@@ -12,7 +12,7 @@ import os
 import sys
 import logging
 import logging.handlers
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Iterator, Callable, cast
 from pathlib import Path
 import json
 import time
@@ -145,7 +145,7 @@ class GeoInferGitLogger:
 
             self.logger.addHandler(file_handler)
 
-    def log_repo_operation(self, operation: str, repo_name: str, **kwargs) -> None:
+    def log_repo_operation(self, operation: str, repo_name: str, **kwargs: Any) -> None:
         """
         Log a repository operation with context.
 
@@ -159,7 +159,7 @@ class GeoInferGitLogger:
 
         self.logger.info(f"Repository operation: {operation}", extra=extra_data)
 
-    def log_api_call(self, endpoint: str, method: str, status_code: int = None, **kwargs) -> None:
+    def log_api_call(self, endpoint: str, method: str, status_code: Optional[int] = None, **kwargs: Any) -> None:
         """
         Log an API call with details.
 
@@ -181,7 +181,7 @@ class GeoInferGitLogger:
         else:
             self.logger.info(f"API call: {method} {endpoint}", extra=extra_data)
 
-    def log_performance(self, operation: str, duration: float, **kwargs) -> None:
+    def log_performance(self, operation: str, duration: float, **kwargs: Any) -> None:
         """
         Log performance metrics.
 
@@ -199,7 +199,7 @@ class GeoInferGitLogger:
 
         self.logger.info(f"Performance: {operation} completed in {duration:.2f}s", extra=extra_data)
 
-    def log_error_with_context(self, error: Exception, operation: str = None, **kwargs) -> None:
+    def log_error_with_context(self, error: Exception, operation: Optional[str] = None, **kwargs: Any) -> None:
         """
         Log an error with additional context.
 
@@ -244,7 +244,7 @@ class LogContext:
     Context manager for adding temporary context to log records.
     """
 
-    def __init__(self, logger: logging.Logger, **context):
+    def __init__(self, logger: logging.Logger, **context: Any) -> None:
         """
         Initialize log context.
 
@@ -252,28 +252,30 @@ class LogContext:
             logger: Logger instance
             **context: Context key-value pairs
         """
-        self.logger = logger
+        self._logger: Any = logger
         self.context = context
-        self.old_factory = None
+        self.old_factory: Any = None
 
-    def __enter__(self):
+    def __enter__(self) -> "LogContext":
         """Enter context and set up custom log record factory."""
-        old_factory = self.logger.makeRecord
+        old_factory = self._logger.makeRecord
 
-        def record_factory(*args, **kwargs):
+        def record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
             record = old_factory(*args, **kwargs)
             for key, value in self.context.items():
                 setattr(record, key, value)
-            return record
+            return cast(logging.LogRecord, record)
 
-        self.logger.makeRecord = record_factory
+        self._logger.makeRecord = cast(
+            Any, record_factory
+        )
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Exit context and restore original factory."""
-        self.logger.makeRecord = self.old_factory
+        self._logger.makeRecord = self.old_factory
 
-def log_with_context(logger: logging.Logger, level: int, message: str, **context):
+def log_with_context(logger: logging.Logger, level: int, message: str, **context: Any) -> None:
     """
     Log a message with additional context.
 
@@ -309,21 +311,21 @@ class PerformanceTimer:
         """
         self.operation = operation
         self.logger = logger
-        self.start_time = None
+        self.start_time: Optional[float] = None
 
-    def __enter__(self):
+    def __enter__(self) -> "PerformanceTimer":
         """Start timing."""
         self.start_time = time.time()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """End timing and log result."""
-        if self.start_time:
+        if self.start_time is not None:
             duration = time.time() - self.start_time
             if self.logger:
-                self.logger.log_performance(self.operation, duration)
+                cast(Any, self.logger).log_performance(self.operation, duration)
 
-def time_operation(operation: str, logger: Optional[logging.Logger] = None):
+def time_operation(operation: str, logger: Optional[logging.Logger] = None) -> Callable:
     """
     Decorator for timing function execution.
 
@@ -334,9 +336,9 @@ def time_operation(operation: str, logger: Optional[logging.Logger] = None):
     Returns:
         Decorated function
     """
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            timer_logger = logger or get_logger(func.__module__)
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            timer_logger: Any = logger or get_logger(func.__module__)
             with PerformanceTimer(operation, timer_logger):
                 return func(*args, **kwargs)
         return wrapper

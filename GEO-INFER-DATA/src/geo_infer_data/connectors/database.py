@@ -68,16 +68,16 @@ class DatabaseConnector:
         self.max_overflow = max_overflow
         self.enable_geospatial = enable_geospatial
 
-        self.engine = None
-        self.async_engine = None
-        self.SessionLocal = None
-        self.AsyncSessionLocal = None
+        self.engine: Any = None
+        self.async_engine: Any = None
+        self.SessionLocal: Any = None
+        self.AsyncSessionLocal: Any = None
 
         self._initialize_connection()
 
         logger.info(f"Initialized {connection_type} database connector")
 
-    def _initialize_connection(self):
+    def _initialize_connection(self) -> None:
         """Initialize database connection."""
         try:
             # Create synchronous engine
@@ -307,7 +307,7 @@ class DatabaseConnector:
 
     async def _create_table_schema(
         self, gdf: gpd.GeoDataFrame, table_name: str, metadata: DatasetMetadata
-    ):
+    ) -> None:
         """Create database table schema from GeoDataFrame structure.
 
         Generates and executes a CREATE TABLE statement that mirrors the
@@ -355,8 +355,8 @@ class DatabaseConnector:
             raise
 
     async def _insert_data_manually(
-        self, session, gdf: gpd.GeoDataFrame, table_name: str
-    ):
+        self, session: Any, gdf: gpd.GeoDataFrame, table_name: str
+    ) -> None:
         """Manually insert data row by row.
 
         Used when to_sql or to_postgis is not available.  Builds
@@ -390,7 +390,9 @@ class DatabaseConnector:
 
         logger.info("Manually inserted %d rows into %s", rows_inserted, table_name)
 
-    async def _create_spatial_indexes(self, table_name: str, gdf: gpd.GeoDataFrame):
+    async def _create_spatial_indexes(
+        self, table_name: str, gdf: gpd.GeoDataFrame
+    ) -> None:
         """Create spatial indexes for geometry columns."""
         if not self.enable_geospatial:
             return
@@ -537,7 +539,7 @@ class DatabaseConnector:
             logger.error(f"Failed to list tables: {e}")
             return []
 
-    async def close(self):
+    async def close(self) -> None:
         """Close database connections."""
         if self.async_engine:
             await self.async_engine.dispose()
@@ -554,10 +556,10 @@ class PostgreSQLConnector(DatabaseConnector):
     with PostGIS spatial extensions.
     """
 
-    def __init__(self, connection_string: str, **kwargs):
+    def __init__(self, connection_string: str, **kwargs: Any):
         super().__init__("postgresql", connection_string, **kwargs)
 
-    async def create_postgis_extension(self):
+    async def create_postgis_extension(self) -> None:
         """Create PostGIS extension if not exists."""
         try:
             async with self.AsyncSessionLocal() as session:
@@ -578,7 +580,7 @@ class MySQLConnector(DatabaseConnector):
     This class provides MySQL connectivity with spatial support.
     """
 
-    def __init__(self, connection_string: str, **kwargs):
+    def __init__(self, connection_string: str, **kwargs: Any):
         super().__init__("mysql", connection_string, **kwargs)
 
 
@@ -593,17 +595,17 @@ class MongoDBConnector:
     def __init__(self, connection_string: str, database_name: str):
         self.connection_string = connection_string
         self.database_name = database_name
-        self.client = None
-        self.database = None
+        self.client: Any = None
+        self.database: Any = None
 
         self._initialize_connection()
 
         logger.info(f"Initialized MongoDB connector for database: {database_name}")
 
-    def _initialize_connection(self):
+    def _initialize_connection(self) -> None:
         """Initialize MongoDB connection."""
         try:
-            from pymongo import MongoClient
+            from pymongo import MongoClient  # type: ignore[import-not-found]
 
             self.client = MongoClient(self.connection_string)
             self.database = self.client[self.database_name]
@@ -696,7 +698,7 @@ class MongoDBConnector:
 
     async def create_geospatial_index(
         self, collection_name: str, field_name: str = "location"
-    ):
+    ) -> None:
         """
         Create geospatial index on collection.
 
@@ -712,7 +714,7 @@ class MongoDBConnector:
             logger.error(f"Failed to create geospatial index: {e}")
             raise
 
-    async def close(self):
+    async def close(self) -> None:
         """Close MongoDB connection."""
         if self.client:
             self.client.close()

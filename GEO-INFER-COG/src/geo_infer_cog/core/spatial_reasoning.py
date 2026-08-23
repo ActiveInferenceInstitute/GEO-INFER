@@ -118,7 +118,7 @@ class SpatialReasoningEngine:
         self.config = config or {}
 
         # Knowledge base for spatial relations and rules
-        self.spatial_knowledge_base = {
+        self.spatial_knowledge_base: Dict[str, Any] = {
             'topological_relations': {},
             'directional_relations': {},
             'distance_relations': {},
@@ -127,8 +127,8 @@ class SpatialReasoningEngine:
         }
 
         # Reasoning state
-        self.current_reasoning_chain = []
-        self.reasoning_cache = {}
+        self.current_reasoning_chain: List[ReasoningStep] = []
+        self.reasoning_cache: Dict[Any, Any] = {}
 
         # Performance tracking
         self.reasoning_metrics = {
@@ -523,7 +523,7 @@ class SpatialReasoningEngine:
 
         return conclusions
 
-    def _find_spatial_analogies(self, premise: SpatialRelation) -> List[SpatialRelation]:
+    def _find_spatial_analogies(self, premise: SpatialRelation) -> List[Dict[str, Any]]:
         """Find analogous spatial relations in knowledge base."""
         # Simple analogy matching based on relation type
         analogies = []
@@ -702,7 +702,7 @@ class SpatialReasoningEngine:
 
     def _validate_reasoning_chain(self, conclusions: List[SpatialRelation], chain_id: str) -> Dict[str, Any]:
         """Validate the consistency of the reasoning chain."""
-        validation_result = {
+        validation_result: Dict[str, Any] = {
             'valid': True,
             'issues': [],
             'confidence': 1.0

@@ -169,7 +169,7 @@ class DataIntegration:
             return None
 
     def load_economic_data(
-        self, source: Union[str, Path], source_type: str = "file", **kwargs
+        self, source: Union[str, Path], source_type: str = "file", **kwargs: Any
     ) -> Optional[Union[pd.DataFrame, gpd.GeoDataFrame]]:
         """
         Load economic data from various sources.

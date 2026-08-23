@@ -8,7 +8,7 @@ including geometric, statistical, and topological theorems.
 import numpy as np
 from typing import Union, Optional, List, Dict, Any, Tuple
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -30,24 +30,15 @@ class SpatialTheorem:
     statement: str
     theorem_type: TheoremType
     proof: Optional[str] = None
-    assumptions: List[str] = None
-    corollaries: List[str] = None
-    applications: List[str] = None
-    
-    def __post_init__(self):
-        """Initialize default values."""
-        if self.assumptions is None:
-            self.assumptions = []
-        if self.corollaries is None:
-            self.corollaries = []
-        if self.applications is None:
-            self.applications = []
+    assumptions: List[str] = field(default_factory=list)
+    corollaries: List[str] = field(default_factory=list)
+    applications: List[str] = field(default_factory=list)
 
 
 class GeometricTheorem(SpatialTheorem):
     """Geometric theorem for spatial mathematics."""
     
-    def __init__(self, name: str, statement: str, **kwargs):
+    def __init__(self, name: str, statement: str, **kwargs: Any) -> None:
         """Initialize geometric theorem."""
         super().__init__(
             name=name,
@@ -60,7 +51,7 @@ class GeometricTheorem(SpatialTheorem):
 class StatisticalTheorem(SpatialTheorem):
     """Statistical theorem for spatial mathematics."""
     
-    def __init__(self, name: str, statement: str, **kwargs):
+    def __init__(self, name: str, statement: str, **kwargs: Any) -> None:
         """Initialize statistical theorem."""
         super().__init__(
             name=name,
@@ -73,7 +64,7 @@ class StatisticalTheorem(SpatialTheorem):
 class TopologicalTheorem(SpatialTheorem):
     """Topological theorem for spatial mathematics."""
     
-    def __init__(self, name: str, statement: str, **kwargs):
+    def __init__(self, name: str, statement: str, **kwargs: Any) -> None:
         """Initialize topological theorem."""
         super().__init__(
             name=name,
@@ -90,12 +81,12 @@ class TheoremDatabase:
     Provides storage and retrieval of theorems for reuse.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize theorem database."""
         self._theorems: Dict[str, SpatialTheorem] = {}
         self._initialize_standard_theorems()
     
-    def _initialize_standard_theorems(self):
+    def _initialize_standard_theorems(self) -> None:
         """Initialize standard spatial mathematics theorems."""
         # Geometric theorems
         self.add_theorem(GeometricTheorem(
@@ -138,7 +129,7 @@ class TheoremDatabase:
             applications=["Polygon containment", "Spatial queries"]
         ))
     
-    def add_theorem(self, theorem: SpatialTheorem):
+    def add_theorem(self, theorem: SpatialTheorem) -> None:
         """
         Add a theorem to the database.
         

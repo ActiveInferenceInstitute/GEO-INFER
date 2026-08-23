@@ -17,7 +17,7 @@ Key Features:
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
@@ -75,7 +75,7 @@ class AnalysisConfiguration:
     significance_threshold: float = 0.05
     min_pattern_size: int = 5
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         valid_analysis_types = [
             "spatial_patterns",
@@ -108,7 +108,7 @@ class SwarmPatternAnalyzer:
         statistical_methods: Optional[List[str]] = None,
         visualization_tools: Optional[List[str]] = None,
         spatial_backend: str = "h3",
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Initialize pattern analyzer.
@@ -134,9 +134,9 @@ class SwarmPatternAnalyzer:
         self.pattern_cache: Dict[str, Any] = {}
 
         # Integration components
-        self.spatial_indexer = None
-        self.spatial_analytics = None
-        self.spatial_statistics = None
+        self.spatial_indexer: Optional[Any] = None
+        self.spatial_analytics: Optional[Any] = None
+        self.spatial_statistics: Optional[Any] = None
 
         # Initialize integrations
         self._initialize_integrations(spatial_backend)
@@ -191,7 +191,7 @@ class SwarmPatternAnalyzer:
             f"Analyzing spatial patterns in {len(agent_trajectories)} trajectories"
         )
 
-        analysis_results = {
+        analysis_results: Dict[str, Any] = {
             "analysis_type": "spatial_patterns",
             "analysis_time": datetime.now(),
             "patterns_detected": {},
@@ -395,16 +395,18 @@ class SwarmPatternAnalyzer:
             return False
 
         # Simple heuristic: balanced alignment, cohesion, and separation
-        avg_alignment = np.mean(alignment)
-        avg_cohesion = np.mean(cohesion)
-        avg_separation = np.mean(separation)
+        avg_alignment = float(np.mean(alignment))
+        avg_cohesion = float(np.mean(cohesion))
+        avg_separation = float(np.mean(separation))
 
         # Flocking criteria (tuned thresholds)
         alignment_ok = avg_alignment > 0.3
         cohesion_ok = 0.001 < avg_cohesion < 0.1  # Not too dispersed, not too clustered
         separation_ok = avg_separation > 0.005  # Maintain some separation
 
-        return alignment_ok and cohesion_ok and separation_ok
+        return bool(
+            alignment_ok and cohesion_ok and separation_ok
+        )
 
     def _analyze_migration_patterns(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Analyze migration and movement patterns."""
@@ -532,7 +534,7 @@ class SwarmPatternAnalyzer:
 
     def _calculate_spatial_statistics(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Calculate comprehensive spatial statistics."""
-        stats = {}
+        stats: Dict[str, Any] = {}
 
         try:
             # Basic spatial statistics
@@ -649,7 +651,9 @@ class SwarmPatternAnalyzer:
                     ).get("avg_directionality", 0)
 
             if behavior_scores:
-                dominant_behavior = max(behavior_scores, key=behavior_scores.get)
+                dominant_behavior = max(
+                    behavior_scores, key=lambda k: behavior_scores[k]
+                )
                 interpretation["behavior_classification"] = (
                     f"Dominant behavior: {dominant_behavior}"
                 )
@@ -776,7 +780,7 @@ class SwarmPatternAnalyzer:
         self, communication_data: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Analyze patterns in agent communication."""
-        patterns = {
+        patterns: Dict[str, Any] = {
             "communication_frequency": defaultdict(int),
             "communication_types": defaultdict(int),
             "temporal_patterns": defaultdict(list),
@@ -897,7 +901,7 @@ class SwarmPatternAnalyzer:
     ) -> Dict[str, Any]:
         """Analyze influence and leadership dynamics."""
         try:
-            analysis = {
+            analysis: Dict[str, Any] = {
                 "influence_ranking": [],
                 "leadership_structure": {},
                 "influence_network": {},
@@ -933,7 +937,7 @@ class SwarmPatternAnalyzer:
         self, analysis_results: Dict[str, Any], metrics: List[str]
     ) -> Dict[str, Any]:
         """Compute specified network metrics."""
-        metrics_results = {}
+        metrics_results: Dict[str, Any] = {}
 
         try:
             network_structure = analysis_results.get("network_structure", {})
@@ -1041,7 +1045,7 @@ class SwarmPatternAnalyzer:
         graph = nx.from_numpy_array(adjacency)
         if graph.number_of_edges() == 0:
             return {"modularity": 0.0, "communities": 0, "community_sizes": []}
-        from networkx.algorithms import community
+        from networkx.algorithms import community  # type: ignore[import-untyped]
 
         try:
             communities = list(community.louvain_communities(graph, seed=0))
@@ -1062,7 +1066,7 @@ class SwarmPatternAnalyzer:
         self, analysis_results: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze social dynamics and group behavior."""
-        dynamics = {
+        dynamics: Dict[str, Any] = {
             "group_formation": {},
             "leadership_emergence": {},
             "information_flow": {},
@@ -1144,7 +1148,7 @@ class SwarmPatternAnalyzer:
         """
         logger.info("Detecting emergent phenomena")
 
-        emergence_results = {
+        emergence_results: Dict[str, Any] = {
             "analysis_type": "emergent_phenomena",
             "analysis_time": datetime.now(),
             "emergence_detected": False,
@@ -1224,7 +1228,7 @@ class SwarmPatternAnalyzer:
         """Calculate mutual information between individual and collective behaviors."""
         try:
             # Extract behavior patterns as numerical values
-            individual_values = []
+            individual_values: List[float] = []
             for behavior in individual_behaviors:
                 # Extract numerical features from behavior
                 if "action_type" in behavior:
@@ -1249,7 +1253,7 @@ class SwarmPatternAnalyzer:
                 if isinstance(outcome_data, dict):
                     # Extract numerical value from outcome
                     value = outcome_data.get("value", outcome_data.get("score", 0.0))
-                    collective_values.append(float(value))
+                    collective_values.append(float(cast(Any, value)))
                 elif isinstance(outcome_data, (int, float)):
                     collective_values.append(float(outcome_data))
                 else:
@@ -1263,25 +1267,25 @@ class SwarmPatternAnalyzer:
 
             # Align lengths (take minimum)
             min_len = min(len(individual_values), len(collective_values))
-            individual_values = np.array(individual_values[:min_len])
-            collective_values = np.array(collective_values[:min_len])
+            individual_array = np.array(individual_values[:min_len])
+            collective_array = np.array(collective_values[:min_len])
 
             # Discretize for mutual information calculation
             # Use quantile-based binning
-            n_bins = min(10, int(np.sqrt(len(individual_values))))
+            n_bins = min(10, int(np.sqrt(len(individual_array))))
             if n_bins < 2:
                 n_bins = 2
 
             individual_binned = np.digitize(
-                individual_values,
+                individual_array,
                 np.linspace(
-                    np.min(individual_values), np.max(individual_values), n_bins
+                    np.min(individual_array), np.max(individual_array), n_bins
                 ),
             )
             collective_binned = np.digitize(
-                collective_values,
+                collective_array,
                 np.linspace(
-                    np.min(collective_values), np.max(collective_values), n_bins
+                    np.min(collective_array), np.max(collective_array), n_bins
                 ),
             )
 
@@ -1334,7 +1338,7 @@ class SwarmPatternAnalyzer:
 
         # Calculate entropy
         entropy = -np.sum(probabilities * np.log2(probabilities + 1e-10))
-        return entropy
+        return float(entropy)
 
     def _calculate_mutual_information_manual(
         self, x: np.ndarray, y: np.ndarray
@@ -1401,7 +1405,14 @@ class SwarmPatternAnalyzer:
             for outcome_type, outcome_data in collective_outcomes.items():
                 if isinstance(outcome_data, dict):
                     outcome_series.append(
-                        float(outcome_data.get("value", outcome_data.get("score", 0.0)))
+                        float(
+                            cast(
+                                Any,
+                                outcome_data.get(
+                                    "value", outcome_data.get("score", 0.0)
+                                ),
+                            )
+                        )
                     )
                 elif isinstance(outcome_data, (int, float)):
                     outcome_series.append(float(outcome_data))
@@ -1416,21 +1427,21 @@ class SwarmPatternAnalyzer:
 
             # Align series
             min_len = min(len(behavior_series), len(outcome_series))
-            behavior_series = np.array(behavior_series[:min_len])
-            outcome_series = np.array(outcome_series[:min_len])
+            behavior_array = np.array(behavior_series[:min_len])
+            outcome_array = np.array(outcome_series[:min_len])
 
             # Discretize for transfer entropy
-            n_bins = min(5, int(np.sqrt(len(behavior_series))))
+            n_bins = min(5, int(np.sqrt(len(behavior_array))))
             if n_bins < 2:
                 n_bins = 2
 
             behavior_binned = np.digitize(
-                behavior_series,
-                np.linspace(np.min(behavior_series), np.max(behavior_series), n_bins),
+                behavior_array,
+                np.linspace(np.min(behavior_array), np.max(behavior_array), n_bins),
             )
             outcome_binned = np.digitize(
-                outcome_series,
-                np.linspace(np.min(outcome_series), np.max(outcome_series), n_bins),
+                outcome_array,
+                np.linspace(np.min(outcome_array), np.max(outcome_array), n_bins),
             )
 
             # Calculate transfer entropy with history length k=1
@@ -1508,7 +1519,7 @@ class SwarmPatternAnalyzer:
 
         # Discretize for discrete entropy calculation
         # Use unique combinations
-        unique_combinations = {}
+        unique_combinations: Dict[Any, List[Any]] = {}
         for i in range(len(y)):
             x_key = tuple(x_reshaped[i]) if x_reshaped.ndim > 1 else (x_reshaped[i],)
             if x_key not in unique_combinations:
@@ -1545,20 +1556,20 @@ class SwarmPatternAnalyzer:
             if len(positions) < 3:
                 return {"status": "insufficient_data"}
 
-            positions = np.array(positions)
+            positions_array = np.array(positions)
 
             # Box-counting method for fractal dimension
             # Use multiple box sizes
-            min_pos = np.min(positions, axis=0)
-            max_pos = np.max(positions, axis=0)
+            min_pos = np.min(positions_array, axis=0)
+            max_pos = np.max(positions_array, axis=0)
             range_size = max(max_pos - min_pos)
 
             if range_size == 0:
                 return {"fractal_dimension": 0.0, "interpretation": "degenerate"}
 
             # Box sizes (powers of 2)
-            box_sizes = []
-            box_counts = []
+            box_sizes: List[float] = []
+            box_counts: List[int] = []
 
             max_box_size = range_size
             min_box_size = range_size / 100.0  # At least 100 boxes
@@ -1574,7 +1585,7 @@ class SwarmPatternAnalyzer:
 
                 # Create grid and count occupied boxes
                 occupied_boxes = set()
-                for pos in positions:
+                for pos in positions_array:
                     box_x = int((pos[0] - min_pos[0]) / current_size)
                     box_y = int((pos[1] - min_pos[1]) / current_size)
                     occupied_boxes.add((box_x, box_y))
@@ -1652,7 +1663,7 @@ class SwarmPatternAnalyzer:
             if len(behavior_values) < 10:
                 return {"status": "insufficient_data"}
 
-            behavior_values = np.array(behavior_values)
+            behavior_array = np.array(behavior_values)
 
             # Track divergence of nearby trajectories after phase-space
             # reconstruction with delay embedding.
@@ -1661,16 +1672,16 @@ class SwarmPatternAnalyzer:
             embedding_dim = 3
             delay = 1
 
-            if len(behavior_values) < embedding_dim + delay:
+            if len(behavior_array) < embedding_dim + delay:
                 return {"status": "insufficient_data"}
 
             # Create phase space vectors
-            phase_space = []
-            for i in range(len(behavior_values) - (embedding_dim - 1) * delay):
-                vector = [behavior_values[i + j * delay] for j in range(embedding_dim)]
-                phase_space.append(vector)
+            phase_space_list = []
+            for i in range(len(behavior_array) - (embedding_dim - 1) * delay):
+                vector = [behavior_array[i + j * delay] for j in range(embedding_dim)]
+                phase_space_list.append(vector)
 
-            phase_space = np.array(phase_space)
+            phase_space = np.array(phase_space_list)
 
             if len(phase_space) < 5:
                 return {"status": "insufficient_data"}
@@ -1683,7 +1694,7 @@ class SwarmPatternAnalyzer:
                 # Find nearest neighbor
                 distances = np.linalg.norm(phase_space - phase_space[i], axis=1)
                 distances[i] = np.inf  # Exclude self
-                nearest_idx = np.argmin(distances)
+                nearest_idx = int(np.argmin(distances))
 
                 if nearest_idx >= len(phase_space) - 1:
                     continue
@@ -1712,16 +1723,16 @@ class SwarmPatternAnalyzer:
 
             if len(divergences) == 0:
                 # Fallback: estimate from variance growth
-                if len(behavior_values) > 5:
+                if len(behavior_array) > 5:
                     first_half_var = np.var(
-                        behavior_values[: len(behavior_values) // 2]
+                        behavior_array[: len(behavior_array) // 2]
                     )
                     second_half_var = np.var(
-                        behavior_values[len(behavior_values) // 2 :]
+                        behavior_array[len(behavior_array) // 2 :]
                     )
                     if first_half_var > 0:
                         growth_rate = np.log(second_half_var / first_half_var) / (
-                            len(behavior_values) / 2
+                            len(behavior_array) / 2
                         )
                         lyapunov_exp = max(0.0, growth_rate / 2.0)
                     else:
@@ -1775,7 +1786,7 @@ class SwarmPatternAnalyzer:
             information_criterion = (mi_score > 0.3) or (te_score > 0.2)
             complexity_criterion = (fractal_dim > 1.2) or (lyapunov_exp > 0.05)
 
-            return information_criterion and complexity_criterion
+            return bool(information_criterion and complexity_criterion)
 
         except Exception as e:
             logger.warning(f"Emergence assessment failed: {e}")
@@ -1783,7 +1794,7 @@ class SwarmPatternAnalyzer:
 
     def _interpret_emergence(self, emergence_results: Dict[str, Any]) -> Dict[str, Any]:
         """Generate interpretation of emergence detection results."""
-        interpretation = {
+        interpretation: Dict[str, Any] = {
             "emergence_level": "none",
             "key_characteristics": [],
             "system_complexity": "unknown",

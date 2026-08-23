@@ -18,7 +18,7 @@ import logging
 import h3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from .caching import CachedAPIWrapper
 from ..core.api_clients import CaliforniaAPIManager
@@ -61,7 +61,7 @@ class _CALFIREWrapper(CachedAPIWrapper):
         )
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         try:
             geojson = self._client.fetch_perimeters(year=start_year, county="Del Norte")
@@ -106,7 +106,7 @@ class _CALFIREWrapper(CachedAPIWrapper):
         cache_key = self._cache_key("get_active_incidents")
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         try:
             incidents = self._client.fetch_incidents()
@@ -179,7 +179,7 @@ class _NOAAWrapper(CachedAPIWrapper):
         cache_key = self._cache_key("get_weather_data", station_id=station_id)
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         try:
             data = self._client.fetch_weather_observations(station_id)
@@ -223,7 +223,7 @@ class _NOAAWrapper(CachedAPIWrapper):
         )
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         try:
             if time_range:
@@ -274,7 +274,7 @@ class _NOAAWrapper(CachedAPIWrapper):
         )
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         raise RuntimeError(
             "NOAA current observations require a configured current-data source"
@@ -307,7 +307,7 @@ class _USGSWrapper(CachedAPIWrapper):
         cache_key = self._cache_key("get_earthquakes", bbox=bbox)
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         if not bbox:
             bbox = (-124.5, 41.4, -123.5, 42.1)  # Del Norte County
@@ -360,7 +360,7 @@ class _USGSWrapper(CachedAPIWrapper):
         cache_key = self._cache_key("get_cascadia_seismicity", days=days)
         cached = self._read_cache(cache_key)
         if cached is not None:
-            return cached
+            return cast(Dict[str, Any], cached)
 
         # Full Cascadia subduction zone bounds
         csz_bbox = (-130.0, 40.0, -121.0, 50.5)

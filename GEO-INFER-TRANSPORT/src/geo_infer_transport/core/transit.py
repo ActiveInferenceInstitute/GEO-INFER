@@ -95,15 +95,17 @@ class TransitOptimizer:
         Returns:
             Optimized frequency plan
         """
-        optimization_result = {
+        routes_out: List[Dict[str, Any]] = []
+        summary_out: Dict[str, Any] = {
+            "total_routes": len(routes),
+            "total_vehicles_required": 0,
+            "estimated_ridership_increase": 0
+        }
+        optimization_result: Dict[str, Any] = {
             "optimization_period": optimization_period,
             "timestamp": datetime.now().isoformat(),
-            "routes": [],
-            "summary": {
-                "total_routes": len(routes),
-                "total_vehicles_required": 0,
-                "estimated_ridership_increase": 0
-            }
+            "routes": routes_out,
+            "summary": summary_out
         }
         
         total_vehicles = 0
@@ -113,7 +115,7 @@ class TransitOptimizer:
             current_headway = route.get("headway_minutes", 30)
             
             # Get demand for this route
-            route_demand = demand_patterns.get(route_id, {})
+            route_demand = demand_patterns.get(str(route_id), {}) if route_id is not None else {}
             peak_demand = route_demand.get("peak_hourly", 100)
             
             # Calculate optimal headway based on demand
@@ -132,7 +134,7 @@ class TransitOptimizer:
             vehicles_needed = int(route_length_hours * 60 / optimal_headway) + 1
             total_vehicles += vehicles_needed
             
-            optimization_result["routes"].append({
+            routes_out.append({
                 "route_id": route_id,
                 "current_headway": current_headway,
                 "optimal_headway": optimal_headway,
@@ -152,7 +154,7 @@ class TransitOptimizer:
                 "vehicles_available": max_fleet
             }
         
-        optimization_result["summary"]["total_vehicles_required"] = total_vehicles
+        summary_out["total_vehicles_required"] = total_vehicles
         
         logger.info(f"Optimized frequencies for {len(routes)} routes")
         return optimization_result
@@ -258,12 +260,14 @@ class TransitOptimizer:
         Returns:
             Proposed network design
         """
-        design = {
+        proposed_routes_out: List[Dict[str, Any]] = []
+        proposed_stops_out: List[Dict[str, Any]] = []
+        design: Dict[str, Any] = {
             "mode": mode,
             "objective": objective,
             "timestamp": datetime.now().isoformat(),
-            "proposed_routes": [],
-            "proposed_stops": [],
+            "proposed_routes": proposed_routes_out,
+            "proposed_stops": proposed_stops_out,
             "metrics": {}
         }
         
@@ -281,7 +285,7 @@ class TransitOptimizer:
             origin = sorted_zones[i]
             destination = sorted_zones[(i + 1) % len(sorted_zones)]
             
-            route = {
+            route: Dict[str, Any] = {
                 "route_id": f"route_{i + 1}",
                 "name": f"Route {i + 1}",
                 "mode": mode,
@@ -291,30 +295,30 @@ class TransitOptimizer:
                 "recommended_headway": 15 if i < 2 else 30,
                 "length_km": 10  # Baseline
             }
-            design["proposed_routes"].append(route)
+            proposed_routes_out.append(route)
             
             # Add stops for this route
-            design["proposed_stops"].extend([
+            proposed_stops_out.extend([
                 {"stop_id": f"stop_{i}_1", "location": origin.get("centroid", {}), "route": route["route_id"]},
                 {"stop_id": f"stop_{i}_2", "location": destination.get("centroid", {}), "route": route["route_id"]}
             ])
         
         # Calculate metrics
         design["metrics"] = {
-            "total_routes": len(design["proposed_routes"]),
-            "total_stops": len(design["proposed_stops"]),
-            "estimated_daily_ridership": sum(r.get("estimated_ridership", 0) for r in design["proposed_routes"]),
-            "total_route_km": sum(r.get("length_km", 0) for r in design["proposed_routes"])
+            "total_routes": len(proposed_routes_out),
+            "total_stops": len(proposed_stops_out),
+            "estimated_daily_ridership": sum(r.get("estimated_ridership", 0) for r in proposed_routes_out),
+            "total_route_km": sum(r.get("length_km", 0) for r in proposed_routes_out)
         }
         
-        logger.info(f"Designed network with {len(design['proposed_routes'])} routes")
+        logger.info(f"Designed network with {len(proposed_routes_out)} routes")
         return design
     
     def evaluate_scenario(
         self,
         base_network: Dict[str, Any],
         proposed_changes: List[Dict[str, Any]],
-        metrics: List[str] = None
+        metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Evaluate a network change scenario.
@@ -329,10 +333,11 @@ class TransitOptimizer:
         """
         metrics = metrics or ["ridership", "coverage", "cost"]
         
-        evaluation = {
+        impacts: Dict[str, Any] = {}
+        evaluation: Dict[str, Any] = {
             "scenario_id": f"scenario_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "proposed_changes": proposed_changes,
-            "impacts": {},
+            "impacts": impacts,
             "recommendation": ""
         }
         
@@ -340,24 +345,24 @@ class TransitOptimizer:
             change_type = change.get("type")
             
             if change_type == "add_route":
-                evaluation["impacts"]["ridership_change"] = change.get("expected_ridership", 1000)
-                evaluation["impacts"]["cost_annual"] = 500000
-                evaluation["impacts"]["coverage_change_pct"] = 2.5
+                impacts["ridership_change"] = change.get("expected_ridership", 1000)
+                impacts["cost_annual"] = 500000
+                impacts["coverage_change_pct"] = 2.5
                 
             elif change_type == "increase_frequency":
-                evaluation["impacts"]["ridership_change"] = 500
-                evaluation["impacts"]["cost_annual"] = 100000
-                evaluation["impacts"]["coverage_change_pct"] = 0
+                impacts["ridership_change"] = 500
+                impacts["cost_annual"] = 100000
+                impacts["coverage_change_pct"] = 0
                 
             elif change_type == "extend_route":
-                evaluation["impacts"]["ridership_change"] = 300
-                evaluation["impacts"]["cost_annual"] = 200000
-                evaluation["impacts"]["coverage_change_pct"] = 1.5
+                impacts["ridership_change"] = 300
+                impacts["cost_annual"] = 200000
+                impacts["coverage_change_pct"] = 1.5
         
         # Calculate benefit-cost ratio
-        if evaluation["impacts"].get("cost_annual", 0) > 0:
-            ridership_value = evaluation["impacts"].get("ridership_change", 0) * 3 * 365  # $3/ride
-            bcr = ridership_value / evaluation["impacts"]["cost_annual"]
+        if impacts.get("cost_annual", 0) > 0:
+            ridership_value = impacts.get("ridership_change", 0) * 3 * 365  # $3/ride
+            bcr = ridership_value / impacts["cost_annual"]
             evaluation["benefit_cost_ratio"] = round(bcr, 2)
             
             if bcr > 1.5:

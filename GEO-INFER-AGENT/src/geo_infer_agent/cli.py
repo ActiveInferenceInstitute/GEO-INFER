@@ -15,7 +15,7 @@ import logging
 import yaml
 import asyncio
 import json
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, cast
 from pathlib import Path
 import importlib
 
@@ -69,7 +69,7 @@ def load_config(config_path: str) -> Dict[str, Any]:
                 sys.exit(1)
                 
         logger.info(f"Loaded configuration from {config_path}")
-        return config
+        return cast(Dict[str, Any], config)
     except Exception as e:
         logger.error(f"Failed to load configuration: {str(e)}")
         sys.exit(1)
@@ -111,7 +111,7 @@ def load_agent_class(agent_type: str) -> type:
         # Get class
         agent_class = getattr(module, class_name)
         
-        return agent_class
+        return cast(type, agent_class)
     except (ImportError, AttributeError) as e:
         logger.error(f"Failed to load agent class for type '{agent_type}': {str(e)}")
         logger.error("Make sure the required agent modules are installed")
@@ -145,7 +145,8 @@ async def run_agent(args: argparse.Namespace) -> None:
         # If state file provided, load state
         if args.state:
             if os.path.exists(args.state):
-                agent = agent_class.load_state(args.state, config=config)
+                loader = getattr(agent_class, "load_state")
+                agent = loader(args.state, config=config)
                 logger.info(f"Loaded agent state from {args.state}")
             else:
                 logger.warning(f"State file not found: {args.state}")

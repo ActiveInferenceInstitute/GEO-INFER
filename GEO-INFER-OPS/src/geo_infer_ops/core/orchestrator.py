@@ -338,7 +338,7 @@ class Orchestrator:
         Returns:
             Workflow status dictionary
         """
-        status_counts = {}
+        status_counts: Dict[str, int] = {}
         for task in self.tasks.values():
             status = task.status.value
             status_counts[status] = status_counts.get(status, 0) + 1

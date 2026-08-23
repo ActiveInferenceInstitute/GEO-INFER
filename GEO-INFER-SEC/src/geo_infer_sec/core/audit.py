@@ -377,19 +377,19 @@ class AuditLogger:
         events = self.get_events(start_time=start_time, end_time=end_time)
 
         # Count events by type
-        event_counts = {}
+        event_counts: Dict[str, int] = {}
         for event in events:
             event_type = event.event_type.value
             event_counts[event_type] = event_counts.get(event_type, 0) + 1
 
         # Count events by result
-        result_counts = {}
+        result_counts: Dict[str, int] = {}
         for event in events:
             result = event.result
             result_counts[result] = result_counts.get(result, 0) + 1
 
         # Count events by severity
-        severity_counts = {}
+        severity_counts: Dict[str, int] = {}
         for event in events:
             severity = event.severity.value
             severity_counts[severity] = severity_counts.get(severity, 0) + 1

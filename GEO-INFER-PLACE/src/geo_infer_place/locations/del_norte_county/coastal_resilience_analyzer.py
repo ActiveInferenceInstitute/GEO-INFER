@@ -91,7 +91,7 @@ class CoastalResilienceAnalyzer:
         )
         self.monitoring_sites = self.coastal_config.get("monitoring_sites", {})
 
-        self.last_analysis_time = None
+        self.last_analysis_time: Optional[datetime] = None
 
         logger.info("CoastalResilienceAnalyzer initialized for Del Norte County")
 
@@ -216,7 +216,7 @@ class CoastalResilienceAnalyzer:
             bounds.get("north"),
         )
 
-        coastal_data = {
+        coastal_data: Dict[str, Any] = {
             "bbox": bbox,
             "temporal_range": temporal_range,
             "data_sources": {},
@@ -327,7 +327,7 @@ class CoastalResilienceAnalyzer:
         tide_data = coastal_data["data_sources"].get("tide_gauges", {})
         elevation_data = coastal_data["data_sources"].get("elevation", {})
 
-        sea_level_analysis = {
+        sea_level_analysis: Dict[str, Any] = {
             "current_trends": {},
             "scenario_impacts": {},
             "inundation_analysis": {},
@@ -373,7 +373,7 @@ class CoastalResilienceAnalyzer:
         shoreline_data = coastal_data["data_sources"].get("shoreline_change", {})
         transects = shoreline_data.get("transects", [])
 
-        erosion_analysis = {
+        erosion_analysis: Dict[str, Any] = {
             "summary_statistics": {},
             "high_risk_areas": [],
             "erosion_hotspots": [],
@@ -422,7 +422,7 @@ class CoastalResilienceAnalyzer:
         elevation_data = coastal_data["data_sources"].get("elevation", {})
         storm_events = wave_data.get("storm_events", [])
 
-        storm_surge_analysis = {
+        storm_surge_analysis: Dict[str, Any] = {
             "historical_storms": {},
             "surge_heights": {},
             "vulnerability_mapping": {},
@@ -475,7 +475,7 @@ class CoastalResilienceAnalyzer:
         infrastructure_data = coastal_data["data_sources"].get("infrastructure", {})
         assets = infrastructure_data.get("infrastructure_assets", [])
 
-        vulnerability_assessment = {
+        vulnerability_assessment: Dict[str, Any] = {
             "asset_vulnerabilities": [],
             "critical_assets_at_risk": [],
             "total_value_at_risk": 0,
@@ -546,7 +546,7 @@ class CoastalResilienceAnalyzer:
         """Analyze coastal habitat connectivity."""
         logger.info("Analyzing coastal habitat connectivity...")
 
-        habitat_analysis = {
+        habitat_analysis: Dict[str, Any] = {
             "habitat_types": {},
             "connectivity_corridors": [],
             "migration_pathways": {},
@@ -613,7 +613,7 @@ class CoastalResilienceAnalyzer:
         """Assess tsunami risk and preparedness."""
         logger.info("Assessing tsunami risk...")
 
-        tsunami_analysis = {
+        tsunami_analysis: Dict[str, Any] = {
             "risk_assessment": {},
             "evacuation_planning": {},
             "historical_events": {},
@@ -808,7 +808,7 @@ class CoastalResilienceAnalyzer:
             "infrastructure_vulnerability", {}
         )
 
-        recommendations = {
+        recommendations: Dict[str, Any] = {
             "immediate_actions": [],
             "short_term_strategies": [],
             "long_term_planning": [],
@@ -869,7 +869,7 @@ class CoastalResilienceAnalyzer:
 
         return recommendations
 
-    def _save_analysis_results(self, results: Dict[str, Any]):
+    def _save_analysis_results(self, results: Dict[str, Any]) -> None:
         """Save analysis results to file."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = self.output_dir / f"coastal_resilience_analysis_{timestamp}.json"

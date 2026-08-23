@@ -9,7 +9,7 @@ quality assessment.
 import logging
 from typing import Dict, List, Optional, Union, Any, Tuple
 from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 import geopandas as gpd
@@ -72,13 +72,13 @@ class ValidationRule(str, Enum):
 class ValidationConfig:
     """Configuration for data validation."""
 
-    validation_rules: List[str] = None
+    validation_rules: Optional[List[str]] = field(default=None)
     quality_threshold: float = 0.8
     strict_mode: bool = False
     real_time_monitoring: bool = True
-    custom_rules: Dict[str, Any] = None
+    custom_rules: Optional[Dict[str, Any]] = field(default=None)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.validation_rules is None:
             self.validation_rules = [rule.value for rule in ValidationRule]
 
@@ -274,7 +274,13 @@ class GeospatialValidator:
         overall_score = 0.0
 
         # Run all configured validation checks
-        for rule_name in self.config.validation_rules:
+        configured_rules = self.config.validation_rules
+        rules: List[str] = (
+            configured_rules
+            if configured_rules is not None
+            else [rule.value for rule in ValidationRule]
+        )
+        for rule_name in rules:
             if rule_name in self.validation_rules:
                 try:
                     check_result = await self.validation_rules[rule_name](
@@ -317,8 +323,8 @@ class GeospatialValidator:
             overall_score=overall_score,
             checks=checks,
             recommendations=recommendations,
-            assessment_method=self.config.validation_rules,
-            validation_rules=list(self.config.validation_rules),
+            assessment_method=rules,
+            validation_rules=list(rules),
         )
 
         logger.info(
@@ -819,7 +825,7 @@ class GeospatialValidator:
         self, data: Any, metadata: Optional[DatasetMetadata]
     ) -> QualityCheck:
         """Check schema validity."""
-        issues = []
+        issues: List[Dict[str, Any]] = []
         score = 1.0
 
         # Schema validation logic

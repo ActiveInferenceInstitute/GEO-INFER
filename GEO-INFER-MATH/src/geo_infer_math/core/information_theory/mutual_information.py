@@ -289,7 +289,7 @@ class MutualInformationCalculator:
         values_x: np.ndarray,
         coordinates_y: np.ndarray,
         values_y: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate spatial mutual information.

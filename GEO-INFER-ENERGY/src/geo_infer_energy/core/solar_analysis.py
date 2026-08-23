@@ -41,7 +41,7 @@ class SolarAnalyzer:
         Returns:
             Solar declination in degrees.
         """
-        return 23.45 * np.sin(np.radians(360.0 / 365.0 * (284 + day_of_year)))
+        return float(23.45 * np.sin(np.radians(360.0 / 365.0 * (284 + day_of_year))))
 
     def hour_angle(self, solar_time_hours: float) -> float:
         """Calculate hour angle from solar time.
@@ -92,9 +92,9 @@ class SolarAnalyzer:
         Returns:
             Extraterrestrial irradiance (W/m^2).
         """
-        return self.solar_constant * (
+        return float(self.solar_constant * (
             1.0 + 0.033 * np.cos(np.radians(360.0 * day_of_year / 365.0))
-        )
+        ))
 
     def clear_sky_ghi(
         self,

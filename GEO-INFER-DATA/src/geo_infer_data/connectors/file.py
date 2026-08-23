@@ -7,7 +7,7 @@ file formats including vector, raster, and tabular data formats.
 
 import logging
 import importlib.util
-from typing import Dict, List, Optional, Union, Any, Iterator
+from typing import Dict, List, Optional, Union, Any, Iterator, AsyncGenerator, cast
 from pathlib import Path
 import zipfile
 import tarfile
@@ -100,7 +100,10 @@ class FileConnector:
         logger.info(f"Initialized FileConnector for {base_path}")
 
     async def read_geospatial(
-        self, file_path: Union[str, Path], layer: Optional[str] = None, **kwargs
+        self,
+        file_path: Union[str, Path],
+        layer: Optional[str] = None,
+        **kwargs: Any,
     ) -> Union[pd.DataFrame, gpd.GeoDataFrame, np.ndarray]:
         """
         Read geospatial data from file.
@@ -142,7 +145,11 @@ class FileConnector:
             raise
 
     def _read_vector_file(
-        self, file_path: Path, format_type, layer: Optional[str], **kwargs
+        self,
+        file_path: Path,
+        format_type: Any,
+        layer: Optional[str],
+        **kwargs: Any,
     ) -> gpd.GeoDataFrame:
         """Read vector geospatial file."""
         try:
@@ -161,7 +168,9 @@ class FileConnector:
             logger.error(f"Failed to read vector file: {e}")
             raise
 
-    def _read_raster_file(self, file_path: Path, format_type, **kwargs) -> np.ndarray:
+    def _read_raster_file(
+        self, file_path: Path, format_type: Any, **kwargs: Any
+    ) -> np.ndarray:
         """Read raster file."""
         try:
             if format_type.name == "GEOTIFF":
@@ -169,19 +178,19 @@ class FileConnector:
                     # Read all bands
                     array = src.read()
                     logger.info(f"Read raster with shape {array.shape}")
-                    return array
+                    return cast(np.ndarray, array)
             else:
                 # For other raster formats, use rasterio if possible
                 with rasterio.open(file_path) as src:
                     array = src.read()
-                    return array
+                    return cast(np.ndarray, array)
 
         except Exception as e:
             logger.error(f"Failed to read raster file: {e}")
             raise
 
     def _read_tabular_file(
-        self, file_path: Path, format_type, **kwargs
+        self, file_path: Path, format_type: Any, **kwargs: Any
     ) -> pd.DataFrame:
         """Read tabular file."""
         try:
@@ -204,7 +213,7 @@ class FileConnector:
         data: Union[pd.DataFrame, gpd.GeoDataFrame, np.ndarray],
         file_path: Union[str, Path],
         metadata: Optional[DatasetMetadata] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """
         Write geospatial data to file.
@@ -262,8 +271,8 @@ class FileConnector:
             raise
 
     def _write_geojson(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs
-    ):
+        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs: Any
+    ) -> None:
         """Write data as GeoJSON."""
         if isinstance(data, gpd.GeoDataFrame):
             data.to_file(file_path, driver="GeoJSON", **kwargs)
@@ -281,8 +290,8 @@ class FileConnector:
                 data.to_json(file_path, **kwargs)
 
     def _write_geopackage(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs
-    ):
+        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs: Any
+    ) -> None:
         """Write data as GeoPackage."""
         if isinstance(data, gpd.GeoDataFrame):
             data.to_file(file_path, driver="GPKG", **kwargs)
@@ -291,15 +300,20 @@ class FileConnector:
             gdf = gpd.GeoDataFrame(data)
             gdf.to_file(file_path, driver="GPKG", **kwargs)
 
-    def _write_geotiff(self, data: np.ndarray, file_path: Path, **kwargs):
+    def _write_geotiff(
+        self, data: np.ndarray, file_path: Path, **kwargs: Any
+    ) -> None:
         """Write array as GeoTIFF."""
         # Implementation for GeoTIFF writing
         # Would need coordinate reference and geotransform information
         np.save(file_path.with_suffix(".npy"), data)
 
     def _write_parquet(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs
-    ):
+        self,
+        data: Union[pd.DataFrame, gpd.GeoDataFrame],
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write data as Parquet."""
         if isinstance(data, gpd.GeoDataFrame):
             data.to_parquet(file_path, **kwargs)
@@ -307,8 +321,11 @@ class FileConnector:
             data.to_parquet(file_path, **kwargs)
 
     def _write_csv(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs
-    ):
+        self,
+        data: Union[pd.DataFrame, gpd.GeoDataFrame],
+        file_path: Path,
+        **kwargs: Any,
+    ) -> None:
         """Write data as CSV."""
         if isinstance(data, gpd.GeoDataFrame):
             # Drop geometry column for CSV
@@ -317,7 +334,7 @@ class FileConnector:
         else:
             data.to_csv(file_path, **kwargs)
 
-    def _write_generic(self, data: Any, file_path: Path, **kwargs):
+    def _write_generic(self, data: Any, file_path: Path, **kwargs: Any) -> None:
         """Write data in generic format."""
         if hasattr(data, "to_csv"):
             data.to_csv(file_path, **kwargs)
@@ -330,7 +347,9 @@ class FileConnector:
             with open(file_path, "wb") as f:
                 pickle.dump(data, f)
 
-    async def _write_metadata(self, file_path: Path, metadata: DatasetMetadata):
+    async def _write_metadata(
+        self, file_path: Path, metadata: DatasetMetadata
+    ) -> None:
         """Write metadata file alongside data."""
         metadata_path = file_path.with_suffix(".json")
 
@@ -391,7 +410,7 @@ class FileConnector:
 
         logger.info(f"Scanning directory: {scan_path}")
 
-        file_stats = {
+        file_stats: Dict[str, Any] = {
             "total_files": 0,
             "geospatial_files": 0,
             "by_format": {},
@@ -480,12 +499,12 @@ class FileConnector:
                     archive_path, "w", zipfile.ZIP_DEFLATED
                 ) as archive:
                     for file_path in file_paths:
-                        archive.write(file_path, file_path.name)
+                        archive.write(Path(file_path), Path(file_path).name)
 
             elif compression == "tar":
                 with tarfile.open(archive_path, "w") as archive:
                     for file_path in file_paths:
-                        archive.add(file_path, arcname=file_path.name)
+                        archive.add(Path(file_path), arcname=Path(file_path).name)
 
             elif compression == "gzip":
                 # For single file compression
@@ -570,8 +589,8 @@ class StreamingFileConnector:
         logger.info(f"Initialized StreamingFileConnector with chunk_size={chunk_size}")
 
     async def read_csv_streaming(
-        self, file_path: Union[str, Path], **kwargs
-    ) -> Iterator[pd.DataFrame]:
+        self, file_path: Union[str, Path], **kwargs: Any
+    ) -> AsyncGenerator[pd.DataFrame, None]:
         """
         Read CSV file in streaming mode.
 
@@ -593,8 +612,8 @@ class StreamingFileConnector:
             raise
 
     async def read_parquet_streaming(
-        self, file_path: Union[str, Path], **kwargs
-    ) -> Iterator[pd.DataFrame]:
+        self, file_path: Union[str, Path], **kwargs: Any
+    ) -> AsyncGenerator[pd.DataFrame, None]:
         """
         Read Parquet file in streaming mode.
 
@@ -623,7 +642,7 @@ class StreamingFileConnector:
         self,
         data_generator: Iterator[pd.DataFrame],
         file_path: Union[str, Path],
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """
         Write data to CSV in streaming mode.

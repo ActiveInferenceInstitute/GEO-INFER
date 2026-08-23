@@ -47,8 +47,8 @@ class LegalFramework:
         self.description = description
         self.jurisdictions = jurisdictions or []
         self.regulations = regulations or []
-        self._jurisdiction_index = {}
-        self._regulation_index = {}
+        self._jurisdiction_index: Dict[str, Jurisdiction] = {}
+        self._regulation_index: Dict[str, Regulation] = {}
         
         # Initialize indexes
         self._build_indexes()
@@ -193,7 +193,7 @@ class JurisdictionHandler:
         """
         self.jurisdictions = jurisdictions or []
         self._jurisdiction_index = {j.id: j for j in self.jurisdictions}
-        self._hierarchy_cache = {}
+        self._hierarchy_cache: Dict[str, List[Jurisdiction]] = {}
     
     def add_jurisdiction(self, jurisdiction: Jurisdiction) -> None:
         """
@@ -234,7 +234,7 @@ class JurisdictionHandler:
             return self._hierarchy_cache[jurisdiction_id]
         
         hierarchy = []
-        current_id = jurisdiction_id
+        current_id: Optional[str] = jurisdiction_id
         
         while current_id:
             jurisdiction = self._jurisdiction_index.get(current_id)
@@ -313,7 +313,7 @@ class JurisdictionHandler:
         Returns:
             A dictionary mapping jurisdiction IDs to lists of child jurisdiction IDs
         """
-        graph = {j.id: [] for j in self.jurisdictions}
+        graph: Dict[str, List[str]] = {j.id: [] for j in self.jurisdictions}
         
         for jurisdiction in self.jurisdictions:
             if jurisdiction.parent_id and jurisdiction.parent_id in graph:

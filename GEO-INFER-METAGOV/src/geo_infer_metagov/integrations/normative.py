@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # Optional normative integration
 try:
-    from geo_infer_norms.core.normative_inference import (
+    from geo_infer_norms.core.normative_inference import (  # type: ignore[import-untyped]
         NormativeInference as NormativeSystemManager,
     )
 
@@ -32,7 +32,7 @@ class NormativeGovernanceIntegration:
     - Compliance frameworks
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize normative governance integration."""
         if NORMS_AVAILABLE:
             try:
@@ -69,11 +69,13 @@ class NormativeGovernanceIntegration:
         Dict[str, Any]
             Translated normative rules
         """
-        translation = {
+        normative_rules_out: List[Dict[str, Any]] = []
+        untranslatable_rules_out: List[Dict[str, Any]] = []
+        translation: Dict[str, Any] = {
             "translated": True,
-            "normative_rules": [],
+            "normative_rules": normative_rules_out,
             "translation_quality": 0.0,
-            "untranslatable_rules": [],
+            "untranslatable_rules": untranslatable_rules_out,
         }
 
         if not self.norms_available:
@@ -108,12 +110,12 @@ class NormativeGovernanceIntegration:
                 "consequences": rule.get("consequences", []),
             }
 
-            translation["normative_rules"].append(normative_rule)
+            normative_rules_out.append(normative_rule)
 
         # Calculate translation quality
         if governance_rules:
             translation["translation_quality"] = len(
-                translation["normative_rules"]
+                normative_rules_out
             ) / len(governance_rules)
 
         return translation
@@ -138,10 +140,12 @@ class NormativeGovernanceIntegration:
         Dict[str, Any]
             Compliance checking results
         """
-        compliance = {
+        compliant_actions_out: List[Dict[str, Any]] = []
+        violations_out: List[Dict[str, Any]] = []
+        compliance: Dict[str, Any] = {
             "checked": True,
-            "compliant_actions": [],
-            "violations": [],
+            "compliant_actions": compliant_actions_out,
+            "violations": violations_out,
             "compliance_rate": 0.0,
         }
 
@@ -158,7 +162,7 @@ class NormativeGovernanceIntegration:
             # Simplified compliance checking
             # In real implementation, would use normative reasoning
             is_compliant = True
-            violated_norms = []
+            violated_norms: List[str] = []
 
             for norm in normative_rules:
                 norm_type = norm.get("norm_type", "")
@@ -173,10 +177,10 @@ class NormativeGovernanceIntegration:
                         is_compliant = True  # Would implement real checking
 
                 if not is_compliant:
-                    violated_norms.append(norm.get("norm_id", "unknown"))
+                    violated_norms.append(str(norm.get("norm_id", "unknown")))
 
             if is_compliant:
-                compliance["compliant_actions"].append(
+                compliant_actions_out.append(
                     {
                         "action_id": action.get("id", "unknown"),
                         "action_type": action_type,
@@ -184,7 +188,7 @@ class NormativeGovernanceIntegration:
                     }
                 )
             else:
-                compliance["violations"].append(
+                violations_out.append(
                     {
                         "action_id": action.get("id", "unknown"),
                         "action_type": action_type,
@@ -195,7 +199,7 @@ class NormativeGovernanceIntegration:
 
         # Calculate compliance rate
         if governance_actions:
-            compliance["compliance_rate"] = len(compliance["compliant_actions"]) / len(
+            compliance["compliance_rate"] = len(compliant_actions_out) / len(
                 governance_actions
             )
 
@@ -221,9 +225,10 @@ class NormativeGovernanceIntegration:
         Dict[str, Any]
             Violation detection results
         """
-        violations = {
+        violations_out2: List[Dict[str, Any]] = []
+        violations: Dict[str, Any] = {
             "violations_detected": False,
-            "violations": [],
+            "violations": violations_out2,
             "violation_count": 0,
         }
 
@@ -248,7 +253,7 @@ class NormativeGovernanceIntegration:
                 if "membership_norm" in norm_type:
                     # Check if entity membership is properly defined
                     if not entity.get("stakeholders"):
-                        violations["violations"].append(
+                        violations_out2.append(
                             {
                                 "entity_id": entity.get("entity_id", "unknown"),
                                 "norm_id": norm.get("norm_id", "unknown"),
@@ -257,7 +262,7 @@ class NormativeGovernanceIntegration:
                             }
                         )
 
-        violations["violation_count"] = len(violations["violations"])
+        violations["violation_count"] = len(violations_out2)
         violations["violations_detected"] = violations["violation_count"] > 0
 
         return violations
@@ -282,11 +287,13 @@ class NormativeGovernanceIntegration:
         Dict[str, Any]
             Alignment analysis
         """
-        alignment = {
+        conflicts_out: List[Dict[str, Any]] = []
+        gaps_out: List[str] = []
+        alignment: Dict[str, Any] = {
             "aligned": True,
             "alignment_score": 0.0,
-            "conflicts": [],
-            "gaps": [],
+            "conflicts": conflicts_out,
+            "gaps": gaps_out,
         }
 
         if not self.norms_available:
@@ -306,7 +313,7 @@ class NormativeGovernanceIntegration:
                 # Check for conflicts (simplified)
                 if "conflict" in gov_description and "conflict" in norm_description:
                     # Potential conflict - would need deeper analysis
-                    alignment["conflicts"].append(
+                    conflicts_out.append(
                         {
                             "governance_rule": gov_rule.get("id", "unknown"),
                             "norm": norm.get("norm_id", "unknown"),
@@ -329,12 +336,12 @@ class NormativeGovernanceIntegration:
         gaps = mapped_norm_types - norm_types
 
         if gaps:
-            alignment["gaps"].extend(list(gaps))
+            gaps_out.extend(list(gaps))
 
         # Calculate alignment score
         if existing_norms:
-            conflict_penalty = len(alignment["conflicts"]) * 0.1
-            gap_penalty = len(alignment["gaps"]) * 0.05
+            conflict_penalty = len(conflicts_out) * 0.1
+            gap_penalty = len(gaps_out) * 0.05
             alignment["alignment_score"] = max(
                 0.0, 1.0 - conflict_penalty - gap_penalty
             )

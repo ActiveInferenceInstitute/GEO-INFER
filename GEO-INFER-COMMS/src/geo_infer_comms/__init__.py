@@ -277,14 +277,14 @@ class GeospatialCommunicationSystem:
 
     # Convenience methods for common operations
     def send_message(
-        self, content: str, recipients: List[str], **kwargs
+        self, content: str, recipients: List[str], **kwargs: Any
     ) -> MessageResponse:
         """Send a message with geospatial context."""
         request = MessageRequest(content=content, recipients=recipients, **kwargs)
         return self.message_broker.send_message(request, "system")
 
     def create_notification(
-        self, title: str, content: str, recipients: List[str], **kwargs
+        self, title: str, content: str, recipients: List[str], **kwargs: Any
     ) -> NotificationResponse:
         """Create a notification."""
         request = NotificationRequest(
@@ -293,32 +293,37 @@ class GeospatialCommunicationSystem:
         return self.notification_manager.create_notification(request)
 
     def create_channel(
-        self, name: str, channel_type: ChannelType = ChannelType.PUBLIC, **kwargs
+        self, name: str, channel_type: ChannelType = ChannelType.PUBLIC, **kwargs: Any
     ) -> ChannelResponse:
         """Create a communication channel."""
         request = ChannelRequest(name=name, type=channel_type, **kwargs)
         return self.channel_manager.create_channel(request, "system")
 
     def publish_event(
-        self, event_type: str, payload: Dict[str, Any], **kwargs
+        self, event_type: str, payload: Dict[str, Any], **kwargs: Any
     ) -> EventPublishResponse:
         """Publish an event."""
         request = EventPublishRequest(event_type=event_type, payload=payload, **kwargs)
         return self.event_manager.publish_event(request)
 
     def subscribe_to_events(
-        self, subscriber_id: str, event_types: List[str], callback: Any, **kwargs
+        self, subscriber_id: str, event_types: List[str], callback: Any, **kwargs: Any
     ) -> str:
         """Subscribe to events."""
         request = EventSubscriptionRequest(event_types=event_types, **kwargs)
         return self.event_manager.subscribe_to_events(subscriber_id, request, callback)
 
-    def __enter__(self):
+    def __enter__(self) -> GeospatialCommunicationSystem:
         """Context manager entry."""
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[type],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[Any],
+    ) -> None:
         """Context manager exit."""
         self.stop()
 

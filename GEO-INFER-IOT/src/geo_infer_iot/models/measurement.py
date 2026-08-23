@@ -33,7 +33,7 @@ class MeasurementQuality(BaseModel):
     )
     quality_flags: List[str] = Field(default_factory=list, description="Quality flags")
 
-    def add_flag(self, flag: str):
+    def add_flag(self, flag: str) -> None:
         """Add a quality flag."""
         if flag not in self.quality_flags:
             self.quality_flags.append(flag)
@@ -75,7 +75,15 @@ class Measurement(BaseModel):
 
     # Quality and metadata
     quality: MeasurementQuality = Field(
-        default_factory=MeasurementQuality, description="Quality metadata"
+        default_factory=lambda: MeasurementQuality(
+            quality_score=1.0,
+            validation_checks=[],
+            outlier_score=None,
+            calibration_applied=False,
+            uncertainty_estimate=None,
+            quality_flags=[],
+        ),
+        description="Quality metadata",
     )
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Additional measurement metadata"
@@ -90,13 +98,13 @@ class Measurement(BaseModel):
     )
 
     @field_validator("h3_index")
-    def validate_h3_index(cls, v, values):
+    def validate_h3_index(cls, v: Optional[str], info: Any) -> Optional[str]:
         """Validate H3 index format."""
         if v and not h3.is_valid_cell(v):
             raise ValueError(f"Invalid H3 index: {v}")
         return v
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         # Auto-generate H3 index if coordinates provided but not h3_index
         if (
@@ -110,8 +118,8 @@ class Measurement(BaseModel):
             )
 
     def update_location(
-        self, latitude: float, longitude: float, h3_resolution: int = None
-    ):
+        self, latitude: float, longitude: float, h3_resolution: Optional[int] = None
+    ) -> None:
         """Update measurement location and recalculate H3 index."""
         self.latitude = latitude
         self.longitude = longitude
@@ -121,7 +129,7 @@ class Measurement(BaseModel):
 
         self.h3_index = h3.latlng_to_cell(latitude, longitude, self.h3_resolution)
 
-    def apply_calibration(self, calibration_params: Dict):
+    def apply_calibration(self, calibration_params: Dict) -> "Measurement":
         """Apply calibration to the measurement value."""
         if calibration_params.get("method") == "linear":
             slope = calibration_params.get("slope", 1.0)
@@ -130,8 +138,10 @@ class Measurement(BaseModel):
             self.quality.calibration_applied = True
         elif calibration_params.get("method") == "polynomial":
             coeffs = calibration_params.get("coefficients", [1.0])
-            self.value = np.polyval(coeffs, self.value)
+            self.value = float(np.polyval(coeffs, self.value))
             self.quality.calibration_applied = True
+
+        return self
 
     def get_location_info(self) -> Dict:
         """Get comprehensive location information."""
@@ -189,13 +199,13 @@ class MeasurementBatch(BaseModel):
     )
 
     @field_validator("measurements")
-    def validate_measurements(cls, v):
+    def validate_measurements(cls, v: List["Measurement"]) -> List["Measurement"]:
         """Validate measurements in batch."""
         if len(v) == 0:
             raise ValueError("Batch must contain at least one measurement")
         return v
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
 
         # Calculate derived fields
@@ -209,7 +219,7 @@ class MeasurementBatch(BaseModel):
         # Calculate quality summary
         self._calculate_quality_summary()
 
-    def _calculate_quality_summary(self):
+    def _calculate_quality_summary(self) -> None:
         """Calculate quality summary for the batch."""
         if not self.measurements:
             return
@@ -240,7 +250,7 @@ class MeasurementBatch(BaseModel):
             },
         }
 
-    def add_measurement(self, measurement: Measurement):
+    def add_measurement(self, measurement: Measurement) -> None:
         """Add a measurement to the batch."""
         self.measurements.append(measurement)
         self.batch_size = len(self.measurements)
@@ -377,22 +387,22 @@ class MeasurementStream(BaseModel):
     is_active: bool = Field(True, description="Stream active status")
     created_at: datetime = Field(default_factory=datetime.now)
 
-    def add_sensor(self, sensor_id: str):
+    def add_sensor(self, sensor_id: str) -> None:
         """Add a sensor to the stream."""
         if sensor_id not in self.sensor_ids:
             self.sensor_ids.append(sensor_id)
 
-    def remove_sensor(self, sensor_id: str):
+    def remove_sensor(self, sensor_id: str) -> None:
         """Remove a sensor from the stream."""
         if sensor_id in self.sensor_ids:
             self.sensor_ids.remove(sensor_id)
 
-    def add_variable(self, variable: str):
+    def add_variable(self, variable: str) -> None:
         """Add a variable to the stream."""
         if variable not in self.variables:
             self.variables.append(variable)
 
-    def remove_variable(self, variable: str):
+    def remove_variable(self, variable: str) -> None:
         """Remove a variable from the stream."""
         if variable in self.variables:
             self.variables.remove(variable)
@@ -440,7 +450,7 @@ class MeasurementValidation(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     @field_validator("action_on_failure")
-    def validate_action(cls, v):
+    def validate_action(cls, v: str) -> str:
         """Validate action on failure."""
         valid_actions = ["flag", "reject", "correct", "notify"]
         if v not in valid_actions:

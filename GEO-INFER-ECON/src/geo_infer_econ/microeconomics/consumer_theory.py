@@ -11,7 +11,7 @@ Implements comprehensive consumer theory models including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Callable, Any
+from typing import Dict, List, Optional, Tuple, Callable, Any, cast
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import geopandas as gpd
@@ -50,7 +50,7 @@ class UtilityFunctions:
         """
         if np.any(quantities <= 0):
             return 0
-        return np.prod(np.power(quantities, alpha))
+        return float(np.prod(np.power(quantities, alpha)))
     
     @staticmethod
     def ces_utility(quantities: np.ndarray, alpha: np.ndarray, rho: float) -> float:
@@ -70,7 +70,7 @@ class UtilityFunctions:
             return UtilityFunctions.cobb_douglas(quantities, alpha)
         
         ces_sum = np.sum(alpha * np.power(quantities, rho))
-        return np.power(ces_sum, 1/rho) if ces_sum > 0 else 0
+        return float(np.power(ces_sum, 1/rho)) if ces_sum > 0 else 0
     
     @staticmethod
     def linear_utility(quantities: np.ndarray, alpha: np.ndarray) -> float:
@@ -78,7 +78,7 @@ class UtilityFunctions:
         Linear utility function: U = ∑(α_i * x_i)
         Perfect substitutes case
         """
-        return np.sum(alpha * quantities)
+        return float(np.sum(alpha * quantities))
     
     @staticmethod
     def leontief_utility(quantities: np.ndarray, alpha: np.ndarray) -> float:
@@ -86,7 +86,7 @@ class UtilityFunctions:
         Leontief utility function: U = min(x_i/α_i)
         Perfect complements case
         """
-        return np.min(quantities / alpha)
+        return float(np.min(quantities / alpha))
     
     @staticmethod
     def spatial_utility(quantities: np.ndarray, alpha: np.ndarray, 
@@ -109,7 +109,7 @@ class UtilityFunctions:
         # Simple accessibility modifier (can be made more sophisticated)
         accessibility_factor = 1 + accessibility_weight * np.sum(location)
         
-        return base_utility * accessibility_factor
+        return float(base_utility * accessibility_factor)
 
 
 class DemandFunctions:
@@ -119,7 +119,7 @@ class DemandFunctions:
     
     def __init__(self, utility_function: str = "cobb_douglas"):
         self.utility_function = utility_function
-        self.estimated_parameters = {}
+        self.estimated_parameters: Dict[str, Any] = {}
     
     def marshallian_demand_cobb_douglas(self, income: float, prices: np.ndarray, 
                                       alpha: np.ndarray) -> np.ndarray:
@@ -135,7 +135,7 @@ class DemandFunctions:
         Returns:
             Array of optimal quantities
         """
-        return (alpha * income) / prices
+        return cast(np.ndarray, (alpha * income) / prices)
     
     def hicksian_demand_cobb_douglas(self, prices: np.ndarray, alpha: np.ndarray,
                                    utility_target: float) -> np.ndarray:
@@ -154,7 +154,7 @@ class DemandFunctions:
         price_index = np.prod(np.power(prices / alpha, alpha))
         expenditure = utility_target * price_index
         
-        return (alpha * expenditure) / prices
+        return cast(np.ndarray, (alpha * expenditure) / prices)
     
     def estimate_demand_system(self, data: pd.DataFrame, 
                              method: str = "ols") -> Dict[str, Any]:
@@ -262,9 +262,13 @@ class ConsumerChoiceModels:
     Consumer choice modeling with spatial considerations
     """
     
-    def __init__(self, utility_function: Callable = None):
-        self.utility_function = utility_function or UtilityFunctions.cobb_douglas
-        self.spatial_weights = {}
+    def __init__(self, utility_function: Optional[Callable[..., Any]] = None):
+        self.utility_function = (
+            utility_function
+            if utility_function is not None
+            else UtilityFunctions.cobb_douglas
+        )
+        self.spatial_weights: Dict[str, Any] = {}
     
     def solve_utility_maximization(self, consumer: ConsumerProfile, 
                                  prices: np.ndarray, 
@@ -280,14 +284,14 @@ class ConsumerChoiceModels:
         Returns:
             Dictionary with optimal quantities, utility, and expenditure
         """
-        def objective(quantities):
+        def objective(quantities: np.ndarray) -> float:
             """Negative utility to minimize"""
             alpha = np.array([consumer.preferences.get(good, 1.0) for good in goods])
             return -self.utility_function(quantities, alpha)
-        
-        def budget_constraint(quantities):
+
+        def budget_constraint(quantities: np.ndarray) -> float:
             """Budget constraint: sum(p_i * x_i) <= income"""
-            return consumer.income - np.sum(prices * quantities)
+            return float(consumer.income - np.sum(prices * quantities))
         
         # Non-negativity constraints
         bounds = [(0, None) for _ in goods]
@@ -396,7 +400,7 @@ class WelfareAnalysis:
         # This is a simplified implementation
         # In practice, would need to integrate under demand curve
         choke_price = demand_function(0)  # Price where quantity = 0
-        return 0.5 * (choke_price - price) * quantity
+        return float(0.5 * (choke_price - price) * quantity)
     
     @staticmethod
     def equivalent_variation(utility_function: Callable,
@@ -422,10 +426,10 @@ class WelfareAnalysis:
         utility_old = utility_function(quantities_old, alpha)
         
         # Find income needed at new prices to achieve old utility
-        def objective(test_income):
+        def objective(test_income: float) -> float:
             quantities_new = (alpha * test_income) / prices_new
             utility_new = utility_function(quantities_new, alpha)
-            return (utility_new - utility_old) ** 2
+            return float((utility_new - utility_old) ** 2)
         
         result = minimize_scalar(objective)
         income_equivalent = result.x if result.success else income
@@ -446,10 +450,10 @@ class WelfareAnalysis:
         utility_new = utility_function(quantities_new, alpha)
         
         # Find income needed at old prices to achieve new utility
-        def objective(test_income):
+        def objective(test_income: float) -> float:
             quantities_old = (alpha * test_income) / prices_old
             utility_old = utility_function(quantities_old, alpha)
-            return (utility_old - utility_new) ** 2
+            return float((utility_old - utility_new) ** 2)
         
         result = minimize_scalar(objective)
         income_compensating = result.x if result.success else income
@@ -462,8 +466,8 @@ class ConsumerSurplus:
     Consumer surplus calculation and analysis
     """
     
-    def __init__(self):
-        self.demand_models = {}
+    def __init__(self) -> None:
+        self.demand_models: Dict[str, Any] = {}
     
     def calculate_surplus_integral(self, demand_function: Callable,
                                  price_range: Tuple[float, float],
@@ -481,14 +485,14 @@ class ConsumerSurplus:
         """
         from scipy.integrate import quad
         
-        def integrand(p):
-            return max(0, demand_function(p))
+        def integrand(p: float) -> float:
+            return float(max(0, demand_function(p)))
         
         # Integrate from market price to maximum price
         surplus, _ = quad(integrand, market_price, price_range[1])
-        
-        return surplus
-    
+
+        return float(surplus)
+
     def spatial_surplus_analysis(self, consumers: List[ConsumerProfile],
                                spatial_markets: gpd.GeoDataFrame) -> Dict[str, Any]:
         """
@@ -501,7 +505,7 @@ class ConsumerSurplus:
         Returns:
             Dictionary with spatial surplus analysis results
         """
-        results = {
+        results: Dict[str, Any] = {
             'total_surplus': 0,
             'market_surpluses': {},
             'consumer_surpluses': {},
@@ -536,7 +540,7 @@ class ConsumerSurplus:
 
 
 # Example usage and testing functions
-def example_consumer_analysis():
+def example_consumer_analysis() -> Dict[str, Any]:
     """
     Example usage of consumer theory models
     """

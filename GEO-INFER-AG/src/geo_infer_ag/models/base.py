@@ -5,7 +5,7 @@ Base model class for agricultural analysis and prediction.
 import abc
 import pickle
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, List, Optional, Any
 
 
 class AgricultureModel(abc.ABC):
@@ -24,7 +24,7 @@ class AgricultureModel(abc.ABC):
 
     def __init__(
         self, name: str, version: str = "0.1.0", config: Optional[Dict[str, Any]] = None
-    ):
+    ) -> None:
         """
         Initialize the agricultural model.
 
@@ -36,12 +36,12 @@ class AgricultureModel(abc.ABC):
         self.name = name
         self.version = version
         self.config = config or {}
-        self.metadata = {
+        self.metadata: Dict[str, Any] = {
             "name": name,
             "version": version,
             "type": self.__class__.__name__,
         }
-        self.required_inputs = []
+        self.required_inputs: List[str] = []
 
     @abc.abstractmethod
     def predict(self, data: Dict[str, Any]) -> Dict[str, Any]:

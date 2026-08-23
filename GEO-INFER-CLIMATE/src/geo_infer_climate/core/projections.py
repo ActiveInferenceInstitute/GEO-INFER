@@ -5,7 +5,7 @@ Handles climate change projections and scenario analysis.
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 import numpy as np
 import xarray as xr
 
@@ -31,7 +31,7 @@ class ClimateProjections:
         self,
         historical_data: xr.DataArray,
         scenario: str = 'ssp245',
-        years: List[int] = None
+        years: Optional[List[int]] = None
     ) -> xr.DataArray:
         """
         Project future climate based on historical data and scenario.
@@ -65,7 +65,7 @@ class ClimateProjections:
             )
             projections.append(projected)
         
-        return xr.concat(projections, dim='time')
+        return cast(xr.DataArray, xr.concat(projections, dim='time'))
     
     def _calculate_trend(self, data: xr.DataArray) -> xr.DataArray:
         """Calculate linear trend from time series."""

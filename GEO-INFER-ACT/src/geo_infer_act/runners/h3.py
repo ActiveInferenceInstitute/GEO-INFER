@@ -5,11 +5,11 @@ from __future__ import annotations
 import math
 import time
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, Optional, cast
 
 import numpy as np
 
-from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_act.core.active_inference import ActiveInferenceModel, H3GridInferenceResult
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.runners.io import write_csv, write_json
 from geo_infer_act.utils.h3_adapter import get_h3_adapter, normalize_belief_vector
@@ -126,7 +126,7 @@ def observation_dict_to_vector(observation: Mapping[str, float]) -> np.ndarray:
         ],
         dtype=float,
     )
-    return normalize_belief_vector(vector)
+    return cast(np.ndarray, normalize_belief_vector(vector))
 
 
 def create_h3_model(cells: List[str]) -> tuple[GenerativeModel, ActiveInferenceModel]:
@@ -137,7 +137,9 @@ def create_h3_model(cells: List[str]) -> tuple[GenerativeModel, ActiveInferenceM
     )
     generative_model.spatial_mode = True
     generative_model.h3_cells = list(cells)
-    generative_model.spatial_graph = generative_model._build_h3_neighbor_graph(cells)
+    graph = generative_model._build_h3_neighbor_graph(cells)
+    if graph is not None:
+        generative_model.spatial_graph = graph
     active_model = ActiveInferenceModel(
         "categorical",
         policy_selection_mode="deterministic",
@@ -181,9 +183,12 @@ def run_h3_active_inference(
             vector_observations,
             return_result=True,
         )
-        grid_result = active_model.infer_over_h3_grid(
-            vector_observations,
-            return_result=True,
+        grid_result = cast(
+            H3GridInferenceResult,
+            active_model.infer_over_h3_grid(
+                vector_observations,
+                return_result=True,
+            ),
         )
         cell_records = {}
         for cell, step_result in grid_result.cell_results.items():
@@ -199,15 +204,18 @@ def run_h3_active_inference(
             }
         average_fe = float(grid_result.aggregate_free_energy)
         free_energy_evolution.append(average_fe)
+        coherence = 0.0
+        correlation = 0.0
+        sc = getattr(belief_update, "spatial_consistency", None)
+        if sc is not None:
+            coherence = float(getattr(sc, "global_coherence", 0.0))
+            correlation = float(getattr(sc, "neighbor_correlations", 0.0))
+
         global_metrics = {
             "average_free_energy": average_fe,
             "total_free_energy": float(average_fe * len(cells)),
-            "coordination_coherence": float(
-                belief_update.spatial_consistency.global_coherence
-            ),
-            "neighbor_correlation": float(
-                belief_update.spatial_consistency.neighbor_correlations
-            ),
+            "coordination_coherence": coherence,
+            "neighbor_correlation": correlation,
             "processing_time": float(time.perf_counter() - start_time),
         }
         history.append(

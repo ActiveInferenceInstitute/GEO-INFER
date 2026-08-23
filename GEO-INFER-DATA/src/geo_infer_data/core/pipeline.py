@@ -74,7 +74,7 @@ class PipelineMetrics:
 class TransformationEngine:
     """Engine for executing data transformations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.transformations = {
             "filter": self._filter_data,
             "transform": self._transform_data,
@@ -495,7 +495,7 @@ class IntelligentETLPipeline:
             f"Initialized IntelligentETLPipeline with {error_recovery} error recovery"
         )
 
-    def _load_configuration(self):
+    def _load_configuration(self) -> None:
         """Load pipeline configuration from file or dictionary."""
         if isinstance(self.workflow_config, str):
             config_path = Path(self.workflow_config)
@@ -507,7 +507,7 @@ class IntelligentETLPipeline:
                         config = json.load(f)
                 self.workflow_config = config
 
-        if self.workflow_config:
+        if isinstance(self.workflow_config, dict):
             self.pipeline = ETLPipeline(**self.workflow_config)
 
     async def execute_workflow(
@@ -644,8 +644,11 @@ class IntelligentETLPipeline:
                     len(transformed_data) if hasattr(transformed_data, "__len__") else 1
                 ),
                 "load_result": load_result,
-                "execution_time": self.current_execution.completed_at
-                - self.current_execution.started_at,
+                "execution_time": (
+                    (self.current_execution.completed_at - self.current_execution.started_at)
+                    if (self.current_execution.completed_at and self.current_execution.started_at)
+                    else timedelta()
+                ),
                 "performance_metrics": self._get_performance_metrics(),
             }
 
@@ -987,7 +990,7 @@ class IntelligentETLPipeline:
 
     async def _handle_error(
         self, error: Exception, source_data: Any, target_storage: Any
-    ):
+    ) -> None:
         """Handle pipeline execution errors."""
         logger.error(f"Handling pipeline error: {error}")
 
@@ -1001,11 +1004,12 @@ class IntelligentETLPipeline:
             await self._intelligent_error_recovery(error, source_data, target_storage)
 
         # Record failed execution
-        self.execution_history.append(self.current_execution)
+        if self.current_execution is not None:
+            self.execution_history.append(self.current_execution)
 
     async def _handle_transformation_error(
         self, error: Exception, transformation: Transformation, data: Any
-    ):
+    ) -> None:
         """Handle transformation-specific errors."""
         logger.error(
             f"Handling transformation error for {transformation.type}: {error}"
@@ -1023,7 +1027,7 @@ class IntelligentETLPipeline:
 
     async def _intelligent_error_recovery(
         self, error: Exception, source_data: Any, target_storage: Any
-    ):
+    ) -> None:
         """Intelligent error recovery with adaptive strategies."""
         # Implementation for intelligent error recovery
         logger.info("Attempting intelligent error recovery")
@@ -1063,8 +1067,8 @@ class IntelligentETLPipeline:
             return {}
 
         execution_time = (
-            self.current_execution.completed_at - self.current_execution.started_at
-            if self.current_execution.completed_at
+            (self.current_execution.completed_at - self.current_execution.started_at)
+            if (self.current_execution.completed_at and self.current_execution.started_at)
             else timedelta()
         )
 

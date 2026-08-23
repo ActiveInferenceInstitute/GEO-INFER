@@ -147,7 +147,7 @@ class EvacuationPlanner:
         # Generate routes
         routes = self.optimize_routes(
             origins=[zone.zone_id],
-            destinations=[d.get("id") for d in destinations],
+            destinations=[str(d.get("id")) for d in destinations if d.get("id") is not None],
             objectives=["clearance_time", "safety"],
             constraints={"road_capacity": True, "contraflow": contraflow}
         )
@@ -426,7 +426,7 @@ class EvacuationPlanner:
         self,
         evacuation_plan: Dict[str, Any],
         traffic_model: str = "dynamic_assignment",
-        scenarios: List[str] = None
+        scenarios: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Estimate evacuation clearance time.
@@ -442,7 +442,10 @@ class EvacuationPlanner:
         scenarios = scenarios or ["best_case", "expected", "worst_case"]
         
         zone = evacuation_plan.get("zone")
-        population = zone.population if hasattr(zone, "population") else zone.get("population", 10000)
+        if isinstance(zone, dict):
+            population = zone.get("population", 10000)
+        else:
+            population = getattr(zone, "population", 10000)
         
         # Calculate based on vehicle loading and network capacity
         persons_per_vehicle = 2.5

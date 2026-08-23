@@ -24,7 +24,7 @@ where:
 
 import logging
 import numpy as np
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, cast
 from scipy import linalg, stats
 from scipy.optimize import minimize
 
@@ -64,12 +64,12 @@ class MixedEffectsSPM:
         self.fixed_design = fixed_design
         self.random_groups = random_groups
         self.random_effects = random_effects or {}
-        self.fitted_model = None
+        self.fitted_model: Optional[Dict[str, Any]] = None
 
         # Validate inputs
         self._validate_inputs()
 
-    def _validate_inputs(self):
+    def _validate_inputs(self) -> None:
         """Validate input parameters."""
         if not isinstance(self.fixed_design, DesignMatrix):
             raise TypeError("fixed_design must be a DesignMatrix instance")
@@ -204,7 +204,7 @@ class MixedEffectsSPM:
         # Simplified REML implementation
         # In practice, this would use more sophisticated optimization
 
-        def negative_reml_loglik(params):
+        def negative_reml_loglik(params: np.ndarray) -> float:
             """Negative REML log-likelihood."""
             # Extract parameters
             beta = params[: X.shape[1]]
@@ -230,7 +230,7 @@ class MixedEffectsSPM:
                 loglik = -0.5 * (n - p) * np.log(2 * np.pi) - 0.5 * log_det_V
                 loglik -= 0.5 * resid.T @ V_inv @ resid
 
-                return -loglik  # Negative for minimization
+                return float(-loglik)  # Negative for minimization
 
             except np.linalg.LinAlgError:
                 return np.inf
@@ -281,7 +281,7 @@ class MixedEffectsSPM:
         """
 
         # Simplified ML implementation (similar to REML but without restriction)
-        def negative_ml_loglik(params):
+        def negative_ml_loglik(params: np.ndarray) -> float:
             beta = params[: X.shape[1]]
             sigma2 = np.exp(params[X.shape[1]])
             tau2 = np.exp(params[X.shape[1] + 1])
@@ -301,7 +301,7 @@ class MixedEffectsSPM:
                 loglik = -0.5 * n * np.log(2 * np.pi) - 0.5 * log_det_V
                 loglik -= 0.5 * resid.T @ V_inv @ resid
 
-                return -loglik
+                return float(-loglik)
 
             except np.linalg.LinAlgError:
                 return np.inf
@@ -360,7 +360,7 @@ class MixedEffectsSPM:
         X_pred = self.fixed_design.matrix  # Would need to construct for new data
         beta = self.fitted_model["beta"]
 
-        return X_pred @ beta
+        return cast(np.ndarray, X_pred @ beta)
 
     def get_random_effects(self) -> Dict[str, np.ndarray]:
         """
@@ -374,7 +374,7 @@ class MixedEffectsSPM:
 
         # Baseline - full implementation would extract random effects
         # from the fitted model
-        return {"random_effects": np.array([]), "group_effects": {}}
+        return cast(Dict[str, np.ndarray], {"random_effects": np.array([]), "group_effects": {}})
 
     def anova(self, other_model: "MixedEffectsSPM") -> Dict[str, Any]:
         """
@@ -418,7 +418,7 @@ def fit_mixed_effects(
     data: SPMData,
     fixed_design: DesignMatrix,
     random_groups: Dict[str, np.ndarray],
-    **kwargs,
+    **kwargs: Any,
 ) -> SPMResult:
     """
     Convenience function to fit mixed effects SPM model.

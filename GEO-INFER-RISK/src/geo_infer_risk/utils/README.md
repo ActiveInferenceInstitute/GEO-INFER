@@ -26,6 +26,8 @@ Utils workspace within `GEO-INFER-RISK`.
 - `risk_metrics.py:calculate_annual_aggregate_exceedance_probability` (function)
 - `risk_metrics.py:calculate_loss_frequency_curve` (function)
 - `risk_metrics.py:calculate_correlation_matrix` (function)
+- `risk_metrics.py:calculate_aep_curve` (function)
+- `risk_metrics.py:estimate_pml_with_tail_fit` (function)
 - `rng.py:resolve_rng` (function)
 - `rng.py:spawn_rng` (function)
 - `rng.py:derive_int_seed` (function)

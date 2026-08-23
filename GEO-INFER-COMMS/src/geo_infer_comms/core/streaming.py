@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Any, Set
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
 
-from geo_infer_comms.models.message import StreamRequest, StreamResponse, StreamType
+from geo_infer_comms.models.message import StreamRequest, StreamResponse
 from geo_infer_comms.models.spatial import (
     GeospatialMetadata,
     GeospatialPoint,
@@ -233,7 +233,7 @@ class StreamManager:
             return self.streams.get(stream_id)
 
     def get_streams(
-        self, stream_type: Optional[StreamType] = None, limit: int = 100
+        self, stream_type: Optional[str] = None, limit: int = 100
     ) -> List[DataStream]:
         """Get streams with optional filtering."""
         with self._lock:
@@ -782,7 +782,7 @@ class StreamingAnalytics:
             return {"message": "No analytics data available for stream"}
 
         # Analyze events
-        event_types = {}
+        event_types: Dict[str, int] = {}
         for event in stream_events:
             event_type = event["event_type"]
             event_types[event_type] = event_types.get(event_type, 0) + 1
@@ -803,7 +803,7 @@ class StreamingAnalytics:
             return {"message": "No streaming history available"}
 
         # Analyze all streaming events
-        stream_activity = {}
+        stream_activity: Dict[str, int] = {}
         for event in self.streaming_history:
             stream_id = event["stream_id"]
             stream_activity[stream_id] = stream_activity.get(stream_id, 0) + 1

@@ -6,8 +6,11 @@ point pattern analysis, and clustering statistics.
 """
 
 import logging
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, TYPE_CHECKING, cast
 import numpy as np
+
+if TYPE_CHECKING:
+    from .dispatcher import SpatialBackendDispatcher
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +23,13 @@ class SpatialStatistics:
     indices, and pattern detection statistics.
     """
 
-    def __init__(self, backend: Optional[str] = None):
+    def __init__(self, backend: Optional[str] = None) -> None:
         """Initialize spatial statistics with optional backend."""
         self.backend = backend
-        self._dispatcher = None
+        self._dispatcher: Optional["SpatialBackendDispatcher"] = None
     
     @property
-    def dispatcher(self):
+    def dispatcher(self) -> "SpatialBackendDispatcher":
         """Lazy load the dispatcher."""
         if self._dispatcher is None:
             from .dispatcher import get_backend_dispatcher
@@ -148,7 +151,7 @@ class SpatialStatistics:
         weights = np.zeros((n, n))
         
         try:
-            backend = self.dispatcher.get_backend(self.backend or 'h3')
+            backend: Any = self.dispatcher.get_backend(self.backend or 'h3')
             
             for i, cell_i in enumerate(cells):
                 try:
@@ -177,7 +180,7 @@ class SpatialStatistics:
         row_sums[row_sums == 0] = 1  # Avoid division by zero
         weights = weights / row_sums
         
-        return weights
+        return cast(np.ndarray, weights)
 
     def getis_ord_g(
         self,
@@ -214,7 +217,7 @@ class SpatialStatistics:
         coldspots = []
         
         try:
-            backend = self.dispatcher.get_backend(self.backend or 'h3')
+            backend: Any = self.dispatcher.get_backend(self.backend or 'h3')
             cell_values = dict(zip(cells, values))
             cell_set = set(cells)
             
@@ -295,9 +298,9 @@ class SpatialStatistics:
         logger.info(f"Calculating Nearest Neighbor Index for {n} cells")
         
         try:
-            backend = self.dispatcher.get_backend(self.backend or 'h3')
+            backend: Any = self.dispatcher.get_backend(self.backend or 'h3')
             
-            total_distance = 0
+            total_distance: float = 0
             valid_pairs = 0
             
             for i, cell in enumerate(cells):
@@ -511,10 +514,10 @@ class SpatialStatistics:
         logger.info(f"Performing quadrat count analysis for {n} cells")
         
         try:
-            backend = self.dispatcher.get_backend(self.backend or 'h3')
+            backend: Any = self.dispatcher.get_backend(self.backend or 'h3')
             
             # Get parent cells as quadrats
-            quadrat_counts = {}
+            quadrat_counts: Dict[str, float] = {}
             
             for cell, value in zip(cells, values):
                 try:

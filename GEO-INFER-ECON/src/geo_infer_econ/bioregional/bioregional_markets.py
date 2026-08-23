@@ -12,7 +12,7 @@ Implements comprehensive bioregional market mechanisms including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Callable, Any, Union
+from typing import cast, Dict, List, Optional, Tuple, Callable, Any, Union
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 import geopandas as gpd
@@ -71,11 +71,11 @@ class BioregionalMarketDesign:
     
     def __init__(self, bioregion_boundary: gpd.GeoDataFrame):
         self.bioregion = bioregion_boundary
-        self.assets = {}
-        self.participants = {}
-        self.credits = {}
-        self.market_mechanisms = {}
-        self.transaction_history = []
+        self.assets: Dict[str, Any] = {}
+        self.participants: Dict[str, Any] = {}
+        self.credits: Dict[str, Any] = {}
+        self.market_mechanisms: Dict[str, Any] = {}
+        self.transaction_history: List[Any] = []
     
     def register_asset(self, asset: BioregionalAsset) -> bool:
         """Register a bioregional asset in the market system"""
@@ -206,14 +206,14 @@ class EcosystemServicesMarkets:
     
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
-        self.order_book = {'buy': [], 'sell': []}
+        self.order_book: Dict[str, List[Any]] = {'buy': [], 'sell': []}
         self.market_clearing_mechanism = 'double_auction'
     
     def submit_buy_order(self, participant_id: str, service_type: str, 
                         quantity: float, max_price: float,
                         location_preferences: Dict[str, Any]) -> str:
         """Submit a buy order for ecosystem services"""
-        order = {
+        order: Dict[str, Any] = {
             'order_id': f"buy_{participant_id}_{datetime.now().isoformat()}",
             'participant_id': participant_id,
             'order_type': 'buy',
@@ -225,14 +225,14 @@ class EcosystemServicesMarkets:
         }
         
         self.order_book['buy'].append(order)
-        return order['order_id']
+        return cast(str, order['order_id'])
     
     def submit_sell_order(self, participant_id: str, credit_id: str, 
                          min_price: float) -> str:
         """Submit a sell order for ecosystem service credits"""
         credit = self.market_design.credits[credit_id]
         
-        order = {
+        order: Dict[str, Any] = {
             'order_id': f"sell_{participant_id}_{datetime.now().isoformat()}",
             'participant_id': participant_id,
             'order_type': 'sell',
@@ -246,7 +246,7 @@ class EcosystemServicesMarkets:
         }
         
         self.order_book['sell'].append(order)
-        return order['order_id']
+        return cast(str, order['order_id'])
     
     def clear_market(self) -> List[Dict[str, Any]]:
         """Clear the market and execute trades"""
@@ -320,7 +320,7 @@ class EcosystemServicesMarkets:
                 (sell_order['location'][1] - preferred_location[1])**2
             ) * 111  # Approximate km per degree
             
-            return distance <= max_distance
+            return bool(distance <= max_distance)
         
         return True
     
@@ -389,8 +389,8 @@ class BiodiversityMarkets:
     
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
-        self.habitat_banks = {}
-        self.mitigation_requirements = {}
+        self.habitat_banks: Dict[str, Any] = {}
+        self.mitigation_requirements: Dict[str, Any] = {}
     
     def create_habitat_bank(self, bank_id: str, asset_ids: List[str], 
                            credit_types: List[str]) -> Dict[str, Any]:
@@ -422,7 +422,7 @@ class BiodiversityMarkets:
     
     def calculate_mitigation_requirement(self, impact_location: Tuple[float, float],
                                        impact_area: float,
-                                       habitat_type: str) -> Dict[str, float]:
+                                       habitat_type: str) -> Dict[str, Any]:
         """Calculate biodiversity mitigation requirements for development impacts"""
         # Biodiversity offset ratios based on habitat type and location
         offset_ratios = {
@@ -489,7 +489,7 @@ class BiodiversityMarkets:
     def _calculate_distance(self, loc1: Tuple[float, float], 
                            loc2: Tuple[float, float]) -> float:
         """Calculate distance between two locations"""
-        return np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111  # km
+        return float(np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111)  # km
 
 
 class LocalFoodSystems:
@@ -499,9 +499,9 @@ class LocalFoodSystems:
     
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
-        self.food_producers = {}
-        self.food_consumers = {}
-        self.distribution_networks = {}
+        self.food_producers: Dict[str, Any] = {}
+        self.food_consumers: Dict[str, Any] = {}
+        self.distribution_networks: Dict[str, Any] = {}
     
     def optimize_local_food_system(self, optimization_objectives: List[str]) -> Dict[str, Any]:
         """
@@ -535,7 +535,7 @@ class LocalFoodSystems:
         production_scenarios = self._generate_production_scenarios()
 
         # Evaluate scenarios against objectives
-        scenario_scores = {}
+        scenario_scores: Dict[str, Dict[str, float]] = {}
         for scenario_name, scenario in production_scenarios.items():
             scores = {}
             for obj_name, obj_func in active_objectives.items():
@@ -544,6 +544,7 @@ class LocalFoodSystems:
 
         # Multi-objective optimization (simplified)
         # In practice, would use Pareto optimization or weighted sum
+        best_scenario: Tuple[str, Any]
         if len(active_objectives) == 1:
             # Single objective - find best scenario
             best_scenario = max(scenario_scores.items(), key=lambda x: list(x[1].values())[0])
@@ -599,25 +600,25 @@ class LocalFoodSystems:
     def _transport_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for minimizing transport"""
         # Lower transport scores are better
-        return 1.0 / (scenario['environmental']['carbon_footprint'] + 0.1)
+        return float(1.0 / (scenario['environmental']['carbon_footprint'] + 0.1))
 
     def _nutrition_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for maximizing nutrition"""
-        return scenario['nutrition']['nutritional_diversity'] * scenario['nutrition']['food_security']
+        return float(scenario['nutrition']['nutritional_diversity'] * scenario['nutrition']['food_security'])
 
     def _environmental_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for minimizing environmental impact"""
         # Combined environmental score (lower is better)
-        return 1.0 / (scenario['environmental']['carbon_footprint'] + scenario['environmental']['water_use'] + 0.1)
+        return float(1.0 / (scenario['environmental']['carbon_footprint'] + scenario['environmental']['water_use'] + 0.1))
 
     def _economic_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for maximizing economic efficiency"""
-        return scenario['economic']['economic_multiplier'] * scenario['economic']['local_jobs'] / 100
+        return float(scenario['economic']['economic_multiplier'] * scenario['economic']['local_jobs'] / 100)
 
     def _find_pareto_optimal(self, scenario_scores: Dict[str, Dict[str, float]],
                            weights: Dict[str, float]) -> Tuple[str, float]:
         """Find Pareto optimal scenario using weighted sum"""
-        best_scenario = None
+        best_scenario: str = ''
         best_score = -float('inf')
 
         for scenario_name, scores in scenario_scores.items():
@@ -628,7 +629,7 @@ class LocalFoodSystems:
                 best_score = weighted_score
                 best_scenario = scenario_name
 
-        return best_scenario, best_score
+        return best_scenario, float(best_score)
     
     def calculate_food_miles(self, producer_id: str, consumer_id: str) -> float:
         """Calculate food miles between producer and consumer"""
@@ -640,7 +641,7 @@ class LocalFoodSystems:
     def _calculate_distance(self, loc1: Tuple[float, float], 
                            loc2: Tuple[float, float]) -> float:
         """Calculate distance between two locations"""
-        return np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111  # km
+        return float(np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111)  # km
 
 
 class CarbonMarkets:
@@ -988,7 +989,7 @@ class WaterMarkets:
 
 
 # Example usage and testing functions
-def example_bioregional_market():
+def example_bioregional_market() -> BioregionalMarketDesign:
     """
     Example usage of bioregional market design
     """

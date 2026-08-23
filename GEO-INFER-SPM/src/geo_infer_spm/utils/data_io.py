@@ -17,7 +17,7 @@ All functions return standardized SPMData objects for consistent processing.
 
 import numpy as np
 import pandas as pd
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, Callable, cast
 import json
 
 try:
@@ -51,7 +51,7 @@ except ImportError:
 from ..models.data_models import SPMData, SPMResult
 
 
-def load_data(file_path: str, **kwargs) -> SPMData:
+def load_data(file_path: str, **kwargs: Any) -> SPMData:
     """
     Load geospatial data from file with automatic format detection.
 
@@ -87,8 +87,8 @@ def load_data(file_path: str, **kwargs) -> SPMData:
     if file_extension not in format_loaders:
         raise ValueError(f"Unsupported file format: {file_extension}")
 
-    loader_func = format_loaders[file_extension]
-    return loader_func(file_path, **kwargs)
+    loader_func = cast(Callable[..., Any], format_loaders[file_extension])
+    return cast(SPMData, loader_func(file_path, **kwargs))
 
 
 def load_geotiff(
@@ -185,7 +185,7 @@ def load_netcdf(
         data_vars = [v for v in ds.data_vars if v not in ds.coords]
         if not data_vars:
             raise ValueError("No data variables found in NetCDF file")
-        variable = data_vars[0]
+        variable = str(data_vars[0])
 
     data_array = ds[variable]
 
@@ -317,7 +317,7 @@ def load_csv_with_coords(
     x_column: str = "longitude",
     y_column: str = "latitude",
     value_column: Optional[str] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> SPMData:
     """
     Load CSV data with coordinate columns.
@@ -529,7 +529,7 @@ def load_json_data(
 
 
 def save_spm(
-    spm_result: SPMResult, file_path: str, format: str = "json", **kwargs
+    spm_result: SPMResult, file_path: str, format: str = "json", **kwargs: Any
 ) -> None:
     """
     Save SPM results to file.
@@ -550,7 +550,7 @@ def save_spm(
         raise ValueError(f"Unsupported save format: {format}")
 
 
-def _save_spm_json(spm_result: SPMResult, file_path: str, **kwargs) -> None:
+def _save_spm_json(spm_result: SPMResult, file_path: str, **kwargs: Any) -> None:
     """Save SPM results as JSON."""
     # Convert numpy arrays to lists for JSON serialization
     result_dict = {
@@ -588,7 +588,7 @@ def _save_spm_json(spm_result: SPMResult, file_path: str, **kwargs) -> None:
         json.dump(result_dict, f, indent=2)
 
 
-def _save_spm_hdf5(spm_result: SPMResult, file_path: str, **kwargs) -> None:
+def _save_spm_hdf5(spm_result: SPMResult, file_path: str, **kwargs: Any) -> None:
     """Save SPM results as HDF5."""
     if not HDF5_AVAILABLE:
         raise ImportError("h5py package required for HDF5 saving")
@@ -619,7 +619,7 @@ def _save_spm_hdf5(spm_result: SPMResult, file_path: str, **kwargs) -> None:
                 metadata_group.attrs[key] = value
 
 
-def _save_spm_csv(spm_result: SPMResult, file_path: str, **kwargs) -> None:
+def _save_spm_csv(spm_result: SPMResult, file_path: str, **kwargs: Any) -> None:
     """Save SPM results as CSV."""
     # Create DataFrame with coordinates and results
     df_data = {

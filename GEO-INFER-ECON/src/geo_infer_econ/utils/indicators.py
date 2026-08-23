@@ -74,7 +74,7 @@ class EconomicIndicators:
             n * cumulative_values[-1]
         ) - (n + 1) / n
 
-        return gini
+        return float(gini)
 
     def calculate_theil_index(self, values: np.ndarray) -> float:
         """
@@ -92,7 +92,7 @@ class EconomicIndicators:
         ratio = np.where(ratio <= 0, 1e-10, ratio)
 
         theil = np.mean(ratio * np.log(ratio))
-        return theil
+        return float(theil)
 
     def calculate_unemployment_rate(
         self,
@@ -222,7 +222,7 @@ class EconomicIndicators:
 
     def calculate_regional_convergence(
         self, regional_data: pd.DataFrame, value_column: str, time_column: str
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Calculate regional convergence indicators.
 
@@ -344,7 +344,7 @@ class EconomicIndicators:
         else:
             raise ValueError(f"Unknown distance method: {method}")
 
-        return distance
+        return float(distance)
 
     def calculate_spatial_economic_indicators(
         self, regional_data: pd.DataFrame, spatial_weights: np.ndarray
@@ -582,7 +582,7 @@ class EconomicIndicators:
 
     def calculate_human_development_index(
         self, data: Dict[str, pd.DataFrame], weights: Optional[Dict[str, float]] = None
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Calculate Human Development Index (HDI) components and overall index.
 
@@ -597,7 +597,7 @@ class EconomicIndicators:
         default_weights = {"health": 1 / 3, "education": 1 / 3, "income": 1 / 3}
         weights = weights or default_weights
 
-        hdi_components = {}
+        hdi_components: Dict[str, float] = {}
 
         # Health index (life expectancy)
         if "life_expectancy" in data:

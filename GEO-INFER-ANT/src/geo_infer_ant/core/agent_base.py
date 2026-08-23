@@ -8,7 +8,7 @@ management (AGENT) modules to create sophisticated collective intelligence syste
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 
@@ -36,7 +36,7 @@ class SensoryInput:
     stigmergic_signals: Dict[str, Any] = field(default_factory=dict)
     temporal_context: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate and process sensory input after initialization."""
         self.timestamp = datetime.now()
         self.processed = False
@@ -101,7 +101,7 @@ class ActionDecision:
     expected_outcome: Dict[str, Any] = field(default_factory=dict)
     alternative_actions: List[Dict[str, Any]] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate action decision after initialization."""
         self.timestamp = datetime.now()
         self.execution_priority = self.calculate_priority()
@@ -159,8 +159,8 @@ class SwarmAgent(BaseAgent):
         movement_speed: float = 1.5,
         active_inference_enabled: bool = True,
         spatial_backend: str = "h3",
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize swarm agent.
 
@@ -193,9 +193,9 @@ class SwarmAgent(BaseAgent):
         self.active_inference_enabled = active_inference_enabled
 
         # Integration components
-        self.active_inference_model = None
-        self.spatial_indexer = None
-        self.spatial_analytics = None
+        self.active_inference_model: Any = None
+        self.spatial_indexer: Any = None
+        self.spatial_analytics: Any = None
 
         # Agent state
         self.energy_level = max(0.0, float(kwargs.get("initial_energy", 1.0)))
@@ -629,7 +629,7 @@ class SwarmAgent(BaseAgent):
         """
         logger.info(f"Agent {self.agent_id} executing action: {decision.action_type}")
 
-        execution_result = {
+        execution_result: Dict[str, Any] = {
             "action_type": decision.action_type,
             "start_time": datetime.now(),
             "success": False,
@@ -728,12 +728,12 @@ class SwarmAgent(BaseAgent):
             # request.  Use the private RNG and a bounded step so simulations
             # remain reproducible and physically scaled by movement_speed.
             direction = self.rng.normal(size=2)
-            direction /= max(np.linalg.norm(direction), 1e-12)
+            direction /= cast(float, max(np.linalg.norm(direction), 1e-12))
             if target == "safe_area":
                 direction = np.ones(2) / np.sqrt(2)
             elif target == "unknown_area":
                 direction = self.rng.normal(size=2)
-                direction /= max(np.linalg.norm(direction), 1e-12)
+                direction /= cast(float, max(np.linalg.norm(direction), 1e-12))
             displacement = direction * self.movement_speed
         new_position = self.position + displacement
 

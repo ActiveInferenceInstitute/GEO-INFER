@@ -107,7 +107,7 @@ def plot_contrast_results(
     }
 
 
-def _plot_qq_residuals(spm_result: SPMResult, ax):
+def _plot_qq_residuals(spm_result: SPMResult, ax: Any) -> None:
     """Plot Q-Q plot for residuals."""
     from scipy import stats
 
@@ -128,7 +128,7 @@ def _plot_qq_residuals(spm_result: SPMResult, ax):
     )
 
 
-def _plot_residuals_vs_fitted(spm_result: SPMResult, ax):
+def _plot_residuals_vs_fitted(spm_result: SPMResult, ax: Any) -> None:
     """Plot residuals vs fitted values."""
     residuals = spm_result.residuals
     fitted = spm_result.spm_data.data - residuals
@@ -149,7 +149,7 @@ def _plot_residuals_vs_fitted(spm_result: SPMResult, ax):
         logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
-def _plot_scale_location(spm_result: SPMResult, ax):
+def _plot_scale_location(spm_result: SPMResult, ax: Any) -> None:
     """Plot scale-location plot."""
     residuals = spm_result.residuals
     fitted = spm_result.spm_data.data - residuals
@@ -171,7 +171,7 @@ def _plot_scale_location(spm_result: SPMResult, ax):
         logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
-def _plot_residual_histogram(spm_result: SPMResult, ax):
+def _plot_residual_histogram(spm_result: SPMResult, ax: Any) -> None:
     """Plot residual histogram with normal distribution overlay."""
     residuals = spm_result.residuals
 
@@ -208,7 +208,7 @@ def _plot_residual_histogram(spm_result: SPMResult, ax):
         logger.debug("statsmodels is unavailable; skipping optional diagnostic overlay")
 
 
-def _plot_cooks_distance(spm_result: SPMResult, ax):
+def _plot_cooks_distance(spm_result: SPMResult, ax: Any) -> None:
     """Plot Cook's distance for influence diagnostics."""
     residuals = spm_result.residuals
     X = spm_result.design_matrix.matrix
@@ -245,7 +245,7 @@ def _plot_cooks_distance(spm_result: SPMResult, ax):
         )
 
 
-def _plot_leverage(spm_result: SPMResult, ax):
+def _plot_leverage(spm_result: SPMResult, ax: Any) -> None:
     """Plot leverage vs standardized residuals."""
     residuals = spm_result.residuals
     X = spm_result.design_matrix.matrix

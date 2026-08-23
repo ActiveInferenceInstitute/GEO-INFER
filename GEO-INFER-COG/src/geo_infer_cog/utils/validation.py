@@ -37,7 +37,8 @@ def validate_spatial_data(spatial_data: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Validation results with errors and warnings
     """
-    validation_result = {
+    validation_result: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -83,7 +84,8 @@ def validate_geometry(geometry: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Validation results for the geometry
     """
-    validation_result = {
+    validation_result: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -149,7 +151,8 @@ def validate_geometry(geometry: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_point_coordinates(coords: List[float]) -> Dict[str, Any]:
     """Validate Point coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -184,7 +187,8 @@ def validate_point_coordinates(coords: List[float]) -> Dict[str, Any]:
 
 def validate_linestring_coordinates(coords: List[List[float]]) -> Dict[str, Any]:
     """Validate LineString coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -222,7 +226,8 @@ def validate_linestring_coordinates(coords: List[List[float]]) -> Dict[str, Any]
 
 def validate_polygon_coordinates(coords: List[List[List[float]]]) -> Dict[str, Any]:
     """Validate Polygon coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -270,7 +275,8 @@ def validate_polygon_coordinates(coords: List[List[List[float]]]) -> Dict[str, A
 
 def validate_multipoint_coordinates(coords: List[List[float]]) -> Dict[str, Any]:
     """Validate MultiPoint coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -288,7 +294,8 @@ def validate_multipoint_coordinates(coords: List[List[float]]) -> Dict[str, Any]
 
 def validate_multilinestring_coordinates(coords: List[List[List[float]]]) -> Dict[str, Any]:
     """Validate MultiLineString coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -308,7 +315,8 @@ def validate_multilinestring_coordinates(coords: List[List[List[float]]]) -> Dic
 
 def validate_multipolygon_coordinates(coords: List[List[List[List[float]]]]) -> Dict[str, Any]:
     """Validate MultiPolygon coordinates."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -328,7 +336,8 @@ def validate_multipolygon_coordinates(coords: List[List[List[List[float]]]]) -> 
 
 def check_topological_validity(geometry: Dict[str, Any]) -> Dict[str, Any]:
     """Check topological validity of geometry."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -371,7 +380,8 @@ def do_edges_intersect(p1: List[float], p2: List[float],
 
 def check_data_completeness(spatial_data: Dict[str, Any]) -> Dict[str, Any]:
     """Check completeness of spatial data."""
-    completeness = {
+    completeness: Dict[str, Any] = {
+
         'completeness_score': 0.0,
         'missing_fields': [],
         'optional_fields_present': [],
@@ -415,7 +425,7 @@ def check_data_completeness(spatial_data: Dict[str, Any]) -> Dict[str, Any]:
         # Flatten coordinates for analysis
         all_coords = []
         if isinstance(coords, list):
-            def flatten_coords(c):
+            def flatten_coords(c: Any) -> None:
                 if isinstance(c, list):
                     for item in c:
                         if isinstance(item, list) and len(item) >= 2:
@@ -456,7 +466,8 @@ def validate_cognitive_model(model_config: Dict[str, Any],
     Returns:
         Validation results for the model configuration
     """
-    validation_result = {
+    validation_result: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -517,7 +528,8 @@ def validate_cognitive_model(model_config: Dict[str, Any],
 
 def validate_perception_model(config: Dict[str, Any]) -> Dict[str, Any]:
     """Validate perception model configuration."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': []
@@ -547,7 +559,8 @@ def validate_perception_model(config: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_reasoning_model(config: Dict[str, Any]) -> Dict[str, Any]:
     """Validate reasoning model configuration."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': []
@@ -574,7 +587,8 @@ def validate_reasoning_model(config: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_memory_model(config: Dict[str, Any]) -> Dict[str, Any]:
     """Validate memory model configuration."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': []
@@ -614,7 +628,8 @@ def validate_memory_model(config: Dict[str, Any]) -> Dict[str, Any]:
 
 def check_model_consistency(config: Dict[str, Any], model_type: str) -> Dict[str, Any]:
     """Check consistency of model configuration."""
-    consistency = {
+    consistency: Dict[str, Any] = {
+
         'consistent': True,
         'issues': []
     }
@@ -653,7 +668,8 @@ def validate_user_profile(profile_data: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Validation results for the profile
     """
-    validation_result = {
+    validation_result: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -717,7 +733,8 @@ def validate_configuration(config: Dict[str, Any], module_name: str = 'cog') -> 
     Returns:
         Validation results for the configuration
     """
-    validation_result = {
+    validation_result: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': [],
@@ -756,7 +773,8 @@ def validate_configuration(config: Dict[str, Any], module_name: str = 'cog') -> 
 
 def validate_core_config(core_config: Dict[str, Any]) -> Dict[str, Any]:
     """Validate core module configuration."""
-    validation = {
+    validation: Dict[str, Any] = {
+
         'valid': True,
         'errors': [],
         'warnings': []

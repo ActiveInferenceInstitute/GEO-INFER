@@ -44,9 +44,9 @@ try:
     from geo_infer_space.utils.config_loader import LocationConfigLoader
     _HAS_SPACE = True
 except ImportError:
-    PlaceAnalyzer = None  # type: ignore[misc,assignment]
-    DataIntegrator = None  # type: ignore[misc,assignment]
-    LocationConfigLoader = None  # type: ignore[misc,assignment]
+    PlaceAnalyzer = None
+    DataIntegrator = None
+    LocationConfigLoader = None
     _HAS_SPACE = False
     logging.getLogger(__name__).info(
         "geo_infer_space not installed; PlaceAnalyzer/DataIntegrator unavailable"

@@ -144,7 +144,7 @@ class ProfessionalDevelopment:
         profile = self._professionals[professional_id]
         records = self._ce_records[professional_id]
         
-        total_new_credits = 0
+        total_new_credits: float = 0.0
         for activity in activities:
             ce_activity = ContinuingEducationActivity(
                 activity_id=activity.get("id", f"ce_{len(records)}"),
@@ -157,11 +157,11 @@ class ProfessionalDevelopment:
                 verification=activity.get("verification")
             )
             records.append(ce_activity)
-            total_new_credits += ce_activity.credits_earned
+            total_new_credits += float(ce_activity.credits_earned)
         
         profile.continuing_education_credits += credits_earned or total_new_credits
         
-        summary = {
+        summary: Dict[str, Any] = {
             "professional_id": professional_id,
             "activities_tracked": len(activities),
             "credits_added": total_new_credits,
@@ -177,7 +177,7 @@ class ProfessionalDevelopment:
         records: List[ContinuingEducationActivity]
     ) -> Dict[str, float]:
         """Summarize credits by category."""
-        summary = {}
+        summary: Dict[str, float] = {}
         for record in records:
             category = record.category
             summary[category] = summary.get(category, 0) + record.credits_earned
@@ -297,7 +297,7 @@ class ProfessionalDevelopment:
         skill_gaps = list(required_skills - current_skill_set)
         matching_skills = list(required_skills.intersection(current_skill_set))
         
-        analysis = {
+        analysis: Dict[str, Any] = {
             "target_role": target_role,
             "current_skills": current_skills,
             "required_skills": list(required_skills),
@@ -308,13 +308,14 @@ class ProfessionalDevelopment:
         }
         
         if recommendations:
-            analysis["recommendations"] = []
+            recommendations_out: List[Dict[str, Any]] = []
+            analysis["recommendations"] = recommendations_out
             
             # Prioritize skill gaps
             priority_skills = skill_gaps[:3]  # Top 3 gaps
             
             for skill in priority_skills:
-                analysis["recommendations"].append({
+                recommendations_out.append({
                     "skill": skill,
                     "priority": "high",
                     "suggested_resources": [
@@ -345,16 +346,18 @@ class ProfessionalDevelopment:
         Returns:
             Professional portfolio structure
         """
-        portfolio = {
+        portfolio_sections: List[Dict[str, Any]] = []
+        competency_summary_out: Dict[str, Any] = {}
+        portfolio: Dict[str, Any] = {
             "format": format,
             "generated_at": datetime.now().isoformat(),
-            "sections": [],
-            "competency_summary": {},
+            "sections": portfolio_sections,
+            "competency_summary": competency_summary_out,
             "project_count": len(projects)
         }
         
         # Professional summary section
-        portfolio["sections"].append({
+        portfolio_sections.append({
             "section": "professional_summary",
             "title": "Professional Summary",
             "content_type": "text",
@@ -366,7 +369,7 @@ class ProfessionalDevelopment:
         for comps in competencies_demonstrated.values():
             all_competencies.update(comps)
         
-        portfolio["sections"].append({
+        portfolio_sections.append({
             "section": "technical_skills",
             "title": "Technical Skills",
             "content_type": "skills_matrix",
@@ -374,9 +377,9 @@ class ProfessionalDevelopment:
         })
         
         # Project showcase section
-        project_entries = []
+        project_entries: List[Dict[str, Any]] = []
         for project in projects:
-            entry = {
+            entry: Dict[str, Any] = {
                 "title": project.get("title", "Project"),
                 "description": project.get("description", ""),
                 "technologies": project.get("technologies", []),
@@ -385,7 +388,7 @@ class ProfessionalDevelopment:
             }
             project_entries.append(entry)
         
-        portfolio["sections"].append({
+        portfolio_sections.append({
             "section": "project_showcase",
             "title": "Project Showcase",
             "content_type": "projects",
@@ -397,7 +400,7 @@ class ProfessionalDevelopment:
             evidence_count = sum(
                 1 for comps in competencies_demonstrated.values() if comp in comps
             )
-            portfolio["competency_summary"][comp] = {
+            competency_summary_out[comp] = {
                 "demonstrated": True,
                 "evidence_count": evidence_count
             }
@@ -427,23 +430,24 @@ class ProfessionalDevelopment:
         records = self._ce_records.get(professional_id, [])
         
         cert_key = certification.lower().replace(" ", "_")
-        requirements = self.CERTIFICATION_REQUIREMENTS.get(cert_key, {})
+        req_mapping: Dict[str, Any] = self.CERTIFICATION_REQUIREMENTS.get(cert_key, {})
+        requirements: Any = req_mapping
         
-        required_credits = requirements.get("recertification_credits", 60)
-        period_years = requirements.get("recertification_period_years", 5)
+        required_credits = float(requirements.get("recertification_credits", 60))
+        period_years = float(requirements.get("recertification_period_years", 5))
         
         # Calculate credits in current period
         period_start = datetime.now() - timedelta(days=period_years * 365)
-        period_credits = sum(
+        period_credits = float(sum(
             r.credits_earned for r in records
             if r.date_completed >= period_start
-        )
+        ))
         
-        status = {
+        status: Dict[str, Any] = {
             "certification": certification,
             "required_credits": required_credits,
             "earned_credits": period_credits,
-            "remaining_credits": max(0, required_credits - period_credits),
+            "remaining_credits": max(0.0, required_credits - period_credits),
             "on_track": period_credits >= required_credits * 0.8,
             "period_end": (period_start + timedelta(days=period_years * 365)).isoformat(),
             "status": "complete" if period_credits >= required_credits else "in_progress"

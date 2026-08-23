@@ -9,7 +9,7 @@ environments.
 import sys
 import logging
 import structlog
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, cast
 
 # Define log levels according to GEO-INFER-OPS configuration
 LOG_LEVELS = {
@@ -36,7 +36,7 @@ def configure_logging(
     level = LOG_LEVELS.get(log_level.upper(), logging.INFO)
     
     # Configure structlog processors
-    processors = [
+    processors: list[Any] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
@@ -58,7 +58,7 @@ def configure_logging(
     )
     
     # Configure standard logging
-    handlers = [logging.StreamHandler(sys.stdout)]
+    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
     if log_file:
         handlers.append(logging.FileHandler(log_file))
     
@@ -78,7 +78,7 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     Returns:
         A structured logger instance
     """
-    return structlog.get_logger(name)
+    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name))
 
 class LoggingContext:
     """

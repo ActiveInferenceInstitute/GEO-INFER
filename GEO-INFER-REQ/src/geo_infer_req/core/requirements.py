@@ -259,10 +259,10 @@ class RequirementsAnalyzer:
         Returns:
             CompletenessReport with detailed findings.
         """
-        missing_desc = []
-        missing_criteria = []
-        missing_priorities = []
-        orphaned = []
+        missing_desc: List[str] = []
+        missing_criteria: List[str] = []
+        missing_priorities: List[str] = []
+        orphaned: List[str] = []
 
         all_ids = set(self._requirements.keys())
         referenced_ids: Set[str] = set()
@@ -359,10 +359,11 @@ class RequirementsAnalyzer:
                 if color[neighbor] == GRAY:
                     # Found a cycle, reconstruct it
                     cycle = [neighbor, node]
-                    current = node
-                    while parent.get(current) and parent[current] != neighbor:
-                        current = parent[current]
-                        cycle.append(current)
+                    curr: Optional[str] = node
+                    while curr and parent.get(curr) and parent[curr] != neighbor:
+                        curr = parent[curr]
+                        if curr:
+                            cycle.append(curr)
                     cycles.append(cycle)
                 elif color[neighbor] == WHITE:
                     parent[neighbor] = node
@@ -395,7 +396,7 @@ class RequirementsAnalyzer:
         if not dist:
             return [], 0
 
-        end_node = max(dist, key=dist.get)
+        end_node = max(dist, key=lambda k: dist[k])
         max_depth = dist[end_node]
 
         # Reconstruct path

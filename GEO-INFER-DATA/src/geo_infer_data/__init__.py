@@ -33,17 +33,17 @@ except ImportError:
     pass
 
 try:
-    from . import etl as etl
+    from . import etl as etl  # type: ignore[attr-defined]
 except ImportError:
     pass
 
 try:
-    from . import storage as storage
+    from . import storage as storage  # type: ignore[attr-defined]
 except ImportError:
     pass
 
 try:
-    from . import validation as validation
+    from . import validation as validation  # type: ignore[attr-defined]
 except ImportError:
     pass
 
@@ -131,7 +131,7 @@ def initialize_data_system(
     return system_components
 
 
-def validate_data_integrity(
+async def validate_data_integrity(
     datasets: List[str], quality_threshold: float = 0.8
 ) -> Dict[str, Any]:
     """
@@ -155,12 +155,12 @@ def validate_data_integrity(
         validation_rules="comprehensive", quality_threshold=quality_threshold
     )
 
-    validation_results = {}
+    validation_results: Dict[str, Any] = {}
     overall_scores = []
 
     for dataset_id in datasets:
         try:
-            report = quality_manager.validate_dataset(dataset_id)
+            report = await quality_manager.validate_dataset(dataset_id)
             validation_results[dataset_id] = report
             overall_scores.append(report.overall_score)
         except Exception as e:

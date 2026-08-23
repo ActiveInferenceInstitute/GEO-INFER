@@ -70,7 +70,7 @@ class EnvironmentalHealthAnalyzer:
         latest_reading_time = max(now, self.readings[-1].timestamp)
         start_time = latest_reading_time - timedelta(days=time_window_days)
 
-        avg_exposure_results = {}
+        avg_exposure_results: Dict[str, Optional[float]] = {}
         for loc in target_locations:
             relevant_readings = self.get_environmental_readings_near_location(
                 center_loc=loc,

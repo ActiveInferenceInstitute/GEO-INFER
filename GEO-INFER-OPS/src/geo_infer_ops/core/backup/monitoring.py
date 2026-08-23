@@ -49,7 +49,7 @@ QUEUE_SIZE = Gauge(
 def reset_metrics() -> None:
     """Reset all metrics."""
     prom.REGISTRY._collector_to_names.clear()
-    prom.REGISTRY._name_to_collector.clear()
+    prom.REGISTRY._names_to_collectors.clear()
 
 def record_request(method: str, endpoint: str, status: int, duration: float) -> None:
     """Record a request metric.
@@ -89,6 +89,7 @@ def record_metric(
     """
     labels = labels or {}
 
+    metric: Any
     if metric_type == "counter":
         metric = Counter(name, f"Counter metric {name}", list(labels.keys()))
     elif metric_type == "gauge":
@@ -119,8 +120,9 @@ def get_metric_value(
     labels = labels or {}
 
     for collector in METRICS_REGISTRY._collector_to_names:
-        if collector._name == name:
-            return collector.labels(**labels)._value.get()
+        c: Any = collector
+        if c._name == name:
+            return float(c.labels(**labels)._value.get())
 
     raise ValueError(f"Metric {name} not found")
 

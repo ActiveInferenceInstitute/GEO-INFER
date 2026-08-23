@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from collections import defaultdict
 import math
 from datetime import timedelta
@@ -74,7 +74,7 @@ class DiseaseHotspotAnalyzer:
         Returns:
             A list of dictionaries, each representing a hotspot with 'location', 'case_count', 'radius_km'.
         """
-        hotspots = []
+        hotspots: List[Dict[str, Any]] = []
         # This is a naive approach: iterate through each report as a potential center.
         # More sophisticated methods (e.g., DBSCAN, Getis-Ord Gi*) should be used for real applications.
         for report in self.reports:
@@ -122,7 +122,7 @@ class DiseaseHotspotAnalyzer:
         beta: float = 0.3,
         gamma: float = 0.1,
         days: int = 100
-    ) -> Dict[str, List[float]]:
+    ) -> Dict[str, Any]:
         """
         Simulate SIR (Susceptible-Infected-Recovered) disease spread model.
         
@@ -136,9 +136,9 @@ class DiseaseHotspotAnalyzer:
         Returns:
             Dictionary with time series for S, I, R compartments
         """
-        S = [population - initial_infected]
-        I = [initial_infected]
-        R = [0]
+        S: List[float] = [float(population - initial_infected)]
+        I: List[float] = [float(initial_infected)]
+        R: List[float] = [0.0]
         
         for _ in range(days - 1):
             s, i, r = S[-1], I[-1], R[-1]
@@ -198,7 +198,7 @@ class DiseaseHotspotAnalyzer:
                     "contact_case_id": getattr(report, 'id', str(id(report))),
                     "distance_km": round(distance, 4),
                     "time_difference_hours": round(time_diff, 2),
-                    "location": report.location.model_dump() if hasattr(report.location, 'model_dump') else {"lat": report.location.lat, "lon": report.location.lon},
+                    "location": report.location.model_dump() if hasattr(report.location, 'model_dump') else {"latitude": report.location.latitude, "longitude": report.location.longitude},
                     "report_date": str(report.report_date),
                     "risk_score": self._calculate_contact_risk(distance, time_diff, search_radius_km, time_window_hours)
                 }
@@ -225,7 +225,7 @@ class DiseaseHotspotAnalyzer:
         self,
         time_resolution: str = "daily",
         metric: str = "case_count"
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """
         Analyze temporal trends in disease reports.
         
@@ -242,7 +242,7 @@ class DiseaseHotspotAnalyzer:
         from collections import defaultdict
         
         # Group reports by time period
-        time_series = defaultdict(int)
+        time_series: Dict[str, int] = defaultdict(int)
         
         for report in self.reports:
             if time_resolution == "hourly":
@@ -299,7 +299,7 @@ class DiseaseHotspotAnalyzer:
         self,
         serial_interval_days: float = 5.0,
         window_days: int = 7
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """
         Estimate the effective reproduction number (Rt) over time.
         
@@ -314,7 +314,7 @@ class DiseaseHotspotAnalyzer:
             return {"error": "Insufficient data for Rt calculation"}
         
         # Group by day
-        daily_cases = defaultdict(int)
+        daily_cases: Dict[str, int] = defaultdict(int)
         for report in self.reports:
             day = report.report_date.strftime("%Y-%m-%d")
             daily_cases[day] += report.case_count
@@ -323,7 +323,7 @@ class DiseaseHotspotAnalyzer:
         case_counts = [daily_cases[d] for d in sorted_days]
         
         # Calculate Rt using ratio of cases method (simplified)
-        rt_values = []
+        rt_values: List[Dict[str, Any]] = []
         for i in range(window_days, len(case_counts)):
             current_window = sum(case_counts[i-window_days+1:i+1])
             previous_window = sum(case_counts[i-2*window_days+1:i-window_days+1]) if i >= 2*window_days else sum(case_counts[:i-window_days+1])
@@ -357,7 +357,7 @@ class DiseaseHotspotAnalyzer:
         self,
         grid_resolution_km: float = 1.0,
         bbox: Optional[Dict[str, float]] = None
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """
         Generate risk map data by gridding the study area.
         
@@ -373,8 +373,16 @@ class DiseaseHotspotAnalyzer:
         
         # Determine bounding box if not provided
         if bbox is None:
-            lats = [r.location.latitude for r in self.reports]
-            lons = [r.location.longitude for r in self.reports]
+            lats = [
+                r.location.latitude
+                for r in self.reports
+                if r.location.latitude is not None and r.location.longitude is not None
+            ]
+            lons = [
+                r.location.longitude
+                for r in self.reports
+                if r.location.latitude is not None and r.location.longitude is not None
+            ]
             margin = 0.1  # Add margin
             bbox = {
                 "min_lat": min(lats) - margin,

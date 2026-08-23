@@ -21,20 +21,20 @@ Integration Points:
 """
 
 import logging
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List, cast
 from datetime import datetime
 import traceback
 
 try:
     from flask import Flask, request, jsonify, Response
-    from flask_cors import CORS
+    from flask_cors import CORS  # type: ignore[import-untyped]
 
     FLASK_AVAILABLE = True
 except ImportError:
     FLASK_AVAILABLE = False
-    Flask = None
-    request = None
-    jsonify = None
+    Flask = None  # type: ignore[misc, assignment]
+    request = None  # type: ignore[assignment]
+    jsonify = None  # type: ignore[assignment]
     CORS = None
 
 try:
@@ -77,7 +77,7 @@ def create_cog_api_app(config: Optional[Dict[str, Any]] = None) -> Optional[Flas
         logger.warning("Flask not available - API functionality disabled")
         return None
 
-    app = Flask(__name__)
+    app: Any = Flask(__name__)
 
     # Enable CORS for cross-origin requests
     CORS(app)
@@ -125,8 +125,8 @@ def create_cog_api_app(config: Optional[Dict[str, Any]] = None) -> Optional[Flas
     register_error_handlers(app)
 
     # Register health check endpoint
-    @app.route("/health", methods=["GET"])
-    def health_check():
+    @app.route("/health", methods=["GET"])  # type: ignore[misc]
+    def health_check() -> Any:
         """Health check endpoint."""
         return jsonify(
             {
@@ -146,15 +146,15 @@ def create_cog_api_app(config: Optional[Dict[str, Any]] = None) -> Optional[Flas
             }
         )
 
-    return app
+    return cast(Optional[Flask], app)
 
 
-def register_api_routes(app: Flask) -> None:
+def register_api_routes(app: Any) -> None:
     """Register all API routes for the COG module."""
 
     # NLP Routes
-    @app.route("/nlp/analyze", methods=["POST"])
-    def analyze_text():
+    @app.route("/nlp/analyze", methods=["POST"])  # type: ignore[misc]
+    def analyze_text() -> Any:
         """Analyze text for spatial content."""
         try:
             data = request.get_json()
@@ -185,8 +185,8 @@ def register_api_routes(app: Flask) -> None:
             logger.error(f"Error in text analysis: {str(e)}")
             return jsonify({"error": str(e)}), 500
 
-    @app.route("/nlp/entities/extract", methods=["POST"])
-    def extract_entities():
+    @app.route("/nlp/entities/extract", methods=["POST"])  # type: ignore[misc]
+    def extract_entities() -> Any:
         """Extract spatial entities from text."""
         try:
             data = request.get_json()
@@ -218,8 +218,8 @@ def register_api_routes(app: Flask) -> None:
             logger.error(f"Error extracting entities: {str(e)}")
             return jsonify({"error": str(e)}), 500
 
-    @app.route("/nlp/sentiment/analyze", methods=["POST"])
-    def analyze_sentiment():
+    @app.route("/nlp/sentiment/analyze", methods=["POST"])  # type: ignore[misc]
+    def analyze_sentiment() -> Any:
         """Analyze sentiment in spatial text."""
         try:
             data = request.get_json()
@@ -277,8 +277,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # Reasoning Routes
-    @app.route("/reasoning/infer", methods=["POST"])
-    def perform_inference():
+    @app.route("/reasoning/infer", methods=["POST"])  # type: ignore[misc]
+    def perform_inference() -> Any:
         """Perform cognitive inference on spatial data."""
         try:
             data = request.get_json()
@@ -320,8 +320,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # Knowledge Management Routes
-    @app.route("/knowledge/extract", methods=["POST"])
-    def extract_knowledge():
+    @app.route("/knowledge/extract", methods=["POST"])  # type: ignore[misc]
+    def extract_knowledge() -> Any:
         """Extract structured knowledge from data."""
         try:
             data = request.get_json()
@@ -376,8 +376,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # Decision Support Routes
-    @app.route("/decision-support/analyze", methods=["POST"])
-    def analyze_decision():
+    @app.route("/decision-support/analyze", methods=["POST"])  # type: ignore[misc]
+    def analyze_decision() -> Any:
         """Analyze decision scenario."""
         try:
             data = request.get_json()
@@ -392,7 +392,7 @@ def register_api_routes(app: Flask) -> None:
                 app.decision_support = SpatialDecisionSupport()
 
             # No stakeholder profiles are inferred without submitted evidence.
-            stakeholder_profiles = []
+            stakeholder_profiles: List[UserCognitiveProfile] = []
             if not app.profile_manager:
                 app.profile_manager = ProfileManager()
 
@@ -422,8 +422,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # Visualization Routes
-    @app.route("/visualization/create", methods=["POST"])
-    def create_visualization():
+    @app.route("/visualization/create", methods=["POST"])  # type: ignore[misc]
+    def create_visualization() -> Any:
         """Create cognitively optimized visualization."""
         try:
             data = request.get_json()
@@ -489,8 +489,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # Cognitive Processing Routes
-    @app.route("/cognitive/process", methods=["POST"])
-    def process_cognitive():
+    @app.route("/cognitive/process", methods=["POST"])  # type: ignore[misc]
+    def process_cognitive() -> Any:
         """Process spatial data through cognitive pipeline."""
         try:
             data = request.get_json()
@@ -553,8 +553,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # User Profile Routes
-    @app.route("/profiles/<user_id>", methods=["GET"])
-    def get_user_profile(user_id):
+    @app.route("/profiles/<user_id>", methods=["GET"])  # type: ignore[misc]
+    def get_user_profile(user_id: str) -> Any:
         """Get user cognitive profile."""
         try:
             if not app.profile_manager:
@@ -572,8 +572,8 @@ def register_api_routes(app: Flask) -> None:
             logger.error(f"Error getting user profile: {str(e)}")
             return jsonify({"error": str(e)}), 500
 
-    @app.route("/profiles/<user_id>", methods=["POST"])
-    def create_user_profile(user_id):
+    @app.route("/profiles/<user_id>", methods=["POST"])  # type: ignore[misc]
+    def create_user_profile(user_id: str) -> Any:
         """Create or update user cognitive profile."""
         try:
             data = request.get_json()
@@ -607,8 +607,8 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
     # System Management Routes
-    @app.route("/system/status", methods=["GET"])
-    def get_system_status():
+    @app.route("/system/status", methods=["GET"])  # type: ignore[misc]
+    def get_system_status() -> Any:
         """Get system status and component health."""
         try:
             return jsonify(
@@ -633,11 +633,11 @@ def register_api_routes(app: Flask) -> None:
             logger.error(f"Error getting system status: {str(e)}")
             return jsonify({"error": str(e)}), 500
 
-    @app.route("/system/metrics", methods=["GET"])
-    def get_system_metrics():
+    @app.route("/system/metrics", methods=["GET"])  # type: ignore[misc]
+    def get_system_metrics() -> Any:
         """Get system performance metrics."""
         try:
-            metrics = {
+            metrics: Dict[str, Any] = {
                 "timestamp": datetime.now().isoformat(),
                 "uptime_seconds": 0,  # Would be calculated from start time
                 "requests_processed": 0,  # Would be tracked
@@ -672,27 +672,27 @@ def register_api_routes(app: Flask) -> None:
             return jsonify({"error": str(e)}), 500
 
 
-def register_error_handlers(app: Flask) -> None:
+def register_error_handlers(app: Any) -> None:
     """Register error handlers for the API."""
 
-    @app.errorhandler(400)
-    def bad_request(error):
+    @app.errorhandler(400)  # type: ignore[misc]
+    def bad_request(error: Any) -> Any:
         return jsonify({"error": "Bad Request", "message": str(error)}), 400
 
-    @app.errorhandler(404)
-    def not_found(error):
+    @app.errorhandler(404)  # type: ignore[misc]
+    def not_found(error: Any) -> Any:
         return jsonify({"error": "Not Found", "message": str(error)}), 404
 
-    @app.errorhandler(405)
-    def method_not_allowed(error):
+    @app.errorhandler(405)  # type: ignore[misc]
+    def method_not_allowed(error: Any) -> Any:
         return jsonify({"error": "Method Not Allowed", "message": str(error)}), 405
 
-    @app.errorhandler(413)
-    def payload_too_large(error):
+    @app.errorhandler(413)  # type: ignore[misc]
+    def payload_too_large(error: Any) -> Any:
         return jsonify({"error": "Payload Too Large", "message": str(error)}), 413
 
-    @app.errorhandler(500)
-    def internal_server_error(error):
+    @app.errorhandler(500)  # type: ignore[misc]
+    def internal_server_error(error: Any) -> Any:
         logger.error(f"Internal server error: {str(error)}")
         logger.error(traceback.format_exc())
         return (
@@ -705,8 +705,8 @@ def register_error_handlers(app: Flask) -> None:
             500,
         )
 
-    @app.errorhandler(Exception)
-    def handle_exception(error):
+    @app.errorhandler(Exception)  # type: ignore[misc]
+    def handle_exception(error: Any) -> Any:
         logger.error(f"Unhandled exception: {str(error)}")
         logger.error(traceback.format_exc())
         return (
@@ -731,7 +731,7 @@ def run_api_server(
         port: Port to bind the server to
         debug: Enable debug mode
     """
-    app = create_cog_api_app()
+    app = cast(Flask, create_cog_api_app())
 
     logger.info(f"Starting COG API server on {host}:{port}")
     app.run(host=host, port=port, debug=debug)

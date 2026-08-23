@@ -2,7 +2,7 @@
 Map styling and theming components for advanced cartographic design.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -104,7 +104,7 @@ class MapStyle:
         """
         self.name = name
         self.theme = theme or name
-        self.parameters = parameters or {}
+        self.parameters: Dict[str, Any] = parameters or {}
 
         # Load style configuration
         if name in self.PREDEFINED_STYLES:
@@ -134,7 +134,7 @@ class MapStyle:
         cls,
         theme: str,
         color_palette: Optional[Union[str, ColorPalette]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> "MapStyle":
         """
         Create a style based on a visual theme.
@@ -284,7 +284,9 @@ class MapStyle:
         Returns:
             List of color strings
         """
-        return self.parameters.get("colors", ["#1f77b4", "#ff7f0e", "#2ca02c"])
+        return cast(
+            List[str], self.parameters.get("colors", ["#1f77b4", "#ff7f0e", "#2ca02c"])
+        )
 
     def get_line_width(self) -> float:
         """
@@ -293,7 +295,7 @@ class MapStyle:
         Returns:
             Line width as float
         """
-        return self.parameters.get("line_width", 1.0)
+        return cast(float, self.parameters.get("line_width", 1.0))
 
     def get_background_color(self) -> str:
         """
@@ -302,7 +304,7 @@ class MapStyle:
         Returns:
             Background color string
         """
-        return self.parameters.get("background", "#ffffff")
+        return cast(str, self.parameters.get("background", "#ffffff"))
 
     def __repr__(self) -> str:
         """Return a string representation of the MapStyle object."""

@@ -11,7 +11,7 @@ perception, learning and decision-making as minimizing variational free energy.
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 import torch
 import torch.nn as nn
@@ -62,7 +62,7 @@ class GenerativeModel(nn.Module):
         state_dim: int,
         obs_dim: int,
         action_dim: int,
-        config: ActiveInferenceConfig = None,
+        config: Optional[ActiveInferenceConfig] = None,
     ):
         """
         Initialize the generative model.
@@ -132,7 +132,7 @@ class GenerativeModel(nn.Module):
         Returns:
             Neural network model
         """
-        layers = []
+        layers: List[nn.Module] = []
 
         # Input layer
         layers.append(nn.Linear(input_dim, self.config.hidden_size))
@@ -324,7 +324,9 @@ class GenerativeModel(nn.Module):
         # 6. Combine epistemic and pragmatic value
         # Note: In active inference, we want to minimize expected free energy
         # which is the sum of expected surprisal and expected divergence
-        G = -self.config.precision * epistemic_value - pragmatic_value
+        G: torch.Tensor = (
+            -self.config.precision * epistemic_value - pragmatic_value
+        )
 
         return G
 
@@ -508,7 +510,7 @@ class ActiveInferenceAgent:
         self.model = GenerativeModel(state_dim, obs_dim, action_dim, config=ai_config)
 
         # Buffer for experience
-        self.experience_buffer = {
+        self.experience_buffer: Dict[str, List[np.ndarray]] = {
             "states": [],
             "actions": [],
             "next_states": [],
@@ -674,7 +676,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # Create a simple test environment
-    def simple_env(state, action):
+    def simple_env(
+        state: np.ndarray, action: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Simple environment for testing."""
         # Next state is current state + action
         next_state = state + action

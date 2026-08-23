@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 from typing import Iterable, Optional
 
 from geo_infer_act.runners.cli import build_parser, config_from_args
@@ -25,8 +26,9 @@ def run_scenario_entrypoint(
         config.scenario = default_scenario
     command = [program or "geo-infer-act-run", *args_list]
 
+    manifest_path: Path
     if config.scenario == "all":
-        result = run_all_scenarios(
+        all_result = run_all_scenarios(
             output_dir=config.output_dir,
             scenarios=["simple", "spatial"] if args.quick else None,
             seed=config.seed,
@@ -35,10 +37,10 @@ def run_scenario_entrypoint(
             visualizations=config.visualizations,
             command=command,
         )
-        manifest_path = result.manifest_path
+        manifest_path = all_result.manifest_path
     else:
-        result = run_scenario(config, command=command)
-        manifest_path = result.manifest_path
+        scen_result = run_scenario(config, command=command)
+        manifest_path = scen_result.manifest_path
 
     payload = {"manifest": str(manifest_path)}
     print(json.dumps(payload) if args.json else f"Manifest: {manifest_path}")

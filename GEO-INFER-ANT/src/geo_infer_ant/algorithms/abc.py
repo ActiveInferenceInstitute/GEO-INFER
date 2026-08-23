@@ -15,7 +15,7 @@ Key Features:
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, List, Any, Optional, Callable, cast
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
@@ -30,11 +30,11 @@ class ABCParameters:
     scout_bees_ratio: float = 0.1
     dimensions: int = 2
     bounds: List[tuple] = field(default_factory=lambda: [(-10, 10), (-10, 10)])
-    max_trials: int = 50  # Abandonment threshold
-    limit: int = 100  # Maximum trials before abandonment
+    max_trials: float = 50.0  # Abandonment threshold
+    limit: float = 100.0  # Maximum trials before abandonment
     max_iterations: int = 1000
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate parameters after initialization."""
         if self.colony_size <= 0:
             raise ValueError("Colony size must be positive")
@@ -82,7 +82,7 @@ class ArtificialBeeColony:
         bounds: Optional[List[tuple]] = None,
         max_trials: int = 50,
         limit: int = 100,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         Initialize ABC algorithm.
@@ -208,9 +208,10 @@ class ArtificialBeeColony:
         logger.info(
             f"ABC optimization completed: best fitness = {self.global_best_fitness}"
         )
-        if self.global_best_position is None:
+        best = cast(Optional[np.ndarray], self.global_best_position)
+        if best is None:
             raise RuntimeError("ABC completed without a valid food source")
-        return self.global_best_position.copy()
+        return best.copy()
 
     def _initialize_food_sources(self) -> None:
         """Initialize food sources randomly."""
@@ -336,9 +337,10 @@ class ArtificialBeeColony:
     ) -> float:
         """Evaluate fitness of a solution."""
         # ABC uses maximization, so convert minimization problem
-        objective_value = objective_function(position)
-        if not np.isscalar(objective_value) or not np.isfinite(objective_value):
+        raw_value = objective_function(position)
+        if not np.isscalar(raw_value) or not np.isfinite(raw_value):
             raise ValueError("objective_function must return a finite scalar")
+        objective_value = float(cast(Any, raw_value))
         if objective_value >= 0:
             return 1.0 / (1.0 + objective_value)
         else:
@@ -355,7 +357,7 @@ class ArtificialBeeColony:
         if not np.isfinite(total_fitness) or total_fitness <= 0:
             return np.ones(len(self.food_sources)) / len(self.food_sources)
 
-        return fitness_values / total_fitness
+        return np.asarray(fitness_values / total_fitness)
 
     def _update_global_best(self) -> None:
         """Update global best solution."""
@@ -387,7 +389,7 @@ class ArtificialBeeColony:
         fitness_change = np.abs(np.diff(recent_fitness))
         avg_change = np.mean(fitness_change)
 
-        return avg_change < 1e-6
+        return bool(avg_change < 1e-6)
 
     def manage_food_sources(
         self,
@@ -493,7 +495,7 @@ class ArtificialBeeColony:
         """
         logger.info(f"Adapting foraging strategy using {behavioral_adaptation}")
 
-        adaptation_results = {
+        adaptation_results: Dict[str, Any] = {
             "adaptation_type": behavioral_adaptation,
             "parameters_updated": {},
             "strategy_changes": [],

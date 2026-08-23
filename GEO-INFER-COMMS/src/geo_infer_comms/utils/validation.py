@@ -12,7 +12,7 @@ import re
 import math
 from datetime import datetime, timezone
 
-def validate_coordinates(longitude: float, latitude: float) -> bool:
+def validate_coordinates(longitude: Any, latitude: Any) -> bool:
     """
     Validate longitude and latitude coordinates.
 
@@ -61,7 +61,7 @@ def validate_crs(crs: str) -> bool:
     return crs in valid_crs
 
 
-def validate_email(email: str) -> bool:
+def validate_email(email: Any) -> bool:
     """
     Validate email address format.
 
@@ -80,7 +80,7 @@ def validate_email(email: str) -> bool:
     return bool(re.match(pattern, email))
 
 
-def validate_phone(phone: str) -> bool:
+def validate_phone(phone: Any) -> bool:
     """
     Validate phone number format.
 
@@ -106,7 +106,7 @@ def validate_phone(phone: str) -> bool:
     return True
 
 
-def validate_message_content(content: str, max_length: int = 10000) -> bool:
+def validate_message_content(content: Any, max_length: int = 10000) -> bool:
     """
     Validate message content.
 
@@ -160,7 +160,7 @@ def validate_message_type(message_type: str) -> bool:
     return message_type.lower() in valid_types
 
 
-def validate_user_id(user_id: str) -> bool:
+def validate_user_id(user_id: Any) -> bool:
     """
     Validate user identifier format.
 
@@ -199,7 +199,7 @@ def validate_channel_id(channel_id: str) -> bool:
     return validate_user_id(channel_id)  # Same format as user ID
 
 
-def validate_spatial_bounds(bounds: Dict[str, Any]) -> bool:
+def validate_spatial_bounds(bounds: Any) -> bool:
     """
     Validate spatial bounds structure.
 
@@ -241,7 +241,7 @@ def validate_spatial_bounds(bounds: Dict[str, Any]) -> bool:
         return False
 
 
-def validate_geojson_feature(feature: Dict[str, Any]) -> bool:
+def validate_geojson_feature(feature: Any) -> bool:
     """
     Validate GeoJSON Feature structure.
 
@@ -273,7 +273,7 @@ def validate_geojson_feature(feature: Dict[str, Any]) -> bool:
     return True
 
 
-def validate_geojson_geometry(geometry: Dict[str, Any]) -> bool:
+def validate_geojson_geometry(geometry: Any) -> bool:
     """
     Validate GeoJSON Geometry structure.
 
@@ -330,7 +330,7 @@ def validate_notification_type(notification_type: str) -> bool:
     return notification_type.lower() in valid_types
 
 
-def validate_delivery_methods(methods: List[str]) -> bool:
+def validate_delivery_methods(methods: Any) -> bool:
     """
     Validate notification delivery methods.
 
@@ -364,7 +364,7 @@ def validate_event_type(event_type: str) -> bool:
     return event_type.lower() in valid_types
 
 
-def validate_timestamp(timestamp: Union[str, datetime]) -> bool:
+def validate_timestamp(timestamp: Any) -> bool:
     """
     Validate timestamp format and value.
 
@@ -391,7 +391,7 @@ def validate_timestamp(timestamp: Union[str, datetime]) -> bool:
         return False
 
 
-def validate_url(url: str) -> bool:
+def validate_url(url: Any) -> bool:
     """
     Validate URL format.
 
@@ -428,7 +428,7 @@ def validate_file_size(size_bytes: int, max_size_mb: float = 10.0) -> bool:
     return size_bytes <= max_bytes
 
 
-def validate_message_recipients(recipients: List[str]) -> bool:
+def validate_message_recipients(recipients: Any) -> bool:
     """
     Validate list of message recipients.
 
@@ -450,7 +450,7 @@ def validate_message_recipients(recipients: List[str]) -> bool:
     return all(validate_user_id(recipient) for recipient in recipients)
 
 
-def validate_spatial_filter(filter_config: Dict[str, Any]) -> bool:
+def validate_spatial_filter(filter_config: Any) -> bool:
     """
     Validate spatial filter configuration.
 
@@ -492,7 +492,7 @@ def validate_spatial_filter(filter_config: Dict[str, Any]) -> bool:
     return True
 
 
-def validate_collaboration_session(session_config: Dict[str, Any]) -> bool:
+def validate_collaboration_session(session_config: Any) -> bool:
     """
     Validate collaboration session configuration.
 
@@ -546,7 +546,7 @@ def validate_collaboration_session(session_config: Dict[str, Any]) -> bool:
     return True
 
 
-def validate_stream_config(stream_config: Dict[str, Any]) -> bool:
+def validate_stream_config(stream_config: Any) -> bool:
     """
     Validate data stream configuration.
 
@@ -583,7 +583,7 @@ def validate_stream_config(stream_config: Dict[str, Any]) -> bool:
     return True
 
 
-def sanitize_message_content(content: str) -> str:
+def sanitize_message_content(content: Any) -> str:
     """
     Sanitize message content to prevent XSS and other issues.
 
@@ -613,7 +613,7 @@ def sanitize_message_content(content: str) -> str:
     return sanitized.strip()
 
 
-def validate_and_sanitize_inputs(**kwargs) -> Dict[str, Any]:
+def validate_and_sanitize_inputs(**kwargs: Any) -> Dict[str, Any]:
     """
     Validate and sanitize multiple input parameters.
 
@@ -649,7 +649,7 @@ def validate_and_sanitize_inputs(**kwargs) -> Dict[str, Any]:
     return results
 
 
-def validate_configuration(config: Dict[str, Any], required_keys: List[str]) -> bool:
+def validate_configuration(config: Any, required_keys: List[str]) -> bool:
     """
     Validate configuration dictionary against required keys.
 

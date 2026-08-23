@@ -5,7 +5,7 @@ This module provides intelligent test discovery capabilities across all
 GEO-INFER modules, supporting various test types and patterns.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 import ast
 import re
@@ -122,7 +122,7 @@ class TestDiscoverer:
 
     def _discover_module_tests(self, module: str) -> Dict[str, List[str]]:
         """Discover tests for a specific module."""
-        module_tests = {}
+        module_tests: Dict[str, List[str]] = {}
         module_path = self.base_path / f"GEO-INFER-{module}"
 
         if not module_path.exists():
@@ -149,7 +149,7 @@ class TestDiscoverer:
 
     def _find_test_files(self, directory: Path) -> List[str]:
         """Find test files in a directory."""
-        test_files = []
+        test_files: List[str] = []
 
         if not directory.exists():
             return test_files
@@ -173,12 +173,15 @@ class TestDiscoverer:
 
         return False
 
-    def analyze_test_file(self, file_path: Path) -> Dict:
+    def analyze_test_file(self, file_path: Path) -> Dict[str, Any]:
         """Analyze a test file to extract metadata."""
-        metadata = {
-            "functions": [],
-            "classes": [],
-            "imports": [],
+        funcs_out: List[Dict[str, Any]] = []
+        classes_out: List[Dict[str, Any]] = []
+        imports_out: List[str] = []
+        metadata: Dict[str, Any] = {
+            "functions": funcs_out,
+            "classes": classes_out,
+            "imports": imports_out,
             "dependencies": [],
             "docstring": None,
             "framework": "unknown",
@@ -204,7 +207,7 @@ class TestDiscoverer:
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
                     if node.name.startswith("test_"):
-                        metadata["functions"].append(
+                        funcs_out.append(
                             {
                                 "name": node.name,
                                 "line": node.lineno,
@@ -214,7 +217,7 @@ class TestDiscoverer:
 
                 elif isinstance(node, ast.ClassDef):
                     if "test" in node.name.lower():
-                        metadata["classes"].append(
+                        classes_out.append(
                             {
                                 "name": node.name,
                                 "line": node.lineno,
@@ -224,14 +227,14 @@ class TestDiscoverer:
 
                 elif isinstance(node, ast.Import):
                     for alias in node.names:
-                        metadata["imports"].append(alias.name)
+                        imports_out.append(alias.name)
 
                 elif isinstance(node, ast.ImportFrom):
                     if node.module:
-                        metadata["imports"].append(node.module)
+                        imports_out.append(node.module)
 
             # Detect testing framework
-            metadata["framework"] = self._detect_framework(metadata["imports"])
+            metadata["framework"] = self._detect_framework(imports_out)
 
         except Exception as exc:
             # A parse failure means this test file is NOT being discovered;
@@ -258,24 +261,27 @@ class TestDiscoverer:
 
         return "unknown"
 
-    def get_test_statistics(self) -> Dict:
+    def get_test_statistics(self) -> Dict[str, Any]:
         """Get statistics about discovered tests."""
-        stats = {
+        tests_by_type: Dict[str, int] = {}
+        tests_by_module: Dict[str, int] = {}
+        total_files = 0
+        stats: Dict[str, Any] = {
             "total_modules": len(self.discovered_tests),
-            "total_test_files": 0,
-            "tests_by_type": {},
-            "tests_by_module": {},
+            "total_test_files": total_files,
+            "tests_by_type": tests_by_type,
+            "tests_by_module": tests_by_module,
         }
 
         for module, test_types in self.discovered_tests.items():
             module_total = sum(len(files) for files in test_types.values())
-            stats["tests_by_module"][module] = module_total
-            stats["total_test_files"] += module_total
+            tests_by_module[module] = module_total
+            total_files += module_total
 
             for test_type, files in test_types.items():
-                if test_type not in stats["tests_by_type"]:
-                    stats["tests_by_type"][test_type] = 0
-                stats["tests_by_type"][test_type] += len(files)
+                if test_type not in tests_by_type:
+                    tests_by_type[test_type] = 0
+                tests_by_type[test_type] += len(files)
 
         return stats
 
@@ -313,11 +319,15 @@ class TestDiscoverer:
 
     def validate_test_structure(self) -> Dict[str, List[str]]:
         """Validate the structure of discovered tests."""
-        issues = {
-            "missing_test_dirs": [],
-            "empty_test_dirs": [],
-            "malformed_test_files": [],
-            "missing_init_files": [],
+        missing_dirs: List[str] = []
+        empty_dirs: List[str] = []
+        malformed_files: List[str] = []
+        missing_inits: List[str] = []
+        issues: Dict[str, List[str]] = {
+            "missing_test_dirs": missing_dirs,
+            "empty_test_dirs": empty_dirs,
+            "malformed_test_files": malformed_files,
+            "missing_init_files": missing_inits,
         }
 
         for module in self._find_all_modules():
@@ -325,13 +335,13 @@ class TestDiscoverer:
             tests_path = module_path / "tests"
 
             if not tests_path.exists():
-                issues["missing_test_dirs"].append(module)
+                missing_dirs.append(module)
                 continue
 
             # Check for empty test directories
             test_files = list(tests_path.rglob("test_*.py"))
             if not test_files:
-                issues["empty_test_dirs"].append(module)
+                empty_dirs.append(module)
 
             # Check for __init__.py files in test directories
             for test_type in self.SUPPORTED_TEST_TYPES:
@@ -339,6 +349,6 @@ class TestDiscoverer:
                 if test_type_path.exists() and test_type_path.is_dir():
                     init_file = test_type_path / "__init__.py"
                     if not init_file.exists():
-                        issues["missing_init_files"].append(f"{module}/{test_type}")
+                        missing_inits.append(f"{module}/{test_type}")
 
         return issues

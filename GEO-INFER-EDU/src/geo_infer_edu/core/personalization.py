@@ -137,10 +137,7 @@ class PersonalizedLearning:
             Personalized LearningPathway
         """
         # Register or update learner
-        if isinstance(learner_profile, dict):
-            profile = self.register_learner(learner_profile)
-        else:
-            profile = learner_profile
+        profile = self.register_learner(learner_profile)
 
         # Parse constraints
         time_constraint = constraints.get("time", "20_hours")
@@ -232,13 +229,13 @@ class PersonalizedLearning:
             logger.warning(f"Learner {learner_id} not found")
             return []
 
-        resource_types = set(resource_types or [])
+        resource_type_set = set(resource_types or [])
         preferred = set(self._get_preferred_formats(profile.learning_style))
-        recommendations = []
+        recommendations: List[Dict[str, Any]] = []
         for resource in self._resource_library.values():
             if resource.topic != current_topic:
                 continue
-            if resource_types and resource.resource_type not in resource_types:
+            if resource_type_set and resource.resource_type not in resource_type_set:
                 continue
             if difficulty != "appropriate" and resource.difficulty != difficulty:
                 continue
@@ -254,7 +251,7 @@ class PersonalizedLearning:
             )
 
         # Sort by relevance
-        recommendations.sort(key=lambda x: x["relevance_score"], reverse=True)
+        recommendations.sort(key=lambda x: float(x["relevance_score"] or 0), reverse=True)
 
         logger.info(
             f"Generated {len(recommendations)} recommendations for {learner_id}"
@@ -436,7 +433,7 @@ class PersonalizedLearning:
         Returns:
             Review schedule
         """
-        schedule = []
+        schedule: List[Dict[str, Any]] = []
         now = datetime.now()
 
         # Spaced repetition intervals (days)

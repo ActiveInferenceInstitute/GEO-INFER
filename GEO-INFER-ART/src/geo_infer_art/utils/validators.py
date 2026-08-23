@@ -3,7 +3,7 @@ Validation functions for file paths, geospatial data, and other inputs.
 """
 
 import os
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 
 import geopandas as gpd
 import numpy as np
@@ -11,7 +11,7 @@ import numpy as np
 
 def validate_file_path(
     file_path: str, 
-    extensions: List[str] = None
+    extensions: Optional[List[str]] = None
 ) -> None:
     """
     Validate that a file path exists and has the correct extension.

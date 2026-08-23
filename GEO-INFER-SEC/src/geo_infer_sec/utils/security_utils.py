@@ -10,7 +10,7 @@ import hmac
 import secrets
 import base64
 import os
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any, Tuple, cast
 from dataclasses import dataclass
 import logging
 import json
@@ -68,8 +68,8 @@ class SecurityUtils:
             config: Security configuration
         """
         self.config = config or SecurityConfig()
-        self.failed_attempts = {}
-        self.audit_log = []
+        self.failed_attempts: Dict[str, Tuple[int, datetime]] = {}
+        self.audit_log: List[Dict[str, Any]] = []
         # Stable HMAC key for token sign/verify. Prefer an explicit secret,
         # then the env var, then a per-process random key.
         secret = self.config.token_secret or os.getenv("GEO_INFER_TOKEN_SECRET")
@@ -364,7 +364,7 @@ class SecurityUtils:
         
         return permissions.get(role, [])
     
-    def record_failed_attempt(self, user_id: str):
+    def record_failed_attempt(self, user_id: str) -> None:
         """Record a failed authentication attempt."""
         now = datetime.now()
         
@@ -374,12 +374,12 @@ class SecurityUtils:
         else:
             self.failed_attempts[user_id] = (1, now)
     
-    def _log_audit_event(self, 
-                        user_id: str, 
-                        resource: str, 
-                        action: str, 
-                        result: str, 
-                        reason: Optional[str] = None):
+    def _log_audit_event(self,
+                        user_id: str,
+                        resource: str,
+                        action: str,
+                        result: str,
+                        reason: Optional[str] = None) -> None:
         """Log an audit event."""
         if not self.config.enable_audit_logging:
             return
@@ -425,7 +425,7 @@ class SecurityUtils:
         
         return filtered_log
     
-    def cleanup_audit_log(self):
+    def cleanup_audit_log(self) -> None:
         """Remove old audit log entries based on retention policy."""
         if not self.config.enable_audit_logging:
             return
@@ -507,7 +507,7 @@ class SecurityUtils:
             if datetime.now() > exp:
                 return None
             
-            return payload['user_id']
+            return cast(str, payload['user_id'])
             
         except Exception as e:
             logger.warning(f"Token validation failed: {e}")
@@ -580,4 +580,53 @@ def verify_password_simple(password: str, stored_hash: str) -> bool:
         salt = hash_data[-16:]
         return SecurityUtils().verify_password(password, hash_obj, salt)
     except Exception:
-        return False 
+        return False
+
+
+def generate_secure_token(length: int = 32) -> str:
+    """Generate a URL-safe random token of the given byte length."""
+    return secrets.token_urlsafe(length)
+
+
+_PII_COLUMN_HINTS = (
+    "email", "phone", "ssn", "social", "birthdate", "birth", "address",
+    "first_name", "last_name", "full_name", "passport", "driver", "license",
+    "account", "card", "iban", "tax", "medical", "pin",
+)
+
+
+def check_pii_columns(df: pd.DataFrame) -> List[str]:
+    """Return columns whose names suggest they hold personally identifiable data."""
+    lowered = {str(col).lower(): str(col) for col in df.columns}
+    return [lowered[keyword] for keyword in _PII_COLUMN_HINTS if keyword in lowered]
+
+
+def validate_spatial_bounds(gdf: Any) -> bool:
+    """Return True if a GeoDataFrame's bounds fall within WGS84 extents."""
+    import geopandas as gpd
+
+    if not isinstance(gdf, gpd.GeoDataFrame) or gdf.empty:
+        return False
+    lon_min, lat_min, lon_max, lat_max = gdf.total_bounds
+    in_lon = -180.0 <= lon_min <= 180.0 and -180.0 <= lon_max <= 180.0
+    in_lat = -90.0 <= lat_min <= 90.0 and -90.0 <= lat_max <= 90.0
+    return bool(in_lon and in_lat)
+
+
+def detect_outliers(gdf: Any) -> pd.DataFrame:
+    """Flag rows whose centroids fall outside the inter-quartile range."""
+    import geopandas as gpd
+
+    if not isinstance(gdf, gpd.GeoDataFrame) or gdf.empty:
+        result = pd.DataFrame(index=range(len(gdf)))
+        result['is_outlier'] = False
+        return result
+
+    centroids = gdf.geometry.centroid
+    q25 = centroids.x.quantile(0.25)
+    q75 = centroids.y.quantile(0.75)
+    iqr = q75 - q25
+    lower, upper = q25 - 1.5 * iqr, q75 + 1.5 * iqr
+    result = gdf.copy()
+    result['is_outlier'] = (centroids.y < lower) | (centroids.y > upper)
+    return result 

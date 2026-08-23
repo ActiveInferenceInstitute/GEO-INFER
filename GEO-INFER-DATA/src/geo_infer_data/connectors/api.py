@@ -6,7 +6,7 @@ GraphQL endpoints, and various web services that provide geospatial data.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any, cast
 import asyncio
 import json
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ import time
 
 import aiohttp
 import requests
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]
 from urllib3.util.retry import Retry
 
 from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
@@ -74,7 +74,7 @@ class APIConnector:
         self.timeout = timeout
         self.retries = retries
 
-        self.session = None
+        self.session: Any = None
         self.request_count = 0
         self.last_request_time = datetime.now()
 
@@ -82,10 +82,10 @@ class APIConnector:
 
         logger.info(f"Initialized API connector for {base_url}")
 
-    def _initialize_session(self):
+    def _initialize_session(self) -> None:
         """Initialize HTTP session with retry strategy."""
         # Configure retry strategy
-        retry_strategy = Retry(
+        retry_strategy = Retry(  # type: ignore[call-arg]
             total=self.retries,
             status_forcelist=[429, 500, 502, 503, 504],
             method_whitelist=["HEAD", "GET", "OPTIONS"],
@@ -110,13 +110,13 @@ class APIConnector:
                 if token:
                     self.session.headers.update({'Authorization': f'Bearer {token}'})
             elif auth_type == 'basic':
-                from requests.auth import HTTPBasicAuth
+                from requests.auth import HTTPBasicAuth  # type: ignore[import-untyped]
                 username = self.authentication.get('username')
                 password = self.authentication.get('password')
                 if username and password:
                     self.session.auth = HTTPBasicAuth(username, password)
 
-    def _check_rate_limit(self):
+    def _check_rate_limit(self) -> None:
         """Check and enforce rate limiting."""
         if 'requests_per_minute' in self.rate_limiting:
             max_requests = self.rate_limiting['requests_per_minute']
@@ -176,7 +176,7 @@ class APIConnector:
             content_type = response.headers.get('content-type', '')
 
             if 'application/json' in content_type:
-                return response.json()
+                return cast(Dict[str, Any], response.json())
             elif 'text/' in content_type:
                 return {'text': response.text}
             else:
@@ -192,7 +192,7 @@ class APIConnector:
         spatial_filter: Optional[Dict[str, Any]] = None,
         temporal_filter: Optional[Dict[str, Any]] = None,
         pagination: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs: Any
     ) -> List[Dict[str, Any]]:
         """
         Query geospatial data from API with spatial and temporal filters.
@@ -269,7 +269,7 @@ class APIConnector:
                         all_results.append(data)
                         break
                 else:
-                    all_results.append(response)
+                    all_results.append(response)  # type: ignore[unreachable]
                     break
 
             except Exception as e:
@@ -316,7 +316,7 @@ class APIConnector:
             logger.error(f"File download failed: {e}")
             raise
 
-    async def close(self):
+    async def close(self) -> None:
         """Close API connection."""
         if self.session:
             self.session.close()
@@ -340,13 +340,13 @@ class GraphQLConnector:
         self.endpoint = endpoint
         self.authentication = authentication
         self.timeout = timeout
-        self.session = None
+        self.session: Any = None
 
         self._initialize_session()
 
         logger.info(f"Initialized GraphQL connector for {endpoint}")
 
-    def _initialize_session(self):
+    def _initialize_session(self) -> None:
         """Initialize GraphQL session."""
         self.session = requests.Session()
 
@@ -395,7 +395,7 @@ class GraphQLConnector:
                 logger.error(f"GraphQL errors: {result['errors']}")
                 raise ValueError(f"GraphQL query failed: {result['errors']}")
 
-            return result.get('data', {})
+            return cast(Dict[str, Any], result.get('data', {}))
 
         except Exception as e:
             logger.error(f"GraphQL query failed: {e}")
@@ -463,9 +463,9 @@ class GraphQLConnector:
         features = result.get(feature_type, [])
         logger.info(f"Retrieved {len(features)} {feature_type} features")
 
-        return features
+        return cast(List[Dict[str, Any]], features)
 
-    async def close(self):
+    async def close(self) -> None:
         """Close GraphQL connection."""
         if self.session:
             self.session.close()
@@ -521,7 +521,7 @@ class STACConnector:
         """
         endpoint = '/search'
 
-        params = {
+        params: Dict[str, Any] = {
             'limit': limit
         }
 
@@ -590,7 +590,7 @@ class STACConnector:
                 collections = response.get('data', [])
 
             logger.info(f"Found {len(collections)} STAC collections")
-            return collections
+            return cast(List[Dict[str, Any]], collections)
 
         except Exception as e:
             logger.error(f"Failed to list collections: {e}")
@@ -643,7 +643,7 @@ class STACConnector:
 
         return download_paths
 
-    async def close(self):
+    async def close(self) -> None:
         """Close STAC connection."""
         await self.connector.close()
         logger.info("STAC connection closed")

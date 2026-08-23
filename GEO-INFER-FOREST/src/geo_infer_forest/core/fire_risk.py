@@ -5,7 +5,7 @@ for fire danger assessment based on meteorological conditions.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import xarray as xr
@@ -87,7 +87,7 @@ class FireRiskAssessor:
         self,
         temperature_c: float,
         relative_humidity: float,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Calculate Angstrom Fire Danger Index.
 
         A simple index using temperature and humidity:

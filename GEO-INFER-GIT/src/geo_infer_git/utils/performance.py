@@ -13,7 +13,7 @@ import time
 import psutil
 import threading
 import functools
-from typing import Dict, Any, Optional, Callable, List, Tuple
+from typing import Dict, Any, Optional, Callable, List, Tuple, cast
 from pathlib import Path
 from dataclasses import dataclass, field
 import gc
@@ -76,7 +76,7 @@ class PerformanceMonitor:
             enable_monitoring: Whether to enable detailed monitoring
         """
         self.enable_monitoring = enable_monitoring
-        self.metrics = {}
+        self.metrics: Dict[str, Any] = {}
         self.lock = threading.Lock()
 
         if enable_monitoring:
@@ -156,7 +156,7 @@ class PerformanceMonitor:
                 # Remove from active metrics
                 del self.metrics[operation_name]
 
-                return metrics
+                return cast(PerformanceMetrics, metrics)
 
         return None
 
@@ -219,7 +219,7 @@ class MemoryManager:
             True if GC should be triggered
         """
         memory_usage = self.get_memory_usage()
-        return memory_usage['rss_mb'] > self.gc_threshold_mb
+        return bool(memory_usage['rss_mb'] > self.gc_threshold_mb)
 
     def trigger_gc(self, force: bool = False) -> Dict[str, Any]:
         """
@@ -316,8 +316,8 @@ class CacheManager:
         """
         self.max_cache_size = max_cache_size
         self.ttl_seconds = ttl_seconds
-        self.cache = {}
-        self.access_times = {}
+        self.cache: Dict[str, Any] = {}
+        self.access_times: Dict[str, float] = {}
         self.hit_count = 0
         self.miss_count = 0
         self.lock = threading.Lock()
@@ -405,8 +405,8 @@ class BatchProcessor:
     - Progress tracking for large operations
     """
 
-    def __init__(self, memory_manager: MemoryManager = None,
-                 performance_monitor: PerformanceMonitor = None):
+    def __init__(self, memory_manager: Optional[MemoryManager] = None,
+                 performance_monitor: Optional[PerformanceMonitor] = None) -> None:
         """
         Initialize batch processor.
 
@@ -416,7 +416,7 @@ class BatchProcessor:
         """
         self.memory_manager = memory_manager or MemoryManager()
         self.performance_monitor = performance_monitor or PerformanceMonitor()
-        self.batch_history = []
+        self.batch_history: List[Any] = []
 
     def calculate_optimal_batch_size(self, item_size_bytes: int, target_memory_mb: int = 512) -> int:
         """
@@ -446,7 +446,7 @@ class BatchProcessor:
         return batch_size
 
     def process_in_batches(self, items: List[Any], processor: Callable[[List[Any]], Any],
-                          batch_size: int = None, show_progress: bool = True) -> List[Any]:
+                          batch_size: Optional[int] = None, show_progress: bool = True) -> List[Any]:
         """
         Process items in batches with memory management.
 
@@ -522,7 +522,7 @@ class ResourceManager:
     - Performance-based scaling
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize resource manager."""
         self.baseline_cpu = psutil.cpu_count()
         self.baseline_memory = psutil.virtual_memory().total / (1024 * 1024 * 1024)  # GB
@@ -597,12 +597,14 @@ class ResourceManager:
         system_load = self.get_system_load()
 
         # Throttle if CPU > 80% or memory > 85% or disk > 90%
-        return (system_load['cpu_percent'] > 80 or
-                system_load['memory_percent'] > 85 or
-                system_load['disk_percent'] > 90)
+        return bool(
+            system_load['cpu_percent'] > 80
+            or system_load['memory_percent'] > 85
+            or system_load['disk_percent'] > 90
+        )
 
-def performance_optimized(func: Optional[Callable] = None, operation_name: str = None,
-                         memory_threshold_mb: int = 512):
+def performance_optimized(func: Optional[Callable] = None, operation_name: Optional[str] = None,
+                         memory_threshold_mb: int = 512) -> Callable:
     """
     Decorator for performance-optimized function execution.
 
@@ -616,7 +618,7 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: str =
     """
     def decorator(f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Initialize performance monitoring
             monitor = PerformanceMonitor()
             memory_manager = MemoryManager()
@@ -706,7 +708,7 @@ class PerformanceOptimizer:
         self.batch_processor = BatchProcessor(self.memory_manager, self.performance_monitor)
         self.resource_manager = ResourceManager()
 
-    def optimize_operation(self, operation_name: str, func: Callable, *args, **kwargs):
+    def optimize_operation(self, operation_name: str, func: Callable, *args: Any, **kwargs: Any) -> Any:
         """
         Optimize and execute an operation with full performance monitoring.
 

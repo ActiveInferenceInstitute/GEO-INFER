@@ -26,7 +26,7 @@ class SpatialClusteringModel(BayesianModel):
     using Bayesian methods.
     """
 
-    def __init__(self, n_clusters: int = 5, **kwargs):
+    def __init__(self, n_clusters: int = 5, **kwargs: Any) -> None:
         """
         Initialize the spatial clustering model.
 
@@ -39,7 +39,7 @@ class SpatialClusteringModel(BayesianModel):
         super().__init__(name="SpatialClusteringModel", **kwargs)
         self.n_clusters = n_clusters
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the spatial clustering model."""
         self.parameters = {
             "cluster_means": {
@@ -99,11 +99,12 @@ class SpatialClusteringModel(BayesianModel):
             spread = float(np.std(signal))
             variances = np.full(means.size, max(spread**2, np.finfo(float).eps))
         nearest = np.argmin(np.abs(signal[:, None] - means[None, :]), axis=1)
-        prediction = means[nearest]
+        prediction = np.asarray(means[nearest])
         if return_std:
-            return prediction, np.sqrt(
+            std_prediction: np.ndarray = np.asarray(np.sqrt(
                 np.maximum(variances[nearest], np.finfo(float).eps)
-            )
+            ))
+            return prediction, std_prediction
         return prediction
 
     def posterior_predictive(

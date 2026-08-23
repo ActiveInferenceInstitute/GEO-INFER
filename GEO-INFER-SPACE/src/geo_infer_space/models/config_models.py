@@ -26,13 +26,13 @@ class DatabaseConfig(BaseModel):
     max_overflow: int = Field(20, description="Maximum pool overflow")
 
     @field_validator("port")
-    def validate_port(cls, v):
+    def validate_port(cls, v: int) -> int:
         if not 1 <= v <= 65535:
             raise ValueError("Port must be between 1 and 65535")
         return v
 
     @field_validator("pool_size")
-    def validate_pool_size(cls, v):
+    def validate_pool_size(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Pool size must be at least 1")
         return v
@@ -56,14 +56,14 @@ class IndexingConfig(BaseModel):
     cache_size_mb: int = Field(100, description="Index cache size in MB")
 
     @field_validator("default_index_type")
-    def validate_index_type(cls, v):
+    def validate_index_type(cls, v: str) -> str:
         valid_types = ["rtree", "quadtree", "h3", "geohash", "s2"]
         if v.lower() not in valid_types:
             raise ValueError(f"Index type must be one of {valid_types}")
         return v.lower()
 
     @field_validator("cache_size_mb")
-    def validate_cache_size(cls, v):
+    def validate_cache_size(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Cache size must be at least 1 MB")
         return v
@@ -105,26 +105,26 @@ class AnalysisConfig(BaseModel):
     memory_limit_gb: Optional[float] = Field(None, description="Memory limit in GB")
 
     @field_validator("buffer_resolution")
-    def validate_buffer_resolution(cls, v):
+    def validate_buffer_resolution(cls, v: int) -> int:
         if v < 4:
             raise ValueError("Buffer resolution must be at least 4")
         return v
 
     @field_validator("raster_chunk_size")
-    def validate_chunk_size(cls, v):
+    def validate_chunk_size(cls, v: int) -> int:
         if v < 64 or v > 8192:
             raise ValueError("Raster chunk size must be between 64 and 8192")
         return v
 
     @field_validator("resampling_method")
-    def validate_resampling_method(cls, v):
+    def validate_resampling_method(cls, v: str) -> str:
         valid_methods = ["nearest", "bilinear", "cubic", "average", "mode"]
         if v.lower() not in valid_methods:
             raise ValueError(f"Resampling method must be one of {valid_methods}")
         return v.lower()
 
     @field_validator("interpolation_method")
-    def validate_interpolation_method(cls, v):
+    def validate_interpolation_method(cls, v: str) -> str:
         valid_methods = ["idw", "kriging", "rbf", "nearest", "linear"]
         if v.lower() not in valid_methods:
             raise ValueError(f"Interpolation method must be one of {valid_methods}")
@@ -165,19 +165,19 @@ class APIConfig(BaseModel):
     request_timeout_seconds: int = Field(300, description="Request timeout in seconds")
 
     @field_validator("port")
-    def validate_port(cls, v):
+    def validate_port(cls, v: int) -> int:
         if not 1 <= v <= 65535:
             raise ValueError("Port must be between 1 and 65535")
         return v
 
     @field_validator("workers")
-    def validate_workers(cls, v):
+    def validate_workers(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Number of workers must be at least 1")
         return v
 
     @field_validator("max_request_size_mb")
-    def validate_request_size(cls, v):
+    def validate_request_size(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Maximum request size must be at least 1 MB")
         return v
@@ -198,14 +198,14 @@ class LoggingConfig(BaseModel):
     console_enabled: bool = Field(True, description="Enable console logging")
 
     @field_validator("level")
-    def validate_level(cls, v):
+    def validate_level(cls, v: str) -> str:
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if v.upper() not in valid_levels:
             raise ValueError(f"Log level must be one of {valid_levels}")
         return v.upper()
 
     @field_validator("file_max_size_mb")
-    def validate_file_size(cls, v):
+    def validate_file_size(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Log file size must be at least 1 MB")
         return v
@@ -226,14 +226,14 @@ class CacheConfig(BaseModel):
     redis_password: Optional[str] = Field(None, description="Redis password")
 
     @field_validator("backend")
-    def validate_backend(cls, v):
+    def validate_backend(cls, v: str) -> str:
         valid_backends = ["memory", "redis", "memcached"]
         if v.lower() not in valid_backends:
             raise ValueError(f"Cache backend must be one of {valid_backends}")
         return v.lower()
 
     @field_validator("ttl_seconds")
-    def validate_ttl(cls, v):
+    def validate_ttl(cls, v: int) -> int:
         if v < 1:
             raise ValueError("TTL must be at least 1 second")
         return v
@@ -255,17 +255,24 @@ class SpaceConfig(BaseModel):
         None, description="Database configuration"
     )
     indexing: IndexingConfig = Field(
-        default_factory=IndexingConfig, description="Indexing configuration"
+        default_factory=IndexingConfig,  # type: ignore[arg-type]
+        description="Indexing configuration",
     )
     analysis: AnalysisConfig = Field(
-        default_factory=AnalysisConfig, description="Analysis configuration"
+        default_factory=AnalysisConfig,  # type: ignore[arg-type]
+        description="Analysis configuration",
     )
-    api: APIConfig = Field(default_factory=APIConfig, description="API configuration")
+    api: APIConfig = Field(
+        default_factory=APIConfig,  # type: ignore[arg-type]
+        description="API configuration",
+    )
     logging: LoggingConfig = Field(
-        default_factory=LoggingConfig, description="Logging configuration"
+        default_factory=LoggingConfig,  # type: ignore[arg-type]
+        description="Logging configuration",
     )
     cache: CacheConfig = Field(
-        default_factory=CacheConfig, description="Cache configuration"
+        default_factory=CacheConfig,  # type: ignore[arg-type]
+        description="Cache configuration",
     )
     # Custom settings
     custom: Dict[str, Any] = Field(
@@ -273,14 +280,14 @@ class SpaceConfig(BaseModel):
     )
 
     @field_validator("environment")
-    def validate_environment(cls, v):
+    def validate_environment(cls, v: str) -> str:
         valid_environments = ["development", "testing", "staging", "production"]
         if v.lower() not in valid_environments:
             raise ValueError(f"Environment must be one of {valid_environments}")
         return v.lower()
 
     @model_validator(mode="after")
-    def validate_directories(self):
+    def validate_directories(self) -> "SpaceConfig":
         """Ensure directories exist or can be created."""
         for dir_field in ["data_directory", "temp_directory"]:
             directory_value = getattr(self, dir_field)
@@ -324,7 +331,7 @@ class SpaceConfig(BaseModel):
         config_data = self.model_dump(by_alias=True)
 
         # Convert Path objects to strings for serialization
-        def convert_paths(obj):
+        def convert_paths(obj: Any) -> Any:
             if isinstance(obj, dict):
                 return {k: convert_paths(v) for k, v in obj.items()}
             elif isinstance(obj, list):
@@ -370,13 +377,13 @@ class PerformanceConfig(BaseModel):
     )
 
     @field_validator("chunk_size")
-    def validate_chunk_size(cls, v):
+    def validate_chunk_size(cls, v: int) -> int:
         if v < 1:
             raise ValueError("Chunk size must be at least 1")
         return v
 
     @field_validator("io_buffer_size")
-    def validate_buffer_size(cls, v):
+    def validate_buffer_size(cls, v: int) -> int:
         if v < 1024:
             raise ValueError("I/O buffer size must be at least 1024 bytes")
         return v

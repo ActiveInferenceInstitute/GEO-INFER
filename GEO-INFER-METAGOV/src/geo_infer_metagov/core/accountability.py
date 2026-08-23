@@ -16,6 +16,8 @@ class AccountabilityMechanisms:
     accountability_directions: List[str]
     enforcement_capacity: str
     audit_mechanisms: List[str]
+    audit_trail_structure: Dict[str, Any] = field(default_factory=dict)
+    compliance_framework: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -27,6 +29,9 @@ class TransparencySystem:
     accessibility_requirements: List[str]
     documentation_standards: str
     public_access_mechanisms: List[str]
+    transparency_score: float = 0.0
+    disclosure_coverage: float = 0.0
+    accessibility_score: float = 0.0
 
 
 class AccountabilityFramework:

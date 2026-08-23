@@ -22,7 +22,7 @@ where γ(h) is the semivariogram, h is spatial lag, N(h) is number of pairs.
 """
 
 import numpy as np
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, cast
 from scipy.spatial.distance import pdist, squareform
 from scipy.optimize import minimize
 
@@ -46,7 +46,7 @@ class SpatialAnalyzer:
         variogram_model: Fitted variogram model parameters
     """
 
-    def __init__(self, coordinates: np.ndarray):
+    def __init__(self, coordinates: np.ndarray) -> None:
         """
         Initialize spatial analyzer.
 
@@ -54,11 +54,11 @@ class SpatialAnalyzer:
             coordinates: Spatial coordinates (n_points x 2)
         """
         self.coordinates = coordinates
-        self.distance_matrix = None
-        self.variogram_model = None
+        self.distance_matrix: Optional[np.ndarray] = None
+        self.variogram_model: Optional[Dict[str, Any]] = None
         self._compute_distance_matrix()
 
-    def _compute_distance_matrix(self):
+    def _compute_distance_matrix(self) -> None:
         """Compute pairwise distance matrix."""
         self.distance_matrix = squareform(pdist(self.coordinates))
 
@@ -81,6 +81,7 @@ class SpatialAnalyzer:
         """
         if self.distance_matrix is None:
             self._compute_distance_matrix()
+        assert self.distance_matrix is not None
 
         distances = self.distance_matrix.flatten()
         residual_diffs = residuals[:, np.newaxis] - residuals[np.newaxis, :]
@@ -128,14 +129,16 @@ class SpatialAnalyzer:
 
     def _fit_variogram_model(
         self, distances: np.ndarray, values: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Fit theoretical variogram model to empirical values.
 
         Fits spherical, exponential, or Gaussian variogram models.
         """
 
-        def spherical_model(h, nugget, sill, range_):
+        def spherical_model(
+            h: np.ndarray, nugget: float, sill: float, range_: float
+        ) -> np.ndarray:
             """Spherical variogram model."""
             range_ = np.maximum(range_, np.finfo(float).eps)
             h_norm = h / range_
@@ -145,15 +148,23 @@ class SpatialAnalyzer:
                 nugget + sill,
             )
 
-        def exponential_model(h, nugget, sill, range_):
+        def exponential_model(
+            h: np.ndarray, nugget: float, sill: float, range_: float
+        ) -> np.ndarray:
             """Exponential variogram model."""
             range_ = np.maximum(range_, np.finfo(float).eps)
-            return nugget + sill * (1 - np.exp(-h / range_))
+            return cast(
+                np.ndarray, nugget + sill * (1 - np.exp(-h / range_))
+            )
 
-        def gaussian_model(h, nugget, sill, range_):
+        def gaussian_model(
+            h: np.ndarray, nugget: float, sill: float, range_: float
+        ) -> np.ndarray:
             """Gaussian variogram model."""
             range_ = np.maximum(range_, np.finfo(float).eps)
-            return nugget + sill * (1 - np.exp(-((h / range_) ** 2)))
+            return cast(
+                np.ndarray, nugget + sill * (1 - np.exp(-((h / range_) ** 2)))
+            )
 
         # Try different models
         models = [
@@ -177,10 +188,10 @@ class SpatialAnalyzer:
                 )
                 nugget_guess = np.min(values)
 
-                def objective(params):
+                def objective(params: np.ndarray) -> float:
                     nugget, sill, range_ = params
                     predicted = model_func(distances, nugget, sill, range_)
-                    return np.sum((values - predicted) ** 2)
+                    return float(np.sum((values - predicted) ** 2))
 
                 minimum_range = max(
                     float(np.finfo(float).eps), float(distances[-1]) * 1e-9
@@ -222,7 +233,7 @@ class SpatialAnalyzer:
         return best_params
 
     def create_spatial_weights(
-        self, model_type: str = "exponential", **kwargs
+        self, model_type: str = "exponential", **kwargs: Any
     ) -> np.ndarray:
         """
         Create spatial weights matrix based on fitted variogram.
@@ -239,6 +250,7 @@ class SpatialAnalyzer:
 
         if self.distance_matrix is None:
             self._compute_distance_matrix()
+        assert self.distance_matrix is not None
 
         nugget = self.variogram_model["nugget"]
         sill = self.variogram_model["sill"]
@@ -263,7 +275,7 @@ class SpatialAnalyzer:
         regularization = kwargs.get("regularization", 1e-6)
         covariance += regularization * np.eye(len(covariance))
 
-        return covariance
+        return cast(np.ndarray, covariance)
 
     def detect_clusters(
         self, statistical_map: np.ndarray, threshold: float, min_cluster_size: int = 1
@@ -324,7 +336,10 @@ class SpatialAnalyzer:
         }
 
     def geographically_weighted_regression(
-        self, data: SPMData, design_matrix: Any = None, bandwidth: float = None
+        self,
+        data: SPMData,
+        design_matrix: Any = None,
+        bandwidth: Optional[float] = None,
     ) -> SPMResult:
         """
         Perform geographically weighted regression (GWR).
@@ -351,15 +366,19 @@ class SpatialAnalyzer:
                 f"regressor_{idx}" for idx in range(X.shape[1])
             ]
         else:
-            X = np.column_stack([np.ones(n_points)] + list(data.covariates.values()))
-            names = ["intercept"] + list(data.covariates.keys())
+            covariates = data.covariates
+            assert covariates is not None
+            X = np.column_stack([np.ones(n_points)] + list(covariates.values()))
+            names = ["intercept"] + list(covariates.keys())
         y = data.data
 
         if bandwidth is None:
             # Use cross-validation to select bandwidth
+            assert self.distance_matrix is not None
             bandwidth = self._select_gwr_bandwidth(X, y)
 
         # Compute spatial weights for each point
+        assert self.distance_matrix is not None
         local_coefficients = np.zeros((n_points, X.shape[1]))
         predictions = np.zeros(n_points)
 
@@ -409,6 +428,7 @@ class SpatialAnalyzer:
             Optimal bandwidth
         """
         if bandwidths is None:
+            assert self.distance_matrix is not None
             distances = self.distance_matrix.flatten()
             distances = distances[distances > 0]
             bandwidths = np.percentile(distances, [10, 25, 50, 75, 90])
@@ -445,7 +465,7 @@ class SpatialAnalyzer:
                 best_cv_error = mean_cv_error
                 best_bandwidth = bw
 
-        return best_bandwidth
+        return float(best_bandwidth)
 
     def spatial_basis_functions(
         self, n_basis: int = 10, basis_type: str = "gaussian", random_seed: Optional[int] = None

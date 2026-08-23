@@ -14,6 +14,7 @@ This module provides sophisticated catastrophe modeling capabilities with:
 
 import numpy as np
 import pandas as pd
+from itertools import permutations
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 from dataclasses import dataclass, field
 import logging
@@ -43,7 +44,9 @@ except ImportError:
     TemporalAnalysisInterface = None
 
 try:
-    from geo_infer_math.core.spatial_statistics import MoranI
+    from geo_infer_math.core.spatial_statistics import (  # type: ignore[import-untyped]
+        MoranI,
+    )
 
     MATH_AVAILABLE = True
 except ImportError:
@@ -303,6 +306,207 @@ class MultiHazardInteractionMatrix:
             )
         return float(np.clip(compound, 0.0, 1.0))
 
+    @staticmethod
+    def _validate_paths(
+        hazard_sequences: Sequence[Sequence[str]], hazards: Sequence[str]
+    ) -> List[Tuple[str, ...]]:
+        """Normalize a list of compound paths against the configured hazards."""
+        if not hazard_sequences:
+            raise ValueError("hazard_sequences must contain at least one path")
+        paths: List[Tuple[str, ...]] = []
+        seen: set[Tuple[str, ...]] = set()
+        configured = set(hazards)
+        for raw_path in hazard_sequences:
+            sequence = tuple(str(hazard).strip() for hazard in raw_path)
+            if not sequence or any(not hazard for hazard in sequence):
+                raise ValueError("every compound path must contain hazard names")
+            unknown = [hazard for hazard in sequence if hazard not in configured]
+            if unknown:
+                raise KeyError(f"Unknown hazards in sequence: {unknown}")
+            if len(set(sequence)) != len(sequence):
+                raise ValueError("a compound path must not repeat hazards")
+            if sequence not in seen:
+                seen.add(sequence)
+                paths.append(sequence)
+        return paths
+
+    @staticmethod
+    def _coerce_probabilities(
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazards: Sequence[str],
+    ) -> Dict[str, float]:
+        """Normalize marginal probabilities keyed by hazard name."""
+        if isinstance(exceedance_probabilities, Mapping):
+            return {
+                hazard: MultiHazardInteractionMatrix._validate_probability(
+                    probability, hazard
+                )
+                for hazard, probability in exceedance_probabilities.items()
+            }
+        values = np.asarray(exceedance_probabilities, dtype=float)
+        if values.ndim != 1 or values.size != len(hazards):
+            raise ValueError(
+                "probability sequence must have one value per configured hazard"
+            )
+        return {
+            hazard: MultiHazardInteractionMatrix._validate_probability(
+                values[index], hazard
+            )
+            for index, hazard in enumerate(hazards)
+        }
+
+    def _resolve_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard: str,
+    ) -> float:
+        """Return one hazard's marginal exceedance probability."""
+        probabilities = self._coerce_probabilities(
+            exceedance_probabilities, self.hazards
+        )
+        return probabilities[hazard]
+
+    def joint_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequences: Sequence[Sequence[str]],
+    ) -> float:
+        """Return the probability that *any* of several compound paths exceeds.
+
+        This is the multi-hazard *compound* complement of the single-path
+        :meth:`compound_exceedance_probability`.  Each path is evaluated as its
+        own directed Markov chain, and the paths are treated as independent
+        competing compound scenarios whose exceedances may co-occur:
+
+        ``P_union = 1 - Product_j (1 - p_path_j)``.
+
+        Parameters
+        ----------
+        exceedance_probabilities : mapping or sequence of float
+            Marginal annual exceedance probabilities (same contract as
+            :meth:`compound_exceedance_probability`).
+        hazard_sequences : sequence of sequence of str
+            One or more ordered compound paths.  Empty paths and repeated
+            hazards are rejected.
+
+        Returns
+        -------
+        float
+            Probability that at least one configured compound path is
+            exceeded, in ``[0, 1]``.
+        """
+        paths = self._validate_paths(hazard_sequences, self.hazards)
+        not_exceeded = 1.0
+        for path in paths:
+            p_path = self.compound_exceedance_probability(
+                exceedance_probabilities, path
+            )
+            not_exceeded *= 1.0 - p_path
+        return float(np.clip(1.0 - not_exceeded, 0.0, 1.0))
+
+    def branch_exceedance_probabilities(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Dict[Tuple[str, ...], float]:
+        """Return every non-repeating directed compound path and its probability.
+
+        Parameters
+        ----------
+        exceedance_probabilities : mapping or sequence of float
+            Marginal annual exceedances (same contract as
+            :meth:`compound_exceedance_probability`).
+        max_path_length : int, optional
+            Upper bound on path length (number of hazards).  When omitted all
+            non-repeating paths over the configured hazards are enumerated.
+
+        Returns
+        -------
+        dict of tuple -> float
+            Mapping from each compound path (as an ordered hazard tuple) to its
+            joint exceedance estimate.  Singletons are included with their
+            marginal probability and record the independent baseline.
+        """
+        probabilities = self._coerce_probabilities(
+            exceedance_probabilities, self.hazards
+        )
+        n_hazards = len(self.hazards)
+        if max_path_length is None:
+            max_path_length = n_hazards
+        if max_path_length < 1:
+            raise ValueError("max_path_length must be at least 1")
+        branches: Dict[Tuple[str, ...], float] = {}
+        for length in range(1, min(max_path_length, n_hazards) + 1):
+            for permutation in permutations(self.hazards, length):
+                branches[permutation] = self.compound_exceedance_probability(
+                    probabilities, permutation
+                )
+        return branches
+
+    def dominant_exceedance_path(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Tuple[Tuple[str, ...], float]:
+        """Return the compound path with the largest joint exceedance.
+
+        Enumeration is over the same non-repeating ordered paths as
+        :meth:`branch_exceedance_probabilities`.  Paths whose joint probability
+        is zero are ignored so a zero-marginal hazard never wins by default.
+
+        Returns
+        -------
+        tuple[tuple, float]
+            The ``(path, probability)`` pair.  For a fully degenerate case (no
+            positive path) the leading singleton with the largest marginal is
+            returned.
+        """
+        branches = self.branch_exceedance_probabilities(
+            exceedance_probabilities, max_path_length
+        )
+        if not branches:
+            raise ValueError("no compound paths can be formed over empty hazards")
+        ranking = max(branches.items(), key=lambda item: item[1])
+        if ranking[1] > 0.0:
+            return ranking
+        marginals = {
+            (hazard,): self._resolve_probability(exceedance_probabilities, hazard)
+            for hazard in self.hazards
+        }
+        lead = max(marginals.items(), key=lambda item: item[1])
+        return (lead[0], lead[1])
+
+    def set_interactions(
+        self, interactions: Mapping[Tuple[str, str], float]
+    ) -> None:
+        """Set several directed interactions at once from a mapping."""
+        for (source, target), strength in interactions.items():
+            self.set_interaction(source, target, strength)
+
+    @classmethod
+    def from_mapping(
+        cls,
+        hazards: Sequence[str],
+        interactions: Mapping[Tuple[str, str], float],
+    ) -> "MultiHazardInteractionMatrix":
+        """Build a directed interaction matrix from a sparse mapping.
+
+        Parameters
+        ----------
+        hazards : sequence of str
+            Unique hazard names defining matrix order.
+        interactions : mapping of (source, target) -> strength
+            Sparse directed interactions.  Unspecified off-diagonal pairs are
+            zero (independent); diagonals are one.
+
+        Returns
+        -------
+        MultiHazardInteractionMatrix
+        """
+        model = cls(hazards)
+        model.set_interactions(interactions)
+        return model
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a JSON-serializable matrix representation."""
         return {
@@ -387,14 +591,14 @@ class EnhancedCatastropheModel:
 
         # Model state
         self.is_fitted = False
-        self.historical_data = None
+        self.historical_data: Optional[pd.DataFrame] = None
         self.model_parameters: Dict[str, Any] = {}
         self.climate_factors: Dict[str, Any] = {}
         self.uncertainty_parameters: Dict[str, Any] = {}
 
         # Event simulation state
         self.event_cache: Dict[str, Any] = {}
-        self.correlation_matrix = None
+        self.correlation_matrix: Optional[np.ndarray] = None
 
         # All stochastic draws in this model come from this generator, never
         # from the process-wide numpy.random singleton. simulate_events() may
@@ -462,21 +666,23 @@ class EnhancedCatastropheModel:
 
     def _calculate_time_span(self) -> float:
         """Calculate time span of historical data."""
+        assert self.historical_data is not None
         if "timestamp" not in self.historical_data.columns:
             return 50.0  # Default 50 years
 
         timestamps = pd.to_datetime(self.historical_data["timestamp"])
         time_span = (timestamps.max() - timestamps.min()).days / 365.25
-        return time_span
+        return float(time_span)
 
     def _calculate_annual_frequency(self) -> float:
         """Calculate annual event frequency."""
         time_span = self.model_parameters.get("time_span_years", 50.0)
         event_count = self.model_parameters.get("event_count", 100)
-        return event_count / time_span
+        return float(event_count / time_span)
 
     def _analyze_intensity_distribution(self) -> None:
         """Analyze intensity distribution of historical events."""
+        assert self.historical_data is not None
         intensity_column = self._get_intensity_column()
 
         if intensity_column and intensity_column in self.historical_data.columns:
@@ -533,6 +739,7 @@ class EnhancedCatastropheModel:
 
     def _get_intensity_column(self) -> Optional[str]:
         """Get the appropriate intensity column name."""
+        assert self.historical_data is not None
         intensity_columns = [
             "magnitude",
             "intensity",
@@ -547,6 +754,7 @@ class EnhancedCatastropheModel:
 
     def _analyze_spatial_patterns(self) -> None:
         """Analyze spatial patterns in historical data."""
+        assert self.historical_data is not None
         if not self.spatial_interface or "latitude" not in self.historical_data.columns:
             return
 
@@ -571,6 +779,7 @@ class EnhancedCatastropheModel:
 
     def _analyze_temporal_patterns(self) -> None:
         """Analyze temporal patterns in historical data."""
+        assert self.historical_data is not None
         if (
             not self.temporal_interface
             or "timestamp" not in self.historical_data.columns
@@ -647,7 +856,7 @@ class EnhancedCatastropheModel:
 
         # Simple linear trend
         slope, _, r_value, _, _ = stats.linregress(years, counts)
-        return slope
+        return float(slope)
 
     def _fit_model_parameters(self) -> None:
         """Fit model parameters from historical data.
@@ -931,7 +1140,7 @@ class EnhancedCatastropheModel:
         total_value = exposure.get("total_value", 0.0)
         # Simple linear damage function capped at 100%
         damage_fraction = min(1.0, max(0.0, intensity / 10.0))
-        return damage_fraction * total_value
+        return float(damage_fraction * total_value)
 
     def get_model_status(self) -> Dict[str, Any]:
         """Get comprehensive model status information."""
@@ -1053,7 +1262,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         mean_mag = np.mean(complete_mags)
         b_value = 1.0 / (mean_mag - min_mag + 0.05)
 
-        return max(0.5, min(2.0, b_value))
+        return float(max(0.5, min(2.0, b_value)))
 
     def _generate_single_event(
         self,
@@ -1105,7 +1314,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         if not self.is_fitted:
             # Default Gutenberg-Richter with b=1.0
             u = self._rng.uniform(0, 1)
-            return 4.0 + np.log10(1 / u)  # Simplified
+            return float(4.0 + np.log10(1 / u))  # Simplified
 
         params = self.model_parameters
         b_value = params.get("b_value", 1.0)
@@ -1115,7 +1324,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         u = self._rng.uniform(0, 1)
         magnitude = min_mag + np.log10(1 / u) / b_value
 
-        return min(8.5, magnitude)
+        return float(min(8.5, magnitude))
 
     def _generate_earthquake_location(
         self, region: Optional[Dict] = None
@@ -1189,7 +1398,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         # Calculate loss
         loss = damage_ratio * exposure.get("value", 100000)
 
-        return min(loss, exposure.get("value", 100000))  # Cap at property value
+        return float(min(loss, exposure.get("value", 100000)))  # Cap at property value
 
     def _magnitude_to_pga(
         self, magnitude: float, distance: float, depth: float
@@ -1203,7 +1412,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         r = np.sqrt(distance**2 + depth**2)
         pga = 10 ** (0.3 * magnitude - 2.0 - np.log10(r) - 0.002 * r)
 
-        return max(0.001, pga)  # Minimum PGA threshold
+        return float(max(0.001, pga))  # Minimum PGA threshold
 
     def _calculate_earthquake_damage_ratio(
         self, pga: float, exposure: Dict[str, Any]
@@ -1244,7 +1453,7 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         )
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
-        return R * c
+        return float(R * c)
 
 
 class EnhancedHurricaneModel(EnhancedCatastropheModel):
@@ -1294,7 +1503,9 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
         track = self._generate_hurricane_track(region)
 
         # Generate timestamp
-        timestamp = self._generate_event_timestamp(time_period)
+        timestamp = self._generate_event_timestamp(  # type: ignore[attr-defined]
+            time_period
+        )
 
         # Create event
         event = {
@@ -1331,7 +1542,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
         else:
             wind_speed = self._rng.weibull(2.5) * 40 + 30
 
-        return max(25, wind_speed)  # Minimum tropical storm strength
+        return float(max(25, wind_speed))  # Minimum tropical storm strength
 
     def _generate_hurricane_track(
         self, region: Optional[Dict] = None
@@ -1423,7 +1634,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
             * vulnerability
         )
 
-        return min(total_loss, exposure.get("value", 200000))
+        return float(min(total_loss, exposure.get("value", 200000)))
 
     def _calculate_minimum_distance(
         self, event: Dict[str, Any], exposure: Dict[str, Any]
@@ -1475,7 +1686,7 @@ class EnhancedHurricaneModel(EnhancedCatastropheModel):
         )
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
 
-        return R * c
+        return float(R * c)
 
 
 class EnhancedFloodModel(EnhancedCatastropheModel):
@@ -1532,7 +1743,9 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
         location = self._generate_flood_location(region)
 
         # Generate timestamp
-        timestamp = self._generate_event_timestamp(time_period)
+        timestamp = self._generate_event_timestamp(  # type: ignore[attr-defined]
+            time_period
+        )
 
         # Create event
         event = {
@@ -1579,7 +1792,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
         else:
             depth = self._rng.exponential(2.0)
 
-        return max(0.1, depth)  # Minimum flood depth
+        return float(max(0.1, depth))  # Minimum flood depth
 
     def _generate_flood_location(self, region: Optional[Dict] = None) -> Dict[str, Any]:
         """Generate flood location."""
@@ -1605,7 +1818,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
     def calculate_loss(self, event: Dict[str, Any], exposure: Dict[str, Any]) -> float:
         """Calculate flood loss."""
         water_depth = event["water_depth"]
-        distance = self._calculate_distance(event, exposure)
+        distance = self._calculate_distance(event, exposure)  # type: ignore[attr-defined]
 
         # Check if within affected area
         affected_area = event.get("affected_area", 50.0)
@@ -1628,7 +1841,7 @@ class EnhancedFloodModel(EnhancedCatastropheModel):
             * vulnerability
         )
 
-        return min(total_loss, exposure.get("value", 150000))
+        return float(min(total_loss, exposure.get("value", 150000)))
 
 
 # Factory functions
@@ -1712,6 +1925,36 @@ class CatastropheModelManager:
             exceedance_probabilities, hazard_sequence
         )
 
+    def joint_exceedance_probability(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        hazard_sequences: Sequence[Sequence[str]],
+    ) -> float:
+        """Calculate the union exceedance across several compound paths."""
+        return self.hazard_interactions.joint_exceedance_probability(
+            exceedance_probabilities, hazard_sequences
+        )
+
+    def branch_exceedance_probabilities(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Dict[Tuple[str, ...], float]:
+        """Enumerate directed compound paths and their joint probabilities."""
+        return self.hazard_interactions.branch_exceedance_probabilities(
+            exceedance_probabilities, max_path_length
+        )
+
+    def dominant_exceedance_path(
+        self,
+        exceedance_probabilities: Union[Mapping[str, float], Sequence[float]],
+        max_path_length: Optional[int] = None,
+    ) -> Tuple[Tuple[str, ...], float]:
+        """Return the compound path with the largest joint exceedance."""
+        return self.hazard_interactions.dominant_exceedance_path(
+            exceedance_probabilities, max_path_length
+        )
+
     def run_all(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Run all registered models against the given input data.
 
@@ -1724,5 +1967,5 @@ class CatastropheModelManager:
         results: Dict[str, Any] = {}
         for name, model in self._models.items():
             model_input = input_data.get(name, {})
-            results[name] = model.run_analysis(model_input)
+            results[name] = model.run_analysis(model_input)  # type: ignore[attr-defined]
         return results

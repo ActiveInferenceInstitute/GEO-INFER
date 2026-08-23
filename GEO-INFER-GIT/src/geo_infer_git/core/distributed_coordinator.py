@@ -13,7 +13,7 @@ import json
 import time
 import socket
 import threading
-from typing import Dict, List, Any, Optional, Callable, Union, Tuple
+from typing import Dict, List, Any, Optional, Callable, Union, Tuple, cast
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import uuid
@@ -129,11 +129,11 @@ class DistributedCoordinator:
 
         # Job management
         self.jobs: Dict[str, JobInfo] = {}
-        self.job_queue = queue.PriorityQueue()
+        self.job_queue: queue.PriorityQueue = queue.PriorityQueue()
         self.running_jobs: Dict[str, str] = {}  # job_id -> node_id
 
         # Communication
-        self.message_queue = queue.Queue()
+        self.message_queue: queue.Queue = queue.Queue()
         self.message_handlers: Dict[str, Callable] = {}
 
         # Synchronization
@@ -141,10 +141,10 @@ class DistributedCoordinator:
         self.shutdown_event = threading.Event()
 
         # Background threads
-        self.discovery_thread = None
-        self.coordination_thread = None
-        self.heartbeat_thread = None
-        self.job_scheduler_thread = None
+        self.discovery_thread: Optional[threading.Thread] = None
+        self.coordination_thread: Optional[threading.Thread] = None
+        self.heartbeat_thread: Optional[threading.Thread] = None
+        self.job_scheduler_thread: Optional[threading.Thread] = None
 
         # Initialize message handlers
         self._setup_message_handlers()
@@ -167,7 +167,7 @@ class DistributedCoordinator:
             s.connect(("8.8.8.8", 80))
             ip = s.getsockname()[0]
             s.close()
-            return ip
+            return cast(str, ip)
         except Exception:
             return "127.0.0.1"
 
@@ -307,7 +307,7 @@ class DistributedCoordinator:
         finally:
             coord_socket.close()
 
-    def _handle_client_connection(self, client_socket, client_addr) -> None:
+    def _handle_client_connection(self, client_socket: Any, client_addr: Any) -> None:
         """Handle a client connection for coordination."""
         try:
             data = client_socket.recv(4096)
@@ -472,8 +472,8 @@ class DistributedCoordinator:
     def _process_message(self, message: Dict[str, Any]) -> None:
         """Process an incoming coordination message."""
         try:
-            message_type = message.get("type")
-            handler = self.message_handlers.get(message_type)
+            message_type = cast(Optional[str], message.get("type"))
+            handler = self.message_handlers.get(message_type) if message_type else None
 
             if handler:
                 handler(message)
@@ -586,7 +586,7 @@ class DistributedCoordinator:
             message_id=str(uuid.uuid4()),
             message_type="status_response",
             sender_id=self.node_id,
-            recipient_id=sender_id,
+            recipient_id=cast(str, sender_id),
             payload={
                 "node_status": self.current_node.status,
                 "active_jobs": len(
@@ -597,7 +597,7 @@ class DistributedCoordinator:
             },
         )
 
-        self._send_message_to_node(sender_id, status_message)
+        self._send_message_to_node(cast(str, sender_id), status_message)
 
     def _handle_coordination_message(self, message: Dict[str, Any]) -> None:
         """Handle custom coordination message."""
@@ -692,9 +692,9 @@ class DistributedCoordinator:
     def submit_job(
         self,
         job_type: str,
-        metadata: Dict[str, Any] = None,
+        metadata: Optional[Dict[str, Any]] = None,
         priority: int = 1,
-        dependencies: List[str] = None,
+        dependencies: Optional[List[str]] = None,
     ) -> str:
         """
         Submit a job for distributed execution.

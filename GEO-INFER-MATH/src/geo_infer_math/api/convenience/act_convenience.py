@@ -6,7 +6,7 @@ including free energy calculations and variational inference helpers.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable
+from typing import Union, Optional, List, Tuple, Dict, Any, Callable, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -167,9 +167,9 @@ def belief_updating_helper(
     
     # Bayesian update
     updated_beliefs = current_beliefs * likelihood
-    updated_beliefs = updated_beliefs / np.sum(updated_beliefs) if np.sum(updated_beliefs) > 0 else updated_beliefs
+    updated_beliefs = updated_beliefs / np.sum(updated_beliefs) if np.sum(updated_beliefs) > 0 else current_beliefs
     
-    return updated_beliefs
+    return cast(np.ndarray, updated_beliefs)
 
 
 class ActiveInferenceConvenience:
@@ -192,7 +192,7 @@ class ActiveInferenceConvenience:
         self,
         observations: np.ndarray,
         beliefs: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> float:
         """
         Calculate free energy.
@@ -213,7 +213,7 @@ class ActiveInferenceConvenience:
         self,
         observations: np.ndarray,
         prior: np.ndarray,
-        **kwargs
+        **kwargs: Any
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Perform variational inference.

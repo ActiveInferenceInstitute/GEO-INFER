@@ -11,7 +11,7 @@ Implements comprehensive growth models including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Callable, Any
+from typing import Dict, List, Optional, Tuple, Callable, Any, cast
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import geopandas as gpd
@@ -40,7 +40,7 @@ class SolowGrowthModel:
     Implementation of the Solow growth model with spatial extensions
     """
     
-    def __init__(self, parameters: Dict[str, float] = None):
+    def __init__(self, parameters: Optional[Dict[str, float]] = None):
         """
         Initialize Solow model with parameters
         
@@ -60,8 +60,8 @@ class SolowGrowthModel:
             'g': 0.02
         }
         
-        self.steady_state = {}
-        self.convergence_rate = None
+        self.steady_state: Dict[str, float] = {}
+        self.convergence_rate: Optional[float] = None
     
     def production_function(self, K: float, L: float, A: float = 1.0) -> float:
         """
@@ -75,7 +75,9 @@ class SolowGrowthModel:
         Returns:
             Output level
         """
-        return A * (K ** self.params['alpha']) * (L ** (1 - self.params['alpha']))
+        return cast(
+            float, A * (K ** self.params['alpha']) * (L ** (1 - self.params['alpha']))
+        )
     
     def capital_dynamics(self, K: float, L: float, A: float = 1.0) -> float:
         """
@@ -155,7 +157,7 @@ class SolowGrowthModel:
         Returns:
             DataFrame with time series of economic variables
         """
-        def system_dynamics(t, y):
+        def system_dynamics(t: float, y: Any) -> List[float]:
             K, L, A = y
             dK_dt = self.capital_dynamics(K, L, A)
             dL_dt = self.params['n'] * L
@@ -199,8 +201,8 @@ class SpatialGrowthModels:
     
     def __init__(self, regions: List[RegionProfile]):
         self.regions = regions
-        self.spatial_weights = {}
-        self.spillover_effects = {}
+        self.spatial_weights: Any = {}
+        self.spillover_effects: Any = {}
     
     def calculate_spatial_weights(self, decay_parameter: float = 0.1) -> np.ndarray:
         """
@@ -232,7 +234,7 @@ class SpatialGrowthModels:
         weights = weights / row_sums[:, np.newaxis]
         
         self.spatial_weights = weights
-        return weights
+        return cast(np.ndarray, weights)
     
     def spatial_solow_model(self, spillover_strength: float = 0.1) -> Dict[str, Any]:
         """
@@ -244,7 +246,7 @@ class SpatialGrowthModels:
         Returns:
             Dictionary with regional growth dynamics
         """
-        def spatial_dynamics(t, y):
+        def spatial_dynamics(t: float, y: Any) -> np.ndarray:
             n_regions = len(self.regions)
             K = y[:n_regions]
             A = y[n_regions:]
@@ -291,10 +293,10 @@ class EndogenousGrowthModels:
 
     def __init__(self, model_type: str = "ak"):
         self.model_type = model_type
-        self.parameters = {}
-        self.solution_cache = {}
+        self.parameters: Dict[str, Any] = {}
+        self.solution_cache: Dict[str, Any] = {}
 
-    def ak_model(self, A: float, s: float, delta: float) -> Dict[str, float]:
+    def ak_model(self, A: float, s: float, delta: float) -> Dict[str, Any]:
         """
         AK model: Y = AK, where A is constant returns to capital
         Growth rate = sA - δ
@@ -346,7 +348,7 @@ class EndogenousGrowthModels:
 
         # Knowledge stock dynamics
         A0 = parameters.get('A0', 1.0)
-        time_steps = parameters.get('time_steps', 100)
+        time_steps = int(parameters.get('time_steps', 100))
         A_path = [A0]
 
         for t in range(1, time_steps):
@@ -452,7 +454,7 @@ class RegionalConvergenceAnalysis:
                          population, geographic coordinates, time period
         """
         self.data = regions_data
-        self.convergence_results = {}
+        self.convergence_results: Dict[str, Any] = {}
     
     def beta_convergence_analysis(self, initial_year: int, 
                                 final_year: int) -> Dict[str, Any]:
@@ -504,7 +506,7 @@ class RegionalConvergenceAnalysis:
             'converging': beta > 0
         }
         
-        return self.convergence_results['beta']
+        return cast(Dict[str, Any], self.convergence_results['beta'])
     
     def sigma_convergence_analysis(self) -> Dict[str, Any]:
         """
@@ -544,7 +546,7 @@ class RegionalConvergenceAnalysis:
             'time_series': sigma_df
         }
         
-        return self.convergence_results['sigma']
+        return cast(Dict[str, Any], self.convergence_results['sigma'])
     
     def spatial_convergence_analysis(self, spatial_weights: np.ndarray) -> Dict[str, Any]:
         """
@@ -585,7 +587,7 @@ class RegionalConvergenceAnalysis:
             'trend_in_spatial_correlation': spatial_df['morans_i'].iloc[-1] - spatial_df['morans_i'].iloc[0]
         }
         
-        return self.convergence_results['spatial']
+        return cast(Dict[str, Any], self.convergence_results['spatial'])
 
 
 class TechnologyDiffusionModels:
@@ -593,8 +595,8 @@ class TechnologyDiffusionModels:
     Models of technology diffusion across space
     """
     
-    def __init__(self):
-        self.diffusion_parameters = {}
+    def __init__(self) -> None:
+        self.diffusion_parameters: Dict[str, Any] = {}
     
     def bass_diffusion_spatial(self, regions: List[RegionProfile],
                              innovation_params: Dict[str, float],
@@ -610,7 +612,7 @@ class TechnologyDiffusionModels:
         Returns:
             Dictionary with diffusion dynamics
         """
-        def spatial_bass_dynamics(t, y):
+        def spatial_bass_dynamics(t: float, y: Any) -> np.ndarray:
             """
             Spatial Bass diffusion dynamics
             y[i] = cumulative adopters in region i
@@ -668,7 +670,7 @@ class TechnologyDiffusionModels:
         # Baseline for knowledge spillover implementation
         # This would involve modeling how R&D in one region affects productivity in neighboring regions
         
-        results = {
+        results: Dict[str, Any] = {
             'spillover_elasticities': {},
             'productivity_effects': {},
             'spatial_knowledge_networks': {}
@@ -678,7 +680,7 @@ class TechnologyDiffusionModels:
 
 
 # Example usage and testing functions
-def example_growth_analysis():
+def example_growth_analysis() -> pd.DataFrame:
     """
     Example usage of growth models
     """
@@ -698,7 +700,7 @@ def example_growth_analysis():
     print(f"Half-life: {convergence['half_life_years']:.1f} years")
     
     # Simulate growth path
-    initial_conditions = {'K': 100, 'L': 100, 'A': 1}
+    initial_conditions: Dict[str, float] = {'K': 100.0, 'L': 100.0, 'A': 1.0}
     growth_path = solow.simulate_growth_path(initial_conditions, 50)
     
     print(f"Final output per worker: {growth_path['output_per_worker'].iloc[-1]:.2f}")

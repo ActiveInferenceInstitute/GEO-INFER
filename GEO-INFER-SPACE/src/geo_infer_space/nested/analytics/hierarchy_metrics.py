@@ -77,11 +77,11 @@ class HierarchyNode:
     h3_index: Optional[str] = None
     h3_resolution: Optional[int] = None
     
-    def add_child(self, child_id: str):
+    def add_child(self, child_id: str) -> None:
         """Add a child node."""
         self.children_ids.add(child_id)
     
-    def remove_child(self, child_id: str):
+    def remove_child(self, child_id: str) -> None:
         """Remove a child node."""
         self.children_ids.discard(child_id)
     
@@ -176,7 +176,7 @@ class H3HierarchyAnalyzer:
     - Optimization recommendations
     """
     
-    def __init__(self, name: str = "H3HierarchyAnalyzer"):
+    def __init__(self, name: str = "H3HierarchyAnalyzer") -> None:
         """
         Initialize hierarchy analyzer.
         
@@ -268,7 +268,9 @@ class H3HierarchyAnalyzer:
         self.updated_at = datetime.now()
         return node
     
-    def analyze_hierarchy(self, hierarchy_id: str, **kwargs) -> HierarchyAnalysisResult:
+    def analyze_hierarchy(
+        self, hierarchy_id: str, **kwargs: Any
+    ) -> HierarchyAnalysisResult:
         """
         Perform comprehensive hierarchy analysis.
         
@@ -357,7 +359,7 @@ class H3HierarchyAnalyzer:
         metrics.max_depth = max(depths) if depths else 0
         
         # Calculate breadth at each level
-        level_counts = defaultdict(int)
+        level_counts: Dict[int, int] = defaultdict(int)
         for node in hierarchy.values():
             level_counts[node.level] += 1
         
@@ -370,8 +372,12 @@ class H3HierarchyAnalyzer:
             heights = [node.height_to_leaves for node in hierarchy.values()]
             breadths = list(level_counts.values())
             
-            metrics.height_variance = np.var(heights) if heights else 0.0
-            metrics.breadth_variance = np.var(breadths) if breadths else 0.0
+            metrics.height_variance = (
+                np.var(heights) if heights else 0.0  # type: ignore[assignment]
+            )
+            metrics.breadth_variance = (
+                np.var(breadths) if breadths else 0.0  # type: ignore[assignment]
+            )
         
         # Density metrics
         metrics.node_density = self._calculate_node_density(hierarchy)
@@ -397,7 +403,7 @@ class H3HierarchyAnalyzer:
         
         return metrics
     
-    def _calculate_node_depths(self, hierarchy: Dict[str, HierarchyNode]):
+    def _calculate_node_depths(self, hierarchy: Dict[str, HierarchyNode]) -> None:
         """Calculate depth and height for all nodes."""
         # Find root nodes
         roots = [node for node in hierarchy.values() if node.is_root()]
@@ -412,7 +418,7 @@ class H3HierarchyAnalyzer:
             self._calculate_heights_recursive(hierarchy, leaf.node_id, 0)
     
     def _calculate_depths_recursive(self, hierarchy: Dict[str, HierarchyNode], 
-                                   node_id: str, depth: int):
+                                   node_id: str, depth: int) -> None:
         """Recursively calculate depths from root."""
         if node_id not in hierarchy:
             return
@@ -424,7 +430,7 @@ class H3HierarchyAnalyzer:
             self._calculate_depths_recursive(hierarchy, child_id, depth + 1)
     
     def _calculate_heights_recursive(self, hierarchy: Dict[str, HierarchyNode],
-                                   node_id: str, height: int):
+                                   node_id: str, height: int) -> None:
         """Recursively calculate heights to leaves."""
         if node_id not in hierarchy:
             return
@@ -441,7 +447,7 @@ class H3HierarchyAnalyzer:
             return 0.0
         
         # Calculate balance based on subtree sizes
-        balance_scores = []
+        balance_scores: List[float] = []
         
         for node in hierarchy.values():
             if not node.is_leaf():
@@ -451,8 +457,13 @@ class H3HierarchyAnalyzer:
                         child_sizes.append(self._calculate_subtree_size(hierarchy, child_id))
                 
                 if len(child_sizes) > 1:
+                    balance: float
                     if NUMPY_AVAILABLE:
-                        balance = 1.0 / (1.0 + np.var(child_sizes))
+                        balance = (
+                            1.0 / (  # type: ignore[assignment]
+                                1.0 + np.var(child_sizes)
+                            )
+                        )
                     else:
                         mean_size = sum(child_sizes) / len(child_sizes)
                         variance = sum((size - mean_size) ** 2 for size in child_sizes) / len(child_sizes)
@@ -600,8 +611,11 @@ class H3HierarchyAnalyzer:
         
         level_complexity = len(levels) / len(hierarchy)
         
+        branching_complexity: float
         if branching_factors and NUMPY_AVAILABLE:
-            branching_complexity = np.var(branching_factors)
+            branching_complexity = (
+                np.var(branching_factors)  # type: ignore[assignment]
+            )
         else:
             branching_complexity = 0.0
         
@@ -618,7 +632,7 @@ class H3HierarchyAnalyzer:
             return 0.0
         
         if NUMPY_AVAILABLE:
-            return np.var(branching_factors)
+            return np.var(branching_factors)  # type: ignore[return-value]
         else:
             mean_branching = sum(branching_factors) / len(branching_factors)
             variance = sum((bf - mean_branching) ** 2 for bf in branching_factors) / len(branching_factors)
@@ -632,7 +646,7 @@ class H3HierarchyAnalyzer:
     
     def _calculate_resolution_distribution(self, hierarchy: Dict[str, HierarchyNode]) -> Dict[int, int]:
         """Calculate H3 resolution distribution."""
-        distribution = defaultdict(int)
+        distribution: Dict[int, int] = defaultdict(int)
         
         for node in hierarchy.values():
             if node.h3_resolution is not None:
@@ -699,12 +713,14 @@ class H3HierarchyAnalyzer:
     
     def _calculate_level_statistics(self, hierarchy: Dict[str, HierarchyNode]) -> Dict[int, Dict[str, Any]]:
         """Calculate statistics for each level."""
-        level_stats = defaultdict(lambda: {
-            'node_count': 0,
-            'avg_children': 0.0,
-            'max_children': 0,
-            'min_children': float('inf')
-        })
+        level_stats: Dict[int, Dict[str, Any]] = defaultdict(
+            lambda: {
+                'node_count': 0,
+                'avg_children': 0.0,
+                'max_children': 0,
+                'min_children': float('inf')
+            }
+        )
         
         # Group nodes by level
         level_nodes = defaultdict(list)
@@ -784,7 +800,12 @@ class H3HierarchyAnalyzer:
             
             for node in hierarchy.values():
                 if not node.is_leaf():
-                    z_score = abs(len(node.children_ids) - mean_branching) / max(std_branching, 0.1)
+                    z_score = (
+                        abs(  # type: ignore[call-overload, operator]
+                            len(node.children_ids) - mean_branching
+                        )
+                        / max(std_branching, 0.1)
+                    )
                     
                     if z_score > threshold:
                         anomalies.append({
@@ -830,4 +851,3 @@ class H3HierarchyAnalyzer:
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
-

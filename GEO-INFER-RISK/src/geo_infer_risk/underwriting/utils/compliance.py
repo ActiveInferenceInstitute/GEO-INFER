@@ -302,9 +302,9 @@ class ComplianceEngine:
         """Get compliance value for requirement."""
         # Simplified compliance calculation - in practice would be more sophisticated
         if requirement.category == "capital":
-            return context.get('capital_ratio', 1.0)
+            return float(context.get('capital_ratio', 1.0))
         elif requirement.category == "reporting":
-            return context.get('reporting_accuracy', 0.95)
+            return float(context.get('reporting_accuracy', 0.95))
         else:
             return 1.0  # Default compliant
 
@@ -457,7 +457,7 @@ class ComplianceEngine:
 class RegulatoryFramework:
     """Regulatory framework management."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize regulatory framework manager."""
         self.logger = logging.getLogger("geo_infer_risk.underwriting.regulatory_framework")
 

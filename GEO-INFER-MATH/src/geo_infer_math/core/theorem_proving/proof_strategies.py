@@ -5,7 +5,7 @@ This module provides automated proof strategies for common
 spatial mathematics proof patterns.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Any
 import logging
 from abc import ABC, abstractmethod
 
@@ -37,7 +37,7 @@ class ProofStrategy(ABC):
 
     @abstractmethod
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """
         Attempt to prove a theorem using this strategy.
@@ -75,7 +75,7 @@ class GeometricProofStrategy(ProofStrategy):
     """
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """Prove geometric theorem."""
         assumptions = assumptions or []
@@ -138,7 +138,7 @@ class StatisticalProofStrategy(ProofStrategy):
     """
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """Prove statistical theorem."""
         assumptions = assumptions or []
@@ -198,7 +198,7 @@ class DirectProofStrategy(ProofStrategy):
     """
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """Attempt direct proof."""
         return self.prover.prove(theorem, assumptions, **kwargs)
@@ -212,7 +212,7 @@ class ContradictionProofStrategy(ProofStrategy):
     """
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """Prove by contradiction."""
         assumptions = assumptions or []
@@ -243,7 +243,7 @@ class InductionProofStrategy(ProofStrategy):
     """
 
     def prove(
-        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs
+        self, theorem: str, assumptions: Optional[List[str]] = None, **kwargs: Any
     ) -> ProofResult:
         """Prove by induction."""
         # Induction requires base case and inductive step
@@ -267,7 +267,7 @@ class ProofStrategySelector:
     Selects appropriate proof strategy for a theorem.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize strategy selector."""
         self.strategies = [
             GeometricProofStrategy(),

@@ -5,7 +5,7 @@ This module provides API endpoints for security-related operations
 on geospatial data.
 """
 
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any, Union, Callable
 from flask import Flask, request, jsonify, Blueprint, g
 import jwt
 import json
@@ -24,9 +24,9 @@ from geo_infer_sec.core.compliance import ComplianceFramework, ComplianceRegime
 security_api = Blueprint('security_api', __name__)
 
 # Global objects (should be initialized with proper config in a real application)
-access_manager = None
-anonymizer = None
-compliance_framework = None
+access_manager: Optional[GeospatialAccessManager] = None
+anonymizer: Optional[GeospatialAnonymizer] = None
+compliance_framework: Optional[ComplianceFramework] = None
 
 
 def init_security_api(
@@ -60,19 +60,19 @@ def init_security_api(
     
     # Add error handlers
     @app.errorhandler(401)
-    def unauthorized(error):
+    def unauthorized(error: Any) -> Any:
         return jsonify({"error": "Unauthorized access"}), 401
     
     @app.errorhandler(403)
-    def forbidden(error):
+    def forbidden(error: Any) -> Any:
         return jsonify({"error": "Access forbidden"}), 403
 
 
-def token_required(f):
+def token_required(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to require a valid JWT token for API access."""
     @functools.wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
+    def decorated(*args: Any, **kwargs: Any) -> Any:
+        token: Optional[str] = None
         
         # Extract token from Authorization header
         auth_header = request.headers.get('Authorization')
@@ -84,6 +84,7 @@ def token_required(f):
             
         try:
             # Validate token
+            assert access_manager is not None
             payload = access_manager.validate_token(token)
             if not payload:
                 return jsonify({"error": "Invalid or expired token"}), 401
@@ -101,7 +102,7 @@ def token_required(f):
 
 
 @security_api.route('/token', methods=['POST'])
-def get_token():
+def get_token() -> Any:
     """Generate a JWT token for a user."""
     data = request.get_json()
     
@@ -112,6 +113,7 @@ def get_token():
     expiration_hours = data.get('expiration_hours', 24)
     
     # Check if user exists and has roles
+    assert access_manager is not None
     user_roles = access_manager.user_roles.get(user_id, [])
     if not user_roles:
         return jsonify({"error": "User has no assigned roles"}), 403
@@ -128,11 +130,12 @@ def get_token():
 
 @security_api.route('/roles', methods=['GET'])
 @token_required
-def get_roles():
+def get_roles() -> Any:
     """Get all roles assigned to the authenticated user."""
     user_id = g.user_id
     
     # Get user roles
+    assert access_manager is not None
     roles = access_manager.get_user_roles(user_id)
     
     # Convert to serializable format
@@ -147,7 +150,7 @@ def get_roles():
 
 @security_api.route('/anonymize', methods=['POST'])
 @token_required
-def anonymize_data():
+def anonymize_data() -> Any:
     """Anonymize geospatial data."""
     if anonymizer is None:
         return jsonify({"error": "Anonymization service not enabled"}), 501
@@ -197,7 +200,7 @@ def anonymize_data():
 
 @security_api.route('/check-access', methods=['POST'])
 @token_required
-def check_location_access():
+def check_location_access() -> Any:
     """Check if the user has access to a specific location."""
     user_id = g.user_id
     data = request.get_json()
@@ -209,6 +212,7 @@ def check_location_access():
     lon = data['longitude']
     
     # Check access
+    assert access_manager is not None
     has_access = access_manager.can_access_location(user_id, lat, lon)
     
     return jsonify({
@@ -222,7 +226,7 @@ def check_location_access():
 
 @security_api.route('/check-compliance', methods=['POST'])
 @token_required
-def check_compliance():
+def check_compliance() -> Any:
     """Check data compliance with regulations."""
     if compliance_framework is None:
         return jsonify({"error": "Compliance service not enabled"}), 501
@@ -262,7 +266,7 @@ def check_compliance():
 
 @security_api.route('/filter-data', methods=['POST'])
 @token_required
-def filter_data():
+def filter_data() -> Any:
     """Filter geospatial data based on user permissions."""
     user_id = g.user_id
     data = request.get_json()
@@ -275,6 +279,7 @@ def filter_data():
         gdf = gpd.GeoDataFrame.from_features(data['features'])
         
         # Filter data based on user permissions
+        assert access_manager is not None
         filtered = access_manager.filter_geodataframe(user_id, gdf)
         
         # Convert filtered data back to GeoJSON

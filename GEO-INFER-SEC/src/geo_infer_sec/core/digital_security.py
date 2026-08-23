@@ -19,8 +19,10 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union, Set
+from typing import Dict, List, Optional, Tuple, Any, Union, Set, Callable, cast
 from dataclasses import dataclass, field
+
+import secrets
 
 from cryptography.fernet import Fernet
 import jwt
@@ -156,7 +158,7 @@ class DigitalSecurityManager:
         # Initialize monitoring
         self.monitoring_active = False
         self.monitoring_threads: List[threading.Thread] = []
-        self.alert_callbacks: List[callable] = []
+        self.alert_callbacks: List[Callable[[SecurityAlert], None]] = []
 
         # Initialize security utils
         self.security_utils = SecurityUtils()
@@ -195,7 +197,7 @@ class DigitalSecurityManager:
 
         return default_config
 
-    def _initialize_security_policies(self):
+    def _initialize_security_policies(self) -> None:
         """Initialize default security policies."""
         default_policies = [
             {
@@ -242,10 +244,10 @@ class DigitalSecurityManager:
         ]
 
         for policy_config in default_policies:
-            policy = SecurityPolicy(**policy_config)
+            policy = SecurityPolicy(**cast(Dict[str, Any], policy_config))
             self.security_policies[policy.policy_id] = policy
 
-    def _initialize_encryption_keys(self):
+    def _initialize_encryption_keys(self) -> None:
         """Initialize encryption keys."""
         # Generate master key if not exists
         if "master_key" not in self.encryption_keys:
@@ -256,7 +258,7 @@ class DigitalSecurityManager:
             days=self.config.get("encryption_key_rotation_days", 90)
         )
 
-    def _load_threat_intelligence(self):
+    def _load_threat_intelligence(self) -> None:
         """Load threat intelligence indicators."""
         # In a real implementation, this would fetch from threat intelligence feeds
         # For now, we'll use some example indicators
@@ -458,7 +460,7 @@ class DigitalSecurityManager:
 
         return indicators
 
-    def _trigger_alert(self, threat: DigitalThreat):
+    def _trigger_alert(self, threat: DigitalThreat) -> None:
         """Trigger security alerts for detected threats."""
         alert = SecurityAlert(
             alert_id=f"alert_{threat.threat_id}",
@@ -483,7 +485,7 @@ class DigitalSecurityManager:
         # Auto-mitigation for certain threat types
         self._auto_mitigate_threat(threat)
 
-    def _auto_mitigate_threat(self, threat: DigitalThreat):
+    def _auto_mitigate_threat(self, threat: DigitalThreat) -> None:
         """Automatically mitigate certain types of threats."""
         if threat.source_ip and threat.severity in [
             ThreatLevel.HIGH,
@@ -637,7 +639,7 @@ class DigitalSecurityManager:
             self.logger.error(f"Key rotation error: {e}")
             return False
 
-    def check_key_rotation_schedule(self):
+    def check_key_rotation_schedule(self) -> None:
         """Check if any keys need rotation."""
         current_time = datetime.now()
 
@@ -692,9 +694,9 @@ class DigitalSecurityManager:
     ) -> Tuple[bytes, bytes]:
         """Hash a password with salt."""
         if salt is None:
-            salt = self.security_utils.generate_salt()
+            salt = secrets.token_bytes(16)
 
-        password_hash = self.security_utils.hash_password(password, salt)
+        password_hash, _ = self.security_utils.hash_password(password, salt)
         return password_hash, salt
 
     def verify_password(self, password: str, password_hash: bytes, salt: bytes) -> bool:
@@ -777,7 +779,7 @@ class DigitalSecurityManager:
             return 0.0
 
         total_score = sum(vuln.get("cvss_score", 0) for vuln in vulnerabilities)
-        return min(10.0, total_score / len(vulnerabilities))
+        return min(10.0, cast(float, total_score / len(vulnerabilities)))
 
     def _generate_vulnerability_recommendations(
         self, vulnerabilities: List[Dict[str, Any]]
@@ -829,7 +831,7 @@ class DigitalSecurityManager:
         }
 
     # Monitoring and Reporting
-    def start_monitoring(self):
+    def start_monitoring(self) -> None:
         """Start digital security monitoring."""
         if not self.monitoring_active:
             self.monitoring_active = True
@@ -855,7 +857,7 @@ class DigitalSecurityManager:
 
             self.logger.info("Digital security monitoring started")
 
-    def stop_monitoring(self):
+    def stop_monitoring(self) -> None:
         """Stop digital security monitoring."""
         self.monitoring_active = False
 
@@ -866,7 +868,7 @@ class DigitalSecurityManager:
         self.monitoring_threads.clear()
         self.logger.info("Digital security monitoring stopped")
 
-    def _threat_monitoring_loop(self):
+    def _threat_monitoring_loop(self) -> None:
         """Main threat monitoring loop."""
         while self.monitoring_active:
             try:
@@ -876,7 +878,7 @@ class DigitalSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in threat monitoring: {e}")
 
-    def _network_monitoring_loop(self):
+    def _network_monitoring_loop(self) -> None:
         """Network monitoring loop."""
         while self.monitoring_active:
             try:
@@ -886,7 +888,7 @@ class DigitalSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in network monitoring: {e}")
 
-    def _key_rotation_loop(self):
+    def _key_rotation_loop(self) -> None:
         """Key rotation monitoring loop."""
         while self.monitoring_active:
             try:
@@ -895,7 +897,7 @@ class DigitalSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in key rotation: {e}")
 
-    def _vulnerability_scan_loop(self):
+    def _vulnerability_scan_loop(self) -> None:
         """Vulnerability scanning loop."""
         while self.monitoring_active:
             try:
@@ -905,7 +907,7 @@ class DigitalSecurityManager:
             except Exception as e:
                 self.logger.error(f"Error in vulnerability scanning: {e}")
 
-    def _process_security_events(self):
+    def _process_security_events(self) -> None:
         """Process accumulated security events."""
         # Clean up old events
         retention_days = self.config.get("threat_retention_days", 30)
@@ -915,7 +917,7 @@ class DigitalSecurityManager:
             event for event in self.security_events if event.timestamp > cutoff_date
         ]
 
-    def _update_threat_intelligence(self):
+    def _update_threat_intelligence(self) -> None:
         """Update threat intelligence feeds by refreshing known threat indicators."""
         current_time = datetime.now()
         # Update threat intelligence age tracker
@@ -947,7 +949,7 @@ class DigitalSecurityManager:
 
         self._threat_intel_last_updated = current_time
 
-    def _monitor_network_traffic(self):
+    def _monitor_network_traffic(self) -> None:
         """Monitor ongoing network traffic."""
         # Clean up old connections
         current_time = datetime.now()
@@ -960,10 +962,10 @@ class DigitalSecurityManager:
         for conn_id in old_connections:
             del self.network_connections[conn_id]
 
-    def _check_blocked_ips(self):
+    def _check_blocked_ips(self) -> None:
         """Check if any blocked IPs should be unblocked based on block duration."""
         if not hasattr(self, "_ip_block_times"):
-            self._ip_block_times = {}
+            self._ip_block_times: Dict[str, datetime] = {}
 
         current_time = datetime.now()
         block_duration_hours = getattr(self, "block_duration_hours", 24)
@@ -1019,12 +1021,12 @@ class DigitalSecurityManager:
         ]
 
         # Analyze threat types
-        threat_analysis = defaultdict(int)
+        threat_analysis: Dict[str, int] = defaultdict(int)
         for threat in relevant_threats:
             threat_analysis[threat.threat_type.value] += 1
 
         # Analyze event types
-        event_analysis = defaultdict(int)
+        event_analysis: Dict[str, int] = defaultdict(int)
         for event in relevant_events:
             event_analysis[event.event_type] += 1
 
@@ -1054,7 +1056,7 @@ class DigitalSecurityManager:
         self, threats: List[DigitalThreat], top_n: int = 10
     ) -> List[Dict[str, Any]]:
         """Get top threat sources by IP."""
-        source_counts = defaultdict(int)
+        source_counts: Dict[str, int] = defaultdict(int)
         for threat in threats:
             if threat.source_ip:
                 source_counts[threat.source_ip] += 1
@@ -1124,7 +1126,7 @@ class DigitalSecurityManager:
 
         return recommendations
 
-    def add_alert_callback(self, callback: callable):
+    def add_alert_callback(self, callback: Callable[[SecurityAlert], None]) -> None:
         """Add a callback function for security alerts."""
         self.alert_callbacks.append(callback)
 

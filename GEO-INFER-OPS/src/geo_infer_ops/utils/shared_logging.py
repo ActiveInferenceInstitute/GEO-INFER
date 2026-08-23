@@ -8,7 +8,7 @@ used across all GEO-INFER modules for consistent logging behavior.
 import sys
 import logging
 import structlog
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, cast
 from pathlib import Path
 
 
@@ -50,7 +50,7 @@ def configure_logging(
     level = LOG_LEVELS.get(log_level.upper(), logging.INFO)
     
     # Configure structlog processors
-    processors = [
+    processors: list[Any] = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.TimeStamper(fmt="iso"),  # ISO 8601 format
@@ -76,7 +76,7 @@ def configure_logging(
     )
     
     # Configure standard logging handlers
-    handlers = []
+    handlers: list[logging.Handler] = []
     
     if enable_console:
         console_handler = logging.StreamHandler(sys.stdout)
@@ -140,7 +140,7 @@ def get_logger(name: Optional[str] = None) -> structlog.stdlib.BoundLogger:
         else:
             name = "geo_infer"
     
-    return structlog.get_logger(name)
+    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name))
 
 
 class LoggingContext:
@@ -226,7 +226,7 @@ def setup_module_logging(
 
 # Initialize default logging on import (optional, can be disabled)
 # This ensures logging works even if configure_logging is never called
-def _initialize_default_logging():
+def _initialize_default_logging() -> None:
     """Initialize default logging configuration."""
     if not _logging_configured:
         configure_logging(log_level="INFO", json_format=False)

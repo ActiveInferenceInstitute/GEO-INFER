@@ -87,7 +87,7 @@ class BaseAnalysisModule(ABC):
             )
             return {}
 
-        try:
+        try:  # type: ignore[unreachable]
             # Define a temporary output path for the H3 conversion
             h3_output_path = self.data_dir / f"temp_{self.module_name}_h3.geojson"
 

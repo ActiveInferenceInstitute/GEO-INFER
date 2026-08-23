@@ -14,7 +14,7 @@ router = APIRouter(
 _ENV_READINGS_DB: List[EnvironmentalData] = []
 
 @router.post("/readings/", response_model=EnvironmentalData, status_code=201)
-async def submit_environmental_reading(reading: EnvironmentalData = Body(...)):
+async def submit_environmental_reading(reading: EnvironmentalData = Body(...)) -> EnvironmentalData:
     """Submit a new environmental data reading."""
     _ENV_READINGS_DB.append(reading)
     # Sort by timestamp after adding for consistent latest reading retrieval
@@ -26,7 +26,7 @@ async def get_all_environmental_readings(
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     parameter_name: Optional[str] = Query(None, description="Filter by parameter name (e.g., 'PM2.5')")
-):
+) -> List[EnvironmentalData]:
     """Retrieve all environmental readings with pagination and optional parameter filter."""
     results = _ENV_READINGS_DB
     if parameter_name:
@@ -41,7 +41,7 @@ async def get_readings_near_location_api(
     parameter_name: Optional[str] = Query(None, description="Optional filter by parameter name."),
     start_time_iso: Optional[str] = Query(None, description="Optional start time in ISO format (YYYY-MM-DDTHH:MM:SS)."),
     end_time_iso: Optional[str] = Query(None, description="Optional end time in ISO format (YYYY-MM-DDTHH:MM:SS).")
-):
+) -> List[EnvironmentalData]:
     """Get environmental readings near a specific location and time window."""
     if not _ENV_READINGS_DB:
         raise HTTPException(status_code=404, detail="No environmental readings available.")
@@ -74,7 +74,7 @@ async def get_average_exposure_api(
     radius_km: float = Query(..., gt=0, description="Radius to search for environmental data around each target location."),
     parameter_name: str = Query(..., description="The specific environmental parameter to analyze (e.g., 'PM2.5')."),
     time_window_days: int = Query(..., ge=1, description="How many days back from the most recent reading to consider.")
-):
+) -> Dict[str, Optional[float]]:
     """Calculates the average exposure to an environmental parameter for a list of locations."""
     if not _ENV_READINGS_DB:
         raise HTTPException(status_code=404, detail="No environmental readings available for exposure analysis.")

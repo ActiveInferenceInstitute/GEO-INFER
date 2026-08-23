@@ -23,7 +23,7 @@ from .growth_models import (
 import logging
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, Optional, List
+from typing import cast, Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -203,7 +203,7 @@ class BusinessCycleModels:
         for i in range(n - 2):
             ab[4, i] = diag_2[i]
 
-        return solve_banded((2, 2), ab, y)
+        return cast(np.ndarray, solve_banded((2, 2), ab, y))
 
 
 class MonetaryPolicyModels:
@@ -513,7 +513,7 @@ class TradeModels:
         dlat = np.radians(lat2 - lat1)
         dlon = np.radians(lon2 - lon1)
         a = np.sin(dlat / 2) ** 2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2) ** 2
-        return R * 2 * np.arcsin(np.sqrt(a))
+        return float(R * 2 * np.arcsin(np.sqrt(a)))
 
 
 __all__ = [

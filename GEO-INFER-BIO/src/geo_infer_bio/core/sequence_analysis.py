@@ -2,7 +2,7 @@
 Sequence analysis module for GEO-INFER-BIO.
 """
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any, cast
 import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -19,7 +19,7 @@ from ..utils.visualization import BioVisualizer
 class SequenceAnalyzer:
     """A class for analyzing biological sequences with spatial context."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the SequenceAnalyzer."""
         self.validator = DataValidator()
         self.visualizer = BioVisualizer()
@@ -90,7 +90,7 @@ class SequenceAnalyzer:
         Returns:
             GC content as a percentage
         """
-        gc_count = sequence.count("G") + sequence.count("C")
+        gc_count = int(sequence.count("G")) + int(sequence.count("C"))
         return (gc_count / len(sequence)) * 100
 
     def find_motifs(self, sequence: Seq, motif_length: int = 6) -> Dict[str, List[int]]:
@@ -104,7 +104,7 @@ class SequenceAnalyzer:
         Returns:
             Dictionary of motifs and their positions
         """
-        motifs = {}
+        motifs: Dict[str, List[int]] = {}
         for i in range(len(sequence) - motif_length + 1):
             motif = str(sequence[i : i + motif_length])
             if motif in motifs:
@@ -126,12 +126,12 @@ class SequenceAnalyzer:
         """
         matrix = _BLOSUM62
 
-        def _lookup(x, y):
+        def _lookup(x: str, y: str) -> float:
             try:
-                return matrix[x, y]
+                return float(matrix[x, y])
             except KeyError:
                 try:
-                    return matrix[y, x]
+                    return float(matrix[y, x])
                 except KeyError:
                     return 0.0
 
@@ -144,7 +144,7 @@ class SequenceAnalyzer:
 
         if max_score == 0:
             return 0.0
-        return score / max_score
+        return float(score / max_score)
 
     def predict_coding_regions(
         self, sequence: Seq, min_length: int = 100
@@ -197,16 +197,19 @@ class SequenceAnalyzer:
         Returns:
             Dictionary of spatial analyses
         """
-        results = {
+        results: Dict[str, List[Dict[str, Any]]] = {
             "gc_content": [],
             "motif_density": [],
             "coding_potential": [],
         }
 
         for seq, spatial in zip(sequences, spatial_data.itertuples()):
-            gc = self.calculate_gc_content(seq.seq)
-            motifs = self.find_motifs(seq.seq)
-            coding_regions = self.predict_coding_regions(seq.seq)
+            if seq.seq is None:
+                continue
+            seq_value = cast("Seq", seq.seq)
+            gc = self.calculate_gc_content(seq_value)
+            motifs = self.find_motifs(seq_value)
+            coding_regions = self.predict_coding_regions(seq_value)
 
             results["gc_content"].append(
                 {

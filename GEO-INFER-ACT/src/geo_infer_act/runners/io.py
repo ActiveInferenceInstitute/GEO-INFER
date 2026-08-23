@@ -207,6 +207,8 @@ def build_figure_metadata(
     visualization_kind: str,
 ) -> Dict[str, Any]:
     """Build JSON-safe metadata shared by embedded and sidecar figure records."""
+    if config.output_dir is None:
+        raise ValueError("config.output_dir cannot be None when building figure metadata")
     return {
         "schema_version": FIGURE_ARTIFACT_SCHEMA_VERSION,
         "package": "geo-infer-act",
@@ -234,6 +236,8 @@ def _write_figure_sidecars(
     prefer_csv: bool,
 ) -> tuple[Path, Path]:
     """Write figure metadata and plotted-data sidecars."""
+    if config.output_dir is None:
+        raise ValueError("config.output_dir cannot be None when writing figure sidecars")
     metadata_path, data_path = figure_sidecar_paths(artifact_path)
     if (
         prefer_csv
@@ -259,6 +263,8 @@ def _finalize_figure_metadata(
     metadata_payload: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Write final sidecar metadata after the artifact exists on disk."""
+    if config.output_dir is None:
+        raise ValueError("config.output_dir cannot be None when finalizing figure metadata")
     metadata_payload = dict(metadata_payload)
     metadata_payload.update(
         {
@@ -290,6 +296,8 @@ def save_matplotlib_figure_artifact(
     dpi: int = 150,
 ) -> Path:
     """Save a Matplotlib figure with embedded metadata and data sidecars."""
+    if config.output_dir is None:
+        raise ValueError("config.output_dir cannot be None when saving figure artifact")
     artifact_path = config.output_dir / relative_path
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path, data_path = figure_sidecar_paths(artifact_path)
@@ -341,6 +349,8 @@ def write_html_figure_artifact(
     plotted_data: Any,
 ) -> Path:
     """Write an HTML visualization with embedded JSON metadata and sidecars."""
+    if config.output_dir is None:
+        raise ValueError("config.output_dir cannot be None when writing HTML artifact")
     artifact_path = config.output_dir / relative_path
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path, data_path = figure_sidecar_paths(artifact_path)
@@ -419,7 +429,7 @@ def validate_generated_outputs(
 ) -> Dict[str, Any]:
     """Validate required data and visualization artifacts for one run."""
     paths = {item["path"] for item in generated_files}
-    errors = []
+    errors: List[str] = []
     required = {"data/full_history.json", "data/step_metrics.csv"}
     if config.scenario in {"h3", "spatial"}:
         required.update(GEOSPATIAL_REQUIRED_FILES)

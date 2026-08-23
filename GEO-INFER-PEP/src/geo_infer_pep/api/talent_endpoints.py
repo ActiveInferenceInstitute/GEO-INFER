@@ -33,9 +33,9 @@ async def save_upload_file_tmp(upload_file: UploadFile) -> Path:
     return tmp_path
 
 @router.post("/upload/candidates/csv", response_model=Dict[str, Any])
-async def upload_candidates_csv(file: UploadFile = File(...)):
+async def upload_candidates_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
     """Upload a CSV file with candidate data."""
-    if not file.filename.endswith('.csv'):
+    if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Invalid file type. Only CSV files.")
     temp_file_path = await save_upload_file_tmp(file)
     try:
@@ -54,24 +54,27 @@ async def upload_candidates_csv(file: UploadFile = File(...)):
         if temp_file_path.exists(): temp_file_path.unlink()
 
 @router.get("/candidates", response_model=List[Candidate])
-async def get_all_candidates(limit: Optional[int] = Query(100, ge=1, le=1000), offset: Optional[int] = Query(0, ge=0)):
+async def get_all_candidates(
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
+) -> List[Candidate]:
     return DB_CANDIDATES[offset : offset + limit]
 
 @router.get("/reports/candidate-pipeline", response_model=Dict[str, Any])
-async def get_talent_candidate_pipeline_report():
+async def get_talent_candidate_pipeline_report() -> Dict[str, Any]:
     if not DB_CANDIDATES:
         raise HTTPException(status_code=404, detail="No candidate data. Upload data first.")
     return generate_candidate_pipeline_report(DB_CANDIDATES, DB_REQUISITIONS)
 
 @router.get("/reports/time-to-hire", response_model=Dict[str, Any])
-async def get_talent_time_to_hire_report():
+async def get_talent_time_to_hire_report() -> Dict[str, Any]:
     hired_candidates = [cand for cand in DB_CANDIDATES if cand.status == CandidateStatus.HIRED]
     if not hired_candidates:
         raise HTTPException(status_code=404, detail="No hired candidates found for TTH report.")
     return calculate_time_to_hire(hired_candidates)
 
 @router.get("/visualizations/candidate-pipeline-status", response_model=Dict[str, str])
-async def get_candidate_pipeline_status_plot():
+async def get_candidate_pipeline_status_plot() -> Dict[str, str]:
     if not DB_CANDIDATES:
         raise HTTPException(status_code=404, detail="No candidate data for visualization.")
     plot_path = plot_candidate_pipeline_by_status(DB_CANDIDATES)

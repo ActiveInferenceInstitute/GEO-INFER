@@ -47,24 +47,24 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
     def _initialize_model(self, **kwargs: Any) -> None:
         """Initialize the underlying model based on model_type."""
         if self.model_type == "random_forest":
-            default_params = {
+            rf_params: Dict[str, Any] = {
                 "n_estimators": 100,
                 "max_depth": 20,
                 "random_state": 42,
                 "n_jobs": -1,
             }
-            default_params.update(kwargs)
-            self.model = RandomForestClassifier(**default_params)
+            rf_params.update(kwargs)
+            self.model = RandomForestClassifier(**rf_params)
         elif self.model_type == "neural_network":
-            default_params = {
+            mlp_params: Dict[str, Any] = {
                 "hidden_layer_sizes": (100, 50),
                 "max_iter": 500,
                 "random_state": 42,
                 "early_stopping": True,
                 "validation_fraction": 0.1,
             }
-            default_params.update(kwargs)
-            self.model = MLPClassifier(**default_params)
+            mlp_params.update(kwargs)
+            self.model = MLPClassifier(**mlp_params)
         else:
             raise ValueError(
                 f"Unknown model_type: {self.model_type}. "
@@ -98,6 +98,8 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
             self.n_classes = len(np.unique(y))
 
         # Train the model
+        if self.model is None:
+            raise ValueError("Model is not initialized")
         if sample_weight is not None:
             self.model.fit(X_flat, y, sample_weight=sample_weight)
         else:
@@ -105,7 +107,7 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
 
         # Store class labels
         if hasattr(self.model, "classes_"):
-            self.classes_ = self.model.classes_
+            self.classes_ = np.asarray(self.model.classes_)
         else:
             self.classes_ = np.unique(y)
 
@@ -127,7 +129,7 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
 
         X_flat = self._flatten_images(X)
         predictions = self.model.predict(X_flat)
-        return predictions
+        return np.asarray(predictions)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """
@@ -149,7 +151,7 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
 
         X_flat = self._flatten_images(X)
         probabilities = self.model.predict_proba(X_flat)
-        return probabilities
+        return np.asarray(probabilities)
 
     def _flatten_images(self, X: np.ndarray) -> np.ndarray:
         """
@@ -185,9 +187,11 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             Feature importance array or None if not available
         """
-        if self.model_type == "random_forest" and hasattr(
-            self.model, "feature_importances_"
+        if (
+            self.model_type == "random_forest"
+            and self.model is not None
+            and hasattr(self.model, "feature_importances_")
         ):
-            return self.model.feature_importances_
+            return np.asarray(self.model.feature_importances_)
         return None
 

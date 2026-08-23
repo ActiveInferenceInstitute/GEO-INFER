@@ -45,17 +45,17 @@ class AgentWidget:
         
         # Widget state
         self.status = "initializing"
-        self.agent_info = {}
-        self.agent_metrics = {}
-        self.command_history = []
+        self.agent_info: Dict[str, Any] = {}
+        self.agent_metrics: Dict[str, Any] = {}
+        self.command_history: List[Dict[str, Any]] = []
         self.max_history = self.config.get("max_history", 100)
         
         # Update interval (milliseconds)
         self.update_interval = self.config.get("update_interval", 1000)
-        self._update_task = None
+        self._update_task: Optional[asyncio.Task[None]] = None
         
         # Callbacks
-        self.status_callbacks = []
+        self.status_callbacks: List[Callable[[str], None]] = []
     
     async def initialize(self) -> None:
         """Initialize the widget."""

@@ -2,13 +2,15 @@
 REST API for GEO-INFER-BIO.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, cast
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import pandas as pd
 from pathlib import Path
 import tempfile
 import json
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
 
 from ..core.sequence_analysis import SequenceAnalyzer
 from ..utils.validation import DataValidator
@@ -48,7 +50,7 @@ app = FastAPI(
 
 
 @app.get("/")
-async def root():
+async def root() -> Dict[str, Any]:
     """Root endpoint."""
     return {
         "name": "GEO-INFER-BIO API",
@@ -58,7 +60,7 @@ async def root():
 
 
 @app.post("/analyze/sequence", response_model=AnalysisResult)
-async def analyze_sequence(sequence_data: SequenceData):
+async def analyze_sequence(sequence_data: SequenceData) -> AnalysisResult:
     """
     Analyze a single sequence.
 
@@ -76,9 +78,6 @@ async def analyze_sequence(sequence_data: SequenceData):
         raise HTTPException(status_code=400, detail="Invalid sequence")
 
     # Create SeqRecord
-    from Bio.SeqRecord import SeqRecord
-    from Bio.Seq import Seq
-
     record = SeqRecord(
         Seq(sequence_data.sequence),
         id=sequence_data.id,
@@ -86,19 +85,24 @@ async def analyze_sequence(sequence_data: SequenceData):
 
     # Add spatial data if provided
     if sequence_data.spatial_data:
-        record.spatial_data = pd.DataFrame(
-            [
-                {
-                    "latitude": sequence_data.spatial_data.latitude,
-                    "longitude": sequence_data.spatial_data.longitude,
-                }
-            ]
+        setattr(
+            record,
+            "spatial_data",
+            pd.DataFrame(
+                [
+                    {
+                        "latitude": sequence_data.spatial_data.latitude,
+                        "longitude": sequence_data.spatial_data.longitude,
+                    }
+                ]
+            ),
         )
 
     # Perform analysis
-    gc_content = analyzer.calculate_gc_content(record.seq)
-    motifs = analyzer.find_motifs(record.seq)
-    coding_regions = analyzer.predict_coding_regions(record.seq)
+    seq_value = cast("Seq", record.seq)
+    gc_content = analyzer.calculate_gc_content(seq_value)
+    motifs = analyzer.find_motifs(seq_value)
+    coding_regions = analyzer.predict_coding_regions(seq_value)
 
     return AnalysisResult(
         sequence_id=sequence_data.id,
@@ -113,7 +117,7 @@ async def analyze_sequence(sequence_data: SequenceData):
 async def analyze_file(
     file: UploadFile = File(...),
     spatial_data: Optional[UploadFile] = File(None),
-):
+) -> List[Dict[str, Any]]:
     """
     Analyze sequences from a file.
 
@@ -140,13 +144,14 @@ async def analyze_file(
             spatial_df = pd.read_csv(spatial_path)
 
     # Load and validate sequences
-    sequences = analyzer.load_sequence(fasta_path)
-    results = []
+    loaded = analyzer.load_sequence(fasta_path)
+    sequences: List[SeqRecord] = loaded if isinstance(loaded, list) else [loaded]
+    results: List[Dict[str, Any]] = []
 
     for i, record in enumerate(sequences):
         # Add spatial data if available
         if spatial_df is not None and i < len(spatial_df):
-            record.spatial_data = spatial_df.iloc[[i]]
+            setattr(record, "spatial_data", spatial_df.iloc[[i]])
 
         # Validate sequence
         validation = validator.validate_sequence_record(record)
@@ -154,21 +159,23 @@ async def analyze_file(
             continue
 
         # Perform analysis
-        gc_content = analyzer.calculate_gc_content(record.seq)
-        motifs = analyzer.find_motifs(record.seq)
-        coding_regions = analyzer.predict_coding_regions(record.seq)
+        seq_value = cast("Seq", record.seq)
+        gc_content = analyzer.calculate_gc_content(seq_value)
+        motifs = analyzer.find_motifs(seq_value)
+        coding_regions = analyzer.predict_coding_regions(seq_value)
 
-        result = {
+        result: Dict[str, Any] = {
             "sequence_id": record.id,
             "gc_content": gc_content,
             "motif_count": len(motifs),
             "coding_regions": len(coding_regions),
         }
 
-        if hasattr(record, "spatial_data"):
+        spatial_attr = getattr(record, "spatial_data", None)
+        if spatial_attr is not None:
             result["spatial_data"] = {
-                "latitude": record.spatial_data.iloc[0]["latitude"],
-                "longitude": record.spatial_data.iloc[0]["longitude"],
+                "latitude": spatial_attr.iloc[0]["latitude"],
+                "longitude": spatial_attr.iloc[0]["longitude"],
             }
 
         results.append(result)
@@ -185,7 +192,7 @@ async def analyze_file(
 async def visualize_spatial(
     analysis_results: List[AnalysisResult],
     output_format: str = "png",
-):
+) -> Dict[str, Any]:
     """
     Generate spatial visualizations of analysis results.
 
@@ -227,6 +234,6 @@ async def visualize_spatial(
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> Dict[str, Any]:
     """Health check endpoint."""
     return {"status": "healthy"}

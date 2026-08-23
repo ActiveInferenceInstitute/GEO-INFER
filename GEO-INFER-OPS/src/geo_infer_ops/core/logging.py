@@ -1,7 +1,7 @@
 """Logging configuration module."""
 
 import logging
-from typing import Optional
+from typing import Any, Optional, cast
 
 import structlog
 
@@ -46,7 +46,7 @@ def setup_logging(
     configure_stdlib_logging(log_level, log_file)
 
     # Configure structlog
-    processors = [
+    processors: list[Any] = [
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
@@ -66,7 +66,7 @@ def setup_logging(
     )
 
 
-def get_logger(name: str) -> structlog.stdlib.BoundLoggerBase:
+def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     """Get a structured logger instance.
 
     Args:
@@ -82,4 +82,4 @@ def get_logger(name: str) -> structlog.stdlib.BoundLoggerBase:
     """
     logger = structlog.get_logger(name)
     bound_logger = logger.bind() if hasattr(logger, "bind") else logger
-    return bound_logger
+    return cast(structlog.stdlib.BoundLogger, bound_logger)

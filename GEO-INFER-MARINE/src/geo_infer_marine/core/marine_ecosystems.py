@@ -75,7 +75,7 @@ class MarineEcosystemModeler:
         thermal_stress = np.abs(temperature - optimal_temp)
         bleaching_risk = thermal_stress / 5.0  # Normalized
         
-        results = {'thermal_stress': thermal_stress, 'bleaching_risk': bleaching_risk}
+        results: Dict[str, Any] = {'thermal_stress': thermal_stress, 'bleaching_risk': bleaching_risk}
         
         if ph is not None:
             # Ocean acidification stress
@@ -282,13 +282,13 @@ class MarineEcosystemModeler:
         area = abs(area) / 2.0
         
         # Convert to km² (approximate at mid-latitude)
-        avg_lat = np.mean([c[1] for c in coords])
-        lat_correction = np.cos(np.radians(avg_lat))
+        avg_lat = float(np.mean([c[1] for c in coords]))
+        lat_correction = float(np.cos(np.radians(avg_lat)))
         km_per_degree = 111.0  # km
         
         area_km2 = area * (km_per_degree ** 2) * lat_correction
         
-        return area_km2
+        return float(area_km2)
     
     def assess_mpa_effectiveness(
         self,
@@ -475,19 +475,19 @@ class MarineEcosystemModeler:
         
         # Calculate storage by habitat
         storage_by_habitat = {}
-        total_storage = 0
-        total_area = 0
+        total_storage = 0.0
+        total_area = 0.0
         
         for habitat, area in habitat_area_km2.items():
-            rate = storage_rates.get(habitat, 100)
-            annual_storage = area * rate * multiplier
+            rate = float(storage_rates.get(habitat, 100))
+            annual_storage = float(area * rate * multiplier)
             storage_by_habitat[habitat] = {
-                'area_km2': area,
+                'area_km2': float(area),
                 'annual_storage_tonnes': annual_storage,
                 'storage_rate_t_per_km2': rate
             }
             total_storage += annual_storage
-            total_area += area
+            total_area += float(area)
         
         # Economic value (approximate $25 per tonne CO2e)
         carbon_value_usd = total_storage * 25

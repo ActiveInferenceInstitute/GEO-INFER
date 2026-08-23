@@ -25,7 +25,7 @@ class DirichletProcessMixture(BayesianModel):
     determine the number of clusters in spatial data.
     """
 
-    def __init__(self, alpha: float = 1.0, max_clusters: int = 10, **kwargs):
+    def __init__(self, alpha: float = 1.0, max_clusters: int = 10, **kwargs: Any) -> None:
         """
         Initialize the Dirichlet Process mixture model.
 
@@ -38,7 +38,7 @@ class DirichletProcessMixture(BayesianModel):
         self.alpha = alpha
         self.max_clusters = max_clusters
 
-    def _setup_model(self, **kwargs) -> None:
+    def _setup_model(self, **kwargs: Any) -> None:
         """Set up the Dirichlet Process mixture model."""
         # Define parameter distributions for inference
         self.parameters = {
@@ -124,11 +124,12 @@ class DirichletProcessMixture(BayesianModel):
                 means.size, max(float(np.var(signal)), np.finfo(float).eps)
             )
         nearest = np.argmin(np.abs(signal[:, None] - means[None, :]), axis=1)
-        prediction = means[nearest]
+        prediction = np.asarray(means[nearest])
         if return_std:
-            return prediction, np.sqrt(
+            std_prediction: np.ndarray = np.asarray(np.sqrt(
                 np.maximum(variances[nearest], np.finfo(float).eps)
-            )
+            ))
+            return prediction, std_prediction
         return prediction
 
     def posterior_predictive(

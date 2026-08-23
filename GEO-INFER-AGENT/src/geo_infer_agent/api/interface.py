@@ -33,11 +33,11 @@ class AgentInterface:
     - Agent communication
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the agent interface."""
         logger.info("Agent interface initialized")
     
-    async def initialize_services(self, reporting_interval: int = 60):
+    async def initialize_services(self, reporting_interval: int = 60) -> None:
         """
         Initialize all required services.
         
@@ -52,7 +52,7 @@ class AgentInterface:
         
         logger.info("Agent interface services initialized")
     
-    async def shutdown_services(self):
+    async def shutdown_services(self) -> None:
         """Shutdown all services."""
         # Stop messaging service
         await messaging_service.stop()

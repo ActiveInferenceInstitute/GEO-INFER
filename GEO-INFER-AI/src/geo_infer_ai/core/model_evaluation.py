@@ -266,7 +266,7 @@ class GeospatialModelEvaluator:
         y: np.ndarray,
         coordinates: np.ndarray,
         n_splits: int = 5
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Perform spatial cross-validation.
         

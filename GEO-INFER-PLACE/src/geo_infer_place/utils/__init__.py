@@ -9,7 +9,7 @@ data source integration, and helper functions.
 try:
     from geo_infer_space.utils.config_loader import LocationConfigLoader
 except ImportError:
-    LocationConfigLoader = None  # type: ignore[misc,assignment]
+    LocationConfigLoader = None
 from .caching import CachedAPIWrapper
 from .data_sources import CaliforniaDataSources
 from .integration import DelNorteDataIntegrator
