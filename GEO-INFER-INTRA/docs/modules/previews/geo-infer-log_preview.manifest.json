@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14927,
+      "name": "geo-infer-log_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5646,
+      "name": "geo-infer-log_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2162,
+      "name": "geo-infer-log_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "0631ec0427881b3739032db85731f320a19f52d5d3a7deeb12ddf9bc2ce43a8d",
+  "module_id": "GEO-INFER-LOG",
+  "name": "Logistics",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

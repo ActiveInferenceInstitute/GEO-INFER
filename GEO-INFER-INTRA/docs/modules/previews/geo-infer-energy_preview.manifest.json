@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14962,
+      "name": "geo-infer-energy_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5680,
+      "name": "geo-infer-energy_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2183,
+      "name": "geo-infer-energy_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "99e487d61b493a749f3235ecefd05df062181209df2ff2a61cffd25c526134d0",
+  "module_id": "GEO-INFER-ENERGY",
+  "name": "Energy Systems Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

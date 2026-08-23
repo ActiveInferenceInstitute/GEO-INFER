@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_16a9a194b8a25b91831c5882af05a517 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #7c3aed; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-BAYES</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Bayesian Inference Engine</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Spatial Gaussian processes, variational ELBO, and MCMC sampling</div></div>
+    
+            <div class="folium-map" id="map_16a9a194b8a25b91831c5882af05a517" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_16a9a194b8a25b91831c5882af05a517 = L.map(
+                "map_16a9a194b8a25b91831c5882af05a517",
+                {
+                    center: [37.765, -122.435],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_040fda275d83c7fb84845ead4e7bbccf = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_040fda275d83c7fb84845ead4e7bbccf.addTo(map_16a9a194b8a25b91831c5882af05a517);
+        
+    
+            var feature_group_399b0074318bf74c4c20ea76cdbb80b3 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_54a02657069c43902d5df207f8ea1387 = L.polygon(
+                [[37.765, -122.424], [37.774526, -122.4295], [37.774526, -122.4405], [37.765, -122.446], [37.755474, -122.4405], [37.755474, -122.4295], [37.765, -122.424]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_5f2c1fa3100810bab8654e77447458e1 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_13cf082f745f44a42477d899dd6def2a = $(`<div id="html_13cf082f745f44a42477d899dd6def2a" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-BAYES<br>Feature: GP Posterior Mean</div>`)[0];
+                popup_5f2c1fa3100810bab8654e77447458e1.setContent(html_13cf082f745f44a42477d899dd6def2a);
+            
+        
+
+        polygon_54a02657069c43902d5df207f8ea1387.bindPopup(popup_5f2c1fa3100810bab8654e77447458e1)
+        ;
+
+        
+    
+    
+            var polygon_5069dd4de308d498434ac0190f75c074 = L.polygon(
+                [[37.785, -122.424], [37.794526, -122.4295], [37.794526, -122.4405], [37.785, -122.446], [37.775474, -122.4405], [37.775474, -122.4295], [37.785, -122.424]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_0fe835f3e38be8af6ec33f4c045435b9 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7163a964e1bacf317c5b51db92a33388 = $(`<div id="html_7163a964e1bacf317c5b51db92a33388" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-BAYES<br>Feature: Variational Uncertainty</div>`)[0];
+                popup_0fe835f3e38be8af6ec33f4c045435b9.setContent(html_7163a964e1bacf317c5b51db92a33388);
+            
+        
+
+        polygon_5069dd4de308d498434ac0190f75c074.bindPopup(popup_0fe835f3e38be8af6ec33f4c045435b9)
+        ;
+
+        
+    
+    
+            var polygon_d8a8430fb7f72e41d0fb505900c502b0 = L.polygon(
+                [[37.775, -122.406679], [37.784526, -122.412179], [37.784526, -122.423179], [37.775, -122.428679], [37.765474, -122.423179], [37.765474, -122.412179], [37.775, -122.406679]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_7e994b54ecaceca9578b2f0da61dec1a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_25ff7f61aa8ddb6864a12bb8e7195d14 = $(`<div id="html_25ff7f61aa8ddb6864a12bb8e7195d14" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-BAYES<br>Feature: Inducing Points</div>`)[0];
+                popup_7e994b54ecaceca9578b2f0da61dec1a.setContent(html_25ff7f61aa8ddb6864a12bb8e7195d14);
+            
+        
+
+        polygon_d8a8430fb7f72e41d0fb505900c502b0.bindPopup(popup_7e994b54ecaceca9578b2f0da61dec1a)
+        ;
+
+        
+    
+    
+            var polygon_cfe770d6cf1a4c994f3785448148ec73 = L.polygon(
+                [[37.755, -122.406679], [37.764526, -122.412179], [37.764526, -122.423179], [37.755, -122.428679], [37.745474, -122.423179], [37.745474, -122.412179], [37.755, -122.406679]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_0fbb92dd21aa02d06fa23455df341f56 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_21a9fa628fe2eb6e3ce6d8ed3e7563ea = $(`<div id="html_21a9fa628fe2eb6e3ce6d8ed3e7563ea" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-BAYES<br>Feature: GP Posterior Mean</div>`)[0];
+                popup_0fbb92dd21aa02d06fa23455df341f56.setContent(html_21a9fa628fe2eb6e3ce6d8ed3e7563ea);
+            
+        
+
+        polygon_cfe770d6cf1a4c994f3785448148ec73.bindPopup(popup_0fbb92dd21aa02d06fa23455df341f56)
+        ;
+
+        
+    
+    
+            var polygon_03d5d283b93be9f0eebd4d5520382932 = L.polygon(
+                [[37.745, -122.424], [37.754526, -122.4295], [37.754526, -122.4405], [37.745, -122.446], [37.735474, -122.4405], [37.735474, -122.4295], [37.745, -122.424]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_b5efb6f95bf074bd574e5404c97b0b41 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_18bf944dbfe969a9d053149f00c62da4 = $(`<div id="html_18bf944dbfe969a9d053149f00c62da4" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-BAYES<br>Feature: Variational Uncertainty</div>`)[0];
+                popup_b5efb6f95bf074bd574e5404c97b0b41.setContent(html_18bf944dbfe969a9d053149f00c62da4);
+            
+        
+
+        polygon_03d5d283b93be9f0eebd4d5520382932.bindPopup(popup_b5efb6f95bf074bd574e5404c97b0b41)
+        ;
+
+        
+    
+    
+            var polygon_461021748f96e36d153270e570a07c5a = L.polygon(
+                [[37.755, -122.441321], [37.764526, -122.446821], [37.764526, -122.457821], [37.755, -122.463321], [37.745474, -122.457821], [37.745474, -122.446821], [37.755, -122.441321]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_37c8fdd17d374678466bb09d50d92c57 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_18c56188cd8c5ddae841d47e7ea3b759 = $(`<div id="html_18c56188cd8c5ddae841d47e7ea3b759" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-BAYES<br>Feature: Inducing Points</div>`)[0];
+                popup_37c8fdd17d374678466bb09d50d92c57.setContent(html_18c56188cd8c5ddae841d47e7ea3b759);
+            
+        
+
+        polygon_461021748f96e36d153270e570a07c5a.bindPopup(popup_37c8fdd17d374678466bb09d50d92c57)
+        ;
+
+        
+    
+    
+            var polygon_4058359fbae2aba922c3200b61d49790 = L.polygon(
+                [[37.775, -122.441321], [37.784526, -122.446821], [37.784526, -122.457821], [37.775, -122.463321], [37.765474, -122.457821], [37.765474, -122.446821], [37.775, -122.441321]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#a78bfa", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_399b0074318bf74c4c20ea76cdbb80b3);
+        
+    
+        var popup_33f7192713326a2677a06900058b4491 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a52176bcae9e669e86363e15d0586915 = $(`<div id="html_a52176bcae9e669e86363e15d0586915" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-BAYES<br>Feature: GP Posterior Mean</div>`)[0];
+                popup_33f7192713326a2677a06900058b4491.setContent(html_a52176bcae9e669e86363e15d0586915);
+            
+        
+
+        polygon_4058359fbae2aba922c3200b61d49790.bindPopup(popup_33f7192713326a2677a06900058b4491)
+        ;
+
+        
+    
+    
+            feature_group_399b0074318bf74c4c20ea76cdbb80b3.addTo(map_16a9a194b8a25b91831c5882af05a517);
+        
+    
+            var circle_marker_777a90c8b04959628cdd38252da5019a = L.circleMarker(
+                [37.765, -122.435],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_16a9a194b8a25b91831c5882af05a517);
+        
+    
+        var popup_dc5db255746c77861ea1a71bb4a2e3eb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5a35119356780d35f394b029480523ac = $(`<div id="html_5a35119356780d35f394b029480523ac" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-BAYES</b> Focus Center</div>`)[0];
+                popup_dc5db255746c77861ea1a71bb4a2e3eb.setContent(html_5a35119356780d35f394b029480523ac);
+            
+        
+
+        circle_marker_777a90c8b04959628cdd38252da5019a.bindPopup(popup_dc5db255746c77861ea1a71bb4a2e3eb)
+        ;
+
+        
+    
+    
+            var layer_control_980dc124baaf65bbe3502083c85ba35b_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_040fda275d83c7fb84845ead4e7bbccf,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_399b0074318bf74c4c20ea76cdbb80b3,
+                },
+            };
+            let layer_control_980dc124baaf65bbe3502083c85ba35b = L.control.layers(
+                layer_control_980dc124baaf65bbe3502083c85ba35b_layers.base_layers,
+                layer_control_980dc124baaf65bbe3502083c85ba35b_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_16a9a194b8a25b91831c5882af05a517);
+
+        
+</script>
+</html>

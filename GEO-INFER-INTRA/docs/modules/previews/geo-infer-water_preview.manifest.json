@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14988,
+      "name": "geo-infer-water_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5695,
+      "name": "geo-infer-water_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2180,
+      "name": "geo-infer-water_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "5f6ac233484c5cb92998dbc23ea87df0b3d012b5d9622a24544d8f243959c25c",
+  "module_id": "GEO-INFER-WATER",
+  "name": "Water Resource Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

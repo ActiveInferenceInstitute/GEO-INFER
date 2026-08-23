@@ -574,6 +574,7 @@ class TestWindowingAndEventMethods:
             "total_windows": 1,
             "late_arrivals": 0,
             "events_detected": 0,
+            "anomaly_alerts": 0,
         }
 
         processor.reset()
@@ -582,5 +583,6 @@ class TestWindowingAndEventMethods:
             "window_start": None,
             "window_end": None,
             "watermark": None,
+            "watermark_delay_seconds": None,
         }
         assert processor.get_stats()["total_points"] == 0

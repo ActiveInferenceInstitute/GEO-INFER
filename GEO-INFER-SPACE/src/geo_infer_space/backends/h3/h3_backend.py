@@ -68,6 +68,37 @@ class H3Backend:
     def __init__(self) -> None:
         """Initialize the H3 backend and check library availability."""
         self._check_h3_availability()
+        self._init_accelerator()
+
+    def _init_accelerator(self) -> None:
+        """Lazily detect and store the optional GPU accelerator module (SPACE-01).
+
+        Keeps zero-dependency semantics: if no accelerator library is
+        installed, ``self.accelerator`` stays ``False`` and every operation
+        falls back to the CPU path.
+        """
+        try:
+            from ..gpu.gpu_acceleration import (
+                get_available_backends,
+                is_accelerator_available,
+            )
+
+            self.accelerator_backends = (
+                get_available_backends() if is_accelerator_available() else []
+            )
+            self.accelerator = is_accelerator_available()
+            if self.accelerator:
+                logger.info(
+                    "GPU acceleration available via %s",
+                    self.accelerator_backends,
+                )
+        except Exception:
+            self.accelerator = False
+            self.accelerator_backends = []
+
+    def _prepare_accelerator(self) -> None:
+        """Refresh accelerator availability lazily (cheap, guards staleness)."""
+        self._init_accelerator()
 
     def _check_h3_availability(self) -> None:
         """Check if H3 library is available."""
@@ -315,6 +346,139 @@ class H3Backend:
         """
         logger.debug(f"Calculating distance between {cell1} and {cell2}")
         return cast(int, self.h3.grid_distance(cell1, cell2))
+
+    @_require_h3("compute_distance_matrix")
+    def compute_distance_matrix(
+        self,
+        cells_a: List[str],
+        cells_b: List[str],
+        use_gpu: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Compute the pairwise H3 grid distance between two cell collections.
+
+        SPACE-01 kernel: returns an ``(N, M)`` int64 matrix. Incomparable
+        pairs (mixed resolutions or across an icosahedron edge) are reported
+        as ``-1``. Accelerator-aware with a CPU fallback.
+
+        Args:
+            cells_a: First list of H3 cell identifiers.
+            cells_b: Second list of H3 cell identifiers.
+            use_gpu: When True (default) and an accelerator is available the
+                accelerated kernel is used; otherwise the CPU path runs.
+
+        Returns:
+            Dictionary with the ``(N, M)`` ``distance_matrix`` and shape.
+        """
+        from ..gpu.gpu_acceleration import (
+            h3_grid_distance_kernel,
+        )
+
+        if use_gpu:
+            self._prepare_accelerator()
+
+        matrix = h3_grid_distance_kernel(cells_a, cells_b, h3_module=self.h3)
+        return {
+            "distance_matrix": matrix,
+            "rows": len(cells_a),
+            "cols": len(cells_b),
+            "shape": list(matrix.shape),
+            "accelerator": self.accelerator_backends if use_gpu else [],
+        }
+
+    @_require_h3("geodesic_distance_matrix")
+    def geodesic_distance_matrix(
+        self,
+        cells_a: List[str],
+        cells_b: List[str],
+        use_gpu: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Compute the pairwise great-circle (haversine) distance in km between
+        the cell centroids of two H3 cell collections.
+
+        SPACE-01 accelerator-aware kernel with a CPU fallback.
+
+        Args:
+            cells_a: First list of H3 cell identifiers.
+            cells_b: Second list of H3 cell identifiers.
+            use_gpu: When True (default) and an accelerator is available the
+                accelerated kernel is used; otherwise the CPU path runs.
+
+        Returns:
+            Dictionary with ``(N, M)`` ``distance_matrix`` (km) and shape.
+        """
+        from ..gpu.gpu_acceleration import (
+            pairwise_haversine_kernel,
+        )
+
+        if use_gpu:
+            self._prepare_accelerator()
+
+        def _centroids(cells: List[str]) -> List[Tuple[float, float]]:
+            out: List[Tuple[float, float]] = []
+            for c in cells:
+                try:
+                    lat, lng = self.h3.cell_to_latlng(c)
+                    out.append((float(lat), float(lng)))
+                except Exception:
+                    out.append((0.0, 0.0))
+            return out
+
+        pts_a = _centroids(cells_a)
+        pts_b = _centroids(cells_b)
+        matrix = pairwise_haversine_kernel(pts_a, pts_b)
+        return {
+            "distance_matrix": matrix,
+            "rows": len(cells_a),
+            "cols": len(cells_b),
+            "shape": list(matrix.shape),
+            "units": "km",
+            "accelerator": self.accelerator_backends if use_gpu else [],
+        }
+
+    @_require_h3("geodesic_spatial_join")
+    def geodesic_spatial_join(
+        self,
+        points_a: List[Tuple[float, float]],
+        points_b: List[Tuple[float, float]],
+        max_distance_km: float,
+        use_gpu: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        GPU-accelerated spatial join of two point sets within a great-circle
+        radius (km) using the tensor-accelerated haversine distance kernel.
+
+        SPACE-01: the pairwise distance matrix is evaluated on the accelerator
+        (when available and ``use_gpu``), with a deterministic CPU fallback.
+
+        Args:
+            points_a: List of ``(lat, lng)`` degrees.
+            points_b: List of ``(lat, lng)`` degrees.
+            max_distance_km: Maximum separation (km) to consider a join.
+            use_gpu: When True (default) and an accelerator is available the
+                accelerated kernel is used; otherwise the CPU path runs.
+
+        Returns:
+            Dictionary with ``pairs``, ``unmatched_a``, ``unmatched_b``.
+        """
+        from ..gpu.gpu_acceleration import (
+            gpu_spatial_join_by_distance,
+        )
+
+        if use_gpu:
+            self._prepare_accelerator()
+
+        pairs, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(
+            points_a, points_b, max_distance_km=max_distance_km
+        )
+        return {
+            "pairs": pairs,
+            "pair_count": len(pairs),
+            "unmatched_a": unmatched_a,
+            "unmatched_b": unmatched_b,
+            "accelerator": self.accelerator_backends if use_gpu else [],
+        }
 
     @_require_h3("compact_cells")
     def compact_cells(self, cells: List[str]) -> List[str]:
@@ -996,7 +1160,11 @@ class H3Backend:
 
     @_require_h3("spatial_join")
     def spatial_join(
-        self, cells_a: List[str], cells_b: List[str], join_type: str = "intersects"
+        self,
+        cells_a: List[str],
+        cells_b: List[str],
+        join_type: str = "intersects",
+        use_gpu: bool = True,
     ) -> Dict[str, Any]:
         """
         Join two sets of cells based on spatial relationships.
@@ -1005,6 +1173,9 @@ class H3Backend:
             cells_a: First set of H3 cell identifiers
             cells_b: Second set of H3 cell identifiers
             join_type: Type of join ('intersects', 'contains', 'within')
+            use_gpu: When True (default) and a GPU accelerator is available,
+                the join uses the accelerated kernel; otherwise the CPU path
+                is used. Setting to False forces the CPU path.
 
         Returns:
             Dictionary with matched pairs and unmatched cells
@@ -1019,9 +1190,31 @@ class H3Backend:
             f"Performing spatial join ({join_type}) on {len(cells_a)} x {len(cells_b)} cells"
         )
 
+        # SPACE-01: use the optional GPU-accelerated kernel when requested and
+        # available; always fall back to the CPU reference path otherwise.
+        if use_gpu:
+            self._prepare_accelerator()
+            if self.accelerator:
+                try:
+                    from ..gpu.gpu_acceleration import spatial_join_kernel
+
+                    gpu_matches, unmatched_a, unmatched_b = spatial_join_kernel(
+                        cells_a, cells_b, join_type=join_type, h3_module=self.h3
+                    )
+                    return {
+                        "matches": gpu_matches,
+                        "match_count": len(gpu_matches),
+                        "unmatched_a": unmatched_a,
+                        "unmatched_b": unmatched_b,
+                        "join_type": join_type,
+                        "accelerator": self.accelerator_backends,
+                    }
+                except Exception:
+                    logger.debug("GPU spatial join failed; using CPU path", exc_info=True)
+
         set_a = set(cells_a)
         set_b = set(cells_b)
-        matches = []
+        matches: List[Tuple[str, str]] = []
         matched_a = set()
         matched_b = set()
 

@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14933,
+      "name": "geo-infer-app_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5657,
+      "name": "geo-infer-app_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2182,
+      "name": "geo-infer-app_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Applications",
+  "input_sha256": "a75f6648b83adff1b9a4163e8def73193f981686eac0168a9c4d9a3f0d5d93ba",
+  "module_id": "GEO-INFER-APP",
+  "name": "Application Framework",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

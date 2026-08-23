@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_c362ff04161cb5e135bf249f1c2617b7 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-MARINE</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Marine and Coastal Module</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Bathymetry modeling, shoreline vulnerability, and ocean currents</div></div>
+    
+            <div class="folium-map" id="map_c362ff04161cb5e135bf249f1c2617b7" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_c362ff04161cb5e135bf249f1c2617b7 = L.map(
+                "map_c362ff04161cb5e135bf249f1c2617b7",
+                {
+                    center: [37.82, -122.5],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 11,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_9757bf33b992533125bba3e5961da7a1 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_9757bf33b992533125bba3e5961da7a1.addTo(map_c362ff04161cb5e135bf249f1c2617b7);
+        
+    
+            var feature_group_5513e075ed3fb557e42cc2926783685e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_47819ea118d700f4860a9e256abc8a24 = L.polygon(
+                [[37.82, -122.489], [37.829526, -122.4945], [37.829526, -122.5055], [37.82, -122.511], [37.810474, -122.5055], [37.810474, -122.4945], [37.82, -122.489]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_5f4fa095897514139a3777a377b0e8de = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c521304d697c3babfc145a8db9b97ca6 = $(`<div id="html_c521304d697c3babfc145a8db9b97ca6" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-MARINE<br>Feature: Bathymetric Contours</div>`)[0];
+                popup_5f4fa095897514139a3777a377b0e8de.setContent(html_c521304d697c3babfc145a8db9b97ca6);
+            
+        
+
+        polygon_47819ea118d700f4860a9e256abc8a24.bindPopup(popup_5f4fa095897514139a3777a377b0e8de)
+        ;
+
+        
+    
+    
+            var polygon_cd3cd412913fbba1cf156d10a762b298 = L.polygon(
+                [[37.84, -122.489], [37.849526, -122.4945], [37.849526, -122.5055], [37.84, -122.511], [37.830474, -122.5055], [37.830474, -122.4945], [37.84, -122.489]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_cd9c2102ac53d57447a1c52095038d12 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_6e0519b6751baf92ee5d1042a4388eb6 = $(`<div id="html_6e0519b6751baf92ee5d1042a4388eb6" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-MARINE<br>Feature: Current Vectors</div>`)[0];
+                popup_cd9c2102ac53d57447a1c52095038d12.setContent(html_6e0519b6751baf92ee5d1042a4388eb6);
+            
+        
+
+        polygon_cd3cd412913fbba1cf156d10a762b298.bindPopup(popup_cd9c2102ac53d57447a1c52095038d12)
+        ;
+
+        
+    
+    
+            var polygon_5f65dfce7d32c0393003483609168fdd = L.polygon(
+                [[37.83, -122.471679], [37.839526, -122.477179], [37.839526, -122.488179], [37.83, -122.493679], [37.820474, -122.488179], [37.820474, -122.477179], [37.83, -122.471679]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_c10f20800228d15eaf6d0031b4872321 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2466d740e81dbe5dec3f90de8954b59c = $(`<div id="html_2466d740e81dbe5dec3f90de8954b59c" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-MARINE<br>Feature: Coastal Buffers</div>`)[0];
+                popup_c10f20800228d15eaf6d0031b4872321.setContent(html_2466d740e81dbe5dec3f90de8954b59c);
+            
+        
+
+        polygon_5f65dfce7d32c0393003483609168fdd.bindPopup(popup_c10f20800228d15eaf6d0031b4872321)
+        ;
+
+        
+    
+    
+            var polygon_20692a9e037910a5e2ea26ae25fe3ef9 = L.polygon(
+                [[37.81, -122.471679], [37.819526, -122.477179], [37.819526, -122.488179], [37.81, -122.493679], [37.800474, -122.488179], [37.800474, -122.477179], [37.81, -122.471679]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_ef13989ee47152dd3920398f107cd308 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a9ee4a31abbdd9f75cf10e0ad1d87a26 = $(`<div id="html_a9ee4a31abbdd9f75cf10e0ad1d87a26" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-MARINE<br>Feature: Bathymetric Contours</div>`)[0];
+                popup_ef13989ee47152dd3920398f107cd308.setContent(html_a9ee4a31abbdd9f75cf10e0ad1d87a26);
+            
+        
+
+        polygon_20692a9e037910a5e2ea26ae25fe3ef9.bindPopup(popup_ef13989ee47152dd3920398f107cd308)
+        ;
+
+        
+    
+    
+            var polygon_ab3c6d799ccb5412efbb79ac2e241ba1 = L.polygon(
+                [[37.8, -122.489], [37.809526, -122.4945], [37.809526, -122.5055], [37.8, -122.511], [37.790474, -122.5055], [37.790474, -122.4945], [37.8, -122.489]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_984e02373b8c2398a4eb8c3c1f3d9a23 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_0d92222798a866ee83aa5760727838ae = $(`<div id="html_0d92222798a866ee83aa5760727838ae" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-MARINE<br>Feature: Current Vectors</div>`)[0];
+                popup_984e02373b8c2398a4eb8c3c1f3d9a23.setContent(html_0d92222798a866ee83aa5760727838ae);
+            
+        
+
+        polygon_ab3c6d799ccb5412efbb79ac2e241ba1.bindPopup(popup_984e02373b8c2398a4eb8c3c1f3d9a23)
+        ;
+
+        
+    
+    
+            var polygon_26cd67366e56d6533740363b9bc4b7ec = L.polygon(
+                [[37.81, -122.506321], [37.819526, -122.511821], [37.819526, -122.522821], [37.81, -122.528321], [37.800474, -122.522821], [37.800474, -122.511821], [37.81, -122.506321]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_dd870226ef89a35674442ab649cdc429 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d2efedf2a06b4ae04e817b3f3d3924ab = $(`<div id="html_d2efedf2a06b4ae04e817b3f3d3924ab" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-MARINE<br>Feature: Coastal Buffers</div>`)[0];
+                popup_dd870226ef89a35674442ab649cdc429.setContent(html_d2efedf2a06b4ae04e817b3f3d3924ab);
+            
+        
+
+        polygon_26cd67366e56d6533740363b9bc4b7ec.bindPopup(popup_dd870226ef89a35674442ab649cdc429)
+        ;
+
+        
+    
+    
+            var polygon_0e7d7b3981de5b4d2b8a2b4be7ced017 = L.polygon(
+                [[37.83, -122.506321], [37.839526, -122.511821], [37.839526, -122.522821], [37.83, -122.528321], [37.820474, -122.522821], [37.820474, -122.511821], [37.83, -122.506321]],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#0ea5e9", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_5513e075ed3fb557e42cc2926783685e);
+        
+    
+        var popup_a435ab9942cc55d912b0261933dd4114 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e63b2f974182860bd801b4344b659d50 = $(`<div id="html_e63b2f974182860bd801b4344b659d50" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-MARINE<br>Feature: Bathymetric Contours</div>`)[0];
+                popup_a435ab9942cc55d912b0261933dd4114.setContent(html_e63b2f974182860bd801b4344b659d50);
+            
+        
+
+        polygon_0e7d7b3981de5b4d2b8a2b4be7ced017.bindPopup(popup_a435ab9942cc55d912b0261933dd4114)
+        ;
+
+        
+    
+    
+            feature_group_5513e075ed3fb557e42cc2926783685e.addTo(map_c362ff04161cb5e135bf249f1c2617b7);
+        
+    
+            var circle_marker_a1405c890d35b16f9ecbe553c7a1d41d = L.circleMarker(
+                [37.82, -122.5],
+                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_c362ff04161cb5e135bf249f1c2617b7);
+        
+    
+        var popup_de38aaa4d3c8fc89babca939e59285c8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_da889fe6bcb244f4bbea0ef87978c976 = $(`<div id="html_da889fe6bcb244f4bbea0ef87978c976" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-MARINE</b> Focus Center</div>`)[0];
+                popup_de38aaa4d3c8fc89babca939e59285c8.setContent(html_da889fe6bcb244f4bbea0ef87978c976);
+            
+        
+
+        circle_marker_a1405c890d35b16f9ecbe553c7a1d41d.bindPopup(popup_de38aaa4d3c8fc89babca939e59285c8)
+        ;
+
+        
+    
+    
+            var layer_control_bd4c08c2929087a9aaf59de70121ca9f_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_9757bf33b992533125bba3e5961da7a1,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_5513e075ed3fb557e42cc2926783685e,
+                },
+            };
+            let layer_control_bd4c08c2929087a9aaf59de70121ca9f = L.control.layers(
+                layer_control_bd4c08c2929087a9aaf59de70121ca9f_layers.base_layers,
+                layer_control_bd4c08c2929087a9aaf59de70121ca9f_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_c362ff04161cb5e135bf249f1c2617b7);
+
+        
+</script>
+</html>

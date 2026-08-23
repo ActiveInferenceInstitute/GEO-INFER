@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15007,
+      "name": "geo-infer-ag_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5659,
+      "name": "geo-infer-ag_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2174,
+      "name": "geo-infer-ag_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "06a2df31052cf068f7440634998c44009f15a44467d085f403a51b342946ff07",
+  "module_id": "GEO-INFER-AG",
+  "name": "Agricultural Systems",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

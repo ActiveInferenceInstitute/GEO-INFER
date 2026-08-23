@@ -53,6 +53,9 @@ package-dir = {"" = "src"}
 where = ["src"]
 exclude = ["tests*"]
 
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
+
 [tool.black]
 line-length = 88
 target-version = ['py311', 'py312']

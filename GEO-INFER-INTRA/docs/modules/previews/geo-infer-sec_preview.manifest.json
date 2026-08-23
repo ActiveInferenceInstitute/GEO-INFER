@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14955,
+      "name": "geo-infer-sec_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5672,
+      "name": "geo-infer-sec_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2171,
+      "name": "geo-infer-sec_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "06831906c41f6d0a58475a617baaafe284b1c627deb55e2c0212790acd73bb27",
+  "module_id": "GEO-INFER-SEC",
+  "name": "Security",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

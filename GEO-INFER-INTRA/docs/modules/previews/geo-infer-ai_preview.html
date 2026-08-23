@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9b4a7a8e5897b6cc6d7e6beace44daaf {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #4f46e5; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-AI</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Artificial Intelligence Engine</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Machine-learning embeddings, spatial neural operators, and surrogate models</div></div>
+    
+            <div class="folium-map" id="map_9b4a7a8e5897b6cc6d7e6beace44daaf" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9b4a7a8e5897b6cc6d7e6beace44daaf = L.map(
+                "map_9b4a7a8e5897b6cc6d7e6beace44daaf",
+                {
+                    center: [37.76, -122.44],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5648fabee89d30ca4b882ce30973bc12 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_5648fabee89d30ca4b882ce30973bc12.addTo(map_9b4a7a8e5897b6cc6d7e6beace44daaf);
+        
+    
+            var feature_group_433df628bd830831399ad40bdec60130 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_e9a326178c602516f96d7aeba983e3dd = L.polygon(
+                [[37.76, -122.429], [37.769526, -122.4345], [37.769526, -122.4455], [37.76, -122.451], [37.750474, -122.4455], [37.750474, -122.4345], [37.76, -122.429]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_d67e83dd1c02ee95b564b317ea3d55ed = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f4decbf2186b18eb524e952fb05379e4 = $(`<div id="html_f4decbf2186b18eb524e952fb05379e4" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-AI<br>Feature: Latent Feature Space</div>`)[0];
+                popup_d67e83dd1c02ee95b564b317ea3d55ed.setContent(html_f4decbf2186b18eb524e952fb05379e4);
+            
+        
+
+        polygon_e9a326178c602516f96d7aeba983e3dd.bindPopup(popup_d67e83dd1c02ee95b564b317ea3d55ed)
+        ;
+
+        
+    
+    
+            var polygon_826039db8f57e75e44067de1e1b907a8 = L.polygon(
+                [[37.78, -122.429], [37.789526, -122.4345], [37.789526, -122.4455], [37.78, -122.451], [37.770474, -122.4455], [37.770474, -122.4345], [37.78, -122.429]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_bc0ac595e32788ca478cea679d6e88cf = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e318f465d89a42ebee25f125bb6db884 = $(`<div id="html_e318f465d89a42ebee25f125bb6db884" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-AI<br>Feature: Neural Operator Field</div>`)[0];
+                popup_bc0ac595e32788ca478cea679d6e88cf.setContent(html_e318f465d89a42ebee25f125bb6db884);
+            
+        
+
+        polygon_826039db8f57e75e44067de1e1b907a8.bindPopup(popup_bc0ac595e32788ca478cea679d6e88cf)
+        ;
+
+        
+    
+    
+            var polygon_908a3729fafad5639b8542c409afc0db = L.polygon(
+                [[37.77, -122.411679], [37.779526, -122.417179], [37.779526, -122.428179], [37.77, -122.433679], [37.760474, -122.428179], [37.760474, -122.417179], [37.77, -122.411679]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_679649585e0a97d30eabb8c64c6733a0 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e3bf975c68b7943d3898f44a99da6183 = $(`<div id="html_e3bf975c68b7943d3898f44a99da6183" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-AI<br>Feature: Prediction Confidence</div>`)[0];
+                popup_679649585e0a97d30eabb8c64c6733a0.setContent(html_e3bf975c68b7943d3898f44a99da6183);
+            
+        
+
+        polygon_908a3729fafad5639b8542c409afc0db.bindPopup(popup_679649585e0a97d30eabb8c64c6733a0)
+        ;
+
+        
+    
+    
+            var polygon_040d9fbb8ee805465a734cc933a0a4b6 = L.polygon(
+                [[37.75, -122.411679], [37.759526, -122.417179], [37.759526, -122.428179], [37.75, -122.433679], [37.740474, -122.428179], [37.740474, -122.417179], [37.75, -122.411679]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_5de4697087352598cca35228e1ef9562 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_eb820d2b388cbebb1cf4e0f024548753 = $(`<div id="html_eb820d2b388cbebb1cf4e0f024548753" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-AI<br>Feature: Latent Feature Space</div>`)[0];
+                popup_5de4697087352598cca35228e1ef9562.setContent(html_eb820d2b388cbebb1cf4e0f024548753);
+            
+        
+
+        polygon_040d9fbb8ee805465a734cc933a0a4b6.bindPopup(popup_5de4697087352598cca35228e1ef9562)
+        ;
+
+        
+    
+    
+            var polygon_02d2b8701883d0bc2e56092a0fdb609f = L.polygon(
+                [[37.74, -122.429], [37.749526, -122.4345], [37.749526, -122.4455], [37.74, -122.451], [37.730474, -122.4455], [37.730474, -122.4345], [37.74, -122.429]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_7d31551d72c1e1e2c11ae5dd385e426b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_6c976cb6369104f85d25a4ba5bd2334e = $(`<div id="html_6c976cb6369104f85d25a4ba5bd2334e" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-AI<br>Feature: Neural Operator Field</div>`)[0];
+                popup_7d31551d72c1e1e2c11ae5dd385e426b.setContent(html_6c976cb6369104f85d25a4ba5bd2334e);
+            
+        
+
+        polygon_02d2b8701883d0bc2e56092a0fdb609f.bindPopup(popup_7d31551d72c1e1e2c11ae5dd385e426b)
+        ;
+
+        
+    
+    
+            var polygon_05dc0e8aa653ead2b5e2e99f4f62a3cf = L.polygon(
+                [[37.75, -122.446321], [37.759526, -122.451821], [37.759526, -122.462821], [37.75, -122.468321], [37.740474, -122.462821], [37.740474, -122.451821], [37.75, -122.446321]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_0018aacae79083ffb02a403ab613a429 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_9054aeb6a60b79a9a5a30ddd3f937644 = $(`<div id="html_9054aeb6a60b79a9a5a30ddd3f937644" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-AI<br>Feature: Prediction Confidence</div>`)[0];
+                popup_0018aacae79083ffb02a403ab613a429.setContent(html_9054aeb6a60b79a9a5a30ddd3f937644);
+            
+        
+
+        polygon_05dc0e8aa653ead2b5e2e99f4f62a3cf.bindPopup(popup_0018aacae79083ffb02a403ab613a429)
+        ;
+
+        
+    
+    
+            var polygon_cae99ca23a420728b6a5e100bcc5f637 = L.polygon(
+                [[37.77, -122.446321], [37.779526, -122.451821], [37.779526, -122.462821], [37.77, -122.468321], [37.760474, -122.462821], [37.760474, -122.451821], [37.77, -122.446321]],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#818cf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_433df628bd830831399ad40bdec60130);
+        
+    
+        var popup_70af4d0370f0384cf1bcc610ede7311c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_42ad7ab461b622f90f72d18f88bf7267 = $(`<div id="html_42ad7ab461b622f90f72d18f88bf7267" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-AI<br>Feature: Latent Feature Space</div>`)[0];
+                popup_70af4d0370f0384cf1bcc610ede7311c.setContent(html_42ad7ab461b622f90f72d18f88bf7267);
+            
+        
+
+        polygon_cae99ca23a420728b6a5e100bcc5f637.bindPopup(popup_70af4d0370f0384cf1bcc610ede7311c)
+        ;
+
+        
+    
+    
+            feature_group_433df628bd830831399ad40bdec60130.addTo(map_9b4a7a8e5897b6cc6d7e6beace44daaf);
+        
+    
+            var circle_marker_1a545646ce0d18394b5e51d0818563c5 = L.circleMarker(
+                [37.76, -122.44],
+                {"bubblingMouseEvents": true, "color": "#4f46e5", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_9b4a7a8e5897b6cc6d7e6beace44daaf);
+        
+    
+        var popup_6e2176ba92735000467a0a15d720be52 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ff30c36536ead78b5936e186940f309b = $(`<div id="html_ff30c36536ead78b5936e186940f309b" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-AI</b> Focus Center</div>`)[0];
+                popup_6e2176ba92735000467a0a15d720be52.setContent(html_ff30c36536ead78b5936e186940f309b);
+            
+        
+
+        circle_marker_1a545646ce0d18394b5e51d0818563c5.bindPopup(popup_6e2176ba92735000467a0a15d720be52)
+        ;
+
+        
+    
+    
+            var layer_control_3074024803bef7167c543c0d7da55828_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_5648fabee89d30ca4b882ce30973bc12,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_433df628bd830831399ad40bdec60130,
+                },
+            };
+            let layer_control_3074024803bef7167c543c0d7da55828 = L.control.layers(
+                layer_control_3074024803bef7167c543c0d7da55828_layers.base_layers,
+                layer_control_3074024803bef7167c543c0d7da55828_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_9b4a7a8e5897b6cc6d7e6beace44daaf);
+
+        
+</script>
+</html>

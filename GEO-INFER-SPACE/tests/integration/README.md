@@ -5,6 +5,7 @@ Integration workspace within `GEO-INFER-SPACE`.
 ## Contents
 
 - `test_cross_component_workflows.py`
+- `test_gpu_spatial_integration.py`
 - `test_unified_ml_integration.py`
 
 ## Public Interface

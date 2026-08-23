@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15001,
+      "name": "geo-infer-norms_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5688,
+      "name": "geo-infer-norms_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2179,
+      "name": "geo-infer-norms_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Governance",
+  "input_sha256": "3cb1f65ad0e7b2d1aa7c18ee949eb4e0fc9d59f2f4f41b7c16d52ab3fdebd890",
+  "module_id": "GEO-INFER-NORMS",
+  "name": "Norms & Standards",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

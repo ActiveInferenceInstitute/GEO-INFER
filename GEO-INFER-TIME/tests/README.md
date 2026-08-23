@@ -15,6 +15,7 @@ Tests workspace within `GEO-INFER-TIME`.
 - `test_io_utils_db.py`
 - `test_statistics_extended.py`
 - `test_stream_processing.py`
+- `test_stream_processing_adapters.py`
 - `test_temporal_analysis.py`
 - `test_temporal_statistics.py`
 - `test_temporal_visualization.py`

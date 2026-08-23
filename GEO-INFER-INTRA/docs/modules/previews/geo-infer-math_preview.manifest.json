@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15025,
+      "name": "geo-infer-math_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5681,
+      "name": "geo-infer-math_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2186,
+      "name": "geo-infer-math_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "8f15d773e5f7c1c3dbc47e3525fd1e104b602882ff0ba8ed6c6c1a5d593c0ae6",
+  "module_id": "GEO-INFER-MATH",
+  "name": "Mathematical Foundations",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

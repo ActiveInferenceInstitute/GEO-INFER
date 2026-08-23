@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `gpu/`
 - `h3/`
 - `srai/`
 

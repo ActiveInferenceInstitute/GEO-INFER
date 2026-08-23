@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14927,
+      "name": "geo-infer-api_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5660,
+      "name": "geo-infer-api_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2184,
+      "name": "geo-infer-api_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "2ff6c05f388e6d0999f25116a7a84c746240003e456c530fa6ee8cf193b8f046",
+  "module_id": "GEO-INFER-API",
+  "name": "API Management System",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

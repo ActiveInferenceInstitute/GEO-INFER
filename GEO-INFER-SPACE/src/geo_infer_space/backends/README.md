@@ -4,6 +4,7 @@ Backends workspace within `GEO-INFER-SPACE`.
 
 ## Contents
 
+- `gpu/`
 - `h3/`
 - `srai/`
 

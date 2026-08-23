@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14951,
+      "name": "geo-infer-bio_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5668,
+      "name": "geo-infer-bio_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2173,
+      "name": "geo-infer-bio_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "d604c2227f442597b519b415fdf0fc44bb29e46b90c43905bf725e0480a2ad14",
+  "module_id": "GEO-INFER-BIO",
+  "name": "Biological Systems",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

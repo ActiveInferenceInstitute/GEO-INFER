@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15022,
+      "name": "geo-infer-space_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5682,
+      "name": "geo-infer-space_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2188,
+      "name": "geo-infer-space_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "1cf708809dac53a25ca7d82b189ec68c449b567ce96604789f2c55fbd66814bb",
+  "module_id": "GEO-INFER-SPACE",
+  "name": "Spatial Analysis Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

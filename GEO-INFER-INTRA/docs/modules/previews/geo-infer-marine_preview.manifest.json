@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14976,
+      "name": "geo-infer-marine_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5686,
+      "name": "geo-infer-marine_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2186,
+      "name": "geo-infer-marine_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "b939bce8f95ffe3ad312f325aea6cd16c29d4ffed4d441f3246e9c4fbae44444",
+  "module_id": "GEO-INFER-MARINE",
+  "name": "Marine and Coastal Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

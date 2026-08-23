@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14964,
+      "name": "geo-infer-pep_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5673,
+      "name": "geo-infer-pep_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2175,
+      "name": "geo-infer-pep_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "a1bd8659bbbae723094c9f862842d4e80a555a59c55e7f1bc0eb3f5ad2837102",
+  "module_id": "GEO-INFER-PEP",
+  "name": "People & Communities",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

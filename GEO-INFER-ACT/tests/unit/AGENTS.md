@@ -25,11 +25,13 @@
 - `test_api.py`
 - `test_categorical_regressions.py`
 - `test_climate_model.py`
+- `test_continuous_efe.py`
 - `test_continuous_pomdp_filter.py`
 - `test_core.py`
 - `test_dynamic_causal_model.py`
 - `test_ecological_model.py`
 - `test_free_energy.py`
+- `test_generative_efe.py`
 - `test_geospatial_ai.py`
 - `test_geospatial_runner_outputs.py`
 - `test_h3.py`
@@ -41,10 +43,12 @@
 - `test_model_contracts.py`
 - `test_models.py`
 - `test_nested_h3_active_inference.py`
+- `test_policy_decomposition.py`
 - `test_policy_selection.py`
 - `test_pymdp_h3_backend.py`
 - `test_runner_contracts.py`
 - `test_spatial_agent.py`
+- `test_spatial_grid_scoring.py`
 - `test_spatial_research_statistics.py`
 - `test_spatial_trace_diagnostics.py`
 - `test_utils.py`

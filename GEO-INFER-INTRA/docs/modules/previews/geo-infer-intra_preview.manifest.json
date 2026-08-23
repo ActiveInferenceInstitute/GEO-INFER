@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15012,
+      "name": "geo-infer-intra_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5681,
+      "name": "geo-infer-intra_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2189,
+      "name": "geo-infer-intra_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "8e566babeebeac8dd4504c03f45779c5dd23e2fb15c224c09df2c6b82179df0d",
+  "module_id": "GEO-INFER-INTRA",
+  "name": "Knowledge Integration",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

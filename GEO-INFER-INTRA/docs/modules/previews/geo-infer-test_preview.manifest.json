@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15026,
+      "name": "geo-infer-test_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5680,
+      "name": "geo-infer-test_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2182,
+      "name": "geo-infer-test_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Infrastructure",
+  "input_sha256": "402c51f6bb1419a38ebccfd76d31c0704efbafb014b2dbda28f824cbb2ddca47",
+  "module_id": "GEO-INFER-TEST",
+  "name": "Testing Framework",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

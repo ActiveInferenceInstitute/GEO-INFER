@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_676215b72b1ad9e11383e76b0a0a22e5 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #f97316; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-LOG</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Logistics</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Freight corridors, last-mile optimization, and fleet dispatch</div></div>
+    
+            <div class="folium-map" id="map_676215b72b1ad9e11383e76b0a0a22e5" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_676215b72b1ad9e11383e76b0a0a22e5 = L.map(
+                "map_676215b72b1ad9e11383e76b0a0a22e5",
+                {
+                    center: [37.8, -122.28],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 11,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5c863e3ba7da9147256e6d707a2648e4 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_5c863e3ba7da9147256e6d707a2648e4.addTo(map_676215b72b1ad9e11383e76b0a0a22e5);
+        
+    
+            var feature_group_3bd0c10f6c523c0f7525cbaa4f68243b = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_64461619892bd7bc03803a63c15f4ba7 = L.polygon(
+                [[37.8, -122.269], [37.809526, -122.2745], [37.809526, -122.2855], [37.8, -122.291], [37.790474, -122.2855], [37.790474, -122.2745], [37.8, -122.269]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_b363a97dd095179ec9531bf25524aa95 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_72632a20a786951547b5577f54d0792e = $(`<div id="html_72632a20a786951547b5577f54d0792e" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-LOG<br>Feature: Freight Corridors</div>`)[0];
+                popup_b363a97dd095179ec9531bf25524aa95.setContent(html_72632a20a786951547b5577f54d0792e);
+            
+        
+
+        polygon_64461619892bd7bc03803a63c15f4ba7.bindPopup(popup_b363a97dd095179ec9531bf25524aa95)
+        ;
+
+        
+    
+    
+            var polygon_7461745bd06cfc9f23149d290de8ad20 = L.polygon(
+                [[37.82, -122.269], [37.829526, -122.2745], [37.829526, -122.2855], [37.82, -122.291], [37.810474, -122.2855], [37.810474, -122.2745], [37.82, -122.269]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_2926fd828b4138c1536e6710d097ed9d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_15b04af6ea3ea3d3b6e75b72c261ec64 = $(`<div id="html_15b04af6ea3ea3d3b6e75b72c261ec64" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-LOG<br>Feature: Distribution Hubs</div>`)[0];
+                popup_2926fd828b4138c1536e6710d097ed9d.setContent(html_15b04af6ea3ea3d3b6e75b72c261ec64);
+            
+        
+
+        polygon_7461745bd06cfc9f23149d290de8ad20.bindPopup(popup_2926fd828b4138c1536e6710d097ed9d)
+        ;
+
+        
+    
+    
+            var polygon_27659eab1098b2dedc8741ac00660dc4 = L.polygon(
+                [[37.81, -122.251679], [37.819526, -122.257179], [37.819526, -122.268179], [37.81, -122.273679], [37.800474, -122.268179], [37.800474, -122.257179], [37.81, -122.251679]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_e6fa5053c11c856bb5c5e79b0614ad8b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_118714cbdec2a22d3acad30b75b04946 = $(`<div id="html_118714cbdec2a22d3acad30b75b04946" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-LOG<br>Feature: Route Efficiency</div>`)[0];
+                popup_e6fa5053c11c856bb5c5e79b0614ad8b.setContent(html_118714cbdec2a22d3acad30b75b04946);
+            
+        
+
+        polygon_27659eab1098b2dedc8741ac00660dc4.bindPopup(popup_e6fa5053c11c856bb5c5e79b0614ad8b)
+        ;
+
+        
+    
+    
+            var polygon_d0baeda9d61d74e758ba4672da10b216 = L.polygon(
+                [[37.79, -122.251679], [37.799526, -122.257179], [37.799526, -122.268179], [37.79, -122.273679], [37.780474, -122.268179], [37.780474, -122.257179], [37.79, -122.251679]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_694123d3042a44555af41da0cc59d391 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_cfccc9f38b36b762de530ad592b90096 = $(`<div id="html_cfccc9f38b36b762de530ad592b90096" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-LOG<br>Feature: Freight Corridors</div>`)[0];
+                popup_694123d3042a44555af41da0cc59d391.setContent(html_cfccc9f38b36b762de530ad592b90096);
+            
+        
+
+        polygon_d0baeda9d61d74e758ba4672da10b216.bindPopup(popup_694123d3042a44555af41da0cc59d391)
+        ;
+
+        
+    
+    
+            var polygon_2b7c6723da679b8fb1590dc672596e78 = L.polygon(
+                [[37.78, -122.269], [37.789526, -122.2745], [37.789526, -122.2855], [37.78, -122.291], [37.770474, -122.2855], [37.770474, -122.2745], [37.78, -122.269]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_000e29979b977e2b07763d407eca1129 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f69b76dbb5f51faabc4032c6f26524a4 = $(`<div id="html_f69b76dbb5f51faabc4032c6f26524a4" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-LOG<br>Feature: Distribution Hubs</div>`)[0];
+                popup_000e29979b977e2b07763d407eca1129.setContent(html_f69b76dbb5f51faabc4032c6f26524a4);
+            
+        
+
+        polygon_2b7c6723da679b8fb1590dc672596e78.bindPopup(popup_000e29979b977e2b07763d407eca1129)
+        ;
+
+        
+    
+    
+            var polygon_36c6ecf40c0cf499099b7652c29cab49 = L.polygon(
+                [[37.79, -122.286321], [37.799526, -122.291821], [37.799526, -122.302821], [37.79, -122.308321], [37.780474, -122.302821], [37.780474, -122.291821], [37.79, -122.286321]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_2b524f818fae78769ee11ff7b7f62d01 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_db4f5bbd87e02a7ca50f0c134dbd2c0d = $(`<div id="html_db4f5bbd87e02a7ca50f0c134dbd2c0d" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-LOG<br>Feature: Route Efficiency</div>`)[0];
+                popup_2b524f818fae78769ee11ff7b7f62d01.setContent(html_db4f5bbd87e02a7ca50f0c134dbd2c0d);
+            
+        
+
+        polygon_36c6ecf40c0cf499099b7652c29cab49.bindPopup(popup_2b524f818fae78769ee11ff7b7f62d01)
+        ;
+
+        
+    
+    
+            var polygon_a6f4badc0073c8c34bffe9e44697d02d = L.polygon(
+                [[37.81, -122.286321], [37.819526, -122.291821], [37.819526, -122.302821], [37.81, -122.308321], [37.800474, -122.302821], [37.800474, -122.291821], [37.81, -122.286321]],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fdba74", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_3bd0c10f6c523c0f7525cbaa4f68243b);
+        
+    
+        var popup_6b1489ae80796c9fc51420ae2c53142b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7f0a4bb987374d4d38075e0ed0209192 = $(`<div id="html_7f0a4bb987374d4d38075e0ed0209192" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-LOG<br>Feature: Freight Corridors</div>`)[0];
+                popup_6b1489ae80796c9fc51420ae2c53142b.setContent(html_7f0a4bb987374d4d38075e0ed0209192);
+            
+        
+
+        polygon_a6f4badc0073c8c34bffe9e44697d02d.bindPopup(popup_6b1489ae80796c9fc51420ae2c53142b)
+        ;
+
+        
+    
+    
+            feature_group_3bd0c10f6c523c0f7525cbaa4f68243b.addTo(map_676215b72b1ad9e11383e76b0a0a22e5);
+        
+    
+            var circle_marker_1709adc3610bf995a6a1df6b895d567f = L.circleMarker(
+                [37.8, -122.28],
+                {"bubblingMouseEvents": true, "color": "#f97316", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_676215b72b1ad9e11383e76b0a0a22e5);
+        
+    
+        var popup_c28899876a16a379b4a6431b2a442643 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_26303825b4b434731a183ef0fc7cc14b = $(`<div id="html_26303825b4b434731a183ef0fc7cc14b" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-LOG</b> Focus Center</div>`)[0];
+                popup_c28899876a16a379b4a6431b2a442643.setContent(html_26303825b4b434731a183ef0fc7cc14b);
+            
+        
+
+        circle_marker_1709adc3610bf995a6a1df6b895d567f.bindPopup(popup_c28899876a16a379b4a6431b2a442643)
+        ;
+
+        
+    
+    
+            var layer_control_449040eee9043626d2e19fe6276841e2_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_5c863e3ba7da9147256e6d707a2648e4,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_3bd0c10f6c523c0f7525cbaa4f68243b,
+                },
+            };
+            let layer_control_449040eee9043626d2e19fe6276841e2 = L.control.layers(
+                layer_control_449040eee9043626d2e19fe6276841e2_layers.base_layers,
+                layer_control_449040eee9043626d2e19fe6276841e2_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_676215b72b1ad9e11383e76b0a0a22e5);
+
+        
+</script>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_2c5b4fd9e434a6bfa63c6c45ee256a27 {
+                    position: relative;
+                    width: 800.0px;
+                    height: 450.0px;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #059669; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-PLACE</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Place-Based Analysis</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Cascadia regional bioregions, volcanoes, and watershed hydrography</div></div>
+    
+            <div class="folium-map" id="map_2c5b4fd9e434a6bfa63c6c45ee256a27" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_2c5b4fd9e434a6bfa63c6c45ee256a27 = L.map(
+                "map_2c5b4fd9e434a6bfa63c6c45ee256a27",
+                {
+                    center: [45.5152, -122.6784],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 7,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_3bb82683d41ff0d7814d0b80f401668e = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_3bb82683d41ff0d7814d0b80f401668e.addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
+        
+    
+            var feature_group_c2f9c8f6e907c3819ea2c472058dd84e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var polygon_0471c813eca10f408aa3b1ab5496cdb0 = L.polygon(
+                [[45.5152, -122.6674], [45.524726, -122.6729], [45.524726, -122.6839], [45.5152, -122.6894], [45.505674, -122.6839], [45.505674, -122.6729], [45.5152, -122.6674]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_063aee7524739a8feafe66152839398d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5fcde2cd219b3ced0b12336336b7cbd1 = $(`<div id="html_5fcde2cd219b3ced0b12336336b7cbd1" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
+                popup_063aee7524739a8feafe66152839398d.setContent(html_5fcde2cd219b3ced0b12336336b7cbd1);
+            
+        
+
+        polygon_0471c813eca10f408aa3b1ab5496cdb0.bindPopup(popup_063aee7524739a8feafe66152839398d)
+        ;
+
+        
+    
+    
+            var polygon_ca795988b3a01d6b987c1604f2d0644c = L.polygon(
+                [[45.5352, -122.6674], [45.544726, -122.6729], [45.544726, -122.6839], [45.5352, -122.6894], [45.525674, -122.6839], [45.525674, -122.6729], [45.5352, -122.6674]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_d1525b5af0a1a7b97686b8f61bc301c1 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e8a280305574e214e6fa3b04d03f9583 = $(`<div id="html_e8a280305574e214e6fa3b04d03f9583" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-PLACE<br>Feature: Megathrust Fault Line</div>`)[0];
+                popup_d1525b5af0a1a7b97686b8f61bc301c1.setContent(html_e8a280305574e214e6fa3b04d03f9583);
+            
+        
+
+        polygon_ca795988b3a01d6b987c1604f2d0644c.bindPopup(popup_d1525b5af0a1a7b97686b8f61bc301c1)
+        ;
+
+        
+    
+    
+            var polygon_bc9753284689d16cfa20bbe532d412ba = L.polygon(
+                [[45.5252, -122.650079], [45.534726, -122.655579], [45.534726, -122.666579], [45.5252, -122.672079], [45.515674, -122.666579], [45.515674, -122.655579], [45.5252, -122.650079]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_ce2b36335a74be621315edcbadf45032 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_6e7a9f534aa6164b201e4e63b058549a = $(`<div id="html_6e7a9f534aa6164b201e4e63b058549a" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-PLACE<br>Feature: Watershed Hydrography</div>`)[0];
+                popup_ce2b36335a74be621315edcbadf45032.setContent(html_6e7a9f534aa6164b201e4e63b058549a);
+            
+        
+
+        polygon_bc9753284689d16cfa20bbe532d412ba.bindPopup(popup_ce2b36335a74be621315edcbadf45032)
+        ;
+
+        
+    
+    
+            var polygon_5c9bb47fc7524b1b1f597d73fe4b54b0 = L.polygon(
+                [[45.5052, -122.650079], [45.514726, -122.655579], [45.514726, -122.666579], [45.5052, -122.672079], [45.495674, -122.666579], [45.495674, -122.655579], [45.5052, -122.650079]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_a9cc779ddc885eb621ef31daa28bf095 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f1a6b74dfce499dfbf5872cb0c3a0aab = $(`<div id="html_f1a6b74dfce499dfbf5872cb0c3a0aab" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
+                popup_a9cc779ddc885eb621ef31daa28bf095.setContent(html_f1a6b74dfce499dfbf5872cb0c3a0aab);
+            
+        
+
+        polygon_5c9bb47fc7524b1b1f597d73fe4b54b0.bindPopup(popup_a9cc779ddc885eb621ef31daa28bf095)
+        ;
+
+        
+    
+    
+            var polygon_ce059835de7b64a9fdd28ff3418ed202 = L.polygon(
+                [[45.4952, -122.6674], [45.504726, -122.6729], [45.504726, -122.6839], [45.4952, -122.6894], [45.485674, -122.6839], [45.485674, -122.6729], [45.4952, -122.6674]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_056ec624c41eb45c87b82535fe52e4f2 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_400a04efbb86673d5873ffe57ca7092a = $(`<div id="html_400a04efbb86673d5873ffe57ca7092a" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-PLACE<br>Feature: Megathrust Fault Line</div>`)[0];
+                popup_056ec624c41eb45c87b82535fe52e4f2.setContent(html_400a04efbb86673d5873ffe57ca7092a);
+            
+        
+
+        polygon_ce059835de7b64a9fdd28ff3418ed202.bindPopup(popup_056ec624c41eb45c87b82535fe52e4f2)
+        ;
+
+        
+    
+    
+            var polygon_5fc4018260744e227b820e4b2ce9ac04 = L.polygon(
+                [[45.5052, -122.684721], [45.514726, -122.690221], [45.514726, -122.701221], [45.5052, -122.706721], [45.495674, -122.701221], [45.495674, -122.690221], [45.5052, -122.684721]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_ace4edd0ee086e1bc462651f9061becc = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_cbd8512b02f399a0946bdde09574487b = $(`<div id="html_cbd8512b02f399a0946bdde09574487b" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-PLACE<br>Feature: Watershed Hydrography</div>`)[0];
+                popup_ace4edd0ee086e1bc462651f9061becc.setContent(html_cbd8512b02f399a0946bdde09574487b);
+            
+        
+
+        polygon_5fc4018260744e227b820e4b2ce9ac04.bindPopup(popup_ace4edd0ee086e1bc462651f9061becc)
+        ;
+
+        
+    
+    
+            var polygon_3840b72d7b475f58dcc16af4507ea5ce = L.polygon(
+                [[45.5252, -122.684721], [45.534726, -122.690221], [45.534726, -122.701221], [45.5252, -122.706721], [45.515674, -122.701221], [45.515674, -122.690221], [45.5252, -122.684721]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
+        
+    
+        var popup_9e21e6932a9506bd1b73ff36ca24d48a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_0a383d6e6b946b304015ae4b93e83e96 = $(`<div id="html_0a383d6e6b946b304015ae4b93e83e96" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
+                popup_9e21e6932a9506bd1b73ff36ca24d48a.setContent(html_0a383d6e6b946b304015ae4b93e83e96);
+            
+        
+
+        polygon_3840b72d7b475f58dcc16af4507ea5ce.bindPopup(popup_9e21e6932a9506bd1b73ff36ca24d48a)
+        ;
+
+        
+    
+    
+            feature_group_c2f9c8f6e907c3819ea2c472058dd84e.addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
+        
+    
+            var circle_marker_c6377044f8af39f2ddfb78801d96b9f0 = L.circleMarker(
+                [45.5152, -122.6784],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
+        
+    
+        var popup_cf5cbd252ce96acdfdd59c0b4e0a19a5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e6df64f6530ce87f4f6bf8af445dbcb1 = $(`<div id="html_e6df64f6530ce87f4f6bf8af445dbcb1" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-PLACE</b> Focus Center</div>`)[0];
+                popup_cf5cbd252ce96acdfdd59c0b4e0a19a5.setContent(html_e6df64f6530ce87f4f6bf8af445dbcb1);
+            
+        
+
+        circle_marker_c6377044f8af39f2ddfb78801d96b9f0.bindPopup(popup_cf5cbd252ce96acdfdd59c0b4e0a19a5)
+        ;
+
+        
+    
+    
+            var layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_3bb82683d41ff0d7814d0b80f401668e,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_c2f9c8f6e907c3819ea2c472058dd84e,
+                },
+            };
+            let layer_control_2af5580cd821ee52895cf64fcc87f5b1 = L.control.layers(
+                layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers.base_layers,
+                layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
+
+        
+</script>
+</html>

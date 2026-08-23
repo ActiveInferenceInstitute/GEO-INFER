@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14997,
+      "name": "geo-infer-climate_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5703,
+      "name": "geo-infer-climate_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2187,
+      "name": "geo-infer-climate_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "0cd69a91acf4bafdcdb2bb6623c4e479c7bd51eb817d17a2d9d25dd1a49f6971",
+  "module_id": "GEO-INFER-CLIMATE",
+  "name": "Climate Analysis Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

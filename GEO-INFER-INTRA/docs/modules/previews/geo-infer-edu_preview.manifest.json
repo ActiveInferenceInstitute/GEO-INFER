@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14968,
+      "name": "geo-infer-edu_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5679,
+      "name": "geo-infer-edu_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2185,
+      "name": "geo-infer-edu_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "dc3bd0f16103b2bec88dac48a16d40a9da71e327675dc337cb9cf37362adecd2",
+  "module_id": "GEO-INFER-EDU",
+  "name": "Educational Technology Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

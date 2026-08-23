@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14944,
+      "name": "geo-infer-iot_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5671,
+      "name": "geo-infer-iot_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2191,
+      "name": "geo-infer-iot_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "be02ae933e1269ff92608408b17f6ac903620331493bc1d118a6dabd66dde836",
+  "module_id": "GEO-INFER-IOT",
+  "name": "Internet of Things Integration",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

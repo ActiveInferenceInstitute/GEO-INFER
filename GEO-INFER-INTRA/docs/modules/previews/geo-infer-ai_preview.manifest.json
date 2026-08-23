@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14985,
+      "name": "geo-infer-ai_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5691,
+      "name": "geo-infer-ai_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2188,
+      "name": "geo-infer-ai_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "713c8686d980090f40d0180024598e83fa9ae6f9bae127d974ef7ee97879edbd",
+  "module_id": "GEO-INFER-AI",
+  "name": "Artificial Intelligence Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

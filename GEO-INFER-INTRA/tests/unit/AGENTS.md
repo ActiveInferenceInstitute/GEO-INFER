@@ -25,6 +25,7 @@
 - `test_geospatial_utils.py`
 - `test_module_utils.py`
 - `test_time_series_utils.py`
+- `test_visual_preview.py`
 
 ## Validation
 

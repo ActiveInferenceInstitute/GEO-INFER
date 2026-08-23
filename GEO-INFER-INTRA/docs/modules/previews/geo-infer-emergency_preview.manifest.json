@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15025,
+      "name": "geo-infer-emergency_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5722,
+      "name": "geo-infer-emergency_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2192,
+      "name": "geo-infer-emergency_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Domain",
+  "input_sha256": "88ef4f601e876ed10bcbe1940baddeb041443f8c7999bab057c90c8f2e454954",
+  "module_id": "GEO-INFER-EMERGENCY",
+  "name": "Emergency Management Module",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 15045,
+      "name": "geo-infer-agent_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5690,
+      "name": "geo-infer-agent_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2185,
+      "name": "geo-infer-agent_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Optimization",
+  "input_sha256": "38089e43c05add52e0fa1d2e2d5c6c8e3cebf1e97b11518699054b9c1cd2f528",
+  "module_id": "GEO-INFER-AGENT",
+  "name": "Multi-Agent Systems",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

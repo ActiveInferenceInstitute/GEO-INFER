@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bg-grad-MATH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="badge-grad-MATH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+    <filter id="shadow-MATH" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect x="8" y="8" width="684" height="364" rx="12" fill="url(#bg-grad-MATH)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-MATH)"/>
+
+  <!-- Left Content Column -->
+  <g transform="translate(0, 0)">
+    <!-- Header Badge -->
+    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-MATH)"/>
+    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-MATH</text>
+
+    <!-- Category Pill -->
+    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">Foundations</text>
+
+    <!-- Title -->
+    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">Mathematical Foundations</text>
+
+    <!-- Description -->
+    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
+      <tspan x="36" dy="0">SIMD geometry kernels, spherical trigonometry, and numeric</tspan>
+      <tspan x="36" dy="18">al transforms</tspan>
+    </text>
+
+    <!-- Section Heading -->
+    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
+
+    <!-- Feature Chips -->
+    <rect x="36" y="190" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="202" r="3.5" fill="#8b5cf6"/><text x="60" y="206" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">SIMD Ray-Casting Grid</text><rect x="36" y="222" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="234" r="3.5" fill="#8b5cf6"/><text x="60" y="238" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Convex Hull</text><rect x="36" y="254" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="266" r="3.5" fill="#8b5cf6"/><text x="60" y="270" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Point-in-Polygon</text>
+
+    <!-- Footer Contract Info -->
+    <text x="36" y="352" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
+  </g>
+
+  <!-- Right Visual Domain H3 Graph -->
+  <g>
+    <!-- Grid connection lines -->
+    <line x1="520" y1="200" x2="430" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="520" y1="200" x2="610" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="520" y1="200" x2="520" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="520" y1="200" x2="520" y2="290" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+    <polygon points="568.0,200.0 544.0,241.6 496.0,241.6 472.0,200.0 496.0,158.4 544.0,158.4" fill="#c4b5fd" fill-opacity="0.7" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="520.0" cy="200.0" r="4" fill="#8b5cf6" />
+    <text x="520.0" y="204.0" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>
+    <polygon points="647.2,200.0 623.2,241.6 575.2,241.6 551.2,200.0 575.2,158.4 623.2,158.4" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="599.2" cy="200.0" r="4" fill="#8b5cf6" />
+    <polygon points="607.6,268.6 583.6,310.2 535.6,310.2 511.6,268.6 535.6,227.0 583.6,227.0" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="559.6" cy="268.6" r="4" fill="#8b5cf6" />
+    <polygon points="528.4,268.6 504.4,310.2 456.4,310.2 432.4,268.6 456.4,227.0 504.4,227.0" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="480.4" cy="268.6" r="4" fill="#8b5cf6" />
+    <polygon points="488.8,200.0 464.8,241.6 416.8,241.6 392.8,200.0 416.8,158.4 464.8,158.4" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="440.8" cy="200.0" r="4" fill="#8b5cf6" />
+    <polygon points="528.4,131.4 504.4,173.0 456.4,173.0 432.4,131.4 456.4,89.8 504.4,89.8" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="480.4" cy="131.4" r="4" fill="#8b5cf6" />
+    <polygon points="607.6,131.4 583.6,173.0 535.6,173.0 511.6,131.4 535.6,89.8 583.6,89.8" fill="#c4b5fd" fill-opacity="0.35" stroke="#8b5cf6" stroke-width="2.5" />
+    <circle cx="559.6" cy="131.4" r="4" fill="#8b5cf6" />
+  </g>
+</svg>

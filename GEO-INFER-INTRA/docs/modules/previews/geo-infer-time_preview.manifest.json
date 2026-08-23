@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14964,
+      "name": "geo-infer-time_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5678,
+      "name": "geo-infer-time_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2186,
+      "name": "geo-infer-time_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Foundations",
+  "input_sha256": "2a410b4125d2a970ea56132a80c5d9492c902695b1b3d5117957ce7516a166eb",
+  "module_id": "GEO-INFER-TIME",
+  "name": "Temporal Analysis Engine",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

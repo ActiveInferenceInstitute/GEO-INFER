@@ -24,6 +24,9 @@ Core workspace within `GEO-INFER-TIME`.
 - `forecasting.py:ForecastingEngine` (class)
 - `interpolation.py:TemporalInterpolator` (class)
 - `statistics.py:TemporalStatistics` (class)
+- `stream_processing.py:StreamIngestAdapter` (class)
+- `stream_processing.py:WebSocketIngestAdapter` (class)
+- `stream_processing.py:KafkaIngestAdapter` (class)
 - `stream_processing.py:StreamProcessor` (class)
 - `visualization.py:TemporalVisualization` (class)
 

@@ -1,0 +1,29 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 14958,
+      "name": "geo-infer-org_preview.html",
+      "type": "text/html"
+    },
+    {
+      "bytes": 5659,
+      "name": "geo-infer-org_preview.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 2181,
+      "name": "geo-infer-org_preview.png",
+      "type": "image/png"
+    }
+  ],
+  "category": "Governance",
+  "input_sha256": "20eb06702b54d0a103f22cd49c9b13521de39b1882e44e87c21b688d2725a507",
+  "module_id": "GEO-INFER-ORG",
+  "name": "Organizational Systems",
+  "schema_version": "geo-infer-intra-visual-preview/v1"
+}

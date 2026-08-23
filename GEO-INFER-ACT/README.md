@@ -118,17 +118,6 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
   instances for reproducible categorical sampling, and apply solve-based
   Joseph-form Gaussian updates. `PolicySelector` accepts
   `expected_posterior`/`posterior_beliefs` for KL information gain.
-- EFE minimisation exposes an epistemic/pragmatic breakdown:
-  `PolicySelector.compose_policy_posterior` composes a normalized policy
-  posterior from raw EFE scores under adaptive precision, and
-  `PolicySelector.decompose_efe` labels each policy epistemic- or
-  pragmatic-dominated. Continuous state estimation adds
-  `ContinuousPOMDPActiveInference.compute_expected_free_energy` (pragmatic
-  cost + epistemic information gain + control effort), `evaluate_actions`,
-  and `compute_variational_free_energy`; `GenerativeModel.compute_expected_free_energy`
-  covers the discrete case. Spatial active sensing adds H3 grid scoring via
-  `SpatialActiveInferenceAgent.score_spatial_information_gain` and
-  `MultiAgentModel.score_spatial_information_gain`.
 - `VariationalInference.structured_update` consumes explicit categorical factor
   tables with `variables` and `potential`/`values`/`table` fields, and
   `MultiAgentModel.step` runs a perception-action-resource cycle with optional
