@@ -1,0 +1,866 @@
+{
+  "schema": "crescent-city-geo-intel/v1",
+  "anchor": {
+    "name": "Crescent City",
+    "guid": "CR4919",
+    "municipality": "Crescent City, CA",
+    "county": "Del Norte County",
+    "state": "California",
+    "latitude": 41.76,
+    "longitude": -124.2,
+    "bounds": {
+      "west": -124.408,
+      "south": 41.458,
+      "east": -123.536,
+      "north": 42.006
+    }
+  },
+  "generatedAt": "2026-08-23T21:38:42.863Z",
+  "domainCount": 12,
+  "domains": [
+    {
+      "id": "emergency-management",
+      "name": "Emergency Management",
+      "icon": "🌊",
+      "description": "Tsunami preparedness, evacuation routes, emergency protocols, and mutual aid agreements for Crescent City — the most tsunami-impacted city in the contiguous United States.",
+      "updatedAt": "2026-03-13",
+      "topicCount": 3,
+      "tags": [
+        "alerts",
+        "communication",
+        "del norte county",
+        "emergency",
+        "emergency response",
+        "evacuation",
+        "mutual aid",
+        "natural disaster",
+        "pelican bay",
+        "seismic",
+        "sirens",
+        "tsunami",
+        "warning systems"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — emergency management authority"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — emergency powers and declarations"
+        },
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building code — seismic and flood zone requirements"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — intergovernmental agreements"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — mutual aid provisions"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Emergency alert and notification systems"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Public services — communication infrastructure"
+        }
+      ]
+    },
+    {
+      "id": "business-development",
+      "name": "Business Development",
+      "icon": "🦀",
+      "description": "Business licensing, fishing and crabbing regulations, tourism permits, harbor operations, and economic development for Crescent City's marine-based economy.",
+      "updatedAt": "2026-03-13",
+      "topicCount": 4,
+      "tags": [
+        "boats",
+        "business license",
+        "commercial",
+        "commercial fishing",
+        "crabbing",
+        "dungeness",
+        "fees",
+        "fishing",
+        "harbor",
+        "marina",
+        "mooring",
+        "permits",
+        "port",
+        "short-term rental",
+        "tourism",
+        "vacation rental",
+        "visitors"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — general requirements"
+        },
+        {
+          "sectionNumber": "§ 5.08",
+          "relevance": "Business license fees and categories"
+        },
+        {
+          "sectionNumber": "§ 5.12",
+          "relevance": "Specific business type regulations"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Commercial fishing business licenses"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Harbor and waterfront regulations"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Public services — harbor facilities"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Tourism business licensing"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — visitor-serving commercial zones"
+        },
+        {
+          "sectionNumber": "§ 17.08",
+          "relevance": "Land use — short-term rental regulations"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Harbor regulations"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Harbor utility services"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Harbor zoning designations"
+        }
+      ]
+    },
+    {
+      "id": "environmental-protection",
+      "name": "Environmental Protection",
+      "icon": "🌿",
+      "description": "Coastal protection, tsunami inundation zones, wetland buffers, stormwater management, and environmental regulations for Crescent City's sensitive coastal ecosystem.",
+      "updatedAt": "2026-03-13",
+      "topicCount": 3,
+      "tags": [
+        "FEMA",
+        "bluff",
+        "buffer",
+        "coastal",
+        "erosion",
+        "flood zone",
+        "habitat",
+        "hazard",
+        "inundation",
+        "riparian",
+        "setback",
+        "shoreline",
+        "stormwater",
+        "tsunami zone",
+        "wetland"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building code — flood zone construction standards"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — coastal overlay district"
+        },
+        {
+          "sectionNumber": "§ 17.08",
+          "relevance": "Special development standards in hazard zones"
+        },
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building setbacks from coastal bluffs"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Coastal zone land use regulations"
+        },
+        {
+          "sectionNumber": "§ 16.04",
+          "relevance": "Subdivision — geologic hazard review requirements"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Environmental review overlays"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Water quality and discharge standards"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Stormwater management"
+        }
+      ]
+    },
+    {
+      "id": "public-safety",
+      "name": "Public Safety",
+      "icon": "🛡️",
+      "description": "Law enforcement, noise ordinances, prison-related regulations, and community safety protocols for Crescent City, home to Pelican Bay State Prison.",
+      "updatedAt": "2026-03-13",
+      "topicCount": 3,
+      "tags": [
+        "construction",
+        "contraband",
+        "correctional",
+        "noise",
+        "nuisance",
+        "parking",
+        "parolee",
+        "pedestrian",
+        "pelican bay",
+        "prison",
+        "quiet hours",
+        "sound",
+        "speed",
+        "traffic",
+        "vehicle"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public peace — noise restrictions"
+        },
+        {
+          "sectionNumber": "§ 9.08",
+          "relevance": "Nuisance abatement"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — noise performance standards"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public peace — unlawful activities"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business regulations near correctional facilities"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — restricted zones near PBSP"
+        },
+        {
+          "sectionNumber": "§ 10.04",
+          "relevance": "Vehicle code enforcement"
+        },
+        {
+          "sectionNumber": "§ 10.08",
+          "relevance": "Speed limits and traffic signals"
+        },
+        {
+          "sectionNumber": "§ 10.12",
+          "relevance": "Parking regulations"
+        }
+      ]
+    },
+    {
+      "id": "event-planning",
+      "name": "Event Planning",
+      "icon": "🎪",
+      "description": "Special event permitting, mass gathering safety, waterfront events, tsunami drill coordination, and public assembly regulations.",
+      "updatedAt": "2026-03-13",
+      "topicCount": 4,
+      "tags": [
+        "amplified sound",
+        "beach",
+        "crowd",
+        "emergency exercise",
+        "evacuation",
+        "event",
+        "festival",
+        "gathering",
+        "harbor",
+        "music",
+        "noise permit",
+        "outdoor event",
+        "parade",
+        "permit",
+        "preparedness",
+        "tsunami drill",
+        "waterfront"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Use of public streets and sidewalks"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public assembly and crowd control"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Temporary business permits for events"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Harbor area use permits"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Waterfront zone event regulations"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Emergency drill authority"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Public health emergency exercises"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Noise and amplification limits"
+        }
+      ]
+    },
+    {
+      "id": "housing-homelessness",
+      "name": "Housing & Homelessness",
+      "icon": "🏠",
+      "description": "Housing policy, emergency shelter, camper/RV regulations, code enforcement, and social services for Crescent City — where a 17% poverty rate and limited affordable stock drive ongoing civic debate.",
+      "updatedAt": "2026-03-18",
+      "topicCount": 5,
+      "tags": [
+        "ADU",
+        "RV",
+        "affordable housing",
+        "building standards",
+        "camping",
+        "care court",
+        "code enforcement",
+        "condemnation",
+        "county coordination",
+        "density",
+        "emergency housing",
+        "habitability",
+        "homelessness",
+        "mental health",
+        "parking",
+        "poverty",
+        "public space",
+        "residential",
+        "shelter",
+        "social services",
+        "substandard housing",
+        "transitional housing",
+        "vehicle dwelling",
+        "zoning"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning districts and residential use classifications"
+        },
+        {
+          "sectionNumber": "§ 17.12",
+          "relevance": "Multi-family residential development standards"
+        },
+        {
+          "sectionNumber": "§ 17.56",
+          "relevance": "Accessory dwelling units (ADUs) — key affordable housing tool"
+        },
+        {
+          "sectionNumber": "§ 16.04",
+          "relevance": "Subdivision standards affecting housing lot density"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — authority for emergency shelter operations"
+        },
+        {
+          "sectionNumber": "§ 17.60",
+          "relevance": "Special use permits — shelter facilities in residential/commercial zones"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Public services — coordination with county social services"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — unlawful camping and loitering"
+        },
+        {
+          "sectionNumber": "§ 10.04",
+          "relevance": "Vehicles and Traffic — overnight parking restrictions"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Streets and sidewalks — obstruction by vehicles"
+        },
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building code — minimum habitability and structural standards"
+        },
+        {
+          "sectionNumber": "§ 15.08",
+          "relevance": "Unsafe structures — condemnation and demolition authority"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Nuisance abatement — health hazards in residential properties"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — city-county intergovernmental agreements"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — mental health and welfare authority"
+        },
+        {
+          "sectionNumber": "§ 13.12",
+          "relevance": "Public services — social services delivery"
+        }
+      ]
+    },
+    {
+      "id": "tourism-recreation",
+      "name": "Tourism & Recreation",
+      "icon": "🏕️",
+      "description": "Parks, camping permits, beach access, vacation rentals, Battery Point Lighthouse tours, and recreational facilities in Crescent City — gateway to Redwood National Park and the Smith River National Recreation Area.",
+      "updatedAt": "2026-03-18",
+      "topicCount": 4,
+      "tags": [
+        "airbnb",
+        "battery point lighthouse",
+        "beach access",
+        "camping",
+        "fishing charters",
+        "guided tours",
+        "heritage tourism",
+        "historical preservation",
+        "lodging",
+        "parks",
+        "party boats",
+        "recreation",
+        "recreational fishing",
+        "redwood",
+        "salmon season",
+        "short-term rental",
+        "special events",
+        "sport fishing",
+        "tourism",
+        "vacation rental",
+        "vrtu"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — permitted uses in residential districts"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — vacation rental registration"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Streets and sidewalks — public right-of-way access"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Parks — public facility use regulations"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Permit requirements for special events in parks"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Historical preservation — City Administration authority"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — historic overlay districts"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Harbor — commercial and charter fishing vessel regulations"
+        },
+        {
+          "sectionNumber": "§ 5.08",
+          "relevance": "Business licenses — charter and party boat operations"
+        }
+      ]
+    },
+    {
+      "id": "harbor-marine-operations",
+      "name": "Harbor & Marine Operations",
+      "icon": "⚓",
+      "description": "Vessel registration, docking fees, slip assignments, dredging permits, fuel dock regulations, and port operations at the Port of Crescent City — the northernmost California working commercial fishing harbor south of the Oregon border.",
+      "updatedAt": "2026-03-18",
+      "topicCount": 3,
+      "tags": [
+        "citizen dock",
+        "coastal commission",
+        "commercial fishing",
+        "docking fees",
+        "dredging",
+        "dungeness crab",
+        "fish landing",
+        "harbor commission",
+        "harbor maintenance",
+        "ice plant",
+        "live-aboard",
+        "moorage",
+        "navigation channel",
+        "pacfin",
+        "slip",
+        "usace",
+        "vessel registration"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Harbor — moorage rates and vessel registration procedures"
+        },
+        {
+          "sectionNumber": "§ 13.08",
+          "relevance": "Harbor — live-aboard vessel regulations and sanitation"
+        },
+        {
+          "sectionNumber": "§ 2.44",
+          "relevance": "Harbor Commission — authority to set fee schedules"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Harbor — commercial landing and unloading procedures"
+        },
+        {
+          "sectionNumber": "§ 5.12",
+          "relevance": "Business licenses — fish buyers and processors"
+        },
+        {
+          "sectionNumber": "§ 13.12",
+          "relevance": "Harbor — dredging authorization and coordination with federal agencies"
+        },
+        {
+          "sectionNumber": "§ 15.08",
+          "relevance": "Environmental protection — coastal zone dredging requirements"
+        }
+      ]
+    },
+    {
+      "id": "education-youth",
+      "name": "Education & Youth",
+      "icon": "📚",
+      "description": "School zone regulations, youth program permits, library use, parks & recreation facility reservations, and educational facility land-use rules — served by Del Norte Unified School District and College of the Redwoods.",
+      "updatedAt": "2026-03-18",
+      "topicCount": 3,
+      "tags": [
+        "after-school",
+        "athletic leagues",
+        "community facilities",
+        "cultural programs",
+        "dnusd",
+        "library",
+        "meeting rooms",
+        "pedestrian",
+        "public art",
+        "recreation permits",
+        "school buses",
+        "school zone",
+        "speed limit",
+        "summer programs",
+        "traffic safety",
+        "youth programs"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 10.04",
+          "relevance": "Vehicles and traffic — school zone speed limits (15 mph)"
+        },
+        {
+          "sectionNumber": "§ 10.20",
+          "relevance": "Parking — school zone loading and unloading zones"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Streets — crosswalk and pedestrian safety near schools"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — nonprofit and youth organization registration"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Parks — youth program facility use permits"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Special event permits — youth athletics and tournaments"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — cultural services and library coordination"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Parks — community facility use and reservation rules"
+        }
+      ]
+    },
+    {
+      "id": "climate-environment",
+      "name": "Climate & Environment",
+      "icon": "🌡️",
+      "description": "Climate resilience, drought monitoring, sea-level rise adaptation, carbon footprint, and environmental justice for Crescent City — a frontline coastal community facing Cascadia earthquake, tsunami inundation, and changing marine ecosystems.",
+      "updatedAt": "2026-07-22",
+      "topicCount": 3,
+      "tags": [
+        "air quality",
+        "climate adaptation",
+        "coastal resilience",
+        "drought",
+        "emissions",
+        "environmental justice",
+        "flood zone",
+        "sea level rise",
+        "smith river",
+        "water conservation",
+        "watershed",
+        "wildfire smoke"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building code — flood zone construction standards"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — coastal overlay and setback requirements"
+        },
+        {
+          "sectionNumber": "§ 17.08",
+          "relevance": "Special development standards in hazard zones"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Public services — water utility conservation"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and safety — water quality standards"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — air quality authority"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Nuisance abatement — air pollution"
+        }
+      ]
+    },
+    {
+      "id": "demographics-social",
+      "name": "Demographics & Social Indicators",
+      "icon": "👥",
+      "description": "Population trends, poverty indicators, prison-adjacent demographics, homelessness data, and social vulnerability indices for Crescent City — where ~3,000 of the ~6,000 residents are incarcerated at Pelican Bay State Prison.",
+      "updatedAt": "2026-07-22",
+      "topicCount": 3,
+      "tags": [
+        "CARE Court",
+        "census",
+        "demographics",
+        "economic development",
+        "homelessness",
+        "housing instability",
+        "incarceration",
+        "median income",
+        "pelican bay",
+        "population",
+        "poverty",
+        "shelter",
+        "unemployment",
+        "vehicle dwelling"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — census and demographic data coordination"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — demographic-based business zoning"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — economic development incentives"
+        },
+        {
+          "sectionNumber": "§ 5.08",
+          "relevance": "Business license fees — low-income provisions"
+        },
+        {
+          "sectionNumber": "§ 13.04",
+          "relevance": "Public services — social service coordination"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — camping and loitering regulations"
+        },
+        {
+          "sectionNumber": "§ 10.04",
+          "relevance": "Vehicles — overnight parking restrictions"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — emergency shelter authority"
+        },
+        {
+          "sectionNumber": "§ 17.60",
+          "relevance": "Special use permits — shelter facilities"
+        }
+      ]
+    },
+    {
+      "id": "public-health-safety",
+      "name": "Public Health & Safety",
+      "icon": "🏥",
+      "description": "Public health services, emergency medical response, pandemic preparedness, food safety, water quality, and mental health services coordination for Crescent City and Del Norte County.",
+      "updatedAt": "2026-07-22",
+      "topicCount": 3,
+      "tags": [
+        "ambulance",
+        "behavioral health",
+        "care court",
+        "crisis intervention",
+        "emergency medical",
+        "ems",
+        "food handler",
+        "food safety",
+        "health permit",
+        "mental health",
+        "mutual aid",
+        "restaurant inspection"
+      ],
+      "sections": [
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — EMS authority"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — emergency response coordination"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — intergovernmental EMS agreements"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — food service permits"
+        },
+        {
+          "sectionNumber": "§ 5.12",
+          "relevance": "Specific business type — restaurant regulations"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — food safety authority"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — mental health authority"
+        },
+        {
+          "sectionNumber": "§ 2.04",
+          "relevance": "Administration — county mental health coordination"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — crisis intervention protocols"
+        }
+      ]
+    }
+  ],
+  "hazard": {
+    "relevantDomains": [
+      {
+        "id": "emergency-management",
+        "name": "Emergency Management",
+        "icon": "🌊",
+        "hazardTags": [
+          "seismic",
+          "tsunami"
+        ],
+        "topics": [
+          {
+            "name": "Tsunami Preparedness & Evacuation",
+            "tags": [
+              "tsunami",
+              "seismic"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 8.04",
+                "relevance": "Health and Safety — emergency management authority"
+              },
+              {
+                "sectionNumber": "§ 9.04",
+                "relevance": "Public Peace — emergency powers and declarations"
+              },
+              {
+                "sectionNumber": "§ 15.04",
+                "relevance": "Building code — seismic and flood zone requirements"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "environmental-protection",
+        "name": "Environmental Protection",
+        "icon": "🌿",
+        "hazardTags": [
+          "erosion"
+        ],
+        "topics": [
+          {
+            "name": "Coastal Erosion & Shoreline Protection",
+            "tags": [
+              "erosion"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 15.04",
+                "relevance": "Building setbacks from coastal bluffs"
+              },
+              {
+                "sectionNumber": "§ 17.04",
+                "relevance": "Coastal zone land use regulations"
+              },
+              {
+                "sectionNumber": "§ 16.04",
+                "relevance": "Subdivision — geologic hazard review requirements"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "relevantDomainCount": 2
+  }
+}

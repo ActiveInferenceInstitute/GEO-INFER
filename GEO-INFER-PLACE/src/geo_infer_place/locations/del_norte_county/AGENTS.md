@@ -22,9 +22,11 @@
 ## Local Contents
 
 - `dashboard/`
+- `data/`
 - `__init__.py`
 - `coastal_resilience_analyzer.py`
 - `comprehensive_dashboard.py`
+- `crescent_city_intel.py`
 - `fire_risk_assessor.py`
 - `forest_health_monitor.py`
 - `seismic_hazard_analyzer.py`
