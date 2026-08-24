@@ -2,7 +2,10 @@
 Unit tests for GEO-INFER-RISK core functionality.
 """
 
-from geo_infer_risk import __version__, create_risk_analysis
+import tomllib
+from pathlib import Path
+
+from geo_infer_risk import __license__, __version__, create_risk_analysis
 
 
 class TestRiskModule:
@@ -14,10 +17,13 @@ class TestRiskModule:
 
         assert geo_infer_risk is not None
 
-    def test_module_version(self) -> None:
-        """Test that module has a version."""
-        assert __version__ is not None
-        assert isinstance(__version__, str)
+    def test_module_metadata_matches_pyproject(self) -> None:
+        """Runtime version and license match authoritative project metadata."""
+        pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
+        project = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]
+
+        assert __version__ == project["version"]
+        assert __license__ == project["license"]
 
     def test_module_structure(self) -> None:
         """Test that module has expected structure."""
