@@ -9,11 +9,19 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 - `models/`
 - `utils/`
 - `__init__.py`
+- `civic_intel.py`
+- `crescent-city-geo-intel.json`
 
 ## Public Interface
 
 - `__init__.py:SpatialCovariance` (class)
 - `__init__.py:GaussianProcess` (class)
+- `civic_intel.py:CrescentCityIntel` (class)
+- `civic_intel.py:HazardPriorEntry` (class)
+- `civic_intel.py:HazardCategoricalPrior` (class)
+- `civic_intel.py:load_crescent_city_intel` (function)
+- `civic_intel.py:build_hazard_prior_table` (function)
+- `civic_intel.py:build_hazard_categorical_prior` (function)
 
 ## Module Metadata
 

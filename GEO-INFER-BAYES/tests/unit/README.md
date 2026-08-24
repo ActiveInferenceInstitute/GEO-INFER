@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-BAYES`.
 
 - `test_abc_smc.py`
 - `test_base_model.py`
+- `test_civic_intel.py`
 - `test_data_processing.py`
 - `test_diagnostics.py`
 - `test_distributional_uncertainty.py`
