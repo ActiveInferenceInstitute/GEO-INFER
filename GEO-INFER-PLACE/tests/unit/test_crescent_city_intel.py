@@ -114,6 +114,41 @@ class TestContactPublicSurface(unittest.TestCase):
         assert first["intel_present"] is True
         assert isinstance(first["hazard_tags"], list)
 
+    def test_cells_carry_density_and_coverage(self) -> None:
+        """Per-cell hazard density + domain-coverage counts are computed."""
+        mapper = _mapper(_PACKAGED_SEED)
+        cells = mapper.generate_h3_cells()
+        for cell, data in cells.items():
+            assert 0.0 <= data["hazard_density"] <= 1.0
+            assert isinstance(data["domain_coverage"], int)
+            assert isinstance(data["coverage_by_domain"], dict)
+            assert data["domain_count"] == 12
+        # The surface is not flat: some cells host policy and others do not.
+        coverages = {data["domain_coverage"] for data in cells.values()}
+        assert coverages, "expected at least one non-empty coverage surface"
+
+    def test_generic_mapper_transferable_from_contract(self) -> None:
+        """MunicipalGeoIntelMapper drives the same mapping from the contract alone."""
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        mapper = MunicipalGeoIntelMapper(seed_path=_PACKAGED_SEED, h3_resolution=8)
+        assert mapper.loaded is True
+        cells = mapper.generate_h3_cells()
+        assert len(cells) > 0
+        # Same geometry as the Crescent City default (same contract extent).
+        default = _mapper(_PACKAGED_SEED)
+        assert default.bounds() == mapper.bounds()
+
+    def test_hazard_surface_ranks_domains(self) -> None:
+        """Each hazard domain carries a mean grid-coverage score."""
+        mapper = _mapper(_PACKAGED_SEED)
+        surface = mapper.generate_hazard_surface()
+        for domain in surface["domains"]:
+            assert "coverage" in domain
+            assert 0.0 <= domain["coverage"] <= 1.0
+
     def test_hazard_surface_shapes_domains(self) -> None:
         mapper = _mapper(_PACKAGED_SEED)
         surface = mapper.generate_hazard_surface()

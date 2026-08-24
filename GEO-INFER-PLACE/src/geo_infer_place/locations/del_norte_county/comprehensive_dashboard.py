@@ -40,6 +40,11 @@ from .fire_risk_assessor import FireRiskAssessor
 
 logger = logging.getLogger(__name__)
 
+# A civic policy "applies" in a cell when its hazard-coverage weight clears
+# this threshold (mirrors _COVERAGE_THRESHOLD in crescent_city_intel.py so the
+# rendered "domains applying" count matches the mapper's stored one).
+_CIVIC_COVERAGE_THRESHOLD = 0.30
+
 
 class _DefaultLocationBounds:
     """Fallback location bounds for Del Norte County when config loading fails."""
@@ -338,10 +343,10 @@ class DelNorteComprehensiveDashboard:
 
         Loads the machine-readable crescent-city-intel contract (schema
         ``crescent-city-geo-intel/v1``) via ``CrescentCityIntelMapper`` and
-        projects its 12 civic intelligence domains + hazard-relevant subset
-        onto the H3 grid so the dashboard weights municipal-code policy by
-        hazard intent. Returns a ``status``-flagged result; a missing contract
-        is reported (``unavailable``) rather than fabricated.
+        projects its civic intelligence domains + hazard-relevant subset onto
+        the H3 grid so the dashboard weights municipal-code policy by hazard
+        intent. Returns a ``status``-flagged result; a missing contract is
+        reported (``unavailable``) rather than fabricated.
         """
         try:
             from .crescent_city_intel import CrescentCityIntelMapper
@@ -363,72 +368,212 @@ class DelNorteComprehensiveDashboard:
             "schema": "crescent-city-geo-intel/v1",
             "domainCount": len(mapper.domains()),
             "domains": mapper.domain_ids(),
+            "municipality": mapper.municipality_name(),
+            "anchor": mapper.anchor(),
             "hazard": mapper.generate_hazard_surface(),
             "h3_resolution": self.h3_resolution,
             "h3_cells": h3_cells,
             "total_cells": len(h3_cells),
         }
 
+    @staticmethod
+    def _hazard_bin_color(density: float) -> str:
+        """Colour a civic-intel cell by its hazard density (0..1)."""
+        if density >= 0.70:
+            return "#d73027"  # high hazard
+        if density >= 0.50:
+            return "#fc8d59"  # medium-high
+        if density >= 0.30:
+            return "#fee08b"  # medium
+        if density >= 0.12:
+            return "#d9ef8b"  # low-medium
+        return "#4575b4"  # low
+
     def _add_crescent_city_intel_layer(
         self, m: folium.Map, layer_groups: Dict
     ) -> None:
-        """Add the civic-intel H3 surface + hazard-domain markers to the map."""
+        """Add the civic-intel H3 surface + hazard-domain markers to the map.
+
+        Rendering reads the per-cell ``hazard_density`` (colour ramp),
+        ``coverage_by_domain`` (which civic policies apply) and ``hazard_tags``
+        from ``analysis_results['crescent_city_intel']`` and anchors the
+        hazard-domain callouts at the contract's municipal seat, so it is
+        location-agnostic rather than pinned to Del Norte hard-coded points.
+        """
         result = self.analysis_results.get("crescent_city_intel", {})
         if not isinstance(result, dict) or result.get("status") != "ok":
             logger.warning("No Crescent City intel surface to render (skipped).")
             return
 
+        hazard = result.get("hazard", {})
+        surface = hazard.get("domains", []) if isinstance(hazard, dict) else []
+        # Index hazard domains so a cell can show names + municipal-code section
+        # counts for the policies that apply to it.
+        domain_by_id: Dict[str, Any] = {}
+        for d in surface:
+            dom_id = d.get("id")
+            if not dom_id:
+                continue
+            section_count = sum(
+                len(t.get("sections", []) or []) for t in (d.get("topics") or [])
+            )
+            domain_by_id[str(dom_id)] = {
+                "name": d.get("name", str(dom_id)),
+                "icon": d.get("icon", ""),
+                "section_count": int(section_count),
+            }
+
         h3_cells = result.get("h3_cells", {})
         for cell_id, cell_data in h3_cells.items():
             try:
                 h3_boundary = h3.cell_to_boundary(cell_id)
-                # Color by presence of hazard intent in the civic domain surface.
-                hazard_tags = cell_data.get("hazard_tags", [])
-                has_hazard = bool(hazard_tags)
-                color = "#d73027" if has_hazard else "#4575b4"
-                popup_html = f"""\
-                <div style="font-family: Arial; min-width: 220px;">
-                    <h4 style="color: #2255AA; margin: 0 0 8px 0;">🏛️ Crescent City Civic Intel</h4>
-                    <table style="font-size: 11px; width: 100%;">
-                        <tr><td><b>H3 Index:</b></td><td>{cell_id}</td></tr>
-                        <tr><td><b>Domains:</b></td><td>{cell_data.get('domain_count', 0)}</td></tr>
-                        <tr><td><b>Hazard Tags:</b></td><td>{", ".join(hazard_tags) or 'none'}</td></tr>
-                    </table>
-                </div>"""
+                density = float(cell_data.get("hazard_density", 0.0))
+                color = self._hazard_bin_color(density)
+                applying = [
+                    did
+                    for did, weight in (cell_data.get("coverage_by_domain") or {}).items()
+                    if float(weight) >= _CIVIC_COVERAGE_THRESHOLD
+                ]
+                hazard_tags = cell_data.get("hazard_tags", []) or []
+                tooltip = (
+                    f"Civic intel · {cell_data.get('domain_coverage', 0)} domains "
+                    f"apply · hazard density {density:.2f}"
+                )
+                popup_html = self._civic_intel_popup(
+                    cell_id, density, applying, domain_by_id, hazard_tags
+                )
                 folium.Polygon(
                     locations=[[lat, lng] for lat, lng in h3_boundary],
-                    popup=folium.Popup(popup_html, max_width=300),
-                    tooltip=f"Civic intel · {', '.join(hazard_tags) or 'no hazard tag'}",
+                    popup=folium.Popup(popup_html, max_width=320),
+                    tooltip=tooltip,
                     color="black",
                     weight=1,
                     fill=True,
                     fillColor=color,
-                    fillOpacity=0.35,
+                    fillOpacity=0.55,
                 ).add_to(layer_groups["crescent_city_intel"])
             except Exception as exc:  # pragma: no cover - per-cell guard
                 logger.warning(f"Error rendering civic-intel cell {cell_id}: {exc}")
 
-        # Hazard-domain callouts anchored at Crescent City (county seat geometry).
-        hazard = result.get("hazard", {})
-        domains_list = hazard.get("domains", []) if isinstance(hazard, dict) else []
-        for idx, domain in enumerate(domains_list[:8]):
-            # Approximate placement around the harbor geography so markers do
-            # not stack exactly onto one another.
-            lat = 41.76 + (idx % 3) * 0.004
-            lon = -124.2 + (idx // 3) * 0.004
+        # Hazard-domain callouts anchored at the contract's municipal seat
+        # (falling back to Crescent City harbor geometry only if the contract
+        # omits a seat).
+        anchor = result.get("anchor", {}) or {}
+        base_lat = float(anchor.get("latitude", 41.76))
+        base_lon = float(anchor.get("longitude", -124.20))
+        for idx, domain in enumerate(surface[:8]):
+            # Offset markers so they do not stack exactly on one another.
+            lat = base_lat + (idx % 3) * 0.004
+            lon = base_lon + (idx // 3) * 0.004
             tags = ", ".join(domain.get("hazardTags", []) or []) or "hazard"
+            coverage = float(domain.get("coverage", 0.0))
             popup_html = f"""\
             <div style="font-family: Arial; min-width: 220px;">
                 <h4 style="color:#2266AA;">{domain.get('icon', '')} {domain.get('name', '')}</h4>
                 <p><b>Hazard Tags:</b> {tags}</p>
-                <p style="font-size:10px;color:#555;">Municipal-code policy weighted by natural-hazard intent (from the crescent-city-intel contract).</p>
+                <p><b>Grid Coverage:</b> {coverage:.2f}</p>
+                <p style="font-size:10px;color:#555;">Municipal-code policy weighted
+by natural-hazard intent (from the crescent-city-intel contract).</p>
             </div>"""
             folium.Marker(
                 location=[lat, lon],
-                popup=folium.Popup(popup_html, max_width=260),
-                tooltip=f"{domain.get('name', '')} · {tags}",
+                popup=folium.Popup(popup_html, max_width=280),
+                tooltip=f"{domain.get('name', '')} · {tags} · cov {coverage:.2f}",
                 icon=folium.Icon(color="darkblue", icon="building", prefix="fa"),
             ).add_to(layer_groups["crescent_city_intel"])
+
+        self._add_civic_intel_legend(m)
+        self._add_civic_intel_summary_panel(m, result, surface)
+
+    def _civic_intel_popup(
+        self,
+        cell_id: str,
+        density: float,
+        applying: List[str],
+        domain_by_id: Dict[str, Any],
+        hazard_tags: List[str],
+    ) -> str:
+        """Build a clean, information-dense popup for a civic-intel cell."""
+        if not applying:
+            domain_rows = '<tr><td colspan="2" style="color:#999;padding:2px 6px;">no policy applies</td></tr>'
+        else:
+            rows: List[str] = []
+            for did in applying:
+                meta = domain_by_id.get(did) or {}
+                name = meta.get("name", did)
+                sections = meta.get("section_count", 0)
+                rows.append(
+                    "<tr>"
+                    f'<td style="padding:2px 6px 2px 0;"><b>{name}</b></td>'
+                    f'<td style="text-align:right;color:#555;">{sections} §</td>'
+                    "</tr>"
+                )
+            domain_rows = "".join(rows)
+        tags_txt = ", ".join(hazard_tags) or "—"
+        return f"""\
+        <div style="font-family: Arial; min-width: 260px;">
+            <h4 style="color: #2255AA; margin: 0 0 8px 0;">🏛️ Civic Intel — coverage</h4>
+            <table style="font-size: 11px; width: 100%; border-collapse: collapse;">
+                <tr><td style="padding:2px 6px 2px 0;"><b>H3 Index:</b></td><td style="text-align:right;font-family:monospace;">{cell_id}</td></tr>
+                <tr><td style="padding:2px 6px 2px 0;"><b>Hazard Density:</b></td><td style="text-align:right;">{density:.2f}</td></tr>
+                <tr><td style="padding:2px 6px 2px 0;"><b>Domains Applying:</b></td><td style="text-align:right;">{len(applying)}</td></tr>
+                <tr><td style="padding:2px 6px 2px 0;"><b>Hazard Tags:</b></td><td style="text-align:right;">{tags_txt}</td></tr>
+            </table>
+            <hr style="margin:6px 0;border:none;border-top:1px solid #ddd;">
+            <div style="font-size:10px;color:#666;">Civic policy section coverage</div>
+            <table style="font-size: 11px; width: 100%; border-collapse: collapse;">{domain_rows}</table>
+        </div>"""
+
+    def _add_civic_intel_legend(self, m: folium.Map) -> None:
+        """Add a small colour-ramp legend for the civic-intel hazard layer."""
+        legend_html = """\
+        <div style="position: fixed; bottom: 20px; left: 20px;
+            background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+            border-radius: 6px; padding: 8px 12px; font-family: Arial;
+            font-size: 11px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+            <div style="font-weight: bold; margin-bottom: 5px;">🏛️ Civic-Intel Hazard Density</div>
+            <div style="display:flex; align-items:center; gap:4px;">
+                <span style="width:14px;height:14px;background:#4575b4;display:inline-block;"></span><span style="margin-right:6px;">low</span>
+                <span style="width:14px;height:14px;background:#d9ef8b;display:inline-block;"></span><span style="margin-right:6px;">med-low</span>
+                <span style="width:14px;height:14px;background:#fee08b;display:inline-block;"></span><span style="margin-right:6px;">med</span>
+                <span style="width:14px;height:14px;background:#fc8d59;display:inline-block;"></span><span style="margin-right:6px;">med-high</span>
+                <span style="width:14px;height:14px;background:#d73027;display:inline-block;"></span><span>high</span>
+            </div>
+        </div>"""
+        m_root: Any = m.get_root()
+        m_root.html.add_child(folium.Element(legend_html))
+
+    def _add_civic_intel_summary_panel(
+        self, m: folium.Map, result: Dict[str, Any], surface: List[Dict[str, Any]]
+    ) -> None:
+        """Render a summary panel of the top hazard-relevant civic domains."""
+        if not surface:
+            return
+        municipality = result.get("municipality") or "Municipality"
+        top = sorted(surface, key=lambda d: float(d.get("coverage", 0.0)), reverse=True)[
+            :4
+        ]
+        rows = "".join(
+            (
+                f'<div style="display:flex;justify-content:space-between;'
+                f'align-items:center;margin:3px 0;">'
+                f'<span>{d.get("icon", "")} {d.get("name", "")}</span>'
+                f'<span style="color:{color};font-weight:bold;">{float(d.get("coverage", 0)):.2f}</span></div>'
+            )
+            for d, color in zip(top, ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b"])
+        )
+        panel = f"""\
+        <div style="position: fixed; bottom: 20px; right: 20px;
+            background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+            border-radius: 6px; padding: 10px 14px; font-family: Arial;
+            font-size: 12px; z-index: 1000; min-width: 200px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+            <div style="font-weight: bold; margin-bottom: 6px;">🏛️ Top Hazard Domains — {municipality}</div>
+            <div style="font-size:10px;color:#888;margin-bottom:4px;">mean municipal-code coverage score (0–1)</div>
+            {rows}
+        </div>"""
+        m_root: Any = m.get_root()
+        m_root.html.add_child(folium.Element(panel))
 
     def _generate_h3_spatial_analysis(self) -> Dict[str, Any]:
         """Aggregate H3 cells emitted by the domain analyses."""
@@ -515,6 +660,10 @@ class DelNorteComprehensiveDashboard:
         # Add all layer groups to map
         for group in layer_groups.values():
             group.add_to(m)
+
+        # A Leaflet layer control lets the user toggle the individual layers
+        # (required for the off-by-default civic-intel layer to be viewable).
+        folium.LayerControl(collapsed=True).add_to(m)
 
         # Add comprehensive control panel
         self._add_comprehensive_control_panel(m)

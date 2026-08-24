@@ -14,7 +14,7 @@ from .coastal_resilience_analyzer import CoastalResilienceAnalyzer
 from .fire_risk_assessor import FireRiskAssessor
 from .seismic_hazard_analyzer import SeismicHazardAnalyzer
 from .comprehensive_dashboard import DelNorteComprehensiveDashboard
-from .crescent_city_intel import CrescentCityIntelMapper
+from .crescent_city_intel import CrescentCityIntelMapper, MunicipalGeoIntelMapper
 
 __all__ = [
     "ForestHealthMonitor",
@@ -23,4 +23,5 @@ __all__ = [
     "SeismicHazardAnalyzer",
     "DelNorteComprehensiveDashboard",
     "CrescentCityIntelMapper",
+    "MunicipalGeoIntelMapper",
 ]
