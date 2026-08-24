@@ -106,6 +106,12 @@ except ImportError:
 
 from .core.variational import VariationalInference  # noqa: E402
 from .core.mcmc import MCMC as MCMCSampler  # noqa: E402
+from .civic_intel import (  # noqa: E402
+    HazardCategoricalPrior,
+    build_hazard_categorical_prior,
+    build_hazard_prior_table,
+    load_crescent_city_intel,
+)
 
 try:
     from .core.posterior import PosteriorAnalysis
@@ -350,4 +356,8 @@ __all__ = [
     "SpatialCovariance",
     "VariationalInference",
     "MCMCSampler",
+    "HazardCategoricalPrior",
+    "build_hazard_categorical_prior",
+    "build_hazard_prior_table",
+    "load_crescent_city_intel",
 ]
