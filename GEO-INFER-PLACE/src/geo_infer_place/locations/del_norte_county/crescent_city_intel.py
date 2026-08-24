@@ -222,7 +222,7 @@ class MunicipalGeoIntelMapper:
         span = float(b["east"] - b["west"])
         if span <= 0.0:
             return 0.0
-        return _clamp01((float(b["west"]) - lng) / span)
+        return _clamp01((float(b["east"]) - lng) / span)
 
     def _seat_proximity(self, lat: float, lng: float) -> float:
         """Distance-decay closeness to the municipal seat-anchored in [0,1]."""

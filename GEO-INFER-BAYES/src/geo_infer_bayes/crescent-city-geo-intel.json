@@ -15,7 +15,7 @@
       "north": 42.006
     }
   },
-  "generatedAt": "2026-08-23T23:21:14.182Z",
+  "generatedAt": "2026-08-24T15:42:41.522Z",
   "domainCount": 12,
   "domains": [
     {
@@ -835,9 +835,32 @@
         "name": "Environmental Protection",
         "icon": "🌿",
         "hazardTags": [
-          "erosion"
+          "erosion",
+          "flood zone",
+          "tsunami zone"
         ],
         "topics": [
+          {
+            "name": "Tsunami Inundation Zone Regulations",
+            "tags": [
+              "tsunami zone",
+              "flood zone"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 15.04",
+                "relevance": "Building code — flood zone construction standards"
+              },
+              {
+                "sectionNumber": "§ 17.04",
+                "relevance": "Zoning — coastal overlay district"
+              },
+              {
+                "sectionNumber": "§ 17.08",
+                "relevance": "Special development standards in hazard zones"
+              }
+            ]
+          },
           {
             "name": "Coastal Erosion & Shoreline Protection",
             "tags": [
@@ -859,8 +882,85 @@
             ]
           }
         ]
+      },
+      {
+        "id": "event-planning",
+        "name": "Event Planning",
+        "icon": "🎪",
+        "hazardTags": [
+          "tsunami drill"
+        ],
+        "topics": [
+          {
+            "name": "Tsunami Evacuations & Drills",
+            "tags": [
+              "tsunami drill"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 9.04",
+                "relevance": "Emergency drill authority"
+              },
+              {
+                "sectionNumber": "§ 8.04",
+                "relevance": "Public health emergency exercises"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "climate-environment",
+        "name": "Climate & Environment",
+        "icon": "🌡️",
+        "hazardTags": [
+          "climate adaptation",
+          "flood zone",
+          "sea level rise",
+          "wildfire smoke"
+        ],
+        "topics": [
+          {
+            "name": "Climate Adaptation & Sea-Level Rise",
+            "tags": [
+              "climate adaptation",
+              "sea level rise",
+              "flood zone"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 15.04",
+                "relevance": "Building code — flood zone construction standards"
+              },
+              {
+                "sectionNumber": "§ 17.04",
+                "relevance": "Zoning — coastal overlay and setback requirements"
+              },
+              {
+                "sectionNumber": "§ 17.08",
+                "relevance": "Special development standards in hazard zones"
+              }
+            ]
+          },
+          {
+            "name": "Air Quality & Environmental Justice",
+            "tags": [
+              "wildfire smoke"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 8.04",
+                "relevance": "Health and Safety — air quality authority"
+              },
+              {
+                "sectionNumber": "§ 8.08",
+                "relevance": "Nuisance abatement — air pollution"
+              }
+            ]
+          }
+        ]
       }
     ],
-    "relevantDomainCount": 2
+    "relevantDomainCount": 4
   }
 }

@@ -119,10 +119,12 @@ def test_bundled_gold_surfaces_reviewed_hazard_policy() -> None:
     assert result["city"] is not None
     assert result["city"]["name"] == "Crescent City"
     assert result["city"]["county"] == "Del Norte County"
-    assert [domain["id"] for domain in result["hazardDomains"]] == [
+    assert {domain["id"] for domain in result["hazardDomains"]} >= {
         "emergency-management",
         "environmental-protection",
-    ]
+        "event-planning",
+        "climate-environment",
+    }
     assert result["hazardDomains"][0]["hazardTags"] == ["seismic", "tsunami"]
     assert len(result["hazardDomains"][0]["sections"]) == 3
 
@@ -159,6 +161,61 @@ def test_policy_weights_align_with_multi_hazard_matrix_names() -> None:
         "wildfire": 0.25,
     }
     assert matrix.get_interaction("earthquake", "tsunami") == 0.0
+
+
+def test_policy_weights_pool_composite_tags_without_substring_inference() -> None:
+    """Qualified v1 tags map to hazards while unrelated word stems do not."""
+
+    contract = _contract_fixture()
+    hazard = contract["hazard"]
+    assert isinstance(hazard, dict)
+    domains = hazard["relevantDomains"]
+    assert isinstance(domains, list)
+    emergency = domains[0]
+    environmental = domains[1]
+    assert isinstance(emergency, dict)
+    assert isinstance(environmental, dict)
+    emergency["hazardTags"] = ["seismic", "tsunami zone", "tsunami drill"]
+    emergency_topics = emergency["topics"]
+    assert isinstance(emergency_topics, list)
+    assert isinstance(emergency_topics[0], dict)
+    emergency_topics[0]["tags"] = ["seismic", "tsunami zone", "tsunami drill"]
+    composite_tags = [
+        "flood zone",
+        "wildfire smoke",
+        "climate adaptation",
+        "sea-level rise",
+        "stormwater",
+    ]
+    environmental["hazardTags"] = composite_tags
+    environmental_topics = environmental["topics"]
+    assert isinstance(environmental_topics, list)
+    assert isinstance(environmental_topics[0], dict)
+    environmental_topics[0]["tags"] = composite_tags
+
+    intel = load_crescent_city_hazard(contract)
+
+    assert crescent_city_hazard_weights(
+        intel,
+        [
+            "earthquake",
+            "tsunami",
+            "flood",
+            "wildfire",
+            "climate",
+            "sea level",
+            "storm",
+        ],
+        default_weight=0.25,
+    ) == {
+        "earthquake": 1.0,
+        "tsunami": 1.0,
+        "flood": 0.5,
+        "wildfire": 0.5,
+        "climate": 0.5,
+        "sea level": 0.5,
+        "storm": 0.25,
+    }
 
 
 def test_parser_rejects_contract_version_drift() -> None:
