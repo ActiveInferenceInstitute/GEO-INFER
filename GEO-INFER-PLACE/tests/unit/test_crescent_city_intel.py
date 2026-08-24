@@ -17,7 +17,9 @@ import json
 import sys
 import unittest
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+import h3
 
 # Package source root (conftest normally adds this, but keep the import
 # self-sufficient for direct invocation too).
@@ -47,6 +49,61 @@ def _mapper(seed_path: Path) -> Any:
     )
 
     return CrescentCityIntelMapper(seed_path=seed_path)
+
+
+def _write_contract(
+    tmpdir: str,
+    *,
+    coastal_edge: Optional[str],
+    bounds: Dict[str, float],
+    hazard_tags: Optional[list] = None,
+) -> Path:
+    """Write a minimal ``crescent-city-geo-intel/v1`` contract to ``tmpdir``.
+
+    The synthetic municipal contract is real JSON (read back by the mapper via
+    the same code path as the packaged seed); ``coastal_edge`` sets the optional
+    ``anchor.coastalEdge`` declaration (None omits it entirely).
+    """
+    tags = list(hazard_tags) if hazard_tags is not None else ["erosion", "flood zone"]
+    anchor: Dict[str, Any] = {
+        "name": "Eastport",
+        "municipality": "Eastport",
+        "county": "Test County",
+        "state": "Test State",
+        "latitude": (bounds["south"] + bounds["north"]) / 2.0,
+        "longitude": (bounds["west"] + bounds["east"]) / 2.0,
+        "bounds": bounds,
+    }
+    if coastal_edge is not None:
+        anchor["coastalEdge"] = coastal_edge
+    contract: Dict[str, Any] = {
+        "schema": "crescent-city-geo-intel/v1",
+        "anchor": anchor,
+        "domainCount": 1,
+        "domains": [
+            {
+                "id": "hazard-policy",
+                "name": "Hazard Policy",
+                "icon": "🌊",
+                "hazardTags": list(tags),
+            }
+        ],
+        "hazard": {
+            "relevantDomains": [
+                {
+                    "id": "hazard-policy",
+                    "name": "Hazard Policy",
+                    "icon": "🌊",
+                    "hazardTags": list(tags),
+                    "topics": [],
+                }
+            ],
+            "relevantDomainCount": 1,
+        },
+    }
+    seed_path = Path(tmpdir) / "eastport-geo-intel.json"
+    seed_path.write_text(json.dumps(contract), encoding="utf-8")
+    return seed_path
 
 
 class TestContractLoad(unittest.TestCase):
@@ -204,6 +261,121 @@ class TestContactPublicSurface(unittest.TestCase):
         for domain in surface["domains"]:
             assert "hazardTags" in domain
             assert "topics" in domain
+
+
+class TestCoastlineAgnosticOrientation(unittest.TestCase):
+    """The transferable mapper orients to the contract's coastline — no implicit
+    western-shoreline assumption (the fleet residual)."""
+
+    # Synthetic eastern-coast municipality geometry: ocean on the EAST edge,
+    # landward flank on the west (lng/lat span ~ Del Norte scale).
+    _EAST_BOUNDS: Dict[str, float] = {
+        "west": -80.30,
+        "south": 25.70,
+        "east": -80.10,
+        "north": 25.90,
+    }
+
+    @staticmethod
+    def _mid_lng(bounds: Dict[str, float]) -> float:
+        return (bounds["west"] + bounds["east"]) / 2.0
+
+    def test_del_norte_default_still_orients_west_without_declaration(self) -> None:
+        """A contract that omits coastalEdge keeps the implicit west coast, so
+        Del Norte behavior is unchanged."""
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        mapper = _mapper(_PACKAGED_SEED)
+        assert mapper._resolve_coastal_edge() == "west"
+        # Auto-detection must match an explicit west orientation cell-for-cell.
+        explicit = MunicipalGeoIntelMapper(
+            seed_path=_PACKAGED_SEED, coastal_edge="west"
+        )
+        assert mapper.generate_h3_cells() == explicit.generate_h3_cells()
+
+    def test_contract_declaring_east_self_orients_eastward(self) -> None:
+        """Eastern-coast municipal contract drives the coastal edge to the east
+        with no caller-supplied orientation."""
+        import tempfile
+
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="intel_east_") as td:
+            seed_path = _write_contract(
+                td, coastal_edge="east", bounds=self._EAST_BOUNDS
+            )
+            mapper = MunicipalGeoIntelMapper(seed_path=seed_path)
+            assert mapper.loaded is True
+            assert mapper._resolve_coastal_edge() == "east"
+
+            b = mapper.bounds()
+            mid_lat = (b["south"] + b["north"]) / 2.0
+            # Eastern shoreline scores one; the inland western flank scores zero.
+            assert mapper._coast_proximity(mid_lat, b["east"], b) == 1.0
+            self.assertAlmostEqual(
+                mapper._coast_proximity(mid_lat, b["west"], b), 0.0
+            )
+
+            # End-to-end: coastal-weighted cells are denser east of the midpoint.
+            cells = mapper.generate_h3_cells()
+            assert len(cells) > 0
+            mid_lng = self._mid_lng(b)
+            east_density = max(
+                (
+                    d["hazard_density"]
+                    for c, d in cells.items()
+                    if h3.cell_to_latlng(c)[1] > mid_lng
+                ),
+                default=0.0,
+            )
+            west_density = max(
+                (
+                    d["hazard_density"]
+                    for c, d in cells.items()
+                    if h3.cell_to_latlng(c)[1] <= mid_lng
+                ),
+                default=0.0,
+            )
+            assert east_density > west_density
+
+    def test_inland_contract_disables_coastal_weighting(self) -> None:
+        """A landlocked contract (coastalEdge='none') treats no bounds edge as a
+        coast, so coastal proximity is neutral everywhere."""
+        import tempfile
+
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="intel_inland_") as td:
+            seed_path = _write_contract(
+                td, coastal_edge="none", bounds=self._EAST_BOUNDS
+            )
+            mapper = MunicipalGeoIntelMapper(seed_path=seed_path)
+            assert mapper.loaded is True
+            assert mapper._resolve_coastal_edge() is None
+
+            b = mapper.bounds()
+            mid_lat = (b["south"] + b["north"]) / 2.0
+            mid_lng = self._mid_lng(b)
+            for lat, lng in [
+                (mid_lat, b["west"]),
+                (mid_lat, b["east"]),
+                (b["north"], mid_lng),
+                (b["south"], mid_lng),
+            ]:
+                assert mapper._coast_proximity(lat, lng, b) == 0.0
+
+            # Coast-driven hazard weight drops to the seat-only term.
+            dom = {"id": "hazard-policy", "hazardTags": ["erosion", "flood zone"]}
+            seat = mapper._seat_proximity(mid_lat, mid_lng)
+            self.assertAlmostEqual(
+                mapper._domain_weight(dom, mid_lat, mid_lng), 0.30 * seat
+            )
 
 
 if __name__ == "__main__":

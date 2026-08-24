@@ -7,6 +7,7 @@ Integration workspace within `GEO-INFER-TEST`.
 - `test_act_agent_ant_coordination.py`
 - `test_ai_space_domain_integration.py`
 - `test_cross_module.py`
+- `test_cross_module_civic_intel.py`
 - `test_cross_module_workflows.py`
 - `test_ecosystem_health.py`
 - `test_h3_space_time_bayes_risk_act_composition.py`

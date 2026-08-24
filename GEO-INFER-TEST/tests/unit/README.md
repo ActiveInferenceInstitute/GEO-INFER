@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-TEST`.
 
 ## Contents
 
+- `test_crescent_city_geo_intel_contract_sync.py`
 - `test_data_domains.py`
 - `test_log_integration.py`
 - `test_manuscript_research.py`

@@ -29,7 +29,7 @@ import math
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Set, Tuple, cast
 
 import h3
 
@@ -49,6 +49,10 @@ _EARTH_KM = 6371.0
 
 CoastalEdge = Literal["west", "east", "south", "north"]
 _COASTAL_EDGES: Tuple[str, ...] = ("west", "east", "south", "north")
+
+# Contract ``anchor.coastalEdge`` values that explicitly mark a landlocked
+# municipality, i.e. no bounds edge is a shoreline.
+_INLAND_EDGE_TOKENS = frozenset({"none", "inland", "landlocked", "interior"})
 
 
 def _clamp01(value: float) -> float:
@@ -74,12 +78,20 @@ class MunicipalGeoIntelMapper:
     contract.
 
     The base class derives everything spatial from the contract document itself,
-    so it transfers to any municipality that ships the same schema. Callers
-    specify which bounds edge represents the coast with ``coastal_edge``:
+    so it transfers to any municipality that ships the same schema. Coast
+    orientation is coastline-agnostic: the effective coastal edge is resolved
+    from the contract (``anchor.coastalEdge``), overridable via the
+    ``coastal_edge`` constructor argument, with fallback handling:
 
     - ``anchor.bounds`` drives the H3 grid extent (``bounds()``)
     - ``hazard.relevantDomains`` is the hazard-policy subset (``hazard_domains()``)
     - ``anchor.latitude/longitude`` is the municipal seat for proximity scoring
+    - ``anchor.coastalEdge`` (``"west"/"east"/"south"/"north"``) orients hazard
+      weighting toward whichever bounds edge is the shoreline; an inland marker
+      (``"none"/"inland"/"landlocked"/"interior"``) disables coastal weighting.
+      When a contract neither declares an edge nor is explicitly landlocked,
+      ``_default_coastal_edge`` (``"west"``) preserves the implicit Crescent
+      City west coast.
 
     Each cell in the grid receives a ``hazard_density`` in [0, 1] and a
     ``domain_coverage`` (count of civic hazard domains whose policy weight
@@ -90,7 +102,13 @@ class MunicipalGeoIntelMapper:
 
     seed_path: Optional[Path] = None
     h3_resolution: int = 8
-    coastal_edge: CoastalEdge = "west"
+    # None = auto-detect: resolve from the contract's ``anchor.coastalEdge``,
+    # else fall back to ``_default_coastal_edge``. An explicit value overrides
+    # any contract declaration.
+    coastal_edge: Optional[CoastalEdge] = None
+    # Class-level fallback orientation for a contract that declares no coast; a
+    # subclass may override (kept "west" for Crescent City / Del Norte).
+    _default_coastal_edge: ClassVar[CoastalEdge] = "west"
 
     # Municipality-specific fallback extent used only when the contract omits
     # ``anchor.bounds`` so a known site keeps working offline.
@@ -108,10 +126,14 @@ class MunicipalGeoIntelMapper:
 
     def __post_init__(self) -> None:
         """Resolve the seed path (env override -> passed -> packaged) and load."""
-        if self.coastal_edge not in _COASTAL_EDGES:
+        if (
+            self.coastal_edge is not None
+            and self.coastal_edge not in _COASTAL_EDGES
+        ):
             allowed = ", ".join(_COASTAL_EDGES)
             raise ValueError(
-                f"coastal_edge must be one of {allowed}; got {self.coastal_edge!r}"
+                f"coastal_edge must be one of {allowed} or None "
+                f"(auto-detect from contract); got {self.coastal_edge!r}"
             )
         self._seed_override: Optional[Path] = None
         env = os.environ.get(self._seed_env)
@@ -223,15 +245,56 @@ class MunicipalGeoIntelMapper:
         lat, lng = h3.cell_to_latlng(cell_id)
         return float(lat), float(lng)
 
+    def _resolve_coastal_edge(self) -> Optional[CoastalEdge]:
+        """Resolve the effective coastal bounds edge for hazard weighting.
+
+        Resolution priority (coastline-agnostic, no western-shoreline
+        assumption):
+
+        1. A caller-supplied ``coastal_edge`` argument wins outright.
+        2. ``anchor.coastalEdge`` from the contract: a valid bounds edge
+           (``"west"/"east"/"south"/"north"``) orients the coast there; an
+           inland marker (``"none"/"inland"/"landlocked"/"interior"``) marks a
+           landlocked municipality and returns ``None`` (no coast).
+        3. Otherwise fall back to ``_default_coastal_edge`` (``"west"``), which
+           preserves Crescent City's implicit west coast when a contract
+           declares no orientation — so Del Norte results are unchanged.
+
+        Returns ``None`` only for an explicitly landlocked contract, meaning no
+        bounds edge is treated as a shoreline.
+        """
+        if self.coastal_edge is not None:
+            return self.coastal_edge
+        if self.loaded:
+            anchor = self.contract.get("anchor", {}) or {}
+            raw = anchor.get("coastalEdge")
+            if raw is not None:
+                value = str(raw).strip().lower()
+                if value in _INLAND_EDGE_TOKENS:
+                    return None
+                if value in _COASTAL_EDGES:
+                    return cast(CoastalEdge, value)
+                logger.warning("Ignoring unknown contract coastalEdge %r", raw)
+        return self._default_coastal_edge
+
     def _coast_proximity(self, lat: float, lng: float, b: Dict[str, float]) -> float:
-        """Normalized proximity to the configured coastal edge in [0, 1]."""
-        if self.coastal_edge in {"west", "east"}:
+        """Normalized proximity to the effective coastal edge in [0, 1].
+
+        Orients against whichever bounds edge the contract (or the caller)
+        declares as the coast, so eastern-coast and north/south shorelines
+        weight correctly instead of assuming a western coast. Returns 0.0 for a
+        landlocked contract (no coastal edge).
+        """
+        edge = self._resolve_coastal_edge()
+        if edge is None:
+            return 0.0
+        if edge in {"west", "east"}:
             span = float(b["east"] - b["west"])
             if span <= 0.0:
                 return 0.0
             offset = (
                 float(b["east"]) - lng
-                if self.coastal_edge == "west"
+                if edge == "west"
                 else lng - float(b["west"])
             )
         else:
@@ -240,7 +303,7 @@ class MunicipalGeoIntelMapper:
                 return 0.0
             offset = (
                 float(b["north"]) - lat
-                if self.coastal_edge == "south"
+                if edge == "south"
                 else lat - float(b["south"])
             )
         return _clamp01(offset / span)
