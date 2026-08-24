@@ -144,9 +144,18 @@ def test_bundled_contract_loads_full_civic_and_hazard_surface() -> None:
     assert intel["city"]["longitude"] == pytest.approx(-124.2)
     assert len(intel["domains"]) == 12
     assert {domain["id"] for domain in intel["hazardDomains"]} == {
+        "climate-environment",
         "emergency-management",
         "environmental-protection",
+        "event-planning",
     }
+    all_hazard_tags = [
+        tag
+        for domain in intel["hazardDomains"]
+        for tag in domain.get("hazardTags", [])
+    ]
+    assert any("flood" in tag for tag in all_hazard_tags)
+    assert any("sea level" in tag for tag in all_hazard_tags)
     assert intel["bounds"] == {
         "west": -124.408,
         "south": 41.458,
@@ -225,13 +234,26 @@ def test_bundled_hazard_prior_table_counts_only_hazard_topic_sections() -> None:
     table = build_hazard_prior_table(load_crescent_city_intel())
 
     assert table == {
+        "climate-environment": {
+            "hazardTags": [
+                "climate adaptation",
+                "flood zone",
+                "sea level rise",
+                "wildfire smoke",
+            ],
+            "sectionCount": 5,
+        },
         "emergency-management": {
             "hazardTags": ["seismic", "tsunami"],
             "sectionCount": 3,
         },
         "environmental-protection": {
-            "hazardTags": ["erosion"],
-            "sectionCount": 3,
+            "hazardTags": ["erosion", "flood zone", "tsunami zone"],
+            "sectionCount": 6,
+        },
+        "event-planning": {
+            "hazardTags": ["tsunami drill"],
+            "sectionCount": 2,
         },
     }
 

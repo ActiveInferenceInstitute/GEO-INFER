@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -53,6 +54,14 @@ _MIN_PREFERENCE = 1e-6
 
 # The baseline (all-clear / non-hazard-aware) state is the most preferred.
 _BASELINE_PREFERENCE = 1.0
+
+# Match configured base hazards as complete terms inside qualified producer
+# tags (for example, ``flood zone`` or ``tsunami drill``). The alphanumeric
+# lookarounds deliberately reject substring collisions such as ``backfire``.
+_HAZARD_TERM_PATTERNS = {
+    tag: re.compile(rf"(?<![0-9a-z]){re.escape(tag)}(?![0-9a-z])")
+    for tag in HAZARD_AVOIDANCE
+}
 
 
 @dataclass(frozen=True)
@@ -167,64 +176,134 @@ def default_contract_path() -> Path:
     return geo_infer_root.parent / _DEFAULT_CONTRACT_RELATIVE
 
 
+def _decode_contract_json(text: str, source_label: str) -> Dict[str, Any]:
+    """Decode one JSON object or raise a contract-facing ``ValueError``."""
+    try:
+        loaded = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid Crescent City intel JSON from {source_label}: {exc}") from exc
+    if not isinstance(loaded, dict):
+        raise ValueError(f"Crescent City intel JSON from {source_label} must be an object")
+    return loaded
+
+
 def _coerce_contract(source: Any) -> Optional[Dict[str, Any]]:
     """Load a raw contract from a dict, a path, or a JSON string.
 
-    Returns ``None`` when the source is unreadable so callers stay graceful
-    when the sibling contract is absent.
+    Returns ``None`` when a requested path is absent. Existing but unreadable
+    paths and malformed JSON fail closed with ``ValueError``.
     """
     if isinstance(source, dict):
         return source
-    if isinstance(source, (str, os.PathLike)):
+
+    if isinstance(source, str):
+        stripped = source.lstrip()
+        if stripped.startswith(("{", "[")):
+            return _decode_contract_json(source, "injected string")
         path = Path(source)
-        if path.exists():
-            try:
-                text = path.read_text(encoding="utf-8")
-                loaded = json.loads(text)
-                return loaded if isinstance(loaded, dict) else None
-            except (OSError, ValueError):
-                return None
+    elif isinstance(source, os.PathLike):
+        path = Path(source)
+    else:
         return None
+
+    try:
+        if not path.exists():
+            return None
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValueError(f"unable to read Crescent City intel JSON at {path}: {exc}") from exc
+    return _decode_contract_json(text, str(path))
+
+
+def _require_dict(value: Any, field_name: str) -> Dict[str, Any]:
+    """Return a dict-shaped contract field or fail closed."""
+    if not isinstance(value, dict):
+        raise ValueError(f"{field_name} must be an object")
+    return value
+
+
+def _require_list(value: Any, field_name: str) -> List[Any]:
+    """Return a list-shaped contract field or fail closed."""
+    if not isinstance(value, list):
+        raise ValueError(f"{field_name} must be an array")
+    return value
+
+
+def _require_finite_float(value: Any, field_name: str) -> float:
+    """Return a finite numeric contract field or fail closed."""
+    if isinstance(value, bool) or not isinstance(
+        value, (int, float, np.integer, np.floating)
+    ):
+        raise ValueError(f"{field_name} must be a finite number")
+    number = float(value)
+    if not np.isfinite(number):
+        raise ValueError(f"{field_name} must be a finite number")
+    return number
+
+
+def _base_hazard_tag(tag: str) -> Optional[str]:
+    """Resolve a producer tag to a configured base hazard by whole terms."""
+    normalized = " ".join(tag.casefold().split())
+    for base_tag, pattern in _HAZARD_TERM_PATTERNS.items():
+        if pattern.search(normalized):
+            return base_tag
     return None
 
 
-def _read_topic(raw: Dict[str, Any]) -> GeoIntelTopic:
-    return GeoIntelTopic(
-        name=str(raw.get("name", "")),
-        tags=[str(tag) for tag in raw.get("tags", [])],
-        sections=[
+def _read_topic(raw: Dict[str, Any], field_name: str = "hazard topic") -> GeoIntelTopic:
+    raw_tags = _require_list(raw.get("tags", []), f"{field_name}.tags")
+    raw_sections = _require_list(raw.get("sections", []), f"{field_name}.sections")
+    sections: List[GeoIntelSection] = []
+    for index, section_value in enumerate(raw_sections):
+        section = _require_dict(section_value, f"{field_name}.sections[{index}]")
+        sections.append(
             GeoIntelSection(
                 sectionNumber=str(section.get("sectionNumber", "")),
                 relevance=str(section.get("relevance", "")),
             )
-            for section in raw.get("sections", [])
-            if isinstance(section, dict)
-        ],
+        )
+    return GeoIntelTopic(
+        name=str(raw.get("name", "")),
+        tags=[str(tag) for tag in raw_tags],
+        sections=sections,
     )
 
 
-def _read_hazard_domain(raw: Dict[str, Any]) -> HazardDomain:
+def _read_hazard_domain(
+    raw: Dict[str, Any],
+    field_name: str = "hazard domain",
+    *,
+    fallback_to_domain_tags: bool = False,
+) -> HazardDomain:
+    if "hazardTags" in raw:
+        raw_hazard_tags = _require_list(raw["hazardTags"], f"{field_name}.hazardTags")
+    elif fallback_to_domain_tags:
+        domain_tags = _require_list(raw.get("tags", []), f"{field_name}.tags")
+        raw_hazard_tags = [tag for tag in domain_tags if _base_hazard_tag(str(tag))]
+    else:
+        raw_hazard_tags = []
+
+    raw_topics = _require_list(raw.get("topics", []), f"{field_name}.topics")
+    topics: List[GeoIntelTopic] = []
+    for index, topic_value in enumerate(raw_topics):
+        topic = _require_dict(topic_value, f"{field_name}.topics[{index}]")
+        topics.append(_read_topic(topic, f"{field_name}.topics[{index}]"))
+
     return HazardDomain(
         id=str(raw.get("id", "")),
         name=str(raw.get("name", "")),
         icon=str(raw.get("icon", "")),
-        hazardTags=[str(tag) for tag in raw.get("hazardTags", [])],
-        topics=[
-            _read_topic(topic)
-            for topic in raw.get("topics", [])
-            if isinstance(topic, dict)
-        ],
+        hazardTags=[str(tag) for tag in raw_hazard_tags],
+        topics=topics,
     )
 
 
 def _has_hazard_signal(raw: Dict[str, Any]) -> bool:
     """True when a raw domain references any recognised hazard tag."""
-    tag_sources: List[str] = [str(item) for item in raw.get("tags", [])]
+    raw_tags = _require_list(raw.get("tags", []), "domain.tags")
+    tag_sources: List[str] = [str(item) for item in raw_tags]
     tag_sources.extend(_read_hazard_domain(raw).hazardTags)
-    for tag in tag_sources:
-        if tag.lower() in HAZARD_AVOIDANCE:
-            return True
-    return False
+    return any(_base_hazard_tag(tag) is not None for tag in tag_sources)
 
 
 def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
@@ -235,18 +314,54 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
     list. Duplicate domain ids are collapsed keeping the first occurrence so the
     result is stable regardless of source shape.
     """
-    explicit = contract.get("hazard", {}).get("relevantDomains", [])
+    hazard_value = contract.get("hazard", {})
+    hazard = _require_dict(hazard_value, "hazard")
+    explicit = _require_list(
+        hazard.get("relevantDomains", []), "hazard.relevantDomains"
+    )
     if explicit:
-        domains = [_read_hazard_domain(item) for item in explicit if isinstance(item, dict)]
+        domains = [
+            _read_hazard_domain(
+                _require_dict(item, f"hazard.relevantDomains[{index}]"),
+                f"hazard.relevantDomains[{index}]",
+            )
+            for index, item in enumerate(explicit)
+        ]
         return _dedupe_domains([domain for domain in domains if domain.id])
 
-    full_domains = [item for item in contract.get("domains", []) if isinstance(item, dict)]
+    full_domain_values = _require_list(contract.get("domains", []), "domains")
+    full_domains = [
+        _require_dict(item, f"domains[{index}]")
+        for index, item in enumerate(full_domain_values)
+    ]
     domains = [
-        _read_hazard_domain(item)
-        for item in full_domains
+        _read_hazard_domain(
+            item,
+            f"domains[{index}]",
+            fallback_to_domain_tags=True,
+        )
+        for index, item in enumerate(full_domains)
         if _has_hazard_signal(item)
     ]
     return _dedupe_domains([domain for domain in domains if domain.id])
+
+
+def _read_bounds(anchor: Dict[str, Any]) -> Optional[CivicIntelBounds]:
+    """Parse and validate optional WGS84 municipal bounds."""
+    if "bounds" not in anchor:
+        return None
+    raw = _require_dict(anchor["bounds"], "anchor.bounds")
+    bounds = CivicIntelBounds(
+        west=_require_finite_float(raw.get("west"), "anchor.bounds.west"),
+        south=_require_finite_float(raw.get("south"), "anchor.bounds.south"),
+        east=_require_finite_float(raw.get("east"), "anchor.bounds.east"),
+        north=_require_finite_float(raw.get("north"), "anchor.bounds.north"),
+    )
+    if not -180.0 <= bounds.west < bounds.east <= 180.0:
+        raise ValueError("anchor.bounds must satisfy -180 <= west < east <= 180")
+    if not -90.0 <= bounds.south < bounds.north <= 90.0:
+        raise ValueError("anchor.bounds must satisfy -90 <= south < north <= 90")
+    return bounds
 
 
 def _dedupe_domains(domains: Sequence[HazardDomain]) -> List[HazardDomain]:
@@ -274,9 +389,9 @@ def parse_crescent_city_intel(
 
     Returns:
         A dict with ``schema``, ``city``, ``anchor``, ``generatedAt``,
-        ``bounds`` and ``hazardDomains`` keys. When the contract is absent or
-        unreadable, returns a graceful empty record (empty city, empty hazard
-        subset, empty bounds) rather than raising.
+        ``bounds`` and ``hazardDomains`` keys. When the contract path is absent,
+        returns a graceful empty record (empty city, empty hazard subset, empty
+        bounds). Malformed JSON or v1 structures fail closed with ``ValueError``.
     """
     contract = _coerce_contract(source) if source is not None else _coerce_contract(
         default_contract_path()
@@ -292,17 +407,8 @@ def parse_crescent_city_intel(
             "hazardDomains": [],
         }
 
-    anchor = contract.get("anchor", {}) if isinstance(contract.get("anchor"), dict) else {}
-    raw_bounds = anchor.get("bounds", {}) if isinstance(anchor.get("bounds"), dict) else {}
-    if raw_bounds:
-        bounds = CivicIntelBounds(
-            west=float(raw_bounds.get("west", 0.0)),
-            south=float(raw_bounds.get("south", 0.0)),
-            east=float(raw_bounds.get("east", 0.0)),
-            north=float(raw_bounds.get("north", 0.0)),
-        )
-    else:
-        bounds = None
+    anchor = _require_dict(contract.get("anchor", {}), "anchor")
+    bounds = _read_bounds(anchor)
 
     record = CrescentCityIntel(
         city=str(anchor.get("name", contract.get("anchor_name", ""))),
@@ -324,12 +430,28 @@ def _distinct_hazard_tags(parsed: Dict[str, Any]) -> List[str]:
         if not isinstance(domain, dict):
             continue
         for tag in domain.get("hazardTags", []):
-            tags[str(tag).lower()] = None
+            normalized = " ".join(str(tag).casefold().split())
+            if normalized:
+                tags[normalized] = None
         for topic in domain.get("topics", []):
             if isinstance(topic, dict):
                 for tag in topic.get("tags", []):
-                    tags[str(tag).lower()] = None
+                    normalized = " ".join(str(tag).casefold().split())
+                    if normalized:
+                        tags[normalized] = None
     return sorted(tags.keys())
+
+
+def _validated_hedge_share(value: float) -> float:
+    """Validate the optional stochastic hedge fraction."""
+    if isinstance(value, bool) or not isinstance(
+        value, (int, float, np.integer, np.floating)
+    ):
+        raise ValueError("hedge_share must be a finite number in [0, 1]")
+    share = float(value)
+    if not np.isfinite(share) or not 0.0 <= share <= 1.0:
+        raise ValueError("hedge_share must be a finite number in [0, 1]")
+    return share
 
 
 def hazard_policy_prior(
@@ -355,22 +477,22 @@ def hazard_policy_prior(
         contract: A parsed record from ``parse_crescent_city_intel`` or a raw
             contract dict (parsed on the fly).
         seed: RNG seed for the optional hedged prior.
-        hedge_share: Fraction of spread to add as seeded hedge noise to the raw
-            weights. ``0.0`` keeps the prior deterministic.
+        hedge_share: Fraction in ``[0, 1]`` of spread to add as seeded hedge
+            noise to the raw weights. ``0.0`` keeps the prior deterministic.
 
     Returns:
         A dict with ``preferences`` (normalised), ``weights`` (tag -> avoidance),
         ``preference_weights`` (tag -> preference), ``hazardTags``,
         ``hazardDomainIds``, ``dominantHazard``, ``deterministic`` and ``seed``.
     """
+    validated_hedge_share = _validated_hedge_share(hedge_share)
+
     # Accept either a parsed record or a raw contract dict.
-    parsed = contract
-    if "hazardDomains" not in parsed:
-        parsed = _coerce_contract(parsed)
-        if parsed is not None:
-            parsed = parse_crescent_city_intel(source=parsed)
-        else:
-            parsed = {}
+    parsed = (
+        contract
+        if "hazardDomains" in contract
+        else parse_crescent_city_intel(source=contract)
+    )
 
     hazard_domain_ids = [
         str(domain.get("id"))
@@ -384,16 +506,21 @@ def hazard_policy_prior(
     tag_preferences: Dict[str, float] = {}
     tag_avoidance: Dict[str, float] = {}
     for tag in tags:
-        avoidance = float(HAZARD_AVOIDANCE.get(tag.lower(), _DEFAULT_AVOIDANCE))
+        base_tag = _base_hazard_tag(tag)
+        avoidance = float(
+            HAZARD_AVOIDANCE.get(base_tag, _DEFAULT_AVOIDANCE)
+            if base_tag is not None
+            else _DEFAULT_AVOIDANCE
+        )
         tag_avoidance[tag] = avoidance
         preference = max(_BASELINE_PREFERENCE - avoidance, _MIN_PREFERENCE)
         tag_preferences[tag] = preference
         weights.append(preference)
 
     rng = np.random.default_rng(seed)
-    if hedge_share > 0:
+    if validated_hedge_share > 0:
         finite = np.asarray(weights, dtype=float)
-        spread = 0.05 * hedge_share
+        spread = 0.05 * validated_hedge_share
         jitter = rng.uniform(-spread, spread, size=finite.shape)
         weights = np.maximum(finite + jitter, _MIN_PREFERENCE).tolist()
 
@@ -412,6 +539,6 @@ def hazard_policy_prior(
         "hazardTags": tags,
         "hazardDomainIds": hazard_domain_ids,
         "dominantHazard": dominant,
-        "deterministic": hedge_share == 0,
+        "deterministic": validated_hedge_share == 0,
         "seed": seed,
     }

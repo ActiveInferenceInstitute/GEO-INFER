@@ -118,14 +118,23 @@ class TestContactPublicSurface(unittest.TestCase):
         """Per-cell hazard density + domain-coverage counts are computed."""
         mapper = _mapper(_PACKAGED_SEED)
         cells = mapper.generate_h3_cells()
-        for cell, data in cells.items():
+        for data in cells.values():
             assert 0.0 <= data["hazard_density"] <= 1.0
             assert isinstance(data["domain_coverage"], int)
             assert isinstance(data["coverage_by_domain"], dict)
             assert data["domain_count"] == 12
-        # The surface is not flat: some cells host policy and others do not.
-        coverages = {data["domain_coverage"] for data in cells.values()}
-        assert coverages, "expected at least one non-empty coverage surface"
+        densities = {data["hazard_density"] for data in cells.values()}
+        assert len(densities) > 1, "expected spatially varying hazard density"
+
+    def test_coast_proximity_decreases_from_west_to_east(self) -> None:
+        """The western coast scores one and the inland edge scores zero."""
+        mapper = _mapper(_PACKAGED_SEED)
+        bounds = mapper.bounds()
+        midpoint = (bounds["west"] + bounds["east"]) / 2.0
+
+        assert mapper._coast_proximity(bounds["west"], bounds) == 1.0
+        self.assertAlmostEqual(mapper._coast_proximity(midpoint, bounds), 0.5)
+        assert mapper._coast_proximity(bounds["east"], bounds) == 0.0
 
     def test_generic_mapper_transferable_from_contract(self) -> None:
         """MunicipalGeoIntelMapper drives the same mapping from the contract alone."""

@@ -334,7 +334,7 @@ def load_crescent_city_hazard(
 def _normalized_hazard_name(value: str) -> str:
     """Normalize a hazard name for policy-evidence matching."""
 
-    return " ".join(value.strip().lower().replace("_", " ").split())
+    return " ".join(value.strip().lower().replace("_", " ").replace("-", " ").split())
 
 
 def _hazard_lookup_names(value: str) -> tuple[str, ...]:
@@ -348,6 +348,13 @@ def _hazard_lookup_names(value: str) -> tuple[str, ...]:
     return (normalized,)
 
 
+def _hazard_tag_matches(tag: str, hazard: str) -> bool:
+    """Match a RISK hazard to an explicit civic tag on phrase boundaries."""
+
+    padded_tag = f" {_normalized_hazard_name(tag)} "
+    return any(f" {alias} " in padded_tag for alias in _hazard_lookup_names(hazard))
+
+
 def crescent_city_hazard_weights(
     hazard_intel: CrescentCityHazardIntel,
     hazard_types: Sequence[str] | None = None,
@@ -359,14 +366,17 @@ def crescent_city_hazard_weights(
     Each contract hazard tag receives the number of unique referenced municipal
     code sections, divided by the largest such count across the city surface.
     Thus the strongest documented tag has weight ``1.0`` and other documented
-    tags are proportional.  Tags with no section evidence receive
-    ``default_weight`` (``0.0`` by default).
+    tags are proportional.  When matrix hazards are requested, sections from
+    explicit qualified tags such as ``flood zone`` and ``tsunami drill`` are
+    pooled on whole-phrase boundaries before normalization.  Tags with no
+    section evidence receive ``default_weight`` (``0.0`` by default).
 
     Pass ``MultiHazardInteractionMatrix.hazard_types`` as ``hazard_types`` to
     align keys and ordering with an existing matrix.  ``earthquake`` is matched
-    to the contract's ``seismic`` tag.  These are policy-evidence weights, not
-    directed causal interaction strengths, so this helper does not mutate the
-    matrix.
+    to the contract's ``seismic`` tag.  Qualified tags never use substring
+    inference (for example, ``storm`` does not match ``stormwater``).  These are
+    policy-evidence weights, not directed causal interaction strengths, so this
+    helper does not mutate the matrix.
     """
 
     if isinstance(default_weight, bool):
@@ -405,17 +415,30 @@ def crescent_city_hazard_weights(
     if len(set(requested)) != len(requested):
         raise ValueError("hazard_types must be unique")
 
-    weights: dict[str, float] = {}
+    matched_sections: dict[str, set[str]] = {}
     for hazard in requested:
-        weights[hazard] = next(
-            (
-                evidence_weights[alias]
-                for alias in _hazard_lookup_names(hazard)
-                if alias in evidence_weights
-            ),
-            numeric_default,
+        matched_sections[hazard] = set().union(
+            *(
+                section_numbers
+                for tag, section_numbers in sections_by_tag.items()
+                if _hazard_tag_matches(tag, hazard)
+            )
         )
-    return weights
+    normalization_count = max(
+        maximum_count,
+        max(
+            (len(section_numbers) for section_numbers in matched_sections.values()),
+            default=0,
+        ),
+    )
+    return {
+        hazard: (
+            len(section_numbers) / normalization_count
+            if section_numbers and normalization_count
+            else numeric_default
+        )
+        for hazard, section_numbers in matched_sections.items()
+    }
 
 
 __all__ = [

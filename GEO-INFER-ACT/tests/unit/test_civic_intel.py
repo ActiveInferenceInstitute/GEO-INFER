@@ -5,6 +5,7 @@ hazard-relevant domain subset) and the deterministic hazard prior that weights
 policy selection away from notified municipal hazards.
 """
 
+import json
 from typing import Any, Dict, List
 
 import numpy as np
@@ -128,6 +129,63 @@ class TestParseCrescentCityIntel:
         assert parsed["hazardDomains"] == []
         assert parsed["bounds"] == {}
 
+    def test_parse_accepts_documented_json_string(self) -> None:
+        """An injected JSON object string uses the same parser as a mapping."""
+        contract = _hazard_contract_fixture()
+
+        from_mapping = parse_crescent_city_intel(source=contract)
+        from_json = parse_crescent_city_intel(source=json.dumps(contract))
+
+        assert from_json == from_mapping
+
+    def test_malformed_json_and_hazard_shape_fail_closed(self) -> None:
+        """Malformed injected content raises ValueError, never raw parser errors."""
+        with pytest.raises(ValueError, match="invalid Crescent City intel JSON"):
+            parse_crescent_city_intel(source="{not-json")
+
+        contract = _hazard_contract_fixture()
+        contract["hazard"] = None
+        with pytest.raises(ValueError, match="hazard must be an object"):
+            parse_crescent_city_intel(source=contract)
+
+    def test_malformed_bounds_fail_closed(self) -> None:
+        """Non-numeric and inverted bounds raise contract-facing ValueError."""
+        non_numeric = _hazard_contract_fixture()
+        anchor = non_numeric["anchor"]
+        assert isinstance(anchor, dict)
+        bounds = anchor["bounds"]
+        assert isinstance(bounds, dict)
+        bounds["west"] = "not-a-coordinate"
+        with pytest.raises(ValueError, match="anchor.bounds.west must be a finite number"):
+            parse_crescent_city_intel(source=non_numeric)
+
+        inverted = _hazard_contract_fixture()
+        inverted_anchor = inverted["anchor"]
+        assert isinstance(inverted_anchor, dict)
+        inverted_bounds = inverted_anchor["bounds"]
+        assert isinstance(inverted_bounds, dict)
+        inverted_bounds["west"] = -123.0
+        inverted_bounds["east"] = -124.0
+        with pytest.raises(ValueError, match="west < east"):
+            parse_crescent_city_intel(source=inverted)
+
+    def test_fallback_scan_recognizes_qualified_hazard_tags(self) -> None:
+        """Whole-term matching retains qualified tags when no subset is supplied."""
+        contract = _hazard_contract_fixture()
+        contract["hazard"] = {}
+        contract["domains"] = [
+            {
+                "id": "flood-policy",
+                "name": "Flood Policy",
+                "tags": ["flood zone", "harbor"],
+            }
+        ]
+
+        parsed = parse_crescent_city_intel(source=contract)
+
+        assert parsed["hazardDomains"][0]["id"] == "flood-policy"
+        assert parsed["hazardDomains"][0]["hazardTags"] == ["flood zone"]
+
     def test_parse_rejects_non_schema_contract(self) -> None:
         """A contract without the supported schema id yields an empty record."""
         parsed = parse_crescent_city_intel(source={"schema": "other/v1", "anchor": {}})
@@ -204,6 +262,43 @@ class TestHazardPolicyPrior:
         np.testing.assert_array_equal(hedged_a["preferences"], hedged_b["preferences"])
         assert hedged_a["deterministic"] is False
         assert not np.allclose(base["preferences"], hedged_a["preferences"])
+
+    @pytest.mark.parametrize(
+        "hedge_share",
+        [-0.1, 1.1, float("nan"), float("inf"), float("-inf")],
+    )
+    def test_invalid_hedge_share_fails_closed(self, hedge_share: float) -> None:
+        """Invalid hedge fractions cannot masquerade as stochastic priors."""
+        parsed = parse_crescent_city_intel(source=_hazard_contract_fixture())
+
+        with pytest.raises(ValueError, match=r"hedge_share.*\[0, 1\]"):
+            hazard_policy_prior(parsed, hedge_share=hedge_share)
+
+    def test_qualified_hazard_tags_use_base_weights_without_substrings(self) -> None:
+        """Qualified v1 tags resolve by whole hazard terms, not substrings."""
+        parsed: Dict[str, Any] = {
+            "hazardDomains": [
+                {
+                    "id": "qualified-hazards",
+                    "hazardTags": [
+                        "flood zone",
+                        "tsunami zone",
+                        "tsunami drill",
+                        "backfire",
+                        "tsunamic",
+                    ],
+                    "topics": [],
+                }
+            ]
+        }
+
+        prior = hazard_policy_prior(parsed)
+
+        assert prior["weights"]["flood zone"] == pytest.approx(0.75)
+        assert prior["weights"]["tsunami zone"] == pytest.approx(0.90)
+        assert prior["weights"]["tsunami drill"] == pytest.approx(0.90)
+        assert prior["weights"]["backfire"] == pytest.approx(0.50)
+        assert prior["weights"]["tsunamic"] == pytest.approx(0.50)
 
 
 class TestPolicyCoupling:
