@@ -130,11 +130,49 @@ class TestContactPublicSurface(unittest.TestCase):
         """The western coast scores one and the inland edge scores zero."""
         mapper = _mapper(_PACKAGED_SEED)
         bounds = mapper.bounds()
-        midpoint = (bounds["west"] + bounds["east"]) / 2.0
+        midpoint_lat = (bounds["south"] + bounds["north"]) / 2.0
+        midpoint_lng = (bounds["west"] + bounds["east"]) / 2.0
 
-        assert mapper._coast_proximity(bounds["west"], bounds) == 1.0
-        self.assertAlmostEqual(mapper._coast_proximity(midpoint, bounds), 0.5)
-        assert mapper._coast_proximity(bounds["east"], bounds) == 0.0
+        assert mapper._coast_proximity(midpoint_lat, bounds["west"], bounds) == 1.0
+        self.assertAlmostEqual(
+            mapper._coast_proximity(midpoint_lat, midpoint_lng, bounds), 0.5
+        )
+        assert mapper._coast_proximity(midpoint_lat, bounds["east"], bounds) == 0.0
+
+    def test_coast_proximity_supports_every_bounds_edge(self) -> None:
+        """Generic municipalities can orient the coast on any bounds edge."""
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        west = MunicipalGeoIntelMapper(seed_path=_PACKAGED_SEED)
+        bounds = west.bounds()
+        midpoint_lat = (bounds["south"] + bounds["north"]) / 2.0
+        midpoint_lng = (bounds["west"] + bounds["east"]) / 2.0
+
+        east = MunicipalGeoIntelMapper(seed_path=_PACKAGED_SEED, coastal_edge="east")
+        assert east._coast_proximity(midpoint_lat, bounds["east"], bounds) == 1.0
+        assert east._coast_proximity(midpoint_lat, bounds["west"], bounds) == 0.0
+
+        south = MunicipalGeoIntelMapper(seed_path=_PACKAGED_SEED, coastal_edge="south")
+        assert south._coast_proximity(bounds["south"], midpoint_lng, bounds) == 1.0
+        assert south._coast_proximity(bounds["north"], midpoint_lng, bounds) == 0.0
+
+        north = MunicipalGeoIntelMapper(seed_path=_PACKAGED_SEED, coastal_edge="north")
+        assert north._coast_proximity(bounds["north"], midpoint_lng, bounds) == 1.0
+        assert north._coast_proximity(bounds["south"], midpoint_lng, bounds) == 0.0
+
+    def test_invalid_coastal_edge_fails_closed(self) -> None:
+        """Invalid orientation is rejected instead of silently misweighting cells."""
+        from geo_infer_place.locations.del_norte_county.crescent_city_intel import (
+            MunicipalGeoIntelMapper,
+        )
+
+        with self.assertRaisesRegex(ValueError, "coastal_edge"):
+            MunicipalGeoIntelMapper(
+                seed_path=_PACKAGED_SEED,
+                coastal_edge="center",  # type: ignore[arg-type]
+            )
 
     def test_generic_mapper_transferable_from_contract(self) -> None:
         """MunicipalGeoIntelMapper drives the same mapping from the contract alone."""

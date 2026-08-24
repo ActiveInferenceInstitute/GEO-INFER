@@ -29,7 +29,7 @@ import math
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, cast
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
 
 import h3
 
@@ -46,6 +46,9 @@ _COASTAL_TAGS = frozenset({"erosion", "flood", "flood zone", "inundation"})
 _COVERAGE_THRESHOLD = 0.30
 
 _EARTH_KM = 6371.0
+
+CoastalEdge = Literal["west", "east", "south", "north"]
+_COASTAL_EDGES: Tuple[str, ...] = ("west", "east", "south", "north")
 
 
 def _clamp01(value: float) -> float:
@@ -71,7 +74,8 @@ class MunicipalGeoIntelMapper:
     contract.
 
     The base class derives everything spatial from the contract document itself,
-    so it transfers to ANY municipality that ships the same schema:
+    so it transfers to any municipality that ships the same schema. Callers
+    specify which bounds edge represents the coast with ``coastal_edge``:
 
     - ``anchor.bounds`` drives the H3 grid extent (``bounds()``)
     - ``hazard.relevantDomains`` is the hazard-policy subset (``hazard_domains()``)
@@ -86,6 +90,7 @@ class MunicipalGeoIntelMapper:
 
     seed_path: Optional[Path] = None
     h3_resolution: int = 8
+    coastal_edge: CoastalEdge = "west"
 
     # Municipality-specific fallback extent used only when the contract omits
     # ``anchor.bounds`` so a known site keeps working offline.
@@ -103,6 +108,11 @@ class MunicipalGeoIntelMapper:
 
     def __post_init__(self) -> None:
         """Resolve the seed path (env override -> passed -> packaged) and load."""
+        if self.coastal_edge not in _COASTAL_EDGES:
+            allowed = ", ".join(_COASTAL_EDGES)
+            raise ValueError(
+                f"coastal_edge must be one of {allowed}; got {self.coastal_edge!r}"
+            )
         self._seed_override: Optional[Path] = None
         env = os.environ.get(self._seed_env)
         if env and Path(env).exists():
@@ -213,16 +223,27 @@ class MunicipalGeoIntelMapper:
         lat, lng = h3.cell_to_latlng(cell_id)
         return float(lat), float(lng)
 
-    def _coast_proximity(self, lng: float, b: Dict[str, float]) -> float:
-        """Normalized proximity to the coastal (western grid) edge in [0,1].
-
-        Western-hemisphere convention: the coast sits at the western bound, so
-        the fraction reads 1 at the west edge and 0 at the east edge.
-        """
-        span = float(b["east"] - b["west"])
-        if span <= 0.0:
-            return 0.0
-        return _clamp01((float(b["east"]) - lng) / span)
+    def _coast_proximity(self, lat: float, lng: float, b: Dict[str, float]) -> float:
+        """Normalized proximity to the configured coastal edge in [0, 1]."""
+        if self.coastal_edge in {"west", "east"}:
+            span = float(b["east"] - b["west"])
+            if span <= 0.0:
+                return 0.0
+            offset = (
+                float(b["east"]) - lng
+                if self.coastal_edge == "west"
+                else lng - float(b["west"])
+            )
+        else:
+            span = float(b["north"] - b["south"])
+            if span <= 0.0:
+                return 0.0
+            offset = (
+                float(b["north"]) - lat
+                if self.coastal_edge == "south"
+                else lat - float(b["south"])
+            )
+        return _clamp01(offset / span)
 
     def _seat_proximity(self, lat: float, lng: float) -> float:
         """Distance-decay closeness to the municipal seat-anchored in [0,1]."""
@@ -235,8 +256,8 @@ class MunicipalGeoIntelMapper:
         a_lat = float(anchor["latitude"])
         a_lng = float(anchor["longitude"])
         lat_span_km = abs(b["north"] - b["south"]) * 111.0
-        lon_span_km = abs(b["east"] - b["west"]) * 111.0 * max(
-            math.cos(math.radians(a_lat)), 0.2
+        lon_span_km = (
+            abs(b["east"] - b["west"]) * 111.0 * max(math.cos(math.radians(a_lat)), 0.2)
         )
         ref_km = max(lat_span_km, lon_span_km, 1.0)
         dist_km = _distance_km(a_lat, a_lng, lat, lng)
@@ -255,7 +276,7 @@ class MunicipalGeoIntelMapper:
         seat = self._seat_proximity(lat, lng)
         if not self.anchor():
             return 0.0
-        coast = self._coast_proximity(lng, b)
+        coast = self._coast_proximity(lat, lng, b)
         tags = set(str(t).lower() for t in (domain.get("hazardTags") or []))
         if tags & _SEISMIC_TAGS:
             # Tsunami / seismic: severe near both seat and the coast edge.
@@ -313,7 +334,9 @@ class MunicipalGeoIntelMapper:
             weights: Dict[str, float] = {}
             for did, dom in by_id.items():
                 weights[did] = round(float(self._domain_weight(dom, lat, lng)), 3)
-            applying_ids = [did for did, w in weights.items() if w >= _COVERAGE_THRESHOLD]
+            applying_ids = [
+                did for did, w in weights.items() if w >= _COVERAGE_THRESHOLD
+            ]
             density = max(weights.values()) if weights else 0.0
             tags: List[str] = []
             for did in applying_ids:
