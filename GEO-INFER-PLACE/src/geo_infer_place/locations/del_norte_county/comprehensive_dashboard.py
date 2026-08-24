@@ -29,6 +29,7 @@ except ImportError:
         """Fallback no-op when SPACE core is unavailable."""
         return None
 
+
 from ...utils.data_sources import CaliforniaDataSources
 from ...core.api_clients import CaliforniaAPIManager
 from ...core.visualization_engine import InteractiveVisualizationEngine
@@ -44,6 +45,8 @@ logger = logging.getLogger(__name__)
 # this threshold (mirrors _COVERAGE_THRESHOLD in crescent_city_intel.py so the
 # rendered "domains applying" count matches the mapper's stored one).
 _CIVIC_COVERAGE_THRESHOLD = 0.30
+_CIVIC_LEGEND_ID = "civic-intel-legend"
+_CIVIC_SUMMARY_ID = "civic-intel-summary"
 
 
 class _DefaultLocationBounds:
@@ -151,9 +154,7 @@ class DelNorteComprehensiveDashboard:
                     location="del_norte_county"
                 )
             except Exception as exc:
-                logger.warning(
-                    "Location config load failed, using defaults: %s", exc
-                )
+                logger.warning("Location config load failed, using defaults: %s", exc)
                 self._init_analyzers_with_defaults()
                 return cast(Dict[str, Any], self.config or {})
 
@@ -278,9 +279,7 @@ class DelNorteComprehensiveDashboard:
         # Forest health analysis
         logger.info("Analyzing forest health...")
         try:
-            self.analysis_results["forest_health"] = (
-                self.forest_analyzer.run_analysis()
-            )
+            self.analysis_results["forest_health"] = self.forest_analyzer.run_analysis()
         except Exception as exc:
             logger.warning("Forest health analysis failed: %s", exc)
             self.analysis_results["forest_health"] = {
@@ -318,7 +317,9 @@ class DelNorteComprehensiveDashboard:
 
         # Crescent City civic-intel surface (from the crescent-city-intel contract)
         logger.info("Mapping Crescent City civic-intel contract...")
-        self.analysis_results["crescent_city_intel"] = self._analyze_crescent_city_intel()
+        self.analysis_results["crescent_city_intel"] = (
+            self._analyze_crescent_city_intel()
+        )
 
         # Generate H3 spatial aggregation
         logger.info("Generating H3 spatial aggregation...")
@@ -389,9 +390,7 @@ class DelNorteComprehensiveDashboard:
             return "#d9ef8b"  # low-medium
         return "#4575b4"  # low
 
-    def _add_crescent_city_intel_layer(
-        self, m: folium.Map, layer_groups: Dict
-    ) -> None:
+    def _add_crescent_city_intel_layer(self, m: folium.Map, layer_groups: Dict) -> None:
         """Add the civic-intel H3 surface + hazard-domain markers to the map.
 
         Rendering reads the per-cell ``hazard_density`` (colour ramp),
@@ -431,7 +430,9 @@ class DelNorteComprehensiveDashboard:
                 color = self._hazard_bin_color(density)
                 applying = [
                     did
-                    for did, weight in (cell_data.get("coverage_by_domain") or {}).items()
+                    for did, weight in (
+                        cell_data.get("coverage_by_domain") or {}
+                    ).items()
                     if float(weight) >= _CIVIC_COVERAGE_THRESHOLD
                 ]
                 hazard_tags = cell_data.get("hazard_tags", []) or []
@@ -484,6 +485,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
 
         self._add_civic_intel_legend(m)
         self._add_civic_intel_summary_panel(m, result, surface)
+        self._bind_civic_intel_panel_visibility(m, layer_groups["crescent_city_intel"])
 
     def _civic_intel_popup(
         self,
@@ -526,8 +528,9 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
 
     def _add_civic_intel_legend(self, m: folium.Map) -> None:
         """Add a small colour-ramp legend for the civic-intel hazard layer."""
-        legend_html = """\
-        <div style="position: fixed; bottom: 20px; left: 20px;
+        legend_html = f"""\
+        <div id="{_CIVIC_LEGEND_ID}" style="display: none;
+            position: fixed; bottom: 20px; left: 20px;
             background: rgba(255,255,255,0.95); border: 1px solid #ccc;
             border-radius: 6px; padding: 8px 12px; font-family: Arial;
             font-size: 11px; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
@@ -550,9 +553,9 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         if not surface:
             return
         municipality = result.get("municipality") or "Municipality"
-        top = sorted(surface, key=lambda d: float(d.get("coverage", 0.0)), reverse=True)[
-            :4
-        ]
+        top = sorted(
+            surface, key=lambda d: float(d.get("coverage", 0.0)), reverse=True
+        )[:4]
         rows = "".join(
             (
                 f'<div style="display:flex;justify-content:space-between;'
@@ -563,7 +566,8 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             for d, color in zip(top, ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b"])
         )
         panel = f"""\
-        <div style="position: fixed; bottom: 20px; right: 20px;
+        <div id="{_CIVIC_SUMMARY_ID}" style="display: none;
+            position: fixed; bottom: 20px; right: 20px;
             background: rgba(255,255,255,0.95); border: 1px solid #ccc;
             border-radius: 6px; padding: 10px 14px; font-family: Arial;
             font-size: 12px; z-index: 1000; min-width: 200px;
@@ -574,6 +578,43 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         </div>"""
         m_root: Any = m.get_root()
         m_root.html.add_child(folium.Element(panel))
+
+    def _bind_civic_intel_panel_visibility(
+        self, m: folium.Map, civic_layer: folium.FeatureGroup
+    ) -> None:
+        """Show civic panels exactly when the civic overlay is visible."""
+        map_name = m.get_name()
+        layer_name = civic_layer.get_name()
+        script = f"""
+        window.addEventListener("load", function () {{
+            var civicMap = {map_name};
+            var civicLayer = {layer_name};
+            var civicPanelIds = ["{_CIVIC_LEGEND_ID}", "{_CIVIC_SUMMARY_ID}"];
+
+            function setCivicPanelsVisible(visible) {{
+                civicPanelIds.forEach(function (id) {{
+                    var panel = document.getElementById(id);
+                    if (panel) {{
+                        panel.style.display = visible ? "block" : "none";
+                    }}
+                }});
+            }}
+
+            setCivicPanelsVisible(civicMap.hasLayer(civicLayer));
+            civicMap.on("overlayadd", function (event) {{
+                if (event.layer === civicLayer) {{
+                    setCivicPanelsVisible(true);
+                }}
+            }});
+            civicMap.on("overlayremove", function (event) {{
+                if (event.layer === civicLayer) {{
+                    setCivicPanelsVisible(false);
+                }}
+            }});
+        }});
+        """
+        m_root: Any = m.get_root()
+        m_root.script.add_child(folium.Element(script))
 
     def _generate_h3_spatial_analysis(self) -> Dict[str, Any]:
         """Aggregate H3 cells emitted by the domain analyses."""
