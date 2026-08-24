@@ -8,6 +8,7 @@ H3 spatial visualization adapted from the climate integration example.
 """
 
 import logging
+import html
 import json
 import folium
 import h3
@@ -47,6 +48,19 @@ logger = logging.getLogger(__name__)
 _CIVIC_COVERAGE_THRESHOLD = 0.30
 _CIVIC_LEGEND_ID = "civic-intel-legend"
 _CIVIC_SUMMARY_ID = "civic-intel-summary"
+# Panel id for the RISK/BAYES/ACT computed module results on the civic overlay.
+_CIVIC_MODULE_SUMMARY_ID = "civic-intel-module-weights"
+
+
+def _html(value: Any) -> str:
+    """HTML-escape a value before it is interpolated into rendered markup.
+
+    The civic-intel contract is an external data surface; its hazard tags,
+    domain names and derived action strings are interpolated into the civic
+    overlay's tooltips, popups and panels. Escaping keeps a malformed or
+    hostile contract from injecting markup into the generated dashboard.
+    """
+    return html.escape(str(value), quote=True)
 
 
 class _DefaultLocationBounds:
@@ -364,7 +378,7 @@ class DelNorteComprehensiveDashboard:
             }
 
         h3_cells = mapper.generate_h3_cells()
-        return {
+        base_result: Dict[str, Any] = {
             "status": "ok",
             "schema": "crescent-city-geo-intel/v1",
             "domainCount": len(mapper.domains()),
@@ -376,6 +390,306 @@ class DelNorteComprehensiveDashboard:
             "h3_cells": h3_cells,
             "total_cells": len(h3_cells),
         }
+        # Feed the SAME contract into the RISK / BAYES / ACT civic-intel
+        # helpers so their computed hazard weights, categorical priors and
+        # policy preference are surfaces on the map alongside the raw contract
+        # geometry. Each module independently degrades to ``unavailable``.
+        return self.enrich_civic_intel_with_module_results(
+            base_result, contract=mapper.contract
+        )
+
+    @staticmethod
+    def _display_hazard_tag(value: Any) -> str:
+        """Collapse a producer hazard tag to one canonical (lowercase) token.
+
+        RISK and BAYES fold qualified tags onto word boundaries (hyphen/
+        underscore -> space) while ACT preserves hyphens, so the dashboard
+        reconciles the three computed surfaces on a single display token.
+        """
+        return " ".join(
+            str(value).strip().casefold().replace("_", " ").replace("-", " ").split()
+        )
+
+    def _import_civic_intel_module(self, dotted_name: str) -> Optional[Any]:
+        """Import a sibling civic-intel helper module, or None when absent.
+
+        The sibling packages (RISK / BAYES / ACT) are not hard dependencies of
+        the PLACE dashboard; when one is missing the dashboard must keep
+        rendering the raw civic-intel surface and record the module result as
+        ``unavailable`` rather than crash the map.
+        """
+        import importlib
+
+        try:
+            return importlib.import_module(dotted_name)
+        except ImportError:
+            logger.warning("Civic-intel helper module %s unavailable", dotted_name)
+            return None
+
+    def enrich_civic_intel_with_module_results(
+        self,
+        result: Dict[str, Any],
+        *,
+        contract: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Add RISK/BAYES/ACT computed results to a civic-intel surface dict.
+
+        Each civic-intel consumer (``geo_infer_risk.civic_intel``,
+        ``geo_infer_bayes.civic_intel`` and
+        ``geo_infer_act.core.civic_intel``) parses the SAME
+        ``crescent-city-geo-intel/v1`` contract and emits its own computed
+        result:
+
+        - ``riskWeights``: hazard-tag -> policy-evidence weight (RISK)
+        - ``bayesPriors``: hazard-domain -> categorical prior probability (BAYES)
+        - ``actPolicy``: ACT's deterministic policy preference over hazards
+        - ``moduleWeights``: a reconciled per-hazard row (risk + prior +
+          policy preference + action) ready for tooltips and the map panel
+
+        ``contract`` defaults to ``CrescentCityIntelMapper``'s packaged seed
+        when omitted. Every module is best-effort: an import failure or a
+        malformed contract degrades that module to ``{"status": "unavailable"}``
+        and the others still compute, so the map never hard-fails.
+        """
+        result = dict(result or {})
+        if contract is None:
+            try:
+                from .crescent_city_intel import CrescentCityIntelMapper
+
+                pending = CrescentCityIntelMapper(h3_resolution=self.h3_resolution)
+                contract = pending.contract if pending.loaded else None
+            except Exception as exc:  # pragma: no cover - defensive import gate
+                logger.warning("Civic-intel contract resolve failed: %s", exc)
+                contract = None
+
+        sources: Dict[str, str] = {}
+        result["riskWeights"] = self._risk_results_from_contract(contract, sources)
+        result["bayesPriors"] = self._bayes_results_from_contract(contract, sources)
+        result["actPolicy"] = self._act_results_from_contract(contract, sources)
+        result["moduleWeights"] = self._consolidate_module_weights(
+            result, contract
+        )
+        result["moduleResults"] = {
+            "status": "ok" if contract is not None else "unavailable",
+            "sources": sources,
+        }
+        return result
+
+    def _risk_results_from_contract(
+        self, contract: Optional[Dict[str, Any]], sources: Dict[str, str]
+    ) -> Dict[str, Any]:
+        """RISK hazard-weight surface from the shared contract (best-effort)."""
+        risk_mod = self._import_civic_intel_module("geo_infer_risk.civic_intel")
+        if risk_mod is None:
+            sources["risk"] = "unavailable"
+            return {"status": "unavailable", "error": "geo_infer_risk.civic_intel not importable"}
+        if contract is None:
+            sources["risk"] = "unavailable"
+            return {"status": "unavailable", "error": "No civic-intel contract"}
+        try:
+            intel = risk_mod.load_crescent_city_hazard(contract)
+            raw_tags = sorted(
+                {
+                    str(tag)
+                    for domain in intel.get("hazardDomains", [])
+                    for tag in (domain.get("hazardTags") or [])
+                }
+            )
+            hazard_types = sorted({self._display_hazard_tag(t) for t in raw_tags})
+            weights = risk_mod.crescent_city_hazard_weights(
+                intel, hazard_types=hazard_types, default_weight=0.0
+            )
+            sources["risk"] = "ok" if hazard_types else "no_hazards"
+            return {
+                self._display_hazard_tag(str(tag)): float(weight)
+                for tag, weight in weights.items()
+            }
+        except Exception as exc:  # pragma: no cover - contract validation path
+            logger.warning("RISK civic-intel enrichment failed: %s", exc)
+            sources["risk"] = "unavailable"
+            return {"status": "unavailable", "error": str(exc)}
+
+    def _bayes_results_from_contract(
+        self, contract: Optional[Dict[str, Any]], sources: Dict[str, str]
+    ) -> Dict[str, Any]:
+        """BAYES categorical-prior table from the shared contract (best-effort)."""
+        bayes_mod = self._import_civic_intel_module("geo_infer_bayes.civic_intel")
+        if bayes_mod is None:
+            sources["bayes"] = "unavailable"
+            return {"status": "unavailable", "error": "geo_infer_bayes.civic_intel not importable"}
+        if contract is None:
+            sources["bayes"] = "unavailable"
+            return {"status": "unavailable", "error": "No civic-intel contract"}
+        try:
+            intel = bayes_mod.load_crescent_city_intel(source=contract)
+            table = bayes_mod.build_hazard_prior_table(intel)
+            prior = bayes_mod.build_hazard_categorical_prior(table)
+            sources["bayes"] = "ok" if table else "no_hazards"
+            return {
+                "status": "ok",
+                "priorTable": dict(table),
+                "priorByDomain": prior.as_probability_table(),
+            }
+        except Exception as exc:  # pragma: no cover - contract validation path
+            logger.warning("BAYES civic-intel enrichment failed: %s", exc)
+            sources["bayes"] = "unavailable"
+            return {"status": "unavailable", "error": str(exc)}
+
+    def _act_results_from_contract(
+        self, contract: Optional[Dict[str, Any]], sources: Dict[str, str]
+    ) -> Dict[str, Any]:
+        """ACT policy-preference surface from the shared contract (best-effort)."""
+        act_mod = self._import_civic_intel_module("geo_infer_act.core.civic_intel")
+        if act_mod is None:
+            sources["act"] = "unavailable"
+            return {"status": "unavailable", "error": "geo_infer_act.core.civic_intel not importable"}
+        if contract is None:
+            sources["act"] = "unavailable"
+            return {"status": "unavailable", "error": "No civic-intel contract"}
+        try:
+            parsed = act_mod.parse_crescent_city_intel(source=contract)
+            prior = act_mod.hazard_policy_prior(parsed, seed=None, hedge_share=0.0)
+            tags = list(prior.get("hazardTags") or [])
+            preference_map = {
+                self._display_hazard_tag(str(tag)): float(pref)
+                for tag, pref in (prior.get("preference_weights") or {}).items()
+            }
+            sources["act"] = "ok" if parsed.get("hazardDomains") else "no_hazards"
+            return {
+                "status": "ok",
+                "deterministic": bool(prior.get("deterministic", True)),
+                "hazardTags": [self._display_hazard_tag(str(t)) for t in tags],
+                "preferenceWeights": preference_map,
+                "dominantHazard": self._display_hazard_tag(
+                    str(prior.get("dominantHazard") or "")
+                ),
+                "selectedAction": self._select_act_action(prior),
+            }
+        except Exception as exc:  # pragma: no cover - contract validation path
+            logger.warning("ACT civic-intel enrichment failed: %s", exc)
+            sources["act"] = "unavailable"
+            return {"status": "unavailable", "error": str(exc)}
+
+    @staticmethod
+    def _select_act_action(prior: Dict[str, Any]) -> Dict[str, Any]:
+        """Deterministically select the ACT policy that best matches the prior.
+
+        Runs ``PolicySelector(selection_mode=\"deterministic\")`` over one
+        candidate policy per state (baseline + each hazard) on a belief axis
+        aligned to the prior preferences. The baseline (all-clear) state has
+        the highest preference, so the deterministic argmin over expected free
+        energy selects it.
+        """
+        import numpy as np
+
+        from geo_infer_act.core.policy_selection import PolicySelector
+
+        tags = list(prior.get("hazardTags") or [])
+        state_labels = ["all-clear"] + tags
+        raw_preferences = prior.get("preferences")
+        if raw_preferences is None or len(raw_preferences) == 0:
+            preferences = np.ones(len(state_labels)) / len(state_labels)
+        else:
+            preferences = np.asarray(raw_preferences, dtype=float)
+        if len(preferences) != len(state_labels):
+            preferences = np.ones(len(state_labels)) / len(state_labels)
+        selector = PolicySelector(selection_mode="deterministic")
+        policies = [
+            {
+                "id": label,
+                "exploration_bonus": 0.1,
+                "predicted_beliefs": np.eye(len(state_labels))[i],
+            }
+            for i, label in enumerate(state_labels)
+        ]
+        selection = selector.select_policy(preferences, policies, preferences)
+        return {
+            "action": str(selection["policy"].get("id")),
+            "expected_free_energy": round(
+                float(selection["expected_free_energy"]), 4
+            ),
+            "probability": round(float(selection["probability"]), 4),
+        }
+
+    def _consolidate_module_weights(
+        self, result: Dict[str, Any], contract: Optional[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Reconcile RISK / BAYES / ACT module outputs onto per-tag rows.
+
+        Rows are keyed by the canonical display hazard tag and carry the
+        computed ``riskWeight``, ``priorWeight`` (BAYES domain mean), ACT
+        ``preference`` and a plain-language ``action`` so the panel and tooltip
+        can surface every module's number on the same hazard axis.
+        """
+        risk = result.get("riskWeights")
+        bayes = result.get("bayesPriors")
+        act = result.get("actPolicy")
+        if not isinstance(risk, dict):
+            risk = {}
+        if isinstance(bayes, dict) and bayes.get("status") != "unavailable":
+            by_domain = bayes.get("priorByDomain") or {}
+        else:
+            by_domain = {}
+        if isinstance(act, dict) and act.get("status") != "unavailable":
+            act_prefs = act.get("preferenceWeights") or {}
+            dominant = act.get("dominantHazard") or ""
+        else:
+            act_prefs = {}
+            dominant = ""
+
+        domain_tags: Dict[str, List[str]] = {}
+        if isinstance(contract, dict):
+            for domain in contract.get("hazard", {}).get("relevantDomains") or []:
+                did = domain.get("id")
+                tags = [
+                    self._display_hazard_tag(t)
+                    for t in (domain.get("hazardTags") or [])
+                ]
+                if did:
+                    domain_tags[str(did)] = tags
+
+        rows: List[Dict[str, Any]] = []
+        if isinstance(risk, dict) and risk.get("status") != "unavailable":
+            for tag in sorted(risk):
+                try:
+                    risk_weight = float(risk[tag])
+                except (TypeError, ValueError):
+                    continue
+                matched_domains = [
+                    did
+                    for did, tags in domain_tags.items()
+                    if tag in tags and did in by_domain
+                ]
+                prior_values = [float(by_domain[did]) for did in matched_domains]
+                prior_weight = (
+                    (sum(prior_values) / len(prior_values))
+                    if prior_values
+                    else None
+                )
+                preference = act_prefs.get(tag)
+                if preference is not None:
+                    preference = float(preference)
+                if tag == dominant:
+                    action = f"mitigate dominant hazard: {dominant}"
+                elif preference is not None:
+                    action = "avoid"
+                else:
+                    action = "monitor"
+                rows.append(
+                    {
+                        "tag": tag,
+                        "riskWeight": risk_weight,
+                        "priorWeight": (
+                            round(prior_weight, 4) if prior_weight is not None else None
+                        ),
+                        "preference": (
+                            round(preference, 4) if preference is not None else None
+                        ),
+                        "action": action,
+                    }
+                )
+        rows.sort(key=lambda row: float(row["riskWeight"]), reverse=True)
+        return rows
 
     @staticmethod
     def _hazard_bin_color(density: float) -> str:
@@ -406,6 +720,11 @@ class DelNorteComprehensiveDashboard:
 
         hazard = result.get("hazard", {})
         surface = hazard.get("domains", []) if isinstance(hazard, dict) else []
+        # Computed RISK / BAYES / ACT results surface (moduleWeights is a
+        # reconciled per-tag row set; see enrich_civic_intel_with_module_results).
+        module_rows = result.get("moduleWeights", []) or []
+        if not isinstance(module_rows, list):
+            module_rows = []
         # Index hazard domains so a cell can show names + municipal-code section
         # counts for the policies that apply to it.
         domain_by_id: Dict[str, Any] = {}
@@ -423,6 +742,20 @@ class DelNorteComprehensiveDashboard:
             }
 
         h3_cells = result.get("h3_cells", {})
+        # The module-results tooltip suffix and popup table are layer-global
+        # (module_rows is not per-cell), so build them ONCE before the cell
+        # loop instead of recomputing identical HTML for every polygon.
+        module_tooltip_suffix = ""
+        if module_rows:
+            top_row = module_rows[0]
+            top_risk = float(top_row.get("riskWeight", 0.0))
+            top_tag = _html(top_row.get("tag", ""))
+            top_action = _html(top_row.get("action", "monitor"))
+            module_tooltip_suffix = (
+                f" · risk {top_tag} {top_risk:.2f} · policy {top_action}"
+            )
+        module_popup_block = self._module_rows_popup_html(module_rows)
+
         for cell_id, cell_data in h3_cells.items():
             try:
                 h3_boundary = h3.cell_to_boundary(cell_id)
@@ -440,8 +773,10 @@ class DelNorteComprehensiveDashboard:
                     f"Civic intel · {cell_data.get('domain_coverage', 0)} domains "
                     f"apply · hazard density {density:.2f}"
                 )
+                tooltip += module_tooltip_suffix
                 popup_html = self._civic_intel_popup(
-                    cell_id, density, applying, domain_by_id, hazard_tags
+                    cell_id, density, applying, domain_by_id, hazard_tags,
+                    module_rows_block=module_popup_block,
                 )
                 folium.Polygon(
                     locations=[[lat, lng] for lat, lng in h3_boundary],
@@ -466,11 +801,13 @@ class DelNorteComprehensiveDashboard:
             # Offset markers so they do not stack exactly on one another.
             lat = base_lat + (idx % 3) * 0.004
             lon = base_lon + (idx // 3) * 0.004
-            tags = ", ".join(domain.get("hazardTags", []) or []) or "hazard"
+            tags = _html(", ".join(domain.get("hazardTags", []) or []) or "hazard")
             coverage = float(domain.get("coverage", 0.0))
+            domain_name = _html(domain.get("name", ""))
+            domain_icon = _html(domain.get("icon", ""))
             popup_html = f"""\
             <div style="font-family: Arial; min-width: 220px;">
-                <h4 style="color:#2266AA;">{domain.get('icon', '')} {domain.get('name', '')}</h4>
+                <h4 style="color:#2266AA;">{domain_icon} {domain_name}</h4>
                 <p><b>Hazard Tags:</b> {tags}</p>
                 <p><b>Grid Coverage:</b> {coverage:.2f}</p>
                 <p style="font-size:10px;color:#555;">Municipal-code policy weighted
@@ -479,13 +816,53 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             folium.Marker(
                 location=[lat, lon],
                 popup=folium.Popup(popup_html, max_width=280),
-                tooltip=f"{domain.get('name', '')} · {tags} · cov {coverage:.2f}",
+                tooltip=f"{domain_name} · {tags} · cov {coverage:.2f}",
                 icon=folium.Icon(color="darkblue", icon="building", prefix="fa"),
             ).add_to(layer_groups["crescent_city_intel"])
 
         self._add_civic_intel_legend(m)
         self._add_civic_intel_summary_panel(m, result, surface)
+        self._add_module_hazard_weights_panel(m, result)
         self._bind_civic_intel_panel_visibility(m, layer_groups["crescent_city_intel"])
+
+    @staticmethod
+    def _module_rows_popup_html(module_rows: List[Dict[str, Any]]) -> str:
+        """Build the RISK/BAYES/ACT module-results block for a cell popup.
+
+        Invariant across every cell in the layer, so the caller builds it once
+        and reuses it per cell. Returns an empty string when there are no rows
+        (e.g. the sibling modules are unavailable), which keeps the popup
+        rendering the raw contract surface alone.
+        """
+        if not module_rows:
+            return ""
+        module_sections: List[str] = []
+        for row in module_rows[:4]:
+            tag = _html(row.get("tag", ""))
+            risk = float(row.get("riskWeight", 0.0))
+            prior = row.get("priorWeight")
+            prior_txt = f"{prior:.3f}" if prior is not None else "—"
+            preference = row.get("preference")
+            pref_txt = f"{preference:.3f}" if preference is not None else "—"
+            module_sections.append(
+                "<tr>"
+                f'<td style="padding:2px 0;"><b>{tag}</b></td>'
+                f'<td style="text-align:right;color:#d73027;">⚠ {risk:.2f}</td>'
+                f'<td style="text-align:right;color:#555;">P {prior_txt}</td>'
+                f'<td style="text-align:right;color:#666;">A {pref_txt}</td>'
+                "</tr>"
+            )
+        return (
+            '<div style="font-size:10px;color:#666;margin-top:6px;">'
+            "Module results · RISK ⚠ / BAYES prior / ACT preference"
+            "</div>"
+            '<table style="font-size: 11px; width: 100%; border-collapse: collapse;">'
+            f'<tr><td style="padding:2px 6px 2px 0;color:#888;"><b>hazard</b></td>'
+            f'<td style="text-align:right;color:#888;"><b>risk</b></td>'
+            f'<td style="text-align:right;color:#888;"><b>prior</b></td>'
+            f'<td style="text-align:right;color:#888;"><b>ACT</b></td></tr>'
+            f"{''.join(module_sections)}</table>"
+        )
 
     def _civic_intel_popup(
         self,
@@ -494,15 +871,23 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         applying: List[str],
         domain_by_id: Dict[str, Any],
         hazard_tags: List[str],
+        module_rows_block: str = "",
     ) -> str:
-        """Build a clean, information-dense popup for a civic-intel cell."""
+        """Build a clean, information-dense popup for a civic-intel cell.
+
+        ``module_rows_block`` is the pre-built RISK/BAYES/ACT module-results
+        table (see ``_module_rows_popup_html``) so the popup surfaces, alongside
+        the raw contract coverage, each module's computed risk weight, Bayesian
+        prior and ACT policy preference for the hazards that apply. All
+        contract-derived strings are HTML-escaped.
+        """
         if not applying:
             domain_rows = '<tr><td colspan="2" style="color:#999;padding:2px 6px;">no policy applies</td></tr>'
         else:
             rows: List[str] = []
             for did in applying:
                 meta = domain_by_id.get(did) or {}
-                name = meta.get("name", did)
+                name = _html(meta.get("name", did))
                 sections = meta.get("section_count", 0)
                 rows.append(
                     "<tr>"
@@ -511,12 +896,13 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
                     "</tr>"
                 )
             domain_rows = "".join(rows)
-        tags_txt = ", ".join(hazard_tags) or "—"
+        tags_txt = ", ".join(_html(t) for t in hazard_tags) or "—"
+        cell_id_esc = _html(cell_id)
         return f"""\
         <div style="font-family: Arial; min-width: 260px;">
             <h4 style="color: #2255AA; margin: 0 0 8px 0;">🏛️ Civic Intel — coverage</h4>
             <table style="font-size: 11px; width: 100%; border-collapse: collapse;">
-                <tr><td style="padding:2px 6px 2px 0;"><b>H3 Index:</b></td><td style="text-align:right;font-family:monospace;">{cell_id}</td></tr>
+                <tr><td style="padding:2px 6px 2px 0;"><b>H3 Index:</b></td><td style="text-align:right;font-family:monospace;">{cell_id_esc}</td></tr>
                 <tr><td style="padding:2px 6px 2px 0;"><b>Hazard Density:</b></td><td style="text-align:right;">{density:.2f}</td></tr>
                 <tr><td style="padding:2px 6px 2px 0;"><b>Domains Applying:</b></td><td style="text-align:right;">{len(applying)}</td></tr>
                 <tr><td style="padding:2px 6px 2px 0;"><b>Hazard Tags:</b></td><td style="text-align:right;">{tags_txt}</td></tr>
@@ -524,6 +910,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             <hr style="margin:6px 0;border:none;border-top:1px solid #ddd;">
             <div style="font-size:10px;color:#666;">Civic policy section coverage</div>
             <table style="font-size: 11px; width: 100%; border-collapse: collapse;">{domain_rows}</table>
+            {module_rows_block}
         </div>"""
 
     def _add_civic_intel_legend(self, m: folium.Map) -> None:
@@ -552,7 +939,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         """Render a summary panel of the top hazard-relevant civic domains."""
         if not surface:
             return
-        municipality = result.get("municipality") or "Municipality"
+        municipality = _html(result.get("municipality") or "Municipality")
         top = sorted(
             surface, key=lambda d: float(d.get("coverage", 0.0)), reverse=True
         )[:4]
@@ -560,7 +947,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             (
                 f'<div style="display:flex;justify-content:space-between;'
                 f'align-items:center;margin:3px 0;">'
-                f'<span>{d.get("icon", "")} {d.get("name", "")}</span>'
+                f'<span>{_html(d.get("icon", ""))} {_html(d.get("name", ""))}</span>'
                 f'<span style="color:{color};font-weight:bold;">{float(d.get("coverage", 0)):.2f}</span></div>'
             )
             for d, color in zip(top, ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b"])
@@ -579,6 +966,63 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         m_root: Any = m.get_root()
         m_root.html.add_child(folium.Element(panel))
 
+    def _add_module_hazard_weights_panel(
+        self, m: folium.Map, result: Dict[str, Any]
+    ) -> None:
+        """Render the RISK / BAYES / ACT computed module-results panel.
+
+        Surfaces the reconciled hazard rows (risk weight, Bayesian prior,
+        ACT preference + action) computed from the shared civic-intel contract
+        by the three sibling modules. Skips silently when no module rows are
+        present (e.g. the sibling packages are unavailable offline).
+        """
+        module_rows = result.get("moduleWeights", []) or []
+        if not isinstance(module_rows, list) or not module_rows:
+            return
+        module_names = result.get("moduleResults", {}).get("sources", {})
+        footer = " · ".join(
+            f"{_html(name)}: {_html(state)}" for name, state in module_names.items()
+        ) if module_names else ""
+        rows = "".join(
+            (
+                f'<div style="display:flex;justify-content:space-between;'
+                f'align-items:center;margin:3px 0;gap:6px;">'
+                f'<span style="flex:1;"><b>{_html(row.get("tag", ""))}</b> '
+                f'<span style="color:#888;font-size:10px;">{_html(row.get("action", ""))}</span></span>'
+                f'<span style="color:#d73027;font-weight:bold;width:44px;text-align:right;">'
+                f'{float(row.get("riskWeight", 0)):.2f}</span>'
+                f'<span style="color:#557;width:44px;text-align:right;">'
+                f'{row.get("priorWeight", 0) if row.get("priorWeight") is not None else 0:.3f}</span>'
+                f'<span style="color:#666;width:44px;text-align:right;">'
+                f'{row.get("preference", 0) if row.get("preference") is not None else 0:.2f}</span>'
+                f"</div>"
+            )
+            for row in module_rows[:5]
+        )
+        header = (
+            '<div style="display:flex;">'
+            '<span style="flex:1;">hazard</span>'
+            '<span style="width:44px;text-align:right;">RISK</span>'
+            '<span style="width:44px;text-align:right;">PRIOR</span>'
+            '<span style="width:44px;text-align:right;">ACT</span>'
+            "</div>"
+        )
+        panel = f"""\
+        <div id="{_CIVIC_MODULE_SUMMARY_ID}" style="display: none;
+            position: fixed; bottom: 20px; right: 240px;
+            background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+            border-radius: 6px; padding: 10px 14px; font-family: Arial;
+            font-size: 12px; z-index: 1000; min-width: 260px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+            <div style="font-weight: bold; margin-bottom: 6px;">🧮 Module Hazard Weights</div>
+            <div style="font-size:10px;color:#888;margin-bottom:4px;">RISK weight · BAYES prior · ACT preference</div>
+            {header}
+            {rows}
+            {('<div style="font-size:9px;color:#aaa;margin-top:6px;">' + footer + '</div>') if footer else ""}
+        </div>"""
+        m_root: Any = m.get_root()
+        m_root.html.add_child(folium.Element(panel))
+
     def _bind_civic_intel_panel_visibility(
         self, m: folium.Map, civic_layer: folium.FeatureGroup
     ) -> None:
@@ -589,7 +1033,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         window.addEventListener("load", function () {{
             var civicMap = {map_name};
             var civicLayer = {layer_name};
-            var civicPanelIds = ["{_CIVIC_LEGEND_ID}", "{_CIVIC_SUMMARY_ID}"];
+            var civicPanelIds = ["{_CIVIC_LEGEND_ID}", "{_CIVIC_SUMMARY_ID}", "{_CIVIC_MODULE_SUMMARY_ID}"];
 
             function setCivicPanelsVisible(visible) {{
                 civicPanelIds.forEach(function (id) {{

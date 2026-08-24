@@ -1,0 +1,1 @@
+"""Package marker so pytest can import the demo module beside its tests."""

@@ -378,5 +378,190 @@ class TestCoastlineAgnosticOrientation(unittest.TestCase):
             )
 
 
+class TestModuleEnrichment(unittest.TestCase):
+    """RISK / BAYES / ACT civic-intel results wired onto the dashboard surface.
+
+    ``DelNorteComprehensiveDashboard.enrich_civic_intel_with_module_results``
+    feeds the SAME ``crescent-city-geo-intel/v1`` contract into each sibling
+    module's civic_intel helper and reconciles the computed risk weights,
+    categorical priors and ACT policy preference onto a ``moduleWeights`` row
+    set that the map renders. These tests use the real packaged seed and the
+    real module helpers (no mocks) and pin the deterministic values.
+    """
+
+    def _dashboard(self) -> Any:
+        from geo_infer_place.locations.del_norte_county.comprehensive_dashboard import (
+            DelNorteComprehensiveDashboard,
+        )
+
+        return DelNorteComprehensiveDashboard()
+
+    def _enrich(self) -> Dict[str, Any]:
+        dashboard = self._dashboard()
+        return dashboard.enrich_civic_intel_with_module_results(
+            {"status": "ok"}, contract=_seed_json()
+        )
+
+    def test_risk_bayes_act_modules_all_compute(self) -> None:
+        enriched = self._enrich()
+        sources = enriched["moduleResults"]["sources"]
+        assert sources == {"risk": "ok", "bayes": "ok", "act": "ok"}
+
+        risk = enriched["riskWeights"]
+        assert isinstance(risk, dict)
+        # Tsunami and seismic are the flagship Del Norte hazard-policy domains
+        # and must carry section-evidence weights in the unit interval.
+        assert "tsunami" in risk
+        assert "seismic" in risk
+        for weight in risk.values():
+            assert 0.0 <= float(weight) <= 1.0
+        self.assertAlmostEqual(float(risk["tsunami"]), 1.0, places=3)
+
+        bayes = enriched["bayesPriors"]
+        assert bayes["status"] == "ok"
+        probs = bayes["priorByDomain"]
+        assert len(probs) >= 1
+        self.assertAlmostEqual(sum(float(p) for p in probs.values()), 1.0, places=6)
+        assert "emergency-management" in probs
+
+        act = enriched["actPolicy"]
+        assert act["status"] == "ok"
+        assert act["deterministic"] is True
+        assert act["dominantHazard"] == "tsunami"
+        # The deterministic argmin policy selector favours the all-clear state
+        # (highest preference) over every hazard-avoiding candidate.
+        assert act["selectedAction"]["action"] == "all-clear"
+
+    def test_module_rows_reconcile_risk_prior_and_policy(self) -> None:
+        enriched = self._enrich()
+        rows = enriched["moduleWeights"]
+        assert isinstance(rows, list) and len(rows) >= 1
+        # Rows are sorted by descending RISK weight.
+        risks = [float(row["riskWeight"]) for row in rows]
+        assert risks == sorted(risks, reverse=True)
+        for row in rows:
+            assert "tag" in row
+            assert 0.0 <= float(row["riskWeight"]) <= 1.0
+            if row["priorWeight"] is not None:
+                assert 0.0 <= float(row["priorWeight"]) <= 1.0
+            if row["preference"] is not None:
+                assert 0.0 <= float(row["preference"]) <= 1.0
+            assert row["action"]
+        # The tsunami row is flagged as the dominant hazard to mitigate.
+        tsunami_row = next(r for r in rows if r["tag"] == "tsunami")
+        assert "tsunami" in tsunami_row["action"]
+
+    def test_module_results_are_deterministic(self) -> None:
+        first = self._enrich()
+        second = self._enrich()
+        assert first["moduleWeights"] == second["moduleWeights"]
+        assert first["riskWeights"] == second["riskWeights"]
+        assert first["actPolicy"] == second["actPolicy"]
+
+    def test_enrich_degrades_gracefully_on_missing_module(self) -> None:
+        """A missing sibling module records ``unavailable`` and the rest compute."""
+        name = "geo_infer_bayes"
+        sub = "geo_infer_bayes.civic_intel"
+        original_pkg = sys.modules.get(name)
+        original_sub = sys.modules.get(sub)
+        try:
+            # Simulate an absent BAYES package via the real import machinery:
+            # a ``None`` sys.modules entry makes ``importlib.import_module``
+            # raise ImportError, exercising the same defensive path as an
+            # uninstalled dependency (not a stubbed result).
+            sys.modules[name] = None  # type: ignore[index]
+            sys.modules[sub] = None  # type: ignore[index]
+            enriched = self._enrich()
+        finally:
+            for key, value in ((name, original_pkg), (sub, original_sub)):
+                if value is None:
+                    sys.modules.pop(key, None)
+                else:
+                    sys.modules[key] = value
+
+        assert enriched["moduleResults"]["status"] == "ok"
+        assert enriched["moduleResults"]["sources"]["bayes"] == "unavailable"
+        assert enriched["bayesPriors"]["status"] == "unavailable"
+        # RISK and ACT are independent and still compute, so the map keeps
+        # full civic-intel coverage without the missing module.
+        assert "tsunami" in enriched["riskWeights"]
+        assert enriched["actPolicy"]["status"] == "ok"
+
+    def test_module_popup_block_escapes_hostile_tags(self) -> None:
+        """The pre-built module popup block HTML-escapes contract-derived tags.
+
+        The contract is an external data surface; a hostile tag must not inject
+        markup into the generated dashboard.
+        """
+        dashboard = self._dashboard()
+        hostile_rows = [
+            {
+                "tag": "<script>alert('x')</script>flood",
+                "riskWeight": 1.0,
+                "priorWeight": 0.5,
+                "preference": 0.25,
+                "action": "<img src=x onerror=alert(1)>avoid",
+            }
+        ]
+        block = dashboard._module_rows_popup_html(hostile_rows)
+        # The popup block renders the tag (external contract data) plus numeric
+        # weights; a hostile tag must not inject markup.
+        assert "<script>" not in block
+        assert "&lt;script&gt;" in block
+
+        # Contract-derived popup fields are escaped too.
+        popup = dashboard._civic_intel_popup(
+            "cell&1",
+            0.5,
+            ["<b>emergency"],
+            {"<b>emergency": {"name": "<h1>Emergency", "section_count": 2}},
+            ["<i>tsunami</i>"],
+            module_rows_block=block,
+        )
+        assert "<h1>" not in popup
+        assert "<i>" not in popup
+        assert "&lt;h1&gt;" in popup
+        assert "&lt;script&gt;" in popup
+
+    def test_module_popup_block_is_invariant_and_empty_when_no_rows(self) -> None:
+        """The popup block is deterministic; no rows yields an empty block."""
+        dashboard = self._dashboard()
+        enriched = self._enrich()
+        rows = enriched["moduleWeights"]
+        block = dashboard._module_rows_popup_html(rows)
+        assert "Module results" in block
+        assert block == dashboard._module_rows_popup_html(
+            enriched["moduleWeights"]
+        )
+        # The block is reused verbatim per cell, so it is identical across the
+        # whole layer (single build, not per-cell recompute).
+        assert dashboard._module_rows_popup_html(enriched["moduleWeights"]) == block
+        assert dashboard._module_rows_popup_html([]) == ""
+
+    def test_module_panel_escapes_tag_and_action(self) -> None:
+        """The rendered module panel escapes contract-derived tag + action."""
+        import folium  # type: ignore[import-not-found]
+
+        dashboard = self._dashboard()
+        result = {
+            "moduleWeights": [
+                {
+                    "tag": "<b>tsunami</b>",
+                    "riskWeight": 1.0,
+                    "priorWeight": 0.2,
+                    "preference": 0.1,
+                    "action": "mitigate <script>alert(1)</script>",
+                }
+            ],
+            "moduleResults": {"sources": {"risk": "ok", "bayes": "ok", "act": "ok"}},
+        }
+        m = folium.Map(location=[41.7, -124.2], zoom_start=10)
+        dashboard._add_module_hazard_weights_panel(m, result)
+        rendered = m.get_root().render()
+        assert "<b>tsunami</b>" not in rendered
+        assert "&lt;b&gt;tsunami&lt;/b&gt;" in rendered
+        assert "<script>alert(1)</script>" not in rendered
+
+
 if __name__ == "__main__":
     unittest.main()
