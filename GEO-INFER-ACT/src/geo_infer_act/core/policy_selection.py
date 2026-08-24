@@ -16,6 +16,11 @@ from geo_infer_act.utils.math import kl_divergence, softmax
 logger = logging.getLogger(__name__)
 EPSILON = 1e-12
 
+# Preferences may be a plain vector or the structured dict shape produced by
+# helpers such as ``hazard_policy_prior``; ``_preferences_to_vector`` lowers
+# both into a belief-aligned vector before use.
+PreferenceInput = Union[np.ndarray, Dict[str, Any]]
+
 
 def _normalize_vector(values: Any, target_length: Optional[int] = None) -> np.ndarray:
     vector = np.asarray(values, dtype=float).reshape(-1)
@@ -88,7 +93,7 @@ class PolicySelector:
         self,
         beliefs: np.ndarray,
         policies: List[Dict[str, Any]],
-        preferences: Optional[np.ndarray] = None,
+        preferences: Optional[PreferenceInput] = None,
     ) -> Dict[str, Any]:
         """
         Select a policy based on expected free energy.
@@ -153,7 +158,7 @@ class PolicySelector:
         self,
         beliefs: np.ndarray,
         policy: Dict[str, Any],
-        preferences: Optional[np.ndarray] = None,
+        preferences: Optional[PreferenceInput] = None,
         return_breakdown: bool = False,
     ) -> Union[float, FreeEnergyBreakdown]:
         """
@@ -354,7 +359,7 @@ class PolicySelector:
         self,
         beliefs: np.ndarray,
         policies: List[Dict[str, Any]],
-        preferences: Optional[np.ndarray] = None,
+        preferences: Optional[PreferenceInput] = None,
     ) -> Dict[str, Any]:
         """
         Decompose a policy set into its epistemic (information-gain) and
@@ -413,7 +418,7 @@ class PolicySelector:
         self,
         beliefs: np.ndarray,
         policies: List[Dict[str, Any]],
-        preferences: Optional[np.ndarray] = None,
+        preferences: Optional[PreferenceInput] = None,
     ) -> Dict[str, Any]:
         """
         Evaluate a set of policies without selection.

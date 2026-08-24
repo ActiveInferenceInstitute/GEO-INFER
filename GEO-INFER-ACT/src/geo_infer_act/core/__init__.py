@@ -27,6 +27,13 @@ from geo_infer_act.core.free_energy import FreeEnergyCalculator
 from geo_infer_act.core.markov_decision_process import MarkovDecisionProcess
 from geo_infer_act.core.belief_updating import BayesianBeliefUpdate
 from geo_infer_act.core.policy_selection import PolicySelector
+from geo_infer_act.core.civic_intel import (
+    CrescentCityIntel,
+    HazardDomain,
+    CivicIntelBounds,
+    parse_crescent_city_intel,
+    hazard_policy_prior,
+)
 from geo_infer_act.core.dynamic_causal_model import DynamicCausalModel
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
 
@@ -51,6 +58,11 @@ __all__ = [
     "MarkovDecisionProcess",
     "BayesianBeliefUpdate",
     "PolicySelector",
+    "CrescentCityIntel",
+    "HazardDomain",
+    "CivicIntelBounds",
+    "parse_crescent_city_intel",
+    "hazard_policy_prior",
     "DynamicCausalModel",
     "SpatialActiveInferenceAgent",
 ]

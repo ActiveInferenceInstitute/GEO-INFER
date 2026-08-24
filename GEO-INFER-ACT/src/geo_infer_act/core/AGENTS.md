@@ -24,6 +24,7 @@
 - `__init__.py`
 - `active_inference.py`
 - `belief_updating.py`
+- `civic_intel.py`
 - `dynamic_causal_model.py`
 - `free_energy.py`
 - `generative_model.py`
