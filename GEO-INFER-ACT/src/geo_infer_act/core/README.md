@@ -7,6 +7,7 @@ Core workspace within `GEO-INFER-ACT`.
 - `__init__.py`
 - `active_inference.py`
 - `belief_updating.py`
+- `civic_intel.py`
 - `dynamic_causal_model.py`
 - `free_energy.py`
 - `generative_model.py`
@@ -20,6 +21,14 @@ Core workspace within `GEO-INFER-ACT`.
 
 - `active_inference.py:ActiveInferenceModel` (class)
 - `belief_updating.py:BayesianBeliefUpdate` (class)
+- `civic_intel.py:CivicIntelBounds` (class)
+- `civic_intel.py:GeoIntelSection` (class)
+- `civic_intel.py:GeoIntelTopic` (class)
+- `civic_intel.py:HazardDomain` (class)
+- `civic_intel.py:CrescentCityIntel` (class)
+- `civic_intel.py:default_contract_path` (function)
+- `civic_intel.py:parse_crescent_city_intel` (function)
+- `civic_intel.py:hazard_policy_prior` (function)
 - `dynamic_causal_model.py:DynamicCausalModel` (class)
 - `free_energy.py:FreeEnergyCalculator` (class)
 - `generative_model.py:MarkovBlanket` (class)
@@ -30,14 +39,6 @@ Core workspace within `GEO-INFER-ACT`.
 - `spatial_agent.py:SpatialActiveInferenceAgent` (class)
 - `types.py:FreeEnergyBreakdown` (class)
 - `types.py:PolicyEvaluation` (class)
-- `types.py:ActiveInferenceStepResult` (class)
-- `types.py:H3SpatialConsistency` (class)
-- `types.py:H3BeliefUpdateResult` (class)
-- `types.py:H3GridInferenceResult` (class)
-- `types.py:H3CellDiagnostics` (class)
-- `types.py:H3EdgeDiagnostics` (class)
-- `types.py:H3LevelDiagnostics` (class)
-- `types.py:SpatialInferenceTrace` (class)
 
 ## Module Metadata
 

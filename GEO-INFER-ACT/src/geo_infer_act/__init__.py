@@ -29,6 +29,13 @@ from .core.free_energy import FreeEnergyCalculator
 from .core.generative_model import GenerativeModel
 from .core.belief_updating import BayesianBeliefUpdate
 from .core.policy_selection import PolicySelector
+from .core.civic_intel import (
+    CrescentCityIntel,
+    HazardDomain,
+    CivicIntelBounds,
+    parse_crescent_city_intel,
+    hazard_policy_prior,
+)
 from .core.variational_inference import VariationalInference
 from .core.dynamic_causal_model import DynamicCausalModel
 from .core.spatial_agent import SpatialActiveInferenceAgent
@@ -54,6 +61,11 @@ __all__ = [
     "GenerativeModel",
     "BayesianBeliefUpdate",
     "PolicySelector",
+    "CrescentCityIntel",
+    "HazardDomain",
+    "CivicIntelBounds",
+    "parse_crescent_city_intel",
+    "hazard_policy_prior",
     "VariationalInference",
     "DynamicCausalModel",
     "SpatialActiveInferenceAgent",
