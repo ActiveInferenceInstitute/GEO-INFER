@@ -11,6 +11,18 @@ __license__ = "MIT"
 
 from typing import Any, Optional
 
+from geo_infer_risk.civic_intel import (
+    CRESCENT_CITY_GEO_INTEL_SCHEMA,
+    CivicHazardDomain,
+    CrescentCityAnchor,
+    CrescentCityBounds,
+    CrescentCityHazardIntel,
+    MunicipalCodeSection,
+    crescent_city_hazard_weights,
+    load_crescent_city_hazard,
+    parse_crescent_city_hazard,
+)
+
 # Import core components for easier access
 try:
     from geo_infer_risk.core import (
@@ -202,6 +214,12 @@ def process_insurance_claim(claim_data: Any, config: Optional[Any] = None) -> An
     return process_claim(claim_data, config)
 
 __all__ = [
+    "CRESCENT_CITY_GEO_INTEL_SCHEMA",
+    "CivicHazardDomain",
+    "CrescentCityAnchor",
+    "CrescentCityBounds",
+    "CrescentCityHazardIntel",
+    "MunicipalCodeSection",
     "EnhancedRiskEngine",
     "RiskModel",
     "HazardModel",
@@ -233,6 +251,9 @@ __all__ = [
     "Decision",
     "DEFAULT_CONFIDENCE_LEVEL",
     "DEFAULT_RETURN_PERIODS",
+    "crescent_city_hazard_weights",
+    "load_crescent_city_hazard",
+    "parse_crescent_city_hazard",
     "create_risk_analysis",
     "create_underwriting_system",
     "underwrite_insurance_policy",

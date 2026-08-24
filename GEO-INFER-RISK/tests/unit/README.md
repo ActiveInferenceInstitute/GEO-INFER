@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-RISK`.
 - `test_aal_exposure_years.py`
 - `test_aep_pml_curve.py`
 - `test_catastrophe_compound_paths.py`
+- `test_civic_intel.py`
 - `test_compound_risk_matrix.py`
 - `test_config_loader.py`
 - `test_core.py`
