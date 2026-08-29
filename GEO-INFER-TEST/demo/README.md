@@ -1,92 +1,56 @@
-# Crescent City civic-intel end-to-end consumer demo
+# GEO-INFER-TEST/demo
 
-This runnable example shows GEO-INFER importing the sibling
-`crescent-city-intel` contract (`crescent-city-geo-intel/v1`) and driving the
-RISK, BAYES and ACT modules together on the SAME bundled seed, in one place.
+Demo workspace within `GEO-INFER-TEST`.
 
-There is a per-module civic-intel ingestion surface
-(`geo_infer_risk.civic_intel`, `geo_infer_bayes.civic_intel`,
-`geo_infer_act.core.civic_intel`) and a cross-module integration test, but no
-single consumer that ties them together. This demo closes that gap:
+## Contents
 
-1. loads the bundled seed (the RISK / BAYES / PLACE copies are byte-identical)
-   via `load_bundled_contract()`;
-2. feeds that one contract to all three ingestors;
-3. prints a compact human-readable summary — Crescent City anchor, the four
-   hazard domains, the RISK hazard weights, the BAYES categorical prior, the
-   ACT deterministic policy decision, and a geo-view parity block;
-4. skips a module gracefully (clear message) when its civic-intel helper
-   cannot be imported.
+- `__init__.py`
+- `crescent_city_civic_intel_demo.py`
+- `test_crescent_city_civic_intel_demo.py`
 
-## Geo-view parity
+## Public Interface
 
-`build_geo_parity(contract)` (alias `build_iso_geo_parity`) is a pure,
-deterministic, JSON-safe digest that proves all three modules lower the same
-contract into agreeing geo views. It compares, field-wise, the raw contract
-against each importable module's parsed view across six dimensions:
+- `crescent_city_civic_intel_demo.py:bundled_contract_path` (function)
+- `crescent_city_civic_intel_demo.py:load_bundled_contract` (function)
+- `crescent_city_civic_intel_demo.py:geo_views_agree` (function)
+- `crescent_city_civic_intel_demo.py:build_iso_geo_parity` (function)
+- `crescent_city_civic_intel_demo.py:build_geo_parity` (function)
+- `crescent_city_civic_intel_demo.py:build_summary` (function)
+- `crescent_city_civic_intel_demo.py:render_summary` (function)
+- `crescent_city_civic_intel_demo.py:main` (function)
 
-- the contract schema id;
-- the per-module view schema each module validates against;
-- the WGS84 bounds;
-- the municipal anchor (name / county / state / latitude / longitude);
-- the nominal hazard-domain points (the four domain ids + names);
-- the hazard-weighted municipal-code section references per domain
-  (`get_sections` refs, flattened from the contract's nested hazard topics).
+## Module Metadata
 
-The digest reports `sighted` (modules that imported), `skipped` (modules whose
-helper is absent), per-dimension `*Agreement` booleans, and a single `match`.
-`geo_views_agree(contract)` collapses that into a boolean (and raises
-`RuntimeError` only when no module is importable).
+- Module: `GEO-INFER-TEST`
+- Package: `geo_infer_test`
+- Version: `0.2.0`
+- Install: `uv pip install -e ./GEO-INFER-TEST`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST`
 
-## Files
+## Dependencies
 
-- `crescent_city_civic_intel_demo.py` — the runnable example. The pure
-  `build_summary(contract)` / `build_geo_parity(contract)` functions are the
-  deterministic, testable digest; `main()` loads the seed and renders it.
-- `test_crescent_city_civic_intel_demo.py` — pins `build_summary` and
-  `build_geo_parity` output to the bundled seed (real modules, no stand-ins).
-- `__init__.py` — package marker so pytest can import the demo beside its test.
+- `coverage[toml]>=7.0.0`
+- `factory-boy>=3.2.0`
+- `faker>=18.0.0`
+- `geopandas>=0.10.0`
+- `h3>=4.5.0,<5`
+- `hypothesis>=6.0.0`
+- `jinja2>=3.1.0`
+- `jsonschema>=4.0.0`
+- `locust>=2.0.0`
+- `matplotlib>=3.5.0`
+- `memory-profiler>=0.60.0`
+- `numpy>=1.20.0`
 
-`build_summary` / `build_geo_parity` resolve the seed via
-`CRESCENT_CITY_INTEL_CONTRACT_PATH` when set, otherwise the first existing
-RISK/BAYES/PLACE bundled copy. They perform no network access and never search
-sibling checkouts.
 
-## Run
+## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/demo/crescent_city_civic_intel_demo.py
+uv sync --all-packages --all-extras
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
-Expected output tail (module outputs are real and deterministic for the seed):
 
-```
-  RISK      : hazard weights  climate adaptation 0.833 | erosion 0.667 | flood zone 1.000 | ...
-  BAYES     : prior probabilities  climate-environment 0.300 | emergency-management 0.200 | ...
-  ACT       : policy prior over 9 hazard states
-              dominant hazard: tsunami
-              selected action: maintain_baseline_ops (p=0.257, EFE=1.153)
-  geo view parity : 3 modules sighted
-    modules       : risk bayes act
-    schema        : contract=crescent-city-geo-intel/v1, agrees=yes
-    bounds        : {'west': -124.408, 'south': 41.458, 'east': -123.536, 'north': 42.006}, agrees=yes
-    anchor        : Crescent City · Del Norte County, California [41.76, -124.2], agrees=yes
-    sections      : 4 domain points, agrees=yes
-    match         : yes
-```
+## Documentation Notes
 
-## Verify
-
-```bash
-uv run python -m pytest GEO-INFER-TEST/demo/test_crescent_city_civic_intel_demo.py -q
-uv run --with 'ruff>=0.3.0' ruff check \
-  GEO-INFER-TEST/demo/crescent_city_civic_intel_demo.py \
-  GEO-INFER-TEST/demo/test_crescent_city_civic_intel_demo.py \
-  --select F821,F823,E721,E722
-uv run python -m py_compile \
-  GEO-INFER-TEST/demo/crescent_city_civic_intel_demo.py \
-  GEO-INFER-TEST/demo/test_crescent_city_civic_intel_demo.py
-```
-
-No production modules are modified by this example; the files above are the
-only additions.
+This README describes current repository state only. Keep examples and claims tied to importable code, tracked files, or validation commands.

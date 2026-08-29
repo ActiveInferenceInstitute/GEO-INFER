@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `config/`
+- `demo/`
 - `docs/`
 - `examples/`
 - `src/`
