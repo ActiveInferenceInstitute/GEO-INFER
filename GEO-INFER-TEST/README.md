@@ -5,6 +5,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 ## Contents
 
 - `config/`
+- `demo/`
 - `docs/`
 - `examples/`
 - `src/`
