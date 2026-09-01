@@ -2,6 +2,16 @@
 
 Use this file as the repository-level operating contract for automated agents working in GEO-INFER.
 
+## Cold Start (agent orientation)
+
+New to this repo? In order:
+
+1. **What this is**: a multi-module geospatial inference monorepo (uv workspace, Python 3.11+); see [README.md](README.md) "What's inside".
+2. **Module map**: [README.md Module Index](README.md#module-index) (source/test counts per module) and [GEO-INFER-INTRA/docs/modules/index.md](GEO-INFER-INTRA/docs/modules/index.md) (conceptual catalog).
+3. **Where to change what**: module behavior in `GEO-INFER-*/src/` (owning package); cross-module docs in `GEO-INFER-INTRA/docs/`; tests/validation in `GEO-INFER-TEST/`.
+4. **Health in one command**: `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check` (generated-signpost drift) plus the validators under Standard Commands.
+5. **Backlog with acceptance lines**: [TODO.md](TODO.md).
+
 ## Repository Scope
 
 - Root path: repository root (`.`; resolve it from the checkout in use)
