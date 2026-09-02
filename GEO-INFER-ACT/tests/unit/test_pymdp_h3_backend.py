@@ -6,7 +6,8 @@ import math
 
 import numpy as np
 import pytest
-import h3
+
+h3 = pytest.importorskip("h3")
 
 from geo_infer_act import ActiveInferenceModel, GenerativeModel  # noqa: E402
 from geo_infer_act.core.types import (  # noqa: E402
