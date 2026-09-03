@@ -169,8 +169,8 @@ class GeoInferMortgageDebt:
             # Fallback: project mortgage data to WGS84 to match hex_gdf
             try:
                 mortgage_gdf = mortgage_gdf.to_crs("EPSG:4326")
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Mortgage CRS fallback projection failed: %s', exc)
 
         # 6. Perform the spatial join
         logger.info("Performing spatial join between hexagons and mortgage census tracts...")

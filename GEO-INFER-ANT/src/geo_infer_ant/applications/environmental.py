@@ -22,28 +22,28 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
 
-# Integration imports
+# Integration imports: geo_infer_space is optional (guarded with a None
+# sentinel consumed at call sites); geo_infer_ant submodules ship with this
+# module and must import unconditionally.
 try:
     from geo_infer_space.core.spatial_indexing import (
         SpatialIndexingInterface,  # noqa: F401
     )  # noqa: F401
     from geo_infer_space.core.analytics import SpatialAnalyticsInterface  # noqa: F401
-    from geo_infer_ant.core.agent_base import SwarmAgent
-    from geo_infer_ant.core.population import AgentPopulation
-    from geo_infer_ant.core.stigmergy import PheromoneSystem
-    from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
-    from geo_infer_ant.algorithms.aco import AntColonyOptimization
-    from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
-    from geo_infer_ant.utils.spatial import validate_bounds
 except ImportError as e:
-    logging.warning(f"Integration modules not available: {e}")
-    SwarmAgent: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    AgentPopulation: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    PheromoneSystem: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    DigitalStigmergy: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    AntColonyOptimization: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    ParticleSwarmOptimization: Optional[Type[Any]] = None  # type: ignore[no-redef]
-    validate_bounds: Any = None  # type: ignore[no-redef]
+    logging.getLogger(__name__).debug(
+        "Optional spatial integration unavailable: %s", e
+    )
+    SpatialIndexingInterface = None
+    SpatialAnalyticsInterface = None
+
+from geo_infer_ant.core.agent_base import SwarmAgent
+from geo_infer_ant.core.population import AgentPopulation
+from geo_infer_ant.core.stigmergy import PheromoneSystem
+from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
+from geo_infer_ant.algorithms.aco import AntColonyOptimization
+from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
+from geo_infer_ant.utils.spatial import validate_bounds
 
 logger = logging.getLogger(__name__)
 

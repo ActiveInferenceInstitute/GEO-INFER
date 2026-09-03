@@ -63,7 +63,16 @@ def _duckdb_read_vector(
     conn = _DUCKDB.connect()
     try:
         conn.execute("INSTALL spatial; LOAD spatial;")
-        rel = conn.sql(f"SELECT * FROM ST_Read('{file_path.as_posix()}')")
+        # The path is untrusted input interpolated into SQL, so it is
+        # passed as a bound parameter. DuckDB builds that reject parameters
+        # inside table functions fall back to standard SQL string-literal
+        # escaping, where a doubled quote can never terminate the literal.
+        posix_path = file_path.as_posix()
+        try:
+            rel = conn.execute("SELECT * FROM ST_Read(?)", [posix_path])
+        except _DUCKDB.Error:
+            escaped = posix_path.replace("'", "''")
+            rel = conn.execute(f"SELECT * FROM ST_Read('{escaped}')")
         df = rel.df()
         geometry = gpd.GeoSeries.from_wkb(df.pop("geom"))
         return gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
@@ -96,6 +105,8 @@ def read_cloud_native_vector(
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(f"Not a regular file: {path}")
 
     if use_duckdb and HAS_DUCKDB:
         try:

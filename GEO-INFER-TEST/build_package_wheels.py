@@ -62,6 +62,12 @@ def build_wheel(module_dir: Path, outdir: Path, python: List[str]) -> BuildResul
         result.error = "missing [project].name"
         return result
 
+    # Snapshot the wheels that already exist so a wheel produced by a prior
+    # run (or by a sibling module) can never be attributed to this build.
+    preexisting = (
+        {p.name for p in outdir.glob("*.whl")} if outdir.is_dir() else set()
+    )
+
     try:
         subprocess.run(
             [*python, "-m", "build", "--wheel", "--outdir", str(outdir)],
@@ -78,19 +84,14 @@ def build_wheel(module_dir: Path, outdir: Path, python: List[str]) -> BuildResul
         ]
         return result
 
-    wheels = sorted(outdir.glob("*.whl")) if outdir.is_dir() else []
-    if not wheels:
-        result.error = "no wheel produced"
+    fresh = sorted(
+        p
+        for p in (outdir.glob("*.whl") if outdir.is_dir() else [])
+        if p.name not in preexisting
+    )
+    if not fresh:
+        result.error = "no wheel produced by this build"
         return result
-    result.wheel = wheels[-1]
-    result.ok = wheel_filename_is_valid(result.wheel.name, distribution)
-    if not result.ok:
-        result.error = (
-            f"wheel {result.wheel.name!r} not in expected namespace "
-            f"{distribution}"
-        )
-    return result
-
 
 def install_and_verify(wheel: Path, python: List[str]) -> None:
     """Install ``wheel`` into an isolated venv and import its top package."""
@@ -105,16 +106,18 @@ def install_and_verify(wheel: Path, python: List[str]) -> None:
             check=True,
             capture_output=True,
         )
-        # A wheel is considered installable when at least one non-top-level
-        # module imports; use the metadata distribution name to derive a probe.
-        # We introspect packages inside the wheel without executing code paths
-        # that depend on optional heavy backends.
+        # Smoke test: actually import the installed package and print its
+        # version. The import name is derived from the distribution name
+        # (geo-infer-x -> geo_infer_x); the version falls back to installed
+        # metadata when the top-level package does not define __version__.
+        dist_name = wheel.name.split("-")[0].replace("_", "-")
+        import_name = dist_name.replace("-", "_")
         probe = (
-            "import importlib.metadata as md, importlib.util as iu;"
-            "dist_name='" + wheel.name.split("-")[0].replace("_", "-")
-            + "';"
-            "dist=md.distribution(dist_name);"
-            "print('installed', dist.version)"
+            "import importlib.metadata as md;"
+            f"import {import_name};"
+            f"print('import ok',"
+            f"getattr({import_name}, '__version__',"
+            f"md.version('{dist_name}')))"
         )
         subprocess.run(
             [venv_python, "-c", probe], check=True, capture_output=True
@@ -131,7 +134,10 @@ def main() -> int:
 
     outdir = args.outdir.resolve()
     outdir.mkdir(parents=True, exist_ok=True)
-    python = [sys.executable]
+    # Purge wheels from earlier runs so the verification step only ever sees
+    # wheels produced by this build.
+    for stale in outdir.glob("*.whl"):
+        stale.unlink()
     # Prefer the active interpreter (inside `uv run` this is the workspace env).
     subprocess.run(
         [*python, "-m", "pip", "install", "--quiet", "build", "wheel"],

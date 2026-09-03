@@ -39,8 +39,6 @@ class ActiveInferenceAnalyzer:
         (self.output_dir / "analysis").mkdir(exist_ok=True)
         (self.output_dir / "visualizations").mkdir(exist_ok=True)
 
-        # Setup logging
-        self._setup_logging()
 
         # Data storage
         self.traces: Dict[str, list] = {
@@ -107,23 +105,6 @@ class ActiveInferenceAnalyzer:
         logger.info(f"Full history exported to {output_path}")
         return output_path
 
-    def _setup_logging(self) -> None:
-        """Setup comprehensive logging for the analyzer."""
-        log_file = self.output_dir / "logs" / "analysis.log"
-
-        # Create file handler
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-
-        # Create formatter
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        file_handler.setFormatter(formatter)
-
-        # Add handler to logger
-        logger.addHandler(file_handler)
-        logger.setLevel(logging.DEBUG)
 
     def record_step(
         self,

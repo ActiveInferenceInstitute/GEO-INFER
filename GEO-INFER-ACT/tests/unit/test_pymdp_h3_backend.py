@@ -5,9 +5,8 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import h3
 import pytest
-
-h3 = pytest.importorskip("h3")
 
 from geo_infer_act import ActiveInferenceModel, GenerativeModel  # noqa: E402
 from geo_infer_act.core.types import (  # noqa: E402

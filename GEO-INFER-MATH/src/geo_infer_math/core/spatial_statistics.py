@@ -10,6 +10,8 @@ from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
 from dataclasses import dataclass
 from math import erfc, sqrt
 
+from geo_infer_math.utils.rng import resolve_rng
+
 
 def _generate_weights(
     coords: np.ndarray, include_self: bool = False
@@ -47,6 +49,77 @@ def _generate_weights(
         np.fill_diagonal(weights, 1.0)
 
     return cast(np.ndarray, weights)
+
+
+def _cliff_ord_terms(weights_matrix: np.ndarray) -> Tuple[float, float, float]:
+    """Compute the S0, S1, and S2 connectivity terms of Cliff & Ord (1973).
+
+    S0 = sum of all off-diagonal weights.
+    S1 = 1/2 * sum over ordered pairs of (w_ij + w_ji)^2.
+    S2 = sum over locations of (row sum_i + column sum_i)^2.
+    """
+    W = np.asarray(weights_matrix, dtype=np.float64)
+    n = W.shape[0]
+    W_offdiag = W.copy()
+    np.fill_diagonal(W_offdiag, 0.0)
+    s0 = float(np.sum(W_offdiag))
+    s1 = 0.5 * float(np.sum((W_offdiag + W_offdiag.T) ** 2))
+    s2 = float(
+        np.sum((np.sum(W_offdiag, axis=1) + np.sum(W_offdiag, axis=0)) ** 2)
+    )
+    return s0, s1, s2
+
+
+def morans_i_variance(values: np.ndarray, weights_matrix: np.ndarray) -> float:
+    """Variance of Moran's I under the randomization assumption.
+
+    Implements the standard Cliff & Ord (1973) randomization variance using
+    the S0/S1/S2 connectivity terms and the sample kurtosis of the data:
+
+        Var(I) = [ n((n^2 - 3n + 3) S1 - n S2 + 3 S0^2)
+                   - b2 ((n^2 - n) S1 - 2 n S2 + 6 S0^2) ]
+                 / [ (n - 1)(n - 2)(n - 3) S0^2 ]  -  1/(n - 1)^2
+
+    where b2 = n * sum(z^4) / (sum(z^2))^2 is the moment kurtosis of the
+    centered values. Requires n >= 4.
+
+    Args:
+        values: Attribute values at the n locations.
+        weights_matrix: n x n spatial weights matrix (diagonal ignored).
+
+    Returns:
+        Randomization-assumption variance of Moran's I.
+
+    Raises:
+        ValueError: If fewer than 4 locations are supplied, shapes mismatch,
+            or S0 is zero.
+    """
+    values = np.asarray(values, dtype=np.float64).ravel()
+    W = np.asarray(weights_matrix, dtype=np.float64)
+    n = len(values)
+    if W.shape[0] != n or W.shape[1] != n:
+        raise ValueError(
+            f"Weights matrix shape {W.shape} does not match {n} values"
+        )
+    if n < 4:
+        raise ValueError(
+            "Moran's I randomization variance requires at least 4 locations"
+        )
+    s0, s1, s2 = _cliff_ord_terms(W)
+    if s0 == 0.0:
+        raise ValueError("Spatial weights matrix has zero total weight")
+    z = values - np.mean(values)
+    sum_sq = float(np.sum(z ** 2))
+    if sum_sq == 0.0:
+        raise ValueError("Values are constant; variance of Moran's I is undefined")
+    b2 = n * float(np.sum(z ** 4)) / (sum_sq ** 2)
+    numerator = (
+        n * ((n ** 2 - 3 * n + 3) * s1 - n * s2 + 3 * s0 ** 2)
+        - b2 * ((n ** 2 - n) * s1 - 2 * n * s2 + 6 * s0 ** 2)
+    )
+    denominator = (n - 1) * (n - 2) * (n - 3) * s0 ** 2
+    variance = numerator / denominator - 1.0 / (n - 1) ** 2
+    return float(variance)
 
 
 @dataclass
@@ -134,19 +207,7 @@ class MoranI:
         I_val = (n / w_sum) * (numerator / denominator)
         expected_I = -1.0 / (n - 1)
 
-        w_sym = self.weights_matrix + self.weights_matrix.T
-        s1 = 0.5 * np.sum(w_sym ** 2)
-        s2 = np.sum(
-            (
-                np.sum(self.weights_matrix, axis=0)
-                + np.sum(self.weights_matrix, axis=1)
-            )
-            ** 2
-        )
-        var_I = (
-            (n ** 2 * s1 - n * s2 + 3 * w_sum ** 2)
-            / ((n ** 2 - 1) * w_sum ** 2)
-        )
+        var_I = morans_i_variance(values, self.weights_matrix)
 
         z_score_val = (
             (I_val - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
@@ -173,14 +234,51 @@ class GearysC:
     - C > 1: negative spatial autocorrelation
     """
 
-    def __init__(self, weights_matrix: Optional[np.ndarray] = None):
+    def __init__(
+        self,
+        weights_matrix: Optional[np.ndarray] = None,
+        rng: Optional[Any] = None,
+        n_permutations: int = 200,
+    ) -> None:
         """
         Initialize GearysC calculator.
 
         Args:
             weights_matrix: Spatial weights matrix
+            rng: Optional seed or np.random.Generator used for the
+                permutational variance estimate (resolved via
+                ``resolve_rng``; a fixed seed keeps the estimate
+                deterministic).
+            n_permutations: Number of random value permutations used to
+                estimate Var(C).
         """
         self.weights_matrix = weights_matrix
+        self._rng = resolve_rng(rng)
+        self.n_permutations = n_permutations
+
+    def _permutational_variance(self, values: np.ndarray) -> float:
+        """Estimate Var(C) by random value permutations (randomization).
+
+        Recomputes Geary's C on ``n_permutations`` random permutations of the
+        observed values and returns the sample variance of the resulting
+        statistic. This is the permutational (randomization-assumption)
+        variance of Geary's C.
+        """
+        W = np.asarray(self.weights_matrix, dtype=np.float64)
+        values = np.asarray(values, dtype=np.float64)
+        n = len(values)
+        z_centered = values - np.mean(values)
+        var_z = np.sum(z_centered ** 2) / (n - 1)
+        w_sum = np.sum(W)
+
+        def _c(vals: np.ndarray) -> float:
+            diff_sq = (vals[:, np.newaxis] - vals[np.newaxis, :]) ** 2
+            return float((np.sum(W * diff_sq) / (2.0 * w_sum)) / var_z)
+
+        perm_stats = np.empty(self.n_permutations, dtype=np.float64)
+        for idx in range(self.n_permutations):
+            perm_stats[idx] = _c(self._rng.permutation(values))
+        return float(np.var(perm_stats, ddof=1))
 
     def compute(
         self, values: np.ndarray, coords: Optional[np.ndarray] = None
@@ -228,12 +326,9 @@ class GearysC:
         var_z = np.sum(z ** 2) / (n - 1)
         C = (numerator / (2 * w_sum)) / var_z
 
+        # Permutational variance of C under the randomization assumption
         expected_C = 1.0
-
-        # Variance approximation (simplified)
-        s1 = 0.5 * np.sum((W + W.T) ** 2)
-        var_C = ((2 * s1 + w_sum ** 2 - n * w_sum)
-                 / ((n - 1) * w_sum ** 2))
+        var_C = self._permutational_variance(values)
 
         z_score_val = (C - expected_C) / np.sqrt(var_C) if var_C > 0 else 0.0
         p_value = erfc(abs(z_score_val) / sqrt(2))
@@ -609,6 +704,7 @@ __all__ = [
     "MoranI",
     "GearysC",
     "GetisOrd",
+    "morans_i_variance",
     "getis_ord_g",
     "ripley_k",
     "semivariogram",

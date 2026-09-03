@@ -91,3 +91,21 @@ Each hardening pass should record:
 - Files changed for source, tests, validators, and docs.
 - Exact commands run and pass/fail outcomes.
 - Known residual warnings, especially optional dependency import warnings and source-language debt.
+
+## 2026-09-02 Reconciliation
+
+- `codex/act-categorical-runtime` was merged into `main` (branch
+  `agent-ergonomics-round2`); its categorical-runtime hardening is part of the
+  active state.
+- A repository-wide fix wave applied the repo contract (real implementations
+  instead of simplified/stub paths, deterministic RNG threading, passive
+  library logging, H3 v4 API usage) across all modules; per-module outcomes are
+  recorded in `CHANGELOG.md` under `[Unreleased]`.
+- The contract validators were run against the reconciled state:
+  `GEO-INFER-TEST/validate_test_contracts.py --strict`,
+  `GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`,
+  `GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`, and
+  `GEO-INFER-TEST/validate_active_inference_contract.py`.
+- Residual known gaps: full-resolution NHDPlus HR vector extracts are not
+  committed (see `TODO.md` PLACE-01 evidence), and optional heavy backends
+  (CuPy, Mayavi, Vaex) remain excluded from hosted-runner validation.

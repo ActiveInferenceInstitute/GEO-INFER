@@ -617,8 +617,8 @@ class EnhancedDataManager:
                     gdf.loc[invalid_mask, "geometry"] = gdf.loc[
                         invalid_mask, "geometry"
                     ].buffer(0)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Data quality step failed; continuing without it: %s', exc)
 
             # Log comprehensive data summary
             log_geodataframe_summary(logger, gdf, f"{module_name}_raw_data")
@@ -756,8 +756,8 @@ class EnhancedDataManager:
             # Check for invalid geometries
             invalid_mask = ~gdf.geometry.is_valid
             invalid_geometries = invalid_mask.sum()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning('Data quality step failed; continuing without it: %s', exc)
 
         if null_geometries > 0:
             validation_result["warnings"].append(
@@ -847,8 +847,8 @@ class EnhancedDataManager:
                 quality_metrics["consistency_score"] = 1.0 - (
                     duplicate_geoms / len(gdf)
                 )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning('Data quality step failed; continuing without it: %s', exc)
 
         validation_result["data_quality_metrics"] = quality_metrics
 

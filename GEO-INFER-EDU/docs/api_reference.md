@@ -197,6 +197,10 @@ Register a new learner in the tracking system.
 
 Record a learning activity for a learner.
 
+#### `export_progress(learner_id, format: str = "json") -> str`
+
+Export a learner's progress honouring the configured privacy policy. Under `ferpa` the student identifier is replaced with a one-way pseudonym; under `gdpr` data-retention metadata (retention period, erasure availability) is attached; under `none` the raw identifier is included.
+
 #### `assess_competency(learner_id, competency_id, evidence) -> CompetencyRecord`
 
 Assess a learner's competency level based on evidence (activity scores, assessment results).

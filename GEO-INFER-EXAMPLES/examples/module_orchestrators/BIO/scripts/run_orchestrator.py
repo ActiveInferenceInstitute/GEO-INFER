@@ -1,233 +1,110 @@
 #!/usr/bin/env python3
-"""
-BIO Module Orchestrator - GEO-INFER Examples
-Demonstrates: Bioinformatics
+"""GEO-INFER-BIO module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end BIO operation on synthetic data: synthesize
+three contigs (one carrying a designed 87-nt ORF, one a mutated variant of
+it, one random background), write them as FASTA, and run the
+``SequenceAnalyzer`` pipeline over them — global pairwise alignment, GC
+content, repeated-motif detection, BLOSUM62 similarity, and coding-region
+prediction. All work goes through the real ``geo_infer_bio`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
+import tempfile
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict, List
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    import numpy as np
+
+    from geo_infer_bio import SequenceAnalyzer
+
+    rng = np.random.default_rng(7)
+    bases = np.array(list("ACGT"))
+    sense_codons = [
+        "TTC", "TTA", "CTG", "ATT", "ATC", "GTT", "GCT", "CCC", "ACC",
+        "GTC", "GAG", "TGG", "TAC", "AAG", "GAA", "CAA", "GGC", "CGT",
+    ]
+
+    def _random_bases(count: int) -> List[str]:
+        return [str(base) for base in rng.choice(bases, size=count)]
+
+    # Designed 87-nt ORF: ATG, 27 sense codons, TAA (j - start = 84 >= 60).
+    orf = ["ATG"] + [sense_codons[i % len(sense_codons)] for i in range(27)] + ["TAA"]
+    orf_string = "".join(orf)
+
+    background_a = _random_bases(240)
+    orf_start = 30
+    contig_a = (
+        "".join(background_a[:orf_start]) + orf_string + "".join(background_a[orf_start + len(orf_string):])
     )
-    return logging.getLogger('bio_orchestrator')
 
-class BIOOrchestrator:
-    """Thin orchestrator for GEO-INFER-BIO module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the BIO orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'BIO'
-        self.dependencies = ['SPACE', 'TIME', 'DATA']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete BIO module demonstration."""
-        self.logger.info("🚀 Starting BIO Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Bioinformatics")
-        
-        start_time = time.time()
-        results = {
-            'module': 'BIO',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'BIO',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['SPACE', 'TIME', 'DATA']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 BIO MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-BIO")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ BIO thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'bio_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    # Mutated variant: three point substitutions inside the ORF.
+    mutated = list(contig_a)
+    for offset in (35, 60, 90):
+        original = mutated[offset]
+        mutated[offset] = next(base for base in "ACGT" if base != original)
+    contig_b = "".join(mutated)
+    contig_c = "".join(_random_bases(240))
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-BIO Module Orchestrator (Thin)")
-    print(f"Demonstrating: Bioinformatics")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = BIOOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    records_payload = [
+        ("contig_alpha", contig_a),
+        ("contig_beta", contig_b),
+        ("contig_gamma", contig_c),
+    ]
+
+    analyzer = SequenceAnalyzer()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        fasta_path = Path(tmp_dir) / "synthetic_contigs.fasta"
+        fasta_path.write_text(
+            "".join(
+                f">{name}\n{sequence}\n" for name, sequence in records_payload
+            ),
+            encoding="utf-8",
+        )
+        records = analyzer.load_sequence(str(fasta_path))
+
+    if not isinstance(records, list):
+        raise RuntimeError("expected a list of SeqRecords from the FASTA file")
+
+    alignment = analyzer.align_sequences(records[:2], algorithm="global")
+    aligned_pair = [str(record.seq) for record in alignment]
+    matches = sum(
+        1 for a, b in zip(aligned_pair[0], aligned_pair[1]) if a == b
+    )
+    alignment_identity = matches / len(aligned_pair[0])
+
+    gc_contents = {
+        record.id: round(analyzer.calculate_gc_content(record.seq), 3)
+        for record in records
+    }
+    repeated_motifs = analyzer.find_motifs(records[0].seq, motif_length=6)
+    similarity = analyzer.calculate_sequence_similarity(
+        records[0].seq, records[1].seq
+    )
+    coding_regions = analyzer.predict_coding_regions(records[0].seq, min_length=60)
+
+    return {
+        "operation": "synthetic_contig_sequence_analysis_pipeline",
+        "n_records": len(records),
+        "contig_lengths": {name: len(seq) for name, seq in records_payload},
+        "gc_content_percent": gc_contents,
+        "alignment_identity": round(float(alignment_identity), 4),
+        "alignment_length": int(len(aligned_pair[0])),
+        "repeated_hexamer_motif_count": len(repeated_motifs),
+        "blosum62_similarity_alpha_beta": round(float(similarity), 4),
+        "predicted_coding_regions": coding_regions,
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("BIO", _operation))

@@ -40,6 +40,7 @@ except ImportError:
     logger.debug("PyMC3 is unavailable; Bayesian SPM uses empirical Bayes.")
 
 from ..models.data_models import SPMData, SPMResult  # noqa: E402
+from ..utils.rng import resolve_rng  # noqa: E402
 
 
 class BayesianSPM:
@@ -224,12 +225,9 @@ class BayesianSPM:
             design_matrix: Design matrix for GLM.
             priors: Prior specifications for parameters.
             random_seed: Optional seed for reproducible posterior samples. When
-                ``None`` the legacy global ``np.random`` state is used.
+                ``None``, a generator seeded from OS entropy is created.
         """
-        if random_seed is None:
-            rng: Any = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         # Use maximum a posteriori (MAP) estimation as approximation
         y = data.data.flatten() if data.data.ndim > 1 else data.data
@@ -272,11 +270,7 @@ class BayesianSPM:
         try:
             beta_samples = rng.multivariate_normal(beta_map, cov_beta, 500)
         except np.linalg.LinAlgError:
-            # Generator uses standard_normal; the legacy module uses randn.
-            if hasattr(rng, "standard_normal"):
-                noise = rng.standard_normal((500, len(beta_map)))
-            else:
-                noise = rng.randn(500, len(beta_map))
+            noise = rng.standard_normal((500, len(beta_map)))
             beta_samples = beta_map + noise * np.sqrt(np.abs(np.diag(cov_beta)))
         self.posterior_samples = {
             "beta": beta_samples,
@@ -529,12 +523,9 @@ class BayesianSPM:
             coordinates: Spatial coordinates (n_points, 2).
             spatial_structure: Spatial structure specification.
             random_seed: Optional seed for reproducible center selection. When
-                ``None`` the legacy global ``np.random`` state is used.
+                ``None``, a generator seeded from OS entropy is created.
         """
-        if random_seed is None:
-            rng: Any = np.random
-        else:
-            rng = np.random.default_rng(random_seed)
+        rng = resolve_rng(random_seed)
 
         n_points = coordinates.shape[0]
         n_basis = spatial_structure.get("n_basis", min(20, n_points // 10))

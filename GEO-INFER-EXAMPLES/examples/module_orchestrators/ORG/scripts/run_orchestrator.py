@@ -1,233 +1,165 @@
 #!/usr/bin/env python3
-"""
-ORG Module Orchestrator - GEO-INFER Examples
-Demonstrates: Organizations
+"""GEO-INFER-ORG module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end ORG operation on synthetic data: model a
+synthetic org hierarchy, compute structural metrics and a proportional budget
+allocation, tally a governance proposal, and analyze a collaboration network
+with an optimized team formation. All work goes through the real
+``geo_infer_org`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    from geo_infer_org import (
+        CollaborationEdge,
+        CollaborationNetwork,
+        CollaborationType,
+        OrgStructureType,
+        OrgUnit,
+        OrganizationModel,
+        Proposal,
+        Role,
+        RoleLevel,
+        TeamFormation,
+        TeamMember,
+        Vote,
+        VotingEngine,
+        VotingMethod,
     )
-    return logging.getLogger('org_orchestrator')
 
-class ORGOrchestrator:
-    """Thin orchestrator for GEO-INFER-ORG module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the ORG orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'ORG'
-        self.dependencies = ['PEP', 'COMMS']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete ORG module demonstration."""
-        self.logger.info("🚀 Starting ORG Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Organizations")
-        
-        start_time = time.time()
-        results = {
-            'module': 'ORG',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'ORG',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['PEP', 'COMMS']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
+    # Synthetic org: a coastal resource institute with a two-level hierarchy.
+    org = OrganizationModel(structure_type=OrgStructureType.HIERARCHICAL)
+    units = [
+        OrgUnit(unit_id="root", name="Institute", member_count=48, budget=480_000.0),
+        OrgUnit(unit_id="research", name="Research Division", parent_id="root", member_count=22, budget=260_000.0),
+        OrgUnit(unit_id="outreach", name="Outreach Division", parent_id="root", member_count=14, budget=120_000.0),
+        OrgUnit(unit_id="ops", name="Operations Division", parent_id="root", member_count=12, budget=100_000.0),
+        OrgUnit(unit_id="lab_eco", name="Ecology Lab", parent_id="research", member_count=10, budget=90_000.0),
+        OrgUnit(unit_id="lab_geo", name="Geospatial Lab", parent_id="research", member_count=12, budget=170_000.0),
+    ]
+    for unit in units:
+        org.add_unit(unit)
+    roles = [
+        Role(role_id="r1", title="Director", level=RoleLevel.EXECUTIVE, unit_id="root"),
+        Role(role_id="r2", title="Division Lead", level=RoleLevel.DIRECTOR, unit_id="research", reports_to="r1"),
+        Role(role_id="r3", title="Division Lead", level=RoleLevel.DIRECTOR, unit_id="outreach", reports_to="r1"),
+        Role(role_id="r4", title="Lab Manager", level=RoleLevel.MANAGER, unit_id="lab_eco", reports_to="r2"),
+        Role(role_id="r5", title="Lab Manager", level=RoleLevel.MANAGER, unit_id="lab_geo", reports_to="r2"),
+        Role(role_id="r6", title="Research Scientist", level=RoleLevel.INDIVIDUAL, unit_id="lab_eco", reports_to="r4"),
+        Role(role_id="r7", title="GIS Analyst", level=RoleLevel.INDIVIDUAL, unit_id="lab_geo", reports_to="r5"),
+        Role(role_id="r8", title="Coordinator", level=RoleLevel.INDIVIDUAL, unit_id="outreach", reports_to="r3"),
+    ]
+    for role in roles:
+        org.add_role(role)
+    metrics = org.compute_metrics()
+    budget_allocation = org.allocate_budget(total_budget=1_500_000.0, strategy="proportional")
+    reporting_chain = [role.title for role in org.find_reporting_chain("r7")]
+
+    # Governance: simple-majority vote on a synthetic field-station proposal.
+    engine = VotingEngine()
+    proposal = Proposal(
+        proposal_id="prop-2026-01",
+        title="Fund the Klamath estuary field station",
+        description="Allocate reserve funds for a shared field station.",
+        proposer_id="r2",
+        options=["approve", "reject", "defer"],
+        voting_method=VotingMethod.SIMPLE_MAJORITY,
+        eligible_voters=7,
+        quorum_fraction=0.5,
+    )
+    engine.create_proposal(proposal)
+    choices = ["approve", "approve", "approve", "reject", "approve", "defer", "approve"]
+    for i, choice in enumerate(choices):
+        engine.cast_vote("prop-2026-01", Vote(voter_id=f"member-{i:02d}", choice=choice))
+    result = engine.tally("prop-2026-01")
+
+    # Collaboration network: cross-lab project interactions.
+    network = CollaborationNetwork()
+    people = [f"staff-{i:02d}" for i in range(12)]
+    for person in people:
+        network.add_node(person)
+    for i in range(18):
+        source = people[i % 12]
+        target = people[(i * 5 + 3) % 12]
+        if source != target:
+            network.add_edge(
+                CollaborationEdge(
+                    source_id=source,
+                    target_id=target,
+                    collaboration_type=CollaborationType.KNOWLEDGE_SHARE if i % 3 == 0 else CollaborationType.TASK_COORDINATION,
+                    strength=0.4 + (i % 6) / 10.0,
+                )
+            )
+    net_metrics = network.compute_metrics()
+    centrality = network.compute_betweenness_centrality()
+
+    # Team formation: cover a synthetic monitoring-project skill set.
+    formation = TeamFormation()
+    formation.add_members(
+        [
+            TeamMember(member_id="staff-00", name="Ada Nunez", skills=["field_survey", "gis"], unit_id="lab_geo"),
+            TeamMember(member_id="staff-01", name="Bo Chen", skills=["gis", "python"], unit_id="lab_geo"),
+            TeamMember(member_id="staff-02", name="Cy Okafor", skills=["hydrology", "field_survey"], unit_id="lab_eco"),
+            TeamMember(member_id="staff-03", name="Di Rao", skills=["statistics", "python"], unit_id="lab_eco"),
+            TeamMember(member_id="staff-04", name="Eli Marsh", skills=["community_engagement"], unit_id="outreach"),
+            TeamMember(member_id="staff-05", name="Fay Lund", skills=["statistics", "gis"], unit_id="lab_eco"),
         ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 ORG MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-ORG")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ ORG thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'org_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    )
+    team = formation.form_team(
+        required_skills=["field_survey", "gis", "python", "statistics", "community_engagement"],
+        max_size=5,
+    )
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-ORG Module Orchestrator (Thin)")
-    print(f"Demonstrating: Organizations")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = ORGOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    return {
+        "operation": "org_model_governance_and_collaboration",
+        "org_metrics": {
+            "total_units": metrics.total_units,
+            "total_roles": metrics.total_roles,
+            "max_depth": metrics.max_depth,
+            "avg_span_of_control": metrics.avg_span_of_control,
+            "centralization_score": metrics.centralization_score,
+            "hierarchy_ratio": metrics.hierarchy_ratio,
+        },
+        "budget_allocation": budget_allocation,
+        "reporting_chain_r7": reporting_chain,
+        "governance": {
+            "proposal_id": result.proposal_id,
+            "winner": result.winner,
+            "vote_counts": result.vote_counts,
+            "total_votes": result.total_votes,
+            "quorum_met": result.quorum_met,
+        },
+        "collaboration_network": {
+            "node_count": net_metrics.node_count,
+            "edge_count": net_metrics.edge_count,
+            "density": net_metrics.density,
+            "avg_degree": net_metrics.avg_degree,
+            "clustering_coefficient": net_metrics.clustering_coefficient,
+            "connected_components": net_metrics.connected_components,
+            "top_central_node": (
+                max(centrality.items(), key=lambda kv: kv[1]) if centrality else None
+            ),
+        },
+        "team_formation": {
+            "team_members": team.team_members,
+            "skill_coverage": team.skill_coverage,
+            "team_diversity": team.team_diversity,
+            "overall_score": team.overall_score,
+        },
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("ORG", _operation))

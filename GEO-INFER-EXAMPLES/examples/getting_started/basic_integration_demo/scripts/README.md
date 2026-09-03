@@ -8,8 +8,7 @@ Scripts workspace within `GEO-INFER-EXAMPLES`.
 
 ## Public Interface
 
-- `run_example.py:setup_logging` (function)
-- `run_example.py:BasicIntegrationDemo` (class)
+- `run_example.py:run_demo` (function)
 - `run_example.py:main` (function)
 
 ## Module Metadata

@@ -12,6 +12,7 @@ Unit workspace within `GEO-INFER-SEC`.
 - `test_authorization.py`
 - `test_encryption.py`
 - `test_input_validation.py`
+- `test_token_lifecycle.py`
 
 ## Public Interface
 
@@ -36,9 +37,6 @@ Unit workspace within `GEO-INFER-SEC`.
 - `pyyaml>=6.0`
 - `h3>=4.5.0,<5`
 - `pyproj>=3.0.0`
-- `flask>=2.0.0`
-- `sqlalchemy>=1.4.0`
-- `bcrypt>=3.2.0`
 
 
 ## Validation

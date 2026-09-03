@@ -15,7 +15,20 @@ except ImportError:
 
 
 class Settings(BaseSettings):
-    """Application settings with environment variable support."""
+    """Application settings with environment variable support.
+
+    Security invariants:
+
+    - ``secret_key`` has **no default**: it must be provided via the
+      ``SECRET_KEY`` environment variable (or an explicit constructor
+      argument). :func:`get_settings` raises ``RuntimeError`` when
+      ``SECRET_KEY`` is unset, so the application fails closed instead of
+      silently signing tokens with a well-known development secret.
+    - ``cors_origins`` defaults to an **empty list**. A wildcard (``"*"``)
+      must never be combined with credentialed CORS; callers wiring
+      CORSMiddleware must enable ``allow_credentials`` only when the
+      origin list is non-empty and does not contain ``"*"``.
+    """
 
     if _SETTINGS_CONFIG is not None:
         model_config = _SETTINGS_CONFIG
@@ -28,10 +41,10 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
 
     # CORS settings
-    cors_origins: List[str] = ["*"]
+    cors_origins: List[str] = []
 
     # Security settings
-    secret_key: str = "dev_secret_key_change_in_production"
+    secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
@@ -55,6 +68,17 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """Get cached settings to avoid reloading from env every time."""
-    secret = os.getenv("SECRET_KEY", "dev_secret_key_change_in_production")
+    """Get cached settings to avoid reloading from env every time.
+
+    Raises:
+        RuntimeError: If the ``SECRET_KEY`` environment variable is unset.
+            There is deliberately no default secret; running without an
+            explicitly configured key is a deployment error.
+    """
+    secret = os.getenv("SECRET_KEY")
+    if not secret:
+        raise RuntimeError(
+            "SECRET_KEY environment variable is not set; refusing to start "
+            "with an insecure default signing key"
+        )
     return Settings(secret_key=secret)

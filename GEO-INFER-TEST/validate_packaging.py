@@ -11,6 +11,13 @@ contract across all ``GEO-INFER-*`` modules:
 - Package-data inclusion: every wheel must ship its YAML/JSON/MD/TXT
   configuration resources so runtime config discovery works from an
   installed wheel without relying on repository-local ``config/`` roots.
+- Requirements parity: every runtime dependency declared in a module's
+  ``[project.dependencies]`` must appear in the module's ``requirements.txt``
+  (the module's own distribution name is exempt), and every
+  ``requirements.txt`` entry must be declared by the module in
+  ``[project.dependencies]``, any ``[project.optional-dependencies]`` group,
+  or a legacy ``setup.py`` ``install_requires``. Names compare normalized
+  (lowercase, ``_`` == ``-``) with version specifiers and extras stripped.
 - Out-of-package source traversal is reported as a diagnostic so authors can
   migrate ``Path(__file__).parent...`` config lookups to an installed-wheel
   safe discovery mechanism when publishing wheels.
@@ -76,6 +83,131 @@ def valid_distribution_namespace(name: str) -> bool:
         return False
     suffix = name[len(DISTRIBUTION_PREFIX):]
     return bool(PROJECT_NAME_PATTERN.fullmatch(suffix))
+
+# Requirements-line name extraction: strips environment markers, extras
+# brackets and version specifiers so requirements.txt lines and pyproject
+# dependency strings compare by normalized distribution name only.
+_REQUIREMENT_NAME_RE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
+
+
+def normalize_dependency_name(raw: str) -> str:
+    """Normalize a distribution name (lowercase, underscores -> dashes)."""
+    match = _REQUIREMENT_NAME_RE.match(raw.strip())
+    if not match:
+        return ""
+    return match.group(1).lower().replace("_", "-")
+
+
+def parse_requirements_names(path: Path) -> List[str]:
+    """Return normalized dependency names from a ``requirements.txt`` file.
+
+    Blank lines, comments and pip options (``-r``/``-e``/``--index-url``...)
+    are ignored; extras and version specifiers are stripped so lines compare
+    by name only.
+    """
+    if not path.is_file():
+        return []
+    names: List[str] = []
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("-"):
+            continue
+        name = normalize_dependency_name(stripped.split(";", 1)[0])
+        if name:
+            names.append(name)
+    return names
+
+
+def parse_setup_py_requires(module_dir: Path) -> tuple[Optional[set], bool]:
+    """Return ``(setup.py install_requires names, setup.py reads requirements.txt)``.
+
+    ``(None, False)`` when setup.py is absent. Some modules build through a
+    legacy setup.py that reads ``requirements.txt`` directly; for those the
+    requirements file is the authoritative install source.
+    """
+    setup = module_dir / "setup.py"
+    if not setup.is_file():
+        return None, False
+    text = setup.read_text(encoding="utf-8", errors="ignore")
+    reads_requirements = bool(re.search(r"requirements\.txt", text))
+    names: set = set()
+    match = re.search(r"install_requires\s*=\s*[\[\(](.*?)[\]\)]", text, re.S)
+    if match:
+        for literal in re.findall(r"['\"]([^'\"]+)['\"]", match.group(1)):
+            name = normalize_dependency_name(literal.split(";", 1)[0])
+            if name:
+                names.add(name)
+    return names, reads_requirements
+
+
+def pyproject_dependency_names(pyproject: dict) -> set:
+    """Return normalized runtime dependency names from [project.dependencies]."""
+    deps = pyproject.get("project", {}).get("dependencies") or []
+    return {
+        name
+        for name in (normalize_dependency_name(str(d)) for d in deps)
+        if name
+    }
+
+
+def pyproject_optional_names(pyproject: dict) -> set:
+    """Return normalized names across all [project.optional-dependencies] groups."""
+    groups = pyproject.get("project", {}).get("optional-dependencies") or {}
+    names: set = set()
+    for group in groups.values():
+        for dep in group:
+            name = normalize_dependency_name(str(dep))
+            if name:
+                names.add(name)
+    return names
+
+
+def validate_requirements_parity(
+    module_dir: Path, pyproject: dict, report: ContractReport
+) -> None:
+    """Enforce two-way parity between [project.dependencies] and requirements.txt.
+
+    Forward direction: every runtime dependency declared in
+    ``[project.dependencies]`` must appear in the module's
+    ``requirements.txt``. The module's own distribution name (a
+    self-dependency such as ``geo-infer-x`` inside GEO-INFER-X) is exempt.
+
+    Reverse direction: every ``requirements.txt`` entry must be declared by
+    the module — in ``[project.dependencies]``, any
+    ``[project.optional-dependencies]`` group, or a legacy ``setup.py``
+    ``install_requires``. Modules whose ``setup.py`` feeds
+    ``install_requires`` from ``requirements.txt`` are treated as
+    requirements-authoritative and are exempt from the reverse direction.
+    """
+    label = module_dir.name
+    distribution = distribution_name(pyproject)
+    required = pyproject_dependency_names(pyproject)
+    optional = pyproject_optional_names(pyproject)
+    declared = required | optional
+    listed = parse_requirements_names(module_dir / "requirements.txt")
+    setup_names, setup_reads_requirements = parse_setup_py_requires(module_dir)
+
+    for dep in sorted(required):
+        if dep == distribution:
+            continue
+        if dep not in listed:
+            report.errors.append(
+                f"{label}: requirements.txt missing runtime dependency "
+                f"{dep!r} declared in [project.dependencies]"
+            )
+
+    if setup_reads_requirements:
+        return
+    accepted = declared | (setup_names or set())
+    for name in sorted(set(listed)):
+        if name not in accepted:
+            report.errors.append(
+                f"{label}: requirements.txt lists {name!r} which is not "
+                "declared in [project.dependencies], "
+                "[project.optional-dependencies] or setup.py install_requires"
+            )
+
+
 
 
 def wheel_filename_is_valid(built_name: str, expected_distribution: str) -> bool:
@@ -162,6 +294,7 @@ def validate_all(target_dirs: Optional[List[Path]] = None) -> ContractReport:
             report.errors.append(f"{module_dir.name}: invalid/missing pyproject")
             continue
         validate_module(module_dir, pyproject, report)
+        validate_requirements_parity(module_dir, pyproject, report)
         validate_source_traversal(module_dir, report)
     return report
 

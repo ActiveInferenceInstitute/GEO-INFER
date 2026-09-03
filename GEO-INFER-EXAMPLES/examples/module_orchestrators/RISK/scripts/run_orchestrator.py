@@ -1,233 +1,109 @@
 #!/usr/bin/env python3
-"""
-RISK Module Orchestrator - GEO-INFER Examples
-Demonstrates: Risk management
+"""GEO-INFER-RISK module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end RISK operation on synthetic data: assemble a
+synthetic H3 cell set over a coastal study area, then assess single-hazard
+flood risk through the exported core risk API — ``FloodHazardModel``,
+``BuildingVulnerabilityModel``, and ``PopulationExposureModel`` combined by
+``RiskModel.calculate_risk`` and stress-tested with the seeded Monte Carlo
+simulation. All work goes through the real ``geo_infer_risk`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict, List, Tuple
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    import geopandas as gpd
+    import h3
+    import numpy as np
+    from shapely.geometry import Polygon
+
+    from geo_infer_risk import RiskModel
+    from geo_infer_risk.core.risk_models import (
+        BuildingVulnerabilityModel,
+        FloodHazardModel,
+        PopulationExposureModel,
+        RiskParameters,
     )
-    return logging.getLogger('risk_orchestrator')
 
-class RISKOrchestrator:
-    """Thin orchestrator for GEO-INFER-RISK module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the RISK orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'RISK'
-        self.dependencies = ['SPACE', 'TIME', 'DATA']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete RISK module demonstration."""
-        self.logger.info("🚀 Starting RISK Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Risk management")
-        
-        start_time = time.time()
-        results = {
-            'module': 'RISK',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'RISK',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['SPACE', 'TIME', 'DATA']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 RISK MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-RISK")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ RISK thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'risk_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    rng = np.random.default_rng(42)
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-RISK Module Orchestrator (Thin)")
-    print(f"Demonstrating: Risk management")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = RISKOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    # Synthetic H3 cells at resolution 8 over a fictional coastal district.
+    resolution = 8
+    lats = np.linspace(41.72, 41.78, 6)
+    lngs = np.linspace(-124.22, -124.16, 6)
+    cells = sorted(
+        {
+            h3.latlng_to_cell(float(lat), float(lng), resolution)
+            for lat in lats
+            for lng in lngs
+        }
+    )
+    polygons: List[Polygon] = []
+    for cell in cells:
+        boundary = h3.cell_to_boundary(cell)
+        polygons.append(Polygon([(lng, lat) for lat, lng in boundary]))
+
+    frame = gpd.GeoDataFrame(
+        {
+            "h3_index": cells,
+            "population": rng.integers(200, 2000, size=len(cells)),
+            "building_material": [
+                str(material)
+                for material in rng.choice(
+                    ["wood", "masonry", "reinforced_concrete"], size=len(cells)
+                )
+            ],
+            "building_age": rng.integers(5, 80, size=len(cells)),
+            "building_condition": rng.integers(1, 6, size=len(cells)),
+        },
+        geometry=polygons,
+        crs="EPSG:4326",
+    )
+
+    parameters = RiskParameters(
+        confidence_level=0.95, monte_carlo_iterations=400, random_seed=42
+    )
+    risk_model = RiskModel(parameters)
+    risk_model.set_hazard(FloodHazardModel(return_period=100, base_depth_m=2.5))
+    risk_model.set_vulnerability(BuildingVulnerabilityModel())
+    risk_model.set_exposure(PopulationExposureModel(income_per_capita=42000.0))
+
+    assessed = risk_model.calculate_risk(frame)
+    monte_carlo = risk_model.run_monte_carlo(frame)
+
+    risk_scores = assessed["risk_score"].to_numpy(dtype=float)
+    worst_position = int(risk_scores.argmax())
+    worst_cell = str(assessed.iloc[worst_position]["h3_index"])
+
+    return {
+        "operation": "single_hazard_flood_risk_assessment_on_h3_cells",
+        "hazard_type": "flood",
+        "return_period_years": 100,
+        "h3_resolution": resolution,
+        "n_cells": len(cells),
+        "mean_risk_score": round(float(risk_scores.mean()), 6),
+        "max_risk_score": round(float(risk_scores.max()), 6),
+        "highest_risk_cell": worst_cell,
+        "monte_carlo_iterations": int(parameters.monte_carlo_iterations),
+        "monte_carlo_mean_risk": round(
+            float(np.asarray(monte_carlo["mean"]).mean()), 6
+        ),
+        "monte_carlo_ci95_upper_mean": round(
+            float(np.asarray(monte_carlo["upper_bound"]).mean()), 6
+        ),
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("RISK", _operation))

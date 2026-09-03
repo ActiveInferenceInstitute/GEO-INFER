@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
+import networkx as nx
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,7 +66,7 @@ class EvacuationPlanner:
     
     def __init__(
         self,
-        road_network: Optional[Dict[str, Any]] = None,
+        road_network: Optional[nx.Graph] = None,
         population_data: Optional[Dict[str, Any]] = None,
         shelters: Optional[List[Dict[str, Any]]] = None,
         special_needs: Optional[List[str]] = None
@@ -73,7 +75,10 @@ class EvacuationPlanner:
         Initialize evacuation planner.
         
         Args:
-            road_network: Road network for routing
+            road_network: NetworkX graph whose nodes are routable locations
+                (zones, shelters, intersections). Edges may carry ``travel_time``
+                (minutes), ``distance`` (km), and ``capacity``
+                (vehicles/hour) attributes.
             population_data: Population demographics
             shelters: Available shelter locations
             special_needs: Special needs facilities to consider
@@ -214,16 +219,30 @@ class EvacuationPlanner:
                 {"phase": 2, "description": "Afternoon departure", "population_pct": 35, "delay_hours": 4},
                 {"phase": 3, "description": "Evening departure", "population_pct": 25, "delay_hours": 8}
             ]
-        
+
         return phases
-    
+
     def _identify_contraflow_segments(self) -> List[Dict[str, Any]]:
-        """Identify road segments suitable for contraflow."""
-        # Return sample contraflow segments
-        return [
-            {"road": "Highway 101", "from_mile": 0, "to_mile": 20, "lanes_reversed": 2}
-        ]
-    
+        """Identify road segments flagged as contraflow-capable in the network.
+
+        A segment qualifies when its edge carries a truthy
+        ``contraflow_capable`` attribute. Networks without such
+        attributes yield no contraflow candidates.
+        """
+        if self.road_network is None:
+            return []
+        segments: List[Dict[str, Any]] = []
+        for u, v, data in self.road_network.edges(data=True):
+            if data.get("contraflow_capable"):
+                segments.append(
+                    {
+                        "road": data.get("name", f"{u}->{v}"),
+                        "from_node": u,
+                        "to_node": v,
+                        "lanes_reversed": int(data.get("lanes_reversed", 1)),
+                    }
+                )
+        return segments
     def _plan_special_populations(self, zone: EvacuationZone) -> Dict[str, Any]:
         """Plan for special populations in the zone."""
         return {
@@ -232,7 +251,7 @@ class EvacuationPlanner:
             "medical_support_needed": "hospitals" in zone.special_populations,
             "accessible_vehicles_needed": True
         }
-    
+
     def optimize_routes(
         self,
         origins: List[str],
@@ -241,41 +260,84 @@ class EvacuationPlanner:
         constraints: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Optimize evacuation routes.
-        
+        Optimize evacuation routes with Dijkstra shortest paths.
+
+        Routes are computed over ``self.road_network``. Every origin and
+        destination must be a node of that network. Edge weights follow
+        this precedence:
+
+        * ``travel_time`` (minutes) when present on edges - drives
+          ``estimated_time_minutes``;
+        * otherwise ``distance`` (km) - drives both the route weight and
+          ``distance_km``;
+        * otherwise the graph is traversed unweighted and
+          ``distance_km``/``estimated_time_minutes`` are the hop counts.
+
+        ``distance_km`` prefers the ``distance`` edge attribute, falling
+        back to ``length_m``/``length`` (metres, converted). Route
+        capacity is the minimum ``capacity`` (vehicles/hour) along the
+        path, or 0 when the network carries no capacity attributes.
+
         Args:
-            origins: Origin zone IDs
-            destinations: Destination shelter IDs
-            objectives: Optimization objectives
-            constraints: Routing constraints
-            
+            origins: Origin zone IDs (nodes of the road network)
+            destinations: Destination shelter IDs (nodes of the road network)
+            objectives: Optimization objectives (recorded in the result)
+            constraints: Routing constraints (recorded in the result)
+
         Returns:
-            Optimized routes
+            Optimized routes keyed by origin/destination pairs
+
+        Raises:
+            ValueError: If no road network is configured or an origin or
+                destination is not a node of the road network.
         """
+        if self.road_network is None:
+            raise ValueError("road_network required for route optimization")
+
+        graph = self.road_network
+        unknown = [n for n in list(origins) + list(destinations) if n not in graph]
+        if unknown:
+            raise ValueError(f"endpoints not found in road_network: {sorted(set(unknown))}")
+
+        has_travel_time = self._edges_have(graph, "travel_time")
+        has_distance = self._edges_have(graph, "distance")
+        weight = "travel_time" if has_travel_time else ("distance" if has_distance else None)
+
         routes = []
-        
         for origin in origins:
             for destination in destinations:
                 route_id = f"route_{origin}_{destination}"
-                
-                # Generate route (simplified)
-                route = {
-                    "route_id": route_id,
-                    "origin": origin,
-                    "destination": destination,
-                    "distance_km": 15.0,  # Baseline
-                    "estimated_time_minutes": 30,
-                    "capacity_vehicles_per_hour": 2000,
-                    "road_segments": [
-                        {"name": "Local Street", "length_km": 2},
-                        {"name": "Main Highway", "length_km": 10},
-                        {"name": "Access Road", "length_km": 3}
-                    ],
-                    "hazards": [],
-                    "accessibility_score": 0.9
-                }
-                routes.append(route)
-        
+                try:
+                    path = nx.dijkstra_path(graph, origin, destination, weight=weight)
+                except nx.NetworkXNoPath:
+                    logger.warning(f"No path between {origin} and {destination}")
+                    continue
+
+                distance_km = self._path_distance_km(graph, path)
+                if has_travel_time:
+                    estimated_time_minutes = float(nx.shortest_path_length(graph, origin, destination, weight="travel_time"))
+                elif has_distance:
+                    estimated_time_minutes = float(nx.shortest_path_length(graph, origin, destination, weight="distance"))
+                else:
+                    estimated_time_minutes = float(len(path) - 1)
+
+                capacities = [data["capacity"] for _, _, data in _path_edges(graph, path) if "capacity" in data]
+                capacity_vehicles_per_hour = int(min(capacities)) if capacities else 0
+
+                routes.append(
+                    {
+                        "route_id": route_id,
+                        "origin": origin,
+                        "destination": destination,
+                        "path": list(path),
+                        "distance_km": round(distance_km, 3),
+                        "estimated_time_minutes": round(estimated_time_minutes, 2),
+                        "capacity_vehicles_per_hour": capacity_vehicles_per_hour,
+                        "hazards": [],
+                        "accessibility_score": 0.9,
+                    }
+                )
+
         result = {
             "optimization_objectives": objectives,
             "constraints": constraints,
@@ -283,10 +345,34 @@ class EvacuationPlanner:
             "total_routes": len(routes),
             "timestamp": datetime.now().isoformat()
         }
-        
+
         logger.info(f"Optimized {len(routes)} evacuation routes")
         return result
-    
+
+    @staticmethod
+    def _edges_have(graph: nx.Graph, attribute: str) -> bool:
+        """Return True when at least one edge carries the attribute."""
+        return any(attribute in data for _, _, data in graph.edges(data=True))
+
+    @staticmethod
+    def _path_distance_km(graph: nx.Graph, path: List[str]) -> float:
+        """Sum path length in kilometres.
+
+        Per edge, uses ``distance`` (km) when present, otherwise
+        ``length_m``/``length`` (metres, converted); edges carrying
+        neither contribute 0.
+        """
+        total = 0.0
+        for _u, _v, data in _path_edges(graph, path):
+            if "distance" in data:
+                total += float(data["distance"])
+            elif "length_m" in data:
+                total += float(data["length_m"]) * 0.001
+            elif "length" in data:
+                total += float(data["length"]) * 0.001
+        return total
+
+
     def plan_shelters(
         self,
         shelter_locations: List[Dict[str, Any]],
@@ -488,3 +574,10 @@ class EvacuationPlanner:
         
         logger.info(f"Estimated clearance time: {estimates.get('expected', {}).get('clearance_hours', 0)} hours")
         return estimates
+
+
+def _path_edges(graph: nx.Graph, path: List[str]) -> List[Tuple[Any, Any, Dict[str, Any]]]:
+    """Return (u, v, data) triples for consecutive path node pairs."""
+    return [(u, v, graph.get_edge_data(u, v) or {}) for u, v in zip(path[:-1], path[1:])]
+
+    

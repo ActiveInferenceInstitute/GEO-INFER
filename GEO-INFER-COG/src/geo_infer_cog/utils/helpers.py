@@ -230,7 +230,13 @@ def create_default_cognitive_config() -> Dict[str, Any]:
 
 
 def setup_cognitive_logging(config: Dict[str, Any]) -> None:
-    """Setup logging configuration for cognitive processing."""
+    """Attach file/stream handlers to the ``geo_infer_cog`` logger.
+
+    CLI-only helper. Command-line entrypoints may call this to route
+    ``geo_infer_cog`` records to a log file and stderr. Library modules must
+    stay passive: they log through ``logging.getLogger(__name__)`` and never
+    call ``basicConfig``, add handlers, or set levels themselves.
+    """
     logging_config = config.get('logging', {})
 
     log_level = getattr(logging, logging_config.get('level', 'INFO').upper())
@@ -240,19 +246,21 @@ def setup_cognitive_logging(config: Dict[str, Any]) -> None:
     log_path = Path(log_file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Configure logging
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
-    )
+    cog_logger = logging.getLogger('geo_infer_cog')
+    cog_logger.setLevel(log_level)
 
-    # Set specific log levels for noisy libraries
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('requests').setLevel(logging.WARNING)
+    # Idempotent: repeated CLI invocations must not stack duplicate handlers
+    if not cog_logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        cog_logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        cog_logger.addHandler(stream_handler)
 
     logger.info("Cognitive processing logging configured")
 

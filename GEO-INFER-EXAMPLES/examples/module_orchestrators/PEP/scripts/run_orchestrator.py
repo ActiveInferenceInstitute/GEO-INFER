@@ -1,233 +1,98 @@
 #!/usr/bin/env python3
-"""
-PEP Module Orchestrator - GEO-INFER Examples
-Demonstrates: People management
+"""GEO-INFER-PEP module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end PEP operation on synthetic data: build a
+synthetic workforce of employee records, run the real HR cleaning and
+enrichment transformers (title-casing, tenure calculation, manager
+validation), then generate headcount and diversity reports. All work goes
+through the real ``geo_infer_pep`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
+from datetime import date
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict, List
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    return logging.getLogger('pep_orchestrator')
+from _lib import run_module_orchestrator  # noqa: E402
 
-class PEPOrchestrator:
-    """Thin orchestrator for GEO-INFER-PEP module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the PEP orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'PEP'
-        self.dependencies = ['ORG', 'COMMS']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete PEP module demonstration."""
-        self.logger.info("🚀 Starting PEP Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: People management")
-        
-        start_time = time.time()
-        results = {
-            'module': 'PEP',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'PEP',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['ORG', 'COMMS']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 PEP MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-PEP")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ PEP thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'pep_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-PEP Module Orchestrator (Thin)")
-    print(f"Demonstrating: People management")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = PEPOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+def _operation() -> Dict[str, Any]:
+    from geo_infer_pep.hr.transformer import clean_employee_data, enrich_employee_data
+    from geo_infer_pep.models.hr_models import Compensation, Employee, EmploymentStatus, Gender
+    from geo_infer_pep.reporting.hr_reports import generate_diversity_report, generate_headcount_report
+
+    # Synthetic workforce: 14 employees across three departments and sites.
+    departments = [" research", " GIS LAB", "outreach"]
+    locations = ["Crescent City HQ", "Eureka Field Office", "Remote"]
+    genders = [Gender.FEMALE, Gender.MALE, Gender.NON_BINARY, Gender.FEMALE]
+    nationalities = ["US", "CA", "MX", "US"]
+    titles = ["Research Scientist", "GIS Analyst", "Engagement Coordinator"]
+
+    employees: List[Employee] = []
+    for i in range(14):
+        employees.append(
+            Employee(
+                employee_id=f"emp-{i:03d}",
+                first_name=f"  first{i}",
+                last_name=f"LAST{i}",
+                email=f"First{i}.Last{i}@example.org",
+                hire_date=date(2019 + (i % 6), 1 + (i % 12), 1 + (i % 27)),
+                employment_status=(
+                    EmploymentStatus.TERMINATED if i in (4, 11) else EmploymentStatus.ACTIVE
+                ),
+                job_title=titles[i % len(titles)],
+                department=departments[i % len(departments)],
+                manager_id="emp-000" if i not in (0,) else None,
+                location=locations[i % len(locations)],
+                gender=genders[i % len(genders)],
+                nationality=nationalities[i % len(nationalities)],
+                compensation=Compensation(
+                    salary=52_000.0 + 3_400.0 * i,
+                    currency="USD",
+                    pay_frequency="annual",
+                ),
+            )
+        )
+
+    cleaned = clean_employee_data(employees)
+    enriched = enrich_employee_data(cleaned)
+
+    headcount = generate_headcount_report(enriched, group_by=["department", "location"])
+    diversity = generate_diversity_report(enriched, diversity_fields=["gender", "nationality"])
+
+    tenured = [e for e in enriched if "tenure_years" in e.custom_fields]
+    manager_validations = {
+        e.employee_id: e.custom_fields.get("manager_name")
+        for e in enriched
+        if "manager_name" in e.custom_fields
+    }
+
+    return {
+        "operation": "hr_pipeline_clean_enrich_report",
+        "records_input": len(employees),
+        "records_cleaned": len(cleaned),
+        "records_enriched": len(enriched),
+        "sample_cleaning": {
+            "employee_id": enriched[0].employee_id,
+            "name_after_clean": f"{enriched[0].first_name} {enriched[0].last_name}",
+            "email_after_clean": enriched[0].email,
+            "department_after_clean": enriched[0].department,
+        },
+        "enrichment": {
+            "records_with_tenure": len(tenured),
+            "sample_tenure_years": tenured[0].custom_fields["tenure_years"] if tenured else None,
+            "manager_names_resolved": manager_validations,
+        },
+        "headcount_report": headcount,
+        "diversity_report": diversity,
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("PEP", _operation))

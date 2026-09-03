@@ -1,6 +1,6 @@
 # GEO-INFER Open Task & Backlog Ledger
 
-> Last reviewed: 2026-08-20
+> Last reviewed: 2026-09-02
 > Scope: Multi-package repository (`GEO-INFER`) across workspace packages and 44 domain modules.
 > Centralization Rule: All planned, open, or deferred engineering work across all modules is tracked exclusively in this ledger. Module source code and tests must never carry local task markers (`TODO`, `FIXME`, `XXX`, `HACK`).
 
@@ -12,21 +12,17 @@
 
 | ID | Module / Package | Scope | Description & Acceptance Criteria |
 |---|---|---|---|
-| ~~**ARCH-01**~~ | `GEO-INFER-CORE` / Monorepo | Platform Wheel Distribution & Packaging | **Completed**: Unified multi-package wheel release pipeline in GitHub Actions (`.github/workflows/release.yml`) with strict PyPI `geo-infer-*` namespace validation (`GEO-INFER-TEST/validate_packaging.py`), a wheel-build driver (`build_package_wheels.py`) that builds/validates every module wheel and optionally smoke-installs into isolated venvs, and per-module `[tool.setuptools.package-data]` so YAML/JSON config ships with wheels. Out-of-package `__file__` traversal is reported as diagnostics for installed-wheel-safe migration. CI runs `validate_packaging.py --strict`. |
+| ~~**ARCH-01**~~ | Root / Monorepo | Platform Wheel Distribution & Packaging | **Completed**: Unified multi-package wheel release pipeline in GitHub Actions (`.github/workflows/release.yml`) with strict PyPI `geo-infer-*` namespace validation (`GEO-INFER-TEST/validate_packaging.py`), a wheel-build driver (`build_package_wheels.py`) that builds/validates every module wheel and optionally smoke-installs into isolated venvs, and per-module `[tool.setuptools.package-data]` so YAML/JSON config ships with wheels. Out-of-package `__file__` traversal is reported as diagnostics for installed-wheel-safe migration. CI runs `validate_packaging.py --strict`. |
 
 ### Medium Scope
 
 | ID | Module / Package | Scope | Description & Acceptance Criteria |
 |---|---|---|---|
-| **SPACE-01** | `GEO-INFER-SPACE` | SRAI & GPU Spatial Kernel Bindings | Add optional CUDA/JAX GPU-accelerated spatial joins and H3 distance kernels while preserving zero-dependency CPU fallback semantics. |
-| **TIME-01** | `GEO-INFER-TIME` | Online Spatiotemporal Streaming Pipelines | Add native WebSocket/Kafka stream ingest adapters to `StreamProcessor` with bounded watermarking, session windowing, and automated sliding-window anomaly alerts. |
 
 ### Minor Scope
 
 | ID | Module / Package | Scope | Description & Acceptance Criteria |
 |---|---|---|---|
-| **DOCS-01** | `GEO-INFER-INTRA` | Interactive Spatial Widget Previews | Add pre-rendered Leaflet/Folium visual snapshots into MkDocs module documentation for all 44 domain modules. |
-| **PLACE-01** | `GEO-INFER-PLACE` | Cascadia High-Resolution Hydrography | Ingest full NHDPlus HR vector flowlines for high-order Pacific Northwest tributaries into Cascadia place-based model. |
 
 ---
 
@@ -44,3 +40,7 @@
 10. **MATH-01 (Completed)**: Added vectorized SIMD ray-casting point-in-polygon (`geometry.points_in_polygon_vectorized`) replacing iterative loops in spatial clustering.
 11. **DATA-01 (Completed)**: Added cloud-connector byte-range reading (`connectors/cloud.py` `read_byte_range`) for chunked remote GeoParquet / Cloud-Optimized GeoTIFF access.
 12. **TEST-01 (Completed)**: Added the parametric load benchmark harness (`tests/unit/test_parametric_load_benchmarks.py`) to the unified test runner's performance surface.
+13. **SPACE-01 (Completed)**: GPU-accelerated spatial kernels are real and shipped in `GEO-INFER-SPACE` (`backends/gpu/gpu_acceleration.py`) with CPU fallback semantics preserved and dedicated tests.
+14. **TIME-01 (Completed)**: `StreamProcessor` streaming landed with real WebSocket and Kafka transports behind the optional `websockets` / `aiokafka` extras (no mock transports).
+15. **DOCS-01 (Completed)**: Pre-rendered interactive widget previews are complete across all 44 domain modules in `GEO-INFER-INTRA/docs/modules/previews/`.
+16. **PLACE-01 (Completed)**: NHDPlus HR flowline ingestion is implemented and tested in `GEO-INFER-PLACE` (`src/geo_infer_place/data_modules/surface_water/`); residual gap: full-resolution NHDPlus HR vector extracts are not committed to the repository (sourced at build time).

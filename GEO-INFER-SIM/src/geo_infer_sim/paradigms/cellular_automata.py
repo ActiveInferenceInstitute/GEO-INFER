@@ -25,6 +25,7 @@ class CellularAutomata:
         grid_shape: Tuple[int, int],
         initial_states: Optional[np.ndarray] = None,
         num_states: int = 2,
+        random_seed: Optional[int] = None,
     ) -> None:
         """
         Initialize the cellular automata.
@@ -33,7 +34,11 @@ class CellularAutomata:
             grid_shape: Shape of the grid (height, width)
             initial_states: Optional initial cell states
             num_states: Number of possible cell states
+            random_seed: Optional seed for the isolated random Generator
         """
+        # Deterministic-by-default: isolated Generator instead of global state
+        self.rng: np.random.Generator = np.random.default_rng(random_seed)
+
         self.grid_shape = grid_shape
         self.num_states = num_states
 
@@ -46,7 +51,7 @@ class CellularAutomata:
             self.grid = initial_states.copy()
         else:
             # Initialize with random states
-            self.grid = np.random.randint(0, num_states, size=grid_shape)
+            self.grid = self.rng.integers(0, num_states, size=grid_shape)
 
         self.time = 0.0
         self.history: List[np.ndarray] = []
@@ -168,7 +173,9 @@ class CellularAutomata:
         if initial_states is not None:
             self.grid = initial_states.copy()
         else:
-            self.grid = np.random.randint(0, self.num_states, size=self.grid_shape)
+            self.grid = self.rng.integers(
+                0, self.num_states, size=self.grid_shape
+            )
 
         self.time = 0.0
         self.history = []

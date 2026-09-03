@@ -6,6 +6,7 @@ multiple simulation paradigms including ABM, system dynamics, and CA.
 """
 
 import logging
+import threading
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -73,9 +74,15 @@ class SimulationEngine:
         self.metrics: Dict[str, List[float]] = {}
         self.events: List[Dict[str, Any]] = []
 
-        # Set random seed if provided
-        if self.config.random_seed is not None:
-            np.random.seed(self.config.random_seed)
+        # Pause signaling: the run loop honors this event between steps so a
+        # pause can never surface as a step error (and thus a FAILED state).
+        self._pause_requested = threading.Event()
+
+        # Seeded RNG for stochastic step functions; deterministic-by-default
+        # when config.random_seed is set.
+        self.rng: np.random.Generator = np.random.default_rng(
+            self.config.random_seed
+        )
 
     def initialize(self, initial_state: Dict[str, Any]) -> None:
         """
@@ -169,6 +176,7 @@ class SimulationEngine:
         logger.info(f"Starting simulation (max_time={self.config.max_time})")
 
         self.state = SimulationState.RUNNING
+        self._pause_requested.clear()
         start_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
         try:
@@ -176,9 +184,12 @@ class SimulationEngine:
                 if self.state == SimulationState.CANCELLED:
                     break
 
+                if self._pause_requested.is_set():
+                    break
+
                 self.step(step_func)
 
-            if self.state != SimulationState.CANCELLED:
+            if self.state == SimulationState.RUNNING:
                 self.state = SimulationState.COMPLETED
             end_time = datetime.now(timezone.utc).replace(tzinfo=None)
             duration = (end_time - start_time).total_seconds()
@@ -205,14 +216,16 @@ class SimulationEngine:
             raise
 
     def pause(self) -> None:
-        """Pause the simulation."""
+        """Pause the simulation at the next step boundary."""
         if self.state == SimulationState.RUNNING:
+            self._pause_requested.set()
             self.state = SimulationState.PAUSED
             logger.info("Simulation paused")
 
     def resume(self) -> None:
-        """Resume a paused simulation."""
+        """Resume a paused simulation from the paused step."""
         if self.state == SimulationState.PAUSED:
+            self._pause_requested.clear()
             self.state = SimulationState.RUNNING
             logger.info("Simulation resumed")
 

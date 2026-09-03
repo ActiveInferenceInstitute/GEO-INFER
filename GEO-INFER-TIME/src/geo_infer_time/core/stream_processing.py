@@ -20,6 +20,45 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+# Optional streaming transport dependencies. These are imported lazily inside
+# connect()/consume so that importing geo_infer_time never requires them.
+HAS_WEBSOCKETS = False
+HAS_KAFKA = False
+
+
+def _import_websockets() -> Optional[Any]:
+    """Lazily import the optional ``websockets`` dependency.
+
+    Returns:
+        The websockets module, or None when it is not installed. Sets the
+        module-level :data:`HAS_WEBSOCKETS` flag as a side effect.
+    """
+    global HAS_WEBSOCKETS
+    try:
+        import websockets
+    except ImportError:
+        HAS_WEBSOCKETS = False
+        return None
+    HAS_WEBSOCKETS = True
+    return websockets
+
+
+def _import_aiokafka() -> Optional[Any]:
+    """Lazily import the optional ``aiokafka`` dependency.
+
+    Returns:
+        The aiokafka module, or None when it is not installed. Sets the
+        module-level :data:`HAS_KAFKA` flag as a side effect.
+    """
+    global HAS_KAFKA
+    try:
+        import aiokafka
+    except ImportError:
+        HAS_KAFKA = False
+        return None
+    HAS_KAFKA = True
+    return aiokafka
+
 
 class StreamIngestAdapter:
     """
@@ -141,28 +180,72 @@ class StreamIngestAdapter:
         metadata = {k: v for k, v in data.items() if k not in ("value", "timestamp", "time", "datetime")}
         return ts, numeric_val, metadata
 
+    def normalize_record(self, record: Any) -> Dict[str, Any]:
+        """Validate a raw transport message through :meth:`parse_record`.
+
+        Args:
+            record: Raw message payload (dict, JSON string, or bytes).
+
+        Returns:
+            Normalized record dictionary ``{"timestamp": iso, "value": float,
+            **metadata}`` that re-validates cleanly through
+            :meth:`parse_record` when consumed downstream.
+
+        Raises:
+            TypeError: If the payload is not a dict, JSON string, or bytes.
+            ValueError: If the payload is not valid JSON or lacks a usable
+                ``value`` field.
+        """
+        ts, numeric_val, metadata = self.parse_record(record)
+        normalized: Dict[str, Any] = {"timestamp": ts.isoformat(), "value": numeric_val}
+        normalized.update(metadata)
+        return normalized
+
 
 class WebSocketIngestAdapter(StreamIngestAdapter):
     """
     WebSocket stream ingest adapter for real-time sensor streams.
 
-    Supports connecting to WebSocket endpoints and yielding structured
-    time-series records.
+    Real mode (default) connects to a WebSocket endpoint through the optional
+    ``websockets`` dependency (install ``geo-infer-time[streaming]``) and
+    yields JSON records validated through
+    :meth:`StreamIngestAdapter.parse_record`. Simulated mode, intended for
+    deterministic tests, is enabled only by passing ``allow_simulated=True``.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        *,
+        allow_simulated: bool = False,
+    ) -> None:
         super().__init__(config)
+        self.allow_simulated = bool(allow_simulated)
         self.url = str(self.config.get("url", "ws://localhost:8765"))
         self.reconnect_interval = float(self.config.get("reconnect_interval", 1.0))
+        self._connection: Optional[Any] = None
 
     async def connect(self) -> bool:
         """Establish connection to WebSocket server."""
+        if self.allow_simulated:
+            self.is_connected = True
+            logger.info("Connected WebSocketIngestAdapter to %s (simulated)", self.url)
+            return True
+        websockets = _import_websockets()
+        if websockets is None:
+            raise RuntimeError(
+                "websockets not installed; add geo-infer-time[streaming]"
+            )
+        self._connection = await websockets.connect(self.url)
         self.is_connected = True
         logger.info("Connected WebSocketIngestAdapter to %s", self.url)
         return True
 
     async def disconnect(self) -> None:
         """Close WebSocket connection."""
+        if self._connection is not None:
+            await self._connection.close()
+            self._connection = None
         self.is_connected = False
         logger.info("Disconnected WebSocketIngestAdapter from %s", self.url)
 
@@ -176,67 +259,138 @@ class WebSocketIngestAdapter(StreamIngestAdapter):
         """
         Stream records from WebSocket source.
 
+        Real mode async-iterates frames from the live connection and passes
+        each through :meth:`StreamIngestAdapter.parse_record` validation
+        before yielding the normalized record. Simulated mode yields
+        ``simulated_records`` when provided, otherwise a deterministic
+        synthetic generator.
+
         Args:
             max_messages: Optional maximum number of messages to yield.
-            simulated_records: Optional list of records for deterministic testing.
+            simulated_records: Optional list of records for deterministic
+                testing; requires ``allow_simulated=True``.
             **kwargs: Extra parameters.
 
         Yields:
-            Stream message dictionaries.
+            Normalized stream message dictionaries.
+
+        Raises:
+            ValueError: If ``simulated_records`` is passed to a real-mode
+                adapter, or a frame fails record validation.
+            TypeError: If a frame is not a text or bytes payload.
         """
         if not self.is_connected:
             await self.connect()
 
-        if simulated_records is not None:
+        if simulated_records is not None and not self.allow_simulated:
+            raise ValueError(
+                "simulated_records requires an adapter constructed with "
+                "allow_simulated=True"
+            )
+
+        if self.allow_simulated:
             count = 0
-            for record in simulated_records:
-                if max_messages is not None and count >= max_messages:
-                    break
-                yield record
+            if simulated_records is not None:
+                for record in simulated_records:
+                    if max_messages is not None and count >= max_messages:
+                        break
+                    yield record
+                    count += 1
+                    await asyncio.sleep(0.001)
+                return
+            limit = max_messages if max_messages is not None else 5
+            while self.is_connected and count < limit:
+                now = datetime.now(timezone.utc)
+                yield {
+                    "type": "websocket_message",
+                    "message_id": count,
+                    "timestamp": now.isoformat(),
+                    "value": float(20.0 + (count % 10) * 2.0),
+                    "sensor_id": f"ws_sensor_{count % 3}",
+                    "data": {"quality": "good"},
+                }
                 count += 1
-                await asyncio.sleep(0.001)
+                await asyncio.sleep(0.01)
             return
 
-        # Default synthetic generator if no simulated records provided
+        if self._connection is None:
+            raise RuntimeError(
+                "WebSocket connection not established; call connect() first"
+            )
+
         count = 0
-        limit = max_messages if max_messages is not None else 5
-        while self.is_connected and count < limit:
-            now = datetime.now(timezone.utc)
-            yield {
-                "type": "websocket_message",
-                "message_id": count,
-                "timestamp": now.isoformat(),
-                "value": float(20.0 + (count % 10) + np.sin(count) * 2.0),
-                "sensor_id": f"ws_sensor_{count % 3}",
-                "data": {"quality": "good"},
-            }
+        async for message in self._connection:
+            if not isinstance(message, (str, bytes)):
+                raise TypeError(
+                    f"Unsupported WebSocket frame type: {type(message).__name__}"
+                )
+            yield self.normalize_record(message)
             count += 1
-            await asyncio.sleep(0.01)
+            if max_messages is not None and count >= max_messages:
+                break
 
 
 class KafkaIngestAdapter(StreamIngestAdapter):
     """
     Apache Kafka stream ingest adapter for high-throughput temporal streams.
 
-    Supports subscribing to topics and consuming structured time-series events.
+    Real mode (default) consumes from a Kafka topic through the optional
+    ``aiokafka`` dependency (install ``geo-infer-time[streaming]``) and yields
+    JSON records validated through :meth:`StreamIngestAdapter.parse_record`.
+    Simulated mode, intended for deterministic tests, is enabled only by
+    passing ``allow_simulated=True``.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        *,
+        allow_simulated: bool = False,
+    ) -> None:
         super().__init__(config)
+        self.allow_simulated = bool(allow_simulated)
         self.bootstrap_servers = self.config.get("bootstrap_servers", ["localhost:9092"])
         if isinstance(self.bootstrap_servers, str):
             self.bootstrap_servers = [self.bootstrap_servers]
         self.group_id = str(self.config.get("group_id", "geo_infer_time_group"))
         self.topic = str(self.config.get("topic", "geo_infer_temporal_events"))
+        self._consumer: Optional[Any] = None
 
     async def connect(self) -> bool:
         """Connect to Kafka cluster."""
+        if self.allow_simulated:
+            self.is_connected = True
+            logger.info(
+                "Connected KafkaIngestAdapter to %s (topic: %s, simulated)",
+                self.bootstrap_servers,
+                self.topic,
+            )
+            return True
+        aiokafka = _import_aiokafka()
+        if aiokafka is None:
+            raise RuntimeError(
+                "aiokafka not installed; add geo-infer-time[streaming]"
+            )
+        consumer = aiokafka.AIOKafkaConsumer(
+            self.topic,
+            bootstrap_servers=self.bootstrap_servers,
+            group_id=self.group_id,
+        )
+        await consumer.start()
+        self._consumer = consumer
         self.is_connected = True
-        logger.info("Connected KafkaIngestAdapter to %s (topic: %s)", self.bootstrap_servers, self.topic)
+        logger.info(
+            "Connected KafkaIngestAdapter to %s (topic: %s)",
+            self.bootstrap_servers,
+            self.topic,
+        )
         return True
 
     async def disconnect(self) -> None:
         """Disconnect from Kafka cluster."""
+        if self._consumer is not None:
+            await self._consumer.stop()
+            self._consumer = None
         self.is_connected = False
         logger.info("Disconnected KafkaIngestAdapter from %s", self.bootstrap_servers)
 
@@ -250,47 +404,88 @@ class KafkaIngestAdapter(StreamIngestAdapter):
         """
         Stream records from Kafka topic.
 
+        Real mode consumes one message at a time from the live consumer,
+        JSON-decodes each payload, stamps the broker timestamp when the
+        payload lacks one, and passes the record through
+        :meth:`StreamIngestAdapter.parse_record` validation before yielding
+        the normalized record. Simulated mode yields ``simulated_records``
+        when provided, otherwise a deterministic synthetic generator.
+
         Args:
             topic: Kafka topic to consume from.
             max_messages: Optional maximum number of messages.
-            simulated_records: Optional list of records for deterministic testing.
+            simulated_records: Optional list of records for deterministic
+                testing; requires ``allow_simulated=True``.
             **kwargs: Extra parameters.
 
         Yields:
-            Kafka message dictionaries.
+            Normalized Kafka message dictionaries.
+
+        Raises:
+            ValueError: If ``simulated_records`` is passed to a real-mode
+                adapter, or a payload fails record validation.
         """
         if not self.is_connected:
             await self.connect()
 
+        if simulated_records is not None and not self.allow_simulated:
+            raise ValueError(
+                "simulated_records requires an adapter constructed with "
+                "allow_simulated=True"
+            )
+
         target_topic = topic or self.topic
 
-        if simulated_records is not None:
+        if self.allow_simulated:
             count = 0
-            for record in simulated_records:
-                if max_messages is not None and count >= max_messages:
-                    break
-                rec = dict(record)
-                rec.setdefault("topic", target_topic)
-                yield rec
+            if simulated_records is not None:
+                for record in simulated_records:
+                    if max_messages is not None and count >= max_messages:
+                        break
+                    rec = dict(record)
+                    rec.setdefault("topic", target_topic)
+                    yield rec
+                    count += 1
+                    await asyncio.sleep(0.001)
+                return
+            limit = max_messages if max_messages is not None else 5
+            while self.is_connected and count < limit:
+                now = datetime.now(timezone.utc)
+                yield {
+                    "topic": target_topic,
+                    "partition": 0,
+                    "offset": count,
+                    "timestamp": now.isoformat(),
+                    "value": float(100.0 + count * 1.5),
+                    "sensor_id": f"kafka_sensor_{count % 4}",
+                    "metadata": {"partition": 0, "offset": count},
+                }
                 count += 1
-                await asyncio.sleep(0.001)
+                await asyncio.sleep(0.01)
             return
 
+        if self._consumer is None:
+            raise RuntimeError("Kafka consumer not started; call connect() first")
+
         count = 0
-        limit = max_messages if max_messages is not None else 5
-        while self.is_connected and count < limit:
-            now = datetime.now(timezone.utc)
-            yield {
-                "topic": target_topic,
-                "partition": 0,
-                "offset": count,
-                "timestamp": now.isoformat(),
-                "value": float(100.0 + count * 1.5),
-                "sensor_id": f"kafka_sensor_{count % 4}",
-                "metadata": {"partition": 0, "offset": count},
-            }
+        while max_messages is None or count < max_messages:
+            message = await self._consumer.getone()
+            payload = message.value
+            if isinstance(payload, bytes):
+                payload = payload.decode("utf-8")
+            record = json.loads(payload)
+            if not isinstance(record, dict):
+                raise ValueError("Kafka message did not decode to a JSON object")
+            record.setdefault(
+                "topic", getattr(message, "topic", target_topic)
+            )
+            broker_ts = getattr(message, "timestamp", None)
+            if "timestamp" not in record and broker_ts:
+                # Kafka broker timestamps are milliseconds since the epoch;
+                # parse_record converts values above 1e11 from milliseconds.
+                record["timestamp"] = broker_ts
+            yield self.normalize_record(record)
             count += 1
-            await asyncio.sleep(0.01)
 
 
 class StreamProcessor:
@@ -462,21 +657,29 @@ class StreamProcessor:
         url: str = "ws://localhost:8765",
         max_messages: Optional[int] = None,
         simulated_records: Optional[List[Dict[str, Any]]] = None,
+        adapter: Optional[WebSocketIngestAdapter] = None,
         **kwargs: Any,
     ) -> int:
         """
         Convenience method to ingest directly from a WebSocket source.
 
         Args:
-            url: WebSocket URL.
+            url: WebSocket URL (ignored when ``adapter`` is provided).
             max_messages: Maximum messages to consume.
-            simulated_records: Simulated records for deterministic testing.
-            **kwargs: Extra parameters.
+            simulated_records: Simulated records for deterministic testing;
+                when provided, the constructed adapter runs in simulated mode.
+            adapter: Pre-built WebSocketIngestAdapter to consume from instead
+                of constructing one from ``url``.
+            **kwargs: Extra parameters passed to the adapter constructor.
 
         Returns:
             Number of points ingested.
         """
-        adapter = WebSocketIngestAdapter({"url": url, **kwargs})
+        if adapter is None:
+            adapter = WebSocketIngestAdapter(
+                {"url": url, **kwargs},
+                allow_simulated=simulated_records is not None,
+            )
         await adapter.connect()
         try:
             return await self.ingest_adapter_stream(
@@ -491,29 +694,40 @@ class StreamProcessor:
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
         max_messages: Optional[int] = None,
         simulated_records: Optional[List[Dict[str, Any]]] = None,
+        adapter: Optional[KafkaIngestAdapter] = None,
         **kwargs: Any,
     ) -> int:
         """
         Convenience method to ingest directly from a Kafka source.
 
         Args:
-            topic: Kafka topic name.
-            bootstrap_servers: Kafka bootstrap servers.
+            topic: Kafka topic name (ignored when ``adapter`` is provided).
+            bootstrap_servers: Kafka bootstrap servers (ignored when
+                ``adapter`` is provided).
             max_messages: Maximum messages to consume.
-            simulated_records: Simulated records for deterministic testing.
-            **kwargs: Extra parameters.
+            simulated_records: Simulated records for deterministic testing;
+                when provided, the constructed adapter runs in simulated mode.
+            adapter: Pre-built KafkaIngestAdapter to consume from instead of
+                constructing one from ``topic``/``bootstrap_servers``.
+            **kwargs: Extra parameters passed to the adapter constructor.
 
         Returns:
             Number of points ingested.
         """
-        cfg: Dict[str, Any] = {"topic": topic, **kwargs}
-        if bootstrap_servers is not None:
-            cfg["bootstrap_servers"] = bootstrap_servers
-        adapter = KafkaIngestAdapter(cfg)
+        stream_kwargs: Dict[str, Any] = {}
+        if adapter is None:
+            cfg: Dict[str, Any] = {"topic": topic, **kwargs}
+            if bootstrap_servers is not None:
+                cfg["bootstrap_servers"] = bootstrap_servers
+            adapter = KafkaIngestAdapter(
+                cfg, allow_simulated=simulated_records is not None
+            )
+            stream_kwargs["topic"] = topic
         await adapter.connect()
         try:
             return await self.ingest_adapter_stream(
-                adapter, topic=topic, max_messages=max_messages, simulated_records=simulated_records
+                adapter, max_messages=max_messages, simulated_records=simulated_records,
+                **stream_kwargs,
             )
         finally:
             await adapter.disconnect()

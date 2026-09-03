@@ -1,233 +1,148 @@
 #!/usr/bin/env python3
-"""
-IOT Module Orchestrator - GEO-INFER Examples
-Demonstrates: IoT integration
+"""GEO-INFER-IOT module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end IoT operation on synthetic telemetry (no
+network): register a synthetic sensor network in the ``SensorRegistry``,
+run a telemetry stream through ``QualityController`` batch validation, and
+fuse the individually-passed temperature readings to an uninstrumented
+target location with ``SpatialDataFusion``. All work goes through the real
+``geo_infer_iot`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
+from datetime import datetime, timedelta
 from pathlib import Path
-from datetime import datetime
+from typing import Any, Dict, List
+
 import numpy as np
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    from geo_infer_iot import QualityController, SensorRegistry, SpatialDataFusion
+
+    rng = np.random.default_rng(42)
+
+    registry = SensorRegistry()
+    registry.register_network(
+        network_id="net_synthetic_01",
+        name="Synthetic Valley Field Mesh",
+        protocol="mqtt",
+        spatial_bounds={
+            "min_lat": 44.88,
+            "max_lat": 44.96,
+            "min_lon": -123.14,
+            "max_lon": -123.04,
+        },
+        sensor_types=["temperature", "soil_moisture"],
     )
-    return logging.getLogger('iot_orchestrator')
 
-class IOTOrchestrator:
-    """Thin orchestrator for GEO-INFER-IOT module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the IOT orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'IOT'
-        self.dependencies = ['SPACE', 'BAYES', 'DATA']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete IOT module demonstration."""
-        self.logger.info("🚀 Starting IOT Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: IoT integration")
-        
-        start_time = time.time()
-        results = {
-            'module': 'IOT',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
+    station_locations = [
+        ("temp_01", 44.90, -123.12),
+        ("temp_02", 44.93, -123.10),
+        ("temp_03", 44.91, -123.07),
+        ("temp_04", 44.95, -123.06),
+        ("soil_01", 44.89, -123.09),
+    ]
+    for sensor_id, latitude, longitude in station_locations:
+        registry.register_sensor(
+            {
+                "sensor_id": sensor_id,
+                "network_id": "net_synthetic_01",
+                "sensor_type": (
+                    "temperature" if sensor_id.startswith("temp") else "soil_moisture"
+                ),
+                "latitude": latitude,
+                "longitude": longitude,
+                "h3_resolution": 8,
             }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'IOT',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['SPACE', 'BAYES', 'DATA']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 IOT MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-IOT")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ IOT thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'iot_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+        )
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-IOT Module Orchestrator (Thin)")
-    print(f"Demonstrating: IoT integration")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = IOTOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    # Synthetic telemetry stream: 15-minute samples over 2 hours from each
+    # temperature station, plus one stuck-sensor spike that QC must flag.
+    now = datetime.now()
+    measurements: List[Dict[str, Any]] = []
+    for step in range(8):
+        timestamp = now - timedelta(minutes=15 * (8 - step))
+        for sensor_id, latitude, longitude in station_locations:
+            if not sensor_id.startswith("temp"):
+                continue
+            value = (
+                14.0
+                + 0.4 * step
+                + float(rng.normal(0.0, 0.3))
+                + 0.01 * (latitude - 44.9)
+            )
+            if sensor_id == "temp_03" and step == 7:
+                value = 999.0  # hardware spike the quality gate should catch
+            measurements.append(
+                {
+                    "sensor_id": sensor_id,
+                    "variable": "temperature",
+                    "value": round(value, 3),
+                    "unit": "celsius",
+                    "timestamp": timestamp.isoformat(),
+                    "latitude": latitude,
+                    "longitude": longitude,
+                }
+            )
+
+    controller = QualityController()
+    quality = controller.validate_batch(measurements)
+    failed_sensors = sorted(
+        {
+            entry["sensor_id"]
+            for entry in quality["results"]
+            if not entry["passed"]
+        }
+    )
+
+    # ``validate_batch`` verdicts are index-aligned with the input list, so
+    # drop only the individually rejected readings and fuse the rest.
+    valid_readings = [
+        measurement
+        for measurement, verdict in zip(measurements, quality["results"])
+        if verdict["passed"]
+    ]
+    fusion = SpatialDataFusion().fuse_sensor_data(
+        valid_readings,
+        target_variable="temperature",
+        target_location=(44.92, -123.08),
+    )
+
+    temperature_sensors = registry.get_sensors_by_type("temperature")
+    return {
+        "operation": "sensor_stream_qc_and_spatial_fusion",
+        "networks_registered": len(registry.networks),
+        "sensors_registered": len(registry.sensors),
+        "temperature_stations": len(temperature_sensors),
+        "distinct_h3_cells": len(
+            {sensor.h3_index for sensor in registry.sensors.values()}
+        ),
+        "measurements_ingested": len(measurements),
+        "qc_pass_rate": round(float(quality["pass_rate"]), 4),
+        "qc_failed_measurements": quality["failed_measurements"],
+        "qc_flagged_sensors": failed_sensors,
+        "readings_after_qc": len(valid_readings),
+        "fused_temperature_celsius": round(
+            float(fusion.get("fused_value", fusion.get("value", 0.0))), 4
+        )
+        if "error" not in fusion
+        else None,
+        "fusion_uncertainty": round(float(fusion.get("uncertainty", 0.0)), 4)
+        if "error" not in fusion
+        else None,
+        "fusion_measurement_count": fusion.get("measurement_count"),
+        "fusion_error": fusion.get("error"),
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("IOT", _operation))

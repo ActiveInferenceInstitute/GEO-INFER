@@ -25,6 +25,7 @@
 - `compression.py`
 - `duckdb_spatial.py`
 - `format_detection.py`
+- `identifiers.py`
 - `indexing.py`
 - `performance.py`
 - `secure_serialization.py`

@@ -58,8 +58,8 @@ class GeoInferPowerSource:
                 tproj = trans.to_crs('EPSG:3310')
                 tproj['geometry'] = tproj.buffer(30)  # ~30m
                 trans = tproj.to_crs('EPSG:4326')
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Transmission line buffering skipped; CRS projection failed: %s', exc)
             trans['layer'] = 'transmission_lines'
             frames.append(trans)
         if not plants.empty:

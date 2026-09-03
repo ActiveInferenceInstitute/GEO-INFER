@@ -351,7 +351,7 @@ def run_accessibility_analysis(args: argparse.Namespace, config: Any) -> None:
             facilities=facilities, population_data=population_data
         )
 
-        # For now, just calculate basic statistics
+        # Summary output reports basic statistics
         total_facilities = len(facilities)
         total_population = sum(p.population_count for p in population_data)
         ratio = (

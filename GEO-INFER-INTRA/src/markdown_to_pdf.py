@@ -33,19 +33,9 @@ class MarkdownToPDFConverter:
     """Markdown to PDF converter with Mermaid diagram support."""
     
     def __init__(self, log_level: str = "INFO"):
-        """Initialize the converter with logging setup."""
-        self.setup_logging(log_level)
+        """Initialize the converter (library-passive logging)."""
         self.logger = logging.getLogger(__name__)
-        
-    def setup_logging(self, level: str) -> None:
-        """Set up logging configuration."""
-        logging.basicConfig(
-            level=getattr(logging, level.upper()),
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout)
-            ]
-        )
+        self.logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     
     def check_node_js(self) -> bool:
         """Check if Node.js is installed and accessible."""
@@ -336,7 +326,6 @@ Examples:
     )
     
     args = parser.parse_args()
-    
     # Initialize converter
     converter = MarkdownToPDFConverter(log_level=args.log_level)
     
@@ -383,4 +372,10 @@ Examples:
 
 
 if __name__ == "__main__":
-    main() 
+    # CLI entry point: configure root logging here, not in the library class.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )
+    main()

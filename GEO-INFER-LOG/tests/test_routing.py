@@ -314,3 +314,49 @@ class TestRealTimeTracker:
         )
         
         assert eta is None
+
+
+class TestNetworkLoading:
+    """Tests for network loading and routing over loaded networks."""
+
+    @staticmethod
+    def _build_network() -> "nx.Graph":
+        """Two-node connected network plus an isolated second component."""
+        import networkx as nx
+
+        graph = nx.Graph()
+        graph.add_node(1, x=-118.25, y=34.05)
+        graph.add_node(2, x=-118.20, y=34.05)
+        graph.add_node(3, x=-118.30, y=34.10)  # disconnected component
+        graph.add_edge(1, 2, distance=4.5, time=9.0)
+        return graph
+
+    def test_gpickle_round_trip(self, tmp_path):
+        """A graph written with pickle.dump loads via RouteOptimizer."""
+        import pickle
+
+        graph = self._build_network()
+        network_file = tmp_path / "network.gpickle"
+        with open(network_file, "wb") as handle:
+            pickle.dump(graph, handle)
+
+        optimizer = RouteOptimizer()
+        optimizer.load_network(str(network_file))
+
+        assert set(optimizer.network.nodes) == {1, 2, 3}
+        assert optimizer.network[1][2]["distance"] == 4.5
+
+    def test_optimize_route_no_path(self, tmp_path):
+        """Disconnected components yield a no-path result, not zero distances."""
+        import pickle
+
+        graph = self._build_network()
+        network_file = tmp_path / "network.gpickle"
+        with open(network_file, "wb") as handle:
+            pickle.dump(graph, handle)
+
+        optimizer = RouteOptimizer()
+        optimizer.load_network(str(network_file))
+
+        result = optimizer.optimize_route((-118.30, 34.10), (-118.20, 34.05))
+        assert result == {"error": "No path found"}

@@ -18,6 +18,7 @@ import logging
 from scipy.optimize import minimize
 from scipy.stats import norm, expon
 
+from ..utils.rng import resolve_rng
 
 @dataclass
 class BehavioralParameters:
@@ -116,8 +117,17 @@ class BoundedRationality:
     Models of bounded rationality and cognitive limitations
     """
 
-    def __init__(self) -> None:
+    def __init__(self, rng: Optional[np.random.Generator] = None) -> None:
+        """
+        Initialize bounded rationality models.
+
+        Args:
+            rng: Optional random generator for the unrecognised-alternative
+                fallback choice. When omitted, a fixed-seed generator is used
+                so choices are deterministic by default.
+        """
         self.choice_models: Dict[str, Any] = {}
+        self._rng = resolve_rng(rng)
 
     def satisficing_model(self, alternatives: List[Dict[str, Any]],
                          aspiration_level: float) -> Dict[str, Any]:
@@ -175,7 +185,7 @@ class BoundedRationality:
             return max(recognized, key=lambda x: recognition_memory[x])
         else:
             # Random choice if none recognized
-            return cast(str, np.random.choice(alternatives))
+            return cast(str, self._rng.choice(alternatives))
 
 
 class SocialPreferences:
@@ -541,10 +551,20 @@ class BehavioralEconomicsEngine:
     Main behavioral economics modeling engine
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
+        """
+        Initialize the behavioral economics engine.
+
+        Args:
+            config: Optional engine configuration.
+            rng: Optional random generator threaded into stochastic choice
+                models. When omitted, a fixed-seed generator is used so
+                behaviour is deterministic by default.
+        """
         self.config = config or {}
         self.prospect_theory = ProspectTheory()
-        self.bounded_rationality = BoundedRationality()
+        self.bounded_rationality = BoundedRationality(rng=rng)
         self.social_preferences = SocialPreferences()
         self.time_preferences = TimePreferences()
         self.mental_accounting = MentalAccounting()

@@ -6,6 +6,7 @@ Utils workspace within `GEO-INFER-COG`.
 
 - `__init__.py`
 - `helpers.py`
+- `rng.py`
 - `validation.py`
 
 ## Public Interface
@@ -23,13 +24,13 @@ Utils workspace within `GEO-INFER-COG`.
 - `helpers.py:validate_file_path` (function)
 - `helpers.py:create_directory_structure` (function)
 - `helpers.py:cleanup_temp_files` (function)
+- `rng.py:resolve_rng` (function)
+- `rng.py:resolve_optional_rng` (function)
 - `validation.py:validate_spatial_data` (function)
 - `validation.py:validate_geometry` (function)
 - `validation.py:validate_point_coordinates` (function)
 - `validation.py:validate_linestring_coordinates` (function)
 - `validation.py:validate_polygon_coordinates` (function)
-- `validation.py:validate_multipoint_coordinates` (function)
-- `validation.py:validate_multilinestring_coordinates` (function)
 
 ## Module Metadata
 

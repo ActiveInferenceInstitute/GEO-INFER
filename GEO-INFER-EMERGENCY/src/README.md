@@ -20,7 +20,12 @@ Src workspace within `GEO-INFER-EMERGENCY`.
 
 ## Dependencies
 
-- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `geopandas>=0.10.0`
+- `shapely>=1.8.0`
+- `networkx>=2.6.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

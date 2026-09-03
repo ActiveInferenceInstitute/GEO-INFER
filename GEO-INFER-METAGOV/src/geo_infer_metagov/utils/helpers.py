@@ -419,17 +419,3 @@ def calculate_governance_health_score(
     health_score = weighted_sum / total_weight if total_weight > 0 else 0.5
     
     return min(health_score, 1.0)
-
-
-if __name__ == '__main__':
-    # Example usage
-    test_stakeholders = [
-        {'name': 'Group A', 'decision_power': 0.7, 'interests': ['water', 'land']},
-        {'name': 'Group B', 'decision_power': 0.3, 'interests': ['water', 'air']}
-    ]
-    
-    collab = calculate_collaboration_potential(test_stakeholders)
-    print(f"Collaboration potential: {collab:.2%}")
-    
-    power_conc, balance = calculate_power_concentration(test_stakeholders)
-    print(f"Power concentration: {power_conc:.2%} ({balance})")

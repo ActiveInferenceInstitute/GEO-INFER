@@ -45,7 +45,7 @@ class Engine:
 
 ```toml
 [project.optional-dependencies]
-spatial = ["geopandas>=0.14", "h3>=4.0"]
+spatial = ["geopandas>=0.14", "h3>=4.5.0,<5"]
 bayesian = ["pymc>=5.0", "arviz>=0.17"]
 ```
 

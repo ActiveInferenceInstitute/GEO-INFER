@@ -316,9 +316,9 @@ class SustainabilityAssessment:
 
         # If soil data is provided separately, join with field data
         if soil_data is not None:
-            # Spatial join of field data with soil data
-            # For simplicity, just use first soil data point for each field
-            # In a real implementation, you would do proper spatial aggregation
+            # Join soil observations to fields: aggregate per field_id when
+            # present, otherwise spatially overlay soil geometries onto the
+            # field boundaries and average numeric attributes per field.
             if "field_id" in soil_data.columns:
                 # If field_id is in soil data, use it to join
                 soil_summary = soil_data.groupby("field_id").mean(numeric_only=True)
@@ -337,9 +337,11 @@ class SustainabilityAssessment:
                         .agg({c: "mean" for c in numeric_cols})
                         .combine_first(result_data)
                     )
-                except Exception:
+                except Exception as exc:
                     logger.warning(
-                        "Spatial join of soil data failed; proceeding without soil overlay"
+                        "Spatial join of soil data failed; proceeding without "
+                        "soil overlay: %s",
+                        exc,
                     )
 
         # Auto-detect column names from merged data when not explicitly provided

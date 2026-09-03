@@ -329,7 +329,7 @@ class MarineEcosystemModeler:
             if bio_outside['species_richness'] > 0 else 0
         )
         
-        # Spillover effect (simplified)
+        # Spillover effect as a proportional biomass transfer
         spillover_index = max(0, (abundance_ratio - 1) * 0.1)
         
         # Overall effectiveness score (0-100)

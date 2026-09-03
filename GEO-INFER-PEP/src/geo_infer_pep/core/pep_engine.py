@@ -221,12 +221,6 @@ class PEPEngine:
         self.data_manager = data_manager or PEPDataManager()
         self._initialized = False
 
-        # Setup logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        )
-
         logger.info("PEP Engine initialized")
 
     def initialize(self) -> bool:

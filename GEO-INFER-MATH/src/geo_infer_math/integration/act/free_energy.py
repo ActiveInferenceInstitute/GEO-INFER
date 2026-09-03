@@ -81,8 +81,10 @@ class FreeEnergyCalculator:
             obs_normalised = observations / (observations.sum() + self._epsilon)
             accuracy = np.sum(beliefs * log_likelihood.T @ obs_normalised)
         else:
-            # Without explicit likelihood, use negative entropy of beliefs
-            accuracy = np.sum(beliefs * np.log(beliefs + self._epsilon))
+            # Without an explicit likelihood there is no observation term to
+            # evaluate, so accuracy is exactly zero and F reduces to the
+            # complexity term, F = complexity - accuracy per the docstring.
+            accuracy = 0.0
 
         free_energy = complexity - accuracy
 
@@ -165,25 +167,48 @@ class FreeEnergyCalculator:
 
         Returns:
             Bethe free energy (scalar).
+
+            The Bethe counting numbers (d_i - 1) are applied to the node
+            entropy terms, where d_i is the degree of node i in the graph
+            implied by the nonzero pairwise beliefs.
         """
         node_beliefs = np.asarray(node_beliefs, dtype=np.float64)
         node_beliefs = node_beliefs / (node_beliefs.sum() + self._epsilon)
 
-        # Node energy
+        # Node energy: U_i = -sum_s b_i(s) ln phi_i(s)
         node_energy = -np.sum(node_beliefs * node_potentials)
 
-        # Node entropy
+        # Node entropy: H_i = -sum_s b_i(s) ln b_i(s)
         node_entropy = -np.sum(node_beliefs * np.log(node_beliefs + self._epsilon))
-
-        # Edge contributions (simplified for fully-connected graph)
+        # Graph structure from the pairwise beliefs: edge (i, j) exists when
+        # the pairwise belief entry is nonzero; d_i is the degree of node i.
+        pairwise_beliefs = np.asarray(pairwise_beliefs, dtype=np.float64)
+        edge_potentials = np.asarray(edge_potentials, dtype=np.float64)
+        adjacency = np.abs(pairwise_beliefs) > self._epsilon
+        adjacency = adjacency | adjacency.T
+        np.fill_diagonal(adjacency, False)
+        degrees = adjacency.sum(axis=1)
         n = len(node_beliefs)
-        edge_energy = -np.sum(pairwise_beliefs * edge_potentials)
-        edge_entropy = -np.sum(
-            pairwise_beliefs * np.log(np.abs(pairwise_beliefs) + self._epsilon)
-        )
 
-        # Bethe approximation: counting numbers
-        F_bethe = node_energy - node_entropy + edge_energy - edge_entropy
+        # Edge energy and entropy over unique undirected edges (i < j):
+        # U_ij = -b_ij ln phi_ij and H_ij = -b_ij ln b_ij (elementwise).
+        edge_energy = 0.0
+        edge_entropy = 0.0
+        for i in range(n):
+            for j in range(i + 1, n):
+                if adjacency[i, j]:
+                    edge_energy += -pairwise_beliefs[i, j] * edge_potentials[i, j]
+                    edge_entropy += -pairwise_beliefs[i, j] * np.log(
+                        np.abs(pairwise_beliefs[i, j]) + self._epsilon
+                    )
+
+        # Bethe free energy with counting numbers:
+        #   F_Bethe = sum_i [U_i - (d_i - 1) H_i]
+        #             + sum_{(ij)} [U_ij - H_ij]
+        bethe_node_contribution = node_energy - np.sum(
+            (degrees - 1) * node_entropy
+        )
+        F_bethe = bethe_node_contribution + edge_energy - edge_entropy
         logger.debug("Bethe free energy=%.4f", F_bethe)
         return float(F_bethe)
 

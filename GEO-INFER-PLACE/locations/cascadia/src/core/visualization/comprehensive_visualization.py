@@ -261,8 +261,8 @@ class ComprehensiveVisualizationEngine:
                 # sample every Nth hex to reduce HTML size
                 step = max(1, len(target_hexagons) // 2000)
                 grid_hexes = target_hexagons[::step]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning('Visualization step failed; continuing without it: %s', exc)
         self._add_h3_grid_layer(m, grid_hexes, h3_data)
 
         # Add analysis layer (kept hidden by default; redevelopment layer added above is preferred)
@@ -285,8 +285,8 @@ class ComprehensiveVisualizationEngine:
             ]
             if redevelopment_scores and "redevelopment" in include_set:
                 layer_names = ["Redevelopment Potential"] + layer_names
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning('Visualization step failed; continuing without it: %s', exc)
         html_content = self._generate_enhanced_html(
             m, h3_data, data_sources, layer_names, module_status
         )
@@ -512,8 +512,8 @@ class ComprehensiveVisualizationEngine:
                         f.write(f"<li>{m}: {count} hexagons</li>")
                     f.write("</ul></body></html>")
                 export_paths["legend_html"] = legend_path
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Visualization step failed; continuing without it: %s', exc)
 
             logger.info(f"Visualization data exported: {len(export_paths)} files")
 
@@ -966,8 +966,8 @@ class ComprehensiveVisualizationEngine:
                         )
                         safe_cache = cache if isinstance(cache, str) else ""
                         module_rows += f"<tr><td>{mname}</td><td>{hex_cnt}</td><td>{in_feat}</td><td><span class='status-pill {status_cls}'>{status_lbl}</span></td><td title='{safe_cache}'>{safe_cache.split('/')[-1] if safe_cache else ''}</td></tr>"
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Visualization step failed; continuing without it: %s', exc)
 
             custom_js = (
                 """

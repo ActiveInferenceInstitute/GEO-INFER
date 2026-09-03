@@ -9,8 +9,7 @@ This module provides comprehensive microeconomic modeling capabilities including
 - Behavioral economics integration
 - Spatial microeconomic modeling
 """
-
-# Import available modules - only consumer_theory exists currently
+# Consumer, producer, market-structure, game-theory and behavioral classes
 from .consumer_theory import (
     ConsumerProfile,
     UtilityFunctions,
@@ -36,7 +35,6 @@ __all__ = [
     'ConsumerSurplus',
     
     # Main modeling classes
-    'ConsumerTheoryModels',
     'ProducerTheoryModels',
     'MarketStructureAnalysis',
     'GameTheoryModels',

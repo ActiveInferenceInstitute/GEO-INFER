@@ -1,233 +1,124 @@
 #!/usr/bin/env python3
-"""
-COMMS Module Orchestrator - GEO-INFER Examples
-Demonstrates: Communications
+"""GEO-INFER-COMMS module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end COMMS operation on synthetic data: start a
+real ``MessageBroker``, subscribe synthetic recipients, send priority- and
+location-tagged messages through the broker's spatial index and priority
+queue, measure delivery metrics, and format delivered messages for SMS and
+email channels. All work goes through the real ``geo_infer_comms`` public
+API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict, List
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    from geo_infer_comms import (
+        GeospatialMetadata,
+        GeospatialPoint,
+        MessageBroker,
+        MessageFormatter,
+        MessagePriority,
+        MessageRequest,
+        MessageResponse,
+        MessageType,
     )
-    return logging.getLogger('comms_orchestrator')
 
-class COMMSOrchestrator:
-    """Thin orchestrator for GEO-INFER-COMMS module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the COMMS orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'COMMS'
-        self.dependencies = ['INTRA', 'APP']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete COMMS module demonstration."""
-        self.logger.info("🚀 Starting COMMS Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Communications")
-        
-        start_time = time.time()
-        results = {
-            'module': 'COMMS',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'COMMS',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['INTRA', 'APP']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 COMMS MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-COMMS")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ COMMS thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'comms_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    broker = MessageBroker(max_queue_size=1000, enable_persistence=False)
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-COMMS Module Orchestrator (Thin)")
-    print(f"Demonstrating: Communications")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
+    # Synthetic subscribers: field crews that count deliveries.
+    delivered: Dict[str, List[str]] = {"crew-north": [], "crew-south": []}
+    broker.subscribe("crew-north", lambda msg: delivered["crew-north"].append(msg.message_id))
+    broker.subscribe("crew-south", lambda msg: delivered["crew-south"].append(msg.message_id))
+
+    broker.start()
     try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = COMMSOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+        senders = ["dispatch-01", "dispatch-02"]
+        recipients = ["crew-north", "crew-south"]
+        priorities = [
+            MessagePriority.NORMAL,
+            MessagePriority.URGENT,
+            MessagePriority.LOW,
+            MessagePriority.HIGH,
+            MessagePriority.NORMAL,
+            MessagePriority.HIGH,
+        ]
+        sent: List[MessageResponse] = []
+        for i, priority in enumerate(priorities):
+            geo = GeospatialMetadata(
+                location=GeospatialPoint(
+                    longitude=-124.20 + 0.01 * i,
+                    latitude=41.74 + 0.01 * i,
+                ),
+                accuracy=5.0,
+                source="GPS",
+            )
+            request = MessageRequest(
+                content=f"Synthetic field update {i}: reach segment {i} before 15:00.",
+                recipients=recipients,
+                message_type=MessageType.TEXT,
+                priority=priority,
+                geospatial_data=geo,
+            )
+            sent.append(broker.send_message(request, sender_id=senders[i % len(senders)]))
+
+        # Deterministic drain: wait until the broker thread processes the queue.
+        broker.message_queue.join()
+        metrics = broker.get_metrics()
+    finally:
+        broker.stop()
+
+    stored = broker.get_messages()
+    urgent = [m for m in sent if m.priority == MessagePriority.URGENT.value]
+    sms_view = MessageFormatter.format_for_sms(urgent[0])
+
+    # MessageFormatter.format_for_email reads ``priority.value``, but pydantic
+    # use_enum_values stores plain strings on delivered messages; rebuild the
+    # real delivered message without value-coercion so the module's own
+    # formatter can consume it.
+    first = sent[0]
+    email_input = MessageResponse.model_construct(
+        content=first.content,
+        sender_id=first.sender_id,
+        recipients=first.recipients,
+        message_type=MessageType(first.message_type),
+        priority=MessagePriority(first.priority),
+        timestamp=first.timestamp,
+        geospatial_data=first.geospatial_data,
+    )
+    email_view = MessageFormatter.format_for_email(email_input)
+
+    return {
+        "operation": "message_broker_delivery_and_formatting",
+        "messages_sent": len(sent),
+        "statuses_after_delivery": sorted({str(m.status) for m in sent}),
+        "delivery_metrics": {
+            "messages_delivered": broker.metrics.messages_delivered,
+            "delivery_failures": broker.metrics.delivery_failures,
+            "messages_stored": metrics.get("messages_stored"),
+        },
+        "subscriber_deliveries": {
+            "crew-north": len(delivered["crew-north"]),
+            "crew-south": len(delivered["crew-south"]),
+        },
+        "broker_query": {
+            "messages_retrievable": len(stored),
+            "spatial_index_entries": sum(len(v) for v in broker.spatial_index._index.values()),
+        },
+        "urgent_sms_preview": sms_view,
+        "email_subject_preview": email_view["subject"],
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("COMMS", _operation))

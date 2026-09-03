@@ -296,8 +296,8 @@ class SubmoduleManager:
                     behind = len(list(repo.iter_commits(f"HEAD..{remote_ref}")))
 
                     return {'ahead': ahead, 'behind': behind}
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Could not determine ahead/behind status: %s", exc)
 
         return {'ahead': 0, 'behind': 0}
 
@@ -676,8 +676,12 @@ class RebaseManager:
                             their_m = re_mod.search(r'=======\n(.*?)\n>>>>>>> ', content, re_mod.DOTALL)
                             conflict.our_content = our_m.group(1) if our_m else ''
                             conflict.their_content = their_m.group(1) if their_m else ''
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning(
+                            "Could not read conflict markers from %s: %s",
+                            file_path,
+                            exc,
+                        )
                     conflicts.append(conflict)
         except Exception as e:
             logger.error(f"Error detecting rebase conflicts: {e}")

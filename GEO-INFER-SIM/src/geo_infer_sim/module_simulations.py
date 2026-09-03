@@ -44,8 +44,10 @@ class ModuleSimulations:
             config: Configuration for module simulations
         """
         self.config = config or ModuleSimulationConfig()
-        if self.config.random_seed is not None:
-            np.random.seed(self.config.random_seed)
+        # Deterministic-by-default: isolated Generator instead of global state
+        self.rng: np.random.Generator = np.random.default_rng(
+            self.config.random_seed
+        )
 
     def simulate_act(
         self,
@@ -72,14 +74,14 @@ class ModuleSimulations:
         # Initialize beliefs if not provided
         if beliefs is None:
             beliefs = {
-                "state_belief": np.random.dirichlet([1, 1, 1]),
-                "observation_belief": np.random.dirichlet([1, 1]),
+                "state_belief": self.rng.dirichlet([1, 1, 1]),
+                "observation_belief": self.rng.dirichlet([1, 1]),
                 "precision": 1.0,
             }
 
         # Initialize observations if not provided
         if observations is None:
-            observations = np.random.choice(
+            observations = self.rng.choice(
                 [0, 1], size=(10, len(np.asarray(beliefs["state_belief"])))
             )
         observations = np.asarray(observations)
@@ -163,7 +165,7 @@ class ModuleSimulations:
             }
 
         if weather_data is None:
-            weather_data = np.random.rand(100, 3)  # temp, precip, sunlight
+            weather_data = self.rng.random((100, 3))  # temp, precip, sunlight
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -222,7 +224,7 @@ class ModuleSimulations:
         logger.info("Simulating AI module: Machine learning processes")
 
         if training_data is None:
-            training_data = np.random.rand(100, 10)
+            training_data = self.rng.random((100, 10))
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -236,8 +238,8 @@ class ModuleSimulations:
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate training step
             epoch = int(time)
-            loss = np.exp(-epoch * learning_rate) + np.random.normal(0, 0.1)
-            accuracy = 1.0 - loss + np.random.normal(0, 0.05)
+            loss = np.exp(-epoch * learning_rate) + self.rng.normal(0, 0.1)
+            accuracy = 1.0 - loss + self.rng.normal(0, 0.05)
             accuracy = np.clip(accuracy, 0, 1)
 
             loss_history.append(loss)
@@ -300,7 +302,7 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         # Initialize agent positions
-        agent_positions = np.random.uniform(
+        agent_positions = self.rng.uniform(
             low=[spatial_bounds["x_min"], spatial_bounds["y_min"]],
             high=[spatial_bounds["x_max"], spatial_bounds["y_max"]],
             size=(agent_count, 2),
@@ -312,7 +314,7 @@ class ModuleSimulations:
             # Simulate agent movement and interactions
             for i in range(agent_count):
                 # Random walk with some interaction
-                movement = np.random.randn(2) * behavior_rules["movement_speed"]
+                movement = self.rng.standard_normal(2) * behavior_rules["movement_speed"]
                 agent_positions[i] += movement
 
                 # Keep within bounds
@@ -363,7 +365,7 @@ class ModuleSimulations:
         logger.info("Simulating ANT module: Swarm intelligence")
 
         if food_sources is None:
-            food_sources = np.random.rand(5, 2) * 100
+            food_sources = self.rng.random((5, 2)) * 100
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -372,7 +374,7 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         pheromone_trails = np.zeros((100, 100))
-        ant_positions = np.random.rand(colony_size, 2) * 100
+        ant_positions = self.rng.random((colony_size, 2)) * 100
 
         trail_history = []
 
@@ -381,7 +383,7 @@ class ModuleSimulations:
             # Simulate ant movement and pheromone deposition
             for i in range(colony_size):
                 # Move toward food sources
-                direction = np.random.randn(2)
+                direction = self.rng.standard_normal(2)
                 ant_positions[i] += direction * 0.5
                 ant_positions[i] = np.clip(ant_positions[i], 0, 99)
 
@@ -451,13 +453,13 @@ class ModuleSimulations:
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate API requests
             requests_this_step = int(
-                np.random.poisson(request_rate * self.config.time_step)
+                self.rng.poisson(request_rate * self.config.time_step)
             )
             total_latency = 0.0
 
             for _ in range(requests_this_step):
-                endpoint = np.random.choice(endpoints)
-                latency = response_times[endpoint] + np.random.exponential(0.05)
+                endpoint = self.rng.choice(endpoints)
+                latency = response_times[endpoint] + self.rng.exponential(0.05)
                 total_latency += latency
 
             avg_latency = total_latency / max(requests_this_step, 1)
@@ -522,12 +524,12 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate user interactions
-            interactions = np.random.poisson(user_count * 0.1)
+            interactions = self.rng.poisson(user_count * 0.1)
             interaction_types_step = []
 
             for _ in range(interactions):
-                interaction = np.random.choice(interaction_types)
-                component = np.random.choice(ui_components)
+                interaction = self.rng.choice(interaction_types)
+                component = self.rng.choice(ui_components)
                 interaction_types_step.append((interaction, component))
                 component_usage[component] += 1
 
@@ -580,7 +582,7 @@ class ModuleSimulations:
             }
 
         if color_palette is None:
-            color_palette = np.random.rand(10, 3)  # RGB colors
+            color_palette = self.rng.random((10, 3))  # RGB colors
 
         if spatial_patterns is None:
             spatial_patterns = ["grid", "spiral", "fractal", "organic"]
@@ -596,12 +598,12 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate artistic generation
-            pattern = np.random.choice(spatial_patterns)
+            pattern = self.rng.choice(spatial_patterns)
             aesthetic_score = (
                 artistic_parameters["complexity"] * 0.3
                 + artistic_parameters["harmony"] * 0.4
                 + artistic_parameters["contrast"] * 0.3
-                + np.random.normal(0, 0.1)
+                + self.rng.normal(0, 0.1)
             )
             aesthetic_score = np.clip(aesthetic_score, 0, 1)
 
@@ -653,7 +655,7 @@ class ModuleSimulations:
             prior_params = {"mean": 0.0, "std": 1.0}
 
         if observations is None:
-            observations = np.random.normal(5.0, 2.0, 100)
+            observations = self.rng.normal(5.0, 2.0, 100)
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -730,10 +732,10 @@ class ModuleSimulations:
             }
 
         if environmental_factors is None:
-            environmental_factors = np.random.rand(100, 3)  # temp, precip, elevation
+            environmental_factors = self.rng.random((100, 3))  # temp, precip, elevation
 
         if spatial_locations is None:
-            spatial_locations = np.random.rand(100, 2) * 100
+            spatial_locations = self.rng.random((100, 2)) * 100
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -748,7 +750,7 @@ class ModuleSimulations:
             # Simulate ecological dynamics
             env = environmental_factors[int(time) % len(environmental_factors)]
             diversity = species_data["genetic_diversity"] * env[0]  # temperature effect
-            distribution = np.random.poisson(species_data["species_count"] * env[1])
+            distribution = self.rng.poisson(species_data["species_count"] * env[1])
 
             diversity_history.append(diversity)
             distribution_history.append(distribution)
@@ -813,7 +815,7 @@ class ModuleSimulations:
             group_participation = {}
 
             for group in stakeholder_groups:
-                participation = np.random.binomial(100, participation_rates[group])
+                participation = self.rng.binomial(100, participation_rates[group])
                 group_participation[group] = participation
                 participation_history[group].append(participation)
                 total_engagement += participation
@@ -872,7 +874,7 @@ class ModuleSimulations:
             attention_mechanisms = ["spatial", "temporal", "feature", "contextual"]
 
         if spatial_perception_data is None:
-            spatial_perception_data = np.random.rand(100, 5)
+            spatial_perception_data = self.rng.random((100, 5))
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -959,7 +961,7 @@ class ModuleSimulations:
 
             for channel in communication_channels:
                 messages = int(
-                    np.random.poisson(message_rates[channel] * self.config.time_step)
+                    self.rng.poisson(message_rates[channel] * self.config.time_step)
                 )
                 message_history[channel].append(messages)
                 channel_messages[channel] = messages
@@ -1034,7 +1036,7 @@ class ModuleSimulations:
                 processed = volume * 0.9  # 90% processing efficiency
                 total_processed += processed
 
-            quality = 0.95 + np.random.normal(0, 0.02)  # Quality score
+            quality = 0.95 + self.rng.normal(0, 0.02)  # Quality score
             quality = np.clip(quality, 0, 1)
 
             processing_history.append(total_processed)
@@ -1088,7 +1090,7 @@ class ModuleSimulations:
             }
 
         if market_data is None:
-            market_data = np.random.rand(100, 4)  # price, volume, demand, supply
+            market_data = self.rng.random((100, 4))  # price, volume, demand, supply
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -1170,12 +1172,12 @@ class ModuleSimulations:
             commits_by_type = {}
 
             for commit_type, rate in commit_rates.items():
-                commits = int(np.random.poisson(rate * self.config.time_step))
+                commits = int(self.rng.poisson(rate * self.config.time_step))
                 commit_history[commit_type].append(commits)
                 commits_by_type[commit_type] = commits
                 total_commits += commits
 
-            active_branches = len(commit_rates) + np.random.poisson(2)
+            active_branches = len(commit_rates) + self.rng.poisson(2)
             branch_history.append(active_branches)
 
             return {
@@ -1233,7 +1235,7 @@ class ModuleSimulations:
             }
 
         if environmental_factors is None:
-            environmental_factors = np.random.rand(100, 2)  # air_quality, water_quality
+            environmental_factors = self.rng.random((100, 2))  # air_quality, water_quality
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -1325,11 +1327,11 @@ class ModuleSimulations:
             # Simulate documentation generation
             docs_generated = 0
             for doc_type in documentation_needs:
-                docs = int(np.random.poisson(2.0 * self.config.time_step))
+                docs = int(self.rng.poisson(2.0 * self.config.time_step))
                 docs_generated += docs
 
             # Workflow usage
-            template = np.random.choice(workflow_templates)
+            template = self.rng.choice(workflow_templates)
             workflow_usage[template] += 1
 
             documentation_history.append(docs_generated)
@@ -1380,7 +1382,7 @@ class ModuleSimulations:
             sensor_rates = {network: 10.0 for network in sensor_networks}
 
         if spatial_coordinates is None:
-            spatial_coordinates = np.random.rand(50, 2) * 100
+            spatial_coordinates = self.rng.random((50, 2)) * 100
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -1398,14 +1400,14 @@ class ModuleSimulations:
 
             for network in sensor_networks:
                 readings = int(
-                    np.random.poisson(sensor_rates[network] * self.config.time_step)
+                    self.rng.poisson(sensor_rates[network] * self.config.time_step)
                 )
-                sensor_value = np.random.normal(20.0, 5.0)  # Example sensor reading
+                sensor_value = self.rng.normal(20.0, 5.0)  # Example sensor reading
                 sensor_data_history[network].append(sensor_value)
                 readings_by_network[network] = readings
                 total_readings += readings
 
-            quality = 0.95 + np.random.normal(0, 0.03)
+            quality = 0.95 + self.rng.normal(0, 0.03)
             quality = np.clip(quality, 0, 1)
             data_quality_scores.append(quality)
 
@@ -1475,8 +1477,8 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate mathematical computations
-            problem = np.random.choice(mathematical_problems)
-            computation_time = np.random.exponential(0.1)
+            problem = self.rng.choice(mathematical_problems)
+            computation_time = self.rng.exponential(0.1)
 
             # Optimization progress
             if problem == "optimization":
@@ -1547,12 +1549,12 @@ class ModuleSimulations:
             # Simulate compliance checking
             compliance_score = 0.0
             for requirement in regulatory_requirements:
-                compliance = 0.9 + np.random.normal(0, 0.05)
+                compliance = 0.9 + self.rng.normal(0, 0.05)
                 compliance = np.clip(compliance, 0, 1)
                 compliance_score += compliance
 
             compliance_score /= len(regulatory_requirements)
-            adherence = social_norms["adherence"] + np.random.normal(0, 0.05)
+            adherence = social_norms["adherence"] + self.rng.normal(0, 0.05)
             adherence = np.clip(adherence, 0, 1)
 
             compliance_history.append(compliance_score)
@@ -1621,7 +1623,7 @@ class ModuleSimulations:
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate system monitoring
             for metric_name, base_value in system_metrics.items():
-                value = base_value + np.random.normal(0, 0.1)
+                value = base_value + self.rng.normal(0, 0.1)
                 value = (
                     np.clip(value, 0, 1)
                     if metric_name in ["cpu_usage", "memory_usage"]
@@ -1706,8 +1708,8 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate governance processes
-            framework = np.random.choice(governance_frameworks)
-            proposals = int(np.random.poisson(dao_parameters["proposal_rate"] * 10))
+            framework = self.rng.choice(governance_frameworks)
+            proposals = int(self.rng.poisson(dao_parameters["proposal_rate"] * 10))
 
             governance_activity = proposals * dao_parameters["voting_participation"]
             governance_history.append(governance_activity)
@@ -1773,13 +1775,13 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate people management
-            satisfaction = personnel_data["satisfaction"] + np.random.normal(0, 0.05)
+            satisfaction = personnel_data["satisfaction"] + self.rng.normal(0, 0.05)
             satisfaction = np.clip(satisfaction, 0, 1)
             satisfaction_history.append(satisfaction)
 
             # Skill coverage
             for skill in skill_requirements:
-                coverage = 0.7 + np.random.normal(0, 0.1)
+                coverage = 0.7 + self.rng.normal(0, 0.1)
                 coverage = np.clip(coverage, 0, 1)
                 skill_coverage[skill].append(coverage)
 
@@ -1848,8 +1850,8 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate requirements validation
-            validated = int(np.random.poisson(5.0 * self.config.time_step))
-            compliance_score = 0.9 + np.random.normal(0, 0.05)
+            validated = int(self.rng.poisson(5.0 * self.config.time_step))
+            compliance_score = 0.9 + self.rng.normal(0, 0.05)
             compliance_score = np.clip(compliance_score, 0, 1)
 
             validation_history.append(validated)
@@ -1919,8 +1921,8 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate security monitoring
-            events = int(np.random.poisson(2.0 * self.config.time_step))
-            threats_detected = int(np.random.poisson(0.1 * self.config.time_step))
+            events = int(self.rng.poisson(2.0 * self.config.time_step))
+            threats_detected = int(self.rng.poisson(0.1 * self.config.time_step))
 
             security_events.append(events)
             threat_detection.append(threats_detected)
@@ -1986,8 +1988,8 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate simulation execution
-            model = np.random.choice(simulation_models)
-            execution_time = np.random.exponential(1.0)
+            model = self.rng.choice(simulation_models)
+            execution_time = self.rng.exponential(1.0)
 
             simulation_runs.append(model)
             execution_times.append(execution_time)
@@ -2039,7 +2041,7 @@ class ModuleSimulations:
             spatial_operations = ["indexing", "buffering", "intersection", "distance"]
 
         if spatial_data is None:
-            spatial_data = np.random.rand(100, 2) * 100  # x, y coordinates
+            spatial_data = self.rng.random((100, 2)) * 100  # x, y coordinates
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -2052,11 +2054,11 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate spatial operations
-            operation = np.random.choice(spatial_operations)
-            coord_sys = np.random.choice(coordinate_systems)
+            operation = self.rng.choice(spatial_operations)
+            coord_sys = self.rng.choice(coordinate_systems)
 
             # Simulate indexing
-            indices = int(np.random.poisson(10.0 * self.config.time_step))
+            indices = int(self.rng.poisson(10.0 * self.config.time_step))
             spatial_index_history.append(indices)
 
             operation_history.append(operation)
@@ -2106,7 +2108,7 @@ class ModuleSimulations:
             statistical_models = ["GLM", "random_field", "cluster_inference", "FWE"]
 
         if spatial_temporal_data is None:
-            spatial_temporal_data = np.random.rand(100, 10, 5)  # time, space, features
+            spatial_temporal_data = self.rng.random((100, 10, 5))  # time, space, features
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -2119,11 +2121,11 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate statistical analysis
-            model = np.random.choice(statistical_models)
-            fit_score = 0.8 + np.random.normal(0, 0.1)
+            model = self.rng.choice(statistical_models)
+            fit_score = 0.8 + self.rng.normal(0, 0.1)
             fit_score = np.clip(fit_score, 0, 1)
 
-            significance = np.random.uniform(0.01, 0.1)  # p-values
+            significance = self.rng.uniform(0.01, 0.1)  # p-values
 
             model_fits.append(fit_score)
             significance_scores.append(significance)
@@ -2172,7 +2174,7 @@ class ModuleSimulations:
             temporal_patterns = ["trend", "seasonal", "cyclical", "irregular"]
 
         if time_series_data is None:
-            time_series_data = np.random.randn(100) + np.linspace(0, 5, 100)
+            time_series_data = self.rng.standard_normal(100) + np.linspace(0, 5, 100)
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -2185,10 +2187,10 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate temporal analysis
-            pattern = np.random.choice(temporal_patterns)
+            pattern = self.rng.choice(temporal_patterns)
             forecast = time_series_data[
                 int(time) % len(time_series_data)
-            ] + np.random.normal(0, 0.5)
+            ] + self.rng.normal(0, 0.5)
 
             forecast_history.append(forecast)
             pattern_detection.append(pattern)
@@ -2239,7 +2241,7 @@ class ModuleSimulations:
             }
 
         if hazard_data is None:
-            hazard_data = np.random.rand(100, 3)  # intensity, frequency, duration
+            hazard_data = self.rng.random((100, 3))  # intensity, frequency, duration
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -2325,11 +2327,11 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate logistics operations
-            requirement = np.random.choice(logistics_requirements)
-            efficiency = 0.8 + np.random.normal(0, 0.1)
+            requirement = self.rng.choice(logistics_requirements)
+            efficiency = 0.8 + self.rng.normal(0, 0.1)
             efficiency = np.clip(efficiency, 0, 1)
 
-            delivery_time = np.random.exponential(2.0)
+            delivery_time = self.rng.exponential(2.0)
 
             route_efficiency.append(efficiency)
             delivery_times.append(delivery_time)
@@ -2384,9 +2386,9 @@ class ModuleSimulations:
 
         if regional_datasets is None:
             regional_datasets = {
-                "demographics": np.random.rand(10),
-                "economics": np.random.rand(10),
-                "environment": np.random.rand(10),
+                "demographics": self.rng.random((10)),
+                "economics": self.rng.random((10)),
+                "environment": self.rng.random((10)),
             }
 
         config = SimulationConfig(
@@ -2408,7 +2410,7 @@ class ModuleSimulations:
                 ]
             )
 
-            regional_score = 0.7 + np.random.normal(0, 0.1)
+            regional_score = 0.7 + self.rng.normal(0, 0.1)
             regional_score = np.clip(regional_score, 0, 1)
 
             place_insights.append(insight_score)
@@ -2475,9 +2477,9 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate test execution
-            test_type = np.random.choice(test_requirements)
-            passed = np.random.binomial(100, quality_metrics["pass_rate"])
-            coverage = quality_metrics["coverage"] + np.random.normal(0, 0.05)
+            test_type = self.rng.choice(test_requirements)
+            passed = self.rng.binomial(100, quality_metrics["pass_rate"])
+            coverage = quality_metrics["coverage"] + self.rng.normal(0, 0.05)
             coverage = np.clip(coverage, 0, 1)
 
             test_results.append({"type": test_type, "passed": passed, "total": 100})
@@ -2551,11 +2553,11 @@ class ModuleSimulations:
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate example generation
-            integration = np.random.choice(integration_requirements)
-            tutorial = np.random.choice(tutorial_needs)
+            integration = self.rng.choice(integration_requirements)
+            tutorial = self.rng.choice(tutorial_needs)
 
-            examples_created = int(np.random.poisson(2.0 * self.config.time_step))
-            tutorials_created = int(np.random.poisson(0.5 * self.config.time_step))
+            examples_created = int(self.rng.poisson(2.0 * self.config.time_step))
+            tutorials_created = int(self.rng.poisson(0.5 * self.config.time_step))
 
             example_generation.append(examples_created)
             tutorial_creation.append(tutorials_created)

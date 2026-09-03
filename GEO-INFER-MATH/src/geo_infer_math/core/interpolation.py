@@ -197,10 +197,16 @@ class KrigingInterpolator(SpatialInterpolator):
         self.training_coords: Optional[np.ndarray] = None
         self.training_values: Optional[np.ndarray] = None
         self.kriging_weights: Optional[np.ndarray] = None
+        self.kriging_variance: Optional[float] = None
+        self._extended_matrix: Optional[np.ndarray] = None
 
     def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "KrigingInterpolator":
         """
         Fit Kriging interpolator to training data.
+
+        Builds the ordinary-kriging extended system matrix
+        ``[[K, 1], [1^T, 0]]`` where ``K_ij = gamma(h_ij)`` is the variogram
+        between training points i and j.
 
         Args:
             coordinates: Training coordinates (n_samples, 2)
@@ -208,86 +214,142 @@ class KrigingInterpolator(SpatialInterpolator):
 
         Returns:
             Self for method chaining
+
+        Raises:
+            ValueError: If more than 500 training points are supplied or the
+                kriging system is singular.
         """
         if len(coordinates) < self.config.min_points:
             raise ValueError(
                 f"Need at least {self.config.min_points} points for interpolation"
             )
+        if len(coordinates) > 500:
+            raise ValueError(
+                "KrigingInterpolator supports at most 500 training points; "
+                f"got {len(coordinates)}. Subsample or use IDW interpolation."
+            )
 
-        self.training_coords = coordinates.copy()
-        self.training_values = values.copy()
+        self.training_coords = np.asarray(coordinates, dtype=np.float64).copy()
+        self.training_values = np.asarray(values, dtype=np.float64).copy()
+        n_points = len(self.training_coords)
+
+        pair_distances = np.sqrt(
+            np.sum(
+                (self.training_coords[:, np.newaxis, :]
+                 - self.training_coords[np.newaxis, :, :]) ** 2,
+                axis=2,
+            )
+        )
+        k_matrix = self._calculate_variogram(pair_distances)
+        np.fill_diagonal(k_matrix, 0.0)
+
+        extended = np.ones((n_points + 1, n_points + 1), dtype=np.float64)
+        extended[:n_points, :n_points] = k_matrix
+        extended[n_points, n_points] = 0.0
+        self._extended_matrix = extended
         self.is_fitted = True
 
-        logger.info(f"Fitted Kriging interpolator with {len(coordinates)} points")
+        logger.info(f"Fitted Kriging interpolator with {n_points} points")
         return self
 
     def predict(self, coordinates: np.ndarray) -> np.ndarray:
         """
-        Predict values using Kriging interpolation.
+        Predict values using ordinary kriging.
+
+        For each query point the semi-variance vector gamma(h0) between the
+        query point and all training points is computed and the extended
+        kriging system solved for the weights and the Lagrange multiplier.
 
         Args:
             coordinates: Prediction coordinates (n_points, 2)
 
         Returns:
             Predicted values
+
+        Raises:
+            ValueError: If the interpolator has not been fitted or the
+                per-query kriging system is singular.
         """
         if not self.is_fitted:
             raise ValueError("Interpolator must be fitted before prediction")
         assert self.training_coords is not None
         assert self.training_values is not None
+        assert self._extended_matrix is not None
 
+        coordinates = np.atleast_2d(np.asarray(coordinates, dtype=np.float64))
         predictions = []
+        kriging_variances = []
 
         for coord in coordinates:
-            # Calculate distances to all training points
+            # Distances from the query point to every training point
             distances = np.sqrt(np.sum((self.training_coords - coord) ** 2, axis=1))
 
-            # Calculate variogram values
+            # Semi-variance between the query point and each training point
             variogram_values = self._calculate_variogram(distances)
 
-            # Calculate weights (simplified - in practice, solve kriging system)
-            weights = self._calculate_kriging_weights(variogram_values)
+            # Solve the ordinary-kriging (OK) extended system:
+            #   [ K   1 ] [w]   [gamma(h0)]
+            #   [ 1^T 0 ] [mu] = [    1    ]
+            rhs = np.concatenate([variogram_values, [1.0]])
+            try:
+                solution = np.linalg.solve(self._extended_matrix, rhs)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(
+                    "Kriging system is singular for the given configuration; "
+                    "check for duplicate training points or a degenerate "
+                    "variogram model"
+                ) from exc
+            weights = solution[: len(self.training_values)]
+            lagrange_multiplier = float(solution[-1])
 
-            # Calculate prediction
-            prediction = np.sum(weights * self.training_values)
+            # Kriging prediction and prediction variance
+            prediction = float(np.sum(weights * self.training_values))
+            kriging_variances.append(
+                float(np.dot(weights, variogram_values) + lagrange_multiplier)
+            )
             predictions.append(prediction)
 
+        self.kriging_weights = np.asarray(solution[: len(self.training_values)])
+        self.kriging_variance = kriging_variances[-1]
         return np.array(predictions)
 
+    def _kriging_variance_at(self, weights: np.ndarray, variogram_values: np.ndarray,
+                             lagrange_multiplier: float) -> float:
+        """OK prediction variance: w^T gamma(h0) + mu."""
+        return float(np.dot(weights, variogram_values) + lagrange_multiplier)
+
     def _calculate_variogram(self, distances: np.ndarray) -> np.ndarray:
-        """Calculate variogram values."""
+        """Calculate variogram values; gamma(0) is exactly zero."""
+        distances = np.asarray(distances, dtype=np.float64)
+        variogram = np.zeros_like(distances)
+        nonzero = distances > 0.0
+        h = distances[nonzero]
+
         if self.config.variogram_model == "spherical":
             # Spherical variogram model
-            h = distances / self.config.range_param
-            variogram = np.where(
-                h <= 1,
+            hn = h / self.config.range_param
+            variogram[nonzero] = np.where(
+                hn <= 1,
                 self.config.nugget
-                + (self.config.sill - self.config.nugget) * (1.5 * h - 0.5 * h**3),
+                + (self.config.sill - self.config.nugget) * (1.5 * hn - 0.5 * hn**3),
                 self.config.sill,
             )
         elif self.config.variogram_model == "exponential":
             # Exponential variogram model
-            h = distances / self.config.range_param
-            variogram = self.config.nugget + (self.config.sill - self.config.nugget) * (
-                1 - np.exp(-3 * h)
-            )
+            hn = h / self.config.range_param
+            variogram[nonzero] = self.config.nugget + (
+                self.config.sill - self.config.nugget
+            ) * (1 - np.exp(-3 * hn))
         else:
             # Linear variogram model
-            variogram = (
+            variogram[nonzero] = (
                 self.config.nugget
                 + (self.config.sill - self.config.nugget)
-                * distances
+                * h
                 / self.config.range_param
             )
 
         return variogram
-
-    def _calculate_kriging_weights(self, variogram_values: np.ndarray) -> np.ndarray:
-        """Calculate Kriging weights (simplified)."""
-        # Simplified weight calculation - in practice, solve the Kriging system
-        weights = 1.0 / (variogram_values + 1e-10)
-        weights = weights / np.sum(weights)  # Normalize
-        return np.asarray(weights)
 
 
 class RBFInterpolator(SpatialInterpolator):

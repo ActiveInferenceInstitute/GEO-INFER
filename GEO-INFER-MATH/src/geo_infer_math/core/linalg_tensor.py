@@ -10,6 +10,9 @@ from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
 from dataclasses import dataclass, field
 import logging
 
+from geo_infer_math.core.spatial_statistics import morans_i_variance
+from geo_infer_math.utils.rng import resolve_rng
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -178,10 +181,7 @@ class MatrixOperations:
         # Expected value and variance
         expected_I = -1.0 / (n - 1)
 
-        # Simplified variance calculation
-        s1 = np.sum((weights_matrix + weights_matrix.T)**2) / 2
-        s2 = np.sum((np.sum(weights_matrix, axis=0) + np.sum(weights_matrix, axis=1))**2)
-        var_I = (n**2 * s1 - n * s2 + 3 * np.sum(weights_matrix)**2) / ((n**2 - 1) * np.sum(weights_matrix)**2)
+        var_I = morans_i_variance(values, weights_matrix)
 
         # Z-score and p-value (two-tailed using erfc)
         z_score = (I - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
@@ -348,7 +348,8 @@ class TensorOperations:
     @staticmethod
     def tensor_decomposition(tensor: TensorData,
                            rank: int,
-                           method: str = 'cp') -> Dict[str, Any]:
+                           method: str = 'cp',
+                           rng: Optional[Any] = None) -> Dict[str, Any]:
         """
         Perform tensor decomposition (CP or Tucker).
 
@@ -356,98 +357,129 @@ class TensorOperations:
             tensor: Input tensor
             rank: Decomposition rank
             method: Decomposition method ('cp' or 'tucker')
+            rng: Optional seed or np.random.Generator for the CP-ALS
+                initialization (resolved via ``resolve_rng``). Only used by
+                method='cp'; the Tucker/HOSVD path is fully deterministic.
 
         Returns:
             Decomposition results
         """
         if method == 'cp':
-            return TensorOperations._cp_decomposition(tensor, rank)
+            return TensorOperations._cp_decomposition(tensor, rank, rng=rng)
         elif method == 'tucker':
             return TensorOperations._tucker_decomposition(tensor, rank)
         else:
             raise ValueError("Method must be 'cp' or 'tucker'")
 
     @staticmethod
-    def _cp_decomposition(tensor: TensorData, rank: int) -> Dict[str, Any]:
-        """CP (CANDECOMP/PARAFAC) decomposition."""
-        # Simplified CP decomposition using alternating least squares
-        data = tensor.data
-        n0, n1, n2 = data.shape
-
-        # Initialize factor matrices randomly
-        A = np.random.randn(n0, rank)
-        B = np.random.randn(n1, rank)
-        C = np.random.randn(n2, rank)
-
-        # Normalize columns
+    def _khatri_rao(columns_a: np.ndarray, columns_b: np.ndarray) -> np.ndarray:
+        """Column-wise Khatri-Rao product with rows indexed (a-index, b-index)."""
+        rank = columns_a.shape[1]
+        product = np.zeros((columns_a.shape[0] * columns_b.shape[0], rank))
         for r in range(rank):
-            A[:, r] /= np.linalg.norm(A[:, r])
-            B[:, r] /= np.linalg.norm(B[:, r])
-            C[:, r] /= np.linalg.norm(C[:, r])
+            product[:, r] = np.kron(columns_a[:, r], columns_b[:, r])
+        return product
 
-        # ALS iterations: alternating least squares for CP decomposition
-        max_iter = 50
-        for iteration in range(max_iter):
-            # Update factor A: unfold along mode 0
-            unfolded_0 = data.reshape(data.shape[0], -1)
-            khatri_rao_BC = np.zeros((data.shape[1] * data.shape[2], rank))
-            for r_idx in range(rank):
-                khatri_rao_BC[:, r_idx] = np.kron(C[:, r_idx], B[:, r_idx])
-            A = unfolded_0 @ khatri_rao_BC @ np.linalg.pinv(khatri_rao_BC.T @ khatri_rao_BC)
+    @staticmethod
+    def _cp_decomposition(tensor: TensorData, rank: int,
+                          rng: Optional[Any] = None,
+                          tol: float = 1e-8,
+                          max_iter: int = 100) -> Dict[str, Any]:
+        """CP (CANDECOMP/PARAFAC) decomposition via alternating least squares.
 
-            # Update factor B: unfold along mode 1
-            unfolded_1 = np.moveaxis(data, 1, 0).reshape(data.shape[1], -1)
-            khatri_rao_AC = np.zeros((data.shape[0] * data.shape[2], rank))
-            for r_idx in range(rank):
-                khatri_rao_AC[:, r_idx] = np.kron(C[:, r_idx], A[:, r_idx])
-            B = unfolded_1 @ khatri_rao_AC @ np.linalg.pinv(khatri_rao_AC.T @ khatri_rao_AC)
+        Factor matrices are initialized deterministically from uniform draws
+        of the resolved generator, then each mode is updated in turn by
+        solving the mode-k least-squares problem against the Khatri-Rao
+        product of the other two factors. Iteration stops when the relative
+        Frobenius reconstruction error falls below ``tol`` or after
+        ``max_iter`` sweeps.
+        """
+        data = np.asarray(tensor.data, dtype=np.float64)
+        if data.ndim != 3:
+            raise ValueError("CP decomposition requires a 3-dimensional tensor")
+        n0, n1, n2 = data.shape
+        if rank < 1:
+            raise ValueError("CP decomposition rank must be at least 1")
 
-            # Update factor C: unfold along mode 2
-            unfolded_2 = np.moveaxis(data, 2, 0).reshape(data.shape[2], -1)
-            khatri_rao_AB = np.zeros((data.shape[0] * data.shape[1], rank))
-            for r_idx in range(rank):
-                khatri_rao_AB[:, r_idx] = np.kron(B[:, r_idx], A[:, r_idx])
-            C = unfolded_2 @ khatri_rao_AB @ np.linalg.pinv(khatri_rao_AB.T @ khatri_rao_AB)
+        gen = resolve_rng(rng)
+        A = gen.uniform(size=(n0, rank))
+        B = gen.uniform(size=(n1, rank))
+        C = gen.uniform(size=(n2, rank))
 
-            # Normalize columns
-            for r_idx in range(rank):
-                norm_a = np.linalg.norm(A[:, r_idx])
-                norm_b = np.linalg.norm(B[:, r_idx])
-                norm_c = np.linalg.norm(C[:, r_idx])
-                if norm_a > 1e-10:
-                    A[:, r_idx] /= norm_a
-                if norm_b > 1e-10:
-                    B[:, r_idx] /= norm_b
-                if norm_c > 1e-10:
-                    C[:, r_idx] /= norm_c
+        norm_data = np.linalg.norm(data)
+        unfolded_0 = data.reshape(n0, -1)
+        unfolded_1 = np.moveaxis(data, 1, 0).reshape(n1, -1)
+        unfolded_2 = np.moveaxis(data, 2, 0).reshape(n2, -1)
+
+        errors: List[float] = []
+        n_iter = 0
+        for n_iter in range(1, max_iter + 1):
+            kr_BC = TensorOperations._khatri_rao(B, C)  # rows (i1, i2)
+            A = np.linalg.lstsq(kr_BC, unfolded_0.T, rcond=None)[0].T
+
+            kr_AC = TensorOperations._khatri_rao(A, C)  # rows (i0, i2)
+            B = np.linalg.lstsq(kr_AC, unfolded_1.T, rcond=None)[0].T
+
+            kr_AB = TensorOperations._khatri_rao(A, B)  # rows (i0, i1)
+            C = np.linalg.lstsq(kr_AB, unfolded_2.T, rcond=None)[0].T
+
+            reconstruction = np.einsum('ir,jr,kr->ijk', A, B, C)
+            rel_error = float(np.linalg.norm(data - reconstruction) / norm_data)
+            errors.append(rel_error)
+            if rel_error < tol:
+                break
+
+        # Column-normalize the leading factor and carry the scales as weights.
+        weights = np.linalg.norm(A, axis=0)
+        weights[weights == 0.0] = 1.0
+        A = A / weights
 
         return {
             'factor_matrices': [A, B, C],
+            'weights': weights,
             'rank': rank,
-            'method': 'cp'
+            'method': 'cp',
+            'errors': errors,
+            'n_iter': n_iter,
+            'converged': bool(errors[-1] < tol),
         }
 
     @staticmethod
     def _tucker_decomposition(tensor: TensorData, rank: int) -> Dict[str, Any]:
-        """Tucker decomposition."""
-        # Simplified Tucker decomposition
-        data = tensor.data
+        """Tucker decomposition via HOSVD (higher-order SVD).
+
+        Each mode-k unfolding is decomposed with a real SVD; the leading
+        left singular vectors form the factor matrices and the core tensor
+        is the original tensor projected onto all three factor bases.
+        """
+        data = np.asarray(tensor.data, dtype=np.float64)
+        if data.ndim != 3:
+            raise ValueError("Tucker decomposition requires a 3-dimensional tensor")
         n0, n1, n2 = data.shape
 
-        # Initialize core tensor and factor matrices
-        core_shape = (min(n0, rank), min(n1, rank), min(n2, rank))
-        core = np.random.randn(*core_shape)
+        factor_matrices: List[np.ndarray] = []
+        for mode, dim in enumerate((n0, n1, n2)):
+            if mode == 0:
+                unfolded = data.reshape(dim, -1)
+            elif mode == 1:
+                unfolded = np.moveaxis(data, 1, 0).reshape(dim, -1)
+            else:
+                unfolded = np.moveaxis(data, 2, 0).reshape(dim, -1)
+            u, _, _ = np.linalg.svd(unfolded, full_matrices=False)
+            factor_matrices.append(u[:, : min(dim, rank)])
 
-        A = np.random.randn(n0, core_shape[0])
-        B = np.random.randn(n1, core_shape[1])
-        C = np.random.randn(n2, core_shape[2])
+        core = np.einsum(
+            'ia,jb,kc,ijk->abc', factor_matrices[0], factor_matrices[1],
+            factor_matrices[2], data,
+        )
 
         return {
             'core_tensor': core,
-            'factor_matrices': [A, B, C],
+            'factor_matrices': factor_matrices,
             'rank': rank,
-            'method': 'tucker'
+            'method': 'tucker',
         }
+
 
 class SpatialLinearAlgebra:
     """Specialized linear algebra for spatial problems."""
@@ -459,6 +491,16 @@ class SpatialLinearAlgebra:
         """
         Solve spatial regression with optional spatial weights.
 
+        Without ``weights_matrix`` this is ordinary least squares. With a
+        weights matrix, a spatial lag (SAR) model is fitted:
+
+            y = rho * W y + X beta + epsilon
+
+        ``rho`` is estimated by maximizing the concentrated log-likelihood
+        over a grid in [0, 0.95]; standard errors come from the inverse of
+        the asymptotic information matrix of the full log-likelihood in
+        (beta, rho).
+
         Args:
             X: Design matrix (n_samples, n_features)
             y: Target values (n_samples,)
@@ -466,6 +508,10 @@ class SpatialLinearAlgebra:
 
         Returns:
             Regression results
+
+        Raises:
+            ValueError: If the information matrix is singular or a variance
+                estimate is non-positive (standard errors undefined).
         """
         if weights_matrix is None:
             # Ordinary least squares
@@ -478,29 +524,105 @@ class SpatialLinearAlgebra:
             se = np.sqrt(np.diag(mse * np.linalg.inv(X.T @ X)))
             t_stats = coefficients / se
             r_squared = 1 - np.sum(residuals**2) / np.sum((y - np.mean(y))**2)
+            rho_hat = 0.0
 
         else:
-            # Spatial regression (simplified)
-            # In practice, this would involve spatial autoregressive models
-            W = weights_matrix
-            rho = 0.1  # Simplified spatial autoregressive parameter
+            W = np.asarray(weights_matrix, dtype=np.float64)
+            X = np.asarray(X, dtype=np.float64)
+            y = np.asarray(y, dtype=np.float64).ravel()
+            n, p = X.shape
+            identity_n = np.eye(n)
 
-            # Spatial lag model: y = rho * W*y + X*beta + epsilon
-            # This is a very simplified implementation
-            y_spatial = y - rho * W @ y
-            coefficients = np.linalg.lstsq(X, y_spatial, rcond=None)[0]
-            residuals = y_spatial - X @ coefficients
-            r_squared = 1 - np.sum(residuals**2) / np.sum((y_spatial - np.mean(y_spatial))**2)
+            def _sar_loglik(beta: np.ndarray, rho: float) -> float:
+                """Full Gaussian log-likelihood of the SAR model."""
+                a_matrix = identity_n - rho * W
+                sign, log_det = np.linalg.slogdet(a_matrix)
+                if sign <= 0:
+                    return -np.inf
+                u = a_matrix @ y - X @ beta
+                sigma2 = float(u @ u) / n
+                if sigma2 <= 0.0:
+                    return -np.inf
+                return float(
+                    -0.5 * n * (np.log(2.0 * np.pi) + 1.0 + np.log(sigma2))
+                    + log_det
+                )
 
-            se = np.full_like(coefficients, np.nan)  # Simplified
-            t_stats = np.full_like(coefficients, np.nan)
+            # Profile-likelihood grid search over rho
+            rho_grid = np.linspace(0.0, 0.95, 200)
+            best_rho = 0.0
+            best_ll = -np.inf
+            for rho_candidate in rho_grid:
+                e_transformed = y - rho_candidate * (W @ y)
+                beta_candidate = np.linalg.lstsq(X, e_transformed, rcond=None)[0]
+                ll = _sar_loglik(beta_candidate, rho_candidate)
+                if ll > best_ll:
+                    best_ll = ll
+                    best_rho = float(rho_candidate)
+
+            rho = best_rho
+            e_transformed = y - rho * (W @ y)
+            coefficients = np.linalg.lstsq(X, e_transformed, rcond=None)[0]
+            residuals = e_transformed - X @ coefficients
+            r_squared = 1 - np.sum(residuals**2) / np.sum(
+                (e_transformed - np.mean(e_transformed))**2
+            )
+
+            # Asymptotic information matrix of the concentrated SAR
+            # log-likelihood in (beta, rho), computed in closed form at the
+            # estimates (sigma^2 = u^T u / n):
+            #   I_bb   = X^T X / sigma^2
+            #   I_b,r  = X^T W y / sigma^2
+            #   I_rr   = ||W y||^2 / sigma^2 - 2 (u^T W y)^2 / (n sigma^4)
+            #            - tr((A^{-1} W)^2),  A = I - rho W
+            sigma2 = float(np.sum(residuals ** 2)) / n
+            if sigma2 <= 0.0 or not np.isfinite(sigma2):
+                raise ValueError(
+                    "SAR residual variance is degenerate; standard errors "
+                    "are undefined for this data"
+                )
+            a_matrix = np.eye(n) - rho * W
+            wy = W @ y
+            u_wy = float(residuals @ wy)
+            m_inv_w = np.linalg.solve(a_matrix, W)
+            trace_inv_w_sq = float(np.sum(m_inv_w * m_inv_w.T))
+
+            info_bb = (X.T @ X) / sigma2
+            info_b_rho = (X.T @ wy) / sigma2
+            info_rr = (
+                float(wy @ wy) / sigma2
+                - 2.0 * u_wy ** 2 / (n * sigma2 ** 2)
+                - trace_inv_w_sq
+            )
+            info_matrix = np.zeros((p + 1, p + 1))
+            info_matrix[:p, :p] = info_bb
+            info_matrix[:p, p] = info_matrix[p, :p] = info_b_rho
+            info_matrix[p, p] = info_rr
+
+            try:
+                covariance = np.linalg.inv(info_matrix)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(
+                    "SAR information matrix is singular; standard errors are "
+                    f"undefined for this weights matrix and data (rho={rho:.4f})"
+                ) from exc
+            variances = np.diag(covariance)
+            if np.any(variances <= 0.0) or not np.all(np.isfinite(variances)):
+                raise ValueError(
+                    "SAR information matrix is singular; standard errors are "
+                    f"undefined for this weights matrix and data (rho={rho:.4f})"
+                )
+            se = np.sqrt(variances[:p])
+            t_stats = coefficients / se
+            rho_hat = rho
 
         return {
             'coefficients': coefficients,
             'standard_errors': se,
             't_statistics': t_stats,
             'r_squared': r_squared,
-            'residuals': residuals
+            'residuals': residuals,
+            'rho': rho_hat,
         }
 
     @staticmethod
@@ -582,7 +704,7 @@ class SpatialLinearAlgebra:
             return cast(np.ndarray, Vt.T @ np.diag(s_inv) @ U.T)
 
         elif method == 'iterative':
-            # Simplified iterative method (Richardson iteration)
+            # Richardson iteration for matrices close to the identity
             n = matrix.shape[0]
             X = np.eye(n)  # Initial guess
             max_iter = 100

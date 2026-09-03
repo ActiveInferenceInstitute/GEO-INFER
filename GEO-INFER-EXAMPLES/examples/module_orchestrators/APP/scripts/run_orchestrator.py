@@ -1,233 +1,181 @@
 #!/usr/bin/env python3
-"""
-APP Module Orchestrator - GEO-INFER Examples
-Demonstrates: Applications
+"""GEO-INFER-APP module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end APP operation on synthetic UI/session data:
+validate a synthetic agent configuration against the module's schema, create
+a real BDI agent interface through ``AgentFactory``, drive a fleet of three
+synthetic field-survey agents through the full BDI cycle (belief update,
+desire addition, deliberation, execution, movement), filter the roster by
+status and location radius, convert live agent states into map and dashboard
+payloads via ``AgentVisualization``, and count lifecycle events captured by a
+registered event handler. No server bind and no network: everything runs
+in-process on the module's public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict, List
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    from geo_infer_app.models.agent_configuration import AgentConfiguration, AgentType
+    from geo_infer_app.models.agent_factory import AgentFactory
+    from geo_infer_app.models.agent_visualization import AgentVisualization
+    from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface
+
+    # --- Configuration schema validation on synthetic UI submissions ----
+    default_config = AgentConfiguration.get_default_config(AgentType.BDI)
+    valid_submission: Dict[str, Any] = {
+        **default_config,
+        "name": "Del Norte Field Survey Fleet",
+        "description": "Synthetic UI session for a three-agent BDI survey fleet",
+    }
+    validation_errors_valid = AgentConfiguration.validate_config(
+        AgentType.BDI, valid_submission
     )
-    return logging.getLogger('app_orchestrator')
 
-class APPOrchestrator:
-    """Thin orchestrator for GEO-INFER-APP module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the APP orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'APP'
-        self.dependencies = ['API', 'SPACE']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete APP module demonstration."""
-        self.logger.info("🚀 Starting APP Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Applications")
-        
-        start_time = time.time()
-        results = {
-            'module': 'APP',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'APP',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['API', 'SPACE']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 APP MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-APP")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ APP thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'app_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    invalid_submission: Dict[str, Any] = {
+        "description": 123,
+        "unexpected_field": True,
+    }
+    validation_errors_invalid = AgentConfiguration.validate_config(
+        AgentType.BDI, invalid_submission
+    )
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-APP Module Orchestrator (Thin)")
-    print(f"Demonstrating: Applications")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = APPOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    # --- Factory: create the BDI interface and a synthetic agent fleet ---
+    available_types = AgentFactory.get_available_agent_types()
+    interface = AgentFactory.create_interface(AgentType.BDI)
+    if not isinstance(interface, BDIAgentInterface):
+        raise RuntimeError(
+            f"AgentFactory returned {type(interface).__name__}, "
+            "expected BDIAgentInterface"
+        )
+
+    events: List[Dict[str, Any]] = []
+    interface.register_event_handler(
+        "agent_created", lambda payload: events.append({"type": "agent_created"})
+    )
+    interface.register_event_handler(
+        "agent_updated", lambda payload: events.append({"type": "agent_updated"})
+    )
+
+    fleet_specs: List[Dict[str, Any]] = [
+        {
+            "agent_id": "ui-agent-001",
+            "name": "Scout-Alpha",
+            "beliefs": {"sector": "redwood_grove", "battery": 0.92},
+            "desires": ["survey_sector"],
+            "initial_location": {"lat": 41.7558, "lng": -124.2026},
+        },
+        {
+            "agent_id": "ui-agent-002",
+            "name": "Scout-Bravo",
+            "beliefs": {"sector": "riparian_corridor", "battery": 0.64},
+            "desires": ["monitor_waterline"],
+            "initial_location": {"lat": 41.7900, "lng": -124.1500},
+        },
+        {
+            "agent_id": "ui-agent-003",
+            "name": "Scout-Charlie",
+            "beliefs": {"sector": "ridge_line", "battery": 0.11},
+            "desires": ["return_to_base"],
+            "initial_location": {"lat": 42.0060, "lng": -123.9000},
+        },
+    ]
+
+    created_ids: List[str] = []
+    for spec in fleet_specs:
+        agent_id = interface.create_agent(AgentType.BDI, spec)
+        created_ids.append(agent_id)
+
+    # --- Drive the full BDI cycle over the synthetic session -------------
+    command_results: Dict[str, Any] = {}
+    command_results["add_belief"] = interface.send_command(
+        "ui-agent-001",
+        "add_belief",
+        {"belief": {"fog_detected": True}},
+    )
+    command_results["add_desire"] = interface.send_command(
+        "ui-agent-001",
+        "add_desire",
+        {"desire": {"name": "photograph_canopy", "priority": 0.7}},
+    )
+    command_results["deliberate"] = interface.send_command(
+        "ui-agent-001", "deliberate", {}
+    )
+    state_after_deliberate = interface.get_agent_state("ui-agent-001")
+    intentions_after_deliberate = len(state_after_deliberate.metadata["intentions"])
+    command_results["execute"] = interface.send_command("ui-agent-001", "execute", {})
+    state_after_execute = interface.get_agent_state("ui-agent-001")
+    command_results["move"] = interface.send_command(
+        "ui-agent-002",
+        "move",
+        {"location": {"lat": 41.7800, "lng": -124.1600}},
+    )
+
+    # --- Roster queries: unfiltered, by status, by location radius -------
+    all_agents = interface.list_agents()
+    idle_agents = interface.list_agents(filter_params={"status": "idle"})
+    agents_near_base = interface.list_agents(
+        filter_params={
+            "location": {
+                "center": {"lat": 41.7558, "lng": -124.2026},
+                "radius": 10.0,
+            }
+        }
+    )
+
+    # --- Visualization payloads from live agent state --------------------
+    map_feature = AgentVisualization.state_to_map_feature(
+        interface.get_agent_state("ui-agent-002")
+    )
+    dashboard = AgentVisualization.state_to_dashboard_data(
+        interface.get_agent_state("ui-agent-001")
+    )
+
+    event_counts: Dict[str, int] = {}
+    for event in events:
+        event_counts[event["type"]] = event_counts.get(event["type"], 0) + 1
+
+    return {
+        "operation": "bdi_fleet_session_on_synthetic_ui_data",
+        "configuration": {
+            "default_fields": sorted(str(k) for k in default_config.keys()),
+            "valid_submission_errors": validation_errors_valid,
+            "invalid_submission_errors": validation_errors_invalid,
+        },
+        "factory": {
+            "available_agent_types": available_types,
+            "interface_created": type(interface).__name__,
+        },
+        "fleet": {
+            "created_agents": created_ids,
+            "total_agents": len(all_agents),
+            "idle_agents_after_execute": len(idle_agents),
+            "agents_within_10km_of_base": len(agents_near_base),
+        },
+        "command_results": command_results,
+        "bdi_state_after_deliberate": {
+            "intentions": intentions_after_deliberate,
+            "status_after_execute": state_after_execute.status,
+        },
+        "visualization": {
+            "map_feature_keys": sorted(map_feature.keys()),
+            "dashboard_title": dashboard.get("title"),
+            "dashboard_status": dashboard.get("status"),
+            "dashboard_widgets": sorted(dashboard.get("widgets", {}).keys()),
+        },
+        "event_counts": event_counts,
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("APP", _operation))

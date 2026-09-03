@@ -55,6 +55,7 @@
 - `SPM/`
 - `TEST/`
 - `TIME/`
+- `_lib.py`
 - `generate_orchestrators.py`
 - `update_to_thin_orchestrators.py`
 

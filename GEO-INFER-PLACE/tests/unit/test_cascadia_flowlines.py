@@ -14,21 +14,12 @@ Covers:
 
 from __future__ import annotations
 
-import os
-import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
 import geopandas as gpd
 import pytest
 from shapely.geometry import LineString, Point
-
-# Ensure cascadia module is on sys.path
-_CASCADIA_DIR = (
-    Path(__file__).resolve().parents[2] / "locations" / "cascadia"
-)
-if str(_CASCADIA_DIR) not in sys.path:
-    sys.path.insert(0, str(_CASCADIA_DIR))
 
 from src.data_modules.surface_water.flowline_network import (
     CascadiaFlowlineNetwork,
@@ -112,6 +103,67 @@ def flowline_network(sample_flowlines_gdf) -> CascadiaFlowlineNetwork:
     return CascadiaFlowlineNetwork(sample_flowlines_gdf)
 
 
+def _synthetic_pnw_flowlines() -> gpd.GeoDataFrame:
+    """Deterministic NHD-style dendritic network for the Columbia/Willamette/Snake system.
+
+    Replaces the never-committed ``cascadia_nhdplus_flowlines.geojson``
+    extract: the same topology contract (COMIDs, GNIS names, Strahler orders,
+    connectivity) expressed as synthetic data so tests stay hermetic.
+    """
+    reaches = [
+        (17000001, "Columbia River Upper Reach", 8, "C0", "C1", 50.0),
+        (17000002, "Columbia River Lower Reach", 8, "C1", "C2", 60.0),
+        (17000003, "Willamette River Upper Reach", 6, "W0", "W1", 40.0),
+        (17000004, "Willamette Middle Reach", 7, "W1", "W2", 30.0),
+        (17000005, "Willamette River Lower Reach", 7, "W2", "C1", 20.0),
+        (17000006, "Snake River Upper Reach", 6, "S0", "S1", 45.0),
+        (17000007, "Snake River Lower Reach", 7, "S1", "C1", 35.0),
+    ]
+    records = [
+        {
+            "comid": comid,
+            "gnis_name": name,
+            "reachcode": f"17{comid:09d}",
+            "stream_order": order,
+            "from_node": from_node,
+            "to_node": to_node,
+            "length_km": length_km,
+            "geometry": LineString(
+                [(-124.0 - i * 0.5, 45.0 + i * 0.3), (-124.0 - i * 0.5 - 0.4, 45.0 + i * 0.3 + 0.25)]
+            ),
+        }
+        for i, (comid, name, order, from_node, to_node, length_km) in enumerate(reaches)
+    ]
+    # Fourteen order-5 headwater tributaries joining the trunk network.
+    junctions = ["C0", "W0", "W1", "W2", "S0", "S1"]
+    for k in range(14):
+        junction = junctions[k % len(junctions)]
+        records.append(
+            {
+                "comid": 17010001 + k,
+                "gnis_name": f"Cascadia Tributary {k + 1}",
+                "reachcode": f"17{17010001 + k:09d}",
+                "stream_order": 5,
+                "from_node": f"T{k}",
+                "to_node": junction,
+                "length_km": 8.0 + k,
+                "geometry": LineString(
+                    [(-122.0 - k * 0.1, 44.0 + k * 0.1), (-121.9 - k * 0.1, 44.1 + k * 0.1)]
+                ),
+            }
+        )
+    return gpd.GeoDataFrame(records, crs="EPSG:4326")
+
+
+@pytest.fixture
+def local_pnw_flowlines(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Point CascadianSurfaceWaterDataSources at the synthetic PNW dataset."""
+    geojson_path = tmp_path / "cascadia_nhdplus_flowlines.geojson"
+    _synthetic_pnw_flowlines().to_file(geojson_path, driver="GeoJSON")
+    monkeypatch.setenv("GEO_INFER_CASCADIA_FLOWLINES_PATH", str(geojson_path))
+    return geojson_path
+
+
 class TestCascadiaFlowlineNetworkConstruction:
     """Test CascadiaFlowlineNetwork graph generation and property lookup."""
 
@@ -133,13 +185,47 @@ class TestCascadiaFlowlineNetworkConstruction:
         """Querying invalid COMID returns None."""
         assert flowline_network.get_flowline_by_comid(999999) is None
 
-    def test_from_geojson_file(self):
-        """Construct network from the tracked Cascadia PNW flowlines GeoJSON."""
-        geojson_path = _CASCADIA_DIR / "config" / "cascadia_nhdplus_flowlines.geojson"
-        assert geojson_path.exists(), f"GeoJSON fixture missing at {geojson_path}"
+    def test_from_geojson_file(self, tmp_path: Path) -> None:
+        """Construct a network from a deterministic NHD-style GeoJSON on disk."""
+        records = []
+        # Mainstem: A0 -> A1 -> ... -> A6, stream order rising downstream.
+        for i in range(6):
+            records.append(
+                {
+                    "comid": 1001 + i,
+                    "gnis_name": f"Synthetic Mainstem Reach {i + 1}",
+                    "from_node": f"A{i}",
+                    "to_node": f"A{i + 1}",
+                    "stream_order": 4,
+                    "length_km": 10.0 + i,
+                    "geometry": LineString(
+                        [(-123.0 - i, 46.0 + i), (-123.0 - i - 1, 46.0 + i + 1)]
+                    ),
+                }
+            )
+        # Six tributaries joining the mainstem, one per interior node.
+        for i in range(6):
+            records.append(
+                {
+                    "comid": 2001 + i,
+                    "gnis_name": f"Synthetic Tributary {i + 1}",
+                    "from_node": f"T{i}",
+                    "to_node": f"A{i}",
+                    "stream_order": 3,
+                    "length_km": 5.0 + i,
+                    "geometry": LineString(
+                        [(-122.5 - i, 45.5 + i), (-123.0 - i, 46.0 + i)]
+                    ),
+                }
+            )
+        geojson_path = tmp_path / "synthetic_flowlines.geojson"
+        gpd.GeoDataFrame(records, crs="EPSG:4326").to_file(
+            geojson_path, driver="GeoJSON"
+        )
         network = CascadiaFlowlineNetwork.from_geojson(geojson_path)
-        assert network.graph.number_of_edges() >= 20
-        assert network.graph.number_of_nodes() >= 15
+        assert network.graph.number_of_edges() == 12
+        assert network.graph.number_of_nodes() == 13
+        assert network.get_flowline_by_comid(2003) is not None
 
 
 class TestFlowlineTopologyValidation:
@@ -280,16 +366,19 @@ class TestH3SpatialIntegrationAndSurfaceWaterModule:
             assert "river_names" in data
             assert isinstance(data["river_names"], list)
 
-    def test_data_sources_load_pnw_flowlines(self):
+    def test_data_sources_load_pnw_flowlines(self, local_pnw_flowlines: Path) -> None:
         """CascadianSurfaceWaterDataSources correctly loads local NHDPlus HR flowlines."""
         ds = CascadianSurfaceWaterDataSources()
+        assert ds._local_flowlines_path == local_pnw_flowlines
         gdf = ds.load_pnw_high_order_flowlines(min_stream_order=4)
         assert not gdf.empty
         assert len(gdf) >= 20
         assert "comid" in gdf.columns
         assert "stream_order" in gdf.columns
 
-    def test_data_sources_get_flowline_network(self):
+    def test_data_sources_get_flowline_network(
+        self, local_pnw_flowlines: Path
+    ) -> None:
         """CascadianSurfaceWaterDataSources constructs validated network."""
         ds = CascadianSurfaceWaterDataSources()
         net = ds.get_flowline_network(min_stream_order=5)
@@ -298,7 +387,9 @@ class TestH3SpatialIntegrationAndSurfaceWaterModule:
         assert report["node_count"] >= 10
         assert report["edge_count"] >= 10
 
-    def test_geoinfer_surface_water_methods(self):
+    def test_geoinfer_surface_water_methods(
+        self, local_pnw_flowlines: Path
+    ) -> None:
         """GeoInferSurfaceWater provides network topology and validation APIs."""
         # Minimal mock-free backend dummy
         class MinimalBackend:

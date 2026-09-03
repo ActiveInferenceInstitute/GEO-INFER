@@ -9,10 +9,12 @@ This API provides both programmatic interfaces and REST API endpoints that
 match the specifications in the API schema.
 """
 
+import logging
+
 import numpy as np
 from typing import List, Dict, Optional, Any, cast
 from dataclasses import dataclass, asdict
-import logging
+from scipy.stats import norm
 
 try:
     from flask import Flask, request, jsonify
@@ -38,8 +40,8 @@ except ImportError:
 
     jsonify: Any = None  # type: ignore[no-redef]
 
-
 from geo_infer_math.core.spatial_statistics import (
+    GearysC,
     MoranI,
     getis_ord_g,
     local_indicators_spatial_association,
@@ -365,8 +367,8 @@ class SpatialAnalysisAPI:
             # Z score
             z_score = (mean_nearest - expected_distance) / se
 
-            # P-value (simplified calculation)
-            p_value = 2 * (1 - np.abs(np.clip(z_score, -8, 8) / 8))
+            # Two-sided p-value from the exact Gaussian tail
+            p_value = 2 * float(norm.sf(abs(z_score)))
 
             return {
                 "nearest_distances": np.array(nearest_distances),
@@ -658,7 +660,7 @@ class SpatialAnalysisAPI:
             elif req.weights_matrix == "rook":
                 from ..core.linalg_tensor import MatrixOperations
 
-                # Simplified rook contiguity
+                # Rook contiguity: shared-grid-edge adjacency via the binary weights builder
                 weights = MatrixOperations.spatial_weights_matrix(
                     coordinates, method="binary"
                 )
@@ -696,21 +698,17 @@ class SpatialAnalysisAPI:
                 )
 
             elif req.method == "gearys_c":
-                # Simplified Geary's C calculation
-                z = (values - np.mean(values)) / np.std(values)
-                numerator = np.sum(weights * (z[:, np.newaxis] - z[np.newaxis, :]) ** 2)
-                denominator = 2 * np.sum(weights) * np.sum(z**2) / len(z)
-
-                geary_c = numerator / denominator
-                expected_c = 1.0
-                variance_c = 2 / (len(z) * (len(z) - 1))
+                # Geary's C via the shared implementation with permutational
+                # variance and two-sided normal p-value
+                geary = GearysC(weights)
+                geary_result = geary.compute(values)
 
                 response = AutocorrelationResponse(
-                    statistic=geary_c,
-                    p_value=0.0,  # Simplified
-                    z_score=0.0,  # Simplified
-                    expected_value=expected_c,
-                    variance=variance_c,
+                    statistic=geary_result["C"],
+                    p_value=geary_result["p_value"],
+                    z_score=geary_result["z_score"],
+                    expected_value=geary_result["expected_C"],
+                    variance=geary_result["var_C"],
                     interpretation="Geary's C calculated",
                 )
 
