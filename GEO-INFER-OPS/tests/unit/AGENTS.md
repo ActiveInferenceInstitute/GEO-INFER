@@ -21,7 +21,9 @@
 
 ## Local Contents
 
+- `test_cache_envelope.py`
 - `test_health_checks.py`
+- `test_logging_hygiene.py`
 - `test_orchestrator.py`
 
 ## Validation

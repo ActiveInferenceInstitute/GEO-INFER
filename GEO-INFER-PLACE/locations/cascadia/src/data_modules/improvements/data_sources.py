@@ -251,8 +251,8 @@ class CascadianImprovementsDataSources:
                             poly = Polygon(coords)
                             if poly.is_valid:
                                 features.append({"geometry": poly, "source": "OSM"})
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.warning('OSM feature construction failed; skipping feature: %s', exc)
 
             if not features:
                 return gpd.GeoDataFrame()

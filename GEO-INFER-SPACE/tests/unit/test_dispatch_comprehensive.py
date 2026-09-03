@@ -100,13 +100,23 @@ class TestDefaultBackendConfiguration:
         dispatcher.set_default_backend('indexing', 'h3')
         assert dispatcher.get_default_backend('indexing') == 'h3'
     
-    def test_default_backend_fallback(self):
-        """Test that default backend falls back to h3."""
+    def test_no_implicit_default_fallback(self):
+        """Without a registered default, get_default_backend returns None."""
         dispatcher = SpatialBackendDispatcher()
-        
-        # Without explicit setting, should default to h3
-        default = dispatcher.get_default_backend('some_operation')
-        assert default == 'h3'
+
+        # Operation types standardly covered by a successfully loaded h3
+        # backend get a registered default; anything else returns None.
+        assert dispatcher.get_default_backend('some_operation') is None
+
+    def test_dispatch_without_usable_default_raises_precise_error(self):
+        """Dispatching with no usable default lists available backends."""
+        dispatcher = SpatialBackendDispatcher()
+        dispatcher.backends.clear()
+        dispatcher.default_backends.clear()
+
+        with pytest.raises(ValueError, match="available backends"):
+            dispatcher.dispatch_indexing_operation('latlng_to_cell', 37.7, -122.4, 8)
+
     
     def test_set_invalid_default_backend(self):
         """Test setting a non-existent backend as default."""

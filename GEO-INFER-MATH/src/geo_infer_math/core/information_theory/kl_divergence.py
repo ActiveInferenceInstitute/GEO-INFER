@@ -169,34 +169,37 @@ def spatial_kl_divergence(
         return float(kl)
     
     elif method == 'kde':
-        # Kernel density estimation (simplified)
+        # Kernel density estimation with proper quadrature: both densities
+        # are evaluated on a common padded grid, renormalized by their
+        # trapezoidal integrals, and the KL divergence is computed as a
+        # Riemann sum over the grid (a convergent quadrature of
+        # integral p(x) log(p(x)/q(x)) dx).
         from scipy.stats import gaussian_kde
-        
-        try:
-            kde_p = gaussian_kde(values_p)
-            kde_q = gaussian_kde(values_q)
-            
-            # Evaluate on common grid
-            all_values = np.concatenate([values_p, values_q])
-            grid = np.linspace(all_values.min(), all_values.max(), 100)
-            
-            p_density = kde_p(grid)
-            q_density = kde_q(grid)
-            
-            # Normalize
-            p_density = p_density / np.sum(p_density)
-            q_density = q_density / np.sum(q_density)
-            
-            # Calculate KL divergence
-            kl = kl_divergence(p_density, q_density, base=base)
-            
-            return float(kl)
-        except Exception as e:
-            logger.warning(f"KDE method failed: {e}, falling back to histogram")
-            return spatial_kl_divergence(
-                coordinates_p, values_p, coordinates_q, values_q,
-                bins=bins, base=base, method='histogram'
-            )
+
+        kde_p = gaussian_kde(values_p)
+        kde_q = gaussian_kde(values_q)
+
+        all_values = np.concatenate([values_p, values_q])
+        span = all_values.max() - all_values.min()
+        low = all_values.min() - 0.5 * span
+        high = all_values.max() + 0.5 * span
+        grid = np.linspace(low, high, 512)
+        dx = float(grid[1] - grid[0])
+
+        p_density = kde_p(grid)
+        q_density = kde_q(grid)
+
+        # Renormalize by the numeric integral so each is a proper density
+        p_density = p_density / np.trapz(p_density, grid)
+        q_density = q_density / np.trapz(q_density, grid)
+
+        integrand = np.where(
+            p_density > 0,
+            p_density * (np.log(p_density) - np.log(np.maximum(q_density, 1e-300))),
+            0.0,
+        )
+        kl = float(np.sum(integrand) * dx) / np.log(base)
+        return float(max(0.0, kl))
     
     else:
         raise ValueError(f"Unknown method: {method}")

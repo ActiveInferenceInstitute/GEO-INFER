@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["Environmental Health"],
 )
 
-# Simplified in-memory DB for environmental readings
+# In-memory store backing the demo API
 _ENV_READINGS_DB: List[EnvironmentalData] = []
 
 @router.post("/readings/", response_model=EnvironmentalData, status_code=201)

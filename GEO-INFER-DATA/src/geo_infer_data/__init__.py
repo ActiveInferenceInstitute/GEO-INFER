@@ -16,36 +16,11 @@ from .core.storage import AdaptiveDataStorage
 from .core.validation import DataQualityManager
 from .models.schemas import Dataset, DatasetMetadata, DataQualityReport
 
-# Import submodules for convenience (optional imports)
-try:
-    from . import api as api
-except ImportError:
-    pass
+# Import submodules for convenience
+from . import api as api
+from . import connectors as connectors
+from . import utils as utils
 
-try:
-    from . import connectors as connectors
-except ImportError:
-    pass
-
-try:
-    from . import utils as utils
-except ImportError:
-    pass
-
-try:
-    from . import etl as etl  # type: ignore[attr-defined]
-except ImportError:
-    pass
-
-try:
-    from . import storage as storage  # type: ignore[attr-defined]
-except ImportError:
-    pass
-
-try:
-    from . import validation as validation  # type: ignore[attr-defined]
-except ImportError:
-    pass
 
 logger = logging.getLogger(__name__)
 

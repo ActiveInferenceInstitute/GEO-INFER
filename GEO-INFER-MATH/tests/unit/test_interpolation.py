@@ -120,6 +120,26 @@ class TestKrigingInterpolator:
         predictions = kriging.predict(prediction_coords)
         assert np.all(np.isfinite(predictions))
 
+    def test_kriging_exact_interpolation_at_data_points(self, sample_data):
+        """OK weights solve: prediction at a training point equals its value."""
+        coords, values = sample_data
+        config = InterpolationConfig(
+            variogram_model='spherical', sill=1.0, range_param=10.0, nugget=0.0
+        )
+        kriging = KrigingInterpolator(config)
+        kriging.fit(coords, values)
+
+        predictions = kriging.predict(coords)
+        np.testing.assert_allclose(predictions, values, atol=1e-8)
+
+    def test_kriging_raises_above_500_points(self):
+        """More than 500 training points raises an informative error."""
+        coords = np.arange(1002, dtype=float).reshape(501, 2)
+        values = np.arange(501, dtype=float)
+        kriging = KrigingInterpolator()
+        with pytest.raises(ValueError, match="at most 500"):
+            kriging.fit(coords, values)
+
 
 class TestLinearInterpolator:
     """Tests for linear interpolator."""

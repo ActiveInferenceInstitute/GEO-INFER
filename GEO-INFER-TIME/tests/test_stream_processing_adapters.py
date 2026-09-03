@@ -13,6 +13,8 @@ from geo_infer_time.core.stream_processing import (
     StreamIngestAdapter,
     WebSocketIngestAdapter,
     KafkaIngestAdapter,
+    _import_aiokafka,
+    _import_websockets,
 )
 
 
@@ -111,7 +113,9 @@ class TestWebSocketIngestAdapter:
         assert adapter.is_connected is False
 
     def test_connect_and_disconnect(self):
-        adapter = WebSocketIngestAdapter({"url": "ws://example.com:8080"})
+        adapter = WebSocketIngestAdapter(
+            {"url": "ws://example.com:8080"}, allow_simulated=True
+        )
         assert adapter.url == "ws://example.com:8080"
         assert asyncio_run(adapter.connect()) is True
         assert adapter.is_connected is True
@@ -119,7 +123,7 @@ class TestWebSocketIngestAdapter:
         assert adapter.is_connected is False
 
     def test_stream_simulated_records_with_limit(self):
-        adapter = WebSocketIngestAdapter()
+        adapter = WebSocketIngestAdapter(allow_simulated=True)
         records = [
             {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
             {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
@@ -136,7 +140,7 @@ class TestWebSocketIngestAdapter:
         assert len(result) == 2
 
     def test_stream_default_generator_yields_records(self):
-        adapter = WebSocketIngestAdapter()
+        adapter = WebSocketIngestAdapter(allow_simulated=True)
 
         async def collect():
             out = []
@@ -148,6 +152,78 @@ class TestWebSocketIngestAdapter:
         assert len(result) == 3
         assert all("timestamp" in r for r in result)
         assert all("value" in r for r in result)
+
+
+    def test_real_websocket_transport_contract(self):
+        """Real transport: in-process WS server -> adapter.parse_record.
+
+        With ``websockets`` installed this spins a real server on an
+        ephemeral port, pushes three JSON records, and asserts the adapter
+        parses each through ``parse_record``. Without it, the gate itself
+        is verified instead: lazy import reports absence and ``connect``
+        raises the documented error without flipping ``is_connected``.
+        """
+        import importlib.util
+        import json as _json
+
+        if importlib.util.find_spec("websockets") is None:
+            websockets = _import_websockets()
+            assert websockets is None
+            adapter = WebSocketIngestAdapter({"url": "ws://127.0.0.1:9"})
+            with pytest.raises(RuntimeError, match="websockets not installed"):
+                asyncio_run(adapter.connect())
+            assert adapter.is_connected is False
+            return
+
+        import websockets
+
+        records = [
+            {"timestamp": "2024-01-01T00:00:00", "value": 1.0, "sensor": "ws-a"},
+            {"timestamp": "2024-01-01T00:00:01", "value": 2.0, "sensor": "ws-b"},
+            {"timestamp": "2024-01-01T00:00:02", "value": 3.0, "sensor": "ws-c"},
+        ]
+
+        async def handler(websocket):
+            for record in records:
+                await websocket.send(_json.dumps(record))
+            # Returning closes the connection: the adapter's async-for then
+            # sees a clean end-of-stream instead of waiting for a fourth
+            # message that never arrives.
+
+        async def run():
+            server = await websockets.serve(handler, "127.0.0.1", 0)
+            port = server.sockets[0].getsockname()[1]
+            adapter = WebSocketIngestAdapter({"url": f"ws://127.0.0.1:{port}"})
+            out = []
+            try:
+                await adapter.connect()
+                assert adapter.is_connected is True
+                async for rec in adapter.stream_data():
+                    out.append(adapter.parse_record(rec))
+            finally:
+                await adapter.disconnect()
+                server.close()
+                await server.wait_closed()
+            return out
+
+        result = asyncio_run(run())
+        assert len(result) == 3
+        assert [value for _ts, value, _meta in result] == [1.0, 2.0, 3.0]
+        assert [meta["sensor"] for _ts, _value, meta in result] == [
+            "ws-a",
+            "ws-b",
+            "ws-c",
+        ]
+        assert result[0][0] == datetime(2024, 1, 1, 0, 0, 0)
+
+    def test_real_mode_rejects_simulated_records(self):
+        """A real-mode adapter refuses simulated_records outright."""
+        adapter = WebSocketIngestAdapter()
+        adapter.is_connected = True  # simulate an established connection
+        with pytest.raises(ValueError):
+            asyncio_run(
+                adapter.stream_data(simulated_records=[{"value": 1.0}]).__anext__()
+            )
 
 
 # ===================================================================
@@ -167,14 +243,14 @@ class TestKafkaIngestAdapter:
         assert adapter.bootstrap_servers == ["kafka:9092"]
 
     def test_connect_and_disconnect(self):
-        adapter = KafkaIngestAdapter({})
+        adapter = KafkaIngestAdapter({}, allow_simulated=True)
         assert asyncio_run(adapter.connect()) is True
         assert adapter.is_connected is True
         asyncio_run(adapter.disconnect())
         assert adapter.is_connected is False
 
     def test_stream_simulated_records_sets_topic(self):
-        adapter = KafkaIngestAdapter({"topic": "events-topic"})
+        adapter = KafkaIngestAdapter({"topic": "events-topic"}, allow_simulated=True)
         records = [
             {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
             {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
@@ -190,6 +266,33 @@ class TestKafkaIngestAdapter:
         assert len(result) == 2
         assert result[0]["topic"] == "events-topic"
 
+    def test_real_kafka_transport_import_gated(self):
+        """Real Kafka mode is gated on the optional aiokafka dependency.
+
+        With ``aiokafka`` absent, the lazy import reports ``None``/flag-off
+        and ``connect`` raises the documented RuntimeError. With it
+        present, the adapter constructs in real mode and refuses
+        ``simulated_records`` (no broker needed for the gate contract).
+        """
+        import importlib.util
+
+        if importlib.util.find_spec("aiokafka") is None:
+            aiokafka = _import_aiokafka()
+            assert aiokafka is None
+            adapter = KafkaIngestAdapter({"topic": "real-topic"})
+            with pytest.raises(RuntimeError, match="aiokafka not installed"):
+                asyncio_run(adapter.connect())
+            assert adapter.is_connected is False
+            return
+
+        adapter = KafkaIngestAdapter({"topic": "real-topic"})
+        assert adapter.topic == "real-topic"
+        adapter.is_connected = True  # simulate an established consumer
+        with pytest.raises(ValueError):
+            asyncio_run(
+                adapter.stream_data(simulated_records=[{"value": 1.0}]).__anext__()
+            )
+
 
 # ===================================================================
 # StreamProcessor ingest adapters
@@ -199,7 +302,7 @@ class TestKafkaIngestAdapter:
 class TestStreamProcessorAdapterIngest:
     def test_ingest_adapter_stream_counts_points(self):
         processor = StreamProcessor(window_size=timedelta(minutes=1))
-        adapter = WebSocketIngestAdapter()
+        adapter = WebSocketIngestAdapter(allow_simulated=True)
         records = [
             {"timestamp": "2024-01-01T00:00:00", "value": 1.0, "sensor": "a"},
             {"timestamp": "2024-01-01T00:00:01", "value": 2.0, "sensor": "b"},
@@ -215,7 +318,7 @@ class TestStreamProcessorAdapterIngest:
 
     def test_ingest_adapter_stream_auto_process_windows(self):
         processor = StreamProcessor(window_size=timedelta(minutes=1))
-        adapter = KafkaIngestAdapter()
+        adapter = KafkaIngestAdapter(allow_simulated=True)
         records = [
             {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
             {"timestamp": "2024-01-01T00:00:01", "value": 2.0},

@@ -63,3 +63,25 @@ def test_read_layer_arg(tmp_path: Path) -> None:
     # layer=None is safe on the fallback path.
     out = read_cloud_native_vector(path, layer=None)
     assert len(out) == 1
+
+def test_read_quote_containing_path(tmp_path: Path) -> None:
+    """A path containing a single quote must round-trip, not inject SQL."""
+    gdf = gpd.GeoDataFrame(
+        {"name": ["it's"]},
+        geometry=[shapely.Point(2, 2)],
+        crs="EPSG:4326",
+    )
+    tricky_dir = tmp_path / "bob's files"
+    tricky_dir.mkdir()
+    path = tricky_dir / "quote's test.geojson"
+    gdf.to_file(path, driver="GeoJSON")
+    out = read_cloud_native_vector(path)
+    assert isinstance(out, gpd.GeoDataFrame)
+    assert len(out) == 1
+    assert out["name"].tolist() == ["it's"]
+
+
+def test_read_directory_raises(tmp_path: Path) -> None:
+    """A path that exists but is not a regular file is rejected."""
+    with pytest.raises(FileNotFoundError, match="Not a regular file"):
+        read_cloud_native_vector(tmp_path)

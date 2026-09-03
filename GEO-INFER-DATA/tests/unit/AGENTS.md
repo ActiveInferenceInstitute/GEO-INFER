@@ -31,6 +31,7 @@
 - `test_file_connector.py`
 - `test_format_detection.py`
 - `test_geospatial_validation.py`
+- `test_identifiers.py`
 - `test_indexing.py`
 - `test_ingestion.py`
 - `test_performance.py`

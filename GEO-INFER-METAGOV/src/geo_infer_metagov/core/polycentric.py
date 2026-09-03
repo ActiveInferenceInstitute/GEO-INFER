@@ -22,9 +22,9 @@ class PolycentricDesign:
 class PolycentricGovernanceSystem:
     """Design and coordinate polycentric governance with multiple overlapping authorities."""
     
-    def __init__(self, governance_model: str = 'polycentric', 
+    def __init__(self, governance_model: str = 'polycentric',
                  coordination_mechanism: str = 'network_based',
-                 redundancy_level: str = 'adaptive'):
+                 redundancy_level: str = 'adaptive') -> None:
         self.governance_model = governance_model
         self.coordination_mechanism = coordination_mechanism
         self.redundancy_level = redundancy_level

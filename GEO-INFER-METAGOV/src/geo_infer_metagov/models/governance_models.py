@@ -276,25 +276,3 @@ class AccountabilityReport:
     external_audits: Optional[List[str]] = None
     stakeholder_feedback: Optional[Dict[str, float]] = None
     report_date: datetime = field(default_factory=datetime.now)
-
-
-if __name__ == '__main__':
-    # Example usage
-    entity = GoverningEntity(
-        entity_id="gov_001",
-        name="Regional Water Authority",
-        governance_level="regional",
-        authorities=["water_allocation", "quality_monitoring"],
-        responsibilities=["ensure_access", "prevent_pollution"]
-    )
-    
-    stakeholder = StakeholderProfile(
-        stakeholder_id="sh_001",
-        name="Agricultural Cooperative",
-        category="agricultural",
-        interests=["water_availability", "irrigation_rights"],
-        decision_power=0.6
-    )
-    
-    print(f"Entity: {entity.name} ({entity.governance_level})")
-    print(f"Stakeholder: {stakeholder.name} ({stakeholder.category})")

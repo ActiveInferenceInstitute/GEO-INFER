@@ -25,6 +25,7 @@ Tests workspace within `GEO-INFER-APP`.
 - `fastapi>=0.100.0`
 - `uvicorn>=0.15.0`
 - `pydantic>=2.0.0`
+- `jsonschema>=4.0.0`
 
 
 ## Strict Test Inventory

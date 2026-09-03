@@ -43,24 +43,6 @@ except ImportError:
     MultiHazardInteractionMatrix = None  # type: ignore[assignment,misc]
     calculate_compound_exceedance_probability = None  # type: ignore[assignment]
 
-# Import specialized risk models (optional)
-try:
-    from geo_infer_risk.models import (  # type: ignore[import-untyped]
-        FloodModel,
-        EarthquakeModel,
-        HurricaneModel,
-        WildfireModel,
-        DroughtModel,
-        MultiHazardModel,
-    )
-except ImportError:
-    FloodModel = None
-    EarthquakeModel = None
-    HurricaneModel = None
-    WildfireModel = None
-    DroughtModel = None
-    MultiHazardModel = None
-
 # Import utility functions (optional)
 try:
     from geo_infer_risk.utils import (
@@ -73,17 +55,6 @@ except ImportError:
     risk_metrics = None  # type: ignore[assignment]
     validation = None  # type: ignore[assignment]
 
-# Import API components (optional)
-try:
-    from geo_infer_risk.api import (  # type: ignore[import-untyped]
-        RiskAPI,
-        ModelRegistry,
-        ResultsFormatter,
-    )
-except ImportError:
-    RiskAPI = None
-    ModelRegistry = None
-    ResultsFormatter = None
 
 # Import underwriting module (optional)
 try:
@@ -227,15 +198,6 @@ __all__ = [
     "ExposureModel",
     "MultiHazardInteractionMatrix",
     "calculate_compound_exceedance_probability",
-    "FloodModel",
-    "EarthquakeModel",
-    "HurricaneModel",
-    "WildfireModel",
-    "DroughtModel",
-    "MultiHazardModel",
-    "RiskAPI",
-    "ModelRegistry",
-    "ResultsFormatter",
     "UnderwritingEngine",
     "UnderwritingConfig",
     "RiskAssessmentEngine",

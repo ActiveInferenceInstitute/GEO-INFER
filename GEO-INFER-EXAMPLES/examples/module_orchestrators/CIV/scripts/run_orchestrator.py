@@ -1,233 +1,139 @@
 #!/usr/bin/env python3
-"""
-CIV Module Orchestrator - GEO-INFER Examples
-Demonstrates: Civic engagement
+"""GEO-INFER-CIV module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end CIV operation on synthetic data: score civic
+engagement and demographic representation for a synthetic participatory-mapping
+program, then track synthetic meeting attendance and analyze public comments.
+All work goes through the real ``geo_infer_civ`` public API.
 """
 
+from __future__ import annotations
+
+import random
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    from geo_infer_civ import (
+        AttendanceTracker,
+        CommentCategory,
+        MeetingRecord,
+        MeetingType,
+        ParticipationAnalyzer,
+        ParticipationMethod,
+        ParticipantRecord,
+        PublicComment,
+        PublicCommentAnalyzer,
     )
-    return logging.getLogger('civ_orchestrator')
 
-class CIVOrchestrator:
-    """Thin orchestrator for GEO-INFER-CIV module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the CIV orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'CIV'
-        self.dependencies = ['SPACE', 'APP']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete CIV module demonstration."""
-        self.logger.info("🚀 Starting CIV Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Civic engagement")
-        
-        start_time = time.time()
-        results = {
-            'module': 'CIV',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'CIV',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['SPACE', 'APP']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 CIV MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-CIV")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ CIV thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'civ_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    rng = random.Random(42)
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-CIV Module Orchestrator (Thin)")
-    print(f"Demonstrating: Civic engagement")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = CIVOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    # Synthetic participation records for a fictional coastal county program.
+    methods = list(ParticipationMethod)
+    groups = ["north_town", "harbor_district", "river_valley", "unincorporated"]
+    records = [
+        ParticipantRecord(
+            participant_id=f"resident-{i:03d}",
+            method=methods[i % len(methods)],
+            timestamp=1_700_000_000.0 + i * 86_400.0,
+            demographic_group=groups[i % len(groups)],
+            location=(-124.20 + rng.random() * 0.4, 41.74 + rng.random() * 0.5),
+            sentiment_score=rng.uniform(-1.0, 1.0),
+        )
+        for i in range(90)
+    ]
+
+    analyzer = ParticipationAnalyzer()
+    analyzer.add_records(records)
+    engagement = analyzer.compute_engagement_score(target_population=500)
+    representation = analyzer.analyze_representation(
+        {
+            "north_town": 0.40,
+            "harbor_district": 0.25,
+            "river_valley": 0.20,
+            "unincorporated": 0.15,
+        }
+    )
+    participation_index = analyzer.compute_participation_index(
+        target_population=500, baseline_rate=0.10
+    )
+
+    # Synthetic meeting attendance across one season.
+    tracker = AttendanceTracker()
+    meetings = [
+        MeetingRecord(
+            meeting_id=f"council-{i:02d}",
+            meeting_type=MeetingType.CITY_COUNCIL if i % 2 == 0 else MeetingType.PLANNING_COMMISSION,
+            date=1_700_000_000.0 + i * 1_209_600.0,
+            registered_attendees=40 + 3 * i,
+            actual_attendees=30 + 4 * i,
+            public_comments_count=2 + i,
+            duration_minutes=90.0,
+        )
+        for i in range(6)
+    ]
+    tracker.add_meetings(meetings)
+    trend = tracker.compute_attendance_trend()
+
+    # Synthetic public comments on a single shoreline-plan meeting.
+    comment_analyzer = PublicCommentAnalyzer()
+    categories = list(CommentCategory)
+    comments = [
+        PublicComment(
+            comment_id=f"comment-{i:03d}",
+            meeting_id="council-00",
+            category=categories[i % len(categories)],
+            word_count=40 + rng.randrange(220),
+            timestamp=1_700_000_000.0 + i * 3_600.0,
+            submitter_id=f"resident-{i % 30:03d}",
+            sentiment_score=rng.uniform(-1.0, 1.0),
+        )
+        for i in range(24)
+    ]
+    comment_analyzer.add_comments(comments)
+    comment_analysis = comment_analyzer.analyze(meeting_id="council-00")
+
+    return {
+        "operation": "civic_engagement_scoring",
+        "participation_records": len(records),
+        "engagement_score": {
+            "overall_score": engagement.overall_score,
+            "method_scores": engagement.method_scores,
+            "temporal_consistency": engagement.temporal_consistency,
+            "diversity_index": engagement.diversity_index,
+            "reach_ratio": engagement.reach_ratio,
+        },
+        "participation_index": participation_index,
+        "representation": {
+            "overall_representation_score": representation.overall_representation_score,
+            "underrepresented_groups": representation.underrepresented_groups,
+            "overrepresented_groups": representation.overrepresented_groups,
+            "representation_indices": representation.representation_indices,
+        },
+        "attendance_trend": {
+            "average_attendance": trend.average_attendance,
+            "attendance_rate": trend.attendance_rate,
+            "trend_direction": trend.trend_direction,
+            "trend_slope": trend.trend_slope,
+            "meeting_count": trend.meeting_count,
+        },
+        "comment_analysis": {
+            "total_comments": comment_analysis.total_comments,
+            "category_distribution": comment_analysis.category_distribution,
+            "average_word_count": comment_analysis.average_word_count,
+            "average_sentiment": comment_analysis.average_sentiment,
+            "engagement_depth_score": comment_analysis.engagement_depth_score,
+        },
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("CIV", _operation))

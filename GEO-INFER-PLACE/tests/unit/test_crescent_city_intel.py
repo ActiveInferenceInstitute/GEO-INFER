@@ -21,14 +21,9 @@ from typing import Any, Dict, Optional
 
 import h3
 
-# Package source root (conftest normally adds this, but keep the import
-# self-sufficient for direct invocation too).
-_SRC = Path(__file__).resolve().parents[2] / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
-
 _PACKAGED_SEED = (
-    _SRC
+    Path(__file__).resolve().parents[2]
+    / "src"
     / "geo_infer_place"
     / "locations"
     / "del_norte_county"

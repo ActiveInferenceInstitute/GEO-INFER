@@ -72,7 +72,7 @@ class TestDiseaseSurveillanceWorkflow:
         assert len(hotspots) > 0
 
         # Test incidence rate calculation
-        rate, cases, population = analyzer.calculate_local_incidence_rate(
+        rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
             center_loc=center_location, radius_km=2.0, time_window_days=7
         )
 
@@ -87,7 +87,7 @@ class TestDiseaseSurveillanceWorkflow:
                 longitude=hotspot["location"]["longitude"],
             )
 
-            hotspot_rate, _, _ = analyzer.calculate_local_incidence_rate(
+            hotspot_rate, _, _, population_estimated = analyzer.calculate_local_incidence_rate(
                 center_loc=hotspot_location, radius_km=hotspot["radius_km"]
             )
 

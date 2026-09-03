@@ -51,7 +51,7 @@ class InstitutionalDesigner:
     - Dietz, T., et al. (2003). The Drama of the Commons
     """
     
-    def __init__(self, framework: str = 'iad', context_type: str = 'common_pool_resource'):
+    def __init__(self, framework: str = 'iad', context_type: str = 'common_pool_resource') -> None:
         """
         Initialize institutional designer.
         

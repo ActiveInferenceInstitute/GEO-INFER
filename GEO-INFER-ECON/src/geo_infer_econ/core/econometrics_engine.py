@@ -10,17 +10,19 @@ This module provides comprehensive spatial econometric analysis tools including:
 - Bayesian spatial econometric methods
 """
 
+import logging
+import warnings
 from typing import cast, Dict, Any, Optional
+
 import numpy as np
 import geopandas as gpd
 from dataclasses import dataclass
-import logging
 from scipy import stats, optimize
 from scipy.spatial.distance import pdist, squareform, cdist
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.metrics import mean_squared_error, r2_score
-import warnings
 
+from ..utils.rng import resolve_rng
 
 @dataclass
 class SpatialWeightsConfig:
@@ -853,6 +855,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         W: np.ndarray,
         cv_folds: int = 5,
         model_type: str = "sar",
+        rng: Optional[np.random.Generator] = None,
     ) -> Dict[str, Any]:
         """
         Perform cross-validation for spatial models.
@@ -863,6 +866,9 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             W: Spatial weights matrix
             cv_folds: Number of cross-validation folds
             model_type: Type of spatial model
+            rng: Optional random generator for fold shuffling. When omitted,
+                a fixed-seed generator is used so folds are reproducible by
+                default.
 
         Returns:
             Cross-validation results
@@ -872,7 +878,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         cv_scores = []
         predictions = np.zeros(n)
-        indices = np.random.permutation(n)
+        indices = resolve_rng(rng).permutation(n)
 
         for fold in range(cv_folds):
             # Create train/test split

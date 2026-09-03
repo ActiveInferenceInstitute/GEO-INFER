@@ -38,6 +38,9 @@ class GeoInferSurfaceWater:
         self.target_hexagons = list(getattr(backend, "target_hexagons", []))
         self.data_source = CascadianSurfaceWaterDataSources()
         self._network: Optional[CascadiaFlowlineNetwork] = None
+        # Set when the flowline buffering CRS projection fails and raw data is
+        # written unbuffered instead (see acquire_raw_data).
+        self.projection_degraded: bool = False
         # Will be injected
         self.data_manager = None  # type: ignore[attr-defined]
         self.h3_fusion = None  # type: ignore[attr-defined]
@@ -105,8 +108,14 @@ class GeoInferSurfaceWater:
                 fproj = flowlines.to_crs("EPSG:3310")
                 fproj["geometry"] = fproj.buffer(10)  # ~10m buffer
                 flowlines = fproj.to_crs("EPSG:4326")
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    "Flowline buffering skipped: CRS projection "
+                    "EPSG:4326 -> EPSG:3310 -> EPSG:4326 failed (%s); "
+                    "falling back to unbuffered EPSG:4326 flowlines.",
+                    exc,
+                )
+                self.projection_degraded = True
             flowlines["layer"] = "flowlines"
             frames.append(flowlines)
         gdf = (
@@ -285,7 +294,13 @@ class GeoInferSurfaceWater:
                     "max_stream_order": max_order,
                     "has_high_order_river": max_order >= 5,
                 }
-            except Exception:
+            except Exception as exc:
+                logger.warning(
+                    "Surface water summary failed for hex %s (%s); "
+                    "emitting zeroed metrics.",
+                    hex_id,
+                    exc,
+                )
                 results[hex_id] = {
                     "has_water": False,
                     "waterbody_feature_count": 0,

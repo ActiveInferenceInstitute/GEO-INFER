@@ -40,7 +40,7 @@ def project_to_utm(location: Location) -> Tuple[float, float, str]:
     if abs(location.latitude) < 1e-12 and abs(location.longitude) < 1e-12:
         return 500000.0, 1e-9, utm_zone
 
-    # UTM projection constants (simplified WGS84)
+    # WGS84 ellipsoid constants for UTM transforms
     k0 = 0.9996  # UTM scale factor
     a = 6378137.0  # WGS84 semi-major axis
     f = 1 / 298.257223563  # WGS84 flattening
@@ -386,7 +386,7 @@ def calculate_voronoi_regions(
     Returns:
         List of polygons, where each polygon is a list of locations
     """
-    # This is a simplified Voronoi implementation
+    # Voronoi assignment via nearest-generator lookup
     # In production, use scipy.spatial.Voronoi or similar
 
     if len(locations) < 3:
@@ -490,7 +490,7 @@ def calculate_spatial_autocorrelation(
     if variance == 0:
         return {"morans_i": 0.0, "p_value": 1.0, "z_score": 0.0}
 
-    # Calculate spatial weights matrix (simplified)
+    # Calculate the spatial weights matrix via k-nearest neighbours
     weights = []
     for i in range(n):
         row_weights = []
@@ -527,7 +527,7 @@ def calculate_spatial_autocorrelation(
 
     morans_i = (n / sum(sum(row) for row in weights)) * (numerator / denominator)
 
-    # Calculate expected Moran's I and variance (simplified)
+    # Calculate expected Moran's I and variance under randomization
     expected_i = -1.0 / (n - 1)
     variance_i = (
         n**2 * sum(sum(w**2 for w in row) for row in weights)

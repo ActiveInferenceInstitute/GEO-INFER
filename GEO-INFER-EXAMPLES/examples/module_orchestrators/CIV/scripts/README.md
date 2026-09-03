@@ -8,9 +8,7 @@ Scripts workspace within `GEO-INFER-EXAMPLES`.
 
 ## Public Interface
 
-- `run_orchestrator.py:setup_logging` (function)
-- `run_orchestrator.py:CIVOrchestrator` (class)
-- `run_orchestrator.py:main` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 

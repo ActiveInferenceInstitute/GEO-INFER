@@ -7,6 +7,7 @@ Utils workspace within `GEO-INFER-ECON`.
 - `__init__.py`
 - `data_loader.py`
 - `indicators.py`
+- `rng.py`
 - `validator.py`
 - `visualizer.py`
 
@@ -17,6 +18,8 @@ Utils workspace within `GEO-INFER-ECON`.
 - `data_loader.py:EconomicDataLoader` (class)
 - `data_loader.py:example_data_loading` (function)
 - `indicators.py:EconomicIndicators` (class)
+- `rng.py:resolve_rng` (function)
+- `rng.py:resolve_optional_rng` (function)
 - `validator.py:ModelValidator` (class)
 - `visualizer.py:ResultsVisualizer` (class)
 

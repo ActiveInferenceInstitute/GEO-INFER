@@ -1173,8 +1173,8 @@ def run_comprehensive_analysis_with_enhanced_data(
                     try:
                         lat, lon = cell_to_latlng(hex_id)
                         hex_with_coords[hex_id] = {"lat": lat, "lon": lon}
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning('Cascadia analysis step failed; continuing without it: %s', exc)
                 h3_data = module.run_final_analysis(hex_with_coords)
                 return module_name, h3_data
 
@@ -1415,8 +1415,8 @@ def run_comprehensive_analysis_with_enhanced_data(
             "redevelopment_potential", {}
         )
         summary["bioregion"] = backend_summary.get("bioregion", "Cascadia")
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning('Cascadia analysis step failed; continuing without it: %s', exc)
 
     # Create comprehensive visualizations
     if args.generate_dashboard or args.lightweight_viz:
@@ -1463,8 +1463,8 @@ def run_comprehensive_analysis_with_enhanced_data(
                         "empirical_exists": ds["empirical_data"].exists(),
                         "raw_exists": ds["raw_data"].exists(),
                     }
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Cascadia analysis step failed; continuing without it: %s', exc)
 
             interactive_map = viz_engine.create_interactive_h3_map(
                 h3_data=fused_data,

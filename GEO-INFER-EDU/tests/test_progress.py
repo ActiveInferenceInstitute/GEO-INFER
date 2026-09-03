@@ -5,6 +5,7 @@ Tests progress tracking, competency reports, gap identification,
 and at-risk learner detection.
 """
 
+import json
 import pytest
 from datetime import datetime
 from geo_infer_edu.core.progress import (
@@ -335,3 +336,50 @@ class TestCompetencyRecord:
                 level=level
             )
             assert record.level == level
+
+
+class TestPrivacyCompliance:
+    """privacy_compliance must be enforced in progress exports."""
+
+    @pytest.fixture
+    def tracked(self):
+        tracker = ProgressTracker(privacy_compliance="ferpa")
+        tracker.track_progress(
+            learner_id="student_42",
+            activity_log=[{"type": "exercise", "topic": "spatial_thinking", "score": 0.9}],
+        )
+        return tracker
+
+    def test_invalid_policy_rejected(self):
+        from geo_infer_edu.core.progress import ProgressTracker
+
+        with pytest.raises(ValueError, match="privacy_compliance"):
+            ProgressTracker(privacy_compliance="hipaa")
+
+    def test_ferpa_suppresses_identifier(self, tracked):
+        export = json.loads(tracked.export_progress("student_42"))
+        assert export["learner_id"] != "student_42"
+        assert export["learner_id"].startswith("learner_")
+        assert export["identifier_handling"] == "identifier_suppressed_ferpa"
+
+    def test_gdpr_adds_retention_metadata(self):
+        from geo_infer_edu.core.progress import ProgressTracker
+
+        tracker = ProgressTracker(privacy_compliance="gdpr")
+        tracker.track_progress(learner_id="student_7", activity_log=[])
+        export = json.loads(tracker.export_progress("student_7"))
+        assert export["learner_id"] == "student_7"
+        assert export["data_retention"]["regulation"] == "gdpr"
+        assert export["data_retention"]["erasure_available"] is True
+
+    def test_none_includes_identifier(self):
+        from geo_infer_edu.core.progress import ProgressTracker
+
+        tracker = ProgressTracker(privacy_compliance="none")
+        tracker.track_progress(learner_id="student_9", activity_log=[])
+        export = json.loads(tracker.export_progress("student_9"))
+        assert export["learner_id"] == "student_9"
+
+    def test_export_unknown_learner_raises(self, tracked):
+        with pytest.raises(ValueError, match="Learner not found"):
+            tracked.export_progress("nobody")

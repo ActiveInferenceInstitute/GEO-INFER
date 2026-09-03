@@ -26,7 +26,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "black>=23.12.0",
     "dask>=2023.12.0",
     "esda>=2.5.0",
     "fastapi>=0.104.0",
@@ -38,7 +37,6 @@ dependencies = [
         "libpysal>=4.9.0",
     "loguru>=0.7.0",
     "matplotlib>=3.8.0",
-    "mypy>=1.7.0",
     "networkx>=3.2.0",
     "numpy>=1.24.0",
     "osmnx>=1.8.0",
@@ -75,8 +73,8 @@ dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
-    "black>=21.9.0",
-        "mypy>=0.910",
+    "black>=23.12.0",
+    "mypy>=1.7.0",
     ]
 docs = [
     "sphinx>=4.2.0",

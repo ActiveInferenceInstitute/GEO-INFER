@@ -570,23 +570,3 @@ class StakeholderAPI:
                 code=500,
                 message=f"Server error: {str(e)}"
             )
-
-
-if __name__ == '__main__':
-    # Example usage
-    api = GovernanceAPI()
-    
-    # Create governance structure
-    response = api.create_governance_structure(
-        spatial_scope={'name': 'Test Region'},
-        stakeholder_groups=[{'name': 'Group1'}, {'name': 'Group2'}],
-        decision_domains=['domain1', 'domain2']
-    )
-    
-    print(f"Created: {response.status} - {response.message}")
-    
-    # List structures
-    response = api.list_governance_structures()
-    data = response.data
-    item_count = len(data['items']) if isinstance(data, dict) and 'items' in data else 0
-    print(f"Listed: {response.status} - {item_count} structures")

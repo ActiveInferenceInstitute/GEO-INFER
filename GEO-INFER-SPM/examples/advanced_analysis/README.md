@@ -31,6 +31,7 @@ Advanced Analysis workspace within `GEO-INFER-SPM`.
 - `plotly>=5.0.0`
 - `h5py>=3.6.0`
 - `rasterio>=1.2.0`
+- `statsmodels>=0.13.0  # Time series analysis`
 
 
 ## Validation

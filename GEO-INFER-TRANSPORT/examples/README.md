@@ -22,7 +22,12 @@ Examples workspace within `GEO-INFER-TRANSPORT`.
 
 ## Dependencies
 
-- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `networkx>=2.6.0`
+- `shapely>=1.8.0`
+- `scipy>=1.7.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

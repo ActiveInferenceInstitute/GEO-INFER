@@ -6,6 +6,7 @@ and simulation capabilities.
 """
 
 import logging
+import re
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -91,23 +92,26 @@ class TrafficAnalyzer:
     ) -> FlowResult:
         """
         Analyze traffic flow on a road segment.
-        
+
+        ``hourly_volume`` scales the average per-interval count to a
+        vehicles-per-hour rate using the analyzer's configured
+        ``time_resolution`` (e.g. ``"15min"`` multiplies by 4,
+        ``"5min"`` by 12).
+
         Args:
             segment: Road segment properties
             counts: Traffic count data
             time_period: Analysis time period
-            
+
         Returns:
             Flow analysis result
         """
         # Calculate average volume
         total_count = sum(c.get("count", 0) for c in counts)
         avg_volume = total_count / len(counts) if counts else 0
-        
-        # Hourly volume
-        hourly_volume = int(avg_volume * 4)  # Assuming 15-min counts
-        
-        # Calculate speed from counts or use default
+
+        # Hourly volume: rescale per-interval counts to vehicles per hour
+        hourly_volume = int(avg_volume * 3600 / self._seconds_per_interval())
         speeds = [c.get("speed_kmh", segment.get("speed_limit", 50)) for c in counts if c.get("speed_kmh")]
         avg_speed = sum(speeds) / len(speeds) if speeds else segment.get("speed_limit", 50)
         
@@ -135,6 +139,33 @@ class TrafficAnalyzer:
         logger.info(f"Flow analysis for {segment.get('id')}: LOS {los}")
         return result
     
+    def _seconds_per_interval(self) -> float:
+        """Convert ``self.time_resolution`` to seconds per count interval.
+
+        Accepted formats combine a number with an s/m/h unit, e.g.
+        ``"15min"``, ``"5min"``, ``"1h"``, ``"60s"``.
+
+        Returns:
+            Seconds represented by one count interval
+
+        Raises:
+            ValueError: If ``time_resolution`` cannot be parsed.
+        """
+        match = re.fullmatch(
+            r"(\d+(?:\.\d+)?)\s*(s|sec|secs|seconds?|m|min|mins|minutes?|h|hr|hrs|hours?)",
+            self.time_resolution.strip(),
+            re.IGNORECASE,
+        )
+        if not match:
+            raise ValueError(f"Unsupported time_resolution: {self.time_resolution!r}")
+        value = float(match.group(1))
+        unit = match.group(2).lower()
+        if unit.startswith("s"):
+            return value
+        if unit.startswith("m"):
+            return value * 60.0
+        return value * 3600.0
+
     def model_congestion(
         self,
         network_flows: Dict[str, float],
@@ -143,12 +174,12 @@ class TrafficAnalyzer:
     ) -> Dict[str, Any]:
         """
         Model congestion across the network.
-        
+
         Args:
             network_flows: Volume on each segment
             capacity_data: Capacity of each segment
             algorithm: Congestion function
-            
+
         Returns:
             Congestion analysis results
         """

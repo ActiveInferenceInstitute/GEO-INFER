@@ -56,3 +56,7 @@ class TestWaterBalance:
         runoff = xr.DataArray(np.full((5, 5), 30.0), dims=("y", "x"))
         result = modeler.calculate_water_balance(precip, et, runoff)
         np.testing.assert_allclose(result["storage_change"].values, 10.0)
+        # Closure: inflows - outflows - storage_change is exactly zero for
+        # components constructed from the same terms.
+        np.testing.assert_allclose(result["closure_residual"].values, 0.0)
+        assert "balance" in result

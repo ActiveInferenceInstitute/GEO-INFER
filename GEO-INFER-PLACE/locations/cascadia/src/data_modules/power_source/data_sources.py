@@ -205,8 +205,8 @@ class CascadianPowerSourceDataSources:
                                             ),
                                         }
                                     )
-                            except Exception:
-                                pass
+                            except Exception as exc:
+                                logger.warning('OSM plant feature construction failed; skipping feature: %s', exc)
 
             lines_gdf = (
                 gpd.GeoDataFrame(lines, crs="EPSG:4326")

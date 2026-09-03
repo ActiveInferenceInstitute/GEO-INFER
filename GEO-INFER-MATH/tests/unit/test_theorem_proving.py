@@ -205,3 +205,25 @@ class TestProofStrategies:
         selector = ProofStrategySelector()
         strategy = selector.select_strategy("expectation of random variable")
         assert isinstance(strategy, StatisticalProofStrategy)
+
+    def test_triangle_inequality_verified_empirical_never_proven(self):
+        """Numeric confirmation reports VERIFIED_EMPIRICAL, never PROVEN."""
+        strategy = GeometricProofStrategy()
+        result = strategy._try_triangle_inequality(
+            "triangle inequality holds in the plane", []
+        )
+        assert result.status == ProofStatus.VERIFIED_EMPIRICAL
+        assert result.status != ProofStatus.PROVEN
+        assert result.proof is not None
+
+    def test_expectation_linearity_verified_empirical(self):
+        """Linearity of expectation is confirmed numerically, not claimed."""
+        strategy = StatisticalProofStrategy()
+        result = strategy._try_expectation_properties(
+            "expectation is a linear operator", []
+        )
+        assert result.status == ProofStatus.VERIFIED_EMPIRICAL
+        assert result.status != ProofStatus.PROVEN
+
+    def test_verified_empirical_enum_member(self):
+        assert ProofStatus.VERIFIED_EMPIRICAL.value == "verified_empirical"

@@ -182,8 +182,8 @@ class CascadianZoningDataSources:
                                         "source": "OSM",
                                     }
                                 )
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.warning('OSM zoning feature construction failed; skipping feature: %s', exc)
 
             if not features:
                 logger.info("[zoning] No valid land use features from OSM")

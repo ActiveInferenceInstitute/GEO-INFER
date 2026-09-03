@@ -12,6 +12,7 @@ Tests workspace within `GEO-INFER-API`.
 
 - `conftest.py:client` (function)
 - `conftest.py:settings` (function)
+- `conftest.py:secret_key_env` (function)
 - `conftest.py:clear_polygon_features` (function)
 
 ## Module Metadata

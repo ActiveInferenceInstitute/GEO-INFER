@@ -1,233 +1,104 @@
 #!/usr/bin/env python3
-"""
-GIT Module Orchestrator - GEO-INFER Examples
-Demonstrates: Version control
+"""GEO-INFER-GIT module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end GIT operation: build a synthetic repository
+tree in a temporary directory (no cloning, no network) and run the real
+``RepositoryAnalyzer`` over it — code-quality metrics, dependency parsing
+with known-vulnerability matching, geospatial-content detection, secret and
+insecure-pattern scanning, documentation quality, and the weighted overall
+score with recommendations.
 """
 
+from __future__ import annotations
+
+import shutil
 import sys
-import time
-import json
-import logging
+import tempfile
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _build_synthetic_repo(root: Path) -> None:
+    """Create a small synthetic repository for in-memory analysis."""
+    (root / "docs").mkdir(parents=True, exist_ok=True)
+    (root / "src").mkdir(parents=True, exist_ok=True)
+
+    (root / "README.md").write_text(
+        "# synthetic-survey-tools\n\n"
+        "Synthetic geospatial survey utilities used by the GIT orchestrator "
+        "demo. Coordinates are expressed in EPSG:4326.\n",
+        encoding="utf-8",
     )
-    return logging.getLogger('git_orchestrator')
+    (root / "docs" / "design.md").write_text(
+        "# Design notes\n\nPipeline reads sensor CSVs and stores site polygons.\n",
+        encoding="utf-8",
+    )
+    (root / "requirements.txt").write_text(
+        "requests==2.19.0\nnumpy>=1.24\nh3>=4.0\n",
+        encoding="utf-8",
+    )
+    (root / "src" / "survey.py").write_text(
+        '"""Survey site utilities (synthetic)."""\n\n'
+        "import h3\n\n\n"
+        "def cell_for_site(lat: float, lon: float, resolution: int = 8) -> str:\n"
+        '    """Return the H3 cell covering a survey site."""\n'
+        "    return h3.latlng_to_cell(lat, lon, resolution)\n",
+        encoding="utf-8",
+    )
+    (root / "src" / "legacy_loader.py").write_text(
+        "import os\n\n\n"
+        "def run_legacy(expression: str) -> None:\n"
+        "    # Legacy shortcut, kept deliberately unsafe for the demo scan.\n"
+        "    os.system(expression)\n\n\n"
+        "def load_admin_password() -> str:\n"
+        '    password = "synthetic-demo-credential"\n'
+        "    return password\n",
+        encoding="utf-8",
+    )
 
-class GITOrchestrator:
-    """Thin orchestrator for GEO-INFER-GIT module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the GIT orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'GIT'
-        self.dependencies = ['OPS']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete GIT module demonstration."""
-        self.logger.info("🚀 Starting GIT Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Version control")
-        
-        start_time = time.time()
-        results = {
-            'module': 'GIT',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'GIT',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['OPS']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 GIT MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-GIT")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ GIT thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'git_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-GIT Module Orchestrator (Thin)")
-    print(f"Demonstrating: Version control")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
+def _operation() -> Dict[str, Any]:
+    from geo_infer_git.core.repo_analyzer import RepositoryAnalyzer
+
+    tmp_root = Path(tempfile.mkdtemp(prefix="geo_infer_git_synthetic_"))
     try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = GITOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+        _build_synthetic_repo(tmp_root)
+        analysis = RepositoryAnalyzer(tmp_root).analyze_repository()
+    finally:
+        shutil.rmtree(tmp_root, ignore_errors=True)
+
+    code = analysis.code_quality
+    security = analysis.security_analysis
+
+    return {
+        "operation": "synthetic_repo_analysis",
+        "code_total_lines": code.total_lines,
+        "code_lines": code.code_lines,
+        "comment_lines": code.comment_lines,
+        "blank_lines": code.blank_lines,
+        "cyclomatic_complexity": round(code.cyclomatic_complexity, 3),
+        "documentation_coverage": round(code.documentation_coverage, 2),
+        "dependencies_found": [
+            {"name": dep.name, "version": dep.version} for dep in analysis.dependencies
+        ],
+        "dependency_vulnerability_count": sum(
+            len(dep.vulnerabilities) for dep in analysis.dependencies
+        ),
+        "has_geospatial_content": analysis.geospatial_content.has_geospatial_data,
+        "security_score": round(security.security_score, 1),
+        "secrets_detected_count": len(security.secrets_detected),
+        "insecure_patterns_detected": security.insecure_patterns,
+        "documentation_quality": round(analysis.documentation_quality, 1),
+        "overall_score": round(analysis.overall_score, 2),
+        "detected_geospatial_formats": analysis.geospatial_content.geospatial_file_formats,
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("GIT", _operation))

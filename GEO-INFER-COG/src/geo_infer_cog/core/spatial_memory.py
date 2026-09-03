@@ -21,15 +21,22 @@ Mathematical Foundations:
 - Spatial memory chunking and organization
 """
 
-import numpy as np
+import itertools
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-import json
-import math
+from typing import Dict, List, Optional, Tuple, Any, Union
+
+import numpy as np
+
+# Module-level monotonic counter backing memory item IDs; combined with an
+# optional generator so IDs stay collision-free and reproducible.
+_ITEM_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
+
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +167,7 @@ class SpatialMemoryModel:
         memory_types: Optional[List[str]] = None,
         consolidation_strategy: str = "adaptive",
         config: Optional[Dict[str, Any]] = None,
+        rng: Optional[np.random.Generator] = None,
     ):
         """
         Initialize spatial memory model.
@@ -168,6 +176,9 @@ class SpatialMemoryModel:
             memory_types: Types of memory to model ('working', 'long_term', 'episodic', 'semantic', 'procedural')
             consolidation_strategy: Strategy for memory consolidation ('adaptive', 'threshold', 'time_based')
             config: Additional configuration parameters
+            rng: Optional random generator for stochastic retrieval and ID
+                suffixes. When omitted, a fixed-seed generator is used so the
+                model is deterministic by default.
         """
         self.memory_types = list(
             memory_types
@@ -176,6 +187,13 @@ class SpatialMemoryModel:
         )
         self.consolidation_strategy = consolidation_strategy
         self.config = config or {}
+
+        # Random generator for retrieval sampling. Resolved through the
+        # repo-wide resolve_rng pattern; None resolves to a fixed seed, so
+        # retrieval outcomes are reproducible unless a caller supplies a
+        # generator (or an unseeded one for fresh entropy).
+        self._rng = resolve_rng(rng)
+        self._rng_supplied = rng is not None
 
         # Memory storage systems
         self.memory_storage: Dict[str, Dict[str, SpatialMemoryItem]] = {
@@ -263,10 +281,12 @@ class SpatialMemoryModel:
             # Remove least important item if at capacity
             self._remove_least_important(memory_type)
 
-        # Create memory item
-        item_id = (
-            f"{memory_type}_{int(datetime.now().timestamp())}_{np.random.randint(1000)}"
-        )
+        # Item IDs combine a module-level monotonic counter (collision-free
+        # within the process) with a generator-derived suffix when a caller
+        # supplied an rng.
+        item_id = f"{memory_type}_{next(_ITEM_ID_SEQUENCE)}"
+        if self._rng_supplied:
+            item_id += f"_{int(self._rng.integers(0, 1_000_000))}"
 
         memory_item = SpatialMemoryItem(
             item_id=item_id,
@@ -310,7 +330,7 @@ class SpatialMemoryModel:
                 # Check retrieval probability
                 retrieval_prob = item.calculate_retrieval_probability()
 
-                if np.random.random() < retrieval_prob:
+                if self._rng.random() < retrieval_prob:
                     # Successful retrieval
                     item.update_access()
                     self.memory_metrics["items_retrieved"] += 1

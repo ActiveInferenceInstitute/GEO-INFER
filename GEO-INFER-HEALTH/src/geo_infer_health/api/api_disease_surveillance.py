@@ -11,8 +11,8 @@ router = APIRouter(
 )
 
 # In a real application, you'd have a way to load/manage this data persistently.
-# For now, let's assume it's loaded globally or passed around.
-# This is a simplified in-memory store for example purposes.
+# The store is module-level and shared across requests.
+# This is the in-memory store backing the demo API.
 # Global in-memory stores are NOT suitable for production.
 _DISEASE_REPORTS_DB: List[DiseaseReport] = []
 _POPULATION_DATA_DB: List[PopulationData] = [] 
@@ -64,7 +64,7 @@ async def get_local_incidence_rate(
     center_loc = Location(latitude=latitude, longitude=longitude)
     analyzer = DiseaseHotspotAnalyzer(reports=_DISEASE_REPORTS_DB, population_data=_POPULATION_DATA_DB)
     
-    rate, cases, population = analyzer.calculate_local_incidence_rate(
+    rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
         center_loc=center_loc, 
         radius_km=radius_km, 
         time_window_days=time_window_days
@@ -75,10 +75,10 @@ async def get_local_incidence_rate(
         "time_window_days": time_window_days,
         "incidence_rate_per_100k": rate,
         "total_cases_in_area": cases,
-        "estimated_population_in_area": population
+        "estimated_population_in_area": population,
+        "population_estimated": population_estimated
     }
 
-# Example of how population data might be added (simplified)
 @router.post("/population_data/", response_model=PopulationData, status_code=201)
 async def add_population_data_area(data: PopulationData = Body(...)) -> PopulationData:
     """Add population data for a specific area."""

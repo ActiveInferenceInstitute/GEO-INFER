@@ -70,7 +70,7 @@ class OceanCurrentModeler:
             Dataset with Ekman transport components (kg/m/s).
         """
         f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, 1e-5, f)
+        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
 
         transport_x = wind_stress_y / f
         transport_y = -wind_stress_x / f
@@ -110,7 +110,7 @@ class OceanCurrentModeler:
             Ekman pumping velocity (m/s).
         """
         f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, 1e-5, f)
+        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
 
         dtau_y_dx = wind_stress_y.diff("lon") / dx if "lon" in wind_stress_y.dims else xr.zeros_like(wind_stress_y)
         dtau_x_dy = wind_stress_x.diff("lat") / dy if "lat" in wind_stress_x.dims else xr.zeros_like(wind_stress_x)
@@ -150,7 +150,7 @@ class OceanCurrentModeler:
             Dataset with geostrophic velocity components (m/s).
         """
         f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, 1e-5, f)
+        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
 
         if "lat" in sea_surface_height.dims:
             dssh_dy = sea_surface_height.diff("lat") / dy

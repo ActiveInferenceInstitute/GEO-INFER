@@ -29,13 +29,17 @@ class SpatialBackendDispatcher:
         self.backend_capabilities: Dict[str, Dict[str, Any]] = {}
         self._load_backends()
 
+    _STANDARD_OPERATION_TYPES = ("indexing", "geometric", "analytics")
+
     def _load_backends(self) -> None:
         """Load available spatial backends."""
         # Load H3 backend if available
         try:
             h3_backend = self._load_h3_backend()
-            if h3_backend:
+            if h3_backend and h3_backend.is_available():
                 self.register_backend("h3", h3_backend)
+                for operation_type in self._STANDARD_OPERATION_TYPES:
+                    self.default_backends.setdefault(operation_type, "h3")
                 logger.info("H3 backend loaded successfully")
         except Exception as e:
             logger.warning(f"Failed to load H3 backend: {e}")
@@ -89,9 +93,42 @@ class SpatialBackendDispatcher:
             raise ValueError(f"Backend '{backend_name}' is not registered")
         self.default_backends[operation_type] = backend_name
 
-    def get_default_backend(self, operation_type: str) -> str:
-        """Get the default backend for an operation type."""
-        return self.default_backends.get(operation_type, "h3")  # Default to H3
+    def get_default_backend(self, operation_type: str) -> Optional[str]:
+        """Get the registered default backend for an operation type.
+
+        Returns the backend name previously registered through
+        :meth:`set_default_backend` (or auto-registered when a backend
+        loaded successfully), or ``None`` when no usable default has been
+        registered. No implicit backend name is invented here; dispatch
+        callers are responsible for raising a precise error when they need
+        a default and none is available.
+        """
+        return self.default_backends.get(operation_type)
+
+    def _resolve_backend_name(
+        self, operation_type: str, backend: Optional[str]
+    ) -> str:
+        """Resolve the backend for a dispatch call or raise a precise error.
+
+        Raises:
+            ValueError: When no backend was given and no default is
+                registered, or when the resolved backend is not registered.
+                The message always lists the currently available backends.
+        """
+        backend_name = backend or self.get_default_backend(operation_type)
+        available = ", ".join(self.get_available_backends()) or "none"
+        if backend_name is None:
+            raise ValueError(
+                f"No default backend registered for {operation_type!r} "
+                f"operations and no explicit backend given; "
+                f"available backends: {available}"
+            )
+        if backend_name not in self.backends:
+            raise ValueError(
+                f"Backend '{backend_name}' is not available; "
+                f"available backends: {available}"
+            )
+        return backend_name
 
     def dispatch_indexing_operation(
         self,
@@ -101,10 +138,7 @@ class SpatialBackendDispatcher:
         **kwargs: Any,
     ) -> Any:
         """Dispatch a spatial indexing operation to the appropriate backend."""
-        backend_name = backend or self.get_default_backend("indexing")
-
-        if backend_name not in self.backends:
-            raise ValueError(f"Backend '{backend_name}' is not available")
+        backend_name = self._resolve_backend_name("indexing", backend)
 
         backend_instance = self.backends[backend_name]
 
@@ -155,10 +189,7 @@ class SpatialBackendDispatcher:
         **kwargs: Any,
     ) -> Any:
         """Dispatch a geometry operation to a backend that implements it."""
-        backend_name = backend or self.get_default_backend("geometric")
-
-        if backend_name not in self.backends:
-            raise ValueError(f"Backend '{backend_name}' is not available")
+        backend_name = self._resolve_backend_name("geometric", backend)
 
         operation_map = {
             "buffer_geometry": "buffer_geometry",
@@ -193,10 +224,7 @@ class SpatialBackendDispatcher:
         **kwargs: Any,
     ) -> Any:
         """Dispatch a spatial analytics operation to the appropriate backend."""
-        backend_name = backend or self.get_default_backend("analytics")
-
-        if backend_name not in self.backends:
-            raise ValueError(f"Backend '{backend_name}' is not available")
+        backend_name = self._resolve_backend_name("analytics", backend)
 
         backend_instance = self.backends[backend_name]
 

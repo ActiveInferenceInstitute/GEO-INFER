@@ -10,11 +10,10 @@ offline (no network):
 - cascadia_main.parse_counties() orchestration helper resolves CLI county specs.
 - Bioregion visualization renders the GeoJSON layers into an interactive
   Folium HTML map.
-- Del Norte run_analysis cleanup keeps only the most recent results.
 
 Because these tests drive the real orchestration surfaces, they live in
 GEO-INFER-PLACE/tests/integration and are collected by
-``uv run pytest GEO-INFER-PLACE/tests/``.
+``pytest GEO-INFER-PLACE/tests/``.
 """
 from __future__ import annotations
 
@@ -30,9 +29,133 @@ CASCADIA_DIR = PLACE_DIR / "locations" / "cascadia"
 CASCADIA_CONFIG = CASCADIA_DIR / "config"
 DEL_NORTE_DIR = PLACE_DIR / "locations" / "del_norte_county"
 
-# Make the cascadia package and its config importable exactly like the demo does.
-if str(CASCADIA_DIR) not in sys.path:
-    sys.path.insert(0, str(CASCADIA_DIR))
+
+@pytest.fixture(autouse=True)
+def _synthetic_layer_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Path:
+    """Serve layer tests from a complete config copy with synthetic gap-fillers.
+
+    Four regional layers (``cascadia_bioregion_boundary.geojson``,
+    ``cascadia_subduction_zone.geojson``, ``cascadia_major_watersheds.geojson``,
+    and ``cascadia_volcanoes.geojson``) were never committed to the repository;
+    the fixture copies the tracked config directory and generates those layers
+    deterministically so the pipeline tests stay hermetic and independent of
+    untracked local data.
+    """
+    import shutil
+
+    config_copy = tmp_path / "config"
+    shutil.copytree(CASCADIA_CONFIG, config_copy, dirs_exist_ok=True)
+
+    bioregion = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"name": "Cascadia Bioregion"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [-124.4, 40.5], [-120.0, 40.5], [-117.0, 46.0],
+                        [-116.0, 49.5], [-125.5, 49.5], [-125.0, 44.0],
+                        [-124.4, 40.5],
+                    ]],
+                },
+            }
+        ],
+    }
+    (config_copy / "cascadia_bioregion_boundary.geojson").write_text(
+        json.dumps(bioregion), encoding="utf-8"
+    )
+
+    subduction_zone = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"name": "Cascadia Subduction Zone"},
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-125.3, 40.3], [-125.8, 43.0], [-127.0, 46.0],
+                        [-128.2, 48.8], [-129.5, 50.5],
+                    ],
+                },
+            }
+        ],
+    }
+    (config_copy / "cascadia_subduction_zone.geojson").write_text(
+        json.dumps(subduction_zone), encoding="utf-8"
+    )
+
+    watersheds = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "name": name,
+                    "area_sq_mi": area,
+                    "salmon_esu_count": 2,
+                    "major_dams": [],
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [lon, lat], [lon + 1.0, lat], [lon + 1.0, lat + 0.8],
+                        [lon, lat + 0.8], [lon, lat],
+                    ]],
+                },
+            }
+            for name, area, lon, lat in [
+                ("Columbia River Basin", 258000, -121.0, 46.5),
+                ("Willamette River Basin", 11800, -123.2, 44.8),
+                ("Klamath River Basin", 15700, -122.9, 42.3),
+                ("Puget Sound Basin", 13700, -122.0, 47.8),
+            ]
+        ],
+    }
+    (config_copy / "cascadia_major_watersheds.geojson").write_text(
+        json.dumps(watersheds), encoding="utf-8"
+    )
+
+    volcanoes = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "name": name,
+                    "elevation_m": elevation,
+                    "threat_level": threat,
+                    "last_major_eruption": "1846",
+                    "lahar_risk_drainages": [],
+                },
+                "geometry": {"type": "Point", "coordinates": [lon, lat]},
+            }
+            for name, elevation, threat, lon, lat in [
+                ("Mount Baker", 3287, "High", -121.81, 48.78),
+                ("Glacier Peak", 3213, "High", -121.11, 48.11),
+                ("Mount Rainier", 4392, "Very High", -121.76, 46.85),
+                ("Mount St. Helens", 2549, "Very High", -122.18, 46.20),
+                ("Mount Adams", 3743, "Moderate", -121.49, 46.20),
+                ("Mount Hood", 3429, "Very High", -121.69, 45.37),
+                ("Mount Jefferson", 3201, "Moderate", -121.80, 44.67),
+                ("Three Sisters", 3157, "Moderate", -121.77, 44.10),
+                ("Newberry Volcano", 2434, "High", -121.23, 43.72),
+                ("Crater Lake", 2487, "High", -122.11, 42.94),
+                ("Medicine Lake Volcano", 2409, "Low", -121.58, 41.61),
+                ("Mount Shasta", 4322, "Very High", -122.19, 41.40),
+            ]
+        ],
+    }
+    (config_copy / "cascadia_volcanoes.geojson").write_text(
+        json.dumps(volcanoes), encoding="utf-8"
+    )
+
+    monkeypatch.setattr(sys.modules[__name__], "CASCADIA_CONFIG", config_copy)
+    return config_copy
 
 
 def _load_module(module_name: str, file_path: Path):
@@ -158,9 +281,6 @@ class TestCascadiaBioregionMap:
     """Bioregion visualization renders the tracked GeoJSON layers to HTML."""
 
     def test_bioregion_map_generates_html(self, tmp_path):
-        src_dir = CASCADIA_DIR / "src"
-        if str(src_dir) not in sys.path:
-            sys.path.insert(0, str(src_dir))
         from src.core.visualization.bioregion_visualization import (
             create_bioregion_map,
         )

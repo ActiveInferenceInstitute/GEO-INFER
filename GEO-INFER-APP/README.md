@@ -30,6 +30,7 @@ Human-computer interaction layer providing accessible geospatial applications, d
 - `fastapi>=0.100.0`
 - `uvicorn>=0.15.0`
 - `pydantic>=2.0.0`
+- `jsonschema>=4.0.0`
 
 
 ## Validation

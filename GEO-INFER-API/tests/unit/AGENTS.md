@@ -30,6 +30,7 @@
 - `test_geojson_visualization.py`
 - `test_middleware.py`
 - `test_models_geojson.py`
+- `test_security_config.py`
 
 ## Validation
 

@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 from prometheus_client import CollectorRegistry
 
 from geo_infer_ops.core.config import Config, LoggingConfig, MonitoringConfig, TestingConfig
-from geo_infer_ops.core.logging import setup_logging
+from geo_infer_ops.utils.shared_logging import configure_logging
 from geo_infer_ops.core.monitoring import reset_metrics
 
 @pytest.fixture(scope="session")
@@ -101,6 +101,6 @@ def test_logger():
     """Configure test logging."""
     with tempfile.NamedTemporaryFile(suffix=".log", delete=False) as f:
         log_file = f.name
-    setup_logging(log_level="DEBUG", json_format=False, log_file=log_file)
+    configure_logging(log_level="DEBUG", json_format=False, log_file=log_file)
     yield structlog.get_logger()
     os.unlink(log_file) 

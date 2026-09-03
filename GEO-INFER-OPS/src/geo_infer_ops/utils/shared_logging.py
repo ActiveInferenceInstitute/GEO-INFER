@@ -3,6 +3,11 @@ Shared logging configuration for GEO-INFER modules.
 
 This module provides standardized structured logging using structlog that can be
 used across all GEO-INFER modules for consistent logging behavior.
+
+``configure_logging`` is the SINGLE documented app-level logging entry for
+GEO-INFER-OPS: CLI entrypoints call it once at startup. Library modules must
+stay passive — ``logging.getLogger(__name__)`` / ``structlog.get_logger``
+only — and never mutate the root logger at import time.
 """
 
 import sys
@@ -223,17 +228,6 @@ def setup_module_logging(
     
     return get_logger(module_name)
 
-
-# Initialize default logging on import (optional, can be disabled)
-# This ensures logging works even if configure_logging is never called
-def _initialize_default_logging() -> None:
-    """Initialize default logging configuration."""
-    if not _logging_configured:
-        configure_logging(log_level="INFO", json_format=False)
-
-
-# Uncomment the line below to enable automatic initialization
-# _initialize_default_logging()
 
 
 __all__ = [

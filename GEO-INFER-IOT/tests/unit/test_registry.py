@@ -133,6 +133,42 @@ class TestSensorRegistry:
         assert len(sensors) == 1
         assert sensors[0].sensor_id == "s-001"
 
+    def test_get_sensors_in_area_h3_matches_brute_force(self):
+        """H3-indexed lookup returns the same sensor set as a bbox scan."""
+        registry = SensorRegistry()
+        synthetic = [
+            ("inside-center", 37.50, -122.50),
+            ("inside-edge-north", 37.97, -122.50),
+            ("inside-edge-east", 37.50, -122.03),
+            ("just-outside-north", 38.03, -122.50),
+            ("just-outside-west", 37.50, -123.03),
+            ("far-outside", 50.00, 10.00),
+        ]
+        for sensor_id, lat, lon in synthetic:
+            registry.register_sensor({
+                "sensor_id": sensor_id,
+                "network_id": "net-1",
+                "sensor_type": "temperature",
+                "latitude": lat,
+                "longitude": lon,
+            })
+        bounds = {
+            "lat_min": 37.0, "lat_max": 38.0,
+            "lon_min": -123.0, "lon_max": -122.0,
+        }
+        h3_result = registry.get_sensors_in_area(bounds)
+        brute_force = [
+            s for s in registry.sensors.values()
+            if bounds["lat_min"] <= s.latitude <= bounds["lat_max"]
+            and bounds["lon_min"] <= s.longitude <= bounds["lon_max"]
+        ]
+        assert {s.sensor_id for s in h3_result} == {
+            s.sensor_id for s in brute_force
+        }
+        assert {s.sensor_id for s in h3_result} == {
+            "inside-center", "inside-edge-north", "inside-edge-east",
+        }
+
     def test_get_sensors_in_h3_cell(self):
         registry = SensorRegistry()
         sensor = registry.register_sensor({

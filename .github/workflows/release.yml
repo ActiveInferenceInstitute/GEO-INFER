@@ -64,8 +64,7 @@ jobs:
         run: |
           uv run python GEO-INFER-TEST/build_package_wheels.py \
             --outdir dist \
-            --verify ${{ github.event.inputs.tags_isolated_verify || 'false' }}
-
+            ${{ github.event.inputs.run_isolated_verify == 'true' && '--verify' || '' }}
       - name: Verify built wheels cover all distribution namespaces
         run: |
           uv run python - <<'EOF'
@@ -73,6 +72,9 @@ jobs:
           dist = Path("dist")
           wheels = sorted(p.name for p in dist.glob("*.whl")) if dist.is_dir() else []
           print(f"Built {len(wheels)} wheels")
+          if not wheels:
+              print("FAIL: no wheels found in dist/; a zero-wheel build cannot be released")
+              raise SystemExit(1)
           missing = [name for name in wheels if not name.startswith("geo_infer_")]
           if missing:
               print("FAIL: wheels outside geo_infer_ namespace: " + ", ".join(missing))
@@ -83,11 +85,11 @@ jobs:
           EOF
 
       - name: Upload wheel artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43907fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: geo-infer-wheels
           path: dist/*.whl
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 30
 
       - name: Prune uv cache

@@ -108,3 +108,33 @@ class TestMixedLayerDepth:
         )
         mld = modeler.calculate_mixed_layer_depth(temp_profile, depths)
         assert float(mld) == float(depths.max())
+
+
+class TestEquatorGuardSignPreserving:
+    """The 1e-5 equator guard must not flip the sign of small |f|."""
+
+    def test_negative_f_stays_negative(self, modeler):
+        # Latitude whose Coriolis parameter is -1e-6 (inside the guard band).
+        lat = np.degrees(np.arcsin(-1e-6 / (2 * 7.2921e-5)))
+        lats = xr.DataArray(np.array([lat]), dims=("y",))
+        tau_y = xr.DataArray(np.array([1.0]), dims=("y",))
+        tau_x = xr.DataArray(np.array([0.0]), dims=("y",))
+        result = modeler.calculate_ekman_transport(tau_x, tau_y, lats)
+        # transport_x = tau_y / f with f clamped to -1e-5, so negative.
+        assert float(result["ekman_transport_x"].values[0]) < 0
+
+    def test_zero_f_clamps_positive(self, modeler):
+        lats = xr.DataArray(np.array([0.0]), dims=("y",))
+        tau_y = xr.DataArray(np.array([1.0]), dims=("y",))
+        tau_x = xr.DataArray(np.array([0.0]), dims=("y",))
+        result = modeler.calculate_ekman_transport(tau_x, tau_y, lats)
+        # f == 0 clamps to +1e-5, so transport_x = 1 / 1e-5.
+        assert float(result["ekman_transport_x"].values[0]) == pytest.approx(1e5)
+
+    def test_positive_f_stays_positive(self, modeler):
+        lat = np.degrees(np.arcsin(1e-6 / (2 * 7.2921e-5)))
+        lats = xr.DataArray(np.array([lat]), dims=("y",))
+        tau_y = xr.DataArray(np.array([1.0]), dims=("y",))
+        tau_x = xr.DataArray(np.array([0.0]), dims=("y",))
+        result = modeler.calculate_ekman_transport(tau_x, tau_y, lats)
+        assert float(result["ekman_transport_x"].values[0]) > 0

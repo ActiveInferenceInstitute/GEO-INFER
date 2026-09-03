@@ -17,7 +17,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from ..models.schemas import DatasetMetadata
-
+from ..utils.identifiers import validate_sql_identifier
 
 logger = logging.getLogger(__name__)
 
@@ -151,47 +151,14 @@ class DatabaseConnector:
         """
         logger.info(f"Querying geospatial data from {table_name}")
 
-        # Build query
-        query = f"SELECT {', '.join(columns) if columns else '*'} FROM {table_name}"
-
-        conditions = []
-        params = {}
-
-        # Add spatial filter
-        if spatial_filter and self.enable_geospatial:
-            if "bbox" in spatial_filter:
-                bbox = spatial_filter["bbox"]
-                if len(bbox) >= 4:
-                    min_lon, min_lat, max_lon, max_lat = bbox[:4]
-                    conditions.append(
-                        "ST_Intersects(geom, ST_MakeEnvelope(:min_lon, :min_lat, :max_lon, :max_lat, 4326))"
-                    )
-                    params.update(
-                        {
-                            "min_lon": min_lon,
-                            "min_lat": min_lat,
-                            "max_lon": max_lon,
-                            "max_lat": max_lat,
-                        }
-                    )
-
-        # Add temporal filter
-        if temporal_filter:
-            time_column = temporal_filter.get("column", "timestamp")
-            if "start" in temporal_filter:
-                conditions.append(f"{time_column} >= :start_time")
-                params["start_time"] = temporal_filter["start"]
-            if "end" in temporal_filter:
-                conditions.append(f"{time_column} <= :end_time")
-                params["end_time"] = temporal_filter["end"]
-
-        # Add conditions to query
-        if conditions:
-            query += " WHERE " + " AND ".join(conditions)
-
-        # Add limit
-        if limit:
-            query += f" LIMIT {limit}"
+        query, params = self._build_select_query(
+            table_name=table_name,
+            columns=columns,
+            spatial_filter=spatial_filter,
+            temporal_filter=temporal_filter,
+            limit=limit,
+            enable_geospatial=self.enable_geospatial,
+        )
 
         try:
             # Execute query
@@ -227,6 +194,76 @@ class DatabaseConnector:
             logger.error(f"Geospatial query failed: {e}")
             raise
 
+    @staticmethod
+    def _build_select_query(
+        table_name: str,
+        columns: Optional[List[str]],
+        spatial_filter: Optional[Dict[str, Any]],
+        temporal_filter: Optional[Dict[str, Any]],
+        limit: Optional[int],
+        enable_geospatial: bool,
+    ) -> tuple[str, Dict[str, Any]]:
+        """Build a SELECT statement with every interpolated identifier validated.
+
+        All identifiers (table, columns, time column) pass through
+        :func:`validate_sql_identifier` and the row limit is coerced to
+        ``int``; filter *values* travel as bound parameters.
+
+        Returns:
+            Tuple of ``(query, params)`` ready for SQLAlchemy ``text()``.
+
+        Raises:
+            ValueError: If any identifier or limit is unsafe.
+        """
+        safe_table = validate_sql_identifier(table_name)
+        select_clause = (
+            ", ".join(f'"{validate_sql_identifier(c)}"' for c in columns)
+            if columns
+            else "*"
+        )
+        query = f"SELECT {select_clause} FROM {safe_table}"
+
+        conditions: List[str] = []
+        params: Dict[str, Any] = {}
+
+        if spatial_filter and enable_geospatial and "bbox" in spatial_filter:
+            bbox = spatial_filter["bbox"]
+            if len(bbox) >= 4:
+                min_lon, min_lat, max_lon, max_lat = (
+                    float(v) for v in bbox[:4]
+                )
+                conditions.append(
+                    "ST_Intersects(geom, ST_MakeEnvelope(:min_lon, :min_lat, "
+                    ":max_lon, :max_lat, 4326))"
+                )
+                params.update(
+                    {
+                        "min_lon": min_lon,
+                        "min_lat": min_lat,
+                        "max_lon": max_lon,
+                        "max_lat": max_lat,
+                    }
+                )
+
+        if temporal_filter:
+            time_column = validate_sql_identifier(
+                temporal_filter.get("column", "timestamp")
+            )
+            if "start" in temporal_filter:
+                conditions.append(f"{time_column} >= :start_time")
+                params["start_time"] = temporal_filter["start"]
+            if "end" in temporal_filter:
+                conditions.append(f"{time_column} <= :end_time")
+                params["end_time"] = temporal_filter["end"]
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        if limit:
+            query += f" LIMIT {int(limit)}"
+
+        return query, params
+
     async def insert_geospatial_data(
         self,
         data: Union[pd.DataFrame, gpd.GeoDataFrame],
@@ -250,6 +287,9 @@ class DatabaseConnector:
 
         if table_name is None:
             table_name = metadata.title.lower().replace(" ", "_").replace("-", "_")
+        # Validate only after the title -> table_name transform so a hostile
+        # title can never smuggle characters into DDL.
+        table_name = validate_sql_identifier(table_name)
 
         try:
             # Convert to GeoDataFrame if needed
@@ -328,12 +368,17 @@ class DatabaseConnector:
         for col in gdf.columns:
             col_dtype = str(gdf[col].dtype)
             sql_type = dtype_map.get(col_dtype, "TEXT")
-            # Sanitise column name: replace spaces and hyphens
-            safe_col = col.replace(" ", "_").replace("-", "_")
+            # Normalise then validate the column name; non-identifier columns
+            # are rejected rather than escaped.
+            safe_col = validate_sql_identifier(
+                col.replace(" ", "_").replace("-", "_")
+            )
             columns_sql.append(f'"{safe_col}" {sql_type}')
 
+        safe_table = validate_sql_identifier(table_name)
         create_stmt = (
-            f"CREATE TABLE IF NOT EXISTS {table_name} " f"({', '.join(columns_sql)})"
+            f"CREATE TABLE IF NOT EXISTS {safe_table} "
+            f"({', '.join(columns_sql)})"
         )
 
         try:
@@ -366,11 +411,15 @@ class DatabaseConnector:
             logger.info("No rows to insert into %s", table_name)
             return
 
-        columns = [c.replace(" ", "_").replace("-", "_") for c in gdf.columns]
+        safe_table = validate_sql_identifier(table_name)
+        columns = [
+            validate_sql_identifier(c.replace(" ", "_").replace("-", "_"))
+            for c in gdf.columns
+        ]
         col_list = ", ".join(f'"{c}"' for c in columns)
         baselines = ", ".join(f":{c}" for c in columns)
         insert_stmt = text(
-            f"INSERT INTO {table_name} ({col_list}) VALUES ({baselines})"
+            f"INSERT INTO {safe_table} ({col_list}) VALUES ({baselines})"
         )
 
         rows_inserted = 0
@@ -398,7 +447,11 @@ class DatabaseConnector:
             return
 
         try:
-            index_query = f"CREATE INDEX IF NOT EXISTS idx_{table_name}_geom ON {table_name} USING GIST (geom)"
+            safe_table = validate_sql_identifier(table_name)
+            index_query = (
+                f"CREATE INDEX IF NOT EXISTS idx_{safe_table}_geom "
+                f"ON {safe_table} USING GIST (geom)"
+            )
 
             if self.async_engine:
                 async with self.AsyncSessionLocal() as session:

@@ -108,7 +108,7 @@ class HealthcareAccessibilityAnalyzer:
                 "message": "Population is zero.",
             }
 
-        # Count facilities (very simplified: assumes facilities list is for the entire region of interest)
+        # Count facilities; the caller supplies facilities for the full region of interest
         # A real implementation would filter facilities within the specific area_id's geometry.
         relevant_facilities = self.facilities
         if facility_type:

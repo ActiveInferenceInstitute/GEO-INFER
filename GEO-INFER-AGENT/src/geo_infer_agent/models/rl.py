@@ -23,13 +23,6 @@ from geo_infer_agent.core.agent_base import BaseAgent, AgentState
 
 logger = logging.getLogger("geo_infer_agent.models.rl")
 
-try:
-    import numpy as np
-
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-    logger.warning("NumPy not available. Using simplified implementations.")
 
 
 class Experience:
@@ -77,12 +70,12 @@ class Experience:
         """Create from dictionary representation."""
         state = (
             np.array(data["state"])
-            if HAS_NUMPY and isinstance(data["state"], list)
+            if isinstance(data["state"], list)
             else data["state"]
         )
         next_state = (
             np.array(data["next_state"])
-            if HAS_NUMPY and isinstance(data["next_state"], list)
+            if isinstance(data["next_state"], list)
             else data["next_state"]
         )
 
@@ -109,12 +102,7 @@ class QTable:
             action_size: Number of possible actions
             default_value: Initial value for Q-values
         """
-        if HAS_NUMPY:
-            self.q_table: Any = np.ones((state_size, action_size)) * default_value
-        else:
-            self.q_table = [
-                [default_value for _ in range(action_size)] for _ in range(state_size)
-            ]
+        self.q_table: Any = np.ones((state_size, action_size)) * default_value
 
         self.state_size = state_size
         self.action_size = action_size
@@ -133,10 +121,7 @@ class QTable:
         if state >= self.state_size or action >= self.action_size:
             return 0.0
 
-        if HAS_NUMPY:
-            return cast(float, self.q_table[state, action])
-        else:
-            return cast(float, self.q_table[state][action])
+        return cast(float, self.q_table[state, action])
 
     def update_value(self, state: int, action: int, value: float) -> None:
         """
@@ -150,10 +135,7 @@ class QTable:
         if state >= self.state_size or action >= self.action_size:
             return
 
-        if HAS_NUMPY:
-            self.q_table[state, action] = value
-        else:
-            self.q_table[state][action] = value
+        self.q_table[state, action] = value
 
     def get_best_action(self, state: int) -> int:
         """
@@ -168,17 +150,11 @@ class QTable:
         if state >= self.state_size:
             return 0
 
-        if HAS_NUMPY:
-            return cast(int, np.argmax(self.q_table[state]))
-        else:
-            return cast(int, self.q_table[state].index(max(self.q_table[state])))
+        return cast(int, np.argmax(self.q_table[state]))
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
-        if HAS_NUMPY:
-            q_table_list = self.q_table.tolist()
-        else:
-            q_table_list = self.q_table
+        q_table_list = self.q_table.tolist()
 
         return {
             "state_size": self.state_size,
@@ -191,10 +167,7 @@ class QTable:
         """Create from dictionary representation."""
         q_table = cls(state_size=data["state_size"], action_size=data["action_size"])
 
-        if HAS_NUMPY:
-            q_table.q_table = np.array(data["q_table"])
-        else:
-            q_table.q_table = data["q_table"]
+        q_table.q_table = np.array(data["q_table"])
 
         return q_table
 
@@ -375,7 +348,7 @@ class RLState(AgentState):
 
         # If state is a numpy array, hash it to an index
         # This is a simple approach; more sophisticated methods may be needed
-        if HAS_NUMPY and isinstance(state, np.ndarray):
+        if isinstance(state, np.ndarray):
             # Simple hash function for small arrays
             state_hash = sum([i * val for i, val in enumerate(state.flatten())])
             return abs(int(state_hash)) % self.q_table.state_size
@@ -560,7 +533,7 @@ class RLAgent(BaseAgent):
         if observations:
             if "state" in observations:
                 self.state.current_state = observations["state"]
-            elif "vector_state" in observations and HAS_NUMPY:
+            elif "vector_state" in observations:
                 self.state.current_state = np.array(observations["vector_state"])
 
         return observations

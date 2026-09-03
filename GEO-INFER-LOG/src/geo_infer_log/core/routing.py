@@ -5,6 +5,7 @@ This module provides classes for optimizing routes, managing fleets,
 and estimating travel times with geospatial intelligence.
 """
 
+import pickle
 import numpy as np
 import geopandas as gpd
 import networkx as nx
@@ -16,6 +17,23 @@ from scipy.spatial import KDTree
 from shapely.geometry import LineString
 
 logger = logging.getLogger(__name__)
+
+
+def _load_gpickle(path: str) -> nx.Graph:
+    """Load a graph pickled with :func:`pickle.dump`.
+
+    ``nx.read_gpickle`` was removed in networkx 3.0; plain
+    :func:`pickle.load` is the supported replacement and round-trips
+    with ``pickle.dump``.
+
+    Args:
+        path: Path to the pickled graph file
+
+    Returns:
+        The unpickled NetworkX graph
+    """
+    with open(path, "rb") as handle:
+        return pickle.load(handle)
 
 
 class VehicleType(Enum):
@@ -77,13 +95,10 @@ class RouteOptimizer:
             network_file: Path to network file (Pickle or GraphML)
         """
         try:
-            if network_file.endswith(".gpickle") or network_file.endswith(".p"):
-                self.network = nx.read_gpickle(network_file)
-            elif network_file.endswith(".graphml"):
+            if network_file.endswith(".graphml"):
                 self.network = nx.read_graphml(network_file)
             else:
-                # Default to pickle if unknown extension
-                self.network = nx.read_gpickle(network_file)
+                self.network = _load_gpickle(network_file)
 
             self._build_spatial_index()
         except Exception as e:
@@ -160,21 +175,12 @@ class RouteOptimizer:
                     dest_node,
                     weight=self.parameters.weight_factor,
                 )
-
-                try:
-                    distance = nx.shortest_path_length(
-                        self.network, origin_node, dest_node, weight="distance"
-                    )
-                except nx.NetworkXNoPath:
-                    distance = 0.0  # Fallback
-
-                try:
-                    travel_time = nx.shortest_path_length(
-                        self.network, origin_node, dest_node, weight="time"
-                    )
-                except nx.NetworkXNoPath:
-                    travel_time = 0.0  # Fallback
-
+                distance = nx.shortest_path_length(
+                    self.network, origin_node, dest_node, weight="distance"
+                )
+                travel_time = nx.shortest_path_length(
+                    self.network, origin_node, dest_node, weight="time"
+                )
             except nx.NetworkXNoPath:
                 logger.warning(f"No path found between {origin_node} and {dest_node}")
                 return {"error": "No path found"}

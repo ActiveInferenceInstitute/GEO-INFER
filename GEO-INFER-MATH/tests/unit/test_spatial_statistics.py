@@ -267,16 +267,13 @@ class TestMoranIEdgeCases:
             moran.compute(values, coords)
 
     def test_moran_i_with_two_points(self):
-        """Test Moran's I with two points."""
+        """Moran's I randomization variance is undefined below 4 locations."""
         values = np.array([10, 20])
         coords = np.array([[0, 0], [1, 0]])
 
         moran = MoranI()
-        result = moran.compute(values, coords)
-
-        # Should work but interpretation may be limited
-        assert 'I' in result
-        assert 'p_value' in result
+        with pytest.raises(ValueError, match="at least 4 locations"):
+            moran.compute(values, coords)
 
     def test_moran_i_with_negative_weights(self):
         """Test Moran's I with negative weights matrix."""
@@ -583,3 +580,74 @@ class TestAPIIntegration:
         # Should raise BadRequest for invalid data
         with pytest.raises(Exception):  # Should be BadRequest from werkzeug
             api.calculate_descriptive_stats(invalid_data) 
+
+
+class TestVerifiedStatistics:
+    """Tests pinning real implementations over simplified placeholders."""
+
+    def test_nearest_neighbor_p_value_matches_exact_gaussian_tail(self):
+        """NN p-value equals 2 * scipy.stats.norm.sf(|z|) on a known case."""
+        from scipy.stats import norm
+        from geo_infer_math.api.spatial_analysis import SpatialAnalysisAPI
+
+        points = np.array([
+            [0, 0], [1, 0], [2, 0], [0, 1], [1, 1],
+            [2, 1], [0, 2], [1, 2], [2, 2], [0.5, 0.5],
+        ], dtype=float)
+        api = SpatialAnalysisAPI()
+        result = api.point_pattern_analysis(points, method='nearest_neighbor', area=4.0)
+
+        expected_p = 2 * norm.sf(abs(result['z_score']))
+        assert abs(result['p_value'] - expected_p) < 1e-12
+        assert 0.0 <= result['p_value'] <= 1.0
+
+    def test_geary_p_value_on_small_grid(self):
+        """Geary's C permutational variance yields a valid z and p."""
+        from geo_infer_math.core.spatial_statistics import GearysC
+
+        values = np.array([10.0, 12.0, 11.0, 13.0, 50.0, 52.0, 51.0, 53.0])
+        coords = np.array([
+            [1, 1], [1, 2], [2, 1], [2, 2],
+            [10, 10], [10, 11], [11, 10], [11, 11],
+        ])
+        result = GearysC(rng=0).compute(values, coords)
+
+        assert 0 <= result['p_value'] <= 1
+        assert result['var_C'] > 0
+        assert abs(result['z_score'] - (result['C'] - 1.0) / np.sqrt(result['var_C'])) < 1e-12
+        # Strong positive autocorrelation -> C well below 1 -> negative z
+        assert result['z_score'] < 0
+
+    def test_morans_i_variance_cliff_ord_known_value(self):
+        """Shared Cliff-Ord variance matches an independent loop computation."""
+        from geo_infer_math.core.spatial_statistics import morans_i_variance
+
+        values = np.array([3.0, 1.0, 2.0, 5.0, 4.0, 6.0])
+        weights = np.array([
+            [0.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+            [1.0, 0.0, 1.0, 1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+            [0.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0, 1.0, 0.0],
+        ])
+
+        n = len(values)
+        z = values - values.mean()
+        s0 = 0.0
+        s1 = 0.0
+        s2 = 0.0
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    s0 += weights[i, j]
+                    s1 += 0.5 * (weights[i, j] + weights[j, i]) ** 2
+        for k in range(n):
+            s2 += (weights[k, :].sum() + weights[:, k].sum()) ** 2
+        b2 = n * np.sum(z ** 4) / (np.sum(z ** 2) ** 2)
+        expected = (
+            n * ((n ** 2 - 3 * n + 3) * s1 - n * s2 + 3 * s0 ** 2)
+            - b2 * ((n ** 2 - n) * s1 - 2 * n * s2 + 6 * s0 ** 2)
+        ) / ((n - 1) * (n - 2) * (n - 3) * s0 ** 2) - 1.0 / (n - 1) ** 2
+
+        assert abs(morans_i_variance(values, weights) - expected) < 1e-10

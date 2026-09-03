@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 from pathlib import Path
 import numpy as np
+import h3
 
 # Optional imports for enhanced visualization
 try:
@@ -331,8 +332,8 @@ class IoTVisualization:
                 value = interpolated_values[i]
                 unc = uncertainty[i] if uncertainty else 0.5
 
-                # Create H3 cell boundary for this point (simplified)
-                # In a real implementation, this would use proper H3 boundaries
+                # Point geometry marks the sampled location; the covering H3
+                # cell index travels in properties for downstream boundary work
                 feature: Dict[str, Any] = {
                     "type": "Feature",
                     "geometry": {"type": "Point", "coordinates": [lon, lat]},
@@ -340,6 +341,7 @@ class IoTVisualization:
                         "interpolated_value": value,
                         "uncertainty": unc,
                         "index": i,
+                        "h3_index": h3.latlng_to_cell(lat, lon, 8),
                     },
                 }
                 features.append(feature)

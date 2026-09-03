@@ -39,10 +39,18 @@ class CascadianSurfaceWaterDataSources:
 
         self.flowlines_url: Optional[str] = self.config.get("nhd_flowlines_url")
         self.waterbodies_url: Optional[str] = self.config.get("nhd_waterbodies_url")
+        # The packaged local NHDPlus HR extract lives next to the cascadia
+        # config; deployments (and deterministic tests) can point at a
+        # different dataset via GEO_INFER_CASCADIA_FLOWLINES_PATH.
+        env_override = os.environ.get("GEO_INFER_CASCADIA_FLOWLINES_PATH")
         self._local_flowlines_path = (
-            Path(__file__).resolve().parents[3]
-            / "config"
-            / "cascadia_nhdplus_flowlines.geojson"
+            Path(env_override)
+            if env_override
+            else (
+                Path(__file__).resolve().parents[3]
+                / "config"
+                / "cascadia_nhdplus_flowlines.geojson"
+            )
         )
 
     def load_pnw_high_order_flowlines(
@@ -98,6 +106,14 @@ class CascadianSurfaceWaterDataSources:
         Returns:
             A GeoDataFrame containing the queried features, or an empty one on failure.
         """
+        if os.environ.get("GEO_INFER_SURFACE_WATER_OFFLINE"):
+            # Air-gapped / hermetic-test mode: use local datasets only.
+            logger.info(
+                "Surface water offline mode enabled; skipping NHD query for %s.",
+                layer_name,
+            )
+            return gpd.GeoDataFrame([], geometry=[], crs="EPSG:4326")
+
         if not service_url:
             logger.error(f"No URL configured for NHD layer '{layer_name}'.")
             return gpd.GeoDataFrame([], geometry=[], crs="EPSG:4326")
@@ -219,8 +235,8 @@ class CascadianSurfaceWaterDataSources:
                                             * 111,  # rough estimate
                                         }
                                     )
-                            except Exception:
-                                pass
+                            except Exception as exc:
+                                logger.warning('OSM water feature construction failed; skipping feature: %s', exc)
 
             flowlines_gdf = (
                 gpd.GeoDataFrame(flowlines, crs="EPSG:4326")
@@ -272,7 +288,11 @@ class CascadianSurfaceWaterDataSources:
                     flowlines_gdf = matched
 
         # Fallback 2: Basic validation: If both return nothing, try OSM
-        if flowlines_gdf.empty and waterbodies_gdf.empty:
+        if (
+            flowlines_gdf.empty
+            and waterbodies_gdf.empty
+            and not os.environ.get("GEO_INFER_SURFACE_WATER_OFFLINE")
+        ):
             logger.info("NHD returned no data. Falling back to OSM.")
             return self._query_osm_overpass_water(bbox)
 

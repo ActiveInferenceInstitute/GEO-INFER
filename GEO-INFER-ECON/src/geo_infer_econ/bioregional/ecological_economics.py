@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 import logging
 from abc import ABC, abstractmethod
 
+from ..utils.rng import resolve_rng
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -47,15 +49,20 @@ class BiophysicalEquilibriumModels:
     and physical systems in economic contexts.
     """
     
-    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize biophysical equilibrium models.
-        
+
         Args:
             config: Configuration parameters
+            rng: Optional random generator for spatial dynamics noise. When
+                omitted, a fixed-seed generator is used so simulations are
+                deterministic by default.
         """
         self.config = config or EcologicalEconomicsConfig()
         self.models: Dict[str, Any] = {}
+        self._rng = resolve_rng(rng)
         self._initialize_models()
     
     def _initialize_models(self) -> None:
@@ -274,7 +281,7 @@ class BiophysicalEquilibriumModels:
             value_history.append(service_values.copy())
 
             # Update spatial distribution (simplified)
-            spatial_dist = [v * (1 + np.random.normal(0, 0.1)) for v in service_values]
+            spatial_dist = [v * (1 + self._rng.normal(0, 0.1)) for v in service_values]
             spatial_distribution.append(spatial_dist)
 
         # Calculate total economic value
@@ -701,9 +708,19 @@ class EcologicalEconomicsEngine:
     single entry-point.
     """
 
-    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None,
+                 rng: Optional[np.random.Generator] = None):
+        """
+        Initialize the ecological economics engine.
+
+        Args:
+            config: Configuration parameters.
+            rng: Optional random generator threaded into stochastic
+                sub-models. When omitted, a fixed-seed generator is used so
+                analyses are deterministic by default.
+        """
         self.config = config or EcologicalEconomicsConfig()
-        self.biophysical = BiophysicalEquilibriumModels(self.config)
+        self.biophysical = BiophysicalEquilibriumModels(self.config, rng=rng)
         self.thermodynamics = ThermoeconomicModels(self.config)
         self.footprint = EcologicalFootprintAnalysis(self.config)
         self.carrying_capacity = CarryingCapacityModels(self.config)
