@@ -367,3 +367,13 @@ in `/tmp/geo-merge-wheels311.log`. The pre-merge Linux ARM64 checks above remain
 historical; the final merged clean-install checks were run on macOS. Hosted CI
 results must be tied to the pushed SHA. Outgoing formatting, critical lint and
 whitespace checks are scoped against the fetched remote `main`.
+
+
+### Publication receipt
+
+The normal push of merge commit `b45f10832db9c4815455b79246f88a20735aca1b`
+to public `ActiveInferenceInstitute/GEO-INFER` `main` succeeded. Its parent history
+preserves both the implementation and the seven upstream commits. Local HEAD and
+`git ls-remote origin refs/heads/main` matched, and the worktree was clean. This
+receipt is recorded in a subsequent documentation commit. Hosted checks remain
+the recurring CI-01 acceptance gate; no hosted result is inferred from local tests.
