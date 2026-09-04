@@ -8,6 +8,7 @@ Utils workspace within `GEO-INFER-DATA`.
 - `compression.py`
 - `duckdb_spatial.py`
 - `format_detection.py`
+- `identifiers.py`
 - `indexing.py`
 - `performance.py`
 - `secure_serialization.py`
@@ -22,6 +23,7 @@ Utils workspace within `GEO-INFER-DATA`.
 - `duckdb_spatial.py:read_cloud_native_vector` (function)
 - `duckdb_spatial.py:duckdb_status` (function)
 - `format_detection.py:FormatDetector` (class)
+- `identifiers.py:validate_sql_identifier` (function)
 - `indexing.py:SpatialIndexer` (class)
 - `indexing.py:TemporalIndexer` (class)
 - `performance.py:PerformanceMonitor` (class)
@@ -34,7 +36,6 @@ Utils workspace within `GEO-INFER-DATA`.
 - `secure_serialization.py:UnsignedPayloadError` (class)
 - `secure_serialization.py:SignatureMismatchError` (class)
 - `secure_serialization.py:clear_signing_key_cache` (function)
-- `secure_serialization.py:default_key_path` (function)
 
 ## Module Metadata
 

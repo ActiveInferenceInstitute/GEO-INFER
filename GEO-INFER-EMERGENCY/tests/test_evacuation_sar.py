@@ -26,9 +26,19 @@ class TestEvacuationPlanner:
     """Test suite for EvacuationPlanner class."""
     
     @pytest.fixture
-    def planner(self):
+    def road_network(self):
+        """Synthetic road network connecting zone_1 to shelter_1."""
+        import networkx as nx
+
+        graph = nx.DiGraph()
+        graph.add_edge("zone_1", "shelter_1", distance=12.0, travel_time=18.0, capacity=1200)
+        return graph
+
+    @pytest.fixture
+    def planner(self, road_network):
         """Create an EvacuationPlanner instance."""
         return EvacuationPlanner(
+            road_network=road_network,
             shelters=[
                 {"id": "shelter_1", "name": "Community Center", "capacity": 500, "location": {"lat": 34.0, "lon": -118.0}}
             ]

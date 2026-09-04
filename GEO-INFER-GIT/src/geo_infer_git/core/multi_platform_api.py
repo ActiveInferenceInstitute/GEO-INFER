@@ -152,8 +152,12 @@ class LocalRepository:
                             if lines:
                                 description = lines[0][:200]  # Limit to 200 chars
                                 break
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning(
+                            "Could not extract description from %s: %s",
+                            readme_path,
+                            exc,
+                        )
 
             return cls(
                 name=name,

@@ -6,6 +6,7 @@ and related metadata using Pydantic for validation and type safety.
 """
 
 import logging
+import math
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
@@ -365,13 +366,21 @@ class SensorNetwork(BaseModel):
         return v
 
     def get_coverage_area(self) -> float:
-        """Calculate approximate coverage area in square kilometers."""
+        """Calculate coverage area in square kilometers.
+
+        Uses a spherical approximation: latitude spans a constant
+        ~111.32 km per degree, while the longitude span is scaled by the
+        cosine of the mean latitude to account for meridian convergence.
+        """
         lat_range = self.spatial_bounds["lat_max"] - self.spatial_bounds["lat_min"]
         lon_range = self.spatial_bounds["lon_max"] - self.spatial_bounds["lon_min"]
+        mean_lat = math.radians(
+            (self.spatial_bounds["lat_max"] + self.spatial_bounds["lat_min"]) / 2
+        )
 
-        # Rough approximation (not accounting for Earth's curvature)
-        # More accurate calculation would use proper geodesic area
-        return lat_range * lon_range * 111 * 111  # km²
+        km_per_deg_lat = 111.32
+        km_per_deg_lon = 111.32 * math.cos(mean_lat)
+        return lat_range * km_per_deg_lat * lon_range * km_per_deg_lon
 
     def is_location_covered(self, latitude: float, longitude: float) -> bool:
         """Check if a location is within the network's spatial bounds."""
@@ -384,16 +393,18 @@ class SensorNetwork(BaseModel):
 
     def get_h3_cells(self) -> List[str]:
         """Get H3 cells covering the network's spatial bounds."""
-        # This would use proper polygon to H3 conversion
-        # For now, return a representative cell
-        center_lat = (
-            self.spatial_bounds["lat_min"] + self.spatial_bounds["lat_max"]
-        ) / 2
-        center_lon = (
-            self.spatial_bounds["lon_min"] + self.spatial_bounds["lon_max"]
-        ) / 2
-
-        return [h3.latlng_to_cell(center_lat, center_lon, self.h3_resolution)]
+        bounds = self.spatial_bounds
+        polygon = {
+            "type": "Polygon",
+            "coordinates": [[
+                [bounds["lon_min"], bounds["lat_min"]],
+                [bounds["lon_max"], bounds["lat_min"]],
+                [bounds["lon_max"], bounds["lat_max"]],
+                [bounds["lon_min"], bounds["lat_max"]],
+                [bounds["lon_min"], bounds["lat_min"]],
+            ]],
+        }
+        return list(h3.geo_to_cells(polygon, self.h3_resolution))
 
 
 class SensorDeployment(BaseModel):

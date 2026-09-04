@@ -9,6 +9,9 @@ import numpy as np
 from typing import Union, Optional, List, Tuple, Dict, Any, Callable, cast
 import logging
 
+from geo_infer_math.utils.rng import resolve_rng
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,7 +112,8 @@ def mcmc_wrapper(
     n_samples: int = 1000,
     n_burnin: int = 100,
     step_size: float = 0.1,
-    method: str = 'metropolis'
+    method: str = 'metropolis',
+    rng: Optional[np.random.Generator] = None
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Wrapper for MCMC sampling.
@@ -121,61 +125,64 @@ def mcmc_wrapper(
         n_burnin: Number of burn-in samples
         step_size: Step size for proposals
         method: MCMC method ('metropolis', 'gibbs')
+        rng: Optional np.random.Generator (or seed) resolved via
+            ``resolve_rng``; pass a seeded generator for reproducible chains.
 
     Returns:
         Tuple of (samples, metadata)
     """
+    random_gen = resolve_rng(rng)
     initial_state = np.asarray(initial_state)
     n_params = len(initial_state)
-    
+
     samples = np.zeros((n_samples, n_params))
     current_state = initial_state.copy()
     current_log_prob = log_posterior(current_state)
-    
+
     accepted = 0
-    
+
     for i in range(n_samples + n_burnin):
         # Propose new state
         if method == 'metropolis':
             # Metropolis-Hastings
-            proposal = current_state + np.random.normal(0, step_size, n_params)
+            proposal = current_state + random_gen.normal(0, step_size, n_params)
             proposal_log_prob = log_posterior(proposal)
-            
+
             # Acceptance probability
             accept_prob = min(1.0, np.exp(proposal_log_prob - current_log_prob))
-            
-            if np.random.rand() < accept_prob:
+
+            if random_gen.random() < accept_prob:
                 current_state = proposal
                 current_log_prob = proposal_log_prob
                 accepted += 1
-        
+
         elif method == 'gibbs':
-            # Gibbs sampling (simplified - updates one parameter at a time)
+            # Gibbs-style coordinate update: one parameter at a time
             param_idx = i % n_params
             proposal = current_state.copy()
-            proposal[param_idx] += np.random.normal(0, step_size)
+            proposal[param_idx] += random_gen.normal(0, step_size)
             proposal_log_prob = log_posterior(proposal)
-            
+
             accept_prob = min(1.0, np.exp(proposal_log_prob - current_log_prob))
-            
-            if np.random.rand() < accept_prob:
+
+            if random_gen.random() < accept_prob:
                 current_state = proposal
                 current_log_prob = proposal_log_prob
                 accepted += 1
-        
+
         # Store sample (after burn-in)
         if i >= n_burnin:
             samples[i - n_burnin] = current_state
-    
+
     acceptance_rate = accepted / (n_samples + n_burnin)
-    
+
     metadata = {
         'n_samples': n_samples,
         'n_burnin': n_burnin,
         'acceptance_rate': acceptance_rate,
         'method': method
     }
-    
+
     return samples, metadata
 
 
@@ -183,7 +190,8 @@ def bayesian_optimization_helper(
     objective: Callable,
     prior: np.ndarray,
     n_iterations: int = 10,
-    acquisition: str = 'expected_improvement'
+    acquisition: str = 'expected_improvement',
+    rng: Optional[np.random.Generator] = None
 ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
     """
     Helper for Bayesian optimization.
@@ -193,10 +201,13 @@ def bayesian_optimization_helper(
         prior: Prior over parameter space
         n_iterations: Number of optimization iterations
         acquisition: Acquisition function type
+        rng: Optional np.random.Generator (or seed) resolved via
+            ``resolve_rng``; pass a seeded generator for reproducible runs.
 
     Returns:
         Tuple of (optimal_parameters, optimal_value, metadata)
     """
+    random_gen = resolve_rng(rng)
     # Bayesian optimization via Upper Confidence Bound (UCB) acquisition
     # Uses a running empirical GP proxy (mean + kappa*std) to balance
     # exploitation vs. exploration without an external GP library.
@@ -214,7 +225,7 @@ def bayesian_optimization_helper(
 
         if not evaluated_values:
             # First iteration: sample proportional to prior
-            idx = int(np.random.choice(n_states, p=prior / prior.sum()))
+            idx = int(random_gen.choice(n_states, p=prior / prior.sum()))
         elif acquisition == 'expected_improvement':
             # EI approximated via empirical distribution
             mean_so_far = float(np.mean(evaluated_values))

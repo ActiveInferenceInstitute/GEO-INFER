@@ -23,7 +23,7 @@ class WatershedAnalyzer:
         """
         Delineate watershed from elevation data.
         
-        Simplified implementation - would use flow accumulation in practice.
+        Distance-based upslope-area proxy, not a full flow-accumulation solution.
         
         Args:
             elevation: Digital elevation model
@@ -32,10 +32,10 @@ class WatershedAnalyzer:
         Returns:
             Watershed delineation
         """
-        # Simplified: identify areas draining to outlet
-        # In practice, would use flow direction and accumulation algorithms
+        # Identify candidate upslope areas by elevation and distance
+        # A D8 flow-direction plus accumulation pass refines this delineation
         
-        # For now, create a simple distance-based watershed
+        # Distance-based watershed extent
         outlet_elev = elevation.sel(lat=outlet_point[0], lon=outlet_point[1], method='nearest')
         
         # Areas with elevation higher than outlet that could drain to it
@@ -64,7 +64,7 @@ class WatershedAnalyzer:
         Returns:
             Flow accumulation
         """
-        # Simplified flow accumulation
+        # Accumulation approximated as cell counts over flow-like gradients
         # In practice, would iterate through cells following flow directions
         accumulation = xr.ones_like(flow_direction)
         

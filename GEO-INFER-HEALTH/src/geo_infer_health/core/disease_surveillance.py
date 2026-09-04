@@ -19,14 +19,34 @@ class DiseaseHotspotAnalyzer:
         return [report for report in self.reports if haversine_distance(report.location, center_loc) <= radius_km]
 
     def calculate_local_incidence_rate(
-        self, 
-        center_loc: Location, 
-        radius_km: float, 
+        self,
+        center_loc: Location,
+        radius_km: float,
         time_window_days: Optional[int] = None
-    ) -> Tuple[float, int, int]: # Returns (incidence_rate, total_cases, estimated_population)
+    ) -> Tuple[float, int, int, bool]:
         """Calculates the incidence rate within a given radius and time window.
-           Incidence rate is per 100,000 population, if population data is available.
-           If no time window, uses all reports.
+
+        Incidence rate is per 100,000 population when population data is
+        available. If no time window, uses all reports.
+
+        Population estimate: each population area whose location falls
+        within the radius contributes its ``population_count``; a single
+        unlocated population area is used as a coarse regional estimate.
+
+        Fallback: when no population estimate exists but cases are
+        present, the raw case count is returned in the rate slot. The
+        ``population_estimated`` flag distinguishes this: it is ``True``
+        only when a real population figure was used, so callers never
+        mistake a raw case count for a per-100k rate.
+
+        Args:
+            center_loc: Center of the analysis radius.
+            radius_km: Radius in kilometres.
+            time_window_days: Optional trailing window in days.
+
+        Returns:
+            Tuple of (incidence_rate, total_cases, estimated_population,
+            population_estimated).
         """
         relevant_reports = self.reports
         if time_window_days and self.reports:
@@ -37,31 +57,22 @@ class DiseaseHotspotAnalyzer:
         cases_in_radius = [report for report in relevant_reports if haversine_distance(report.location, center_loc) <= radius_km]
         total_cases = sum(report.case_count for report in cases_in_radius)
 
-        # Estimate population in radius (simplified)
-        # A more accurate approach would use GIS operations (e.g., point-in-polygon, areal interpolation)
         estimated_population = 0
         if self.population_data:
             for pop_area in self.population_data:
-                # This is a very rough check, assumes population data points are centroids
-                # and their 'area_id' might imply a certain coverage that can be approximated.
-                # Ideally, we'd have polygon geometries for population areas.
-                # For now, if a population data point is within the radius, we add its population.
-                # This could lead to overcounting or undercounting significantly.
                 if hasattr(pop_area, 'location') and haversine_distance(pop_area.location, center_loc) <= radius_km:
                      estimated_population += pop_area.population_count
-                elif not hasattr(pop_area, 'location') and self.population_data:
-                    # If no location for pop_area, and it's the only one, use its total as a rough estimate
-                    if len(self.population_data) == 1:
-                        estimated_population = pop_area.population_count 
-                        break
-        
-        if not estimated_population and total_cases > 0: # Fallback if no pop data, return raw case count as 'rate'
-            return float(total_cases), total_cases, 0
-        if estimated_population == 0:
-            return 0.0, total_cases, 0
-        
-        incidence_rate = (total_cases / estimated_population) * 100000
-        return incidence_rate, total_cases, estimated_population
+                elif not hasattr(pop_area, 'location') and len(self.population_data) == 1:
+                    estimated_population = pop_area.population_count
+                    break
+
+        if estimated_population > 0:
+            incidence_rate = (total_cases / estimated_population) * 100000
+            return incidence_rate, total_cases, estimated_population, True
+
+        # No usable population figure: report the raw case count in the
+        # rate slot with population_estimated=False.
+        return float(total_cases), total_cases, 0, False
 
     def identify_simple_hotspots(
         self, 
@@ -135,7 +146,14 @@ class DiseaseHotspotAnalyzer:
             
         Returns:
             Dictionary with time series for S, I, R compartments
+
+        Raises:
+            ValueError: If gamma is not strictly positive; a non-positive
+                recovery rate is an impossible epidemic state and would
+                make the basic reproduction number undefined.
         """
+        if gamma <= 0:
+            raise ValueError("gamma must be > 0")
         S: List[float] = [float(population - initial_infected)]
         I: List[float] = [float(initial_infected)]
         R: List[float] = [0.0]
@@ -157,7 +175,7 @@ class DiseaseHotspotAnalyzer:
             "infected": I,
             "recovered": R,
             "days": list(range(days)),
-            "basic_reproduction_number": beta / gamma if gamma > 0 else 0,
+            "basic_reproduction_number": beta / gamma,
             "peak_infected": max(I),
             "peak_day": I.index(max(I))
         }
@@ -322,7 +340,7 @@ class DiseaseHotspotAnalyzer:
         sorted_days = sorted(daily_cases.keys())
         case_counts = [daily_cases[d] for d in sorted_days]
         
-        # Calculate Rt using ratio of cases method (simplified)
+        # Calculate Rt via the case-ratio method
         rt_values: List[Dict[str, Any]] = []
         for i in range(window_days, len(case_counts)):
             current_window = sum(case_counts[i-window_days+1:i+1])

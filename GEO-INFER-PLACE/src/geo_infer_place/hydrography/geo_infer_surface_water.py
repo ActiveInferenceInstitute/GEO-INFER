@@ -38,6 +38,7 @@ class GeoInferSurfaceWater:
         backend: "CascadianAgriculturalH3Backend",
         *,
         data_source: Optional[CascadianSurfaceWaterDataSources] = None,
+        allow_projection_fallback: bool = False,
     ) -> None:
         self.backend = backend
         self.resolution = getattr(backend, "h3_resolution", 8)
@@ -48,6 +49,8 @@ class GeoInferSurfaceWater:
             else CascadianSurfaceWaterDataSources()
         )
         self._network: Optional[CascadiaFlowlineNetwork] = None
+        self.allow_projection_fallback = allow_projection_fallback
+        self.projection_degraded = False
         # Will be injected
         self.data_manager = None  # type: ignore[attr-defined]
         self.h3_fusion = None  # type: ignore[attr-defined]
@@ -94,15 +97,26 @@ class GeoInferSurfaceWater:
         waterbodies = nhd["waterbodies"].copy()
         flowlines = nhd["flowlines"].copy()
 
+        self.projection_degraded = False
         frames = []
         if not waterbodies.empty:
             waterbodies["layer"] = "waterbodies"
             frames.append(waterbodies)
         if not flowlines.empty:
             # Buffer lines to narrow polygons for H3 polygon processing
-            fproj = flowlines.to_crs("EPSG:5070")
-            fproj["geometry"] = fproj.buffer(10)  # ~10m buffer
-            flowlines = fproj.to_crs("EPSG:4326")
+            try:
+                fproj = flowlines.to_crs("EPSG:5070")
+                fproj["geometry"] = fproj.buffer(10)  # ~10m buffer
+                flowlines = fproj.to_crs("EPSG:4326")
+            except Exception as exc:
+                logger.warning("Flowline buffering projection failed: %s", exc)
+                if not self.allow_projection_fallback:
+                    raise
+                self.projection_degraded = True
+                logger.warning(
+                    "Explicit projection fallback enabled; writing unbuffered flowlines"
+                )
+            flowlines["projection_degraded"] = self.projection_degraded
             flowlines["layer"] = "flowlines"
             frames.append(flowlines)
         gdf = (

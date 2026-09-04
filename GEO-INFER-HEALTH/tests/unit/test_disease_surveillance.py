@@ -101,7 +101,7 @@ class TestIncidenceRateCalculation:
         center = sample_locations[0]
         radius_km = 5.0
 
-        rate, cases, population = disease_analyzer.calculate_local_incidence_rate(
+        rate, cases, population, population_estimated = disease_analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km
         )
 
@@ -121,7 +121,7 @@ class TestIncidenceRateCalculation:
         center = sample_locations[0]
         radius_km = 5.0
 
-        rate, cases, population = analyzer.calculate_local_incidence_rate(
+        rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km
         )
 
@@ -141,7 +141,7 @@ class TestIncidenceRateCalculation:
         center = sample_locations[0]
         radius_km = 5.0
 
-        rate, cases, population = analyzer.calculate_local_incidence_rate(
+        rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km
         )
 
@@ -155,7 +155,7 @@ class TestIncidenceRateCalculation:
         radius_km = 5.0
         time_window_days = 7
 
-        rate, cases, population = disease_analyzer.calculate_local_incidence_rate(
+        rate, cases, population, population_estimated = disease_analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km, time_window_days=time_window_days
         )
 
@@ -169,12 +169,12 @@ class TestIncidenceRateCalculation:
         radius_km = 5.0
 
         # Short time window
-        rate_short, cases_short, _ = disease_analyzer.calculate_local_incidence_rate(
+        rate_short, cases_short, _, population_estimated = disease_analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km, time_window_days=1
         )
 
         # Long time window
-        rate_long, cases_long, _ = disease_analyzer.calculate_local_incidence_rate(
+        rate_long, cases_long, _, population_estimated = disease_analyzer.calculate_local_incidence_rate(
             center_loc=center, radius_km=radius_km, time_window_days=30
         )
 
@@ -354,7 +354,7 @@ class TestEdgeCases:
         cases = analyzer.get_cases_in_radius(Location(latitude=0, longitude=0), 1.0)
         assert cases == []
 
-        rate, cases_count, pop = analyzer.calculate_local_incidence_rate(
+        rate, cases_count, pop, population_estimated = analyzer.calculate_local_incidence_rate(
             Location(latitude=0, longitude=0), 1.0
         )
         assert cases_count == 0
@@ -399,13 +399,58 @@ class TestEdgeCases:
         analyzer = DiseaseHotspotAnalyzer(reports=reports, population_data=[])
 
         # Test with different time windows
-        rate_recent, _, _ = analyzer.calculate_local_incidence_rate(
+        rate_recent, _, _, population_estimated = analyzer.calculate_local_incidence_rate(
             center_loc=location, radius_km=1.0, time_window_days=2
         )
 
-        rate_all, _, _ = analyzer.calculate_local_incidence_rate(
+        rate_all, _, _, population_estimated = analyzer.calculate_local_incidence_rate(
             center_loc=location, radius_km=1.0, time_window_days=None
         )
 
         # Recent rate should be less than or equal to all-time rate
         assert rate_recent <= rate_all
+
+
+class TestIncidencePopulationFlag:
+    """population_estimated must distinguish real population from fallback."""
+
+    def test_flag_true_with_single_population_area(self, sample_disease_reports, sample_locations):
+        # PopulationData carries no geometry; a single unlocated area acts
+        # as the coarse regional population estimate.
+        pop = PopulationData(area_id="region", population_count=10000)
+        analyzer = DiseaseHotspotAnalyzer(reports=sample_disease_reports, population_data=[pop])
+        rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
+            center_loc=sample_locations[0], radius_km=5.0
+        )
+        assert population_estimated is True
+        assert population == 10000
+        if cases > 0:
+            assert rate == pytest.approx(cases / 10000 * 100000)
+
+    def test_flag_false_without_population(self, sample_disease_reports, sample_locations):
+        analyzer = DiseaseHotspotAnalyzer(reports=sample_disease_reports, population_data=[])
+        rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
+            center_loc=sample_locations[0], radius_km=5.0
+        )
+        assert population_estimated is False
+        assert population == 0
+        assert rate == cases  # raw fallback count
+
+
+class TestSIRModelValidation:
+    """simulate_sir_model must reject non-positive recovery rates."""
+
+    def test_zero_gamma_raises(self, sample_disease_reports):
+        analyzer = DiseaseHotspotAnalyzer(reports=sample_disease_reports)
+        with pytest.raises(ValueError, match="gamma must be > 0"):
+            analyzer.simulate_sir_model(initial_infected=1, population=100, beta=0.3, gamma=0.0)
+
+    def test_negative_gamma_raises(self, sample_disease_reports):
+        analyzer = DiseaseHotspotAnalyzer(reports=sample_disease_reports)
+        with pytest.raises(ValueError, match="gamma must be > 0"):
+            analyzer.simulate_sir_model(initial_infected=1, population=100, beta=0.3, gamma=-0.1)
+
+    def test_positive_gamma_gives_r0(self, sample_disease_reports):
+        analyzer = DiseaseHotspotAnalyzer(reports=sample_disease_reports)
+        result = analyzer.simulate_sir_model(initial_infected=1, population=100, beta=0.3, gamma=0.1)
+        assert result["basic_reproduction_number"] == pytest.approx(3.0)

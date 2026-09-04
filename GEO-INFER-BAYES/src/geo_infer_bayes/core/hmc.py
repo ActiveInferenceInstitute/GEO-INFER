@@ -2,6 +2,7 @@
 Hamiltonian Monte Carlo implementation for Bayesian inference.
 """
 
+from collections import deque
 import numpy as np
 import xarray as xr
 from typing import Dict, Any, Union, List, Tuple, Optional
@@ -77,6 +78,8 @@ class HMC:
         self.acceptance_rates: Optional[np.ndarray] = None
         self.final_step_sizes: Optional[List[float]] = None
         self.total_iterations: Optional[int] = None
+        # Post-warmup (sampling-phase) acceptance per chain.
+        self.sampling_acceptance_rates: Optional[np.ndarray] = None
 
     def run(
         self,
@@ -150,8 +153,20 @@ class HMC:
         def momentum_dist(size: int) -> np.ndarray:
             return self.rng.normal(0, 1, size=size)
 
-        # Adapt step size during warmup
+        # Step-size adaptation state: dual-averaging-lite on the recent
+        # acceptance window, driven toward ``target_accept``.
+        adapt_window = 50
+        accepted_window: List[deque] = [
+            deque(maxlen=adapt_window) for _ in range(self.n_chains)
+        ]
+        log_step_sizes = np.full(self.n_chains, np.log(self.step_size))
         step_sizes = [self.step_size] * self.n_chains
+        log_step_min = float(np.log(1e-6))
+        log_step_max = float(np.log(10.0))
+
+        # Sampling-phase acceptance tracking (post-warmup only).
+        sampling_accepts = np.zeros(self.n_chains)
+        sampling_iters = np.zeros(self.n_chains)
 
         # Run sampling
         total_iterations = n_warmup + n_samples * thin
@@ -160,14 +175,20 @@ class HMC:
             iterator = tqdm(iterator, desc="HMC sampling")
 
         for i in iterator:
-            # Adapt step size during warmup
-            if i < n_warmup and self.adapt_step_size and i % 50 == 0 and i > 0:
+            # Adapt step size during warmup: dual-averaging-lite nudges
+            # log(step) toward the target using the mean acceptance rate of
+            # the last ``adapt_window`` iterations, with eta = 1/sqrt(k)
+            # decaying so early large corrections taper off.
+            if i < n_warmup and self.adapt_step_size and i > 0:
+                eta = 1.0 / np.sqrt(i)
                 for c in range(self.n_chains):
-                    accept_rate = acceptance_rate[c] / (i + 1)
-                    if accept_rate < self.target_accept - 0.1:
-                        step_sizes[c] *= 0.9
-                    elif accept_rate > self.target_accept + 0.1:
-                        step_sizes[c] *= 1.1
+                    if accepted_window[c]:
+                        window_rate = float(np.mean(accepted_window[c]))
+                        log_step_sizes[c] += eta * (window_rate - self.target_accept)
+                        log_step_sizes[c] = float(
+                            np.clip(log_step_sizes[c], log_step_min, log_step_max)
+                        )
+                    step_sizes[c] = float(np.exp(log_step_sizes[c]))
 
             # Update each chain
             for c in range(self.n_chains):
@@ -206,7 +227,11 @@ class HMC:
                     current_log_prob[c] = new_log_prob
                     current_grad[c] = new_grad
                     acceptance_rate[c] += 1
-
+                accepted_window[c].append(1.0 if accepted else 0.0)
+                if i >= n_warmup:
+                    sampling_iters[c] += 1
+                    if accepted:
+                        sampling_accepts[c] += 1
             # Store samples after warmup, respecting thinning
             if i >= n_warmup and (i - n_warmup) % thin == 0:
                 sample_idx = (i - n_warmup) // thin
@@ -220,10 +245,13 @@ class HMC:
             values = samples[:, :, start:end].reshape((-1,) + shape)
             combined_samples[param] = values.reshape(-1) if shape == () else values
 
-        # Persist run telemetry for post-hoc inspection.
         self.acceptance_rates = np.asarray(acceptance_rate, dtype=float)
         self.final_step_sizes = list(step_sizes)
         self.total_iterations = total_iterations
+        if sampling_iters.any():
+            self.sampling_acceptance_rates = sampling_accepts / sampling_iters
+        else:
+            self.sampling_acceptance_rates = np.zeros(self.n_chains)
 
         # Report diagnostics
         if progress_bar:

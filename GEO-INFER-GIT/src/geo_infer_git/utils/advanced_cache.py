@@ -1007,8 +1007,8 @@ class RedisCache:
             self.stats.total_size_bytes = info.get("used_memory", 0)
             self.stats.entry_count = self.redis_client.dbsize()
 
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Redis memory info unavailable; returning stale stats: %s", exc)
 
         return self.stats
 

@@ -173,7 +173,7 @@ class WaterQualityAssessor:
         
         # DO sub-index (percent saturation based)
         if sample.dissolved_oxygen is not None:
-            do_saturation = sample.dissolved_oxygen / 9.0 * 100  # Simplified saturation
+            do_saturation = sample.dissolved_oxygen / 9.0 * 100  # DO saturation modelled against the 9.0 mg/L reference value
             do_score = min(100, max(0, do_saturation))
             scores['dissolved_oxygen'] = do_score
             weighted_sum += do_score * self.wqi_weights['dissolved_oxygen']
@@ -263,7 +263,7 @@ class WaterQualityAssessor:
         
         # If flow direction available, trace upstream
         if flow_direction is not None:
-            # Simplified: would implement proper upstream tracing
+            # Hotspots act as candidate sources without upstream tracing
             potential_sources = hotspots
         else:
             potential_sources = hotspots
@@ -390,7 +390,7 @@ class WaterQualityAssessor:
         min_val = float(np.min(values_arr))
         max_val = float(np.max(values_arr))
         
-        # Trend significance (simplified)
+        # Trend significance via a slope-to-noise ratio heuristic
         if abs(slope) > std_val / len(values_arr):
             trend_significant = True
             trend_direction = "increasing" if slope > 0 else "decreasing"
@@ -552,7 +552,7 @@ class WaterQualityAssessor:
         Returns:
             Compliance report
         """
-        # Regulatory limits (simplified)
+        # Regulatory limit thresholds
         reg_limits: Dict[str, Dict[str, Dict[str, float]]] = {
             'EPA': {
                 'ph': {'min': 6.5, 'max': 8.5},

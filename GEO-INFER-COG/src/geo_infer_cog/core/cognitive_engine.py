@@ -19,20 +19,27 @@ Mathematical Foundations:
 - Attention allocation models (Broadbent, 1958; Treisman, 1969)
 """
 
-import numpy as np
+import itertools
+import json
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union, cast
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
+from typing import Dict, List, Optional, Tuple, Any, Union, cast
+
+import numpy as np
 
 from ..models.cognitive_models import CognitiveMap, SpatialKnowledgeGraph
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
 from .spatial_perception import SpatialPerceptionModel
 from .spatial_reasoning import SpatialReasoningEngine
 from .spatial_memory import SpatialMemoryModel
 
+# Module-level monotonic counter backing processing IDs.
+_PROCESSING_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
+
 logger = logging.getLogger(__name__)
+
 
 
 @dataclass
@@ -113,7 +120,8 @@ class CognitiveProcessingEngine:
                  spatial_resolution: str = 'adaptive',
                  temporal_modeling: str = 'working_memory',
                  uncertainty_handling: str = 'probabilistic',
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize the cognitive processing engine.
 
@@ -123,6 +131,9 @@ class CognitiveProcessingEngine:
             temporal_modeling: Temporal modeling approach ('working_memory', 'episodic', 'semantic')
             uncertainty_handling: Uncertainty handling method ('probabilistic', 'fuzzy', 'possibilistic')
             config: Additional configuration parameters
+            rng: Optional random generator threaded into every component model.
+                When omitted, a fixed-seed generator is used so processing is
+                deterministic by default.
         """
         self.config = config or {}
         self.cognitive_framework = cognitive_framework
@@ -130,23 +141,31 @@ class CognitiveProcessingEngine:
         self.temporal_modeling = temporal_modeling
         self.uncertainty_handling = uncertainty_handling
 
+        # Shared generator threaded into every component model. Resolved via
+        # the repo-wide resolve_rng pattern; None resolves to a fixed seed so
+        # the engine is deterministic by default.
+        self._rng = resolve_rng(rng)
+
         # Initialize cognitive state
         self.state = CognitiveState()
 
         # Initialize component models
         self.perception_model = SpatialPerceptionModel(
             framework=cognitive_framework,
-            resolution=spatial_resolution
+            resolution=spatial_resolution,
+            rng=self._rng
         )
 
         self.reasoning_engine = SpatialReasoningEngine(
             reasoning_type='qualitative_spatial',
-            uncertainty_method=uncertainty_handling
+            uncertainty_method=uncertainty_handling,
+            rng=self._rng
         )
 
         self.memory_model = SpatialMemoryModel(
             memory_types=['working', 'long_term', 'episodic'],
-            consolidation_strategy='adaptive'
+            consolidation_strategy='adaptive',
+            rng=self._rng
         )
 
         # Performance tracking
@@ -211,7 +230,7 @@ class CognitiveProcessingEngine:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             result = {
-                'processing_id': f"cog_{int(start_time.timestamp())}_{np.random.randint(1000)}",
+                'processing_id': f"cog_{next(_PROCESSING_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
                 'timestamp': start_time.isoformat(),
                 'processing_time': processing_time,
                 'cognitive_state': self.state.__dict__,

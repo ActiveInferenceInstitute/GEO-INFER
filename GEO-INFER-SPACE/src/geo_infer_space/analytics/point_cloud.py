@@ -632,9 +632,12 @@ def _grid_interpolation(
 def _contour_generation(
     point_cloud: PointCloud, **kwargs: Any
 ) -> gpd.GeoDataFrame:
-    """Generate contour lines from point cloud."""
-    # This is a simplified implementation
-    # In practice, you would use more sophisticated contouring algorithms
+    """Generate iso-elevation contour polygons from a point cloud.
+
+    Each contour is the convex hull of the points falling within half a
+    contour interval of the target elevation level.
+    """
+
     
     points = point_cloud.points
     

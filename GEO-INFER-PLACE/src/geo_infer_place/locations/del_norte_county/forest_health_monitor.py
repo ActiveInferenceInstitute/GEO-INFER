@@ -984,8 +984,8 @@ class ForestHealthMonitor:
 
                 if isinstance(obj, _np.bool_):
                     return bool(obj)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('NumPy scalar conversion failed; using original value: %s', exc)
             if _pd is not None:
                 if isinstance(obj, _pd.Timestamp):
                     return obj.isoformat()

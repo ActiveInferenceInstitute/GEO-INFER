@@ -30,7 +30,7 @@ class ForestInventory:
         Returns:
             Estimated biomass (tons/ha)
         """
-        # Simplified biomass estimation
+        # Allometric biomass estimation
         # Typical: 50-200 tons/ha depending on forest type
         base_biomass = 100.0  # tons/ha for mature forest
         

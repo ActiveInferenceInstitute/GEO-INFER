@@ -7,7 +7,6 @@ reliable, scalable, and maintainable operations across all components.
 
 __version__ = "0.2.0"
 
-from geo_infer_ops.core.logging import setup_logging
 from geo_infer_ops.core.monitoring import setup_monitoring
 from geo_infer_ops.core.config import load_config, get_config
 from geo_infer_ops.core.testing import setup_testing
@@ -21,7 +20,6 @@ except ImportError:
     DeploymentManager = None  # type: ignore[misc,assignment]
 
 __all__ = [
-    "setup_logging",
     "setup_monitoring",
     "load_config",
     "get_config",

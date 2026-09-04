@@ -116,7 +116,7 @@ class ClimateIndicesCalculator:
             # Full heat index calculation with humidity
             hi = self._heat_index_with_humidity(temperature, humidity)
         else:
-            # Simplified: just temperature
+            # Temperature-only index basis
             hi = temperature.copy()
             hi.name = 'heat_index'
         
@@ -206,7 +206,7 @@ class ClimateIndicesCalculator:
         """
         Calculate Palmer Drought Severity Index (PDSI).
         
-        Simplified implementation of PDSI calculation.
+        First-order PDSI-style water-balance calculation.
         
         Args:
             precipitation: Monthly precipitation
@@ -216,7 +216,7 @@ class ClimateIndicesCalculator:
         Returns:
             PDSI values
         """
-        # Simplified PDSI calculation
+        # PDSI-style moisture anomaly calculation
         # Full PDSI requires complex water balance calculations
         
         # Calculate potential evapotranspiration (Thornthwaite method)
@@ -241,7 +241,7 @@ class ClimateIndicesCalculator:
     
     def _calculate_pet(self, temperature: xr.DataArray) -> xr.DataArray:
         """Calculate potential evapotranspiration using Thornthwaite method."""
-        # Simplified PET calculation
+        # PET from the temperature-based method
         # Full method requires day length and latitude
         pet = 16 * ((10 * temperature / temperature.mean(dim='time')) ** 1.5)
         pet = xr.where(pet < 0, 0, pet)

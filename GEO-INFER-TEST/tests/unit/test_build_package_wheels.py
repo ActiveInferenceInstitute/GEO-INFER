@@ -52,8 +52,9 @@ def _wheel(directory: Path, source: str) -> Path:
 def test_wheel_probe_rejects_broken_import(tmp_path):
     """Installed metadata alone cannot certify a package that fails to import."""
     wheel = _wheel(tmp_path, 'raise RuntimeError("broken package import")\n')
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(subprocess.CalledProcessError) as error:
         _driver().install_and_verify(wheel, [sys.executable])
+    assert "broken package import" in str(error.value.stderr)
 
 
 def test_wheel_probe_reads_packaged_resources(tmp_path):
@@ -158,3 +159,45 @@ def test_wheel_import_rejects_nonfinite_timeout(tmp_path, timeout):
         _driver().verify_wheels(
             [_wheel(tmp_path, "")], [sys.executable], import_timeout=timeout
         )
+
+
+def test_fresh_build_replaces_same_name_stale_wheel(tmp_path):
+    """A current build can replace its old filename and never certify old code."""
+    module = tmp_path / "module"
+    package = module / "src" / "geo_infer_probe"
+    package.mkdir(parents=True)
+    source = '__version__ = "0.0.1"\n'
+    (package / "__init__.py").write_text(source)
+    (package / "data.json").write_text('{"value": 42}')
+    (module / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["setuptools>=61", "wheel"]\n'
+        'build-backend = "setuptools.build_meta"\n'
+        '[project]\nname = "geo-infer-probe"\nversion = "0.0.1"\n'
+        'requires-python = ">=3.11"\n'
+        '[tool.setuptools.packages.find]\nwhere = ["src"]\n'
+        '[tool.setuptools.package-data]\n"*" = ["*.json"]\n'
+    )
+    out = tmp_path / "dist"
+    out.mkdir()
+    stale = _wheel(out, 'raise RuntimeError("stale build")\n')
+    result = _driver().build_wheel(module, out, [sys.executable])
+    assert result.ok, result.error
+    assert result.wheel == stale
+    with zipfile.ZipFile(result.wheel) as archive:
+        assert archive.read("geo_infer_probe/__init__.py").decode() == source
+        assert archive.read("geo_infer_probe/data.json") == b'{"value": 42}'
+
+
+def test_wheel_probe_preserves_shared_library_paths(tmp_path, monkeypatch):
+    """Source isolation must retain configured native-library loader paths."""
+    import os
+
+    variables = ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH")
+    values = {name: os.environ.get(name, str(tmp_path)) for name in variables}
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+    source = "import os\n" + "\n".join(
+        f"assert os.environ.get({name!r}) == {value!r}"
+        for name, value in values.items()
+    )
+    _driver().install_and_verify(_wheel(tmp_path, source), [sys.executable])

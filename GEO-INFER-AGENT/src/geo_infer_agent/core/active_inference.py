@@ -31,6 +31,7 @@ class ActiveInferenceConfig:
     precision: float = 1.0  # Precision parameter for information gain
     learning_rate: float = 0.01  # Learning rate for model updates
     use_gpu: bool = False  # Whether to use GPU if available
+    random_seed: Optional[int] = None  # Seed for stochastic batch sampling
 
     # Optimization settings
     optimization_steps: int = 100  # Steps for action optimization
@@ -498,6 +499,7 @@ class ActiveInferenceAgent:
                 precision=config.get("precision", 1.0),
                 learning_rate=config.get("learning_rate", 0.01),
                 use_gpu=config.get("use_gpu", False),
+                random_seed=config.get("random_seed"),
                 optimization_steps=config.get("iterations", 100),
                 optimization_method=config.get("method", "gradient"),
                 hidden_size=config.get("hidden_size", 64),
@@ -508,6 +510,10 @@ class ActiveInferenceAgent:
 
         # Initialize the generative model
         self.model = GenerativeModel(state_dim, obs_dim, action_dim, config=ai_config)
+
+        # Seeded RNG for stochastic experience sampling
+        seed = ai_config.random_seed if ai_config else None
+        self.rng: np.random.Generator = np.random.default_rng(seed)
 
         # Buffer for experience
         self.experience_buffer: Dict[str, List[np.ndarray]] = {
@@ -620,7 +626,7 @@ class ActiveInferenceAgent:
             batch_size = buffer_size
 
         # Sample random batch
-        indices = np.random.choice(buffer_size, size=batch_size, replace=False)
+        indices = self.rng.choice(buffer_size, size=batch_size, replace=False)
 
         # Prepare batch
         states = torch.FloatTensor(
@@ -672,8 +678,7 @@ class ActiveInferenceAgent:
 
 # Example usage
 if __name__ == "__main__":
-    # Setup logging
-    logging.basicConfig(level=logging.INFO)
+    demo_rng = np.random.default_rng(0)
 
     # Create a simple test environment
     def simple_env(
@@ -683,7 +688,7 @@ if __name__ == "__main__":
         # Next state is current state + action
         next_state = state + action
         # Observation is just the state with some noise
-        observation = next_state + np.random.normal(0, 0.1, size=state.shape)
+        observation = next_state + demo_rng.normal(0, 0.1, size=state.shape)
         return next_state, observation
 
     # Initialize agent

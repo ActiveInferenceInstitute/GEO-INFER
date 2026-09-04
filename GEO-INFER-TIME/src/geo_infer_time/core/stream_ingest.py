@@ -86,6 +86,11 @@ class StreamIngestAdapter(ABC):
     async def acknowledge(self, record: dict[str, Any]) -> None:
         """Confirm successful processing (no-op for sources without offsets)."""
 
+    def normalize_record(self, record: str | bytes | dict[str, Any]) -> dict[str, Any]:
+        """Validate a record and return canonical UTC ISO time and numeric value."""
+        timestamp, value, metadata = self.parse_record(record)
+        return {**metadata, "timestamp": timestamp.isoformat(), "value": value}
+
     def parse_record(
         self, record: str | bytes | dict[str, Any]
     ) -> tuple[datetime, float, dict[str, Any]]:
@@ -235,7 +240,12 @@ class WebSocketIngestAdapter(_NetworkAdapter):
     async def connect(self) -> bool:
         if self.is_connected:
             return True
-        from websockets.asyncio.client import connect
+        try:
+            from websockets.asyncio.client import connect
+        except ImportError as exc:
+            raise RuntimeError(
+                "websockets not installed or incompatible; add geo-infer-time[streaming]"
+            ) from exc
 
         self._connection = await connect(
             self.url,
@@ -256,7 +266,12 @@ class WebSocketIngestAdapter(_NetworkAdapter):
     async def stream_data(
         self, max_messages: int | None = None
     ) -> AsyncIterator[dict[str, Any]]:
-        from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
+        try:
+            from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
+        except ImportError as exc:
+            raise RuntimeError(
+                "websockets not installed or incompatible; add geo-infer-time[streaming]"
+            ) from exc
 
         if max_messages is not None:
             _integer(max_messages, "max_messages")
@@ -274,7 +289,7 @@ class WebSocketIngestAdapter(_NetworkAdapter):
                     await self._retry(attempts)
                     attempts += 1
                     continue
-                yield _decode(raw)
+                yield self.normalize_record(raw)
                 count += 1
         finally:
             await self.disconnect()
@@ -324,7 +339,12 @@ class KafkaIngestAdapter(_NetworkAdapter):
     async def connect(self) -> bool:
         if self.is_connected:
             return True
-        from aiokafka import AIOKafkaConsumer
+        try:
+            from aiokafka import AIOKafkaConsumer
+        except ImportError as exc:
+            raise RuntimeError(
+                "aiokafka not installed; add geo-infer-time[streaming]"
+            ) from exc
 
         self._consumer = AIOKafkaConsumer(
             self.topic,
@@ -372,7 +392,12 @@ class KafkaIngestAdapter(_NetworkAdapter):
     async def stream_data(
         self, max_messages: int | None = None, topic: str | None = None
     ) -> AsyncIterator[dict[str, Any]]:
-        from aiokafka.errors import KafkaError
+        try:
+            from aiokafka.errors import KafkaError
+        except ImportError as exc:
+            raise RuntimeError(
+                "aiokafka not installed; add geo-infer-time[streaming]"
+            ) from exc
 
         if topic is not None and topic != self.topic:
             raise ValueError("topic must match the adapter's configured topic")
@@ -400,6 +425,23 @@ class KafkaIngestAdapter(_NetworkAdapter):
                         "Kafka record is empty or exceeds max_message_size"
                     )
                 record = _decode(message.value)
+                if not any(
+                    record.get(key) is not None
+                    for key in ("timestamp", "time", "datetime")
+                ):
+                    broker_time = getattr(message, "timestamp", None)
+                    if (
+                        isinstance(broker_time, (int, float))
+                        and not isinstance(broker_time, bool)
+                        and math.isfinite(broker_time)
+                        and broker_time >= 0
+                    ):
+                        # Kafka timestamps are always milliseconds, including epoch zero.
+                        record["timestamp"] = datetime.fromtimestamp(
+                            broker_time / 1000, tz=timezone.utc
+                        )
+                record.setdefault("topic", message.topic)
+                record = self.normalize_record(record)
                 record["_kafka"] = {
                     "topic": message.topic,
                     "partition": message.partition,

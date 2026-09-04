@@ -5,6 +5,8 @@ Provides learning analytics, competency tracking, gap identification,
 and progress visualization for educational systems.
 """
 
+import hashlib
+import json
 import logging
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
@@ -82,6 +84,11 @@ class ProgressTracker:
             analytics_level: Detail level for analytics ('basic', 'detailed', 'comprehensive')
             privacy_compliance: Privacy standard to comply with ('ferpa', 'gdpr', 'none')
         """
+        if privacy_compliance not in ("ferpa", "gdpr", "none"):
+            raise ValueError(
+                f"Unsupported privacy_compliance: {privacy_compliance!r} "
+                "(expected 'ferpa', 'gdpr', or 'none')"
+            )
         self.competency_framework = competency_framework
         self.analytics_level = analytics_level
         self.privacy_compliance = privacy_compliance
@@ -311,6 +318,69 @@ class ProgressTracker:
         
         logger.info(f"Generated competency report for {learner_id}")
         return report
+
+    def export_progress(self, learner_id: str, format: str = "json") -> str:
+        """Export a learner's progress honouring the privacy policy.
+
+        The exported payload contains the learner's activities summary,
+        competency records, and totals. Privacy handling:
+
+        * ``ferpa``: the student identifier is suppressed - the export
+          carries a one-way pseudonym (SHA-256 prefix) instead of the
+          learner id;
+        * ``gdpr``: data-retention metadata is attached (retention
+          period and erasure availability);
+        * ``none``: the raw identifier is included.
+
+        Args:
+            learner_id: Learner identifier to export
+            format: Export format ('json')
+
+        Returns:
+            Serialized progress export
+
+        Raises:
+            ValueError: If the format is unsupported or the learner is
+                unknown.
+        """
+        if format != "json":
+            raise ValueError(f"Unsupported export format: {format}")
+        if learner_id not in self._learner_data:
+            raise ValueError(f"Learner not found: {learner_id}")
+
+        progress = self._learner_data[learner_id]
+
+        if self.privacy_compliance == "ferpa":
+            export_id = "learner_" + hashlib.sha256(learner_id.encode("utf-8")).hexdigest()[:16]
+            identifier_note = "identifier_suppressed_ferpa"
+        else:
+            export_id = learner_id
+            identifier_note = "identifier_included"
+
+        payload: Dict[str, Any] = {
+            "learner_id": export_id,
+            "identifier_handling": identifier_note,
+            "privacy_compliance": self.privacy_compliance,
+            "exported_at": datetime.now().isoformat(),
+            "total_time_hours": progress.total_time_hours,
+            "last_activity_date": (
+                progress.last_activity_date.isoformat() if progress.last_activity_date else None
+            ),
+            "competencies": {
+                name: {"level": record.level, "confidence": record.confidence}
+                for name, record in progress.competencies.items()
+            },
+        }
+
+        if self.privacy_compliance == "gdpr":
+            payload["data_retention"] = {
+                "regulation": "gdpr",
+                "retention_period_days": 365,
+                "erasure_available": True,
+            }
+
+        logger.info(f"Exported progress for {identifier_note} learner under {self.privacy_compliance}")
+        return json.dumps(payload, indent=2)
     
     def identify_gaps(
         self,

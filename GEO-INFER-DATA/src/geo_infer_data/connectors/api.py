@@ -18,6 +18,7 @@ from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]
 from urllib3.util.retry import Retry
 
 from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from ..utils.identifiers import validate_sql_identifier
 
 
 logger = logging.getLogger(__name__)
@@ -422,40 +423,13 @@ class GraphQLConnector:
         Returns:
             List of geospatial features
         """
-        # Build GraphQL query
-        selected_fields = fields or ['id', 'geometry', 'properties']
-        fields_str = ', '.join(selected_fields)
-
-        query_parts = [f"{field}" for field in selected_fields]
-
-        # Add spatial filter
-        where_clause = ""
-        if spatial_filter:
-            if 'bbox' in spatial_filter:
-                bbox = spatial_filter['bbox']
-                where_clause = f'bbox: {{minLon: {bbox[0]}, minLat: {bbox[1]}, maxLon: {bbox[2]}, maxLat: {bbox[3]}}}'
-
-        # Add temporal filter
-        if temporal_filter:
-            time_conditions = []
-            if 'start_date' in temporal_filter:
-                time_conditions.append(f'createdAfter: "{temporal_filter["start_date"].isoformat()}"')
-            if 'end_date' in temporal_filter:
-                time_conditions.append(f'createdBefore: "{temporal_filter["end_date"].isoformat()}"')
-            if time_conditions:
-                where_clause += f'{" " if where_clause else ""}{", ".join(time_conditions)}'
-
-        # Build complete query
-        where_str = f'(where: {{ {where_clause} }})' if where_clause else ''
-        limit_str = f'first: {limit}' if limit else ''
-
-        query = f"""
-        query {{
-            {feature_type}{where_str} {{
-                {fields_str}
-            }}
-        }}
-        """
+        query = self._build_features_query(
+            feature_type=feature_type,
+            spatial_filter=spatial_filter,
+            temporal_filter=temporal_filter,
+            fields=fields,
+            limit=limit,
+        )
 
         # Execute query
         result = await self.execute_query(query)
@@ -464,6 +438,89 @@ class GraphQLConnector:
         logger.info(f"Retrieved {len(features)} {feature_type} features")
 
         return cast(List[Dict[str, Any]], features)
+
+
+    @staticmethod
+    def _coerce_iso_date(value: Any, label: str) -> str:
+        """Coerce a temporal filter value to an ISO-8601 string.
+
+        Accepts ``datetime``/``date`` objects and ISO-parseable strings;
+        everything else is rejected so no raw value is ever interpolated.
+        """
+        if isinstance(value, datetime):
+            return value.isoformat()
+        if hasattr(value, "isoformat") and not isinstance(value, str):
+            return value.isoformat()
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value).isoformat()
+            except ValueError as exc:
+                raise ValueError(
+                    f"GraphQL {label} must be an ISO-8601 date/datetime, "
+                    f"got {value!r}"
+                ) from exc
+        raise ValueError(
+            f"GraphQL {label} must be a datetime or ISO-8601 string, "
+            f"got {type(value).__name__}"
+        )
+
+    @staticmethod
+    def _build_features_query(
+        feature_type: str,
+        spatial_filter: Optional[Dict[str, Any]] = None,
+        temporal_filter: Optional[Dict[str, Any]] = None,
+        fields: Optional[List[str]] = None,
+        limit: Optional[int] = None,
+    ) -> str:
+        """Build a GraphQL features query with validated names and coerced values.
+
+        ``feature_type`` and every field name pass through
+        :func:`validate_sql_identifier`; bbox coordinates are coerced with
+        ``float()``, temporal values with ISO-date parsing, and the limit
+        with ``int()``. Values that fail coercion raise ``ValueError``
+        rather than being interpolated.
+        """
+        safe_feature_type = validate_sql_identifier(feature_type)
+        selected_fields = fields or ["id", "geometry", "properties"]
+        fields_str = ", ".join(
+            validate_sql_identifier(field) for field in selected_fields
+        )
+
+        where_parts: List[str] = []
+        if spatial_filter and "bbox" in spatial_filter:
+            bbox = spatial_filter["bbox"]
+            min_lon, min_lat, max_lon, max_lat = (float(v) for v in bbox[:4])
+            where_parts.append(
+                f"bbox: {{minLon: {min_lon}, minLat: {min_lat}, "
+                f"maxLon: {max_lon}, maxLat: {max_lat}}}"
+            )
+
+        if temporal_filter:
+            if "start_date" in temporal_filter:
+                start = GraphQLConnector._coerce_iso_date(
+                    temporal_filter["start_date"], "start_date"
+                )
+                where_parts.append(f'createdAfter: "{start}"')
+            if "end_date" in temporal_filter:
+                end = GraphQLConnector._coerce_iso_date(
+                    temporal_filter["end_date"], "end_date"
+                )
+                where_parts.append(f'createdBefore: "{end}"')
+
+        args: List[str] = []
+        if where_parts:
+            args.append(f"where: {{ {', '.join(where_parts)} }}")
+        if limit:
+            args.append(f"first: {int(limit)}")
+        args_str = f"({', '.join(args)})" if args else ""
+
+        return f"""
+        query {{
+            {safe_feature_type}{args_str} {{
+                {fields_str}
+            }}
+        }}
+        """
 
     async def close(self) -> None:
         """Close GraphQL connection."""

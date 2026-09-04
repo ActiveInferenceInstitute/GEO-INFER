@@ -238,37 +238,39 @@ def spatial_compression(
             )
     
     elif method == 'wavelet':
-        # Wavelet compression (simplified)
+        # Discrete wavelet compression: multi-level Daubechies-4 wavelet
+        # decomposition of the value series followed by hard thresholding
+        # that keeps the largest-magnitude coefficients.
         try:
             import pywt
-            
-            # Reshape to 1D for simplicity
-            coeffs = pywt.wavedec(values, 'db4', mode='symmetric')
-            
-            # Keep only significant coefficients
-            threshold = np.percentile(
-                np.abs(np.concatenate(coeffs)),
-                100 * compression_level
-            )
-            
-            compressed_coeffs = [
-                c * (np.abs(c) >= threshold) for c in coeffs
-            ]
-            
-            n_coeffs = sum(len(c) for c in compressed_coeffs)
-            metadata['n_coefficients'] = n_coeffs
-            metadata['threshold'] = threshold
-            metadata['compression_ratio'] = compression_ratio(
-                values.size * 8, n_coeffs * 8
-            )
-            
-            return np.concatenate(compressed_coeffs), metadata
-        except (ImportError, Exception):
-            logger.warning("PyWavelets not available or failed, using quantization")
-            return spatial_compression(
-                coordinates, values, method='quantization',
-                compression_level=compression_level
-            )
+        except ImportError as exc:
+            raise ValueError(
+                "method='wavelet' is not supported without the PyWavelets "
+                "package; install it with 'pip install PyWavelets' or use "
+                "method='dct' or method='quantization' instead"
+            ) from exc
+
+        values_arr = np.asarray(values, dtype=np.float64).ravel()
+        coeffs = pywt.wavedec(values_arr, 'db4', mode='symmetric')
+
+        # Keep only significant coefficients (largest magnitudes)
+        threshold = np.percentile(
+            np.abs(np.concatenate(coeffs)),
+            100 * compression_level
+        )
+
+        compressed_coeffs = [
+            c * (np.abs(c) >= threshold) for c in coeffs
+        ]
+
+        n_coeffs = sum(len(c) for c in compressed_coeffs)
+        metadata['n_coefficients'] = n_coeffs
+        metadata['threshold'] = float(threshold)
+        metadata['compression_ratio'] = compression_ratio(
+            values_arr.size * 8, n_coeffs * 8
+        )
+
+        return np.concatenate(compressed_coeffs), metadata
     
     else:
         raise ValueError(f"Unknown method: {method}")

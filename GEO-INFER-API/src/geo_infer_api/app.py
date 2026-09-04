@@ -1,13 +1,10 @@
 """
 Main application entry point for GEO-INFER-API.
 """
-import os
-from typing import Any
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-from fastapi.staticfiles import StaticFiles
 
 from geo_infer_api.core.config import get_settings
 from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
@@ -17,61 +14,61 @@ from geo_infer_api.endpoints import (
     health_router,
 )
 
-# Create FastAPI app
-settings = get_settings()
-main_app = FastAPI(
-    title=settings.app_name,
-    description="GEO-INFER API - Standardized Interfaces for Geospatial Interoperability",
-    version=settings.app_version,
-    docs_url=None,
-    redoc_url=None,
-)
 
-# Add middleware (order matters — outermost first)
-main_app.add_middleware(ErrorHandlerMiddleware)
-main_app.add_middleware(RequestLoggingMiddleware)
+def cors_allow_credentials(origins: List[str]) -> bool:
+    """Decide whether CORS may send credentials.
 
-# Configure CORS via FastAPI's built-in middleware
-main_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include routers
-main_app.include_router(health_router.router, tags=["Health"])
-main_app.include_router(geojson_router.router, prefix="/api/v1", tags=["GeoJSON"])
-main_app.include_router(
-    algorithms_router.router, prefix="/api/v1", tags=["Algorithms"]
-)
+    Credentialed CORS is only safe for an explicit, finite origin list.
+    A wildcard (``"*"``) combined with ``allow_credentials=True`` would
+    let any origin make credentialed requests, so credentials are
+    enabled only when at least one explicit origin is configured and no
+    wildcard is present.
+    """
+    return bool(origins) and "*" not in origins
 
 
-# Custom documentation endpoints
-@main_app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html() -> Any:
-    return get_swagger_ui_html(
-        openapi_url=main_app.openapi_url or "/openapi.json",
-        title=f"{main_app.title} - Swagger UI",
-        oauth2_redirect_url=main_app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
+# Application construction is lazy (PEP 562 ``__getattr__`` below): importing
+# ``geo_infer_api`` must not require SECRET_KEY; the fail-closed settings
+# check fires when the app instance is actually built (uvicorn target
+# ``geo_infer_api.app:main_app`` or the first attribute access).
+def create_app() -> FastAPI:
+    """Build the FastAPI application (requires SECRET_KEY to be set)."""
+    settings = get_settings()
+    app = FastAPI(
+        title=settings.app_name,
+        description="GEO-INFER API - Standardized Interfaces for Geospatial Interoperability",
+        version=settings.app_version,
     )
-
-
-@main_app.get("/redoc", include_in_schema=False)
-async def redoc_html() -> Any:
-    return get_redoc_html(
-        openapi_url=main_app.openapi_url or "/openapi.json",
-        title=f"{main_app.title} - ReDoc",
-        redoc_js_url="/static/redoc.standalone.js",
+    # Add middleware (order matters — outermost first)
+    app.add_middleware(ErrorHandlerMiddleware)
+    app.add_middleware(RequestLoggingMiddleware)
+    # Configure CORS via FastAPI's built-in middleware; credentials are only
+    # enabled for an explicit, wildcard-free origin list (see
+    # cors_allow_credentials).
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=cors_allow_credentials(settings.cors_origins),
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
+    # Include routers
+    app.include_router(health_router.router, tags=["Health"])
+    app.include_router(geojson_router.router, prefix="/api/v1", tags=["GeoJSON"])
+    app.include_router(
+        algorithms_router.router, prefix="/api/v1", tags=["Algorithms"]
+    )
+    return app
 
 
-# For serving static files (docs, etc.)
-if os.path.exists("static"):
-    main_app.mount("/static", StaticFiles(directory="static"), name="static")
+def __getattr__(name: str):
+    """Construct ``main_app`` lazily on first attribute access."""
+    if name == "main_app":
+        module = __import__(__name__)
+        app = create_app()
+        setattr(module, "main_app", app)
+        return app
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 if __name__ == "__main__":
     import uvicorn

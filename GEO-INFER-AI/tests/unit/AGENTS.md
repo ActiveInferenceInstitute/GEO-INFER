@@ -23,6 +23,7 @@
 
 - `test_cross_validation.py`
 - `test_explainability.py`
+- `test_explainability_determinism.py`
 - `test_feature_engineering.py`
 - `test_idw_interpolation.py`
 - `test_image_classifier.py`

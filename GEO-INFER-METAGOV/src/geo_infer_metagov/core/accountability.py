@@ -39,7 +39,7 @@ class AccountabilityFramework:
     
     def __init__(self, accountability_model: str = 'multi_directional',
                  transparency_level: str = 'full_disclosure',
-                 public_participation: bool = True):
+                 public_participation: bool = True) -> None:
         self.accountability_model = accountability_model
         self.transparency_level = transparency_level
         self.public_participation = public_participation

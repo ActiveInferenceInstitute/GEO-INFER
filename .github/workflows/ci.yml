@@ -95,8 +95,10 @@ jobs:
         run: |
           uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
           uv run python GEO-INFER-TEST/validate_packaging.py --strict
+          uv run python GEO-INFER-TEST/validate_logging_hygiene.py
           uv run python GEO-INFER-TEST/validate_documentation.py --strict
           uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+          uv run python GEO-INFER-TEST/validate_active_inference_contract.py
           uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 
       - name: Run syntax and strict test contracts
@@ -150,3 +152,39 @@ jobs:
         if: always()
         continue-on-error: true
         run: uv cache prune --ci
+
+  manuscript:
+    # The manuscript render scans the whole checkout and regenerates figures;
+    # it is kept out of the fast test lane so a slow or broken render cannot
+    # fail or delay the per-matrix validation jobs.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      UV_PYTHON: "3.11"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: manuscript
+
+      - name: Install locked workspace dependencies
+        run: |
+          uv sync --locked --python "$(command -v python)" --all-packages \
+            --no-install-package cupy --no-install-package mayavi \
+            --no-install-package vaex --no-install-package vaex-core
+
+      - name: Generate research artifacts
+        run: |
+          uv run python manuscript/generate_research_artifacts.py --verify

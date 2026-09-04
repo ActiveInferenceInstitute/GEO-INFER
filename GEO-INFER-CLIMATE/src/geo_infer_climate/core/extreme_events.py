@@ -3,7 +3,7 @@ Extreme weather event analysis module.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Iterator
 from dataclasses import dataclass
 from enum import Enum
 import numpy as np
@@ -102,41 +102,31 @@ class ExtremeEventAnalyzer:
             Dictionary with heatwave detection results.
         """
         threshold = float(temperature.quantile(threshold_percentile / 100.0))
-        values = temperature.values.flatten()
-        above_threshold = values >= threshold
+        values = temperature.values
         if np.nanmax(values) == np.nanmin(values):
             above_threshold = np.zeros_like(values, dtype=bool)
+        else:
+            above_threshold = values >= threshold
 
         events = []
-        in_event = False
-        event_start = 0
-
-        for i, is_hot in enumerate(above_threshold):
-            if is_hot and not in_event:
-                in_event = True
-                event_start = i
-            elif not is_hot and in_event:
-                duration = i - event_start
-                if duration >= min_duration:
-                    events.append(
-                        {
-                            "start_index": event_start,
-                            "end_index": i - 1,
-                            "duration_days": duration,
-                            "max_temp": float(max(values[event_start:i])),
-                            "mean_temp": float(np.mean(values[event_start:i])),
-                        }
-                    )
-                in_event = False
-
-        if in_event and len(values) - event_start >= min_duration:
+        for cell, event_start, event_end in self._iter_runs(above_threshold):
+            if event_end - event_start < min_duration:
+                continue
+            if values.ndim == 1:
+                segment = values[event_start:event_end]
+                location: Dict[str, Any] = {}
+            else:
+                lat_idx, lon_idx = np.unravel_index(cell, values.shape[1:])
+                segment = values[event_start:event_end, lat_idx, lon_idx]
+                location = {"cell": [int(lat_idx), int(lon_idx)]}
             events.append(
                 {
+                    **location,
                     "start_index": event_start,
-                    "end_index": len(values) - 1,
-                    "duration_days": len(values) - event_start,
-                    "max_temp": float(max(values[event_start:])),
-                    "mean_temp": float(np.mean(values[event_start:])),
+                    "end_index": event_end - 1,
+                    "duration_days": event_end - event_start,
+                    "max_temp": float(np.max(segment)),
+                    "mean_temp": float(np.mean(segment)),
                 }
             )
 
@@ -195,44 +185,32 @@ class ExtremeEventAnalyzer:
         """
         threshold = float(temperature.quantile(threshold_percentile / 100.0))
 
-        values = temperature.values.flatten()
+        values = temperature.values
 
-        # Find cold periods
-        below_threshold = values <= threshold
         if np.nanmax(values) == np.nanmin(values):
             below_threshold = np.zeros_like(values, dtype=bool)
+        else:
+            below_threshold = values <= threshold
 
         events = []
-        in_event = False
-        event_start = 0
-
-        for i, is_cold in enumerate(below_threshold):
-            if is_cold and not in_event:
-                in_event = True
-                event_start = i
-            elif not is_cold and in_event:
-                duration = i - event_start
-                if duration >= min_duration:
-                    events.append(
-                        {
-                            "start_index": event_start,
-                            "end_index": i - 1,
-                            "duration_days": duration,
-                            "min_temp": float(min(values[event_start:i])),
-                            "mean_temp": float(np.mean(values[event_start:i])),
-                        }
-                    )
-                in_event = False
-
-        # Handle event ongoing at end
-        if in_event and len(values) - event_start >= min_duration:
+        for cell, event_start, event_end in self._iter_runs(below_threshold):
+            if event_end - event_start < min_duration:
+                continue
+            if values.ndim == 1:
+                segment = values[event_start:event_end]
+                location = {}
+            else:
+                lat_idx, lon_idx = np.unravel_index(cell, values.shape[1:])
+                segment = values[event_start:event_end, lat_idx, lon_idx]
+                location = {"cell": [int(lat_idx), int(lon_idx)]}
             events.append(
                 {
+                    **location,
                     "start_index": event_start,
-                    "end_index": len(values) - 1,
-                    "duration_days": len(values) - event_start,
-                    "min_temp": float(min(values[event_start:])),
-                    "mean_temp": float(np.mean(values[event_start:])),
+                    "end_index": event_end - 1,
+                    "duration_days": event_end - event_start,
+                    "min_temp": float(np.min(segment)),
+                    "mean_temp": float(np.mean(segment)),
                 }
             )
 
@@ -244,6 +222,24 @@ class ExtremeEventAnalyzer:
             "events": events,
             "total_cold_days": int(np.sum(below_threshold)),
         }
+
+    @staticmethod
+    def _iter_runs(above: np.ndarray) -> Iterator[Tuple[int, int, int]]:
+        """Yield (cell_index, start, end) for maximal True runs along axis 0.
+
+        ``above`` is a boolean array whose first axis is time; remaining
+        axes are flattened into cell indices. Runs are per cell, so a
+        multi-cell field yields one run sequence per grid cell.
+        """
+        n_time = above.shape[0]
+        flat = above.reshape(n_time, -1)
+        for cell in range(flat.shape[1]):
+            hot_indices = np.flatnonzero(flat[:, cell])
+            if hot_indices.size == 0:
+                continue
+            splits = np.split(hot_indices, np.flatnonzero(np.diff(hot_indices) > 1) + 1)
+            for run in splits:
+                yield cell, int(run[0]), int(run[-1]) + 1
 
     def detect_floods(
         self,
@@ -358,7 +354,7 @@ class ExtremeEventAnalyzer:
             exceedance_prob = 1 - np.exp(-np.exp(-z))
             estimated_rp = 1 / exceedance_prob if exceedance_prob > 0 else float("inf")
 
-        else:  # gev (simplified)
+        else:  # gev fit via method of moments
             mean = np.mean(values)
             std = np.std(values)
 
@@ -507,7 +503,7 @@ class ExtremeEventAnalyzer:
         # Frost days (T < 0°C)
         indices["FD0"] = int(np.sum(temp_values < 0))  # Frost days
 
-        # Warm spell duration (simplified)
+        # Warm spell duration via warm-day run counting
         p90 = np.percentile(temp_values, 90)
         warm_days = temp_values > p90
         indices["WSDI"] = int(np.sum(warm_days))  # Warm spell duration index
@@ -575,7 +571,7 @@ class ExtremeEventAnalyzer:
         self, condition: xr.DataArray, min_duration: int
     ) -> xr.Dataset:
         """Find consecutive periods meeting condition."""
-        # Simplified: count consecutive True values
+        # Count per time step the number of qualifying grid cells
         events = condition.astype(int).groupby("time").sum()
         events = events.where(events >= min_duration, 0)
 

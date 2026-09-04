@@ -6,7 +6,7 @@ including symbolic expressions, derivatives, integrals, and equation solving.
 """
 
 import numpy as np
-from typing import List, Tuple, Dict, Optional, Any
+from typing import List, Tuple, Dict, Optional, Any, Callable
 import logging
 import warnings
 import ast
@@ -174,13 +174,151 @@ class SymbolicMath:
         # Fallback descriptor
         return {"type": "derivative", "expression": expr, "variable": var, "order": 1}
 
-    def _numpy_integrate(self, expr: Any, var: Any) -> Dict[str, Any]:
-        """Numerical integration (simplified)."""
-        return {"type": "integral", "expression": expr, "variable": var}
+    def _numpy_lambdify(self, expr: Any, variable_names: List[str]) -> Callable[..., float]:
+        """Convert an expression into a numeric function for the numpy backend.
 
-    def _numpy_solve(self, expr: Any, var: Any) -> Dict[str, Any]:
-        """Numerical equation solving (simplified)."""
-        return {"type": "solution", "expression": expr, "variable": var}
+        Strings and string-carrying descriptors are parsed with sympy (which
+        is an available dependency) and lambdified into numpy functions;
+        callables are returned unchanged. Anything else is rejected with a
+        ValueError naming the backend.
+        """
+        import sympy as sp
+
+        if callable(expr):
+            return expr
+
+        expression_str: Optional[str] = None
+        if isinstance(expr, str):
+            expression_str = expr
+        elif isinstance(expr, dict):
+            if isinstance(expr.get("string"), str):
+                expression_str = expr["string"]
+            elif isinstance(expr.get("expression"), str):
+                expression_str = expr["expression"]
+
+        if expression_str is None:
+            raise ValueError(
+                "numpy backend cannot honor this operation: the expression "
+                f"of type {type(expr).__name__} cannot be evaluated numerically"
+            )
+
+        _reject_unsafe_numpy_access(expression_str)
+        try:
+            symbolic_expr = sp.sympify(expression_str)
+        except Exception as exc:
+            raise ValueError(
+                f"numpy backend could not parse the expression: {expression_str!r}"
+            ) from exc
+        return sp.lambdify(
+            [sp.Symbol(name) for name in variable_names],
+            symbolic_expr,
+            modules="numpy",
+        )
+
+    def _numpy_integrate(
+        self, expr: Any, var: Any, lower: float = 0.0, upper: float = 1.0
+    ) -> float:
+        """Numerically integrate an expression over one variable.
+
+        The numpy backend has no symbolic integrator, so the operation is
+        honored numerically: the expression is lambdified (via sympy) and
+        evaluated with scipy.integrate.quad on the given limits. Raises a
+        ValueError naming the backend when the expression cannot be turned
+        into a numeric function.
+        """
+        from scipy.integrate import quad
+
+        var_name = var.get("name", str(var)) if isinstance(var, dict) else str(var)
+        numeric_fn = self._numpy_lambdify(expr, [var_name])
+
+        def _integrand(x: float) -> float:
+            try:
+                return float(numeric_fn(x))
+            except (TypeError, ValueError):
+                return float(numeric_fn(np.array([x]))[0])
+
+        result, _abserr = quad(_integrand, float(lower), float(upper))
+        return float(result)
+
+    def _numpy_solve(self, expr: Any, var: Any) -> Dict[str, float]:
+        """Solve a linear system numerically with np.linalg.solve.
+
+        ``expr`` is a single equation or a list of equations (strings such as
+        "2*x + y = 4", or descriptors carrying such strings); ``var`` is a
+        symbol descriptor or a list of them. The system is parsed with sympy,
+        reduced to A x = b, and solved with np.linalg.solve. Raises a
+        ValueError naming the backend for singular, non-square, or non-linear
+        systems — never returns None results.
+        """
+        import sympy as sp
+
+        if isinstance(expr, (list, tuple)):
+            equation_items = list(expr)
+        else:
+            equation_items = [expr]
+
+        symbol_items = var if isinstance(var, (list, tuple)) else [var]
+        variable_names = [
+            item.get("name", str(item)) if isinstance(item, dict) else str(item)
+            for item in symbol_items
+        ]
+        variable_symbols = [sp.Symbol(name) for name in variable_names]
+
+        parsed_equations: List[Any] = []
+        for item in equation_items:
+            text: Optional[str] = None
+            if isinstance(item, str):
+                text = item
+            elif isinstance(item, dict) and isinstance(item.get("string"), str):
+                text = item["string"]
+            elif hasattr(item, "equals"):
+                parsed_equations.append(item)
+                continue
+            if text is None:
+                raise ValueError(
+                    "numpy backend cannot honor equation solving for an "
+                    f"expression of type {type(item).__name__}"
+                )
+            _reject_unsafe_numpy_access(text)
+            if "=" in text:
+                lhs_text, rhs_text = text.split("=", 1)
+                parsed_equations.append(
+                    sp.Eq(sp.sympify(lhs_text), sp.sympify(rhs_text))
+                )
+            else:
+                parsed_equations.append(sp.Eq(sp.sympify(text), 0))
+
+        try:
+            a_matrix, b_vector = sp.linear_eq_to_matrix(
+                parsed_equations, variable_symbols
+            )
+        except Exception as exc:
+            raise ValueError(
+                "numpy backend can only solve linear systems; the given "
+                f"equations are non-linear or ill-formed for variables "
+                f"{variable_names}"
+            ) from exc
+
+        a_numeric = np.array(a_matrix, dtype=np.float64)
+        b_numeric = np.array(b_vector, dtype=np.float64).ravel()
+        if a_numeric.shape[0] != a_numeric.shape[1]:
+            raise ValueError(
+                "numpy backend requires a square linear system; got "
+                f"{a_numeric.shape[0]} equations for "
+                f"{a_numeric.shape[1]} variables"
+            )
+        try:
+            solution_vector = np.linalg.solve(a_numeric, b_numeric)
+        except np.linalg.LinAlgError as exc:
+            raise ValueError(
+                "numpy backend: the coefficient matrix is singular; the "
+                "linear system has no unique solution"
+            ) from exc
+
+        return {
+            name: float(value)
+            for name, value in zip(variable_names, solution_vector)
+        }
 
     def _numpy_simplify(self, expr: Any) -> Any:
         """Return a normalized descriptor for a numpy expression."""
@@ -228,7 +366,7 @@ class SymbolicMath:
         parsed_equations = []
         for eq in equations:
             try:
-                # This is a simplified parser - real implementation would use the symbolic engine
+                # Parse via the symbolic engine; fall back to the raw string if parsing fails
                 parsed_equations.append(
                     {"original": eq, "parsed": self._parse_equation(eq, var_symbols)}
                 )
@@ -264,7 +402,7 @@ class SymbolicMath:
         if self.backend in ["sympy", "symengine"]:
             # Use the actual symbolic engine
             try:
-                # This is a simplified approach - real implementation would need proper parsing
+                # Delegate parsing to the symbolic engine
                 return self._engine.sympify(equation)
             except Exception:
                 return equation
@@ -466,7 +604,7 @@ class SymbolicMath:
                 # Fit polynomial relationship
                 degree = min(3, len(coordinates) - 1)  # Adaptive degree
 
-                # Simple polynomial fitting (simplified)
+                # Least-squares polynomial fit on the first coordinate
                 if self.backend in ["sympy", "symengine"]:
                     # Use sympy for polynomial fitting
                     coeffs = np.polyfit(coordinates[:, 0], values, degree)
@@ -483,7 +621,7 @@ class SymbolicMath:
             elif relationship_type == "exponential":
                 # Exponential relationship
                 if self.backend in ["sympy", "symengine"]:
-                    # Simplified exponential model
+                    # Exponential model form a*exp(b*x + c*y)
                     exp_expr = self.Symbol("a") * self._engine.exp(
                         self.Symbol("b") * x + self.Symbol("c") * y
                     )
@@ -663,7 +801,9 @@ class SymbolicMath:
                     integral = self.integrate(expression, (var_symbol, lower, upper))
                     integrals[var] = integral
                 else:
-                    integrals[var] = self._numpy_integrate(expression, var_symbol)
+                    integrals[var] = self._numpy_integrate(
+                        expression, var_symbol, lower=lower, upper=upper
+                    )
 
             except Exception as e:
                 logger.error(f"Error computing integral w.r.t. {var}: {e}")
@@ -696,12 +836,12 @@ class SymbolicMath:
                     "backend": self.backend,
                 }
             else:
-                # Numpy backend - simplified
+                # Numpy backend: real numeric linear solve via np.linalg.solve
+                solutions = self.solve(equations, var_symbols)
                 return {
-                    "solutions": None,
+                    "solutions": solutions,
                     "variables": variables,
                     "backend": self.backend,
-                    "message": "Equation solving is unavailable for the numpy backend",
                 }
 
         except Exception as e:
@@ -730,8 +870,8 @@ class SymbolicMath:
                 if self.backend in ["sympy", "symengine"]
                 else [
                     "Limited symbolic operations",
-                    "No advanced equation solving",
-                    "Simplified differentiation and integration",
+                    "Numerical linear solves via np.linalg.solve",
+                    "Numerical integration via scipy.integrate.quad",
                 ]
             ),
         }

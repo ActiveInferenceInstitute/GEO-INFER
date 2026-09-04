@@ -5,10 +5,12 @@ Utils workspace within `GEO-INFER-AI`.
 ## Contents
 
 - `__init__.py`
+- `rng.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `rng.py:resolve_rng` (function)
+- `rng.py:resolve_optional_rng` (function)
 
 ## Module Metadata
 

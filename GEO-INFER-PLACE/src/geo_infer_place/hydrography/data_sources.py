@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from importlib.resources import files
 import json
+import os
 from pathlib import Path
 import tempfile
 
@@ -86,10 +87,18 @@ class CascadianSurfaceWaterDataSources:
         flowlines: gpd.GeoDataFrame | None = None,
         cache_dir: str | Path | None = None,
         ingestor: NHDPlusHRIngestor | None = None,
+        offline: bool | None = None,
     ) -> None:
         if dataset_path is not None and flowlines is not None:
             raise ValueError("Supply dataset_path or flowlines, not both")
+        if dataset_path is None and flowlines is None:
+            dataset_path = os.environ.get("GEO_INFER_CASCADIA_FLOWLINES_PATH") or None
         self.dataset_path = Path(dataset_path) if dataset_path is not None else None
+        self.offline = (
+            bool(os.environ.get("GEO_INFER_SURFACE_WATER_OFFLINE"))
+            if offline is None
+            else offline
+        )
         self._flowlines = (
             normalize_flowlines(flowlines) if flowlines is not None else None
         )
@@ -134,6 +143,20 @@ class CascadianSurfaceWaterDataSources:
         selection = HydrographySelection(bbox=bbox)
         if self._flowlines is not None or self.dataset_path is not None:
             frame = self._load()
+        elif self.offline:
+            if self.cache_dir is None:
+                raise FileNotFoundError(
+                    "Offline surface-water access requires local flowlines or a completed cache"
+                )
+            key = hashlib.sha256(
+                json.dumps(selection.query(), sort_keys=True).encode()
+            ).hexdigest()[:20]
+            cached = self.cache_dir / key
+            if not (cached / "manifest.json").is_file():
+                raise FileNotFoundError(
+                    "Offline cache requires a completed ingestion manifest"
+                )
+            frame = load_flowlines(cached / "flowlines.geojson")
         elif self.cache_dir is not None:
             key = hashlib.sha256(
                 json.dumps(selection.query(), sort_keys=True).encode()

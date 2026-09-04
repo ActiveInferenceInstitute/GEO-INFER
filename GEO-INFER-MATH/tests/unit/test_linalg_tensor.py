@@ -289,3 +289,68 @@ class TestSpatialLinearAlgebra:
         A = np.eye(2)
         with pytest.raises(ValueError):
             SpatialLinearAlgebra.matrix_inverse(A, method='invalid')
+
+    def test_cp_als_low_rank_reconstruction(self):
+        """ALS CP reconstruction error < 1e-6 on an exact rank-2 tensor."""
+        rng = np.random.default_rng(7)
+        def _orthonormal(rows: int, rank: int, scale: np.ndarray) -> np.ndarray:
+            q, _r = np.linalg.qr(rng.uniform(size=(rows, rank)))
+            return q * scale
+        a_true = _orthonormal(6, 2, np.array([1.0, 0.7]))
+        b_true = _orthonormal(5, 2, np.array([1.2, 0.5]))
+        c_true = _orthonormal(4, 2, np.array([0.9, 0.4]))
+        tensor_data = np.einsum('ir,jr,kr->ijk', a_true, b_true, c_true)
+        result = TensorOperations.tensor_decomposition(
+            TensorData(data=tensor_data), 2, rng=0
+        )
+
+        factors = result['factor_matrices']
+        weights = result['weights']
+        reconstruction = np.einsum(
+            'ir,jr,kr->ijk', factors[0] * weights, factors[1], factors[2]
+        )
+        rel_error = np.linalg.norm(tensor_data - reconstruction) / np.linalg.norm(
+            tensor_data
+        )
+        assert rel_error < 1e-6
+        assert result['converged'] is True
+        assert len(result['errors']) == result['n_iter']
+
+    def test_tucker_hosvd_deterministic(self):
+        """HOSVD Tucker factors are real SVD outputs and deterministic."""
+        data = np.random.default_rng(3).uniform(size=(5, 6, 7))
+        r1 = TensorOperations.tensor_decomposition(
+            TensorData(data=data), 2, method='tucker'
+        )
+        r2 = TensorOperations.tensor_decomposition(
+            TensorData(data=data), 2, method='tucker'
+        )
+        np.testing.assert_array_equal(r1['core_tensor'], r2['core_tensor'])
+        assert r1['core_tensor'].shape == (2, 2, 2)
+        # Factor columns are orthonormal (real SVD property)
+        for factor in r1['factor_matrices']:
+            np.testing.assert_allclose(
+                factor.T @ factor, np.eye(factor.shape[1]), atol=1e-10
+            )
+
+    def test_spatial_regression_sar_estimates_rho(self):
+        """SAR regression estimates rho and finite standard errors."""
+        np.random.seed(11)
+        n = 60
+        coords = np.random.rand(n, 2) * 50
+        w = MatrixOperations.spatial_weights_matrix(coords, k=5)
+        x = np.random.randn(n, 2)
+        rho_true = 0.5
+        w_normalized = w / np.maximum(w.sum(axis=1, keepdims=True), 1)
+        innovation = 0.2 * np.random.randn(n)
+        # Solve (I - rho W) y = X b + e
+        y = np.linalg.solve(
+            np.eye(n) - rho_true * w_normalized,
+            x @ np.array([1.5, -2.0]) + innovation,
+        )
+        result = SpatialLinearAlgebra.solve_spatial_regression(x, y, w_normalized)
+
+        assert 'rho' in result
+        assert 0.0 <= result['rho'] <= 0.95
+        assert np.all(np.isfinite(result['standard_errors']))
+        assert np.all(result['standard_errors'] > 0)

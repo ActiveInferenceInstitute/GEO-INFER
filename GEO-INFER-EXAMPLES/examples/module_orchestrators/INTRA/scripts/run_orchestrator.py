@@ -1,233 +1,78 @@
 #!/usr/bin/env python3
-"""
-INTRA Module Orchestrator - GEO-INFER Examples
-Demonstrates: Documentation
+"""GEO-INFER-INTRA module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end INTRA operation on synthetic data: generate
+the reproducible spatial visual preview suite (Leaflet HTML, SVG card, PNG
+card, manifest) for synthetic module documentation bundles, verify every
+artifact exists with the expected byte counts, and cross-check the manifest
+digest. All work goes through the real ``geo_infer_intra`` public API.
 """
 
-import sys
-import time
+from __future__ import annotations
+
 import json
-import logging
+import shutil
+import sys
+import tempfile
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    return logging.getLogger('intra_orchestrator')
+from _lib import run_module_orchestrator  # noqa: E402
 
-class INTRAOrchestrator:
-    """Thin orchestrator for GEO-INFER-INTRA module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the INTRA orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'INTRA'
-        self.dependencies = []
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete INTRA module demonstration."""
-        self.logger.info("🚀 Starting INTRA Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Documentation")
-        
-        start_time = time.time()
-        results = {
-            'module': 'INTRA',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'INTRA',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = []
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 INTRA MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-INTRA")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ INTRA thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'intra_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-INTRA Module Orchestrator (Thin)")
-    print(f"Demonstrating: Documentation")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
+def _operation() -> Dict[str, Any]:
+    from geo_infer_intra import MODULE_PROFILES, generate_module_preview_suite
+
+    target_modules = ["SPACE", "CIV", "ORG", "INTRA"]
+    output_dir = Path(tempfile.mkdtemp(prefix="geo-infer-intra-previews-"))
     try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = INTRAOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+        bundles: Dict[str, Dict[str, Any]] = {}
+        for module_id in target_modules:
+            artifacts = generate_module_preview_suite(module_id, output_dir)
+
+            # Verify the real artifacts on disk match the reported sizes.
+            expected = {
+                artifacts.html_path: artifacts.html_bytes,
+                artifacts.svg_path: artifacts.svg_bytes,
+                artifacts.png_path: artifacts.png_bytes,
+                artifacts.manifest_path: 0,  # existence only; size varies
+            }
+            sizes: Dict[str, int] = {}
+            for path in expected:
+                if not path.is_file():
+                    raise RuntimeError(f"missing preview artifact: {path.name}")
+                sizes[path.suffix.lstrip(".") or "manifest"] = path.stat().st_size
+
+            manifest = json.loads(artifacts.manifest_path.read_text(encoding="utf-8"))
+            if manifest["input_sha256"] != artifacts.input_sha256:
+                raise RuntimeError(f"manifest digest mismatch for {module_id}")
+            if manifest["module_id"] != f"GEO-INFER-{module_id}":
+                raise RuntimeError(f"manifest module id mismatch for {module_id}")
+
+            bundles[module_id] = {
+                "profile_name": MODULE_PROFILES[module_id]["name"],
+                "category": MODULE_PROFILES[module_id]["category"],
+                "input_sha256": artifacts.input_sha256[:16],
+                "html_bytes": sizes["html"],
+                "svg_bytes": sizes["svg"],
+                "png_bytes": sizes["png"],
+                "manifest_artifact_count": len(manifest["artifacts"]),
+            }
+    finally:
+        shutil.rmtree(output_dir, ignore_errors=True)
+
+    return {
+        "operation": "module_preview_bundle_generation",
+        "modules_profiled": len(MODULE_PROFILES),
+        "modules_processed": target_modules,
+        "bundles": bundles,
+        "all_artifacts_verified": True,
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("INTRA", _operation))

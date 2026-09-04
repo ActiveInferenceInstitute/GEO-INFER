@@ -965,6 +965,7 @@ the documentation contract itself changes.
 ## Failure Triage
 
 - `validate_repo_contracts.py`: source layout, language, dependency, logger, and documentation contract.
+- `validate_logging_hygiene.py`: passive library-logging contract (no root-logger mutation; module-local `getLogger(__name__)` loggers only).
 - `validate_test_contracts.py`: test inventories, markers, fixtures, skips, and warning policy.
 - `run_unified_tests.py`: module behavior by unit, integration, performance, or H3 category.
 - `validate_model_contracts.py` and `run_model_audit.py`: deterministic model outputs and reproducibility artifacts.
@@ -1017,6 +1018,7 @@ New to this repo? In order:
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_logging_hygiene.py
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
 uv run python manuscript/generate_research_artifacts.py

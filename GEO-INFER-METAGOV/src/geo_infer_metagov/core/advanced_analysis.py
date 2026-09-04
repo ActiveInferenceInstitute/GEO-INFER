@@ -411,17 +411,3 @@ class AdvancedGovernanceAnalyzer:
         modifications = scenario.get('modifications', {})
         modified.update(modifications)
         return modified
-
-
-if __name__ == '__main__':
-    analyzer = AdvancedGovernanceAnalyzer()
-    
-    # Test power dynamics analysis
-    stakeholders = [
-        {'name': 'Government', 'decision_power': 0.8},
-        {'name': 'Community', 'decision_power': 0.3},
-        {'name': 'Business', 'decision_power': 0.6}
-    ]
-    
-    analysis = analyzer.analyze_power_dynamics(stakeholders)
-    print(f"Power balance: {analysis['balance_assessment']}")

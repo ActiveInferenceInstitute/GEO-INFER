@@ -63,6 +63,7 @@ CONTEXT_STORAGE_MINIO = "data.storage.minio"
 CONTEXT_STORAGE_REDIS = "data.storage.redis"
 CONTEXT_STORAGE_LOCAL_FILE = "data.storage.local_file"
 CONTEXT_STORAGE_GENERIC = "data.storage.generic"
+CONTEXT_COMPRESSION = "data.compression"
 
 ENV_KEY = "GEO_INFER_SERIALIZATION_KEY"
 ENV_KEY_FILE = "GEO_INFER_SERIALIZATION_KEY_FILE"

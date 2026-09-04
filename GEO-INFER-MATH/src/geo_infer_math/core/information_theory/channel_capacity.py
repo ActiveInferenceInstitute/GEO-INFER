@@ -46,59 +46,59 @@ def channel_capacity(
     row_sums[row_sums == 0] = 1.0  # Avoid division by zero
     channel_matrix = channel_matrix / row_sums
     
-    # Optimize input distribution to maximize mutual information
-    # Using Blahut-Arimoto algorithm approximation
-    
-    # Initialize uniform distribution
-    p_x = np.ones(n_inputs) / n_inputs
-    
-    # Iterate to find optimal distribution
-    max_iterations = 100
+    # Blahut-Arimoto algorithm: alternate the p(y|x)-induced output
+    # marginal with the capacity-achieving input update
+    # p_x[x] proportional to exp(D_KL(p(y|x) || p_y)) until the marginal
+    # KL between successive input distributions is below tolerance.
+    max_iterations = 500
     tolerance = 1e-6
-    
-    for iteration in range(max_iterations):
-        # Calculate output distribution
-        p_y = np.dot(p_x, channel_matrix)
-        p_y = np.maximum(p_y, 1e-10)  # Avoid log(0)
-        
-        # Calculate conditional entropy H(Y|X)
-        h_y_given_x = 0.0
-        for x in range(n_inputs):
-            if p_x[x] > 0:
-                p_y_given_x = channel_matrix[x, :]
-                p_y_given_x = np.maximum(p_y_given_x, 1e-10)
-                h_y_given_x -= p_x[x] * np.sum(
-                    p_y_given_x * np.log(p_y_given_x) / np.log(base)
+    ln_base = np.log(base)
+
+    p_x = np.ones(n_inputs) / n_inputs
+
+    for _iteration in range(max_iterations):
+        # Output marginal p(y) = sum_x p(x) p(y|x)
+        p_y = np.maximum(p_x @ channel_matrix, 1e-300)
+
+        # D_x = KL(p(y|x) || p_y) in nats, with 0·log 0 = 0 convention
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log_ratio = np.where(
+                channel_matrix > 0,
+                np.log(channel_matrix) - np.log(p_y)[np.newaxis, :],
+                0.0,
+            )
+        d_x = np.sum(channel_matrix * log_ratio, axis=1)
+
+        # Capacity-achieving input update: p_new[x] ∝ p_x[x] * exp(d_x)
+        shifted = d_x - np.max(d_x)
+        p_x_new = p_x * np.exp(shifted)
+        total = np.sum(p_x_new)
+        p_x_new = p_x_new / total
+
+        # Convergence: KL(p_x || p_x_new) over the input marginal
+        with np.errstate(divide="ignore", invalid="ignore"):
+            marginal_kl = np.sum(
+                np.where(
+                    p_x > 0,
+                    p_x * (np.log(p_x) - np.log(np.maximum(p_x_new, 1e-300))),
+                    0.0,
                 )
-        
-        # Calculate output entropy H(Y)
-        h_y = -np.sum(p_y * np.log(p_y) / np.log(base))
-        
-        # Mutual information
-        mi = h_y - h_y_given_x
-        
-        # Update input distribution (simplified Blahut-Arimoto)
-        if iteration < max_iterations - 1:
-            # Calculate new distribution
-            p_x_new = np.ones(n_inputs)
-            for x in range(n_inputs):
-                p_y_given_x = channel_matrix[x, :]
-                p_y_given_x = np.maximum(p_y_given_x, 1e-10)
-                exp_term = np.sum(
-                    p_y_given_x * np.log(p_y_given_x / p_y) / np.log(base)
-                )
-                p_x_new[x] = np.exp(exp_term * np.log(base))
-            
-            # Normalize
-            p_x_new = p_x_new / np.sum(p_x_new)
-            
-            # Check convergence
-            if np.max(np.abs(p_x_new - p_x)) < tolerance:
-                break
-            
-            p_x = p_x_new
-    
-    return float(mi)
+            )
+        p_x = p_x_new
+        if marginal_kl < tolerance:
+            break
+
+    # Final mutual information I(X;Y) at the converged input distribution
+    p_y = np.maximum(p_x @ channel_matrix, 1e-300)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_ratio = np.where(
+            channel_matrix > 0,
+            np.log(channel_matrix) - np.log(p_y)[np.newaxis, :],
+            0.0,
+        )
+    mi_nats = float(np.sum(p_x[:, np.newaxis] * channel_matrix * log_ratio))
+
+    return float(mi_nats / ln_base)
 
 
 def spatial_channel_capacity(
@@ -129,7 +129,8 @@ def spatial_channel_capacity(
     if len(signal_power) != len(coordinates):
         raise ValueError("Signal power must have same length as coordinates")
     
-    # Calculate distances (simplified: assume single receiver at origin)
+    # Single-receiver geometry: transmitter-to-receiver distance is measured
+    # from the origin, the reference point of the path-loss model
     distances = np.sqrt(np.sum(coordinates ** 2, axis=1))
     distances = np.maximum(distances, 1e-6)  # Avoid division by zero
     

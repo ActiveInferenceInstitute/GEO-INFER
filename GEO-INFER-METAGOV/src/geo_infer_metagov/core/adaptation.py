@@ -24,7 +24,7 @@ class AdaptiveGovernanceSystem:
     
     def __init__(self, learning_approach: str = 'adaptive_management',
                  timeframe: str = 'multi_year_cycles',
-                 feedback_mechanisms: str = 'real_time'):
+                 feedback_mechanisms: str = 'real_time') -> None:
         self.learning_approach = learning_approach
         self.timeframe = timeframe
         self.feedback_mechanisms = feedback_mechanisms

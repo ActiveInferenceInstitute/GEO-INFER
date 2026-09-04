@@ -1,233 +1,98 @@
 #!/usr/bin/env python3
-"""
-SPM Module Orchestrator - GEO-INFER Examples
-Demonstrates: Statistical mapping
+"""GEO-INFER-SPM module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end SPM operation on synthetic data: generate a
+100-point synthetic geospatial field with a north-south trend on a regular
+grid, fit a general linear model with elevation and temperature covariates,
+evaluate a contrast, and threshold the resulting statistical parametric map
+with random-field-theory correction. All work goes through the real
+``geo_infer_spm`` public API.
 """
+
+from __future__ import annotations
 
 import sys
-import time
-import json
-import logging
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Dict
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _operation() -> Dict[str, Any]:
+    import numpy as np
+
+    from geo_infer_spm import (
+        SPMData,
+        compute_spm,
+        contrast,
+        create_design_matrix,
+        fit_glm,
+        generate_synthetic_data,
     )
-    return logging.getLogger('spm_orchestrator')
 
-class SPMOrchestrator:
-    """Thin orchestrator for GEO-INFER-SPM module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the SPM orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'SPM'
-        self.dependencies = ['MATH', 'SPACE']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete SPM module demonstration."""
-        self.logger.info("🚀 Starting SPM Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Statistical mapping")
-        
-        start_time = time.time()
-        results = {
-            'module': 'SPM',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'SPM',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['MATH', 'SPACE']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 SPM MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-SPM")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ SPM thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'spm_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    # Synthetic 10x10 regular grid over a fictional study region.
+    lons = np.linspace(-124.10, -124.00, 10)
+    lats = np.linspace(41.50, 41.60, 10)
+    lon_grid, lat_grid = np.meshgrid(lons, lats)
+    coordinates = np.column_stack([lon_grid.ravel(), lat_grid.ravel()])
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-SPM Module Orchestrator (Thin)")
-    print(f"Demonstrating: Statistical mapping")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
-    try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = SPMOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+    spm_data: SPMData = generate_synthetic_data(
+        coordinates,
+        effects={"intercept": 10.0, "trend": "north_south"},
+        noise_level=0.5,
+        random_seed=11,
+    )
+
+    design = create_design_matrix(
+        spm_data, covariates=["elevation", "temperature"]
+    )
+    model_result = fit_glm(spm_data, design, method="OLS")
+    contrast_result = contrast(model_result, np.array([0.0, 1.0, 0.0]))
+    spm_map = compute_spm(model_result, contrast_result, correction="RFT")
+
+    beta = np.asarray(model_result.beta_coefficients, dtype=float).reshape(-1)
+    t_values = np.asarray(contrast_result.t_statistic, dtype=float).reshape(-1)
+    p_values = np.asarray(contrast_result.p_values, dtype=float).reshape(-1)
+    corrected = (
+        None
+        if spm_map.corrected_p_values is None
+        else np.asarray(spm_map.corrected_p_values, dtype=float).reshape(-1)
+    )
+    sig_mask = (
+        None
+        if spm_map.significance_mask is None
+        else np.asarray(spm_map.significance_mask, dtype=bool).reshape(-1)
+    )
+    return {
+        "operation": "glm_fit_contrast_and_rft_map",
+        "n_points": int(spm_data.n_points),
+        "n_regressors": int(beta.size),
+        "beta_estimates": [float(b) for b in beta],
+        "contrast": {
+            "weights": [0.0, 1.0, 0.0],
+            "t_statistic_max": float(np.max(np.abs(t_values))),
+            "p_value_min": float(np.min(p_values)),
+        },
+        "spm_map": {
+            "correction": str(spm_map.correction_method),
+            "threshold": (
+                float(spm_map.threshold)
+                if spm_map.threshold is not None
+                else None
+            ),
+            "n_significant_points": (
+                int(np.sum(sig_mask)) if sig_mask is not None else None
+            ),
+            "corrected_p_value_min": (
+                float(np.min(corrected)) if corrected is not None else None
+            ),
+        },
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("SPM", _operation))

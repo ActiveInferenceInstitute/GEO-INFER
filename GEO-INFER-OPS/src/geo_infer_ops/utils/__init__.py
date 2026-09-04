@@ -5,9 +5,11 @@ This submodule contains helper functions and utilities that are used
 across the GEO-INFER-OPS module for common tasks.
 """
 
-from .logger import configure_logging, get_logger, LoggingContext
+from .logger import get_logger, LoggingContext
+# Single documented app-level logging entry: shared_logging.configure_logging
+# (for CLI entrypoints). Library modules use get_logger only.
 from .shared_logging import (
-    configure_logging as configure_shared_logging,
+    configure_logging,
     get_logger as get_shared_logger,
     LoggingContext as SharedLoggingContext,
     setup_module_logging,

@@ -18,6 +18,7 @@ class ProofStatus(Enum):
 
     PROVEN = "proven"
     DISPROVEN = "disproven"
+    VERIFIED_EMPIRICAL = "verified_empirical"
     UNKNOWN = "unknown"
     TIMEOUT = "timeout"
     ERROR = "error"

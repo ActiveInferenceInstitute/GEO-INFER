@@ -273,8 +273,23 @@ class TestEvacuationPlanner:
     """Acceptance: evacuation planning and shelter management."""
 
     @pytest.fixture
-    def planner(self) -> EvacuationPlanner:
-        return EvacuationPlanner()
+    def road_network(self):
+        """Synthetic road network spanning the zone and shelter nodes used below."""
+        import networkx as nx
+
+        graph = nx.DiGraph()
+        for origin, destination in [
+            ("zone1", "sh1"), ("zone1", "sh2"),
+            ("zone2", "sh1"), ("zone2", "sh2"),
+            ("zone_a", "shelter_1"), ("zone_a", "shelter_2"),
+            ("zone_b", "shelter_1"), ("zone_b", "shelter_2"),
+        ]:
+            graph.add_edge(origin, destination, distance=8.0, travel_time=12.0, capacity=1500)
+        return graph
+
+    @pytest.fixture
+    def planner(self, road_network) -> EvacuationPlanner:
+        return EvacuationPlanner(road_network=road_network)
 
     def test_register_shelter(self, planner):
         """register_shelter stores a Shelter."""

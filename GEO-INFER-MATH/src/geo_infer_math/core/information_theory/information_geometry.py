@@ -211,15 +211,33 @@ def information_distance(
             return np.inf
     
     elif method == 'geodesic':
-        # Simplified geodesic distance
-        try:
-            # Use matrix distance
-            diff = fisher_matrix1 - fisher_matrix2
-            distance = np.linalg.norm(diff, ord='fro')
-            return float(distance)
-        except Exception as e:
-            logger.warning(f"Geodesic distance calculation failed: {e}")
-            return np.inf
+        # Fisher-Rao geodesic distance between two SPD Fisher information
+        # matrices: d = sqrt(sum_i log(lambda_i)^2), where lambda_i are the
+        # eigenvalues of G1^{-1/2} G2 G1^{-1/2} (equivalently the generalized
+        # eigenvalues of the pair (G2, G1)).
+        symmetric1 = 0.5 * (fisher_matrix1 + fisher_matrix1.T)
+        symmetric2 = 0.5 * (fisher_matrix2 + fisher_matrix2.T)
+
+        eigvals1, eigvecs1 = np.linalg.eigh(symmetric1)
+        if np.any(eigvals1 <= 0):
+            raise ValueError(
+                "Fisher-Rao geodesic distance requires positive-definite "
+                "Fisher information matrices"
+            )
+        sqrt_inv1 = eigvecs1 @ np.diag(1.0 / np.sqrt(eigvals1)) @ eigvecs1.T
+        whitened = sqrt_inv1 @ symmetric2 @ sqrt_inv1
+        generalized_eigenvalues = np.linalg.eigvalsh(
+            0.5 * (whitened + whitened.T)
+        )
+        if np.any(generalized_eigenvalues <= 0):
+            raise ValueError(
+                "Fisher-Rao geodesic distance requires positive-definite "
+                "Fisher information matrices"
+            )
+        distance = np.sqrt(
+            np.sum(np.log(generalized_eigenvalues) ** 2)
+        )
+        return float(distance)
     
     else:
         raise ValueError(f"Unknown method: {method}")

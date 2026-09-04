@@ -19,6 +19,7 @@ Tests workspace within `GEO-INFER-ART`.
 - `conftest.py:spatial_art_config` (function)
 - `conftest.py:color_palette` (function)
 - `conftest.py:sample_terrain_data` (function)
+- `conftest.py:pytest_collection_modifyitems` (function)
 - `run_all_tests.py:run_all_tests` (function)
 
 ## Module Metadata

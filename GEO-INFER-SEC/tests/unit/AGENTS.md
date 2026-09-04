@@ -29,6 +29,7 @@
 - `test_authorization.py`
 - `test_encryption.py`
 - `test_input_validation.py`
+- `test_token_lifecycle.py`
 
 ## Validation
 

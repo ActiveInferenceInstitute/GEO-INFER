@@ -33,6 +33,7 @@
 - `test_generator_isolation.py`
 - `test_hazard_model.py`
 - `test_insurance_models.py`
+- `test_package_exports.py`
 - `test_portfolio_management.py`
 - `test_reproducibility.py`
 - `test_risk_engine.py`

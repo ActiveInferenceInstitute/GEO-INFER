@@ -566,8 +566,8 @@ class RealDataAcquisition:
                         1024 * 1024, int(0.01 * total_bytes)
                     ):
                         return output_path
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning('Best-effort acquisition step failed; continuing: %s', exc)
 
             # Stream download with progress bar
             with requests.get(

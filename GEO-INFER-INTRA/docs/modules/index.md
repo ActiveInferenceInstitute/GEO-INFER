@@ -53,7 +53,7 @@ their conceptual pages below.
 | [ENERGY](geo-infer-energy.md) | [CLIMATE](geo-infer-climate.md) | [EDU](geo-infer-edu.md) |
 | [FOREST](geo-infer-forest.md) | [MARINE](geo-infer-marine.md) | [EMERGENCY](geo-infer-emergency.md) |
 | [WATER](geo-infer-water.md) | [RISK](geo-infer-risk.md) | [HEALTH](geo-infer-health.md) |
-|  |  | [LOG](geo-infer-log.md) · [PEP](geo-infer-pep.md) · [TRANSPORT](geo-infer-transport.md) |
+|  |  | [LOG](geo-infer-log.md) · [PEP](geo-infer-pep.md) · [TRANSPORT](geo-infer-transport.md) · [ECON](geo-infer-econ.md) |
 
 ## Governance and tooling
 
@@ -65,6 +65,13 @@ security, validation, and cross-module demonstrations.
 - [GEO-INFER-INTRA](geo-infer-intra.md) — documentation and knowledge hub.
 - [GEO-INFER-EXAMPLES](geo-infer-examples.md) — runnable orchestration examples.
 - [GEO-INFER-SEC](geo-infer-sec.md) — security utilities and boundaries.
+- [GEO-INFER-COMMS](geo-infer-comms.md) — communications infrastructure for data exchange.
+- [GEO-INFER-GIT](geo-infer-git.md) — version control and repository management.
+- [GEO-INFER-METAGOV](geo-infer-metagov.md) — meta-governance and organizational methods.
+- [GEO-INFER-NORMS](geo-infer-norms.md) — social-technical compliance modeling.
+- [GEO-INFER-OPS](geo-infer-ops.md) — system orchestration, monitoring, and deployment.
+- [GEO-INFER-ORG](geo-infer-org.md) — organizational structures and community processes.
+- [GEO-INFER-REQ](geo-infer-req.md) — requirements engineering with P3IF.
 
 ## Selecting a module
 

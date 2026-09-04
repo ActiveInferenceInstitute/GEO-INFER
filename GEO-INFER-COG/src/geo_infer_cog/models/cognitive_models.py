@@ -18,15 +18,21 @@ Mathematical Foundations:
 - Mental model theories (Johnson-Laird, 1983)
 """
 
-import numpy as np
+import itertools
+import json
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union, Set, cast
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
+from typing import Dict, List, Optional, Tuple, Any, Union, Set, cast
+
 import networkx as nx
+import numpy as np
 
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
+
+# Module-level monotonic counter backing fallback entity IDs.
+_ENTITY_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
 logger = logging.getLogger(__name__)
 
@@ -554,7 +560,8 @@ class SpatialKnowledgeGraph:
     def __init__(self,
                  graph_id: str,
                  domain: str = 'general',
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize spatial knowledge graph.
 
@@ -562,10 +569,17 @@ class SpatialKnowledgeGraph:
             graph_id: Unique identifier for this knowledge graph
             domain: Knowledge domain ('urban', 'environmental', 'transportation', 'general')
             config: Additional configuration parameters
+            rng: Optional random generator for fallback entity-ID suffixes.
+                When omitted, a fixed-seed generator is used so ID generation
+                is deterministic by default.
         """
         self.graph_id = graph_id
         self.domain = domain
         self.config = config or {}
+
+        # Resolved via the repo-wide resolve_rng pattern; None resolves to a
+        # fixed seed so ID generation is reproducible by default.
+        self._rng = resolve_rng(rng)
 
         # Graph structure using NetworkX
         self.graph = nx.DiGraph()
@@ -577,6 +591,7 @@ class SpatialKnowledgeGraph:
         self.edge_index: Dict[Tuple[str, str], Any] = {}  # (source, target) -> edge_data
 
         # Knowledge organization
+
         self.ontologies: Dict[str, Any] = {}  # Domain ontologies
         self.taxonomies: Dict[str, Any] = {}  # Hierarchical classifications
 
@@ -918,8 +933,11 @@ class SpatialKnowledgeGraph:
             geometry = feature.get('geometry', {})
             properties = feature.get('properties', {})
 
-            # Generate entity ID if not present
-            entity_id = properties.get('id', f"entity_{np.random.randint(10000)}")
+            # Generate a deterministic fallback ID from the module-level
+            # monotonic counter plus the graph's generator when supplied.
+            entity_id = properties.get(
+                'id', f"entity_{next(_ENTITY_ID_SEQUENCE)}_{int(self._rng.integers(0, 10000))}"
+            )
             entity_type = properties.get('type', 'location')
 
             # Add entity to graph

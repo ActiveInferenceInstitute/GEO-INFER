@@ -83,9 +83,10 @@ checksums. Local HTTP tests exercise pagination and failure/resume paths.
 - The bundled Smith River excerpt contains 34 reaches in a bounded envelope. It
   does not establish full Smith River watershed or full Cascadia coverage.
 
-## Module and gate results
+## Pre-merge module and gate results
 
-The final result tables below are generated from captured command outcomes and
+The tables below describe implementation commit `3a68ce80`, before integrating
+remote `b7e3a8ea`. They are generated from captured command outcomes and
 JUnit reports. Local detailed logs live under `/tmp/geo-infer-final-tests/` and
 `/tmp/geo-infer-baseline-fc62502c/`; these are ephemeral verification artifacts.
 <!-- VERIFIED-RESULTS -->
@@ -241,3 +242,128 @@ x86 CI was not executed.
 
 GitNexus had no GEO-INFER index. Caller and impact review used repository text
 search and direct source inspection, with reduced code-intelligence confidence.
+
+
+## Publication integration on September 4
+
+Remote `main` advanced seven commits from the original baseline to `b7e3a8ea`.
+The tested local implementation was preserved as `3a68ce80` before a normal merge;
+neither published history nor unrelated upstream work was rewritten.
+
+Conflict reconciliation preserved upstream unconditional public imports and BIO
+exports while retaining canonical package versions. TIME retains normalization,
+injected adapters, broker timestamps and dependency diagnostics within the real
+transport/manual-acknowledgement implementation. PLACE retains environment-path
+and offline controls, branching-network coverage, and explicit observable
+projection fallback within its installable package. The wheel builder retains
+fresh builds, archive checks and complete isolated-import receipts; a regression
+proves stale wheel filenames cannot satisfy a new build. Upstream dependency
+parity, passive-logging checks, fail-fast test orchestration and manuscript CI
+remain enabled. Requirements now declare Pillow/networkx alongside package
+metadata, and the combined dependency lock was regenerated.
+
+Pre-merge results above are historical evidence. Remaining
+work is centralized in [TODO.md](../../TODO.md), with responsible areas,
+prerequisites, bounded deliverables and acceptance evidence.
+
+
+The complete merged module suites pass **8,607 tests on Python 3.11.15 and
+8,607 on 3.12.11**, with zero failures, errors or skips. Reports live at
+`/tmp/geo-merge-tests311/` and `/tmp/geo-merge-tests312/`. The same bounded
+per-module runner and CPU environment described above were used.
+
+The first merged ANT runs failed their 300 MB RSS cleanup threshold. A separate
+three-cycle probe found zero retained agent weak references; after the first
+cycle, traced Python allocation growth was about 0.07 MB per cycle while process
+RSS varied much more. The cleanup benchmark now performs an identical seeded
+warmup before measuring retained simulation memory, keeping the original 300 MB
+limit and explicitly asserting release of all agent objects. Complete ANT suites
+then passed on both interpreters. Original failures and allocation-probe output
+are retained under `/tmp/geo-ant-merge-investigation/` and alongside the final
+JUnit reports; no cold-import memory improvement is claimed.
+
+The first clean merged wheel run found DATA's newly unconditional connector
+imports required undeclared `aiohttp`. Its runtime metadata and requirements now
+include that dependency. Three missing test imports reported by upstream CI
+(`networkx`, `structlog`, `sys`) were also corrected. These findings demonstrate
+why pre-merge workspace results were not treated as installed-package evidence.
+
+All twelve merged repository/package/logging/documentation/skill/test/model/
+reproducibility/Active-Inference/H3/geospatial/orchestration gates pass; outputs
+are in `/tmp/geo-merge-gates/`. Python 3.11 model contracts and reproducibility
+also pass with the same deterministic hash recorded above. The newly integrated
+manuscript producer passes `--verify`; its outputs remain ignored. Generated
+signposts are maintained from the merged inventory: 922 source files, 566 test
+files and 1,692 README/AGENTS files.
+
+
+### Combined-tree module results
+
+| Module | Python 3.12 passed | Python 3.11 passed |
+| --- | ---: | ---: |
+| GEO-INFER-ACT | 465 | 465 |
+| GEO-INFER-AG | 83 | 83 |
+| GEO-INFER-AGENT | 209 | 209 |
+| GEO-INFER-AI | 89 | 89 |
+| GEO-INFER-ANT | 164 | 164 |
+| GEO-INFER-API | 122 | 122 |
+| GEO-INFER-APP | 63 | 63 |
+| GEO-INFER-ART | 72 | 72 |
+| GEO-INFER-BAYES | 312 | 312 |
+| GEO-INFER-BIO | 43 | 43 |
+| GEO-INFER-CIV | 90 | 90 |
+| GEO-INFER-CLIMATE | 98 | 98 |
+| GEO-INFER-COG | 169 | 169 |
+| GEO-INFER-COMMS | 53 | 53 |
+| GEO-INFER-DATA | 365 | 365 |
+| GEO-INFER-ECON | 164 | 164 |
+| GEO-INFER-EDU | 106 | 106 |
+| GEO-INFER-EMERGENCY | 149 | 149 |
+| GEO-INFER-ENERGY | 93 | 93 |
+| GEO-INFER-EXAMPLES | 71 | 71 |
+| GEO-INFER-FOREST | 84 | 84 |
+| GEO-INFER-GIT | 123 | 123 |
+| GEO-INFER-HEALTH | 200 | 200 |
+| GEO-INFER-INTRA | 50 | 50 |
+| GEO-INFER-IOT | 97 | 97 |
+| GEO-INFER-LOG | 67 | 67 |
+| GEO-INFER-MARINE | 92 | 92 |
+| GEO-INFER-MATH | 306 | 306 |
+| GEO-INFER-METAGOV | 129 | 129 |
+| GEO-INFER-NORMS | 135 | 135 |
+| GEO-INFER-OPS | 165 | 165 |
+| GEO-INFER-ORG | 91 | 91 |
+| GEO-INFER-PEP | 84 | 84 |
+| GEO-INFER-PLACE | 365 | 365 |
+| GEO-INFER-REQ | 70 | 70 |
+| GEO-INFER-RISK | 257 | 257 |
+| GEO-INFER-SEC | 265 | 265 |
+| GEO-INFER-SIM | 63 | 63 |
+| GEO-INFER-SPACE | 583 | 583 |
+| GEO-INFER-SPM | 360 | 360 |
+| GEO-INFER-TEST | 1384 | 1384 |
+| GEO-INFER-TIME | 474 | 474 |
+| GEO-INFER-TRANSPORT | 98 | 98 |
+| GEO-INFER-WATER | 85 | 85 |
+| **Total** | **8607** | **8607** |
+
+
+### Final merged installed-wheel verification
+
+Both fresh builds and clean isolated installations passed after declaring DATA's
+`aiohttp` dependency. Each package completed origin, version and resource checks.
+The final archives were independently compared with current source code, metadata
+and resource bytes. Imports used the explicit 600-second bound; no speed guarantee
+is implied. Wheel-inventory digests hash sorted `filename sha256` lines.
+
+- Python 3.11: 44 completed import receipts and 44 source-matching wheels;
+  inventory SHA256 `2fd309b9ef9489f65c0eba01b212e26888c1a25ce7ec212ecdadb5ba647724d4`.
+- Python 3.12: 44 completed import receipts and 44 source-matching wheels;
+  inventory SHA256 `ef9b2dbeb886a08fc693afe427b2a4ad3c91fe501eb4bb0a8a182342b829a2d7`.
+
+Logs: `/tmp/geo-merge-wheels311-final.log` and
+`/tmp/geo-merge-wheels312-final.log`. The earlier missing-dependency failure remains
+in `/tmp/geo-merge-wheels311.log`. The pre-merge Linux ARM64 checks above remain
+historical; the final merged clean-install checks were run on macOS. Hosted CI
+results must be tied to the pushed SHA. Outgoing formatting, critical lint and
+whitespace checks are scoped against the fetched remote `main`.

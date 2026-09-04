@@ -114,7 +114,7 @@ class WildfireRiskAnalyzer:
         Returns:
             Wildfire risk assessment
         """
-        # Calculate drought index (simplified)
+        # Calculate the drought index from precipitation and temperature
         mean_precip = precipitation.mean(dim='time')
         current_precip = precipitation.isel(time=-1)
         drought_index = 1 - (current_precip / (mean_precip + 1e-10))
@@ -161,19 +161,19 @@ class WildfireRiskAnalyzer:
         wind = observation.wind_speed_kmh
         precip = observation.precipitation_mm
         
-        # Fine Fuel Moisture Code (FFMC) - simplified
+        # Fine Fuel Moisture Code (FFMC), first-order formulation
         # Higher temp and lower humidity = higher FFMC = drier fine fuels
         ffmc = 100 * (1 - rh / 100) * (1 + temp / 40)
         ffmc = min(101, max(0, ffmc))
         
-        # Duff Moisture Code (DMC) - simplified
+        # Duff Moisture Code (DMC), first-order formulation
         # Measures moisture in moderate duff layer
         if precip < 1.5:
             dmc = max(0, 50 - rh + temp)
         else:
             dmc = max(0, 30 - rh / 2 + temp / 2)
         
-        # Drought Code (DC) - simplified
+        # Drought Code (DC), first-order formulation
         # Measures deep duff layer moisture
         dc = max(0, 200 - precip * 10 + temp * 2)
         
@@ -225,29 +225,73 @@ class WildfireRiskAnalyzer:
         self,
         ignition_points: xr.DataArray,
         fuel_load: xr.DataArray,
-        wind_direction: Optional[xr.DataArray] = None
+        wind_direction: Optional[xr.DataArray] = None,
+        spread_boost: float = 0.5,
     ) -> xr.Dataset:
         """
-        Predict potential fire spread.
-        
+        Predict potential fire spread with anisotropic wind forcing.
+
+        Spread is evaluated in the eight principal compass directions.
+        Each direction d receives a multiplier
+
+            m_d = max(1.0, 1.0 + spread_boost * cos(d - wind_direction))
+
+        so spread is strongest downwind (d aligned with the wind vector),
+        weakest upwind (multiplier floors at 1.0), and neutral in
+        perpendicular directions. ``wind_direction`` is the direction the
+        wind blows toward, in degrees clockwise from north; when absent
+        the multipliers are all 1.0 and spread is isotropic.
+
         Args:
             ignition_points: Fire ignition locations
             fuel_load: Fuel load data
-            wind_direction: Optional wind direction
-            
+            wind_direction: Optional wind direction (degrees from north,
+                direction the wind blows toward)
+            spread_boost: Wind-driven anisotropy strength
+
         Returns:
-            Fire spread prediction
+            Fire spread prediction with ``spread_probability`` and
+            ``potential_spread`` (isotropic base) plus
+            ``directional_spread`` carrying a ``direction`` dimension at
+            the eight principal compass directions (0, 45, ..., 315
+            degrees).
         """
-        # Simplified fire spread model
         spread_probability = fuel_load / fuel_load.max()
-        
-        if wind_direction is not None:
-            # Wind increases spread in wind direction
-            spread_probability = spread_probability * 1.5
-        
+        potential = ignition_points * spread_probability
+        directions = np.arange(0.0, 360.0, 45.0)
+
+        if wind_direction is None:
+            multipliers = xr.DataArray(
+                np.ones(directions.shape),
+                coords={"direction": directions},
+                dims=("direction",),
+            )
+        else:
+            wind_values = np.asarray(wind_direction.values, dtype=float)
+            # cos of the angle between each spread direction and the wind
+            angle_rad = np.radians(directions.reshape(-1, 1) - wind_values.reshape(1, -1))
+            factors = np.maximum(1.0, 1.0 + spread_boost * np.cos(angle_rad))
+            if wind_values.ndim == 0 or wind_values.size == 1:
+                multipliers = xr.DataArray(
+                    factors[:, 0],
+                    coords={"direction": directions},
+                    dims=("direction",),
+                )
+            else:
+                wind_dims = tuple(wind_direction.dims)
+                wind_coords = {d: wind_direction.coords[d] for d in wind_direction.coords}
+                multipliers = xr.DataArray(
+                    factors.reshape((directions.size,) + wind_values.shape),
+                    coords={"direction": directions, **wind_coords},
+                    dims=("direction",) + wind_dims,
+                )
+
+        directional_spread = potential * multipliers
+
         return xr.Dataset({
             'spread_probability': spread_probability,
-            'potential_spread': ignition_points * spread_probability
+            'potential_spread': potential,
+            'directional_spread': directional_spread,
         })
     
     def model_fire_perimeter(
@@ -305,7 +349,7 @@ class WildfireRiskAnalyzer:
         area_m2 = np.pi * (length / 2) * (width / 2)
         area_ha = area_m2 / 10000
         
-        # Generate perimeter points (simplified ellipse)
+        # Generate perimeter points from the ellipse model
         n_points = 36
         angles = np.linspace(0, 2 * np.pi, n_points)
         

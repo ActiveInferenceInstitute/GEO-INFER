@@ -342,3 +342,47 @@ class TestEnums:
             FuelType.TIMBER_LITTER
         ]
         assert len(types) == 4
+
+
+class TestAnisotropicSpread:
+    """Wind direction must make spread faster downwind than upwind."""
+
+    @pytest.fixture
+    def analyzer(self):
+        return WildfireRiskAnalyzer()
+
+    @pytest.fixture
+    def field(self):
+        ignition = xr.DataArray([[0, 1, 0], [0, 0, 0]], dims=["y", "x"])
+        fuel = xr.DataArray([[50.0, 80.0, 60.0], [40.0, 70.0, 50.0]], dims=["y", "x"])
+        return ignition, fuel
+
+    def test_downwind_faster_than_upwind(self, analyzer, field):
+        ignition, fuel = field
+        result = analyzer.predict_fire_spread(
+            ignition, fuel, wind_direction=xr.DataArray(90.0)
+        )
+        downwind = float(result["directional_spread"].sel(direction=90.0).sum())
+        upwind = float(result["directional_spread"].sel(direction=270.0).sum())
+        assert downwind > upwind
+
+    def test_multipliers_range(self, analyzer, field):
+        """Multiplier floor is 1.0, ceiling is 1 + spread_boost."""
+        ignition, fuel = field
+        result = analyzer.predict_fire_spread(
+            ignition, fuel, wind_direction=xr.DataArray(90.0), spread_boost=0.5
+        )
+        base = float(result["potential_spread"].sum())
+        directional = result["directional_spread"].sum(dim=["y", "x"])
+        ratios = directional / base
+        assert float(ratios.min()) >= 1.0
+        assert float(ratios.max()) <= 1.5 + 1e-9
+
+    def test_isotropic_without_wind(self, analyzer, field):
+        ignition, fuel = field
+        result = analyzer.predict_fire_spread(ignition, fuel)
+        assert float(result["directional_spread"].sel(direction=90.0).sum()) == (
+            float(result["directional_spread"].sel(direction=270.0).sum())
+        )
+        assert "spread_probability" in result
+        assert "potential_spread" in result

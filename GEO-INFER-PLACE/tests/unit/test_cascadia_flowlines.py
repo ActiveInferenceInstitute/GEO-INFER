@@ -396,3 +396,72 @@ def test_projected_geojson_never_gets_relabelled_as_wgs84(
     sample_flowlines_gdf.to_crs("EPSG:3857").to_file(path, driver="GeoJSON")
     with pytest.raises(ValueError, match="WGS84"):
         load_flowlines(path)
+
+
+def test_upstream_environment_path_selects_local_dataset(tmp_path, monkeypatch):
+    path = tmp_path / "smith.geojson"
+    sample_flowlines().to_file(path, driver="GeoJSON")
+    monkeypatch.setenv("GEO_INFER_CASCADIA_FLOWLINES_PATH", str(path))
+    source = CascadianSurfaceWaterDataSources()
+    assert source.dataset_path == path
+    assert source.get_flowline_network().graph.number_of_edges() == 34
+
+
+def test_explicit_sources_take_precedence_over_environment(
+    tmp_path, monkeypatch, sample_flowlines_gdf
+):
+    monkeypatch.setenv(
+        "GEO_INFER_CASCADIA_FLOWLINES_PATH", str(tmp_path / "absent.geojson")
+    )
+    explicit = tmp_path / "constructed.geojson"
+    sample_flowlines_gdf.to_file(explicit, driver="GeoJSON")
+    assert (
+        CascadianSurfaceWaterDataSources(explicit)
+        .get_flowline_network()
+        .graph.number_of_edges()
+        == 4
+    )
+    assert (
+        CascadianSurfaceWaterDataSources(flowlines=sample_flowlines_gdf)
+        .get_flowline_network()
+        .graph.number_of_edges()
+        == 4
+    )
+
+
+def test_offline_environment_never_replaces_absence_with_empty_success(monkeypatch):
+    monkeypatch.delenv("GEO_INFER_CASCADIA_FLOWLINES_PATH", raising=False)
+    monkeypatch.setenv("GEO_INFER_SURFACE_WATER_OFFLINE", "1")
+    source = CascadianSurfaceWaterDataSources()
+    assert source.offline
+    with pytest.raises(FileNotFoundError, match="Offline"):
+        source.fetch_surface_water_features((-124.22, 41.90, -124.18, 41.94))
+
+
+def test_offline_selection_uses_complete_cache_without_network(tmp_path, monkeypatch):
+    import hashlib
+    import json
+    from geo_infer_place.hydrography import HydrographySelection
+    from geo_infer_place.hydrography.ingestion import IncompleteHydrographyError
+
+    bbox = (-124.22, 41.90, -124.18, 41.94)
+    key = hashlib.sha256(
+        json.dumps(HydrographySelection(bbox=bbox).query(), sort_keys=True).encode()
+    ).hexdigest()[:20]
+    cached = tmp_path / key
+    cached.mkdir()
+    path = cached / "flowlines.geojson"
+    sample_flowlines().to_file(path, driver="GeoJSON")
+    manifest = {
+        "dataset": "flowlines.geojson",
+        "status": "complete",
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
+    (cached / "manifest.json").write_text(json.dumps(manifest))
+    monkeypatch.delenv("GEO_INFER_CASCADIA_FLOWLINES_PATH", raising=False)
+    source = CascadianSurfaceWaterDataSources(cache_dir=tmp_path, offline=True)
+    assert len(source.fetch_surface_water_features(bbox)["flowlines"]) == 34
+    manifest["status"] = "incomplete"
+    (cached / "manifest.json").write_text(json.dumps(manifest))
+    with pytest.raises(IncompleteHydrographyError, match="not complete"):
+        source.fetch_surface_water_features(bbox)

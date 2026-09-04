@@ -236,10 +236,16 @@ class StreamProcessor:
         self,
         url: str = "ws://localhost:8765",
         max_messages: Optional[int] = None,
+        adapter: Optional[WebSocketIngestAdapter] = None,
         **kwargs: Any,
     ) -> int:
-        """Ingest from a real WebSocket endpoint; kwargs configure the transport."""
-        adapter = WebSocketIngestAdapter({"url": url, **kwargs})
+        """Ingest a real WebSocket source, optionally using a configured adapter.
+
+        When supplied, the adapter owns its connection configuration; URL and
+        transport kwargs are ignored. This method owns iteration cleanup.
+        """
+        if adapter is None:
+            adapter = WebSocketIngestAdapter({"url": url, **kwargs})
         return await self.ingest_adapter_stream(adapter, max_messages=max_messages)
 
     async def ingest_kafka_stream(
@@ -247,15 +253,20 @@ class StreamProcessor:
         topic: str = "geo_infer_temporal_events",
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
         max_messages: Optional[int] = None,
+        adapter: Optional[KafkaIngestAdapter] = None,
         **kwargs: Any,
     ) -> int:
-        """Ingest and acknowledge Kafka records after successful processing."""
-        config: Dict[str, Any] = {"topic": topic, **kwargs}
-        if bootstrap_servers is not None:
-            config["bootstrap_servers"] = bootstrap_servers
-        return await self.ingest_adapter_stream(
-            KafkaIngestAdapter(config), max_messages=max_messages
-        )
+        """Ingest and acknowledge Kafka records after successful processing.
+
+        A supplied adapter owns its topic, servers and transport configuration.
+        This method owns iteration cleanup.
+        """
+        if adapter is None:
+            config: Dict[str, Any] = {"topic": topic, **kwargs}
+            if bootstrap_servers is not None:
+                config["bootstrap_servers"] = bootstrap_servers
+            adapter = KafkaIngestAdapter(config)
+        return await self.ingest_adapter_stream(adapter, max_messages=max_messages)
 
     def process_window(self) -> Optional[Dict[str, Any]]:
         """
