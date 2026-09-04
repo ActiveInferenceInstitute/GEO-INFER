@@ -1,5 +1,5 @@
 ---
-phase: verifying
+phase: complete
 ---
 # GEO-INFER Ideal State Artifact
 
@@ -220,7 +220,7 @@ isolation before attributing them to code.
 - [x] PUBLISH-01: Resolve conflicts while preserving substantive upstream behavior.
 - [x] PUBLISH-02: Combined-tree tests, wheels and required gates have recorded outcomes.
 - [x] PUBLISH-03: Remaining TODO items have prerequisites and acceptance evidence.
-- [ ] PUBLISH-04: Public outgoing diff reviewed, normal push succeeds, remote SHA matches.
+- [x] PUBLISH-04: Public outgoing diff reviewed, normal push succeeds, remote SHA matches.
 
 - Combined module suites: 8,607 pass per interpreter (3.11.15 and 3.12.11),
   zero failures/errors/skips. Twelve merged gates and manuscript verification
@@ -229,3 +229,8 @@ isolation before attributing them to code.
 - Final merged wheels: 44 fresh source-matching builds and 44 completed isolated
   imports on each supported Python version. Public outgoing content audit found
   no credential patterns or added private local paths.
+
+- Publication receipt: normal push of `b45f10832db9c4815455b79246f88a20735aca1b`
+  to public `origin/main` succeeded; `git ls-remote origin refs/heads/main`
+  matched local HEAD and the worktree was clean. Hosted verification remains
+  the recurring CI-01 gate in TODO.md; local passes are not a hosted-CI claim.
