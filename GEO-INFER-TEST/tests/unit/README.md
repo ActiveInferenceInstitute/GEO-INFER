@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-TEST`.
 
 ## Contents
 
+- `test_build_package_wheels.py`
 - `test_crescent_city_geo_intel_contract_sync.py`
 - `test_data_domains.py`
 - `test_log_integration.py`
@@ -13,6 +14,7 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_performance_monitor.py`
 - `test_root_pytest_policy.py`
 - `test_run_unified_tests.py`
+- `test_runtime_metadata.py`
 - `test_spatial_functions.py`
 - `test_test_discoverer.py`
 - `test_test_orchestrator.py`

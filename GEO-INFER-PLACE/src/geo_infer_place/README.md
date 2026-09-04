@@ -6,6 +6,7 @@ Geo Infer Place workspace within `GEO-INFER-PLACE`.
 
 - `config/`
 - `core/`
+- `hydrography/`
 - `locations/`
 - `utils/`
 - `__init__.py`

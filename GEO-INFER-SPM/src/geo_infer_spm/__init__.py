@@ -72,7 +72,7 @@ from .core.advanced import (
     MixedEffectsSPM,
     NonparametricSPM,
     ModelValidator,
-    SpatialRegression
+    SpatialRegression,
 )
 from .core.advanced.mixed_effects import fit_mixed_effects
 from .core.advanced.nonparametric import fit_nonparametric
@@ -82,7 +82,7 @@ from .core.advanced.spatial_regression import fit_spatial_model
 # API
 from .api.endpoints import SPMAPI
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Framework"
 __description__ = "Statistical Parametric Mapping for Geospatial Analysis"
 
@@ -97,12 +97,10 @@ __all__ = [
     "compute_spm",
     "Contrast",
     "contrast",
-
     # Analysis tools
     "SpatialAnalyzer",
     "TemporalAnalyzer",
     "BayesianSPM",
-
     # Advanced modeling methods
     "MixedEffectsSPM",
     "NonparametricSPM",
@@ -112,12 +110,10 @@ __all__ = [
     "fit_nonparametric",
     "validate_spm_model",
     "fit_spatial_model",
-
     # Data models
     "SPMData",
     "SPMResult",
     "ContrastResult",
-
     # Utilities
     "load_data",
     "save_spm",
@@ -125,7 +121,6 @@ __all__ = [
     "generate_synthetic_data",
     "visualize_spm",
     "create_statistical_map",
-
     # API
-    "SPMAPI"
+    "SPMAPI",
 ]

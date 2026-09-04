@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14951,
+      "bytes": 6708,
       "name": "geo-infer-bio_preview.html",
+      "sha256": "c585e1eb8d594791cc63a70c3f88dd3d4476f19018596851f65abb8bf3e09184",
       "type": "text/html"
     },
     {
-      "bytes": 5668,
+      "bytes": 2707,
       "name": "geo-infer-bio_preview.svg",
+      "sha256": "ec8c890f229912db61d0ac65bef043af782ad2dabe5ca0a169e732eef3cf5fbb",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2173,
+      "bytes": 6638,
       "name": "geo-infer-bio_preview.png",
+      "sha256": "d84e615e832043e7fb3a0bfa69c55c18018bb8434502a8e99d7459df3a7e5ed4",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "d604c2227f442597b519b415fdf0fc44bb29e46b90c43905bf725e0480a2ad14",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "9ff5dfd0cb7967b3f8aa006a26426d386a164077d93dc87567f576450efec5db",
   "module_id": "GEO-INFER-BIO",
   "name": "Biological Systems",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

@@ -5,9 +5,9 @@ This module implements comprehensive meta-governance, organizational governance,
 and multi-level governance coordination frameworks for autonomous geospatial systems.
 """
 
-__version__ = "4.0.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
-__license__ = "CC BY-ND-SA 4.0"
+__license__ = "CC BY-NC-SA 4.0"
 
 from geo_infer_metagov.core.multi_level import MultiLevelGovernanceFramework
 from geo_infer_metagov.core.institutional import InstitutionalDesigner
@@ -15,16 +15,26 @@ from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
 from geo_infer_metagov.core.polycentric import PolycentricGovernanceSystem
 from geo_infer_metagov.core.adaptation import AdaptiveGovernanceSystem
 from geo_infer_metagov.core.accountability import AccountabilityFramework
-from geo_infer_metagov.core.conflict_resolution import ConflictResolver, ConflictResolutionMethod
-from geo_infer_metagov.core.performance import PerformanceEvaluator, PerformanceMetrics, PerformanceDimension
+from geo_infer_metagov.core.conflict_resolution import (
+    ConflictResolver,
+    ConflictResolutionMethod,
+)
+from geo_infer_metagov.core.performance import (
+    PerformanceEvaluator,
+    PerformanceMetrics,
+    PerformanceDimension,
+)
 from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, ScenarioAnalysis
 
 # Integration modules (optional)
 try:
     from geo_infer_metagov.integrations.spatial import SpatialGovernanceIntegration
-    from geo_infer_metagov.integrations.organizational import OrganizationalGovernanceIntegration
+    from geo_infer_metagov.integrations.organizational import (
+        OrganizationalGovernanceIntegration,
+    )
     from geo_infer_metagov.integrations.security import SecurityGovernanceIntegration
     from geo_infer_metagov.integrations.normative import NormativeGovernanceIntegration
+
     INTEGRATIONS_AVAILABLE = True
 except ImportError:
     INTEGRATIONS_AVAILABLE = False
@@ -47,9 +57,11 @@ __all__ = [
 ]
 
 if INTEGRATIONS_AVAILABLE:
-    __all__.extend([
-        "SpatialGovernanceIntegration",
-        "OrganizationalGovernanceIntegration",
-        "SecurityGovernanceIntegration",
-        "NormativeGovernanceIntegration",
-    ])
+    __all__.extend(
+        [
+            "SpatialGovernanceIntegration",
+            "OrganizationalGovernanceIntegration",
+            "SecurityGovernanceIntegration",
+            "NormativeGovernanceIntegration",
+        ]
+    )

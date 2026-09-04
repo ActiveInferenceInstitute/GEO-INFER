@@ -323,7 +323,7 @@ def initialize_modules_with_enhanced_data_management(
         GeoInferGroundWater = None
 
     try:
-        from src.data_modules.surface_water.geo_infer_surface_water import (
+        from geo_infer_place.hydrography import (
             GeoInferSurfaceWater,
         )
 
@@ -381,9 +381,7 @@ def initialize_modules_with_enhanced_data_management(
             # Integrate enhanced data management
             modules["current_use"].data_manager = data_manager
             modules["current_use"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Current use module initialized with enhanced data management"
-            )
+            logger.info("✅ Current use module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize current use module: {e}")
 
@@ -403,9 +401,7 @@ def initialize_modules_with_enhanced_data_management(
             # Integrate enhanced data management
             modules["improvements"].data_manager = data_manager
             modules["improvements"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Improvements module initialized with enhanced data management"
-            )
+            logger.info("✅ Improvements module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize improvements module: {e}")
 
@@ -414,9 +410,7 @@ def initialize_modules_with_enhanced_data_management(
             modules["water_rights"] = GeoInferWaterRights(shared_backend)
             modules["water_rights"].data_manager = data_manager
             modules["water_rights"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Water rights module initialized with enhanced data management"
-            )
+            logger.info("✅ Water rights module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize water rights module: {e}")
 
@@ -425,9 +419,7 @@ def initialize_modules_with_enhanced_data_management(
             modules["ground_water"] = GeoInferGroundWater(shared_backend)
             modules["ground_water"].data_manager = data_manager
             modules["ground_water"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Ground water module initialized with enhanced data management"
-            )
+            logger.info("✅ Ground water module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize ground water module: {e}")
 
@@ -436,9 +428,7 @@ def initialize_modules_with_enhanced_data_management(
             modules["surface_water"] = GeoInferSurfaceWater(shared_backend)
             modules["surface_water"].data_manager = data_manager
             modules["surface_water"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Surface water module initialized with enhanced data management"
-            )
+            logger.info("✅ Surface water module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize surface water module: {e}")
 
@@ -447,9 +437,7 @@ def initialize_modules_with_enhanced_data_management(
             modules["power_source"] = GeoInferPowerSource(shared_backend)
             modules["power_source"].data_manager = data_manager
             modules["power_source"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Power source module initialized with enhanced data management"
-            )
+            logger.info("✅ Power source module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize power source module: {e}")
 
@@ -458,9 +446,7 @@ def initialize_modules_with_enhanced_data_management(
             modules["mortgage_debt"] = GeoInferMortgageDebt(shared_backend)
             modules["mortgage_debt"].data_manager = data_manager
             modules["mortgage_debt"].h3_fusion = h3_fusion
-            logger.info(
-                "✅ Mortgage debt module initialized with enhanced data management"
-            )
+            logger.info("✅ Mortgage debt module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize mortgage debt module: {e}")
 
@@ -732,9 +718,7 @@ Examples:
         "--skip-cache", action="store_true", help="Skip cache and regenerate all data"
     )
 
-    parser.add_argument(
-        "--force-refresh", action="store_true", help="Force refresh of cached data"
-    )
+    parser.add_argument("--force-refresh", action="store_true", help="Force refresh of cached data")
 
     parser.add_argument(
         "--validate-h3",
@@ -813,9 +797,7 @@ def main():
         print("CONFIGURATION VALIDATION REPORT")
         print("=" * 60)
 
-        print(
-            f"\n📊 Overall Status: {'✅ VALID' if validation_result['valid'] else '❌ INVALID'}"
-        )
+        print(f"\n📊 Overall Status: {'✅ VALID' if validation_result['valid'] else '❌ INVALID'}")
 
         if validation_result["errors"]:
             print(f"\n❌ Errors ({len(validation_result['errors'])}):")
@@ -837,9 +819,7 @@ def main():
                 print(f"   {key}:")
                 for sub_key, value in details.items():
                     if isinstance(value, list):
-                        print(
-                            f"     {sub_key}: {', '.join(value) if value else 'None'}"
-                        )
+                        print(f"     {sub_key}: {', '.join(value) if value else 'None'}")
                     else:
                         print(f"     {sub_key}: {value}")
             else:
@@ -878,9 +858,7 @@ def main():
         for module_name in active_modules:
             logger.info(f"Benchmarking {module_name} module...")
             try:
-                benchmark_result = benchmark_data_manager.benchmark_performance(
-                    module_name
-                )
+                benchmark_result = benchmark_data_manager.benchmark_performance(module_name)
                 all_benchmarks[module_name] = benchmark_result
             except Exception as e:
                 logger.error(f"Benchmark failed for {module_name}: {e}")
@@ -892,9 +870,7 @@ def main():
         print("=" * 80)
 
         print("\n🖥️ System Information:")
-        system_info = all_benchmarks.get(list(all_benchmarks.keys())[0], {}).get(
-            "system_info", {}
-        )
+        system_info = all_benchmarks.get(list(all_benchmarks.keys())[0], {}).get("system_info", {})
         for key, value in system_info.items():
             print(f"   {key}: {value}")
 
@@ -911,7 +887,9 @@ def main():
                     status = (
                         "🟢 Excellent"
                         if score > 0.8
-                        else "🟡 Good" if score > 0.5 else "🔴 Needs Optimization"
+                        else "🟡 Good"
+                        if score > 0.5
+                        else "🔴 Needs Optimization"
                     )
                     print(f"     {benchmark_type}: {status} (score: {score:.2f})")
 
@@ -919,9 +897,7 @@ def main():
                     if "load_time_seconds" in results:
                         print(f"       Load time: {results['load_time_seconds']:.2f}s")
                     if "memory_increase_mb" in results:
-                        print(
-                            f"       Memory increase: {results['memory_increase_mb']:.1f} MB"
-                        )
+                        print(f"       Memory increase: {results['memory_increase_mb']:.1f} MB")
                     if "file_size_mb" in results:
                         print(f"       File size: {results['file_size_mb']:.1f} MB")
 
@@ -944,11 +920,7 @@ def main():
         sys.exit(0)
 
     # Setup logging
-    log_level = (
-        logging.DEBUG
-        if args.debug
-        else (logging.INFO if args.verbose else logging.WARNING)
-    )
+    log_level = logging.DEBUG if args.debug else (logging.INFO if args.verbose else logging.WARNING)
     setup_logging(log_level)
 
     logger = logging.getLogger(__name__)
@@ -974,9 +946,7 @@ def main():
     if viz_options:
         logger.info(f"   Visualization Options: {', '.join(viz_options)}")
     else:
-        logger.info(
-            "   Visualization: None (use --lightweight-viz for efficient options)"
-        )
+        logger.info("   Visualization: None (use --lightweight-viz for efficient options)")
 
     # Enhanced features
     if args.force_refresh:
@@ -1009,21 +979,18 @@ def main():
             prof_dir = Path(args.output_dir) / "profile"
             prof_dir.mkdir(parents=True, exist_ok=True)
             prof_path = (
-                prof_dir
-                / f"cascadia_profile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.prof"
+                prof_dir / f"cascadia_profile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.prof"
             )
             profiler = cProfile.Profile()
             profiler.enable()
-            redevelopment_scores, summary = (
-                run_comprehensive_analysis_with_enhanced_data(
-                    backend,
-                    modules,
-                    data_manager,
-                    h3_fusion,
-                    real_data_acquisition,
-                    viz_engine,
-                    args,
-                )
+            redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
+                backend,
+                modules,
+                data_manager,
+                h3_fusion,
+                real_data_acquisition,
+                viz_engine,
+                args,
             )
             profiler.disable()
             with open(prof_path, "w") as f:
@@ -1031,16 +998,14 @@ def main():
                 ps.print_stats(50)
             logger.info(f"📈 Profile written: {prof_path}")
         else:
-            redevelopment_scores, summary = (
-                run_comprehensive_analysis_with_enhanced_data(
-                    backend,
-                    modules,
-                    data_manager,
-                    h3_fusion,
-                    real_data_acquisition,
-                    viz_engine,
-                    args,
-                )
+            redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
+                backend,
+                modules,
+                data_manager,
+                h3_fusion,
+                real_data_acquisition,
+                viz_engine,
+                args,
             )
 
         # Export results with visualization options
@@ -1065,23 +1030,19 @@ def main():
                 logger.info(f"🔗 GEO-INFER integrations available: {available_modules}")
                 suite = build_integration_suite()
                 config_dir = Path(__file__).resolve().parent / "config"
-                integration_results["data_quality"] = suite[
-                    "data_quality"
-                ].validate_module_outputs(
+                integration_results["data_quality"] = suite["data_quality"].validate_module_outputs(
                     {k: v for k, v in locals().get("module_data", {}).items()}
                 )
                 summary["geo_infer_integrations"] = integration_results
             else:
-                logger.info(
-                    "ℹ️  GEO-INFER integration modules not installed (optional enrichment)"
-                )
+                logger.info("ℹ️  GEO-INFER integration modules not installed (optional enrichment)")
         except Exception as e:
             logger.debug(f"GEO-INFER integration suite skipped: {e}")
 
         # Generate bioregion map if --bioregion flag set
         if getattr(args, "bioregion", False):
             try:
-                from src.core.visualization.bioregion_visualization import (
+                from geo_infer_place.core.bioregion_visualization import (
                     create_bioregion_map,
                 )
 
@@ -1102,6 +1063,7 @@ def main():
                 summary["bioregion_map_path"] = str(bioregion_map_path)
                 logger.info(f"🗺️ Bioregion map: {bioregion_map_path}")
             except Exception as e:
+                summary["bioregion_map_error"] = str(e)
                 logger.warning(f"Bioregion map generation failed: {e}")
 
         # Print summary
@@ -1197,15 +1159,11 @@ def run_comprehensive_analysis_with_enhanced_data(
                 logger.info(f"✅ Using real data for {module_name}: {real_data_path}")
                 data_path = real_data_path
             else:
-                logger.info(
-                    f"ℹ️  Acquiring data via standard module extraction for {module_name}"
-                )
+                logger.info(f"ℹ️  Acquiring data via standard module extraction for {module_name}")
                 data_path = data_manager.acquire_data_with_caching(
                     module_name=module_name,
                     data_source_func=module.acquire_raw_data,
-                    force_refresh=(
-                        args.force_refresh or getattr(args, "skip_cache", False)
-                    ),
+                    force_refresh=(args.force_refresh or getattr(args, "skip_cache", False)),
                 )
 
             h3_data = data_manager.process_to_h3_with_caching(
@@ -1254,11 +1212,7 @@ def run_comprehensive_analysis_with_enhanced_data(
     # Flatten module_data to hex maps for fusion
     flat_sources = {}
     for _mn, _data in module_data.items():
-        if (
-            isinstance(_data, dict)
-            and "hexagons" in _data
-            and isinstance(_data["hexagons"], dict)
-        ):
+        if isinstance(_data, dict) and "hexagons" in _data and isinstance(_data["hexagons"], dict):
             flat_sources[_mn] = _data["hexagons"]
         elif isinstance(_data, dict):
             flat_sources[_mn] = _data
@@ -1271,9 +1225,7 @@ def run_comprehensive_analysis_with_enhanced_data(
     fused_data = None
     if not getattr(args, "skip_cache", False):
         try:
-            fused_data = h3_fusion.load_fusion_cache(
-                flat_sources, list(backend.target_hexagons)
-            )
+            fused_data = h3_fusion.load_fusion_cache(flat_sources, list(backend.target_hexagons))
         except Exception as e:
             logger.warning(f"Fusion cache load attempt failed: {e}")
 
@@ -1320,17 +1272,13 @@ def run_comprehensive_analysis_with_enhanced_data(
                 payload = json.load(f)
             cached = payload.get("scores", {})
             # Validate count roughly matches fused set
-            if isinstance(cached, dict) and len(cached) >= int(
-                0.6 * max(1, len(fused_data))
-            ):
+            if isinstance(cached, dict) and len(cached) >= int(0.6 * max(1, len(fused_data))):
                 redevelopment_scores = {k: float(v) for k, v in cached.items()}
                 logger.info(
                     f"Loaded redevelopment scores from cache: {scores_cache_file} ({len(redevelopment_scores)} hexes)"
                 )
             else:
-                logger.info(
-                    "Scores cache present but insufficient coverage; recalculating."
-                )
+                logger.info("Scores cache present but insufficient coverage; recalculating.")
         except Exception as e:
             logger.warning(f"Failed to load scores cache: {e}; recalculating.")
 
@@ -1411,9 +1359,7 @@ def run_comprehensive_analysis_with_enhanced_data(
     try:
         summary["modules_analyzed"] = backend_summary.get("modules_analyzed", [])
         summary["module_summaries"] = backend_summary.get("module_summaries", {})
-        summary["redevelopment_potential"] = backend_summary.get(
-            "redevelopment_potential", {}
-        )
+        summary["redevelopment_potential"] = backend_summary.get("redevelopment_potential", {})
         summary["bioregion"] = backend_summary.get("bioregion", "Cascadia")
     except Exception:
         pass
@@ -1428,17 +1374,11 @@ def run_comprehensive_analysis_with_enhanced_data(
             visible_layers: Optional[List[str]] = None
             include_layers: Optional[List[str]] = None
             if args.visible_layers:
-                visible_layers = [
-                    l.strip() for l in args.visible_layers.split(",") if l.strip()
-                ]
+                visible_layers = [l.strip() for l in args.visible_layers.split(",") if l.strip()]
             elif visible_layers_env:
-                visible_layers = [
-                    l.strip() for l in visible_layers_env.split(",") if l.strip()
-                ]
+                visible_layers = [l.strip() for l in visible_layers_env.split(",") if l.strip()]
             if args.include_layers:
-                include_layers = [
-                    l.strip() for l in args.include_layers.split(",") if l.strip()
-                ]
+                include_layers = [l.strip() for l in args.include_layers.split(",") if l.strip()]
             # Build per-module status for interactive HTML panel
             module_status: Dict[str, Any] = {}
             try:
@@ -1452,9 +1392,7 @@ def run_comprehensive_analysis_with_enhanced_data(
                         if isinstance(hex_map, dict):
                             hex_count = len(hex_map)
                         input_features = (
-                            int(_data.get("input_features", 0))
-                            if "input_features" in _data
-                            else 0
+                            int(_data.get("input_features", 0)) if "input_features" in _data else 0
                         )
                     module_status[mod_name] = {
                         "h3_cache": str(cache_file),
@@ -1484,9 +1422,7 @@ def run_comprehensive_analysis_with_enhanced_data(
                 data_sources=module_data,
                 redevelopment_scores=redevelopment_scores,
             )
-            summary["static_visualizations"] = {
-                k: str(v) for k, v in static_viz.items()
-            }
+            summary["static_visualizations"] = {k: str(v) for k, v in static_viz.items()}
 
             # Create comprehensive dashboard
             if args.generate_dashboard:
@@ -1536,9 +1472,7 @@ def run_comprehensive_analysis_with_enhanced_data(
                 if isinstance(hex_map, dict):
                     output_hex = len(hex_map)
                 input_features = (
-                    int(_data.get("input_features", 0))
-                    if "input_features" in _data
-                    else 0
+                    int(_data.get("input_features", 0)) if "input_features" in _data else 0
                 )
             provenance["modules"][mod_name] = {
                 "h3_cache": str(cache_file),
@@ -1582,9 +1516,7 @@ def _summarize_and_score_module(module_name: str, rep: dict) -> dict:
                 rep.get("intensity", rep.get("agricultural_intensity", "medium"))
             ).lower()
             intensity = (
-                0.7
-                if intensity_str == "high"
-                else (0.4 if intensity_str == "medium" else 0.2)
+                0.7 if intensity_str == "high" else (0.4 if intensity_str == "medium" else 0.2)
             )
             # Easier redevelopment when intensity is lower
             score = 1.0 - intensity
@@ -1595,9 +1527,7 @@ def _summarize_and_score_module(module_name: str, rep: dict) -> dict:
                 "score": float(max(0.0, min(1.0, score))),
             }
         if name == "ownership":
-            owner_type = str(
-                rep.get("owner_type", rep.get("owner_category", ""))
-            ).lower()
+            owner_type = str(rep.get("owner_type", rep.get("owner_category", ""))).lower()
             # Assume individual < trust < corporate concentration
             concentration = (
                 0.3
@@ -1606,9 +1536,7 @@ def _summarize_and_score_module(module_name: str, rep: dict) -> dict:
             )
             score = 1.0 - concentration
             return {
-                "owner_type": rep.get(
-                    "owner_type", rep.get("owner_category", "Unknown")
-                ),
+                "owner_type": rep.get("owner_type", rep.get("owner_category", "Unknown")),
                 "ownership_concentration": float(concentration),
                 "score": float(max(0.0, min(1.0, score))),
             }
@@ -1633,11 +1561,7 @@ def _summarize_and_score_module(module_name: str, rep: dict) -> dict:
                 0.0,
                 min(
                     1.0,
-                    (
-                        (sum(numeric_vals) / len(numeric_vals) / 100.0)
-                        if numeric_vals
-                        else 0.0
-                    ),
+                    ((sum(numeric_vals) / len(numeric_vals) / 100.0) if numeric_vals else 0.0),
                 ),
             )
         )
@@ -1705,9 +1629,7 @@ def calculate_enhanced_redevelopment_score(hex_data):
             improvements_score = 0.0
             for improvement_item in improvements_data:
                 if isinstance(improvement_item, dict):
-                    improvement_type = improvement_item.get(
-                        "improvement_type", ""
-                    ).lower()
+                    improvement_type = improvement_item.get("improvement_type", "").lower()
                     if "barn" in improvement_type:
                         improvements_score += 0.2
                     elif "house" in improvement_type:
@@ -1800,9 +1722,7 @@ def print_analysis_summary(summary, export_paths, args):
 
     # Enhanced features
     print("\n🔧 Enhanced Features:")
-    print(
-        f"   Enhanced Data Management: {summary.get('enhanced_data_management', False)}"
-    )
+    print(f"   Enhanced Data Management: {summary.get('enhanced_data_management', False)}")
     print(f"   H3 Fusion Enabled: {summary.get('h3_fusion_enabled', False)}")
     print(f"   Spatial Analysis: {summary.get('spatial_analysis_enabled', False)}")
 
@@ -1815,19 +1735,14 @@ def print_analysis_summary(summary, export_paths, args):
     print("\n🎨 Generated Visualizations:")
     viz_files = []
     for key, path in export_paths.items():
-        if any(
-            keyword in key.lower()
-            for keyword in ["viz", "dashboard", "html", "csv", "json"]
-        ):
+        if any(keyword in key.lower() for keyword in ["viz", "dashboard", "html", "csv", "json"]):
             viz_files.append(f"   {key}: {path}")
 
     if viz_files:
         for file_info in viz_files:
             print(file_info)
     else:
-        print(
-            "   No visualizations generated (use --lightweight-viz for efficient options)"
-        )
+        print("   No visualizations generated (use --lightweight-viz for efficient options)")
 
     # Recommendations
     print("\n💡 Recommendations:")

@@ -529,6 +529,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-TRANSPORT** (*Transportation Syste
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-TRANSPORT Leaflet Preview](previews/geo-infer-transport_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-TRANSPORT Leaflet Preview](previews/geo-infer-transport_preview.svg) | [Interactive map](previews/geo-infer-transport_preview.html) · [PNG](previews/geo-infer-transport_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-transport_preview.html`, `geo-infer-transport_preview.svg`, `geo-infer-transport_preview.png`, and `geo-infer-transport_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-transport_preview.html`, `geo-infer-transport_preview.svg`, `geo-infer-transport_preview.png`, and `geo-infer-transport_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

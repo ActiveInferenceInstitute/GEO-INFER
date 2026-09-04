@@ -105,6 +105,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-FOREST** (*Forest Management Modul
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-FOREST Leaflet Preview](previews/geo-infer-forest_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-FOREST Leaflet Preview](previews/geo-infer-forest_preview.svg) | [Interactive map](previews/geo-infer-forest_preview.html) · [PNG](previews/geo-infer-forest_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-forest_preview.html`, `geo-infer-forest_preview.svg`, `geo-infer-forest_preview.png`, and `geo-infer-forest_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-forest_preview.html`, `geo-infer-forest_preview.svg`, `geo-infer-forest_preview.png`, and `geo-infer-forest_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

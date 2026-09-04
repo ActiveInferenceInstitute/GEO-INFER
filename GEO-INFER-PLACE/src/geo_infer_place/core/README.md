@@ -8,6 +8,7 @@ Core workspace within `GEO-INFER-PLACE`.
 - `__init__.py`
 - `api_clients.py`
 - `base_module.py`
+- `bioregion_visualization.py`
 - `comprehensive_dashboard.py`
 - `module_bridge.py`
 - `place_interface.py`
@@ -23,6 +24,7 @@ Core workspace within `GEO-INFER-PLACE`.
 - `api_clients.py:CDECClient` (class)
 - `api_clients.py:CaliforniaAPIManager` (class)
 - `base_module.py:BaseAnalysisModule` (class)
+- `bioregion_visualization.py:create_bioregion_map` (function)
 - `module_bridge.py:PlaceDataManager` (class)
 - `module_bridge.py:PlaceTemporalAnalyzer` (class)
 - `place_interface.py:PlaceInterface` (class)

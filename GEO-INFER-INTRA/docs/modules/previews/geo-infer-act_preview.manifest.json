@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15010,
+      "bytes": 6752,
       "name": "geo-infer-act_preview.html",
+      "sha256": "0f43b6a875124c5e978ca6005f2f437046c9ee3140664b81eb0ddda43609ec52",
       "type": "text/html"
     },
     {
-      "bytes": 5672,
+      "bytes": 2722,
       "name": "geo-infer-act_preview.svg",
+      "sha256": "21cafc7e12e4c9f7bd0b52d8d9f9259565e04a9edec4a7ac9232d716c09d94fb",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2184,
+      "bytes": 6864,
       "name": "geo-infer-act_preview.png",
+      "sha256": "3899b0b470119e9a94bef4ff8e4957390020beea5c1f019243c69fce584d87fd",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "8e744200470d52dc061ac18cb743e73cb0ae7a079331c1d2ea715e4152baaa90",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "0eea80b367c971dcfc2786e2f472c7a28f754ff237ed53ff724de2a6f4cb2a32",
   "module_id": "GEO-INFER-ACT",
   "name": "Active Inference Engine",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

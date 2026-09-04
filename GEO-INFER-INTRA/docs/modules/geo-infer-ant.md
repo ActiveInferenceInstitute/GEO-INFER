@@ -151,6 +151,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-ANT** (*Ant Colony Optimization*).
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-ANT Leaflet Preview](previews/geo-infer-ant_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-ANT Leaflet Preview](previews/geo-infer-ant_preview.svg) | [Interactive map](previews/geo-infer-ant_preview.html) · [PNG](previews/geo-infer-ant_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-ant_preview.html`, `geo-infer-ant_preview.svg`, `geo-infer-ant_preview.png`, and `geo-infer-ant_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-ant_preview.html`, `geo-infer-ant_preview.svg`, `geo-infer-ant_preview.png`, and `geo-infer-ant_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

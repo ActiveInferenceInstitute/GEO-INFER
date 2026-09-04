@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15012,
+      "bytes": 6763,
       "name": "geo-infer-intra_preview.html",
+      "sha256": "5a6de78a335471e704b8019f7edb9759143644c7485c492b39705613cbf9d83e",
       "type": "text/html"
     },
     {
-      "bytes": 5681,
+      "bytes": 2733,
       "name": "geo-infer-intra_preview.svg",
+      "sha256": "13f3a351e5d0614d6de412472a97724c7e1efc18891ad67e5a2b6d4fca18c170",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2189,
+      "bytes": 6780,
       "name": "geo-infer-intra_preview.png",
+      "sha256": "99eec7d71e9d4e11d7929a9464f3439ca8faf9f924a9e2bad2501941cef68e24",
       "type": "image/png"
     }
   ],
   "category": "Infrastructure",
-  "input_sha256": "8e566babeebeac8dd4504c03f45779c5dd23e2fb15c224c09df2c6b82179df0d",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "41e641a3a065b400d42156321cdd2ad165e8922adea34906bfa6b8ab0022f9d7",
   "module_id": "GEO-INFER-INTRA",
   "name": "Knowledge Integration",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

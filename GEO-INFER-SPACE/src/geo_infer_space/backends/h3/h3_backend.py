@@ -28,10 +28,7 @@ def _version_tuple(version: str) -> Tuple[int, int, int] | None:
         parts = version.lstrip("v").split(".")
         return cast(
             Tuple[int, int, int],
-            tuple(
-                int(part.split("+")[0].split("-")[0])
-                for part in parts[:3]
-            )
+            tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3])
             + (0,) * max(0, 3 - len(parts)),
         )
     except (AttributeError, TypeError, ValueError):
@@ -71,34 +68,28 @@ class H3Backend:
         self._init_accelerator()
 
     def _init_accelerator(self) -> None:
-        """Lazily detect and store the optional GPU accelerator module (SPACE-01).
-
-        Keeps zero-dependency semantics: if no accelerator library is
-        installed, ``self.accelerator`` stays ``False`` and every operation
-        falls back to the CPU path.
-        """
-        try:
-            from ..gpu.gpu_acceleration import (
-                get_available_backends,
-                is_accelerator_available,
-            )
-
-            self.accelerator_backends = (
-                get_available_backends() if is_accelerator_available() else []
-            )
-            self.accelerator = is_accelerator_available()
-            if self.accelerator:
-                logger.info(
-                    "GPU acceleration available via %s",
-                    self.accelerator_backends,
-                )
-        except Exception:
-            self.accelerator = False
-            self.accelerator_backends = []
+        """Initialize compatibility state without loading optional GPU libraries."""
+        self.accelerator = False
+        self.accelerator_backends: List[str] = []
 
     def _prepare_accelerator(self) -> None:
-        """Refresh accelerator availability lazily (cheap, guards staleness)."""
-        self._init_accelerator()
+        """Explicitly refresh cached GPU capability diagnostics."""
+        from ..gpu.gpu_acceleration import get_backend_diagnostics
+
+        capabilities = get_backend_diagnostics(refresh=True)
+        self.accelerator_backends = [
+            name for name, details in capabilities.items() if details["usable"]
+        ]
+        self.accelerator = bool(self.accelerator_backends)
+
+    @staticmethod
+    def _numeric_backend(use_gpu: bool, backend: str | None) -> str:
+        """Resolve legacy use_gpu without silently overriding an explicit backend."""
+        if not use_gpu:
+            if backend not in (None, "cpu", "auto"):
+                raise ValueError("use_gpu=False conflicts with an explicit GPU backend")
+            return "cpu"
+        return backend if backend is not None else "auto"
 
     def _check_h3_availability(self) -> None:
         """Check if H3 library is available."""
@@ -115,16 +106,13 @@ class H3Backend:
             ):
                 self._available = False
                 logger.error(
-                    "Unsupported H3 version %r; GEO-INFER requires "
-                    "h3-py >=4.5.0,<5",
+                    "Unsupported H3 version %r; GEO-INFER requires h3-py >=4.5.0,<5",
                     version,
                 )
                 return
 
             self._available = True
-            logger.info(
-                "H3 library v%s loaded successfully", version
-            )
+            logger.info("H3 library v%s loaded successfully", version)
         except ImportError:
             self.h3 = None
             self._available = False
@@ -289,9 +277,7 @@ class H3Backend:
             # GeoJSON is [longitude, latitude]. geo_to_cells performs the
             # official H3Shape conversion and preserves holes/multipolygons.
             polygon_cells = sorted(self.h3.geo_to_cells(geometry, resolution))
-            logger.debug(
-                f"Generated {len(polygon_cells)} H3 cells from polygon"
-            )
+            logger.debug(f"Generated {len(polygon_cells)} H3 cells from polygon")
             return polygon_cells
         except Exception as e:
             raise ValueError(f"H3 polygon conversion failed: {e}") from e
@@ -354,28 +340,12 @@ class H3Backend:
         cells_b: List[str],
         use_gpu: bool = True,
     ) -> Dict[str, Any]:
+        """Return host H3 int64 grid distances; incomparable pairs are -1.
+
+        use_gpu is retained for compatibility. Exact H3 topology always runs
+        on the CPU, and the returned metadata reflects that execution.
         """
-        Compute the pairwise H3 grid distance between two cell collections.
-
-        SPACE-01 kernel: returns an ``(N, M)`` int64 matrix. Incomparable
-        pairs (mixed resolutions or across an icosahedron edge) are reported
-        as ``-1``. Accelerator-aware with a CPU fallback.
-
-        Args:
-            cells_a: First list of H3 cell identifiers.
-            cells_b: Second list of H3 cell identifiers.
-            use_gpu: When True (default) and an accelerator is available the
-                accelerated kernel is used; otherwise the CPU path runs.
-
-        Returns:
-            Dictionary with the ``(N, M)`` ``distance_matrix`` and shape.
-        """
-        from ..gpu.gpu_acceleration import (
-            h3_grid_distance_kernel,
-        )
-
-        if use_gpu:
-            self._prepare_accelerator()
+        from ..gpu.gpu_acceleration import h3_grid_distance_kernel
 
         matrix = h3_grid_distance_kernel(cells_a, cells_b, h3_module=self.h3)
         return {
@@ -383,7 +353,8 @@ class H3Backend:
             "rows": len(cells_a),
             "cols": len(cells_b),
             "shape": list(matrix.shape),
-            "accelerator": self.accelerator_backends if use_gpu else [],
+            "accelerator": [],
+            "backend": "cpu",
         }
 
     @_require_h3("geodesic_distance_matrix")
@@ -392,49 +363,38 @@ class H3Backend:
         cells_a: List[str],
         cells_b: List[str],
         use_gpu: bool = True,
+        *,
+        backend: str | None = None,
+        chunk_size: int = 1024,
     ) -> Dict[str, Any]:
+        """Return float64 centroid great-circle distances in km and diagnostics.
+
+        Invalid cells raise; they are never replaced by an unrelated location.
+        use_gpu=False forces CPU. An explicit unavailable backend raises.
         """
-        Compute the pairwise great-circle (haversine) distance in km between
-        the cell centroids of two H3 cell collections.
+        from ..gpu.gpu_acceleration import pairwise_haversine_kernel
 
-        SPACE-01 accelerator-aware kernel with a CPU fallback.
-
-        Args:
-            cells_a: First list of H3 cell identifiers.
-            cells_b: Second list of H3 cell identifiers.
-            use_gpu: When True (default) and an accelerator is available the
-                accelerated kernel is used; otherwise the CPU path runs.
-
-        Returns:
-            Dictionary with ``(N, M)`` ``distance_matrix`` (km) and shape.
-        """
-        from ..gpu.gpu_acceleration import (
-            pairwise_haversine_kernel,
+        pts_a = [self.h3.cell_to_latlng(cell) for cell in cells_a]
+        pts_b = [self.h3.cell_to_latlng(cell) for cell in cells_b]
+        diagnostics: Dict[str, Any] = {}
+        matrix = pairwise_haversine_kernel(
+            pts_a,
+            pts_b,
+            backend=self._numeric_backend(use_gpu, backend),
+            chunk_size=chunk_size,
+            diagnostics=diagnostics,
         )
-
-        if use_gpu:
-            self._prepare_accelerator()
-
-        def _centroids(cells: List[str]) -> List[Tuple[float, float]]:
-            out: List[Tuple[float, float]] = []
-            for c in cells:
-                try:
-                    lat, lng = self.h3.cell_to_latlng(c)
-                    out.append((float(lat), float(lng)))
-                except Exception:
-                    out.append((0.0, 0.0))
-            return out
-
-        pts_a = _centroids(cells_a)
-        pts_b = _centroids(cells_b)
-        matrix = pairwise_haversine_kernel(pts_a, pts_b)
         return {
             "distance_matrix": matrix,
             "rows": len(cells_a),
             "cols": len(cells_b),
             "shape": list(matrix.shape),
             "units": "km",
-            "accelerator": self.accelerator_backends if use_gpu else [],
+            "accelerator": [
+                name for name in diagnostics["used_backends"] if name != "cpu"
+            ],
+            "backend": diagnostics["backend"],
+            "diagnostics": diagnostics,
         }
 
     @_require_h3("geodesic_spatial_join")
@@ -444,40 +404,36 @@ class H3Backend:
         points_b: List[Tuple[float, float]],
         max_distance_km: float,
         use_gpu: bool = True,
+        *,
+        backend: str | None = None,
+        chunk_size: int = 1024,
     ) -> Dict[str, Any]:
+        """Join finite geographic points within a positive distance using tiles.
+
+        Intermediate distance storage is bounded by chunk_size squared. Result
+        diagnostics identify actual execution, including any automatic fallback.
         """
-        GPU-accelerated spatial join of two point sets within a great-circle
-        radius (km) using the tensor-accelerated haversine distance kernel.
+        from ..gpu.gpu_acceleration import gpu_spatial_join_by_distance
 
-        SPACE-01: the pairwise distance matrix is evaluated on the accelerator
-        (when available and ``use_gpu``), with a deterministic CPU fallback.
-
-        Args:
-            points_a: List of ``(lat, lng)`` degrees.
-            points_b: List of ``(lat, lng)`` degrees.
-            max_distance_km: Maximum separation (km) to consider a join.
-            use_gpu: When True (default) and an accelerator is available the
-                accelerated kernel is used; otherwise the CPU path runs.
-
-        Returns:
-            Dictionary with ``pairs``, ``unmatched_a``, ``unmatched_b``.
-        """
-        from ..gpu.gpu_acceleration import (
-            gpu_spatial_join_by_distance,
-        )
-
-        if use_gpu:
-            self._prepare_accelerator()
-
+        diagnostics: Dict[str, Any] = {}
         pairs, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(
-            points_a, points_b, max_distance_km=max_distance_km
+            points_a,
+            points_b,
+            max_distance_km=max_distance_km,
+            backend=self._numeric_backend(use_gpu, backend),
+            chunk_size=chunk_size,
+            diagnostics=diagnostics,
         )
         return {
             "pairs": pairs,
             "pair_count": len(pairs),
             "unmatched_a": unmatched_a,
             "unmatched_b": unmatched_b,
-            "accelerator": self.accelerator_backends if use_gpu else [],
+            "accelerator": [
+                name for name in diagnostics["used_backends"] if name != "cpu"
+            ],
+            "backend": diagnostics["backend"],
+            "diagnostics": diagnostics,
         }
 
     @_require_h3("compact_cells")
@@ -833,9 +789,7 @@ class H3Backend:
             if geometry_type == "Polygon":
                 polygons = [[list(ring) for ring in coordinates]]
             elif geometry_type == "MultiPolygon":
-                polygons = [
-                    [list(ring) for ring in polygon] for polygon in coordinates
-                ]
+                polygons = [[list(ring) for ring in polygon] for polygon in coordinates]
             else:
                 raise ValueError(
                     f"H3 cells_to_geo returned unsupported geometry type: {geometry_type!r}"
@@ -853,7 +807,9 @@ class H3Backend:
         if hasattr(geometry, "__geo_interface__"):
             geometry = geometry.__geo_interface__
         if not isinstance(geometry, dict):
-            raise TypeError("geometry must be GeoJSON-like or implement __geo_interface__")
+            raise TypeError(
+                "geometry must be GeoJSON-like or implement __geo_interface__"
+            )
         if geometry.get("type") == "Feature":
             geometry = geometry.get("geometry")
         if not geometry:
@@ -948,9 +904,7 @@ class H3Backend:
         from shapely.ops import transform
 
         transformer = Transformer.from_crs(from_crs, to_crs, always_xy=True)
-        return self._geojson(
-            transform(transformer.transform, self._geometry(geometry))
-        )
+        return self._geojson(transform(transformer.transform, self._geometry(geometry)))
 
     @_require_h3("find_clusters")
     def find_clusters(
@@ -1166,111 +1120,28 @@ class H3Backend:
         join_type: str = "intersects",
         use_gpu: bool = True,
     ) -> Dict[str, Any]:
+        """Join exact H3 host topology with deterministic input ordering.
+
+        Intersects means identical or adjacent cells; contains/within mean
+        strict H3 ancestry. use_gpu is a compatibility argument and does not
+        accelerate these host H3 operations. Invalid cells raise.
         """
-        Join two sets of cells based on spatial relationships.
+        from ..gpu.gpu_acceleration import spatial_join_kernel
 
-        Args:
-            cells_a: First set of H3 cell identifiers
-            cells_b: Second set of H3 cell identifiers
-            join_type: Type of join ('intersects', 'contains', 'within')
-            use_gpu: When True (default) and a GPU accelerator is available,
-                the join uses the accelerated kernel; otherwise the CPU path
-                is used. Setting to False forces the CPU path.
-
-        Returns:
-            Dictionary with matched pairs and unmatched cells
-        """
-        valid_join_types = {"intersects", "contains", "within"}
-        if join_type not in valid_join_types:
-            raise ValueError(
-                f"Invalid join_type: {join_type}. Must be one of {valid_join_types}"
-            )
-
-        logger.info(
-            f"Performing spatial join ({join_type}) on {len(cells_a)} x {len(cells_b)} cells"
+        matches, unmatched_a, unmatched_b = spatial_join_kernel(
+            cells_a,
+            cells_b,
+            join_type=join_type,
+            h3_module=self.h3,
         )
-
-        # SPACE-01: use the optional GPU-accelerated kernel when requested and
-        # available; always fall back to the CPU reference path otherwise.
-        if use_gpu:
-            self._prepare_accelerator()
-            if self.accelerator:
-                try:
-                    from ..gpu.gpu_acceleration import spatial_join_kernel
-
-                    gpu_matches, unmatched_a, unmatched_b = spatial_join_kernel(
-                        cells_a, cells_b, join_type=join_type, h3_module=self.h3
-                    )
-                    return {
-                        "matches": gpu_matches,
-                        "match_count": len(gpu_matches),
-                        "unmatched_a": unmatched_a,
-                        "unmatched_b": unmatched_b,
-                        "join_type": join_type,
-                        "accelerator": self.accelerator_backends,
-                    }
-                except Exception:
-                    logger.debug("GPU spatial join failed; using CPU path", exc_info=True)
-
-        set_a = set(cells_a)
-        set_b = set(cells_b)
-        matches: List[Tuple[str, str]] = []
-        matched_a = set()
-        matched_b = set()
-
-        if join_type == "intersects":
-            # Cells intersect if they are the same or neighbors
-            for cell_a in cells_a:
-                try:
-                    neighbors = set(self.h3.grid_disk(cell_a, 1))
-                    for cell_b in cells_b:
-                        if cell_b in neighbors or cell_a == cell_b:
-                            matches.append((cell_a, cell_b))
-                            matched_a.add(cell_a)
-                            matched_b.add(cell_b)
-                except Exception:
-                    continue
-
-        elif join_type == "contains":
-            # Cell A contains B if B is at a finer resolution and within A's boundary
-            for cell_a in cells_a:
-                res_a = self.h3.get_resolution(cell_a)
-                for cell_b in cells_b:
-                    res_b = self.h3.get_resolution(cell_b)
-                    if res_b > res_a:
-                        try:
-                            parent = self.h3.cell_to_parent(cell_b, res_a)
-                            if parent == cell_a:
-                                matches.append((cell_a, cell_b))
-                                matched_a.add(cell_a)
-                                matched_b.add(cell_b)
-                        except Exception:
-                            continue
-
-        elif join_type == "within":
-            # Cell A is within B if A is at a finer resolution and within B's boundary
-            for cell_a in cells_a:
-                res_a = self.h3.get_resolution(cell_a)
-                for cell_b in cells_b:
-                    res_b = self.h3.get_resolution(cell_b)
-                    if res_a > res_b:
-                        try:
-                            parent = self.h3.cell_to_parent(cell_a, res_b)
-                            if parent == cell_b:
-                                matches.append((cell_a, cell_b))
-                                matched_a.add(cell_a)
-                                matched_b.add(cell_b)
-                        except Exception:
-                            continue
-
-        logger.info(f"Found {len(matches)} matches")
-
         return {
             "matches": matches,
             "match_count": len(matches),
-            "unmatched_a": list(set_a - matched_a),
-            "unmatched_b": list(set_b - matched_b),
+            "unmatched_a": unmatched_a,
+            "unmatched_b": unmatched_b,
             "join_type": join_type,
+            "accelerator": [],
+            "backend": "cpu",
         }
 
     @_require_h3("interpolate_values")

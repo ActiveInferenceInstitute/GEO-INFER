@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14933,
+      "bytes": 6741,
       "name": "geo-infer-app_preview.html",
+      "sha256": "a1572d0ef9f998b194747c3be4036d9b76755674492e43f7082def3fbd5346cf",
       "type": "text/html"
     },
     {
-      "bytes": 5657,
+      "bytes": 2719,
       "name": "geo-infer-app_preview.svg",
+      "sha256": "bce3e05b017283f19f6d121e851aea977aa9940ed4fdc05c6edb15cab3b57459",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2182,
+      "bytes": 6775,
       "name": "geo-infer-app_preview.png",
+      "sha256": "2ace42624f8c4624d1a11c5a2f959257c72e19539d02316a7899e8b3683703f9",
       "type": "image/png"
     }
   ],
   "category": "Applications",
-  "input_sha256": "a75f6648b83adff1b9a4163e8def73193f981686eac0168a9c4d9a3f0d5d93ba",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "f380bdc9d27877f0cf39bac945122ef91b3d6e70d26940c43c3d38fd050e9293",
   "module_id": "GEO-INFER-APP",
   "name": "Application Framework",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

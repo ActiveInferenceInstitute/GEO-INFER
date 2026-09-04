@@ -8,7 +8,7 @@ uncertainty quantification, and Bayesian computational methods for geospatial
 applications.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "geo-infer@activeinference.institute"
 
@@ -190,8 +190,7 @@ class GaussianProcess:
 
         if self.kernel_type == "rbf":
             return np.asarray(
-                self.signal_variance
-                * np.exp(-0.5 * sq_dists / (self.length_scale**2))
+                self.signal_variance * np.exp(-0.5 * sq_dists / (self.length_scale**2))
             )
         elif self.kernel_type == "matern32":
             r = np.sqrt(np.maximum(sq_dists, 0.0)) / self.length_scale

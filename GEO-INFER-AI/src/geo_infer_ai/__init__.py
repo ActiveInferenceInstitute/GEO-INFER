@@ -13,7 +13,7 @@ Key Features:
 - Explainable AI (XAI) techniques
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 
 from geo_infer_ai.core.training import ModelTrainer, TrainingConfig
@@ -34,5 +34,3 @@ __all__ = [
     "GeospatialFeatureEngineer",
     "MLflowPipeline",
 ]
-
-

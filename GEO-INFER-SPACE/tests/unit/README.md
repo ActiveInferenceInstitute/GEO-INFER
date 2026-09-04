@@ -23,6 +23,7 @@ Unit workspace within `GEO-INFER-SPACE`.
 - `test_nested_comprehensive.py`
 - `test_nested_h3_contract.py`
 - `test_place_analyzer.py`
+- `test_raster_expression_security.py`
 - `test_spatial_methods.py`
 - `test_spatial_processor.py`
 - `test_spatial_statistics.py`

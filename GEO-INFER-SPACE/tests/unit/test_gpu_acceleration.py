@@ -1,15 +1,12 @@
-"""
-Unit tests for SPACE-01: optional CUDA/JAX GPU-accelerated spatial joins and
-H3 distance kernels with zero-dependency CPU fallback semantics.
+"""CPU references, optional GPU numeric execution, and exact host H3 topology.
 
-These tests always exercise the CPU reference path (the authoritative
-implementation), and additionally exercise the accelerator dispatch when an
-accelerator is present in the environment.
+Failure tests use explicit simulated backends; they do not establish real GPU
+hardware correctness. Actual detected GPUs are compared with the CPU reference.
 """
 
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 import pytest
@@ -33,11 +30,17 @@ from geo_infer_space.backends.gpu import gpu_acceleration as gpu_mod
 
 
 def _make_cells(resolution: int = 9, n: int = 10) -> List[str]:
-    return [h3.latlng_to_cell(37.0 + i * 0.01, -122.0 + i * 0.01, resolution) for i in range(n)]
+    return [
+        h3.latlng_to_cell(37.0 + i * 0.01, -122.0 + i * 0.01, resolution)
+        for i in range(n)
+    ]
 
 
 def _make_parents(resolution: int = 7, n: int = 5) -> List[str]:
-    return [h3.latlng_to_cell(37.0 + i * 0.1, -122.0 + i * 0.1, resolution) for i in range(n)]
+    return [
+        h3.latlng_to_cell(37.0 + i * 0.1, -122.0 + i * 0.1, resolution)
+        for i in range(n)
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -78,10 +81,7 @@ def test_pairwise_haversine_kernel_matches_reference() -> None:
     ) -> float:
         p1, p2 = np.radians(lat1), np.radians(lat2)
         dp1, dp2 = np.radians(lat2 - lat1), np.radians(lon2 - lon1)
-        hv = (
-            np.sin(dp1 / 2) ** 2
-            + np.cos(p1) * np.cos(p2) * np.sin(dp2 / 2) ** 2
-        )
+        hv = np.sin(dp1 / 2) ** 2 + np.cos(p1) * np.cos(p2) * np.sin(dp2 / 2) ** 2
         return 2 * r * np.arcsin(np.sqrt(hv))
 
     expected = np.array(
@@ -135,7 +135,9 @@ def test_gpu_spatial_join_by_distance() -> None:
     # Two co-located points and two far-apart points.
     a = np.array([[37.7749, -122.4194], [34.0522, -118.2437], [40.7128, -74.0060]])
     b = np.array([[37.7749, -122.4194], [40.7128, -74.0060]])
-    pairs, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(a, b, max_distance_km=20.0)
+    pairs, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(
+        a, b, max_distance_km=20.0
+    )
     # (0,0) SF~SF match; (2,1) NYC~NYC match; LA (index 1) unmatched.
     assert pairs == [(0, 0), (2, 1)]
     assert unmatched_a == [1]
@@ -160,7 +162,6 @@ def test_gpu_spatial_join_by_distance_invalid_radius() -> None:
 
 
 def test_spatial_join_kernel_intersects() -> None:
-    cells = _make_cells()
     parent = _make_parents(resolution=9, n=1)[0]
     # A single cell intersects itself.
     matches, unmatched_a, unmatched_b = spatial_join_kernel(
@@ -251,7 +252,7 @@ def test_kernels_identical_result_when_accelerator_or_not(use_gpu: bool) -> None
     the accelerator path the results are numerically equivalent."""
     a = np.array([[37.0, -122.0], [40.0, -120.0], [34.0, -118.0]])
     b = np.array([[37.0, -122.0], [36.0, -115.0]])
-    dist = pairwise_haversine_kernel(a, b)
+    dist = pairwise_haversine_kernel(a, b, backend="auto" if use_gpu else "cpu")
     assert dist.shape == (3, 2)
     # A known distance (approx): SF -> LA ~ 559 km
     assert dist[0, 0] == pytest.approx(0.0, abs=1e-9)
@@ -281,3 +282,282 @@ def test_backend_metadata() -> None:
     assert callable(i)
     assert callable(p)
     assert callable(s)
+
+
+@pytest.mark.parametrize(
+    "point", [[[91, 0]], [[0, 181]], [[float("nan"), 0]], [[0, float("inf")]]]
+)
+def test_haversine_rejects_invalid_coordinates(point) -> None:
+    with pytest.raises(ValueError):
+        pairwise_haversine_kernel(point, [[0, 0]])
+
+
+@pytest.mark.parametrize("radius", [0, -1, float("nan"), float("inf")])
+def test_haversine_rejects_invalid_earth_radius(radius) -> None:
+    with pytest.raises(ValueError):
+        pairwise_haversine_kernel([[0, 0]], [[0, 0]], radius_km=radius)
+
+
+def test_explicit_cpu_does_not_probe_accelerators(monkeypatch) -> None:
+    def unexpected(*args, **kwargs):
+        raise AssertionError("CPU must not probe accelerator libraries")
+
+    monkeypatch.setattr(gpu_mod, "_probe_backend", unexpected, raising=False)
+    diagnostics = {}
+    actual = pairwise_haversine_kernel(
+        [[0, 0]], [[0, 180]], backend="cpu", diagnostics=diagnostics
+    )
+    assert actual[0, 0] == pytest.approx(np.pi * 6371)
+    assert diagnostics["used_backends"] == ["cpu"]
+
+
+def test_grouped_unmatched_returns_labels() -> None:
+    pairs, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(
+        [[0, 0], [0, 90], [0, 100]],
+        [[0, 0], [0, -90]],
+        1,
+        label_offsets_a=[7, 7, 8],
+        label_offsets_b=[4, 9],
+    )
+    assert pairs == [(7, 4)]
+    assert unmatched_a == [8]
+    assert unmatched_b == [9]
+
+
+@pytest.mark.parametrize("name", ["cupy", "torch", "jax"])
+def test_missing_backend_is_explicit_failure_or_auto_fallback(
+    monkeypatch, name
+) -> None:
+    monkeypatch.setattr(
+        gpu_mod, "_probe_backend", lambda _: gpu_mod._Probe(False, None, "absent")
+    )
+    with pytest.raises(gpu_mod.AcceleratorUnavailableError, match="absent"):
+        pairwise_haversine_kernel([[0, 0]], [[1, 0]], backend=name)
+    diagnostics = {}
+    actual = pairwise_haversine_kernel([[0, 0]], [[1, 0]], diagnostics=diagnostics)
+    assert actual[0, 0] == pytest.approx(6371 * np.pi / 180)
+    assert diagnostics["backend"] == "cpu"
+    assert "absent" in diagnostics["fallback_reason"]
+
+
+def test_execution_failure_falls_back_only_in_auto(monkeypatch, caplog) -> None:
+    def broken(_):
+        raise RuntimeError("device disconnected")
+
+    failed = gpu_mod._ArrayBackend("cupy", np, broken, np.asarray)
+    monkeypatch.setattr(
+        gpu_mod, "_probe_backend", lambda _: gpu_mod._Probe(True, failed)
+    )
+    diagnostics = {}
+    actual = pairwise_haversine_kernel([[0, 0]], [[1, 0]], diagnostics=diagnostics)
+    assert actual[0, 0] == pytest.approx(6371 * np.pi / 180)
+    assert diagnostics["used_backends"] == ["cpu"]
+    assert "device disconnected" in diagnostics["fallback_reason"]
+    assert "falling back to CPU" in caplog.text
+    with pytest.raises(RuntimeError, match="cupy distance execution failed"):
+        pairwise_haversine_kernel([[0, 0]], [[1, 0]], backend="cupy")
+
+
+def test_success_then_failure_reports_mixed_execution(monkeypatch) -> None:
+    calls = []
+
+    def intermittent(value):
+        calls.append(value)
+        if len(calls) > 2:
+            raise RuntimeError("out of device memory")
+        return np.asarray(value)
+
+    simulated = gpu_mod._ArrayBackend("cupy", np, intermittent, np.asarray)
+    monkeypatch.setattr(
+        gpu_mod, "_probe_backend", lambda _: gpu_mod._Probe(True, simulated)
+    )
+    diagnostics = {}
+    actual = pairwise_haversine_kernel(
+        [[0, 0], [1, 0]], [[0, 0], [2, 0]], chunk_size=1, diagnostics=diagnostics
+    )
+    expected = pairwise_haversine_kernel(
+        [[0, 0], [1, 0]], [[0, 0], [2, 0]], backend="cpu"
+    )
+    np.testing.assert_allclose(actual, expected)
+    assert diagnostics["backend"] == "mixed"
+    assert diagnostics["used_backends"] == ["cupy", "cpu"]
+
+
+def test_join_tiles_match_full_reference_and_bound_workspace(monkeypatch) -> None:
+    rng = np.random.default_rng(42)
+    a = rng.uniform([-80, -175], [80, 175], (13, 2))
+    b = rng.uniform([-80, -175], [80, 175], (11, 2))
+    threshold = 7000
+    reference = pairwise_haversine_kernel(a, b, backend="cpu")
+    expected = list(zip(*np.nonzero(reference <= threshold)))
+    original = gpu_mod._numeric_block
+    shapes = []
+
+    def recorded(backend, left, right, radius):
+        shapes.append((len(left), len(right)))
+        return original(backend, left, right, radius)
+
+    monkeypatch.setattr(gpu_mod, "_numeric_block", recorded)
+    actual, unmatched_a, unmatched_b = gpu_spatial_join_by_distance(
+        a, b, threshold, backend="cpu", chunk_size=3
+    )
+    assert actual == expected
+    assert unmatched_a == sorted(set(range(len(a))) - {row for row, _ in expected})
+    assert unmatched_b == sorted(set(range(len(b))) - {col for _, col in expected})
+    assert len(shapes) == 20
+    assert max(max(shape) for shape in shapes) <= 3
+
+
+@pytest.mark.parametrize("size", [0, -1, 1.5, True])
+def test_invalid_chunk_size(size) -> None:
+    with pytest.raises(ValueError, match="chunk_size"):
+        pairwise_haversine_kernel([], [], backend="cpu", chunk_size=size)
+
+
+@pytest.mark.parametrize("labels", [[1], [1, 2, 3], [1.5, 2], [True, 2]])
+def test_join_rejects_invalid_labels(labels) -> None:
+    with pytest.raises(ValueError, match="label_offsets_a"):
+        gpu_spatial_join_by_distance(
+            [[0, 0], [1, 0]], [[0, 0]], 1, label_offsets_a=labels
+        )
+
+
+@pytest.mark.parametrize("distance", [float("nan"), float("inf"), -1, 0])
+def test_join_rejects_invalid_threshold(distance) -> None:
+    with pytest.raises(ValueError, match="max_distance_km"):
+        gpu_spatial_join_by_distance([], [], distance)
+
+
+def test_empty_join_retains_unmatched_group_labels() -> None:
+    assert gpu_spatial_join_by_distance(
+        [], [[0, 0], [1, 0]], 1, label_offsets_b=[8, 8], backend="cpu"
+    ) == ([], [], [8])
+
+
+def test_antipodes_poles_and_dateline_are_finite() -> None:
+    points = [[90, 0], [-90, 0], [0, 180], [0, -180], [40, 10], [-40, -170]]
+    actual = pairwise_haversine_kernel(points, points, backend="cpu", chunk_size=2)
+    assert np.isfinite(actual).all()
+    assert actual[0, 1] == pytest.approx(np.pi * 6371)
+    assert actual[2, 3] == pytest.approx(0, abs=1e-9)
+    assert actual[4, 5] == pytest.approx(np.pi * 6371)
+    np.testing.assert_allclose(actual, actual.T)
+
+
+def test_euclidean_chunks_and_large_coordinates() -> None:
+    a = np.array([[0, 0, 0], [1e200, 1e200, 0]])
+    result = euclidean_distance_kernel(a, a, backend="cpu", chunk_size=1)
+    assert result[0, 1] == pytest.approx(np.sqrt(2) * 1e200)
+    np.testing.assert_array_equal(result.diagonal(), [0, 0])
+    with pytest.raises(ValueError, match="finite"):
+        euclidean_distance_kernel([[np.nan]], [[0]], backend="cpu")
+
+
+def test_host_h3_order_and_invalid_cell() -> None:
+    cells = _make_cells(n=4)
+    _, unmatched_a, unmatched_b = spatial_join_kernel(cells[::-1], [], h3_module=h3)
+    assert unmatched_a == list(dict.fromkeys(cells[::-1]))
+    assert unmatched_b == []
+    with pytest.raises(ValueError):
+        spatial_join_kernel(["invalid"], cells, h3_module=h3)
+
+
+def test_module_import_and_cpu_execution_do_not_import_accelerators() -> None:
+    import subprocess
+    import sys
+
+    code = """
+import importlib.abc, sys
+class DenyAccelerators(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split('.')[0] in {'jax', 'torch', 'cupy'}:
+            raise AssertionError('eager accelerator import: ' + fullname)
+sys.meta_path.insert(0, DenyAccelerators())
+from geo_infer_space.backends.gpu import pairwise_haversine_kernel
+from geo_infer_space.backends.h3 import H3Backend
+assert pairwise_haversine_kernel([[0, 0]], [[0, 0]], backend='cpu')[0, 0] == 0
+assert H3Backend().geodesic_spatial_join([[0, 0]], [[0, 0]], 1, use_gpu=False)['pairs'] == [(0, 0)]
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, timeout=60
+    )
+    assert completed.returncode == 0, completed.stderr
+
+
+def test_probe_distinguishes_library_from_device(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    gpu_mod._probe_backend.cache_clear()
+    monkeypatch.setattr(gpu_mod.importlib.util, "find_spec", lambda _: object())
+    modules = {
+        "cupy": SimpleNamespace(
+            cuda=SimpleNamespace(runtime=SimpleNamespace(getDeviceCount=lambda: 0))
+        ),
+        "torch": SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False)),
+        "jax": SimpleNamespace(devices=lambda: [SimpleNamespace(platform="cpu")]),
+    }
+    monkeypatch.setattr(gpu_mod.importlib, "import_module", modules.__getitem__)
+    try:
+        result = gpu_mod.get_backend_diagnostics()
+        assert all(
+            value["installed"] and not value["usable"] for value in result.values()
+        )
+        assert gpu_mod.get_available_backends() == []
+    finally:
+        gpu_mod._probe_backend.cache_clear()
+
+
+def test_probe_handles_broken_binary_install(monkeypatch) -> None:
+    gpu_mod._probe_backend.cache_clear()
+    monkeypatch.setattr(gpu_mod.importlib.util, "find_spec", lambda _: object())
+
+    def broken(_):
+        raise OSError("missing CUDA runtime")
+
+    monkeypatch.setattr(gpu_mod.importlib, "import_module", broken)
+    try:
+        result = gpu_mod.get_backend_diagnostics()
+        assert all(
+            value["installed"] and not value["usable"] for value in result.values()
+        )
+        assert all(
+            "missing CUDA runtime" in value["reason"] for value in result.values()
+        )
+    finally:
+        gpu_mod._probe_backend.cache_clear()
+
+
+def test_detected_backend_parity_or_diagnosed_cpu_fallback() -> None:
+    available = get_available_backends()
+    a = np.array([[0, 0], [40, 10], [-40, -170], [89.9, 179.9]])
+    b = np.array([[0, 180], [-25, -110], [89.9, -179.9]])
+    haversine = pairwise_haversine_kernel(a, b, backend="cpu")
+    euclidean = euclidean_distance_kernel(a, b, backend="cpu")
+    expected_join = gpu_spatial_join_by_distance(a, b, 5000, backend="cpu")
+    if not available:
+        details = {}
+        np.testing.assert_allclose(
+            pairwise_haversine_kernel(a, b, diagnostics=details), haversine
+        )
+        assert details["used_backends"] == ["cpu"]
+        assert details["fallback_reason"]
+    for name in available:
+        details = {}
+        np.testing.assert_allclose(
+            pairwise_haversine_kernel(
+                a, b, backend=name, chunk_size=2, diagnostics=details
+            ),
+            haversine,
+            rtol=1e-10,
+            atol=1e-7,
+        )
+        assert details["used_backends"] == [name]
+        np.testing.assert_allclose(
+            euclidean_distance_kernel(a, b, backend=name, chunk_size=2),
+            euclidean,
+            rtol=1e-12,
+        )
+        assert (
+            gpu_spatial_join_by_distance(a, b, 5000, backend=name, chunk_size=2)
+            == expected_join
+        )

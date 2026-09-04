@@ -11,7 +11,7 @@ import logging
 from copy import deepcopy
 from typing import Any, Dict, List, Optional
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "geo-infer@activeinference.institute"
 

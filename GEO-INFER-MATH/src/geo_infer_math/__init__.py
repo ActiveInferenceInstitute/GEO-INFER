@@ -77,9 +77,11 @@ _available_models = []
 # Try to import model modules
 # Note: These modules may not have __all__ defined, so we import the modules themselves
 from geo_infer_math.models import regression as regression_module
+
 _available_models.append("regression")
 
 from geo_infer_math.models import clustering as clustering_module
+
 _available_models.append("clustering")
 
 # Try to import information theory
@@ -95,6 +97,7 @@ try:
         MutualInformationCalculator,
         KLDivergenceCalculator,
     )
+
     _available_core.append("information_theory")
 except ImportError:
     pass
@@ -107,6 +110,7 @@ try:
         create_prover,
         TheoremDatabase,
     )
+
     _available_core.append("theorem_proving")
 except ImportError:
     pass
@@ -121,6 +125,7 @@ try:
         SpatialConvenience,
         IntegrationConvenience,
     )
+
     _convenience_available = True
 except ImportError:
     _convenience_available = False
@@ -142,6 +147,7 @@ try:
         PriorBuilders,
         MCMCHelpers,
     )
+
     _integration_available = True
 except ImportError:
     _integration_available = False
@@ -198,53 +204,61 @@ __all__ = [
 
 # Add information theory exports if available
 if "information_theory" in _available_core:
-    __all__.extend([
-        "shannon_entropy",
-        "renyi_entropy",
-        "tsallis_entropy",
-        "info_spatial_entropy",
-        "mutual_information",
-        "kl_divergence",
-        "EntropyCalculator",
-        "MutualInformationCalculator",
-        "KLDivergenceCalculator",
-    ])
+    __all__.extend(
+        [
+            "shannon_entropy",
+            "renyi_entropy",
+            "tsallis_entropy",
+            "info_spatial_entropy",
+            "mutual_information",
+            "kl_divergence",
+            "EntropyCalculator",
+            "MutualInformationCalculator",
+            "KLDivergenceCalculator",
+        ]
+    )
 
 # Add theorem proving exports if available
 if "theorem_proving" in _available_core:
-    __all__.extend([
-        "TheoremProver",
-        "ProofResult",
-        "create_prover",
-        "TheoremDatabase",
-    ])
+    __all__.extend(
+        [
+            "TheoremProver",
+            "ProofResult",
+            "create_prover",
+            "TheoremDatabase",
+        ]
+    )
 
 # Add convenience API exports if available
 if _convenience_available:
-    __all__.extend([
-        "ActiveInferenceConvenience",
-        "BayesianConvenience",
-        "AIConvenience",
-        "InformationTheoryConvenience",
-        "SpatialConvenience",
-        "IntegrationConvenience",
-    ])
+    __all__.extend(
+        [
+            "ActiveInferenceConvenience",
+            "BayesianConvenience",
+            "AIConvenience",
+            "InformationTheoryConvenience",
+            "SpatialConvenience",
+            "IntegrationConvenience",
+        ]
+    )
 
 # Add integration exports if available
 if _integration_available:
-    __all__.extend([
-        "AIGradientHelpers",
-        "SpatialLossFunctions",
-        "OptimizationBridges",
-        "FreeEnergyCalculator",
-        "VariationalInferenceHelpers",
-        "BeliefUpdating",
-        "PosteriorHelpers",
-        "PriorBuilders",
-        "MCMCHelpers",
-    ])
+    __all__.extend(
+        [
+            "AIGradientHelpers",
+            "SpatialLossFunctions",
+            "OptimizationBridges",
+            "FreeEnergyCalculator",
+            "VariationalInferenceHelpers",
+            "BeliefUpdating",
+            "PosteriorHelpers",
+            "PriorBuilders",
+            "MCMCHelpers",
+        ]
+    )
 
 # Version information
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 __email__ = "geo-infer@activeinference.institute"

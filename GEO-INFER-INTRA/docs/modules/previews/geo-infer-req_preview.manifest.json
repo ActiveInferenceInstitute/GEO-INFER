@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14946,
+      "bytes": 6747,
       "name": "geo-infer-req_preview.html",
+      "sha256": "66a18c18a977ca45dcfa0da739a0b9f954b73448adae7b198ba6f3d29fdda680",
       "type": "text/html"
     },
     {
-      "bytes": 5667,
+      "bytes": 2721,
       "name": "geo-infer-req_preview.svg",
+      "sha256": "1a76d11ed4b5829ce2b825d66e056e5cf8ac88059fc09c3af50aaaf03cc3809f",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2182,
+      "bytes": 6692,
       "name": "geo-infer-req_preview.png",
+      "sha256": "82becb6ba25b77f957864bb0688193b3fc77f790c7ac9c6c59d75a109230a11c",
       "type": "image/png"
     }
   ],
   "category": "Governance",
-  "input_sha256": "fecb613fec8884ac7074f371084bdfcf18432acf097dc9023032452488f6896f",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "c941206b22fb0f5fec109dcf24707806a6ca3e8d226ef4ec45acdfa020bbcd58",
   "module_id": "GEO-INFER-REQ",
   "name": "Requirements Management",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

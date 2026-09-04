@@ -1,25 +1,25 @@
 """
 GEO-INFER-AG: Agricultural geospatial inference and analysis module.
 
-This module provides specialized tools and methodologies for agricultural 
-applications within the GEO-INFER framework, supporting precision farming, 
+This module provides specialized tools and methodologies for agricultural
+applications within the GEO-INFER framework, supporting precision farming,
 crop management, yield prediction, and sustainable agricultural practices.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from geo_infer_ag.core import (
     AgriculturalAnalysis,
     FieldBoundaryManager,
     SeasonalAnalysis,
-    SustainabilityAssessment
+    SustainabilityAssessment,
 )
 
 from geo_infer_ag.models import (
     CropYieldModel,
     SoilHealthModel,
     WaterUsageModel,
-    CarbonSequestrationModel
+    CarbonSequestrationModel,
 )
 
 # API exports
@@ -27,7 +27,7 @@ from geo_infer_ag.api import (
     AgriculturalAPI,
     FieldsResource,
     CropsResource,
-    YieldResource
+    YieldResource,
 )
 
 __all__ = [
@@ -36,16 +36,14 @@ __all__ = [
     "FieldBoundaryManager",
     "SeasonalAnalysis",
     "SustainabilityAssessment",
-    
     # Models
     "CropYieldModel",
-    "SoilHealthModel", 
+    "SoilHealthModel",
     "WaterUsageModel",
     "CarbonSequestrationModel",
-    
     # API
     "AgriculturalAPI",
     "FieldsResource",
-    "CropsResource", 
+    "CropsResource",
     "YieldResource",
-] 
+]

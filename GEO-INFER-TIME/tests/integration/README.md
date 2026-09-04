@@ -4,11 +4,12 @@ Integration workspace within `GEO-INFER-TIME`.
 
 ## Contents
 
+- `kafka_service_check.py`
 - `test_integration.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `kafka_service_check.py:check_broker` (function)
 
 ## Module Metadata
 

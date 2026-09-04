@@ -6,7 +6,7 @@ from .core.sequence_analysis import SequenceAnalyzer
 from .utils.validation import DataValidator
 from .utils.visualization import BioVisualizer
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "team@geo-infer.org"
 

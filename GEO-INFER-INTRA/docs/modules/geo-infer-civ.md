@@ -129,6 +129,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-CIV** (*Civic Engagement*). Reprod
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-CIV Leaflet Preview](previews/geo-infer-civ_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-CIV Leaflet Preview](previews/geo-infer-civ_preview.svg) | [Interactive map](previews/geo-infer-civ_preview.html) · [PNG](previews/geo-infer-civ_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-civ_preview.html`, `geo-infer-civ_preview.svg`, `geo-infer-civ_preview.png`, and `geo-infer-civ_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-civ_preview.html`, `geo-infer-civ_preview.svg`, `geo-infer-civ_preview.png`, and `geo-infer-civ_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

@@ -489,6 +489,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-ENERGY** (*Energy Systems Module*)
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-ENERGY Leaflet Preview](previews/geo-infer-energy_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-ENERGY Leaflet Preview](previews/geo-infer-energy_preview.svg) | [Interactive map](previews/geo-infer-energy_preview.html) · [PNG](previews/geo-infer-energy_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-energy_preview.html`, `geo-infer-energy_preview.svg`, `geo-infer-energy_preview.png`, and `geo-infer-energy_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-energy_preview.html`, `geo-infer-energy_preview.svg`, `geo-infer-energy_preview.png`, and `geo-infer-energy_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

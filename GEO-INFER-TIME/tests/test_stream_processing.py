@@ -7,7 +7,7 @@ window sliding, data eviction, and various window configurations.
 
 import pytest
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from geo_infer_time.core.stream_processing import StreamProcessor
 
@@ -22,7 +22,7 @@ def _ts(base, seconds_offset):
     return base + timedelta(seconds=seconds_offset)
 
 
-BASE_TIME = datetime(2024, 1, 1, 0, 0, 0)
+BASE_TIME = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
 
 # ===================================================================

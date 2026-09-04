@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_46e3710710a5e1320694f8377a89d882 {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #e11d48; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-HEALTH</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Geospatial Health Analytics</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Epidemiological diffusion, hospital accessibility, and environmental exposure</div></div>
-    
-            <div class="folium-map" id="map_46e3710710a5e1320694f8377a89d882" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-HEALTH: Geospatial Health Analytics</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-HEALTH: Geospatial Health Analytics</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-HEALTH desc-HEALTH" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-HEALTH">GEO-INFER-HEALTH: Geospatial Health Analytics</title>
+<desc id="desc-HEALTH">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-HEALTH</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Geospatial Health Analytics</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="87283082dffffff" points="608.576,281.911 636.280,238.372 603.693,199.448 543.402,204.067 515.710,247.606 548.297,286.526 608.576,281.911" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>87283082dffffff</title></polygon><polygon data-h3="872830828ffffff" points="696.577,233.766 724.299,190.233 691.712,151.305 631.403,155.914 603.693,199.448 636.280,238.372 696.577,233.766" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>872830828ffffff</title></polygon><polygon data-h3="872830829ffffff" points="603.693,199.448 631.403,155.914 598.809,117.000 538.505,121.624 510.808,165.157 543.402,204.067 603.693,199.448" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>872830829ffffff</title></polygon><polygon data-h3="87283082cffffff" points="701.440,316.243 729.157,272.704 696.577,233.766 636.280,238.372 608.576,281.911 641.155,320.844 701.440,316.243" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>87283082cffffff</title></polygon><polygon data-h3="872830953ffffff" points="613.456,364.389 641.155,320.844 608.576,281.911 548.297,286.526 520.610,330.071 553.190,369.000 613.456,364.389" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>872830953ffffff</title></polygon><polygon data-h3="87283095affffff" points="515.710,247.606 543.402,204.067 510.808,165.157 450.523,169.791 422.843,213.330 455.437,252.236 515.710,247.606" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>87283095affffff</title></polygon><polygon data-h3="87283095effffff" points="520.610,330.071 548.297,286.526 515.710,247.606 455.437,252.236 427.763,295.780 460.349,334.696 520.610,330.071" fill="#fb7185" fill-opacity="0.45" stroke="#e11d48"><title>87283095effffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#e11d48"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["87283082dffffff", [[37.749955385153285, -122.4332650748479], [37.76173573392155, -122.42576908738397], [37.77226734985153, -122.43458610784575], [37.771017473265104, -122.45089906210502], [37.75923712029994, -122.45839165007875], [37.748706648015464, -122.44957468417971], [37.749955385153285, -122.4332650748479]]], ["872830828ffffff", [[37.762981847664214, -122.40945463242254], [37.774760714490206, -122.4019538515761], [37.785293473597285, -122.41077092287513], [37.78404622259878, -122.42708872508095], [37.77226734985153, -122.43458610784575], [37.76173573392155, -122.42576908738397], [37.762981847664214, -122.40945463242254]]], ["872830829ffffff", [[37.77226734985153, -122.43458610784575], [37.78404622259878, -122.42708872508095], [37.794575222867756, -122.435907696754], [37.79332420735766, -122.45222399729478], [37.781545330604935, -122.45971797898419], [37.771017473265104, -122.45089906210502], [37.77226734985153, -122.43458610784575]]], ["87283082cffffff", [[37.74066613210138, -122.40813889567377], [37.75244647475629, -122.40063951171169], [37.762981847664214, -122.40945463242254], [37.76173573392155, -122.42576908738397], [37.749955385153285, -122.4332650748479], [37.73942115613858, -122.42445000474562], [37.74066613210138, -122.40813889567377]]], ["872830953ffffff", [[37.72763933445172, -122.43194459741119], [37.73942115613858, -122.42445000474562], [37.749955385153285, -122.4332650748479], [37.748706648015464, -122.44957468417971], [37.73692482193847, -122.45706587893918], [37.72639173728679, -122.44825086316872], [37.72763933445172, -122.43194459741119]]], ["87283095affffff", [[37.75923712029994, -122.45839165007875], [37.771017473265104, -122.45089906210502], [37.781545330604935, -122.45971797898419], [37.78029169148144, -122.47602942621563], [37.76851133623601, -122.48351861171092], [37.7579846222915, -122.47469975334874], [37.75923712029994, -122.45839165007875]]], ["87283095effffff", [[37.73692482193847, -122.45706587893918], [37.748706648015464, -122.44957468417971], [37.75923712029994, -122.45839165007875], [37.7579846222915, -122.47469975334874], [37.7462027937417, -122.48218754721553], [37.7356734655703, -122.47337063960003], [37.73692482193847, -122.45706587893918]]]], "center": [37.76, -122.44], "color": "#e11d48", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 12}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_46e3710710a5e1320694f8377a89d882 = L.map(
-                "map_46e3710710a5e1320694f8377a89d882",
-                {
-                    center: [37.76, -122.44],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 12,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_3ee26e3745cd26dde7e3b9a6724e5fcd = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_3ee26e3745cd26dde7e3b9a6724e5fcd.addTo(map_46e3710710a5e1320694f8377a89d882);
-        
-    
-            var feature_group_246cfaa2ec5d8b23dde992ab45d8feb0 = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_d5829e3a22071846ca879a903f439d52 = L.polygon(
-                [[37.76, -122.429], [37.769526, -122.4345], [37.769526, -122.4455], [37.76, -122.451], [37.750474, -122.4455], [37.750474, -122.4345], [37.76, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_3a068d6f2b3fcbda4d38569c828b34c8 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_69e857e698e7c75a4e7d54f1c2a31a5c = $(`<div id="html_69e857e698e7c75a4e7d54f1c2a31a5c" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-HEALTH<br>Feature: Infection Clusters</div>`)[0];
-                popup_3a068d6f2b3fcbda4d38569c828b34c8.setContent(html_69e857e698e7c75a4e7d54f1c2a31a5c);
-            
-        
-
-        polygon_d5829e3a22071846ca879a903f439d52.bindPopup(popup_3a068d6f2b3fcbda4d38569c828b34c8)
-        ;
-
-        
-    
-    
-            var polygon_0567c8918752d5fc0fbe040f393e0cd7 = L.polygon(
-                [[37.78, -122.429], [37.789526, -122.4345], [37.789526, -122.4455], [37.78, -122.451], [37.770474, -122.4455], [37.770474, -122.4345], [37.78, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_1c0bd0cd6422955823f17c30a0bafd88 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_2f47c3cf9fc17b822b93d0da649bbf65 = $(`<div id="html_2f47c3cf9fc17b822b93d0da649bbf65" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-HEALTH<br>Feature: Care Access Isochrones</div>`)[0];
-                popup_1c0bd0cd6422955823f17c30a0bafd88.setContent(html_2f47c3cf9fc17b822b93d0da649bbf65);
-            
-        
-
-        polygon_0567c8918752d5fc0fbe040f393e0cd7.bindPopup(popup_1c0bd0cd6422955823f17c30a0bafd88)
-        ;
-
-        
-    
-    
-            var polygon_37698f2f1e6b89a731670c8f4e26f29d = L.polygon(
-                [[37.77, -122.411679], [37.779526, -122.417179], [37.779526, -122.428179], [37.77, -122.433679], [37.760474, -122.428179], [37.760474, -122.417179], [37.77, -122.411679]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_6c48fb726a30e7e4fe6a4b95331d14d1 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_911c6a4460762118a3e5cd5500db3e51 = $(`<div id="html_911c6a4460762118a3e5cd5500db3e51" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-HEALTH<br>Feature: Exposure Contours</div>`)[0];
-                popup_6c48fb726a30e7e4fe6a4b95331d14d1.setContent(html_911c6a4460762118a3e5cd5500db3e51);
-            
-        
-
-        polygon_37698f2f1e6b89a731670c8f4e26f29d.bindPopup(popup_6c48fb726a30e7e4fe6a4b95331d14d1)
-        ;
-
-        
-    
-    
-            var polygon_ed1494216647210c6e79b6c2f63241ce = L.polygon(
-                [[37.75, -122.411679], [37.759526, -122.417179], [37.759526, -122.428179], [37.75, -122.433679], [37.740474, -122.428179], [37.740474, -122.417179], [37.75, -122.411679]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_eb11949c30e3c2522ccbc6f5a43dbc0b = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_38e895da85c21f7e38ce34e75a55552d = $(`<div id="html_38e895da85c21f7e38ce34e75a55552d" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-HEALTH<br>Feature: Infection Clusters</div>`)[0];
-                popup_eb11949c30e3c2522ccbc6f5a43dbc0b.setContent(html_38e895da85c21f7e38ce34e75a55552d);
-            
-        
-
-        polygon_ed1494216647210c6e79b6c2f63241ce.bindPopup(popup_eb11949c30e3c2522ccbc6f5a43dbc0b)
-        ;
-
-        
-    
-    
-            var polygon_7ce5edae37e4f243ec9b758ce81e49a5 = L.polygon(
-                [[37.74, -122.429], [37.749526, -122.4345], [37.749526, -122.4455], [37.74, -122.451], [37.730474, -122.4455], [37.730474, -122.4345], [37.74, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_dbe6cd363517d0529a630d2844e8f2be = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_8f83003ca9855237a5e169fbe658f200 = $(`<div id="html_8f83003ca9855237a5e169fbe658f200" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-HEALTH<br>Feature: Care Access Isochrones</div>`)[0];
-                popup_dbe6cd363517d0529a630d2844e8f2be.setContent(html_8f83003ca9855237a5e169fbe658f200);
-            
-        
-
-        polygon_7ce5edae37e4f243ec9b758ce81e49a5.bindPopup(popup_dbe6cd363517d0529a630d2844e8f2be)
-        ;
-
-        
-    
-    
-            var polygon_066db9b60e7399c1c6112d6b86685916 = L.polygon(
-                [[37.75, -122.446321], [37.759526, -122.451821], [37.759526, -122.462821], [37.75, -122.468321], [37.740474, -122.462821], [37.740474, -122.451821], [37.75, -122.446321]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_dae5b0b4ad6fb24f5e8d5b16c59a0e86 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_22443d0df706078772a9242d3f2bb638 = $(`<div id="html_22443d0df706078772a9242d3f2bb638" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-HEALTH<br>Feature: Exposure Contours</div>`)[0];
-                popup_dae5b0b4ad6fb24f5e8d5b16c59a0e86.setContent(html_22443d0df706078772a9242d3f2bb638);
-            
-        
-
-        polygon_066db9b60e7399c1c6112d6b86685916.bindPopup(popup_dae5b0b4ad6fb24f5e8d5b16c59a0e86)
-        ;
-
-        
-    
-    
-            var polygon_d3af2dc130c04281c264d5a6f85f1971 = L.polygon(
-                [[37.77, -122.446321], [37.779526, -122.451821], [37.779526, -122.462821], [37.77, -122.468321], [37.760474, -122.462821], [37.760474, -122.451821], [37.77, -122.446321]],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fb7185", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_246cfaa2ec5d8b23dde992ab45d8feb0);
-        
-    
-        var popup_599a9e2d49f214cc5e77f3318d3f8059 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_1d9f99f7582ffe3cfddc3e4402ffaefa = $(`<div id="html_1d9f99f7582ffe3cfddc3e4402ffaefa" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-HEALTH<br>Feature: Infection Clusters</div>`)[0];
-                popup_599a9e2d49f214cc5e77f3318d3f8059.setContent(html_1d9f99f7582ffe3cfddc3e4402ffaefa);
-            
-        
-
-        polygon_d3af2dc130c04281c264d5a6f85f1971.bindPopup(popup_599a9e2d49f214cc5e77f3318d3f8059)
-        ;
-
-        
-    
-    
-            feature_group_246cfaa2ec5d8b23dde992ab45d8feb0.addTo(map_46e3710710a5e1320694f8377a89d882);
-        
-    
-            var circle_marker_045f97c2b89aa667b64b79ea9741ef7e = L.circleMarker(
-                [37.76, -122.44],
-                {"bubblingMouseEvents": true, "color": "#e11d48", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_46e3710710a5e1320694f8377a89d882);
-        
-    
-        var popup_db7038445b85a9896225adfa41c19e5a = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_862a255d42be2e6f915f80dcffab122f = $(`<div id="html_862a255d42be2e6f915f80dcffab122f" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-HEALTH</b> Focus Center</div>`)[0];
-                popup_db7038445b85a9896225adfa41c19e5a.setContent(html_862a255d42be2e6f915f80dcffab122f);
-            
-        
-
-        circle_marker_045f97c2b89aa667b64b79ea9741ef7e.bindPopup(popup_db7038445b85a9896225adfa41c19e5a)
-        ;
-
-        
-    
-    
-            var layer_control_9453ef86f805bacf53fb8a5bc9dee1a3_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_3ee26e3745cd26dde7e3b9a6724e5fcd,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_246cfaa2ec5d8b23dde992ab45d8feb0,
-                },
-            };
-            let layer_control_9453ef86f805bacf53fb8a5bc9dee1a3 = L.control.layers(
-                layer_control_9453ef86f805bacf53fb8a5bc9dee1a3_layers.base_layers,
-                layer_control_9453ef86f805bacf53fb8a5bc9dee1a3_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_46e3710710a5e1320694f8377a89d882);
-
-        
-</script>
-</html>
+</script></main></body></html>

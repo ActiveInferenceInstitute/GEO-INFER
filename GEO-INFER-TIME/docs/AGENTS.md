@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `api_schema.yaml`
+- `streaming_migration.md`
 
 ## Validation
 

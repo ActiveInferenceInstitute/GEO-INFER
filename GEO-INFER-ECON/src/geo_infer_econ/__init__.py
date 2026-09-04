@@ -8,14 +8,14 @@ This module provides comprehensive economic modeling capabilities including:
 - Spatial econometrics and policy analysis
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 
 # Core imports
 from .core import (
     EconomicModelingEngine,
     SpatialEconometricsEngine,
-    PolicyAnalysisEngine
+    PolicyAnalysisEngine,
 )
 
 # Microeconomic imports
@@ -24,7 +24,7 @@ from .microeconomics import (
     ProducerTheoryModels,
     MarketStructureAnalysis,
     GameTheoryModels,
-    BehavioralEconomicsEngine
+    BehavioralEconomicsEngine,
 )
 
 # Macroeconomic imports
@@ -33,7 +33,7 @@ from .macroeconomics import (
     BusinessCycleModels,
     MonetaryPolicyModels,
     FiscalPolicyModels,
-    TradeModels
+    TradeModels,
 )
 
 # Bioregional economics imports
@@ -42,7 +42,7 @@ from .bioregional import (
     BioregionalMarketDesign,
     NaturalCapitalAccounting,
     EcosystemServicesValuation,
-    CircularEconomyModels
+    CircularEconomyModels,
 )
 
 # API imports (optional — requires fastapi)
@@ -52,45 +52,35 @@ except ImportError:
     EconomicAnalysisAPI = None  # type: ignore[misc,assignment]
 
 # Utilities
-from .utils import (
-    DataLoader,
-    ResultsVisualizer,
-    ModelValidator,
-    EconomicIndicators
-)
+from .utils import DataLoader, ResultsVisualizer, ModelValidator, EconomicIndicators
 
 __all__ = [
     # Core
-    'EconomicModelingEngine',
-    'SpatialEconometricsEngine', 
-    'PolicyAnalysisEngine',
-    
+    "EconomicModelingEngine",
+    "SpatialEconometricsEngine",
+    "PolicyAnalysisEngine",
     # Microeconomics
-    'ConsumerChoiceModels',
-    'ProducerTheoryModels',
-    'MarketStructureAnalysis',
-    'GameTheoryModels',
-    'BehavioralEconomicsEngine',
-    
+    "ConsumerChoiceModels",
+    "ProducerTheoryModels",
+    "MarketStructureAnalysis",
+    "GameTheoryModels",
+    "BehavioralEconomicsEngine",
     # Macroeconomics
-    'AggregateGrowthModels',
-    'BusinessCycleModels',
-    'MonetaryPolicyModels',
-    'FiscalPolicyModels',
-    'TradeModels',
-    
+    "AggregateGrowthModels",
+    "BusinessCycleModels",
+    "MonetaryPolicyModels",
+    "FiscalPolicyModels",
+    "TradeModels",
     # Bioregional
-    'EcologicalEconomicsEngine',
-    'BioregionalMarketDesign',
-    'NaturalCapitalAccounting',
-    'EcosystemServicesValuation',
-    'CircularEconomyModels',
-    
+    "EcologicalEconomicsEngine",
+    "BioregionalMarketDesign",
+    "NaturalCapitalAccounting",
+    "EcosystemServicesValuation",
+    "CircularEconomyModels",
     # API & Utils
-    'EconomicAnalysisAPI',
-    'DataLoader',
-    'ResultsVisualizer',
-    'ModelValidator',
-    'EconomicIndicators'
+    "EconomicAnalysisAPI",
+    "DataLoader",
+    "ResultsVisualizer",
+    "ModelValidator",
+    "EconomicIndicators",
 ]
- 

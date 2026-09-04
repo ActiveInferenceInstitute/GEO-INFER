@@ -161,6 +161,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-BIO** (*Biological Systems*). Repr
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-BIO Leaflet Preview](previews/geo-infer-bio_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-BIO Leaflet Preview](previews/geo-infer-bio_preview.svg) | [Interactive map](previews/geo-infer-bio_preview.html) · [PNG](previews/geo-infer-bio_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-bio_preview.html`, `geo-infer-bio_preview.svg`, `geo-infer-bio_preview.png`, and `geo-infer-bio_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-bio_preview.html`, `geo-infer-bio_preview.svg`, `geo-infer-bio_preview.png`, and `geo-infer-bio_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

@@ -11,19 +11,9 @@ from __future__ import annotations
 import hashlib
 import html as html_lib
 import json
-import struct
-import zlib
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
-
-try:
-    import folium
-    _FOLIUM_AVAILABLE = True
-except ImportError:  # pragma: no cover
-    folium = None  # type: ignore[assignment]
-    _FOLIUM_AVAILABLE = False
-
+from typing import Any, Dict, Optional
 
 # Canonical specifications and spatial profiles for all 44 GEO-INFER modules
 MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
@@ -55,7 +45,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 13,
         "primary_color": "#9333ea",
         "secondary_color": "#c084fc",
-        "features": ["Agent Swarm Positions", "Interaction Trails", "Communication Radii"],
+        "features": [
+            "Agent Swarm Positions",
+            "Interaction Trails",
+            "Communication Radii",
+        ],
     },
     "AI": {
         "name": "Artificial Intelligence Engine",
@@ -65,7 +59,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 12,
         "primary_color": "#4f46e5",
         "secondary_color": "#818cf8",
-        "features": ["Latent Feature Space", "Neural Operator Field", "Prediction Confidence"],
+        "features": [
+            "Latent Feature Space",
+            "Neural Operator Field",
+            "Prediction Confidence",
+        ],
     },
     "ANT": {
         "name": "Ant Colony Optimization",
@@ -145,7 +143,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 9,
         "primary_color": "#0891b2",
         "secondary_color": "#22d3ee",
-        "features": ["Temperature Anomaly", "Precipitation Shift", "Heat Vulnerability"],
+        "features": [
+            "Temperature Anomaly",
+            "Precipitation Shift",
+            "Heat Vulnerability",
+        ],
     },
     "COG": {
         "name": "Cognitive Modeling",
@@ -255,7 +257,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 12,
         "primary_color": "#e11d48",
         "secondary_color": "#fb7185",
-        "features": ["Infection Clusters", "Care Access Isochrones", "Exposure Contours"],
+        "features": [
+            "Infection Clusters",
+            "Care Access Isochrones",
+            "Exposure Contours",
+        ],
     },
     "INTRA": {
         "name": "Knowledge Integration",
@@ -365,7 +371,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 7,
         "primary_color": "#059669",
         "secondary_color": "#34d399",
-        "features": ["Cascadia Volcanoes", "Megathrust Fault Line", "Watershed Hydrography"],
+        "features": [
+            "Cascadia Volcanoes",
+            "Megathrust Fault Line",
+            "Watershed Hydrography",
+        ],
     },
     "REQ": {
         "name": "Requirements Management",
@@ -385,7 +395,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 11,
         "primary_color": "#dc2626",
         "secondary_color": "#ef4444",
-        "features": ["Compound Hazard Zone", "Exceedance Probability", "Vulnerability Surface"],
+        "features": [
+            "Compound Hazard Zone",
+            "Exceedance Probability",
+            "Vulnerability Surface",
+        ],
     },
     "SEC": {
         "name": "Security",
@@ -425,7 +439,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 12,
         "primary_color": "#4338ca",
         "secondary_color": "#6366f1",
-        "features": ["Euler Characteristic Surface", "FWE Peak Threshold", "Cluster Resels"],
+        "features": [
+            "Euler Characteristic Surface",
+            "FWE Peak Threshold",
+            "Cluster Resels",
+        ],
     },
     "TEST": {
         "name": "Testing Framework",
@@ -465,7 +483,11 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
         "zoom": 11,
         "primary_color": "#0284c7",
         "secondary_color": "#38bdf8",
-        "features": ["Watershed Catchment", "Pollution Plume Area", "Groundwater Aquifer"],
+        "features": [
+            "Watershed Catchment",
+            "Pollution Plume Area",
+            "Groundwater Aquifer",
+        ],
     },
 }
 
@@ -485,154 +507,67 @@ class SpatialPreviewArtifacts:
     png_bytes: int
 
 
-def _generate_synthetic_h3_polygons(
-    center_lat: float, center_lng: float, count: int = 7, radius: float = 0.02
-) -> List[List[Tuple[float, float]]]:
-    """Generate deterministic hexagon polygons around a center point for preview cards."""
-    import math
-
-    polygons: List[List[Tuple[float, float]]] = []
-    # Center hexagon
-    angles = [i * (math.pi / 3.0) for i in range(6)]
-    hex_r = radius * 0.55
-
-    offsets = [(0.0, 0.0)]
-    for k in range(min(count - 1, 6)):
-        angle = k * (math.pi / 3.0)
-        offsets.append((radius * math.cos(angle), radius * math.sin(angle)))
-
-    for d_lat, d_lng in offsets:
-        c_lat = center_lat + d_lat
-        c_lng = center_lng + d_lng
-        ring = []
-        for a in angles:
-            p_lat = c_lat + hex_r * math.sin(a)
-            p_lng = c_lng + hex_r * math.cos(a)
-            ring.append((round(p_lat, 6), round(p_lng, 6)))
-        ring.append(ring[0])  # Close polygon
-        polygons.append(ring)
-    return polygons
+RESOLUTION = 7
+ILLUSTRATION_LABEL = (
+    "Illustrative module overview; geometry computed with H3, no measured values."
+)
+LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 
 
-def render_leaflet_html(
-    module_id: str,
-    output_path: Optional[Path] = None,
-    *,
-    width: int = 800,
-    height: int = 450,
-) -> str:
-    """Render a standalone reproducible Leaflet/Folium HTML preview card."""
-    profile = MODULE_PROFILES.get(module_id.upper())
-    if not profile:
+def _profile(module_id: str) -> dict[str, Any]:
+    """Resolve a canonical module profile before using it in output paths."""
+    if not isinstance(module_id, str) or module_id.upper() not in MODULE_PROFILES:
         raise ValueError(f"Unknown module ID: {module_id}")
+    import re
 
-    center_lat, center_lng = profile["center"]
-    zoom = profile["zoom"]
-    name = profile["name"]
-    primary_color = profile["primary_color"]
-    secondary_color = profile["secondary_color"]
-    category = profile["category"]
-    description = profile["description"]
-    features = profile["features"]
+    profile = MODULE_PROFILES[module_id.upper()]
+    for field in ("primary_color", "secondary_color"):
+        if not isinstance(profile[field], str) or not re.fullmatch(
+            r"#[0-9a-fA-F]{6}", profile[field]
+        ):
+            raise ValueError("Preview colors must be six-digit hex values")
+    return profile
 
-    hex_rings = _generate_synthetic_h3_polygons(center_lat, center_lng, count=7)
 
-    if _FOLIUM_AVAILABLE and folium is not None:
-        m = folium.Map(
-            location=[center_lat, center_lng],
-            zoom_start=zoom,
-            tiles="CartoDB positron",
-            width=width,
-            height=height,
-        )
+def _dimensions(width: int, height: int) -> None:
+    """Bound canvas allocation and reject invalid CSS/SVG dimensions."""
+    if any(type(v) is not int or not 1 <= v <= 4096 for v in (width, height)):
+        raise ValueError("Canvas dimensions must be integers between 1 and 4096")
 
-        # Add title header
-        title_html = (
-            f"<div style='position: fixed; top: 10px; left: 60px; z-index: 1000; "
-            f"background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); "
-            f"border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; "
-            f"box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'>"
-            f"<div style='display: flex; align-items: center; gap: 8px;'>"
-            f"<span style='background: {primary_color}; color: white; padding: 2px 8px; "
-            f"border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-{module_id}</span>"
-            f"<span style='font-size: 13px; font-weight: 600; color: #1e293b;'>{html_lib.escape(name)}</span>"
-            f"</div>"
-            f"<div style='font-size: 11px; color: #64748b; margin-top: 2px;'>{html_lib.escape(description)}</div>"
-            f"</div>"
-        )
-        m.get_root().html.add_child(folium.Element(title_html))  # type: ignore[attr-defined]
 
-        # Add H3 hex grid layer
-        fg_hex = folium.FeatureGroup(name="🔷 H3 Spatial Domain", show=True)
-        for i, ring in enumerate(hex_rings):
-            folium.Polygon(
-                locations=ring,
-                color=primary_color,
-                weight=2,
-                fill=True,
-                fill_color=secondary_color,
-                fill_opacity=0.35,
-                popup=folium.Popup(
-                    f"<b>Cell #{i}</b><br>Module: GEO-INFER-{module_id}<br>Feature: {features[i % len(features)]}",
-                    max_width=250,
-                ),
-            ).add_to(fg_hex)
-        fg_hex.add_to(m)
+def _cells(module_id: str) -> list[tuple[str, list[tuple[float, float]]]]:
+    """Return real H3 cell identifiers and closed latitude/longitude boundaries."""
+    import h3
 
-        # Center marker
-        folium.CircleMarker(
-            location=[center_lat, center_lng],
-            radius=6,
-            color=primary_color,
-            fill=True,
-            fill_color="#ffffff",
-            fill_opacity=1.0,
-            weight=3,
-            popup=f"<b>GEO-INFER-{module_id}</b> Focus Center",
-        ).add_to(m)
+    center = h3.latlng_to_cell(*_profile(module_id)["center"], RESOLUTION)
+    ids = [center, *sorted(set(h3.grid_disk(center, 1)) - {center})]
+    result = []
+    for cell in ids:
+        boundary = list(h3.cell_to_boundary(cell))
+        result.append((cell, [*boundary, boundary[0]]))
+    return result
 
-        folium.LayerControl(position="topright").add_to(m)
-        rendered_html = m.get_root().render()
-    else:  # pragma: no cover
-        # Dependency-free HTML Leaflet fallback
-        rendered_html = f"""<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>GEO-INFER-{module_id}: {html_lib.escape(name)}</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    body {{ margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-    #map {{ width: 100%; height: 100vh; }}
-    .info-card {{
-      position: absolute; top: 12px; left: 55px; z-index: 1000;
-      background: rgba(255, 255, 255, 0.95); padding: 10px 16px;
-      border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
-    }}
-  </style>
-</head>
-<body>
-  <div class="info-card">
-    <strong>GEO-INFER-{module_id}</strong>: {html_lib.escape(name)}<br>
-    <small style="color: #64748b;">{html_lib.escape(description)}</small>
-  </div>
-  <div id="map"></div>
-  <script>
-    var map = L.map('map').setView([{center_lat}, {center_lng}], {zoom});
-    L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
-      attribution: '&copy; CartoDB &copy; OpenStreetMap contributors'
-    }}).addTo(map);
-  </script>
-</body>
-</html>"""
 
-    if output_path:
-        out = Path(output_path)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(rendered_html, encoding="utf-8")
-
-    return rendered_html
+def _projected_rings(
+    module_id: str, width: int, height: int
+) -> list[list[tuple[float, float]]]:
+    """Fit the same geographic H3 boundaries into a static canvas."""
+    rings = [ring for _, ring in _cells(module_id)]
+    xs = [lng for ring in rings for lat, lng in ring]
+    ys = [lat for ring in rings for lat, lng in ring]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    scale = min(width * 0.42 / (x1 - x0), height * 0.56 / (y1 - y0))
+    return [
+        [
+            (
+                width * 0.72 + (lng - (x0 + x1) / 2) * scale,
+                height * 0.54 - (lat - (y0 + y1) / 2) * scale,
+            )
+            for lat, lng in ring
+        ]
+        for ring in rings
+    ]
 
 
 def render_svg_card(
@@ -642,162 +577,94 @@ def render_svg_card(
     width: int = 700,
     height: int = 380,
 ) -> str:
-    """Render a standalone reproducible SVG preview card with H3 spatial graphics."""
-    profile = MODULE_PROFILES.get(module_id.upper())
-    if not profile:
-        raise ValueError(f"Unknown module ID: {module_id}")
-
+    """Render actual H3 geometry with an explicit illustrative-data label."""
+    profile = _profile(module_id)
+    mod = module_id.upper()
+    _dimensions(width, height)
+    rings = _projected_rings(mod, width, height)
+    polygons = []
+    for (cell, _), ring in zip(_cells(mod), rings):
+        points = " ".join(f"{x:.3f},{y:.3f}" for x, y in ring)
+        polygons.append(
+            f'<polygon data-h3="{cell}" points="{points}" fill="{profile["secondary_color"]}" fill-opacity="0.45" stroke="{profile["primary_color"]}"><title>{cell}</title></polygon>'
+        )
     name = html_lib.escape(profile["name"])
     category = html_lib.escape(profile["category"])
-    description = html_lib.escape(profile["description"])
-    primary_color = profile["primary_color"]
-    secondary_color = profile["secondary_color"]
-    features = profile["features"]
-
-    # Generate 7 hex center points on SVG canvas
-    cx, cy = width - 180, height // 2 + 10
-    hex_radius: float = 48.0
-
-    hex_paths: List[str] = []
-    offsets: List[Tuple[float, float]] = [(0.0, 0.0)]
-    import math
-
-    for k in range(6):
-        a = k * (math.pi / 3.0)
-        offsets.append((hex_radius * 1.65 * math.cos(a), hex_radius * 1.65 * math.sin(a)))
-
-    for i, (dx, dy) in enumerate(offsets):
-        px, py = cx + dx, cy + dy
-        points = []
-        for corner in range(6):
-            ca = corner * (math.pi / 3.0)
-            corner_x = px + hex_radius * math.cos(ca)
-            corner_y = py + hex_radius * math.sin(ca)
-            points.append(f"{corner_x:.1f},{corner_y:.1f}")
-        points_str = " ".join(points)
-        fill_op = "0.7" if i == 0 else "0.35"
-        feat_label = features[i % len(features)]
-        hex_paths.append(
-            f'<polygon points="{points_str}" fill="{secondary_color}" fill-opacity="{fill_op}" '
-            f'stroke="{primary_color}" stroke-width="2.5" />'
-        )
-        hex_paths.append(
-            f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4" fill="{primary_color}" />'
-        )
-        if i == 0:
-            hex_paths.append(
-                f'<text x="{px:.1f}" y="{py + 4:.1f}" text-anchor="middle" '
-                f'fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>'
-            )
-
-    hex_graphics = "\n    ".join(hex_paths)
-    chips_html = "".join(
-        f'<rect x="36" y="{190 + idx * 32}" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>'
-        f'<circle cx="48" cy="{202 + idx * 32}" r="3.5" fill="{primary_color}"/>'
-        f'<text x="60" y="{206 + idx * 32}" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">{html_lib.escape(feat)}</text>'
-        for idx, feat in enumerate(features[:3])
-    )
-
-    svg_content = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}">
-  <defs>
-    <linearGradient id="bg-grad-{module_id}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
-    </linearGradient>
-    <linearGradient id="badge-grad-{module_id}" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="{primary_color}"/>
-      <stop offset="100%" stop-color="{secondary_color}"/>
-    </linearGradient>
-    <filter id="shadow-{module_id}" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
-    </filter>
-  </defs>
-
-  <!-- Background Card -->
-  <rect x="8" y="8" width="{width - 16}" height="{height - 16}" rx="12" fill="url(#bg-grad-{module_id})" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-{module_id})"/>
-
-  <!-- Left Content Column -->
-  <g transform="translate(0, 0)">
-    <!-- Header Badge -->
-    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-{module_id})"/>
-    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-{module_id}</text>
-
-    <!-- Category Pill -->
-    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">{category}</text>
-
-    <!-- Title -->
-    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">{name}</text>
-
-    <!-- Description -->
-    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
-      <tspan x="36" dy="0">{description[:58]}</tspan>
-      <tspan x="36" dy="18">{description[58:120]}</tspan>
-    </text>
-
-    <!-- Section Heading -->
-    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
-
-    <!-- Feature Chips -->
-    {chips_html}
-
-    <!-- Footer Contract Info -->
-    <text x="36" y="{height - 28}" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
-  </g>
-
-  <!-- Right Visual Domain H3 Graph -->
-  <g>
-    <!-- Grid connection lines -->
-    <line x1="{cx}" y1="{cy}" x2="{cx - 90}" y2="{cy}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="{cx}" y1="{cy}" x2="{cx + 90}" y2="{cy}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="{cx}" y1="{cy}" x2="{cx}" y2="{cy - 90}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="{cx}" y1="{cy}" x2="{cx}" y2="{cy + 90}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    {hex_graphics}
-  </g>
-</svg>"""
-
-    if output_path:
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-{mod} desc-{mod}" viewBox="0 0 {width} {height}" width="{width}" height="{height}">
+<title id="title-{mod}">GEO-INFER-{mod}: {name}</title>
+<desc id="desc-{mod}">{ILLUSTRATION_LABEL}</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-{mod}</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">{name}</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">{category}</text>
+{"".join(polygons)}
+<circle cx="{width * 0.72}" cy="{height * 0.54}" r="3" fill="{profile["primary_color"]}"/>
+<text x="24" y="{height - 38}" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution {RESOLUTION}; no measured values.</text>
+<text x="24" y="{height - 18}" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg>'''
+    if output_path is not None:
         out = Path(output_path)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(svg_content, encoding="utf-8")
+        out.write_text(svg, encoding="utf-8")
+    return svg
 
-    return svg_content
 
-
-def _build_raw_png(width: int, height: int, rgb_bytes: bytes, text_chunks: Optional[Mapping[str, str]] = None) -> bytes:
-    """Construct a compliant PNG binary byte stream with optional tEXt metadata chunks."""
-    signature = b"\x89PNG\r\n\x1a\n"
-
-    # IHDR chunk
-    # Width (4), Height (4), Bit depth (1), Color type 2 (RGB), Compression (0), Filter (0), Interlace (0)
-    ihdr_data = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
-    ihdr_crc = struct.pack(">I", zlib.crc32(b"IHDR" + ihdr_data) & 0xFFFFFFFF)
-    ihdr_chunk = struct.pack(">I", len(ihdr_data)) + b"IHDR" + ihdr_data + ihdr_crc
-
-    # Optional tEXt chunks
-    extra_chunks = b""
-    if text_chunks:
-        for key, val in text_chunks.items():
-            t_data = key.encode("latin-1") + b"\x00" + val.encode("latin-1")
-            t_crc = struct.pack(">I", zlib.crc32(b"tEXt" + t_data) & 0xFFFFFFFF)
-            extra_chunks += struct.pack(">I", len(t_data)) + b"tEXt" + t_data + t_crc
-
-    # IDAT chunk: filter byte (0) prepended to each scanline
-    raw_scanlines = bytearray()
-    row_stride = width * 3
-    for y in range(height):
-        raw_scanlines.append(0)  # Filter type 0 (None)
-        raw_scanlines.extend(rgb_bytes[y * row_stride : (y + 1) * row_stride])
-
-    compressed_idat = zlib.compress(bytes(raw_scanlines), level=9)
-    idat_crc = struct.pack(">I", zlib.crc32(b"IDAT" + compressed_idat) & 0xFFFFFFFF)
-    idat_chunk = struct.pack(">I", len(compressed_idat)) + b"IDAT" + compressed_idat + idat_crc
-
-    # IEND chunk
-    iend_crc = struct.pack(">I", zlib.crc32(b"IEND") & 0xFFFFFFFF)
-    iend_chunk = struct.pack(">I", 0) + b"IEND" + iend_crc
-
-    return signature + ihdr_chunk + extra_chunks + idat_chunk + iend_chunk
+def render_leaflet_html(
+    module_id: str,
+    output_path: Optional[Path] = None,
+    *,
+    width: int = 800,
+    height: int = 450,
+) -> str:
+    """Render deterministic Leaflet HTML with an always-available static preview."""
+    profile = _profile(module_id)
+    mod = module_id.upper()
+    _dimensions(width, height)
+    payload = {
+        "center": profile["center"],
+        "zoom": profile["zoom"],
+        "cells": _cells(mod),
+        "color": profile["primary_color"],
+        "label": ILLUSTRATION_LABEL,
+    }
+    # Escape HTML delimiters even inside JSON so profile content cannot close a script.
+    encoded = (
+        json.dumps(payload, sort_keys=True)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
+    name = html_lib.escape(profile["name"])
+    svg = render_svg_card(mod, width=width, height=height)
+    markup = f'''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-{mod}: {name}</title>
+<link rel="stylesheet" href="{LEAFLET_CSS}">
+<style>body{{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}}main{{max-width:{width}px;margin:auto}}#map{{height:{height}px;display:none}}svg{{max-width:100%;height:auto}}summary{{cursor:pointer}}p{{line-height:1.5}}</style></head>
+<body><main><h1>GEO-INFER-{mod}: {name}</h1><p>{ILLUSTRATION_LABEL}</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary>{svg}</details>
+<script id="preview-data" type="application/json">{encoded}</script>
+<script src="{LEAFLET_JS}"></script>
+<script>
+if (typeof L !== 'undefined') {{
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{attribution:'© OpenStreetMap contributors'}}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {{
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {{color:data.color, fillOpacity:0.35}}).bindPopup(popup).addTo(group);
+ }}
+ map.fitBounds(group.getBounds());
+}}
+</script></main></body></html>'''
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(markup, encoding="utf-8")
+    return markup
 
 
 def render_png_card(
@@ -807,131 +674,130 @@ def render_png_card(
     width: int = 400,
     height: int = 240,
 ) -> bytes:
-    """Render a deterministic raster PNG preview card with embedded metadata."""
-    profile = MODULE_PROFILES.get(module_id.upper())
-    if not profile:
-        raise ValueError(f"Unknown module ID: {module_id}")
+    """Draw the geographic preview with Pillow and embed its data provenance."""
+    from io import BytesIO
+    from PIL import Image, ImageDraw, PngImagePlugin
 
-    # Parse primary hex color
-    hex_color = profile["primary_color"].lstrip("#")
-    r_base = int(hex_color[0:2], 16)
-    g_base = int(hex_color[2:4], 16)
-    b_base = int(hex_color[4:6], 16)
-
-    # Generate smooth gradient image buffer
-    pixel_data = bytearray(width * height * 3)
-    for y in range(height):
-        v_factor = y / float(height)
-        for x in range(width):
-            h_factor = x / float(width)
-            # Subtle gradient with accented border
-            if x < 4 or x >= width - 4 or y < 4 or y >= height - 4:
-                # Border in primary color
-                r, g, b = r_base, g_base, b_base
-            elif y < 40:
-                # Top header bar
-                r = int(r_base * 0.85 + (255 - r_base) * 0.15)
-                g = int(g_base * 0.85 + (255 - g_base) * 0.15)
-                b = int(b_base * 0.85 + (255 - b_base) * 0.15)
-            else:
-                # Soft background gradient
-                diag = (h_factor + v_factor) * 0.5
-                r = int(248 + (255 - 248) * (1 - diag))
-                g = int(250 + (255 - 250) * (1 - diag))
-                b = int(252 + (255 - 252) * (1 - diag))
-
-            idx = (y * width + x) * 3
-            pixel_data[idx] = r
-            pixel_data[idx + 1] = g
-            pixel_data[idx + 2] = b
-
-    text_meta = {
-        "Title": f"GEO-INFER-{module_id} Preview",
-        "Module": f"GEO-INFER-{module_id}",
-        "Category": profile["category"],
-        "Name": profile["name"],
-        "Generator": "geo_infer_intra.visual_preview",
-    }
-
-    png_bytes = _build_raw_png(width, height, bytes(pixel_data), text_meta)
-
-    if output_path:
+    profile = _profile(module_id)
+    mod = module_id.upper()
+    _dimensions(width, height)
+    canvas = Image.new("RGB", (width, height), "#f8fafc")
+    draw = ImageDraw.Draw(canvas)
+    for ring in _projected_rings(mod, width, height):
+        draw.polygon(
+            ring,
+            fill=profile["secondary_color"],
+            outline=profile["primary_color"],
+            width=2,
+        )
+    draw.text((12, 12), f"GEO-INFER-{mod}", fill="#0f172a")
+    draw.text(
+        (12, height - 34), "Illustrative overview; no measured values.", fill="#334155"
+    )
+    draw.text((12, height - 18), f"H3 resolution {RESOLUTION} / WGS84", fill="#475569")
+    metadata = PngImagePlugin.PngInfo()
+    metadata.add_text("Title", f"GEO-INFER-{mod} Preview")
+    metadata.add_text("Provenance", ILLUSTRATION_LABEL)
+    buffer = BytesIO()
+    canvas.save(buffer, format="PNG", pnginfo=metadata)
+    data = buffer.getvalue()
+    if output_path is not None:
         out = Path(output_path)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_bytes(png_bytes)
-
-    return png_bytes
+        out.write_bytes(data)
+    return data
 
 
 def generate_module_preview_suite(
-    module_id: str,
-    output_dir: Path | str,
+    module_id: str, output_dir: Path | str
 ) -> SpatialPreviewArtifacts:
-    """Generate the full reproducible preview bundle (HTML, SVG, PNG, Manifest) for a module."""
+    """Write reproducible geometry previews with per-artifact checksums."""
+    import h3
+
+    profile = _profile(module_id)
     mod = module_id.upper()
-    if mod not in MODULE_PROFILES:
-        raise ValueError(f"Module {module_id} not recognized in profile registry")
-
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    slug = f"geo-infer-{mod.lower()}"
-    html_file = out_dir / f"{slug}_preview.html"
-    svg_file = out_dir / f"{slug}_preview.svg"
-    png_file = out_dir / f"{slug}_preview.png"
-    manifest_file = out_dir / f"{slug}_preview.manifest.json"
-
-    html_str = render_leaflet_html(mod, html_file)
-    svg_str = render_svg_card(mod, svg_file)
-    png_bytes = render_png_card(mod, png_file)
-
-    input_payload = {
-        "module_id": mod,
-        "profile": MODULE_PROFILES[mod],
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    slug = f"geo-infer-{mod.lower()}_preview"
+    html_file, svg_file, png_file = [
+        out / f"{slug}.{suffix}" for suffix in ("html", "svg", "png")
+    ]
+    html_text = render_leaflet_html(mod, html_file)
+    svg_text = render_svg_card(mod, svg_file)
+    png_data = render_png_card(mod, png_file)
+    provenance = {
+        "data_kind": "illustrative",
+        "geometry_source": "h3.cell_to_boundary",
+        "h3_version": h3.__version__,
+        "resolution": RESOLUTION,
+        "crs": "EPSG:4326",
+        "label": ILLUSTRATION_LABEL,
     }
-    input_digest = hashlib.sha256(
-        json.dumps(input_payload, sort_keys=True).encode("utf-8")
+    digest = hashlib.sha256(
+        json.dumps(
+            {"profile": profile, "cells": _cells(mod), "provenance": provenance},
+            sort_keys=True,
+        ).encode()
     ).hexdigest()
-
-    manifest_data: Dict[str, Any] = {
-        "schema_version": "geo-infer-intra-visual-preview/v1",
+    manifest = {
+        "schema_version": "geo-infer-intra-visual-preview/v2",
         "module_id": f"GEO-INFER-{mod}",
-        "name": MODULE_PROFILES[mod]["name"],
-        "category": MODULE_PROFILES[mod]["category"],
-        "input_sha256": input_digest,
-        "artifacts": [
-            {"name": html_file.name, "type": "text/html", "bytes": len(html_str.encode("utf-8"))},
-            {"name": svg_file.name, "type": "image/svg+xml", "bytes": len(svg_str.encode("utf-8"))},
-            {"name": png_file.name, "type": "image/png", "bytes": len(png_bytes)},
+        "name": profile["name"],
+        "category": profile["category"],
+        "input_sha256": digest,
+        "provenance": provenance,
+        "external_resources": [
+            LEAFLET_CSS,
+            LEAFLET_JS,
+            "https://tile.openstreetmap.org/",
         ],
+        "artifacts": [],
         "accessibility": {
             "has_title": True,
             "has_svg_viewbox": True,
             "has_png_metadata": True,
+            "has_static_fallback": True,
         },
     }
-
-    manifest_file.write_text(json.dumps(manifest_data, indent=2, sort_keys=True), encoding="utf-8")
-
+    for path, mime in (
+        (html_file, "text/html"),
+        (svg_file, "image/svg+xml"),
+        (png_file, "image/png"),
+    ):
+        data = path.read_bytes()
+        manifest["artifacts"].append(
+            {
+                "name": path.name,
+                "type": mime,
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        )
+    receipt = out / f"{slug}.manifest.json"
+    receipt.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     return SpatialPreviewArtifacts(
-        module_id=mod,
-        html_path=html_file,
-        svg_path=svg_file,
-        png_path=png_file,
-        manifest_path=manifest_file,
-        input_sha256=input_digest,
-        html_bytes=len(html_str.encode("utf-8")),
-        svg_bytes=len(svg_str.encode("utf-8")),
-        png_bytes=len(png_bytes),
+        mod,
+        html_file,
+        svg_file,
+        png_file,
+        receipt,
+        digest,
+        len(html_text.encode()),
+        len(svg_text.encode()),
+        len(png_data),
     )
 
 
-def generate_all_module_previews(output_dir: Path | str) -> Dict[str, SpatialPreviewArtifacts]:
-    """Generate preview card bundles for all 44 GEO-INFER modules."""
-    results: Dict[str, SpatialPreviewArtifacts] = {}
-    for mod in sorted(MODULE_PROFILES.keys()):
-        results[mod] = generate_module_preview_suite(mod, output_dir)
-    return results
+def generate_all_module_previews(
+    output_dir: Path | str,
+) -> Dict[str, SpatialPreviewArtifacts]:
+    """Generate all module bundles in stable registry order."""
+    return {
+        mod: generate_module_preview_suite(mod, output_dir)
+        for mod in sorted(MODULE_PROFILES)
+    }
 
 
 __all__ = [
@@ -943,3 +809,100 @@ __all__ = [
     "generate_module_preview_suite",
     "generate_all_module_previews",
 ]
+
+
+# Anchor used when a module page references its interactive spatial preview.
+_PREVIEW_SECTION_TITLE = "## 🗺️ Interactive Spatial Preview"
+
+
+def _render_preview_markdown(module_id: str, slug: str, prefix: str) -> str:
+    """Render a Markdown snippet that anchors a module to its preview bundle."""
+    friendly_name = MODULE_PROFILES[module_id]["name"]
+    return "\n".join(
+        [
+            _PREVIEW_SECTION_TITLE,
+            "",
+            f"Pre-rendered spatial snapshot for **GEO-INFER-{module_id}** "
+            f"(*{friendly_name}*). Reproducible preview cards are generated by "
+            "`geo_infer_intra.core.documentation.visual_preview`.",
+            "",
+            "| Preview | Widget |",
+            "| --- | --- |",
+            f"| ![GEO-INFER-{module_id} Leaflet Preview]({prefix}/{slug}_preview.svg) | "
+            f"[Interactive map]({prefix}/{slug}_preview.html) · [PNG]({prefix}/{slug}_preview.png) |",
+            "",
+            "> **Reproducible contract:** each map ships as "
+            f"`{slug}_preview.html`, `{slug}_preview.svg`, `{slug}_preview.png`, "
+            f"and `{slug}_preview.manifest.json` beneath `previews/`. The receipt "
+            "records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.",
+            "",
+        ]
+    )
+
+
+def _inject_preview_section(module_doc: Path, module_id: str, prefix: str) -> bool:
+    """Insert (or refresh) the interactive spatial preview section into a page."""
+    slug = f"geo-infer-{module_id.lower()}"
+    text = module_doc.read_text(encoding="utf-8")
+    section = _render_preview_markdown(module_id, slug, prefix)
+
+    if _PREVIEW_SECTION_TITLE in text:
+        # Replace the existing preview section (from title to next heading).
+        lines = text.splitlines()
+        start = next(
+            i for i, line in enumerate(lines) if line.strip() == _PREVIEW_SECTION_TITLE
+        )
+        end = len(lines)
+        for j in range(start + 1, len(lines)):
+            if (
+                lines[j].startswith("## ")
+                and lines[j].strip() != _PREVIEW_SECTION_TITLE
+            ):
+                end = j
+                break
+        new_lines = lines[:start] + section.splitlines() + lines[end:]
+        module_doc.write_text("\n".join(new_lines), encoding="utf-8")
+        return True
+
+    module_doc.write_text(text.rstrip() + "\n\n" + section, encoding="utf-8")
+    return True
+
+
+def build_previews(modules_dir: Path, output_dir: Path) -> int:
+    """Generate preview bundles for all 44 modules and write a preview index."""
+    import os
+
+    modules_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    prefix = Path(os.path.relpath(output_dir, modules_dir)).as_posix()
+
+    emitted = 0
+    index_lines = [
+        "# Spatial Preview Cards",
+        "",
+        "Auto-generated single and static preview snapshots for all GEO-INFER "
+        "domain modules, produced by "
+        "`geo_infer_intra.core.documentation.visual_preview`.",
+        "",
+        "| Module | Preview |",
+        "| --- | --- |",
+    ]
+
+    for module_id in sorted(MODULE_PROFILES.keys()):
+        slug = f"geo-infer-{module_id.lower()}"
+        generate_module_preview_suite(module_id, output_dir)
+        emitted += 1
+
+        module_doc = modules_dir / f"geo-infer-{module_id.lower()}.md"
+        if module_doc.is_file():
+            _inject_preview_section(module_doc, module_id, prefix)
+
+        index_lines.append(
+            f"| {module_id} | [Interactive]({prefix}/{slug}_preview.html) · [Static SVG]({prefix}/{slug}_preview.svg) |"
+        )
+
+    index_lines.append("")
+    (modules_dir / "previews_index.md").write_text(
+        "\n".join(index_lines), encoding="utf-8"
+    )
+    return emitted

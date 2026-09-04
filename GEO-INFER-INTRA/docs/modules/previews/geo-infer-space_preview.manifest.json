@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15022,
+      "bytes": 6768,
       "name": "geo-infer-space_preview.html",
+      "sha256": "3c1a03cfe147eeb9dbc6732b56d0901eac5984f59095b0ee72ae16644e4e5a62",
       "type": "text/html"
     },
     {
-      "bytes": 5682,
+      "bytes": 2734,
       "name": "geo-infer-space_preview.svg",
+      "sha256": "bc3a42e650553cf3093458597e16ece60a6e740cbd3ecd9ee3936cae5d94fef1",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2188,
+      "bytes": 7063,
       "name": "geo-infer-space_preview.png",
+      "sha256": "b20207770a5b2ffc98ef1e71b418c8e344cc45cdc3fcedede129abe7c27c6386",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "1cf708809dac53a25ca7d82b189ec68c449b567ce96604789f2c55fbd66814bb",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "9c9fb5664c101d2666a27f6f6af572804710d5fd32dfc3eef3a37e9978b30eab",
   "module_id": "GEO-INFER-SPACE",
   "name": "Spatial Analysis Engine",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

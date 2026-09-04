@@ -22,7 +22,7 @@ Integration Points:
 - GEO-INFER-AI: Human-like spatial intelligence frameworks
 """
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER-COG Team"
 
 # Core cognitive processing components
@@ -56,24 +56,20 @@ __all__ = [
     "SpatialPerceptionModel",
     "SpatialReasoningEngine",
     "SpatialMemoryModel",
-
     # Supporting components
     "SpatialLanguageProcessor",
     "HumanCenteredVisualizer",
     "SpatialDecisionSupport",
-
     # Utilities
     "validate_spatial_data",
     "validate_cognitive_model",
     "load_cognitive_profile",
     "save_cognitive_model",
-
     # Models
     "CognitiveMap",
     "SpatialKnowledgeGraph",
     "UserCognitiveProfile",
-
     # Version info
     "__version__",
-    "__author__"
+    "__author__",
 ]

@@ -5,7 +5,7 @@ This module provides tools and frameworks for understanding, modeling, and analy
 regulatory frameworks, and compliance requirements in spatial contexts.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "blanket@activeinference.institute"
 
@@ -16,23 +16,19 @@ try:
         zoning_analysis,
         compliance_tracking,
         policy_impact,
-        normative_inference
+        normative_inference,
     )
 except ImportError as e:
     import logging
+
     logging.warning(f"NORMS core submodules not available: {e}")
 
 try:
-    from .models import (
-        legal_entity,
-        regulation,
-        compliance_status,
-        zoning,
-        policy
-    )
+    from .models import legal_entity, regulation, compliance_status, zoning, policy
 except ImportError as e:
     import logging
-    logging.warning(f"NORMS models submodules not available: {e}") 
+
+    logging.warning(f"NORMS models submodules not available: {e}")
 
 __all__ = [
     "legal_frameworks",

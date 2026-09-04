@@ -1,71 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
-  <defs>
-    <linearGradient id="bg-grad-ENERGY" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
-    </linearGradient>
-    <linearGradient id="badge-grad-ENERGY" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#eab308"/>
-      <stop offset="100%" stop-color="#fde047"/>
-    </linearGradient>
-    <filter id="shadow-ENERGY" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
-    </filter>
-  </defs>
-
-  <!-- Background Card -->
-  <rect x="8" y="8" width="684" height="364" rx="12" fill="url(#bg-grad-ENERGY)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-ENERGY)"/>
-
-  <!-- Left Content Column -->
-  <g transform="translate(0, 0)">
-    <!-- Header Badge -->
-    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-ENERGY)"/>
-    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-ENERGY</text>
-
-    <!-- Category Pill -->
-    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">Domain</text>
-
-    <!-- Title -->
-    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">Energy Systems Module</text>
-
-    <!-- Description -->
-    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
-      <tspan x="36" dy="0">Renewable potential, grid load balancing, and transmission</tspan>
-      <tspan x="36" dy="18"> routing</tspan>
-    </text>
-
-    <!-- Section Heading -->
-    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
-
-    <!-- Feature Chips -->
-    <rect x="36" y="190" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="202" r="3.5" fill="#eab308"/><text x="60" y="206" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Solar Irradiance</text><rect x="36" y="222" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="234" r="3.5" fill="#eab308"/><text x="60" y="238" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Grid Substations</text><rect x="36" y="254" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="266" r="3.5" fill="#eab308"/><text x="60" y="270" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Wind Potential</text>
-
-    <!-- Footer Contract Info -->
-    <text x="36" y="352" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
-  </g>
-
-  <!-- Right Visual Domain H3 Graph -->
-  <g>
-    <!-- Grid connection lines -->
-    <line x1="520" y1="200" x2="430" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="610" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="290" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <polygon points="568.0,200.0 544.0,241.6 496.0,241.6 472.0,200.0 496.0,158.4 544.0,158.4" fill="#fde047" fill-opacity="0.7" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="520.0" cy="200.0" r="4" fill="#eab308" />
-    <text x="520.0" y="204.0" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>
-    <polygon points="647.2,200.0 623.2,241.6 575.2,241.6 551.2,200.0 575.2,158.4 623.2,158.4" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="599.2" cy="200.0" r="4" fill="#eab308" />
-    <polygon points="607.6,268.6 583.6,310.2 535.6,310.2 511.6,268.6 535.6,227.0 583.6,227.0" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="559.6" cy="268.6" r="4" fill="#eab308" />
-    <polygon points="528.4,268.6 504.4,310.2 456.4,310.2 432.4,268.6 456.4,227.0 504.4,227.0" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="480.4" cy="268.6" r="4" fill="#eab308" />
-    <polygon points="488.8,200.0 464.8,241.6 416.8,241.6 392.8,200.0 416.8,158.4 464.8,158.4" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="440.8" cy="200.0" r="4" fill="#eab308" />
-    <polygon points="528.4,131.4 504.4,173.0 456.4,173.0 432.4,131.4 456.4,89.8 504.4,89.8" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="480.4" cy="131.4" r="4" fill="#eab308" />
-    <polygon points="607.6,131.4 583.6,173.0 535.6,173.0 511.6,131.4 535.6,89.8 583.6,89.8" fill="#fde047" fill-opacity="0.35" stroke="#eab308" stroke-width="2.5" />
-    <circle cx="559.6" cy="131.4" r="4" fill="#eab308" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-ENERGY desc-ENERGY" viewBox="0 0 700 380" width="700" height="380">
+<title id="title-ENERGY">GEO-INFER-ENERGY: Energy Systems Module</title>
+<desc id="desc-ENERGY">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-ENERGY</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Energy Systems Module</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="8728309b1ffffff" points="531.422,238.150 554.929,201.429 527.498,168.469 476.560,172.232 453.063,208.952 480.494,241.910 531.422,238.150" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b1ffffff</title></polygon><polygon data-h3="872830984ffffff" points="453.063,208.952 476.560,172.232 449.123,139.283 398.189,143.057 374.703,179.778 402.140,212.724 453.063,208.952" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>872830984ffffff</title></polygon><polygon data-h3="872830986ffffff" points="527.498,168.469 551.010,131.753 523.573,98.800 472.624,102.567 449.123,139.283 476.560,172.232 527.498,168.469" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>872830986ffffff</title></polygon><polygon data-h3="8728309a2ffffff" points="457.002,278.635 480.494,241.910 453.063,208.952 402.140,212.724 378.658,249.449 406.089,282.403 457.002,278.635" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309a2ffffff</title></polygon><polygon data-h3="8728309b0ffffff" points="609.780,267.371 633.297,230.651 605.872,197.678 554.929,201.429 531.422,238.150 558.847,271.119 609.780,267.371" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b0ffffff</title></polygon><polygon data-h3="8728309b3ffffff" points="605.872,197.678 629.394,160.962 601.963,127.998 551.010,131.753 527.498,168.469 554.929,201.429 605.872,197.678" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b3ffffff</title></polygon><polygon data-h3="8728309b5ffffff" points="535.345,307.844 558.847,271.119 531.422,238.150 480.494,241.910 457.002,278.635 484.427,311.600 535.345,307.844" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b5ffffff</title></polygon>
+<circle cx="504.0" cy="205.20000000000002" r="3" fill="#eab308"/>
+<text x="24" y="342" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="362" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
 </svg>

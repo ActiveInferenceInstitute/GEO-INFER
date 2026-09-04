@@ -31,6 +31,7 @@
 - `test_del_norte_analyzers.py`
 - `test_del_norte_demo_orchestration.py`
 - `test_h3_operations.py`
+- `test_hydrography_ingestion.py`
 - `test_integration_wrappers.py`
 - `test_module_bridge.py`
 - `test_place_analyzer.py`

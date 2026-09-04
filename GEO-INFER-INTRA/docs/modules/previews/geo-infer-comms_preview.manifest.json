@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14964,
+      "bytes": 6759,
       "name": "geo-infer-comms_preview.html",
+      "sha256": "21780e16e47adad25c7d44b0919c880c932216f29006bcdcd19522466fc13fca",
       "type": "text/html"
     },
     {
-      "bytes": 5683,
+      "bytes": 2733,
       "name": "geo-infer-comms_preview.svg",
+      "sha256": "1e09ad7794356cdee16c2bd1144ea60a6fd3f1c4fe0be6cd7ddfba408b177b78",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2188,
+      "bytes": 7023,
       "name": "geo-infer-comms_preview.png",
+      "sha256": "5486c8962d699cc14f881df768bc5cf3601ab8b993c6844c68493045a98f2a79",
       "type": "image/png"
     }
   ],
   "category": "Infrastructure",
-  "input_sha256": "e72aeda4f895f90de05d3a96eea2f94912fc47593a576360f17498cb66f73775",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "4aa5bf6689a0ec77b634604b2f78089276d2e53f0c314666634d7d518c613fc9",
   "module_id": "GEO-INFER-COMMS",
   "name": "Communication Systems",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

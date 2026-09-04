@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_d8c97da2c915b7c096ff60eecee28ddf {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-WATER</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Water Resource Module</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Pollution plume dispersion, watershed flow routing, and groundwater aquifers</div></div>
-    
-            <div class="folium-map" id="map_d8c97da2c915b7c096ff60eecee28ddf" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-WATER: Water Resource Module</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-WATER: Water Resource Module</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-WATER desc-WATER" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-WATER">GEO-INFER-WATER: Water Resource Module</title>
+<desc id="desc-WATER">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-WATER</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Water Resource Module</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="87283080cffffff" points="608.592,281.920 636.345,238.386 603.741,199.452 543.386,204.058 515.646,247.592 548.249,286.521 608.592,281.920" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>87283080cffffff</title></polygon><polygon data-h3="872830801ffffff" points="701.537,316.276 729.302,272.741 696.706,233.794 636.345,238.386 608.592,281.920 641.188,320.863 701.537,316.276" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>872830801ffffff</title></polygon><polygon data-h3="872830808ffffff" points="603.741,199.452 631.499,155.924 598.889,117.000 538.521,121.610 510.775,165.139 543.386,204.058 603.741,199.452" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>872830808ffffff</title></polygon><polygon data-h3="87283080dffffff" points="515.646,247.592 543.386,204.058 510.775,165.139 450.425,169.758 422.698,213.292 455.308,252.208 515.646,247.592" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>87283080dffffff</title></polygon><polygon data-h3="87283080effffff" points="696.706,233.794 724.476,190.265 691.873,151.328 631.499,155.924 603.741,199.452 636.345,238.386 696.706,233.794" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>87283080effffff</title></polygon><polygon data-h3="87283082affffff" points="613.441,364.403 641.188,320.863 608.592,281.920 548.249,286.521 520.514,330.061 553.110,369.000 613.441,364.403" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>87283082affffff</title></polygon><polygon data-h3="87283082bffffff" points="520.514,330.061 548.249,286.521 515.646,247.592 455.308,252.208 427.586,295.748 460.188,334.672 520.514,330.061" fill="#38bdf8" fill-opacity="0.45" stroke="#0284c7"><title>87283082bffffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#0284c7"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["87283080cffffff", [[37.79831548273906, -122.3869460975409], [37.81009138115104, -122.37943912316298], [37.820622665876265, -122.38825819323623], [37.81937691009303, -122.40458419125287], [37.807601004224495, -122.41208776737979], [37.79707086149342, -122.40326874464051], [37.79831548273906, -122.3869460975409]]], ["872830801ffffff", [[37.78902243538605, -122.3618048420776], [37.800798324427596, -122.35429447245332], [37.811333368479914, -122.3631116342322], [37.81009138115104, -122.37943912316298], [37.79831548273906, -122.3869460975409], [37.78778158092424, -122.37812897913464], [37.78902243538605, -122.3618048420776]]], ["872830808ffffff", [[37.820622665876265, -122.38825819323623], [37.832397079353534, -122.38074981887658], [37.84292574441903, -122.3895708414697], [37.8416788546232, -122.40590019176143], [37.8299044338768, -122.41340516628502], [37.81937691009303, -122.40458419125287], [37.820622665876265, -122.38825819323623]]], ["87283080dffffff", [[37.807601004224495, -122.41208776737979], [37.81937691009303, -122.40458419125287], [37.8299044338768, -122.41340516628502], [37.82865490994127, -122.42972966704724], [37.81687899853032, -122.43722984192229], [37.80635261649483, -122.42840891818561], [37.807601004224495, -122.41208776737979]]], ["87283080effffff", [[37.811333368479914, -122.3631116342322], [37.823107772774826, -122.35559986304287], [37.833640199025375, -122.36441897671321], [37.832397079353534, -122.38074981887658], [37.820622665876265, -122.38825819323623], [37.81009138115104, -122.37943912316298], [37.811333368479914, -122.3631116342322]]], ["87283082affffff", [[37.77600420067387, -122.38563455403627], [37.78778158092424, -122.37812897913464], [37.79831548273906, -122.3869460975409], [37.79707086149342, -122.40326874464051], [37.785293473597285, -122.41077092287513], [37.774760714490206, -122.4019538515761], [37.77600420067387, -122.38563455403627]]], ["87283082bffffff", [[37.785293473597285, -122.41077092287513], [37.79707086149342, -122.40326874464051], [37.807601004224495, -122.41208776737979], [37.80635261649483, -122.42840891818561], [37.794575222867756, -122.435907696754], [37.78404622259878, -122.42708872508095], [37.785293473597285, -122.41077092287513]]]], "center": [37.8, -122.4], "color": "#0284c7", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 11}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_d8c97da2c915b7c096ff60eecee28ddf = L.map(
-                "map_d8c97da2c915b7c096ff60eecee28ddf",
-                {
-                    center: [37.8, -122.4],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 11,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_4cb2ab3bde7652c8aedd18fd37cd4d26 = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_4cb2ab3bde7652c8aedd18fd37cd4d26.addTo(map_d8c97da2c915b7c096ff60eecee28ddf);
-        
-    
-            var feature_group_297eeb243f7d0ff15207451b4a8e90ce = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_a24c6d3b88017ab7a57c6a3679866522 = L.polygon(
-                [[37.8, -122.389], [37.809526, -122.3945], [37.809526, -122.4055], [37.8, -122.411], [37.790474, -122.4055], [37.790474, -122.3945], [37.8, -122.389]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_6f97184941ba0756c03b4f5d6222d1f4 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_acf03076e30ce0d97ec4fff79bfe2120 = $(`<div id="html_acf03076e30ce0d97ec4fff79bfe2120" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-WATER<br>Feature: Watershed Catchment</div>`)[0];
-                popup_6f97184941ba0756c03b4f5d6222d1f4.setContent(html_acf03076e30ce0d97ec4fff79bfe2120);
-            
-        
-
-        polygon_a24c6d3b88017ab7a57c6a3679866522.bindPopup(popup_6f97184941ba0756c03b4f5d6222d1f4)
-        ;
-
-        
-    
-    
-            var polygon_f50de5917aa69cef9c0254c21470ba4c = L.polygon(
-                [[37.82, -122.389], [37.829526, -122.3945], [37.829526, -122.4055], [37.82, -122.411], [37.810474, -122.4055], [37.810474, -122.3945], [37.82, -122.389]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_3a12302c3e744dbe03cc7514b75f4e1a = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_380562db73c60f05b33b1b1d86d3d6dd = $(`<div id="html_380562db73c60f05b33b1b1d86d3d6dd" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-WATER<br>Feature: Pollution Plume Area</div>`)[0];
-                popup_3a12302c3e744dbe03cc7514b75f4e1a.setContent(html_380562db73c60f05b33b1b1d86d3d6dd);
-            
-        
-
-        polygon_f50de5917aa69cef9c0254c21470ba4c.bindPopup(popup_3a12302c3e744dbe03cc7514b75f4e1a)
-        ;
-
-        
-    
-    
-            var polygon_4e244e24c1a0d883ab42beb9965c725f = L.polygon(
-                [[37.81, -122.371679], [37.819526, -122.377179], [37.819526, -122.388179], [37.81, -122.393679], [37.800474, -122.388179], [37.800474, -122.377179], [37.81, -122.371679]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_28e07f6b2fe0d698405db69431ea0fd4 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_f76b197b892c75fa82b8a66ce8c31a53 = $(`<div id="html_f76b197b892c75fa82b8a66ce8c31a53" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-WATER<br>Feature: Groundwater Aquifer</div>`)[0];
-                popup_28e07f6b2fe0d698405db69431ea0fd4.setContent(html_f76b197b892c75fa82b8a66ce8c31a53);
-            
-        
-
-        polygon_4e244e24c1a0d883ab42beb9965c725f.bindPopup(popup_28e07f6b2fe0d698405db69431ea0fd4)
-        ;
-
-        
-    
-    
-            var polygon_aa4a4b572375dc70f90e3462cea42002 = L.polygon(
-                [[37.79, -122.371679], [37.799526, -122.377179], [37.799526, -122.388179], [37.79, -122.393679], [37.780474, -122.388179], [37.780474, -122.377179], [37.79, -122.371679]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_41b4679b6679a1342a56772526ebb3a3 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_883c78d2612c88aa4bf32d6fdac7e933 = $(`<div id="html_883c78d2612c88aa4bf32d6fdac7e933" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-WATER<br>Feature: Watershed Catchment</div>`)[0];
-                popup_41b4679b6679a1342a56772526ebb3a3.setContent(html_883c78d2612c88aa4bf32d6fdac7e933);
-            
-        
-
-        polygon_aa4a4b572375dc70f90e3462cea42002.bindPopup(popup_41b4679b6679a1342a56772526ebb3a3)
-        ;
-
-        
-    
-    
-            var polygon_6dd3288e3c6b19dd75d5877ceb93dc91 = L.polygon(
-                [[37.78, -122.389], [37.789526, -122.3945], [37.789526, -122.4055], [37.78, -122.411], [37.770474, -122.4055], [37.770474, -122.3945], [37.78, -122.389]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_01a11554823bbce190fecdcd34faa940 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_b9a0ae412967ad7631e3d260ff297656 = $(`<div id="html_b9a0ae412967ad7631e3d260ff297656" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-WATER<br>Feature: Pollution Plume Area</div>`)[0];
-                popup_01a11554823bbce190fecdcd34faa940.setContent(html_b9a0ae412967ad7631e3d260ff297656);
-            
-        
-
-        polygon_6dd3288e3c6b19dd75d5877ceb93dc91.bindPopup(popup_01a11554823bbce190fecdcd34faa940)
-        ;
-
-        
-    
-    
-            var polygon_9ffd12d6a7cbc2f63c1781137f59efae = L.polygon(
-                [[37.79, -122.406321], [37.799526, -122.411821], [37.799526, -122.422821], [37.79, -122.428321], [37.780474, -122.422821], [37.780474, -122.411821], [37.79, -122.406321]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_65ab102b4716c45c1c96b07761fdc760 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_f2a4bcae2855a5ada6e78727b79cf036 = $(`<div id="html_f2a4bcae2855a5ada6e78727b79cf036" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-WATER<br>Feature: Groundwater Aquifer</div>`)[0];
-                popup_65ab102b4716c45c1c96b07761fdc760.setContent(html_f2a4bcae2855a5ada6e78727b79cf036);
-            
-        
-
-        polygon_9ffd12d6a7cbc2f63c1781137f59efae.bindPopup(popup_65ab102b4716c45c1c96b07761fdc760)
-        ;
-
-        
-    
-    
-            var polygon_b7d3fec2d86a55a044b1e2837bb020c4 = L.polygon(
-                [[37.81, -122.406321], [37.819526, -122.411821], [37.819526, -122.422821], [37.81, -122.428321], [37.800474, -122.422821], [37.800474, -122.411821], [37.81, -122.406321]],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#38bdf8", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_297eeb243f7d0ff15207451b4a8e90ce);
-        
-    
-        var popup_8f8a973e1f3e532c5223e7c12760da50 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_36839f7e70e799d2ee8d07006671e3b5 = $(`<div id="html_36839f7e70e799d2ee8d07006671e3b5" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-WATER<br>Feature: Watershed Catchment</div>`)[0];
-                popup_8f8a973e1f3e532c5223e7c12760da50.setContent(html_36839f7e70e799d2ee8d07006671e3b5);
-            
-        
-
-        polygon_b7d3fec2d86a55a044b1e2837bb020c4.bindPopup(popup_8f8a973e1f3e532c5223e7c12760da50)
-        ;
-
-        
-    
-    
-            feature_group_297eeb243f7d0ff15207451b4a8e90ce.addTo(map_d8c97da2c915b7c096ff60eecee28ddf);
-        
-    
-            var circle_marker_38f48189521455ea8de6abcb68857189 = L.circleMarker(
-                [37.8, -122.4],
-                {"bubblingMouseEvents": true, "color": "#0284c7", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_d8c97da2c915b7c096ff60eecee28ddf);
-        
-    
-        var popup_ded803f31414d5a1f95dc2fcd70a7f15 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_4a39435152053d52ba226237b9910a41 = $(`<div id="html_4a39435152053d52ba226237b9910a41" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-WATER</b> Focus Center</div>`)[0];
-                popup_ded803f31414d5a1f95dc2fcd70a7f15.setContent(html_4a39435152053d52ba226237b9910a41);
-            
-        
-
-        circle_marker_38f48189521455ea8de6abcb68857189.bindPopup(popup_ded803f31414d5a1f95dc2fcd70a7f15)
-        ;
-
-        
-    
-    
-            var layer_control_12500fac1f312022937c7ce679f0bd3b_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_4cb2ab3bde7652c8aedd18fd37cd4d26,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_297eeb243f7d0ff15207451b4a8e90ce,
-                },
-            };
-            let layer_control_12500fac1f312022937c7ce679f0bd3b = L.control.layers(
-                layer_control_12500fac1f312022937c7ce679f0bd3b_layers.base_layers,
-                layer_control_12500fac1f312022937c7ce679f0bd3b_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_d8c97da2c915b7c096ff60eecee28ddf);
-
-        
-</script>
-</html>
+</script></main></body></html>

@@ -26,27 +26,37 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_time.core.time_series import TimeSeriesAnalyzer
-from geo_infer_time.core.forecasting import Forecaster
-from geo_infer_time.core.change_detection import ChangePointDetector
+from geo_infer_time import (
+    TemporalAnalyzer, ForecastingEngine, EventDetector, TimeSeries,
+    StreamProcessor, ReplayIngestAdapter, WebSocketIngestAdapter, KafkaIngestAdapter,
+)
 ```
+
+### Integrations
+
+- Feed timestamped measurements from GEO-INFER-DATA or GEO-INFER-IOT into the explicit replay or live transport adapters.
+- Combine temporal windows with GEO-INFER-SPACE H3 indices when records carry spatial identifiers.
+- Pass processed windows to the anomaly and forecasting APIs described in the module documentation.
 
 ## Examples
 
 ```python
-from geo_infer_time.core.time_series import TimeSeriesAnalyzer
+import asyncio
+from datetime import timedelta
+from geo_infer_time import ReplayIngestAdapter, StreamProcessor
 
-analyzer = TimeSeriesAnalyzer(frequency="daily")
-decomposition = analyzer.decompose(series, method="stl")
-trend = decomposition.trend
-seasonal = decomposition.seasonal
+processor = StreamProcessor(timedelta(minutes=1))
+records = [{"timestamp": "2024-01-01T00:00:00Z", "value": 21.5}]
+assert asyncio.run(processor.ingest_adapter_stream(ReplayIngestAdapter(records))) == 1
+window = processor.process_window()
+assert window["aggregated_value"] == 21.5
 ```
 
 ## Guidelines
 
-
-### Integrations
-
-- Integrates with SPACE for spatio-temporal analysis
-- ISO 8601 for all datetime handling
-- Test: `uv run python -m pytest GEO-INFER-TIME/tests/ -v`
+- Select `ReplayIngestAdapter` for recorded or offline input. Network adapters connect to real services and never supply replacement measurements.
+- Install the TIME `streaming` extra for WebSocket and Kafka ingestion.
+- Supply explicit event timestamps; naive input means UTC and output is timezone-aware UTC.
+- Read [streaming migration and delivery contracts](docs/streaming_migration.md) before changing callers.
+- Run `uv run python -m pytest GEO-INFER-TIME/tests/ -v` for local verification.
+- Run the explicit live Kafka service check against a disposable broker when validating network delivery.

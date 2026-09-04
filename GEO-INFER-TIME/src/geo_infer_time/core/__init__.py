@@ -5,6 +5,7 @@ from geo_infer_time.core.forecasting import ForecastingEngine
 from geo_infer_time.core.stream_processing import (
     StreamProcessor,
     StreamIngestAdapter,
+    ReplayIngestAdapter,
     WebSocketIngestAdapter,
     KafkaIngestAdapter,
 )
@@ -16,12 +17,14 @@ from geo_infer_time.core.visualization import TemporalVisualization
 # Advanced forecasting (optional dependency)
 try:
     from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
+
     __all__ = [
         "TemporalAnalyzer",
         "ForecastingEngine",
         "AdvancedForecastingEngine",
         "StreamProcessor",
         "StreamIngestAdapter",
+        "ReplayIngestAdapter",
         "WebSocketIngestAdapter",
         "KafkaIngestAdapter",
         "TemporalInterpolator",
@@ -35,6 +38,7 @@ except ImportError:
         "ForecastingEngine",
         "StreamProcessor",
         "StreamIngestAdapter",
+        "ReplayIngestAdapter",
         "WebSocketIngestAdapter",
         "KafkaIngestAdapter",
         "TemporalInterpolator",

@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14944,
+      "bytes": 6777,
       "name": "geo-infer-iot_preview.html",
+      "sha256": "c26a6b886ef80f2036b34b30dd2fa1bfc0f764ddf52063ae221ff9bf3d33d613",
       "type": "text/html"
     },
     {
-      "bytes": 5671,
+      "bytes": 2736,
       "name": "geo-infer-iot_preview.svg",
+      "sha256": "9e1714387db70d8360185af07b90cce95a60475ddbf3ecf341579f65bcd9860f",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2191,
+      "bytes": 6636,
       "name": "geo-infer-iot_preview.png",
+      "sha256": "f3ab85480b7a5a16b7565234ef9a388a8f4ca3e3c545ebf3c3d86db3e5918e63",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "be02ae933e1269ff92608408b17f6ac903620331493bc1d118a6dabd66dde836",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "522f7d7ed81a6dc10d09696bfd01a9a5117406ba56b63641a7e5358baf382079",
   "module_id": "GEO-INFER-IOT",
   "name": "Internet of Things Integration",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

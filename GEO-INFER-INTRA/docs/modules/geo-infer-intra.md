@@ -108,6 +108,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-INTRA** (*Knowledge Integration*).
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-INTRA Leaflet Preview](previews/geo-infer-intra_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-INTRA Leaflet Preview](previews/geo-infer-intra_preview.svg) | [Interactive map](previews/geo-infer-intra_preview.html) · [PNG](previews/geo-infer-intra_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-intra_preview.html`, `geo-infer-intra_preview.svg`, `geo-infer-intra_preview.png`, and `geo-infer-intra_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-intra_preview.html`, `geo-infer-intra_preview.svg`, `geo-infer-intra_preview.png`, and `geo-infer-intra_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

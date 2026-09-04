@@ -5,12 +5,12 @@ anomaly alert handlers for GEO-INFER-TIME's StreamProcessor.
 """
 
 import pytest
-import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from geo_infer_time.core.stream_processing import (
     StreamProcessor,
     StreamIngestAdapter,
+    ReplayIngestAdapter,
     WebSocketIngestAdapter,
     KafkaIngestAdapter,
 )
@@ -21,7 +21,7 @@ def _ts(base, seconds_offset):
     return base + timedelta(seconds=seconds_offset)
 
 
-BASE_TIME = datetime(2024, 1, 1, 0, 0, 0)
+BASE_TIME = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
 
 # ===================================================================
@@ -32,64 +32,60 @@ BASE_TIME = datetime(2024, 1, 1, 0, 0, 0)
 class TestStreamIngestAdapter:
     def test_config_must_be_dict(self):
         with pytest.raises(TypeError):
-            StreamIngestAdapter(config="bad")
+            ReplayIngestAdapter([], config="bad")
 
     def test_config_defaults_to_empty_dict(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         assert adapter.config == {}
         assert adapter.is_connected is False
 
     def test_parse_iso_datetime_record(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         record = {"timestamp": "2024-01-01T00:00:00", "value": 42.5, "sensor": "a"}
         ts, value, meta = adapter.parse_record(record)
-        assert ts == datetime(2024, 1, 1, 0, 0, 0)
+        assert ts == datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         assert value == 42.5
         assert meta == {"sensor": "a"}
 
     def test_parse_json_string_record(self):
-        adapter = StreamIngestAdapter()
-        ts, value, meta = adapter.parse_record('{"timestamp":"2024-01-01T00:00:00","value":7}')
+        adapter = ReplayIngestAdapter([])
+        ts, value, meta = adapter.parse_record(
+            '{"timestamp":"2024-01-01T00:00:00","value":7}'
+        )
         assert value == 7.0
         assert meta == {}
 
     def test_parse_bytes_record(self):
-        adapter = StreamIngestAdapter()
-        ts, value, meta = adapter.parse_record(b'{"timestamp":"2024-01-01T00:00:00","value":3.0}')
+        adapter = ReplayIngestAdapter([])
+        ts, value, meta = adapter.parse_record(
+            b'{"timestamp":"2024-01-01T00:00:00","value":3.0}'
+        )
         assert value == 3.0
 
     def test_parse_nested_data_value(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         record = {"timestamp": "2024-01-01T00:00:00", "data": {"measurement": 11.0}}
         ts, value, meta = adapter.parse_record(record)
         assert value == 11.0
 
     def test_parse_invalid_json_raises(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         with pytest.raises(ValueError):
             adapter.parse_record("{not-json")
 
     def test_parse_missing_value_closes_base(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         with pytest.raises(ValueError):
             adapter.parse_record({"timestamp": "2024-01-01T00:00:00"})
 
     def test_parse_invalid_type_raises(self):
-        adapter = StreamIngestAdapter()
+        adapter = ReplayIngestAdapter([])
         with pytest.raises(TypeError):
             adapter.parse_record(123)
 
-    def test_base_stream_data_yields_nothing(self):
-        adapter = StreamIngestAdapter()
-
-        async def count_items():
-            agen = adapter.stream_data()
-            total = 0
-            async for _item in agen:
-                total += 1
-            return total
-
-        assert asyncio_run(count_items()) == 0
+    def test_base_transport_is_abstract(self):
+        with pytest.raises(TypeError, match="abstract"):
+            StreamIngestAdapter()
 
 
 def asyncio_run(coro):
@@ -104,126 +100,57 @@ def asyncio_run(coro):
 # ===================================================================
 
 
-class TestWebSocketIngestAdapter:
-    def test_init_defaults(self):
+class TestNetworkConfiguration:
+    def test_websocket_defaults(self):
         adapter = WebSocketIngestAdapter()
         assert adapter.url == "ws://localhost:8765"
-        assert adapter.is_connected is False
+        assert not adapter.is_connected
 
-    def test_connect_and_disconnect(self):
-        adapter = WebSocketIngestAdapter({"url": "ws://example.com:8080"})
-        assert adapter.url == "ws://example.com:8080"
-        assert asyncio_run(adapter.connect()) is True
-        assert adapter.is_connected is True
-        asyncio_run(adapter.disconnect())
-        assert adapter.is_connected is False
-
-    def test_stream_simulated_records_with_limit(self):
-        adapter = WebSocketIngestAdapter()
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
-            {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
-            {"timestamp": "2024-01-01T00:00:02", "value": 3.0},
-        ]
-
-        async def collect():
-            out = []
-            async for rec in adapter.stream_data(simulated_records=records, max_messages=2):
-                out.append(rec)
-            return out
-
-        result = asyncio_run(collect())
-        assert len(result) == 2
-
-    def test_stream_default_generator_yields_records(self):
-        adapter = WebSocketIngestAdapter()
-
-        async def collect():
-            out = []
-            async for rec in adapter.stream_data(max_messages=3):
-                out.append(rec)
-            return out
-
-        result = asyncio_run(collect())
-        assert len(result) == 3
-        assert all("timestamp" in r for r in result)
-        assert all("value" in r for r in result)
-
-
-# ===================================================================
-# KafkaIngestAdapter
-# ===================================================================
-
-
-class TestKafkaIngestAdapter:
-    def test_init_defaults(self):
+    def test_kafka_defaults(self):
         adapter = KafkaIngestAdapter()
         assert adapter.bootstrap_servers == ["localhost:9092"]
         assert adapter.group_id == "geo_infer_time_group"
         assert adapter.topic == "geo_infer_temporal_events"
 
-    def test_bootstrap_servers_string_normalization(self):
-        adapter = KafkaIngestAdapter({"bootstrap_servers": "kafka:9092"})
-        assert adapter.bootstrap_servers == ["kafka:9092"]
+    def test_bootstrap_servers_normalization(self):
+        assert KafkaIngestAdapter(
+            {"bootstrap_servers": "kafka:9092"}
+        ).bootstrap_servers == ["kafka:9092"]
 
-    def test_connect_and_disconnect(self):
-        adapter = KafkaIngestAdapter({})
-        assert asyncio_run(adapter.connect()) is True
-        assert adapter.is_connected is True
-        asyncio_run(adapter.disconnect())
-        assert adapter.is_connected is False
+    def test_implicit_simulation_rejected(self):
+        with pytest.raises(TypeError, match="ReplayIngestAdapter"):
+            WebSocketIngestAdapter({"simulated_records": []})
 
-    def test_stream_simulated_records_sets_topic(self):
-        adapter = KafkaIngestAdapter({"topic": "events-topic"})
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
-            {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
-        ]
+
+class TestReplayIngest:
+    def test_replay_respects_limit(self):
+        records = [{"timestamp": index, "value": index} for index in range(3)]
 
         async def collect():
-            out = []
-            async for rec in adapter.stream_data(simulated_records=records):
-                out.append(rec)
-            return out
+            return [
+                record
+                async for record in ReplayIngestAdapter(records).stream_data(
+                    max_messages=2
+                )
+            ]
 
-        result = asyncio_run(collect())
-        assert len(result) == 2
-        assert result[0]["topic"] == "events-topic"
+        assert asyncio_run(collect()) == records[:2]
 
-
-# ===================================================================
-# StreamProcessor ingest adapters
-# ===================================================================
-
-
-class TestStreamProcessorAdapterIngest:
     def test_ingest_adapter_stream_counts_points(self):
         processor = StreamProcessor(window_size=timedelta(minutes=1))
-        adapter = WebSocketIngestAdapter()
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 1.0, "sensor": "a"},
-            {"timestamp": "2024-01-01T00:00:01", "value": 2.0, "sensor": "b"},
-            {"timestamp": "2024-01-01T00:00:02", "value": 3.0},
-        ]
-
-        count = asyncio_run(
-            processor.ingest_adapter_stream(adapter, simulated_records=records)
+        records = [{"timestamp": index, "value": index} for index in range(3)]
+        assert (
+            asyncio_run(processor.ingest_adapter_stream(ReplayIngestAdapter(records)))
+            == 3
         )
-        assert count == 3
         assert processor.get_stats()["total_points"] == 3
-        assert len(processor.buffer) == 3
 
     def test_ingest_adapter_stream_auto_process_windows(self):
         processor = StreamProcessor(window_size=timedelta(minutes=1))
-        adapter = KafkaIngestAdapter()
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
-            {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
-        ]
-
+        records = [{"timestamp": index, "value": index} for index in range(2)]
         asyncio_run(
             processor.ingest_adapter_stream(
-                adapter, simulated_records=records, auto_process_windows=True
+                ReplayIngestAdapter(records), auto_process_windows=True
             )
         )
         assert processor.get_stats()["total_windows"] == 2
@@ -232,35 +159,6 @@ class TestStreamProcessorAdapterIngest:
         processor = StreamProcessor(window_size=timedelta(minutes=1))
         with pytest.raises(TypeError):
             asyncio_run(processor.ingest_adapter_stream("not-an-adapter"))
-
-    def test_ingest_websocket_stream_convenience(self):
-        processor = StreamProcessor(window_size=timedelta(minutes=1))
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 1.0},
-            {"timestamp": "2024-01-01T00:00:01", "value": 2.0},
-            {"timestamp": "2024-01-01T00:00:02", "value": 3.0},
-        ]
-        count = asyncio_run(
-            processor.ingest_websocket_stream(
-                url="ws://localhost:9000", simulated_records=records
-            )
-        )
-        assert count == 3
-        assert [p["value"] for p in processor.buffer] == [1.0, 2.0, 3.0]
-
-    def test_ingest_kafka_stream_convenience(self):
-        processor = StreamProcessor(window_size=timedelta(minutes=1))
-        records = [
-            {"timestamp": "2024-01-01T00:00:00", "value": 5.0},
-            {"timestamp": "2024-01-01T00:00:01", "value": 6.0},
-        ]
-        count = asyncio_run(
-            processor.ingest_kafka_stream(
-                topic="telemetry", simulated_records=records
-            )
-        )
-        assert count == 2
-        assert processor.get_stats()["total_points"] == 2
 
 
 # ===================================================================
@@ -307,9 +205,7 @@ class TestBoundedWatermarking:
 
     def test_watermark_delay_validation(self):
         with pytest.raises(TypeError):
-            StreamProcessor(
-                window_size=timedelta(minutes=5), watermark_delay="10"
-            )
+            StreamProcessor(window_size=timedelta(minutes=5), watermark_delay="10")
         with pytest.raises(ValueError):
             StreamProcessor(
                 window_size=timedelta(minutes=5), watermark_delay=timedelta(seconds=-1)

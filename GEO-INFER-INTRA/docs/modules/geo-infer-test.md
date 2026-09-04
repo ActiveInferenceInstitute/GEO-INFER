@@ -111,6 +111,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-TEST** (*Testing Framework*). Repr
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-TEST Leaflet Preview](previews/geo-infer-test_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-TEST Leaflet Preview](previews/geo-infer-test_preview.svg) | [Interactive map](previews/geo-infer-test_preview.html) · [PNG](previews/geo-infer-test_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-test_preview.html`, `geo-infer-test_preview.svg`, `geo-infer-test_preview.png`, and `geo-infer-test_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-test_preview.html`, `geo-infer-test_preview.svg`, `geo-infer-test_preview.png`, and `geo-infer-test_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

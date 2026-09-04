@@ -1,0 +1,160 @@
+"""Installed-wheel probes must execute package code outside the source tree."""
+
+from pathlib import Path
+import importlib.util
+import sys
+import zipfile
+import subprocess
+import time
+
+import pytest
+
+pytestmark = pytest.mark.unit
+
+
+def _driver():
+    """Load the wheel CLI module with its sibling validator available."""
+    directory = Path(__file__).resolve().parents[2]
+    sys.path.insert(0, str(directory))
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "geo_wheel_driver", directory / "build_package_wheels.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.remove(str(directory))
+
+
+def _wheel(directory: Path, source: str) -> Path:
+    """Construct a valid dependency-free wheel for an actual isolated install."""
+    wheel = directory / "geo_infer_probe-0.0.1-py3-none-any.whl"
+    metadata = "geo_infer_probe-0.0.1.dist-info"
+    contents = {
+        "geo_infer_probe/__init__.py": source,
+        "geo_infer_probe/data.json": '{"value": 42}',
+        metadata
+        + "/METADATA": "Metadata-Version: 2.1\nName: geo-infer-probe\nVersion: 0.0.1\n",
+        metadata
+        + "/WHEEL": "Wheel-Version: 1.0\nGenerator: test\nRoot-Is-Purelib: true\nTag: py3-none-any\n",
+    }
+    contents[metadata + "/RECORD"] = (
+        "".join(name + ",,\n" for name in contents) + metadata + "/RECORD,,\n"
+    )
+    with zipfile.ZipFile(wheel, "w") as archive:
+        for name, data in contents.items():
+            archive.writestr(name, data)
+    return wheel
+
+
+def test_wheel_probe_rejects_broken_import(tmp_path):
+    """Installed metadata alone cannot certify a package that fails to import."""
+    wheel = _wheel(tmp_path, 'raise RuntimeError("broken package import")\n')
+    with pytest.raises(subprocess.CalledProcessError):
+        _driver().install_and_verify(wheel, [sys.executable])
+
+
+def test_wheel_probe_reads_packaged_resources(tmp_path):
+    """Resource lookup succeeds with only installed wheel files available."""
+    wheel = _wheel(
+        tmp_path,
+        'from importlib.resources import files\nassert files(__package__).joinpath("data.json").is_file()\n',
+    )
+    _driver().install_and_verify(wheel, [sys.executable])
+
+
+@pytest.mark.parametrize("defect", ["missing_resource", "wrong_version", "wrong_name"])
+def test_wheel_contract_checks_source_inventory(tmp_path, defect):
+    """A wheel cannot certify itself by enumerating only what it happens to contain."""
+    wheel = _wheel(tmp_path, "")
+    module = tmp_path / "module"
+    package = (
+        module
+        / "src"
+        / ("geo_infer_other" if defect == "wrong_name" else "geo_infer_probe")
+    )
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    name = "geo-infer-other" if defect == "wrong_name" else "geo-infer-probe"
+    version = "9.0.0" if defect == "wrong_version" else "0.0.1"
+    (module / "pyproject.toml").write_text(
+        f'[project]\nname = "{name}"\nversion = "{version}"\n'
+    )
+    resource = "omitted.yaml" if defect == "missing_resource" else "data.json"
+    (package / resource).write_text('{"value": 42}')
+    with pytest.raises(ValueError, match="metadata|omits"):
+        _driver().validate_wheel_contents(wheel, module)
+
+
+def test_build_missing_metadata_returns_failure(tmp_path):
+    """Malformed projects produce a diagnostic instead of crashing the build driver."""
+    result = _driver().build_wheel(tmp_path, tmp_path / "dist", [sys.executable])
+    assert not result.ok
+    assert result.wheel is None
+    assert "project" in result.error
+
+
+@pytest.mark.parametrize("resource", ["analysis.py", "table.csv", "__init__.py"])
+def test_wheel_contract_rejects_missing_code_or_declared_data(tmp_path, resource):
+    """Python code and explicitly declared data belong to the wheel contract too."""
+    wheel = _wheel(tmp_path, "")
+    module = tmp_path / "module"
+    package = module / "src" / "geo_infer_probe"
+    package.mkdir(parents=True)
+    (module / "pyproject.toml").write_text(
+        '[project]\nname = "geo-infer-probe"\nversion = "0.0.1"\n[tool.setuptools.package-data]\n"*" = ["*.csv"]\n'
+    )
+    if resource != "__init__.py":
+        (package / "__init__.py").write_text("")
+        (package / resource).write_text("value = 42")
+    with pytest.raises(ValueError, match="omits|missing"):
+        _driver().validate_wheel_contents(wheel, module)
+
+
+def test_wheel_import_timeout_includes_stack_diagnostic(tmp_path):
+    """A blocked installed import times out with the actual child stack attached."""
+    wheel = _wheel(tmp_path, "import time\ntime.sleep(10)\n")
+    with pytest.raises(subprocess.TimeoutExpired) as error:
+        _driver().verify_wheels([wheel], [sys.executable], import_timeout=0.5)
+    assert b"Timeout" in error.value.stderr
+    assert b"geo_infer_probe/__init__.py" in error.value.stderr
+
+
+@pytest.mark.parametrize("source", ["raise SystemExit(0)", "import os; os._exit(0)"])
+def test_wheel_import_rejects_early_success_exit(tmp_path, source):
+    """A zero exit cannot bypass installed provenance and resource checks."""
+    wheel = _wheel(tmp_path, source)
+    with pytest.raises(ValueError, match="completion receipt"):
+        _driver().verify_wheels([wheel], [sys.executable], import_timeout=2)
+
+
+def test_wheel_import_timeout_stops_descendants(tmp_path):
+    """An installed import's spawned child cannot write after timeout cleanup."""
+    started = tmp_path / "child-started"
+    finished = tmp_path / "child-finished"
+    child = (
+        f"import pathlib,time; pathlib.Path({str(started)!r}).touch(); "
+        f"time.sleep(1.2); pathlib.Path({str(finished)!r}).touch()"
+    )
+    wheel = _wheel(
+        tmp_path,
+        "import subprocess,sys,time\n"
+        f"subprocess.Popen([sys.executable, '-c', {child!r}])\n"
+        "time.sleep(10)\n",
+    )
+    with pytest.raises(subprocess.TimeoutExpired):
+        _driver().verify_wheels([wheel], [sys.executable], import_timeout=0.5)
+    assert started.is_file()
+    time.sleep(1.3)
+    assert not finished.exists()
+
+
+@pytest.mark.parametrize("timeout", [float("nan"), float("inf"), float("-inf")])
+def test_wheel_import_rejects_nonfinite_timeout(tmp_path, timeout):
+    """Import limits must remain finite even when configured through the CLI."""
+    with pytest.raises(ValueError, match="finite and positive"):
+        _driver().verify_wheels(
+            [_wheel(tmp_path, "")], [sys.executable], import_timeout=timeout
+        )

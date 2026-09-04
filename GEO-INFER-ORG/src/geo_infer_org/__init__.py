@@ -5,7 +5,7 @@ This module provides tools for organizational structure modeling,
 governance, team coordination, and collaboration network analysis.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.organization import (

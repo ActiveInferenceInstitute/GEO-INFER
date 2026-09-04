@@ -501,6 +501,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-METAGOV** (*Meta-Governance & Orga
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-METAGOV Leaflet Preview](previews/geo-infer-metagov_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-METAGOV Leaflet Preview](previews/geo-infer-metagov_preview.svg) | [Interactive map](previews/geo-infer-metagov_preview.html) · [PNG](previews/geo-infer-metagov_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-metagov_preview.html`, `geo-infer-metagov_preview.svg`, `geo-infer-metagov_preview.png`, and `geo-infer-metagov_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-metagov_preview.html`, `geo-infer-metagov_preview.svg`, `geo-infer-metagov_preview.png`, and `geo-infer-metagov_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

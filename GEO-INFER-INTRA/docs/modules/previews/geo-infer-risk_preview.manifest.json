@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14990,
+      "bytes": 6720,
       "name": "geo-infer-risk_preview.html",
+      "sha256": "6c43daf778820edbdc9a503138de8d2bde5e418d70d3f7dc736ec3d5a630ec9f",
       "type": "text/html"
     },
     {
-      "bytes": 5691,
+      "bytes": 2712,
       "name": "geo-infer-risk_preview.svg",
+      "sha256": "06e99c555f0ce1b0e88fe12fe8429746e36c035536fc95810a2b47d7615a1159",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2175,
+      "bytes": 6874,
       "name": "geo-infer-risk_preview.png",
+      "sha256": "9c6e6cffb76a94dc6e0a24ce938b909b6cb5f2f8489a1d576e5ea1d96585cb90",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "c1b2d3c40dbd4af78d28433053337588ca2384ec7a97db3e04def99b61f89c32",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "125dd3d3f879ac2b6b243de92a7806e91b037603f7a9f0014b2d9ac8498a7dd8",
   "module_id": "GEO-INFER-RISK",
   "name": "Risk Assessment",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

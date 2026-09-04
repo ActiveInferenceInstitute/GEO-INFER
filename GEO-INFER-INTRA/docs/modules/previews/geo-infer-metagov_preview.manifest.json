@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15054,
+      "bytes": 6905,
       "name": "geo-infer-metagov_preview.html",
+      "sha256": "3a8bac38efe314fb6144cbf96c0a3929a4d0d27d60d7e3e374f2ac17a048f71d",
       "type": "text/html"
     },
     {
-      "bytes": 5736,
+      "bytes": 2807,
       "name": "geo-infer-metagov_preview.svg",
+      "sha256": "3867e323c61a2acf4f154c0a07202041b99c9c6e18c8e901de1780b6d07b1bda",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2217,
+      "bytes": 7059,
       "name": "geo-infer-metagov_preview.png",
+      "sha256": "554e9e4723103790793151f94617a2473ed723918592da66c87ab4ebf532b7ac",
       "type": "image/png"
     }
   ],
   "category": "Governance",
-  "input_sha256": "c3b9e7e3e550ec3d44f932dc76d52811293e384ab123493919b86d2b76216591",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "ffe7c2dcfcad336830b5c9c5718c29fcbe1b46819918fb6230cfb186b2e00519",
   "module_id": "GEO-INFER-METAGOV",
   "name": "Meta-Governance & Organizational Governance Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

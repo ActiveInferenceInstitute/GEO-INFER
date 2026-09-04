@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14985,
+      "bytes": 6764,
       "name": "geo-infer-ai_preview.html",
+      "sha256": "dfdb8c86cf60f2e8b88c0f4d7866fa7ee035af2071fd4cef992bcd7192683630",
       "type": "text/html"
     },
     {
-      "bytes": 5691,
+      "bytes": 2730,
       "name": "geo-infer-ai_preview.svg",
+      "sha256": "d0fd2277409cacb3901234daf16b849fde10d959674512dd7002417e3ff1de32",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2188,
+      "bytes": 6711,
       "name": "geo-infer-ai_preview.png",
+      "sha256": "3e6ffd2eead5b6f8b45de939606d73fdf54d12ddab8670928973beee2bfd9b39",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "713c8686d980090f40d0180024598e83fa9ae6f9bae127d974ef7ee97879edbd",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "5524d6983a52a72d189eca8815473501255a7fb39ca2a9ef92a028b672fbfacb",
   "module_id": "GEO-INFER-AI",
   "name": "Artificial Intelligence Engine",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

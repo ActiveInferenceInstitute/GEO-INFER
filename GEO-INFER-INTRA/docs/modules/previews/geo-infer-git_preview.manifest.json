@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14928,
+      "bytes": 6743,
       "name": "geo-infer-git_preview.html",
+      "sha256": "e9bb7e9e52f69409584e150f6c9a53b1947d0e8f1ac51fff12cba85db166f8cd",
       "type": "text/html"
     },
     {
-      "bytes": 5667,
+      "bytes": 2725,
       "name": "geo-infer-git_preview.svg",
+      "sha256": "8be58b94a88a24dffe51e793fe398f0be30d9a689f1f06300a838cb1b5390155",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2183,
+      "bytes": 6620,
       "name": "geo-infer-git_preview.png",
+      "sha256": "be862d539eaf1dce99b3257e9f2ac8244e3518d631fbd42ac5ebb4cef1945c1e",
       "type": "image/png"
     }
   ],
   "category": "Infrastructure",
-  "input_sha256": "162ee082e483122818e8a5e02c90be165d1f1a74f66fa1696e776c0446fb26b3",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "1c82d04de6b0ecd0a231c8dfb9b3f263974b6aa43e4828944c751a7534df24cf",
   "module_id": "GEO-INFER-GIT",
   "name": "Git & Orchestration",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

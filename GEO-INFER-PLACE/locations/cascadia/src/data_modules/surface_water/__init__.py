@@ -1,21 +1,15 @@
-"""
-Cascadian Surface Water Module
+"""Compatibility imports for the installed hydrography package."""
 
-Analyzes surface water resources and high-resolution hydrography using USGS
-National Hydrography Dataset (NHD / NHDPlus HR) with topology traversal and validation.
-"""
-
-from .data_sources import CascadianSurfaceWaterDataSources
-from .flowline_network import CascadiaFlowlineNetwork, FlowlineTopologyValidator
-
-try:
-    from .geo_infer_surface_water import GeoInferSurfaceWater
-except ImportError:
-    GeoInferSurfaceWater = None  # type: ignore[assignment, misc]
+from geo_infer_place.hydrography import (
+    CascadiaFlowlineNetwork,
+    CascadianSurfaceWaterDataSources,
+    FlowlineTopologyValidator,
+    GeoInferSurfaceWater,
+)
 
 __all__ = [
-    "CascadianSurfaceWaterDataSources",
     "CascadiaFlowlineNetwork",
+    "CascadianSurfaceWaterDataSources",
     "FlowlineTopologyValidator",
     "GeoInferSurfaceWater",
 ]

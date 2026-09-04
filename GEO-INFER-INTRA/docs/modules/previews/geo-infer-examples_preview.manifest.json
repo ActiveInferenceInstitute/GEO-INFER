@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15056,
+      "bytes": 6786,
       "name": "geo-infer-examples_preview.html",
+      "sha256": "5d9bf427de4e58c7430cc6ff0ca3a8e2bc5d4f78c44f877698384cc82f4dfe4f",
       "type": "text/html"
     },
     {
-      "bytes": 5710,
+      "bytes": 2750,
       "name": "geo-infer-examples_preview.svg",
+      "sha256": "9a9dc7121dc0e5a34f5d2e9bd8f754d901aa937b7de737b784ddea64f43fe5c7",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2192,
+      "bytes": 7242,
       "name": "geo-infer-examples_preview.png",
+      "sha256": "478dabca5946d3012a6c3710979b374c98763a1c240cd27db86df7299f3decd5",
       "type": "image/png"
     }
   ],
   "category": "Orchestration",
-  "input_sha256": "0cb8f2c0e9a6abaa8783de8c3858aea2613772e346797f9cb0ac9a2b24b567d8",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "8951abb4c5d9825ba7db4096cf319d54463ef495402d1d576da133296a8b388b",
   "module_id": "GEO-INFER-EXAMPLES",
   "name": "Cross-Module Examples",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

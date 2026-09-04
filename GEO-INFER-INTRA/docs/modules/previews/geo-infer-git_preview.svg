@@ -1,71 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
-  <defs>
-    <linearGradient id="bg-grad-GIT" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
-    </linearGradient>
-    <linearGradient id="badge-grad-GIT" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#334155"/>
-      <stop offset="100%" stop-color="#64748b"/>
-    </linearGradient>
-    <filter id="shadow-GIT" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
-    </filter>
-  </defs>
-
-  <!-- Background Card -->
-  <rect x="8" y="8" width="684" height="364" rx="12" fill="url(#bg-grad-GIT)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-GIT)"/>
-
-  <!-- Left Content Column -->
-  <g transform="translate(0, 0)">
-    <!-- Header Badge -->
-    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-GIT)"/>
-    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-GIT</text>
-
-    <!-- Category Pill -->
-    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">Infrastructure</text>
-
-    <!-- Title -->
-    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">Git &amp; Orchestration</text>
-
-    <!-- Description -->
-    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
-      <tspan x="36" dy="0">Provenance DAGs, versioned spatial state, and reproducible</tspan>
-      <tspan x="36" dy="18"> workflows</tspan>
-    </text>
-
-    <!-- Section Heading -->
-    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
-
-    <!-- Feature Chips -->
-    <rect x="36" y="190" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="202" r="3.5" fill="#334155"/><text x="60" y="206" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Commit Tree</text><rect x="36" y="222" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="234" r="3.5" fill="#334155"/><text x="60" y="238" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Branch Checkpoints</text><rect x="36" y="254" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="266" r="3.5" fill="#334155"/><text x="60" y="270" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Diff Polygons</text>
-
-    <!-- Footer Contract Info -->
-    <text x="36" y="352" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
-  </g>
-
-  <!-- Right Visual Domain H3 Graph -->
-  <g>
-    <!-- Grid connection lines -->
-    <line x1="520" y1="200" x2="430" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="610" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="290" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <polygon points="568.0,200.0 544.0,241.6 496.0,241.6 472.0,200.0 496.0,158.4 544.0,158.4" fill="#64748b" fill-opacity="0.7" stroke="#334155" stroke-width="2.5" />
-    <circle cx="520.0" cy="200.0" r="4" fill="#334155" />
-    <text x="520.0" y="204.0" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>
-    <polygon points="647.2,200.0 623.2,241.6 575.2,241.6 551.2,200.0 575.2,158.4 623.2,158.4" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="599.2" cy="200.0" r="4" fill="#334155" />
-    <polygon points="607.6,268.6 583.6,310.2 535.6,310.2 511.6,268.6 535.6,227.0 583.6,227.0" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="559.6" cy="268.6" r="4" fill="#334155" />
-    <polygon points="528.4,268.6 504.4,310.2 456.4,310.2 432.4,268.6 456.4,227.0 504.4,227.0" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="480.4" cy="268.6" r="4" fill="#334155" />
-    <polygon points="488.8,200.0 464.8,241.6 416.8,241.6 392.8,200.0 416.8,158.4 464.8,158.4" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="440.8" cy="200.0" r="4" fill="#334155" />
-    <polygon points="528.4,131.4 504.4,173.0 456.4,173.0 432.4,131.4 456.4,89.8 504.4,89.8" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="480.4" cy="131.4" r="4" fill="#334155" />
-    <polygon points="607.6,131.4 583.6,173.0 535.6,173.0 511.6,131.4 535.6,89.8 583.6,89.8" fill="#64748b" fill-opacity="0.35" stroke="#334155" stroke-width="2.5" />
-    <circle cx="559.6" cy="131.4" r="4" fill="#334155" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-GIT desc-GIT" viewBox="0 0 700 380" width="700" height="380">
+<title id="title-GIT">GEO-INFER-GIT: Git &amp; Orchestration</title>
+<desc id="desc-GIT">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-GIT</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Git &amp; Orchestration</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Infrastructure</text>
+<polygon data-h3="87283082affffff" points="531.512,238.069 554.939,201.308 527.418,168.428 476.470,172.313 453.053,209.074 480.574,241.950 531.512,238.069" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>87283082affffff</title></polygon><polygon data-h3="872830801ffffff" points="605.892,197.435 629.334,160.678 601.813,127.795 550.850,131.672 527.418,168.428 554.939,201.308 605.892,197.435" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>872830801ffffff</title></polygon><polygon data-h3="872830805ffffff" points="609.969,267.087 633.407,230.326 605.892,197.435 554.939,201.308 531.512,238.069 559.027,270.957 609.969,267.087" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>872830805ffffff</title></polygon><polygon data-h3="87283080cffffff" points="527.418,168.428 550.850,131.672 523.322,98.800 472.364,102.688 448.943,139.445 476.470,172.313 527.418,168.428" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>87283080cffffff</title></polygon><polygon data-h3="872830828ffffff" points="457.162,278.716 480.574,241.950 453.053,209.074 402.120,212.967 378.718,249.733 406.239,282.605 457.162,278.716" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>872830828ffffff</title></polygon><polygon data-h3="87283082bffffff" points="453.053,209.074 476.470,172.313 448.943,139.445 397.999,143.341 374.593,180.103 402.120,212.967 453.053,209.074" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>87283082bffffff</title></polygon><polygon data-h3="87283082effffff" points="535.604,307.722 559.027,270.957 531.512,238.069 480.574,241.950 457.162,278.716 484.676,311.600 535.604,307.722" fill="#64748b" fill-opacity="0.45" stroke="#334155"><title>87283082effffff</title></polygon>
+<circle cx="504.0" cy="205.20000000000002" r="3" fill="#334155"/>
+<text x="24" y="342" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="362" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
 </svg>

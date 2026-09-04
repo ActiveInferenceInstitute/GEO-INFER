@@ -13,7 +13,7 @@ The module integrates with the broader GEO-INFER framework and implements
 Active Inference principles for intelligent health analytics.
 """
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Framework Team"
 __email__ = "health@geo-infer.org"
 
@@ -47,23 +47,19 @@ __all__ = [
     "__version__",
     "__author__",
     "__email__",
-
     # Core analyzers
     "DiseaseHotspotAnalyzer",
     "HealthcareAccessibilityAnalyzer",
     "EnvironmentalHealthAnalyzer",
-
     # Data models
     "Location",
     "HealthFacility",
     "DiseaseReport",
     "PopulationData",
     "EnvironmentalData",
-
     # Utilities
     "haversine_distance",
     "create_bounding_box",
-
     # API
     "api_router",
 ]

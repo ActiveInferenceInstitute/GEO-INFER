@@ -1,0 +1,73 @@
+{
+  "acquired_at": "2026-09-04T20:52:27.874644+00:00",
+  "bytes": 132920,
+  "coverage": "intersecting whole reaches; boundary crossings are not basin outlets",
+  "crs": "EPSG:4326",
+  "dataset": "smith_river_flowlines.geojson",
+  "feature_count": 34,
+  "object_id_field": "OBJECTID",
+  "object_ids": [
+    202050,
+    580131,
+    1065368,
+    1481644,
+    1593436,
+    2409607,
+    3345546,
+    3479339,
+    3761209,
+    4373856,
+    4422217,
+    5314575,
+    6099478,
+    6136155,
+    6693785,
+    7136177,
+    7279593,
+    7303594,
+    7352922,
+    7646496,
+    7683244,
+    8140001,
+    8359593,
+    8518833,
+    8962411,
+    10297569,
+    10415018,
+    10457553,
+    10549967,
+    10734705,
+    11492738,
+    11546067,
+    11570091,
+    11826315
+  ],
+  "page_size": 20,
+  "pages": {
+    "page-000000000.geojson": {
+      "bytes": 107103,
+      "feature_count": 20,
+      "sha256": "58d5fccff213027c04940f313b8f5298732d0987ccea175599f3c2bd58ba30a9"
+    },
+    "page-000000020.geojson": {
+      "bytes": 31193,
+      "feature_count": 14,
+      "sha256": "6682c3859c95e95fb11f39c49c048f542e3388376d6086a7def0ded71173a6d4"
+    }
+  },
+  "schema_version": 1,
+  "selection": {
+    "bbox": [
+      -124.22,
+      41.9,
+      -124.18,
+      41.94
+    ],
+    "huc8": "18010101"
+  },
+  "sha256": "2e8c7aee125cb5a01f0f9cbd8bc9137f7ebbf6880337b4856d597afcac479247",
+  "snapshot_consistency": "object ID membership; attributes may change during retrieval",
+  "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/3",
+  "status": "complete",
+  "description": "Measured USGS NHDPlus HR lower Smith River excerpt; not complete Smith River watershed or Cascadia coverage."
+}

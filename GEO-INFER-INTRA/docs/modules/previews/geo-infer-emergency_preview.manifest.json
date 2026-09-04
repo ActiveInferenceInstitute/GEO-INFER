@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15025,
+      "bytes": 6803,
       "name": "geo-infer-emergency_preview.html",
+      "sha256": "ca468edb509325051974f7f2769a5ae95bb7092f45e5319f1bc3fa6d4258d1ce",
       "type": "text/html"
     },
     {
-      "bytes": 5722,
+      "bytes": 2761,
       "name": "geo-infer-emergency_preview.svg",
+      "sha256": "94cb38a3531cfb347fb6d32cf0fc845fd154b808e64de0e19e7f7d7c606fcdb1",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2192,
+      "bytes": 7053,
       "name": "geo-infer-emergency_preview.png",
+      "sha256": "e819932d7b16bd2e9bed81d9523d47e2d7bd6f5994b80558573ef3eab8dae9d0",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "88ef4f601e876ed10bcbe1940baddeb041443f8c7999bab057c90c8f2e454954",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "676d6ea7de195bead2abe8774c0a075183f87e6e284dea1de0accce5cf45ea33",
   "module_id": "GEO-INFER-EMERGENCY",
   "name": "Emergency Management Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

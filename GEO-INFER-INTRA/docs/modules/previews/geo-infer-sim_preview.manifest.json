@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14975,
+      "bytes": 6698,
       "name": "geo-infer-sim_preview.html",
+      "sha256": "577a273ae01af4374fb52de53301829dbff278d57e584600b9c10148cc4e91d3",
       "type": "text/html"
     },
     {
-      "bytes": 5665,
+      "bytes": 2696,
       "name": "geo-infer-sim_preview.svg",
+      "sha256": "d95a13eb36acaf924e67908b6bc7175c438460ea7935b1ea1030b1599ecc5faa",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2170,
+      "bytes": 6838,
       "name": "geo-infer-sim_preview.png",
+      "sha256": "5214dbf262c8184a03c4873ba705fc255d904dbbb6f9d68c059e275fcfedad1a",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "97ae1bc3cf0b0a9ad24cec35b79a5fde5baf8ef27e00fdffb6b6180cec9b1dd0",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "1a0c8d48ed2d94d42eb19619bae11681f32d69f00da26e37acab3e88ce5141b9",
   "module_id": "GEO-INFER-SIM",
   "name": "Simulation",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14939,
+      "bytes": 6755,
       "name": "geo-infer-art_preview.html",
+      "sha256": "6124e69db883b9857d2720a75c8215f58dd43801f44308785fc4efae9e5100eb",
       "type": "text/html"
     },
     {
-      "bytes": 5667,
+      "bytes": 2727,
       "name": "geo-infer-art_preview.svg",
+      "sha256": "9402d083ee47969d8c6c31146587a8b8ba0b0557f9f8784d9367c9f2f5944c7e",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2185,
+      "bytes": 6759,
       "name": "geo-infer-art_preview.png",
+      "sha256": "c0c6ceed16d849f69e7ae8d8c9a2025249d8d3e060014590048b335ed7e746f6",
       "type": "image/png"
     }
   ],
   "category": "Creative",
-  "input_sha256": "48bb4f4d10a258554b573bf69c5e45131b267c2335cca225e0638158fa98804e",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "b50198e3d93f43aba619e2a211deb4878f91bd6f64d66687b23acb0de00f2854",
   "module_id": "GEO-INFER-ART",
   "name": "Artificial Intelligence Art",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

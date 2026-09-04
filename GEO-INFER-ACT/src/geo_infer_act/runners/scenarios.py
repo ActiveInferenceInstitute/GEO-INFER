@@ -198,7 +198,8 @@ def _run_vector_scenario(config: RunConfig) -> Dict[str, Any]:
     for timestep in range(config.timesteps):
         observation = _scenario_observation(config.scenario, timestep, params, rng)
         result = cast(
-            ActiveInferenceStepResult, active_model.step(observation, actions, return_result=True)
+            ActiveInferenceStepResult,
+            active_model.step(observation, actions, return_result=True),
         )
         beliefs = _belief_vector(result.beliefs)
         entropy = float(-np.sum(beliefs * np.log(beliefs + 1e-12)))
@@ -239,6 +240,7 @@ def _run_vector_scenario(config: RunConfig) -> Dict[str, Any]:
 
 
 def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
+    """Run flat or nested H3 inference and persist diagnostics and summary metrics."""
     assert config.output_dir is not None
     cells = h3_cells_for_config(
         resolution=config.h3_resolution,
@@ -260,9 +262,7 @@ def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
     else:
         model.spatial_mode = True
         model.h3_cells = cells
-        model.spatial_graph = cast(
-            Any, model._build_h3_neighbor_graph(cells)
-        )
+        model.spatial_graph = cast(Any, model._build_h3_neighbor_graph(cells))
     active_model = ActiveInferenceModel(
         "categorical",
         policy_selection_mode="deterministic" if config.deterministic else "sample",
@@ -446,6 +446,7 @@ def _run_h3_scenario(config: RunConfig) -> Dict[str, Any]:
 
 
 def _run_spatial_scenario(config: RunConfig) -> Dict[str, Any]:
+    """Run a spatial agent over H3 cells and persist its inference artifacts."""
     assert config.output_dir is not None
     cells = h3_cells_for_config(
         resolution=config.h3_resolution,
@@ -666,6 +667,7 @@ def _nested_h3_resolutions(config: RunConfig) -> List[int]:
 def _write_spatial_trace_outputs(
     config: RunConfig, traces: List[Any]
 ) -> Dict[str, Any]:
+    """Write spatial trace tables and lattice data, returning research statistics."""
     assert config.output_dir is not None
     if not traces:
         raise ValueError("Spatial inference traces are required for geospatial runs")
@@ -1127,6 +1129,7 @@ def _write_nested_h3_outputs(
     nested_update: Any,
     diagnostics: List[Dict[str, Any]],
 ) -> None:
+    """Persist H3 hierarchy diagnostics and optionally render hierarchy maps."""
     assert config.output_dir is not None
     adapter = get_h3_adapter()
     rows: List[Dict[str, Any]] = []
@@ -1229,6 +1232,7 @@ def _pymdp_summary_metrics(records: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 def _write_pymdp_h3_outputs(config: RunConfig, records: List[Dict[str, Any]]) -> None:
+    """Write required pymdp H3 diagnostics and optional policy visualizations."""
     assert config.output_dir is not None
     if not records:
         raise ValueError("pymdp H3 diagnostics are required for geospatial runs")
@@ -1790,6 +1794,7 @@ def _cell_metrics_from_results(
 def _write_geospatial_cell_outputs(
     config: RunConfig, cells: List[str], cell_metrics: List[Dict[str, Any]]
 ) -> None:
+    """Write cell metrics and closed H3 polygon GeoJSON beneath the run directory."""
     assert config.output_dir is not None
     adapter = get_h3_adapter()
     write_csv(config.output_dir / "data" / "h3_cells.csv", cell_metrics)
@@ -1832,6 +1837,7 @@ def _write_geospatial_cell_outputs(
 
 
 def _plot_vector_summary(config: RunConfig, rows: Sequence[Mapping[str, Any]]) -> Path:
+    """Save a free-energy and belief-entropy figure with provenance sidecars."""
     assert config.output_dir is not None
     timesteps = [int(row["timestep"]) for row in rows]
     free_energy = [float(row["free_energy"]) for row in rows]

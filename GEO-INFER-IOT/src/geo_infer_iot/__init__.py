@@ -40,7 +40,7 @@ from geo_infer_iot.utils.interpolation import SpatialInterpolation
 from geo_infer_iot.utils.visualization import IoTVisualization
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     # Core functionality (available)
@@ -248,7 +248,9 @@ class IoTSystem:
         """
         try:
             network = self.registry.register_network(**kwargs)
-            self.metrics["networks_registered"] = cast(int, self.metrics["networks_registered"]) + 1
+            self.metrics["networks_registered"] = (
+                cast(int, self.metrics["networks_registered"]) + 1
+            )
 
             return {
                 "success": True,
@@ -508,9 +510,7 @@ class IoTSystem:
             )
 
         if len(self.registry.networks) == 0:
-            recommendations.append(
-                "Register at least one sensor network"
-            )
+            recommendations.append("Register at least one sensor network")
 
         return {
             "diagnostics": diagnostics,
@@ -714,7 +714,9 @@ class BayesianSpatialInference:
         except Exception as e:
             return {"error": f"Spatial inference failed: {str(e)}"}
 
-    def get_posterior_map(self, confidence_intervals: Optional[List[float]] = None) -> Dict[str, Any]:
+    def get_posterior_map(
+        self, confidence_intervals: Optional[List[float]] = None
+    ) -> Dict[str, Any]:
         """
         Get current posterior spatial distribution map.
 
@@ -1043,7 +1045,9 @@ class AdaptiveSampling:
         except Exception as e:
             return {"error": f"Location suggestion failed: {str(e)}"}
 
-    def _analyze_coverage(self, network: List[Dict[str, Any]], priority_areas: List[Any]) -> Dict[str, Any]:
+    def _analyze_coverage(
+        self, network: List[Dict[str, Any]], priority_areas: List[Any]
+    ) -> Dict[str, Any]:
         """Analyze current network coverage."""
         # Simplified coverage analysis
         covered_areas: Set[str] = set()
@@ -1181,9 +1185,9 @@ class AdaptiveSampling:
         avg_current_uncertainty = float(np.mean(list(current_uncertainty.values())))
         improvement_per_sensor = 0.1
 
-        return float(min(
-            avg_current_uncertainty, len(recommendations) * improvement_per_sensor
-        ))
+        return float(
+            min(avg_current_uncertainty, len(recommendations) * improvement_per_sensor)
+        )
 
 
 class PredictiveMaintenance:
@@ -1406,7 +1410,9 @@ class PredictiveMaintenance:
         else:
             return "good"
 
-    def _calculate_network_summary(self, health_assessments: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_network_summary(
+        self, health_assessments: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Calculate summary statistics for the network."""
         if not health_assessments:
             return {}
@@ -1443,7 +1449,9 @@ class PredictiveMaintenance:
 
         return float(base_urgency)
 
-    def _identify_priority_issues(self, assessment: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _identify_priority_issues(
+        self, assessment: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Identify which metrics need priority attention."""
         priority_metrics: List[Dict[str, Any]] = []
 

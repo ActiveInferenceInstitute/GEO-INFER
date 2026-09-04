@@ -652,6 +652,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-BAYES** (*Bayesian Inference Engin
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-BAYES Leaflet Preview](previews/geo-infer-bayes_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-BAYES Leaflet Preview](previews/geo-infer-bayes_preview.svg) | [Interactive map](previews/geo-infer-bayes_preview.html) · [PNG](previews/geo-infer-bayes_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-bayes_preview.html`, `geo-infer-bayes_preview.svg`, `geo-infer-bayes_preview.png`, and `geo-infer-bayes_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-bayes_preview.html`, `geo-infer-bayes_preview.svg`, `geo-infer-bayes_preview.png`, and `geo-infer-bayes_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.
