@@ -1,5 +1,5 @@
 ---
-phase: complete
+phase: verifying
 ---
 # GEO-INFER Ideal State Artifact
 
@@ -11,7 +11,8 @@ hydrography data is absent; previews depict schematic geometry as H3 cells.
 
 ## Out of Scope
 
-Publication, production deployment, full-region downloads, and changes to HumOS.
+Production deployment, full-region downloads, and changes to HumOS.
+Publication was authorized separately on 2026-09-04.
 Real GPU execution remains a separately reported hardware verification item.
 
 ## Principles
@@ -156,7 +157,7 @@ isolation before attributing them to code.
 - Interceptor browser probe: no extensions connected; visual browser verification deferred.
 
 
-### September implementation evidence
+### Pre-merge September implementation evidence
 
 - All 44 modules have completed baseline results: 8,229 tests, 16 failures. This includes
   completed pristine reruns for the original four timeouts. The DATA timing
@@ -189,3 +190,42 @@ isolation before attributing them to code.
   so impact review used direct source/caller inspection with reduced confidence.
 - Full regional downloads and acquisition of four unbundled regional geographic
   layers remain explicit backlog work, outside the agreed pilot delivery.
+
+
+## 2026-09-02 Reconciliation
+
+- `codex/act-categorical-runtime` was merged into `main` (branch
+  `agent-ergonomics-round2`); its categorical-runtime hardening is part of the
+  active state.
+- A repository-wide fix wave applied the repo contract (real implementations
+  instead of simplified/stub paths, deterministic RNG threading, passive
+  library logging, H3 v4 API usage) across all modules; per-module outcomes are
+  recorded in `CHANGELOG.md` under `[Unreleased]`.
+- The contract validators were run against the reconciled state:
+  `GEO-INFER-TEST/validate_test_contracts.py --strict`,
+  `GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`,
+  `GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`, and
+  `GEO-INFER-TEST/validate_active_inference_contract.py`.
+- Residual known gaps: full-resolution NHDPlus HR vector extracts are not
+  committed (see `TODO.md` PLACE-01 evidence), and optional heavy backends
+  (CuPy, Mayavi, Vaex) remain excluded from hosted-runner validation.
+
+## Publication integration
+
+- 2026-09-04: Public push authorized. Local hardening preserved as `3a68ce80`;
+  remote `main` advanced to `b7e3a8ea` with seven commits. Merge integration
+  preserves both histories and reruns validation on the combined tree.
+- Earlier September test and wheel results describe the pre-merge tree;
+  combined-tree evidence is recorded separately in the review ledger.
+- [x] PUBLISH-01: Resolve conflicts while preserving substantive upstream behavior.
+- [x] PUBLISH-02: Combined-tree tests, wheels and required gates have recorded outcomes.
+- [x] PUBLISH-03: Remaining TODO items have prerequisites and acceptance evidence.
+- [ ] PUBLISH-04: Public outgoing diff reviewed, normal push succeeds, remote SHA matches.
+
+- Combined module suites: 8,607 pass per interpreter (3.11.15 and 3.12.11),
+  zero failures/errors/skips. Twelve merged gates and manuscript verification
+  pass. Initial ANT memory-order and missing DATA aiohttp findings were corrected;
+  their original failed measurements remain in the review evidence.
+- Final merged wheels: 44 fresh source-matching builds and 44 completed isolated
+  imports on each supported Python version. Public outgoing content audit found
+  no credential patterns or added private local paths.

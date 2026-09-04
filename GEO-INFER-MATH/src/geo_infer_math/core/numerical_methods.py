@@ -10,7 +10,8 @@ import numpy as np
 from typing import Union, List, Tuple, Dict, Optional, Any, Callable
 from dataclasses import dataclass
 from scipy.optimize import minimize_scalar, root_scalar
-from scipy.integrate import solve_ivp, quad
+from scipy.integrate import solve_ivp, quad, simpson as scipy_simpson
+from scipy.interpolate import interp1d, RBFInterpolator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -133,25 +134,36 @@ class SpatialInterpolator:
         })
 
     def _predict_kriging(self, query_points: np.ndarray) -> np.ndarray:
+        """Predict using ordinary kriging (extended-system solve)."""
         assert self.training_points is not None
         assert self.training_values is not None
-        """Predict using Kriging."""
+
+        n_points = len(self.training_points)
+        k_matrix = self._spherical_variogram(self.parameters['distances'])
+        np.fill_diagonal(k_matrix, 0.0)
+        extended = np.ones((n_points + 1, n_points + 1), dtype=np.float64)
+        extended[:n_points, :n_points] = k_matrix
+        extended[n_points, n_points] = 0.0
+
         predictions = []
-
         for query_point in query_points:
-            # Calculate distances from query point to training points
+            # Distances from the query point to the training points
             distances = np.sqrt(np.sum((self.training_points - query_point)**2, axis=1))
-
-            # Calculate variogram values
             variogram_values = self._spherical_variogram(distances)
 
-            # Simple Kriging weights (simplified)
-            weights = 1.0 / (variogram_values + 1e-10)
-            weights = weights / np.sum(weights)
-
-            # Calculate prediction
-            prediction = np.sum(weights * self.training_values)
-            predictions.append(prediction)
+            # Ordinary-kriging extended system:
+            #   [ K   1 ] [w]   [gamma(h0)]
+            #   [ 1^T 0 ] [mu] = [    1    ]
+            rhs = np.concatenate([variogram_values, [1.0]])
+            try:
+                solution = np.linalg.solve(extended, rhs)
+            except np.linalg.LinAlgError as exc:
+                raise ValueError(
+                    "Kriging system is singular; check for duplicate "
+                    "training points or a degenerate variogram"
+                ) from exc
+            weights = solution[:n_points]
+            predictions.append(float(np.sum(weights * self.training_values)))
 
         return np.array(predictions)
 
@@ -161,77 +173,127 @@ class SpatialInterpolator:
         range_param = self.parameters['range']
         nugget = self.parameters['nugget']
 
+        h = np.asarray(h, dtype=np.float64)
         result = np.zeros_like(h)
-        mask = h <= range_param
-        result[mask] = nugget + (sill - nugget) * (1.5 * h[mask]/range_param - 0.5 * (h[mask]/range_param)**3)
-        result[~mask] = sill
-
+        mask = (h <= range_param) & (h > 0.0)
+        result[mask] = nugget + (sill - nugget) * (
+            1.5 * h[mask] / range_param - 0.5 * (h[mask] / range_param)**3
+        )
+        result[h > range_param] = sill
         return result
 
     def _fit_spline(self) -> None:
-        """Fit spline interpolation model."""
-        # For now, use simple linear interpolation between points
+        """Fit a spline interpolation model.
+
+        For 1-D training data a cubic ``scipy.interpolate.interp1d`` is
+        constructed over the sorted abscissae. For scattered 2-D data the
+        thin-plate-spline kernel of ``scipy.interpolate.RBFInterpolator``
+        is used, which is the natural generalization of the cubic spline to
+        scattered points.
+        """
+        assert self.training_points is not None
+        assert self.training_values is not None
+        points = np.asarray(self.training_points, dtype=np.float64)
+        values = np.asarray(self.training_values, dtype=np.float64)
+
+        if points.ndim == 1 or points.shape[1] == 1:
+            x = points.ravel()
+            order = np.argsort(x)
+            x_sorted = x[order]
+            y_sorted = values[order]
+            unique_x, unique_idx = np.unique(x_sorted, return_index=True)
+            self.parameters['_spline_1d'] = interp1d(
+                unique_x, y_sorted[unique_idx], kind='cubic'
+            )
+        else:
+            self.parameters['_spline_2d'] = RBFInterpolator(
+                points, values, kernel='thin_plate_spline'
+            )
         self.parameters['fitted'] = True
 
     def _predict_spline(self, query_points: np.ndarray) -> np.ndarray:
-        """Predict using spline interpolation."""
+        """Predict using the fitted spline model."""
         assert self.training_points is not None
         assert self.training_values is not None
-        # Simplified spline interpolation using nearest neighbors
-        predictions = []
+        queries = np.asarray(query_points, dtype=np.float64)
 
-        for query_point in query_points:
-            distances = np.sqrt(np.sum((self.training_points - query_point)**2, axis=1))
-            nearest_idx = np.argmin(distances)
-            predictions.append(float(self.training_values[nearest_idx]))
+        spline_1d = self.parameters.get('_spline_1d')
+        if spline_1d is not None:
+            return np.asarray(spline_1d(queries.ravel()), dtype=np.float64)
 
-        return np.array(predictions)
+        spline_2d = self.parameters.get('_spline_2d')
+        if spline_2d is not None:
+            return np.asarray(
+                spline_2d(np.atleast_2d(queries)), dtype=np.float64
+            )
+
+        raise ValueError("Spline model has not been fitted")
 
     def _fit_rbf(self) -> None:
-        """Fit Radial Basis Function interpolation."""
-        # RBF parameters
+        """Fit Radial Basis Function interpolation (exact kernel solve)."""
+        assert self.training_points is not None
+        assert self.training_values is not None
         epsilon = self.parameters.get('epsilon', 1.0)
         function = self.parameters.get('function', 'multiquadric')
 
+        points = np.asarray(self.training_points, dtype=np.float64)
+        values = np.asarray(self.training_values, dtype=np.float64)
+        pair_distances = np.sqrt(
+            np.sum(
+                (points[:, np.newaxis, :] - points[np.newaxis, :, :]) ** 2,
+                axis=2,
+            )
+        )
+        kernel_matrix = self._rbf_function(pair_distances, epsilon, function)
+        try:
+            kernel_weights = np.linalg.solve(kernel_matrix, values)
+        except np.linalg.LinAlgError as exc:
+            raise ValueError(
+                "RBF kernel matrix is singular for the given training "
+                "points; check for duplicates or a degenerate basis"
+            ) from exc
+
         self.parameters.update({
             'epsilon': epsilon,
-            'function': function
+            'function': function,
+            'kernel_weights': kernel_weights,
         })
 
     def _predict_rbf(self, query_points: np.ndarray) -> np.ndarray:
-        """Predict using RBF interpolation."""
+        """Predict using the solved RBF kernel weights."""
         assert self.training_points is not None
         assert self.training_values is not None
+        queries = np.atleast_2d(np.asarray(query_points, dtype=np.float64))
+        kernel_weights = self.parameters['kernel_weights']
+
         predictions = []
-
-        for query_point in query_points:
-            # Calculate RBF values for all training points
-            rbf_values = []
-            for train_point in self.training_points:
-                r = np.sqrt(np.sum((query_point - train_point)**2))
-                rbf_val = self._rbf_function(r, self.parameters['epsilon'], self.parameters['function'])
-                rbf_values.append(rbf_val)
-
-            # Simple weighted average (simplified RBF interpolation)
-            weights = np.array(rbf_values)
-            weights = weights / np.sum(weights)
-            prediction = np.sum(weights * self.training_values)
-            predictions.append(prediction)
+        for query_point in queries:
+            distances = np.sqrt(np.sum((self.training_points - query_point)**2, axis=1))
+            basis_values = self._rbf_function(
+                distances, self.parameters['epsilon'], self.parameters['function']
+            )
+            predictions.append(float(np.dot(basis_values, kernel_weights)))
 
         return np.array(predictions)
 
-    def _rbf_function(self, r: float, epsilon: float, function: str) -> float:
-        """Radial basis function."""
+    def _rbf_function(
+        self, r: Union[float, np.ndarray], epsilon: float, function: str
+    ) -> Union[float, np.ndarray]:
+        """Radial basis function kernel values."""
+        r_arr = np.asarray(r, dtype=np.float64)
         if function == 'multiquadric':
-            return float(np.sqrt(1 + (epsilon * r)**2))
+            values = np.sqrt(1 + (epsilon * r_arr)**2)
         elif function == 'inverse_multiquadric':
-            return float(1.0 / np.sqrt(1 + (epsilon * r)**2))
+            values = 1.0 / np.sqrt(1 + (epsilon * r_arr)**2)
         elif function == 'gaussian':
-            return float(np.exp(-(epsilon * r)**2))
+            values = np.exp(-(epsilon * r_arr)**2)
         elif function == 'thin_plate':
-            return float(r**2 * np.log(r + 1e-10))
+            values = r_arr**2 * np.log(r_arr + 1e-10)
         else:
-            return float(np.exp(-r))  # Default exponential
+            values = np.exp(-r_arr)  # Default exponential
+        if np.isscalar(r):
+            return float(values)
+        return values
 
 class SpatialOptimizer:
     """Optimization methods for spatial problems."""
@@ -650,8 +712,11 @@ def numerical_integration(func: Callable,
         func: Function to integrate
         a: Lower limit
         b: Upper limit
-        method: Integration method ('trapezoidal', 'simpson', 'romberg')
-        n_points: Number of integration points
+        method: Integration method ('trapezoidal', 'simpson', or 'quad';
+            'quad' uses scipy's adaptive Gaussian quadrature via
+            scipy.integrate.quad — the former 'romberg' option was renamed
+            because scipy.integrate.romberg has been removed from SciPy)
+        n_points: Number of integration points (ignored for 'quad')
 
     Returns:
         Approximate integral value
@@ -664,11 +729,11 @@ def numerical_integration(func: Callable,
     elif method == 'simpson':
         x = np.linspace(a, b, n_points)
         y = np.array([func(xi) for xi in x])
-        return float(np.trapz(y, x))  # Simplified - should use Simpson's rule
+        return float(scipy_simpson(y, x=x))
 
-    elif method == 'romberg':
-        # Simplified Romberg integration
-        return float(quad(func, a, b)[0])
+    elif method == 'quad':
+        result, _estimated_error = quad(func, a, b)
+        return float(result)
 
     else:
         raise ValueError(f"Unknown integration method: {method}")

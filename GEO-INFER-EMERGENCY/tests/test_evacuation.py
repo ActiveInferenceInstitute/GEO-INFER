@@ -1,6 +1,8 @@
 """Tests for evacuation planning module."""
 
+import networkx as nx
 import pytest
+
 from geo_infer_emergency.core.evacuation import (
     EvacuationPlanner,
     EvacuationZone,
@@ -8,6 +10,29 @@ from geo_infer_emergency.core.evacuation import (
     EvacuationRoute,
     Shelter,
 )
+
+
+@pytest.fixture
+def road_network() -> nx.DiGraph:
+    """Small road network: zone z1 routes to shelters s1 and s2.
+
+    Edge attributes: distance (km), travel_time (minutes),
+    capacity (vehicles/hour), and one contraflow-capable segment.
+    """
+    graph = nx.DiGraph()
+    graph.add_edge("z1", "a", distance=4.0, travel_time=6.0, capacity=1000)
+    graph.add_edge("a", "b", distance=3.0, travel_time=4.0, capacity=800)
+    graph.add_edge("b", "s1", distance=3.0, travel_time=5.0, capacity=600, contraflow_capable=True)
+    graph.add_edge("z1", "b", distance=10.0, travel_time=15.0, capacity=900)
+    graph.add_edge("a", "s1", distance=9.0, travel_time=12.0)
+    graph.add_edge("b", "s2", distance=6.0, travel_time=9.0, capacity=700)
+    return graph
+
+
+@pytest.fixture
+def planner(road_network: nx.DiGraph) -> EvacuationPlanner:
+    """EvacuationPlanner over the synthetic road network."""
+    return EvacuationPlanner(road_network=road_network)
 
 
 class TestEvacuationDataclasses:
@@ -83,8 +108,7 @@ class TestEvacuationPlannerInit:
 class TestEvacuationPlan:
     """Tests for evacuation plan creation."""
 
-    def test_create_plan(self) -> None:
-        planner = EvacuationPlanner()
+    def test_create_plan(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
             affected_zone={"id": "z1", "name": "Downtown", "level": "order", "geometry": {}},
             population={"total": 10000, "special_populations": ["hospitals"]},
@@ -95,9 +119,9 @@ class TestEvacuationPlan:
         assert plan["status"] == "planned"
         assert plan["affected_zone"]["population"] == 10000
         assert len(plan["phasing"]["phases"]) == 3
+        assert plan["estimated_clearance_time_hours"] > 0
 
-    def test_create_plan_simultaneous(self) -> None:
-        planner = EvacuationPlanner()
+    def test_create_plan_simultaneous(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
             affected_zone={"id": "z1", "name": "Coast", "level": "order", "geometry": {}},
             population={"total": 5000},
@@ -106,8 +130,7 @@ class TestEvacuationPlan:
         )
         assert len(plan["phasing"]["phases"]) == 1
 
-    def test_contraflow_enabled(self) -> None:
-        planner = EvacuationPlanner()
+    def test_contraflow_enabled(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
             affected_zone={"id": "z1", "name": "Area", "level": "order", "geometry": {}},
             population={"total": 2000},
@@ -116,25 +139,118 @@ class TestEvacuationPlan:
         )
         assert plan["contraflow"]["enabled"] is True
         assert len(plan["contraflow"]["segments"]) > 0
+        assert plan["contraflow"]["segments"][0]["from_node"] == "b"
+
+    def test_plan_requires_road_network(self) -> None:
+        planner = EvacuationPlanner()
+        with pytest.raises(ValueError, match="road_network required"):
+            planner.plan(
+                affected_zone={"id": "z1", "name": "Area", "level": "order", "geometry": {}},
+                population={"total": 2000},
+                destinations=[{"id": "s1", "name": "Shelter", "capacity": 2000}],
+            )
 
 
 class TestOptimizeRoutes:
     """Tests for route optimization."""
 
-    def test_optimize_routes(self) -> None:
-        planner = EvacuationPlanner()
-        planner._zones["z1"] = EvacuationZone(
-            zone_id="z1", name="Zone", geometry={}, population=1000
+    def test_routes_match_networkx_shortest_paths(
+        self, planner: EvacuationPlanner, road_network: nx.DiGraph
+    ) -> None:
+        result = planner.optimize_routes(
+            origins=["z1"],
+            destinations=["s1", "s2"],
+            objectives=["clearance_time"],
+            constraints={"road_capacity": True},
         )
+        assert result["total_routes"] == 2
+        for route in result["routes"]:
+            origin, destination = route["origin"], route["destination"]
+            assert route["path"][0] == origin
+            assert route["path"][-1] == destination
+            assert route["distance_km"] == pytest.approx(
+                nx.shortest_path_length(road_network, origin, destination, weight="distance")
+            )
+            assert route["estimated_time_minutes"] == pytest.approx(
+                nx.shortest_path_length(road_network, origin, destination, weight="travel_time")
+            )
+            assert route["capacity_vehicles_per_hour"] > 0
+
+    def test_route_distance_prefers_shorter_path(
+        self, planner: EvacuationPlanner
+    ) -> None:
+        """z1->a->b->s1 (10 km) must beat the direct z1->b edge (10 km + detour)."""
         result = planner.optimize_routes(
             origins=["z1"],
             destinations=["s1"],
             objectives=["clearance_time"],
-            constraints={"road_capacity": True},
+            constraints={},
         )
-        assert len(result["routes"]) == 1
-        assert result["routes"][0]["distance_km"] > 0
-        assert result["routes"][0]["capacity_vehicles_per_hour"] > 0
+        route = result["routes"][0]
+        assert route["path"] == ["z1", "a", "b", "s1"]
+        assert route["distance_km"] == pytest.approx(10.0)
+
+    def test_capacity_is_binding_edge_minimum(self, planner: EvacuationPlanner) -> None:
+        result = planner.optimize_routes(
+            origins=["z1"],
+            destinations=["s1"],
+            objectives=["clearance_time"],
+            constraints={},
+        )
+        # Path z1->a->b->s1 has capacities 1000, 800, 600.
+        assert result["routes"][0]["capacity_vehicles_per_hour"] == 600
+
+    def test_unreachable_destination_yields_no_route(
+        self, road_network: nx.DiGraph
+    ) -> None:
+        road_network.add_node("s3")
+        planner = EvacuationPlanner(road_network=road_network)
+        result = planner.optimize_routes(
+            origins=["z1"],
+            destinations=["s3"],
+            objectives=["clearance_time"],
+            constraints={},
+        )
+        assert result["routes"] == []
+        assert result["total_routes"] == 0
+
+    def test_missing_network_raises(self) -> None:
+        planner = EvacuationPlanner()
+        with pytest.raises(ValueError, match="road_network required"):
+            planner.optimize_routes(
+                origins=["z1"],
+                destinations=["s1"],
+                objectives=["clearance_time"],
+                constraints={},
+            )
+
+    def test_unknown_endpoint_raises(self, planner: EvacuationPlanner) -> None:
+        with pytest.raises(ValueError, match="not found in road_network"):
+            planner.optimize_routes(
+                origins=["nowhere"],
+                destinations=["s1"],
+                objectives=["clearance_time"],
+                constraints={},
+            )
+
+
+class TestContraflowIdentification:
+    """Tests for contraflow segment identification."""
+
+    def test_contraflow_from_edge_attributes(self, planner: EvacuationPlanner) -> None:
+        segments = planner._identify_contraflow_segments()
+        assert segments == [
+            {"road": "b->s1", "from_node": "b", "to_node": "s1", "lanes_reversed": 1}
+        ]
+
+    def test_contraflow_empty_without_capability_attributes(self) -> None:
+        graph = nx.DiGraph()
+        graph.add_edge("z1", "s1", distance=5.0, travel_time=8.0)
+        planner = EvacuationPlanner(road_network=graph)
+        assert planner._identify_contraflow_segments() == []
+
+    def test_contraflow_empty_without_network(self) -> None:
+        assert EvacuationPlanner()._identify_contraflow_segments() == []
 
 
 class TestShelterPlanning:

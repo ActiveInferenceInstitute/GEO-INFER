@@ -94,14 +94,19 @@ class HydrologicalModeler:
         Returns:
             Water balance components
         """
-        # Storage change
+
+        # For an exactly closed balance this is identically zero; any
+        # structural mismatch between the supplied components shows up here.
         storage_change = precipitation - evapotranspiration - runoff
-        
+        closure_residual = precipitation - (evapotranspiration + runoff) - storage_change
+
         return xr.Dataset({
             'precipitation': precipitation,
             'evapotranspiration': evapotranspiration,
             'runoff': runoff,
             'storage_change': storage_change,
-            'balance': storage_change  # Should be close to zero for balance
+            'balance': storage_change,
+            'closure_residual': closure_residual
         })
+
 

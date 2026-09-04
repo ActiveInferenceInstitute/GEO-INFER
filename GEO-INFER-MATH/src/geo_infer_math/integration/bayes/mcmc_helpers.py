@@ -8,6 +8,9 @@ import numpy as np
 from typing import Optional, Dict, Any, Callable, List
 import logging
 
+from geo_infer_math.utils.rng import resolve_rng
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,6 +27,7 @@ class MCMCHelpers:
         burn_in: int = 200,
         thin: int = 1,
         proposal_std: float = 0.1,
+        rng: Optional[np.random.Generator] = None,
     ) -> None:
         """Initialize MCMC sampler.
 
@@ -32,11 +36,14 @@ class MCMCHelpers:
             burn_in: Number of burn-in samples to discard.
             thin: Thinning interval (keep every n-th sample).
             proposal_std: Standard deviation of Gaussian proposal distribution.
+            rng: Optional seed or np.random.Generator resolved via
+                ``resolve_rng``; pass a seeded generator for reproducible chains.
         """
         self.n_samples = n_samples
         self.burn_in = burn_in
         self.thin = thin
         self.proposal_std = proposal_std
+        self._rng = resolve_rng(rng)
         logger.debug(
             "MCMCHelpers initialized (n_samples=%d, burn_in=%d, thin=%d)",
             n_samples, burn_in, thin,
@@ -58,6 +65,7 @@ class MCMCHelpers:
                 - n_samples: Override instance default.
                 - burn_in: Override instance default.
                 - proposal_std: Override instance default.
+                - rng: Override the seeded random generator.
 
         Returns:
             Dictionary with 'samples', 'acceptance_rate', 'log_posteriors',
@@ -67,6 +75,8 @@ class MCMCHelpers:
         burn_in = kwargs.get("burn_in", self.burn_in)
         thin = kwargs.get("thin", self.thin)
         proposal_std = kwargs.get("proposal_std", self.proposal_std)
+        rng_override = kwargs.get("rng", self._rng)
+        random_gen = resolve_rng(rng_override)
 
         total = burn_in + n_samples * thin
         state = np.asarray(initial_state, dtype=np.float64).copy()
@@ -80,13 +90,13 @@ class MCMCHelpers:
 
         for i in range(total):
             # Gaussian proposal
-            proposal = state + np.random.randn(d) * proposal_std
+            proposal = state + random_gen.standard_normal(d) * proposal_std
             proposal_lp = float(log_posterior(proposal))
 
             # Acceptance ratio (in log space)
             log_alpha = proposal_lp - current_lp
 
-            if np.log(np.random.rand()) < log_alpha:
+            if np.log(random_gen.random()) < log_alpha:
                 state = proposal
                 current_lp = proposal_lp
                 n_accepted += 1

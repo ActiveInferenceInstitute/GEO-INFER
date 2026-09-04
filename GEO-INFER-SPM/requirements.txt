@@ -17,7 +17,7 @@ rasterio>=1.2.0
 # Optional but recommended for full functionality
 # pymc3>=3.11.0        # Bayesian analysis
 # libpysal>=4.6.0      # Spatial statistics
-# statsmodels>=0.13.0  # Time series analysis
+statsmodels>=0.13.0  # Time series analysis
 # ruptures>=1.1.0      # Change point detection
 
 # Added from comprehensive review

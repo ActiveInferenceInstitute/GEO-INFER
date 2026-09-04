@@ -57,10 +57,10 @@ class GenerativeModel:
         # Initialize matrices
         # A: Likelihood mapping (observation given state)
         # Use slight diagonal-like bias to break symmetry so inference is non-trivial
-        rng = np.random.default_rng(42)
+        # Seeded RNG keeps initialization and stochastic action selection deterministic
+        self.rng: np.random.Generator = np.random.default_rng(42)
         self.A = np.ones((observation_dimensions, state_dimensions)) / state_dimensions
-        self.A += rng.uniform(0, 0.01, (observation_dimensions, state_dimensions))
-        self.A /= np.sum(self.A, axis=0, keepdims=True)
+        self.A += self.rng.uniform(0, 0.01, (observation_dimensions, state_dimensions))
 
         # B: Transition probabilities (next state given current state and action)
         self.B = np.zeros((state_dimensions, state_dimensions, control_dimensions))
@@ -255,7 +255,7 @@ class GenerativeModel:
         # Select action (either deterministically or stochastically)
         # Deterministic: return np.argmin(ef_values)
         # Stochastic:
-        return np.random.choice(self.control_dimensions, p=action_probabilities)
+        return self.rng.choice(self.control_dimensions, p=action_probabilities)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert model to dictionary representation."""

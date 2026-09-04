@@ -24,6 +24,11 @@ from cryptography.hazmat.backends import default_backend
 
 logger = logging.getLogger(__name__)
 
+# Characters removed by SecurityUtils.strip_dangerous_chars(). See that
+# method's warning: this list is a cosmetic normalisation aid, not
+# injection defense.
+_DANGEROUS_CHARS = ('<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')')
+
 @dataclass
 class SecurityConfig:
     """Configuration for security utilities."""
@@ -513,24 +518,44 @@ class SecurityUtils:
             logger.warning(f"Token validation failed: {e}")
             return None
     
-    def sanitize_input(self, input_data: str) -> str:
+    def strip_dangerous_chars(self, input_data: str) -> str:
         """
-        Sanitize user input to prevent injection attacks.
-        
+        Strip characters that are inconvenient in downstream display or
+        shell contexts.
+
+        .. warning::
+            This is NOT injection defense. Removing ``<``, ``"``, ``'``,
+            ``;``, ``|`` and friends from a string does not make that
+            string safe to interpolate into SQL, HTML, or shell commands;
+            encodings and context-specific payloads survive character
+            stripping. Injection is prevented exclusively by parameterised
+            queries, context-aware output encoding, and argument-vector
+            execution at the point of use. Use this only as a cosmetic
+            normalisation helper.
+
         Args:
-            input_data: Input string to sanitize
-        
+            input_data: Input string to normalise.
+
         Returns:
-            Sanitized string
+            The string with the characters in ``_DANGEROUS_CHARS`` removed.
         """
-        # Remove potentially dangerous characters
-        dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')']
-        sanitized = input_data
-        
-        for char in dangerous_chars:
-            sanitized = sanitized.replace(char, '')
-        
-        return sanitized
+        for char in _DANGEROUS_CHARS:
+            input_data = input_data.replace(char, '')
+        return input_data
+
+    def sanitize_input(self, input_data: str) -> str:
+        """Deprecated alias for :meth:`strip_dangerous_chars`.
+
+        Kept because other GEO-INFER modules may import it. The old
+        docstring claimed this prevents injection attacks, which is false:
+        character stripping is not injection defense. Callers should
+        migrate to :meth:`strip_dangerous_chars`.
+        """
+        logger.warning(
+            "sanitize_input() is a deprecated alias for strip_dangerous_chars(); "
+            "character stripping is not injection defense"
+        )
+        return self.strip_dangerous_chars(input_data)
     
     def validate_file_upload(self, 
                            file_path: str,

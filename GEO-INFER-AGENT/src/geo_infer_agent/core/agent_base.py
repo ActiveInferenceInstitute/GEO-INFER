@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Callable
 
 # Configure logger
-logger = logging.getLogger("geo_infer_agent.agent_base")
+logger = logging.getLogger(__name__)
 
 
 class AgentState:
@@ -245,9 +245,6 @@ class BaseAgent(ABC):
         # Initialize communication channels
         self.message_queue: asyncio.Queue = asyncio.Queue()
 
-        # Setup logging
-        self._setup_logging()
-
         logger.info(f"Agent {self.agent_id} initialized")
 
     def register_action_handler(
@@ -300,24 +297,6 @@ class BaseAgent(ABC):
         if not isinstance(result, dict):
             raise TypeError(f"Action handler '{action_type}' must return a mapping")
         return result
-
-    def _setup_logging(self) -> None:
-        """Configure agent-specific logging."""
-        log_level = self.config.get("logging_level", "INFO")
-        numeric_level = getattr(logging, log_level.upper(), None)
-        if not isinstance(numeric_level, int):
-            raise ValueError(f"Invalid log level: {log_level}")
-
-        # Add handler if none exists
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                f"%(asctime)s - Agent:{self.agent_id} - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-
-        logger.setLevel(numeric_level)
 
     async def run(self) -> None:
         """
@@ -673,7 +652,6 @@ class ExampleAgent(BaseAgent):
 
 if __name__ == "__main__":
     # Example usage
-    logging.basicConfig(level=logging.INFO)
 
     async def run_agent_example() -> None:
         # Create agent

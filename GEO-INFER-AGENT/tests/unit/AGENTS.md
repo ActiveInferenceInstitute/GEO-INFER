@@ -29,6 +29,7 @@
 - `test_hybrid.py`
 - `test_llm_proxy.py`
 - `test_messaging.py`
+- `test_package_import_hygiene.py`
 - `test_planning.py`
 - `test_rule_based.py`
 - `test_task_management.py`

@@ -1,71 +1,27 @@
-"""Logging configuration module."""
-import logging
-import os
+"""Passive logging helpers for the backup subsystem.
+
+Library modules must not mutate global logging state (no root-level
+configuration, no handlers, no ``setLevel``). Use :func:`get_logger` to obtain
+a structured logger bound to ``__name__``; application and CLI entrypoints
+configure the process once via
+``geo_infer_ops.utils.shared_logging.configure_logging``.
+"""
+
+from typing import cast
 
 import structlog
-from typing import Optional, cast
 
-from .config import get_config
-
-def configure_stdlib_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> None:
-    """Configure standard library logging.
-    
-    Args:
-        log_level: Logging level
-        log_file: Optional log file path
-    """
-    level = getattr(logging, log_level.upper())
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    
-    if log_file:
-        handler = logging.FileHandler(log_file)
-        handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        ))
-        logging.getLogger().addHandler(handler)
-
-def setup_logging(
-    log_level: str = "INFO",
-    json_format: bool = True,
-    log_file: Optional[str] = None
-) -> None:
-    """Set up structured logging.
-    
-    Args:
-        log_level: Logging level
-        json_format: Whether to use JSON format
-        log_file: Optional log file path
-    """
-    # Configure standard library logging first
-    configure_stdlib_logging(log_level, log_file)
-    
-    # Configure structlog
-    processors = [
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer() if json_format else structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if json_format else structlog.dev.ConsoleRenderer()
-    ]
-    
-    structlog.configure(
-        processors=processors,
-        context_class=dict,
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        cache_logger_on_first_use=True
-    )
 
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     """Get a structured logger instance.
-    
+
+    This function is passive: it never configures handlers, formats, or
+    levels on the root logger.
+
     Args:
-        name: Logger name
-        
+        name: Logger name, typically ``__name__``.
+
     Returns:
-        Structured logger instance
+        Structured logger instance.
     """
-    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name)) 
+    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name))

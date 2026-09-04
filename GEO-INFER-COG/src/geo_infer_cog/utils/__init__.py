@@ -26,6 +26,7 @@ from .validation import (
     check_data_completeness
 )
 
+from .rng import SeedLike, resolve_rng, resolve_optional_rng
 from .helpers import (
     load_cognitive_profile,
     save_cognitive_profile,
@@ -64,5 +65,8 @@ __all__ = [
     "export_cognitive_insights",
     "validate_file_path",
     "create_directory_structure",
-    "cleanup_temp_files"
+    "cleanup_temp_files",
+    "SeedLike",
+    "resolve_rng",
+    "resolve_optional_rng",
 ]

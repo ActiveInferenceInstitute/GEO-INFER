@@ -266,3 +266,80 @@ def test_coverage_category_isolates_modules_and_combines_data(tmp_path, monkeypa
     assert b_run[4] == {"COVERAGE_FILE": expected_data}
     assert json_run[1][-2:] == ["-o", str(runner.RESULTS_DIR / "coverage.json")]
     assert terminal_run[1][-2:] == ["report", "--show-missing"]
+
+
+def test_parse_args_fail_fast_defaults_off(monkeypatch):
+    runner = load_runner_module()
+    monkeypatch.setattr("sys.argv", ["run_unified_tests.py"])
+    assert runner.parse_args().fail_fast is False
+
+
+def test_parse_args_fail_fast_flag_enables_stopping(monkeypatch):
+    runner = load_runner_module()
+    monkeypatch.setattr(
+        "sys.argv", ["run_unified_tests.py", "--category", "unit", "--fail-fast"]
+    )
+    args = runner.parse_args()
+    assert args.fail_fast is True
+    assert args.category == "unit"
+
+
+def test_fail_fast_stops_after_first_module_failure(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    make_module(tmp_path, "A")
+    make_module(tmp_path, "B")
+    for module_name in ("A", "B"):
+        test_file = (
+            tmp_path / f"GEO-INFER-{module_name}" / "tests" / "unit" / "test_sample.py"
+        )
+        test_file.parent.mkdir(parents=True)
+        test_file.write_text("def test_sample():\n    assert True\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(runner, "ensure_results_dir", lambda clean=False: None)
+    captured = []
+
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+        captured.append(name)
+        success = not any("GEO-INFER-A" in str(part) for part in command)
+        return runner.CommandResult(
+            name=name, success=success, duration=0.0, command=command
+        )
+
+    monkeypatch.setattr(runner, "run_command", fake_run)
+
+    report = runner.run_module_category_tests("unit", timeout=1, fail_fast=True)
+
+    assert report.success is False
+    assert len(captured) == 1
+    assert captured[0] == "A unit tests"
+
+
+def test_default_behavior_runs_all_modules_despite_failure(tmp_path, monkeypatch):
+    runner = load_runner_module()
+    make_module(tmp_path, "A")
+    make_module(tmp_path, "B")
+    for module_name in ("A", "B"):
+        test_file = (
+            tmp_path / f"GEO-INFER-{module_name}" / "tests" / "unit" / "test_sample.py"
+        )
+        test_file.parent.mkdir(parents=True)
+        test_file.write_text("def test_sample():\n    assert True\n")
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(runner, "ensure_results_dir", lambda clean=False: None)
+    captured = []
+
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+        captured.append(name)
+        success = not any("GEO-INFER-A" in str(part) for part in command)
+        return runner.CommandResult(
+            name=name, success=success, duration=0.0, command=command
+        )
+
+    monkeypatch.setattr(runner, "run_command", fake_run)
+
+    report = runner.run_module_category_tests("unit", timeout=1, fail_fast=False)
+
+    assert report.success is False
+    assert len(captured) == 2
+    assert captured[0] == "A unit tests"
+    assert captured[1] == "B unit tests"

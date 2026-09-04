@@ -120,3 +120,81 @@ class TestOrchestrator:
         assert status["total_tasks"] == 2
         assert "status_counts" in status
         assert "tasks" in status
+
+
+class TestOrchestratorRetryAndDependencySemantics:
+    """Focused tests for retry and dependency handling."""
+
+    @pytest.fixture
+    def orchestrator(self) -> Orchestrator:
+        return Orchestrator(max_concurrent_tasks=5, retry_delay_seconds=0)
+
+    def test_retry_until_success(self, orchestrator: Orchestrator) -> None:
+        """A flaky task is retried and completes after transient failures."""
+        attempts = {"count": 0}
+
+        def flaky() -> str:
+            attempts["count"] += 1
+            if attempts["count"] < 3:
+                raise RuntimeError("transient failure")
+            return "recovered"
+
+        task_id = orchestrator.add_task(name="flaky", func=flaky, max_retries=3)
+        result = asyncio.run(orchestrator.execute_workflow())
+
+        assert result["completed_tasks"] == 1
+        task = orchestrator.tasks[task_id]
+        assert task.status == TaskStatus.COMPLETED
+        assert task.retry_count == 2
+        assert task.result == "recovered"
+
+    def test_retry_exhaustion_marks_failed(self, orchestrator: Orchestrator) -> None:
+        """A permanently failing task exhausts retries and is marked FAILED."""
+        attempts = {"count": 0}
+
+        def always_fails() -> None:
+            attempts["count"] += 1
+            raise RuntimeError("permanent failure")
+
+        task_id = orchestrator.add_task(
+            name="failing", func=always_fails, max_retries=2
+        )
+        result = asyncio.run(orchestrator.execute_workflow())
+
+        assert result["failed_tasks"] == 1
+        task = orchestrator.tasks[task_id]
+        assert task.status == TaskStatus.FAILED
+        assert attempts["count"] == 3  # initial attempt + 2 retries
+        assert "permanent failure" in (task.error or "")
+
+    def test_failed_dependency_deadlocks_dependent(
+        self, orchestrator: Orchestrator
+    ) -> None:
+        """A task depending on a permanently failed task is marked FAILED."""
+        def always_fails() -> None:
+            raise RuntimeError("upstream failure")
+
+        def dependent() -> str:
+            return "never runs"
+
+        failing_id = orchestrator.add_task(
+            name="failing", func=always_fails, max_retries=0
+        )
+        dependent_id = orchestrator.add_task(
+            name="dependent", func=dependent, dependencies=[failing_id]
+        )
+        result = asyncio.run(orchestrator.execute_workflow())
+
+        assert result["failed_tasks"] >= 1
+        assert orchestrator.tasks[failing_id].status == TaskStatus.FAILED
+        dependent = orchestrator.tasks[dependent_id]
+        assert dependent.status == TaskStatus.FAILED
+        assert "deadlock" in (dependent.error or "")
+
+    def test_invalid_dependency_raises(self, orchestrator: Orchestrator) -> None:
+        """A dependency referencing an unknown task id aborts the workflow."""
+        orchestrator.add_task(
+            name="orphan", func=lambda: "x", dependencies=["missing-task"]
+        )
+        with pytest.raises(ValueError, match="Invalid task dependencies"):
+            asyncio.run(orchestrator.execute_workflow())

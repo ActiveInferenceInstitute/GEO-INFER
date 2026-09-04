@@ -27,6 +27,7 @@
 - `test_advanced_analysis.py`
 - `test_all_modules.py`
 - `test_institutional.py`
+- `test_metagov_core_units.py`
 - `test_multi_level.py`
 - `test_polycentric.py`
 - `test_stakeholder.py`

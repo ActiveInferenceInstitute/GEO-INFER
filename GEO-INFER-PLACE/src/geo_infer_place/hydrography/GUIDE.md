@@ -91,3 +91,20 @@ python -m pytest GEO-INFER-PLACE/tests/unit/test_cascadia_flowlines.py GEO-INFER
 These tests exercise real loopback HTTP failures/resumption, corruption,
 resource limits, native ID preservation, explicit constructed topology,
 parallel reaches, real H3 overlay and the bundled measured excerpt.
+
+
+## Deployment compatibility controls
+
+`GEO_INFER_CASCADIA_FLOWLINES_PATH` supplies a local dataset when neither
+`dataset_path` nor `flowlines` is passed explicitly. Explicit arguments take
+precedence. A nonempty `GEO_INFER_SURFACE_WATER_OFFLINE` enables local-only
+access; `offline=True` also selects it explicitly. Offline requests read supplied
+flowlines or the matching completed, checksummed ingestion cache. Missing or
+incomplete local data raises an error and never initiates a network request.
+
+`GeoInferSurfaceWater(..., allow_projection_fallback=True)` explicitly permits
+writing unbuffered raw flowlines if their buffering projection fails. The
+`projection_degraded` instance flag and output column report that condition;
+the default raises the projection error. This retains the upstream degraded-output
+capability while keeping strict processing as the normal behavior. Invalid
+summary input still raises rather than being replaced by zero-valued measurements.

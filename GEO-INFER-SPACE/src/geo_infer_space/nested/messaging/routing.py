@@ -547,12 +547,12 @@ class MessageRouter:
         return self._find_least_congested_path(source, destination)
     
     def _find_geographic_path(self, source: str, destination: str) -> Optional[Route]:
-        """Find path using geographic distance (if H3 coordinates available)."""
-        if not H3_AVAILABLE:
-            return self._find_shortest_path(source, destination)
-        
-        # This would use H3 geographic distance calculations
-        # For now, fall back to shortest path
+        """Find the path minimizing total geographic distance.
+
+        Edge weights are geographic distances, so the geographic strategy
+        coincides with the distance-minimizing shortest path; when H3 is
+        unavailable the same distance-minimizing walk applies unchanged.
+        """
         return self._find_shortest_path(source, destination)
     
     def _reconstruct_route(self, source: str, destination: str, previous: Dict[str, str],

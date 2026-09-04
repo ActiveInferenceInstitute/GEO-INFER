@@ -21,14 +21,20 @@ Mathematical Foundations:
 - Analytic hierarchy process for multi-criteria decisions
 """
 
-import numpy as np
+import itertools
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Dict, List, Optional, Tuple, Any, Union
+
+import numpy as np
 
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
+
+# Module-level monotonic counter backing decision analysis IDs.
+_ANALYSIS_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
 logger = logging.getLogger(__name__)
 
@@ -156,13 +162,6 @@ class SpatialDecisionSupport:
     personalized, uncertainty-aware spatial decision recommendations. The system
     considers user cognitive profiles, spatial reasoning results, and uncertainty
     quantification to generate optimal decision strategies.
-
-    Decision-making approaches:
-    - Cognitive-weighted decisions based on user profiles
-    - Prospect theory for uncertainty handling
-    - Bayesian decision analysis for probabilistic outcomes
-    - Multi-criteria optimization with cognitive factors
-    - Conservative vs. aggressive decision strategies
     """
 
     def __init__(self,
@@ -170,7 +169,8 @@ class SpatialDecisionSupport:
                  cognitive_bias_mitigation: bool = True,
                  spatial_reasoning_model: str = 'mental_maps',
                  uncertainty_incorporation: str = 'bayesian',
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize spatial decision support system.
 
@@ -180,12 +180,19 @@ class SpatialDecisionSupport:
             spatial_reasoning_model: Spatial reasoning model to use ('mental_maps', 'qualitative', 'quantitative')
             uncertainty_incorporation: Uncertainty handling method ('bayesian', 'fuzzy', 'possibilistic')
             config: Additional configuration parameters
+            rng: Optional random generator for analysis-ID suffixes. When
+                omitted, a fixed-seed generator is used so the system is
+                deterministic by default.
         """
         self.decision_framework = decision_framework
         self.cognitive_bias_mitigation = cognitive_bias_mitigation
         self.spatial_reasoning_model = spatial_reasoning_model
         self.uncertainty_incorporation = uncertainty_incorporation
         self.config = config or {}
+
+        # Resolved via the repo-wide resolve_rng pattern; None resolves to a
+        # fixed seed so decision analyses are reproducible by default.
+        self._rng = resolve_rng(rng)
 
         # Decision-making parameters
         self.decision_parameters = {
@@ -255,7 +262,7 @@ class SpatialDecisionSupport:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             analysis_result = {
-                'analysis_id': f"decision_{int(start_time.timestamp())}_{np.random.randint(1000)}",
+                'analysis_id': f"decision_{next(_ANALYSIS_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
                 'timestamp': start_time.isoformat(),
                 'processing_time': processing_time,
                 'decision_problem': decision_problem,
@@ -272,7 +279,6 @@ class SpatialDecisionSupport:
             }
 
             logger.info(f"Decision analysis completed in {processing_time:.3f}s with {len(recommendations)} recommendations")
-            return analysis_result
 
         except Exception as e:
             logger.error(f"Error in decision analysis: {str(e)}")

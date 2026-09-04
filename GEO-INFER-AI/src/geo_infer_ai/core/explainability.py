@@ -7,9 +7,12 @@ geospatial AI model predictions.
 
 import logging
 from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
+
+from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ModelExplainer:
     """
     Explain geospatial AI model predictions.
-    
+
     Provides feature importance, SHAP-like explanations, and
     spatial interpretability for geospatial models.
     """
@@ -120,6 +123,7 @@ class ModelExplainer:
         X: np.ndarray,
         n_samples: int = 100,
         feature_names: Optional[List[str]] = None,
+        rng: Optional[np.random.Generator] = None,
     ) -> Dict[str, Any]:
         """
         Compute SHAP-like marginal contribution values using a kernel-based
@@ -131,6 +135,9 @@ class ModelExplainer:
             X: Feature matrix (n_samples, n_features)
             n_samples: Number of background samples for estimation
             feature_names: Optional feature names
+            rng: Optional random generator used to draw the background
+                subsample. When omitted, a fixed-seed generator is used so
+                explanations are deterministic by default.
 
         Returns:
             Dictionary with shap_values matrix and feature-level summaries
@@ -139,9 +146,12 @@ class ModelExplainer:
         if feature_names is None:
             feature_names = [f"feature_{i}" for i in range(n_features)]
 
-        # Use a subsample as background distribution
+        # Use a subsample as background distribution. The generator is
+        # resolved via the repo-wide resolve_rng pattern; None resolves to a
+        # fixed seed so repeated calls on the same data give identical
+        # explanations.
         bg_size = min(n_samples, n_obs)
-        bg_indices = np.random.choice(n_obs, size=bg_size, replace=False)
+        bg_indices = resolve_rng(rng).choice(n_obs, size=bg_size, replace=False)
         X_background = X[bg_indices]
 
         # Baseline prediction (average prediction on background)

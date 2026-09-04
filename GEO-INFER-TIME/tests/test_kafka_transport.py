@@ -204,3 +204,77 @@ def test_kafka_cancellation_stops_consumer(kafka_client):
 def test_delivery_controls_cannot_be_overridden(options):
     with pytest.raises(ValueError, match="controls"):
         KafkaIngestAdapter({"consumer_options": options})
+
+
+@pytest.mark.parametrize(
+    "broker_time,seconds", [(0, 0), (1000, 1), (1704067200000, 1704067200)]
+)
+def test_broker_timestamp_is_explicit_milliseconds_and_normalized(
+    kafka_client, broker_time, seconds
+):
+    from datetime import datetime, timezone
+
+    msg = message()
+    msg.value = b'{"value":"7"}'
+    msg.timestamp = broker_time
+    kafka_client.records.append(msg)
+    adapter = KafkaIngestAdapter({"topic": "events"})
+
+    async def run():
+        records = adapter.stream_data(max_messages=1)
+        try:
+            record = await anext(records)
+            assert (
+                record["timestamp"]
+                == datetime.fromtimestamp(seconds, timezone.utc).isoformat()
+            )
+            assert record["value"] == 7.0
+            assert record["topic"] == "events"
+            assert not any(call[0] == "commit" for call in kafka_client.calls)
+            await adapter.acknowledge(record)
+        finally:
+            await records.aclose()
+
+    asyncio.run(run())
+    assert kafka_client.calls[-1] == ("stop",)
+
+
+@pytest.mark.parametrize("alias", ["timestamp", "time", "datetime"])
+def test_payload_timestamp_precedes_broker_timestamp(kafka_client, alias):
+    msg = message()
+    msg.value = json.dumps({alias: 0, "value": 7}).encode()
+    msg.timestamp = 1704067200000
+    kafka_client.records.append(msg)
+    processor = StreamProcessor(timedelta(seconds=10))
+    adapter = KafkaIngestAdapter({"topic": "events"})
+    assert (
+        asyncio.run(
+            processor.ingest_kafka_stream(
+                topic="ignored",
+                bootstrap_servers=["ignored"],
+                adapter=adapter,
+                max_messages=1,
+            )
+        )
+        == 1
+    )
+    assert processor.buffer[0]["timestamp"].isoformat() == "1970-01-01T00:00:00+00:00"
+    assert kafka_client.calls[0][1] == ("events",)
+    assert not adapter.is_connected
+
+
+@pytest.mark.parametrize("broker_time", [None, -1, True, float("nan")])
+def test_missing_payload_and_unavailable_broker_timestamp_fail_without_commit(
+    kafka_client, broker_time
+):
+    msg = message()
+    msg.value = b'{"value":7}'
+    msg.timestamp = broker_time
+    kafka_client.records.append(msg)
+    adapter = KafkaIngestAdapter()
+    with pytest.raises(ValueError, match="timestamp"):
+        asyncio.run(
+            StreamProcessor(timedelta(seconds=10)).ingest_adapter_stream(adapter)
+        )
+    assert not any(call[0] == "commit" for call in kafka_client.calls)
+    assert not adapter.is_connected

@@ -54,6 +54,9 @@ TASK_MARKER_SCAN_GLOBS = (
     "GEO-INFER-*/src/**/*.py",
     "GEO-INFER-*/tests/**/*.py",
 )
+# User-facing example code keeps a softer contract: markers are surfaced as
+# warnings so example authors still see them, without failing CI on demos.
+TASK_MARKER_EXAMPLE_SCAN_GLOBS = ("GEO-INFER-*/examples/**/*.py",)
 PYTHON_VERSION_PIN_PATTERN = re.compile(r"^3\.(11|12)(?:\.\d+)?$")
 LOGGING_BASIC_CONFIG_ATTR = "basicConfig"
 SOURCE_LANGUAGE_ALLOWLIST = (
@@ -419,12 +422,12 @@ def validate_test_inventory(module_dirs: list[Path], report: ContractReport) -> 
             )
 
 
-def validate_module_task_markers(report: ContractReport) -> None:
-    """Keep actionable planning markers out of source and tests."""
+def scan_task_marker_files(scan_globs: tuple[str, ...]) -> list[str]:
+    """Return ``file:line: text`` hits for task markers below the glob roots."""
     hits: list[str] = []
     scan_files = {
         path
-        for pattern in TASK_MARKER_SCAN_GLOBS
+        for pattern in scan_globs
         for path in REPO_ROOT.glob(pattern)
         if path.is_file()
     }
@@ -435,11 +438,23 @@ def validate_module_task_markers(report: ContractReport) -> None:
                 hits.append(
                     f"{source_file.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
                 )
+    return hits
 
+
+def validate_module_task_markers(report: ContractReport) -> None:
+    """Keep actionable planning markers out of source and tests."""
+    hits = scan_task_marker_files(TASK_MARKER_SCAN_GLOBS)
     if hits:
         report.error(
             "Module-local task markers found; track planned work in root TODO.md "
             "or issues. First hits: " + "; ".join(hits[:8])
+        )
+
+    example_hits = scan_task_marker_files(TASK_MARKER_EXAMPLE_SCAN_GLOBS)
+    if example_hits:
+        report.warning(
+            "Task markers found in user-facing examples/ directories; clean these "
+            "before publishing the examples. First hits: " + "; ".join(example_hits[:8])
         )
 
 

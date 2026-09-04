@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 
 from geo_infer_log.models.schemas import VehicleType, FuelType, Vehicle, Route
+from geo_infer_log.core.routing import _load_gpickle
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ class MultiModalPlanner:
             network_file: Path to network file
         """
         # Load network from file
-        network = nx.read_gpickle(network_file)
+        network = _load_gpickle(network_file)
         self.networks[mode] = network
 
     def add_transfer_point(
@@ -353,7 +354,7 @@ class TransportationNetworkAnalyzer:
         Args:
             network_file: Path to network file
         """
-        self.network = nx.read_gpickle(network_file)
+        self.network = _load_gpickle(network_file)
 
     def load_flow_data(self, flow_file: str) -> None:
         """Load transportation flow data from a file.
@@ -596,7 +597,7 @@ class TrafficSimulator:
         Args:
             network_file: Path to network file
         """
-        self.network = nx.read_gpickle(network_file)
+        self.network = _load_gpickle(network_file)
 
     def set_time_periods(self, periods: List[str]) -> None:
         """Set time periods for traffic simulation.

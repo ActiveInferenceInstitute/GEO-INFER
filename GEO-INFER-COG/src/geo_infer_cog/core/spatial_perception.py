@@ -20,14 +20,20 @@ Mathematical Foundations:
 - Signal detection theory for spatial discrimination
 """
 
-import numpy as np
+import itertools
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
+import math
 from dataclasses import dataclass, field
 from datetime import datetime
-import math
+from typing import Dict, List, Optional, Tuple, Any, Union
+
+import numpy as np
 
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
+
+# Module-level monotonic counter backing perception processing IDs.
+_PERCEPTION_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +136,8 @@ class SpatialPerceptionModel:
     def __init__(self,
                  framework: str = 'bayesian_attention',
                  resolution: str = 'adaptive',
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize spatial perception model.
 
@@ -138,12 +145,18 @@ class SpatialPerceptionModel:
             framework: Perception framework ('bayesian_attention', 'gestalt', 'ecological')
             resolution: Resolution strategy ('adaptive', 'fixed', 'hierarchical')
             config: Additional configuration parameters
+            rng: Optional random generator for processing-ID suffixes.
+                When omitted, a fixed-seed generator is used so the model is
+                deterministic by default.
         """
         self.framework = framework
         self.resolution = resolution
         self.config = config or {}
 
-        # Initialize attention model
+        # Resolved via the repo-wide resolve_rng pattern; None resolves to a
+        # fixed seed so perception runs are reproducible by default.
+        self._rng = resolve_rng(rng)
+
         self.attention_model = AttentionModel(
             attention_capacity=self.config.get('attention_capacity', 1.0),
             focus_radius=self.config.get('focus_radius', 0.5)
@@ -214,7 +227,7 @@ class SpatialPerceptionModel:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             result = {
-                'processing_id': f"percept_{int(start_time.timestamp())}_{np.random.randint(1000)}",
+                'processing_id': f"percept_{next(_PERCEPTION_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
                 'timestamp': start_time.isoformat(),
                 'processing_time': processing_time,
                 'spatial_elements': [elem.__dict__ for elem in spatial_elements],

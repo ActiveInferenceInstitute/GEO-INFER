@@ -106,3 +106,32 @@ def test_nuts_restores_vector_parameter_shapes() -> None:
 
     assert samples["weights"].shape == (8, 2)
     assert np.all(np.isfinite(samples["weights"]))
+
+
+def test_step_size_adaptation_converges_to_target_acceptance() -> None:
+    """Windowed dual-averaging adaptation drives post-warmup acceptance
+    toward ``target_accept`` on a 2D Gaussian, even from a badly oversized
+    initial step size."""
+    data = np.array([1.0, -1.0])
+    sampler = HMC(
+        _VectorGaussianHMCModel(name="adapt"),
+        n_chains=2,
+        step_size=1.0,
+        target_accept=0.8,
+        max_tree_depth=5,
+        random_seed=21,
+    )
+    samples = sampler.run(
+        data,
+        n_samples=200,
+        n_warmup=300,
+        use_nuts=True,
+        progress_bar=False,
+    )
+
+    assert samples["weights"].shape == (400, 2)
+    assert np.all(np.isfinite(samples["weights"]))
+    assert sampler.sampling_acceptance_rates is not None
+    assert np.all(
+        np.abs(sampler.sampling_acceptance_rates - 0.8) <= 0.15
+    ), f"sampling acceptance {sampler.sampling_acceptance_rates} off target"

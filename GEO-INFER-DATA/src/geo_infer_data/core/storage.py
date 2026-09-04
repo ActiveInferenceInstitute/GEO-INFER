@@ -38,6 +38,7 @@ import pandas as pd
 from pathlib import Path
 
 from ..models.schemas import DatasetMetadata
+from ..utils.identifiers import validate_sql_identifier
 from ..utils.indexing import SpatialIndexer, TemporalIndexer
 from ..utils.compression import DataCompressor
 from ..utils.caching import CacheManager
@@ -209,7 +210,7 @@ class PostgreSQLBackend:
     ) -> None:
         """Store pandas/geopandas DataFrame."""
         # Create table and store data
-        table_name = f"dataset_{data_id.replace('-', '_')}"
+        table_name = validate_sql_identifier(f"dataset_{data_id.replace('-', '_')}")
 
         # Convert to SQL and execute
         if isinstance(df, gpd.GeoDataFrame):
@@ -228,7 +229,7 @@ class PostgreSQLBackend:
         """Retrieve a stored table from PostgreSQL/PostGIS."""
         from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text
 
-        table_name = f"dataset_{data_id.replace('-', '_')}"
+        table_name = validate_sql_identifier(f"dataset_{data_id.replace('-', '_')}")
         engine = create_engine(self.connection_string)
         try:
             if not sqlalchemy_inspect(engine).has_table(table_name):
@@ -264,7 +265,7 @@ class PostgreSQLBackend:
         serialises the value as JSON and stores it alongside its metadata
         in a dedicated key-value table.
         """
-        table_name = "generic_data_store"
+        table_name = validate_sql_identifier("generic_data_store")
 
         # Ensure the table exists
         create_stmt = (
@@ -359,7 +360,7 @@ class PostgreSQLBackend:
         """Delete data from PostgreSQL."""
         from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text
 
-        table_name = f"dataset_{data_id.replace('-', '_')}"
+        table_name = validate_sql_identifier(f"dataset_{data_id.replace('-', '_')}")
         engine = create_engine(self.connection_string)
         try:
             if not sqlalchemy_inspect(engine).has_table(table_name):
@@ -466,11 +467,7 @@ class MinIOBackend:
             context=CONTEXT_STORAGE_MINIO,
             key=self.signing_key,
         )
-        return (
-            self.compressor.decompress_data(payload)
-            if self.compressor.is_enabled()
-            else pickle.loads(payload)
-        )
+        return self.compressor.decompress_data(payload, verified=True)
 
     async def delete(self, data_id: str) -> bool:
         """Delete data from MinIO."""

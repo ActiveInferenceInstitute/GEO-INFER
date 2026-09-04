@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### September 4 hardening and integration
+
+- Deliver real WebSocket/Kafka ingestion with explicit replay and acknowledgements
+  after processing; preserve upstream adapter injection and broker timestamps.
+- Add lazy GPU capability checks, bounded float64 spatial kernels and explicit
+  host-only H3 topology diagnostics. Physical GPU validation remains deferred.
+- Package resumable, checksummed USGS hydrography acquisition and a 34-reach lower
+  Smith River pilot; retain explicit missing-data, offline and projection controls.
+- Regenerate all 44 H3 preview bundles with deterministic geometry/assets,
+  illustrative-data labels, provenance and an offline fallback.
+- Replace unrestricted raster expression execution with a bounded allowlisted AST;
+  reject filesystem access, output mutation and incompatible raster alignment.
+- Verify fresh wheel metadata, code and resources; require complete isolated-import
+  receipts and terminate timed-out process groups. Keep dependency parity and
+  passive-logging gates from the upstream integration.
+- Align runtime versions with distribution metadata, fix CI formatting and merge
+  the upstream fix wave without rewriting published history.
+- Document API migrations and separate deferred verification from regional data
+  acquisition in [TODO.md](TODO.md). See the [review ledger](GEO-INFER-TEST/docs/hardening_2026_09.md)
+  for pre-merge and combined-tree evidence and platform limits.
+
 ### Added
 
 - A dated validation receipt for the 2026-08-13 performance and isolated
@@ -29,6 +51,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FOREST` module NDVI health monitoring, wildfire risk index (FWI), and carbon sequestration
 - `ENERGY` module renewable site suitability mapping and LCOE benchmarking
 - `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
+
+
+### Changed and Fixed (2026-09-02 fix wave)
+
+- Merged `codex/act-categorical-runtime` hardening into `main`; the
+  2026-09-02 fix wave then applied real-implementation, contract, and
+  hygiene corrections across all modules, with the repository validators
+  (`validate_test_contracts.py --strict`, `validate_model_contracts.py
+  --strict --seed 42`, `run_model_audit.py --seed 42 --reproducible`,
+  `validate_active_inference_contract.py`) re-run against the result.
+- **MATH**: replaced simplified numerics with real implementations for
+  kriging, CP and Tucker tensor decompositions, BA estimation, and theorem
+  verification; added a unified Moran variance implementation used across
+  the spatial-statistics paths.
+- **DATA**: added SQL/GraphQL identifier validation on query surfaces and
+  restricted decompression to envelope payloads only.
+- **API**: required `SECRET_KEY` for signed operations and hardened CORS
+  configuration.
+- **TIME**: replaced mock stream transports with real WebSocket and Kafka
+  adapters behind the optional `streaming` extra (`websockets`, `aiokafka`).
+- **EMERGENCY**: replaced simplified evacuation routing with a real
+  `networkx`-based routing implementation.
+- **SIM**: fixed the pause/resume state machine so transitions respect the
+  declared run states.
+- **LOG**: restored compatibility with `networkx` 3.x APIs.
+- **RISK**: implemented the previously missing-but-advertised `api`
+  (`RiskAPI`, `ModelRegistry`, `ResultsFormatter`) and peril-model export
+  surfaces against the existing engine, with export-contract tests.
+- **ECON**: removed duplicate shadowing class definitions and the undefined
+  `ConsumerTheoryModels` export so every `__all__` name resolves.
+- **COG**/**AI**: threaded deterministic seeded `np.random.Generator`
+  instances through stochastic code paths.
+- **OPS**: reduced module-level logging to a single `getLogger(__name__)`
+  entry point.
+- **HEALTH**/**CLIMATE**/**MARINE**/**TRANSPORT**/**FOREST**/**EDU**/**WATER**:
+  module-specific real-implementation, contract, and hygiene fixes from the
+  same fix wave.
+- **EXAMPLES**: replaced placeholder orchestration scripts with real
+  end-to-end module orchestrators.
 
 ### Changed
 

@@ -4,7 +4,12 @@ Integration tests for SEC + API + APP security flows.
 Tests real integration between security, API gateway, and application modules.
 """
 
+import os
+
 import pytest
+
+# The API app is fail-closed: building it requires an explicit signing key.
+os.environ.setdefault("SECRET_KEY", "geo-infer-test-secret-key")
 
 from geo_infer_api.app import main_app
 from geo_infer_app.models.agent_interface import AgentState, AgentType

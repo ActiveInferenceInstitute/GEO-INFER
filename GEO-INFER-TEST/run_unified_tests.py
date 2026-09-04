@@ -284,7 +284,9 @@ def run_module_tests(module: Module, timeout: int) -> CommandResult:
     return run_command(command, f"{module.name} tests", timeout=timeout)
 
 
-def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
+def run_module_category_tests(
+    category: str, timeout: int, fail_fast: bool = False
+) -> SuiteReport:
     """Run one test category per module to avoid cross-module pytest state leaks."""
     report = SuiteReport()
     ensure_results_dir(clean=True)
@@ -299,7 +301,12 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
             *map(str, paths),
             f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
         ]
-        report.add(run_command(command, f"{module.name} {category} tests", timeout=timeout))
+        result = run_command(
+            command, f"{module.name} {category} tests", timeout=timeout
+        )
+        report.add(result)
+        if fail_fast and not result.success:
+            break
 
     if not discovered:
         report.add(
@@ -314,19 +321,21 @@ def run_module_category_tests(category: str, timeout: int) -> SuiteReport:
     return report
 
 
-def run_unit_tests(timeout: int) -> SuiteReport:
-    return run_module_category_tests("unit", timeout=timeout)
+def run_unit_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
+    return run_module_category_tests("unit", timeout=timeout, fail_fast=fail_fast)
 
 
-def run_integration_tests(timeout: int) -> SuiteReport:
-    return run_module_category_tests("integration", timeout=timeout)
+def run_integration_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
+    return run_module_category_tests(
+        "integration", timeout=timeout, fail_fast=fail_fast
+    )
 
 
-def run_system_tests(timeout: int) -> SuiteReport:
-    return run_module_category_tests("system", timeout=timeout)
+def run_system_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
+    return run_module_category_tests("system", timeout=timeout, fail_fast=fail_fast)
 
 
-def run_performance_tests(timeout: int) -> SuiteReport:
+def run_performance_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
     report = SuiteReport()
     ensure_results_dir(clean=True)
     discovered = False
@@ -345,7 +354,12 @@ def run_performance_tests(timeout: int) -> SuiteReport:
             *map(str, performance_files),
             f"--junitxml={RESULTS_DIR / f'{module.name}_performance_results.xml'}",
         ]
-        report.add(run_command(command, f"{module.name} performance tests", timeout=timeout))
+        result = run_command(
+            command, f"{module.name} performance tests", timeout=timeout
+        )
+        report.add(result)
+        if fail_fast and not result.success:
+            break
 
     if not discovered:
         report.add(
@@ -361,7 +375,7 @@ def run_performance_tests(timeout: int) -> SuiteReport:
     return report
 
 
-def run_coverage_analysis(timeout: int) -> SuiteReport:
+def run_coverage_analysis(timeout: int, fail_fast: bool = False) -> SuiteReport:
     """Collect fleet coverage in isolated module subprocesses, then combine it."""
     report = SuiteReport()
     ensure_results_dir()
@@ -386,14 +400,15 @@ def run_coverage_analysis(timeout: int) -> SuiteReport:
             "--cov-report=",
             f"--junitxml={RESULTS_DIR / f'{module.name}_coverage_results.xml'}",
         ]
-        report.add(
-            run_command(
-                command,
-                f"{module.name} coverage tests",
-                timeout=timeout,
-                env_overrides=coverage_env,
-            )
+        result = run_command(
+            command,
+            f"{module.name} coverage tests",
+            timeout=timeout,
+            env_overrides=coverage_env,
         )
+        report.add(result)
+        if fail_fast and not result.success:
+            return report
 
     if not report.results:
         report.add(
@@ -438,11 +453,14 @@ def run_h3_contracts(timeout: int) -> SuiteReport:
     return report
 
 
-def run_all_modules(timeout: int) -> SuiteReport:
+def run_all_modules(timeout: int, fail_fast: bool = False) -> SuiteReport:
     report = SuiteReport()
     ensure_results_dir(clean=True)
     for module in discover_geo_infer_modules():
-        report.add(run_module_tests(module, timeout=timeout))
+        result = run_module_tests(module, timeout=timeout)
+        report.add(result)
+        if fail_fast and not result.success:
+            break
     return report
 
 
@@ -513,6 +531,11 @@ def parse_args() -> argparse.Namespace:
         help="Run H3/Active Inference migration contract validators.",
     )
     parser.add_argument(
+        "--fail-fast",
+        action="store_true",
+        help="Stop after the first module failure and exit non-zero immediately.",
+    )
+    parser.add_argument(
         "--list-modules",
         action="store_true",
         help="Print discovered modules and exit.",
@@ -541,17 +564,17 @@ def main() -> int:
     elif args.h3_migration:
         report = run_h3_contracts(timeout=args.timeout)
     elif args.category == "unit":
-        report = run_unit_tests(timeout=args.timeout)
+        report = run_unit_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "integration":
-        report = run_integration_tests(timeout=args.timeout)
+        report = run_integration_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "system":
-        report = run_system_tests(timeout=args.timeout)
+        report = run_system_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "performance":
-        report = run_performance_tests(timeout=args.timeout)
+        report = run_performance_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "coverage":
-        report = run_coverage_analysis(timeout=args.timeout)
+        report = run_coverage_analysis(timeout=args.timeout, fail_fast=args.fail_fast)
     else:
-        report = run_all_modules(timeout=args.timeout)
+        report = run_all_modules(timeout=args.timeout, fail_fast=args.fail_fast)
 
     write_summary(report)
     return 0 if report.success else 1

@@ -99,7 +99,18 @@ class TestModelExplainer:
         result = explainer.compute_shap_like_values(
             sample_data[:20], n_samples=10,
             feature_names=['f0', 'f1', 'f2', 'f3', 'f4'],
+            rng=np.random.default_rng(42),
         )
+
+        # Pin seeded output: replaying the same generator state must
+        # reproduce the exact same explanation.
+        replay = explainer.compute_shap_like_values(
+            sample_data[:20], n_samples=10,
+            feature_names=['f0', 'f1', 'f2', 'f3', 'f4'],
+            rng=np.random.default_rng(42),
+        )
+        np.testing.assert_array_equal(result['shap_values'], replay['shap_values'])
+        assert result['base_value'] == replay['base_value']
 
         assert 'shap_values' in result
         assert result['shap_values'].shape == (20, 5)

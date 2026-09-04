@@ -1,89 +1,73 @@
-"""Tests for logging configuration."""
+"""Tests for the passive logging contract of GEO-INFER-OPS.
 
-import os
+Library modules expose only passive ``get_logger`` accessors; global
+logging configuration belongs to the single documented app-level entry
+``geo_infer_ops.utils.shared_logging.configure_logging``, called from CLI
+entrypoints.
+"""
+
 import logging
-from unittest.mock import patch, MagicMock
 
 import structlog
 
-from geo_infer_ops.core.logging import (
-    setup_logging,
-    get_logger,
-    configure_stdlib_logging,
-)
+from geo_infer_ops.core.logging import get_logger
+from geo_infer_ops.utils.shared_logging import configure_logging
 
 
-def test_get_logger():
-    """Test logger creation."""
-    logger = get_logger("test")
+def test_get_logger_is_passive() -> None:
+    """get_logger returns a structlog bound logger without configuring root."""
+    before = list(logging.root.handlers)
+    logger = get_logger("geo_infer_ops.test")
     assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
+    assert logging.root.handlers == before
 
 
-def test_setup_logging_defaults():
-    """Test logging setup with default configuration."""
-    setup_logging()
-    logger = get_logger("test")
-    assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
+
+def test_configure_logging_adds_root_handlers() -> None:
+    """The documented app-level entry installs a root handler set."""
+    previous = list(logging.root.handlers)
+    try:
+        configure_logging(log_level="DEBUG", json_format=False)
+        new_handlers = [h for h in logging.root.handlers if h not in previous]
+        assert any(
+            isinstance(h, logging.StreamHandler) for h in new_handlers
+        ), "configure_logging installed no console handler"
+    finally:
+        for handler in logging.root.handlers[:]:
+            if handler not in previous:
+                logging.root.removeHandler(handler)
+        logging.root.handlers[:] = previous
+        logging.root.setLevel(logging.WARNING)
 
 
-def test_setup_logging_custom_config():
-    """Test logging setup with custom configuration."""
-    log_file = "test.log"
-    setup_logging(log_level="DEBUG", json_format=True, log_file=log_file)
-
-    logger = get_logger("test")
-    assert isinstance(logger, structlog.stdlib.BoundLoggerBase)
-
-
-def test_configure_stdlib_logging():
-    """Test standard library logging configuration."""
-    log_file = "test.log"
-    configure_stdlib_logging("DEBUG", log_file)
-
-    logger = logging.getLogger("test")
-    assert logger.level == logging.DEBUG
+def test_configure_logging_is_idempotent_on_repeat() -> None:
+    """Repeated configuration does not accumulate duplicate handlers."""
+    previous = list(logging.root.handlers)
+    try:
+        configure_logging(log_level="INFO", json_format=False)
+        count_first = len(logging.root.handlers)
+        configure_logging(log_level="INFO", json_format=False)
+        count_second = len(logging.root.handlers)
+        assert count_second <= count_first + 1
+    finally:
+        logging.root.handlers[:] = previous
+        logging.root.setLevel(logging.WARNING)
 
 
-def test_log_levels():
-    """Test different log levels."""
-    setup_logging(log_level="DEBUG")
+def test_module_loggers_do_not_add_handlers() -> None:
+    """Every geo_infer_ops subpackage imports without adding root handlers."""
+    import importlib
 
-    with patch("structlog.get_logger") as mock_get_logger:
-        mock_logger = MagicMock()
-        mock_logger.bind.return_value = mock_logger
-        mock_get_logger.return_value = mock_logger
-        logger = get_logger("test")
-
-        logger.debug("debug message")
-        mock_logger.debug.assert_called_once_with("debug message")
-
-
-def test_log_formatting():
-    """Test log message formatting."""
-    setup_logging(json_format=False)
-
-    with patch("structlog.get_logger") as mock_get_logger:
-        mock_logger = MagicMock()
-        mock_logger.bind.return_value = mock_logger
-        mock_get_logger.return_value = mock_logger
-        logger = get_logger("test")
-
-        logger.info("test message", extra={"key": "value"})
-        mock_logger.info.assert_called_once_with("test message", extra={"key": "value"})
-
-
-def test_log_file_rotation():
-    """Test log file rotation."""
-    log_file = "test.log"
-    setup_logging(log_file=log_file)
-
-    # Write some logs
-    logger = get_logger("test")
-    for i in range(1000):
-        logger.info(f"Test log {i}")
-
-    # Verify file size
-    assert os.path.getsize(log_file) > 0
-
-    # Cleanup
-    os.remove(log_file)
+    modules = [
+        "geo_infer_ops",
+        "geo_infer_ops.core",
+        "geo_infer_ops.core.backup.logging",
+        "geo_infer_ops.utils.logger",
+        "geo_infer_ops.utils.shared_logging",
+    ]
+    before = list(logging.root.handlers)
+    for module_name in modules:
+        importlib.import_module(module_name)
+        assert logging.root.handlers == before, (
+            f"importing {module_name} mutated the root logger"
+        )

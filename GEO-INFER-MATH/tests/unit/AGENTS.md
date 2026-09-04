@@ -25,6 +25,7 @@
 - `test_bayes_convenience.py`
 - `test_clustering.py`
 - `test_convenience_api.py`
+- `test_free_energy.py`
 - `test_geometry.py`
 - `test_graph_theory.py`
 - `test_information_theory.py`

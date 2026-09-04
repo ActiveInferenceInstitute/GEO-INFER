@@ -38,9 +38,6 @@ Utils workspace within `GEO-INFER-SEC`.
 - `pyyaml>=6.0`
 - `h3>=4.5.0,<5`
 - `pyproj>=3.0.0`
-- `flask>=2.0.0`
-- `sqlalchemy>=1.4.0`
-- `bcrypt>=3.2.0`
 
 
 ## Validation

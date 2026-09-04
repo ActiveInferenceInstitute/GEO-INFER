@@ -56,6 +56,17 @@ class TestDroughtRisk:
         assert "drought_risk" in result
         assert "low_precipitation" in result
 
+    def test_water_deficit_none_without_et(self, analyzer):
+        precip = xr.DataArray(
+            np.random.uniform(0, 10, (30, 5, 5)),
+            dims=("time", "y", "x"),
+            coords={"time": range(30)},
+        )
+        result = analyzer.assess_drought_risk(precip)
+        # xarray stores the None sentinel as a scalar object variable.
+        assert result["water_deficit"].shape == ()
+        assert result["water_deficit"].values.item() is None
+
     def test_with_evapotranspiration(self, analyzer):
         precip = xr.DataArray(
             np.random.uniform(0, 10, (30, 5, 5)),

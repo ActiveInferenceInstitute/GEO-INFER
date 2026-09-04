@@ -58,7 +58,7 @@ class TestDiseaseHotspotAnalyzer:
     def test_calculate_local_incidence_rate(self, analyzer):
         """Test incidence rate calculation."""
         center = Location(latitude=34.0, longitude=-118.0)
-        rate, cases, pop = analyzer.calculate_local_incidence_rate(center, 10.0)
+        rate, cases, pop, population_estimated = analyzer.calculate_local_incidence_rate(center, 10.0)
         assert cases >= 0
 
     def test_identify_simple_hotspots(self, analyzer):

@@ -36,7 +36,7 @@ class MarineWaterQuality:
         """Calculate dissolved oxygen saturation concentration.
 
         Uses the Garcia-Gordon (1992) equation for O2 solubility in seawater.
-        Simplified version using the Weiss (1970) approach:
+        Uses the Weiss (1970) solubility formulation:
 
         ln(DO_sat) = A1 + A2*(100/T) + A3*ln(T/100) + A4*(T/100)
                      + S * [B1 + B2*(T/100) + B3*(T/100)^2]

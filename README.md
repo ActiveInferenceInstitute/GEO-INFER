@@ -30,8 +30,8 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | Metric | Value |
 | --- | ---: |
 | Modules | 44 |
-| Python source files | 918 |
-| Python test files | 555 |
+| Python source files | 922 |
+| Python test files | 566 |
 | Repository README.md files | 847 |
 | Repository AGENTS.md files | 845 |
 
@@ -100,20 +100,20 @@ the exact reproducible exception list.
 | --- | --- | ---: | ---: |
 | `GEO-INFER-ACT` | `geo_infer_act` | 44 | 39 |
 | `GEO-INFER-AG` | `geo_infer_ag` | 15 | 10 |
-| `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 14 |
-| `GEO-INFER-AI` | `geo_infer_ai` | 15 | 11 |
+| `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 15 |
+| `GEO-INFER-AI` | `geo_infer_ai` | 16 | 12 |
 | `GEO-INFER-ANT` | `geo_infer_ant` | 24 | 9 |
-| `GEO-INFER-API` | `geo_infer_api` | 14 | 10 |
+| `GEO-INFER-API` | `geo_infer_api` | 14 | 11 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 21 | 9 |
 | `GEO-INFER-BAYES` | `geo_infer_bayes` | 36 | 26 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 7 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 8 | 7 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 13 | 8 |
-| `GEO-INFER-COG` | `geo_infer_cog` | 20 | 13 |
+| `GEO-INFER-COG` | `geo_infer_cog` | 21 | 13 |
 | `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 9 |
-| `GEO-INFER-DATA` | `geo_infer_data` | 25 | 21 |
-| `GEO-INFER-ECON` | `geo_infer_econ` | 34 | 13 |
+| `GEO-INFER-DATA` | `geo_infer_data` | 26 | 22 |
+| `GEO-INFER-ECON` | `geo_infer_econ` | 35 | 14 |
 | `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 7 |
 | `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 7 | 8 |
 | `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 9 |
@@ -125,16 +125,16 @@ the exact reproducible exception list.
 | `GEO-INFER-IOT` | `geo_infer_iot` | 16 | 10 |
 | `GEO-INFER-LOG` | `geo_infer_log` | 19 | 9 |
 | `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 8 |
-| `GEO-INFER-MATH` | `geo_infer_math` | 67 | 17 |
-| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 13 |
+| `GEO-INFER-MATH` | `geo_infer_math` | 67 | 18 |
+| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 23 | 14 |
 | `GEO-INFER-NORMS` | `geo_infer_norms` | 19 | 9 |
-| `GEO-INFER-OPS` | `geo_infer_ops` | 24 | 12 |
+| `GEO-INFER-OPS` | `geo_infer_ops` | 24 | 14 |
 | `GEO-INFER-ORG` | `geo_infer_org` | 8 | 7 |
 | `GEO-INFER-PEP` | `geo_infer_pep` | 33 | 9 |
 | `GEO-INFER-PLACE` | `geo_infer_place` | 37 | 20 |
 | `GEO-INFER-REQ` | `geo_infer_req` | 8 | 7 |
-| `GEO-INFER-RISK` | `geo_infer_risk` | 32 | 22 |
-| `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 11 |
+| `GEO-INFER-RISK` | `geo_infer_risk` | 32 | 23 |
+| `GEO-INFER-SEC` | `geo_infer_sec` | 21 | 12 |
 | `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
 | `GEO-INFER-SPACE` | `geo_infer_space` | 81 | 35 |
 | `GEO-INFER-SPM` | `geo_infer_spm` | 27 | 19 |
@@ -195,6 +195,7 @@ the documentation contract itself changes.
 ## Failure Triage
 
 - `validate_repo_contracts.py`: source layout, language, dependency, logger, and documentation contract.
+- `validate_logging_hygiene.py`: passive library-logging contract (no root-logger mutation; module-local `getLogger(__name__)` loggers only).
 - `validate_test_contracts.py`: test inventories, markers, fixtures, skips, and warning policy.
 - `run_unified_tests.py`: module behavior by unit, integration, performance, or H3 category.
 - `validate_model_contracts.py` and `run_model_audit.py`: deterministic model outputs and reproducibility artifacts.

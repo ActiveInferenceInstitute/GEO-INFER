@@ -2,6 +2,7 @@
 Performance optimization utilities for geospatial art generation.
 """
 
+import logging
 import os
 import time
 import functools
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 
 from geo_infer_art.utils.validators import validate_resolution
 
+logger = logging.getLogger(__name__)
 
 class PerformanceOptimizer:
     """
@@ -110,8 +112,10 @@ class PerformanceOptimizer:
             if os.path.exists(cache_file):
                 try:
                     os.remove(cache_file)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning(
+                        "Could not remove cache file %s: %s", cache_file, exc
+                    )
 
             # Remove from memory
             del self.cache[key]

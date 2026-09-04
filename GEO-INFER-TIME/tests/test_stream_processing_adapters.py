@@ -323,3 +323,84 @@ class TestSlidingWindowAnomalyAlerts:
         processor.process_sliding_window_anomaly_alerts(z_threshold=3.0)
         assert len(first) == len(second)
         assert len(first) >= 1
+
+
+def test_normalize_record_preserves_metadata_and_canonicalizes_aliases():
+    record = {"time": "2024-01-01T02:00:00+02:00", "value": "3", "sensor": "a"}
+    normalized = ReplayIngestAdapter([]).normalize_record(record)
+    assert normalized == {
+        "timestamp": "2024-01-01T00:00:00+00:00",
+        "value": 3.0,
+        "sensor": "a",
+    }
+    assert "timestamp" not in record
+
+
+def test_real_websocket_normalizes_records_and_injected_adapter_owns_url():
+    import json
+    from websockets.asyncio.server import serve
+
+    async def run():
+        async def handler(connection):
+            for index in range(3):
+                await connection.send(
+                    json.dumps(
+                        {"time": index, "value": str(index), "sensor": f"ws-{index}"}
+                    )
+                )
+
+        async with serve(handler, "127.0.0.1", 0) as server:
+            port = server.sockets[0].getsockname()[1]
+            adapter = WebSocketIngestAdapter({"url": f"ws://127.0.0.1:{port}"})
+            records = [record async for record in adapter.stream_data()]
+            assert [record["value"] for record in records] == [0.0, 1.0, 2.0]
+            assert [record["sensor"] for record in records] == ["ws-0", "ws-1", "ws-2"]
+            assert records[0]["timestamp"] == "1970-01-01T00:00:00+00:00"
+            assert not adapter.is_connected
+            processor = StreamProcessor(timedelta(seconds=10))
+            assert (
+                await processor.ingest_websocket_stream(url="ignored", adapter=adapter)
+                == 3
+            )
+            assert not adapter.is_connected
+
+    asyncio_run(run())
+
+
+@pytest.mark.parametrize(
+    "adapter_type,dependency",
+    [(WebSocketIngestAdapter, "websockets"), (KafkaIngestAdapter, "aiokafka")],
+)
+@pytest.mark.parametrize("entrypoint", ["connect", "stream_data"])
+def test_missing_optional_transport_dependency_is_actionable(
+    monkeypatch, adapter_type, dependency, entrypoint
+):
+    import builtins
+
+    original = builtins.__import__
+
+    def without_dependency(name, *args, **kwargs):
+        if name == dependency or name.startswith(dependency + "."):
+            raise ModuleNotFoundError(name)
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_dependency)
+    adapter = adapter_type()
+
+    async def run():
+        with pytest.raises(RuntimeError, match=dependency + " not installed"):
+            if entrypoint == "connect":
+                await adapter.connect()
+            else:
+                await anext(adapter.stream_data())
+        assert not adapter.is_connected
+
+    asyncio_run(run())
+
+
+@pytest.mark.parametrize("adapter_type", [WebSocketIngestAdapter, KafkaIngestAdapter])
+def test_network_adapters_reject_simulation_arguments(adapter_type):
+    with pytest.raises(TypeError):
+        adapter_type(allow_simulated=True)
+    with pytest.raises(TypeError):
+        adapter_type().stream_data(simulated_records=[{"timestamp": 0, "value": 1}])

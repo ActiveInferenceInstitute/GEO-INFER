@@ -20,14 +20,19 @@ Mathematical Foundations:
 - Constraint satisfaction problems for spatial optimization
 """
 
-import numpy as np
+import itertools
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union, Set
 from dataclasses import dataclass, field
 from datetime import datetime
-import itertools
+from typing import Dict, List, Optional, Tuple, Any, Union, Set
+
+import numpy as np
 
 from ..models.user_profiles import UserCognitiveProfile
+from ..utils.rng import resolve_rng
+
+# Module-level monotonic counter backing reasoning chain IDs.
+_REASONING_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +109,8 @@ class SpatialReasoningEngine:
     def __init__(self,
                  reasoning_type: str = 'qualitative_spatial',
                  uncertainty_method: str = 'probabilistic',
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 rng: Optional[np.random.Generator] = None):
         """
         Initialize spatial reasoning engine.
 
@@ -112,10 +118,17 @@ class SpatialReasoningEngine:
             reasoning_type: Type of reasoning ('qualitative_spatial', 'analogical', 'deductive', 'constraint_based')
             uncertainty_method: Uncertainty handling ('probabilistic', 'fuzzy', 'possibilistic')
             config: Additional configuration parameters
+            rng: Optional random generator for chain-ID suffixes. When
+                omitted, a fixed-seed generator is used so the engine is
+                deterministic by default.
         """
         self.reasoning_type = reasoning_type
         self.uncertainty_method = uncertainty_method
         self.config = config or {}
+
+        # Resolved via the repo-wide resolve_rng pattern; None resolves to a
+        # fixed seed so reasoning runs are reproducible by default.
+        self._rng = resolve_rng(rng)
 
         # Knowledge base for spatial relations and rules
         self.spatial_knowledge_base: Dict[str, Any] = {
@@ -252,8 +265,7 @@ class SpatialReasoningEngine:
 
         try:
             # Initialize reasoning chain
-            chain_id = f"reasoning_{int(start_time.timestamp())}_{np.random.randint(1000)}"
-            self.current_reasoning_chain = []
+            chain_id = f"reasoning_{next(_REASONING_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}"
 
             # Step 1: Extract spatial premises from data and perception
             premises = self._extract_spatial_premises(spatial_data, perception_result)
@@ -372,13 +384,18 @@ class SpatialReasoningEngine:
         if not coords:
             return None
 
-        # Flatten coordinates to get all x,y values
-        all_coords = []
-        for coord in coords:
-            if isinstance(coord[0], list):
-                all_coords.extend(coord)
-            else:
-                all_coords.append(coord)
+        # Flatten arbitrarily nested coordinate arrays (Point [x, y],
+        # LineString [[x, y], ...], Polygon [[[x, y], ...], ...]) into a list
+        # of [x, y] pairs.
+        all_coords: List[Any] = []
+        stack: List[Any] = [coords]
+        while stack:
+            item = stack.pop()
+            if isinstance(item, (list, tuple)):
+                if item and isinstance(item[0], (int, float)):
+                    all_coords.append(item)
+                else:
+                    stack.extend(item)
 
         if not all_coords:
             return None

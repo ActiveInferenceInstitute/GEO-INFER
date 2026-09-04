@@ -27,6 +27,7 @@
 - `test_enhanced_capabilities.py`
 - `test_game_theory.py`
 - `test_growth_models.py`
+- `test_import_smoke.py`
 - `test_indicators.py`
 - `test_market_structure.py`
 - `test_modeling_engine.py`

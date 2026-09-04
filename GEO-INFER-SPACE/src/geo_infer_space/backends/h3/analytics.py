@@ -462,39 +462,6 @@ class H3SpatialAnalyzer:
             "outliers": outliers,
             "total_cells_analyzed": len(valid_data),
         }
-        (  # type: ignore[unreachable]
-            """
-        Analyze spatial autocorrelation for a value column.
-
-        Args:
-            value_column: Column name to analyze
-
-        Returns:
-            Dictionary with autocorrelation metrics
-            """
-        )
-        if not self.grid.cells:
-            return {"error": "No cells to analyze"}
-
-        # Extract values
-        values = []
-        for cell in self.grid.cells:
-            value = cell.properties.get(value_column, 0)
-            values.append(value)
-
-        if not values:
-            return {"error": f"No values found for column {value_column}"}
-
-        # Simple spatial autocorrelation calculation
-        # This is a simplified version - full implementation would use proper spatial weights
-        mean_value = sum(values) / len(values)
-
-        return {
-            "mean_value": mean_value,
-            "value_range": (min(values), max(values)),
-            "cells_analyzed": len(values),
-            "column": value_column,
-        }
 
     def find_hotspots(
         self, value_column: str, threshold_percentile: float = 90
@@ -1479,19 +1446,23 @@ class H3DensityAnalyzer:
         if not self.grid.cells:
             return {"error": "No cells for density calculation"}
 
-        # For each cell, calculate density based on neighbors
-        density_results = {}
+        # Kernel-style neighborhood density: each cell's value averaged over
+        # its true H3 neighborhood (grid_disk of radius_cells, self included).
+        cell_by_index = {cell.index: cell for cell in self.grid.cells}
+        density_results: Dict[str, float] = {}
 
         for cell in self.grid.cells:
-            # Get neighbors within radius (simplified - would use proper H3 operations)
-            neighbors = [c for c in self.grid.cells if c != cell]  # Simplified
-
-            # Calculate local density
-            local_values = [cell.properties.get(value_column, 0)]
-            for neighbor in neighbors[: radius_cells * 6]:  # Approximate neighbor count
-                local_values.append(neighbor.properties.get(value_column, 0))
-
-            local_density = sum(local_values) / len(local_values) if local_values else 0
+            neighborhood = h3.grid_disk(cell.index, radius_cells)
+            local_values = []
+            for neighbor_index in neighborhood:
+                neighbor = cell_by_index.get(neighbor_index)
+                if neighbor is not None:
+                    local_values.append(
+                        neighbor.properties.get(value_column, 0)
+                    )
+            local_density = (
+                sum(local_values) / len(local_values) if local_values else 0.0
+            )
             cell.properties[f"{value_column}_density"] = local_density
             density_results[cell.index] = local_density
 
@@ -1965,21 +1936,15 @@ class H3NetworkAnalyzer:
         if not self.grid.cells:
             return {"error": "No cells for connectivity analysis"}
 
-        # Build simple adjacency information
-        cell_connections = {}
+        # Exact H3 adjacency: two grid cells are connected when they are
+        # direct neighbors on the H3 lattice (grid_disk ring 1).
+        grid_indices = {cell.index for cell in self.grid.cells}
+        cell_connections: Dict[str, int] = {}
         total_connections = 0
 
         for cell in self.grid.cells:
-            connections = 0
-            # Count connections to other cells in grid (simplified)
-            for other_cell in self.grid.cells:
-                if other_cell != cell:
-                    # Simple distance check (would use proper H3 neighbor checking)
-                    lat_diff = abs(cell.latitude - other_cell.latitude)
-                    lng_diff = abs(cell.longitude - other_cell.longitude)
-                    if lat_diff < 0.01 and lng_diff < 0.01:  # Approximate neighbor
-                        connections += 1
-
+            neighbor_indices = set(h3.grid_disk(cell.index, 1)) - {cell.index}
+            connections = len(neighbor_indices & grid_indices)
             cell_connections[cell.index] = connections
             total_connections += connections
 

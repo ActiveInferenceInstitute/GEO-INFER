@@ -92,3 +92,4 @@ mkdocs-material>=9.1.0
 # confluent-kafka>=2.2.0
 
 # Added from comprehensive review
+aiohttp>=3.8.0

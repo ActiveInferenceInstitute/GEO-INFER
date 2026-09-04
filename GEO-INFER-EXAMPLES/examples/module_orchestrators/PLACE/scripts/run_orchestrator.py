@@ -1,233 +1,289 @@
 #!/usr/bin/env python3
-"""
-PLACE Module Orchestrator - GEO-INFER Examples
-Demonstrates: Place-based analysis
+"""GEO-INFER-PLACE module orchestrator.
 
-Thin orchestrator pattern: Focuses on orchestration structure and patterns,
-not detailed module implementations.
+Runs one documented end-to-end PLACE operation on synthetic data: tile a
+synthetic Del Norte County study polygon into an H3 canvas with the module's
+own H3 operations, derive a synthetic forest-observation dataset from that
+canvas (NDVI/EVI measurements, forest-inventory plots, monthly climate), and
+run the real ``ForestHealthMonitor.run_analysis`` end-to-end pipeline —
+vegetation-index analysis, forest-type health, change detection, mortality
+assessment, climate vulnerability, risk scoring, and alert generation. No
+network calls: all observation sources are injected as configured callables
+and no API clients are constructed.
 """
 
+from __future__ import annotations
+
+import os
+import shutil
 import sys
-import time
-import json
-import logging
+import tempfile
+from datetime import date
 from pathlib import Path
-from datetime import datetime
-import numpy as np
+from typing import Any, Callable, Dict, List
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / 'src'))
+os.environ.setdefault("MPLBACKEND", "Agg")
 
-def setup_logging():
-    """Configure logging for the orchestrator."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+_ORCHESTRATORS_DIR = Path(__file__).resolve().parents[2]
+if str(_ORCHESTRATORS_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORCHESTRATORS_DIR))
+
+from _lib import run_module_orchestrator  # noqa: E402
+
+
+def _monthly_dates(start: date, count: int) -> List[str]:
+    """Return ``count`` ISO date strings spaced one month apart from ``start``."""
+    stamps: List[str] = []
+    year, month = start.year, start.month
+    for _ in range(count):
+        stamps.append(date(year, month, 1).isoformat())
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+    return stamps
+
+
+class _SyntheticForestIntegrator:
+    """In-process integrator stub: no API clients, no network.
+
+    Timber/mortality survey clients are deliberately unconfigured, which
+    mirrors the module's own no-client degradation path; the monitor records
+    the acquisition error and derives mortality from vegetation stress
+    instead. Climate is served by the configured synthetic source because
+    this stub exposes no ``noaa_client`` attribute.
+    """
+
+    def __init__(self) -> None:
+        self.cache_dir: Any = None
+
+    def get_timber_operations(
+        self,
+        bbox: Any = None,
+        time_range: Any = None,
+    ) -> Dict[str, Any]:
+        raise RuntimeError("timber-plan client not configured (synthetic run)")
+
+    def get_tree_mortality_data(
+        self,
+        bbox: Any = None,
+        time_range: Any = None,
+    ) -> Dict[str, Any]:
+        raise RuntimeError("mortality-survey client not configured (synthetic run)")
+
+
+def _operation() -> Dict[str, Any]:
+    import numpy as np
+
+    from geo_infer_place.locations.del_norte_county.forest_health_monitor import (
+        ForestHealthMonitor,
     )
-    return logging.getLogger('place_orchestrator')
+    from geo_infer_place.utils.h3_operations import (
+        cell_area,
+        cell_to_latlng,
+        compact_cells,
+        polygon_to_cells,
+    )
 
-class PLACEOrchestrator:
-    """Thin orchestrator for GEO-INFER-PLACE module demonstrations."""
-    
-    def __init__(self, config_path=None):
-        """Initialize the PLACE orchestrator."""
-        self.logger = setup_logging()
-        self.config = self._load_config(config_path)
-        np.random.seed(42)  # Reproducible results
-        self.module_name = 'PLACE'
-        self.dependencies = ['SPACE', 'TIME', 'DATA', 'ALL']
-    
-    def _load_config(self, config_path):
-        """Load configuration from YAML file."""
-        if config_path is None:
-            config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        
-        try:
-            import yaml
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            self.logger.warning(f"Config file not found: {config_path}, using defaults")
-            return {'operations': {'sample_size': 10}}
-    
-    def run_orchestrator(self):
-        """Run the complete PLACE module demonstration."""
-        self.logger.info("🚀 Starting PLACE Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: Place-based analysis")
-        
-        start_time = time.time()
-        results = {
-            'module': 'PLACE',
-            'timestamp': datetime.now().isoformat(),
-            'orchestrator_type': 'thin',
-            'operations': {}
-        }
-        
-        try:
-            # Operation 1: Module Initialization
-            self.logger.info("\n🔧 OPERATION 1: Module Initialization")
-            init_results = self._demonstrate_initialization()
-            results['operations']['initialization'] = init_results
-            self.logger.info("✅ Module initialization orchestrated")
-            
-            # Operation 2: Core Operations
-            self.logger.info("\n⚙️ OPERATION 2: Core Operations")
-            core_results = self._demonstrate_core_operations()
-            results['operations']['core'] = core_results
-            self.logger.info("✅ Core operations orchestrated")
-            
-            # Operation 3: Dependency Integration
-            self.logger.info("\n🔗 OPERATION 3: Dependency Integration")
-            integration_results = self._demonstrate_integration()
-            results['operations']['integration'] = integration_results
-            self.logger.info("✅ Integration orchestrated")
-            
-            # Operation 4: Error Handling
-            self.logger.info("\n🛡️ OPERATION 4: Error Handling")
-            error_results = self._demonstrate_error_handling()
-            results['operations']['error_handling'] = error_results
-            self.logger.info("✅ Error handling orchestrated")
-            
-            # Operation 5: Workflow Demonstration
-            self.logger.info("\n🔄 OPERATION 5: Complete Workflow")
-            workflow_results = self._demonstrate_workflow()
-            results['operations']['workflow'] = workflow_results
-            self.logger.info("✅ Workflow orchestrated")
-            
-            execution_time = time.time() - start_time
-            results['execution_metadata'] = {
-                'execution_time_seconds': execution_time,
-                'operations_completed': len(results['operations']),
-                'status': 'success',
-                'orchestrator_type': 'thin'
-            }
-            
-            self._display_summary(results, execution_time)
-            self._save_results(results)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"❌ Orchestrator failed: {e}", exc_info=True)
-            results['execution_metadata'] = {
-                'status': 'error',
-                'error': str(e)
-            }
-            self._save_results(results)
-            raise
-    
-    def _demonstrate_initialization(self):
-        """Demonstrate module initialization orchestration."""
-        return {
-            'module': 'PLACE',
-            'status': 'initialized',
-            'config_loaded': True,
-            'orchestration_note': 'Thin orchestrator - demonstrates initialization pattern'
-        }
-    
-    def _demonstrate_core_operations(self):
-        """Demonstrate core module operations orchestration."""
-        # Thin orchestrator: demonstrate operation structure, not implementation
-        operations = ['operation_1', 'operation_2', 'operation_3']
-        return {
-            'operations': operations,
-            'orchestration_note': 'Thin orchestrator - demonstrates operation orchestration pattern',
-            'note': 'Actual module operations would be called here in production'
-        }
-    
-    def _demonstrate_integration(self):
-        """Demonstrate integration with dependencies."""
-        deps = ['SPACE', 'TIME', 'DATA', 'ALL']
-        return {
-            'dependencies': deps if deps != ['All modules'] else 'all_modules',
-            'integration_status': 'orchestrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates dependency integration pattern',
-            'note': 'Actual dependency modules would be integrated here in production'
-        }
-    
-    def _demonstrate_error_handling(self):
-        """Demonstrate error handling orchestration."""
-        return {
-            'error_handling': 'orchestrated',
-            'validation': 'pattern_demonstrated',
-            'orchestration_note': 'Thin orchestrator - demonstrates error handling pattern',
-            'note': 'Actual error handling would be implemented here in production'
-        }
-    
-    def _demonstrate_workflow(self):
-        """Demonstrate complete workflow orchestration."""
-        workflow_steps = [
-            'initialization',
-            'core_operations',
-            'dependency_integration',
-            'error_handling',
-            'workflow_completion'
-        ]
-        return {
-            'workflow': 'orchestrated',
-            'steps': workflow_steps,
-            'orchestration_note': 'Thin orchestrator - demonstrates workflow orchestration pattern',
-            'note': 'Actual workflow would be executed here in production'
-        }
-    
-    def _display_summary(self, results, execution_time):
-        """Display results summary."""
-        print("\n" + "="*70)
-        print(f"🎯 PLACE MODULE ORCHESTRATOR RESULTS (Thin)")
-        print("="*70)
-        
-        print(f"\n📊 Operations Orchestrated:")
-        for op_name, op_data in results['operations'].items():
-            print(f"  ✅ {op_name}: orchestrated")
-        
-        print(f"\n⚡ Performance:")
-        print(f"  ├─ Execution Time: {execution_time:.2f} seconds")
-        print(f"  ├─ Module: GEO-INFER-PLACE")
-        print(f"  ├─ Orchestrator Type: Thin (orchestration patterns)")
-        print(f"  └─ Status: {results['execution_metadata']['status']}")
-        
-        print(f"\n💡 Orchestration Patterns Demonstrated:")
-        print(f"  ├─ Module Initialization Pattern")
-        print(f"  ├─ Core Operations Pattern")
-        print(f"  ├─ Dependency Integration Pattern")
-        print(f"  ├─ Error Handling Pattern")
-        print(f"  └─ Complete Workflow Pattern")
-        
-        if self.dependencies:
-            print(f"\n🔗 Dependencies: {', '.join(self.dependencies)}")
-        
-        print(f"\n✨ PLACE thin orchestrator demonstration complete!")
-        print("📝 Note: This is a thin orchestrator focusing on orchestration patterns")
-        print("🚀 For detailed implementations, see module-specific examples")
-        print("="*70)
-    
-    def _save_results(self, results):
-        """Save results to JSON file."""
-        output_dir = Path(__file__).parent.parent / 'output'
-        output_dir.mkdir(exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'place_orchestrator_results_{timestamp}.json'
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        self.logger.info(f"📁 Results saved to: {output_file.name}")
+    rng = np.random.default_rng(42)
 
-def main():
-    """Main function."""
-    print(f"🌟 GEO-INFER-PLACE Module Orchestrator (Thin)")
-    print(f"Demonstrating: Place-based analysis")
-    print("Orchestrator Type: Thin (focuses on orchestration patterns)")
-    
+    # --- Synthetic H3 canvas over a fictional Del Norte study plot --------
+    study_polygon: Dict[str, Any] = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [-124.15, 41.62],
+                [-123.80, 41.62],
+                [-123.70, 41.85],
+                [-123.95, 42.00],
+                [-124.25, 41.88],
+                [-124.15, 41.62],
+            ]
+        ],
+    }
+    cells = polygon_to_cells(study_polygon, resolution=8)
+    if not cells:
+        raise RuntimeError("polygon_to_cells returned no cells for the study polygon")
+    compacted = compact_cells(cells)
+    sample_cell_area_km2 = cell_area(cells[0])
+
+    # Observation sites: centers of the first six canvas cells.
+    site_cells = cells[:6]
+    site_centers = [cell_to_latlng(cell) for cell in site_cells]
+
+    # --- Synthetic NDVI/EVI measurements (4 sites x 14 monthly scenes) ---
+    dates = _monthly_dates(date(2024, 1, 1), 14)
+    ndvi_measurements: List[Dict[str, Any]] = []
+    for site_idx, (lat, lon) in enumerate(site_centers[:4]):
+        base_ndvi = 0.55 + 0.10 * float(rng.random())
+        for step, stamp in enumerate(dates):
+            seasonal = 0.08 * float(np.sin(2.0 * np.pi * step / 12.0))
+            ndvi = float(np.clip(base_ndvi + seasonal + rng.normal(0.0, 0.03), 0.05, 0.95))
+            evi = float(np.clip(0.75 * ndvi + rng.normal(0.0, 0.02), 0.02, 0.90))
+            stress = float(np.clip(1.0 - 1.1 * ndvi + rng.normal(0.0, 0.05), 0.0, 1.0))
+            ndvi_measurements.append(
+                {
+                    "date": stamp,
+                    "lat": lat,
+                    "lon": lon,
+                    "ndvi": ndvi,
+                    "evi": evi,
+                    "moisture_stress": stress,
+                    "h3_cell": site_cells[site_idx],
+                }
+            )
+
+    # --- Synthetic forest inventory plots across three forest types ------
+    forest_types = ["Redwood", "Douglas Fir", "Mixed Conifer"]
+    health_ratings = ["Good", "Fair", "Poor"]
+    age_classes = ["Mature", "Old Growth", "Young"]
+    forest_plots: List[Dict[str, Any]] = []
+    for plot_idx in range(12):
+        lat, lon = site_centers[plot_idx % len(site_centers)]
+        forest_plots.append(
+            {
+                "plot_id": f"SYN_{plot_idx:03d}",
+                "lat": lat,
+                "lon": lon,
+                "forest_type": forest_types[plot_idx % len(forest_types)],
+                "basal_area_m2_ha": float(rng.uniform(45.0, 130.0)),
+                "tree_density_per_ha": float(rng.uniform(220.0, 640.0)),
+                "average_height_m": float(rng.uniform(28.0, 78.0)),
+                "canopy_cover_percent": float(rng.uniform(55.0, 92.0)),
+                "health_rating": health_ratings[int(rng.integers(0, 3))],
+                "age_class": age_classes[int(rng.integers(0, 3))],
+                "h3_cell": site_cells[plot_idx % len(site_cells)],
+            }
+        )
+
+    # --- Synthetic monthly climate series (36 months) --------------------
+    climate_dates = _monthly_dates(date(2022, 1, 1), 36)
+    climate_measurements: List[Dict[str, Any]] = []
+    for step, stamp in enumerate(climate_dates):
+        seasonal_temp = 11.0 + 6.5 * float(np.sin(2.0 * np.pi * (step - 3) / 12.0))
+        climate_measurements.append(
+            {
+                "date": stamp,
+                "temperature_c": seasonal_temp + float(rng.normal(0.0, 0.8)),
+                "precipitation_mm": float(np.clip(rng.gamma(2.0, 60.0), 0.0, 400.0)),
+            }
+        )
+
+    sources: Dict[str, Callable[[], Dict[str, Any]]] = {
+        "vegetation_indices": lambda: {"ndvi_measurements": ndvi_measurements},
+        "forest_inventory": lambda: {"forest_plots": forest_plots},
+        "climate": lambda: {"measurements": climate_measurements},
+    }
+
+    config: Dict[str, Any] = {
+        "location": {
+            "bounds": {
+                "west": -124.25,
+                "south": 41.62,
+                "east": -123.70,
+                "north": 42.00,
+            }
+        },
+        "spatial": {"h3_resolution": 8},
+        "analyses": {
+            "forest_health": {
+                "vegetation_indices": {
+                    "ndvi": {
+                        "threshold_healthy": 0.7,
+                        "threshold_stressed": 0.4,
+                        "threshold_critical": 0.2,
+                    }
+                },
+                "forest_types": forest_types,
+                "change_detection": {
+                    "baseline_years": [2024],
+                    "minimum_change_threshold": 0.1,
+                    "time_series_length": 14,
+                },
+                "data_sources": sources,
+            }
+        },
+    }
+
+    output_dir = Path(tempfile.mkdtemp(prefix="place_orchestrator_"))
     try:
-        config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
-        orchestrator = PLACEOrchestrator(config_path=config_path)
-        orchestrator.run_orchestrator()
-        return 0
-    except Exception as e:
-        print(f"❌ Orchestrator failed: {e}")
-        return 1
+        monitor = ForestHealthMonitor(
+            config=config,
+            data_integrator=_SyntheticForestIntegrator(),
+            spatial_processor=None,
+            output_dir=output_dir,
+        )
+        results = monitor.run_analysis(temporal_range=("2024-01-01", "2025-02-28"))
+    finally:
+        shutil.rmtree(output_dir, ignore_errors=True)
+
+    if results.get("status") != "success":
+        raise RuntimeError(
+            "ForestHealthMonitor.run_analysis did not succeed: "
+            f"{results.get('error_message', results.get('status'))}"
+        )
+
+    vegetation = results["vegetation_analysis"]
+    ndvi_analysis = vegetation["ndvi_analysis"]
+    change = results["change_analysis"]
+    mortality = results["mortality_analysis"]
+    risk = results["risk_assessment"]
+    alerts = results["health_alerts"]
+    spatial = results["spatial_data"]
+    inventory = results["forest_type_analysis"]
+
+    forest_type_summary: Dict[str, Dict[str, Any]] = {}
+    for ftype, summary in inventory.items():
+        if isinstance(summary, dict) and "plot_count" in summary:
+            forest_type_summary[ftype] = {
+                "plot_count": int(summary["plot_count"]),
+                "mean_canopy_cover": round(
+                    float(summary["structure_metrics"]["mean_canopy_cover"]), 2
+                ),
+            }
+
+    return {
+        "operation": "forest_health_full_analysis_on_synthetic_h3_canvas",
+        "h3_canvas": {
+            "resolution": 8,
+            "region_cells": len(cells),
+            "compacted_cells": len(compacted),
+            "sample_cell_area_km2": round(sample_cell_area_km2, 4),
+            "observation_sites": len(site_cells),
+        },
+        "synthetic_data": {
+            "ndvi_measurements": len(ndvi_measurements),
+            "forest_plots": len(forest_plots),
+            "climate_measurements": len(climate_measurements),
+        },
+        "vegetation_analysis": {
+            "ndvi_mean": round(float(ndvi_analysis["mean"]), 4),
+            "healthy_percent": round(float(ndvi_analysis["healthy_percent"]), 2),
+            "stressed_percent": round(float(ndvi_analysis["stressed_percent"]), 2),
+            "critical_percent": round(float(ndvi_analysis["critical_percent"]), 2),
+            "h3_cells_summarized": len(vegetation["h3_spatial_summary"]),
+        },
+        "forest_type_health": forest_type_summary,
+        "change_detection": {
+            "cells_analyzed": len(change.get("h3_cell_changes", [])),
+            "significant_changes": int(change.get("significant_changes_count", 0)),
+        },
+        "tree_mortality": {
+            "data_source": mortality.get("data_source"),
+            "mortality_rate_percent": mortality.get("mortality_rate_percent"),
+            "affected_area_ha": mortality.get("affected_area_ha"),
+        },
+        "risk_assessment": {
+            "overall_risk_score": round(float(risk["overall_risk_score"]), 4),
+            "recommendations": risk["recommendations"],
+        },
+        "alerts": {
+            "critical": len(alerts["critical_alerts"]),
+            "warnings": len(alerts["warnings"]),
+        },
+        "spatial_output_cells": len(spatial.get("h3_cells", {})),
+    }
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_module_orchestrator("PLACE", _operation))

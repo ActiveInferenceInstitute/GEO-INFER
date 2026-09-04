@@ -33,7 +33,7 @@ class SensorAPI:
     - Sensor network status monitoring
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Sensor API", version="1.0.0")
 

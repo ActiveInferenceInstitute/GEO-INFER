@@ -41,7 +41,7 @@ class ClimateImpactAssessor:
         Returns:
             Impact assessment results
         """
-        # Simplified crop yield model
+        # Temperature-response crop yield model
         optimal_temp = {'wheat': 20, 'corn': 25, 'rice': 28}.get(crop_type, 22)
         optimal_precip = {'wheat': 500, 'corn': 600, 'rice': 1000}.get(crop_type, 500)
         
@@ -78,7 +78,7 @@ class ClimateImpactAssessor:
         # Calculate water balance
         if evapotranspiration is None:
             # Estimate ET from temperature
-            evapotranspiration = temperature * 0.5  # Simplified
+            evapotranspiration = temperature * 0.5  # Linear temperature proxy
         
         water_balance = precipitation - evapotranspiration
         water_deficit = xr.where(water_balance < 0, -water_balance, 0)

@@ -139,7 +139,7 @@ class TestCompressionFormatIntegration:
         compressed = compressor.compress_data(data)
         assert isinstance(compressed, bytes)
 
-        decompressed = compressor.decompress_data(compressed)
+        decompressed = compressor.decompress_data(compressed, verified=True)
         assert decompressed == data
 
     def test_compress_dataframe_and_stats(self):

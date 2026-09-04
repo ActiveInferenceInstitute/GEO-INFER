@@ -2,6 +2,8 @@
 Unit tests for simulation engine.
 """
 
+import threading
+
 import pytest
 from geo_infer_sim.core.simulation_engine import (
     SimulationEngine,
@@ -69,6 +71,95 @@ class TestSimulationEngine:
         engine.resume()
 
         assert engine.state == SimulationState.RUNNING
+
+    def test_pause_mid_run_sets_paused_not_failed(self) -> None:
+        """Pausing mid-run leaves the engine PAUSED, never FAILED."""
+        engine = SimulationEngine(SimulationConfig(time_step=1.0, max_time=10.0))
+        engine.initialize({"value": 0})
+
+        def pause_on_third_step(time: float, state: dict) -> dict:
+            if time == 2.0:
+                engine.pause()
+            return {"value": state["value"] + 1}
+
+    def test_threaded_pause_preserves_paused_state_then_resumes_to_completion(
+        self,
+    ) -> None:
+        """A pause racing the run loop pauses cleanly; resume finishes the run."""
+        engine = SimulationEngine(SimulationConfig(time_step=1.0, max_time=10.0))
+        engine.initialize({"value": 0})
+
+        # Hold the step executing at time 3.0 open until the main thread has
+        # issued a pause, so the pause provably lands mid-run (between steps)
+        # rather than after the run completes.
+        gate = threading.Event()
+        entered_gated_step = threading.Event()
+
+        def step_func(time: float, state: dict) -> dict:
+            if time == 3.0:
+                entered_gated_step.set()
+                gate.wait(timeout=5.0)
+            return {"value": state["value"] + 1}
+
+        runner = threading.Thread(target=engine.run, args=(step_func,))
+        runner.start()
+        assert entered_gated_step.wait(timeout=5.0)
+        engine.pause()
+        gate.set()
+        runner.join(timeout=5.0)
+
+        assert not runner.is_alive()
+        assert engine.state == SimulationState.PAUSED
+        # The step executing at time 3.0 was held open by the gate and
+        # completes after the pause lands; the loop then honors the pause
+        # before starting the next step.
+        assert engine.current_time == 4.0
+
+        # Resume from the paused step: run() continues where it stopped.
+        engine.resume()
+        assert engine.state == SimulationState.RUNNING
+        results = engine.run(step_func)
+
+        assert engine.state == SimulationState.COMPLETED
+        assert results["status"] == SimulationState.COMPLETED.value
+        assert results["final_time"] == 10.0
+        assert engine._current_state["value"] == 10
+
+    def test_paused_run_matches_uninterrupted_run_with_same_seed(self) -> None:
+        """Pause/resume reproduces the uninterrupted trajectory for a seed."""
+        def make_engine() -> SimulationEngine:
+            return SimulationEngine(
+                SimulationConfig(time_step=1.0, max_time=10.0, random_seed=1234)
+            )
+
+        def step_func(time: float, state: dict) -> dict:
+            return {"value": state["value"] + float(engine.rng.normal())}
+
+        # Uninterrupted reference run
+        engine = make_engine()
+        engine.initialize({"value": 0.0})
+        reference = engine.run(step_func)
+
+        # Interrupted run: pause after three steps, then resume to completion
+        engine = make_engine()
+        engine.initialize({"value": 0.0})
+
+        def pause_on_third_step(time: float, state: dict) -> dict:
+            if time == 2.0:
+                engine.pause()
+            return {"value": state["value"] + float(engine.rng.normal())}
+
+        engine.run(pause_on_third_step)
+        assert engine.state == SimulationState.PAUSED
+        engine.resume()
+        results = engine.run(step_func)
+
+        assert results["status"] == SimulationState.COMPLETED.value
+        assert results["final_time"] == reference["final_time"]
+        reference_value = reference["state_history"][-1]["state"]["value"]
+        resumed_value = engine.state_history[-1]["state"]["value"]
+        assert resumed_value == pytest.approx(reference_value)
+        assert engine._current_state["value"] == pytest.approx(reference_value)
 
     def test_no_history_still_propagates_current_state(self) -> None:
         """The engine passes state forward when history persistence is off."""

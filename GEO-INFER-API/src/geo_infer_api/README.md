@@ -13,8 +13,8 @@ Geo Infer Api workspace within `GEO-INFER-API`.
 
 ## Public Interface
 
-- `app.py:custom_swagger_ui_html` (function)
-- `app.py:redoc_html` (function)
+- `app.py:cors_allow_credentials` (function)
+- `app.py:create_app` (function)
 
 ## Module Metadata
 

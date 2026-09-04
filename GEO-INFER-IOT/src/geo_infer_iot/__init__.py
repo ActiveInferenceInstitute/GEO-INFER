@@ -774,7 +774,7 @@ class BayesianSpatialInference:
             grid_min_y = min_y - buffer * y_range
             grid_max_y = max_y + buffer * y_range
 
-            # Generate grid points (simplified - would use proper H3 grid in production)
+            # Adaptive regular lat/lon grid over the buffered sensor extent
             n_points = min(100, len(sensor_coords) * 10)  # Adaptive grid density
             x_grid = np.linspace(grid_min_x, grid_max_x, int(np.sqrt(n_points)))
             y_grid = np.linspace(grid_min_y, grid_max_y, int(np.sqrt(n_points)))

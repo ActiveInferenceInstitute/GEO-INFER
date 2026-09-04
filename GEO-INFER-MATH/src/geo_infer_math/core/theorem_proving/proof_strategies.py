@@ -9,6 +9,10 @@ from typing import Optional, List, Any
 import logging
 from abc import ABC, abstractmethod
 
+import numpy as np
+
+from geo_infer_math.utils.rng import resolve_rng
+
 from geo_infer_math.core.theorem_proving.prover import (
     TheoremProver,
     ProofResult,
@@ -101,18 +105,52 @@ class GeometricProofStrategy(ProofStrategy):
     def _try_triangle_inequality(
         self, theorem: str, assumptions: List[str]
     ) -> ProofResult:
-        """Try to prove using triangle inequality."""
-        # Simplified triangle inequality proof
-        if "triangle" in theorem.lower() and "inequality" in theorem.lower():
+        """Verify the triangle inequality empirically on sampled point triples.
+
+        Draws random triples of Euclidean points and checks
+        d(a, c) <= d(a, b) + d(b, c) for each. A complete numeric
+        confirmation reports ProofStatus.VERIFIED_EMPIRICAL (never PROVEN —
+        no symbolic proof was performed); a violating triple is reported as
+        DISPROVEN with the counterexample.
+        """
+        if "triangle" not in theorem.lower() or "inequality" not in theorem.lower():
             return ProofResult(
-                status=ProofStatus.PROVEN,
+                status=ProofStatus.UNKNOWN, theorem=theorem, backend=self.prover.backend
+            )
+
+        rng = resolve_rng(0)
+        n_samples = 1000
+        points = rng.uniform(0.0, 10.0, size=(n_samples, 3, 2))
+        a, b, c = points[:, 0, :], points[:, 1, :], points[:, 2, :]
+        d_ab = np.linalg.norm(a - b, axis=1)
+        d_bc = np.linalg.norm(b - c, axis=1)
+        d_ac = np.linalg.norm(a - c, axis=1)
+
+        violations = d_ac > d_ab + d_bc + 1e-9
+        if np.any(violations):
+            first = int(np.argmax(violations))
+            counterexample = {
+                "a": a[first].tolist(),
+                "b": b[first].tolist(),
+                "c": c[first].tolist(),
+            }
+            return ProofResult(
+                status=ProofStatus.DISPROVEN,
                 theorem=theorem,
-                proof="Triangle inequality: d(A,C) ≤ d(A,B) + d(B,C) for any metric",
+                counterexample=counterexample,
                 backend=self.prover.backend,
             )
 
         return ProofResult(
-            status=ProofStatus.UNKNOWN, theorem=theorem, backend=self.prover.backend
+            status=ProofStatus.VERIFIED_EMPIRICAL,
+            theorem=theorem,
+            proof=(
+                "Empirical verification: the triangle inequality "
+                "d(a,c) <= d(a,b) + d(b,c) held for all "
+                f"{n_samples} randomly sampled Euclidean point triples "
+                "(numeric check only; no symbolic proof performed)"
+            ),
+            backend=self.prover.backend,
         )
 
     def can_apply(self, theorem: str) -> bool:
@@ -163,18 +201,45 @@ class StatisticalProofStrategy(ProofStrategy):
     def _try_expectation_properties(
         self, theorem: str, assumptions: List[str]
     ) -> ProofResult:
-        """Try to prove using expectation properties."""
-        # Simplified expectation proof
-        if "expectation" in theorem.lower() and "linear" in theorem.lower():
+        """Verify linearity of expectation empirically on sampled variables.
+
+        Draws large random samples of X and Y and checks
+        E[aX + bY] = aE[X] + bE[Y] numerically. A confirmed check reports
+        ProofStatus.VERIFIED_EMPIRICAL (numeric check only, never PROVEN).
+        """
+        if "expectation" not in theorem.lower() or "linear" not in theorem.lower():
             return ProofResult(
-                status=ProofStatus.PROVEN,
+                status=ProofStatus.UNKNOWN, theorem=theorem, backend=self.prover.backend
+            )
+
+        rng = resolve_rng(0)
+        n_samples = 100_000
+        x_samples = rng.normal(0.0, 1.0, size=n_samples)
+        y_samples = rng.normal(0.0, 2.0, size=n_samples)
+        a, b = 1.3, -0.7
+
+        lhs = float(np.mean(a * x_samples + b * y_samples))
+        rhs = a * float(np.mean(x_samples)) + b * float(np.mean(y_samples))
+        tolerance = 10.0 / np.sqrt(n_samples)
+
+        if abs(lhs - rhs) <= tolerance:
+            return ProofResult(
+                status=ProofStatus.VERIFIED_EMPIRICAL,
                 theorem=theorem,
-                proof="Linearity of expectation: E[aX + bY] = aE[X] + bE[Y]",
+                proof=(
+                    "Empirical verification: E[aX + bY] = aE[X] + bE[Y] held "
+                    f"numerically on {n_samples} Gaussian samples "
+                    f"(|E[aX+bY] - (aE[X]+bE[Y])| = {abs(lhs - rhs):.2e} "
+                    f"<= tolerance {tolerance:.2e}; numeric check only)"
+                ),
                 backend=self.prover.backend,
             )
 
         return ProofResult(
-            status=ProofStatus.UNKNOWN, theorem=theorem, backend=self.prover.backend
+            status=ProofStatus.UNKNOWN,
+            theorem=theorem,
+            proof="Empirical check did not converge within tolerance",
+            backend=self.prover.backend,
         )
 
     def can_apply(self, theorem: str) -> bool:
@@ -247,7 +312,8 @@ class InductionProofStrategy(ProofStrategy):
     ) -> ProofResult:
         """Prove by induction."""
         # Induction requires base case and inductive step
-        # This is simplified - real implementation would need pattern matching
+        # Induction requires parsing the theorem into base case and inductive
+        # step, which needs a formal-language front-end this backend lacks
 
         assumptions = assumptions or []
 

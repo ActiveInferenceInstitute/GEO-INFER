@@ -21,6 +21,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_active_inference_contract.py`
 - `validate_documentation.py`
 - `validate_h3_active_inference_contract.py`
+- `validate_logging_hygiene.py`
 - `validate_model_contracts.py`
 - `validate_packaging.py`
 - `validate_repo_contracts.py`

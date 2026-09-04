@@ -163,8 +163,8 @@ class CascadianOwnershipDataSources:
                                     * 0.000247105,  # Very rough estimate, mainly for relative size
                                 }
                                 features.append(feature)
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.warning('OSM parcel feature construction failed; skipping feature: %s', exc)
 
             if not features:
                 logger.info("Ownership: No OSM buildings found.")

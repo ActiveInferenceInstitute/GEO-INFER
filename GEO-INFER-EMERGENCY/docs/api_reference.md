@@ -63,7 +63,7 @@ Plan and execute evacuations with route optimization, shelter management, and sp
 class EvacuationPlanner:
     def __init__(
         self,
-        road_network: Optional[Dict[str, Any]] = None,
+        road_network: Optional["nx.Graph"] = None,
         population_data: Optional[Dict[str, Any]] = None,
         shelters: Optional[List[Dict[str, Any]]] = None,
         special_needs: Optional[List[str]] = None,
@@ -72,7 +72,7 @@ class EvacuationPlanner:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|------------|
-| `road_network` | `Optional[Dict]` | `None` | Road network for routing |
+| `road_network` | `Optional[nx.Graph]` | `None` | NetworkX graph whose nodes are routable locations; edges may carry `travel_time` (minutes), `distance` (km), `capacity` (vehicles/hour), `contraflow_capable` |
 | `population_data` | `Optional[Dict]` | `None` | Population demographics |
 | `shelters` | `Optional[List[Dict]]` | `None` | Shelter location dicts to register |
 | `special_needs` | `Optional[List[str]]` | `["hospitals", "nursing_homes", "schools"]` | Special needs facilities |
@@ -111,16 +111,18 @@ Returns dict with keys: `plan_id`, `created_at`, `affected_zone`, `destinations`
 
 #### `optimize_routes(origins, destinations, objectives, constraints) -> Dict[str, Any]`
 
-Optimize evacuation routes between origins and destinations.
+Optimize evacuation routes with Dijkstra shortest paths over the configured road network. Raises `ValueError` when no road network is configured or an origin/destination is not a network node. Edge-weight precedence: `travel_time` (minutes), then `distance` (km), then unweighted hop counts. Route capacity is the minimum `capacity` along the path (0 when the network carries no capacity attributes).
 
 | Parameter | Type | Description |
 |-----------|------|------------|
-| `origins` | `List[str]` | Origin zone IDs |
-| `destinations` | `List[str]` | Destination shelter IDs |
+| `origins` | `List[str]` | Origin zone IDs (network nodes) |
+| `destinations` | `List[str]` | Destination shelter IDs (network nodes) |
 | `objectives` | `List[str]` | Optimization objectives (e.g., `clearance_time`, `safety`) |
 | `constraints` | `Dict[str, Any]` | Constraints (`road_capacity`, `contraflow`) |
 
-Returns dict with `routes` list and optimization metadata.
+Returns dict with `routes` list (`path`, `distance_km`, `estimated_time_minutes`, `capacity_vehicles_per_hour`) and optimization metadata. Unreachable destination pairs are omitted from `routes`.
+
+Contraflow candidates are derived from edges carrying a truthy `contraflow_capable` attribute; networks without such attributes yield no contraflow segments.
 
 #### `estimate_clearance_time(evacuation_plan, traffic_model, scenarios) -> Dict[str, Any]`
 

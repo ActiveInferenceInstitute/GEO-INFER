@@ -6,7 +6,7 @@ include TIME's `streaming` extra when syncing the shared environment.
 
 ## Offline replay
 
-`simulated_records` and the default synthetic network generators are removed.
+`simulated_records`, `allow_simulated`, and the default synthetic network generators are removed.
 Use the explicit replay source for fixtures, recorded events, and offline demos:
 
 ```python
@@ -31,6 +31,13 @@ parsing is needed.
 
 Every record requires `timestamp`, `time`, or `datetime`. ISO timestamps and
 numeric Unix seconds are accepted; magnitudes above `1e11` are milliseconds.
+Kafka can use its broker timestamp when all payload time aliases are absent; broker
+timestamps are explicitly milliseconds, including epoch zero. An unavailable
+broker timestamp still fails validation. Payload event time always takes precedence.
+`normalize_record()` returns a validated dictionary with canonical `timestamp`
+(UTC ISO string), numeric `value`, and preserved metadata. Network adapters apply
+this validation before yielding a record.
+
 Epoch zero is preserved. Naive timestamps mean UTC and all output timestamps are
 UTC-aware. Missing timestamps, booleans, nonfinite measurements and `NaT` fail
 validation. Migrate naive datetime comparisons to timezone-aware UTC values.
@@ -52,6 +59,8 @@ are evicted while cumulative statistics remain intact.
 
 `WebSocketIngestAdapter({"url": "ws://127.0.0.1:8765"})` opens a real socket.
 `StreamProcessor.ingest_websocket_stream(url=..., max_messages=...)` owns cleanup.
+Both convenience methods accept a prebuilt `adapter=`; its connection settings
+replace the URL/topic/server arguments and its iterator is closed on exit.
 WebSocket messages must contain one JSON object each. Application-specific
 subscription handshakes are not inferred from topic names.
 
@@ -128,3 +137,18 @@ After the startup message appears:
 uv run python GEO-INFER-TIME/tests/integration/kafka_service_check.py --bootstrap-servers 127.0.0.1:9092
 docker stop geo-infer-time-kafka
 ```
+
+## Reconciliation with the upstream streaming implementation
+
+The upstream real transports, record normalization, configured adapter injection,
+Kafka topic metadata and broker timestamp fallback are retained in the extracted
+transport module. Lazy imports now raise actionable dependency errors directly;
+the private `_import_websockets`/`_import_aiokafka` helpers and mutable availability
+flags are superseded by those connection checks.
+
+The upstream `allow_simulated` branch and synthetic default records are superseded
+by `ReplayIngestAdapter`. The upstream consumer's default automatic commit is
+replaced by explicit acknowledgement after successful processing. Existing replay,
+local WebSocket and Kafka fault-injection tests cover those stronger contracts;
+merge regressions also verify canonical records, dependency absence, configured
+adapter reuse, and broker timestamp precedence and units.

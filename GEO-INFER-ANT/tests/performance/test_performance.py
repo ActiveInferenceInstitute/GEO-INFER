@@ -80,9 +80,9 @@ class TestLargeScalePerformance:
                 # RSS includes interpreter and backend allocations that are
                 # initialized lazily on hosted runners. Keep a meaningful
                 # upper bound while allowing normal allocator variance.
-                assert (
-                    simulation_memory - start_memory < 750
-                ), "simulation exceeded 750MB additional RSS"
+                assert simulation_memory - start_memory < 750, (
+                    "simulation exceeded 750MB additional RSS"
+                )
 
                 return {
                     "population_size": size,
@@ -288,36 +288,36 @@ class TestMemoryEfficiency:
             assert memory_metrics["total_memory"] < 1000  # Less than 1GB total
 
     def test_memory_cleanup(self):
-        """Test memory cleanup after operations."""
-        initial_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
+        """Release simulation agents without retaining over 300 MB after warmup."""
+        import gc
+        import weakref
 
-        # Create and run large simulation
-        population = AgentPopulation(population_size=100)
-        population.create_agents()
-
-        async def cleanup_test():
+        async def run_and_release():
+            population = AgentPopulation(population_size=100, random_seed=42)
+            population.create_agents()
+            agent_refs = [weakref.ref(agent) for agent in population.agents]
             results = await population.run_simulation(
                 time_steps=5, data_collection=["trajectories", "interactions"]
             )
-
-            # Clear large data structures
             population.agents.clear()
             results.trajectories.clear()
             results.interactions.clear()
-
-            # Force garbage collection
-            import gc
-
             gc.collect()
+            assert all(reference() is None for reference in agent_refs)
 
-            final_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
-
-            return final_memory - initial_memory
-
-        memory_increase = asyncio.run(cleanup_test())
+        # Populate lazy inference/native-library caches before measuring retained
+        # simulation memory. Cold imports are process lifetime costs, not agents
+        # retained by cleanup; their RSS otherwise depends on suite ordering.
+        asyncio.run(run_and_release())
+        gc.collect()
+        process = psutil.Process(os.getpid())
+        initial_memory = process.memory_info().rss / 1024 / 1024
+        asyncio.run(run_and_release())
+        gc.collect()
+        memory_increase = process.memory_info().rss / 1024 / 1024 - initial_memory
 
         print(f"Memory increase after cleanup: {memory_increase:.1f}MB")
-        assert memory_increase < 300  # Should clean up most memory
+        assert memory_increase < 300
 
 
 class TestScalabilityLimits:

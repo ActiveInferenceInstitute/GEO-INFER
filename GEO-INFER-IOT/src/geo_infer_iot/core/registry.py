@@ -58,7 +58,7 @@ class SensorRegistry:
     - Network topology tracking
     """
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
         self.networks: Dict[str, SensorNetwork] = {}
         self.sensors: Dict[str, SensorMetadata] = {}
@@ -109,20 +109,68 @@ class SensorRegistry:
         """Get all sensors of a specific type."""
         return [s for s in self.sensors.values() if s.sensor_type == sensor_type]
     
-    def get_sensors_in_area(self, bounds: Dict, h3_resolution: int = 8) -> List[SensorMetadata]:
-        """Get sensors within geographic bounds using H3 spatial indexing."""
-        # This would use H3 polygon_to_cells to get all cells in the area
-        # For now, simple implementation
-        matching_sensors = []
-        
-        lat_min = bounds['lat_min']
-        lat_max = bounds['lat_max']
-        lon_min = bounds['lon_min']
-        lon_max = bounds['lon_max']
-        
-        for sensor in self.sensors.values():
-            if (lat_min <= sensor.latitude <= lat_max and 
-                lon_min <= sensor.longitude <= lon_max):
-                matching_sensors.append(sensor)
-        
-        return matching_sensors 
+    def get_sensors_in_area(
+        self, bounds: Dict, h3_resolution: int = 8
+    ) -> List[SensorMetadata]:
+        """Get sensors within geographic bounds using H3 spatial indexing.
+
+        Builds a polygon from the bounding box, maps it to the H3 cells
+        covering it at ``h3_resolution``, and collects sensors registered
+        in those cells plus their ring-1 neighbors (boundary tolerance for
+        sensors whose cell center falls just outside the polygon). An exact
+        bbox check on the candidate set keeps the result identical to a
+        brute-force scan, without scanning the whole registry.
+
+        The documented fallback is a direct bbox scan, used only when the
+        H3 spatial index is empty (nothing has been indexed yet).
+
+        Args:
+            bounds: Mapping with ``lat_min``, ``lat_max``, ``lon_min``,
+                ``lon_max``.
+            h3_resolution: H3 resolution used to discretize the bbox.
+
+        Returns:
+            Sensors whose coordinates lie within the bounds.
+        """
+        lat_min = float(bounds['lat_min'])
+        lat_max = float(bounds['lat_max'])
+        lon_min = float(bounds['lon_min'])
+        lon_max = float(bounds['lon_max'])
+
+        def within_bounds(sensor: SensorMetadata) -> bool:
+            return (
+                lat_min <= sensor.latitude <= lat_max
+                and lon_min <= sensor.longitude <= lon_max
+            )
+
+        if not self.h3_spatial_index:
+            # Fallback: no sensors indexed yet, so the H3 grid cannot
+            # contribute candidates; scan the registry directly.
+            return [s for s in self.sensors.values() if within_bounds(s)]
+
+        polygon = {
+            'type': 'Polygon',
+            'coordinates': [[
+                [lon_min, lat_min],
+                [lon_max, lat_min],
+                [lon_max, lat_max],
+                [lon_min, lat_max],
+                [lon_min, lat_min],
+            ]],
+        }
+        cells = h3.geo_to_cells(polygon, h3_resolution)
+        candidate_cells: Set[str] = set()
+        for cell in cells:
+            candidate_cells.update(h3.grid_disk(cell, 1))
+
+        matched: List[SensorMetadata] = []
+        seen: Set[str] = set()
+        for cell in candidate_cells:
+            for sensor_id in self.h3_spatial_index.get(cell, ()):
+                if sensor_id in seen or sensor_id not in self.sensors:
+                    continue
+                sensor = self.sensors[sensor_id]
+                if within_bounds(sensor):
+                    seen.add(sensor_id)
+                    matched.append(sensor)
+        return matched

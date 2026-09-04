@@ -378,6 +378,7 @@ testpaths = [
     "GEO-INFER-*/tests",
     "tests",
 ]
+pythonpath = ["GEO-INFER-PLACE/locations/cascadia"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

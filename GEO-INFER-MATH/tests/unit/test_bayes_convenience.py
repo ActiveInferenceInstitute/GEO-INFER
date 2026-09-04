@@ -85,14 +85,14 @@ class TestMCMCWrapper:
         def log_posterior(x):
             return float(-0.5 * np.sum(x ** 2))  # Standard normal
 
-        np.random.seed(42)
         samples, metadata = mcmc_wrapper(
             log_posterior,
             initial_state=np.array([0.0, 0.0]),
             n_samples=100,
             n_burnin=20,
             step_size=0.5,
-            method='metropolis'
+            method='metropolis',
+            rng=np.random.default_rng(42),
         )
         assert samples.shape == (100, 2)
         assert 'acceptance_rate' in metadata
@@ -102,14 +102,14 @@ class TestMCMCWrapper:
         def log_posterior(x):
             return float(-0.5 * np.sum(x ** 2))
 
-        np.random.seed(42)
         samples, metadata = mcmc_wrapper(
             log_posterior,
             initial_state=np.array([1.0]),
             n_samples=50,
             n_burnin=10,
             step_size=0.5,
-            method='gibbs'
+            method='gibbs',
+            rng=np.random.default_rng(42),
         )
         assert samples.shape == (50, 1)
         assert metadata['method'] == 'gibbs'
@@ -118,13 +118,13 @@ class TestMCMCWrapper:
         def log_posterior(x):
             return float(-0.5 * np.sum(x ** 2))
 
-        np.random.seed(42)
         samples, _ = mcmc_wrapper(
             log_posterior,
             initial_state=np.array([0.0]),
             n_samples=500,
             n_burnin=100,
             step_size=1.0,
+            rng=np.random.default_rng(42),
         )
         # Mean should be near 0 for standard normal
         assert abs(np.mean(samples)) < 1.0
@@ -134,11 +134,10 @@ class TestBayesianOptimizationHelper:
     """Tests for bayesian_optimization_helper."""
 
     def test_finds_optimum(self):
-        np.random.seed(42)
         prior = np.ones(10) / 10
         objective = lambda idx: -float((idx - 5) ** 2)  # max at idx=5
         opt_params, opt_val, metadata = bayesian_optimization_helper(
-            objective, prior, n_iterations=50
+            objective, prior, n_iterations=50, rng=np.random.default_rng(42)
         )
         assert opt_val >= -25
         assert 'n_iterations' in metadata
@@ -176,6 +175,8 @@ class TestBayesianConvenience:
     def test_mcmc_sample(self):
         bc = BayesianConvenience()
         log_post = lambda x: float(-0.5 * np.sum(x ** 2))
-        np.random.seed(42)
-        samples, meta = bc.mcmc_sample(log_post, np.array([0.0]), n_samples=50, n_burnin=10)
+        samples, meta = bc.mcmc_sample(
+            log_post, np.array([0.0]), n_samples=50, n_burnin=10,
+            rng=np.random.default_rng(42),
+        )
         assert samples.shape[0] == 50

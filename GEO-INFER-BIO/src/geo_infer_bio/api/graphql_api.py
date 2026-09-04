@@ -49,11 +49,36 @@ class VisualizationData:
     coding_potential: str
 
 
+@strawberry.input
+class SpatialDataInput:
+    """Input variant of SpatialData for GraphQL arguments."""
+    latitude: float
+    longitude: float
+
+
+@strawberry.input
+class SequenceDataInput:
+    """Input variant of SequenceData for GraphQL arguments."""
+    id: str
+    sequence: str
+    spatial_data: Optional[SpatialDataInput] = None
+
+
+@strawberry.input
+class AnalysisResultInput:
+    """Input variant of AnalysisResult for GraphQL arguments."""
+    sequence_id: str
+    gc_content: float
+    motif_count: int
+    coding_regions: int
+    spatial_data: Optional[SpatialDataInput] = None
+
+
 @strawberry.type
 class Query:
     """Query type."""
     @strawberry.field
-    def analyze_sequence(self, sequence_data: SequenceData) -> AnalysisResult:
+    def analyze_sequence(self, sequence_data: SequenceDataInput) -> AnalysisResult:
         """
         Analyze a single sequence.
         
@@ -157,10 +182,10 @@ class Query:
             results.append(result)
         
         return results
-    
+
     @strawberry.field
     def visualize_spatial(
-        self, analysis_results: List[AnalysisResult]
+        self, analysis_results: List[AnalysisResultInput]
     ) -> VisualizationData:
         """
         Generate spatial visualizations of analysis results.

@@ -62,38 +62,41 @@ class FloodDroughtAnalyzer:
     ) -> xr.Dataset:
         """
         Assess drought risk.
-        
+
         Args:
             precipitation: Precipitation data
             evapotranspiration: Optional ET data
             soil_moisture: Optional soil moisture data
-            
+
         Returns:
-            Drought risk assessment
+            Drought risk assessment. The ``water_deficit`` variable is
+            ``None`` when no ET data is supplied.
         """
         # Low precipitation
         precip_threshold = precipitation.quantile(0.1, dim='time')
         low_precip = precipitation < precip_threshold
-        
-        # Water deficit
+
+        # Water deficit (None when no ET data is supplied)
+        water_deficit = None
         if evapotranspiration is not None:
             water_deficit = evapotranspiration - precipitation
             deficit_threshold = water_deficit.quantile(0.9)
             high_deficit = water_deficit > deficit_threshold
         else:
             high_deficit = low_precip
-        
+
         # Combined risk
         drought_risk = (low_precip.astype(int) + high_deficit.astype(int)) / 2
-        
+
         if soil_moisture is not None:
             # Low soil moisture increases risk
             low_moisture = soil_moisture < soil_moisture.quantile(0.2)
             drought_risk = (drought_risk + low_moisture.astype(int)) / 2
-        
+
         return xr.Dataset({
             'drought_risk': drought_risk,
             'low_precipitation': low_precip,
-            'water_deficit': water_deficit if evapotranspiration is not None else None
+            'water_deficit': water_deficit
         })
+
 

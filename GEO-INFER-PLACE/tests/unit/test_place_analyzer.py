@@ -6,12 +6,9 @@ This module tests the core place-based analysis functionality including
 location management, analysis workflows, and integration capabilities.
 """
 
-import unittest
-import sys
 import os
-
-# Add src directory to path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+import sys
+import unittest
 
 
 class TestPlaceAnalyzer(unittest.TestCase):

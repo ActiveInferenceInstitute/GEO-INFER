@@ -9,7 +9,7 @@ router = APIRouter(
     tags=["Healthcare Accessibility"],
 )
 
-# Simplified in-memory DB for facilities and population data
+# In-memory store backing the demo API
 _FACILITIES_DB: List[HealthFacility] = []
 _POPULATION_DATA_DB_ACC: List[PopulationData] = [] # Using a different name to avoid conflict if run in same context as surveillance
 

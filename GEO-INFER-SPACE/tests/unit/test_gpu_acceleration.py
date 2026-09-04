@@ -100,7 +100,11 @@ def test_pairwise_haversine_kernel_matches_reference() -> None:
             ],
         ]
     )
-    np.testing.assert_allclose(result, expected, atol=1e-6)
+    # The kernel computes in float32 before casting the result to float64;
+    # ~4,000 km distances carry ~1e-7 relative (sub-metre absolute) rounding,
+    # so the reference comparison uses float32-appropriate tolerances rather
+    # than float64 defaults.
+    np.testing.assert_allclose(result, expected, rtol=2e-6, atol=1e-4)
 
 
 def test_pairwise_haversine_kernel_requires_n2() -> None:

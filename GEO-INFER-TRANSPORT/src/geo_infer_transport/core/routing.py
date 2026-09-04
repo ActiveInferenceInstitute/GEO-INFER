@@ -43,6 +43,7 @@ class Route:
     geometry: Optional[List[Dict[str, float]]] = None
     instructions: List[str] = field(default_factory=list)
     alternatives: List['Route'] = field(default_factory=list)
+    route_source: str = "network"
 
 
 class RoutingEngine:
@@ -109,30 +110,38 @@ class RoutingEngine:
             optimization: Optimization criteria
             avoid: Features to avoid
             via: Intermediate waypoints
-            
+
         Returns:
             Computed Route object
         """
         origin_id = origin.get("node_id") or origin.get("id") or "origin"
         dest_id = destination.get("node_id") or destination.get("id") or "destination"
-        
+
         # Get path from network
         path: List[str] = []
         total_distance = 0.0
         total_time = 0.0
-        
+        route_source = "network"
+
         if self.network and hasattr(self.network, 'graph'):
             import networkx as nx
             graph = self.network.graph
-            
+
             # Choose weight based on optimization
             weight = "travel_time" if optimization == "time" else "length"
-            
+
             try:
                 # Apply traffic adjustment if enabled
                 if self.real_time_traffic:
                     self._apply_traffic_weights(graph)
-                
+
+                # Prefer traffic-adjusted weights when they exist
+                if optimization == "time" and any(
+                    "travel_time_adjusted" in data
+                    for _, _, data in graph.edges(data=True)
+                ):
+                    weight = "travel_time_adjusted"
+
                 # Calculate path
                 if self.algorithm == RoutingAlgorithm.A_STAR:
                     path = list(nx.astar_path(graph, origin_id, dest_id, weight=weight))
@@ -140,26 +149,28 @@ class RoutingEngine:
                     path = list(nx.bellman_ford_path(graph, origin_id, dest_id, weight=weight))
                 else:  # Default to Dijkstra
                     path = list(nx.dijkstra_path(graph, origin_id, dest_id, weight=weight))
-                
-                # Calculate totals
+
+                # Calculate totals (time total honours the weight actually used)
+                time_key = weight if optimization == "time" else "travel_time"
                 for i in range(len(path) - 1):
                     edge_data = graph.get_edge_data(path[i], path[i+1])
                     if edge_data:
                         total_distance += float(edge_data.get("length", 0))
-                        total_time += float(edge_data.get("travel_time", 0))
-                        
+                        total_time += float(edge_data.get(time_key, edge_data.get("travel_time", 0)))
+
             except nx.NetworkXNoPath:
                 logger.warning(f"No path found from {origin_id} to {dest_id}")
                 path = []
         else:
             # Fallback for when no network is set
+            route_source = "estimated_fallback"
             path = [origin_id, dest_id]
             total_distance = float(self._estimate_distance(origin, destination))
             total_time = total_distance / 13.9  # ~50 km/h in m/s
         
         # Generate turn-by-turn instructions
         instructions = self._generate_instructions(path)
-        
+
         route = Route(
             route_id=f"route_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             origin=origin_id,
@@ -167,9 +178,10 @@ class RoutingEngine:
             path=path,
             total_distance_m=total_distance,
             total_time_s=total_time,
-            instructions=instructions
+            instructions=instructions,
+            route_source=route_source
         )
-        
+
         logger.info(f"Calculated route: {len(path)} nodes, {total_distance/1000:.1f}km, {total_time/60:.1f}min")
         return route
     

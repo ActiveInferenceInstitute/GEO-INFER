@@ -24,6 +24,7 @@
 - `__init__.py`
 - `data_loader.py`
 - `indicators.py`
+- `rng.py`
 - `validator.py`
 - `visualizer.py`
 

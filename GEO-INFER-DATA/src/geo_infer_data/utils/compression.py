@@ -18,6 +18,12 @@ import pandas as pd
 import numpy as np
 
 from ..models.schemas import DataFormat
+from .secure_serialization import (
+    CONTEXT_COMPRESSION,
+    UnsignedPayloadError,
+    is_signed_envelope,
+    verify_payload,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -99,7 +105,10 @@ class DataCompressor:
         return compressed_data
 
     def decompress_data(
-        self, compressed_data: bytes, format: Optional[DataFormat] = None
+        self,
+        compressed_data: bytes,
+        format: Optional[DataFormat] = None,
+        verified: bool = False,
     ) -> Any:
         """
         Decompress geospatial data.
@@ -125,8 +134,8 @@ class DataCompressor:
         else:
             raise ValueError(f"Unknown compression algorithm: {self.algorithm}")
 
-        # Deserialize data
-        data = self._deserialize_data(decompressed_data, format)
+        # Deserialize data (authenticated-serialization enforced)
+        data = self._deserialize_data(decompressed_data, format, verified=verified)
 
         logger.debug(
             f"Decompressed data: {len(compressed_data)} -> {len(decompressed_data)} bytes"
@@ -151,13 +160,41 @@ class DataCompressor:
             return pickle.dumps(data)
 
     def _deserialize_data(
-        self, data: bytes, format: Optional[DataFormat] = None
+        self,
+        data: bytes,
+        format: Optional[DataFormat] = None,
+        verified: bool = False,
     ) -> Any:
-        """Deserialize data from bytes."""
+        """Deserialize data from bytes.
+
+        Pickle payloads are only deserialised behind an authenticated
+        GISP1 envelope: either the payload carries its own envelope
+        (verified here with :func:`verify_payload`) or the caller passes
+        ``verified=True`` to vouch that the bytes were already verified
+        at the transport trust boundary (e.g. after HMAC verification in
+        a storage backend). Bare pickles are rejected.
+
+        Parquet payloads are parsed without pickle and need no envelope.
+
+        Raises:
+            UnsignedPayloadError: If an unverified pickle payload carries
+                no GISP1 envelope.
+            PayloadSecurityError: If envelope verification fails.
+        """
         if format == DataFormat.PARQUET or data[:4] == b"PAR1":
             # pandas engines require a file-like object for in-memory parquet.
             return pd.read_parquet(BytesIO(data))
-        return pickle.loads(data)
+        if verified:
+            return pickle.loads(data)
+        if not is_signed_envelope(data):
+            raise UnsignedPayloadError(
+                "decompress_data() refuses bare pickle payloads: pass a "
+                "GISP1-signed envelope or verified=True for bytes already "
+                "verified by the caller"
+            )
+        return pickle.loads(
+            verify_payload(data, context=CONTEXT_COMPRESSION, key=None)
+        )
 
     def get_compression_stats(self) -> Dict[str, Any]:
         """Get compression statistics."""
