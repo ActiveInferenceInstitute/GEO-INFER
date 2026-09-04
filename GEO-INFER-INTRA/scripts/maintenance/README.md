@@ -9,7 +9,6 @@ Maintenance workspace within `GEO-INFER-INTRA`.
 
 ## Public Interface
 
-- `build_docs_previews.py:build_previews` (function)
 - `build_docs_previews.py:main` (function)
 - `update_documentation_signposts.py:get_pkg_name` (function)
 - `update_documentation_signposts.py:update_file_signpost` (function)

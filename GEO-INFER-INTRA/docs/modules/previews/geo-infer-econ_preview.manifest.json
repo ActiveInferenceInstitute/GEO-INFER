@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14967,
+      "bytes": 6721,
       "name": "geo-infer-econ_preview.html",
+      "sha256": "fe86e74de2d772499bfe601d7036a45e8d567e860fd9816c13b37d79f0f5410d",
       "type": "text/html"
     },
     {
-      "bytes": 5660,
+      "bytes": 2711,
       "name": "geo-infer-econ_preview.svg",
+      "sha256": "63078449762ea0226554406e0a4a5568a417b8970c973b52ba064ab80151ee51",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2175,
+      "bytes": 6752,
       "name": "geo-infer-econ_preview.png",
+      "sha256": "e4b0139dbb4b7109bf5710eaea6158951526ac104cd645a819229929f44f872d",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "28caa334f510e6c49c35d15cc63a9ef64c85a90db45e6e4bd55b6ade95d394c9",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "3957fb242b8f6012c03ced9c8ffd882d8476064a65d0a42d56140495c2e1c8e2",
   "module_id": "GEO-INFER-ECON",
   "name": "Economic Analysis",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15003,
+      "bytes": 6770,
       "name": "geo-infer-bayes_preview.html",
+      "sha256": "84d096f97548bfeee2c9e3181aac797fe99a0b7166e8e77da284fb23db891eac",
       "type": "text/html"
     },
     {
-      "bytes": 5688,
+      "bytes": 2738,
       "name": "geo-infer-bayes_preview.svg",
+      "sha256": "596315c885c7d7b095598f2108ed72beb8f12322671b32b5c9540f8e34cfee5b",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2189,
+      "bytes": 7064,
       "name": "geo-infer-bayes_preview.png",
+      "sha256": "abb58b29195a8b5bee09ec1012ec64c3443e059c264925d9533cad509375511d",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "7dd0dd478bfbf62e9a59267fb6f9560dc8e63e036a1245a49712c74cfc8fd0fa",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "015ce17f940a4eecbf18e5c5fd6061f828a498cb107c27c873f5e5f899c91b8c",
   "module_id": "GEO-INFER-BAYES",
   "name": "Bayesian Inference Engine",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

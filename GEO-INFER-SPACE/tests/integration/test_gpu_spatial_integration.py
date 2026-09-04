@@ -1,10 +1,7 @@
-"""
-Integration tests for SPACE-01: GPU-accelerated spatial joins and H3 distance
-kernels wired into the H3Backend dispatcher layer.
+"""Numeric backend selection and host H3 topology through H3Backend.
 
-These tests exercise the accelerator-dispatched methods on ``H3Backend`` and
-verify that the CPU fallback path (``use_gpu=False``) is fully functional and
-self-consistent regardless of whether an accelerator is installed.
+CPU requests must not probe accelerators. Execution metadata describes actual
+numeric backends, while exact H3 grid and ancestry operations always use CPU.
 """
 
 from __future__ import annotations
@@ -27,7 +24,10 @@ def backend() -> H3Backend:
 
 
 def _cells(n: int = 8, resolution: int = 9) -> List[str]:
-    return [h3.latlng_to_cell(37.0 + i * 0.01, -122.0 + i * 0.01, resolution) for i in range(n)]
+    return [
+        h3.latlng_to_cell(37.0 + i * 0.01, -122.0 + i * 0.01, resolution)
+        for i in range(n)
+    ]
 
 
 def _parent(resolution: int = 7) -> str:
@@ -101,7 +101,9 @@ def test_backend_compute_distance_matrix(backend: H3Backend) -> None:
     np.testing.assert_array_equal(np.diag(cm), np.zeros(6))
 
 
-def test_backend_compute_distance_matrix_positive_off_diagonal(backend: H3Backend) -> None:
+def test_backend_compute_distance_matrix_positive_off_diagonal(
+    backend: H3Backend,
+) -> None:
     cells = _cells(5)
     res = backend.compute_distance_matrix(cells, cells, use_gpu=False)
     m = np.asarray(res["distance_matrix"])
@@ -164,7 +166,45 @@ def test_backend_accelerator_state_attribute(backend: H3Backend) -> None:
     # Both the availability guard and the refresh helper are always callable.
     backend._prepare_accelerator()
 
+
 def test_backend_package_import_clean(backend: H3Backend) -> None:
     """Force-Python fallback is reachable even if GPU is present."""
     cpu = backend.compute_distance_matrix(_cells(3), _cells(3), use_gpu=False)
     assert cpu["shape"] == [3, 3]
+
+
+def test_use_gpu_false_never_probes_or_runs_accelerator(backend, monkeypatch) -> None:
+    from geo_infer_space.backends.gpu import gpu_acceleration as kernels
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError("CPU request must not probe accelerators")
+
+    monkeypatch.setattr(kernels, "_probe_backend", unexpected)
+    cells = _cells(2)
+    for result in [
+        backend.compute_distance_matrix(cells, cells, use_gpu=False),
+        backend.spatial_join(cells, cells, use_gpu=True),
+        backend.geodesic_distance_matrix(cells, cells, use_gpu=False, chunk_size=1),
+        backend.geodesic_spatial_join([(0, 0)], [(0, 0)], 1, use_gpu=False),
+    ]:
+        assert result["backend"] == "cpu"
+        assert result["accelerator"] == []
+
+
+def test_invalid_centroid_is_not_silently_replaced(backend) -> None:
+    with pytest.raises(ValueError):
+        backend.geodesic_distance_matrix(["invalid"], _cells(1), use_gpu=False)
+
+
+def test_empty_centroid_matrix(backend) -> None:
+    result = backend.geodesic_distance_matrix([], _cells(2), use_gpu=False)
+    assert result["distance_matrix"].shape == (0, 2)
+    assert result["accelerator"] == []
+    assert result["backend"] == "none"
+
+
+def test_conflicting_explicit_backend_is_rejected(backend) -> None:
+    with pytest.raises(ValueError, match="conflicts"):
+        backend.geodesic_spatial_join(
+            [(0, 0)], [(0, 0)], 1, use_gpu=False, backend="cupy"
+        )

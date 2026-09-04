@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
@@ -29,13 +30,13 @@ logger = logging.getLogger(__name__)
 
 def _load_presets() -> Dict[str, Any]:
     """Load location presets from the tracked YAML configuration."""
-    _cfg = Path(__file__).parent.parent / "config" / "location_presets.yaml"
-    if not _cfg.exists():
+    _cfg = files("geo_infer_place.config").joinpath("location_presets.yaml")
+    if not _cfg.is_file():
         raise FileNotFoundError(f"Location preset configuration is required: {_cfg}")
 
     import yaml
 
-    with open(_cfg, encoding="utf-8") as f:
+    with _cfg.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     if not isinstance(data, dict) or not data:
         raise ValueError(f"Location preset configuration is empty or invalid: {_cfg}")

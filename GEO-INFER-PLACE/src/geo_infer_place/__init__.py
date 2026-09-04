@@ -30,7 +30,7 @@ from typing import Dict, List, Optional, Any
 import logging
 
 # Version information
-__version__ = "1.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 __email__ = "geo-infer@activeinference.institute"
 
@@ -42,6 +42,7 @@ try:
     from geo_infer_space import PlaceAnalyzer
     from geo_infer_space.core.data_integrator import DataIntegrator
     from geo_infer_space.utils.config_loader import LocationConfigLoader
+
     _HAS_SPACE = True
 except ImportError:
     PlaceAnalyzer = None
@@ -70,7 +71,9 @@ from .utils.caching import CachedAPIWrapper
 
 # --- Location-specific Imports ---
 from .locations.del_norte_county.forest_health_monitor import ForestHealthMonitor
-from .locations.del_norte_county.coastal_resilience_analyzer import CoastalResilienceAnalyzer
+from .locations.del_norte_county.coastal_resilience_analyzer import (
+    CoastalResilienceAnalyzer,
+)
 from .locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
 from .locations.del_norte_county.seismic_hazard_analyzer import SeismicHazardAnalyzer
 
@@ -110,64 +113,61 @@ from .core.api_clients import (
 # Export public API
 __all__ = [
     # Unified interface (primary entry point)
-    'PlaceInterface',
-
+    "PlaceInterface",
     # Module bridges
-    'PlaceDataManager',
-    'PlaceTemporalAnalyzer',
-
+    "PlaceDataManager",
+    "PlaceTemporalAnalyzer",
     # Core components (local)
-    'InteractiveVisualizationEngine',
-    'CascadianAgriculturalH3Backend',
-    'BaseAnalysisModule',
-
+    "InteractiveVisualizationEngine",
+    "CascadianAgriculturalH3Backend",
+    "BaseAnalysisModule",
     # Infrastructure
-    'CachedAPIWrapper',
-
+    "CachedAPIWrapper",
     # Del Norte County analyzers
-    'ForestHealthMonitor',
-    'CoastalResilienceAnalyzer',
-    'FireRiskAssessor',
-    'SeismicHazardAnalyzer',
-
+    "ForestHealthMonitor",
+    "CoastalResilienceAnalyzer",
+    "FireRiskAssessor",
+    "SeismicHazardAnalyzer",
     # Utilities
-    'CaliforniaDataSources',
-    'latlng_to_cell',
-    'cell_to_latlng',
-    'cell_to_latlng_boundary',
-    'geo_to_cells',
-    'polygon_to_cells',
-    'grid_disk',
-    'grid_distance',
-    'grid_ring',
-    'cell_area',
-    'get_resolution',
-    'is_valid_cell',
-    'are_neighbor_cells',
-    'cells_to_geodataframe',
-    'cell_to_parent',
-    'cell_to_children',
-    'compact_cells',
-    'uncompact_cells',
-    'estimate_cell_count',
-
+    "CaliforniaDataSources",
+    "latlng_to_cell",
+    "cell_to_latlng",
+    "cell_to_latlng_boundary",
+    "geo_to_cells",
+    "polygon_to_cells",
+    "grid_disk",
+    "grid_distance",
+    "grid_ring",
+    "cell_area",
+    "get_resolution",
+    "is_valid_cell",
+    "are_neighbor_cells",
+    "cells_to_geodataframe",
+    "cell_to_parent",
+    "cell_to_children",
+    "compact_cells",
+    "uncompact_cells",
+    "estimate_cell_count",
     # API clients
-    'CaliforniaAPIManager',
-    'NOAAClient',
-    'CALFIREClient',
-    'USGSClient',
-    'USGSEarthquakeClient',
-    'CDECClient',
+    "CaliforniaAPIManager",
+    "NOAAClient",
+    "CALFIREClient",
+    "USGSClient",
+    "USGSEarthquakeClient",
+    "CDECClient",
 ]
 
 
 def get_supported_locations() -> List[str]:
     """Get list of supported analysis locations."""
     from .core.place_interface import LOCATION_PRESETS
+
     return list(LOCATION_PRESETS.keys())
 
 
-def create_analyzer(location_code: str, config_path: Optional[str] = None) -> "PlaceInterface":
+def create_analyzer(
+    location_code: str, config_path: Optional[str] = None
+) -> "PlaceInterface":
     """Create a PlaceInterface for a specific location.
 
     Args:

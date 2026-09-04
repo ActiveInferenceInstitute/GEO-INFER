@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14955,
+      "bytes": 6691,
       "name": "geo-infer-sec_preview.html",
+      "sha256": "3d5992ceef3f1a605b6bbdc32b863b279fa5d54cc5b4192c616bfac9b8f1aa23",
       "type": "text/html"
     },
     {
-      "bytes": 5672,
+      "bytes": 2695,
       "name": "geo-infer-sec_preview.svg",
+      "sha256": "1299e7bc7840f9f86dc8d558f09b490c1cc8c249a2437b8b1b1624a70cdcd032",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2171,
+      "bytes": 6877,
       "name": "geo-infer-sec_preview.png",
+      "sha256": "569c542d4672e68d4ab0aea368412aa6a58544fde6eb557ebdba07d713554f37",
       "type": "image/png"
     }
   ],
   "category": "Infrastructure",
-  "input_sha256": "06831906c41f6d0a58475a617baaafe284b1c627deb55e2c0212790acd73bb27",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "4ff8b3d5a539bc9c225610fbcc8c71397cc7efeb03728f0b0d5094f499832c22",
   "module_id": "GEO-INFER-SEC",
   "name": "Security",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

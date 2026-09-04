@@ -113,6 +113,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-PLACE** (*Place-Based Analysis*). 
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-PLACE Leaflet Preview](previews/geo-infer-place_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-PLACE Leaflet Preview](previews/geo-infer-place_preview.svg) | [Interactive map](previews/geo-infer-place_preview.html) · [PNG](previews/geo-infer-place_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-place_preview.html`, `geo-infer-place_preview.svg`, `geo-infer-place_preview.png`, and `geo-infer-place_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-place_preview.html`, `geo-infer-place_preview.svg`, `geo-infer-place_preview.png`, and `geo-infer-place_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

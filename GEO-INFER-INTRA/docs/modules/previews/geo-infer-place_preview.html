@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_2c5b4fd9e434a6bfa63c6c45ee256a27 {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #059669; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-PLACE</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Place-Based Analysis</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Cascadia regional bioregions, volcanoes, and watershed hydrography</div></div>
-    
-            <div class="folium-map" id="map_2c5b4fd9e434a6bfa63c6c45ee256a27" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-PLACE: Place-Based Analysis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-PLACE: Place-Based Analysis</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-PLACE desc-PLACE" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-PLACE">GEO-INFER-PLACE: Place-Based Analysis</title>
+<desc id="desc-PLACE">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-PLACE</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Place-Based Analysis</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="8728f0023ffffff" points="611.817,278.479 642.078,237.054 606.247,201.555 540.155,207.485 509.909,248.911 545.740,284.406 611.817,278.479" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0023ffffff</title></polygon><polygon data-h3="8728f0004ffffff" points="708.177,231.140 738.459,189.724 702.627,154.221 636.513,160.139 606.247,201.555 642.078,237.054 708.177,231.140" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0004ffffff</title></polygon><polygon data-h3="8728f0005ffffff" points="606.247,201.555 636.513,160.139 600.673,124.652 534.567,130.586 504.315,172.002 540.155,207.485 606.247,201.555" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0005ffffff</title></polygon><polygon data-h3="8728f0020ffffff" points="617.386,355.425 647.640,313.990 611.817,278.479 545.740,284.406 515.501,325.840 551.323,361.348 617.386,355.425" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0020ffffff</title></polygon><polygon data-h3="8728f0021ffffff" points="515.501,325.840 545.740,284.406 509.909,248.911 443.839,254.854 413.615,296.288 449.445,331.780 515.501,325.840" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0021ffffff</title></polygon><polygon data-h3="8728f0022ffffff" points="713.724,308.080 744.000,266.655 708.177,231.140 642.078,237.054 611.817,278.479 647.640,313.990 713.724,308.080" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f0022ffffff</title></polygon><polygon data-h3="8728f002effffff" points="509.909,248.911 540.155,207.485 504.315,172.002 438.231,177.949 408.000,219.374 443.839,254.854 509.909,248.911" fill="#34d399" fill-opacity="0.45" stroke="#059669"><title>8728f002effffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#059669"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["8728f0023ffffff", [[45.50317573933498, -122.6832459387324], [45.51423858805211, -122.67516466727204], [45.52371874419594, -122.6847336456471], [45.5221350790842, -122.70238378634053], [45.51107216370569, -122.7104610359653], [45.501592979973694, -122.70089216786076], [45.50317573933498, -122.6832459387324]]], ["8728f0004ffffff", [[45.51581792940211, -122.65751269280452], [45.5268783305075, -122.64942578329558], [45.5363594591554, -122.65899486723956], [45.53477921406738, -122.67665075625386], [45.52371874419594, -122.6847336456471], [45.51423858805211, -122.67516466727204], [45.51581792940211, -122.65751269280452]]], ["8728f0005ffffff", [[45.52371874419594, -122.6847336456471], [45.53477921406738, -122.67665075625386], [45.54425608603575, -122.68622203029508], [45.54267151581153, -122.70387608426293], [45.53161097885814, -122.7119549497859], [45.5221350790842, -122.70238378634053], [45.52371874419594, -122.6847336456471]]], ["8728f0020ffffff", [[45.482627074435705, -122.68175890909035], [45.493692300187384, -122.67367925493829], [45.50317573933498, -122.6832459387324], [45.501592979973694, -122.70089216786076], [45.49052768797979, -122.70896780221032], [45.481045221462885, -122.69940122836184], [45.482627074435705, -122.68175890909035]]], ["8728f0021ffffff", [[45.49052768797979, -122.70896780221032], [45.501592979973694, -122.70089216786076], [45.51107216370569, -122.7104610359653], [45.50948508299824, -122.7281054245804], [45.49841972644795, -122.73617703538278], [45.48894151503472, -122.72660828224394], [45.49052768797979, -122.70896780221032]]], ["8728f0022ffffff", [[45.49527073716211, -122.65603119330704], [45.50633351753336, -122.64794590376329], [45.51581792940211, -122.65751269280452], [45.51423858805211, -122.67516466727204], [45.50317573933498, -122.6832459387324], [45.493692300187384, -122.67367925493829], [45.49527073716211, -122.65603119330704]]], ["8728f002effffff", [[45.51107216370569, -122.7104610359653], [45.5221350790842, -122.70238378634053], [45.53161097885814, -122.7119549497859], [45.530022991027025, -122.72960324868954], [45.518960010672544, -122.73767647273179], [45.50948508299824, -122.7281054245804], [45.51107216370569, -122.7104610359653]]]], "center": [45.5152, -122.6784], "color": "#059669", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 7}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_2c5b4fd9e434a6bfa63c6c45ee256a27 = L.map(
-                "map_2c5b4fd9e434a6bfa63c6c45ee256a27",
-                {
-                    center: [45.5152, -122.6784],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 7,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_3bb82683d41ff0d7814d0b80f401668e = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_3bb82683d41ff0d7814d0b80f401668e.addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
-        
-    
-            var feature_group_c2f9c8f6e907c3819ea2c472058dd84e = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_0471c813eca10f408aa3b1ab5496cdb0 = L.polygon(
-                [[45.5152, -122.6674], [45.524726, -122.6729], [45.524726, -122.6839], [45.5152, -122.6894], [45.505674, -122.6839], [45.505674, -122.6729], [45.5152, -122.6674]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_063aee7524739a8feafe66152839398d = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_5fcde2cd219b3ced0b12336336b7cbd1 = $(`<div id="html_5fcde2cd219b3ced0b12336336b7cbd1" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
-                popup_063aee7524739a8feafe66152839398d.setContent(html_5fcde2cd219b3ced0b12336336b7cbd1);
-            
-        
-
-        polygon_0471c813eca10f408aa3b1ab5496cdb0.bindPopup(popup_063aee7524739a8feafe66152839398d)
-        ;
-
-        
-    
-    
-            var polygon_ca795988b3a01d6b987c1604f2d0644c = L.polygon(
-                [[45.5352, -122.6674], [45.544726, -122.6729], [45.544726, -122.6839], [45.5352, -122.6894], [45.525674, -122.6839], [45.525674, -122.6729], [45.5352, -122.6674]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_d1525b5af0a1a7b97686b8f61bc301c1 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_e8a280305574e214e6fa3b04d03f9583 = $(`<div id="html_e8a280305574e214e6fa3b04d03f9583" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-PLACE<br>Feature: Megathrust Fault Line</div>`)[0];
-                popup_d1525b5af0a1a7b97686b8f61bc301c1.setContent(html_e8a280305574e214e6fa3b04d03f9583);
-            
-        
-
-        polygon_ca795988b3a01d6b987c1604f2d0644c.bindPopup(popup_d1525b5af0a1a7b97686b8f61bc301c1)
-        ;
-
-        
-    
-    
-            var polygon_bc9753284689d16cfa20bbe532d412ba = L.polygon(
-                [[45.5252, -122.650079], [45.534726, -122.655579], [45.534726, -122.666579], [45.5252, -122.672079], [45.515674, -122.666579], [45.515674, -122.655579], [45.5252, -122.650079]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_ce2b36335a74be621315edcbadf45032 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_6e7a9f534aa6164b201e4e63b058549a = $(`<div id="html_6e7a9f534aa6164b201e4e63b058549a" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-PLACE<br>Feature: Watershed Hydrography</div>`)[0];
-                popup_ce2b36335a74be621315edcbadf45032.setContent(html_6e7a9f534aa6164b201e4e63b058549a);
-            
-        
-
-        polygon_bc9753284689d16cfa20bbe532d412ba.bindPopup(popup_ce2b36335a74be621315edcbadf45032)
-        ;
-
-        
-    
-    
-            var polygon_5c9bb47fc7524b1b1f597d73fe4b54b0 = L.polygon(
-                [[45.5052, -122.650079], [45.514726, -122.655579], [45.514726, -122.666579], [45.5052, -122.672079], [45.495674, -122.666579], [45.495674, -122.655579], [45.5052, -122.650079]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_a9cc779ddc885eb621ef31daa28bf095 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_f1a6b74dfce499dfbf5872cb0c3a0aab = $(`<div id="html_f1a6b74dfce499dfbf5872cb0c3a0aab" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
-                popup_a9cc779ddc885eb621ef31daa28bf095.setContent(html_f1a6b74dfce499dfbf5872cb0c3a0aab);
-            
-        
-
-        polygon_5c9bb47fc7524b1b1f597d73fe4b54b0.bindPopup(popup_a9cc779ddc885eb621ef31daa28bf095)
-        ;
-
-        
-    
-    
-            var polygon_ce059835de7b64a9fdd28ff3418ed202 = L.polygon(
-                [[45.4952, -122.6674], [45.504726, -122.6729], [45.504726, -122.6839], [45.4952, -122.6894], [45.485674, -122.6839], [45.485674, -122.6729], [45.4952, -122.6674]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_056ec624c41eb45c87b82535fe52e4f2 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_400a04efbb86673d5873ffe57ca7092a = $(`<div id="html_400a04efbb86673d5873ffe57ca7092a" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-PLACE<br>Feature: Megathrust Fault Line</div>`)[0];
-                popup_056ec624c41eb45c87b82535fe52e4f2.setContent(html_400a04efbb86673d5873ffe57ca7092a);
-            
-        
-
-        polygon_ce059835de7b64a9fdd28ff3418ed202.bindPopup(popup_056ec624c41eb45c87b82535fe52e4f2)
-        ;
-
-        
-    
-    
-            var polygon_5fc4018260744e227b820e4b2ce9ac04 = L.polygon(
-                [[45.5052, -122.684721], [45.514726, -122.690221], [45.514726, -122.701221], [45.5052, -122.706721], [45.495674, -122.701221], [45.495674, -122.690221], [45.5052, -122.684721]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_ace4edd0ee086e1bc462651f9061becc = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_cbd8512b02f399a0946bdde09574487b = $(`<div id="html_cbd8512b02f399a0946bdde09574487b" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-PLACE<br>Feature: Watershed Hydrography</div>`)[0];
-                popup_ace4edd0ee086e1bc462651f9061becc.setContent(html_cbd8512b02f399a0946bdde09574487b);
-            
-        
-
-        polygon_5fc4018260744e227b820e4b2ce9ac04.bindPopup(popup_ace4edd0ee086e1bc462651f9061becc)
-        ;
-
-        
-    
-    
-            var polygon_3840b72d7b475f58dcc16af4507ea5ce = L.polygon(
-                [[45.5252, -122.684721], [45.534726, -122.690221], [45.534726, -122.701221], [45.5252, -122.706721], [45.515674, -122.701221], [45.515674, -122.690221], [45.5252, -122.684721]],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#34d399", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_c2f9c8f6e907c3819ea2c472058dd84e);
-        
-    
-        var popup_9e21e6932a9506bd1b73ff36ca24d48a = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_0a383d6e6b946b304015ae4b93e83e96 = $(`<div id="html_0a383d6e6b946b304015ae4b93e83e96" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-PLACE<br>Feature: Cascadia Volcanoes</div>`)[0];
-                popup_9e21e6932a9506bd1b73ff36ca24d48a.setContent(html_0a383d6e6b946b304015ae4b93e83e96);
-            
-        
-
-        polygon_3840b72d7b475f58dcc16af4507ea5ce.bindPopup(popup_9e21e6932a9506bd1b73ff36ca24d48a)
-        ;
-
-        
-    
-    
-            feature_group_c2f9c8f6e907c3819ea2c472058dd84e.addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
-        
-    
-            var circle_marker_c6377044f8af39f2ddfb78801d96b9f0 = L.circleMarker(
-                [45.5152, -122.6784],
-                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
-        
-    
-        var popup_cf5cbd252ce96acdfdd59c0b4e0a19a5 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_e6df64f6530ce87f4f6bf8af445dbcb1 = $(`<div id="html_e6df64f6530ce87f4f6bf8af445dbcb1" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-PLACE</b> Focus Center</div>`)[0];
-                popup_cf5cbd252ce96acdfdd59c0b4e0a19a5.setContent(html_e6df64f6530ce87f4f6bf8af445dbcb1);
-            
-        
-
-        circle_marker_c6377044f8af39f2ddfb78801d96b9f0.bindPopup(popup_cf5cbd252ce96acdfdd59c0b4e0a19a5)
-        ;
-
-        
-    
-    
-            var layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_3bb82683d41ff0d7814d0b80f401668e,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_c2f9c8f6e907c3819ea2c472058dd84e,
-                },
-            };
-            let layer_control_2af5580cd821ee52895cf64fcc87f5b1 = L.control.layers(
-                layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers.base_layers,
-                layer_control_2af5580cd821ee52895cf64fcc87f5b1_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_2c5b4fd9e434a6bfa63c6c45ee256a27);
-
-        
-</script>
-</html>
+</script></main></body></html>

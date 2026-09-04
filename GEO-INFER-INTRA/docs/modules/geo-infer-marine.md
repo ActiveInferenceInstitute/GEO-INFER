@@ -469,6 +469,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-MARINE** (*Marine and Coastal Modu
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-MARINE Leaflet Preview](previews/geo-infer-marine_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-MARINE Leaflet Preview](previews/geo-infer-marine_preview.svg) | [Interactive map](previews/geo-infer-marine_preview.html) · [PNG](previews/geo-infer-marine_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-marine_preview.html`, `geo-infer-marine_preview.svg`, `geo-infer-marine_preview.png`, and `geo-infer-marine_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-marine_preview.html`, `geo-infer-marine_preview.svg`, `geo-infer-marine_preview.png`, and `geo-infer-marine_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

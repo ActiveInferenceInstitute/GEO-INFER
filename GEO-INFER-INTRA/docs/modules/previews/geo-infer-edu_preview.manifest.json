@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14968,
+      "bytes": 6763,
       "name": "geo-infer-edu_preview.html",
+      "sha256": "5e7b0395be8902a4c3ba1e1b103ca8905eaf3daa4d1c2614555e1b78a12a03bf",
       "type": "text/html"
     },
     {
-      "bytes": 5679,
+      "bytes": 2729,
       "name": "geo-infer-edu_preview.svg",
+      "sha256": "a5d43f4f9d1678eeae5b481a43e9b9329610e1d6ec21935960a29b1e66ef9705",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2185,
+      "bytes": 6724,
       "name": "geo-infer-edu_preview.png",
+      "sha256": "6dd2043d35d6362c27fe00ec239ade32b9c7cfafac437b6ccc5c908c67869570",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "dc3bd0f16103b2bec88dac48a16d40a9da71e327675dc337cb9cf37362adecd2",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "f41c01d19d6770201a6c7d43543b1bdedf564240b6a0b886491370c3820526ca",
   "module_id": "GEO-INFER-EDU",
   "name": "Educational Technology Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

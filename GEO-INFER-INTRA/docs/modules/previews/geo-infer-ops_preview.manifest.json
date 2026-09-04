@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14929,
+      "bytes": 6691,
       "name": "geo-infer-ops_preview.html",
+      "sha256": "cd047cb22fde2b7a66a4aefad020ae303101464c95ff6022ff4c3d82fb9361de",
       "type": "text/html"
     },
     {
-      "bytes": 5643,
+      "bytes": 2699,
       "name": "geo-infer-ops_preview.svg",
+      "sha256": "0cb92e60319c81fa20037dd680d7f77067f25f5c9cc66eae52c03aeca1df14e6",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2174,
+      "bytes": 6806,
       "name": "geo-infer-ops_preview.png",
+      "sha256": "aeae101f3902dc8e1cb3b244fc8c0d348318b796eacf2a132c9fcd2b95301b1f",
       "type": "image/png"
     }
   ],
   "category": "Infrastructure",
-  "input_sha256": "d4127163df18cf8f668b09e597ddf35a0e3a67a83415cd5f72869959e3eb8a6c",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "62ef954c4adf53f569863f8c56adafacbc10e248d8758de501bb0edb78be84ec",
   "module_id": "GEO-INFER-OPS",
   "name": "Operations",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

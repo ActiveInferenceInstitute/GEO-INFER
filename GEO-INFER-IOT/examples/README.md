@@ -12,12 +12,6 @@ Examples workspace within `GEO-INFER-IOT`.
 
 - `radiation_surveillance.py:RadiationSurveillanceSystem` (class)
 - `radiation_surveillance.py:main` (function)
-- `smart_sensor_network.py:build_sensor_registry` (function)
-- `smart_sensor_network.py:generate_readings` (function)
-- `smart_sensor_network.py:ingest_readings` (function)
-- `smart_sensor_network.py:validate_readings` (function)
-- `smart_sensor_network.py:aggregate_recent_readings` (function)
-- `smart_sensor_network.py:detect_threshold_alerts` (function)
 - `smart_sensor_network.py:main` (function)
 - `soil_sensor_network.py:SoilSensorNetwork` (class)
 - `soil_sensor_network.py:load_config` (function)

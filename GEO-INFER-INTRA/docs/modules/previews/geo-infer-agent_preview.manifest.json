@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15045,
+      "bytes": 6753,
       "name": "geo-infer-agent_preview.html",
+      "sha256": "2e3982a47b8414c52c7026c066976b4718562ad67c6dffa95eb64f0a87f955ad",
       "type": "text/html"
     },
     {
-      "bytes": 5690,
+      "bytes": 2727,
       "name": "geo-infer-agent_preview.svg",
+      "sha256": "e8bf1d917e6a7a5e75b57addec05a4031f623589ab686d4ee67115f38d6706bd",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2185,
+      "bytes": 6768,
       "name": "geo-infer-agent_preview.png",
+      "sha256": "8259b96233352a7363206a0ab1d1d472e162a84bc44b3e3cf64329109a463525",
       "type": "image/png"
     }
   ],
   "category": "Optimization",
-  "input_sha256": "38089e43c05add52e0fa1d2e2d5c6c8e3cebf1e97b11518699054b9c1cd2f528",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "637e96ecc95f611fbced340e42dfdc86f4d1f04c3e58a2ec01f7bd91bf388dc1",
   "module_id": "GEO-INFER-AGENT",
   "name": "Multi-Agent Systems",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

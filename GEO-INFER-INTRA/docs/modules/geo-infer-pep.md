@@ -111,6 +111,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-PEP** (*People & Communities*). Re
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-PEP Leaflet Preview](previews/geo-infer-pep_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-PEP Leaflet Preview](previews/geo-infer-pep_preview.svg) | [Interactive map](previews/geo-infer-pep_preview.html) · [PNG](previews/geo-infer-pep_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-pep_preview.html`, `geo-infer-pep_preview.svg`, `geo-infer-pep_preview.png`, and `geo-infer-pep_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-pep_preview.html`, `geo-infer-pep_preview.svg`, `geo-infer-pep_preview.png`, and `geo-infer-pep_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

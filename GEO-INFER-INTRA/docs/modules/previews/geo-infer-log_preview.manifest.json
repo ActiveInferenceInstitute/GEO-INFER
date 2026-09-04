@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14927,
+      "bytes": 6680,
       "name": "geo-infer-log_preview.html",
+      "sha256": "eceb6df0bdb26337468ce7b67771597ba65c65971760bb98750ca90ee94b6a88",
       "type": "text/html"
     },
     {
-      "bytes": 5646,
+      "bytes": 2689,
       "name": "geo-infer-log_preview.svg",
+      "sha256": "34a4cd014e7eb7fd7e65f9dff04988bc26de05238a55344c6120b88240d2f5a9",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2162,
+      "bytes": 6634,
       "name": "geo-infer-log_preview.png",
+      "sha256": "7ded99f24eceb15f328bf8bd543609be6fb360be1ad871fc5f5d3c8d65c53f24",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "0631ec0427881b3739032db85731f320a19f52d5d3a7deeb12ddf9bc2ce43a8d",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "bfb51b0d714ecc0116abaff9e9fa1777a582a2af280c80306b3a80864354316e",
   "module_id": "GEO-INFER-LOG",
   "name": "Logistics",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

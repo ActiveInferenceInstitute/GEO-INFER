@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15045,
+      "bytes": 6728,
       "name": "geo-infer-place_preview.html",
+      "sha256": "4269e16fd755a706f8577292ee9ad00eb8b0b12ba0e4a7bba29a056485e9acf4",
       "type": "text/html"
     },
     {
-      "bytes": 5686,
+      "bytes": 2724,
       "name": "geo-infer-place_preview.svg",
+      "sha256": "e9f26b2cdb48ada67706bcef603d24f0730db73ba0b3c26f2a7781f2716bbbfb",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2179,
+      "bytes": 6733,
       "name": "geo-infer-place_preview.png",
+      "sha256": "e4e31ba05646132ed0d338c1455374b7dce903fa3169adbf20b949e8a9052ce0",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "00fd4ee97a260c847b4e6ebefec23e2d8ffd5b0eae93aee3c458ccb8393a9533",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "d62773d215c759f8a5004caed85838829f572c9ff2bcea81003a17b313e33065",
   "module_id": "GEO-INFER-PLACE",
   "name": "Place-Based Analysis",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

@@ -13,7 +13,7 @@ Key Features:
 - Professional development support
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.curriculum import CurriculumDesigner

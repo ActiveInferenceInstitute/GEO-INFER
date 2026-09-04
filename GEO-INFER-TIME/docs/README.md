@@ -5,6 +5,7 @@ Docs workspace within `GEO-INFER-TIME`.
 ## Contents
 
 - `api_schema.yaml`
+- `streaming_migration.md`
 
 ## Public Interface
 

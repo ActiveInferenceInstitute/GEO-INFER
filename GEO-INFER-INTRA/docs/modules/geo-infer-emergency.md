@@ -532,6 +532,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-EMERGENCY** (*Emergency Management
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-EMERGENCY Leaflet Preview](previews/geo-infer-emergency_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-EMERGENCY Leaflet Preview](previews/geo-infer-emergency_preview.svg) | [Interactive map](previews/geo-infer-emergency_preview.html) · [PNG](previews/geo-infer-emergency_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-emergency_preview.html`, `geo-infer-emergency_preview.svg`, `geo-infer-emergency_preview.png`, and `geo-infer-emergency_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-emergency_preview.html`, `geo-infer-emergency_preview.svg`, `geo-infer-emergency_preview.png`, and `geo-infer-emergency_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

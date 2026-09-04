@@ -5,8 +5,10 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import sys
+import time
 from pathlib import Path
 
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONTRACTS_PATH = REPO_ROOT / "GEO-INFER-TEST" / "validate_repo_contracts.py"
@@ -336,3 +338,123 @@ def test_pymdp_runtime_import_contract_rejects_legacy_runtime_paths(
     errors = "\n".join(report.errors)
     assert "runtime.py" in errors
     assert "test_legacy_note.py" not in errors
+
+
+def test_import_smoke_isolates_timeout_and_continues(tmp_path, monkeypatch):
+    """A hanging package cannot prevent subsequent packages from being probed."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    modules = []
+    for name, source in [
+        ("slow", "import time\ntime.sleep(10)\n"),
+        ("healthy", "VALUE = 42\n"),
+    ]:
+        module = tmp_path / ("GEO-INFER-" + name.upper())
+        package = module / "src" / ("geo_infer_" + name)
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text(source)
+        (module / "pyproject.toml").write_text(
+            '[project]\nname = "geo-infer-' + name + '"\n'
+        )
+        modules.append(module)
+    report = contracts.ContractReport()
+    contracts.validate_import_smoke(modules, report, timeout=2)
+    assert len(report.warnings) == 1
+    assert "timed out" in report.warnings[0]
+    assert "geo_infer_healthy" not in sys.modules
+
+
+def test_import_smoke_does_not_accept_cwd_shadow_of_broken_source(
+    tmp_path, monkeypatch
+):
+    """A healthy same-named cwd module cannot hide a broken source package."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module = tmp_path / "GEO-INFER-PROBE"
+    package = module / "src" / "geo_infer_probe"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text('raise RuntimeError("actual source broken")\n')
+    (module / "pyproject.toml").write_text('[project]\nname="geo-infer-probe"\n')
+    (tmp_path / "geo_infer_probe.py").write_text("VALUE = 42\n")
+
+    report = contracts.ContractReport()
+    contracts.validate_import_smoke([module], report, timeout=2)
+
+    assert len(report.warnings) == 1
+    assert "actual source broken" in report.warnings[0]
+
+
+def test_import_smoke_rejects_regular_package_from_another_source_root(
+    tmp_path, monkeypatch
+):
+    """An empty namespace candidate cannot fall through to another checkout."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    target = tmp_path / "GEO-INFER-PROBE"
+    (target / "src" / "geo_infer_probe").mkdir(parents=True)
+    (target / "pyproject.toml").write_text('[project]\nname="geo-infer-probe"\n')
+    other = tmp_path / "GEO-INFER-SUPPORT"
+    for name in ("geo_infer_probe", "geo_infer_support"):
+        package = other / "src" / name
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("VALUE = 42\n")
+    (other / "pyproject.toml").write_text('[project]\nname="geo-infer-support"\n')
+
+    report = contracts.ContractReport()
+    contracts.validate_import_smoke([target, other], report, timeout=2)
+
+    assert len(report.warnings) == 1
+    assert "outside expected source" in report.warnings[0]
+    assert str(other / "src" / "geo_infer_probe") in report.warnings[0]
+
+
+@pytest.mark.parametrize("source", ["raise SystemExit(0)", "import os; os._exit(0)"])
+def test_import_smoke_rejects_early_success_exit(tmp_path, monkeypatch, source):
+    """A zero exit before source-origin verification is an incomplete probe."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module = tmp_path / "GEO-INFER-PROBE"
+    package = module / "src" / "geo_infer_probe"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text(source)
+    (module / "pyproject.toml").write_text('[project]\nname="geo-infer-probe"\n')
+    report = contracts.ContractReport()
+    contracts.validate_import_smoke([module], report, timeout=2)
+    assert len(report.warnings) == 1
+    assert "completion receipt" in report.warnings[0]
+
+
+def test_import_smoke_timeout_stops_descendants(tmp_path, monkeypatch):
+    """Source-import descendants are terminated before subsequent probes run."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module = tmp_path / "GEO-INFER-PROBE"
+    package = module / "src" / "geo_infer_probe"
+    package.mkdir(parents=True)
+    started = tmp_path / "child-started"
+    finished = tmp_path / "child-finished"
+    child = (
+        f"import pathlib,time; pathlib.Path({str(started)!r}).touch(); "
+        f"time.sleep(1.2); pathlib.Path({str(finished)!r}).touch()"
+    )
+    (package / "__init__.py").write_text(
+        "import subprocess,sys,time\n"
+        f"subprocess.Popen([sys.executable, '-c', {child!r}])\n"
+        "time.sleep(10)\n"
+    )
+    (module / "pyproject.toml").write_text('[project]\nname="geo-infer-probe"\n')
+    report = contracts.ContractReport()
+    contracts.validate_import_smoke([module], report, timeout=0.5)
+    assert len(report.warnings) == 1
+    assert "timed out" in report.warnings[0]
+    assert started.is_file()
+    time.sleep(1.3)
+    assert not finished.exists()
+
+
+@pytest.mark.parametrize("timeout", [float("nan"), float("inf"), float("-inf")])
+def test_import_smoke_rejects_nonfinite_timeout(timeout):
+    """The source probe rejects nonfinite limits before launching a process."""
+    contracts = load_contracts_module()
+    with pytest.raises(ValueError, match="finite and positive"):
+        contracts.validate_import_smoke([], contracts.ContractReport(), timeout=timeout)

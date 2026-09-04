@@ -1,6 +1,6 @@
 """GEO-INFER-ENERGY: Energy Systems Analysis Module."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.renewable_resources import RenewableResourceAssessor

@@ -5,7 +5,7 @@ This module provides the core infrastructure for the GEO-INFER framework, ensuri
 reliable, scalable, and maintainable operations across all components.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from geo_infer_ops.core.logging import setup_logging
 from geo_infer_ops.core.monitoring import setup_monitoring
@@ -33,4 +33,4 @@ __all__ = [
     "HealthChecker",
     "HealthStatus",
     "HealthCheck",
-] 
+]

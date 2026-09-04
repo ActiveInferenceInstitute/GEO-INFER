@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14973,
+      "bytes": 6717,
       "name": "geo-infer-civ_preview.html",
+      "sha256": "f1d3c1b5b712f8faa46118200f7aa3d2e0602daff8c5d0d75e2a2cc6a6a063ae",
       "type": "text/html"
     },
     {
-      "bytes": 5659,
+      "bytes": 2703,
       "name": "geo-infer-civ_preview.svg",
+      "sha256": "a06be2ed951d809ed4937f0ff6607c25c5ebca946e68a905870ce7b72dce4fa1",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2171,
+      "bytes": 6857,
       "name": "geo-infer-civ_preview.png",
+      "sha256": "012360e2742b545c047fa6c1ee9420d5d5a8d6546ce2d42d53f70f3628e4a75a",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "41d33c3351a908e45d74e186dce3a67db6222789a558b6bedc8e376e04027e78",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "c47be260752b372258f944a001ab4afdb32e916085d89320c26ef7a7844fb2d8",
   "module_id": "GEO-INFER-CIV",
   "name": "Civic Engagement",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

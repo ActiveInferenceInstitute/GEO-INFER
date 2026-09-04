@@ -28,6 +28,7 @@
 - `forecasting.py`
 - `interpolation.py`
 - `statistics.py`
+- `stream_ingest.py`
 - `stream_processing.py`
 - `visualization.py`
 

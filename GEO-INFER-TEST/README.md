@@ -11,6 +11,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `src/`
 - `tests/`
 - `build_package_wheels.py`
+- `import_probe.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`
@@ -34,9 +35,12 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 - `build_package_wheels.py:BuildResult` (class)
 - `build_package_wheels.py:BuildSummary` (class)
+- `build_package_wheels.py:validate_wheel_contents` (function)
 - `build_package_wheels.py:build_wheel` (function)
+- `build_package_wheels.py:verify_wheels` (function)
 - `build_package_wheels.py:install_and_verify` (function)
 - `build_package_wheels.py:main` (function)
+- `import_probe.py:run_import_probe` (function)
 - `rewrite_readme_agents.py:ModuleInfo` (class)
 - `rewrite_readme_agents.py:git_ls_files` (function)
 - `rewrite_readme_agents.py:tracked_files` (function)
@@ -49,9 +53,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:public_symbols` (function)
 - `rewrite_readme_agents.py:purpose_for` (function)
 - `rewrite_readme_agents.py:test_command` (function)
-- `rewrite_readme_agents.py:validation_commands` (function)
-- `rewrite_readme_agents.py:module_readme_notes` (function)
-- `rewrite_readme_agents.py:module_agent_notes` (function)
 
 ## Module Metadata
 

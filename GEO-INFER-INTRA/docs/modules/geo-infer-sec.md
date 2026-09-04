@@ -111,6 +111,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-SEC** (*Security*). Reproducible p
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-SEC Leaflet Preview](previews/geo-infer-sec_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-SEC Leaflet Preview](previews/geo-infer-sec_preview.svg) | [Interactive map](previews/geo-infer-sec_preview.html) · [PNG](previews/geo-infer-sec_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-sec_preview.html`, `geo-infer-sec_preview.svg`, `geo-infer-sec_preview.png`, and `geo-infer-sec_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-sec_preview.html`, `geo-infer-sec_preview.svg`, `geo-infer-sec_preview.png`, and `geo-infer-sec_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

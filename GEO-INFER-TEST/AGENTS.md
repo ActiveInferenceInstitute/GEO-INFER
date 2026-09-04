@@ -28,6 +28,7 @@
 - `src/`
 - `tests/`
 - `build_package_wheels.py`
+- `import_probe.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`

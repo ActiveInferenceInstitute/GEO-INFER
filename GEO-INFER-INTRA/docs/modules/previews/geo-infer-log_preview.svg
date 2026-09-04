@@ -1,71 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
-  <defs>
-    <linearGradient id="bg-grad-LOG" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
-    </linearGradient>
-    <linearGradient id="badge-grad-LOG" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#fdba74"/>
-    </linearGradient>
-    <filter id="shadow-LOG" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
-    </filter>
-  </defs>
-
-  <!-- Background Card -->
-  <rect x="8" y="8" width="684" height="364" rx="12" fill="url(#bg-grad-LOG)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-LOG)"/>
-
-  <!-- Left Content Column -->
-  <g transform="translate(0, 0)">
-    <!-- Header Badge -->
-    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-LOG)"/>
-    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-LOG</text>
-
-    <!-- Category Pill -->
-    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">Domain</text>
-
-    <!-- Title -->
-    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">Logistics</text>
-
-    <!-- Description -->
-    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
-      <tspan x="36" dy="0">Freight corridors, last-mile optimization, and fleet dispa</tspan>
-      <tspan x="36" dy="18">tch</tspan>
-    </text>
-
-    <!-- Section Heading -->
-    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
-
-    <!-- Feature Chips -->
-    <rect x="36" y="190" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="202" r="3.5" fill="#f97316"/><text x="60" y="206" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Freight Corridors</text><rect x="36" y="222" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="234" r="3.5" fill="#f97316"/><text x="60" y="238" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Distribution Hubs</text><rect x="36" y="254" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="266" r="3.5" fill="#f97316"/><text x="60" y="270" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Route Efficiency</text>
-
-    <!-- Footer Contract Info -->
-    <text x="36" y="352" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
-  </g>
-
-  <!-- Right Visual Domain H3 Graph -->
-  <g>
-    <!-- Grid connection lines -->
-    <line x1="520" y1="200" x2="430" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="610" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="290" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <polygon points="568.0,200.0 544.0,241.6 496.0,241.6 472.0,200.0 496.0,158.4 544.0,158.4" fill="#fdba74" fill-opacity="0.7" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="520.0" cy="200.0" r="4" fill="#f97316" />
-    <text x="520.0" y="204.0" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>
-    <polygon points="647.2,200.0 623.2,241.6 575.2,241.6 551.2,200.0 575.2,158.4 623.2,158.4" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="599.2" cy="200.0" r="4" fill="#f97316" />
-    <polygon points="607.6,268.6 583.6,310.2 535.6,310.2 511.6,268.6 535.6,227.0 583.6,227.0" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="559.6" cy="268.6" r="4" fill="#f97316" />
-    <polygon points="528.4,268.6 504.4,310.2 456.4,310.2 432.4,268.6 456.4,227.0 504.4,227.0" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="480.4" cy="268.6" r="4" fill="#f97316" />
-    <polygon points="488.8,200.0 464.8,241.6 416.8,241.6 392.8,200.0 416.8,158.4 464.8,158.4" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="440.8" cy="200.0" r="4" fill="#f97316" />
-    <polygon points="528.4,131.4 504.4,173.0 456.4,173.0 432.4,131.4 456.4,89.8 504.4,89.8" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="480.4" cy="131.4" r="4" fill="#f97316" />
-    <polygon points="607.6,131.4 583.6,173.0 535.6,173.0 511.6,131.4 535.6,89.8 583.6,89.8" fill="#fdba74" fill-opacity="0.35" stroke="#f97316" stroke-width="2.5" />
-    <circle cx="559.6" cy="131.4" r="4" fill="#f97316" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-LOG desc-LOG" viewBox="0 0 700 380" width="700" height="380">
+<title id="title-LOG">GEO-INFER-LOG: Logistics</title>
+<desc id="desc-LOG">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-LOG</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Logistics</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="872830810ffffff" points="531.499,238.101 554.991,201.356 527.483,168.444 476.483,172.280 453.001,209.025 480.509,241.934 531.499,238.101" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830810ffffff</title></polygon><polygon data-h3="872830811ffffff" points="453.001,209.025 476.483,172.280 448.969,139.380 397.974,143.228 374.503,179.973 402.017,212.870 453.001,209.025" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830811ffffff</title></polygon><polygon data-h3="872830812ffffff" points="605.995,197.531 629.502,160.791 601.994,127.876 550.979,131.704 527.483,168.444 554.991,201.356 605.995,197.531" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830812ffffff</title></polygon><polygon data-h3="872830813ffffff" points="527.483,168.444 550.979,131.704 523.465,98.800 472.455,102.640 448.969,139.380 476.483,172.280 527.483,168.444" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830813ffffff</title></polygon><polygon data-h3="872830814ffffff" points="535.513,307.771 559.001,271.021 531.499,238.101 480.509,241.934 457.032,278.683 484.534,311.600 535.513,307.771" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830814ffffff</title></polygon><polygon data-h3="872830815ffffff" points="457.032,278.683 480.509,241.934 453.001,209.025 402.017,212.870 378.550,249.620 406.058,282.525 457.032,278.683" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830815ffffff</title></polygon><polygon data-h3="872830816ffffff" points="609.995,267.200 633.497,230.455 605.995,197.531 554.991,201.356 531.499,238.101 559.001,271.021 609.995,267.200" fill="#fdba74" fill-opacity="0.45" stroke="#f97316"><title>872830816ffffff</title></polygon>
+<circle cx="504.0" cy="205.20000000000002" r="3" fill="#f97316"/>
+<text x="24" y="342" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="362" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
 </svg>

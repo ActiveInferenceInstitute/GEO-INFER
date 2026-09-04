@@ -589,6 +589,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-EXAMPLES** (*Cross-Module Examples
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-EXAMPLES Leaflet Preview](previews/geo-infer-examples_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-EXAMPLES Leaflet Preview](previews/geo-infer-examples_preview.svg) | [Interactive map](previews/geo-infer-examples_preview.html) · [PNG](previews/geo-infer-examples_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-examples_preview.html`, `geo-infer-examples_preview.svg`, `geo-infer-examples_preview.png`, and `geo-infer-examples_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-examples_preview.html`, `geo-infer-examples_preview.svg`, `geo-infer-examples_preview.png`, and `geo-infer-examples_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

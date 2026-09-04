@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15001,
+      "bytes": 6757,
       "name": "geo-infer-norms_preview.html",
+      "sha256": "721138bfe0a393dce9ee51d1e0bf5543872a587955e3f951433bacfa0fd42036",
       "type": "text/html"
     },
     {
-      "bytes": 5688,
+      "bytes": 2729,
       "name": "geo-infer-norms_preview.svg",
+      "sha256": "43141d9697b2b7831a012c8bb758f9b53c44104295cb855a689684175d347684",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2179,
+      "bytes": 6936,
       "name": "geo-infer-norms_preview.png",
+      "sha256": "1706a1ace1fd4203e6de3a22e7f5c36b835f1882854f797f07a257c5da2993c6",
       "type": "image/png"
     }
   ],
   "category": "Governance",
-  "input_sha256": "3cb1f65ad0e7b2d1aa7c18ee949eb4e0fc9d59f2f4f41b7c16d52ab3fdebd890",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "750948b5af6490e24c05fcd284aab0499fb84a7c766cc71d8f642d69962a746f",
   "module_id": "GEO-INFER-NORMS",
   "name": "Norms & Standards",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

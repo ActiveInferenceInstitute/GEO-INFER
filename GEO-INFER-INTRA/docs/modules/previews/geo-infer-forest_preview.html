@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_be2beba4e701a58414f8747ddaca93df {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #15803d; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-FOREST</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Forest Management Module</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Canopy cover analysis, fuel load estimation, and timber biomass</div></div>
-    
-            <div class="folium-map" id="map_be2beba4e701a58414f8747ddaca93df" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-FOREST: Forest Management Module</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-FOREST: Forest Management Module</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-FOREST desc-FOREST" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-FOREST">GEO-INFER-FOREST: Forest Management Module</title>
+<desc id="desc-FOREST">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-FOREST</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Forest Management Module</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="87281ca1dffffff" points="611.454,280.744 640.225,236.623 604.754,198.862 540.514,205.227 511.758,249.347 547.228,287.104 611.454,280.744" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca1dffffff</title></polygon><polygon data-h3="87281ca03ffffff" points="618.151,362.645 646.917,318.516 611.454,280.744 547.228,287.104 518.477,331.232 553.938,369.000 618.151,362.645" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca03ffffff</title></polygon><polygon data-h3="87281ca0affffff" points="511.758,249.347 540.514,205.227 505.037,167.482 440.805,173.861 412.064,217.981 447.540,255.722 511.758,249.347" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca0affffff</title></polygon><polygon data-h3="87281ca0effffff" points="518.477,331.232 547.228,287.104 511.758,249.347 447.540,255.722 418.804,299.849 454.272,337.602 518.477,331.232" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca0effffff</title></polygon><polygon data-h3="87281ca18ffffff" points="704.472,230.274 733.263,186.160 697.791,148.396 633.530,154.749 604.754,198.862 640.225,236.623 704.472,230.274" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca18ffffff</title></polygon><polygon data-h3="87281ca19ffffff" points="604.754,198.862 633.530,154.749 598.051,117.000 533.798,123.369 505.037,167.482 540.514,205.227 604.754,198.862" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca19ffffff</title></polygon><polygon data-h3="87281ca1cffffff" points="711.151,312.172 739.936,268.050 704.472,230.274 640.225,236.623 611.454,280.744 646.917,318.516 711.151,312.172" fill="#22c55e" fill-opacity="0.45" stroke="#15803d"><title>87281ca1cffffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#15803d"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["87281ca1dffffff", [[41.73991742282641, -124.1845739033872], [41.75142299872077, -124.17707131020585], [41.76126998752741, -124.18632113724301], [41.759610376487196, -124.2030732052746], [41.74810491208589, -124.21057194735697], [41.73825894711115, -124.20132247343388], [41.73991742282641, -124.1845739033872]]], ["87281ca03ffffff", [[41.71855988689524, -124.18282742685817], [41.73006738047685, -124.17532620422891], [41.73991742282641, -124.1845739033872], [41.73825894711115, -124.20132247343388], [41.72675156514613, -124.20881984683803], [41.71690254715927, -124.19957250034717], [41.71855988689524, -124.18282742685817]]], ["87281ca0affffff", [[41.74810491208589, -124.21057194735697], [41.759610376487196, -124.2030732052746], [41.76945328664993, -124.21232480758844], [41.767789708898185, -124.22907479543393], [41.75628435782181, -124.23656968341935], [41.74644247105149, -124.2273184385823], [41.74810491208589, -124.21057194735697]]], ["87281ca0effffff", [[41.72675156514613, -124.20881984683803], [41.73825894711115, -124.20132247343388], [41.74810491208589, -124.21057194735697], [41.74644247105149, -124.2273184385823], [41.734935202535446, -124.23481195976491], [41.72509026148417, -124.22556284286922], [41.72675156514613, -124.20881984683803]]], ["87281ca18ffffff", [[41.75307864204754, -124.1603171688418], [41.76458240733701, -124.15280935466905], [41.774430419883316, -124.16205953090133], [41.77277364327999, -124.17881717303997], [41.76126998752741, -124.18632113724301], [41.75142299872077, -124.17707131020585], [41.75307864204754, -124.1603171688418]]], ["87281ca19ffffff", [[41.76126998752741, -124.18632113724301], [41.77277364327999, -124.17881717303997], [41.78261757674513, -124.18806912891505], [41.780956831034615, -124.2048246963596], [41.76945328664993, -124.21232480758844], [41.759610376487196, -124.2030732052746], [41.76126998752741, -124.18632113724301]]], ["87281ca1cffffff", [[41.73172188987326, -124.15857556221025], [41.74322757542916, -124.15106912093272], [41.75307864204754, -124.1603171688418], [41.75142299872077, -124.17707131020585], [41.73991742282641, -124.1845739033872], [41.73006738047685, -124.17532620422891], [41.73172188987326, -124.15857556221025]]]], "center": [41.75, -124.2], "color": "#15803d", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 10}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_be2beba4e701a58414f8747ddaca93df = L.map(
-                "map_be2beba4e701a58414f8747ddaca93df",
-                {
-                    center: [41.75, -124.2],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 10,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_9efd18ea0d441bc1d7c3570186ad052c = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_9efd18ea0d441bc1d7c3570186ad052c.addTo(map_be2beba4e701a58414f8747ddaca93df);
-        
-    
-            var feature_group_f6c50ec43da8481903768971eece9ec2 = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_d14a58669574fbe4db1a23bcdefd1f18 = L.polygon(
-                [[41.75, -124.189], [41.759526, -124.1945], [41.759526, -124.2055], [41.75, -124.211], [41.740474, -124.2055], [41.740474, -124.1945], [41.75, -124.189]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_3d1a832c306226c5be3fd77b9e5522d2 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_53c159c6d74f82a9374a70b17d4748fd = $(`<div id="html_53c159c6d74f82a9374a70b17d4748fd" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-FOREST<br>Feature: Canopy Density</div>`)[0];
-                popup_3d1a832c306226c5be3fd77b9e5522d2.setContent(html_53c159c6d74f82a9374a70b17d4748fd);
-            
-        
-
-        polygon_d14a58669574fbe4db1a23bcdefd1f18.bindPopup(popup_3d1a832c306226c5be3fd77b9e5522d2)
-        ;
-
-        
-    
-    
-            var polygon_b09627779d79263cb0e990192bd3137a = L.polygon(
-                [[41.77, -124.189], [41.779526, -124.1945], [41.779526, -124.2055], [41.77, -124.211], [41.760474, -124.2055], [41.760474, -124.1945], [41.77, -124.189]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_1b303fee2a5e8ba453a2bca48d1d9358 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_088b129d244dd7a48e98be752a8d2b34 = $(`<div id="html_088b129d244dd7a48e98be752a8d2b34" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-FOREST<br>Feature: Fuel Load Index</div>`)[0];
-                popup_1b303fee2a5e8ba453a2bca48d1d9358.setContent(html_088b129d244dd7a48e98be752a8d2b34);
-            
-        
-
-        polygon_b09627779d79263cb0e990192bd3137a.bindPopup(popup_1b303fee2a5e8ba453a2bca48d1d9358)
-        ;
-
-        
-    
-    
-            var polygon_3504a39f2e48f3b11825fae1266ded3f = L.polygon(
-                [[41.76, -124.171679], [41.769526, -124.177179], [41.769526, -124.188179], [41.76, -124.193679], [41.750474, -124.188179], [41.750474, -124.177179], [41.76, -124.171679]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_9c67be2545b78b500b774acd95e507d2 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_3636337044304a4f73c7c7b75a72d5eb = $(`<div id="html_3636337044304a4f73c7c7b75a72d5eb" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-FOREST<br>Feature: Timber Parcels</div>`)[0];
-                popup_9c67be2545b78b500b774acd95e507d2.setContent(html_3636337044304a4f73c7c7b75a72d5eb);
-            
-        
-
-        polygon_3504a39f2e48f3b11825fae1266ded3f.bindPopup(popup_9c67be2545b78b500b774acd95e507d2)
-        ;
-
-        
-    
-    
-            var polygon_02380c218175f6d80dbe8697509b8942 = L.polygon(
-                [[41.74, -124.171679], [41.749526, -124.177179], [41.749526, -124.188179], [41.74, -124.193679], [41.730474, -124.188179], [41.730474, -124.177179], [41.74, -124.171679]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_21c45b0fcc71a0c4e0446fba1e589f14 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_c96cd6307604b697b23dad6ce08e8efa = $(`<div id="html_c96cd6307604b697b23dad6ce08e8efa" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-FOREST<br>Feature: Canopy Density</div>`)[0];
-                popup_21c45b0fcc71a0c4e0446fba1e589f14.setContent(html_c96cd6307604b697b23dad6ce08e8efa);
-            
-        
-
-        polygon_02380c218175f6d80dbe8697509b8942.bindPopup(popup_21c45b0fcc71a0c4e0446fba1e589f14)
-        ;
-
-        
-    
-    
-            var polygon_fc4cd7c42bcb15295740745f7b6d8f62 = L.polygon(
-                [[41.73, -124.189], [41.739526, -124.1945], [41.739526, -124.2055], [41.73, -124.211], [41.720474, -124.2055], [41.720474, -124.1945], [41.73, -124.189]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_4a72245ce9e939772a0957718c2421a5 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_71fc94ee8b0a30723b47487cd9180718 = $(`<div id="html_71fc94ee8b0a30723b47487cd9180718" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-FOREST<br>Feature: Fuel Load Index</div>`)[0];
-                popup_4a72245ce9e939772a0957718c2421a5.setContent(html_71fc94ee8b0a30723b47487cd9180718);
-            
-        
-
-        polygon_fc4cd7c42bcb15295740745f7b6d8f62.bindPopup(popup_4a72245ce9e939772a0957718c2421a5)
-        ;
-
-        
-    
-    
-            var polygon_2d7a277adce3c5e9de7295ab16baf61f = L.polygon(
-                [[41.74, -124.206321], [41.749526, -124.211821], [41.749526, -124.222821], [41.74, -124.228321], [41.730474, -124.222821], [41.730474, -124.211821], [41.74, -124.206321]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_b396fe85310fd19d8a55f4f76c8ddf3e = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_71b6a1629a70dee291f573cd1455cfe1 = $(`<div id="html_71b6a1629a70dee291f573cd1455cfe1" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-FOREST<br>Feature: Timber Parcels</div>`)[0];
-                popup_b396fe85310fd19d8a55f4f76c8ddf3e.setContent(html_71b6a1629a70dee291f573cd1455cfe1);
-            
-        
-
-        polygon_2d7a277adce3c5e9de7295ab16baf61f.bindPopup(popup_b396fe85310fd19d8a55f4f76c8ddf3e)
-        ;
-
-        
-    
-    
-            var polygon_6f451b10babc48d978b33acef984dc37 = L.polygon(
-                [[41.76, -124.206321], [41.769526, -124.211821], [41.769526, -124.222821], [41.76, -124.228321], [41.750474, -124.222821], [41.750474, -124.211821], [41.76, -124.206321]],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_f6c50ec43da8481903768971eece9ec2);
-        
-    
-        var popup_d8bb415fee0a689891e60befdbc35345 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_409d862ee2a81abd7eae1f47e94f2b52 = $(`<div id="html_409d862ee2a81abd7eae1f47e94f2b52" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-FOREST<br>Feature: Canopy Density</div>`)[0];
-                popup_d8bb415fee0a689891e60befdbc35345.setContent(html_409d862ee2a81abd7eae1f47e94f2b52);
-            
-        
-
-        polygon_6f451b10babc48d978b33acef984dc37.bindPopup(popup_d8bb415fee0a689891e60befdbc35345)
-        ;
-
-        
-    
-    
-            feature_group_f6c50ec43da8481903768971eece9ec2.addTo(map_be2beba4e701a58414f8747ddaca93df);
-        
-    
-            var circle_marker_25195e0b4c9dbd66373087f54f392e2d = L.circleMarker(
-                [41.75, -124.2],
-                {"bubblingMouseEvents": true, "color": "#15803d", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_be2beba4e701a58414f8747ddaca93df);
-        
-    
-        var popup_7468934081b5224df172820d182fe7af = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_fa0b14b32c6db640f9ebeca8883d880d = $(`<div id="html_fa0b14b32c6db640f9ebeca8883d880d" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-FOREST</b> Focus Center</div>`)[0];
-                popup_7468934081b5224df172820d182fe7af.setContent(html_fa0b14b32c6db640f9ebeca8883d880d);
-            
-        
-
-        circle_marker_25195e0b4c9dbd66373087f54f392e2d.bindPopup(popup_7468934081b5224df172820d182fe7af)
-        ;
-
-        
-    
-    
-            var layer_control_237c8f699e7ec3199608f20318a79736_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_9efd18ea0d441bc1d7c3570186ad052c,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_f6c50ec43da8481903768971eece9ec2,
-                },
-            };
-            let layer_control_237c8f699e7ec3199608f20318a79736 = L.control.layers(
-                layer_control_237c8f699e7ec3199608f20318a79736_layers.base_layers,
-                layer_control_237c8f699e7ec3199608f20318a79736_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_be2beba4e701a58414f8747ddaca93df);
-
-        
-</script>
-</html>
+</script></main></body></html>

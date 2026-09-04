@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14956,
+      "bytes": 6749,
       "name": "geo-infer-ant_preview.html",
+      "sha256": "74401d9c3548d6eeee09eaa2ed63200b709ef3c6d743ca7332b805da40e923a0",
       "type": "text/html"
     },
     {
-      "bytes": 5672,
+      "bytes": 2723,
       "name": "geo-infer-ant_preview.svg",
+      "sha256": "cb29f4f3c4031678e514474df1a03c3e7ed652d98bc613902975114cb51e4a35",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2185,
+      "bytes": 6758,
       "name": "geo-infer-ant_preview.png",
+      "sha256": "77a709ee373e5346463ef3804993ef6721ae740e38c2bfa740ca59aeaf97b5e0",
       "type": "image/png"
     }
   ],
   "category": "Optimization",
-  "input_sha256": "1eb943a292ced09c1042554e70c2a515c01eb46bd818c76eb6a200161957e975",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "cdd40ded23c982dce56dece347d8afeea83911491e1b7dda2702a6b808e17025",
   "module_id": "GEO-INFER-ANT",
   "name": "Ant Colony Optimization",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

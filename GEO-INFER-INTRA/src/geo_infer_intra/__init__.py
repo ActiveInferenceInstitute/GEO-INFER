@@ -13,7 +13,7 @@ from geo_infer_intra.core.documentation.visual_preview import (
 __version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "info@geo-infer.org"
-__license__ = "MIT"
+__license__ = "CC BY-NC-SA 4.0"
 
 __all__ = [
     "MODULE_PROFILES",
@@ -24,4 +24,3 @@ __all__ = [
     "render_png_card",
     "render_svg_card",
 ]
-

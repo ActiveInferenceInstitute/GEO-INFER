@@ -1,351 +1,336 @@
-"""
-GPU Acceleration Module for GEO-INFER-SPACE.
+"""Float64 numeric distance kernels with lazy, optional GPU execution.
 
-This module provides optional CUDA/JAX GPU-accelerated spatial joins and
-H3 distance kernels while strictly preserving zero-dependency CPU fallback
-semantics.
-
-Design goals:
-    * The module imports cleanly regardless of whether CUDA, JAX, PyTorch,
-      or CuPy are installed (``HAS_ACCELERATOR`` flags are ``False`` and the
-      public kernels still work via the CPU reference path).
-    * Accelerated kernels always return plain :class:`numpy.ndarray` /
-      Python containers so callers are never coupled to a specific array
-      backend.
-    * Malformed or unavailable accelerators degrade gracefully and never
-      raise ``ImportError`` at call time -- the CPU path is authoritative.
+NumPy is the CPU reference. H3 topology always executes through host H3.
+Automatic numeric dispatch falls back with diagnostics; explicit GPU requests
+fail if unavailable or if execution fails. Importing this module never imports
+an accelerator library. Legacy HAS_* attributes probe only when accessed.
 """
 
+from __future__ import annotations
+
+import importlib
+import importlib.util
 import logging
-from typing import Any, List, Sequence, Tuple
+import operator
+from dataclasses import dataclass
+from functools import lru_cache
+from typing import Any, Callable, Iterator, Sequence
 
 import numpy as np
 import numpy.typing as npt
 
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Optional dependency detection (HAS_X flag pattern). Each flag is exported
-# so tests and downstream modules can gate behaviour.
-# ---------------------------------------------------------------------------
-try:  # pragma: no cover - depends on environment
-    import jax  # noqa: F401
-    import jax.numpy as jnp  # noqa: F401
-
-    HAS_JAX = True
-except ImportError:  # pragma: no cover
-    jnp = None  # type: ignore[assignment]
-    HAS_JAX = False
-
-try:  # pragma: no cover - depends on environment
-    import torch
-
-    HAS_TORCH = bool(torch.cuda.is_available())
-except ImportError:  # pragma: no cover
-    torch = None  # type: ignore[assignment]
-    HAS_TORCH = False
-
-try:  # pragma: no cover - depends on environment
-    import cupy as cp  # noqa: F401
-
-    HAS_CUPY = True
-except ImportError:  # pragma: no cover
-    cp = None
-    HAS_CUPY = False
-
-
-def _jax_has_gpu() -> bool:
-    """Return True only when a CUDA/GPU device is visible to JAX."""
-    if not HAS_JAX:
-        return False
-    try:
-        import jax
-
-        return any("gpu" in str(d).lower() or "cuda" in str(d).lower() for d in jax.devices())
-    except Exception:
-        return False
-
-
-HAS_GPU = (HAS_CUPY or HAS_TORCH) or (HAS_JAX and _jax_has_gpu())
-
 EARTH_RADIUS_KM = 6371.0
 EARTH_RADIUS_M = 6371000.0
+DEFAULT_CHUNK_SIZE = 1024
+_GPU_BACKENDS = ("cupy", "torch", "jax")
 
 
-# ---------------------------------------------------------------------------
-# Public availability helpers
-# ---------------------------------------------------------------------------
+class AcceleratorUnavailableError(RuntimeError):
+    """An explicitly requested GPU cannot execute the float64 contract."""
+
+
+@dataclass(frozen=True)
+class _ArrayBackend:
+    name: str
+    xp: Any
+    to_device: Callable[[Any], Any]
+    to_host: Callable[[Any], Any]
+
+
+@dataclass(frozen=True)
+class _Probe:
+    installed: bool
+    backend: _ArrayBackend | None
+    reason: str | None = None
+
+
+_CPU = _ArrayBackend("cpu", np, np.asarray, np.asarray)
+
+
+@lru_cache(maxsize=3)
+def _probe_backend(name: str) -> _Probe:
+    """Import on demand and exercise a float64 allocation on a usable GPU."""
+    installed = False
+    try:
+        if importlib.util.find_spec(name) is None:
+            return _Probe(False, None, "library is not installed")
+        installed = True
+        module = importlib.import_module(name)
+        if name == "cupy":
+            if module.cuda.runtime.getDeviceCount() < 1:
+                return _Probe(True, None, "no CUDA device")
+            backend = _ArrayBackend(name, module, module.asarray, module.asnumpy)
+        elif name == "torch":
+            if not module.cuda.is_available():
+                return _Probe(True, None, "no CUDA device")
+            backend = _ArrayBackend(
+                name,
+                module,
+                lambda value: module.as_tensor(
+                    value, dtype=module.float64, device="cuda"
+                ),
+                lambda value: value.detach().cpu().numpy(),
+            )
+        else:
+            devices = [
+                device for device in module.devices() if device.platform == "gpu"
+            ]
+            if not devices:
+                return _Probe(
+                    True, None, "no GPU device (CPU-only JAX is not acceleration)"
+                )
+            if not module.config.x64_enabled:
+                return _Probe(True, None, "JAX float64 requires JAX_ENABLE_X64=1")
+            xp = importlib.import_module("jax.numpy")
+            backend = _ArrayBackend(
+                name,
+                xp,
+                lambda value: module.device_put(
+                    np.asarray(value, dtype=np.float64), devices[0]
+                ),
+                np.asarray,
+            )
+        sample = backend.to_device(np.array([1.0], dtype=np.float64))
+        checked = np.asarray(backend.to_host(backend.xp.sqrt(sample)))
+        if checked.dtype != np.float64 or not np.array_equal(checked, [1.0]):
+            return _Probe(True, None, "device did not preserve float64")
+        return _Probe(True, backend)
+    except Exception as exc:
+        # Broken binary installs and unavailable drivers must not break CPU use.
+        return _Probe(installed, None, f"{type(exc).__name__}: {exc}")
+
+
+def get_backend_diagnostics(*, refresh: bool = False) -> dict[str, dict[str, Any]]:
+    """Report library presence separately from usable float64 GPU execution.
+
+    Probes are cached. Pass refresh=True after a driver/device/config change.
+    """
+    if refresh:
+        _probe_backend.cache_clear()
+    result = {}
+    for name in _GPU_BACKENDS:
+        probe = _probe_backend(name)
+        result[name] = {
+            "installed": probe.installed,
+            "usable": probe.backend is not None,
+            "reason": probe.reason,
+        }
+    return result
+
+
+def get_available_backends() -> list[str]:
+    """Return usable GPU backends in automatic dispatch preference order."""
+    return [name for name in _GPU_BACKENDS if _probe_backend(name).backend is not None]
+
+
 def is_accelerator_available() -> bool:
-    """Return True if any GPU acceleration backend is usable."""
-    return HAS_GPU
+    """Return whether a GPU can execute the float64 numeric contract."""
+    return bool(get_available_backends())
 
 
-def get_available_backends() -> List[str]:
-    """Return the list of detected acceleration backend names."""
-    backends: List[str] = []
-    if HAS_CUPY:
-        backends.append("cupy")
-    if HAS_TORCH:
-        backends.append("torch")
-    if HAS_JAX:
-        backends.append("jax")
-    return backends
+def __getattr__(name: str) -> bool:
+    """Keep historical boolean imports available without eager GPU imports."""
+    flags = {"HAS_CUPY": "cupy", "HAS_TORCH": "torch", "HAS_JAX": "jax"}
+    if name == "HAS_GPU":
+        return is_accelerator_available()
+    if name in flags:
+        return _probe_backend(flags[name]).backend is not None
+    raise AttributeError(name)
 
 
-# ---------------------------------------------------------------------------
-# Core kernels (straightforward array programming; CPU path is authoritative).
-# ---------------------------------------------------------------------------
 def _validated_points(points: Any, name: str) -> npt.NDArray[np.float64]:
-    """Coerce *points* to an ``(N, 2)`` float64 ndarray or raise ValueError."""
     arr = np.asarray(points, dtype=np.float64)
+    if arr.shape == (0,):
+        arr = arr.reshape(0, 2)
     if arr.ndim != 2 or arr.shape[1] != 2:
         raise ValueError(f"{name} must be an (N, 2) array of (lat, lng) coordinates")
+    if not np.isfinite(arr).all():
+        raise ValueError(f"{name} coordinates must be finite")
+    if (np.abs(arr[:, 0]) > 90).any() or (np.abs(arr[:, 1]) > 180).any():
+        raise ValueError(
+            f"{name} latitude/longitude must be within [-90, 90]/[-180, 180]"
+        )
     return arr
+
+
+def _positive(value: Any, name: str) -> float:
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be finite and positive") from exc
+    if not np.isfinite(result) or result <= 0:
+        raise ValueError(f"{name} must be finite and positive")
+    return result
+
+
+def _chunk_size(value: Any) -> int:
+    try:
+        result = operator.index(value)
+    except TypeError as exc:
+        raise ValueError("chunk_size must be a positive integer") from exc
+    if isinstance(value, bool) or result <= 0:
+        raise ValueError("chunk_size must be a positive integer")
+    return result
+
+
+def _numeric_block(backend: _ArrayBackend, a: Any, b: Any, radius: float | None) -> Any:
+    """Shared array formula; radius=None selects Euclidean distance."""
+    xp = backend.xp
+    a = backend.to_device(a)
+    b = backend.to_device(b)
+    if radius is None:
+        # Accumulate dimensions without allocating an (N, M, D) tensor.
+        result = xp.abs(a[:, None, 0] - b[None, :, 0])
+        for column in range(1, a.shape[1]):
+            result = xp.hypot(result, a[:, None, column] - b[None, :, column])
+    else:
+        a = a * (np.pi / 180.0)
+        b = b * (np.pi / 180.0)
+        dlat = a[:, None, 0] - b[None, :, 0]
+        dlon = a[:, None, 1] - b[None, :, 1]
+        h = (
+            xp.sin(dlat / 2) ** 2
+            + xp.cos(a[:, None, 0]) * xp.cos(b[None, :, 0]) * xp.sin(dlon / 2) ** 2
+        )
+        result = (2 * xp.arcsin(xp.sqrt(xp.clip(h, 0.0, 1.0)))) * radius
+    host = np.asarray(backend.to_host(result))
+    if host.dtype != np.float64 or not np.isfinite(host).all():
+        raise FloatingPointError("distance kernel did not return finite float64 values")
+    return host
+
+
+class _Execution:
+    """Per-call backend and fallback state, never global last-call metadata."""
+
+    def __init__(self, requested: str, diagnostics: dict[str, Any] | None) -> None:
+        if requested not in ("auto", "cpu", *_GPU_BACKENDS):
+            raise ValueError("backend must be auto, cpu, cupy, torch, or jax")
+        self.requested = requested
+        self.backend = _CPU
+        self.diagnostics = diagnostics if diagnostics is not None else {}
+        self.diagnostics.clear()
+        self.diagnostics.update(
+            requested_backend=requested,
+            backend="none",
+            used_backends=[],
+            fallback_reason=None,
+        )
+        if requested == "cpu":
+            return
+        reasons = []
+        for name in _GPU_BACKENDS if requested == "auto" else (requested,):
+            probe = _probe_backend(name)
+            if probe.backend is not None:
+                self.backend = probe.backend
+                return
+            reasons.append(f"{name}: {probe.reason}")
+        reason = "; ".join(reasons)
+        if requested != "auto":
+            raise AcceleratorUnavailableError(reason)
+        self.diagnostics["fallback_reason"] = reason
+        logger.info("Automatic distance execution uses CPU: %s", reason)
+
+    def block(self, a: Any, b: Any, radius: float | None) -> Any:
+        try:
+            result = _numeric_block(self.backend, a, b, radius)
+        except Exception as exc:
+            if self.backend.name == "cpu":
+                raise
+            if self.requested != "auto":
+                raise RuntimeError(
+                    f"{self.backend.name} distance execution failed"
+                ) from exc
+            reason = (
+                f"{self.backend.name} execution failed: {type(exc).__name__}: {exc}"
+            )
+            logger.warning("%s; falling back to CPU", reason)
+            self.diagnostics["fallback_reason"] = reason
+            self.backend = _CPU
+            result = _numeric_block(self.backend, a, b, radius)
+        used = self.diagnostics["used_backends"]
+        if self.backend.name not in used:
+            used.append(self.backend.name)
+        self.diagnostics["backend"] = used[0] if len(used) == 1 else "mixed"
+        return result
+
+
+def _blocks(
+    a: Any, b: Any, chunk_size: int, execution: _Execution, radius: float | None
+) -> Iterator[tuple[int, int, Any]]:
+    for row in range(0, len(a), chunk_size):
+        for col in range(0, len(b), chunk_size):
+            yield (
+                row,
+                col,
+                execution.block(
+                    a[row : row + chunk_size], b[col : col + chunk_size], radius
+                ),
+            )
 
 
 def pairwise_haversine_kernel(
     points_a: Any,
     points_b: Any,
     radius_km: float = EARTH_RADIUS_KM,
+    *,
+    backend: str = "auto",
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    diagnostics: dict[str, Any] | None = None,
 ) -> npt.NDArray[np.float64]:
-    """
-    Compute the pairwise great-circle distance (km) between two point sets.
+    """Return (N, M) float64 great-circle distances in km.
 
-    Uses a vectorized haversine formula on the chosen accelerator. Always
-    returns an ``(N, M)`` float64 :class:`numpy.ndarray`.
-
-    Args:
-        points_a: ``(N, 2)`` array of ``(lat, lng)`` degrees.
-        points_b: ``(M, 2)`` array of ``(lat, lng)`` degrees.
-        radius_km: Earth radius in kilometers (default 6371.0).
-
-    Returns:
-        Distance matrix of shape ``(N, M)``.
-
-    Raises:
-        ValueError: If either input is not an ``(N, 2)`` array.
+    Coordinates are finite (lat, longitude) degrees in their geographic bounds.
+    The output matrix is retained; intermediate arrays are bounded by chunk_size.
+    diagnostics, when supplied, is replaced with actual per-call execution data.
     """
     a = _validated_points(points_a, "points_a")
     b = _validated_points(points_b, "points_b")
-
-    if a.shape[0] == 0 or b.shape[0] == 0:
-        return np.zeros((a.shape[0], b.shape[0]), dtype=np.float64)
-
-    if HAS_CUPY:
-        import cupy as _cp
-
-        la = _cp.asarray(a[:, 0] * np.pi / 180.0)
-        loa = _cp.asarray(a[:, 1] * np.pi / 180.0)
-        lb = _cp.asarray(b[:, 0] * np.pi / 180.0)
-        lob = _cp.asarray(b[:, 1] * np.pi / 180.0)
-
-        dlat = la[:, None] - lb[None, :]
-        dlon = loa[:, None] - lob[None, :]
-        h = (
-            _cp.sin(dlat / 2.0) ** 2
-            + _cp.cos(la)[:, None] * _cp.cos(lb)[None, :] * _cp.sin(dlon / 2.0) ** 2
-        )
-        dist = 2 * radius_km * _cp.arcsin(_cp.sqrt(h))
-        return np.asarray(_cp.asnumpy(dist), dtype=np.float64)
-
-    if HAS_TORCH:
-        import torch
-
-        lat_a = torch.from_numpy(a[:, 0] * np.pi / 180.0).cuda()
-        lon_a = torch.from_numpy(a[:, 1] * np.pi / 180.0).cuda()
-        lat_b = torch.from_numpy(b[:, 0] * np.pi / 180.0).cuda()
-        lon_b = torch.from_numpy(b[:, 1] * np.pi / 180.0).cuda()
-
-        dlat = lat_a[:, None] - lat_b[None, :]
-        dlon = lon_a[:, None] - lon_b[None, :]
-        h = (
-            torch.sin(dlat / 2.0) ** 2
-            + torch.cos(lat_a)[:, None]
-            * torch.cos(lat_b)[None, :]
-            * torch.sin(dlon / 2.0) ** 2
-        )
-        dist = 2 * radius_km * torch.arcsin(torch.sqrt(h))
-        return np.asarray(dist.cpu().numpy(), dtype=np.float64)
-
-    if HAS_JAX:
-        import jax.numpy as _jnp
-
-        la = _jnp.asarray(a[:, 0] * np.pi / 180.0)
-        loa = _jnp.asarray(a[:, 1] * np.pi / 180.0)
-        lb = _jnp.asarray(b[:, 0] * np.pi / 180.0)
-        lob = _jnp.asarray(b[:, 1] * np.pi / 180.0)
-
-        dlat = la[:, None] - lb[None, :]
-        dlon = loa[:, None] - lob[None, :]
-        h = (
-            _jnp.sin(dlat / 2.0) ** 2
-            + _jnp.cos(la)[:, None] * _jnp.cos(lb)[None, :] * _jnp.sin(dlon / 2.0) ** 2
-        )
-        dist = 2 * radius_km * _jnp.arcsin(_jnp.sqrt(h))
-        return np.asarray(np.asarray(dist), dtype=np.float64)
-
-    # Reference CPU implementation (authoritative).
-    la = a[:, 0] * np.pi / 180.0
-    loa = a[:, 1] * np.pi / 180.0
-    lb = b[:, 0] * np.pi / 180.0
-    lob = b[:, 1] * np.pi / 180.0
-
-    dlat = la[:, None] - lb[None, :]
-    dlon = loa[:, None] - lob[None, :]
-    h = np.sin(dlat / 2.0) ** 2 + np.cos(la)[:, None] * np.cos(lb)[None, :] * np.sin(
-        dlon / 2.0
-    ) ** 2
-    return np.asarray(2 * radius_km * np.arcsin(np.sqrt(h)), dtype=np.float64)
+    radius = _positive(radius_km, "radius_km")
+    size = _chunk_size(chunk_size)
+    execution = _Execution(backend, diagnostics)
+    out = np.empty((len(a), len(b)), dtype=np.float64)
+    for row, col, block in _blocks(a, b, size, execution, radius):
+        out[row : row + block.shape[0], col : col + block.shape[1]] = block
+    return out
 
 
 def euclidean_distance_kernel(
     points_a: Any,
     points_b: Any,
+    *,
+    backend: str = "auto",
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    diagnostics: dict[str, Any] | None = None,
 ) -> npt.NDArray[np.float64]:
-    """
-    Compute the pairwise Euclidean distance between two point sets.
-
-    Accelerator-aware and always returns an ``(N, M)`` float64 ndarray. This
-    is useful for projected (metric) coordinates where great-circle distance
-    is not appropriate.
-
-    Args:
-        points_a: ``(N, D)`` array.
-        points_b: ``(M, D)`` array.
-
-    Returns:
-        Distance matrix of shape ``(N, M)``.
-
-    Raises:
-        ValueError: If inputs have mismatched or non-2D shape.
-    """
+    """Return (N, M) float64 distances for finite (N, D)/(M, D) points, D>=1."""
     a = np.asarray(points_a, dtype=np.float64)
     b = np.asarray(points_b, dtype=np.float64)
-    if a.ndim != 2 or b.ndim != 2 or a.shape[1] != b.shape[1]:
-        raise ValueError("points_a and points_b must be (N, D) and (M, D) arrays")
-
-    if a.shape[0] == 0 or b.shape[0] == 0:
-        return np.zeros((a.shape[0], b.shape[0]), dtype=np.float64)
-
-    if HAS_CUPY:
-        import cupy as _cp
-
-        ag = _cp.asarray(a)
-        bg = _cp.asarray(b)
-        diff = ag[:, None, :] - bg[None, :, :]
-        dist = _cp.sqrt(_cp.sum(diff**2, axis=2))
-        return np.asarray(_cp.asnumpy(dist), dtype=np.float64)
-
-    if HAS_TORCH:
-        import torch
-
-        ag = torch.from_numpy(a).cuda()
-        bg = torch.from_numpy(b).cuda()
-        dist = torch.sqrt(((ag[:, None, :] - bg[None, :, :]) ** 2).sum(-1))
-        return np.asarray(dist.cpu().numpy(), dtype=np.float64)
-
-    if HAS_JAX:
-        import jax.numpy as _jnp
-
-        ag = _jnp.asarray(a)
-        bg = _jnp.asarray(b)
-        diff = ag[:, None, :] - bg[None, :, :]
-        dist = _jnp.sqrt(_jnp.sum(diff**2, axis=2))
-        return np.asarray(np.asarray(dist), dtype=np.float64)
-
-    diff = a[:, None, :] - b[None, :, :]
-    return np.asarray(np.sqrt(np.sum(diff**2, axis=2)), dtype=np.float64)
-
-
-def spatial_join_kernel(
-    cells_a: Sequence[str],
-    cells_b: Sequence[str],
-    join_type: str = "intersects",
-    h3_module: Any = None,
-    resolution: int = -1,
-) -> Tuple[List[Tuple[str, str]], List[str], List[str]]:
-    """
-    H3 spatial join over two cell collections.
-
-    For ``'intersects'`` the adjacency expansion is batched per ``cell_a``
-    against a host set of ``cells_b``, keeping the intersection bookkeeping
-    vectorized and memory efficient. For ``'contains'`` / ``'within'`` a
-    hierarchical parent resolution is used.
-
-    The semantics mirror :meth:`H3Backend.spatial_join`: identical cells or
-    adjacent (distance-1) cells intersect; containment follows the H3 parent
-    relationship across resolutions.
-
-    Args:
-        cells_a: First list of H3 cell identifiers.
-        cells_b: Second list of H3 cell identifiers.
-        join_type: ``'intersects'``, ``'contains'``, or ``'within'``.
-        h3_module: The ``h3`` module to use. If ``None`` it is imported.
-        resolution: Parent resolution for containment joins when cells are at
-            mixed resolutions (``-1`` infers from the coarser side).
-
-    Returns:
-        Tuple of ``(matches, unmatched_a, unmatched_b)``.
-    """
-    if h3_module is None:
-        import h3
-
-        h3_module = h3
-
-    valid_join_types = {"intersects", "contains", "within"}
-    if join_type not in valid_join_types:
+    if a.ndim != 2 or b.ndim != 2 or a.shape[1] != b.shape[1] or a.shape[1] < 1:
         raise ValueError(
-            f"Invalid join_type: {join_type}. Must be one of {valid_join_types}"
+            "points_a and points_b must be (N, D) and (M, D) arrays with D>=1"
         )
+    if not np.isfinite(a).all() or not np.isfinite(b).all():
+        raise ValueError("coordinates must be finite")
+    size = _chunk_size(chunk_size)
+    execution = _Execution(backend, diagnostics)
+    out = np.empty((len(a), len(b)), dtype=np.float64)
+    for row, col, block in _blocks(a, b, size, execution, None):
+        out[row : row + block.shape[0], col : col + block.shape[1]] = block
+    return out
 
-    set_b = set(cells_b)
-    matches: List[Tuple[str, str]] = []
-    matched_a: set = set()
-    matched_b: set = set()
 
-    if join_type == "intersects":
-        for cell_a in cells_a:
-            try:
-                neighbors = set(h3_module.grid_disk(cell_a, 1))
-                for cell_b in cells_b:
-                    if cell_b in neighbors or cell_a == cell_b:
-                        matches.append((cell_a, cell_b))
-                        matched_a.add(cell_a)
-                        matched_b.add(cell_b)
-            except Exception:
-                continue
-
-    elif join_type == "contains":
-        for cell_a in cells_a:
-            res_a = h3_module.get_resolution(cell_a)
-            for cell_b in cells_b:
-                res_b = h3_module.get_resolution(cell_b)
-                if res_b > res_a:
-                    try:
-                        parent = h3_module.cell_to_parent(cell_b, res_a)
-                        if parent == cell_a:
-                            matches.append((cell_a, cell_b))
-                            matched_a.add(cell_a)
-                            matched_b.add(cell_b)
-                    except Exception:
-                        continue
-
-    elif join_type == "within":
-        for cell_a in cells_a:
-            res_a = h3_module.get_resolution(cell_a)
-            for cell_b in cells_b:
-                res_b = h3_module.get_resolution(cell_b)
-                if res_a > res_b:
-                    try:
-                        parent = h3_module.cell_to_parent(cell_a, res_b)
-                        if parent == cell_b:
-                            matches.append((cell_a, cell_b))
-                            matched_a.add(cell_a)
-                            matched_b.add(cell_b)
-                    except Exception:
-                        continue
-
-    return matches, list(set(cells_a) - matched_a), list(set_b - matched_b)
+def _labels(labels: Sequence[int] | None, length: int, name: str) -> list[int]:
+    if labels is None:
+        return list(range(length))
+    if len(labels) != length:
+        raise ValueError(f"{name} must contain one integer label per point")
+    try:
+        if any(isinstance(label, (bool, np.bool_)) for label in labels):
+            raise TypeError("boolean label")
+        return [operator.index(label) for label in labels]
+    except TypeError as exc:
+        raise ValueError(f"{name} must contain integer labels") from exc
 
 
 def gpu_spatial_join_by_distance(
@@ -355,94 +340,103 @@ def gpu_spatial_join_by_distance(
     label_offsets_a: Sequence[int] | None = None,
     label_offsets_b: Sequence[int] | None = None,
     radius_km: float = EARTH_RADIUS_KM,
-) -> Tuple[List[Tuple[int, int]], List[int], List[int]]:
+    *,
+    backend: str = "auto",
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    diagnostics: dict[str, Any] | None = None,
+) -> tuple[list[tuple[int, int]], list[int], list[int]]:
+    """Join points with separation <= a finite positive radius in bounded tiles.
+
+    Pairs and unmatched values are sorted, unique integer labels (row indices
+    when labels are absent). A group is matched if any of its points matches.
+    Working distance storage is O(chunk_size**2); output can still be O(N*M).
     """
-    GPU-accelerated spatial join over two point sets by a great-circle radius.
-
-    The pairwise great-circle (haversine) distance matrix is evaluated on the
-    tensor accelerator (CUDA via JAX / PyTorch / CuPy, falling back to the
-    CPU reference path). Point pairs whose separation is ``<=``
-    ``max_distance_km`` are joined. A group may be represented by several
-    member points using ``label_offsets_*``; when provided the reported pair
-    indices refer to those group labels.
-
-    Args:
-        points_a: ``(N, 2)`` array of ``(lat, lng)`` degrees.
-        points_b: ``(M, 2)`` array of ``(lat, lng)`` degrees.
-        max_distance_km: Maximum great-circle distance to consider a join.
-        label_offsets_a: Optional group label offset per point in A
-            (length ``N``). Pairs report these labels instead of raw indices.
-        label_offsets_b: Optional group label offset per point in B.
-        radius_km: Earth radius in kilometers (default 6371.0).
-
-    Returns:
-        Tuple of ``(pairs, unmatched_a, unmatched_b)`` where ``pairs`` is a
-        list of ``(label_a, label_b)`` tuples.
-    """
-    if max_distance_km <= 0:
-        raise ValueError("max_distance_km must be positive")
-
+    threshold = _positive(max_distance_km, "max_distance_km")
+    radius = _positive(radius_km, "radius_km")
     a = _validated_points(points_a, "points_a")
     b = _validated_points(points_b, "points_b")
+    la = _labels(label_offsets_a, len(a), "label_offsets_a")
+    lb = _labels(label_offsets_b, len(b), "label_offsets_b")
+    size = _chunk_size(chunk_size)
+    execution = _Execution(backend, diagnostics)
+    pairs: set[tuple[int, int]] = set()
+    for row, col, block in _blocks(a, b, size, execution, radius):
+        rows, cols = np.nonzero(block <= threshold)
+        pairs.update((la[row + int(r)], lb[col + int(c)]) for r, c in zip(rows, cols))
+    matched_a = {a_label for a_label, _ in pairs}
+    matched_b = {b_label for _, b_label in pairs}
+    return sorted(pairs), sorted(set(la) - matched_a), sorted(set(lb) - matched_b)
 
-    dist = pairwise_haversine_kernel(a, b, radius_km=radius_km)
-    mask = dist <= max_distance_km
 
-    rows, cols = np.nonzero(mask)
+def spatial_join_kernel(
+    cells_a: Sequence[str],
+    cells_b: Sequence[str],
+    join_type: str = "intersects",
+    h3_module: Any = None,
+    resolution: int = -1,
+) -> tuple[list[tuple[str, str]], list[str], list[str]]:
+    """Host H3 topology join, preserving input order (including pair duplicates).
 
-    if label_offsets_a is not None or label_offsets_b is not None:
-        if label_offsets_a is None:
-            label_offsets_a = list(range(a.shape[0]))
-        if label_offsets_b is None:
-            label_offsets_b = list(range(b.shape[0]))
-        la = list(label_offsets_a)
-        lb = list(label_offsets_b)
-        # Collapse to group labels and de-duplicate (a group with many member
-        # points still joins its counterpart group once).
-        pairs = sorted(
-            {(int(la[int(r)]), int(lb[int(c)])) for r, c in zip(rows, cols)}
+    'intersects' means identical or distance-1 neighbors at the same resolution;
+    contains/within use strict H3 ancestry, not geographic polygon containment.
+    The legacy resolution argument must remain -1: cell resolutions determine
+    ancestry. Invalid cells raise instead of silently disappearing.
+    """
+    if h3_module is None:
+        h3_module = importlib.import_module("h3")
+    if join_type not in {"intersects", "contains", "within"}:
+        raise ValueError("join_type must be intersects, contains, or within")
+    if resolution != -1:
+        raise ValueError(
+            "resolution must be -1; H3 cell resolutions determine ancestry"
         )
-    else:
-        pairs = [(int(r), int(c)) for r, c in zip(rows, cols)]
-
-    matched_a_rows = set(int(r) for r in rows)
-    matched_b_cols = set(int(c) for c in cols)
-    unmatched_a = [int(i) for i in range(a.shape[0]) if i not in matched_a_rows]
-    unmatched_b = [int(j) for j in range(b.shape[0]) if j not in matched_b_cols]
-    return pairs, unmatched_a, unmatched_b
+    resolutions = {
+        cell: h3_module.get_resolution(cell) for cell in (*cells_a, *cells_b)
+    }
+    matches = []
+    for cell_a in cells_a:
+        neighbors = (
+            set(h3_module.grid_disk(cell_a, 1)) if join_type == "intersects" else set()
+        )
+        for cell_b in cells_b:
+            if join_type == "intersects":
+                matched = cell_b in neighbors
+            elif join_type == "contains":
+                matched = (
+                    resolutions[cell_a] < resolutions[cell_b]
+                    and h3_module.cell_to_parent(cell_b, resolutions[cell_a]) == cell_a
+                )
+            else:
+                matched = (
+                    resolutions[cell_a] > resolutions[cell_b]
+                    and h3_module.cell_to_parent(cell_a, resolutions[cell_b]) == cell_b
+                )
+            if matched:
+                matches.append((cell_a, cell_b))
+    matched_a = {a for a, _ in matches}
+    matched_b = {b for _, b in matches}
+    return (
+        matches,
+        [a for a in dict.fromkeys(cells_a) if a not in matched_a],
+        [b for b in dict.fromkeys(cells_b) if b not in matched_b],
+    )
 
 
 def h3_grid_distance_kernel(
-    cells_a: Sequence[str],
-    cells_b: Sequence[str],
-    h3_module: Any = None,
+    cells_a: Sequence[str], cells_b: Sequence[str], h3_module: Any = None
 ) -> npt.NDArray[np.int64]:
-    """
-    Compute the pairwise H3 grid distance between two cell collections.
+    """Return host H3 (N, M) int64 distances; incomparable pairs are -1.
 
-    Returns an ``(N, M)`` int64 matrix. Cells that cannot be compared (mixed
-    resolutions or straddling an icosahedron edge) are reported as ``-1``,
-    mirroring the tolerant behaviour used by the nested lumping paths.
-
-    Args:
-        cells_a: List of H3 cell identifiers (first set).
-        cells_b: List of H3 cell identifiers (second set).
-        h3_module: The ``h3`` module. Imported if ``None``.
-
-    Returns:
-        ``(N, M)`` int64 grid-distance matrix.
+    Mixed resolutions, invalid cells, and unsupported paths across pentagons
+    retain the documented tolerant sentinel. No accelerator is used or probed.
     """
     if h3_module is None:
-        import h3
-
-        h3_module = h3
-
-    n, m = len(cells_a), len(cells_b)
-    out = np.full((n, m), -1, dtype=np.int64)
-    for i, ca in enumerate(cells_a):
-        for j, cb in enumerate(cells_b):
+        h3_module = importlib.import_module("h3")
+    out = np.full((len(cells_a), len(cells_b)), -1, dtype=np.int64)
+    for i, cell_a in enumerate(cells_a):
+        for j, cell_b in enumerate(cells_b):
             try:
-                out[i, j] = int(h3_module.grid_distance(ca, cb))
+                out[i, j] = int(h3_module.grid_distance(cell_a, cell_b))
             except Exception:
-                out[i, j] = -1
+                pass
     return out

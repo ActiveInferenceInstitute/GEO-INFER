@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15008,
+      "bytes": 6779,
       "name": "geo-infer-health_preview.html",
+      "sha256": "d6c44b24f4d62ccba5cf762c9e2d90aa3b3bbace82d823adbc0726a482db8d94",
       "type": "text/html"
     },
     {
-      "bytes": 5708,
+      "bytes": 2743,
       "name": "geo-infer-health_preview.svg",
+      "sha256": "251996424911b864261d4f5f1db54478332c184abd3e12b4501b6dc05a1c3cd9",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2189,
+      "bytes": 6810,
       "name": "geo-infer-health_preview.png",
+      "sha256": "d0feb87ca95a9ae9dd2548848783c88d1dfa534e78f12a15e8d257183f2732bd",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "5972609995c572ea046943ba8530fcb2b6fab7d55fa8ae67f5f878e975b9100f",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "25669acdb22470c73b2a87e554f981b28e26cb1c179392a451360293de1dde09",
   "module_id": "GEO-INFER-HEALTH",
   "name": "Geospatial Health Analytics",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

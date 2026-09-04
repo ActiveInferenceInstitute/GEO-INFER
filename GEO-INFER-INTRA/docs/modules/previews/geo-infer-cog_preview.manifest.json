@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14952,
+      "bytes": 6729,
       "name": "geo-infer-cog_preview.html",
+      "sha256": "125679a725f28b81b226f1ad5f6f0bc1015e526a889c7f149d316e2c46aa48b7",
       "type": "text/html"
     },
     {
-      "bytes": 5667,
+      "bytes": 2712,
       "name": "geo-infer-cog_preview.svg",
+      "sha256": "739e803a417932aaf7c0b756507523eb78ced03cea85c1b6956b1fe1b7aaa72b",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2177,
+      "bytes": 6754,
       "name": "geo-infer-cog_preview.png",
+      "sha256": "37129e7bc926609469e41ca0bad1f86e217f1b06326e6d4b811c810b90f8f8b9",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "4b44aa094e323f64f38f8c48f47f93996d21b4dd78495cba793952af1736048c",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "181c7bb59162f88d7ab9b287247f3fb4ca732e2989121f09bde353829419ba71",
   "module_id": "GEO-INFER-COG",
   "name": "Cognitive Modeling",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

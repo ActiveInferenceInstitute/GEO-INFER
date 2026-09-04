@@ -5,7 +5,7 @@ This module enables the transformation of geospatial data into artistic
 expressions, visualizations, and generative art systems.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Core components
 from geo_infer_art.core.visualization import GeoArt, MapStyle
@@ -14,7 +14,7 @@ from geo_infer_art.core.generation import (
     GenerativeMap,
     ProceduralArt,
     CustomAlgorithmFramework,
-    PerformanceOptimizer
+    PerformanceOptimizer,
 )
 from geo_infer_art.core.place import PlaceArt, CulturalMap
 

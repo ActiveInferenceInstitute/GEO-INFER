@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_1ab0bd2ea13611a749b2409f767065f3 {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #7c3aed; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-SIM</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Simulation</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Digital twin environments, Monte Carlo rollouts, and physics simulation</div></div>
-    
-            <div class="folium-map" id="map_1ab0bd2ea13611a749b2409f767065f3" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-SIM: Simulation</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-SIM: Simulation</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-SIM desc-SIM" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-SIM">GEO-INFER-SIM: Simulation</title>
+<desc id="desc-SIM">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-SIM</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Simulation</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Foundations</text>
+<polygon data-h3="872830828ffffff" points="608.578,281.917 636.301,238.381 603.713,199.451 543.400,204.061 515.689,247.597 548.278,286.523 608.578,281.917" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>872830828ffffff</title></polygon><polygon data-h3="872830829ffffff" points="515.689,247.597 543.400,204.061 510.804,165.145 450.498,169.769 422.799,213.305 455.395,252.217 515.689,247.597" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>872830829ffffff</title></polygon><polygon data-h3="87283082affffff" points="696.619,233.785 724.361,190.255 691.772,151.320 631.441,155.921 603.713,199.451 636.301,238.381 696.619,233.785" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>87283082affffff</title></polygon><polygon data-h3="87283082bffffff" points="603.713,199.451 631.441,155.921 598.845,117.000 538.521,121.614 510.804,165.145 543.400,204.061 603.713,199.451" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>87283082bffffff</title></polygon><polygon data-h3="87283082cffffff" points="613.441,364.398 641.159,320.857 608.578,281.917 548.278,286.523 520.572,330.064 553.153,369.000 613.441,364.398" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>87283082cffffff</title></polygon><polygon data-h3="87283082dffffff" points="520.572,330.064 548.278,286.523 515.689,247.597 455.395,252.217 427.701,295.758 460.290,334.680 520.572,330.064" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>87283082dffffff</title></polygon><polygon data-h3="87283082effffff" points="701.465,316.265 729.201,272.729 696.619,233.785 636.301,238.381 608.578,281.917 641.159,320.857 701.465,316.265" fill="#8b5cf6" fill-opacity="0.45" stroke="#7c3aed"><title>87283082effffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#7c3aed"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["872830828ffffff", [[37.762981847664214, -122.40945463242254], [37.774760714490206, -122.4019538515761], [37.785293473597285, -122.41077092287513], [37.78404622259878, -122.42708872508095], [37.77226734985153, -122.43458610784575], [37.76173573392155, -122.42576908738397], [37.762981847664214, -122.40945463242254]]], ["872830829ffffff", [[37.77226734985153, -122.43458610784575], [37.78404622259878, -122.42708872508095], [37.794575222867756, -122.435907696754], [37.79332420735766, -122.45222399729478], [37.781545330604935, -122.45971797898419], [37.771017473265104, -122.45089906210502], [37.77226734985153, -122.43458610784575]]], ["87283082affffff", [[37.77600420067387, -122.38563455403627], [37.78778158092424, -122.37812897913464], [37.79831548273906, -122.3869460975409], [37.79707086149342, -122.40326874464051], [37.785293473597285, -122.41077092287513], [37.774760714490206, -122.4019538515761], [37.77600420067387, -122.38563455403627]]], ["87283082bffffff", [[37.785293473597285, -122.41077092287513], [37.79707086149342, -122.40326874464051], [37.807601004224495, -122.41208776737979], [37.80635261649483, -122.42840891818561], [37.794575222867756, -122.435907696754], [37.78404622259878, -122.42708872508095], [37.785293473597285, -122.41077092287513]]], ["87283082cffffff", [[37.74066613210138, -122.40813889567377], [37.75244647475629, -122.40063951171169], [37.762981847664214, -122.40945463242254], [37.76173573392155, -122.42576908738397], [37.749955385153285, -122.4332650748479], [37.73942115613858, -122.42445000474562], [37.74066613210138, -122.40813889567377]]], ["87283082dffffff", [[37.749955385153285, -122.4332650748479], [37.76173573392155, -122.42576908738397], [37.77226734985153, -122.43458610784575], [37.771017473265104, -122.45089906210502], [37.75923712029994, -122.45839165007875], [37.748706648015464, -122.44957468417971], [37.749955385153285, -122.4332650748479]]], ["87283082effffff", [[37.75368882535419, -122.38432356237526], [37.765467684343456, -122.37681938644468], [37.77600420067387, -122.38563455403627], [37.774760714490206, -122.4019538515761], [37.762981847664214, -122.40945463242254], [37.75244647475629, -122.40063951171169], [37.75368882535419, -122.38432356237526]]]], "center": [37.765, -122.425], "color": "#7c3aed", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 12}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_1ab0bd2ea13611a749b2409f767065f3 = L.map(
-                "map_1ab0bd2ea13611a749b2409f767065f3",
-                {
-                    center: [37.765, -122.425],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 12,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_d8af3b418536fe75557dab2e446c7089 = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_d8af3b418536fe75557dab2e446c7089.addTo(map_1ab0bd2ea13611a749b2409f767065f3);
-        
-    
-            var feature_group_27975f0052ad2fe0ef62338cd45244a5 = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_ca56fcf6442e76d1262e21812bec0f7d = L.polygon(
-                [[37.765, -122.414], [37.774526, -122.4195], [37.774526, -122.4305], [37.765, -122.436], [37.755474, -122.4305], [37.755474, -122.4195], [37.765, -122.414]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_7fc1dd16320999e4a4e68a130819b525 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_3d49206e23a56e9e988b5231df12050b = $(`<div id="html_3d49206e23a56e9e988b5231df12050b" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-SIM<br>Feature: Digital Twin State</div>`)[0];
-                popup_7fc1dd16320999e4a4e68a130819b525.setContent(html_3d49206e23a56e9e988b5231df12050b);
-            
-        
-
-        polygon_ca56fcf6442e76d1262e21812bec0f7d.bindPopup(popup_7fc1dd16320999e4a4e68a130819b525)
-        ;
-
-        
-    
-    
-            var polygon_a072c4c35ad0337f9b416264bca353c4 = L.polygon(
-                [[37.785, -122.414], [37.794526, -122.4195], [37.794526, -122.4305], [37.785, -122.436], [37.775474, -122.4305], [37.775474, -122.4195], [37.785, -122.414]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_91df4b9aff199a564f40d678f0c6e1bf = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_c2fecf481af4b1871a3fab9578083932 = $(`<div id="html_c2fecf481af4b1871a3fab9578083932" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-SIM<br>Feature: Simulation Mesh</div>`)[0];
-                popup_91df4b9aff199a564f40d678f0c6e1bf.setContent(html_c2fecf481af4b1871a3fab9578083932);
-            
-        
-
-        polygon_a072c4c35ad0337f9b416264bca353c4.bindPopup(popup_91df4b9aff199a564f40d678f0c6e1bf)
-        ;
-
-        
-    
-    
-            var polygon_84d2ba99019ff45d33446cb88681d88b = L.polygon(
-                [[37.775, -122.396679], [37.784526, -122.402179], [37.784526, -122.413179], [37.775, -122.418679], [37.765474, -122.413179], [37.765474, -122.402179], [37.775, -122.396679]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_e7d35f8d006fcdc0ae2503a29b9c9443 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_a4e1a4ce6196edfec59a390d2b7ed972 = $(`<div id="html_a4e1a4ce6196edfec59a390d2b7ed972" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-SIM<br>Feature: Trajectory Envelopes</div>`)[0];
-                popup_e7d35f8d006fcdc0ae2503a29b9c9443.setContent(html_a4e1a4ce6196edfec59a390d2b7ed972);
-            
-        
-
-        polygon_84d2ba99019ff45d33446cb88681d88b.bindPopup(popup_e7d35f8d006fcdc0ae2503a29b9c9443)
-        ;
-
-        
-    
-    
-            var polygon_92e5fb688239c3da5d79c82b7aa2917d = L.polygon(
-                [[37.755, -122.396679], [37.764526, -122.402179], [37.764526, -122.413179], [37.755, -122.418679], [37.745474, -122.413179], [37.745474, -122.402179], [37.755, -122.396679]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_86b0da212aebb5bae592054a45bbc8f8 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_eafbbf71afe4b2ed3d24390e45529c19 = $(`<div id="html_eafbbf71afe4b2ed3d24390e45529c19" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-SIM<br>Feature: Digital Twin State</div>`)[0];
-                popup_86b0da212aebb5bae592054a45bbc8f8.setContent(html_eafbbf71afe4b2ed3d24390e45529c19);
-            
-        
-
-        polygon_92e5fb688239c3da5d79c82b7aa2917d.bindPopup(popup_86b0da212aebb5bae592054a45bbc8f8)
-        ;
-
-        
-    
-    
-            var polygon_49163038d18284ace68bc2d32c23734f = L.polygon(
-                [[37.745, -122.414], [37.754526, -122.4195], [37.754526, -122.4305], [37.745, -122.436], [37.735474, -122.4305], [37.735474, -122.4195], [37.745, -122.414]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_dc0655dc440dbd08d9a9320d6dd21322 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_de4fd3ac17a11c7d53c9c5a3a84090b6 = $(`<div id="html_de4fd3ac17a11c7d53c9c5a3a84090b6" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-SIM<br>Feature: Simulation Mesh</div>`)[0];
-                popup_dc0655dc440dbd08d9a9320d6dd21322.setContent(html_de4fd3ac17a11c7d53c9c5a3a84090b6);
-            
-        
-
-        polygon_49163038d18284ace68bc2d32c23734f.bindPopup(popup_dc0655dc440dbd08d9a9320d6dd21322)
-        ;
-
-        
-    
-    
-            var polygon_a00f3b6fa8682d17aa8aec41ed33e789 = L.polygon(
-                [[37.755, -122.431321], [37.764526, -122.436821], [37.764526, -122.447821], [37.755, -122.453321], [37.745474, -122.447821], [37.745474, -122.436821], [37.755, -122.431321]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_7edf90f04eb43350946baa681c1d868d = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_db60450ba6f49ca5286e286ce4845ae7 = $(`<div id="html_db60450ba6f49ca5286e286ce4845ae7" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-SIM<br>Feature: Trajectory Envelopes</div>`)[0];
-                popup_7edf90f04eb43350946baa681c1d868d.setContent(html_db60450ba6f49ca5286e286ce4845ae7);
-            
-        
-
-        polygon_a00f3b6fa8682d17aa8aec41ed33e789.bindPopup(popup_7edf90f04eb43350946baa681c1d868d)
-        ;
-
-        
-    
-    
-            var polygon_f880823bfededcdc7b8d3880f4d62a27 = L.polygon(
-                [[37.775, -122.431321], [37.784526, -122.436821], [37.784526, -122.447821], [37.775, -122.453321], [37.765474, -122.447821], [37.765474, -122.436821], [37.775, -122.431321]],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#8b5cf6", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_27975f0052ad2fe0ef62338cd45244a5);
-        
-    
-        var popup_f93ceb13d49e71cc9ecc417c38aa4f52 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_22e10d9b40e270a501699f0a042b7849 = $(`<div id="html_22e10d9b40e270a501699f0a042b7849" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-SIM<br>Feature: Digital Twin State</div>`)[0];
-                popup_f93ceb13d49e71cc9ecc417c38aa4f52.setContent(html_22e10d9b40e270a501699f0a042b7849);
-            
-        
-
-        polygon_f880823bfededcdc7b8d3880f4d62a27.bindPopup(popup_f93ceb13d49e71cc9ecc417c38aa4f52)
-        ;
-
-        
-    
-    
-            feature_group_27975f0052ad2fe0ef62338cd45244a5.addTo(map_1ab0bd2ea13611a749b2409f767065f3);
-        
-    
-            var circle_marker_28c2d6d7498b819d28c98d21327c32b4 = L.circleMarker(
-                [37.765, -122.425],
-                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_1ab0bd2ea13611a749b2409f767065f3);
-        
-    
-        var popup_cedf6d01108608979f6ec8e33f9cc0b0 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_de9adae5d41b4f4bbbd5147340ad9caa = $(`<div id="html_de9adae5d41b4f4bbbd5147340ad9caa" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-SIM</b> Focus Center</div>`)[0];
-                popup_cedf6d01108608979f6ec8e33f9cc0b0.setContent(html_de9adae5d41b4f4bbbd5147340ad9caa);
-            
-        
-
-        circle_marker_28c2d6d7498b819d28c98d21327c32b4.bindPopup(popup_cedf6d01108608979f6ec8e33f9cc0b0)
-        ;
-
-        
-    
-    
-            var layer_control_823d09b1862cc4985e40110231621ed6_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_d8af3b418536fe75557dab2e446c7089,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_27975f0052ad2fe0ef62338cd45244a5,
-                },
-            };
-            let layer_control_823d09b1862cc4985e40110231621ed6 = L.control.layers(
-                layer_control_823d09b1862cc4985e40110231621ed6_layers.base_layers,
-                layer_control_823d09b1862cc4985e40110231621ed6_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_1ab0bd2ea13611a749b2409f767065f3);
-
-        
-</script>
-</html>
+</script></main></body></html>

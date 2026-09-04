@@ -13,6 +13,7 @@ from geo_infer_time.core.forecasting import ForecastingEngine
 from geo_infer_time.core.stream_processing import (
     StreamProcessor,
     StreamIngestAdapter,
+    ReplayIngestAdapter,
     WebSocketIngestAdapter,
     KafkaIngestAdapter,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "ForecastingEngine",
     "StreamProcessor",
     "StreamIngestAdapter",
+    "ReplayIngestAdapter",
     "WebSocketIngestAdapter",
     "KafkaIngestAdapter",
     "TemporalInterpolator",
@@ -41,5 +43,3 @@ __all__ = [
     "TimeSeries",
     "AdvancedForecastingEngine",
 ]
-
-

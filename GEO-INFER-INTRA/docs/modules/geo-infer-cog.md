@@ -111,6 +111,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-COG** (*Cognitive Modeling*). Repr
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-COG Leaflet Preview](previews/geo-infer-cog_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-COG Leaflet Preview](previews/geo-infer-cog_preview.svg) | [Interactive map](previews/geo-infer-cog_preview.html) · [PNG](previews/geo-infer-cog_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-cog_preview.html`, `geo-infer-cog_preview.svg`, `geo-infer-cog_preview.png`, and `geo-infer-cog_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-cog_preview.html`, `geo-infer-cog_preview.svg`, `geo-infer-cog_preview.png`, and `geo-infer-cog_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

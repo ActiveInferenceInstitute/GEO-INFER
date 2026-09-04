@@ -19,8 +19,7 @@ Comprehensive place-based analysis framework providing deep insights into specif
 
 ## Public Interface
 
-- `setup.py:read_readme` (function)
-- `setup.py:print_post_install_message` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 

@@ -10,11 +10,12 @@ Documentation workspace within `GEO-INFER-INTRA`.
 ## Public Interface
 
 - `visual_preview.py:SpatialPreviewArtifacts` (class)
-- `visual_preview.py:render_leaflet_html` (function)
 - `visual_preview.py:render_svg_card` (function)
+- `visual_preview.py:render_leaflet_html` (function)
 - `visual_preview.py:render_png_card` (function)
 - `visual_preview.py:generate_module_preview_suite` (function)
 - `visual_preview.py:generate_all_module_previews` (function)
+- `visual_preview.py:build_previews` (function)
 
 ## Module Metadata
 

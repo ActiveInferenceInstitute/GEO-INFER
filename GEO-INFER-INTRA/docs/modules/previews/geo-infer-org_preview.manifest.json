@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14958,
+      "bytes": 6745,
       "name": "geo-infer-org_preview.html",
+      "sha256": "6baa4eeb36a23a2fdac292f19c3f2eceae45bc0c1e0a770f235abb463734ccdb",
       "type": "text/html"
     },
     {
-      "bytes": 5659,
+      "bytes": 2719,
       "name": "geo-infer-org_preview.svg",
+      "sha256": "dd4bec3072a7077940dbc2061540cb3c7b863d694445d3133305097d8b5b531a",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2181,
+      "bytes": 6640,
       "name": "geo-infer-org_preview.png",
+      "sha256": "a8e6046c7a7481f00f9e40e211a87acd56ddb5fe89188d0a6adfc0111dfca763",
       "type": "image/png"
     }
   ],
   "category": "Governance",
-  "input_sha256": "20eb06702b54d0a103f22cd49c9b13521de39b1882e44e87c21b688d2725a507",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "889665b86cbe92589b7e57e16257b9a9210d400ae1e67d2375d8a454b9946aca",
   "module_id": "GEO-INFER-ORG",
   "name": "Organizational Systems",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

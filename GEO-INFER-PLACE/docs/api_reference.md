@@ -263,3 +263,55 @@ cascadia:
     - noaa
     - calfire
 ```
+
+## Hydrography acquisition and network analysis
+
+**Module**: `geo_infer_place.hydrography`
+
+See the [hydrography guide](../src/geo_infer_place/hydrography/GUIDE.md) for
+bounded USGS ingestion, resumable page checksums, native NHDPlusID aliases,
+full-network topology before filtering, and installed sample access.
+
+```python
+from geo_infer_place.hydrography import (
+    HydrographySelection, NHDPlusHRIngestor, CascadianSurfaceWaterDataSources,
+    SMITH_RIVER_HUC8, SMITH_RIVER_PILOT_BBOX,
+)
+
+path = NHDPlusHRIngestor().ingest(
+    HydrographySelection(SMITH_RIVER_PILOT_BBOX, SMITH_RIVER_HUC8),
+    "smith-river-data",
+)
+network = CascadianSurfaceWaterDataSources(path).get_flowline_network(4)
+```
+
+The pilot is a bounded lower Smith River excerpt. Whole-watershed and regional
+acquisition require explicit selections and resource budgets. Unknown native
+orders remain unknown; network H3 indexing reports its sampling approximation.
+
+## Bioregion layer rendering
+
+**Module**: `geo_infer_place.core.bioregion_visualization`
+
+```python
+create_bioregion_map(
+    config_dir, h3_data, output_path,
+    integration_results=None, *, allow_missing_layers=False,
+)
+```
+
+Provide an explicit directory containing WGS84 GeoJSON:
+`cascadia_bioregion_boundary.geojson` and `cascadia_major_watersheds.geojson`
+(Polygon/MultiPolygon), `cascadia_subduction_zone.geojson`
+(LineString/MultiLineString), and `cascadia_volcanoes.geojson` (Point).
+Features preserve their supplied names and properties. Supplied H3 IDs render
+with actual cell boundaries. Invalid CRS, coordinates and geometry are rejected;
+source text is escaped before HTML interpolation. No earthquake probability or
+volcano threat level is inferred from geometry alone.
+
+Missing required files raise `FileNotFoundError`. Explicit
+`allow_missing_layers=True` produces a partial map with a visible unavailable
+layer notice. A sibling `.layers.json` records loaded/unavailable layer status.
+The four regional datasets are not bundled: tests use declared constructed
+geometry fixtures to verify behavior, without claiming measured regional
+coverage. Legacy location import paths remain compatibility shims.

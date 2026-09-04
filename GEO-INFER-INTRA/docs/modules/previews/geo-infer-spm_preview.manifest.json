@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 15016,
+      "bytes": 6750,
       "name": "geo-infer-spm_preview.html",
+      "sha256": "844c94db5ba589fcb607ec128f024b17364b134fbf24c71e0b786aae3a059bbe",
       "type": "text/html"
     },
     {
-      "bytes": 5689,
+      "bytes": 2724,
       "name": "geo-infer-spm_preview.svg",
+      "sha256": "3a8dc9574121b0134e46d95887196260b84b0a18e44f5b5b44d8343f60cd20e8",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2184,
+      "bytes": 6918,
       "name": "geo-infer-spm_preview.png",
+      "sha256": "3f5f261283496bcd8c6e621afbe5eb4c3a8715e069a27c539d209dd4bf386388",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "75bb5d4e95fb5c8b3b09c77e6f72caf8395d46ae4fe27e4af143420b3f26b74f",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "b055a8f2804439e70afaf322f30b60327a545fd2b93c0fdcb8631394328479ed",
   "module_id": "GEO-INFER-SPM",
   "name": "Spatial Process Modeling",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

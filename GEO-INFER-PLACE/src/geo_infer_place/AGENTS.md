@@ -23,6 +23,7 @@
 
 - `config/`
 - `core/`
+- `hydrography/`
 - `locations/`
 - `utils/`
 - `__init__.py`

@@ -161,6 +161,6 @@ Pre-rendered spatial snapshot for **GEO-INFER-AGENT** (*Multi-Agent Systems*). R
 
 | Preview | Widget |
 | --- | --- |
-| ![GEO-INFER-AGENT Leaflet Preview](previews/geo-infer-agent_preview.svg) | Leaflet HTMLMap · SVG vector · PNG raster |
+| ![GEO-INFER-AGENT Leaflet Preview](previews/geo-infer-agent_preview.svg) | [Interactive map](previews/geo-infer-agent_preview.html) · [PNG](previews/geo-infer-agent_preview.png) |
 
-> **Reproducible contract:** each map ships as `geo-infer-agent_preview.html`, `geo-infer-agent_preview.svg`, `geo-infer-agent_preview.png`, and `geo-infer-agent_preview.manifest.json` beneath `previews/`. The receipt records an input SHA-256 and artifact accessibility checks.
+> **Reproducible contract:** each map ships as `geo-infer-agent_preview.html`, `geo-infer-agent_preview.svg`, `geo-infer-agent_preview.png`, and `geo-infer-agent_preview.manifest.json` beneath `previews/`. The receipt records geometry provenance and artifact SHA-256 hashes. Values are illustrative, not observations.

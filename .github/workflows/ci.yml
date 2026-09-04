@@ -68,8 +68,8 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
         run: |
           base_sha="$BASE_SHA"
-          if [[ "$base_sha" =~ ^0+$ ]]; then
-            base_sha="$(git rev-list --max-parents=0 "$HEAD_SHA")"
+          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+            base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
 
           # Exclude deleted paths: formatters and linters can only inspect
@@ -84,12 +84,12 @@ jobs:
           printf '%s\n' "$changed_files"
           # Keep this gate focused on runtime-invalid constructs. The full
           # source hygiene contract below owns the repository-wide critical
-          # rules, while Black provides the deterministic formatting gate.
+          # rules, while Ruff provides the deterministic formatting gate.
           git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.3.0' ruff check \
               --select F821,F823,E721,E722
           git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
-            xargs -0 uv run --with 'ruff>=0.3.0' --with 'black>=21.9.0' black --check
+            xargs -0 uv run --with 'ruff>=0.3.0' ruff format --check
 
       - name: Validate repository contracts
         run: |

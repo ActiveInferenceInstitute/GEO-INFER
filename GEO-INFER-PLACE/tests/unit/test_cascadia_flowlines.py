@@ -14,31 +14,17 @@ Covers:
 
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-from typing import Any, Dict, List
 
 import geopandas as gpd
 import pytest
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString
 
-# Ensure cascadia module is on sys.path
-_CASCADIA_DIR = (
-    Path(__file__).resolve().parents[2] / "locations" / "cascadia"
-)
-if str(_CASCADIA_DIR) not in sys.path:
-    sys.path.insert(0, str(_CASCADIA_DIR))
-
-from src.data_modules.surface_water.flowline_network import (
+from geo_infer_place.hydrography import (
     CascadiaFlowlineNetwork,
     FlowlineTopologyValidator,
-)
-from src.data_modules.surface_water.data_sources import (
     CascadianSurfaceWaterDataSources,
-)
-from src.data_modules.surface_water.geo_infer_surface_water import (
     GeoInferSurfaceWater,
+    sample_flowlines,
 )
 
 
@@ -133,13 +119,13 @@ class TestCascadiaFlowlineNetworkConstruction:
         """Querying invalid COMID returns None."""
         assert flowline_network.get_flowline_by_comid(999999) is None
 
-    def test_from_geojson_file(self):
-        """Construct network from the tracked Cascadia PNW flowlines GeoJSON."""
-        geojson_path = _CASCADIA_DIR / "config" / "cascadia_nhdplus_flowlines.geojson"
-        assert geojson_path.exists(), f"GeoJSON fixture missing at {geojson_path}"
+    def test_from_geojson_file(self, tmp_path):
+        """Round-trip the traceable real Smith River excerpt through GeoJSON."""
+        geojson_path = tmp_path / "smith.geojson"
+        sample_flowlines().to_file(geojson_path, driver="GeoJSON")
         network = CascadiaFlowlineNetwork.from_geojson(geojson_path)
-        assert network.graph.number_of_edges() >= 20
-        assert network.graph.number_of_nodes() >= 15
+        assert network.graph.number_of_edges() == 34
+        assert len(network._comid_to_edge) == 34
 
 
 class TestFlowlineTopologyValidation:
@@ -282,37 +268,131 @@ class TestH3SpatialIntegrationAndSurfaceWaterModule:
 
     def test_data_sources_load_pnw_flowlines(self):
         """CascadianSurfaceWaterDataSources correctly loads local NHDPlus HR flowlines."""
-        ds = CascadianSurfaceWaterDataSources()
+        ds = CascadianSurfaceWaterDataSources(flowlines=sample_flowlines())
         gdf = ds.load_pnw_high_order_flowlines(min_stream_order=4)
         assert not gdf.empty
-        assert len(gdf) >= 20
+        assert set(gdf["comid"]) == set(
+            sample_flowlines().query("stream_order >= 4")["comid"]
+        )
         assert "comid" in gdf.columns
         assert "stream_order" in gdf.columns
 
     def test_data_sources_get_flowline_network(self):
         """CascadianSurfaceWaterDataSources constructs validated network."""
-        ds = CascadianSurfaceWaterDataSources()
+        ds = CascadianSurfaceWaterDataSources(flowlines=sample_flowlines())
         net = ds.get_flowline_network(min_stream_order=5)
         report = net.validate()
-        assert report["valid"] is True
-        assert report["node_count"] >= 10
-        assert report["edge_count"] >= 10
+        assert report["dag_validation"]["is_dag"] is True
+        assert report["edge_count"] == 34
+        assert len(net.selected_comids) < len(net.flowlines_gdf)
 
-    def test_geoinfer_surface_water_methods(self):
+    def test_geoinfer_surface_water_methods(self, sample_flowlines_gdf):
         """GeoInferSurfaceWater provides network topology and validation APIs."""
+
         # Minimal mock-free backend dummy
         class MinimalBackend:
             h3_resolution = 8
             target_hexagons: list[str] = []
 
-        sw = GeoInferSurfaceWater(MinimalBackend())  # type: ignore[arg-type]
+        sw = GeoInferSurfaceWater(
+            MinimalBackend(),
+            data_source=CascadianSurfaceWaterDataSources(
+                flowlines=sample_flowlines_gdf
+            ),
+        )  # type: ignore[arg-type]
         assert sw.network is not None
         validation = sw.validate_network_topology()
         assert validation["valid"] is True
 
-        downstream = sw.trace_downstream_flowpath(17000004)  # Willamette Middle Reach
+        downstream = sw.trace_downstream_flowpath(104)  # Constructed tributary fixture
         assert len(downstream) >= 2
         assert any("Columbia River" in e.get("gnis_name", "") for e in downstream)
 
-        upstream = sw.trace_upstream_tributaries(17000002)  # Columbia Lower Reach
+        upstream = sw.trace_upstream_tributaries(101)  # Constructed outlet fixture
         assert len(upstream) >= 4
+
+
+def test_parallel_reaches_preserve_ids_and_traversal(sample_flowlines_gdf):
+    """Two channels connecting the same junctions must not overwrite one another."""
+    duplicate_channel = sample_flowlines_gdf.iloc[[1]].copy()
+    duplicate_channel["comid"] = 105
+    import pandas as pd
+
+    net = CascadiaFlowlineNetwork(
+        gpd.GeoDataFrame(
+            pd.concat([sample_flowlines_gdf, duplicate_channel]), crs="EPSG:4326"
+        )
+    )
+    assert net.graph.number_of_edges() == 5
+    assert net.get_flowline_by_comid(102)["comid"] == 102
+    assert net.get_flowline_by_comid(105)["comid"] == 105
+    assert {r["comid"] for r in net.trace_upstream(101)} == {101, 102, 103, 104, 105}
+
+
+def test_threshold_does_not_remove_tributary_connectivity(sample_flowlines_gdf):
+    source = CascadianSurfaceWaterDataSources(flowlines=sample_flowlines_gdf)
+    net = source.get_flowline_network(min_stream_order=8)
+    assert net.selected_comids == {101, 102}
+    assert {r["comid"] for r in net.trace_upstream(101)} == {101, 102, 103, 104}
+    sample_flowlines_gdf.loc[sample_flowlines_gdf["comid"] == 103, "stream_order"] = 4
+    source = CascadianSurfaceWaterDataSources(flowlines=sample_flowlines_gdf)
+    selected = source.load_pnw_high_order_flowlines(8)
+    assert not selected.attrs["full_network_validation"]["valid"]
+
+
+def test_missing_dataset_is_not_an_empty_network():
+    with pytest.raises(FileNotFoundError, match="Supply"):
+        CascadianSurfaceWaterDataSources().get_flowline_network()
+
+
+@pytest.mark.parametrize("column", ["from_node", "comid"])
+def test_missing_topology_is_not_invented(sample_flowlines_gdf, column):
+    with pytest.raises(ValueError, match="missing"):
+        CascadiaFlowlineNetwork(sample_flowlines_gdf.drop(columns=[column]))
+
+
+def test_duplicate_identifiers_are_rejected(sample_flowlines_gdf):
+    sample_flowlines_gdf["comid"] = 101
+    with pytest.raises(ValueError, match="duplicate"):
+        CascadiaFlowlineNetwork(sample_flowlines_gdf)
+
+
+def test_multiline_h3_index_retains_all_parts_and_labels_estimates(
+    sample_flowlines_gdf,
+):
+    from shapely.geometry import MultiLineString
+
+    frame = sample_flowlines_gdf.iloc[[0]].copy()
+    frame["geometry"] = [
+        MultiLineString(
+            [[(-124, 41), (-123.99, 41.01)], [(-122, 43), (-121.99, 43.01)]]
+        )
+    ]
+    net = CascadiaFlowlineNetwork(frame)
+    indexed = net.index_to_h3(7)
+    from geo_infer_space.utils.h3_utils import latlng_to_cell
+
+    assert latlng_to_cell(41, -124, 7) in indexed
+    assert latlng_to_cell(43, -122, 7) in indexed
+    assert all(
+        value["coverage_method"] == "vertex_midpoint_sampling"
+        for value in indexed.values()
+    )
+    assert all(
+        value["length_method"] == "equal_share_source_length"
+        for value in indexed.values()
+    )
+    assert sum(
+        value["flowline_length_km"] for value in indexed.values()
+    ) == pytest.approx(50, abs=0.001)
+
+
+def test_projected_geojson_never_gets_relabelled_as_wgs84(
+    tmp_path, sample_flowlines_gdf
+):
+    from geo_infer_place.hydrography import load_flowlines
+
+    path = tmp_path / "projected.geojson"
+    sample_flowlines_gdf.to_crs("EPSG:3857").to_file(path, driver="GeoJSON")
+    with pytest.raises(ValueError, match="WGS84"):
+        load_flowlines(path)

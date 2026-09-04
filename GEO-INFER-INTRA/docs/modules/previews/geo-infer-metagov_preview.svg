@@ -1,71 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
-  <defs>
-    <linearGradient id="bg-grad-METAGOV" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
-    </linearGradient>
-    <linearGradient id="badge-grad-METAGOV" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#64748b"/>
-      <stop offset="100%" stop-color="#94a3b8"/>
-    </linearGradient>
-    <filter id="shadow-METAGOV" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
-    </filter>
-  </defs>
-
-  <!-- Background Card -->
-  <rect x="8" y="8" width="684" height="364" rx="12" fill="url(#bg-grad-METAGOV)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-METAGOV)"/>
-
-  <!-- Left Content Column -->
-  <g transform="translate(0, 0)">
-    <!-- Header Badge -->
-    <rect x="36" y="36" width="130" height="26" rx="6" fill="url(#badge-grad-METAGOV)"/>
-    <text x="101" y="53" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">GEO-INFER-METAGOV</text>
-
-    <!-- Category Pill -->
-    <rect x="176" y="36" width="90" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="221" y="53" text-anchor="middle" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600">Governance</text>
-
-    <!-- Title -->
-    <text x="36" y="98" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="20" font-weight="700">Meta-Governance &amp; Organizational Governance Module</text>
-
-    <!-- Description -->
-    <text x="36" y="128" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="400">
-      <tspan x="36" dy="0">Polycentric governance, institutional decision protocols, </tspan>
-      <tspan x="36" dy="18">and auditability</tspan>
-    </text>
-
-    <!-- Section Heading -->
-    <text x="36" y="174" fill="#1e293b" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600">Active Spatial Dimensions</text>
-
-    <!-- Feature Chips -->
-    <rect x="36" y="190" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="202" r="3.5" fill="#64748b"/><text x="60" y="206" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Jurisdiction Borders</text><rect x="36" y="222" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="234" r="3.5" fill="#64748b"/><text x="60" y="238" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Policy Envelopes</text><rect x="36" y="254" width="220" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><circle cx="48" cy="266" r="3.5" fill="#64748b"/><text x="60" y="270" fill="#334155" font-family="-apple-system, sans-serif" font-size="11" font-weight="500">Voting Weights</text>
-
-    <!-- Footer Contract Info -->
-    <text x="36" y="352" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="10" font-weight="500">H3 v4 Spatial Topology · CC BY-NC-SA 4.0 · Verified Contract</text>
-  </g>
-
-  <!-- Right Visual Domain H3 Graph -->
-  <g>
-    <!-- Grid connection lines -->
-    <line x1="520" y1="200" x2="430" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="610" y2="200" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="110" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <line x1="520" y1="200" x2="520" y2="290" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-    <polygon points="568.0,200.0 544.0,241.6 496.0,241.6 472.0,200.0 496.0,158.4 544.0,158.4" fill="#94a3b8" fill-opacity="0.7" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="520.0" cy="200.0" r="4" fill="#64748b" />
-    <text x="520.0" y="204.0" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">H3</text>
-    <polygon points="647.2,200.0 623.2,241.6 575.2,241.6 551.2,200.0 575.2,158.4 623.2,158.4" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="599.2" cy="200.0" r="4" fill="#64748b" />
-    <polygon points="607.6,268.6 583.6,310.2 535.6,310.2 511.6,268.6 535.6,227.0 583.6,227.0" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="559.6" cy="268.6" r="4" fill="#64748b" />
-    <polygon points="528.4,268.6 504.4,310.2 456.4,310.2 432.4,268.6 456.4,227.0 504.4,227.0" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="480.4" cy="268.6" r="4" fill="#64748b" />
-    <polygon points="488.8,200.0 464.8,241.6 416.8,241.6 392.8,200.0 416.8,158.4 464.8,158.4" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="440.8" cy="200.0" r="4" fill="#64748b" />
-    <polygon points="528.4,131.4 504.4,173.0 456.4,173.0 432.4,131.4 456.4,89.8 504.4,89.8" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="480.4" cy="131.4" r="4" fill="#64748b" />
-    <polygon points="607.6,131.4 583.6,173.0 535.6,173.0 511.6,131.4 535.6,89.8 583.6,89.8" fill="#94a3b8" fill-opacity="0.35" stroke="#64748b" stroke-width="2.5" />
-    <circle cx="559.6" cy="131.4" r="4" fill="#64748b" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-METAGOV desc-METAGOV" viewBox="0 0 700 380" width="700" height="380">
+<title id="title-METAGOV">GEO-INFER-METAGOV: Meta-Governance &amp; Organizational Governance Module</title>
+<desc id="desc-METAGOV">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-METAGOV</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Meta-Governance &amp; Organizational Governance Module</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Governance</text>
+<polygon data-h3="872830828ffffff" points="531.510,238.063 554.921,201.300 527.402,168.425 476.471,172.318 453.071,209.082 480.590,241.953 531.510,238.063" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>872830828ffffff</title></polygon><polygon data-h3="872830829ffffff" points="453.071,209.082 476.471,172.318 448.946,139.456 398.020,143.360 374.630,180.124 402.155,212.983 453.071,209.082" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>872830829ffffff</title></polygon><polygon data-h3="87283082affffff" points="605.856,197.419 629.282,160.660 601.763,127.782 550.817,131.666 527.402,168.425 554.921,201.300 605.856,197.419" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>87283082affffff</title></polygon><polygon data-h3="87283082bffffff" points="527.402,168.425 550.817,131.666 523.292,98.800 472.351,102.696 448.946,139.456 476.471,172.318 527.402,168.425" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>87283082bffffff</title></polygon><polygon data-h3="87283082cffffff" points="535.617,307.714 559.023,270.946 531.510,238.063 480.590,241.953 457.194,278.721 484.707,311.600 535.617,307.714" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>87283082cffffff</title></polygon><polygon data-h3="87283082dffffff" points="457.194,278.721 480.590,241.953 453.071,209.082 402.155,212.983 378.770,249.751 406.289,282.619 457.194,278.721" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>87283082dffffff</title></polygon><polygon data-h3="87283082effffff" points="609.948,267.068 633.370,230.305 605.856,197.419 554.921,201.300 531.510,238.063 559.023,270.946 609.948,267.068" fill="#94a3b8" fill-opacity="0.45" stroke="#64748b"><title>87283082effffff</title></polygon>
+<circle cx="504.0" cy="205.20000000000002" r="3" fill="#64748b"/>
+<text x="24" y="342" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="362" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
 </svg>

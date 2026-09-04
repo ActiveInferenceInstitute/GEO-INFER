@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `kafka_service_check.py`
 - `test_integration.py`
 
 ## Validation

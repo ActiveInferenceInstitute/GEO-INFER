@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import ast
+import math
+import os
 import importlib
 import importlib.util
 import re
@@ -21,6 +23,7 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from import_probe import run_import_probe
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_MODULE_COUNT = 44
@@ -709,30 +712,53 @@ def validate_pymdp_runtime_imports(report: ContractReport) -> None:
             )
 
 
-def validate_import_smoke(module_dirs: list[Path], report: ContractReport) -> None:
-    """Best-effort package import smoke check with local src paths."""
+def validate_import_smoke(
+    module_dirs: list[Path], report: ContractReport, timeout: float = 30
+) -> None:
+    """Probe source packages in bounded processes and verify their import origins."""
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("Import timeout must be finite and positive")
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(str(p / "src") for p in module_dirs)
     for module_dir in module_dirs:
-        pyproject = parse_pyproject(module_dir, report)
-        package_name = expected_package_name(pyproject)
-        if not package_name:
+        package_name = expected_package_name(parse_pyproject(module_dir, report))
+        if not package_name or not (module_dir / "src").exists():
             continue
-        src_dir = module_dir / "src"
-        if not src_dir.exists():
-            continue
-
-        sys.path.insert(0, str(src_dir))
+        print(f"Import probe: {package_name}", flush=True)
+        command = [
+            sys.executable,
+            "-P",
+            "-c",
+            "import importlib,json,pathlib,sys\n"
+            "package = importlib.import_module(sys.argv[1])\n"
+            "expected = pathlib.Path(sys.argv[2]).resolve()\n"
+            "origin = getattr(package, '__file__', None)\n"
+            "if origin is None or not pathlib.Path(origin).resolve().is_relative_to(expected):\n"
+            "    raise ImportError(f'Imported {sys.argv[1]} from {origin}, outside expected source {expected}')\n"
+            "print(json.dumps({'package':sys.argv[1],'probe_token':sys.argv[-1],'status':'ok'}))\n",
+            package_name,
+            str(module_dir / "src" / package_name),
+        ]
         try:
-            importlib.import_module(package_name)
-        except Exception as exc:  # noqa: BLE001 - smoke check reports any import break
-            report.warning(
-                f"{module_dir.name}: import {package_name} raised {type(exc).__name__}: {exc}"
+            run_import_probe(
+                command,
+                package=package_name,
+                cwd=REPO_ROOT,
+                env=env,
+                timeout=timeout,
             )
-        finally:
-            try:
-                sys.path.remove(str(src_dir))
-            except ValueError:
-                pass
-            sys.modules.pop(package_name, None)
+        except subprocess.TimeoutExpired:
+            report.warning(
+                f"{module_dir.name}: import {package_name} timed out after {timeout}s"
+            )
+            continue
+        except subprocess.CalledProcessError as exc:
+            detail = (exc.stderr or exc.stdout or str(exc)).strip()[-1500:]
+            report.warning(
+                f"{module_dir.name}: import {package_name} failed ({exc.returncode}): {detail}"
+            )
+        except ValueError as exc:
+            report.warning(f"{module_dir.name}: import {package_name} failed: {exc}")
 
 
 def validate_source_language(report: ContractReport, strict: bool) -> None:
@@ -795,18 +821,24 @@ def validate_requirements_files(report: ContractReport) -> None:
 
 
 def validate_markdown_local_links(report: ContractReport) -> None:
-    for markdown_file in sorted(
-        path
-        for pattern in ("README.md", "AGENTS.md")
-        for path in REPO_ROOT.glob(f"**/{pattern}")
-        if not {
-            ".git",
-            ".pytest_cache",
-            ".venv",
-            "__pycache__",
-            ".geo-infer-test-results",
-        }.intersection(path.parts)
-    ):
+    excluded = {
+        ".git",
+        ".pytest_cache",
+        ".venv",
+        "__pycache__",
+        ".geo-infer-test-results",
+        "build",
+        "dist",
+    }
+    markdown_files = []
+    for directory, children, files in os.walk(REPO_ROOT):
+        children[:] = sorted(name for name in children if name not in excluded)
+        markdown_files.extend(
+            Path(directory) / name
+            for name in ("README.md", "AGENTS.md")
+            if name in files
+        )
+    for markdown_file in sorted(markdown_files):
         text = markdown_file.read_text(encoding="utf-8", errors="ignore")
         for match in MARKDOWN_LINK_PATTERN.finditer(text):
             target = match.group(1).strip()
@@ -923,6 +955,12 @@ def main() -> int:
         action="store_true",
         help="Skip best-effort per-package import smoke warnings.",
     )
+    parser.add_argument(
+        "--import-timeout",
+        type=float,
+        default=30,
+        help="Seconds allowed per isolated import probe",
+    )
     args = parser.parse_args()
 
     report = ContractReport()
@@ -950,7 +988,7 @@ def main() -> int:
     validate_module_task_markers(report)
     validate_logging_configuration(report)
     if not args.skip_import_smoke:
-        validate_import_smoke(module_dirs, report)
+        validate_import_smoke(module_dirs, report, timeout=args.import_timeout)
     validate_source_language(report, strict=args.strict_source_language)
 
     print(f"Modules checked: {len(module_dirs)}")

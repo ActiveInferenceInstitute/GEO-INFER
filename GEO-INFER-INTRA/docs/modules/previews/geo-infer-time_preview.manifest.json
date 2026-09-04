@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14964,
+      "bytes": 6760,
       "name": "geo-infer-time_preview.html",
+      "sha256": "2cc746ec332884cbb7ac3b44780ff62a4ff98d33a38951f5274ebe0aa3b43838",
       "type": "text/html"
     },
     {
-      "bytes": 5678,
+      "bytes": 2730,
       "name": "geo-infer-time_preview.svg",
+      "sha256": "d832cf8e1864d1d6ef74dd4d0c06d267e66b597c2853869cd96e7cc697ce6e55",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2186,
+      "bytes": 6751,
       "name": "geo-infer-time_preview.png",
+      "sha256": "045912406b805767e0a7714ef429a73b2d20ff8465ebfb14e52a6a90cde0e285",
       "type": "image/png"
     }
   ],
   "category": "Foundations",
-  "input_sha256": "2a410b4125d2a970ea56132a80c5d9492c902695b1b3d5117957ce7516a166eb",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "63472358dbfe0ae774fc2a9e9a215ca3e6d39a6fa10ddc9bbcdc696f06763c1f",
   "module_id": "GEO-INFER-TIME",
   "name": "Temporal Analysis Engine",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

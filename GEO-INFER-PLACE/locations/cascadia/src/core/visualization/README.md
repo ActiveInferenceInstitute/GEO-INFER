@@ -14,7 +14,6 @@ Visualization workspace within `GEO-INFER-PLACE`.
 
 ## Public Interface
 
-- `bioregion_visualization.py:create_bioregion_map` (function)
 - `comprehensive_visualization.py:ComprehensiveVisualizationEngine` (class)
 - `comprehensive_visualization.py:create_comprehensive_visualization_engine` (function)
 - `datashader_visualization.py:CascadiaDatashaderVisualizer` (class)

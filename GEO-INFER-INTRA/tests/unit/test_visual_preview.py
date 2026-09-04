@@ -26,13 +26,50 @@ class TestVisualPreviewContract:
     def test_all_44_modules_registered(self) -> None:
         """Verify all 44 GEO-INFER modules are configured in the profile registry."""
         expected_modules = {
-            "ACT", "AG", "AGENT", "AI", "ANT", "API", "APP", "ART",
-            "BAYES", "BIO", "CIV", "CLIMATE", "COG", "COMMS", "DATA",
-            "ECON", "EDU", "EMERGENCY", "ENERGY", "EXAMPLES", "FOREST",
-            "GIT", "HEALTH", "INTRA", "IOT", "LOG", "MARINE", "MATH",
-            "METAGOV", "NORMS", "OPS", "ORG", "PEP", "PLACE", "REQ",
-            "RISK", "SEC", "SIM", "SPACE", "SPM", "TEST", "TIME",
-            "TRANSPORT", "WATER",
+            "ACT",
+            "AG",
+            "AGENT",
+            "AI",
+            "ANT",
+            "API",
+            "APP",
+            "ART",
+            "BAYES",
+            "BIO",
+            "CIV",
+            "CLIMATE",
+            "COG",
+            "COMMS",
+            "DATA",
+            "ECON",
+            "EDU",
+            "EMERGENCY",
+            "ENERGY",
+            "EXAMPLES",
+            "FOREST",
+            "GIT",
+            "HEALTH",
+            "INTRA",
+            "IOT",
+            "LOG",
+            "MARINE",
+            "MATH",
+            "METAGOV",
+            "NORMS",
+            "OPS",
+            "ORG",
+            "PEP",
+            "PLACE",
+            "REQ",
+            "RISK",
+            "SEC",
+            "SIM",
+            "SPACE",
+            "SPM",
+            "TEST",
+            "TIME",
+            "TRANSPORT",
+            "WATER",
         }
         assert set(MODULE_PROFILES.keys()) == expected_modules
         assert len(MODULE_PROFILES) == 44
@@ -57,7 +94,7 @@ class TestVisualPreviewContract:
             assert len(profile["features"]) >= 3
 
     def test_render_leaflet_html_contract(self, tmp_path: Path) -> None:
-        """Verify Leaflet HTML generation produces valid, self-contained HTML."""
+        """Verify Leaflet HTML includes its local static fallback."""
         out_file = tmp_path / "test_act_map.html"
         html_str = render_leaflet_html("ACT", out_file)
 
@@ -108,7 +145,7 @@ class TestVisualPreviewContract:
         assert artifacts.manifest_path.exists()
 
         manifest = json.loads(artifacts.manifest_path.read_text(encoding="utf-8"))
-        assert manifest["schema_version"] == "geo-infer-intra-visual-preview/v1"
+        assert manifest["schema_version"] == "geo-infer-intra-visual-preview/v2"
         assert manifest["module_id"] == "GEO-INFER-BIO"
         assert manifest["name"] == "Biological Systems"
         assert len(manifest["artifacts"]) == 3
@@ -129,7 +166,8 @@ class TestVisualPreviewContract:
 
     def test_generate_all_module_previews(self, tmp_path: Path) -> None:
         """Verify batch emission produces bundles for all 44 modules deterministically."""
-        all_bundles = generate_all_module_previews(tmp_path)
+        all_bundles = generate_all_module_previews(tmp_path / "first")
+        repeated = generate_all_module_previews(tmp_path / "second")
         assert len(all_bundles) == 44
         for mod_id, bundle in all_bundles.items():
             assert bundle.module_id == mod_id
@@ -140,3 +178,63 @@ class TestVisualPreviewContract:
             assert bundle.html_bytes > 0
             assert bundle.svg_bytes > 0
             assert bundle.png_bytes > 0
+            for attribute in ("html_path", "svg_path", "png_path", "manifest_path"):
+                assert (
+                    getattr(bundle, attribute).read_bytes()
+                    == getattr(repeated[mod_id], attribute).read_bytes()
+                )
+
+
+@pytest.mark.unit
+def test_preview_bytes_and_receipts_are_reproducible(tmp_path):
+    """Equivalent inputs produce byte-identical artifacts and content hashes."""
+    import hashlib
+
+    first = generate_module_preview_suite("SPACE", tmp_path / "first")
+    second = generate_module_preview_suite("SPACE", tmp_path / "second")
+    for attribute in ("html_path", "svg_path", "png_path", "manifest_path"):
+        assert (
+            getattr(first, attribute).read_bytes()
+            == getattr(second, attribute).read_bytes()
+        )
+    manifest = json.loads(first.manifest_path.read_text())
+    assert manifest["provenance"]["data_kind"] == "illustrative"
+    for artifact in manifest["artifacts"]:
+        assert (
+            artifact["sha256"]
+            == hashlib.sha256(
+                (first.html_path.parent / artifact["name"]).read_bytes()
+            ).hexdigest()
+        )
+
+
+@pytest.mark.unit
+def test_preview_uses_h3_cells_and_has_offline_content():
+    """HTML retains an accessible static map without Leaflet or external tiles."""
+    import h3
+
+    markup = render_leaflet_html("SPACE")
+    cell = h3.latlng_to_cell(*MODULE_PROFILES["SPACE"]["center"], 7)
+    assert cell in markup
+    assert "Illustrative" in markup
+    assert 'id="static-preview"' in markup
+    assert "<title>" in render_svg_card("SPACE")
+
+
+@pytest.mark.unit
+def test_preview_rejects_invalid_canvas_dimensions():
+    """Bad dimensions fail before allocating raster memory."""
+    for render in (render_leaflet_html, render_svg_card, render_png_card):
+        with pytest.raises(ValueError, match="dimensions"):
+            render("SPACE", width=0)
+        with pytest.raises(ValueError, match="dimensions"):
+            render("SPACE", height=100000)
+
+
+@pytest.mark.unit
+def test_preview_rejects_attribute_injection(monkeypatch):
+    """Profile extensions cannot inject active SVG attributes through colors."""
+    profile = dict(MODULE_PROFILES["SPACE"], secondary_color='red" onload="alert(1)')
+    monkeypatch.setitem(MODULE_PROFILES, "SPACE", profile)
+    with pytest.raises(ValueError, match="colors"):
+        render_svg_card("SPACE")

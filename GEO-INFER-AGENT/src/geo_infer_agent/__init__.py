@@ -9,7 +9,7 @@ This module provides functionality for:
 - Handling geospatial perception and action
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 try:
     from geo_infer_agent.core.agent_base import BaseAgent, AgentState
@@ -19,12 +19,20 @@ except ImportError:
 
 try:
     from geo_infer_agent.models import (
-        BDIAgent, BDIState,
-        ActiveInferenceAgent, ActiveInferenceState, GenerativeModel,
-        RLAgent, RLState,
-        RuleBasedAgent, RuleBasedState,
-        HybridAgent, HybridState,
-        Belief, Desire, Plan,
+        BDIAgent,
+        BDIState,
+        ActiveInferenceAgent,
+        ActiveInferenceState,
+        GenerativeModel,
+        RLAgent,
+        RLState,
+        RuleBasedAgent,
+        RuleBasedState,
+        HybridAgent,
+        HybridState,
+        Belief,
+        Desire,
+        Plan,
     )
 except ImportError:
     pass
@@ -50,20 +58,31 @@ except ImportError:
 
 __all__ = [
     "__version__",
-    "BaseAgent", "AgentState",
+    "BaseAgent",
+    "AgentState",
     "AgentRegistry",
-    "BDIAgent", "BDIState",
-    "ActiveInferenceAgent", "ActiveInferenceState", "GenerativeModel",
-    "RLAgent", "RLState",
-    "RuleBasedAgent", "RuleBasedState",
-    "HybridAgent", "HybridState",
-    "Belief", "Desire", "Plan",
-    "MessagingService", "Message",
+    "BDIAgent",
+    "BDIState",
+    "ActiveInferenceAgent",
+    "ActiveInferenceState",
+    "GenerativeModel",
+    "RLAgent",
+    "RLState",
+    "RuleBasedAgent",
+    "RuleBasedState",
+    "HybridAgent",
+    "HybridState",
+    "Belief",
+    "Desire",
+    "Plan",
+    "MessagingService",
+    "Message",
     "TelemetryService",
-    "LLMProxyPolicy", "LLMProxyPolicyError",
+    "LLMProxyPolicy",
+    "LLMProxyPolicyError",
     "TokenBucket",
     "check_allowed_model",
     "check_output_tokens",
     "check_request_size",
     "enforce_llm_proxy_policy",
-] 
+]

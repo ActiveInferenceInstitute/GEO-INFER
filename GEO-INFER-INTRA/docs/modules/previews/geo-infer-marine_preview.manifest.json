@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14976,
+      "bytes": 6769,
       "name": "geo-infer-marine_preview.html",
+      "sha256": "442663e86cc7b7d4652b6be412b1ba83d61e5818d9d5fda1aa01994137649ffc",
       "type": "text/html"
     },
     {
-      "bytes": 5686,
+      "bytes": 2739,
       "name": "geo-infer-marine_preview.svg",
+      "sha256": "3281772d7655802c5532d65eef952b9e80c4e6b2f402285ad5d428e93c351221",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2186,
+      "bytes": 6876,
       "name": "geo-infer-marine_preview.png",
+      "sha256": "7c4cb9e379aaf1f1b172629a0bcd1f98fdee84e615bcca4b89842959172a7287",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "b939bce8f95ffe3ad312f325aea6cd16c29d4ffed4d441f3246e9c4fbae44444",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "a868560f352e48e2b44599d468850da85aa98e59d0139782850e80acabde8a0e",
   "module_id": "GEO-INFER-MARINE",
   "name": "Marine and Coastal Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

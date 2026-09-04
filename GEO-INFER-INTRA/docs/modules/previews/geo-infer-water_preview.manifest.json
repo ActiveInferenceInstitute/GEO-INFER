@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14988,
+      "bytes": 6743,
       "name": "geo-infer-water_preview.html",
+      "sha256": "3fe38bb312512e9352d46a359261446a7da219c0a82615bc9fd79a95e2b08882",
       "type": "text/html"
     },
     {
-      "bytes": 5695,
+      "bytes": 2725,
       "name": "geo-infer-water_preview.svg",
+      "sha256": "df5209781327fb44d81ed51ce197d932099aabaf3923ac70bdda458b403d9cd3",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2180,
+      "bytes": 6993,
       "name": "geo-infer-water_preview.png",
+      "sha256": "9e4647bf5af96802cfe3ae0cd7570b692cf103bcbd89d98150d9c770227f73da",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "5f6ac233484c5cb92998dbc23ea87df0b3d012b5d9622a24544d8f243959c25c",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "cdb5d6b1734ac230126a6d093056793baec4b8d430bc6a041e43115aedfb9366",
   "module_id": "GEO-INFER-WATER",
   "name": "Water Resource Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

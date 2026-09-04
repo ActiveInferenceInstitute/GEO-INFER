@@ -32,7 +32,7 @@ import queue
 HAS_STRUCTLOG = importlib.util.find_spec("structlog") is not None
 HAS_PROMETHEUS = importlib.util.find_spec("prometheus_client") is not None
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __all__ = [
     # Observability API
     "EnhancedLogger",

@@ -1,29 +1,46 @@
 {
   "accessibility": {
     "has_png_metadata": true,
+    "has_static_fallback": true,
     "has_svg_viewbox": true,
     "has_title": true
   },
   "artifacts": [
     {
-      "bytes": 14962,
+      "bytes": 6758,
       "name": "geo-infer-energy_preview.html",
+      "sha256": "96d313292b646f70f3acb4d699345df76a52ea8d6d49bc443ff75bed12523d18",
       "type": "text/html"
     },
     {
-      "bytes": 5680,
+      "bytes": 2731,
       "name": "geo-infer-energy_preview.svg",
+      "sha256": "c07d6f3894610e78f472297db0e8a857fc9b5cda6609e407596698b88693a9c3",
       "type": "image/svg+xml"
     },
     {
-      "bytes": 2183,
+      "bytes": 6826,
       "name": "geo-infer-energy_preview.png",
+      "sha256": "165c8bd1a0d87c97b0414007159e1bb9ce2800e9fe51d66f633dec9d94d00069",
       "type": "image/png"
     }
   ],
   "category": "Domain",
-  "input_sha256": "99e487d61b493a749f3235ecefd05df062181209df2ff2a61cffd25c526134d0",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "28b502e198f0e59f7256cc84d982fbc034ee599a9298b704a241569bef3ca8fa",
   "module_id": "GEO-INFER-ENERGY",
   "name": "Energy Systems Module",
-  "schema_version": "geo-infer-intra-visual-preview/v1"
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
 }

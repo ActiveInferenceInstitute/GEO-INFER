@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_aeb789947571ee284fbe1971b4b6e9c7 {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #dc2626; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-RISK</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Risk Assessment</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Directed multi-hazard interaction matrices and compound exceedance modeling</div></div>
-    
-            <div class="folium-map" id="map_aeb789947571ee284fbe1971b4b6e9c7" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-RISK: Risk Assessment</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-RISK: Risk Assessment</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-RISK desc-RISK" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-RISK">GEO-INFER-RISK: Risk Assessment</title>
+<desc id="desc-RISK">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-RISK</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Risk Assessment</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Foundations</text>
+<polygon data-h3="87283082dffffff" points="608.576,281.911 636.280,238.372 603.693,199.448 543.402,204.067 515.710,247.606 548.297,286.526 608.576,281.911" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>87283082dffffff</title></polygon><polygon data-h3="872830828ffffff" points="696.577,233.766 724.299,190.233 691.712,151.305 631.403,155.914 603.693,199.448 636.280,238.372 696.577,233.766" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>872830828ffffff</title></polygon><polygon data-h3="872830829ffffff" points="603.693,199.448 631.403,155.914 598.809,117.000 538.505,121.624 510.808,165.157 543.402,204.067 603.693,199.448" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>872830829ffffff</title></polygon><polygon data-h3="87283082cffffff" points="701.440,316.243 729.157,272.704 696.577,233.766 636.280,238.372 608.576,281.911 641.155,320.844 701.440,316.243" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>87283082cffffff</title></polygon><polygon data-h3="872830953ffffff" points="613.456,364.389 641.155,320.844 608.576,281.911 548.297,286.526 520.610,330.071 553.190,369.000 613.456,364.389" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>872830953ffffff</title></polygon><polygon data-h3="87283095affffff" points="515.710,247.606 543.402,204.067 510.808,165.157 450.523,169.791 422.843,213.330 455.437,252.236 515.710,247.606" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>87283095affffff</title></polygon><polygon data-h3="87283095effffff" points="520.610,330.071 548.297,286.526 515.710,247.606 455.437,252.236 427.763,295.780 460.349,334.696 520.610,330.071" fill="#ef4444" fill-opacity="0.45" stroke="#dc2626"><title>87283095effffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#dc2626"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["87283082dffffff", [[37.749955385153285, -122.4332650748479], [37.76173573392155, -122.42576908738397], [37.77226734985153, -122.43458610784575], [37.771017473265104, -122.45089906210502], [37.75923712029994, -122.45839165007875], [37.748706648015464, -122.44957468417971], [37.749955385153285, -122.4332650748479]]], ["872830828ffffff", [[37.762981847664214, -122.40945463242254], [37.774760714490206, -122.4019538515761], [37.785293473597285, -122.41077092287513], [37.78404622259878, -122.42708872508095], [37.77226734985153, -122.43458610784575], [37.76173573392155, -122.42576908738397], [37.762981847664214, -122.40945463242254]]], ["872830829ffffff", [[37.77226734985153, -122.43458610784575], [37.78404622259878, -122.42708872508095], [37.794575222867756, -122.435907696754], [37.79332420735766, -122.45222399729478], [37.781545330604935, -122.45971797898419], [37.771017473265104, -122.45089906210502], [37.77226734985153, -122.43458610784575]]], ["87283082cffffff", [[37.74066613210138, -122.40813889567377], [37.75244647475629, -122.40063951171169], [37.762981847664214, -122.40945463242254], [37.76173573392155, -122.42576908738397], [37.749955385153285, -122.4332650748479], [37.73942115613858, -122.42445000474562], [37.74066613210138, -122.40813889567377]]], ["872830953ffffff", [[37.72763933445172, -122.43194459741119], [37.73942115613858, -122.42445000474562], [37.749955385153285, -122.4332650748479], [37.748706648015464, -122.44957468417971], [37.73692482193847, -122.45706587893918], [37.72639173728679, -122.44825086316872], [37.72763933445172, -122.43194459741119]]], ["87283095affffff", [[37.75923712029994, -122.45839165007875], [37.771017473265104, -122.45089906210502], [37.781545330604935, -122.45971797898419], [37.78029169148144, -122.47602942621563], [37.76851133623601, -122.48351861171092], [37.7579846222915, -122.47469975334874], [37.75923712029994, -122.45839165007875]]], ["87283095effffff", [[37.73692482193847, -122.45706587893918], [37.748706648015464, -122.44957468417971], [37.75923712029994, -122.45839165007875], [37.7579846222915, -122.47469975334874], [37.7462027937417, -122.48218754721553], [37.7356734655703, -122.47337063960003], [37.73692482193847, -122.45706587893918]]]], "center": [37.75, -122.44], "color": "#dc2626", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 11}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_aeb789947571ee284fbe1971b4b6e9c7 = L.map(
-                "map_aeb789947571ee284fbe1971b4b6e9c7",
-                {
-                    center: [37.75, -122.44],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 11,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_48e0f8d758d1fdb89da6dbb17b0a0ca8 = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_48e0f8d758d1fdb89da6dbb17b0a0ca8.addTo(map_aeb789947571ee284fbe1971b4b6e9c7);
-        
-    
-            var feature_group_b8d818a7c26660b19f3c457fa0dc4875 = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_591ab0b1751d76a48629cb79ad24ea60 = L.polygon(
-                [[37.75, -122.429], [37.759526, -122.4345], [37.759526, -122.4455], [37.75, -122.451], [37.740474, -122.4455], [37.740474, -122.4345], [37.75, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_f19025bf277ed8dc2021af2186603430 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_4655cb4af18fc692081472d8e45bfbdf = $(`<div id="html_4655cb4af18fc692081472d8e45bfbdf" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-RISK<br>Feature: Compound Hazard Zone</div>`)[0];
-                popup_f19025bf277ed8dc2021af2186603430.setContent(html_4655cb4af18fc692081472d8e45bfbdf);
-            
-        
-
-        polygon_591ab0b1751d76a48629cb79ad24ea60.bindPopup(popup_f19025bf277ed8dc2021af2186603430)
-        ;
-
-        
-    
-    
-            var polygon_e5b5d72c811bdf0442f355b3138e0e6a = L.polygon(
-                [[37.77, -122.429], [37.779526, -122.4345], [37.779526, -122.4455], [37.77, -122.451], [37.760474, -122.4455], [37.760474, -122.4345], [37.77, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_8887807dcadc98fbb8caa827d2325fe0 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_dc8261f2b5f0112132addb5b456148c7 = $(`<div id="html_dc8261f2b5f0112132addb5b456148c7" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-RISK<br>Feature: Exceedance Probability</div>`)[0];
-                popup_8887807dcadc98fbb8caa827d2325fe0.setContent(html_dc8261f2b5f0112132addb5b456148c7);
-            
-        
-
-        polygon_e5b5d72c811bdf0442f355b3138e0e6a.bindPopup(popup_8887807dcadc98fbb8caa827d2325fe0)
-        ;
-
-        
-    
-    
-            var polygon_40efaf5a6db341ca22254c119eaa69c4 = L.polygon(
-                [[37.76, -122.411679], [37.769526, -122.417179], [37.769526, -122.428179], [37.76, -122.433679], [37.750474, -122.428179], [37.750474, -122.417179], [37.76, -122.411679]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_9785cfdc237fb7bffbe0be0afacb3889 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_0ce7fb8105b5b7250a960dcbf0017725 = $(`<div id="html_0ce7fb8105b5b7250a960dcbf0017725" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-RISK<br>Feature: Vulnerability Surface</div>`)[0];
-                popup_9785cfdc237fb7bffbe0be0afacb3889.setContent(html_0ce7fb8105b5b7250a960dcbf0017725);
-            
-        
-
-        polygon_40efaf5a6db341ca22254c119eaa69c4.bindPopup(popup_9785cfdc237fb7bffbe0be0afacb3889)
-        ;
-
-        
-    
-    
-            var polygon_55a40b4bcbecd2efc44db43d9c97d854 = L.polygon(
-                [[37.74, -122.411679], [37.749526, -122.417179], [37.749526, -122.428179], [37.74, -122.433679], [37.730474, -122.428179], [37.730474, -122.417179], [37.74, -122.411679]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_2371e128dea1478ef5c9335efc7692c0 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_4508000606bb558498db5dabfcf7619e = $(`<div id="html_4508000606bb558498db5dabfcf7619e" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-RISK<br>Feature: Compound Hazard Zone</div>`)[0];
-                popup_2371e128dea1478ef5c9335efc7692c0.setContent(html_4508000606bb558498db5dabfcf7619e);
-            
-        
-
-        polygon_55a40b4bcbecd2efc44db43d9c97d854.bindPopup(popup_2371e128dea1478ef5c9335efc7692c0)
-        ;
-
-        
-    
-    
-            var polygon_43668e882d11d7dde289f829a6789565 = L.polygon(
-                [[37.73, -122.429], [37.739526, -122.4345], [37.739526, -122.4455], [37.73, -122.451], [37.720474, -122.4455], [37.720474, -122.4345], [37.73, -122.429]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_2bf0faffdd20ceb88ce881d4d70ed2ed = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_44fbcc85ac311ef8205f9014506afcc1 = $(`<div id="html_44fbcc85ac311ef8205f9014506afcc1" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-RISK<br>Feature: Exceedance Probability</div>`)[0];
-                popup_2bf0faffdd20ceb88ce881d4d70ed2ed.setContent(html_44fbcc85ac311ef8205f9014506afcc1);
-            
-        
-
-        polygon_43668e882d11d7dde289f829a6789565.bindPopup(popup_2bf0faffdd20ceb88ce881d4d70ed2ed)
-        ;
-
-        
-    
-    
-            var polygon_9618b44eb7afc3e1944ae0f77e69160f = L.polygon(
-                [[37.74, -122.446321], [37.749526, -122.451821], [37.749526, -122.462821], [37.74, -122.468321], [37.730474, -122.462821], [37.730474, -122.451821], [37.74, -122.446321]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_0068fa38ba065c2a731c07e430dddff7 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_aad3c6fd46b08748c7eebd7d7c5bde3f = $(`<div id="html_aad3c6fd46b08748c7eebd7d7c5bde3f" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-RISK<br>Feature: Vulnerability Surface</div>`)[0];
-                popup_0068fa38ba065c2a731c07e430dddff7.setContent(html_aad3c6fd46b08748c7eebd7d7c5bde3f);
-            
-        
-
-        polygon_9618b44eb7afc3e1944ae0f77e69160f.bindPopup(popup_0068fa38ba065c2a731c07e430dddff7)
-        ;
-
-        
-    
-    
-            var polygon_07ea341f809eccbbac3a3b74d44d588a = L.polygon(
-                [[37.76, -122.446321], [37.769526, -122.451821], [37.769526, -122.462821], [37.76, -122.468321], [37.750474, -122.462821], [37.750474, -122.451821], [37.76, -122.446321]],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ef4444", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_b8d818a7c26660b19f3c457fa0dc4875);
-        
-    
-        var popup_d12d0d1227a3e4bbee3a754441c60ebc = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_f6716437e65b70ab23757d90c6993351 = $(`<div id="html_f6716437e65b70ab23757d90c6993351" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-RISK<br>Feature: Compound Hazard Zone</div>`)[0];
-                popup_d12d0d1227a3e4bbee3a754441c60ebc.setContent(html_f6716437e65b70ab23757d90c6993351);
-            
-        
-
-        polygon_07ea341f809eccbbac3a3b74d44d588a.bindPopup(popup_d12d0d1227a3e4bbee3a754441c60ebc)
-        ;
-
-        
-    
-    
-            feature_group_b8d818a7c26660b19f3c457fa0dc4875.addTo(map_aeb789947571ee284fbe1971b4b6e9c7);
-        
-    
-            var circle_marker_d81445f255995da4aefa5391d61b7648 = L.circleMarker(
-                [37.75, -122.44],
-                {"bubblingMouseEvents": true, "color": "#dc2626", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_aeb789947571ee284fbe1971b4b6e9c7);
-        
-    
-        var popup_103fc922486e7ba7c218b650413574a1 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_5ae0a387451eb44c351416fcc2d19498 = $(`<div id="html_5ae0a387451eb44c351416fcc2d19498" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-RISK</b> Focus Center</div>`)[0];
-                popup_103fc922486e7ba7c218b650413574a1.setContent(html_5ae0a387451eb44c351416fcc2d19498);
-            
-        
-
-        circle_marker_d81445f255995da4aefa5391d61b7648.bindPopup(popup_103fc922486e7ba7c218b650413574a1)
-        ;
-
-        
-    
-    
-            var layer_control_d131404a03fd775c43b4886fdc823c06_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_48e0f8d758d1fdb89da6dbb17b0a0ca8,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_b8d818a7c26660b19f3c457fa0dc4875,
-                },
-            };
-            let layer_control_d131404a03fd775c43b4886fdc823c06 = L.control.layers(
-                layer_control_d131404a03fd775c43b4886fdc823c06_layers.base_layers,
-                layer_control_d131404a03fd775c43b4886fdc823c06_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_aeb789947571ee284fbe1971b4b6e9c7);
-
-        
-</script>
-</html>
+</script></main></body></html>

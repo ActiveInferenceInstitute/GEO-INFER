@@ -7,290 +7,24 @@ aggregation, late data handling, bounded watermarking, automated anomaly
 alerts, and stream ingest adapters for WebSocket and Kafka sources.
 """
 
-import asyncio
-import json
 import logging
 import math
+from bisect import bisect_right
 from collections import deque
-from datetime import datetime, timedelta, timezone
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Tuple, Union
+from contextlib import aclosing
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
-import pandas as pd
+from geo_infer_time.core.stream_ingest import (
+    KafkaIngestAdapter as KafkaIngestAdapter,
+    ReplayIngestAdapter as ReplayIngestAdapter,
+    StreamIngestAdapter as StreamIngestAdapter,
+    WebSocketIngestAdapter as WebSocketIngestAdapter,
+    normalize_timestamp,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class StreamIngestAdapter:
-    """
-    Base class for stream ingestion adapters.
-
-    Provides a standardized interface to connect, stream, and parse
-    real-time event records into (timestamp, value, metadata) tuples
-    suitable for ingestion into StreamProcessor.
-    """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
-        if config is not None and not isinstance(config, dict):
-            raise TypeError("config must be a dictionary")
-        self.config = dict(config) if config is not None else {}
-        self.is_connected = False
-
-    async def connect(self) -> bool:
-        """
-        Establish connection to the streaming source.
-
-        Returns:
-            True if connection was successful.
-        """
-        self.is_connected = True
-        return True
-
-    async def disconnect(self) -> None:
-        """Close connection to the streaming source."""
-        self.is_connected = False
-
-    async def stream_data(
-        self,
-        topic: Optional[str] = None,
-        max_messages: Optional[int] = None,
-        simulated_records: Optional[List[Dict[str, Any]]] = None,
-        **kwargs: Any,
-    ) -> AsyncIterator[Dict[str, Any]]:
-        """
-        Stream raw data records from source.
-
-        Args:
-            topic: Optional topic/channel name.
-            max_messages: Optional maximum number of messages.
-            simulated_records: Optional list of records for deterministic testing.
-            **kwargs: Extra streaming parameters.
-
-        Yields:
-            Raw message dictionaries.
-        """
-        # Concrete subclasses override this with protocol-specific generators;
-        # base yields no records.
-        return
-        yield  # type: ignore[unreachable]
-
-    def parse_record(self, record: Union[str, bytes, Dict[str, Any]]) -> Tuple[datetime, float, Dict[str, Any]]:
-        """
-        Parse raw stream message into a normalized data point.
-
-        Args:
-            record: Raw message (dict, JSON string, or bytes).
-
-        Returns:
-            Tuple of (timestamp, value, metadata_dict).
-        """
-        if isinstance(record, (str, bytes)):
-            try:
-                data = json.loads(record)
-            except Exception as exc:
-                raise ValueError(f"Failed to decode JSON stream record: {exc}") from exc
-        elif isinstance(record, dict):
-            data = record
-        else:
-            raise TypeError("record must be a dict, JSON string, or bytes")
-
-        if not isinstance(data, dict):
-            raise ValueError("Parsed stream record must be a dictionary")
-
-        # Extract timestamp
-        raw_ts = data.get("timestamp") or data.get("time") or data.get("datetime")
-        if raw_ts is None:
-            ts = datetime.now(timezone.utc)
-        elif isinstance(raw_ts, datetime):
-            ts = raw_ts
-        elif isinstance(raw_ts, (int, float)):
-            # Assume unix epoch timestamp in seconds (or ms if > 1e11)
-            if raw_ts > 1e11:
-                ts = datetime.fromtimestamp(raw_ts / 1000.0, tz=timezone.utc)
-            else:
-                ts = datetime.fromtimestamp(raw_ts, tz=timezone.utc)
-        elif isinstance(raw_ts, str):
-            try:
-                ts = datetime.fromisoformat(raw_ts)
-            except ValueError:
-                ts = pd.to_datetime(raw_ts).to_pydatetime()
-        else:
-            raise TypeError(f"Unsupported timestamp type: {type(raw_ts)}")
-
-        # Extract value
-        raw_val = data.get("value")
-        if raw_val is None and "data" in data and isinstance(data["data"], dict):
-            # Fallback to nested data dict keys
-            nested = data["data"]
-            for key in ("value", "measurement", "temperature", "reading", "val"):
-                if key in nested:
-                    raw_val = nested[key]
-                    break
-
-        if raw_val is None:
-            raise ValueError("Stream record missing 'value' field")
-        if isinstance(raw_val, bool):
-            raise TypeError("value must be a finite number")
-        try:
-            numeric_val = float(raw_val)
-        except (TypeError, ValueError) as exc:
-            raise TypeError("value must be a finite number") from exc
-        if not math.isfinite(numeric_val):
-            raise ValueError("value must be finite")
-
-        metadata = {k: v for k, v in data.items() if k not in ("value", "timestamp", "time", "datetime")}
-        return ts, numeric_val, metadata
-
-
-class WebSocketIngestAdapter(StreamIngestAdapter):
-    """
-    WebSocket stream ingest adapter for real-time sensor streams.
-
-    Supports connecting to WebSocket endpoints and yielding structured
-    time-series records.
-    """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
-        super().__init__(config)
-        self.url = str(self.config.get("url", "ws://localhost:8765"))
-        self.reconnect_interval = float(self.config.get("reconnect_interval", 1.0))
-
-    async def connect(self) -> bool:
-        """Establish connection to WebSocket server."""
-        self.is_connected = True
-        logger.info("Connected WebSocketIngestAdapter to %s", self.url)
-        return True
-
-    async def disconnect(self) -> None:
-        """Close WebSocket connection."""
-        self.is_connected = False
-        logger.info("Disconnected WebSocketIngestAdapter from %s", self.url)
-
-    async def stream_data(
-        self,
-        topic: Optional[str] = None,
-        max_messages: Optional[int] = None,
-        simulated_records: Optional[List[Dict[str, Any]]] = None,
-        **kwargs: Any,
-    ) -> AsyncIterator[Dict[str, Any]]:
-        """
-        Stream records from WebSocket source.
-
-        Args:
-            max_messages: Optional maximum number of messages to yield.
-            simulated_records: Optional list of records for deterministic testing.
-            **kwargs: Extra parameters.
-
-        Yields:
-            Stream message dictionaries.
-        """
-        if not self.is_connected:
-            await self.connect()
-
-        if simulated_records is not None:
-            count = 0
-            for record in simulated_records:
-                if max_messages is not None and count >= max_messages:
-                    break
-                yield record
-                count += 1
-                await asyncio.sleep(0.001)
-            return
-
-        # Default synthetic generator if no simulated records provided
-        count = 0
-        limit = max_messages if max_messages is not None else 5
-        while self.is_connected and count < limit:
-            now = datetime.now(timezone.utc)
-            yield {
-                "type": "websocket_message",
-                "message_id": count,
-                "timestamp": now.isoformat(),
-                "value": float(20.0 + (count % 10) + np.sin(count) * 2.0),
-                "sensor_id": f"ws_sensor_{count % 3}",
-                "data": {"quality": "good"},
-            }
-            count += 1
-            await asyncio.sleep(0.01)
-
-
-class KafkaIngestAdapter(StreamIngestAdapter):
-    """
-    Apache Kafka stream ingest adapter for high-throughput temporal streams.
-
-    Supports subscribing to topics and consuming structured time-series events.
-    """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
-        super().__init__(config)
-        self.bootstrap_servers = self.config.get("bootstrap_servers", ["localhost:9092"])
-        if isinstance(self.bootstrap_servers, str):
-            self.bootstrap_servers = [self.bootstrap_servers]
-        self.group_id = str(self.config.get("group_id", "geo_infer_time_group"))
-        self.topic = str(self.config.get("topic", "geo_infer_temporal_events"))
-
-    async def connect(self) -> bool:
-        """Connect to Kafka cluster."""
-        self.is_connected = True
-        logger.info("Connected KafkaIngestAdapter to %s (topic: %s)", self.bootstrap_servers, self.topic)
-        return True
-
-    async def disconnect(self) -> None:
-        """Disconnect from Kafka cluster."""
-        self.is_connected = False
-        logger.info("Disconnected KafkaIngestAdapter from %s", self.bootstrap_servers)
-
-    async def stream_data(
-        self,
-        topic: Optional[str] = None,
-        max_messages: Optional[int] = None,
-        simulated_records: Optional[List[Dict[str, Any]]] = None,
-        **kwargs: Any,
-    ) -> AsyncIterator[Dict[str, Any]]:
-        """
-        Stream records from Kafka topic.
-
-        Args:
-            topic: Kafka topic to consume from.
-            max_messages: Optional maximum number of messages.
-            simulated_records: Optional list of records for deterministic testing.
-            **kwargs: Extra parameters.
-
-        Yields:
-            Kafka message dictionaries.
-        """
-        if not self.is_connected:
-            await self.connect()
-
-        target_topic = topic or self.topic
-
-        if simulated_records is not None:
-            count = 0
-            for record in simulated_records:
-                if max_messages is not None and count >= max_messages:
-                    break
-                rec = dict(record)
-                rec.setdefault("topic", target_topic)
-                yield rec
-                count += 1
-                await asyncio.sleep(0.001)
-            return
-
-        count = 0
-        limit = max_messages if max_messages is not None else 5
-        while self.is_connected and count < limit:
-            now = datetime.now(timezone.utc)
-            yield {
-                "topic": target_topic,
-                "partition": 0,
-                "offset": count,
-                "timestamp": now.isoformat(),
-                "value": float(100.0 + count * 1.5),
-                "sensor_id": f"kafka_sensor_{count % 4}",
-                "metadata": {"partition": 0, "offset": count},
-            }
-            count += 1
-            await asyncio.sleep(0.01)
 
 
 class StreamProcessor:
@@ -308,6 +42,8 @@ class StreamProcessor:
         slide_interval: Optional[timedelta] = None,
         aggregation_func: Optional[Callable[[List[float]], float]] = None,
         watermark_delay: Optional[timedelta] = None,
+        max_buffer_points: int = 10000,
+        max_history_windows: int = 1000,
     ) -> None:
         """
         Initialize the stream processor.
@@ -317,7 +53,10 @@ class StreamProcessor:
             slide_interval: Interval for sliding windows (if None, uses window_size)
             aggregation_func: Optional aggregation function
             watermark_delay: Optional bounded watermarking delay (allowed lateness).
-                When provided, the watermark advances to `max_timestamp - watermark_delay`.
+                The watermark advances to `max_timestamp - watermark_delay`.
+            max_buffer_points: Capacity of each active and late-data buffer.
+                Exhaustion raises BufferError before accepting another point.
+            max_history_windows: Number of processed summaries to retain.
         """
         if not isinstance(window_size, timedelta):
             raise TypeError("window_size must be a timedelta")
@@ -334,6 +73,16 @@ class StreamProcessor:
         if aggregation_func is not None and not callable(aggregation_func):
             raise TypeError("aggregation_func must be callable")
 
+        for name, limit in (
+            ("max_buffer_points", max_buffer_points),
+            ("max_history_windows", max_history_windows),
+        ):
+            if isinstance(limit, bool) or not isinstance(limit, int):
+                raise TypeError(f"{name} must be an integer")
+            if limit <= 0:
+                raise ValueError(f"{name} must be positive")
+        self.max_buffer_points = max_buffer_points
+        self.max_history_windows = max_history_windows
         self.window_size = window_size
         self.slide_interval = (
             slide_interval if slide_interval is not None else window_size
@@ -385,11 +134,29 @@ class StreamProcessor:
         if metadata is not None and not isinstance(metadata, dict):
             raise TypeError("metadata must be a dictionary")
 
+        timestamp = normalize_timestamp(timestamp)
         point = {
             "timestamp": timestamp,
             "value": numeric_value,
             "metadata": dict(metadata) if metadata is not None else {},
         }
+
+        # Evict by event time before checking capacity. Buffer ordering is stable
+        # for equal timestamps and never depends on arrival order.
+        newest = (
+            max(timestamp, self._max_timestamp) if self._max_timestamp else timestamp
+        )
+        cutoff_time = newest - self.window_size
+        retained = [item for item in self.buffer if item["timestamp"] >= cutoff_time]
+        is_late = self._watermark is not None and timestamp < self._watermark
+        target_size = len(self._late_data) if is_late else len(retained)
+        if (
+            is_late or timestamp >= cutoff_time
+        ) and target_size >= self.max_buffer_points:
+            raise BufferError(
+                "Stream capacity reached; drain late data or advance event time"
+            )
+        self.buffer = deque(retained)
 
         # Check for late data (arrived strictly before current watermark)
         if self._watermark is not None and timestamp < self._watermark:
@@ -400,8 +167,11 @@ class StreamProcessor:
                 timestamp.isoformat(),
                 self._watermark.isoformat(),
             )
-        else:
-            self.buffer.append(point)
+        elif timestamp >= cutoff_time:
+            index = bisect_right(
+                self.buffer, timestamp, key=lambda item: item["timestamp"]
+            )
+            self.buffer.insert(index, point)
 
         self._stats["total_points"] += 1
 
@@ -418,11 +188,6 @@ class StreamProcessor:
             if self._watermark is None or timestamp > self._watermark:
                 self._watermark = timestamp
 
-        # Remove old data points outside retention window (based on max_timestamp)
-        cutoff_time = self._max_timestamp - self.window_size
-        while self.buffer and self.buffer[0]["timestamp"] < cutoff_time:
-            self.buffer.popleft()
-
     async def ingest_adapter_stream(
         self,
         adapter: StreamIngestAdapter,
@@ -434,7 +199,7 @@ class StreamProcessor:
         Ingest data continuously from a StreamIngestAdapter.
 
         Args:
-            adapter: WebSocketIngestAdapter, KafkaIngestAdapter, or custom StreamIngestAdapter.
+            adapter: WebSocket, Kafka, replay, or custom StreamIngestAdapter.
             max_messages: Optional maximum messages to consume.
             auto_process_windows: If True, calls process_window() after each point.
             **stream_kwargs: Passed to adapter.stream_data().
@@ -444,79 +209,53 @@ class StreamProcessor:
         """
         if not isinstance(adapter, StreamIngestAdapter):
             raise TypeError("adapter must be an instance of StreamIngestAdapter")
+        if max_messages is not None:
+            if isinstance(max_messages, bool) or not isinstance(max_messages, int):
+                raise TypeError("max_messages must be an integer")
+            if max_messages < 0:
+                raise ValueError("max_messages must be non-negative")
+            if max_messages == 0:
+                return 0
 
         ingested_count = 0
-        async for record in adapter.stream_data(max_messages=max_messages, **stream_kwargs):
-            ts, val, meta = adapter.parse_record(record)
-            self.add_data_point(ts, val, meta)
-            ingested_count += 1
-            if auto_process_windows:
-                self.process_window()
-            if max_messages is not None and ingested_count >= max_messages:
-                break
-
+        async with aclosing(
+            adapter.stream_data(max_messages=max_messages, **stream_kwargs)
+        ) as records:
+            async for record in records:
+                ts, val, meta = adapter.parse_record(record)
+                self.add_data_point(ts, val, meta)
+                if auto_process_windows:
+                    self.process_window()
+                await adapter.acknowledge(record)
+                ingested_count += 1
+                if max_messages is not None and ingested_count >= max_messages:
+                    break
         return ingested_count
 
     async def ingest_websocket_stream(
         self,
         url: str = "ws://localhost:8765",
         max_messages: Optional[int] = None,
-        simulated_records: Optional[List[Dict[str, Any]]] = None,
         **kwargs: Any,
     ) -> int:
-        """
-        Convenience method to ingest directly from a WebSocket source.
-
-        Args:
-            url: WebSocket URL.
-            max_messages: Maximum messages to consume.
-            simulated_records: Simulated records for deterministic testing.
-            **kwargs: Extra parameters.
-
-        Returns:
-            Number of points ingested.
-        """
+        """Ingest from a real WebSocket endpoint; kwargs configure the transport."""
         adapter = WebSocketIngestAdapter({"url": url, **kwargs})
-        await adapter.connect()
-        try:
-            return await self.ingest_adapter_stream(
-                adapter, max_messages=max_messages, simulated_records=simulated_records
-            )
-        finally:
-            await adapter.disconnect()
+        return await self.ingest_adapter_stream(adapter, max_messages=max_messages)
 
     async def ingest_kafka_stream(
         self,
         topic: str = "geo_infer_temporal_events",
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
         max_messages: Optional[int] = None,
-        simulated_records: Optional[List[Dict[str, Any]]] = None,
         **kwargs: Any,
     ) -> int:
-        """
-        Convenience method to ingest directly from a Kafka source.
-
-        Args:
-            topic: Kafka topic name.
-            bootstrap_servers: Kafka bootstrap servers.
-            max_messages: Maximum messages to consume.
-            simulated_records: Simulated records for deterministic testing.
-            **kwargs: Extra parameters.
-
-        Returns:
-            Number of points ingested.
-        """
-        cfg: Dict[str, Any] = {"topic": topic, **kwargs}
+        """Ingest and acknowledge Kafka records after successful processing."""
+        config: Dict[str, Any] = {"topic": topic, **kwargs}
         if bootstrap_servers is not None:
-            cfg["bootstrap_servers"] = bootstrap_servers
-        adapter = KafkaIngestAdapter(cfg)
-        await adapter.connect()
-        try:
-            return await self.ingest_adapter_stream(
-                adapter, topic=topic, max_messages=max_messages, simulated_records=simulated_records
-            )
-        finally:
-            await adapter.disconnect()
+            config["bootstrap_servers"] = bootstrap_servers
+        return await self.ingest_adapter_stream(
+            KafkaIngestAdapter(config), max_messages=max_messages
+        )
 
     def process_window(self) -> Optional[Dict[str, Any]]:
         """
@@ -543,6 +282,7 @@ class StreamProcessor:
         }
 
         self.windows.append(result)
+        del self.windows[: -self.max_history_windows]
         self._stats["total_windows"] += 1
         return result
 
@@ -591,7 +331,8 @@ class StreamProcessor:
                 if current_window:
                     results.append(self._aggregate_points(current_window))
                 # Start new window aligned to boundary
-                window_start = window_start + self.window_size
+                intervals = (point["timestamp"] - window_start) // self.window_size
+                window_start += intervals * self.window_size
                 current_window = []
             current_window.append(point)
 
@@ -752,7 +493,9 @@ class StreamProcessor:
             raise TypeError("z_threshold must be a number")
         if not math.isfinite(z_threshold) or z_threshold <= 0:
             raise ValueError("z_threshold must be finite and greater than zero")
-        if isinstance(min_window_points, bool) or not isinstance(min_window_points, int):
+        if isinstance(min_window_points, bool) or not isinstance(
+            min_window_points, int
+        ):
             raise TypeError("min_window_points must be an integer")
         if min_window_points < 2:
             raise ValueError("min_window_points must be at least 2")
@@ -767,7 +510,9 @@ class StreamProcessor:
 
         while window_start <= stream_end:
             window_end = window_start + self.window_size
-            window_pts = [p for p in all_points if window_start <= p["timestamp"] < window_end]
+            window_pts = [
+                p for p in all_points if window_start <= p["timestamp"] < window_end
+            ]
 
             if len(window_pts) >= min_window_points:
                 vals = np.array([p["value"] for p in window_pts])
@@ -801,7 +546,10 @@ class StreamProcessor:
                                     try:
                                         hdl(alert)
                                     except Exception as err:
-                                        logger.error("Error executing anomaly alert handler: %s", err)
+                                        logger.error(
+                                            "Error executing anomaly alert handler: %s",
+                                            err,
+                                        )
 
             window_start += self.slide_interval
 
@@ -836,12 +584,8 @@ class StreamProcessor:
                 if not math.isfinite(numeric_threshold):
                     raise ValueError(f"{name} must be finite")
 
-        upper_thresh = (
-            float(upper_threshold) if upper_threshold is not None else None
-        )
-        lower_thresh = (
-            float(lower_threshold) if lower_threshold is not None else None
-        )
+        upper_thresh = float(upper_threshold) if upper_threshold is not None else None
+        lower_thresh = float(lower_threshold) if lower_threshold is not None else None
 
         if (
             upper_thresh is not None
@@ -981,7 +725,9 @@ class StreamProcessor:
                 "window_start": None,
                 "window_end": None,
                 "watermark": self._watermark.isoformat() if self._watermark else None,
-                "watermark_delay_seconds": self.watermark_delay.total_seconds() if self.watermark_delay else None,
+                "watermark_delay_seconds": self.watermark_delay.total_seconds()
+                if self.watermark_delay
+                else None,
             }
 
         values = [p["value"] for p in self.buffer]
@@ -993,7 +739,9 @@ class StreamProcessor:
             "min": round(float(np.min(values)), 4),
             "max": round(float(np.max(values)), 4),
             "watermark": self._watermark.isoformat() if self._watermark else None,
-            "watermark_delay_seconds": self.watermark_delay.total_seconds() if self.watermark_delay else None,
+            "watermark_delay_seconds": self.watermark_delay.total_seconds()
+            if self.watermark_delay
+            else None,
             "late_data_count": len(self._late_data),
         }
 

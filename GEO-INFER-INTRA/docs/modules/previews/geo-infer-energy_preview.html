@@ -1,315 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_2c1b8639e87e6df84d5796ab23305120 {
-                    position: relative;
-                    width: 800.0px;
-                    height: 450.0px;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
-</head>
-<body>
-    
-    <div style='position: fixed; top: 10px; left: 60px; z-index: 1000; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: -apple-system, sans-serif;'><div style='display: flex; align-items: center; gap: 8px;'><span style='background: #eab308; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;'>GEO-INFER-ENERGY</span><span style='font-size: 13px; font-weight: 600; color: #1e293b;'>Energy Systems Module</span></div><div style='font-size: 11px; color: #64748b; margin-top: 2px;'>Renewable potential, grid load balancing, and transmission routing</div></div>
-    
-            <div class="folium-map" id="map_2c1b8639e87e6df84d5796ab23305120" ></div>
-        
-</body>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO-INFER-ENERGY: Energy Systems Module</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>body{margin:1rem;font-family:system-ui,sans-serif;color:#0f172a;background:#f8fafc}main{max-width:800px;margin:auto}#map{height:450px;display:none}svg{max-width:100%;height:auto}summary{cursor:pointer}p{line-height:1.5}</style></head>
+<body><main><h1>GEO-INFER-ENERGY: Energy Systems Module</h1><p>Illustrative module overview; geometry computed with H3, no measured values.</p>
+<div id="map" aria-label="Interactive H3 geometry"></div>
+<details id="static-preview" open><summary>Static preview (available offline)</summary><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title-ENERGY desc-ENERGY" viewBox="0 0 800 450" width="800" height="450">
+<title id="title-ENERGY">GEO-INFER-ENERGY: Energy Systems Module</title>
+<desc id="desc-ENERGY">Illustrative module overview; geometry computed with H3, no measured values.</desc>
+<rect width="100%" height="100%" rx="12" fill="#f8fafc"/>
+<text x="24" y="36" font-family="sans-serif" font-size="16" fill="#0f172a">GEO-INFER-ENERGY</text>
+<text x="24" y="66" font-family="sans-serif" font-size="14" fill="#334155">Energy Systems Module</text>
+<text x="24" y="92" font-family="sans-serif" font-size="12" fill="#475569">Domain</text>
+<polygon data-h3="8728309b1ffffff" points="608.474,282.020 636.311,238.535 603.827,199.502 543.505,203.959 515.680,247.443 548.164,286.472 608.474,282.020" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b1ffffff</title></polygon><polygon data-h3="872830984ffffff" points="515.680,247.443 543.505,203.959 511.014,164.940 450.697,169.410 422.885,212.895 455.376,251.910 515.680,247.443" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>872830984ffffff</title></polygon><polygon data-h3="872830986ffffff" points="603.827,199.502 631.670,156.023 599.178,117.000 538.844,121.460 511.014,164.940 543.505,203.959 603.827,199.502" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>872830986ffffff</title></polygon><polygon data-h3="8728309a2ffffff" points="520.345,329.962 548.164,286.472 515.680,247.443 455.376,251.910 427.569,295.400 460.053,334.424 520.345,329.962" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309a2ffffff</title></polygon><polygon data-h3="8728309b0ffffff" points="701.265,316.623 729.115,273.139 696.638,234.092 636.311,238.535 608.474,282.020 640.951,321.062 701.265,316.623" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b0ffffff</title></polygon><polygon data-h3="8728309b3ffffff" points="696.638,234.092 724.493,190.613 692.009,151.576 631.670,156.023 603.827,199.502 636.311,238.535 696.638,234.092" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b3ffffff</title></polygon><polygon data-h3="8728309b5ffffff" points="613.119,364.552 640.951,321.062 608.474,282.020 548.164,286.472 520.345,329.962 552.822,369.000 613.119,364.552" fill="#fde047" fill-opacity="0.45" stroke="#eab308"><title>8728309b5ffffff</title></polygon>
+<circle cx="576.0" cy="243.00000000000003" r="3" fill="#eab308"/>
+<text x="24" y="412" font-family="sans-serif" font-size="11" fill="#334155">Illustrative overview. H3 resolution 7; no measured values.</text>
+<text x="24" y="432" font-family="sans-serif" font-size="10" fill="#475569">WGS84 · CC BY-NC-SA 4.0</text>
+</svg></details>
+<script id="preview-data" type="application/json">{"cells": [["8728309b1ffffff", [[37.68269796584191, -122.13429526885425], [37.694475164380414, -122.12675589306536], [37.70504656718336, -122.13555378520502], [37.70383962632239, -122.15189104651365], [37.692062401005245, -122.15942705583399], [37.68149214322726, -122.15062917122076], [37.68269796584191, -122.13429526885425]]], ["872830984ffffff", [[37.692062401005245, -122.15942705583399], [37.70383962632239, -122.15189104651365], [37.71440728645956, -122.16069087621146], [37.713196576374294, -122.1770267046518], [37.7014193261905, -122.18455934446695], [37.69085281085799, -122.17575952625273], [37.692062401005245, -122.15942705583399]]], ["872830986ffffff", [[37.70504656718336, -122.13555378520502], [37.71682228581205, -122.12801299419398], [37.72739109026298, -122.13681283161989], [37.72618303167101, -122.15315345323582], [37.71440728645956, -122.16069087621146], [37.70383962632239, -122.15189104651365], [37.70504656718336, -122.13555378520502]]], ["8728309a2ffffff", [[37.66971344091992, -122.15816376740067], [37.68149214322726, -122.15062917122076], [37.692062401005245, -122.15942705583399], [37.69085281085799, -122.17575952625273], [37.67907408348704, -122.18329075449502], [37.66850497122632, -122.17449288116144], [37.66971344091992, -122.15816376740067]]], ["8728309b0ffffff", [[37.67332602212952, -122.10916399318299], [37.6851031919777, -122.10162125396596], [37.695678335774666, -122.11041720523822], [37.694475164380414, -122.12675589306536], [37.68269796584191, -122.13429526885425], [37.672123967287696, -122.12549932115142], [37.67332602212952, -122.10916399318299]]], ["8728309b3ffffff", [[37.695678335774666, -122.11041720523822], [37.70745402590956, -122.10287304923386], [37.718026573244266, -122.11167094514218], [37.71682228581205, -122.12801299419398], [37.70504656718336, -122.13555378520502], [37.694475164380414, -122.12675589306536], [37.695678335774666, -122.11041720523822]]], ["8728309b5ffffff", [[37.66034529195663, -122.13303728223408], [37.672123967287696, -122.12549932115142], [37.68269796584191, -122.13429526885425], [37.68149214322726, -122.15062917122076], [37.66971344091992, -122.15816376740067], [37.65914058810306, -122.14936782702281], [37.66034529195663, -122.13303728223408]]]], "center": [37.7, -122.15], "color": "#eab308", "label": "Illustrative module overview; geometry computed with H3, no measured values.", "zoom": 10}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    
-    
-            var map_2c1b8639e87e6df84d5796ab23305120 = L.map(
-                "map_2c1b8639e87e6df84d5796ab23305120",
-                {
-                    center: [37.7, -122.15],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 10,
-  "zoomControl": true,
-  "preferCanvas": false,
+if (typeof L !== 'undefined') {
+ const data = JSON.parse(document.getElementById('preview-data').textContent);
+ document.getElementById('map').style.display = 'block';
+ const map = L.map('map').setView(data.center, data.zoom);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const group = L.featureGroup().addTo(map);
+ for (const [cell, ring] of data.cells) {
+  const popup = document.createElement('span'); popup.textContent = cell + ': ' + data.label;
+  L.polygon(ring, {color:data.color, fillOpacity:0.35}).bindPopup(popup).addTo(group);
+ }
+ map.fitBounds(group.getBounds());
 }
-
-                }
-            );
-
-            
-
-        
-    
-            var tile_layer_a04fe6adb8fe558705197a1a5937d4ea = L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
-  "subdomains": "abcd",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_a04fe6adb8fe558705197a1a5937d4ea.addTo(map_2c1b8639e87e6df84d5796ab23305120);
-        
-    
-            var feature_group_d473c84e18dd8b77f0aac4126f8db835 = L.featureGroup(
-                {
-}
-            );
-        
-    
-            var polygon_7354b01723cfa93f0ca1be67926b00a3 = L.polygon(
-                [[37.7, -122.139], [37.709526, -122.1445], [37.709526, -122.1555], [37.7, -122.161], [37.690474, -122.1555], [37.690474, -122.1445], [37.7, -122.139]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_788cc05b7d2a030b29174698456a5533 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_834122a8abdd3f288d84e35b9c3cb55e = $(`<div id="html_834122a8abdd3f288d84e35b9c3cb55e" style="width: 100.0%; height: 100.0%;"><b>Cell #0</b><br>Module: GEO-INFER-ENERGY<br>Feature: Solar Irradiance</div>`)[0];
-                popup_788cc05b7d2a030b29174698456a5533.setContent(html_834122a8abdd3f288d84e35b9c3cb55e);
-            
-        
-
-        polygon_7354b01723cfa93f0ca1be67926b00a3.bindPopup(popup_788cc05b7d2a030b29174698456a5533)
-        ;
-
-        
-    
-    
-            var polygon_bc087942cbe60c68567468e6e64d4638 = L.polygon(
-                [[37.72, -122.139], [37.729526, -122.1445], [37.729526, -122.1555], [37.72, -122.161], [37.710474, -122.1555], [37.710474, -122.1445], [37.72, -122.139]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_7d9b7af241cfb16cdae0a4396f80423b = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_96709b424ab4736c7bb382243e887463 = $(`<div id="html_96709b424ab4736c7bb382243e887463" style="width: 100.0%; height: 100.0%;"><b>Cell #1</b><br>Module: GEO-INFER-ENERGY<br>Feature: Grid Substations</div>`)[0];
-                popup_7d9b7af241cfb16cdae0a4396f80423b.setContent(html_96709b424ab4736c7bb382243e887463);
-            
-        
-
-        polygon_bc087942cbe60c68567468e6e64d4638.bindPopup(popup_7d9b7af241cfb16cdae0a4396f80423b)
-        ;
-
-        
-    
-    
-            var polygon_7140492f3d4b663ce4c7b59a80ad1574 = L.polygon(
-                [[37.71, -122.121679], [37.719526, -122.127179], [37.719526, -122.138179], [37.71, -122.143679], [37.700474, -122.138179], [37.700474, -122.127179], [37.71, -122.121679]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_6c3356c00d020abd8cf169b5c7ea0ab8 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_81c9e1083590f4682e01d42466f714aa = $(`<div id="html_81c9e1083590f4682e01d42466f714aa" style="width: 100.0%; height: 100.0%;"><b>Cell #2</b><br>Module: GEO-INFER-ENERGY<br>Feature: Wind Potential</div>`)[0];
-                popup_6c3356c00d020abd8cf169b5c7ea0ab8.setContent(html_81c9e1083590f4682e01d42466f714aa);
-            
-        
-
-        polygon_7140492f3d4b663ce4c7b59a80ad1574.bindPopup(popup_6c3356c00d020abd8cf169b5c7ea0ab8)
-        ;
-
-        
-    
-    
-            var polygon_22cfaafe5391019fb27c1b6cfdc539cf = L.polygon(
-                [[37.69, -122.121679], [37.699526, -122.127179], [37.699526, -122.138179], [37.69, -122.143679], [37.680474, -122.138179], [37.680474, -122.127179], [37.69, -122.121679]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_8167b1331c299da1bbe6c3e82888a4ba = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_f9b041c6bd541c797f7f5252b8c228e1 = $(`<div id="html_f9b041c6bd541c797f7f5252b8c228e1" style="width: 100.0%; height: 100.0%;"><b>Cell #3</b><br>Module: GEO-INFER-ENERGY<br>Feature: Solar Irradiance</div>`)[0];
-                popup_8167b1331c299da1bbe6c3e82888a4ba.setContent(html_f9b041c6bd541c797f7f5252b8c228e1);
-            
-        
-
-        polygon_22cfaafe5391019fb27c1b6cfdc539cf.bindPopup(popup_8167b1331c299da1bbe6c3e82888a4ba)
-        ;
-
-        
-    
-    
-            var polygon_b1f83e266c369ee25a907b9821e27a70 = L.polygon(
-                [[37.68, -122.139], [37.689526, -122.1445], [37.689526, -122.1555], [37.68, -122.161], [37.670474, -122.1555], [37.670474, -122.1445], [37.68, -122.139]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_6c15a6e177c045d78c67207849184d2f = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_d1dc250d2f966660d65f2b3b5c3e9db9 = $(`<div id="html_d1dc250d2f966660d65f2b3b5c3e9db9" style="width: 100.0%; height: 100.0%;"><b>Cell #4</b><br>Module: GEO-INFER-ENERGY<br>Feature: Grid Substations</div>`)[0];
-                popup_6c15a6e177c045d78c67207849184d2f.setContent(html_d1dc250d2f966660d65f2b3b5c3e9db9);
-            
-        
-
-        polygon_b1f83e266c369ee25a907b9821e27a70.bindPopup(popup_6c15a6e177c045d78c67207849184d2f)
-        ;
-
-        
-    
-    
-            var polygon_51c3739f49276d0cdc3596f0b1050ccc = L.polygon(
-                [[37.69, -122.156321], [37.699526, -122.161821], [37.699526, -122.172821], [37.69, -122.178321], [37.680474, -122.172821], [37.680474, -122.161821], [37.69, -122.156321]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_a647468fe3a525be0be5a2e37471366f = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_31bce81ec2eef416b594de6331f1fa38 = $(`<div id="html_31bce81ec2eef416b594de6331f1fa38" style="width: 100.0%; height: 100.0%;"><b>Cell #5</b><br>Module: GEO-INFER-ENERGY<br>Feature: Wind Potential</div>`)[0];
-                popup_a647468fe3a525be0be5a2e37471366f.setContent(html_31bce81ec2eef416b594de6331f1fa38);
-            
-        
-
-        polygon_51c3739f49276d0cdc3596f0b1050ccc.bindPopup(popup_a647468fe3a525be0be5a2e37471366f)
-        ;
-
-        
-    
-    
-            var polygon_71b99808a7e23a13211d4f9cc301fe77 = L.polygon(
-                [[37.71, -122.156321], [37.719526, -122.161821], [37.719526, -122.172821], [37.71, -122.178321], [37.700474, -122.172821], [37.700474, -122.161821], [37.71, -122.156321]],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#fde047", "fillOpacity": 0.35, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(feature_group_d473c84e18dd8b77f0aac4126f8db835);
-        
-    
-        var popup_32263dfc92742b65efd840881eeae960 = L.popup({
-  "maxWidth": 250,
-});
-
-        
-            
-                var html_0aab890754cf6eeda50616d35652fe9f = $(`<div id="html_0aab890754cf6eeda50616d35652fe9f" style="width: 100.0%; height: 100.0%;"><b>Cell #6</b><br>Module: GEO-INFER-ENERGY<br>Feature: Solar Irradiance</div>`)[0];
-                popup_32263dfc92742b65efd840881eeae960.setContent(html_0aab890754cf6eeda50616d35652fe9f);
-            
-        
-
-        polygon_71b99808a7e23a13211d4f9cc301fe77.bindPopup(popup_32263dfc92742b65efd840881eeae960)
-        ;
-
-        
-    
-    
-            feature_group_d473c84e18dd8b77f0aac4126f8db835.addTo(map_2c1b8639e87e6df84d5796ab23305120);
-        
-    
-            var circle_marker_678c978514002603cd8fb15e8fb2d54e = L.circleMarker(
-                [37.7, -122.15],
-                {"bubblingMouseEvents": true, "color": "#eab308", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffffff", "fillOpacity": 1.0, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_2c1b8639e87e6df84d5796ab23305120);
-        
-    
-        var popup_23f84439b5c0f4f77471ce7b34fd9288 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_eccd7fa5cfcc81effbdbcb12481eaf2f = $(`<div id="html_eccd7fa5cfcc81effbdbcb12481eaf2f" style="width: 100.0%; height: 100.0%;"><b>GEO-INFER-ENERGY</b> Focus Center</div>`)[0];
-                popup_23f84439b5c0f4f77471ce7b34fd9288.setContent(html_eccd7fa5cfcc81effbdbcb12481eaf2f);
-            
-        
-
-        circle_marker_678c978514002603cd8fb15e8fb2d54e.bindPopup(popup_23f84439b5c0f4f77471ce7b34fd9288)
-        ;
-
-        
-    
-    
-            var layer_control_6eac1ad87932cd8b85c360476afa728b_layers = {
-                base_layers : {
-                    "cartodbpositron" : tile_layer_a04fe6adb8fe558705197a1a5937d4ea,
-                },
-                overlays :  {
-                    "\ud83d\udd37 H3 Spatial Domain" : feature_group_d473c84e18dd8b77f0aac4126f8db835,
-                },
-            };
-            let layer_control_6eac1ad87932cd8b85c360476afa728b = L.control.layers(
-                layer_control_6eac1ad87932cd8b85c360476afa728b_layers.base_layers,
-                layer_control_6eac1ad87932cd8b85c360476afa728b_layers.overlays,
-                {
-  "position": "topright",
-  "collapsed": true,
-  "autoZIndex": true,
-}
-            ).addTo(map_2c1b8639e87e6df84d5796ab23305120);
-
-        
-</script>
-</html>
+</script></main></body></html>
