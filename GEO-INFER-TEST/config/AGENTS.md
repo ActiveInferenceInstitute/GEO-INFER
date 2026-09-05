@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `example.yaml`
+- `import-probes.ini`
 
 ## Validation
 

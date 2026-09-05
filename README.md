@@ -30,10 +30,10 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | Metric | Value |
 | --- | ---: |
 | Modules | 45 |
-| Python source files | 911 |
-| Python test files | 608 |
-| Repository README.md files | 821 |
-| Repository AGENTS.md files | 818 |
+| Python source files | 917 |
+| Python test files | 685 |
+| Repository README.md files | 1158 |
+| Repository AGENTS.md files | 1088 |
 
 ## Quick Start
 
@@ -90,7 +90,7 @@ the exact reproducible exception list.
 | 🌍 Spatial & Place-based | `GEO-INFER-SPACE`, `GEO-INFER-PLACE`, `GEO-INFER-TIME`, `GEO-INFER-MARINE`, `GEO-INFER-WATER`, `GEO-INFER-FOREST`, `GEO-INFER-CLIMATE`, `GEO-INFER-ENERGY`, `GEO-INFER-TRANSPORT`, `GEO-INFER-EMERGENCY` |
 | 🧠 Bayesian & Active Inference | `GEO-INFER-BAYES`, `GEO-INFER-SIM`, `GEO-INFER-SPM`, `GEO-INFER-COG`, `GEO-INFER-ACT`, `GEO-INFER-MATH` |
 | 🤖 Agents & AI Orchestration | `GEO-INFER-AGENT`, `GEO-INFER-AG`, `GEO-INFER-AI`, `GEO-INFER-ANT`, `GEO-INFER-OPS`, `GEO-INFER-COMMS` |
-| 🏛️ Governance, Risk & Domain | `GEO-INFER-RISK`, `GEO-INFER-METAGOV`, `GEO-INFER-NORMS`, `GEO-INFER-ECON`, `GEO-INFER-PEP`, `GEO-INFER-REQ`, `GEO-INFER-SEC`, `GEO-INFER-CIV`, `GEO-INFER-HEALTH`, `GEO-INFER-ORG` |
+| 🏛️ Governance, Risk & Domain | `GEO-INFER-INSURANCE`, `GEO-INFER-METAGOV`, `GEO-INFER-NORMS`, `GEO-INFER-ECON`, `GEO-INFER-PEP`, `GEO-INFER-REQ`, `GEO-INFER-SEC`, `GEO-INFER-CIV`, `GEO-INFER-HEALTH`, `GEO-INFER-ORG` |
 | 🗄️ Data, API & Applications | `GEO-INFER-API`, `GEO-INFER-APP`, `GEO-INFER-DATA`, `GEO-INFER-IOT`, `GEO-INFER-ART`, `GEO-INFER-EDU` |
 | 🛠️ Infrastructure & Validation | `GEO-INFER-INTRA`, `GEO-INFER-TEST`, `GEO-INFER-LOG`, `GEO-INFER-GIT`, `GEO-INFER-EXAMPLES`, `GEO-INFER-BIO` |
 
@@ -98,51 +98,52 @@ the exact reproducible exception list.
 
 | Module | Package | Source files | Test files |
 | --- | --- | ---: | ---: |
-| `GEO-INFER-ACT` | `geo_infer_act` | 44 | 40 |
-| `GEO-INFER-AG` | `geo_infer_ag` | 15 | 11 |
-| `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 20 |
-| `GEO-INFER-AI` | `geo_infer_ai` | 17 | 13 |
-| `GEO-INFER-ANT` | `geo_infer_ant` | 22 | 9 |
-| `GEO-INFER-API` | `geo_infer_api` | 14 | 11 |
-| `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
-| `GEO-INFER-ART` | `geo_infer_art` | 22 | 10 |
-| `GEO-INFER-BAYES` | `geo_infer_bayes` | 36 | 26 |
-| `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 9 |
-| `GEO-INFER-CIV` | `geo_infer_civ` | 5 | 7 |
-| `GEO-INFER-CLIMATE` | `geo_infer_climate` | 11 | 10 |
-| `GEO-INFER-COG` | `geo_infer_cog` | 21 | 13 |
-| `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 11 |
-| `GEO-INFER-DATA` | `geo_infer_data` | 26 | 22 |
-| `GEO-INFER-ECON` | `geo_infer_econ` | 36 | 16 |
-| `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 7 |
-| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 8 | 8 |
-| `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 8 |
-| `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 5 | 6 |
-| `GEO-INFER-FOREST` | `geo_infer_forest` | 9 | 8 |
-| `GEO-INFER-GIT` | `geo_infer_git` | 22 | 12 |
-| `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 11 |
-| `GEO-INFER-INSURANCE` | `geo_infer_insurance` | 21 | 6 |
-| `GEO-INFER-INTRA` | `geo_infer_intra` | 10 | 8 |
-| `GEO-INFER-IOT` | `geo_infer_iot` | 18 | 11 |
-| `GEO-INFER-LOG` | `geo_infer_log` | 19 | 11 |
-| `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 9 |
-| `GEO-INFER-MATH` | `geo_infer_math` | 67 | 19 |
-| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 21 | 16 |
-| `GEO-INFER-NORMS` | `geo_infer_norms` | 19 | 9 |
-| `GEO-INFER-OPS` | `geo_infer_ops` | 19 | 14 |
-| `GEO-INFER-ORG` | `geo_infer_org` | 5 | 7 |
-| `GEO-INFER-PEP` | `geo_infer_pep` | 35 | 9 |
-| `GEO-INFER-PLACE` | `geo_infer_place` | 37 | 20 |
-| `GEO-INFER-REQ` | `geo_infer_req` | 5 | 7 |
-| `GEO-INFER-RISK` | `geo_infer_risk` | 15 | 22 |
-| `GEO-INFER-SEC` | `geo_infer_sec` | 22 | 15 |
-| `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 6 |
-| `GEO-INFER-SPACE` | `geo_infer_space` | 82 | 40 |
-| `GEO-INFER-SPM` | `geo_infer_spm` | 27 | 19 |
-| `GEO-INFER-TEST` | `geo_infer_test` | 12 | 32 |
-| `GEO-INFER-TIME` | `geo_infer_time` | 17 | 18 |
-| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 8 |
-| `GEO-INFER-WATER` | `geo_infer_water` | 10 | 7 |
+| `GEO-INFER-ACT` | `geo_infer_act` | 46 | 44 |
+| `GEO-INFER-AG` | `geo_infer_ag` | 15 | 14 |
+| `GEO-INFER-AGENT` | `geo_infer_agent` | 26 | 22 |
+| `GEO-INFER-AI` | `geo_infer_ai` | 17 | 14 |
+| `GEO-INFER-ANT` | `geo_infer_ant` | 22 | 10 |
+| `GEO-INFER-API` | `geo_infer_api` | 14 | 13 |
+| `GEO-INFER-APP` | `geo_infer_app` | 13 | 9 |
+| `GEO-INFER-ART` | `geo_infer_art` | 22 | 13 |
+| `GEO-INFER-BAYES` | `geo_infer_bayes` | 36 | 27 |
+| `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 10 |
+| `GEO-INFER-CIV` | `geo_infer_civ` | 5 | 8 |
+| `GEO-INFER-CLIMATE` | `geo_infer_climate` | 11 | 12 |
+| `GEO-INFER-COG` | `geo_infer_cog` | 21 | 14 |
+| `GEO-INFER-COMMS` | `geo_infer_comms` | 19 | 12 |
+| `GEO-INFER-DATA` | `geo_infer_data` | 26 | 23 |
+| `GEO-INFER-ECON` | `geo_infer_econ` | 36 | 17 |
+| `GEO-INFER-EDU` | `geo_infer_edu` | 7 | 10 |
+| `GEO-INFER-EMERGENCY` | `geo_infer_emergency` | 8 | 10 |
+| `GEO-INFER-ENERGY` | `geo_infer_energy` | 11 | 11 |
+| `GEO-INFER-EXAMPLES` | `geo_infer_examples` | 5 | 8 |
+| `GEO-INFER-FOREST` | `geo_infer_forest` | 9 | 10 |
+| `GEO-INFER-GIT` | `geo_infer_git` | 22 | 14 |
+| `GEO-INFER-HEALTH` | `geo_infer_health` | 18 | 12 |
+| `GEO-INFER-INSURANCE` | `geo_infer_insurance` | 21 | 7 |
+| `GEO-INFER-INTRA` | `geo_infer_intra` | 10 | 10 |
+| `GEO-INFER-IOT` | `geo_infer_iot` | 18 | 12 |
+| `GEO-INFER-LOG` | `geo_infer_log` | 19 | 12 |
+| `GEO-INFER-MARINE` | `geo_infer_marine` | 12 | 11 |
+| `GEO-INFER-MATH` | `geo_infer_math` | 67 | 20 |
+| `GEO-INFER-METAGOV` | `geo_infer_metagov` | 21 | 17 |
+| `GEO-INFER-NORMS` | `geo_infer_norms` | 19 | 11 |
+| `GEO-INFER-OPS` | `geo_infer_ops` | 19 | 16 |
+| `GEO-INFER-ORG` | `geo_infer_org` | 5 | 8 |
+| `GEO-INFER-PEP` | `geo_infer_pep` | 35 | 11 |
+| `GEO-INFER-PLACE` | `geo_infer_place` | 39 | 23 |
+| `GEO-INFER-REQ` | `geo_infer_req` | 5 | 8 |
+| `GEO-INFER-RISK` | `geo_infer_risk` | 15 | 23 |
+| `GEO-INFER-SEC` | `geo_infer_sec` | 22 | 17 |
+| `GEO-INFER-SIM` | `geo_infer_sim` | 15 | 7 |
+| `GEO-INFER-SPACE` | `geo_infer_space` | 83 | 41 |
+| `GEO-INFER-SPM` | `geo_infer_spm` | 27 | 20 |
+| `GEO-INFER-TEST` | `geo_infer_test` | 12 | 33 |
+| `GEO-INFER-TIME` | `geo_infer_time` | 18 | 21 |
+| `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 11 |
+| `GEO-INFER-WATER` | `geo_infer_water` | 10 | 9 |
+
 
 ## Modular Hygiene
 

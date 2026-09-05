@@ -45,6 +45,7 @@
 - `test_place_analyzer.py`
 - `test_place_analyzer_synthetic.py`
 - `test_raster_expression_security.py`
+- `test_sparse_transition.py`
 - `test_spatial_methods.py`
 - `test_spatial_processor.py`
 - `test_spatial_statistics.py`

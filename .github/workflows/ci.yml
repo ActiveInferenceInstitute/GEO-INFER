@@ -117,6 +117,7 @@ jobs:
             GEO-INFER-*/src --select F821,F823,E721,E722
 
       - name: Run unit tests
+        id: unit_tests
         run: |
           # ACT's real-H3 and visualization unit surface is CPU-bound on the
           # hosted runner; keep the per-module timeout explicit without
@@ -124,12 +125,34 @@ jobs:
           uv run python GEO-INFER-TEST/run_unified_tests.py --category unit \
             --timeout 600
 
+      - name: Retain unit test reports
+        if: always() && steps.unit_tests.outcome != 'skipped' && steps.unit_tests.outcome != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: geo-infer-unit-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
       - name: Run integration tests
+        id: integration_tests
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --category integration \
             --timeout 600
 
+      - name: Retain integration test reports
+        if: always() && steps.integration_tests.outcome != 'skipped' && steps.integration_tests.outcome != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: geo-infer-integration-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
       - name: Run performance tests
+        id: performance_tests
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --category performance \
             --timeout 600
@@ -138,19 +161,29 @@ jobs:
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --category system \
             --timeout 600
+      - name: Retain performance test reports
+        if: always() && steps.performance_tests.outcome != 'skipped' && steps.performance_tests.outcome != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: geo-infer-performance-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
 
       - name: Run H3 contracts
+        id: h3_contracts
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 
-      - name: Upload test reports
-        if: always()
+      - name: Retain H3 contract reports
+        if: always() && steps.h3_contracts.outcome != 'skipped' && steps.h3_contracts.outcome != ''
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        continue-on-error: true
         with:
-          name: geo-infer-test-reports-py${{ matrix.python-version }}
-          path: .geo-infer-test-results/
-          if-no-files-found: ignore
+          name: geo-infer-h3-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/summary.json
+          if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
       - name: Prune uv cache

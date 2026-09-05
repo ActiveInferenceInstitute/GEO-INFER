@@ -200,11 +200,17 @@ def run_pymdp_step(
     action_selection: str = "deterministic",
     policy_prior: Any = None,
     strict: bool = False,
+    posterior: Any = None,
+    perception_free_energy: Optional[float] = None,
 ) -> PymdpStepResult:
     """Run pymdp perception/policy inference, optionally rejecting all repairs.
 
     ``strict`` preserves valid matrix zeros and rejects mismatched dimensions.
     ``policy_prior`` is E over one-step policies, in action index order.
+    ``posterior`` supplies already-conditioned beliefs for policy-only inference.
+    In that mode ``perception_free_energy`` must carry the original perception
+    diagnostic; the observation is not assimilated again and B is used only to
+    evaluate future policies.
     """
     if strict and (
         isinstance(action_count, bool)
@@ -298,11 +304,30 @@ def run_pymdp_step(
             action_selection=action_selection,
             sampling_mode="marginal",
         )
-    qs, info = agent.infer_states(
-        [jnp.asarray(observation_vector.reshape(1, -1))],
-        empirical_prior=agent.D,
-        return_info=True,
-    )
+    if posterior is None:
+        if perception_free_energy is not None:
+            raise ValueError("perception_free_energy requires an explicit posterior")
+        qs, info = agent.infer_states(
+            [jnp.asarray(observation_vector.reshape(1, -1))],
+            empirical_prior=agent.D,
+            return_info=True,
+        )
+        free_energy = _scalar_free_energy(info)
+    else:
+        posterior_vector = np.asarray(posterior, dtype=float)
+        if (
+            posterior_vector.shape != (state_dim,)
+            or not np.all(np.isfinite(posterior_vector))
+            or np.any(posterior_vector < 0)
+            or not np.isclose(posterior_vector.sum(), 1, rtol=0, atol=1e-8)
+        ):
+            raise ValueError("Policy-only posterior must be a normalized state vector")
+        if perception_free_energy is None or not np.isfinite(perception_free_energy):
+            raise ValueError(
+                "Policy-only inference requires finite perception_free_energy"
+            )
+        qs = [jnp.asarray(posterior_vector.reshape(1, 1, -1))]
+        free_energy = float(perception_free_energy)
     q_pi, neg_efe = agent.infer_policies(qs)
     rng_key = jr.split(jr.PRNGKey(int(random_seed)), agent.batch_size)
     action = agent.sample_action(q_pi, rng_key=rng_key)
@@ -317,7 +342,7 @@ def run_pymdp_step(
         policy_posterior=_normalize_distribution(q_pi_np),
         negative_expected_free_energy=neg_efe_np,
         selected_action_index=selected,
-        free_energy=_scalar_free_energy(info),
+        free_energy=free_energy,
         metadata={
             "pymdp_version": version,
             **h3_versions,
@@ -325,6 +350,9 @@ def run_pymdp_step(
             "categorical_obs": True,
             "policy_len": 1,
             "batch_size": 1,
+            "inference_mode": "perception_policy"
+            if posterior is None
+            else "policy_only",
         },
     )
 
@@ -336,6 +364,8 @@ def run_model_step(
     action_count: Optional[int] = None,
     random_seed: int = 0,
     prior: Any = None,
+    posterior: Any = None,
+    perception_free_energy: Optional[float] = None,
 ) -> PymdpStepResult:
     """Run pymdp inference for a GEO-INFER categorical GenerativeModel."""
     if getattr(model, "model_type", None) != "categorical":
@@ -351,4 +381,6 @@ def run_model_step(
         prior=prior if prior is not None else getattr(model, "beliefs", None),
         action_count=controls,
         random_seed=random_seed,
+        posterior=posterior,
+        perception_free_energy=perception_free_energy,
     )

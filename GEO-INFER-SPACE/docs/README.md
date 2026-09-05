@@ -15,6 +15,7 @@ Docs workspace within `GEO-INFER-SPACE`.
 - `TESTING.md`
 - `api_schema.yaml`
 - `h3_advanced_methods.md`
+- `sparse_state_transitions.md`
 
 ## Public Interface
 

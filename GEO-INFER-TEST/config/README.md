@@ -5,6 +5,7 @@ Config workspace within `GEO-INFER-TEST`.
 ## Contents
 
 - `example.yaml`
+- `import-probes.ini`
 
 ## Public Interface
 

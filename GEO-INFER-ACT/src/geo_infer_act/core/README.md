@@ -12,6 +12,8 @@ Core workspace within `GEO-INFER-ACT`.
 - `free_energy.py`
 - `generative_model.py`
 - `gnn_contract.py`
+- `gnn_factored_contract.py`
+- `gnn_gaussian_contract.py`
 - `markov_decision_process.py`
 - `policy_selection.py`
 - `spatial_agent.py`
@@ -40,6 +42,9 @@ Core workspace within `GEO-INFER-ACT`.
 - `markov_decision_process.py:MarkovDecisionProcess` (class)
 - `policy_selection.py:PolicySelector` (class)
 - `spatial_agent.py:SpatialActiveInferenceAgent` (class)
+- `gnn_factored_contract.py:validate_factored_artifact` (function)
+- `gnn_factored_contract.py:FactoredGNNArtifact` (class)
+- `gnn_factored_contract.py:infer_factored_step` (function)
 
 ## Module Metadata
 
