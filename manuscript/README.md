@@ -32,6 +32,7 @@ Manuscript workspace within GEO-INFER.
 - `generate_research_artifacts.py:run_verification` (function)
 - `generate_research_artifacts.py:build_variables` (function)
 - `generate_research_artifacts.py:substitute_manuscript_text` (function)
+- `generate_research_artifacts.py:refresh_config_metadata` (function)
 - `generate_research_artifacts.py:write_resolved_manuscript` (function)
 - `generate_research_artifacts.py:generate` (function)
 - `generate_research_artifacts.py:main` (function)

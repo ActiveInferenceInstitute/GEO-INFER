@@ -93,7 +93,7 @@ Examples:
 1. Eliminate remaining LOG placeholders (19 across delivery/transport/supply_chain)
 2. Complete RISK exposure model data loaders (6 remaining)
 3. Replace BAYES tfp_interface placeholder
-4. Achieve ≥80% test coverage across all 44 modules
+4. Achieve ≥80% test coverage across all 45 modules
 
 ### Medium Priority
 
@@ -111,7 +111,7 @@ Before tagging any version release:
 - [ ] 0 `pass` stubs (excluding `__init__.py`, `except`, abstract methods)
 - [ ] Black/isort/ruff clean
 - [ ] Coverage ≥80% per module
-- [ ] README.md + AGENTS.md up to date in all 44 modules
+- [ ] README.md + AGENTS.md up to date in all 45 modules
 - [ ] CHANGELOG.md entries for this version
 - [ ] `pyproject.toml` version updated
 - [ ] TODO.md progress metrics refreshed

@@ -55,6 +55,7 @@ class FigureSpec:
     filename: str
     caption: str
     generated_by: str
+    alt_text: str
 
 
 @dataclass(frozen=True)
@@ -374,6 +375,37 @@ def _caption_validation_surface(inventory: RepositoryInventory) -> str:
     )
 
 
+def _alt_module_inventory(inventory: RepositoryInventory) -> str:
+    return (
+        f"Horizontal grouped bar chart with one row per module for "
+        f"{inventory.module_count} modules, sorted with the largest source-file "
+        "count at the top. Each row carries two bars, Python source files and "
+        "test files, on a shared count axis."
+    )
+
+
+def _alt_research_spine(inventory: RepositoryInventory) -> str:
+    focus = ", ".join(
+        module.name.removeprefix("GEO-INFER-") for module in inventory.focused_modules
+    )
+    return (
+        f"Grouped bar chart with one group per module for {focus}. Each group "
+        "pairs a source-file bar with a test-file bar on a shared count axis, so "
+        "implementation and verification height can be compared per module."
+    )
+
+
+def _alt_validation_surface(inventory: RepositoryInventory) -> str:
+    categories = (
+        ", ".join(inventory.test_files_by_category) or "the discovered test suite"
+    )
+    return (
+        "Two-panel figure. The left panel is a bar chart of test-file counts per "
+        f"discovered category ({categories}). The right panel is a bar chart of "
+        "the measured module, documentation, and validator surface counts."
+    )
+
+
 def _import_matplotlib() -> tuple[Any, Any]:
     os.environ.setdefault("MPLBACKEND", "Agg")
     import matplotlib
@@ -409,18 +441,21 @@ def generate_figures(
             "module_inventory.png",
             _caption_module_inventory(inventory),
             "manuscript.generate_research_artifacts.generate_figures",
+            _alt_module_inventory(inventory),
         ),
         FigureSpec(
             "fig:research_spine",
             "research_spine.png",
             _caption_research_spine(inventory),
             "manuscript.generate_research_artifacts.generate_figures",
+            _alt_research_spine(inventory),
         ),
         FigureSpec(
             "fig:validation_surface",
             "validation_surface.png",
             _caption_validation_surface(inventory),
             "manuscript.generate_research_artifacts.generate_figures",
+            _alt_validation_surface(inventory),
         ),
     )
     module_rows = sorted(
@@ -550,6 +585,8 @@ def write_figure_registry(
         raise ValueError("figure registry labels and filenames must be unique")
     for spec in specs:
         if not spec.label.startswith("fig:") or not spec.caption.strip():
+            raise ValueError(f"invalid figure specification: {spec!r}")
+        if not spec.alt_text.strip():
             raise ValueError(f"invalid figure specification: {spec!r}")
         if not (path.parent / spec.filename).is_file():
             raise FileNotFoundError(path.parent / spec.filename)
@@ -693,6 +730,47 @@ def substitute_manuscript_text(
     return TOKEN_RE.sub(replace, text), tuple(sorted(unresolved))
 
 
+_CONFIG_OWNED_FIELDS: tuple[tuple[str, str, str], ...] = (
+    ("  version: ", "PROJECT_VERSION", "paper.version"),
+    ("  date: ", "RESEARCH_COMMIT_DATE", "paper.date"),
+    ("  year: ", "RESEARCH_YEAR", "publication.year"),
+    ("  license: ", "PROJECT_LICENSE", "metadata.license"),
+)
+
+
+def refresh_config_metadata(root: Path, variables: Mapping[str, str]) -> tuple[str, ...]:
+    """Write measured metadata into the authored ``manuscript/config.yaml``.
+
+    The render template copies ``config.yaml`` verbatim, so a ``{{TOKEN}}``
+    placed there is never substituted and reaches the title page as literal
+    text (or, once LaTeX sees the underscores, as mangled math). The template's
+    own exemplar therefore keeps literal metadata refreshed by a script. This
+    function is that script for GEO-INFER: the values stay measured rather than
+    hand-entered, and the file stays verbatim-copyable.
+    """
+    config = root / "manuscript" / "config.yaml"
+    if not config.is_file():
+        raise FileNotFoundError(config)
+    lines = config.read_text(encoding="utf-8").splitlines(keepends=True)
+    updated: list[str] = []
+    for prefix, key, field in _CONFIG_OWNED_FIELDS:
+        if key not in variables:
+            raise KeyError(f"config metadata variable is not produced: {key}")
+        value = variables[key]
+        for index, line in enumerate(lines):
+            if not line.startswith(prefix):
+                continue
+            replacement = f'{prefix}"{value}"  # generator-owned ({key})\n'
+            if lines[index] != replacement:
+                lines[index] = replacement
+                updated.append(field)
+            break
+        else:
+            raise ValueError(f"config.yaml has no line starting with {prefix!r}")
+    config.write_text("".join(lines), encoding="utf-8")
+    return tuple(updated)
+
+
 def write_resolved_manuscript(
     root: Path, variables: Mapping[str, str]
 ) -> tuple[Path, ...]:
@@ -761,6 +839,7 @@ def generate(
     )
     variables = build_variables(inventory, specs, verification)
     _write_json(data_dir / "manuscript_variables.json", variables)
+    refresh_config_metadata(root, variables)
     written = write_resolved_manuscript(root, variables)
     manifest = {
         "schema_version": RESEARCH_SCHEMA,
