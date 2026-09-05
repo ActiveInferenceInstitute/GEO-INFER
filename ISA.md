@@ -1,5 +1,5 @@
 ---
-phase: complete
+phase: verifying
 ---
 # GEO-INFER Ideal State Artifact
 
@@ -234,3 +234,66 @@ isolation before attributing them to code.
   to public `origin/main` succeeded; `git ls-remote origin refs/heads/main`
   matched local HEAD and the worktree was clean. Hosted verification remains
   the recurring CI-01 gate in TODO.md; local passes are not a hosted-CI claim.
+
+
+## GNN, space and time extension — September 2026
+
+Current extension criteria (publication receipt above remains historical):
+
+- [x] Gaussian diagnostics satisfy F = KL - expected log likelihood and agree with analytic evidence after exact filtering; invalid dimensions/covariances fail atomically.
+- [x] H3 state order is stable, sparse movement conserves probability at ordinary/pentagon/boundary cells, and dense conversion is bounded.
+- [x] UTC inference records preserve sequence and reject gaps, duplicates and naive timestamps before execution.
+- [x] GNN exports explicit single-factor A–E artifacts; ACT rejects unsupported semantics, preserves policy priors and conditions/propagates exactly once per timestamp.
+- [x] Separate GNN and GEO environments complete an artifact round trip with a source digest, real pymdp execution and repeatable traces.
+- [x] Task commits exclude concurrent unrelated edits; isolated affected-module tests, focused reruns and repository contracts have recorded evidence; remaining scope is concrete in TODO.
+
+Anti-criteria: no source execution, silent matrix repair, invented spatial labels,
+implicit timestep units, automatic conversion of continuous generators to discrete
+transitions, cross-checkout import paths, or publication of unrelated GNN changes.
+
+Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time_2026_09.md).
+# Paired contract expansion and PR verification
+
+- phase: verifying
+- Baseline: GEO `634b61b987f744ffc2b5499c3a840824891c4f3d`, GNN
+  `92255b125b46fd64de45e2628fce4c8e9c5f89d2`; both isolated worktrees clean.
+  Fresh affected GEO and full GNN baseline suites started before implementation.
+- [x] ISC-GNN-7: legacy policy evaluation conditions each observation once;
+  analytic timing regressions and full ACT suite pass.
+- [x] ISC-GNN-8: separate Gaussian/factored artifacts preserve declared axes,
+  dynamics and policy cardinality; independent producer/consumer checks pass.
+- [x] ISC-GNN-9: sparse spatial transfers conserve mass and irregular schedules
+  preserve explicit action counts; bounded-allocation tests pass.
+- [x] ISC-GNN-10: opt-in Step 7 preserves source provenance and existing defaults;
+  missing physical metadata fails visibly.
+- [x] ISC-GNN-11: pinned paired CI and Windows import-probe workflows run on
+  the published revisions; actual hosted results are recorded separately.
+- [x] ISC-GNN-12: both informative PRs identify ancestry, validation and remaining
+  external dependencies; pushed branch SHAs match remote refs.
+- Anti: preserve concurrent original checkouts, reject silent matrix repair,
+  do not equate CPU fallback with physical GPU validation, and never mark an
+  unavailable external verification complete.
+
+Verification: [continuation evidence](GEO-INFER-TEST/docs/gnn_continuation_2026_09.md).
+
+## Main integration and acquisition deadline
+
+- Baseline: GEO `cee1b5f08c2acad435b7d8864db4461b3be58c88`, GNN
+  `ffebd394b62fe300f43f5cbc99af4d454bd85098`, isolated worktrees clean.
+  GEO hosted unit/integration/performance passed 8825 tests on each Python
+  3.11/3.12 plus both H3 validators; GNN CI passed 3612 tests and skipped
+  14 on each Python 3.11/3.12/3.13. Both remote main refs are ancestors.
+- [x] ISC-MAIN-1: a parent-enforced regional acquisition deadline stops a
+  slow-drip request and reaps its worker; byte/feature caps and replay pass.
+- [x] ISC-MAIN-2: the merged GNN revision is pinned and both independent
+  environments reproduce all four contracts at the integration revisions.
+- [ ] ISC-MAIN-3: required gates and hosted checks pass for the outgoing GEO
+  revision; paired and portability workflows also run on pushes to main.
+- [ ] ISC-MAIN-4: both PRs are merged and remote main contains the reviewed
+  commits; isolated local integration revisions match the remote refs.
+- Anti: original dirty checkouts remain untouched; do not force-push, weaken
+  tests, publish packages or mark external verification complete.
+
+- Worker review: 51 focused acquisition tests pass on Python 3.12. Independent
+  review also verified real KeyboardInterrupt cleanup and connection closure.
+  The installed-wheel and complete PLACE results are recorded in the PR.

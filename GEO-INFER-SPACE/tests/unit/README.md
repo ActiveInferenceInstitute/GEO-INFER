@@ -24,11 +24,13 @@ Unit workspace within `GEO-INFER-SPACE`.
 - `test_nested_h3_contract.py`
 - `test_place_analyzer.py`
 - `test_raster_expression_security.py`
+- `test_sparse_transition.py`
 - `test_spatial_methods.py`
 - `test_spatial_processor.py`
 - `test_spatial_statistics.py`
 - `test_spatial_utils.py`
 - `test_spatiotemporal.py`
+- `test_state_space.py`
 - `test_temporal_analytics.py`
 - `test_unified_backend.py`
 - `test_unified_backend_geojson_seam.py`

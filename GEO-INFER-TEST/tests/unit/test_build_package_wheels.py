@@ -118,9 +118,11 @@ def test_wheel_import_timeout_includes_stack_diagnostic(tmp_path):
     """A blocked installed import times out with the actual child stack attached."""
     wheel = _wheel(tmp_path, "import time\ntime.sleep(10)\n")
     with pytest.raises(subprocess.TimeoutExpired) as error:
-        _driver().verify_wheels([wheel], [sys.executable], import_timeout=0.5)
+        # Allow cold Windows imports to reach the deliberately blocked package
+        # before the halfway-point diagnostic snapshot is taken.
+        _driver().verify_wheels([wheel], [sys.executable], import_timeout=3)
     assert b"Timeout" in error.value.stderr
-    assert b"geo_infer_probe/__init__.py" in error.value.stderr
+    assert b"geo_infer_probe/__init__.py" in error.value.stderr.replace(b"\\", b"/")
 
 
 @pytest.mark.parametrize("source", ["raise SystemExit(0)", "import os; os._exit(0)"])
@@ -168,6 +170,7 @@ def test_fresh_build_replaces_same_name_stale_wheel(tmp_path):
     package.mkdir(parents=True)
     source = '__version__ = "0.0.1"\n'
     (package / "__init__.py").write_text(source)
+    source_bytes = (package / "__init__.py").read_bytes()
     (package / "data.json").write_text('{"value": 42}')
     (module / "pyproject.toml").write_text(
         '[build-system]\nrequires = ["setuptools>=61", "wheel"]\n'
@@ -184,7 +187,7 @@ def test_fresh_build_replaces_same_name_stale_wheel(tmp_path):
     assert result.ok, result.error
     assert result.wheel == stale
     with zipfile.ZipFile(result.wheel) as archive:
-        assert archive.read("geo_infer_probe/__init__.py").decode() == source
+        assert archive.read("geo_infer_probe/__init__.py") == source_bytes
         assert archive.read("geo_infer_probe/data.json") == b'{"value": 42}'
 
 

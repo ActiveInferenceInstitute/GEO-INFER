@@ -5,10 +5,12 @@ Core workspace within `GEO-INFER-TIME`.
 ## Contents
 
 - `__init__.py`
+- `action_schedule.py`
 - `advanced_forecasting.py`
 - `analysis.py`
 - `event_detection.py`
 - `forecasting.py`
+- `inference_schedule.py`
 - `interpolation.py`
 - `statistics.py`
 - `stream_ingest.py`
@@ -17,12 +19,15 @@ Core workspace within `GEO-INFER-TIME`.
 
 ## Public Interface
 
+- `action_schedule.py:ScheduledObservation` (class)
+- `action_schedule.py:action_observation_schedule` (function)
 - `advanced_forecasting.py:AdvancedForecastingEngine` (class)
 - `analysis.py:AnomalyType` (class)
 - `analysis.py:Anomaly` (class)
 - `analysis.py:TemporalAnalyzer` (class)
 - `event_detection.py:EventDetector` (class)
 - `forecasting.py:ForecastingEngine` (class)
+- `inference_schedule.py:inference_schedule` (function)
 - `interpolation.py:TemporalInterpolator` (class)
 - `statistics.py:TemporalStatistics` (class)
 - `stream_ingest.py:normalize_timestamp` (function)
