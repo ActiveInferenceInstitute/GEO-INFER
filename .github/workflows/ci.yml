@@ -132,6 +132,7 @@ jobs:
           name: geo-infer-unit-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
       - name: Run integration tests
@@ -147,6 +148,7 @@ jobs:
           name: geo-infer-integration-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
       - name: Run performance tests
@@ -162,6 +164,7 @@ jobs:
           name: geo-infer-performance-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
       - name: Run H3 contracts
@@ -176,6 +179,7 @@ jobs:
           name: geo-infer-h3-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/summary.json
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
       - name: Prune uv cache
