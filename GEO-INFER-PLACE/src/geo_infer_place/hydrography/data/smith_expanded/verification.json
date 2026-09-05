@@ -1,0 +1,52 @@
+{
+  "resume_verified": true,
+  "feature_count": 59,
+  "checksums": {
+    "page-000000000.geojson": "f078ba386c8dad79e31132b93b186d07c593bee0052172b6c6db5ba1e1c03401",
+    "flowlines.geojson": "10696891d0746f603781f7e6c0b7c681889ce79c9e785ba11140f4a6ebee7de9"
+  },
+  "topology": {
+    "unknown_stream_order_count": 3,
+    "valid": true,
+    "node_count": 61,
+    "edge_count": 59,
+    "headwater_count": 17,
+    "outlet_count": 2,
+    "component_count": 2,
+    "dag_validation": {
+      "is_dag": true,
+      "has_cycles": false,
+      "cycle_count": 0,
+      "cycle_count_is_lower_bound": false,
+      "cycles": []
+    },
+    "strahler_monotonicity": {
+      "monotonic": true,
+      "violation_count": 0,
+      "violations": []
+    },
+    "headwaters": [
+      50000400092752,
+      50000400241132,
+      50000400139033,
+      50000400259450,
+      50000400259451,
+      50000400278159,
+      50000400069484,
+      50000400222616,
+      50000400296771,
+      50000400000002,
+      50000400259478,
+      50000400204052,
+      50000400204006,
+      50000400023661,
+      50000400241131,
+      50000400116126,
+      50000400023662
+    ],
+    "outlets": [
+      50000400023663,
+      50000400069639
+    ]
+  }
+}

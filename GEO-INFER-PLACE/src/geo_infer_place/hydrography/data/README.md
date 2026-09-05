@@ -4,6 +4,7 @@ Data workspace within `GEO-INFER-PLACE`.
 
 ## Contents
 
+- `smith_expanded/`
 - `smith_river_flowlines.geojson`
 - `smith_river_manifest.json`
 

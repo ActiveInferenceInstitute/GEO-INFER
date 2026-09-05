@@ -118,3 +118,12 @@ accelerator imports forbidden. Actual available GPUs are compared with CPU in
 the capability-dependent parity test. Without a GPU it verifies diagnosed CPU
 fallback; real hardware parity remains explicitly deferred, not inferred from
 that passing CPU test. The repository test contract forbids skipped tests.
+
+Hardware discovery on 2026-09-04 in the development environment (macOS 26.6.2,
+arm64, Python 3.12.13) found no CuPy installation, PyTorch 2.8.0 with zero CUDA
+devices, and JAX 0.5.3 with only `TFRT_CPU_0`. PyTorch reported Apple MPS
+availability, but the existing accelerator contract requires float64 execution
+and supports CUDA rather than MPS. This probe does not verify physical GPU
+parity. `[DEFERRED-VERIFY]`: run the documented capability-dependent parity
+test on provisioned CUDA hardware and retain the device, driver, float64,
+boundary and allocation-failure receipts before closing hardware verification.

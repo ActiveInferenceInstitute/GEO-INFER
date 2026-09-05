@@ -49,14 +49,32 @@ def _coerce_action_count(value: Any, default: int = 3) -> int:
     return count
 
 
+def _local_perception_free_energy(
+    prior: np.ndarray,
+    posterior: np.ndarray,
+    observation: np.ndarray,
+    likelihood: np.ndarray,
+) -> float:
+    """Evaluate local count-likelihood VFE against its actual perception prior."""
+    matrix = np.asarray(likelihood, dtype=float)
+    matrix = matrix / matrix.sum(axis=0, keepdims=True)
+    positive = posterior > 0
+    observed = observation > 0
+    log_likelihood = observation[observed] @ np.log(matrix[observed][:, positive])
+    return float(
+        np.sum(
+            posterior[positive]
+            * (np.log(posterior[positive]) - np.log(prior[positive]) - log_likelihood)
+        )
+    )
+
+
 class ActiveInferenceModel:
     """
     Main class for active inference agents with support for nested models.
     """
 
-    def __init__(
-        self, model_type: str = "categorical", **kwargs: Any
-    ) -> None:
+    def __init__(self, model_type: str = "categorical", **kwargs: Any) -> None:
         """
         Initialize an Active Inference model.
 
@@ -102,6 +120,7 @@ class ActiveInferenceModel:
         self.latest_policy_evaluation: Optional[PolicyEvaluation] = None
         self.latest_policy_selection: Optional[Dict[str, Any]] = None
         self.latest_pymdp_result: Optional[PymdpStepResult] = None
+        self._perception_free_energy: Optional[float] = None
         self.history: List[Dict[str, Any]] = []
 
         logger.info(f"Initialized ActiveInferenceModel with type: {model_type}")
@@ -109,6 +128,12 @@ class ActiveInferenceModel:
     def set_generative_model(self, model: GenerativeModel) -> None:
         """Set the generative model for this active inference agent."""
         self.generative_model = model
+        self.current_observations = None
+        self.current_actions = None
+        self.latest_pymdp_result = None
+        self.latest_policy_evaluation = None
+        self.latest_policy_selection = None
+        self._perception_free_energy = None
         if getattr(model, "model_type", None) and model.model_type != self.model_type:
             logger.info(
                 "Aligning active inference model type with generative model: %s",
@@ -135,9 +160,32 @@ class ActiveInferenceModel:
 
         observation = np.asarray(observation, dtype=float).reshape(-1)
         self.current_observations = observation
+        self.latest_pymdp_result = None
+        self._perception_free_energy = None
 
+        perception_prior = (
+            self._extract_belief_vector(
+                self.current_beliefs
+                if self.current_beliefs is not None
+                else self._extract_model_beliefs(self.generative_model)
+            )
+            if self.model_type == "categorical" and self._supports_pymdp_adapter()
+            else None
+        )
         updated_beliefs = self._update_beliefs_with_model(observation)
         self.current_beliefs = updated_beliefs
+        if self.model_type == "categorical" and self._supports_pymdp_adapter():
+            self.generative_model.beliefs = self._clone_beliefs(updated_beliefs)
+            self._perception_free_energy = (
+                self.latest_pymdp_result.free_energy
+                if self.latest_pymdp_result is not None
+                else _local_perception_free_energy(
+                    perception_prior,
+                    self._extract_belief_vector(updated_beliefs),
+                    observation,
+                    self.generative_model.observation_model,
+                )
+            )
 
         return cast(np.ndarray, self._clone_beliefs(self.current_beliefs))
 
@@ -175,6 +223,12 @@ class ActiveInferenceModel:
                     action_count=action_count,
                     random_seed=int(self.random_seed or 0) + len(self.history),
                     prior=self.current_beliefs,
+                    posterior=(
+                        self._extract_belief_vector(self.current_beliefs)
+                        if self._perception_free_energy is not None
+                        else None
+                    ),
+                    perception_free_energy=self._perception_free_energy,
                 )
                 self.latest_pymdp_result = pymdp_result
                 selected_index = pymdp_result.selected_action_index
@@ -261,6 +315,8 @@ class ActiveInferenceModel:
     def update_observations(self, observations: Dict[str, Any]) -> None:
         """Update observations for the active inference model."""
         self.current_observations = observations
+        self._perception_free_energy = None
+        self.latest_pymdp_result = None
 
     def update_preferences(self, preferences: Dict[str, float]) -> None:
         """Update preferences for the active inference model."""
@@ -311,9 +367,7 @@ class ActiveInferenceModel:
         )
         self.latest_policy_evaluation = policy_info.get("evaluation")
         self.latest_policy_selection = policy_info
-        return cast(
-            Dict[str, Any], policy_info.get("policy", {})
-        )
+        return cast(Dict[str, Any], policy_info.get("policy", {}))
 
     def compute_expected_free_energy(self, policy: Dict[str, Any]) -> float:
         """Compute expected free energy for a given policy.
@@ -497,6 +551,7 @@ class ActiveInferenceModel:
         self.latest_policy_evaluation = None
         self.latest_policy_selection = None
         self.latest_pymdp_result = None
+        self._perception_free_energy = None
         self.history = []
 
     def get_history(self) -> List[Dict[str, Any]]:
@@ -581,6 +636,7 @@ class ActiveInferenceModel:
         original_policy_evaluation = self.latest_policy_evaluation
         original_policy_selection = self.latest_policy_selection
         original_pymdp_result = self.latest_pymdp_result
+        original_perception_free_energy = self._perception_free_energy
         original_policy_rng_state = copy.deepcopy(
             self.policy_selector.rng.bit_generator.state
         )
@@ -618,6 +674,7 @@ class ActiveInferenceModel:
             self.latest_policy_evaluation = original_policy_evaluation
             self.latest_policy_selection = original_policy_selection
             self.latest_pymdp_result = original_pymdp_result
+            self._perception_free_energy = original_perception_free_energy
             self.policy_selector.rng.bit_generator.state = original_policy_rng_state
             if self.generative_model is not None:
                 self.generative_model.beliefs = original_model_beliefs
@@ -837,9 +894,7 @@ class ActiveInferenceModel:
             global_coherence=global_coherence,
             neighbor_correlations=neighbor_correlations,
             cell_count=len(valid_beliefs),
-            edge_count=edge_count_from_graph(
-                cast("Dict[str, Iterable[str]]", graph)
-            ),
+            edge_count=edge_count_from_graph(cast("Dict[str, Iterable[str]]", graph)),
         )
 
     def set_preferences(self, preferences: Union[np.ndarray, Dict[str, Any]]) -> None:
@@ -851,9 +906,7 @@ class ActiveInferenceModel:
         if isinstance(model_preferences, dict) and isinstance(preferences, dict):
             self.generative_model.set_preferences(preferences)
         else:
-            self.generative_model.preferences = cast(
-                Any, copy.deepcopy(preferences)
-            )
+            self.generative_model.preferences = cast(Any, copy.deepcopy(preferences))
 
     def _extract_model_beliefs(self, model: GenerativeModel) -> Any:
         beliefs = getattr(model, "beliefs", None)
@@ -920,9 +973,7 @@ class ActiveInferenceModel:
                     if states_flat is not None:
                         extracted["states"] = normalize_distribution(states_flat)
                 if "observations" in prefs:
-                    observations_flat = self._safe_flatten(
-                        prefs["observations"]
-                    )
+                    observations_flat = self._safe_flatten(prefs["observations"])
                     if observations_flat is not None:
                         extracted["observations"] = normalize_distribution(
                             observations_flat
@@ -1092,9 +1143,7 @@ class ActiveInferenceModel:
         if isinstance(data, np.ndarray):
             if data.dtype == object:
                 try:
-                    arrays = [
-                        np.asarray(x, dtype=float).reshape(-1) for x in data.flat
-                    ]
+                    arrays = [np.asarray(x, dtype=float).reshape(-1) for x in data.flat]
                     return cast(np.ndarray, np.concatenate(arrays))
                 except Exception:
                     logger.debug(

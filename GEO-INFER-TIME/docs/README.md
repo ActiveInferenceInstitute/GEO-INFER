@@ -4,6 +4,7 @@ Docs workspace within `GEO-INFER-TIME`.
 
 ## Contents
 
+- `action_observation_schedule.md`
 - `api_schema.yaml`
 - `streaming_migration.md`
 
