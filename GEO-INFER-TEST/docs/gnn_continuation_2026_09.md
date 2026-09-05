@@ -125,3 +125,10 @@ coverage-configuration correction: the intended 50% floor moves from the
 unrecognized run section to the report section. The retained hosted line data
 reports 54.3539%, passes at 50%, and fails a 55% negative control; configuration
 warnings are eliminated. Inference/export source is unchanged from `89f3b5e79`.
+
+A final CI reporting correction uploads each attempted test category immediately,
+before the runner cleans its shared output directory. Unit, integration and
+performance retain separate JUnit artifacts per interpreter; H3 retains only its
+own summary. Missing expected reports fail visibly. A cold-Windows diagnostic
+fixture now allows three seconds before its timeout, preserving the package-stack
+assertion and ten-second blocked import; production deadlines are unchanged.
