@@ -19,10 +19,10 @@ Core workspace within `GEO-INFER-TIME`.
 
 ## Public Interface
 
-- `advanced_forecasting.py:fit_arima_forecast` (function)
-- `advanced_forecasting.py:fit_exponential_smoothing_forecast` (function)
 - `action_schedule.py:ScheduledObservation` (class)
 - `action_schedule.py:action_observation_schedule` (function)
+- `advanced_forecasting.py:fit_arima_forecast` (function)
+- `advanced_forecasting.py:fit_exponential_smoothing_forecast` (function)
 - `advanced_forecasting.py:AdvancedForecastingEngine` (class)
 - `analysis.py:AnomalyType` (class)
 - `analysis.py:Anomaly` (class)
