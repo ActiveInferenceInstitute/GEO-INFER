@@ -74,6 +74,7 @@ class RepositoryInventory:
     h3_test_files: int
     documentation_pages: int
     validator_files: int
+    test_tooling_files: int
     source_files: int
     source_lines: int
     test_files: int
@@ -107,6 +108,7 @@ class RepositoryInventory:
             "h3_test_files": self.h3_test_files,
             "documentation_pages": self.documentation_pages,
             "validator_files": self.validator_files,
+            "test_tooling_files": self.test_tooling_files,
             "source_files": self.source_files,
             "source_lines": self.source_lines,
             "test_files": self.test_files,
@@ -380,7 +382,18 @@ def collect_inventory(
     documentation_pages = len(
         tuple(_iter_files(root / "GEO-INFER-INTRA" / "docs", ".md"))
     )
+    # A validator is a ``validate_*.py`` entry point, not every top-level file
+    # in GEO-INFER-TEST: that directory also holds packaging (setup.py), build
+    # (build_package_wheels.py), documentation (rewrite_readme_agents.py) and
+    # runner (run_unified_tests.py) utilities, none of which validate anything.
     validator_files = len(
+        tuple(
+            path
+            for path in (root / "GEO-INFER-TEST").glob("validate_*.py")
+            if path.is_file()
+        )
+    )
+    test_tooling_files = len(
         tuple(path for path in (root / "GEO-INFER-TEST").glob("*.py") if path.is_file())
     )
     project_metadata = _project_metadata(root)
@@ -401,6 +414,7 @@ def collect_inventory(
         h3_test_files=_h3_test_files(all_tests),
         documentation_pages=documentation_pages,
         validator_files=validator_files,
+        test_tooling_files=test_tooling_files,
         source_files=len(source_files),
         source_lines=sum(_nonempty_lines(path) for path in source_files),
         test_files=len(all_tests),
@@ -414,7 +428,7 @@ def _format_count(value: int) -> str:
 
 def _caption_module_inventory(inventory: RepositoryInventory) -> str:
     return (
-        f"Repository-derived inventory of {inventory.module_count} importable GEO-INFER modules at "
+        f"Repository-derived inventory of {inventory.module_count} src/-bearing GEO-INFER modules at "
         f"commit {inventory.commit}. Horizontal bars show Python source-file and test-file counts "
         "for every module, with modules ordered by source-file count; values are measured from the "
         "checkout rather than entered manually."
@@ -801,6 +815,7 @@ def build_variables(
         "H3_TEST_FILE_COUNT": str(inventory.h3_test_files),
         "DOCUMENTATION_PAGE_COUNT": str(inventory.documentation_pages),
         "VALIDATOR_FILE_COUNT": str(inventory.validator_files),
+        "TEST_TOOLING_FILE_COUNT": str(inventory.test_tooling_files),
         "RESEARCH_COMMIT": inventory.commit,
         "RESEARCH_BRANCH": inventory.branch,
         "RESEARCH_TREE_DIRTY_FILE_COUNT": (
