@@ -792,7 +792,7 @@ def render_root_readme(
         (
             "🏛️ Governance, Risk & Domain",
             [
-                "RISK",
+                "INSURANCE",
                 "METAGOV",
                 "NORMS",
                 "ECON",
