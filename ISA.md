@@ -266,7 +266,7 @@ Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time
   preserve explicit action counts; bounded-allocation tests pass.
 - [x] ISC-GNN-10: opt-in Step 7 preserves source provenance and existing defaults;
   missing physical metadata fails visibly.
-- [ ] ISC-GNN-11: pinned paired CI and Windows import-probe workflows run on
+- [x] ISC-GNN-11: pinned paired CI and Windows import-probe workflows run on
   the published revisions; actual hosted results are recorded separately.
 - [x] ISC-GNN-12: both informative PRs identify ancestry, validation and remaining
   external dependencies; pushed branch SHAs match remote refs.

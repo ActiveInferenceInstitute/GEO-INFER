@@ -108,3 +108,20 @@ The [pinned paired run](https://github.com/ActiveInferenceInstitute/GEO-INFER/ac
 passed on hosted Linux Python 3.11 and 3.12, exporting all four contracts from
 GNN `89f3b5e79` and consuming them at GEO `b0c07568`. Both checkout identities
 and artifact digests are retained in the workflow artifacts.
+
+[Corrected portability CI](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33939067638)
+passed all 43 cases in each of four jobs at GEO `6630aaf3`: Windows and Linux,
+Python 3.11 and 3.12. Both Windows jobs explicitly passed real source and
+installed-wheel descendant termination tests (Windows CPython 3.11.9 / 3.12.10
+AMD64). This completes TEST-02; native hardware/browser tasks remain separate.
+
+The [nonpublishing wheel workflow](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33938902942)
+built all 44 wheels and passed isolated installations, origin/resource probes and
+completion receipts at `b0c07568`. Subsequent GEO changes at `6630aaf3` affect
+only probe assertions and verification documentation, not packaged source.
+
+Final companion pin: `ffebd394b62fe300f43f5cbc99af4d454bd85098`. This adds only a
+coverage-configuration correction: the intended 50% floor moves from the
+unrecognized run section to the report section. The retained hosted line data
+reports 54.3539%, passes at 50%, and fails a 55% negative control; configuration
+warnings are eliminated. Inference/export source is unchanged from `89f3b5e79`.
