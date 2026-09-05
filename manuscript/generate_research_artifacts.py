@@ -67,6 +67,7 @@ class RepositoryInventory:
     commit: str
     branch: str
     commit_date: str
+    dirty_file_count: int
     source_hash: str
     modules: tuple[ModuleMetrics, ...]
     test_files_by_category: dict[str, int]
@@ -98,6 +99,7 @@ class RepositoryInventory:
             "commit": self.commit,
             "branch": self.branch,
             "commit_date": self.commit_date,
+            "dirty_file_count": self.dirty_file_count,
             "source_hash": self.source_hash,
             "modules": [asdict(module) for module in self.modules],
             "test_files_by_category": dict(self.test_files_by_category),
@@ -207,6 +209,39 @@ def _run_git(root: Path, *args: str, default: str = "unavailable") -> str:
     return result.stdout.strip() or default
 
 
+def _dirty_file_count(root: Path) -> int:
+    """Count working-tree entries that differ from the tracked commit.
+
+    ``git status --porcelain`` prints one line per added, modified, deleted,
+    renamed, unmerged or untracked path.  A clean checkout prints nothing, so
+    the honest answer for a clean tree is ``0``.
+
+    Returns:
+        The number of differing entries, or ``-1`` when git cannot answer.
+        ``-1`` is deliberately not ``0``: an unavailable answer must never be
+        published as a clean tree.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return -1
+    return sum(bool(line.strip()) for line in result.stdout.splitlines())
+
+
+def _dirty_marker(count: int) -> str:
+    """Return the commit-stamp suffix that describes ``count``."""
+    if count > 0:
+        return "-dirty"
+    if count < 0:
+        return "-unverified"
+    return ""
+
+
 def _project_metadata(root: Path) -> dict[str, str]:
     path = root / "pyproject.toml"
     try:
@@ -284,8 +319,18 @@ def _test_category(path: Path) -> str:
     return "other"
 
 
-def collect_inventory(root: Path) -> RepositoryInventory:
-    """Measure the current checkout without importing application modules."""
+def collect_inventory(
+    root: Path, *, dirty_file_count: int | None = None
+) -> RepositoryInventory:
+    """Measure the current checkout without importing application modules.
+
+    Args:
+        root: Repository root to measure.
+        dirty_file_count: Pre-measured working-tree dirtiness.  ``generate``
+            passes the count taken *before* it writes anything, so the
+            generator's own outputs are never mistaken for un-stamped source.
+            ``None`` measures it here.
+    """
     modules: list[ModuleMetrics] = []
     all_tests = _test_files(root)
     category_counts: dict[str, int] = {}
@@ -320,12 +365,17 @@ def collect_inventory(root: Path) -> RepositoryInventory:
         tuple(path for path in (root / "GEO-INFER-TEST").glob("*.py") if path.is_file())
     )
     project_metadata = _project_metadata(root)
+    dirty_files = (
+        _dirty_file_count(root) if dirty_file_count is None else dirty_file_count
+    )
+    commit = _run_git(root, "rev-parse", "--short", "HEAD")
     return RepositoryInventory(
         project_version=project_metadata["version"],
         project_license=project_metadata["license"],
-        commit=_run_git(root, "rev-parse", "--short", "HEAD"),
+        commit=commit + _dirty_marker(dirty_files),
         branch=_run_git(root, "branch", "--show-current"),
         commit_date=_run_git(root, "show", "-s", "--format=%cI", default="unavailable"),
+        dirty_file_count=dirty_files,
         source_hash=_source_hash(root),
         modules=tuple(modules),
         test_files_by_category=dict(sorted(category_counts.items())),
@@ -647,14 +697,35 @@ def run_verification(
     return tuple(results)
 
 
+def defined_command_groups(*, full_validation: bool) -> tuple[str, ...]:
+    """Return the names of every verification command group this build defines."""
+    commands = (
+        *VERIFICATION_COMMANDS,
+        *(FULL_VALIDATION_COMMANDS if full_validation else ()),
+    )
+    return tuple(name for name, _command in commands)
+
+
 def _verification_summary(
     results: Sequence[VerificationResult],
+    *,
+    full_validation: bool,
 ) -> tuple[str, int, int, int]:
+    """Summarise a verification record against the command groups it defines.
+
+    ``unrun`` is measured, never assumed: it is the number of defined command
+    groups with no recorded outcome, plus any group explicitly recorded as
+    ``not-run``.  An empty record therefore reports every defined group as
+    skipped rather than a constant, and a full pass reports zero.
+    """
+    defined = defined_command_groups(full_validation=full_validation)
     passed = sum(result.status == "passed" for result in results)
     failed = sum(result.status == "failed" for result in results)
-    unrun = sum(result.status == "not-run" for result in results)
+    recorded = {result.name for result in results}
+    missing = sum(name not in recorded for name in defined)
+    unrun = missing + sum(result.status == "not-run" for result in results)
     if not results:
-        return "not run", passed, failed, 1
+        return "not run", passed, failed, unrun
     if failed:
         return f"{passed} passed, {failed} failed", passed, failed, unrun
     return f"{passed} passed", passed, failed, unrun
@@ -664,9 +735,13 @@ def build_variables(
     inventory: RepositoryInventory,
     specs: Sequence[FigureSpec],
     verification: Sequence[VerificationResult],
+    *,
+    full_validation: bool = False,
 ) -> dict[str, str]:
     """Return every manuscript replacement from measured inputs."""
-    verification_summary, passed, failed, unrun = _verification_summary(verification)
+    verification_summary, passed, failed, unrun = _verification_summary(
+        verification, full_validation=full_validation
+    )
     variables: dict[str, str] = {
         "PROJECT_VERSION": inventory.project_version,
         "PROJECT_LICENSE": inventory.project_license,
@@ -688,6 +763,11 @@ def build_variables(
         "VALIDATOR_FILE_COUNT": str(inventory.validator_files),
         "RESEARCH_COMMIT": inventory.commit,
         "RESEARCH_BRANCH": inventory.branch,
+        "RESEARCH_TREE_DIRTY_FILE_COUNT": (
+            "unavailable"
+            if inventory.dirty_file_count < 0
+            else str(inventory.dirty_file_count)
+        ),
         "RESEARCH_COMMIT_DATE": inventory.commit_date,
         "RESEARCH_YEAR": (
             inventory.commit_date[:4]
@@ -702,6 +782,9 @@ def build_variables(
         "VERIFICATION_PASS_COUNT": str(passed),
         "VERIFICATION_FAIL_COUNT": str(failed),
         "VERIFICATION_UNRUN_COUNT": str(unrun),
+        "VERIFICATION_DEFINED_COUNT": str(
+            len(defined_command_groups(full_validation=full_validation))
+        ),
     }
     for module in inventory.focused_modules:
         key = module.name.removeprefix("GEO-INFER-")
@@ -820,10 +903,37 @@ def write_resolved_manuscript(
 
 
 def generate(
-    root: Path, *, verify: bool = False, full_validation: bool = False
+    root: Path,
+    *,
+    verify: bool = False,
+    full_validation: bool = False,
+    allow_dirty: bool = False,
 ) -> dict[str, Any]:
-    """Generate the complete evidence bundle and resolved manuscript."""
-    inventory = collect_inventory(root)
+    """Generate the complete evidence bundle and resolved manuscript.
+
+    The working-tree dirtiness is measured once, before anything is written,
+    so the commit stamp describes the state that was actually measured and the
+    generator's own outputs are never counted against it.
+
+    Raises:
+        RuntimeError: when the checkout is dirty (or git cannot say) and
+            ``allow_dirty`` is not set.  A publication build must not attribute
+            uncommitted work to a commit that does not contain it.
+    """
+    dirty_files = _dirty_file_count(root)
+    if dirty_files != 0 and not allow_dirty:
+        detail = (
+            "git could not report working-tree state"
+            if dirty_files < 0
+            else f"{dirty_files} uncommitted working-tree entries"
+        )
+        raise RuntimeError(
+            f"refusing to generate from an unclean checkout: {detail}. "
+            "Commit the tree, or pass --allow-dirty to stamp the build "
+            "'<sha>-dirty' and record the count in "
+            "RESEARCH_TREE_DIRTY_FILE_COUNT."
+        )
+    inventory = collect_inventory(root, dirty_file_count=dirty_files)
     output = root / "output"
     data_dir = output / "data"
     figures_dir = output / "figures"
@@ -837,13 +947,16 @@ def generate(
         data_dir / "research_verification.json",
         _verification_payload(verification, full_validation),
     )
-    variables = build_variables(inventory, specs, verification)
+    variables = build_variables(
+        inventory, specs, verification, full_validation=full_validation
+    )
     _write_json(data_dir / "manuscript_variables.json", variables)
     refresh_config_metadata(root, variables)
     written = write_resolved_manuscript(root, variables)
     manifest = {
         "schema_version": RESEARCH_SCHEMA,
         "source_commit": inventory.commit,
+        "dirty_file_count": inventory.dirty_file_count,
         "source_hash": inventory.source_hash,
         "resolved_manuscript_files": [
             path.relative_to(root).as_posix() for path in written
@@ -878,6 +991,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="also run the full unit, integration, performance, and H3 suites",
     )
+    parser.add_argument(
+        "--allow-dirty",
+        action="store_true",
+        help=(
+            "generate from an unclean checkout; the build is stamped "
+            "'<sha>-dirty' and the uncommitted entry count is published"
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -889,6 +1010,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             root,
             verify=args.verify or args.full_validation,
             full_validation=args.full_validation,
+            allow_dirty=args.allow_dirty,
         )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"research artifact generation failed: {exc}", file=sys.stderr)
