@@ -80,6 +80,24 @@ class TestFigureLegibility:
         finally:
             plt.close(fig)
 
+    def test_the_preamble_keeps_half_height_floats_off_pages_of_their_own(
+        self, repo_root: Path
+    ) -> None:
+        # LaTeX opens a float page for anything taller than \topfraction and
+        # lets a float claim one once it fills \floatpagefraction. At the
+        # defaults (0.7 / 0.5) the two half-height evidence figures each took a
+        # page carrying ~300 characters of caption and nothing else.
+        preamble = (repo_root / "manuscript" / "preamble.md").read_text("utf-8")
+        for command, value in (
+            ("topfraction", "0.9"),
+            ("bottomfraction", "0.9"),
+            ("textfraction", "0.08"),
+            ("floatpagefraction", "0.85"),
+        ):
+            assert (
+                f"\\renewcommand{{\\{command}}}{{{value}}}" in preamble
+            ), f"preamble.md no longer sets \\{command}"
+
     def test_the_height_bound_matches_the_render_config(
         self, generator: ModuleType, repo_root: Path
     ) -> None:
