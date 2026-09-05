@@ -1,6 +1,8 @@
 name: Import probe portability
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
   workflow_dispatch:
 

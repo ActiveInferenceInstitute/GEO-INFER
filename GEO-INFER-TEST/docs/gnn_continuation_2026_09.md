@@ -132,3 +132,57 @@ performance retain separate JUnit artifacts per interpreter; H3 retains only its
 own summary. Missing expected reports fail visibly. A cold-Windows diagnostic
 fixture now allows three seconds before its timeout, preserving the package-stack
 assertion and ten-second blocked import; production deadlines are unchanged.
+
+## Main integration baseline and final PR checks
+
+At GEO `cee1b5f08c2acad435b7d8864db4461b3be58c88`,
+[all final hosted categories passed](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489793):
+7497 unit, 1276 integration and 52 performance tests on each of Python 3.11
+and 3.12, zero failures/errors/skips, plus two H3 validators per interpreter.
+All eight category artifacts were retained (184 XML reports and eight summaries).
+[Both paired jobs](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489772)
+and [all four portability jobs](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489777)
+also passed at that revision. These receipts supersede the pending-job status
+in the earlier chronological publication notes.
+
+GNN PR 25 merged to `main` at `903b9c3391ce277292fd1f3d5626e5fbd66d354a`,
+preserving the reviewed `ffebd394b` ancestry and exactly the same source tree.
+All eleven pre-merge checks passed; each CI-selected suite passed 3612 tests
+and skipped 14 on Python 3.11/3.12/3.13, with the 50% coverage floor enforced.
+The GEO manifest now pins this GNN main commit. Paired interchange and
+Linux/Windows import-probe workflows also run on pushes to GEO main, retaining
+revision-specific receipts after integration.
+
+The disposable GNN graph index was rebuilt without deleting the previous index.
+Its recorded commit matches merged `903b9c339`; explicit Gaussian and factored
+exporter lookups resolve to the correct files. This closes the earlier failed
+FTS-refresh finding for that revision. Future source changes still require
+index refresh and lookup validation.
+
+## Supervised regional acquisition
+
+The regional downloader now runs in a private Python worker launched with
+`-I`. Its parent enforces the remaining shared five-minute network budget,
+terminates a stalled worker and reaps it within a separate one-second cleanup
+budget. Local geometry and serialization retain checks between phases.
+Byte/feature limits, exact offline replay and existing artifacts on failure
+are preserved. Requests reject redirects and the worker never starts children.
+
+Both full PLACE suites passed 416 tests with no failures/errors/skips on
+Python 3.11 and 3.12. Fifty-one focused cases passed, including real slow-drip
+responses, stalled headers, gzip expansion limits and failure preservation.
+An independent interruption probe verified KeyboardInterrupt propagation,
+worker reaping, closed pipes and disconnected HTTP streams.
+
+A newly built PLACE wheel matched the complete source/resource inventory.
+Installed outside the checkout in a fresh locked environment, its actual
+worker returned exact bytes and a slow-drip request timed out in 2.003 seconds
+against a two-second deadline, with the worker reaped. The other 43 package
+sources remain unchanged from the earlier complete hosted wheel receipt.
+Windows execution of this regional worker remains a separate PLACE-04 check;
+the existing Windows source/wheel import-probe results cover a different tool.
+
+[GNN main CI](https://github.com/ActiveInferenceInstitute/GeneralizedNotationNotation/actions/runs/33943799538)
+passed on the exact merge commit `903b9c3391ce277292fd1f3d5626e5fbd66d354a`,
+including all three Python jobs and security. This is post-merge evidence,
+separate from the earlier green PR runs.

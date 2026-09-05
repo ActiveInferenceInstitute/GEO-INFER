@@ -11,18 +11,25 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
+import signal
+import subprocess
+import sys
 import tempfile
 import time
 from urllib.parse import urlencode
 
-import requests
 from shapely.geometry import box, mapping, shape
+
+from ._regional_download_worker import _MAX_BYTES, _validate_request
 
 BOUNDS = (-124.8, 40.0, -114.5, 49.0)
 TECTONIC_BOUNDS = (-130.0, 40.0, -120.0, 51.0)
-MAX_BYTES = 20 * 1024 * 1024
+MAX_BYTES = _MAX_BYTES
 MAX_FEATURES = 1000
+_WORKER_CLEANUP_SECONDS = 1.0
+_BATCH_TIMEOUT_SECONDS = 300.0
 LICENSE_URL = (
     "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits"
 )
@@ -256,55 +263,88 @@ def normalize_regional_layer(kind: str, raw: bytes) -> dict:
     )
 
 
-def _download(url: str, deadline: float, remaining_bytes: int) -> bytes:
-    """Enforce size caps and check a cooperative deadline between stream reads.
+def _stop_download_worker(process: subprocess.Popen[bytes]) -> None:
+    """Kill the isolated worker and reap it within a separate cleanup budget."""
+    try:
+        if os.name == "posix":
+            os.killpg(process.pid, signal.SIGKILL)
+        elif process.poll() is None:
+            process.kill()
+    except ProcessLookupError:
+        pass
+    try:
+        process.communicate(timeout=_WORKER_CLEANUP_SECONDS)
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            "Regional download worker could not be reaped within cleanup budget"
+        ) from exc
 
-    Requests read timeouts limit inactivity, not total wall time. A slow peer
-    can delay a chunk beyond the cooperative deadline; hard termination needs
-    an independently supervised request worker.
+
+def _download(url: str, deadline: float, remaining_bytes: int) -> bytes:
+    """Supervise a private worker against the shared batch wall-clock deadline.
+
+    Deadline expiry kills the worker instead of waiting for another HTTP chunk.
+    Cleanup has a separate one-second budget. The worker starts no subprocesses;
+    POSIX cleanup also kills its isolated process group. No downloaded bytes are
+    returned unless the worker exits successfully within the parent deadline.
     """
-    chunks = []
-    total = 0
-    remaining_seconds = deadline - time.monotonic()
-    if remaining_seconds <= 0:
-        raise TimeoutError("Regional request batch exceeded its cooperative deadline")
-    if remaining_bytes <= 0:
-        raise ValueError("Regional data exceeds 20 MiB budget")
-    with requests.get(
-        url,
-        stream=True,
-        timeout=(min(10, remaining_seconds), min(30, remaining_seconds)),
-        allow_redirects=False,
-    ) as response:
+    _validate_request(url, deadline, remaining_bytes)
+    if time.monotonic() >= deadline:
+        raise TimeoutError("Regional download exceeded its parent wall-clock deadline")
+    worker = Path(__file__).with_name("_regional_download_worker.py")
+    process = subprocess.Popen(
+        [sys.executable, "-I", str(worker), url, repr(deadline), str(remaining_bytes)],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=os.name == "posix",
+    )
+    try:
+        try:
+            raw, errors = process.communicate(
+                timeout=max(0.0, deadline - time.monotonic())
+            )
+        except subprocess.TimeoutExpired as exc:
+            _stop_download_worker(process)
+            raise TimeoutError(
+                "Regional download exceeded its parent wall-clock deadline"
+            ) from exc
+        except BaseException:
+            _stop_download_worker(process)
+            raise
         if time.monotonic() >= deadline:
             raise TimeoutError(
-                "Regional request batch exceeded its cooperative deadline"
+                "Regional download exceeded its parent wall-clock deadline"
             )
-        response.raise_for_status()
-        if response.is_redirect:
-            raise ValueError("Unexpected source redirect")
-        for chunk in response.iter_content(64 * 1024):
-            if time.monotonic() >= deadline:
-                raise TimeoutError(
-                    "Regional request batch exceeded its cooperative deadline"
+        if process.returncode:
+            try:
+                message = json.loads(errors[:4096]).get(
+                    "error", "Regional download worker failed"
                 )
-            total += len(chunk)
-            if total > remaining_bytes:
-                raise ValueError("Regional data exceeds 20 MiB budget")
-            chunks.append(chunk)
-        if time.monotonic() >= deadline:
-            raise TimeoutError(
-                "Regional request batch exceeded its cooperative deadline"
-            )
-    return b"".join(chunks)
+            except (ValueError, AttributeError):
+                message = "Regional download worker failed"
+            if process.returncode == 2:
+                raise ValueError(message)
+            if process.returncode == 4:
+                raise TimeoutError(message)
+            raise RuntimeError(message)
+        if len(raw) > remaining_bytes:
+            raise ValueError("Regional data exceeds 20 MiB budget")
+        return raw
+    finally:
+        for stream in (process.stdout, process.stderr):
+            if stream is not None:
+                stream.close()
 
 
 def acquire_regional_layers(output_dir: str | Path, *, offline: bool = False) -> dict:
     """Fetch three fixed USGS sources or replay saved responses, with a receipt.
 
-    A five-minute cooperative deadline is checked between processing phases
-    and network chunks; connect/read inactivity timeouts do not guarantee a hard
-    wall-clock limit. Total persisted data is capped at 20 MiB. Output file
+    Network workers are supervised against a shared five-minute wall-clock
+    deadline, with at most one additional second to reap a terminated worker.
+    Local geometry/serialization work checks the deadline between phases rather
+    than interrupting an individual operation. Total persisted data is capped
+    at 20 MiB. Output file
     replacement does not follow pre-existing file symlinks.
     The missing authentic whole-bioregion boundary remains explicitly unresolved.
     """
@@ -323,7 +363,7 @@ def acquire_regional_layers(output_dir: str | Path, *, offline: bool = False) ->
             "Whole Cascadia bioregion boundary: no licensed vector source verified"
         ],
     )
-    deadline = time.monotonic() + 300
+    deadline = time.monotonic() + _BATCH_TIMEOUT_SECONDS
     for kind, spec in SOURCES.items():
         if time.monotonic() >= deadline:
             raise TimeoutError(

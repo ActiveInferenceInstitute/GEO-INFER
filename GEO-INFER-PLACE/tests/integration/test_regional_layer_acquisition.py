@@ -173,7 +173,7 @@ def test_nonfinite_json_numbers_rejected_before_geometry(token):
     "case", ["before", "headers", "stream_end", "chunk", "bytes", "redirect", "success"]
 )
 def test_download_bounds_are_enforced_at_cooperative_checkpoints(monkeypatch, case):
-    from geo_infer_place.core import regional_layers as module
+    from geo_infer_place.core import _regional_download_worker as module
 
     clock = [0.0]
     calls = []
@@ -181,6 +181,7 @@ def test_download_bounds_are_enforced_at_cooperative_checkpoints(monkeypatch, ca
 
     class Response:
         is_redirect = case == "redirect"
+        status_code = 302 if is_redirect else 200
 
         def __enter__(self):
             if case == "headers":
@@ -210,17 +211,17 @@ def test_download_bounds_are_enforced_at_cooperative_checkpoints(monkeypatch, ca
         clock[0] = 2
     if case in {"before", "headers", "stream_end", "chunk"}:
         with pytest.raises(TimeoutError, match="cooperative deadline"):
-            module._download(
+            module._fetch_bytes(
                 "https://example.test/source", deadline=1, remaining_bytes=2
             )
     elif case in {"bytes", "redirect"}:
         with pytest.raises(ValueError):
-            module._download(
+            module._fetch_bytes(
                 "https://example.test/source", deadline=1, remaining_bytes=1
             )
     else:
         assert (
-            module._download(
+            module._fetch_bytes(
                 "https://example.test/source", deadline=1, remaining_bytes=2
             )
             == b"ok"
