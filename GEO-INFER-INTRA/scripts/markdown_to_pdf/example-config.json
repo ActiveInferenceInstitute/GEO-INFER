@@ -1,0 +1,137 @@
+{
+  "stylesheet": [
+    "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css"
+  ],
+  "css": "
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #24292e;
+      background-color: #fff;
+    }
+    
+    .page-break {
+      page-break-after: always;
+    }
+    
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+      background: white;
+    }
+    
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    h1 {
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 0.3em;
+      font-size: 2em;
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 0.3em;
+      font-size: 1.5em;
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+    
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      width: 100%;
+    }
+    
+    table th,
+    table td {
+      border: 1px solid #dfe2e5;
+      padding: 6px 13px;
+    }
+    
+    table th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+    }
+    
+    code {
+      background-color: rgba(27,31,35,0.05);
+      border-radius: 3px;
+      font-size: 85%;
+      margin: 0;
+      padding: 0.2em 0.4em;
+    }
+    
+    pre {
+      background-color: #f6f8fa;
+      border-radius: 6px;
+      font-size: 85%;
+      line-height: 1.45;
+      overflow: auto;
+      padding: 16px;
+    }
+    
+    blockquote {
+      border-left: 0.25em solid #dfe2e5;
+      color: #6a737d;
+      margin: 0;
+      padding: 0 1em;
+    }
+    
+    @media print {
+      .markdown-body {
+        font-size: 11px;
+        margin: 0;
+        padding: 20px;
+      }
+      
+      .mermaid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+      
+      table {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      
+      pre {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  ",
+  "body_class": ["markdown-body"],
+  "highlight_style": "github",
+  "pdf_options": {
+    "format": "A4",
+    "margin": "20mm",
+    "printBackground": true,
+    "preferCSSPageSize": true,
+    "displayHeaderFooter": false,
+    "headerTemplate": "",
+    "footerTemplate": ""
+  },
+  "launch_options": {
+    "args": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu"
+    ]
+  }
+} 

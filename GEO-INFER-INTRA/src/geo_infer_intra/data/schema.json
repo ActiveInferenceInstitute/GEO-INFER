@@ -1,0 +1,307 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GEO-INFER-INTRA Configuration Schema",
+  "description": "Schema for validating GEO-INFER-INTRA configuration files",
+  "type": "object",
+  "required": ["general", "documentation", "ontology", "knowledge_base", "workflow", "api", "database", "integration"],
+  "properties": {
+    "general": {
+      "type": "object",
+      "required": ["log_level", "log_file"],
+      "properties": {
+        "debug_mode": { "type": "boolean" },
+        "log_level": { 
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        },
+        "log_file": { "type": "string" },
+        "default_language": { "type": "string" },
+        "temp_dir": { "type": "string" },
+        "telemetry_enabled": { "type": "boolean" }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "required": ["server", "content_dir"],
+      "properties": {
+        "server": {
+          "type": "object",
+          "required": ["host", "port"],
+          "properties": {
+            "host": { "type": "string" },
+            "port": { "type": "integer" },
+            "use_https": { "type": "boolean" },
+            "ssl_cert": { "type": ["string", "null"] },
+            "ssl_key": { "type": ["string", "null"] }
+          }
+        },
+        "content_dir": { "type": "string" },
+        "theme": { "type": "string" },
+        "search_enabled": { "type": "boolean" },
+        "versioning": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "default_version": { "type": "string" }
+          }
+        },
+        "formats": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ontology": {
+      "type": "object",
+      "required": ["base_dir", "default_format"],
+      "properties": {
+        "base_dir": { "type": "string" },
+        "default_format": { "type": "string" },
+        "inference_enabled": { "type": "boolean" },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "max_size_mb": { "type": "integer" },
+            "ttl_seconds": { "type": "integer" }
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "url", "enabled"],
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": "string" },
+              "enabled": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "knowledge_base": {
+      "type": "object",
+      "required": ["storage_type"],
+      "properties": {
+        "storage_type": {
+          "type": "string",
+          "enum": ["elasticsearch", "file"]
+        },
+        "elasticsearch": {
+          "type": "object",
+          "required": ["host", "port", "index_prefix"],
+          "properties": {
+            "host": { "type": "string" },
+            "port": { "type": "integer" },
+            "index_prefix": { "type": "string" },
+            "username": { "type": ["string", "null"] },
+            "password": { "type": ["string", "null"] },
+            "use_ssl": { "type": "boolean" },
+            "verify_certs": { "type": "boolean" }
+          }
+        },
+        "file": {
+          "type": "object",
+          "required": ["directory", "format"],
+          "properties": {
+            "directory": { "type": "string" },
+            "format": {
+              "type": "string",
+              "enum": ["json", "yaml"]
+            }
+          }
+        },
+        "search": {
+          "type": "object",
+          "properties": {
+            "default_operator": {
+              "type": "string",
+              "enum": ["AND", "OR"]
+            },
+            "min_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "max_results": { "type": "integer" },
+            "fuzzy_matching": { "type": "boolean" },
+            "fuzzy_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["storage_dir", "execution"],
+      "properties": {
+        "storage_dir": { "type": "string" },
+        "execution": {
+          "type": "object",
+          "properties": {
+            "parallel": { "type": "boolean" },
+            "max_workers": { "type": "integer" },
+            "timeout": { "type": "integer" },
+            "retry": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "max_attempts": { "type": "integer" },
+                "backoff_factor": { "type": "number" }
+              }
+            }
+          }
+        },
+        "visualization": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "layout": { "type": "string" },
+            "interactive": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "api": {
+      "type": "object",
+      "required": ["server", "auth"],
+      "properties": {
+        "server": {
+          "type": "object",
+          "required": ["host", "port"],
+          "properties": {
+            "host": { "type": "string" },
+            "port": { "type": "integer" },
+            "cors_enabled": { "type": "boolean" },
+            "cors_origins": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "method": {
+              "type": "string",
+              "enum": ["jwt", "api_key", "oauth2"]
+            },
+            "jwt": {
+              "type": "object",
+              "properties": {
+                "secret_key": { "type": "string" },
+                "algorithm": { "type": "string" },
+                "token_expiry_minutes": { "type": "integer" }
+              }
+            },
+            "api_key": {
+              "type": "object",
+              "properties": {
+                "header_name": { "type": "string" }
+              }
+            }
+          }
+        },
+        "rate_limit": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "rate": { "type": "integer" },
+            "burst": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "database": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["postgresql", "sqlite"]
+        },
+        "postgresql": {
+          "type": "object",
+          "required": ["host", "port", "database", "user", "password"],
+          "properties": {
+            "host": { "type": "string" },
+            "port": { "type": "integer" },
+            "database": { "type": "string" },
+            "user": { "type": "string" },
+            "password": { "type": "string" },
+            "ssl_mode": {
+              "type": "string",
+              "enum": ["disable", "allow", "prefer", "require", "verify-ca", "verify-full"]
+            }
+          }
+        },
+        "sqlite": {
+          "type": "object",
+          "required": ["path"],
+          "properties": {
+            "path": { "type": "string" }
+          }
+        },
+        "pool": {
+          "type": "object",
+          "properties": {
+            "min_size": { "type": "integer" },
+            "max_size": { "type": "integer" },
+            "idle_timeout": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "integration": {
+      "type": "object",
+      "properties": {
+        "space": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "api_url": { "type": "string" },
+            "auth_token": { "type": ["string", "null"] }
+          }
+        },
+        "time": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "api_url": { "type": "string" },
+            "auth_token": { "type": ["string", "null"] }
+          }
+        },
+        "api": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "api_url": { "type": "string" },
+            "auth_token": { "type": ["string", "null"] }
+          }
+        },
+        "ops": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "api_url": { "type": "string" },
+            "auth_token": { "type": ["string", "null"] }
+          }
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "api_url": { "type": "string" },
+            "auth_token": { "type": ["string", "null"] }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+} 
