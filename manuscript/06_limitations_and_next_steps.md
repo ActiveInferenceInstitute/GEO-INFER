@@ -8,25 +8,45 @@
 - The generated figures summarize file-backed evidence surfaces and should not
   be read as benchmark results.
 - A verification record is only as complete as the commands requested during
-  generation; this build reports `{{VERIFICATION_STATUS}}` and exposes the
-  command-level record for audit.
+  generation; this build reports `{{VERIFICATION_STATUS}}` with
+  `{{VERIFICATION_UNRUN_COUNT}}` of `{{VERIFICATION_DEFINED_COUNT}}` defined
+  command groups unrun, and exposes the command-level record for audit.
+- The composition contract constrains interfaces, provenance, and refusal
+  behavior. It is not a proof of correctness: no clause in it establishes that
+  a free-energy value, a posterior, or a return level matches an external
+  reference implementation or a field observation.
+- Module theme membership is a declared editorial grouping, not a measured
+  dependency structure. The manuscript reports no import graph, no coupling
+  metric, and no evidence that the themes partition the framework's actual
+  interactions.
+- Documentation-page counts are scoped to `GEO-INFER-INTRA/docs/`, the
+  cross-module documentation tree. No freshness, ownership, or staleness check
+  runs over those pages, so the count says how many exist, not how many are
+  current.
 - External scientific claims require resolved entries in `references.bib` and
   should be expanded with domain-specific datasets and preregistered analyses.
 
 ## Next Steps
 
-1. Run the full validation pipeline with fixed data seeds and archive
+1. Run the full validation pipeline with fixed data seeds under
+   `--full-validation --publication` and archive
    `research_verification.json`, `research_inventory.json`, and the figure
-   registry alongside rendered outputs.
+   registry alongside rendered outputs, so the record this manuscript reports
+   as `not run` becomes a populated one.
 2. Extend the inventory with domain datasets and benchmark results only when
    their producers emit machine-readable provenance and uncertainty.
 3. Add preregistered comparisons for the Active Inference, Bayesian, and RISK
    research spine without replacing real model outputs with file-count proxies.
-4. Render PDF/HTML through the publication template and inspect figure
-   legibility, alt text, references, and caption fidelity at publication size.
+4. Add a documentation-freshness measurement so the documentation-page count
+   can be qualified by currency rather than reported as a bare total.
+5. Promote the composition contract's clauses into executable checks where they
+   are not already covered by a module test, so the contract is verified by the
+   same evidence record that reports the rest of the build.
 
 ## Boundary Note
 
 Changing values must enter the manuscript through the generator. The tracked
 source contains tokens; resolved output is disposable and must never be edited
-by hand.
+by hand. The one tracked file the generator itself writes is
+`manuscript/config.yaml`, for the reason recorded in the Reproducibility
+section.
