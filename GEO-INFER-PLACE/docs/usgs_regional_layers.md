@@ -34,14 +34,32 @@ uv run python -m geo_infer_place.core.regional_layers \
 
 Omit `--offline` to fetch the three explicitly configured USGS endpoints. A batch
 accepts at most 1,000 source features per response and at most 20 MiB of persisted
-raw responses, output layers and the acquisition receipt. A five-minute
-**cooperative deadline** is checked before requests, after response headers,
-between yielded chunks, after streaming, and before writing the prepared files.
-Connection/read inactivity timeouts are at most 10/30 seconds and are shortened
-to the remaining budget when a request starts; redirects are rejected. These
-timeouts do not terminate a slow-drip response at an exact wall-clock deadline.
-A hard wall-clock guarantee requires a separately supervised request worker and
-is not claimed by this implementation.
+raw responses, output layers and the acquisition receipt. Network requests run
+in private worker processes under one five-minute **parent-enforced wall-clock
+deadline** for the batch. Worker startup and imports consume that budget, and
+later requests do not reset it. At expiry the parent terminates the worker,
+including a slow-drip response that never triggers a socket inactivity timeout.
+Cleanup and reaping have a separate one-second bound; failure to reap is an
+explicit error. This bounds network acquisition, not every local operation:
+geometry processing, serialization and filesystem writes remain local, with
+deadline checks between phases rather than forced termination during a phase.
+
+Workers use the active interpreter with `-I`, ignoring caller `PYTHONPATH` and
+user-site packages, and do not launch subprocesses. POSIX cleanup terminates the
+isolated process group; Windows cleanup terminates and reaps the direct worker.
+Connection/read inactivity timeouts remain at most 10/30 seconds, shortened to
+the remaining budget when a request starts. Redirects are rejected. URLs require
+HTTPS except literal loopback IP addresses used by local tests; credentials and
+fragments are rejected. The worker caps decoded response bytes, and the parent
+checks the returned size again. Failure messages do not include response bodies.
+Offline replay launches no workers and preserves the existing hash contract.
+
+`tests/integration/test_regional_download_worker.py` exercises real loopback
+HTTP and child processes: slow-drip and delayed-header deadlines, process reaping
+and pipe closure, exact response bytes, compressed-response limits, HTTP failures,
+invalid request budgets, import isolation, and preservation of existing artifacts
+when a later request times out after a successful download. No external download
+is needed for these tests.
 The committed snapshot is approximately 1.3 MiB including source metadata.
 Output files are prepared only after all three responses validate; each final
 file is replaced atomically. This is not a multi-file filesystem transaction.

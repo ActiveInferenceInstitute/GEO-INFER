@@ -6,6 +6,7 @@ Core workspace within `GEO-INFER-PLACE`.
 
 - `dashboard/`
 - `__init__.py`
+- `_regional_download_worker.py`
 - `api_clients.py`
 - `base_module.py`
 - `bioregion_visualization.py`

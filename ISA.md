@@ -275,3 +275,25 @@ Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time
   unavailable external verification complete.
 
 Verification: [continuation evidence](GEO-INFER-TEST/docs/gnn_continuation_2026_09.md).
+
+## Main integration and acquisition deadline
+
+- Baseline: GEO `cee1b5f08c2acad435b7d8864db4461b3be58c88`, GNN
+  `ffebd394b62fe300f43f5cbc99af4d454bd85098`, isolated worktrees clean.
+  GEO hosted unit/integration/performance passed 8825 tests on each Python
+  3.11/3.12 plus both H3 validators; GNN CI passed 3612 tests and skipped
+  14 on each Python 3.11/3.12/3.13. Both remote main refs are ancestors.
+- [x] ISC-MAIN-1: a parent-enforced regional acquisition deadline stops a
+  slow-drip request and reaps its worker; byte/feature caps and replay pass.
+- [x] ISC-MAIN-2: the merged GNN revision is pinned and both independent
+  environments reproduce all four contracts at the integration revisions.
+- [ ] ISC-MAIN-3: required gates and hosted checks pass for the outgoing GEO
+  revision; paired and portability workflows also run on pushes to main.
+- [ ] ISC-MAIN-4: both PRs are merged and remote main contains the reviewed
+  commits; isolated local integration revisions match the remote refs.
+- Anti: original dirty checkouts remain untouched; do not force-push, weaken
+  tests, publish packages or mark external verification complete.
+
+- Worker review: 51 focused acquisition tests pass on Python 3.12. Independent
+  review also verified real KeyboardInterrupt cleanup and connection closure.
+  The installed-wheel and complete PLACE results are recorded in the PR.
