@@ -37,6 +37,16 @@ metadata:
 
 manuscript_dir: "manuscript"
 
+# Layout options consumed by the template renderer. figure_height_fraction is
+# the ``height=<fraction>\textheight`` bound applied to every \includegraphics.
+# The default 0.50 clamped every figure to half the text block, which scaled the
+# 45-row module inventory down to ~3pt type. The generator draws figures at the
+# printed size instead (see FIGURE_HEIGHT_FRACTION in
+# manuscript/generate_research_artifacts.py, which must match this value).
+rendering:
+  figure_height_fraction: 0.9
+  front_matter_figure_height_fraction: 0.9
+
 render:
   formats:
     pdf: true

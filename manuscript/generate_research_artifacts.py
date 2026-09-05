@@ -24,7 +24,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -34,6 +34,25 @@ EXCLUDED_MANUSCRIPT_DOCS = frozenset({"README.md", "AGENTS.md", "SYNTAX.md"})
 FIGURE_SCHEMA = "geo-infer-manuscript-figures/v1"
 RESEARCH_SCHEMA = "geo-infer-manuscript-evidence/v1"
 FOCUS_MODULES = ("GEO-INFER-ACT", "GEO-INFER-BAYES", "GEO-INFER-RISK")
+
+# Printable geometry of the template's LaTeX text block, in inches, read from
+# output/pdf/_combined_manuscript.log (textwidth 430.00462pt, textheight
+# 556.47656pt).  Every figure is typeset inside this box, so a figure drawn
+# larger than it is scaled DOWN and its type shrinks with it: a 13in canvas
+# lettered at 8.5pt printed at 3.1pt, roughly half the ~6pt floor for legible
+# print.  Drawing at the printed size keeps the scale near 1.0 and the type at
+# its authored point size.
+TEXT_BLOCK_WIDTH_IN = 5.95
+TEXT_BLOCK_HEIGHT_IN = 7.70
+# Must stay in lock-step with ``rendering.figure_height_fraction`` in
+# manuscript/config.yaml, which is what the renderer writes into the
+# ``height=<fraction>\textheight`` bound on every \includegraphics.
+FIGURE_HEIGHT_FRACTION = 0.9
+MAX_FIGURE_HEIGHT_IN = TEXT_BLOCK_HEIGHT_IN * FIGURE_HEIGHT_FRACTION
+FIGURE_DPI = 220
+# Inches of vertical space per module row in the inventory figure.  At 8pt type
+# this is about 11pt of leading per label.
+INVENTORY_ROW_HEIGHT_IN = 0.153
 
 
 @dataclass(frozen=True)
@@ -49,13 +68,21 @@ class ModuleMetrics:
 
 @dataclass(frozen=True)
 class FigureSpec:
-    """Publication figure metadata generated with the corresponding image."""
+    """Publication figure metadata generated with the corresponding image.
+
+    ``sha256`` is the digest of the PNG bytes actually written, so the registry
+    carries per-figure content provenance rather than only the repository-wide
+    build hash.  It is empty until the image exists and is filled in by
+    :func:`generate_figures`; :func:`write_figure_registry` refuses a spec that
+    still carries an empty digest.
+    """
 
     label: str
     filename: str
     caption: str
     generated_by: str
     alt_text: str
+    sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -500,11 +527,33 @@ def _import_matplotlib() -> tuple[Any, Any]:
     return matplotlib, plt
 
 
-def _save_figure(fig: Any, path: Path, caption: str, source_hash: str) -> None:
+def _png_size_inches(path: Path, dpi: int) -> tuple[float, float]:
+    """Return the (width, height) of a PNG in inches at ``dpi``.
+
+    Read from the IHDR chunk rather than an image library: the pixel geometry
+    is the only thing needed and it must be readable wherever the generator
+    runs.
+    """
+    header = path.read_bytes()[:24]
+    if header[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"not a PNG: {path}")
+    width = int.from_bytes(header[16:20], "big")
+    height = int.from_bytes(header[20:24], "big")
+    return width / dpi, height / dpi
+
+
+def _save_figure(fig: Any, path: Path, caption: str, source_hash: str) -> str:
+    """Write one figure and return the SHA-256 of the bytes that were written.
+
+    Raises:
+        ValueError: when the written figure is larger than the printable text
+            block, which would force the typesetter to scale it down and take
+            its type below the legibility floor with it.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(
         path,
-        dpi=220,
+        dpi=FIGURE_DPI,
         bbox_inches="tight",
         metadata={
             "Title": path.stem.replace("_", " ").title(),
@@ -512,6 +561,18 @@ def _save_figure(fig: Any, path: Path, caption: str, source_hash: str) -> None:
             "Source": f"GEO-INFER repository source hash {source_hash}",
         },
     )
+    width_in, height_in = _png_size_inches(path, FIGURE_DPI)
+    tolerance = 1.02
+    if (
+        width_in > TEXT_BLOCK_WIDTH_IN * tolerance
+        or height_in > MAX_FIGURE_HEIGHT_IN * tolerance
+    ):
+        raise ValueError(
+            f"{path.name} is {width_in:.2f}in x {height_in:.2f}in, larger than the "
+            f"printable box {TEXT_BLOCK_WIDTH_IN}in x {MAX_FIGURE_HEIGHT_IN:.2f}in; "
+            "it would be scaled down at typeset time and its type with it"
+        )
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def generate_figures(
@@ -542,6 +603,7 @@ def generate_figures(
             _alt_validation_surface(inventory),
         ),
     )
+    digests: dict[str, str] = {}
     module_rows = sorted(
         inventory.modules, key=lambda item: (-item.source_files, item.name)
     )
@@ -555,12 +617,16 @@ def generate_figures(
             "axes.spines.right": False,
             "axes.grid": True,
             "grid.alpha": 0.25,
-            "font.size": 8.5,
+            "font.size": 8,
             "axes.titleweight": "bold",
         }
     ):
+        inventory_height = min(
+            MAX_FIGURE_HEIGHT_IN,
+            max(4.0, len(labels) * INVENTORY_ROW_HEIGHT_IN),
+        )
         fig, axes = plt.subplots(
-            1, 2, figsize=(13, max(8, len(labels) * 0.24)), sharey=True
+            1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, inventory_height), sharey=True
         )
         y = list(range(len(labels)))
         axes[0].barh(y, source_counts, color="#2f6f9f", alpha=0.9)
@@ -574,10 +640,10 @@ def generate_figures(
         axes[0].set_axisbelow(True)
         axes[1].set_axisbelow(True)
         fig.suptitle(
-            "GEO-INFER module evidence inventory", fontsize=13, fontweight="bold"
+            "GEO-INFER module evidence inventory", fontsize=11, fontweight="bold"
         )
         fig.tight_layout()
-        _save_figure(
+        digests[specs[0].filename] = _save_figure(
             fig, output_dir / specs[0].filename, specs[0].caption, inventory.source_hash
         )
         plt.close(fig)
@@ -586,7 +652,7 @@ def generate_figures(
         focus_labels = [item.name.removeprefix("GEO-INFER-") for item in focus]
         focus_source = [item.source_files for item in focus]
         focus_tests = [item.test_files for item in focus]
-        fig, ax = plt.subplots(figsize=(8.5, 5.5))
+        fig, ax = plt.subplots(figsize=(5.8, 3.6))
         positions = list(range(len(focus_labels)))
         width = 0.36
         ax.bar(
@@ -611,7 +677,7 @@ def generate_figures(
         ax.legend(frameon=False)
         ax.set_axisbelow(True)
         fig.tight_layout()
-        _save_figure(
+        digests[specs[1].filename] = _save_figure(
             fig, output_dir / specs[1].filename, specs[1].caption, inventory.source_hash
         )
         plt.close(fig)
@@ -626,7 +692,7 @@ def generate_figures(
             inventory.documentation_pages,
             inventory.validator_files,
         )
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5.5))
+        fig, axes = plt.subplots(1, 2, figsize=(5.8, 3.6))
         axes[0].bar(categories, category_counts, color="#5b8e7d")
         axes[0].set_title("Test-file categories", fontweight="bold")
         axes[0].set_ylabel("Files")
@@ -638,14 +704,16 @@ def generate_figures(
         for axis in axes:
             axis.set_axisbelow(True)
         fig.suptitle(
-            "Validation and documentation evidence", fontsize=13, fontweight="bold"
+            "Validation and documentation evidence", fontsize=11, fontweight="bold"
         )
         fig.tight_layout()
-        _save_figure(
+        digests[specs[2].filename] = _save_figure(
             fig, output_dir / specs[2].filename, specs[2].caption, inventory.source_hash
         )
         plt.close(fig)
-    return specs
+    return tuple(
+        replace(spec, sha256=digests[spec.filename]) for spec in specs
+    )
 
 
 def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -672,6 +740,10 @@ def write_figure_registry(
             raise ValueError(f"invalid figure specification: {spec!r}")
         if not spec.alt_text.strip():
             raise ValueError(f"invalid figure specification: {spec!r}")
+        if len(spec.sha256) != 64:
+            raise ValueError(
+                f"figure {spec.filename} carries no content digest: {spec.sha256!r}"
+            )
         if not (path.parent / spec.filename).is_file():
             raise FileNotFoundError(path.parent / spec.filename)
     _write_json(
