@@ -15,9 +15,11 @@ Unit workspace within `GEO-INFER-ACT`.
 - `test_dynamic_causal_model.py`
 - `test_ecological_model.py`
 - `test_free_energy.py`
+- `test_gaussian_contract.py`
 - `test_generative_efe.py`
 - `test_geospatial_ai.py`
 - `test_geospatial_runner_outputs.py`
+- `test_gnn_contract.py`
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_h3_adapter.py`

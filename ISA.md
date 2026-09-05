@@ -234,3 +234,21 @@ isolation before attributing them to code.
   to public `origin/main` succeeded; `git ls-remote origin refs/heads/main`
   matched local HEAD and the worktree was clean. Hosted verification remains
   the recurring CI-01 gate in TODO.md; local passes are not a hosted-CI claim.
+
+
+## GNN, space and time extension — September 2026
+
+Current extension criteria (publication receipt above remains historical):
+
+- [x] Gaussian diagnostics satisfy F = KL - expected log likelihood and agree with analytic evidence after exact filtering; invalid dimensions/covariances fail atomically.
+- [x] H3 state order is stable, sparse movement conserves probability at ordinary/pentagon/boundary cells, and dense conversion is bounded.
+- [x] UTC inference records preserve sequence and reject gaps, duplicates and naive timestamps before execution.
+- [x] GNN exports explicit single-factor A–E artifacts; ACT rejects unsupported semantics, preserves policy priors and conditions/propagates exactly once per timestamp.
+- [x] Separate GNN and GEO environments complete an artifact round trip with a source digest, real pymdp execution and repeatable traces.
+- [x] Task commits exclude concurrent unrelated edits; isolated affected-module tests, focused reruns and repository contracts have recorded evidence; remaining scope is concrete in TODO.
+
+Anti-criteria: no source execution, silent matrix repair, invented spatial labels,
+implicit timestep units, automatic conversion of continuous generators to discrete
+transitions, cross-checkout import paths, or publication of unrelated GNN changes.
+
+Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time_2026_09.md).

@@ -52,3 +52,18 @@ this ledger does not authorize full-region downloads or a package release.
 12. **TEST-01 (Completed)**: Added the parametric load benchmark harness (`tests/unit/test_parametric_load_benchmarks.py`) to the unified test runner's performance surface.
 
 The [September review ledger](GEO-INFER-TEST/docs/hardening_2026_09.md) records baseline, final checks, API migrations and verification limits.
+
+
+## GNN interoperability follow-up (September 2026)
+
+| ID | Scope | Acceptance evidence |
+| --- | --- | --- |
+| GNN-02 | Define a v2 linear Gaussian artifact with explicit discrete F/control/H/Q/R, units, initial mean/covariance and observations. Keep continuous generators distinct. | Cross-environment analytic filtering agrees for unequal state/observation/control dimensions; a continuous generator cannot enter a discrete F field. |
+| GNN-03 | Add factor/modal dependency axes and explicit policy enumeration before accepting multifactor or multi-step models. | Non-square, asymmetric fixtures preserve every axis; policy prior cardinality matches enumerated policies and joint posterior reference results. |
+| GNN-04 | Add a reviewed CI pairing of pinned GNN and GEO revisions using validate_gnn_interchange.py. | Both Python versions export and consume categorical/H3 models from independent locked environments; failures retain both revisions and artifact digests. |
+| GNN-05 | Extend the opt-in GNN exporter to Step 7 with explicit per-model physical-time/space options and source provenance. | Missing metadata fails the requested format; ordinary five-format pipeline defaults stay compatible. |
+| TIME-GNN-01 | Design irregular observations, missing intervals and action histories as a separate schedule contract. | Known analytic trajectories prove correct action/transition counts; gaps never trigger implicit resampling. |
+| SPACE-GNN-01 | Add sparse interchange and multiresolution transition contracts beyond the bounded dense v1 model. | No dense allocation on large grids, explicit parent/child conservation and audited boundary behavior. |
+| ACT-GNN-01 | Reconcile the legacy `ActiveInferenceModel.perceive`/`act` timing with the explicit GNN runner. `act` currently passes already-updated beliefs to a backend perception call; split policy-only evaluation from observation conditioning while preserving legacy model and tuple APIs. | An asymmetric likelihood and nonidentity B must produce one consistent posterior, policy calculation and evidence term per timestamp. Cover categorical counts, local fallback, repeated `act` calls and model replacement; do not silently change existing transition conventions. |
+| TEST-GNN-01 | Investigate the observed Python 3.12 PROJ SQLite disk-I/O failure during the combined ACT/SPACE/TIME test process. A fresh integrity probe and all 587 SPACE tests passed separately. | Capture a minimal import/order reproduction, loaded PROJ/GDAL/SQLite versions and file-descriptor state; correct a reproducible cause without suppressing CRS tests or declaring an unverified environment fix. |
+| INTEGRATE-GNN-01 | Merge the GEO and GNN topic branches with their concurrently advancing main checkouts. GNN's topic starts from the existing local fleet baseline `64d49355`. | Preserve concurrent parser/security/module refactors, review ancestry, rerun the paired contract command at the merged revisions, and verify both remote SHAs. |

@@ -37,6 +37,7 @@
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
 - `validate_documentation.py`
+- `validate_gnn_interchange.py`
 - `validate_h3_active_inference_contract.py`
 - `validate_logging_hygiene.py`
 - `validate_model_contracts.py`

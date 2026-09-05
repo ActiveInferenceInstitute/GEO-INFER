@@ -198,8 +198,19 @@ def run_pymdp_step(
     action_count: int = 3,
     random_seed: int = 0,
     action_selection: str = "deterministic",
+    policy_prior: Any = None,
+    strict: bool = False,
 ) -> PymdpStepResult:
-    """Run one real pymdp 1.0.3 categorical perception-policy step."""
+    """Run pymdp perception/policy inference, optionally rejecting all repairs.
+
+    ``strict`` preserves valid matrix zeros and rejects mismatched dimensions.
+    ``policy_prior`` is E over one-step policies, in action index order.
+    """
+    if strict and (
+        isinstance(action_count, bool)
+        or not isinstance(action_count, (int, np.integer))
+    ):
+        raise ValueError("Strict action_count must be a positive integer")
     action_count = _coerce_action_count(action_count)
     version = validate_pymdp_version()
     h3_versions = real_h3_version_metadata()
@@ -208,22 +219,65 @@ def run_pymdp_step(
     import jax.random as jr  # noqa: PLC0415
     from pymdp.agent import Agent  # noqa: PLC0415
 
-    observation_vector = _normalize_distribution(observation)
-    obs_model = _normalize_likelihood(observation_model)
-    obs_dim, state_dim = obs_model.shape
-    if observation_vector.size != obs_dim:
-        if observation_vector.size == state_dim or obs_dim == 1:
-            state_dim = int(observation_vector.size)
-            obs_dim = int(observation_vector.size)
-            obs_model = np.eye(state_dim, dtype=float)
-        else:
-            raise ValueError(
-                "Observation dimension does not match pymdp observation model: "
-                f"{observation_vector.size} != {obs_dim}"
-            )
-    trans_model = _normalize_transition(transition_model, state_dim, action_count)
-    preference_vector = _preferences_vector(preferences, obs_dim)
-    prior_vector = _belief_vector(prior, state_dim)
+    if strict:
+        obs_model = np.asarray(observation_model, dtype=float)
+        if obs_model.ndim != 2:
+            raise ValueError("Strict likelihood must be two-dimensional")
+        obs_dim, state_dim = obs_model.shape
+        trans_model = np.asarray(transition_model, dtype=float)
+        preference_vector = np.asarray(preferences, dtype=float)
+        prior_vector = np.asarray(prior, dtype=float)
+        observation_vector = np.asarray(observation, dtype=float)
+        for name, array, shape in (
+            ("A", obs_model, (obs_dim, state_dim)),
+            ("B", trans_model, (state_dim, state_dim, action_count)),
+            ("C", preference_vector, (obs_dim,)),
+            ("D", prior_vector, (state_dim,)),
+            ("observation", observation_vector, (obs_dim,)),
+        ):
+            if (
+                array.shape != shape
+                or array.size == 0
+                or not np.all(np.isfinite(array))
+            ):
+                raise ValueError(
+                    f"Strict {name} requires finite values with shape {shape}"
+                )
+            if name != "C" and (
+                np.any(array < 0)
+                or not np.allclose(array.sum(axis=0), 1, rtol=0, atol=1e-8)
+            ):
+                raise ValueError(
+                    f"Strict {name} requires normalized nonnegative probabilities"
+                )
+    else:
+        observation_vector = _normalize_distribution(observation)
+        obs_model = _normalize_likelihood(observation_model)
+        obs_dim, state_dim = obs_model.shape
+        if observation_vector.size != obs_dim:
+            if observation_vector.size == state_dim or obs_dim == 1:
+                state_dim = int(observation_vector.size)
+                obs_dim = int(observation_vector.size)
+                obs_model = np.eye(state_dim, dtype=float)
+            else:
+                raise ValueError(
+                    "Observation dimension does not match pymdp observation model: "
+                    f"{observation_vector.size} != {obs_dim}"
+                )
+        trans_model = _normalize_transition(transition_model, state_dim, action_count)
+        preference_vector = _preferences_vector(preferences, obs_dim)
+        prior_vector = _belief_vector(prior, state_dim)
+
+    policy_vector = None
+    if policy_prior is not None:
+        policy_vector = np.asarray(policy_prior, dtype=float)
+        if (
+            policy_vector.shape != (action_count,)
+            or not np.all(np.isfinite(policy_vector))
+            or np.any(policy_vector < 0)
+            or not np.isclose(policy_vector.sum(), 1, rtol=0, atol=1e-8)
+        ):
+            raise ValueError("Policy prior E must be a normalized action-count vector")
 
     with warnings.catch_warnings():
         warnings.filterwarnings(
@@ -236,6 +290,7 @@ def run_pymdp_step(
             B=[jnp.asarray(trans_model)],
             C=[jnp.asarray(preference_vector)],
             D=[jnp.asarray(prior_vector)],
+            E=None if policy_vector is None else jnp.asarray(policy_vector),
             num_controls=[action_count],
             categorical_obs=True,
             batch_size=1,

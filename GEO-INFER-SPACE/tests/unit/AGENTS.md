@@ -46,6 +46,7 @@
 - `test_spatial_statistics.py`
 - `test_spatial_utils.py`
 - `test_spatiotemporal.py`
+- `test_state_space.py`
 - `test_temporal_analytics.py`
 - `test_unified_backend.py`
 - `test_unified_backend_geojson_seam.py`

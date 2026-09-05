@@ -1,16 +1,16 @@
-# Agent Instructions: GEO-INFER-ACT/src/geo_infer_act/core
+# Agent Instructions: GEO-INFER-TEST/docs
 
 ## Scope
 
-- Owning module: `GEO-INFER-ACT`
-- Python package: `geo_infer_act`
-- Directory role: Core workspace within `GEO-INFER-ACT`.
+- Owning module: `GEO-INFER-TEST`
+- Python package: `geo_infer_test`
+- Directory role: Docs workspace within `GEO-INFER-TEST`.
 
 ## Capabilities
 
 - Maintains the tracked files and subdirectories listed below for this workspace.
 - Validates behavior with the command in the Validation section.
-- Integrates through `geo_infer_act` and the owning module's public contracts.
+- Integrates through `geo_infer_test` and the owning module's public contracts.
 
 ## Working Rules
 
@@ -21,24 +21,18 @@
 
 ## Local Contents
 
-- `__init__.py`
-- `active_inference.py`
-- `belief_updating.py`
-- `civic_intel.py`
-- `dynamic_causal_model.py`
-- `free_energy.py`
-- `generative_model.py`
-- `gnn_contract.py`
-- `markov_decision_process.py`
-- `policy_selection.py`
-- `spatial_agent.py`
-- `types.py`
-- `variational_inference.py`
+- `examples/`
+- `api_reference.md`
+- `getting_started.md`
+- `gnn_space_time_2026_09.md`
+- `hardening_2026_09.md`
+- `index.md`
 
 ## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
+uv sync --all-packages --all-extras
+uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST
 ```
 
 
