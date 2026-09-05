@@ -108,12 +108,52 @@ expected squared observation error plus effort minus weighted Gaussian mutual
 information. Repeated sensing conditions uncertainty to avoid double-counting
 information, while expected error uses unconditional trajectory uncertainty.
 
-## Scoped next work
+## Contract boundaries
 
-Version 1 rejects multifactor, multimodal, continuous GNN, nonlinear and
-multi-step-policy artifacts. It does not infer physical units from GNN's `Time`
-section, geographic meaning from state labels, or directions from H3 indices.
-Continuous GNN interoperability needs an explicit F/H/Q/R/control/units contract;
-multi-factor support needs declared dependency axes and policy enumeration.
-Irregular sampling needs explicit prediction counts or continuous-time models.
-See the scoped GNN items in the repository TODO before expanding the format.
+Version 1 remains limited to single-factor categorical models. Gaussian v2 below
+and the separate [factored interchange](gnn_factored_interchange.md) provide
+explicit additional model types. Factored artifacts require structured JSON with
+dependency axes and enumerated policies; they do not claim Markdown extraction
+or Step 7 support. Nonlinear models and implicit resampling remain unsupported.
+
+## Discrete-time linear Gaussian v2
+
+`geo_infer_act.core.gnn_gaussian_contract` provides `GaussianGNNArtifact` and
+`run_gaussian_gnn_inference`. This separate model type preserves categorical v1.
+The artifact declares `gnn-geo-infer/2`, `linear_gaussian`, dimensions
+`states`, `observations`, `controls`; explicit F/G/H/Q/R matrices; initial belief;
+physical coordinate units; discrete step seconds; and original-source digest.
+GNN owns extraction and serialization in `export.geo_infer_gaussian`.
+
+F is `(state,state)`, G `(state,control)`, H `(observation,state)`; Q and R are
+process and observation covariance. Q may be positive semidefinite; R and the
+initial covariance must be positive definite. All arrays are finite, explicit
+and bounded. Continuous-time generators, missing units, malformed axes,
+duplicate JSON keys and implicit noise defaults are rejected.
+
+```python
+from geo_infer_act.core.gnn_gaussian_contract import (
+    GaussianGNNArtifact, run_gaussian_gnn_inference,
+)
+
+artifact = GaussianGNNArtifact.load("gaussian.geo-infer.json")
+trace = run_gaussian_gnn_inference(artifact, [
+    {"timestamp": "2026-09-04T00:00:00Z", "observation": [1.0, 2.0], "control": [0.25]},
+    {"timestamp": "2026-09-04T00:00:02Z", "observation": [2.0, 1.0], "control": [-0.5]},
+])
+```
+
+The initial prior belongs to the first timestamp. Each record conditions once
+using a linear solve and Joseph covariance update, records negative log evidence,
+and applies the supplied control once to obtain the next prior. F/G/Q already
+represent the declared physical interval; they are not Euler-discretized again.
+This filtering runner evaluates supplied controls and does not select a policy.
+The trace records prior/posterior/next-prior mean and covariance plus controls,
+observations and timestamps, supporting direct analytic replay.
+
+The GNN fixture `src/tests/export/gaussian_rectangular.md` uses three state
+coordinates, two observations and one control. Corresponding ACT regressions in
+`test_gnn_gaussian_contract.py` prove exact initial conditioning, unequal axes,
+control timing, evidence and covariance, immutable JSON snapshots and rejection
+before malformed dense allocation. Cross-repository validation uses separate
+locked Python environments.

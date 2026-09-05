@@ -33,6 +33,7 @@
 - `h3_policy.py`
 - `interfaces.py`
 - `place_analyzer.py`
+- `sparse_transition.py`
 - `spatial_indexing.py`
 - `spatial_methods.py`
 - `spatial_processor.py`

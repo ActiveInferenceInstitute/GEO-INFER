@@ -5,6 +5,7 @@ Core workspace within `GEO-INFER-TIME`.
 ## Contents
 
 - `__init__.py`
+- `action_schedule.py`
 - `advanced_forecasting.py`
 - `analysis.py`
 - `event_detection.py`
@@ -18,6 +19,8 @@ Core workspace within `GEO-INFER-TIME`.
 
 ## Public Interface
 
+- `action_schedule.py:ScheduledObservation` (class)
+- `action_schedule.py:action_observation_schedule` (function)
 - `advanced_forecasting.py:AdvancedForecastingEngine` (class)
 - `analysis.py:AnomalyType` (class)
 - `analysis.py:Anomaly` (class)

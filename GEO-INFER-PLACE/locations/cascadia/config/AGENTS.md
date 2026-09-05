@@ -30,7 +30,16 @@
 - `cascadia_config.yaml`
 - `cascadia_ecoregions.yaml`
 - `cascadia_indigenous_territories.yaml`
+- `cascadia_layers.provenance.json`
+- `cascadia_major_watersheds.geojson`
+- `cascadia_regional_source_metadata.json`
 - `cascadia_salmon_esus.yaml`
+- `cascadia_subduction_zone.geojson`
+- `cascadia_tectonics.metadata.xml`
+- `cascadia_tectonics.source.json`
+- `cascadia_volcanoes.geojson`
+- `cascadia_volcanoes.source.json`
+- `cascadia_watersheds.source.json`
 - `county_boundaries.yaml`
 - `data_cleanup_config.json`
 - `data_urls.json`

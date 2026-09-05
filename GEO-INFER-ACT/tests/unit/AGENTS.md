@@ -37,6 +37,8 @@
 - `test_geospatial_ai.py`
 - `test_geospatial_runner_outputs.py`
 - `test_gnn_contract.py`
+- `test_gnn_factored_contract.py`
+- `test_gnn_gaussian_contract.py`
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_h3_adapter.py`
@@ -46,6 +48,7 @@
 - `test_model_contracts.py`
 - `test_models.py`
 - `test_nested_h3_active_inference.py`
+- `test_perception_policy_timing.py`
 - `test_policy_decomposition.py`
 - `test_policy_selection.py`
 - `test_pymdp_h3_backend.py`
@@ -56,6 +59,7 @@
 - `test_spatial_trace_diagnostics.py`
 - `test_utils.py`
 - `test_variational_inference.py`
+- `factored_example.json`
 
 ## Validation
 

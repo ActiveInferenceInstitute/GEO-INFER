@@ -10,9 +10,25 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import platform
+import sys
 
 import numpy as np
 from geo_infer_act.core.gnn_contract import GNNArtifact, run_gnn_inference
+
+
+def revision_receipt(root: Path) -> dict:
+    """Identify a checkout and expose local modifications in verification receipts."""
+    return {
+        "revision": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True, timeout=10
+        ).strip(),
+        "dirty": bool(
+            subprocess.check_output(
+                ["git", "status", "--porcelain"], cwd=root, text=True, timeout=10
+            ).strip()
+        ),
+    }
 
 
 def validate_interchange(gnn_repo: Path, gnn_python: Path) -> dict:
@@ -147,7 +163,130 @@ DiscreteTime=t
         assert spatial.to_dict()["space"]["state_ids"] == cells
         np.testing.assert_array_equal(spatial.to_dict()["matrices"]["B"], expected_B)
         spatial_trace = run_gnn_inference(spatial, records[:2], random_seed=42)
+        # A non-square Gaussian fixture catches transposed observation/control
+        # axes and accidental Euler integration of a discrete transition.
+        from geo_infer_act.core.gnn_gaussian_contract import (
+            GaussianGNNArtifact,
+            run_gaussian_gnn_inference,
+        )
+
+        gaussian_source = root / "src/tests/export/gaussian_rectangular.md"
+        units_path = Path(temp) / "units.json"
+        units_path.write_text(
+            json.dumps(
+                {
+                    "states": ["m", "m/s", "K"],
+                    "observations": ["m", "m/s"],
+                    "controls": ["N"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        gaussian_path = Path(temp) / "gaussian.json"
+        subprocess.run(
+            [
+                str(interpreter),
+                "-m",
+                "export.geo_infer",
+                str(gaussian_source),
+                str(gaussian_path),
+                "--step-seconds",
+                "2",
+                "--model-type",
+                "linear_gaussian",
+                "--units",
+                str(units_path),
+            ],
+            cwd=root,
+            env=environment,
+            check=True,
+            timeout=120,
+        )
+        gaussian = GaussianGNNArtifact.load(gaussian_path)
+        assert (
+            gaussian.to_dict()["provenance"]["source_sha256"]
+            == hashlib.sha256(gaussian_source.read_bytes()).hexdigest()
+        )
+        gaussian_records = [
+            {
+                "timestamp": "2026-09-04T00:00:00Z",
+                "observation": [1, 2],
+                "control": [0.25],
+            },
+            {
+                "timestamp": "2026-09-04T00:00:02Z",
+                "observation": [0, 1],
+                "control": [0],
+            },
+        ]
+        gaussian_trace = run_gaussian_gnn_inference(gaussian, gaussian_records)
+        first_gaussian = gaussian_trace["steps"][0]
+        np.testing.assert_allclose(first_gaussian["posterior_mean"], [2 / 3, 4 / 3, 0])
+        np.testing.assert_allclose(
+            first_gaussian["posterior_covariance"], np.diag([1 / 3, 4 / 3, 9])
+        )
+        np.testing.assert_allclose(
+            first_gaussian["next_prior_mean"], [19 / 12, 11 / 6, 0]
+        )
+        np.testing.assert_allclose(
+            first_gaussian["next_prior_covariance"],
+            np.diag([43 / 30, 43 / 30, 47 / 20]),
+        )
+        assert gaussian_trace == run_gaussian_gnn_inference(gaussian, gaussian_records)
+        from geo_infer_act.core.gnn_factored_contract import (
+            FactoredGNNArtifact,
+            infer_factored_step,
+        )
+
+        factored_source = root / "src/tests/export/factored_example.json"
+        assert (
+            factored_source.read_bytes()
+            == (
+                Path(__file__).resolve().parents[1]
+                / "GEO-INFER-ACT/tests/unit/factored_example.json"
+            ).read_bytes()
+        )
+        factored_path = Path(temp) / "factored.json"
+        subprocess.run(
+            [
+                str(interpreter),
+                "-m",
+                "export.geo_infer_factored",
+                str(factored_source),
+                str(factored_path),
+                "--step-seconds",
+                "60",
+            ],
+            cwd=root,
+            env=environment,
+            check=True,
+            timeout=120,
+        )
+        factored = FactoredGNNArtifact.load(factored_path)
+        factored_data = factored.to_dict()
+        assert (
+            factored_data["provenance"]["source_sha256"]
+            == hashlib.sha256(factored_source.read_bytes()).hexdigest()
+        )
+        factored_trace = infer_factored_step(factored, [0, 2])
+        a0, a1 = (np.asarray(m["likelihood"]) for m in factored_data["modalities"])
+        likelihood = np.array(
+            [a0[0, s0] * a1[2, s1, s0] for s0 in range(2) for s1 in range(3)]
+        )
+        expected = np.asarray(factored_data["initial_joint"]) * likelihood
+        expected /= expected.sum()
+        np.testing.assert_allclose(factored_trace["posterior"], expected)
+        assert len(factored_trace["policy_posterior"]) == len(factored_data["policies"])
+        assert factored_trace == infer_factored_step(factored, [0, 2])
         return dict(
+            geo=revision_receipt(Path(__file__).resolve().parents[1]),
+            gnn=revision_receipt(root),
+            python=sys.version,
+            platform=platform.platform(),
+            gaussian_artifact_sha256=gaussian.digest,
+            gaussian_trace=gaussian_trace,
+            factored_artifact_sha256=factored.digest,
+            factored_trace=factored_trace,
             h3_state_count=n,
             h3_artifact_sha256=spatial.digest,
             h3_trace=spatial_trace,

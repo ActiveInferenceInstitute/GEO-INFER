@@ -1,5 +1,5 @@
 ---
-phase: complete
+phase: verifying
 ---
 # GEO-INFER Ideal State Artifact
 
@@ -252,3 +252,26 @@ implicit timestep units, automatic conversion of continuous generators to discre
 transitions, cross-checkout import paths, or publication of unrelated GNN changes.
 
 Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time_2026_09.md).
+# Paired contract expansion and PR verification
+
+- phase: verifying
+- Baseline: GEO `634b61b987f744ffc2b5499c3a840824891c4f3d`, GNN
+  `92255b125b46fd64de45e2628fce4c8e9c5f89d2`; both isolated worktrees clean.
+  Fresh affected GEO and full GNN baseline suites started before implementation.
+- [x] ISC-GNN-7: legacy policy evaluation conditions each observation once;
+  analytic timing regressions and full ACT suite pass.
+- [x] ISC-GNN-8: separate Gaussian/factored artifacts preserve declared axes,
+  dynamics and policy cardinality; independent producer/consumer checks pass.
+- [x] ISC-GNN-9: sparse spatial transfers conserve mass and irregular schedules
+  preserve explicit action counts; bounded-allocation tests pass.
+- [x] ISC-GNN-10: opt-in Step 7 preserves source provenance and existing defaults;
+  missing physical metadata fails visibly.
+- [ ] ISC-GNN-11: pinned paired CI and Windows import-probe workflows run on
+  the published revisions; actual hosted results are recorded separately.
+- [ ] ISC-GNN-12: both informative PRs identify ancestry, validation and remaining
+  external dependencies; pushed branch SHAs match remote refs.
+- Anti: preserve concurrent original checkouts, reject silent matrix repair,
+  do not equate CPU fallback with physical GPU validation, and never mark an
+  unavailable external verification complete.
+
+Verification: [continuation evidence](GEO-INFER-TEST/docs/gnn_continuation_2026_09.md).
