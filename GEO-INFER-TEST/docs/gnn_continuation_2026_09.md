@@ -186,3 +186,32 @@ the existing Windows source/wheel import-probe results cover a different tool.
 passed on the exact merge commit `903b9c3391ce277292fd1f3d5626e5fbd66d354a`,
 including all three Python jobs and security. This is post-merge evidence,
 separate from the earlier green PR runs.
+
+## Completed main integration
+
+GEO PR 8 merged at `6f15c1000c258accdc765c6d05be7cd49ac0b285` after all nine checks
+passed on `2241e645`. The merge tree is identical to that validated PR head.
+Both Python 3.11 and 3.12 passed 7497 unit, 1300 integration and 52 performance
+tests (8849 each), with zero failures/errors/skips, plus both H3 validators.
+[Hosted category receipts](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944569278)
+and [all 44 isolated wheel receipts](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944647126)
+cover the final packaged source, including the supervised regional worker.
+
+[The paired run](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944569311)
+verifies clean GEO `2241e645` against merged GNN `903b9c3391ce277292fd1f3d5626e5fbd66d354a`.
+All four artifact hashes and discrete trace values match exactly across Python
+versions; every numerical trace leaf is finite and agrees within absolute
+1e-7 (largest difference 5.96e-8, with no relative tolerance). Replay within
+each runtime is deterministic. Local committed runs additionally produced
+identical traces; the hosted cross-runtime result is numerical agreement.
+
+Both PR merge SHAs matched remote main and the isolated checkouts. Original
+concurrent working edits were preserved. The documentation closeout adds no
+packaged source changes; subsequent main workflow receipts are linked from
+the merged PR and retained by the main-triggered workflows.
+
+A final bounded Interceptor attempt could not establish native Enter behavior:
+the tool reported success but the page received no key/click event. Newly
+created window IDs disappeared before resizing, so a real narrow screenshot
+could not be captured without affecting an unrelated window. Owned tabs and
+the test server were closed. These tool limitations leave DOCS-01 deferred.
